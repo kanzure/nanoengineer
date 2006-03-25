@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 bond_constants.py -- constants for higher-order bonds, and related simple functions.
 
@@ -187,13 +187,10 @@ def _compute_bond_params(atomtype1, atomtype2, v6):
     rcov2 = atomtype2.rcovalent
     rcovsum = rcov1 + rcov2
     try:
-        # try to adjust rcov1 and rcov2 to make their sum the equilibrium bond length
-        assert 0, "disabled for initial commit"
-        #bruce 060324 experiment re bug 900 -- rescale rcov1, rcov2 to match proper bond length
-        #e could use cached table as optim
+        # try to adjust rcov1 and rcov2 to make their sum the equilibrium bond length [bruce 060324 re bug 900]
         elno1 = atomtype1.element.eltnum # note: both atoms and atomtypes have .element
         elno2 = atomtype2.element.eltnum
-        ltr = bond_letter_from_v6(self.v6) #e could optim this (don't need to)
+        ltr = bond_letter_from_v6(v6)
         import sim
         pm = sim.getEquilibriumDistanceForBond(elno1, elno2, ltr) # C-C is (6, 6, '1')
         assert pm > 2.0 # 1.0 means an error occurred; 2.0 is still ridiculously low; btw what will happen for He-He??
@@ -205,11 +202,16 @@ def _compute_bond_params(atomtype1, atomtype2, v6):
         pass
     else:
         if not rcovsum:
+            if platform.atom_debug:
+                print "debug: _compute_bond_params for nonsense bond:"
             rcov1 = rcov2 = 0.5 # arbitrary
             rcovsum = rcov1 + rcov2
         ratio = nicelen / rcovsum
         rcov1 *= ratio
         rcov2 *= ratio
+        if platform.atom_debug:
+            print "debug: _compute_bond_params adjusts %s-%s-%s length by %f" % \
+                  (atomtype1.fullname, ltr, atomtype2.fullname, ratio)
     return rcov1, rcov2
         
 # ==
