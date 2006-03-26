@@ -31,7 +31,7 @@ from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
 from jigs import Jig
-from dimensions import drawLinearDimension
+from dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension
 
 # == Measurement Jigs
 
@@ -147,7 +147,7 @@ class MeasureDistance(MeasurementJig):
         mecheng_style_dimension = debug_pref("mech eng dimensions",
                                              Choice_boolean_False, non_debug=True)
         if mecheng_style_dimension:
-            drawLinearDimension(self, color, self.assy.o.right, self.assy.o.up,
+            drawLinearDimension(color, self.assy.o.right, self.assy.o.up,
                                 self.atoms[0].posn(), self.atoms[1].posn(), text)
         else:
             drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
@@ -189,10 +189,22 @@ class MeasureAngle(MeasurementJig):
         A label displaying the angle is included.
         '''
         Jig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
+
+        text = "%.2f" % self.get_angle()
+        # mechanical engineering style dimensions
+        mecheng_style_dimension = debug_pref("mech eng dimensions",
+                                             Choice_boolean_False, non_debug=True)
+        if mecheng_style_dimension:
+            drawAngleDimension(color, self.assy.o.right, self.assy.o.up,
+                               self.atoms[0].posn(), self.atoms[1].posn(), self.atoms[2].posn(),
+                               text)
+        else:
+            drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
+            drawline(color, self.atoms[1].posn(), self.atoms[2].posn())
+            self._drawtext(text, color)
+
+
             
-        drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
-        drawline(color, self.atoms[1].posn(), self.atoms[2].posn())
-        self._drawtext("%.2f" % self.get_angle(), color)
     
     mmp_record_name = "mangle"
     
@@ -237,11 +249,21 @@ class MeasureDihedral(MeasurementJig):
         A label displaying the dihedral is included.
         '''
         Jig._draw_jig(self, glpane, color, highlighted)  # draw boxes around each of the jig's atoms.
-            
-        drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
-        drawline(color, self.atoms[1].posn(), self.atoms[2].posn())
-        drawline(color, self.atoms[2].posn(), self.atoms[3].posn())
-        self._drawtext("%.2f" % self.get_dihedral(), color)
+
+        text = "%.2f" % self.get_dihedral()
+        # mechanical engineering style dimensions
+        mecheng_style_dimension = debug_pref("mech eng dimensions",
+                                             Choice_boolean_False, non_debug=True)
+        if mecheng_style_dimension:
+            drawDihedralDimension(color, self.assy.o.right, self.assy.o.up,
+                                  self.atoms[0].posn(), self.atoms[1].posn(),
+                                  self.atoms[2].posn(), self.atoms[3].posn(),
+                                  text)
+        else:
+            drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
+            drawline(color, self.atoms[1].posn(), self.atoms[2].posn())
+            drawline(color, self.atoms[2].posn(), self.atoms[3].posn())
+            self._drawtext(text, color)
     
     mmp_record_name = "mdihedral"
     

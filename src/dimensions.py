@@ -142,25 +142,22 @@ def drawString(str, color, xfm):
         drawCharacter(str[i], color, xfm2)
 
 class CylindricalCoordinates:
-    def __init__(self, point0, point1, right, up):
+    def __init__(self, point0, z, uhint, uhint2):
         # u and v and zn are unit vectors
         # z is NOT a unit vector
         self.p0 = point0
-        self.p1 = point1
-        self.z = z = point1 - point0
+        self.p1 = point1 = point0 + z
+        self.z = z
         zlen = vlen(z)
         if zlen:
             self.zinv = 1.0 / zlen
         else:
             self.zinv = 1.
         self.zn = zn = norm(z)
-        u = cross(cross(z, up), z)
+        u = norm(uhint - (dot(uhint, z) / zlen**2) * z)
         if vlen(u) < 1.0e-4:
-            u = cross(cross(z, right), z)
-        u = norm(u)
+            u = norm(uhint2 - (dot(uhint2, z) / zlen**2) * z)
         v = cross(zn, u)
-        if dot(u, up) < 0:
-            u, v = -u, -v
         self.u = u
         self.v = v
     def rtz(self, pt):
@@ -176,9 +173,18 @@ class CylindricalCoordinates:
         dv = (r * sin(t)) * self.v
         dz = z * self.z
         return self.p0 + du + dv + dz
+    def drawLine(self, color, rtz1, rtz2):
+        drawline(color, self.xyz(rtz1), self.xyz(rtz2))
+    def drawArc(self, color, r, theta1, theta2, z):
+        n = 50
+        step = (1.0 * theta2 - theta1) / n
+        for i in range(n):
+            t = theta1 + step
+            self.drawLine(color, (r, theta1, z), (r, t, z))
+            theta1 = t
 
-def drawLinearDimension(owner, color, right, up, p0, p1, text):
-    csys = CylindricalCoordinates(p0, p1, right, up)
+def drawLinearDimension(color, right, up, p0, p1, text):
+    csys = CylindricalCoordinates(p0, p1 - p0, up, right)
     e0 = csys.xyz((10, 0, 0))
     e1 = csys.xyz((10, 0, 1))
     drawline(color, p0, e0)
@@ -205,3 +211,75 @@ def drawLinearDimension(owner, color, right, up, p0, p1, text):
         def tfm(x, y):
             return csys.xyz((10 + y / 7., 0, 0.9 - csys.zinv * x / 5.))
     drawString(text, color, tfm)
+
+def drawAngleDimension(color, right, up, p0, p1, p2, text):
+    h = 1.0e-3
+    z = cross(p0 - p1, p2 - p1)
+    r = max(vlen(p0 - p1), vlen(p2 - p1))
+    csys = CylindricalCoordinates(p1, z, up, right)
+    theta1 = csys.rtz(p0)[1]
+    theta2 = csys.rtz(p2)[1]
+    if theta2 < theta1 - math.pi:
+        theta2 += 2 * math.pi
+    elif theta2 > theta1 + math.pi:
+        theta2 -= 2 * math.pi
+    if theta2 < theta1:
+        theta1, theta2 = theta2, theta1
+    e0 = csys.xyz((r + 10, theta1, 0))
+    e1 = csys.xyz((r + 10, theta2, 0))
+    drawline(color, p1, e0)
+    drawline(color, p1, e1)
+    csys.drawArc(color, r + 9.5, theta1, theta2, 0)
+    # draw some arrowheads
+    e00 = csys.xyz((r + 9.5, theta1, 0))
+    e10 = csys.xyz((r + 9.5, theta2, 0))
+    e0a = norm(csys.xyz((r + 9.5, theta1 + h, 0)) - e00)
+    e0b = norm(csys.xyz((r + 10.5, theta1, 0)) - e00)
+    e1a = norm(csys.xyz((r + 9.5, theta2 + h, 0)) - e10)
+    e1b = norm(csys.xyz((r + 10.5, theta2, 0)) - e10)
+    drawline(color, e00, e00 + e0a + 0.25 * e0b)
+    drawline(color, e00, e00 + e0a - 0.25 * e0b)
+    drawline(color, e10, e10 - e1a + 0.25 * e1b)
+    drawline(color, e10, e10 - e1a - 0.25 * e1b)
+
+    midangle = (theta1 + theta2) / 2
+    tmidpoint = csys.xyz((r + 10, midangle, 0))
+    textx = norm(csys.xyz((r + 10, midangle + h, 0)) - tmidpoint)
+    texty = norm(csys.xyz((r + 10 + h, midangle, 0)) - tmidpoint)
+
+    # make sure the text runs from left to right
+    if dot(textx, right) < 0:
+        textx = -textx
+
+    # make sure the text isn't upside-down
+    outOfScreen = cross(right, up)
+    textForward = cross(textx, texty)
+    if dot(outOfScreen, textForward) < 0:
+        tmidpoint = csys.xyz((r + 11, midangle, 0))
+        texty = -texty
+
+    textxyz = tmidpoint - (0.5 * len(text)) * textx
+
+    def tfm(x, y):
+        x = (x / 5.) * textx
+        y = (y / 7.) * texty
+        return textxyz + x + y
+    drawString(text, color, tfm)
+
+
+def drawDihedralDimension(color, right, up, p0, p1, p2, p3, text):
+    # Draw a frame of lines that shows how the four atoms are connected
+    # to the dihedral angle
+    csys = CylindricalCoordinates(p1, p2 - p1, up, right)
+    r1, theta1, z1 = csys.rtz(p0)
+    r2, theta2, z2 = csys.rtz(p3)
+    e0a = csys.xyz((r1, theta1, 0.5))
+    e1a = csys.xyz((r2, theta2, 0.5))
+    drawline(color, p1, p0)
+    drawline(color, p0, e0a)
+    drawline(color, p3, e1a)
+    drawline(color, p2, p3)
+    drawline(color, p1, p2)
+    # Use the existing angle drawing routine to finish up
+    drawAngleDimension(color, right, up,
+                       e0a, (p1 + p2) / 2, e1a, text)
