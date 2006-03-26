@@ -4,7 +4,7 @@ README
 VERSION/INFO
 =============
  
-  This is nanoENGINEER-1 v0.0.7 (Alpha 7) as of March 22, 2006.
+  This is nanoENGINEER-1 v0.0.7 (Alpha 7) as of March 31, 2006.
   See the COPYRIGHT section for distribution and copyright notices.
   Send all bug reports and questions for nanoENGINEER-1 to 
   support@nanorex.com.
