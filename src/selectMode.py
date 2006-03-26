@@ -2013,14 +2013,20 @@ class selectAtomsMode(selectMode):
         '''keypress event handler for selectAtomsMode.
         '''
         from MWsemantics import eCCBtab2
+        
+        if self.o.mode.modename in ['SELECTATOMS']: 
+            # Add mode names above to support atom filtering in subclasses.
+            # Pressing Escape clears the selection filter.
+            if key == Qt.Key_Escape and self.w.elemFilterComboBox.currentItem():
+                # Clear the selection filter, but not the current selection. Fixes bug 1623. mark 060326
+                self.set_selection_filter(0) # disable selection filter (sets current item to "All Elements").
+                return
             
         basicMode.keyPress(self, key)
 
         if self.o.mode.modename in ['SELECTATOMS']: 
-            # Add the mode name to this list to support filtering using keypresses to select element type.
-            if key == Qt.Key_Escape: # Disable the selection filter.  mark 060301.
-                self.set_selection_filter(0) # disable selection filter (sets current item to "All Elements").  mark 060301.
-                return
+            # Add mode names above to support atom filtering in subclasses.
+            # Pressing a valid key activates the selection filter and sets the element type.
             for sym, code, num in elemKeyTab:
                 if key == code:
                     line = eCCBtab2[num] + 1
