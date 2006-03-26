@@ -1454,7 +1454,7 @@ def create_whats_this_descriptions_for_depositMode(w):
 
     mmkitText = "<u><b>Modeling Kit</b></u><br>"\
                        "<p><img source=\"mmkiticon\"><br> "\
-                       "Opens the Modeling Kit, which aids in atom and clipboard selection."\
+                       "Opens the Molecular Modeling Kit (MMKit)."\
                        "</p>"
 
     QMimeSourceFactory.defaultFactory().setPixmap( "mmkiticon",

@@ -78,6 +78,11 @@ class MMKit(MMKitDialog):
             library_pm = imagename_to_pixmap("library.png")
             self.mmkit_tab.setTabIconSet ( self.libraryPage, QIconSet(library_pm))
         
+        # Tab tooltips. mark 060326
+        self.mmkit_tab.setTabToolTip (self.atomsPage, 'Atoms')
+        self.mmkit_tab.setTabToolTip (self.clipboardPage, 'Clipboard')
+        self.mmkit_tab.setTabToolTip (self.libraryPage, 'Part Library')
+        
         self._setNewView('MMKitView')
         
         # Set current element in element button group.

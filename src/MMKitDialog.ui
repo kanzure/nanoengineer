@@ -277,10 +277,16 @@
         </palette>
     </property>
     <property name="caption">
-        <string>Modeling Kit</string>
+        <string>MMKit</string>
     </property>
     <property name="icon">
         <pixmap>image0</pixmap>
+    </property>
+    <property name="toolTip" stdset="0">
+        <string>Molecular Modeling Kit</string>
+    </property>
+    <property name="whatsThis" stdset="0">
+        <string>Molecular Modeling Kit</string>
     </property>
     <vbox>
         <property name="name">
