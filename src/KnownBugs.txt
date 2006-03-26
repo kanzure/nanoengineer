@@ -63,9 +63,14 @@ VARIOUS DELETE OPERATIONS
 1. If you select the part icon (top icon in the model tree) and hit the delete key (or click Delete), the entire part will be deleted without asking the user for confirmation. Hit Undo to restore the previous state if you accidentally delete the whole model (147)  
 2. Any file currently opened by nanoENGINEER-1 can be manually deleted from the computer without any warning message. (215) 
 
-CHUNK SELECTION 
+SELECTION 
 
 4. Selection: Can not select a chunk by clicking on any of the bonds in that chunk. (11) 
+
+-Selection wireframes won't be displayed or will act weirdly on some platforms.This could be due to the old version graphics driver on your machine. Example: Some Windows XP users with Intel Integrated 855 graphics reported this problem which went away after installing an updated version of that driver (Intel 855 chipset driver 6.14.10.4497.). It is highly recommended that you use up-to-date drivers to avoid this issue (1720)
+
+- Contract Selection  doesn’t work correctly in some cases. Also the What’s this text doesn’t clearly explain this feature. (1358)
+
 
  
 BUILD MODE
@@ -138,11 +143,7 @@ NAMING
  
 CURSOR AND DISPLAY RELATED BUGS
  
-35. Selection wireframes won't be displayed or will act weirdly on some platforms.This could be due to the old version graphics driver on your machine. Example: Some  Windows XP users with Intel Integrated 855 graphics reported this problem which went away after installing an updated version of that driver (Intel 855 chipset driver 6.14.10.4497.). It is highly recommended that you use up-to-date drivers to avoid this issue (1720)
-
-
 35. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck. Usually, if you press and release the Shift or Ctrl/Cmd key, the appropriate cursor is restored.(113, 158,404)  
-36. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)  
 37. Display: Larger atoms can obscure bondpoints when displayed in CPK mode. (258)  
 38. Display: Bondpoints are not seen in sp, sp2 Carbon and sp2 Oxygen, when these are represented with Van der Waals display (656)  
 39. Display: The front clipping plane will sometimes clip objects that should not be clipped  
@@ -152,7 +153,6 @@ CURSOR AND DISPLAY RELATED BUGS
 DIALOGS AND DASHBOARD
  
 42. Users operating ne-1 with a low screen resolution and large font size report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)  
-43. Zoom Tool: Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
  
 POVRAY RENDERING
  
@@ -165,8 +165,10 @@ MISCELLANEOUS
  
 48. User can not save exclusive features of nanoENGINEER-1 into the PDB file format. Some examples of such ‘MMP file only’ features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  ne-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)  
 49. Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results. (362)  
-50. Jigs: Rotary and Linear motors do not move with the chunks they are attached to. However, after moving the chunks, you can reposition the motor by right clicking on the motor name in the Model Tree and then using context menu option ‘recenter on atoms’    (168) 
+50. Jigs: Rotary and Linear motors do not move with the chunks they are attached to. However, after moving the chunks, you can reposition the motor by right clicking on the motor name in the Model Tree  and then using context menu option ‘recenter on atoms’    (168) 
+50. Some times program crashes after executing File >Exit command. (1714)
 51. Bond lengths: After minimize operation the bonds between some elements are shown stretched. This is because bond lengths of some elements used in ne-1 simulator are slightly different than the ones used in ne-1's CAD code. This will be fixed in a future release. (900) 
+52. Zoom/Pan/Rotate Tools: If you click on Zoom, Pan or Rotate tools while in Build, the MMKit and other Build features will become temporarily unavailable while you use these tools. (1518)
  
  
 WINDOWS ONLY BUGS
@@ -184,8 +186,7 @@ MACINTOSH ONLY BUGS
 4. On Mac OS X Tiger, the tool buttons don’t look ‘pressed’. On other platforms this is not a problem. ne-1 provides a workaround for this. In the 3D Workspace (i.e. Graphics area), press Shift and Option keys and do Command click to bring up the debug menu. Now select the "Mac OS 10.4 QToolbutton Workaround" command from this debug menu. This will resolve the issue. (878) 
  
 LINUX ONLY BUGS
- 
-1. System crashes while accessing wiki help via the URL provided in What’s this text of that mode. Workaround is to hit F1 key and follow the URL provided in the Wiki Help dialog (1447)
 
+1. System crashes while accessing wiki help via the URL provided in What’s this text of that mode. Workaround is to hit F1 key and follow the URL provided in the Wiki Help dialog (1447)
 2.Opening a plot file from the plot tool dialogs needs ‘kwrite’ editor which is available with only with KDE desktop (434)  
 3. Modeling Kit in Build Mode: When you enter build mode, this dialog first appears in the middle of the 3D workspace (graphics area)  for a fraction of second and then it is moved to the left hand side of the ne-1 main window. The amount of time this dialog stays inside the 3D workspace depends on the model size. (844) 
