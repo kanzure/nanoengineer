@@ -37,29 +37,44 @@ GAMESS Jig
 -- Certain GAMESS optimization runs or Energy calculation can take very long time (hours/days). While a GAMESS job is being performed, user is not allowed to do any other operation in that session of ne-1. User must wait till the GAMESS job is finished or opt to terminate it by hitting ‘Cancel’ button in the progress bar. 
 -- Also, certain GAMESS run may create large output files. So make sure that your system has enough disk space to handle such runs. ALL GAMESS jobs are save inside the ‘Job Manager’ directory. (User’s home directory/ Nanorex/Job Manager) (742)
  
-Miscellaneous
+ESP IMAGE / NANAO-HIVE
+9. ESP Image jig is not supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided that a correct version of NanoHive is installed. In general ESP image is partially supported and has many known bugs. These issues will be fixed in an upcoming release of nanoENGINEER-1. 
+
+
+
+MISCELLANEOUS
  
 9. The symmetry information for a selected chunk cannot be obtained. (261) 
 10. Unicode characters are not supported for naming the items in the model tree. (474)
+11. nanoENGINEER-1 Alpha7 is tested and supported only on Windows XP, MAC OS X 10.3.X, 10.4 and Mandrake Linux 10.0, 10.1. There are some known issues on other operating systems such as Fedora Core 4, Gentoo Linux (e.g. the program hangs or some display issues etc) (1049, 1058, 1201)
  
  
 KNOWN BUGS (ALL PLATFORMS)
- 
-Various Delete Operations
+
+ESP IMAGE 
+
+ESP image has many known bugs or unimplemented features. Some Examples: 
+- ESP calculations on some structures is not done and a black ESP image is created
+- Program switches to Select Atoms mode while inserting an ESP jig 
+- Some bugs in the ESP dialog box options and implementation
+
+VARIOUS DELETE OPERATIONS
  
 1. If you select the part icon (top icon in the model tree) and hit the delete key (or click Delete), the entire part will be deleted without asking the user for confirmation. Hit Undo to restore the previous state if you accidentally delete the whole model (147)  
 2. Any file currently opened by nanoENGINEER-1 can be manually deleted from the computer without any warning message. (215) 
 
-Selection Modes (Select Atoms and Select Chunks)
+CHUNK SELECTION 
 
 4. Selection: Can not select a chunk by clicking on any of the bonds in that chunk. (11) 
 
  
-Build Mode
+BUILD MODE
+
 6. Build: While in this mode, you can not delete an atom in the 3D workspace using Shift + Ctrl + left click (Shift + Cmd +click on MAC) operation if that atom is represented in ‘lines display’. The atom center doesn’t get highlighted while in lines display. For the same reason, you can not move the atom using left mouse drag. Simple workaround exists. Change the display representation to Tubes or CPK or Ball&Stick , then highlight the atom center and do Shift +Ctrl+ left click or left drag operation.(715-2)  
+
 7. Build/ Bond Order : The context menu ‘Reposition Bondpoints’ of an atom reorients the bondpoints but while doing so, it makes the bondpoint type as single.  Let’s assume that a Carbon atom with (sp2) hybridization is deposited in build mode. Now you highlight one of its bondpoints, right click and select ‘double bond’ from the context menu. The representation of the bondpoint will change to a ‘double bondpoint’. Now, if you highlight the atom center, right click and select ‘reposition bondpoints’, it will clear the ‘double bondpoint’ representation you just made and thus, all three bondpoints of (sp2) carbon will be represented as single bond types. (839) 
  
-Modeling Kit in Build Mode
+MODELING KIT IN BUILD MODE
  
 This feature has some known bugs. Also refer to Linux Only Bugs and ‘Dialogs and Dashboards’ bug sections for some related issues. 
  
@@ -68,12 +83,12 @@ This feature has some known bugs. Also refer to Linux Only Bugs and ‘Dialogs and
 11. Modeling Kit: If the ‘Clipboard’ tab of Build mode’s Modeling Kit dialog is open and then you hit a keyboard modifier key (e.g. C, ‘S’, ‘1’ etc), the program is supposed to switch back to ‘Atoms’ tab (i.e. the next time you  click inside the 3D workspace, it will deposit the atom displayed in the ‘thumbnail view’  window of that dialog and not the ‘paste able chunk’ on the clipboard) . 
 ---But in some cases, it doesn’t because of a ‘keyfocus’ problem. In order to overcome this bug, try clicking inside 3D workspace once, then hit a modifier key. Now it should change to ‘Atoms’ tab. 
 
-Move Mode
+MOVE MODE
  
 12. Move: Keyboard modifier keys that constrain translation or rotation around an axis (e.g. press ‘Y’ and ‘R’ to rotate the selected chunk around Y axis.), doesn’t work for the first time after you perform ‘delta +’ or ‘delta –‘ operations (which move a chunk by a specific distance). A workaround is to press and release the modifier keys and then press them again to perform these operations. (674)  
 13. Move absolute: if more than 1 chunk is selected, and you hit ‘Move Absolute’ button on the dashboard, it doesn't move the individual chunk's CG to the specified X,Y,Z location. (879) 
  
-Extrude Mode
+EXTRUDE MODE
  
 14.  The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps:  
 -- Get everything adjusted first in the 'rod mode'.  For example, select the proper bond offset sphere or arrange the copy units such that you can see their bondpoints highlighted in a way you would like to bond them. (In general, while in the ring mode, adjustments made from graphics area don’t work)
@@ -85,39 +100,47 @@ Extrude Mode
 16. Extrude: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)  
 17. Extrude’s ring feature doesn’t take the curvature into account while forming the bonds. (494) 
 
-Cookie Cutter
+COOKIE CUTTER
 
 18. Cookie Cutter: Large selections can cause response latency. (8)  
 19. Cookie Cutter: Right click while rotating the grid using middle mouse drag operation, changes the grid orientation (59)  
 20. Cookie Cutter/Display bug: the 3D workspace (graphics area) turns into a black display if you resize the ne-1 window while drawing an auto shape e.g. a circle or a hexagon etc. The original display can be regained by hitting any key. (687) 
  
-Fuse Chunks Mode
+FUSE CHUNKS MODE
  
 21. Fuse Chunks: If the chunks were ‘merged’ in previous operation while bonding them together, ‘Back Up’ button on the dashboard doesn’t ‘unmerge’ them. It only deletes the bond formed in earlier operation. (486-10)  
 22. Fuse Chunks: Back up button on dashboard to delete a bond formed in previous operation deletes the bond, but it doesn’t restore the previous bond angles. (502-16)  
 23. Fuse Chunks can not bond elements of two or more chunks if they are already bonded. Also, some history messages are not correct.  (580)  
 24. Fuse Chunks: operations while in this mode are sluggish if it’s a large model and has large number of bondpoints. (689) 
  
-Minimize/Simulator
+MINIMIZE/SIMULATOR
 (see also: the Unsupported Features section)
+
 25. For some structures minimize needs multiple executions of ‘minimize’ to boil down the high force to a lower value. (567) 
-26. Minimize operation for some elements with higher order bond types doesn’t work. See ‘Unsupported Features’ section for more info. (805) 
-27. Simulator: In some cases, hydrogen atoms or other elements ‘fly away’ while running a simulation movie. This happens when atom centers are very close and therefore the repulsive force becomes very high (528, 558) 
- 
-Movie Player
+26. Quite often, the rms & high force inconsistently increase during each execution of “minimize”. (1377)
+27. Minimize operation for some elements with higher order bond types doesn’t work. See ‘Unsupported Features’ section for more info. (805) 
+28. Simulator: In some cases, hydrogen atoms or other elements ‘fly away’ while running a simulation movie. This happens when atom centers are very close and therefore the repulsive force becomes very high (528, 558) 
+29. On Windows, minimizing X-C(sp)-<3>-C(sp)-X results in some weird structure due to an overflow error. Here ‘X’ indicates bondpoint and ‘-<3>-‘ indicates a triple bond. (1564)
+
+MOVIE PLAYER
+
+- Movie playing is lot slower for large models on some low system configuration machines (1757)
 28.  Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode, after adjusting the chunks (to be extruded) as ‘bondable’ with their copy units. (495)  
 29. Movie/Clipboard: While playing a simulation movie, if you click on a different clipboard item (rather a clipboard ‘Part’), then the movie can not be ‘viewed’. But it continues to run. ne-1 doesn’t print a warning message to instruct user to click on the appropriate ‘Part’, for which the movie is created for,  to view the movie. (578-5) 
 30.  Movie: If you run a simulation and then modify the model further (e.g. delete some atoms etc), the movie becomes invalid.  ne-1 generally identifies such situations. But in certain cases, it doesn’t.  Some Examples: After creating a simulation movie, if you ‘Hydrogenate’ some chunks or change the bond types or ‘transmute’ some elements to a different one. To avoid this, always rerun a simulation after doing such modifications for the correct results. (901)
  
-Naming
+NAMING
  
 31. Naming of created items: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64) 
 32. Naming GAMESS Jigs: If a Gamess jig contains a Forward or Backward Slash in it (e.g. “AM1/None”), then the Gamess job will fail. So do not include these characters while naming this jig. (796)  
 33. Naming a File (plot tool bug): Do not save a file with a single quote symbol in it. This affects the plot tool and you won’t be able to see the plot tool results. For example, if a file is named as : “ Bob’s molecule ” , the plot tool will not plot the results if any. (712)  
 34. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360) 
  
-Cursor and Display Related Bugs
+CURSOR AND DISPLAY RELATED BUGS
  
+35. Selection wireframes won't be displayed or will act weirdly on some platforms.This could be due to the old version graphics driver on your machine. Example: Some  Windows XP users with Intel Integrated 855 graphics reported this problem which went away after installing an updated version of that driver (Intel 855 chipset driver 6.14.10.4497.). It is highly recommended that you use up-to-date drivers to avoid this issue (1720)
+
+
 35. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck. Usually, if you press and release the Shift or Ctrl/Cmd key, the appropriate cursor is restored.(113, 158,404)  
 36. Cursors: The skull and crossbones cursor in build mode will not display (when pressing Ctrl/Cmd) after clicking in the Model Tree area. (217)  
 37. Display: Larger atoms can obscure bondpoints when displayed in CPK mode. (258)  
@@ -126,19 +149,19 @@ Cursor and Display Related Bugs
 40. Display: bond and atom center highlighting in build mode has some bugs. The highlighting flicker whenever there is a selection or valence error wire frame around the atom center. (715) 
 41. Display: Valence error wire frame is displayed even for invisible atoms. Also, while Build mode when you move cursor inside such a wire frame, even the invisible atom center gets highlighted. (870)  
 
-Dialogs and Dashboard
+DIALOGS AND DASHBOARD
  
 42. Users operating ne-1 with a low screen resolution and large font size report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don’t operate correctly, some property forms such as Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)  
 43. Zoom Tool: Some Mac users report cosmetic bugs. It is a good idea to save your work before using it.
  
-Povray Rendering
+POVRAY RENDERING
  
 44.  Povray rendering doesn't show different bond types (it will be supported feature for this version) (830)  
 45.  Povray rendering of lines display is shown as black lines, motor arrows are not rendered (226, 527)  
 46. Povray file of a model neglects the user defined lighting and displays the povray image in ne-1’s default lighting. (447)  
 47. Povray: Background fill type is not saved in a povray file. Only solid background can be rendered. (888) 
 
-Miscellaneous
+MISCELLANEOUS
  
 48. User can not save exclusive features of nanoENGINEER-1 into the PDB file format. Some examples of such ‘MMP file only’ features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  ne-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)  
 49. Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results. (362)  
@@ -146,19 +169,23 @@ Miscellaneous
 51. Bond lengths: After minimize operation the bonds between some elements are shown stretched. This is because bond lengths of some elements used in ne-1 simulator are slightly different than the ones used in ne-1's CAD code. This will be fixed in a future release. (900) 
  
  
-Windows Only Bugs
+WINDOWS ONLY BUGS
  
-1. During drag-and-drop, node icons are not shown in the cursor's drag object. (360) 
-2. On very rear occasions, the File>Open , Save , Save dialogs don’t pop up because of some python.exe application problems. It might happen if you are working with a huge file with lots of GAMESS jigs in it. Again, it is very unlikely to happen. Saving your work often while working on large file is recommended. (774) 
+1. On some machines, the program crashes after while running repeated simulations in some special cases. (1753) 
+
+2. During drag-and-drop, node icons are not shown in the cursor's drag object. (360) 
+3. On very rear occasions, the File>Open , Save , Save dialogs don’t pop up because of some python.exe application problems. It might happen if you are working with a huge file with lots of GAMESS jigs in it. Again, it is very unlikely to happen. Saving your work often while working on large file is recommended. (774) 
  
-Macintosh Only Bugs
+MACINTOSH ONLY BUGS
  
 1. Sometimes a cursor's bitmask will suddenly not work, leaving a white square around the cursor. (772)
 2. Icon tray/bar redrawing of the icon images will show up overlapped, zig-zagged, cracked, etc. in certain situations. In worst cases, the right-side icon bars will go invisible until the invisible bar is clicked on, which redraws the bar but changes your button. This usually only happens when resizing the main window by dragging its "resize handle" on the lower right of the window frame. The workaround is to resize it to be a bit smaller than you want, and then make it a bit bigger again so that it's the desired size. Some users report that the toolbars always draw wrongly after that initial down-sizing, but then they always draw properly again after that final small up-sizing. (861) 
 3. Occasionally, bouncing between programs will lead to the menu (screen top) disappearing, only to re-appear with mouseover (or mouseover+click).  
 4. On Mac OS X Tiger, the tool buttons don’t look ‘pressed’. On other platforms this is not a problem. ne-1 provides a workaround for this. In the 3D Workspace (i.e. Graphics area), press Shift and Option keys and do Command click to bring up the debug menu. Now select the "Mac OS 10.4 QToolbutton Workaround" command from this debug menu. This will resolve the issue. (878) 
  
-Linux Only Bugs
+LINUX ONLY BUGS
  
-1. Opening a plot file from the plot tool dialogs needs ‘kwrite’ editor which is available with only with KDE desktop (434)  
-2. Modeling Kit in Build Mode: When you enter build mode, this dialog first appears in the middle of the 3D workspace (graphics area)  for a fraction of second and then it is moved to the left hand side of the ne-1 main window. The amount of time this dialog stays inside the 3D workspace depends on the model size. (844) 
+1. System crashes while accessing wiki help via the URL provided in What’s this text of that mode. Workaround is to hit F1 key and follow the URL provided in the Wiki Help dialog (1447)
+
+2.Opening a plot file from the plot tool dialogs needs ‘kwrite’ editor which is available with only with KDE desktop (434)  
+3. Modeling Kit in Build Mode: When you enter build mode, this dialog first appears in the middle of the 3D workspace (graphics area)  for a fraction of second and then it is moved to the left hand side of the ne-1 main window. The amount of time this dialog stays inside the 3D workspace depends on the model size. (844) 
