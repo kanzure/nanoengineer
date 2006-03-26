@@ -154,7 +154,7 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.buildBtn.setToggleButton(1)
     w.depositAtomDashboard.buildBtn.setAutoRaise(1)
     w.depositAtomDashboard.buildBtn.setOn(1)
-    QToolTip.add(w.depositAtomDashboard.buildBtn, qApp.translate("MainWindow","Build Mode", None))
+    QToolTip.add(w.depositAtomDashboard.buildBtn, qApp.translate("MainWindow","Atom Tool", None))
     
     #& Reinstate in A8.  mark 060301.
     #w.depositAtomDashboard.atomBtn = QToolButton(bg2, "")
@@ -167,31 +167,31 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomDashboard.bond1Btn.setPixmap(imagename_to_pixmap('bond1.png'))
     w.depositAtomDashboard.bond1Btn.setToggleButton(1)
     w.depositAtomDashboard.bond1Btn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond1Btn, qApp.translate("MainWindow","Single Bond Mode", None))
+    QToolTip.add(w.depositAtomDashboard.bond1Btn, qApp.translate("MainWindow","Single Bond Tool", None))
     
     w.depositAtomDashboard.bond2Btn = QToolButton(bg2, "")
     w.depositAtomDashboard.bond2Btn.setPixmap(imagename_to_pixmap('bond2.png'))
     w.depositAtomDashboard.bond2Btn.setToggleButton(1)
     w.depositAtomDashboard.bond2Btn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond2Btn, qApp.translate("MainWindow","Double Bond Mode", None))
+    QToolTip.add(w.depositAtomDashboard.bond2Btn, qApp.translate("MainWindow","Double Bond Tool", None))
     
     w.depositAtomDashboard.bond3Btn = QToolButton(bg2, "")
     w.depositAtomDashboard.bond3Btn.setPixmap(imagename_to_pixmap('bond3.png'))
     w.depositAtomDashboard.bond3Btn.setToggleButton(1)
     w.depositAtomDashboard.bond3Btn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bond3Btn, qApp.translate("MainWindow","Triple Bond Mode", None))
+    QToolTip.add(w.depositAtomDashboard.bond3Btn, qApp.translate("MainWindow","Triple Bond Tool", None))
     
     w.depositAtomDashboard.bondaBtn = QToolButton(bg2, "")
     w.depositAtomDashboard.bondaBtn.setPixmap(imagename_to_pixmap('bonda.png'))
     w.depositAtomDashboard.bondaBtn.setToggleButton(1)
     w.depositAtomDashboard.bondaBtn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bondaBtn, qApp.translate("MainWindow","Aromatic Bond Mode", None))
+    QToolTip.add(w.depositAtomDashboard.bondaBtn, qApp.translate("MainWindow","Aromatic Bond Tool", None))
     
     w.depositAtomDashboard.bondgBtn = QToolButton(bg2, "")
     w.depositAtomDashboard.bondgBtn.setPixmap(imagename_to_pixmap('bondg.png'))
     w.depositAtomDashboard.bondgBtn.setToggleButton(1)
     w.depositAtomDashboard.bondgBtn.setAutoRaise(1)
-    QToolTip.add(w.depositAtomDashboard.bondgBtn, qApp.translate("MainWindow","Graphitic Bond Mode", None))
+    QToolTip.add(w.depositAtomDashboard.bondgBtn, qApp.translate("MainWindow","Graphitic Bond Tool", None))
 
     w.depositAtomDashboard.addSeparator()
     

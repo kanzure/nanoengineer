@@ -1486,12 +1486,13 @@ def create_whats_this_descriptions_for_depositMode(w):
 
     QWhatsThis.add ( w.depositAtomDashboard.pasteBtn, pasteText )
     
-    # Build Atoms button
+    # Atom Tool button
     
-    buildAtomsText = "<u><b>Build Mode</b></u><br> "\
+    buildAtomsText = "<u><b>Atom Tool</b></u><br> "\
                         "<p><img source=\"buildatomsicon\"><br> "\
-                        "Sets <i>Build</i> mode.  Double clicking on empty space deposits an object from the MMKit. "\
-                        "Clicking on a bondpoint will deposit an atom or other MMKit object on the bondpoint if the object has a hotspot."\
+                        "When enabled, double clicking on empty space deposits an object from the MMKit. "\
+                        "Clicking on a bondpoint will attach a new atom or MMKit object onto the bondpoint, "\
+                        "if the MMKit object has a hotspot."\
                         "</p>"
 
     QMimeSourceFactory.defaultFactory().setPixmap( "buildatomsicon",
@@ -1499,11 +1500,11 @@ def create_whats_this_descriptions_for_depositMode(w):
 
     QWhatsThis.add ( w.depositAtomDashboard.buildBtn, buildAtomsText )
     
-    # Single Bond button
+    # Single Bond Tool button
     
-    singleBondText = "<u><b>Single Bond Mode</b></u><br> "\
+    singleBondText = "<u><b>Single Bond Tool</b></u><br> "\
                         "<p><img source=\"singlebondicon\"><br> "\
-                        "Sets <i>Single Bond</i> mode.  Clicking on a highlighted bond "\
+                        "When enabled, clicking on a highlighted bond "\
                         "will change the bond to a single bond, if permitted."\
                         "</p>"
 
@@ -1512,11 +1513,11 @@ def create_whats_this_descriptions_for_depositMode(w):
 
     QWhatsThis.add ( w.depositAtomDashboard.bond1Btn, singleBondText )
     
-    # Double Bond button
+    # Double Bond Tool button
     
-    doubleBondText = "<u><b>Double Bond Mode</b></u><br> "\
+    doubleBondText = "<u><b>Double Bond Tool</b></u><br> "\
                         "<p><img source=\"doublebondicon\"><br> "\
-                        "Sets <i>Double Bond</i> mode.  Clicking on a highlighted bond "\
+                        "When enabled, clicking on a highlighted bond "\
                         "will change the bond to a double bond, if permitted."\
                         "</p>"
 
@@ -1525,11 +1526,11 @@ def create_whats_this_descriptions_for_depositMode(w):
 
     QWhatsThis.add ( w.depositAtomDashboard.bond2Btn, doubleBondText )
     
-    # Triple Bond button
+    # Triple Bond Tool button
     
-    tripleBondText = "<u><b>Triple Bond Mode</b></u><br> "\
+    tripleBondText = "<u><b>Triple Bond Tool</b></u><br> "\
                         "<p><img source=\"triplebondicon\"><br> "\
-                        "Sets <i>Triple Bond</i> mode.  Clicking on a highlighted bond "\
+                        "When enabled, clicking on a highlighted bond "\
                         "will change the bond to a triple bond, if permitted."\
                         "</p>"
 
@@ -1538,11 +1539,11 @@ def create_whats_this_descriptions_for_depositMode(w):
 
     QWhatsThis.add ( w.depositAtomDashboard.bond3Btn, tripleBondText )
     
-    # Aromatic Bond button
+    # Aromatic Bond Tool button
     
-    aromaticBondText = "<u><b>Aromatic Bond Mode</b></u><br> "\
+    aromaticBondText = "<u><b>Aromatic Bond Tool</b></u><br> "\
                         "<p><img source=\"aromaticbondicon\"><br> "\
-                        "Sets <i>Aromatic Bond</i> mode.  Clicking on a highlighted bond "\
+                        "When enabled, clicking on a highlighted bond "\
                         "will change the bond to an aromatic bond, if permitted."\
                         "</p>"
 
@@ -1551,11 +1552,11 @@ def create_whats_this_descriptions_for_depositMode(w):
 
     QWhatsThis.add ( w.depositAtomDashboard.bondaBtn, aromaticBondText )
     
-    # Graphitic Bond button
+    # Graphitic Bond Tool button
     
-    graphiticBondText = "<u><b>Graphitic Bond Mode</b></u><br> "\
+    graphiticBondText = "<u><b>Graphitic Bond Tool</b></u><br> "\
                         "<p><img source=\"graphiticbondicon\"><br> "\
-                        "Sets <i>Graphitic Bond</i> mode.  Clicking on a highlighted bond "\
+                        "When enabled, clicking on a highlighted bond "\
                         "will change the bond to a graphitic bond, if permitted."\
                         "</p>"
 
