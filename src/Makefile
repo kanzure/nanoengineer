@@ -3,7 +3,7 @@
 
 ifeq ($(OS),Windows_NT)
 CC = "C:/Dev-Cpp/bin/gcc.exe"
-CFLAGS=-I"C:/Dev-Cpp/include"
+CFLAGS=-g -I"C:/Dev-Cpp/include"
 LDFLAGS=-L"C:/Dev-Cpp/lib"
 PYREXTARGET=sim.dll
 STDC99=
