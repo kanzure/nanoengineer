@@ -431,6 +431,17 @@ class SimpleDiff:
         #####@@@@@ call fill_checkpoint
         #e make up vers for varids changed
         # *this* is what should call fill_checkpoint on self.cps[1]!
+    def RAM_guess_when_finalized(self): #060323
+        """Return a rough guess about the RAM usage to be attributed to keeping this Undoable op on the Undo stack.
+        This must be called only when this diff has been finalized and is still undoable.
+        Furthermore, as a temporarily kluge, it might be necessary to call it only once and/or in the proper Undo stack order.
+        """
+        # Current implem is basically one big kluge, starting with non-modularity of finding the DiffObj to ask.
+        # When the Undo stack becomes a graph (or maybe even per-Part stacks), we'll have to replace this completely.
+        assert self.direction == -1 # we should be an Undo diff
+        s1 = self.cps[1].state
+        s0 = self.cps[0].state
+        return s0._relative_RAM(s1)
     def reverse_order(self):#####@@@@@ what if merged??
         return self.__class__(self.cps[1], self.cps[0], - self.direction, **self.options)
     def menu_desc(self):#####@@@@@ need to merge self with more diffs, to do this?? -- yes, redo it inside the MergingDiff ##e
@@ -1132,7 +1143,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 print_compact_stack("debug note: undo_archive not yet inited (maybe not an error)")
             return
 
-##        if 0: # bug 1440 debug code 060320
+##        if 0: # bug 1440 debug code 060320, and 1747 060323
 ##            print_compact_stack("undo cp, merge=%r: " % merge_with_future)
         
         if not merge_with_future:

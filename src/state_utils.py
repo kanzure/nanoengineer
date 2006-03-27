@@ -974,6 +974,14 @@ def diff_snapshots_oneway(snap1, snap2):
     return DiffObj( diff_snapshots(snap1, snap2, whatret = 2) ) ######@@@@@@ also store val_diff_func per attr? [060309 comment]
 
 class DiffObj:
+    valsizes = dict(_posn = 52)
+        # maps attrcode (just attrname for now) to our guess about the size
+        # of storing one attrval for that attr, in this kind of undo-diff;
+        # this figure 52 for _posn is purely a guess
+        # (the 3 doubles themselves are 24, but they're in a Numeric array
+        # and we also need to include the overhead of the entire dict item in our attrdict),
+        # and the guesses ought to come from the attr decls anyway, not be
+        # hardcoded here (or in future we could measure them in a C-coded copy_val).
     def __init__(self, attrdicts):
         self.attrdicts = attrdicts
     def size(self): ### shares code with StateSnapshot; use common superclass?
@@ -981,6 +989,14 @@ class DiffObj:
         res = 0
         for d in self.attrdicts.itervalues():
             res += len(d)
+        return res
+    def RAM_usage_guess(self): #060323
+        "return a rough guess of our RAM consumption"
+        res = 0
+        for attrcode, d in self.attrdicts.iteritems():
+            valsize = self.valsizes.get(attrcode, 24)
+                # 24 is a guess, and is conservative: 2 pointers in dict item == 8, 2 small pyobjects (8 each??)
+            res += len(d) * valsize
         return res
     def __len__(self):
         return self.size()
@@ -1149,6 +1165,12 @@ class StatePlace:
         "Warning: these are only for immediate use without modification!"
         self.get_snap_back_to_self()
         return self.lastsnap.attrdicts
+    def _relative_RAM(self, priorplace): #060323
+        """Return a guess about the RAM requirement of retaining the diff data to let this state
+        be converted (by Undo) into the state represented by priorplace, also a StatePlace (??).
+        Temporary kluge: this must only be called at certain times, soon after self finalized... not sure of details.
+        """
+        return 18 # stub
     pass # end of class StatePlace
 
 def apply_and_reverse_diff(diff, snap):
