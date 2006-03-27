@@ -391,7 +391,8 @@ class SimpleDiff:
     """
     default_opts = dict()
     default_command_info = dict(cmdname = "operation", n_merged_changes = 0)
-        # client code will directly access/modify self.command_info['n_merged_changes'] [060312], maybe other items
+        # client code will directly access/modify self.command_info['n_merged_changes'] [060312], maybe other items;
+        # but to save ram, we don't do _offered = False or _no_net_change = False, but let client code use .get() [060326]
     suppress_storing_undo_redo_ops = False
     assert_no_changes = False
     destroyed = False
@@ -444,6 +445,22 @@ class SimpleDiff:
         return s0._relative_RAM(s1)
     def reverse_order(self):#####@@@@@ what if merged??
         return self.__class__(self.cps[1], self.cps[0], - self.direction, **self.options)
+    def you_have_been_offered(self): #bruce 060326 re bug 1733
+        """You (self) have been offered in the UI (or made the Undo toolbutton become enabled),
+        so don't change your mind and disappear, even if it turns out you get merged
+        with future ops (due to lack of autocp) and you represent no net changes;
+        instead, just let this affect your menu_desc. One important reason for this is
+        that without it, a user hitting Undo could inadvertently Undo the *prior* item
+        on the Undo stack, since only at that point would it become clear that you contained
+        no net changes.
+        """
+        self.command_info['_offered'] = True # this alone is not enough. we need a real change counter difference
+        # or we have no way to get stored and indexed. Well, we have one (for awhile anyway -- that's why we got offered),
+        # but we also need a real diff, or they'll get reset... we may even need a real but distinct change counter for this
+        # since in future we might reset some chg counters if their type of diff didn't occur.
+        # (Or would it be correct to treat this as a model change? no, it would affect file-mod indicator... should it??? yes...)
+        # What we ended up doing is a special case when deciding how to store the diff... search for _offered to find it.
+        return
     def menu_desc(self):#####@@@@@ need to merge self with more diffs, to do this?? -- yes, redo it inside the MergingDiff ##e
         main = self.optype() # "Undo" or "Redo"
         include_history_sernos = not not env.prefs[historyMsgSerialNumber_prefs_key] #060309; is this being checked at the right time??
@@ -469,6 +486,13 @@ class SimpleDiff:
             op_name = self.cmdname()
             if op_name:
                 main += " %s" % (op_name,)
+        else:
+            # [bruce 060326 re bug 1733:]
+            # merged changes might end up being a noop, but if they were offered in the UI, we can't retract that
+            # or we'll have bug 1733, or worse, user will Undo the prior op without meaning to. So special code elsewhere
+            # detects this, keeps the diff in the undo stack, and stores the following flag:
+            if self.command_info.get('_no_net_change', False):
+                main += " (no net change)"
         return main
     def history_serno_desc(self): #060301; split out 060312
         "describe history serno range, if we have one; always return a string, maybe null string; needs to work when last serno unknown"
@@ -504,7 +528,7 @@ class SimpleDiff:
             assert range0 == range1
             hist = "%d." % range1
         else:
-            hist = "%d-%d." % (range0, range1)
+            hist = "%d.-%d." % (range0, range1) #bruce 060326 added the first '.' of the two, for uniformity
         if self.command_info['n_merged_changes'] and hist and hist[0] != '(' and hist[-1] != ')':
             return "(%s)" % (hist,)
         return hist
@@ -913,8 +937,9 @@ def set_view_for_Undo(glpane, assy, csys): # shares code with Csys.set_view; mig
 from idlelib.Delegator import Delegator
 # print "Delegator",Delegator,type(Delegator),`Delegator`
 
-class MergingDiff(Delegator):
+class MergingDiff(Delegator): ###@@@ this is in use, but has no effect [as of bfr 060326].
     "A higher-level diff, consisting of a diff with some merging options which cause more diffs to be applied with it"
+    # When this actually merges, it needs to override menu_desc & cp's, too. ####@@@@
     def __init__(self, diff, flags = None, archive = None):
         Delegator.__init__(self, diff) # diff is now self.delegate; all its attrs should be constant since they get set on self too
         self.flags = flags
@@ -1274,6 +1299,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                     elif debug3: # condition on rarer flag soon,
                         # or have better debug pref for undo stats summary per chgcounter'd cp ###e doit
                         print "debug: note: real change found by diff_and_copy_state"
+                if not really_changed and self.current_diff.command_info.get('_offered', False):
+                    # [bruce 060326 to fix bug 1733:]
+                    ###e should explain; comments elsewhere from this day and bug have some explanation of this
+                    really_changed = True # pretend there was a real change, so we remain on undo stack, and don't reset change counters
+                    self.current_diff.command_info['_no_net_change'] = True # but make sure menu_desc is able to know what's going on
                 if not really_changed:
                     # Have to reset changed_counters, or undo stack becomes disconnected, since it uses them as varid_vers.
                     # Not needed in other case above since they were already equal.
@@ -1284,12 +1314,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             if really_changed:
                 self.current_diff.empty = False # used in constructing undo menu items ####@@@@ DOIT!
                 if destroy_bypassed_redos:
-                    #####@@@@@ this might be a good place to destroy the Redo stack to save RAM, since we just realized we had a "newdo";
-                    # but it might be complicated, e.g. if the new change was on one of those sub-stacks in front of the main one,
+                    # Destroy the Redo stack to save RAM, since we just realized we had a "newdo".
+                    # WARNING: ####@@@@ In the future this will need to be more complicated, e.g. if the new change
+                    # was on one of those desired sub-stacks (for view or sel changes) in front of the main one (model changes),
                     # or in one Part when those have separate stacks, etc...
-                    # the stuff to destroy (naively) is everything linked to from self.last_cp except self.current_diff / self.next_cp, *i think*.
-                    # What would be easy would be a debug-print saying whether it looks like there's anything to destroy,
-                    # so we could tell if its guesses seem accurate. [060301]
+                    # Design scratch, current code: the stuff to destroy (naively) is everything linked to from self.last_cp
+                    # except self.current_diff / self.next_cp, *i think*. [060301, revised 060326]
                     self.clear_redo_stack( from_cp = self.last_cp, except_diff = self.current_diff ) # it's partly nim as of 060309
             else:
                 # not really_changed

@@ -335,6 +335,10 @@ class AssyUndoManager(UndoManager):
                 action.setMenuText(text)
                 fix_tooltip(action, text) # replace description, leave (accelkeys) alone (they contain unicode chars on Mac)
                 self._current_main_menu_ops[optype] = op #e should store it into menu item if we can, I suppose
+                op.you_have_been_offered()
+                    # make sure it doesn't change its mind about being a visible undoable op, even if it gets merged_with_future
+                    # (from lack of autocp) and turns out to contain no net changes
+                    # [bruce 060326 re bug 1733; probably only needed for Undo, not Redo]
             else:
                 action.setEnabled(False)
                 ## action.setText("Can't %s" % optype) # someday we might have to say "can't undo Cmdxxx" for certain cmds
