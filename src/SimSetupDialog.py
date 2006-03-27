@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Tue Mar 21 17:04:19 2006
+# Created: Sun Mar 26 15:00:48 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -141,7 +141,7 @@ class SimSetupDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(325,258).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(333,258).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.createMoviePressed)
@@ -149,7 +149,7 @@ class SimSetupDialog(QDialog):
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("nanoSIM-1 Setup"))
+        self.setCaption(self.__tr("nanoDynamics-1 Setup"))
         self.parms_grpbox.setTitle(self.__tr("Parameters"))
         self.textLabel5.setText(self.__tr("Total Frames:"))
         self.textLabel2.setText(self.__tr("Steps per Frame :"))
