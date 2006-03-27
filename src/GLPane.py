@@ -1113,6 +1113,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # releaseEvent so the checkpoint_after_drag never has a chance to run. Instead, I'm fixing those by wrapping
             # most_of_paintGL in its own begin/end checkpoints, and (unlike the obs after_op) putting them after
             # env.postevent_updates (see its call to find them). But I might do the lone-releaseEvent checkpoint too. [bruce 060323]
+            # Update, 060326: reverting the most_of_paintGL checkpointing, since it caused bug 1759 (more info there).
 
         if but & leftButton:
             self.mode.leftDouble(event)
@@ -1546,26 +1547,30 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # probably also needed). And many analogous LL changers don't do that.
         env.post_event_updates( warn_if_needed = False)
 
-        # Fix bugs from missing mouseReleases (like bug 1411) (provided they do a gl_update like that one does),
-        # from model changes during env.post_event_updates(), or from unexpected model changes during the following
-        # repaint, by surrounding this repaint with begin/end checkpoints. We might do the same thing in the model tree, too.
-        # [bruce 060323]
-        flag_and_begin_retval = None # different than (but analogous to) self.__flag_and_begin_retval
-        if self.assy:
-            begin_retval = self.assy.undo_checkpoint_before_command("(redraw)")
-                # this command name "(redraw)" won't be seen (I think) unless there are model changes during the redraw (a bug)
-            flag_and_begin_retval = True, begin_retval
+#bruce 060326 zapping this, since it caused bug 1759, and I put in a better fix for bugs like 1411 since then
+# (in the menu_spec processor in widgets.py). There might be reasons to revive this someday, and ways to avoid 1759 then,
+# but it's hard and inefficient and not needed for now.
+##        # Fix bugs from missing mouseReleases (like bug 1411) (provided they do a gl_update like that one does),
+##        # from model changes during env.post_event_updates(), or from unexpected model changes during the following
+##        # repaint, by surrounding this repaint with begin/end checkpoints. We might do the same thing in the model tree, too.
+##        # [bruce 060323]
+##        flag_and_begin_retval = None # different than (but analogous to) self.__flag_and_begin_retval
+##        if self.assy:
+##            begin_retval = self.assy.undo_checkpoint_before_command("(redraw)")
+##                # this command name "(redraw)" won't be seen (I think) unless there are model changes during the redraw (a bug)
+##            flag_and_begin_retval = True, begin_retval
 
         try:
             self.most_of_paintGL()
         except:
             print_compact_traceback("exception in most_of_paintGL ignored: ")
 
-        if flag_and_begin_retval:
-            flagjunk, begin_retval = flag_and_begin_retval
-            if self.assy:
-                #k should always be true, and same assy as before... (for more info see same comment elsewhere in this file)
-                self.assy.undo_checkpoint_after_command( begin_retval)
+##        if flag_and_begin_retval:
+##            flagjunk, begin_retval = flag_and_begin_retval
+##            if self.assy:
+##                #k should always be true, and same assy as before... (for more info see same comment elsewhere in this file)
+##                self.assy.undo_checkpoint_after_command( begin_retval)
+
         return # from paintGL
     
     def most_of_paintGL(self): #bruce 060323 split this out of paintGL
