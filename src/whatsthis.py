@@ -1429,23 +1429,62 @@ def createWhatsThis(self):
 def create_whats_this_descriptions_for_selectAtomsMode(w):
     "Create What's This descriptions for the Select Atoms mode dashboard widgets."
     
-    # Filter Checkbox #
+    # Atom Selection Filter Combobox #
     
-    filterText = "<u><b>Selection Filter</b></u><br> "\
-                        "When turned on, only atoms of the current atom type are selected."\
+    atomSelectionFilterText = "<u><b>Atom Selection Filter</b></u><br> "\
+                        "<p>Enables/disables the <b>Atom Selection Filter</b>, "\
+                        "specifying the atom type that will be selected while performing selection operations in the "\
+                        "graphics area. </p>"\
+                        "<p>To disable the selection filter, select <b>All Elements</b> or press the <b>Escape</b> key. "\
+                        "</p>"
+                        
+    QWhatsThis.add ( w.elemFilterComboBox, atomSelectionFilterText)
+    
+    QToolTip.add(w.elemFilterComboBox, qApp.translate("MainWindow","Atom Selection Filter", None))
+    
+    
+    # Transmute to (Element) Combobox
+    
+    transmuteToElementTypeText = "<u><b>Transmute To Element Type</b></u><br> "\
+                        "<p>Specifies what element type to transmute all currently selected atoms to when the "\
+                        "<b>Transmute</b> button is pressed.</p>"
+                        
+    QWhatsThis.add ( w.transmute2ComboBox, transmuteToElementTypeText)
+    
+    QToolTip.add(w.transmute2ComboBox, qApp.translate("MainWindow","Transmute to Element Type", None))
+    
+    # Transmute to (Hybrid) Combobox
+    transmuteToHybridTypeText = "<u><b>Transmute To Element Hybrid Type</b></u><br> "\
+                        "<p>Specifies the atomic hybrid for the current element type selected in the <b>Transmute to</b> "\
+                        " dropbox.</p>"
+                        
+    QWhatsThis.add ( w.atomSelect_hybridComboBox, transmuteToHybridTypeText)
+    
+    QToolTip.add(w.atomSelect_hybridComboBox, qApp.translate("MainWindow","Transmute to Element Hybrid Type", None))
+    
+    # Other tooltips
+    
+    QToolTip.add(w.transmuteButton, qApp.translate("MainWindow","Transmute Selected Atoms", None))
+    QToolTip.add(w.transmuteCheckBox, qApp.translate("MainWindow","Check to keep all bonds when transmuting", None))
+    
+    # Highlighting checkbox
+    
+    highlightingText = "<u><b>Highlighting</b></u><br> "\
+                        "<p>Enables/disables <b>Hover Highlighting</b></p> "\
+                        "<p>When <b>enabled</b>, atoms and bonds under the cursor "\
+                        "are highlighted to indicate what would be selected if the user clicks "\
+                        "the left mouse button.</p>"\
+                        "<p>The highlighting color for atoms and bonds can be changed "\
+                        "by selecting <b>Edit > Preferences</b> and clicking on the <b>Atoms</b> "\
+                        "or <b>Bonds</b> tab."\
                         "</p>"
 
-    #QWhatsThis.add ( w.filterCheckBox, filterText )
+    QWhatsThis.add ( w.selectAtomsDashboard.highlightingCB, highlightingText )
     
-    # Atom Type Combobox #
+    highlightingTipText = "Enables/disables 'Hover Highlighting'"
+
+    QToolTip.add(w.selectAtomsDashboard.highlightingCB, highlightingTipText)
     
-    elemFilterText = "<u><b>Atom Type</b></u><br> "\
-                        "Decides the type of atoms that will be selected while performing select atoms operation in the 3D workspace. \
-Example: if this combobox is showing 'Carbon' as the element type, only carbon atoms will be selected when 'select atoms' operation is performed the next time \
-in the 3 D workspace."\
-"</p>"
-                        
-    QWhatsThis.add ( w.elemFilterComboBox, elemFilterText)
     
 def create_whats_this_descriptions_for_depositMode(w):
     "Create What's This descriptions for the deposit (Build) mode dashboard widgets."
@@ -1604,11 +1643,11 @@ def create_whats_this_descriptions_for_depositMode(w):
     # Highlighting checkbox
     
     highlightingText = "<u><b>Highlighting</b></u><br> "\
-                        "Enables/disables <b>Hover Highlighting</b><br> "\
-                        "<br>When <b>enabled</b>, atoms and bonds under the cursor "\
+                        "<p>Enables/disables <b>Hover Highlighting</b></p> "\
+                        "<p>When <b>enabled</b>, atoms and bonds under the cursor "\
                         "are highlighted to indicate what would be selected if the user clicks "\
-                        "the left mouse button.<br>"\
-                        "<br>The highlighting color for atoms and bonds can be changed "\
+                        "the left mouse button.</p>"\
+                        "<p>The highlighting color for atoms and bonds can be changed "\
                         "by selecting <b>Edit > Preferences</b> and clicking on the <b>Atoms</b> "\
                         "or <b>Bonds</b> tab."\
                         "</p>"
