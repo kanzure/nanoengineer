@@ -659,10 +659,10 @@ class DebugMenuMixin:
         """
         import debug
         res = [
-            ('(debugging menu)', noop, 'disabled'),
+            ('debugging menu (unsupported)', noop, 'disabled'), #bruce 060327 revised text
             # None, # separator
         ]
-        if self._debug_win:
+        if 0 and self._debug_win: #bruce 060327 disabled this, superseded by prefs dialog some time ago
             res.extend( [
                 ('load window layout', self._debug_load_window_layout ),
                 ('save window layout', self._debug_save_window_layout ),
@@ -710,6 +710,12 @@ class DebugMenuMixin:
             res.extend( [
                 ('call update_parts()', self._debug_update_parts ), ###e also should offer check_parts
             ] )
+
+        if 1: #bruce 060327; don't show them in the menu itself, we need to see them in time, in history, with and without atom_debug
+            res.extend( [
+                ('print object counts', self._debug_print_object_counts),
+            ] )
+        
         res.extend( [
             ('print self', self._debug_printself),
         ] )
@@ -735,7 +741,39 @@ class DebugMenuMixin:
     def _debug_update_parts(self):
         win = self._debug_win
         win.assy.update_parts()
-        
+
+    def _debug_print_object_counts(self):
+        #bruce 060327 for debugging memory leaks: report Atom & Bond refcounts, and objs that might refer to them
+        from HistoryWidget import _graymsg
+        msglater = "" # things to print all in one line
+        for clasname, modulename in (
+                ('Atom', 'chem'),
+                 ('Bond', 'bonds'),
+                 ('Node', 'Utility'),
+                 ('Part', 'part'),
+                 ('Assembly', 'assembly')):
+            # should also have a command to look for other classes with high refcounts
+            if sys.modules.has_key(modulename):
+                module = sys.modules[modulename]
+                clas = getattr(module, clasname, None)
+                if clas:
+                    msg = "%d %ss" % (sys.getrefcount(clas), clasname)
+                    msg = msg.replace("ys","ies") # for spelling of Assemblies
+                    # print these things all at once
+                    if msglater:
+                        msglater += ', '
+                    msglater += msg
+                    msg = None
+                else:
+                    msg = "%s not found in %s" % (clasname, modulename)
+            else:
+                msg = "no module %s" % (modulename,)
+            if msg:
+                env.history.message( _graymsg( msg))
+        if msglater:
+            env.history.message( _graymsg( msglater))
+        return
+    
     def _debug_choose_font(self): #bruce 050304 experiment; works; could use toString/fromString to store it in prefs...
         oldfont = self.font()
         from qt import QFontDialog
