@@ -51,9 +51,25 @@ class MeasurementJig(Jig):
     copyable_attrs = Jig.copyable_attrs + ('font_name', 'font_size')
 
     # move to base class, wware 051103
+    # Email from Bruce, 060327 <<<<
+    # It's either a bug or a bad style error to directly call Node.kill,
+    # skipping the superclass kill methods if any (and there is one,
+    # at least Jig.kill).
+    # In this case it might not be safe to call Jig.kill, since that might
+    # recurse into this method, but (1) this needs a comment, (2) this is a
+    # possible bug since removing the atoms is not happening when this jig
+    # is killed, but perhaps needs to (otherwise the atoms will be listing
+    # this jig as one of their jigs even after it's killed -- not sure what
+    # harm this causes but it might be bad, e.g. a minor memory leak or
+    # maybe some problem when copying them).
+    # If you're not sure what to do about any of it, just commenting it
+    # or filing a reminder bug is ok for now. It interacts with some code
+    # I'm working on now in other files, so it might be just as well for me
+    # to be the one to change the code. >>>>
+    # For now, I think I'll go with Jig.kill, and let Bruce modify as needed.
     def rematom(self, atm):
         "Delete the jig if any of its atoms are deleted"
-        Node.kill(self)
+        Jig.kill(self)
         
     # Set the properties for a Measure Distance jig read from a (MMP) file
     # include atomlist, wware 051103
