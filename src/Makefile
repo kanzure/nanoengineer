@@ -1,55 +1,28 @@
 # Makefile for the simulator
 # $Id$
 
-UNAME_A=$(shell uname -a)
-UNAME := $(shell uname)
-# dotted python version (2.3, 2.4)
-PYDVER := $(shell python -c "import sys; print sys.version[:3]")
-# un-dotted python version (23, 24)
-PYVER := $(shell python -c "import sys; print sys.version[0]+sys.version[2]")
-
-ifeq (XX$(OS),XXWindows_NT)
-#---------------------------------------- Start Windows stuff
-CC="C:/Dev-Cpp/bin/gcc.exe"
-CXX="C:/Dev-Cpp/bin/g++.exe"
-CINCLUDES=-I"C:/Dev-Cpp/include" -I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include"
-LDSHARED=gcc -shared
-LDFLAGS=-Wl,--output-def,sim.def -L. -L"C:/Dev-Cpp/lib" -lpython$(PYVER)
-PYTHON=c:/Python$(PYVER)/python
-PYREXC=c:/Python$(PYVER)/python c:/Python$(PYVER)/Scripts/pyrexc.py
+ifeq ($(OS),Windows_NT)
+CC = "C:/Dev-Cpp/bin/gcc.exe"
+CFLAGS=-g -I"C:/Dev-Cpp/include"
+LDFLAGS=-L"C:/Dev-Cpp/lib"
+PYREXTARGET=sim.dll
 STDC99=
 SIMTARGET=simulator.exe
-PYREXTARGET=sim.dll
-#---------------------------------------- End of Windows stuff
 else
-#---------------------------------------- Start Unix/Mac stuff
-ifeq ($(strip $(UNAME)),Darwin)
-#---------------------------------------- Mac
-PYREXC=/Library/Python/$(PYDVER)/Pyrex-0.9.3.1/bin/pyrexc
-COPTS=-fno-strict-aliasing -Wno-long-double -no-cpp-precomp -mno-fused-madd -fno-common -dynamic -DNDEBUG -Wstrict-prototypes
-CINCLUDES=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)
-MACOSX=-DMACOSX
-LDSHARED=gcc -bundle
-LDFLAGS=-lm -framework Python
-else
-#---------------------------------------- Unix
-PYREXC=pyrexc
-CINCLUDES=-I/usr/include/python$(PYDVER)
-LDSHARED=gcc -shared
-LDFLAGS=-L/usr/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
-endif
-#---------------------------------------- Both Unix and Mac
+# non-Windows
 CC=gcc
-CXX=g++
-PYTHON=python
+CFLAGS=-g -Wmissing-prototypes -Wall
+# -pg
+# Note: these CFLAGS are probably not used to build the files for Pyrex, 
+# only for the standalone simulator executable. [bruce 051230 guess]
+LDFLAGS=-L/usr/lib -lm
+# -pg
+PYREXTARGET=sim.so
 STDC99=-std=c99
 SIMTARGET=simulator
-PYREXTARGET=sim.so
-#---------------------------------------- End of Unix/Mac stuff
 endif
-#---------------------------------------- Common to all platforms
-CFLAGS=-g -Wmissing-prototypes -Wall -O3 $(MACOSX) $(COPTS) $(CINCLUDES)
-CXXFLAGS=-g -Wmissing-prototypes -Wall -O3 $(MACOSX) $(COPTS) $(CINCLUDES)
+
+UNAME_A=$$(uname -a)
 
 PYREXOBJS=\
 	allocate.o \
@@ -106,22 +79,19 @@ SUFFIXES: .c .h .o ;
 # this is desirable since Makefile defines CFLAGS (and full remake doesn't take very long);
 # feel free to do this in a cleaner way, or not at all if it causes problems.
 
-# We can't compile newtables.c with "-O3" optimization. It must have "-O" or lower.
-newtables.o: newtables.c
-	$(CC) -c -g -Wmissing-prototypes -Wall -O $(MACOSX) $(COPTS) $(CINCLUDES) -o $@ $(@:.o=.c)
-
 # -std-c99 gets us isnormal()
 structcompare.o: structcompare.c simulator.h
 	$(CC) -c $(STDC99) $(CFLAGS) -o structcompare.o structcompare.c
 
+# We need sim.c rule to build for Windows
 sim.c: simhelp.c sim.pyx
-	$(PYREXC) sim.pyx
+	python c:/Python23/Scripts/pyrexc.py sim.pyx
 
 libpython23.a: libpython23.a.gz
 	gunzip < libpython23.a.gz > libpython23.a
 
 sim.dll: sim.c $(PYREXOBJS) libpython23.a version.h
-	$(LDSHARED) -I"C:/Python23/include" -o sim.dll sim.c $(PYREXOBJS) \
+	gcc -shared -I"C:/Python23/include" -o sim.dll sim.c $(PYREXOBJS) \
 		-Wl,--output-def,sim.def -L. -lpython23
 
 tables.c: gentab.py
@@ -155,12 +125,8 @@ glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
 
-sim.so: Makefile $(PYREXOBJS) sim.o
-	$(LDSHARED) -o sim.so $(PYREXOBJS) sim.o $(LDFLAGS)
-
-# Distutils
-#sim.so: Makefile $(PYREXSRCS) version.h bends.gen bonds.gen sim.pyx simhelp.c
-#	python setup.py build_ext --inplace
+sim.so: Makefile $(PYREXSRCS) version.h bends.gen bonds.gen sim.pyx simhelp.c
+	python setup.py build_ext --inplace
 
 install: $(SIMTARGET)
 	if [ ! -d $$HOME/bin ] ; then \

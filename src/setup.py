@@ -40,17 +40,16 @@ except:
     print " since the import should have worked.)"
     sys.exit(1)
 
-if sys.platform == "darwin":
-    # Work around Mac compiler hang for -O3 with newtables.c
-    # (and perhaps other files, though problem didn't occur for the ones compiled before newtables).
-    # Ideally we'd do this only for that one file, but we don't yet know a non-klugy way to do that.
-    # If we can't find one, we can always build newtables.o separately (perhaps also using distutils)
-    # and then link newtables.o here by using the extra_objects distutils keyword,
-    # which was used for most .o files in a prior cvs revision of this file.
-    # [change by Will, commented by Bruce, 051230.]
-    extra_compile_args = [ "-DDISTUTILS", "-O" ]
-else:
-    extra_compile_args = [ "-DDISTUTILS" ]
+# Work around Mac compiler hang for -O3 with newtables.c
+# (and perhaps other files, though problem didn't occur for the ones compiled before newtables).
+# Ideally we'd do this only for that one file, but we don't yet know a non-klugy way to do that.
+# If we can't find one, we can always build newtables.o separately (perhaps also using distutils)
+# and then link newtables.o here by using the extra_objects distutils keyword,
+# which was used for most .o files in a prior cvs revision of this file.
+# [change by Will, commented by Bruce, 051230.]
+# Oops, now we've seen this on Linux, so back off optimization on all platforms
+# wware 060327, bug 1758
+extra_compile_args = [ "-DDISTUTILS", "-O" ]
 
 setup(name = 'Simulator',
       ext_modules=[Extension("sim", ["sim.pyx",
