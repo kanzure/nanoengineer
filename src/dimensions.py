@@ -176,7 +176,7 @@ class CylindricalCoordinates:
     def drawLine(self, color, rtz1, rtz2):
         drawline(color, self.xyz(rtz1), self.xyz(rtz2))
     def drawArc(self, color, r, theta1, theta2, z):
-        n = 50
+        n = int((30 / pi) * fabs(theta2 - theta1) + 1)
         step = (1.0 * theta2 - theta1) / n
         for i in range(n):
             t = theta1 + step

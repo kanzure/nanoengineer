@@ -144,14 +144,8 @@ class MeasureDistance(MeasurementJig):
         Jig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
         text = "%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance())
         # mechanical engineering style dimensions
-        mecheng_style_dimension = debug_pref("mech eng dimensions",
-                                             Choice_boolean_False, non_debug=True)
-        if mecheng_style_dimension:
-            drawLinearDimension(color, self.assy.o.right, self.assy.o.up,
-                                self.atoms[0].posn(), self.atoms[1].posn(), text)
-        else:
-            drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
-            self._drawtext(text, color)
+        drawLinearDimension(color, self.assy.o.right, self.assy.o.up,
+                            self.atoms[0].posn(), self.atoms[1].posn(), text)
 
     mmp_record_name = "mdistance"
     
@@ -192,20 +186,10 @@ class MeasureAngle(MeasurementJig):
 
         text = "%.2f" % self.get_angle()
         # mechanical engineering style dimensions
-        mecheng_style_dimension = debug_pref("mech eng dimensions",
-                                             Choice_boolean_False, non_debug=True)
-        if mecheng_style_dimension:
-            drawAngleDimension(color, self.assy.o.right, self.assy.o.up,
-                               self.atoms[0].posn(), self.atoms[1].posn(), self.atoms[2].posn(),
-                               text)
-        else:
-            drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
-            drawline(color, self.atoms[1].posn(), self.atoms[2].posn())
-            self._drawtext(text, color)
+        drawAngleDimension(color, self.assy.o.right, self.assy.o.up,
+                           self.atoms[0].posn(), self.atoms[1].posn(), self.atoms[2].posn(),
+                           text)
 
-
-            
-    
     mmp_record_name = "mangle"
     
     pass # end of class MeasureAngle
@@ -252,18 +236,10 @@ class MeasureDihedral(MeasurementJig):
 
         text = "%.2f" % self.get_dihedral()
         # mechanical engineering style dimensions
-        mecheng_style_dimension = debug_pref("mech eng dimensions",
-                                             Choice_boolean_False, non_debug=True)
-        if mecheng_style_dimension:
-            drawDihedralDimension(color, self.assy.o.right, self.assy.o.up,
-                                  self.atoms[0].posn(), self.atoms[1].posn(),
-                                  self.atoms[2].posn(), self.atoms[3].posn(),
-                                  text)
-        else:
-            drawline(color, self.atoms[0].posn(), self.atoms[1].posn())
-            drawline(color, self.atoms[1].posn(), self.atoms[2].posn())
-            drawline(color, self.atoms[2].posn(), self.atoms[3].posn())
-            self._drawtext(text, color)
+        drawDihedralDimension(color, self.assy.o.right, self.assy.o.up,
+                              self.atoms[0].posn(), self.atoms[1].posn(),
+                              self.atoms[2].posn(), self.atoms[3].posn(),
+                              text)
     
     mmp_record_name = "mdihedral"
     
