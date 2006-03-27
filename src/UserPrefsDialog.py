@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Mar 22 16:17:38 2006
+# Created: Mon Mar 27 08:48:38 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1154,24 +1154,8 @@ class UserPrefsDialog(QDialog):
 
         self.TabPage_6 = QWidget(self.prefs_tab,"TabPage_6")
         TabPageLayout_6 = QGridLayout(self.TabPage_6,1,1,11,6,"TabPageLayout_6")
-        spacer10 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        spacer10 = QSpacerItem(20,110,QSizePolicy.Minimum,QSizePolicy.Expanding)
         TabPageLayout_6.addItem(spacer10,2,0)
-
-        layout67_4 = QGridLayout(None,1,1,0,6,"layout67_4")
-
-        self.undo_automatic_checkpoints_checkbox = QCheckBox(self.TabPage_6,"undo_automatic_checkpoints_checkbox")
-
-        layout67_4.addWidget(self.undo_automatic_checkpoints_checkbox,1,0)
-        spacer57_3 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout67_4.addItem(spacer57_3,1,1)
-
-        self.undo_restore_view_checkbox = QCheckBox(self.TabPage_6,"undo_restore_view_checkbox")
-
-        layout67_4.addMultiCellWidget(self.undo_restore_view_checkbox,0,0,0,1)
-        spacer56_4 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout67_4.addItem(spacer56_4,0,2)
-
-        TabPageLayout_6.addLayout(layout67_4,0,0)
 
         layout68_3 = QHBoxLayout(None,0,6,"layout68_3")
 
@@ -1194,6 +1178,29 @@ class UserPrefsDialog(QDialog):
         layout68_3.addItem(spacer58_2)
 
         TabPageLayout_6.addLayout(layout68_3,1,0)
+
+        layout70 = QGridLayout(None,1,1,0,6,"layout70")
+        spacer56_5 = QSpacerItem(268,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout70.addItem(spacer56_5,2,2)
+
+        self.undo_automatic_checkpoints_checkbox = QCheckBox(self.TabPage_6,"undo_automatic_checkpoints_checkbox")
+
+        layout70.addMultiCellWidget(self.undo_automatic_checkpoints_checkbox,1,1,0,2)
+
+        self.undo_stack_memory_limit_spinbox = QSpinBox(self.TabPage_6,"undo_stack_memory_limit_spinbox")
+        self.undo_stack_memory_limit_spinbox.setMaxValue(99999)
+
+        layout70.addWidget(self.undo_stack_memory_limit_spinbox,2,1)
+
+        self.undo_restore_view_checkbox = QCheckBox(self.TabPage_6,"undo_restore_view_checkbox")
+
+        layout70.addMultiCellWidget(self.undo_restore_view_checkbox,0,0,0,2)
+
+        self.textLabel1_2 = QLabel(self.TabPage_6,"textLabel1_2")
+
+        layout70.addWidget(self.textLabel1_2,2,0)
+
+        TabPageLayout_6.addLayout(layout70,0,0)
         self.prefs_tab.insertTab(self.TabPage_6,QString.fromLatin1(""))
 
         self.TabPage_7 = QWidget(self.prefs_tab,"TabPage_7")
@@ -1684,21 +1691,23 @@ class UserPrefsDialog(QDialog):
         QToolTip.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
         QWhatsThis.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
+        self.groupBox17.setTitle(self.__tr("History Preferences"))
+        self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
+        self.msg_timestamp_checkbox.setText(self.__tr("Include message timestamp"))
         self.undo_automatic_checkpoints_checkbox.setText(self.__tr("Automatic Checkpoints"))
         QToolTip.add(self.undo_automatic_checkpoints_checkbox,self.__tr("Specify Automatic or Manual Checkpoints at program startup."))
         QWhatsThis.add(self.undo_automatic_checkpoints_checkbox,self.__tr("<p><b>Automatic Checkpoints</b></p>Specifies whether <b>Automatic Checkpointing</b> is enabled/disabled during program startup only.  It does not enable/disable <b>Automatic Checkpointing</b> when the program is running.\n"
 "<p><b>Automatic Checkpointing</b> can be enabled/disabled by the user at any time from <b>Edit > Automatic Checkpointing</b>. When enabled, the program maintains the Undo stack automatically.  When disabled, the user is required to manually set Undo checkpoints using the <b>Set Checkpoint</b> button in the Edit Toolbar/Menu.</p>\n"
 "<p><b>Automatic Checkpointing</b> can impact program performance. By disabling Automatic Checkpointing, the program will run faster.</p>\n"
 "<p><b><i>Remember to you must set your own Undo checkpoints manually when Automatic Checkpointing is disabled.</i></b></p>"))
+        self.undo_stack_memory_limit_spinbox.setSuffix(self.__tr(" MB"))
         self.undo_restore_view_checkbox.setText(self.__tr("Restore View when Undoing Structural Changes"))
         QToolTip.add(self.undo_restore_view_checkbox,self.__tr("Undo will switch to the view saved with each structural change."))
         QWhatsThis.add(self.undo_restore_view_checkbox,self.__tr("<p><b>Restore View when Undoing Structural Changes</b></p>\n"
 "<p>When checked, the current view is stored along with each <b><i>structural change</i></b> on the undo stack.  The view is then restored when the user undoes a structural change.</p>\n"
 "<p><b><i>Structural changes</i></b> include any operation that modifies the model. Examples include adding, deleting or moving an atom, chunk or jig. </p>\n"
 "<p>Selection (picking/unpicking) and view changes are examples of operations that do not modify the model (i.e. are not structural changes).</p>"))
-        self.groupBox17.setTitle(self.__tr("History Preferences"))
-        self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
-        self.msg_timestamp_checkbox.setText(self.__tr("Include message timestamp"))
+        self.textLabel1_2.setText(self.__tr("Undo Stack Memory Limit :"))
         self.prefs_tab.changeTab(self.TabPage_6,self.__tr("Undo"))
         self.groupBox3.setTitle(self.__tr("Window Caption Format"))
         QToolTip.add(self.groupBox3,self.__tr("Window Border Caption Format"))
