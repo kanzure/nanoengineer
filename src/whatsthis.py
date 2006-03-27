@@ -1431,12 +1431,10 @@ def create_whats_this_descriptions_for_selectAtomsMode(w):
     
     # Atom Selection Filter Combobox #
     
-    atomSelectionFilterText = "<u><b>Atom Selection Filter</b></u><br> "\
-                        "<p>Enables/disables the <b>Atom Selection Filter</b>, "\
-                        "specifying the atom type that will be selected while performing selection operations in the "\
-                        "graphics area. </p>"\
-                        "<p>To disable the selection filter, select <b>All Elements</b> or press the <b>Escape</b> key. "\
-                        "</p>"
+    atomSelectionFilterText = "Enables/disables the <i>Atom Selection Filter</i>, specifying the atom type "\
+                "that will be selected while performing selection operations in the graphics area."\
+                "<p>To disable the selection filter, select <b>All Elements</b> or press the <b>Escape</b> key. "\
+                "</p>"
                         
     QWhatsThis.add ( w.elemFilterComboBox, atomSelectionFilterText)
     
@@ -1445,34 +1443,42 @@ def create_whats_this_descriptions_for_selectAtomsMode(w):
     
     # Transmute to (Element) Combobox
     
-    transmuteToElementTypeText = "<u><b>Transmute To Element Type</b></u><br> "\
-                        "<p>Specifies what element type to transmute all currently selected atoms to when the "\
-                        "<b>Transmute</b> button is pressed.</p>"
+    transmuteToElementTypeText = "Specifies what element type to transmute all currently selected atoms "\
+                "to when the <b>Transmute</b> button is pressed.</p>"
                         
     QWhatsThis.add ( w.transmute2ComboBox, transmuteToElementTypeText)
     
     QToolTip.add(w.transmute2ComboBox, qApp.translate("MainWindow","Transmute to Element Type", None))
     
     # Transmute to (Hybrid) Combobox
-    transmuteToHybridTypeText = "<u><b>Transmute To Element Hybrid Type</b></u><br> "\
-                        "<p>Specifies the atomic hybrid for the current element type selected in the <b>Transmute to</b> "\
-                        " dropbox.</p>"
+    transmuteToHybridTypeText = "Specifies the atomic hybrid for the current element type selected in the "\
+                "<b>Transmute to</b> dropbox."
                         
     QWhatsThis.add ( w.atomSelect_hybridComboBox, transmuteToHybridTypeText)
     
     QToolTip.add(w.atomSelect_hybridComboBox, qApp.translate("MainWindow","Transmute to Element Hybrid Type", None))
     
-    # Other tooltips
+    # Transmute button
+    transmuteButtonText = "Transmutes the currently selected atom(s) to the element (and hybrid) "\
+                "type specified in the <b>Transmute to</b> dropbox(es).</p>"
+                        
+    QWhatsThis.add ( w.transmuteButton, transmuteButtonText)
     
-    QToolTip.add(w.transmuteButton, qApp.translate("MainWindow","Transmute Selected Atoms", None))
+    QToolTip.add(w.transmuteButton, qApp.translate("MainWindow","Transmutes selected atoms", None))
+    
+    # Force to Keep All Bonds checkbox
+    
+    keepBondsText = "When checked, forces all existing bonds of transmuted atoms to remain in place."
+                        
+    QWhatsThis.add ( w.transmuteCheckBox, keepBondsText)
+    
     QToolTip.add(w.transmuteCheckBox, qApp.translate("MainWindow","Check to keep all bonds when transmuting", None))
     
     # Highlighting checkbox
     
-    highlightingText = "<u><b>Highlighting</b></u><br> "\
-                        "<p>Enables/disables <b>Hover Highlighting</b></p> "\
-                        "<p>When <b>enabled</b>, atoms and bonds under the cursor "\
-                        "are highlighted to indicate what would be selected if the user clicks "\
+    highlightingText = "Enables/disables <i>Hover Highlighting</i>"\
+                        "<p>When enabled, atoms and bonds under the cursor "\
+                        "are highlighted to indicate what will be selected if the user clicks "\
                         "the left mouse button.</p>"\
                         "<p>The highlighting color for atoms and bonds can be changed "\
                         "by selecting <b>Edit > Preferences</b> and clicking on the <b>Atoms</b> "\
@@ -1606,14 +1612,13 @@ def create_whats_this_descriptions_for_depositMode(w):
     
     # Autobond checkbox
     
-    autoBondText = "<u><b>Autobond</b></u><br> "\
-                        "Enables/disables <b>Autobonding</b><br> "\
-                        "<br> When <b>enabled</b>, additional bonds are formed "\
-                        "<b>automatically</b> with the deposited atom if any "\
+    autoBondText = "Enables/disables <i>Autobonding</i><br> "\
+                        "<br> When enabled, additional bonds are formed "\
+                        "automatically with the deposited atom if any "\
                         "bondpoints of neighboring atoms fall within the VdW radius, "\
-                        "and the deposited atom has extra bonds available.<br>"\
-                        "<br>When <b>disabled</b>, the deposited atom will form only one "\
-                        "bond <b>manually</b> with the bondpoint selected by the user."\
+                        "and the deposited atom has extra bondpoints available.<br>"\
+                        "<br>When disabled, the deposited atom will bond only "\
+                        "with the bondpoint (atom) clicked on."\
                         "</p>"
 
     QWhatsThis.add ( w.depositAtomDashboard.autobondCB, autoBondText )
@@ -1624,9 +1629,8 @@ def create_whats_this_descriptions_for_depositMode(w):
     
     # Water checkbox
     
-    waterText = "<u><b>Water</b></u><br> "\
-                        "Enables/disables the <b>Water Surface</b> selection filter<br> "\
-                        "<br>When <b>enabled</b>, a semi-transparent water surface is displayed."\
+    waterText = "Enables/disables the <i>Water Surface</i> selection filter<br> "\
+                        "<br>When enabled, a semi-transparent water surface is displayed."\
                         "The water surface serves as a selection filter.  Only atoms and bonds above "\
                         "the surface are highlighted and pickable.<br>"\
                         "<br>The depth of the water surface can be changed by holding down the Shift+Control/Command "\
@@ -1642,10 +1646,9 @@ def create_whats_this_descriptions_for_depositMode(w):
     
     # Highlighting checkbox
     
-    highlightingText = "<u><b>Highlighting</b></u><br> "\
-                        "<p>Enables/disables <b>Hover Highlighting</b></p> "\
-                        "<p>When <b>enabled</b>, atoms and bonds under the cursor "\
-                        "are highlighted to indicate what would be selected if the user clicks "\
+    highlightingText = "Enables/disables <i>Hover Highlighting</i>"\
+                        "<p>When enabled, atoms and bonds under the cursor "\
+                        "are highlighted to indicate what will be selected if the user clicks "\
                         "the left mouse button.</p>"\
                         "<p>The highlighting color for atoms and bonds can be changed "\
                         "by selecting <b>Edit > Preferences</b> and clicking on the <b>Atoms</b> "\
