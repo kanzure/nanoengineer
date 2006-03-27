@@ -122,6 +122,7 @@ nanohive_enabled_prefs_key = 'A7/Nano-Hive Enabled'
 # Undo and History prefs
 undoRestoreView_prefs_key = 'A7/Undo Restore View'
 undoAutomaticCheckpoints_prefs_key = 'A7/Undo Automatic Checkpoints'
+undoStackMemoryLimit_prefs_key = 'A7/Undo Stack Memory Limit'
 historyHeight_prefs_key = 'A6/History Height'
 historyMsgSerialNumber_prefs_key = 'A6/History Message Serial Number'
 historyMsgTimestamp_prefs_key = 'A6/History Message Timestamp'
@@ -272,6 +273,7 @@ prefs_table = (
     # Undo and History preferences [added to this table by bruce 050810]
     ('', 'boolean', undoRestoreView_prefs_key, False), # mark 060314
     ('', 'boolean', undoAutomaticCheckpoints_prefs_key, True), # mark 060314
+    ('', 'int', undoStackMemoryLimit_prefs_key, 100), # mark 060327
     ('', 'boolean', historyMsgSerialNumber_prefs_key, True),
     ('', 'boolean', historyMsgTimestamp_prefs_key, True),
     

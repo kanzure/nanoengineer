@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Mon Mar 27 08:48:38 2006
+# Created: Mon Mar 27 09:07:11 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1351,6 +1351,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
         self.connect(self.water_checkbox,SIGNAL("clicked()"),self.set_buildmode_water)
+        self.connect(self.undo_stack_memory_limit_spinbox,SIGNAL("valueChanged(int)"),self.change_undo_stack_memory_limit)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
@@ -1927,6 +1928,9 @@ class UserPrefsDialog(QDialog):
 
     def change_undo_automatic_checkpointing(self):
         print "UserPrefsDialog.change_undo_automatic_checkpointing(): Not implemented yet"
+
+    def change_undo_stack_memory_limit(self):
+        print "UserPrefsDialog.change_undo_stack_memory_limit(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

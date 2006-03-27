@@ -4726,6 +4726,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <receiver>UserPrefsDialog</receiver>
         <slot>set_buildmode_water()</slot>
     </connection>
+    <connection>
+        <sender>undo_stack_memory_limit_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_undo_stack_memory_limit()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -4853,6 +4859,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>reset_cpk_scale_factor()</slot>
     <slot>change_undo_restore_view()</slot>
     <slot>change_undo_automatic_checkpointing()</slot>
+    <slot>change_undo_stack_memory_limit()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

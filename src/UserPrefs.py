@@ -455,6 +455,8 @@ class UserPrefs(UserPrefsDialog):
 
         connect_checkbox_with_boolean_pref( self.undo_restore_view_checkbox, undoRestoreView_prefs_key )
         connect_checkbox_with_boolean_pref( self.undo_automatic_checkpoints_checkbox, undoAutomaticCheckpoints_prefs_key )
+        self.undo_stack_memory_limit_spinbox.setValue( env.prefs[undoStackMemoryLimit_prefs_key] )
+        
         
         #& History height widgets have been removed for A7, to be reinstituted at a later time, probably A8. mark 060314.
         #& self.history_height_lbl.hide()
@@ -1124,6 +1126,16 @@ class UserPrefs(UserPrefsDialog):
             env.prefs[nanohive_enabled_prefs_key] = False
             
                             
+    ########## End of slot methods for "Plug-ins" page widgets ###########
+    
+    ########## Slot methods for "Window" (former name "Caption") page widgets ################
+    
+    def change_undo_stack_memory_limit(self, mb_val):
+        '''Slot for 'Undo Stack Memory Limit' spinbox. Sets the RAM limit for the Undo Stack.
+        <mb-val> can range from 0-99999 (MB).
+        '''
+        env.prefs[undoStackMemoryLimit_prefs_key] = mb_val
+        
     ########## End of slot methods for "Plug-ins" page widgets ###########
 
     ########## Slot methods for "Window" (former name "Caption") page widgets ################
