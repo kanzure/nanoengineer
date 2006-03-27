@@ -1,3 +1,9 @@
+# If there is a problem building this on the Mac, it's possible that the
+# 'F' in "AGL.framework" was incorrectly capitalized.
+#                                                 V--- RIGHT HERE
+#CFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.framework/Headers \
+#	-I/usr/include/python$(PYDVER)
+
 UNAME := $(shell uname)
 # dotted python version (2.3, 2.4)
 PYDVER := $(shell python -c "import sys; print sys.version[:3]")
