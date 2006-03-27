@@ -1078,6 +1078,9 @@ def createWhatsThis(self):
                        "<b>Anchors:</b> torque (nn-nm)<br>"\
                        "<b>Thermostats:</b> energy added (zJ)<br>"\
                        "<b>Thermometer:</b> temperature (K)<br>"\
+                       "<b>Measure Distance:</b> distance(angstroms)<br>"\
+                       "<b>Measure Angle:</b> angle (degrees)<br>"\
+                       "<b>Measure Dihedral:</b> dihedral(degrees)<br>"\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " simPlotToolAction",
