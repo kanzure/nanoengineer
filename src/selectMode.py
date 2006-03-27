@@ -50,10 +50,6 @@ def do_what_MainWindowUI_should_do(w):
     w.depositAtomLabel.setText(" Select Atoms ")
     w.selectAtomsDashboard.addSeparator()
 
-    ## Kludge to make it work, it's really not good, may need to rework it later. Huaicai 8/10/05
-    #w.filterCheckBox = QCheckBox(" Select Only : ", w.selectAtomsDashboard)
-    #w.filterCheckBox.hide()
-    #QToolTip.add(w.filterCheckBox, qApp.translate("MainWindow","Selection Filter", None))
     selectLabel = QLabel(w.selectAtomsDashboard, "Select:")
     selectLabel.setText("Select: ")
     
@@ -76,10 +72,8 @@ def do_what_MainWindowUI_should_do(w):
     w.atomSelect_hybridComboBox.setMinimumSize ( QSize (width, 0) )
 
     w.transmuteButton = QPushButton("Transmute", w.selectAtomsDashboard)
-    QToolTip.add(w.transmuteButton, qApp.translate("MainWindow","Transmute Selected Atoms", None))
                  
     w.transmuteCheckBox = QCheckBox(" Force to Keep Bonds", w.selectAtomsDashboard)
-    QToolTip.add(w.transmuteCheckBox, qApp.translate("MainWindow","Check to keep bonds when transmute.", None))
     
     w.selectAtomsDashboard.addSeparator()
     w.selectAtomsDashboard.highlightingCB = QCheckBox("Highlighting", w.selectAtomsDashboard)
