@@ -439,7 +439,7 @@ readMMP(char *filename)
         consumeWhitespace(mmp);
         tok = readToken(mmp);
         if (!strcmp(tok, "atomtype")) {
-          enum hybridization hybridization;
+          enum hybridization hybridization = sp3;
           
           consumeWhitespace(mmp);
           expectToken(mmp, "=");
