@@ -1491,6 +1491,87 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             QBitmap(filePath + "/../images/ZoomPOVCursor.bmp"),
             QBitmap(filePath + "/../images/ZoomPOVCursor-bm.bmp"),
             -1, -1)
+        
+        # Create "BondToolCursor" list
+        self.BondToolCursor = []
+        self.BondToolCursor.append(QCursor(
+            QBitmap(filePath + "/../images/SelectAtomsCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectAtomsCursor-bm.bmp"),
+            0, 0))
+        self.BondToolCursor.append(QCursor(
+            QBitmap(filePath + "/../images/Bond1ToolCursor.bmp"),
+            QBitmap(filePath + "/../images/Bond1ToolCursor-bm.bmp"),
+            0, 0))
+        self.BondToolCursor.append(QCursor(
+            QBitmap(filePath + "/../images/Bond2ToolCursor.bmp"),
+            QBitmap(filePath + "/../images/Bond2ToolCursor-bm.bmp"),
+            0, 0))
+        self.BondToolCursor.append(QCursor(
+            QBitmap(filePath + "/../images/Bond3ToolCursor.bmp"),
+            QBitmap(filePath + "/../images/Bond3ToolCursor-bm.bmp"),
+            0, 0))
+        self.BondToolCursor.append(QCursor(
+            QBitmap(filePath + "/../images/BondAToolCursor.bmp"),
+            QBitmap(filePath + "/../images/BondAToolCursor-bm.bmp"),
+            0, 0))
+        self.BondToolCursor.append(QCursor(
+            QBitmap(filePath + "/../images/BondGToolCursor.bmp"),
+            QBitmap(filePath + "/../images/BondGToolCursor-bm.bmp"),
+            0, 0))
+            
+        # Create "BondToolAddCursor" list
+        self.BondToolAddCursor = []
+        self.BondToolAddCursor.append(QCursor(
+            QBitmap(filePath + "/../images/SelectAtomsAddCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectAtomsAddCursor-bm.bmp"),
+            0, 0))
+        self.BondToolAddCursor.append(QCursor(
+            QBitmap(filePath + "/../images/Bond1ToolAddCursor.bmp"),
+            QBitmap(filePath + "/../images/Bond1ToolAddCursor-bm.bmp"),
+            0, 0))
+        self.BondToolAddCursor.append(QCursor(
+            QBitmap(filePath + "/../images/Bond2ToolAddCursor.bmp"),
+            QBitmap(filePath + "/../images/Bond2ToolAddCursor-bm.bmp"),
+            0, 0))
+        self.BondToolAddCursor.append(QCursor(
+            QBitmap(filePath + "/../images/Bond3ToolAddCursor.bmp"),
+            QBitmap(filePath + "/../images/Bond3ToolAddCursor-bm.bmp"),
+            0, 0))
+        self.BondToolAddCursor.append(QCursor(
+            QBitmap(filePath + "/../images/BondAToolAddCursor.bmp"),
+            QBitmap(filePath + "/../images/BondAToolAddCursor-bm.bmp"),
+            0, 0))
+        self.BondToolAddCursor.append(QCursor(
+            QBitmap(filePath + "/../images/BondGToolAddCursor.bmp"),
+            QBitmap(filePath + "/../images/BondGToolAddCursor-bm.bmp"),
+            0, 0))
+            
+        # Create "BondToolSubtractCursor" list
+        self.BondToolSubtractCursor = []
+        self.BondToolSubtractCursor.append(QCursor(
+            QBitmap(filePath + "/../images/SelectAtomsSubtractCursor.bmp"),
+            QBitmap(filePath + "/../images/SelectAtomsSubtractCursor-bm.bmp"),
+            0, 0))
+        self.BondToolSubtractCursor.append(QCursor(
+            QBitmap(filePath + "/../images/Bond1ToolSubtractCursor.bmp"),
+            QBitmap(filePath + "/../images/Bond1ToolSubtractCursor-bm.bmp"),
+            0, 0))
+        self.BondToolSubtractCursor.append(QCursor(
+            QBitmap(filePath + "/../images/Bond2ToolSubtractCursor.bmp"),
+            QBitmap(filePath + "/../images/Bond2ToolSubtractCursor-bm.bmp"),
+            0, 0))
+        self.BondToolSubtractCursor.append(QCursor(
+            QBitmap(filePath + "/../images/Bond3ToolSubtractCursor.bmp"),
+            QBitmap(filePath + "/../images/Bond3ToolSubtractCursor-bm.bmp"),
+            0, 0))
+        self.BondToolSubtractCursor.append(QCursor(
+            QBitmap(filePath + "/../images/BondAToolSubtractCursor.bmp"),
+            QBitmap(filePath + "/../images/BondAToolSubtractCursor-bm.bmp"),
+            0, 0))
+        self.BondToolSubtractCursor.append(QCursor(
+            QBitmap(filePath + "/../images/BondGToolSubtractCursor.bmp"),
+            QBitmap(filePath + "/../images/BondGToolSubtractCursor-bm.bmp"),
+            0, 0))
 
         return # from loadCursors
     

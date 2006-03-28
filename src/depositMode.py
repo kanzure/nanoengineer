@@ -374,16 +374,16 @@ class depositMode(selectAtomsMode):
         else:
             change_connect = self.w.disconnect
         change_connect(self.w.pasteComboBox,SIGNAL("activated(int)"),
-                       self.setPaste)
+                       self.setPaste) #widget hidden in A7. mark 060327
         change_connect(self.w.elemChangeComboBox,SIGNAL("activated(int)"),
-                       self.setAtom)
+                       self.setAtom) #widget hidden in A7. mark 060327
             # Qt doc about SIGNAL("activated(int)"): This signal is not emitted
             # if the item is changed programmatically, e.g. using setCurrentItem().
             # Good! [bruce 050121 comment]
         change_connect(self.w.depositAtomDashboard.pasteBtn,
-                       SIGNAL("pressed()"), self.setPaste)
+                       SIGNAL("pressed()"), self.setPaste) #widget hidden in A7. mark 060327
         change_connect(self.w.depositAtomDashboard.depositBtn,
-                       SIGNAL("pressed()"), self.setAtom)
+                       SIGNAL("pressed()"), self.setAtom) #widget hidden in A7. mark 060327
         
         # New bond slots connections to the bond buttons on the dashboard. [mark 050727]
         change_connect(self.w.depositAtomDashboard.bond1Btn,
@@ -396,6 +396,11 @@ class depositMode(selectAtomsMode):
                        SIGNAL("toggled(bool)"), self.setBonda)
         change_connect(self.w.depositAtomDashboard.bondgBtn,
                        SIGNAL("toggled(bool)"), self.setBondg)
+        change_connect(self.w.depositAtomDashboard.buildBtn,
+                       SIGNAL("toggled(bool)"), self.setAtom) 
+                       # This was missing. Might have been cause of bug 1545. Theory not tested (try in A8).
+                       # This is needed to update cursor when buildBtn (Atom Tool) is selected.
+                       # See fix_submodes_btngrp() for more info. mark 060327
         
         # Slots for the Water and Highlight checkboxes. mark 060202.    
         change_connect(self.w.depositAtomDashboard.waterCB,
@@ -630,6 +635,24 @@ class depositMode(selectAtomsMode):
         
         selectAtomsMode.keyPress(self,key) # bruce 050128
         
+        return
+        
+    def update_cursor_for_no_MB(self):
+        '''Update the cursor for 'Build' mode (when no mouse button is pressed).
+        '''
+
+        cursor_id = self.w.depositAtomDashboard.submode_btngrp.selectedId()
+        
+        if self.o.modkeys is None:
+            self.o.setCursor(self.w.BondToolCursor[cursor_id])
+        elif self.o.modkeys == 'Shift':
+            self.o.setCursor(self.w.BondToolAddCursor[cursor_id])
+        elif self.o.modkeys == 'Control':
+            self.o.setCursor(self.w.BondToolSubtractCursor[cursor_id])
+        elif self.o.modkeys == 'Shift+Control':
+            self.o.setCursor(self.w.DeleteCursor)
+        else:
+            print "Error in update_cursor_for_no_MB(): Invalid modkey=", self.o.modkeys
         return
 
     def getCoords(self, event):
@@ -1619,8 +1642,9 @@ class depositMode(selectAtomsMode):
 ##        return
         
     def setAtom(self):
-        "called from radiobutton presses and spinbox changes" #k really from spinbox changes? I doubt it...#bruce 050121
+        "Slot for Atoms Tool dashboard button." 
         self.pastable = None # but spinbox records it... but not if set of pastables is updated! so maybe a bad idea? ##k
+        self.update_cursor()
         self.w.depositState = 'Atoms'
         self.w.update_depositState_buttons()
         self.UpdateDashboard() #bruce 050121 added this
@@ -1628,18 +1652,23 @@ class depositMode(selectAtomsMode):
     bondclick_v6 = None
     
     def setBond1(self, state):
+        "Slot for Bond Tool Single dashboard button."
         self.setBond(V_SINGLE, state, self.w.depositAtomDashboard.bond1Btn )
         
     def setBond2(self, state):
+        "Slot for Bond Tool Double dashboard button."
         self.setBond(V_DOUBLE, state, self.w.depositAtomDashboard.bond2Btn )
     
     def setBond3(self, state):
+        "Slot for Bond Tool Triple dashboard button."
         self.setBond(V_TRIPLE, state, self.w.depositAtomDashboard.bond3Btn )
         
     def setBonda(self, state):
+        "Slot for Bond Tool Aromatic dashboard button."
         self.setBond(V_AROMATIC, state, self.w.depositAtomDashboard.bondaBtn )
 
     def setBondg(self, state): #mark 050831
+        "Slot for Bond Tool Graphitic dashboard button."
         self.setBond(V_GRAPHITE, state, self.w.depositAtomDashboard.bondgBtn )
         
     def setBond(self, v6, state, button = None):
@@ -1660,6 +1689,7 @@ class depositMode(selectAtomsMode):
                 ## print "turned it off"
         else:
             pass # print "toggled(false) for",btype_from_v6(v6) # happens for the one that was just on, unless you click same one
+        self.update_cursor()
         return
     
     def fix_submodes_btngrp(self, button_id):
