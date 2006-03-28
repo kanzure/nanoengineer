@@ -19,6 +19,7 @@ import getopt
 from shutil import *
 
 PYLIBPATH = os.path.split(getopt.__file__)[0]
+prematureExit = False
 
 class NonZeroExitStatus(Exception):
     pass
@@ -65,6 +66,8 @@ class NanoBuildBase:
         self.createDirectories()
         self.prepareSources()
         self.buildSourceForDistribution()
+        if prematureExit:
+            sys.exit(0)
         self.makePlatformPackage()
 
     def setupBuildSourcePath(self):
@@ -536,6 +539,8 @@ class NanoBuildMacOSX(NanoBuildBase):
         copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), self.binPath)
         copy(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl',
                           self.openglAcceleratorName()), self.binPath)
+        copy(os.path.join(self.atomPath, 'cad/src/all_mac_imports.py'),
+                          os.path.join(self.buildSourcePath, appname, 'Contents/Resources'))
         copy('/usr/local/bin/gnuplot', self.binPath)
         #Copy rungms script into 'bin' directory
         copy(os.path.join(self.atomPath,'cad/src/rungms'), self.binPath)
@@ -705,8 +710,8 @@ def usage():
     """
 
 def main():
-    shortargs = 'ho:i:s:t:v:'
-    longargs = ['help', 'outdir=', 'iconfile=', 'sourcedir=', 'tag=', 'version=']
+    shortargs = 'ho:i:s:t:v:p'
+    longargs = ['help', 'outdir=', 'iconfile=', 'sourcedir=', 'tag=', 'version=', 'premature-exit']
    
     try:
         opts, args = getopt.getopt(sys.argv[1:], shortargs, longargs)
@@ -740,6 +745,9 @@ def main():
             sourceDirectory = a
         elif o in ("-v", "--version"):
             specialVersion = a
+        elif o in ("-p", "--premature-exit"):
+            global prematureExit
+            prematureExit = True
         elif o in ("-h", "--help"):
             usage()
             sys.exit()
