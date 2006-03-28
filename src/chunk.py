@@ -1537,6 +1537,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         if self is _nullMol:
             return
         # all the following must be ok for an already-killed molecule!
+        self._prekill() #bruce 060327, needed here even though Node.kill might do it too
         self.unpick() #bruce 050214 comment: keep doing this here even though Node.kill now does it too
         for b in self.externs[:]: #bruce 050214 copy list as a precaution
             b.bust()
@@ -1566,6 +1567,13 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 assert self.part is None
         Node.kill(self) #bruce 050214 moved this here, made it unconditional
         return # from molecule.kill
+
+    def _set_will_kill(self, val): #bruce 060327 in Chunk
+        "[extends private superclass method; see its docstring for details]"
+        Node._set_will_kill( self, val)
+        for a in self.atoms.itervalues():
+            a._will_kill = val # be fast, don't use a method ##e want to do it on their bonds too??
+        return
 
     # New method for finding atoms or singlets under mouse. Helps fix bug 235
     # and many other bugs (mostly never reported). [bruce 041214]

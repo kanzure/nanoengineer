@@ -381,6 +381,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     glname = 0 
     key = 0
 
+    _will_kill = 0 #bruce 060327
+
     # def __init__  is just below a couple undo-update methods
 
     def _undo_update(self):
@@ -537,6 +539,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         SEMANTICS ARE UNCLEAR -- whether it should destroy bonds in self.bonds (esp in light of rebond method).
         See comments in assy_clear by bruce 060322 (the "misguided" ones, written as if that was assy.destroy, which it's not).
         """
+        # If this proves inefficient, we can dispense with most of it, since glselect dict can be made weak-valued
+        # (and will probably need to be anyway, for mmkit library part atoms),
+        # and change-tracking dicts (_Atom_global_dicts) are frequently cleared, and subscribers will ignore objects
+        # from destroyed assys. So it's only important here if we destroy atoms before their assy is destroyed
+        # (e.g. when freeing from redo or old undo diffs), and it's probably not enough for that anyway (not thought through).
+        # Ideally we'd remove cycles, not worry about transient refs in change-trackers, make change-trackers robust
+        # to being told about destroyed atoms, and that would be enough. Not yet sure whether that's practical.
+        # [bruce 060327 comment]
         env.dealloc_my_glselect_name( self, self.glname )
         key = self.key
         for dict1 in _Atom_global_dicts:
@@ -1546,6 +1556,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         at2 = b.other(self)
         if at2.element is Singlet:
             return None
+        if 1:
+            #bruce 060327 optim of chunk.kill: if we're being killed right now, don't make a new bondpoint ####@@@@ UNTESTED
+            import Utility
+            if self._will_kill == Utility._will_kill_count:
+                return None
         x = atom('X', b.ubp(self), self.molecule) # invals mol as needed
         #bruce 050727 new feature: copy the bond type from the old bond (being broken) to the new open bond that replaces it
         bond_copied_atoms( self, x, b)

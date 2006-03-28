@@ -98,6 +98,8 @@ def node_name(node): # use in error or debug messages for safety, rather than no
         return "<node has no .name>"
     pass
 
+_will_kill_count = 1 # this must start > 0, even though it's incremented when next used [bruce 060327]
+
 class Node( StateMixin):
     """
     This is the basic object, inherited by groups, molecules, jigs,
@@ -1071,17 +1073,45 @@ class Node( StateMixin):
     
     # ==
     
-    def kill(self):
+    def kill(self): # see also self.destroy()
         """Remove self from its parents and (maybe) destroy enough of its content that it takes little room (but be Undoable).
-        [subclasses should extend this]
+        [subclasses should extend this, but should call this Node method at the end of their own kill methods]
         """
         ###@@@ bruce 050214 changes and comments:
         #e needs docstring;
         #  as of now, intended to be called at end (not start middle or never) of all subclass kill methods
         #  ok to call twice on a node (i.e. to call on an already-killed node); subclass methods should preserve this property
         # also modified the Group.kill method, which extends this method
+##        self._prekill() #bruce 060327 ##k not positive this is needed in Node (rather than just Group and Chunk being enough)
+##        ###@@@ defect in this (important): jigs dying due to one or all their atoms dying will run this and mess up the counter.
         self.remove_from_parents()
+    
+    _will_kill = 0
 
+    def _prekill(self): #bruce 060327 in Node (mainly to speed up Delete of chunks, also (short term purpose) to reduce memory leaks)
+        """[private helper method for Node.kill and its subclass implems]
+        Set self._will_kill = ++ _will_kill_count on self, all child nodes, and all other owned subobjects that self.kill() would kill,
+        but only when it's not already set on self (to avoid exponential runtime in Node tree depth, when recursive kill calls this),
+        and only on Node classes which might own objects which need it (currently Atoms and maybe Bonds and conceivably Parts).
+           This flag tells Atoms being killed not to create new bondpoints on their neighbors when those are also being killed,
+        which is a big optimization. It can do other similar things if we discover them -- in general, it means "I'm also being
+        killed so don't spend lots of time healing my wounds when you're being killed".
+           Note: Undo will revive killed objects, so kill needs to remove this flag from them when it returns,
+        and Undo might assert that it's not set on revived objects.
+           Note: We increment a counter when setting this, so as not to have to worry about whether leftover sets of it
+        will cause trouble. This might make some of what's said above (about unsetting it) unnecessary.
+        [subclasses should not extend this, but should extend _set_will_kill instead; at least Group and Chunk need to do that]
+        """    
+        global _will_kill_count
+        if self._will_kill < _will_kill_count:
+            _will_kill_count += 1
+            self._set_will_kill( _will_kill_count) # sets it to this value (with no checks) on self, children, atoms
+        return
+
+    def _set_will_kill(self, val): #bruce 060327 in Node
+        "[private helper method for _prekill; see its docstring for details; subclasses with owned objects should extend this]"
+        self._will_kill = val
+    
     glname = 0 # required class constant in case of repeated calls of self.destroy() #bruce 060322
 
     def destroy(self):
@@ -1858,12 +1888,20 @@ class Group(Node):
 
     # ==
     
-    def kill(self):
+    def kill(self): # in class Group
         #bruce 050214: called Node.kill instead of inlining it; enhanced Node.kill;
         # and fixed bug 381 by killing all members first.
+        self._prekill() # this has to be done before killing the members, even though Node.kill might do it too [bruce 060327]
         for m in self.members[:]:
             m.kill()
         Node.kill(self)
+
+    def _set_will_kill(self, val): #bruce 060327 in Group
+        "[private helper method for _prekill; see its docstring for details; subclasses with owned objects should extend this]"
+        Node._set_will_kill( self, val)
+        for m in self.members:
+            m._set_will_kill( val)
+        return
 
     def reset_subtree_part_assy(self): #bruce 051227
         "[overrides Node method]"
