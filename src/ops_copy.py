@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 ops_copy.py -- general cut/copy/delete operations on selections
 containing all kinds of model tree nodes.
@@ -263,6 +263,15 @@ class ops_copy_Mixin:
         if use_selatoms and self.selatoms:
             self.changed()
             nsa = len(self.selatoms) # Get the number of selected atoms before it changes
+            if 1:
+                #bruce 060328 optimization: avoid creating transient new bondpoints as you delete bonds between these atoms
+                # WARNING: the rules for doing this properly are tricky and are not yet documented.
+                # The basic rule is to do things in this order, for atoms only, for a lot of them at once:
+                # prekill_prep, prekill all the atoms, kill the same atoms.
+                import chem
+                val = chem.Atom_prekill_prep()
+                for a in self.selatoms.itervalues():
+                    a._will_kill = val # inlined a._prekill(val), for speed
             for a in self.selatoms.values():
                 a.kill()
             self.selatoms = {} # should be redundant

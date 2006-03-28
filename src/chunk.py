@@ -1572,7 +1572,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         "[extends private superclass method; see its docstring for details]"
         Node._set_will_kill( self, val)
         for a in self.atoms.itervalues():
-            a._will_kill = val # be fast, don't use a method ##e want to do it on their bonds too??
+            a._will_kill = val # inlined a._prekill(val), for speed
+            ##e want to do it on their bonds too??
         return
 
     # New method for finding atoms or singlets under mouse. Helps fix bug 235

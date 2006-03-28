@@ -284,6 +284,18 @@ _Atom_global_dicts = [_changed_parent_Atoms, _changed_structure_Atoms, _changed_
 
 # ==
 
+def Atom_prekill_prep(): #bruce 060328
+    """Prepare to kill some set of atoms (known to the caller) more efficiently than otherwise.
+    Return a value which the caller should pass to the _prekill method on all (and ONLY) those atoms,
+    before killing them.
+       [#e Note: If we can ever kill atoms and chunks in the same operation, we'll need to revise some APIs
+    so they can all use the same value of _will_kill_count, if we want to make that most efficient.]
+    """
+    ###e this should be merged with similar code in class Node
+    import Utility
+    Utility._will_kill_count += 1
+    return Utility._will_kill_count
+    
 class Atom(AtomBase, InvalMixin, StateMixin):
     #bruce 050610 renamed this from class atom, but most code still uses "atom" for now
     """An atom instance represents one real atom, or one "singlet"
@@ -1557,7 +1569,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         if at2.element is Singlet:
             return None
         if 1:
-            #bruce 060327 optim of chunk.kill: if we're being killed right now, don't make a new bondpoint ####@@@@ UNTESTED
+            #bruce 060327 optim of chunk.kill: if we're being killed right now, don't make a new bondpoint
             import Utility
             if self._will_kill == Utility._will_kill_count:
                 return None
@@ -1741,6 +1753,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             return True
         pass # end of atom.killed_with_debug_checks()
 
+    def _prekill(self, val): #bruce 060328; usually inlined (but was tested when first written)
+        self._will_kill = val
+        return
+        
     def kill(self):
         """Public method:
         kill an atom: unpick it, remove it from its jigs, remove its bonds,
