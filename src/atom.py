@@ -1,5 +1,5 @@
 #! /usr/bin/python
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 
 """
 atom.py is the startup script for nanoENGINEER-1.
@@ -47,11 +47,23 @@ The reason this condition is needed at all is to reduce the harm caused
 by someone accidentally running "import atom" (which is wrong but causes no harm).
 """
 
-import sys, os.path
+import sys, os, time
 if sys.platform == 'darwin':
-    # Bug 1724, wware 060320
+    # Bug 1724 mitigation, wware 060320 & bruce 060327   [for incomplete parts, search for ####@@@@]
+    #
+    # setting DYLD_LIBRARY_PATH is needed by the subprocess that runs all_mac_imports, 
+    # or the linker will be unable to import qt; I don't know if it's good, bad, or neutral
+    # to do it for the main process too, but it seems more likely to be good
+    # (making our app more self-contained re qt), and it works for me.
+    # This has no effect on developers running from cad/srcs, since RESOURCEPATH won't be set for them.
+    # [bruce 060327]
+    resources = os.environ.get('RESOURCEPATH')
+    if resources:
+        os.environ['DYLD_LIBRARY_PATH'] = os.path.abspath( os.path.join( resources, "../Frameworks"))
     if False:
-        # Print a list of all the imports (not including duplications), save it to "all_mac_imports.py"
+    	# This code can be used to develop a list of import statements for all_mac_imports.py.
+    	# This has already been done, and the list has subsequently been hand-edited.
+        # Print a list of all the imports to stdout (not including duplications).
         _old_import = __import__
         not_these = [ "swig_runtime_data1", "OpenGL.GL._GL__init__", "bsddb", "_bsddb", "dbhash", "dotblas" ]
         def __import__(*args, **kws):
@@ -66,17 +78,104 @@ if sys.platform == 'darwin':
                # one option for our own alert window, therefore, is an assertion failure
                # (if we don't want to let the user even try to run the app -- but we do).
     else:
-        import os
-        arg = ":".join(sys.path)
-	# all_mac_imports.py will be in the same directory as atom.py, bug 1749 wware 060323
-        _dir = os.path.dirname(sys.argv[0])
-        if _dir: _dir += "/"
-        inf = os.popen(sys.executable + " " + _dir + "all_mac_imports.py " + arg)
-        lines = map(lambda x: x.rstrip(), inf.readlines())
-        inf.close()
-        if "ALL IMPORTS COMPLETED" not in lines:
-            print "There were import problems, so giving up"
-            sys.exit(1)
+    	# Note: this code needs to work for either developers running it from cad/src/atom.py,
+    	# or (its main purpose) for end-users running it from either Contents/Resources/nanoENGINEER-1.py
+    	# or Contents/Resources/Python/nanoENGINEER-1.py, since release building can end up putting it
+    	# in either of those two locations for reasons we don't yet understand. In the end-user case,
+    	# it's execfile'd from __boot__.py. Its purpose is to test whether all required import statements
+    	# will work, so if not, we can put up a useful dialog rather than just failing to start for no
+    	# apparent reason. We have to do this in a subprocess, since when they fail, it just stops the
+    	# process rather than raising an ImportError. The subprocess runs all_mac_imports.py to do the test,
+    	# and we assume it succeeded only if it prints a certain string.
+    	# For more info see ####@@@@ [ a wiki url about this bug].
+    	
+    	# let developers or end-users see more info about this bug by creating a specially named empty file:
+    	try:
+    	    debug_1724 = os.path.exists( os.path.join( os.environ['HOME'], 'DEBUG-1724')) # has '-', not '_'
+    	except:
+    	    debug_1724 = False
+	if debug_1724:
+	    debug_1724_start = time.time()
+	    print "printing debug info relevant to bug 1724"
+	    if resources:
+	        print "set DYLD_LIBRARY_PATH to %r" % os.environ['DYLD_LIBRARY_PATH']
+    	# First, figure out where we're running from and where all_mac_imports is located.
+    	# Warning: in the end-user case, all_mac_imports might be in two places -- Contents/Resources
+    	# (or Contents/Resources/Python), and site-packages.zip. We only want the Contents/Resources version.
+    	# Some variables that might help us tell where we are:
+    	if debug_1724:
+    	    print __file__ # .../cad/src/atom.py or .../nanoENGINEER-1.app/Contents/Resources/__boot__.py 
+    	    print sys.argv[0] # .../cad/src/atom.py or .../nanoENGINEER-1.app/Contents/Resources/__boot__.py
+    	    print sys.executable
+ 		# For a developer, this depends on how your start the app. A possible value which probably
+ 		# means you're subject to bug 1724 is (note this is in /Library, not /System/Library):
+    		#   /Library/Frameworks/Python.framework/Versions/2.3/Resources/Python.app/Contents/MacOS/Python
+    		# For an end-user, whether or not your Mac has the problem in bug 1724, if you have Panther,
+    		# the value should be:
+    		#   /System/Library/Frameworks/Python.framework/Versions/2.3/bin/python
+    	    print os.environ.get('RESOURCEPATH')
+    	 	# for a developer, this probably prints None
+    	 	# for an end-user, it should print .../nanoENGINEER-1.app/Contents/Resources
+    	# Since we want to run all_mac_imports.py in any case, let's just look for it in the locations
+    	# it might be in:
+    	possible_dirs = []
+    	possible_dirs.append( os.path.dirname(sys.argv[0]) ) # .../cad/src or .../Contents/Resources
+    	if os.path.basename( possible_dirs[-1] ) == 'Resources':
+    	    possible_dirs.append( os.path.join( possible_dirs[-1], 'Python' ))
+    	elif os.path.basename( possible_dirs[-1] ) == 'Python': # might not be possible
+    	    possible_dirs.append( os.path.dirname( possible_dirs[-1] ))
+    	allmac_path = None
+    	for dir1 in possible_dirs:
+    	    file1 = os.path.join( dir1, "all_mac_imports.py" ) 
+    	    	# this works even if you run "pythonw atom.py" or "pythonw ./atom.py"
+    	    	# (though Qt prints a warning then about using a relative path).
+    	    if os.path.exists( file1):
+    	        allmac_path = file1
+    	        break
+    	if allmac_path:
+    	    if debug_1724:
+    	        print "found all_mac_imports.py at %r" % allmac_path
+    	    # run it and warn the user if it doesn't work
+            arg = ":".join(sys.path) # pass this to the subprocess so it can use the same sys.path as us
+            cmd = sys.executable + " " + allmac_path + " " + arg
+            if debug_1724:
+                os.environ['debug_1724'] = "1"
+                # so subprocess can see it (is this wise, or might it cause a heisenbug?)
+            try:
+        	inf = os.popen(cmd) ####@@@@ this assumes no spaces in dirnames; fixable?
+            except:
+                print "exception in os.popen(%r) (might be caused by spaces in pathnames); not trying all_mac_imports.py"
+            else:
+                lines = map(lambda x: x.rstrip(), inf.readlines())
+                if debug_1724:
+                    print 'output from all_mac_imports (%d lines, after ">>  ") was:' % len(lines)
+                    print
+                    print ">>  " + "\n>>  ".join(lines)
+                    print
+        	inf.close()
+        	if "ALL IMPORTS COMPLETED" not in lines:
+        	    ####@@@@ change this to a warning dialog
+            	    print "There were import problems (bug 1724), so giving up"
+            	    sys.exit(1)
+                else:
+                    if debug_1724:
+                        print "all_mac_imports worked"
+                        debug_1724_end = time.time()
+                        print " (took %0.3f extra seconds for startup)" % (debug_1724_end - debug_1724_start)
+                          # This prints 3-4 seconds on bruce's iMac G4 with a small set of imports being tested.
+                          # Without debug_1724, it seems faster; maybe this time is less or maybe it reduces
+                          # some of the time taken subsequently (e.g. to load python?) so has less than full
+                          # impact (just guesses). I think this means I don't need to provide a way to 
+                          # disable the test, which is good in case someone might install the problematic
+                          # alternative Python *after* installing nE-1. [bruce 060327]
+                        print
+                    pass
+                pass
+            pass
+        else:
+            print "can't find all_mac_imports.py (please inform nanorex support); trying to start anyway"
+        pass 
+    pass # end of bug 1724 mitigation code
 
 __author__ = "Josh"
 

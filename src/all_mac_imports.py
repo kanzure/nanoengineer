@@ -1,9 +1,40 @@
-import sys
+# This file is part of a mitigation of bug 1724;
+# it is partly handmade and partly automatically generated.
+# Developers: don't commit any changes unless you have full understanding of bug 1724.
+# [wware circa 060320 & bruce 060327] 
 
-for dir in sys.argv[1].split(":"):
-    sys.path.append(dir)
+import sys, os
 
-import os
+sys.path = sys.argv[1].split(":")
+
+# do the same thing py2app site.py does: (don't know if this is required or if it helps)
+sys.argv[0] = os.path.abspath(sys.argv[0])
+
+try:
+    debug_1724 = int(os.environ['debug_1724']) # sometimes passed in from parent process
+except:
+    debug_1724 = False
+
+if debug_1724:
+    # either this arg is not working, or the prints aren't
+    print >>sys.stderr, "printing debug_1724 info from all_mac_imports subprocess to stderr"
+    _old_import = __import__
+    def __import__(*args, **kws):
+        arg = args[0]
+        print >>sys.stderr, "about to import " + arg # helps determine which module had the problem
+        return _old_import(*args, **kws)
+    __builtins__.__import__ = __import__ # this is required, else no effect.
+
+import qt
+import multiarray   # this has the problem
+
+if "we should be faster": 
+    # for speed; the above might be enough to test, and this saves 4-5 seconds [bruce 060327]
+    # (it would be good to figure out which of the other ones are slow)
+    print "ALL IMPORTS COMPLETED"
+    
+    sys.exit(1)    # # # 
+
 import time
 import types
 import sip
@@ -13,7 +44,6 @@ import __builtin__
 import cStringIO
 import Numeric
 import numeric_version
-import multiarray
 import _numpy
 import umath
 import Precision
@@ -76,4 +106,9 @@ import _File
 import macostools
 import MacOS
 import unittest
+
 print "ALL IMPORTS COMPLETED"
+# warning: this line might not run, instead there might be a duplicate of it above
+# with an early exit, which runs.
+
+# end
