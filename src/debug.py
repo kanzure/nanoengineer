@@ -749,7 +749,10 @@ class DebugMenuMixin:
         for clasname, modulename in (
                 ('Atom', 'chem'),
                  ('Bond', 'bonds'),
-                 ('Node', 'Utility'),
+                 # ('Node', 'Utility'), # Node or Jig is useless here, we need the specific subclasses!
+                 ('Chunk', 'chunk'),
+                 ## ('PiBondSpChain', 'pi_bond_sp_chain'), # no module pi_bond_sp_chain -- due to lazy load or atom-debug reload??
+                 ('Group', 'Utility'), # doesn't cover subclasses PartGroup, ClipboardItemGroup, RootGroup(sp?)
                  ('Part', 'part'),
                  ('Assembly', 'assembly')):
             # should also have a command to look for other classes with high refcounts
