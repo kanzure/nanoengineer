@@ -953,6 +953,14 @@ class Node( StateMixin):
         """
         return False # conservative answer
 
+    # bug 1766, wware 060328
+    # Separate the will_copy_if_selected test from the printing of a warning. That way
+    # if we are doing the test without an actual intention to copy, we don't need to
+    # print the warning at an inappropriate time.
+    def copy_warning(self, sel):
+        "give warning if copy won't happen"
+        return
+
     def will_partly_copy_due_to_selatoms(self, sel): #bruce 050525; docstring revised 050704
         """For nodes which say True to .confers_properties_on(atom) for one or more atoms
         which are part of a selection being copied, but when this node is not selected,
@@ -2186,11 +2194,14 @@ class Csys(DataNode):
         
     def will_copy_if_selected(self, sel):
         "Copying a named view NIY.  Maybe A8.  [overrides Node method]"
+        return False
+
+    def copy_warning(self, sel):    # bug 1766, wware 060328
+        "give warning if copy won't happen"
         # Tell user reason why not.  Mark 060124.
         msg = "Copying named views not implemented yet.  %s not copied." % (self.name)
         from HistoryWidget import orangemsg
         env.history.message(orangemsg(msg))
-        return False
         
     pass # end of class Csys
 
