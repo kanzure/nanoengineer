@@ -363,9 +363,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                 # we might need to recurse on their members here if the groups say no,
                 # unless that 'no' applies to copying the members too.
                 fullcopy[id(node)] = node
-            else:
-                # bug 1766, wware 060328
-                node.copy_warning(sel)
+            node.copy_warning()   # bug 1766, wware 060328
         for atom in sel.selatoms.itervalues():
             chunk = atom.molecule
             #e for now we assume that all these chunks will always be partly copied;

@@ -954,10 +954,28 @@ class Node( StateMixin):
         return False # conservative answer
 
     # bug 1766, wware 060328
+    #
     # Separate the will_copy_if_selected test from the printing of a warning. That way
     # if we are doing the test without an actual intention to copy, we don't need to
     # print the warning at an inappropriate time.
-    def copy_warning(self, sel):
+    #
+    # You should call this method in a situation where you really do intend to copy. It
+    # should be called soon after will_copy_if_selected, and it should be called whether
+    # will_copy_if_selected returned True or False. An example:
+    #
+    #      # we know this is a real attempt to copy
+    #      ok_to_copy = True
+    #      for node in list_of_nodes:
+    #          if not node.will_copy_if_selected(sel):
+    #              ok_to_copy = False
+    #          node.copy_warning()
+    #      if ok_to_copy:
+    #          go ahead and do the copy operation
+    #
+    # When overloading this method, you can use will_copy_if_selected to set an instance
+    # variable flag telling whether the warning should be printed. Otherwise you'd need to
+    # duplicate whatever test was done in will_copy_if_selected.
+    def copy_warning(self):
         "give warning if copy won't happen"
         return
 
@@ -2196,7 +2214,7 @@ class Csys(DataNode):
         "Copying a named view NIY.  Maybe A8.  [overrides Node method]"
         return False
 
-    def copy_warning(self, sel):    # bug 1766, wware 060328
+    def copy_warning(self):    # bug 1766, wware 060328
         "give warning if copy won't happen"
         # Tell user reason why not.  Mark 060124.
         msg = "Copying named views not implemented yet.  %s not copied." % (self.name)

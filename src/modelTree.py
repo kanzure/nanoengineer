@@ -485,8 +485,8 @@ class modelTree(TreeWidget):
                 # if this test is too slow, could inline it by knowing about Jigs here; but better to speed it up instead!
                 doit = True
                 break
+            # this is not a real copy, so do not issue a warning
         if doit:
-            node.copy_warning(sel)    # bug 1766, wware 060328
             res.append(( 'Copy', self.cm_copy ))
         # For single items, add a Duplicate command and enable it if they support the method. [bruce 050704 new feature]
         # For now, hardly anything offers this command, so I'm changing the plan, and removing it (not disabling it)
