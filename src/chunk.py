@@ -1813,7 +1813,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 
     # == copy methods (extended/revised by bruce 050524-26)
 
-    def will_copy_if_selected(self, sel):
+    def will_copy_if_selected(self, sel, realCopy):
         return True
 
     def will_partly_copy_due_to_selatoms(self, sel):

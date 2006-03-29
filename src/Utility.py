@@ -946,27 +946,14 @@ class Node( StateMixin):
     # == copy methods -- by default, Nodes can't be copied, but all copyable Node subclasses
     # == should override these methods.
 
-    def will_copy_if_selected(self, sel): #bruce 050525
+    def will_copy_if_selected(self, sel, realCopy): #bruce 050525
         """Will this node copy itself when asked (via copy_in_mapping or postcopy_in_mapping [#doc which one!])
         because it's selected in sel, which is being copied as a whole?
         [Node types which implement an appropriate copy method should override this method.]
+        If the realCopy boolean is set (indicating this is a real copy operation and not
+        just a test), and if this node will not copy, it may want to print a warning.
         """
         return False # conservative answer
-
-    # bug 1766, wware 060328
-    #
-    # Separate the will_copy_if_selected test from the printing of a warning. That way
-    # if we are doing the test without an actual intention to copy, we don't need to
-    # print the warning at an inappropriate time.
-    #
-    def copy_warning(self):
-        """Print a warning if a node will not be copied, even though it's selected.
-        You should call this method in a situation where you really do intend to copy. It
-        should be then called when will_copy_if_selected has returned False. This will
-        allow the node that refuses to be copied to provide an explanation.
-        The copy_warning() method should make no attempt to test whether a copy operation
-        would or would not be valid. It should print the warning unconditionally."""
-        return
 
     def will_partly_copy_due_to_selatoms(self, sel): #bruce 050525; docstring revised 050704
         """For nodes which say True to .confers_properties_on(atom) for one or more atoms
@@ -1881,7 +1868,10 @@ class Group(Node):
 
     # == Group copy methods [revised/added by bruce 050524-050526]
 
-    def will_copy_if_selected(self, sel):
+    def will_copy_if_selected(self, sel, realCopy):
+        if realCopy:
+            for x in self.members:
+                x.will_copy_if_selected(sel, True)
         return True
 
     def copy_full_in_mapping(self, mapping): # Group method [bruce 050526]
@@ -2199,17 +2189,15 @@ class Csys(DataNode):
         msg = 'View "%s" now set to the current view.' % (self.name)
         env.history.message( cmd + msg )
         
-    def will_copy_if_selected(self, sel):
+    def will_copy_if_selected(self, sel, realCopy):
         "Copying a named view NIY.  Maybe A8.  [overrides Node method]"
+        if realCopy:
+            # Tell user reason why not.  Mark 060124.
+            msg = "Copying named views not implemented yet.  %s not copied." % (self.name)
+            from HistoryWidget import orangemsg
+            env.history.message(orangemsg(msg))
         return False
 
-    def copy_warning(self):    # bug 1766, wware 060328
-        "give warning if copy won't happen"
-        # Tell user reason why not.  Mark 060124.
-        msg = "Copying named views not implemented yet.  %s not copied." % (self.name)
-        from HistoryWidget import orangemsg
-        env.history.message(orangemsg(msg))
-        
     pass # end of class Csys
 
 

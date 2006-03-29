@@ -109,18 +109,16 @@ class MeasurementJig(Jig):
     def writepov(self, file, dispdef):
         sys.stderr.write(self.__class__.__name__ + ".writepov() not implemented yet")
     
-    def will_copy_if_selected(self, sel):
+    def will_copy_if_selected(self, sel, realCopy):
         "copy only if all my atoms are selected [overrides Jig.will_copy_if_selected]"
         # for measurement jigs, copy only if all atoms selected, wware 051107
         for atom in self.atoms:
             if not sel.picks_atom(atom):
+                if realCopy:
+                    msg = "Can't copy a measurement jig unless all its atoms are selected"
+                    env.history.message(orangemsg(msg))
                 return False #e need to give a reason why not??
         return True
-
-    def copy_warning(self):    # bug 1766, wware 060328
-        "give warning if copy won't happen"
-        msg = "Can't copy a measurement jig unless all its atoms are selected"
-        env.history.message(orangemsg(msg))
 
     pass # end of class MeasurementJig
 

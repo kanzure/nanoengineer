@@ -355,7 +355,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
             # chunks, jigs, Groups -- for efficiency and in case it's a feature,
             # don't scan jigs of a chunk's atoms like we do for individual atoms;
             # this decision might be revised, and if so, we'd scan that here when node is a chunk.
-            if node.will_copy_if_selected(sel):
+            if node.will_copy_if_selected(sel, True):
                 # Will this node agree to be copied, if it's selected, given what else is selected?
                 # (Can be false for Jigs whose atoms won't be copied, if they can't exist with no atoms or too few atoms.)
                 # For Groups, no need to recurse here and call this on members,
@@ -363,8 +363,6 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                 # we might need to recurse on their members here if the groups say no,
                 # unless that 'no' applies to copying the members too.
                 fullcopy[id(node)] = node
-            else:
-                node.copy_warning()   # bug 1766, wware 060328
         for atom in sel.selatoms.itervalues():
             chunk = atom.molecule
             #e for now we assume that all these chunks will always be partly copied;

@@ -481,7 +481,7 @@ class modelTree(TreeWidget):
         sel = selection_from_part(part, use_selatoms = False) #k should this be the first code to use selection_from_MT() instead?
         doit = False
         for node in nodeset:
-            if node.will_copy_if_selected(sel):
+            if node.will_copy_if_selected(sel, False):
                 # if this test is too slow, could inline it by knowing about Jigs here; but better to speed it up instead!
                 doit = True
                 break
