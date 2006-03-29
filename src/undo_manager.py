@@ -662,8 +662,14 @@ def editClearUndoStack(): #bruce 060304, modified from Mark's prototype in MWsem
 #     actually implement the freeing of all stored ops, which can't be that hard given that it's easy to tell which ones to free --
 #     *all* of them! guess: stored_ops.clear(), in archive, in all calls of clear_undo_stack.
 
-def external_begin_cmd_checkpoint(assy, cmdname = "command"): #bruce 060324 for use in widgets.py ##e use in GLPane??
+def external_begin_cmd_checkpoint(assy, cmdname = "command"): #bruce 060324 for use in widgets.py ##e use in GLPane/TreeWidget??
     "Call this with the assy you're modifying, or None. Pass whatever it returns to external_end_cmd_checkpoint later."
+    # As of 060328 we use other code similar to these funcs in both GLPane.py and TreeWidget.py...
+    # worry: those (on mouse press/release) might interleave with these cmenu versions, depending on details of popup menus!
+    # But the worry is unfounded: If a click puts up the menu, no interleaving; if mouse stays down until command is done,
+    # then the outer press/release wraps (properly) the inner cmenu cps, unless outer release is missing (absorbed by popup menu
+    # as it apparently is), and then, releases's end-cp never occurs but cmenu's was enough. This might affect cmdname, but
+    # checkpointing should be fine. Note, it doesn't do begin_op / end_op, which could be an issue someday. ###@@@
     if assy is not None:
         begin_retval = assy.undo_checkpoint_before_command(cmdname)
         return True, begin_retval # don't bother to include assy -- it doesn't really matter if it corresponds
@@ -671,8 +677,13 @@ def external_begin_cmd_checkpoint(assy, cmdname = "command"): #bruce 060324 for 
 
 def external_end_cmd_checkpoint(assy, begin_retval):
     flag, begin_retval = begin_retval
-    if assy is not None: # seems best to do this even if flag is False
-        assy.undo_checkpoint_after_command(begin_retval)
+    if assy is not None:
+        # seems best to do this even if flag is False... but begin_retval is required to be True or False...
+        # which means this had a bug for a few days (passing None as begin_retval then) and was apparently
+        # not happening with flag false (or a debug print would have complained about the None)...
+        # so I should eliminate begin_retval someday, but for now, I need to fix that bug somehow. How about "or False".
+        # warning: this is a poorly-considered kluge.  ###@@@  [bruce 060328]
+        assy.undo_checkpoint_after_command(begin_retval or False)
     return
 
 # end

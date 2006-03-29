@@ -1124,6 +1124,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         return
 
+    # == DUPLICATING checkpoint_before_drag and checkpoint_after_drag in TreeWidget.py -- should clean up ####@@@@ [bruce 060328]
+
     __pressEvent = None #bruce 060124 for Undo
     __flag_and_begin_retval = None
 
@@ -1244,6 +1246,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         self.checkpoint_after_drag(event) #bruce 060126 moved this later, to fix bug 1384, and split it out, for clarity
         return
+
+    # == DUPLICATING checkpoint_before_drag and checkpoint_after_drag in TreeWidget.py -- should clean up ####@@@@ [bruce 060328]
 
     def checkpoint_after_drag(self, event): #bruce 060124; split out of caller, 060126 (and called it later, to fix bug 1384)
         """Do undo_checkpoint_after_command, if a prior press event did an undo_checkpoint_before_command to match.

@@ -416,6 +416,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
     def contentsMousePressEvent(self, event, dblclick = 0):
         "[called by Qt, or by our own contentsMouseDoubleClickEvent]"
         self.last_event_type = "press"
+
+        self.checkpoint_before_drag(event) #bruce 060328 fix bug 1773
         
         # figure out position and item of click (before doing any side effects)
         #e this might be split into a separate routine if it's useful during drag
@@ -487,6 +489,38 @@ class TreeWidget(TreeView, DebugMenuMixin):
         
         return # from contentsMousePressedEvent
 
+    # == DUPLICATING THE FOLLOWING CODE IN TreeWidget.py and GLPane.py -- should clean up ####@@@@ [bruce 060328]
+    
+    __pressEvent = None
+    __flag_and_begin_retval = None
+
+    def checkpoint_before_drag(self, event): # GLPane version: extra arg 'but'
+        if 1: # GLPane version: if but & (leftButton|midButton|rightButton):
+            if self.__pressEvent is not None and platform.atom_debug:
+                print "atom_debug: bug: pressEvent in MT didn't get release:", self.__pressEvent
+            self.__pressEvent = event
+            self.__flag_and_begin_retval = None
+            if self.assy:
+                begin_retval = self.assy.undo_checkpoint_before_command("(model tree)")
+                    # this command name should be replaced sometime during the command
+                self.__flag_and_begin_retval = True, begin_retval
+            pass
+        return
+
+    def checkpoint_after_drag(self, event):
+        """[see docstring of same method in GLPane]
+        """
+        if self.__pressEvent is not None:
+            self.__pressEvent = None
+            if self.__flag_and_begin_retval:
+                flagjunk, begin_retval = self.__flag_and_begin_retval
+                self.__flag_and_begin_retval = None
+                if self.assy:
+                    self.assy.undo_checkpoint_after_command( begin_retval)
+        return
+
+    # == END OF DUPLICATED CODE (whose comments were left only in the original in GLPane) [bruce 060328]
+    
     drag_handler = None # this can be set by selection_click()
     def contentsMouseMoveEvent(self, event): # note: does not yet use or need fix_buttons
         "[overrides QListView method]"
@@ -518,6 +552,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             self.drag_handler.cleanup(self) # redundant but that's ok ###k
                 # (if it already cleaned up, it doesn't know self, and might need to someday, so we pass it in)
             self.drag_handler = None
+        self.checkpoint_after_drag(event) #bruce 060328 fix bug 1773
         pass
 
     def enterEvent(self, event): ####e #####@@@@@ should this (and Leave) call our drag_handler??
