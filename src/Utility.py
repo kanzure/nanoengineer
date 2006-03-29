@@ -946,13 +946,19 @@ class Node( StateMixin):
     # == copy methods -- by default, Nodes can't be copied, but all copyable Node subclasses
     # == should override these methods.
 
-    def will_copy_if_selected(self, sel, realCopy): #bruce 050525
+    def will_copy_if_selected(self, sel, realCopy): #bruce 050525; wware 060329 added realCopy arg
         """Will this node copy itself when asked (via copy_in_mapping or postcopy_in_mapping [#doc which one!])
         because it's selected in sel, which is being copied as a whole?
         [Node types which implement an appropriate copy method should override this method.]
         If the realCopy boolean is set (indicating this is a real copy operation and not
         just a test), and if this node will not copy, it may want to print a warning.
         """
+        if realCopy:
+            #bruce 060329 added this default message, since it's correct if the whole realCopy scheme is,
+            # though I'm dubious about the whole scheme.
+            msg = "Node [%s] won't be copied." % (self.name)
+            from HistoryWidget import orangemsg
+            env.history.message(orangemsg(msg))
         return False # conservative answer
 
     def will_partly_copy_due_to_selatoms(self, sel): #bruce 050525; docstring revised 050704
@@ -1868,8 +1874,18 @@ class Group(Node):
 
     # == Group copy methods [revised/added by bruce 050524-050526]
 
-    def will_copy_if_selected(self, sel, realCopy):
+    def will_copy_if_selected(self, sel, realCopy): # wware 060329 added realCopy arg
         if realCopy:
+            # [bruce 060329 comment on wware code:]
+            # This recursion is just to print warnings.
+            # It's safe for now, since this function is apparently not itself called recursively
+            # while copying Group members, but that might change, and if it does this will also need to change.
+            # It also appears to be incorrect, at least in some cases, e.g. a Measure Distance jig in a Group
+            # gets copied even if only one atom does (in spite of having printed this message),
+            # though the produced object gives a traceback when displayed.
+            # And the easiest fix for that might be for copying to do a recursive call of this,
+            # which is exactly what would make this method's own recursion unneeded and unsafe
+            # (it would become exponential in number of nested Groups, in runtime and number of redundant warnings).
             for x in self.members:
                 x.will_copy_if_selected(sel, True)
         return True

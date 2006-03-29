@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 jigs_measurements.py -- Classes for measurement jigs.
 
@@ -26,7 +26,7 @@ from VQT import *
 from shape import *
 from chem import *
 from Utility import *
-from HistoryWidget import redmsg, greenmsg
+from HistoryWidget import redmsg, greenmsg, orangemsg
 from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
@@ -112,12 +112,13 @@ class MeasurementJig(Jig):
     def will_copy_if_selected(self, sel, realCopy):
         "copy only if all my atoms are selected [overrides Jig.will_copy_if_selected]"
         # for measurement jigs, copy only if all atoms selected, wware 051107
+        # [bruce 060329 adds: this doesn't prevent the copy if the jig is inside a Group, and that causes a bug]
         for atom in self.atoms:
             if not sel.picks_atom(atom):
                 if realCopy:
-                    msg = "Can't copy a measurement jig unless all its atoms are selected"
+                    msg = "Can't copy a measurement jig [%s] unless all its atoms are selected." % (self.name,)
                     env.history.message(orangemsg(msg))
-                return False #e need to give a reason why not??
+                return False
         return True
 
     pass # end of class MeasurementJig

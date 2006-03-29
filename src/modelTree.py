@@ -482,10 +482,14 @@ class modelTree(TreeWidget):
         doit = False
         for node in nodeset:
             if node.will_copy_if_selected(sel, False):
+                #wware 060329 added realCopy arg, False here (this is not a real copy, so do not issue a warning).
+                #bruce 060329 points out about realCopy being False vs True that at this point in the code we don't
+                # yet know whether the real copy will be made, and when we do, will_copy_if_selected
+                # might like to be re-called with True, but that's presently nim. ###@@@
+                # 
                 # if this test is too slow, could inline it by knowing about Jigs here; but better to speed it up instead!
                 doit = True
                 break
-            # this is not a real copy, so do not issue a warning
         if doit:
             res.append(( 'Copy', self.cm_copy ))
         # For single items, add a Duplicate command and enable it if they support the method. [bruce 050704 new feature]

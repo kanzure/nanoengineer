@@ -31,7 +31,7 @@ import OpenGL.GLUT as glut
 from Utility import *
 from StatProp import *
 from ThermoProp import *
-from HistoryWidget import redmsg, greenmsg
+from HistoryWidget import redmsg, greenmsg, orangemsg
 from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
@@ -165,20 +165,10 @@ class Jig(Node):
                 return True
         if realCopy:
             # Tell user reason why not.  Mark 060125.
-            #
-            #& will_copy_if_selected() is now getting called (maybe something to do with the new undo code?)
-            #& when the jig's context menu is displayed, which causes this message to be printed to the history 
-            #& widget (bug 1186).  Commenting it out for A7, but we should fix this for A8.  mark 060311.
-            #&
-            #& msg = "Didn't copy %s since none of its atoms were copied." % (self.name)
-            #& env.history.message(orangemsg(msg))
-            #
-            #bruce 060313 adds: that's not the reason. See bug 1665, and my email to mark & ninad
-            # a few days ago, explaining the situation. Please don't fix it without doing so,
-            # otherwise we'll keep bouncing back and forth between emitting this msg too often
-            # (bug 1186) and not often enough (bug 1665 and the unfound older bug it duplicates).
-            #
-            pass
+            # [bruce 060329 revised this, to make use of wware's realCopy arg.
+            #  See also bugs 1186, 1665, and associated email.
+            msg = "Didn't copy [%s] since none of its atoms were copied." % (self.name)
+            env.history.message(orangemsg(msg))
         return False
 
     def will_partly_copy_due_to_selatoms(self, sel):
