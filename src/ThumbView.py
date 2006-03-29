@@ -663,6 +663,12 @@ class MMKitView(ThumbView):
                 self.lastHotspotChunk = mol 
                        
             mol.set_hotspot(obj)
+
+            if 1:
+                #bruce 060328 fix gl_update part of bug 1775 (the code looks like that was a bug forever, don't know for sure)
+                main_glpane = env.mainwindow().glpane
+                if mol.part is main_glpane.part:
+                    main_glpane.gl_update()
             
             self.hotspotAtom = obj
             self.updateGL()
@@ -707,7 +713,7 @@ class MMKitView(ThumbView):
         
     
 class ChunkView(ThumbView):
-    """Chunk display. Currrently it's not used. """    
+    """Chunk display.""" # Currently this is not used. [still true 060328 due to setup code in MMKit -- bruce comment]
     def __init__(self, parent, name, shareWidget = None):
         ThumbView.__init__(self, parent, name, shareWidget)
         #self.scale = 3.0#5.0 ## the possible largest rvdw of all elements
