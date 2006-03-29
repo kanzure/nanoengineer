@@ -114,16 +114,13 @@ class MeasurementJig(Jig):
         # for measurement jigs, copy only if all atoms selected, wware 051107
         for atom in self.atoms:
             if not sel.picks_atom(atom):
-                self._copy_warning = True
                 return False #e need to give a reason why not??
-        self._copy_warning = False
         return True
 
     def copy_warning(self):    # bug 1766, wware 060328
         "give warning if copy won't happen"
-        if self._copy_warning:
-            msg = "Can't copy a measurement jig unless all its atoms are selected"
-            env.history.message(orangemsg(msg))
+        msg = "Can't copy a measurement jig unless all its atoms are selected"
+        env.history.message(orangemsg(msg))
 
     pass # end of class MeasurementJig
 

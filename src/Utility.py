@@ -959,24 +959,13 @@ class Node( StateMixin):
     # if we are doing the test without an actual intention to copy, we don't need to
     # print the warning at an inappropriate time.
     #
-    # You should call this method in a situation where you really do intend to copy. It
-    # should be called soon after will_copy_if_selected, and it should be called whether
-    # will_copy_if_selected returned True or False. An example:
-    #
-    #      # we know this is a real attempt to copy
-    #      ok_to_copy = True
-    #      for node in list_of_nodes:
-    #          if not node.will_copy_if_selected(sel):
-    #              ok_to_copy = False
-    #          node.copy_warning()
-    #      if ok_to_copy:
-    #          go ahead and do the copy operation
-    #
-    # When overloading this method, you can use will_copy_if_selected to set an instance
-    # variable flag telling whether the warning should be printed. Otherwise you'd need to
-    # duplicate whatever test was done in will_copy_if_selected.
     def copy_warning(self):
-        "give warning if copy won't happen"
+        """Print a warning if a node will not be copied, even though it's selected.
+        You should call this method in a situation where you really do intend to copy. It
+        should be then called when will_copy_if_selected has returned False. This will
+        allow the node that refuses to be copied to provide an explanation.
+        The copy_warning() method should make no attempt to test whether a copy operation
+        would or would not be valid. It should print the warning unconditionally."""
         return
 
     def will_partly_copy_due_to_selatoms(self, sel): #bruce 050525; docstring revised 050704
