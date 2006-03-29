@@ -221,6 +221,12 @@ class ThumbView(QGLWidget):
         
         but = event.stateAfter()
         #print "Button pressed: ", but
+
+        if 1:
+            #bruce 060328 kluge fix of undo part of bug 1775 (overkill, but should be ok) (part 1 of 2)
+            import undo_manager
+            main_assy = env.mainwindow().assy
+            self.__begin_retval = undo_manager.external_begin_cmd_checkpoint(main_assy, cmdname = "(mmkit)")
         
         if but & leftButton:
             if but & shiftButton:
@@ -246,7 +252,8 @@ class ThumbView(QGLWidget):
             else:
                 pass#self.rightDown(event)         
 
-
+    __begin_retval = None
+    
     def mouseReleaseEvent(self, event):
         """Only used to detect the end of a freehand selection curve.
         """
@@ -276,8 +283,15 @@ class ThumbView(QGLWidget):
             elif but & cntlButton:
                 pass#self.rightCntlUp(event)
             else:
-                pass#self.rightUp(event)         
+                pass#self.rightUp(event)
 
+        if 1:
+            #bruce 060328 kluge fix of undo part of bug 1775 (part 2 of 2)
+            import undo_manager
+            main_assy = env.mainwindow().assy
+            undo_manager.external_end_cmd_checkpoint(main_assy, self.__begin_retval)
+
+        return
 
     def mouseMoveEvent(self, event):
         """Dispatches mouse motion events depending on shift and

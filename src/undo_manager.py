@@ -676,6 +676,9 @@ def external_begin_cmd_checkpoint(assy, cmdname = "command"): #bruce 060324 for 
     return False, None
 
 def external_end_cmd_checkpoint(assy, begin_retval):
+    if begin_retval is None:
+        # for convenience of callers worried about e.g. "release without press"
+        return
     flag, begin_retval = begin_retval
     if assy is not None:
         # seems best to do this even if flag is False... but begin_retval is required to be True or False...
