@@ -53,6 +53,15 @@ makePart(char *filename, void (*parseError)(void *), void *stream)
     return p;
 }
 
+void
+deallocate_part(struct part *p)
+{
+    /*
+     * Allocate everything inside the part....
+     */
+    free(p);
+}
+
 // Add a bond to the bond list for a single atom.
 static void
 addBondToAtom(struct part *p, struct bond *b, struct atom *a)
@@ -253,7 +262,7 @@ invalidateVanDerWaals(struct part *p, struct atom *a)
 	vdw = p->vanDerWaals[i];
 	if (vdw && (vdw->a1 == a || vdw->a2 == a)) {
 	    p->vanDerWaals[i] = NULL;
-	    simfree(vdw);
+	    free(vdw);
 	    if (i < p->start_vanDerWaals_free_scan) {
 		p->start_vanDerWaals_free_scan = i;
 	    }
@@ -414,7 +423,7 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
 	}
     }
     //fprintf(stderr, "num_vdw: %d actual_count: %d not_seen: %d\n", p->num_vanDerWaals, actual_count, notseen_count);
-    simfree(seen); // yes, alloca would work here too.
+    free(seen); // yes, alloca would work here too.
 }
 
 // XXX watch for atom vibrating between buckets

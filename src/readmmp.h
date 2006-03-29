@@ -5,6 +5,4 @@
 
 extern struct part *readMMP(char *filename);
 
-extern void demolish_tempbuffer(void);
-
 #endif

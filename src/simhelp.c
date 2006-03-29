@@ -249,7 +249,7 @@ getFrame_c(void)
 	data[i * 3 + 2] = pos[i].z * XYZ;
     }
     retval = PyString_FromStringAndSize((char*) data, n);
-    simfree(data);
+    free(data);
     return finish_python_call(retval);
 }
 
@@ -398,9 +398,8 @@ everythingDone(void)
     }
     writeTraceCallbackFunc = NULL;
     frameCallbackFunc = NULL;
-    demolish_tempbuffer();
-    demolish_hashtables();
-    demolition();
+    deallocate_part(part);
+    part = NULL;
     return finish_python_call(Py_None);
 }
 

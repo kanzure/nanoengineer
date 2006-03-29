@@ -7,12 +7,6 @@ extern void *allocate(int size);
 
 extern void *reallocate(void *p, int size);
 
-extern void __simfree(void **p);
-
-#define simfree(p)  __simfree((void**) &(p))
-
-extern void demolition(void);
-
 extern char *copy_string(char *s);
 
 extern void *copy_memory(void *src, int len);

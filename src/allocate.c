@@ -5,70 +5,6 @@
 
 static char const rcsid[] = "$Id$";
 
-struct alloc_link {
-    struct alloc_link *next;
-    void *p;
-};
-
-static struct alloc_link *busy_pointers = NULL;
-
-static void
-new_pointer(void *p)
-{
-    struct alloc_link *L;
-    L = (struct alloc_link *) malloc(sizeof(struct alloc_link));
-    if (L == NULL) {
-	fprintf(stderr, "Out of memory\n");
-	exit(1);
-    }
-    L->p = p;
-    L->next = busy_pointers;
-    busy_pointers = L;
-}
-
-static void
-_simfree(void *p, int reallyFree)
-{
-    struct alloc_link *L, *Lprev = NULL;
-    for (L = busy_pointers; L != NULL; L = L->next) {
-	//printf("Trying to match %p with %p\n", p, L->p);
-	if (L->p == p) {
-	    if (Lprev != NULL) {
-		Lprev->next = L->next;
-	    } else {
-		busy_pointers = L->next;
-	    }
-	    if (reallyFree)
-		free(L->p);
-	    free(L);
-	    return;
-	}
-	Lprev = L;
-    }
-    /* having reached this point we are trying to free something
-     * that was not in the busy_pointers list and therefore, as far
-     * as we know, was never allocated.
-     */
-#if 0
-    /* It looks like the only time we come here is when we try to free
-     * tempBuffer in readmmp.c. So we won't be able to free it, I guess.
-     * It happens for only a very small number of pointers that came from
-     * reallocate, and the only use of reallocate (currently) is for
-     * tempBuffer. Anyway let's just fall through, it should be pretty
-     * harmless to allow this little leakage.
-     */
-    fprintf(stderr, "Maybe this pointer was already freed: %p\n", p);
-    exit(1);
-#endif
-}
-
-void
-__simfree(void **p)
-{
-    _simfree(*p, 1);
-    *p = NULL;
-}
-
 void *
 allocate(int size)
 {
@@ -77,7 +13,6 @@ allocate(int size)
 	fprintf(stderr, "Out of memory\n");
 	exit(1);
     }
-    new_pointer(ret);
     return ret;
 }
 
@@ -90,26 +25,7 @@ reallocate(void *p, int size)
 	fprintf(stderr, "Out of memory\n");
 	exit(1);
     }
-    if (p != ret) {
-	new_pointer(ret);
-	if (p != NULL)
-	    _simfree(p, 0);
-    }
     return ret;
-}
-
-void
-demolition(void)
-{
-    struct alloc_link *L;
-    L = busy_pointers;
-    while (L != NULL) {
-	struct alloc_link *Lnext = L->next;
-	free(L->p);
-	free(L);
-	L = Lnext;
-    }
-    busy_pointers = NULL;
 }
 
 char *

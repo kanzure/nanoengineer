@@ -137,6 +137,4 @@ extern struct vanDerWaalsParameters *getVanDerWaalsTable(int element1, int eleme
 
 extern struct atomType *getAtomTypeByName(char *symbol);
 
-extern void demolish_hashtables(void);
-
 #endif

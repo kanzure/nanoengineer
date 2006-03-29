@@ -289,6 +289,8 @@ extern void printBend(FILE *f, struct part *p, struct bend *b);
 
 extern void printPart(FILE *f, struct part *p);
 
+extern void deallocate_part(struct part *p);
+
 #endif
 
 /*
