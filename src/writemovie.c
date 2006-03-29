@@ -36,11 +36,11 @@ void initializeDeltaBuffers(struct part *part)
     struct xyz *pos = part->positions;
     
     if (ixyz != NULL) {
-        simfree(ixyz);
+        free(ixyz);
     }
     ixyz=(int *)allocate(sizeof(int) * 3 * part->num_atoms);
     if (previxyz != NULL) {
-        simfree(previxyz);
+        free(previxyz);
     }
     previxyz=(int *)allocate(sizeof(int) * 3 * part->num_atoms);
     for (i=0, j=0; i<3*part->num_atoms; i+=3, j++) {

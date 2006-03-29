@@ -228,11 +228,11 @@ dynamicsMovie(struct part *part)
     
     writeOutputTrailer(OutputFile, part, NumFrames);
     
-    simfree(averagePositions);
-    simfree(oldPositions);
-    simfree(newPositions);
-    simfree(positions);
-    simfree(force);
+    free(averagePositions);
+    free(oldPositions);
+    free(newPositions);
+    free(positions);
+    free(force);
 }
 
 /*

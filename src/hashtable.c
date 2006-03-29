@@ -124,7 +124,7 @@ hashtable_resize(struct hashtable *table, int newsize)
         }
       }
     }
-    simfree(old_buckets);
+    free(old_buckets);
   }
 }
 
@@ -143,7 +143,7 @@ hashtable_new(int initial_size)
   hashtable_resize(table, initial_size);
   if (table->buckets == NULL) {
     /* XXX error processing */
-    simfree(table);
+    free(table);
     return NULL;
   }
   return table;
