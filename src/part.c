@@ -53,12 +53,57 @@ makePart(char *filename, void (*parseError)(void *), void *stream)
     return p;
 }
 
+static void
+deallocate_accumulator(void *accum)
+{
+    free(((char*)accum) - sizeof(unsigned int));
+}
+
 void
 deallocate_part(struct part *p)
 {
-    /*
-     * Allocate everything inside the part....
-     */
+    int i;
+
+    if (p->positions != NULL)
+	deallocate_accumulator(p->positions);
+    if (p->velocities != NULL)
+	deallocate_accumulator(p->velocities);
+    if (p->atom_id_to_index_plus_one != NULL)
+	deallocate_accumulator(p->atom_id_to_index_plus_one);
+
+    if (p->stretches != NULL)
+	free(p->stretches);
+    if (p->bends != NULL)
+	free(p->bends);
+
+    if (p->atoms != NULL) {
+	for (i = 0; i < p->num_atoms; i++) {
+	    if (p->atoms[i] != NULL)
+		free(p->atoms[i]);
+	}
+	deallocate_accumulator(p->atoms);
+    }
+    if (p->bonds != NULL) {
+	for (i = 0; i < p->num_bonds; i++) {
+	    if (p->bonds[i] != NULL)
+		free(p->bonds[i]);
+	}
+	deallocate_accumulator(p->bonds);
+    }
+    if (p->jigs != NULL) {
+	for (i = 0; i < p->num_jigs; i++) {
+	    if (p->jigs[i] != NULL)
+		free(p->jigs[i]);
+	}
+	deallocate_accumulator(p->jigs);
+    }
+    if (p->vanDerWaals != NULL) {
+	for (i = 0; i < p->num_vanDerWaals; i++) {
+	    if (p->vanDerWaals[i] != NULL)
+		free(p->vanDerWaals[i]);
+	}
+	deallocate_accumulator(p->vanDerWaals);
+    }
     free(p);
 }
 
