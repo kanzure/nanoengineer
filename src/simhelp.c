@@ -398,7 +398,7 @@ everythingDone(void)
     }
     writeTraceCallbackFunc = NULL;
     frameCallbackFunc = NULL;
-    deallocate_part(part);
+    destroyPart(part);
     part = NULL;
     return finish_python_call(Py_None);
 }
