@@ -40,7 +40,7 @@ BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bondc', 'bond3']
     # (Some code might assume these all start with "bond".)
     # (These mmp record names are also hardcoded into mmp-reading code in files_mmp.py.)
 bond_type_names = {V_SINGLE:'single', V_DOUBLE:'double', V_TRIPLE:'triple',
-                   V_AROMATIC:'aromatic', V_GRAPHITE:'graphite', V_CARBOMERIC:'carbomeric'}
+                   V_AROMATIC:'aromatic', V_GRAPHITE:'graphitic', V_CARBOMERIC:'carbomeric'}
 
 BOND_VALENCES_HIGHEST_FIRST = list(BOND_VALENCES)
 BOND_VALENCES_HIGHEST_FIRST.reverse()
