@@ -56,6 +56,7 @@ elmnts=[("H",   1,   1.6737),
 
 
 sym2num={}
+bends={}
 
 for (sym, num, mass) in elmnts:
     sym2num[sym] = num
@@ -71,9 +72,13 @@ def printBond(a1, bond1, ac, bond2, a2, parameters):
     b2 = bontyp[bond2]
     if sym2num[a1] > sym2num[a2] or (a1 == a2 and b1 > b2):
         a1, b1, b2, a2 = a2, b2, b1, a1
-    print 'addInitialBendData(%-14s, %-13s, %2d, ' % (ktheta, theta0, quality),
-    print '"%s-%s-%s.%s-%s-%s");' % (a1, b1, ac, centerHybridization, b2, a2)
-    
+    bendName = '%s-%s-%s.%s-%s-%s' % (a1, b1, ac, centerHybridization, b2, a2)
+    bendLine = 'addInitialBendData(%-14s, %-13s, %2d, "%s");' % (ktheta, theta0, quality, bendName)
+    if (bendName in bends):
+        print '//' + bendLine
+    else:
+        print '  ' + bendLine
+    bends[bendName] = 1
 
 if __name__ == "__main__":
     f=open(sys.argv[1])
