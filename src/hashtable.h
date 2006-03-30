@@ -28,4 +28,6 @@ extern void hashtable_print(FILE *f, struct hashtable *table);
 
 extern void hashtable_iterate(struct hashtable *table, void func(char *key, void *value));
 
+extern void hashtable_destroy(struct hashtable *table, void func(void *value));
+
 #endif

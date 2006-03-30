@@ -107,6 +107,18 @@ accumulator(void *old, unsigned int len, int zerofill)
     return old;
 }
 
+void
+destroyAccumulator(void *a)
+{
+  unsigned int *accumulator;     // points to length word
+  
+  if (a == NULL) {
+    return;
+  }
+  accumulator = ((unsigned int *)a) - 1;
+  free(accumulator);
+}
+
 // given a template filename, returns a new string which is a copy of
 // the template, but with characters after the trailing '.' replaced
 // with newExtension.  If there is no '.' after the last '/' or '\' in

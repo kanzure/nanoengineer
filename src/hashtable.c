@@ -238,6 +238,31 @@ hashtable_iterate(struct hashtable *table, void func(char *key, void *value))
   }
 }
 
+void
+hashtable_destroy(struct hashtable *table, void func(void *value))
+{
+  int i;
+  struct hashtable_bucket *b;
+
+  if (table == NULL) {
+    return;
+  }
+  for (i=0; i<table->size; i++) {
+    b = &table->buckets[i];
+    if (b->key != NULL) {
+      if (b->value != NULL) {
+        func(b->value);
+        b->value = NULL;
+      }
+      free(b->key);
+      b->key = NULL;
+    }
+  }
+  free(table->buckets);
+  table->buckets = NULL;
+  free(table);
+}
+
 
 #if 0    
 main()

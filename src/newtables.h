@@ -122,6 +122,8 @@ extern void initializeBondTable(void);
 
 extern void reInitializeBondTable(void);
 
+extern void destroyBondTable(void);
+
 extern double getBondEquilibriumDistance(int element1, int element2, char bondOrder);
 
 extern struct bondStretch *getBondStretch(int element1, int element2, char bondOrder);

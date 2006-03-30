@@ -17,7 +17,7 @@ enum hybridization {
 struct atom 
 {
     struct atomType *type;
-  enum hybridization hybridization;
+    enum hybridization hybridization;
   
     struct atom **vdwBucket;
     struct atom *vdwPrev;
@@ -230,6 +230,8 @@ struct part
 };
 
 extern struct part *makePart(char *filename, void (*parseError)(void *), void *stream);
+
+extern void destroyPart(struct part *p);
 
 extern struct part *endPart(struct part *p);
 

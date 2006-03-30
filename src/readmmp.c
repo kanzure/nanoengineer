@@ -525,6 +525,8 @@ readMMP(char *filename)
       name = expectName(mmp);
       junk = expectName(mmp); // center of jig
       fontname = expectName(mmp);
+      free(junk);
+      free(fontname);
       expectInt(mmp, &fontsize, 0);
       expectIntList(mmp, &atomList, &atomListLength, 4);
       makeDihedralMeter(p, name, atomList[0], atomList[1],
@@ -537,6 +539,8 @@ readMMP(char *filename)
       name = expectName(mmp);
       junk = expectName(mmp); // center of jig
       fontname = expectName(mmp);
+      free(junk);
+      free(fontname);
       expectInt(mmp, &fontsize, 0);
       expectIntList(mmp, &atomList, &atomListLength, 3);
       makeAngleMeter(p, name, atomList[0], atomList[1], atomList[2]);
@@ -548,6 +552,8 @@ readMMP(char *filename)
       name = expectName(mmp);
       junk = expectName(mmp); // center of jig
       fontname = expectName(mmp);
+      free(junk);
+      free(fontname);
       expectInt(mmp, &fontsize, 0);
       expectIntList(mmp, &atomList, &atomListLength, 2);
       makeRadiusMeter(p, name, atomList[0], atomList[1]);

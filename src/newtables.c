@@ -88,8 +88,8 @@ generateBendName(char *bendName,
 
 static struct hashtable *bondStretchHashtable = NULL;
 static struct hashtable *bendDataHashtable = NULL;
-static struct hashtable *deHashtable;
-static struct hashtable *vanDerWaalsHashtable;
+static struct hashtable *deHashtable = NULL;
+static struct hashtable *vanDerWaalsHashtable = NULL;
 
 // ks in N/m
 // r0 in pm, or 1e-12 m
@@ -99,9 +99,15 @@ static struct bondStretch *
 addBondStretch(char *bondName, double ks, double r0, double de, double beta, double inflectionR, int quality)
 {
   struct bondStretch *stretch;
+  struct bondStretch *old;
 
   stretch = newBondStretch(bondName, ks, r0, de, beta, inflectionR, quality);
-  hashtable_put(bondStretchHashtable, bondName, stretch);
+  old = hashtable_put(bondStretchHashtable, bondName, stretch);
+  if (old != NULL) {
+    fprintf(stderr, "duplicate bondStretch: %s\n", bondName);
+    free(old->bondName);
+    free(old);
+  }
   return stretch;
 }
 
@@ -110,9 +116,15 @@ static struct bendData *
 addBendData(char *bendName, double kb, double theta0, int quality)
 {
   struct bendData *bend;
+  struct bendData *old;
 
   bend = newBendData(bendName, kb, theta0, quality);
-  hashtable_put(bendDataHashtable, bendName, bend);
+  old = hashtable_put(bendDataHashtable, bendName, bend);
+  if (old != NULL) {
+    fprintf(stderr, "duplicate bend data: %s\n", bendName);
+    free(old->bendName);
+    free(old);
+  }
   return bend;
 }
 
@@ -130,9 +142,15 @@ addInitialBondStretch(double ks,
                       char *bondName)
 {
   struct bondStretch *stretch;
+  struct bondStretch *old;
 
   stretch = newBondStretch(bondName, ks, r0, de, beta*1e-2, inflectionR, quality);
-  hashtable_put(bondStretchHashtable, bondName, stretch);
+  old = hashtable_put(bondStretchHashtable, bondName, stretch);
+  if (old != NULL) {
+    fprintf(stderr, "duplicate bondStretch: %s\n", bondName);
+    free(old->bondName);
+    free(old);
+  }
 }
 
 // kb in aJ / rad^2 (1e-18 J/rad^2)
@@ -141,18 +159,31 @@ static void
 addInitialBendData(double kb, double theta0, int quality, char *bendName)
 {
   struct bendData *bend;
+  struct bendData *old;
 
   // typical kb values around 1 aJ/rad^2
   bend = newBendData(bendName, kb*1e6, theta0, quality);
-  hashtable_put(bendDataHashtable, bendName, bend);
+  old = hashtable_put(bendDataHashtable, bendName, bend);
+  if (old != NULL) {
+    fprintf(stderr, "duplicate bend data: %s\n", bendName);
+    free(old->bendName);
+    free(old);
+  }
 }
 
 static void
 addDeTableEntry(char *bondName, double de)
 {
-  struct deTableEntry *entry = (struct deTableEntry *)allocate(sizeof(struct deTableEntry));
+  struct deTableEntry *entry;
+  struct deTableEntry *old;
+  
+  entry = (struct deTableEntry *)allocate(sizeof(struct deTableEntry));
   entry->de = de;
-  hashtable_put(deHashtable, bondName, entry);
+  old = hashtable_put(deHashtable, bondName, entry);
+  if (old != NULL) {
+    fprintf(stderr, "duplicate de entry: %s\n", bondName);
+    free(old);
+  }
 }
 
 static void
@@ -257,7 +288,7 @@ initializeBondTable(void)
   setElement(54,  0, 5, "Xe", "Xenon",     134.429,  1.9,  0.000, 0, 0);
 
   bondStretchHashtable = hashtable_new(40);
-
+  
 #include "bonds.gen"
   
   deHashtable = hashtable_new(10);
@@ -303,6 +334,66 @@ reInitializeBondTable()
   if (bendDataHashtable != NULL) {
     hashtable_iterate(bendDataHashtable, clearBendWarnings);
   }
+}
+
+static void
+destroyBondStretch(void *s)
+{
+  struct bondStretch *stretch = (struct bondStretch *)s;
+  if (stretch != NULL) {
+    if (stretch->bondName != NULL) {
+      free(stretch->bondName);
+      stretch->bondName = NULL;
+    }
+  }
+  free(stretch);
+}
+
+static void
+destroyBendData(void *b)
+{
+  struct bendData *bend = (struct bendData *)b;
+  if (bend != NULL) {
+    if (bend->bendName != NULL) {
+      free(bend->bendName);
+      bend->bendName = NULL;
+    }
+  }
+  free(bend);
+}
+
+static void
+destroyDeEntry(void *de)
+{
+  if (de != NULL) {
+    free(de);
+  }
+}
+
+static void
+destroyVanDerWaals(void *v)
+{
+  struct vanDerWaalsParameters *vdw = (struct vanDerWaalsParameters *)v;
+  if (vdw != NULL) {
+    if (vdw->vdwName != NULL) {
+      free(vdw->vdwName);
+      vdw->vdwName = NULL;
+    }
+  }
+  free(vdw);
+}
+
+void
+destroyBondTable(void)
+{
+  hashtable_destroy(bondStretchHashtable, destroyBondStretch);
+  bondStretchHashtable = NULL;
+  hashtable_destroy(bendDataHashtable, destroyBendData);
+  bendDataHashtable = NULL;
+  hashtable_destroy(deHashtable, destroyDeEntry);
+  deHashtable = NULL;
+  hashtable_destroy(vanDerWaalsHashtable, destroyVanDerWaals);
+  vanDerWaalsHashtable = NULL;
 }
 
 static double
@@ -507,11 +598,17 @@ static struct vanDerWaalsParameters *
 generateVanDerWaals(char *bondName, int element1, int element2)
 {
   struct vanDerWaalsParameters *vdw;
+  struct vanDerWaalsParameters *old;
 
   vdw = (struct vanDerWaalsParameters *)allocate(sizeof(struct vanDerWaalsParameters));
   vdw->vdwName = copy_string(bondName);
   initializeVanDerWaalsInterpolator(vdw, element1, element2);
-  hashtable_put(vanDerWaalsHashtable, bondName, vdw);
+  old = hashtable_put(vanDerWaalsHashtable, bondName, vdw);
+  if (old != NULL) {
+    fprintf(stderr, "duplicate vdw: %s\n", bondName);
+    free(old->vdwName);
+    free(old);
+  }
   return vdw;
 }
 

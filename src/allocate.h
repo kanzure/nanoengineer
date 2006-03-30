@@ -13,6 +13,8 @@ extern void *copy_memory(void *src, int len);
 
 extern void *accumulator(void *old, unsigned int len, int zerofill);
 
+extern void destroyAccumulator(void *a);
+
 extern char *replaceExtension(char *template, char *newExtension);
 
 #endif

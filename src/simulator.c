@@ -193,6 +193,7 @@ main(int argc, char **argv)
     char *outputFilename = NULL;
 	
     reinit_globals();
+
     if (signal(SIGTERM, &SIGTERMhandler) == SIG_ERR) {
         perror("signal(SIGTERM)");
         exit(1);
@@ -388,7 +389,21 @@ main(int argc, char **argv)
     }
 
     if (dump_part) {
+        //
+        // this segment is convenient to run valgrind on to test the
+        // part and bond table destructors.  By the time we reach the
+        // exit() there should be no malloc'd blocks remaining.
+        //
+        // valgrind -v --leak-check=full --leak-resolution=high --show-reachable=yes simulator --dump-part part.mmp
+        //
         printPart(stdout, part);
+        destroyPart(part);
+        part = NULL;
+        destroyBondTable();
+        fclose(TraceFile);
+        destroyAccumulator(CommandLine);
+        free(InputFileName);
+        free(OutputFileName);
         exit(0);
     }
 

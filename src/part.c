@@ -47,63 +47,112 @@ makePart(char *filename, void (*parseError)(void *), void *stream)
     p = (struct part *)allocate(sizeof(struct part));
     memset(p, 0, sizeof(struct part));
     p->max_atom_id = -1;
-    p->filename = filename;
+    p->filename = copy_string(filename);
     p->parseError = parseError ? parseError : &defaultParseError;
     p->stream = parseError ? stream : p;
     return p;
 }
 
-static void
-deallocate_accumulator(void *accum)
-{
-    free(((char*)accum) - sizeof(unsigned int));
-}
-
 void
-deallocate_part(struct part *p)
+destroyPart(struct part *p)
 {
     int i;
+    struct atom *a;
+    struct bond *b;
+    struct jig *j;
+    struct vanDerWaals *v;
+    
+    if (p == NULL){
+        return;
+    }
+    if (p->filename != NULL) {
+        free(p->filename);
+        p->filename = NULL;
+    }
+    // p->stream is handled by caller.  readmmp just keeps the stream
+    // in it's stack frame.
+    destroyAccumulator(p->atom_id_to_index_plus_one);
+    p->atom_id_to_index_plus_one = NULL;
+    for (i=0; i<p->num_atoms; i++) {
+        a = p->atoms[i];
 
-    if (p->positions != NULL)
-	deallocate_accumulator(p->positions);
-    if (p->velocities != NULL)
-	deallocate_accumulator(p->velocities);
-    if (p->atom_id_to_index_plus_one != NULL)
-	deallocate_accumulator(p->atom_id_to_index_plus_one);
+        //a->type points into periodicTable, don't free
+        //a->vdwBucket points into p->vdwHash, allocated as part of part
+        //a->prev and next just point to other atoms
+        //a->bonds has pointers into the p->bonds array
+        free(a->bonds);
+        a->bonds = NULL;
+        free(a);
+    }
+    destroyAccumulator(p->atoms);
+    p->atoms = NULL;
+    destroyAccumulator(p->positions);
+    p->positions = NULL;
+    destroyAccumulator(p->velocities);
+    p->velocities = NULL;
 
-    if (p->stretches != NULL)
-	free(p->stretches);
-    if (p->bends != NULL)
-	free(p->bends);
+    for (i=0; i<p->num_bonds; i++) {
+        b = p->bonds[i];
+        // b->a1 and a2 point to already freed atoms
+        free(b);
+    }
+    destroyAccumulator(p->bonds);
+    p->bonds = NULL;
 
-    if (p->atoms != NULL) {
-	for (i = 0; i < p->num_atoms; i++) {
-	    if (p->atoms[i] != NULL)
-		free(p->atoms[i]);
-	}
-	deallocate_accumulator(p->atoms);
+    for (i=0; i<p->num_jigs; i++) {
+        j = p->jigs[i];
+        if (j->name != NULL) {
+            free(j->name);
+            j->name = NULL;
+        }
+        free(j->atoms);
+        j->atoms = NULL;
+        if (j->type == RotaryMotor) {
+            if (j->j.rmotor.u != NULL) {
+                free(j->j.rmotor.u);
+                free(j->j.rmotor.v);
+                free(j->j.rmotor.w);
+                free(j->j.rmotor.rPrevious);
+                j->j.rmotor.u = NULL;
+                j->j.rmotor.v = NULL;
+                j->j.rmotor.w = NULL;
+                j->j.rmotor.rPrevious = NULL;
+            }
+        }
+        free(j);
     }
-    if (p->bonds != NULL) {
-	for (i = 0; i < p->num_bonds; i++) {
-	    if (p->bonds[i] != NULL)
-		free(p->bonds[i]);
-	}
-	deallocate_accumulator(p->bonds);
+    destroyAccumulator(p->jigs);
+    p->jigs = NULL;
+
+    for (i=0; i<p->num_vanDerWaals; i++) {
+        v = p->vanDerWaals[i];
+        if (v != NULL) {
+            // v->a1 and v->a2 already freed
+            // v->parameters still held by vdw hashtable
+            free(v);
+            p->vanDerWaals[i] = NULL;
+        }
     }
-    if (p->jigs != NULL) {
-	for (i = 0; i < p->num_jigs; i++) {
-	    if (p->jigs[i] != NULL)
-		free(p->jigs[i]);
-	}
-	deallocate_accumulator(p->jigs);
+    destroyAccumulator(p->vanDerWaals);
+
+    // nothing in a stretch needs freeing
+    if (p->stretches != NULL) {
+        free(p->stretches);
+        p->stretches = NULL;
     }
-    if (p->vanDerWaals != NULL) {
-	for (i = 0; i < p->num_vanDerWaals; i++) {
-	    if (p->vanDerWaals[i] != NULL)
-		free(p->vanDerWaals[i]);
-	}
-	deallocate_accumulator(p->vanDerWaals);
+
+    // nothing in a bend needs freeing
+    if (p->bends != NULL) {
+        free(p->bends);
+        p->bends = NULL;
     }
+
+    // nothing in a torsion needs freeing
+    if (p->torsions != NULL) {
+        free(p->torsions);
+        p->torsions = NULL;
+    }
+    
     free(p);
 }
 
