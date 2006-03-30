@@ -66,6 +66,7 @@ class ops_rechunk_Mixin:
             # - The same problem might arise in other situations (though I don't know of any), so ideally we'd
             #   have a more general fix.
             # - It's nonmodular for this function to have to know anything about Parts.
+            ##e btw, a simpler way to do part of the following is "part = self". should revise this when time to test it. [bruce 060329]
             someatom = self.selatoms.values()[0] # if atoms in multiple parts could be selected, we'd need this for all their mols
             part = someatom.molecule.part
             part.ensure_toplevel_group()
@@ -98,7 +99,24 @@ class ops_rechunk_Mixin:
         # though it's theoretically possible (since Groups can be cut and maybe copied).
         
         cmd = greenmsg("Merge: ")
-        
+
+        if self.selatoms:
+            #bruce 060329 new feature: work on atoms too (put all selected atoms into a new chunk)
+            self.ensure_toplevel_group() # avoid bug for part containing just one chunk, all atoms selected
+            numol = molecule(self.assy, gensym("Chunk"))
+            natoms = len(self.selatoms)
+            for a in self.selatoms.values():
+                # leave the moved atoms picked, so still visible
+                a.hopmol(numol)
+            self.addmol(numol)
+                #e should we add it in the same groups (and just after the chunks) which these atoms used to belong to?
+                # could use similar scheme to placing jigs...
+            msg = fix_plurals("made chunk from %d atom(s)" % natoms) # len(numol.atoms) would count bondpoints, this doesn't
+            msg = msg.replace('chunk', numol.name)
+            env.history.message(cmd + msg)
+            self.w.win_update()
+            return
+            
         if len(self.selmols) < 2:
             msg = redmsg("Need two or more selected chunks to merge")
             env.history.message(cmd + msg)
