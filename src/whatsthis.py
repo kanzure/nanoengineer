@@ -1695,7 +1695,7 @@ def create_whats_this_descriptions_for_NanoHive_dialog(w):
 
 # ===
 
-_actions = {} # map from QActions to the featurenames in their whatsthis text [bruce 060121 to help with Undo]
+_actions = {} # map from id(QAction) to the featurenames in their whatsthis text [bruce 060121 to help with Undo]
 
 _objects_and_text_that_need_fixing_later = [] ####@@@@ should make this less fragile re repeated calls of fix_whatsthis_text_and_links
 
