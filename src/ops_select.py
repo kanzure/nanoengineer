@@ -393,7 +393,13 @@ class ops_select_Mixin:
             else:
                 assert self.selwhat == SELWHAT_ATOMS
                 if atm.filtered():
-                    env.history.message("Cannot delete " + str(atm) + " since it is being filtered. Hit Escape to clear the selection filter.")
+                    # note: bruce 060331 thinks refusing to delete filtered atoms, as this does, is a bad UI design,
+                    # since if the user clicked on a specific atom they probably knew what they were doing,
+                    # and if (at most) we just printed a warning and deleted it anyway, they could always Undo the delete
+                    # if they had hit the wrong atom. See also similar code and message in delete_atom_and_baggage (selectMode.py).
+                    #bruce 060331 adding orangemsg, since we should warn user we didn't do what they asked.
+                    env.history.message(orangemsg("Cannot delete " + str(atm) + " since it is being filtered. "\
+                                        "Hit Escape to clear the selection filter."))
                 else:
                     env.history.message("Deleted " + str(atm) )
                     atm.kill()

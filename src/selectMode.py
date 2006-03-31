@@ -6,6 +6,7 @@ $Id$
 """
 
 from modes import *
+from HistoryWidget import orangemsg
 from chunk import molecule
 import env
 
@@ -338,6 +339,13 @@ class selectMode(basicMode):
 
         if self.selCurve_length/self.o.scale < 0.03:
             # didn't move much, call it a click
+            #bruce 060331 comment: the behavior here is related to what it is when we actually just click,
+            # but it's implemented by different code -- for example, delete_at_event in this case
+            # as opposed to delete_atom_and_baggage in the other circumstance (which both have similar
+            # implementations of atom filtering and history messages, but are in different files).
+            # It's not clear to me (reviewing this code) whether the behavior should be (or is) identical;
+            # whether or not it's identical, it would be better if common code was used, to the extent
+            # that the behavior in these two circumstances is supposed to be related.
             has_jig_selected = False 
             
             if self.o.jigSelectionEnabled and self.jigGLSelect(event, self.selSense):
@@ -531,7 +539,12 @@ class selectMode(basicMode):
             return None
             
         if a.filtered(): # mark 060304.
-            env.history.message("Cannot delete " + str(a) + " since it is being filtered. Hit Escape to clear the selection filter.")
+            # note: bruce 060331 thinks refusing to delete filtered atoms, as this does, is a bad UI design;
+            # fo details, see longer comment on similar code in delete_at_event (ops_select.py).
+            # (Though when highlighting is disabled, it's arguable that this is more desirable than bad -- conceivably.)
+            #bruce 060331 adding orangemsg, since we should warn user we didn't do what they asked.
+            env.history.message(orangemsg("Cannot delete " + str(a) + " since it is being filtered. "\
+                                "Hit Escape to clear the selection filter."))
             return None
         
         a.deleteBaggage()
@@ -1460,7 +1473,8 @@ class selectAtomsMode(selectMode):
     def get_obj_under_cursor(self, event):
         '''Return the object under the cursor.  Only atoms, singlets and bonds are returned.
         Returns None for all other cases, including when a bond, jig or nothing is under the cursor.
-        '''
+        ''' #bruce 060331 comment: this docstring appears wrong, since the code looks like it can return jigs.
+        
         if self.hover_highlighting_enabled:
             self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # update_selatom() updates self.o.selatom and self.o.selobj.
