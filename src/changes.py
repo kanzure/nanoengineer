@@ -448,7 +448,7 @@ class Formula( SubUsageTrackingMixin): #bruce 050805
 
 # As of 050803, the facilities after this point are used only as stubs,
 # though some might be used soon, e.g. as part of recent files menu,
-# custom jigs, Undo, or other things.
+# custom jigs, Undo, or other things. [as of 060330 pairmatcher is used in undo]
 
 class pairmatcher:
     """Keep two forever-growing lists,
@@ -459,37 +459,52 @@ class pairmatcher:
     otherwise it should return special codes which
     control this object's behavior (see the code for details).
     """
-    def __init__(self, func, debug_name = "?"):
+    def __init__(self, func, typearg, debug_name = None):
         self.d1s = []
         self.d2s = []
         self.func = func #e will this func ever need to be changed, after we're made?
-        self.debug_name = debug_name
+        self.typearg = typearg # public, thus visible to each call of func, since we now pass self [bruce 060330 new feature]
+        self.debug_name = debug_name or str(typearg) or "?" #revised 060330
     def another_dim2(self, d2):
+##        print self,'getsg5h6 d2',d2
         for d1 in self.d1s:
             self.doit(d1,d2) # doit for existing d1s
         self.d2s.append(d2) # and for future d1s
     def another_dim1(self, d1):
+##        print self,'getsg5h6 d1',d1
         for d2 in self.d2s:
             self.doit(d1,d2) # doit for existing d2s
         self.d1s.append(d1) # and for future d2s
     def doit(self, d1, d2):
         try:
-            retcode = self.func(d1,d2)
+            retcode = self.func(d1,d2,self) #bruce 060330 new feature -- pass self [##k should we catch exception in func??]
             if retcode:
                 if retcode == "remove d1":
                     # note: we might or might not be iterating over d1s right now!
+                    # if we are iterating over d2, we might have already removed d1!
+                    # we should probably stop that loop in that case, but that feature is nim.
+                    # at least don't mind if we did already remove it...
+                    # [060330 temp kluge -- really we ought to stop the loop ###@@@]
                     self.d1s = list(self.d1s) # in case we are, modify a fresh copy
-                    self.d1s.remove(d1)
+                    try:
+                        self.d1s.remove(d1)
+                    except ValueError:
+                        pass
                 elif retcode == "remove d2":
                     self.d2s = list(self.d2s)
-                    self.d2s.remove(d2)
+                    try:
+                        self.d2s.remove(d2)
+                    except ValueError:
+                        pass
                 else:
                     print_compact_stack( "bug (ignored): unrecognized return code %r in pairmatcher %r: " % \
                                          (retcode, self.debug_name))
             #e any other use for retval??
         except:
-            print_compact_traceback( "exception in pairmatcher %r ignored: " % self.debug_name)
+            print_compact_traceback( "exception in %r ignored: " % self)#revised 060330
         return
+    def __repr__(self): #060330, untested
+        return "<%s at %#x, debug_name = %r>" % (self.__class__.__name__, id(self), self.debug_name)
     pass
 
 class MakerDict:
@@ -508,24 +523,38 @@ class MakerDict:
 # A place for objects of one kind to register themselves under some name,
 # so that objects of another kind can meet all of them using a pairmatcher (#doc better?)
 
-def postinit_func( d1, d2):
+def postinit_func( d1, d2, matcher): #bruce 060330 add matcher arg
     """after d1 is inited, tell it about d2.
     (This is meant to be called for every d1 of one kind,
      and every d2 of another kind,
      registered below under the same name.)
     """
+    if 1:
+        #bruce 060330 kluge, but might be reasonable -- let method name be encoded in typename for type of postinit object
+        #e (if speed of this ever matters, we might memoize the following in an our-private attr of matcher)
+        typename = matcher.typearg
+        if typename.startswith('_'):
+            ###e should assert it's legit as attrname?
+            methodname = typename
+        else:
+            methodname = 'postinit_item' # compatibility with old code, still used as of 060330 for "Jig menu items" or so
     try:
-        d1.postinit_item(d2)
+        method = getattr(d1, methodname)
+        method(d2)
     except:
-        # blame d1
-        print_compact_traceback( "exception in d1.postinit_item(d2) ignored; removing d1: ") #e objnames? safe_repr(obj)?
+        # blame d1, for error in either statement above
+        print_compact_traceback( "exception in calling (or finding method for) d1.%s(d2) ignored; removing d1: " % (methodname,))
+            #e objnames? safe_repr(obj)?
         return "remove d1" # special code recognized by the pairmatcher
 
-postinit_pairmatchers = MakerDict( lambda name: pairmatcher( postinit_func, debug_name = name) )
+postinit_pairmatchers = MakerDict( lambda typename: pairmatcher( postinit_func, typename ) )
 
 # the public functions:
 
 # (for main window Jig menu items we'll use the typename "Jigs menu items" since maybe other things will have Jigs menus)
+
+#e [later, 060330: this API suffers from the methodname postinit_item being fixed, rather than depending on typename,
+#   which matters if this is used for lots of purposes and the same object might participate in more than one purpose.]
 
 def register_postinit_object( typename, object):
     """Cause object to receive the method-call object.postinit_item(item)
@@ -725,5 +754,125 @@ env.end_recursive_event_processing = env_end_recursive_event_processing
 #   This should give you valid begin/end on every python call which contained any begin_op call which did this
 #   (so it might be important for only some of them to do this, or for the results to often be discarded).
 #   It matters most for history message emission (to understand py stack context of that). [050909]
-   
+
+# ==
+
+class changedict_processor: #bruce 060329 moved/modified from chem.py prototype (for Undo differential scanning optim)
+    "#doc"
+    def __init__(self, changedict, changedict_name = "<some changedict>"):
+        self.subscribers = {}
+            # public dict from owner-ids to subscribers; their update methods are called by process_changed_picked_Atoms
+        assert type(changedict) == type({}) #k needed?
+        self.changedict = changedict
+        self.changedict_name = changedict_name
+        return
+    def subscribe(self, key, dictlike):
+        "subscribe dictlike (which needs a dict-compatible .update method) to self.changedict [#doc more?]"
+        from debug import print_compact_stack
+##        print_compact_stack( "db3g sub: %s, subkey %s, dictlike %s" % (self,key,id(dictlike)))
+        assert not self.subscribers.has_key(key)
+        self.subscribers[key] = dictlike # ok if it overrides some other sub at same key, since we assume caller owns key
+        return
+    def unsubscribe(self, key):
+##        print "db3g unsub",self,key
+        del self.subscribers[key]
+        return
+    def process_changes(self):
+        """Update all subscribers to self.changedict by passing it to their update methods
+        (which should not change its value) (typically, subscribers are themselves just dicts); then clear it.
+        Typically, one subscriber calls this just before checking its subscribing dict,
+        but other subscribers might call it at arbitrary other times.
+        """
+        sublist = self.subscribers # actually a dict, but subdict would be an unclear localvar name (imho)
+        changedict = self.changedict
+        changedict_name = self.changedict_name
+        len1 = len(changedict)
+        for subkey, sub in sublist.items():
+            try:
+                unsub = sub.update( changedict) # kluge: this API is compatible with dict.update() (which returns None).
+            except:
+                #e reword the name in this? include %r for self, with id?
+                print_compact_traceback("bug: exception (ignored but unsubbing) in .update of sub (key %r) in %s: " % (subkey, changedict_name) )
+                unsub = True
+            if unsub:
+                try:
+                    del sublist[subkey]
+                except KeyError:
+                    pass
+            len2 = len(changedict)
+            if len1 != len2:
+                #e reword the name in this? include %r for self, with id?
+                print "bug: some sub (key %r) in %s apparently changed its length from %d to %d!" % (subkey, changedict_name, len1, len2)
+                len1 = len2
+            continue
+        changedict.clear()
+        assert changedict is self.changedict
+        return
+    pass # end of class changedict_processor
+
+
+## _changedict_processors = {} # maps dictname -> processor? 
+
+_dictname_for_dictid = {} # maps id(dict) to its name; it's ok for multiple dicts to have the same name;
+    # never cleared (memory leak is ok since it's small)
+
+_cdproc_for_dictid = {} # maps id(dict) to its changedict_processor;
+    # not sure if leak is ok, and/or if this could be used to provide names too
+
+def register_changedict( changedict, its_name, related_attrs ): #bruce 060329 not yet well defined what it should do ###@@@
+    #e does it need to know the involved class?
+    if env.debug():
+        print "debug: fyi: register_changedict:", its_name, related_attrs
+    cdp = changedict_processor( changedict, its_name )
+## _changedict_processors[its_name] = cdp #e assert no overlap??
+    yyy = related_attrs # not sure these should come from an arg at all, vs per-class decls... or if we even need them...
+    #stub?
+    dictid = id(changedict)
+    ## assert not _dictname_for_dictid.has_key(dictid) # this is not valid to assert, since ids can be recycled if dicts are freed
+    _dictname_for_dictid[dictid] = its_name
+    _cdproc_for_dictid[dictid] = cdp
+    return
+
+_changedicts_for_classid = {} # maps id(class) to map from dictname to dict [### what about subclass/superclass? do for every leafclass?]
+
+def register_class_changedicts( class1, changedicts ):
+    """This must be called exactly once, for each class1 (original or reloaded), to register it as being changetracked
+    by the given changedicts, each of which must have been previously passed to register_changedict.
+    """
+    classid = id(class1)
+    # make sure class1 never passed to us before; this method is only legitimate
+    # since we know these classes will be kept forever (by register_postinit_item below), so id won't be recycled
+    assert not _changedicts_for_classid.has_key(classid), \
+           "register_class_changedicts was passed the same class (or a class with the same id) twice: %r" % (class1,)
+    assert not hasattr(changedicts, 'get'), "register_class_changedicts should be passed a sequence of dicts, not a dict"
+        # kluge (not entirely valid): make sure we were passed a list or tuple, not a dict,
+        # to work around one of Python's few terrible features,
+        # namely its ability to iterate over dicts w/o complaining (by iterating over their keys)
+    for changedict in changedicts:
+        changedict_for_name = _changedicts_for_classid.setdefault(classid, {})
+        dictname = _dictname_for_dictid[id(changedict)] # if this fails (KeyError), dict was not registered with register_changedict
+        changedict_for_name[dictname] = changedict
+    # in future we might be able to auto-translate old-class objects to new classes...
+    #e so store classname->newestclass map, so you know which objects to upgrade and how...
+    #...
+    #
+    
+    # This is needed now, and has to be done after all the changedicts were stored above:
+    register_postinit_item( '_archive_meet_class', class1) #e we could instead pass a tuple of (class1, other_useful_info) if nec.
+    # All undo_archives (or anything else wanting to change-track all objects it might need to)
+    # should call register_postinit_object( '_archive_meet_class', self )
+    # when they are ready to receive callbacks (then and later) on self._archive_meet_class
+    # for all present-then and future classes of objects they might need to changetrack.
+    #   Note: those classes will be passed to all new archives and will therefore still exist (then and forever),
+    # and this system therefore memory-leaks redefined (obsolete) classes, even if all their objects disappear,
+    # but that should be ok, and (in far future) we can even imagine it being good if their objects might have been saved to files
+    # (it won't help in future sessions, which means user/developer should be warned, but it will help in present one
+    #  and might let them upgrade and resave, i.e. rescue, those objects).
+    return
+
+#e now something to take class1 and look up the changedicts and their names
+#e and let this run when we make InstanceClassification
+
+##e class multiple_changedict_processor?
+
 # end

@@ -65,6 +65,7 @@ from bond_constants import *
 from elements import Singlet
 import env
 from state_utils import StateMixin #bruce 060223
+from changes import register_changedict, register_class_changedicts
 
 # ==
 
@@ -298,6 +299,8 @@ _changed_Bonds = {} # tracks all changes to Bonds: existence/liveness (maybe not
     #bruce 060322 for Undo change-tracking; the related env._changed_bond_types global dict should perhaps become a subscriber
 
     ##e see comments about similar dicts in in chem.py for how this will end up being used
+
+register_changedict( _changed_Bonds, '_changed_Bonds', ()) ###k related attrs arg?? #bruce 060329
 
 _Bond_global_dicts = [_changed_Bonds]
 
@@ -1009,6 +1012,9 @@ class Bond( StateMixin):
         return bond_menu_section(self, quat = quat)
 
     pass # end of class Bond
+
+register_class_changedicts( Bond, _Bond_global_dicts )
+    # error if one class has two same-named changedicts (so be careful re module reload)
 
 # ==
 

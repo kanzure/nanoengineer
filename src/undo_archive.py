@@ -21,6 +21,7 @@ import env
 import state_utils
 from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state, transclose
 from prefs_constants import historyMsgSerialNumber_prefs_key, undoRestoreView_prefs_key
+import changes
 
 destroy_bypassed_redos = True # whether to destroy the Redo stack to save RAM
     # [not implemented yet -- flag has no effect, but shows where to do it -- 060301]
@@ -29,37 +30,43 @@ destroy_bypassed_redos = True # whether to destroy the Redo stack to save RAM
 debug_undo2 = False
     ## = platform.atom_debug # this is probably ok to commit for now, but won't work for enabling the feature for testing
 
-def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = False): #bruce 060117 prototype-kluge
+def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = False, **options): #bruce 060117 prototype-kluge
     """return a data-like python object encoding all the undoable state in assy
     (or in nE-1 while it's using assy)
     (it might contain refs to permanent objects like elements or atomtypes, and/or contain Numeric arrays)
     """
     if use_060213_format:
-        return ('scan_whole', mmp_state_by_scan(archive, assy) ) # not yet differential, just a different state-scanner, more general
+        # [guess as of 060329: initial arg doesn't matter for this scanning method, or, we never scan it before fully inited anyway]
+        return ('scan_whole', mmp_state_by_scan(archive, assy, **options) ) # not yet differential, just a different state-scanner, more general
 
     assert 0 # 060301, zapped even the commented-out alternative, 060314
 
-def mmp_state_by_scan(archive, assy): #e misnamed, since other things refer to this as the non-mmp option
+def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329 added exclude_layers option (nim if you go deep enough ###@@@)
     """[#doc better:]
     Return a big object listing all the undoable data reachable from assy,
     in some data-like form (but including live objrefs), mostly equivalent to a list of objkey/attr/value triples,
     suitable for mashing it back into assy, and whatever undoable objs it contains, at a later time.
+       You can pass exclude_layers = ('atoms') to skip the atom-layer attrs of Chunks (though not yet of Jigs, I think).
     """
+    #e misnamed, since other things refer to this as the non-mmp option
     scanner = archive.obj_classifier
     start_objs = [assy] #k need any others?
     viewdict = {}
     # kluge: defer collection of view-related objects and discard them, but don't bother deferring selection-related objects,
     # since for now there aren't any (and looking for them would slow us down until atoms are processed separately in a faster way).
-    state_holding_objs_dict = scanner.collect_s_children( start_objs, deferred_category_collectors = {'view':viewdict} )
+    state_holding_objs_dict = scanner.collect_s_children( start_objs,
+                                                          deferred_category_collectors = {'view':viewdict},
+                                                          exclude_layers = exclude_layers)
     
-    ## print "didn't bother scanning %d view-related objects:" % len(viewdict), viewdict.values() # works [060227]
+    if 0 and env.debug():
+        print "debug: didn't bother scanning %d view-related objects:" % len(viewdict), viewdict.values() # works [060227]; LastView
     
     #e figure out which ones are new or gone? not needed until we're differential, unless this is a good place
     # to be sure the gone ones are properly killed (and don't use up much RAM). if that change anything
     # we might have to redo the scan until nothing is killed, since subobjects might die due to this.
 
 ##    print "mmp_state_by_scan",assy
-    state = scanner.collect_state( state_holding_objs_dict, archive.objkey_allocator )
+    state = scanner.collect_state( state_holding_objs_dict, archive.objkey_allocator, exclude_layers = exclude_layers )
     return state
 
 # ==
@@ -158,7 +165,8 @@ def assy_become_scanned_state(self, data, archive):
         attrdicts = data.attrdicts # works for a StateSnapshot ####@@@@ this is dangerous, what if someone adds that attr to StatePlace?
     except:
         attrdicts = data.get_attrdicts_for_immediate_use_only() # works for a StatePlace
-    for attr, dict1 in attrdicts.items(): ##e might need to be in a specific order
+    for attrcode, dict1 in attrdicts.items(): ##e might need to be in a specific order
+        attr, acode = attrcode
         ## might_have_undo_setattr = (attr == 'molecule')
         # _undo_setattr_molecule turned out not to be useful so far [060314], so for speed,
         # limit this testing kluge (which will never find an actual _undo_setattr_xxx)
@@ -172,12 +180,12 @@ def assy_become_scanned_state(self, data, archive):
                 obj = obj4key[key]
                 modified[key] = obj
                 ## reset_obj_attrs_to_defaults(obj) -- no, be a bit more subtle:
-                # If any attr of this obj might_have_undo_setattr, we want it to see the old value,
+                # If any attr of this obj might_have_undo_setattr (as determined using its attrcode), we want it to see the old value,
                 # so we don't want to reset *that* attr to its default value.
                 # One way: exception for just those attrs.
                 # Another way: exception for all attrs we plan to set specifically (only needed when "those attrs" are among them).
                 # For initial use of might_have_undo_setattr, I can be simple, then figure out the proper way later.
-                ## if attrdicts['molecule'].has_key(key):
+                ## if attrdicts['molecule'].has_key(key): # WRONG, re attrcode
                 ##     # i.e. if we plan to set this obj's .molecule
                 ##     ....
                 # I can be even simpler, since it happens that .molecule has no default value in Atom
@@ -188,7 +196,7 @@ def assy_become_scanned_state(self, data, archive):
                 #######e set all attrs in obj (which we store, or are cached) to their default values (might mean delattr?)
                 # w/o this we have bugs...
                 pass
-            val = copy(val) #e possible future optim: let some attrs declare that this copy is not needed
+            val = copy(val) #e possible future optim: let some attrs declare that this copy is not needed [MIGHT BE A BIG OPTIM ###e]
             if might_have_undo_setattr: # optim: this flag depends on attr name
                 setattr_name = '_undo_setattr_' + attr # only support attr-specific setattrs for now, for speed and subclass simplicity
                 try:
@@ -230,7 +238,14 @@ def assy_become_scanned_state(self, data, archive):
     # that has replaced .molecule for lots of atoms; need to fix the .atoms dicts of those mols [060314]
     if 1: # simple way to start with ####@@@@ should split into separate func for profiling (need funcs for above and below things too)
         mols = {}
-        moldict = attrdicts.get('molecule',{}) # {} can happen, when no Chunks were in the state!
+        molcode = ('molecule',0) ########@@@@@@@@ KLUGE; we want attrcode for Atom.molecule; should get clas for Atom and ask it!
+            ### how will i know if this breaks? debug code for it below can't be left in...
+        moldict = attrdicts.get(molcode,{}) # {} can happen, when no Chunks (ie no live atoms) were in the state!
+            # (this is a dict from atoms' objkeys to their mols, so len is number of atoms in state;
+            #  i think they are all *found* atoms but as of 060330 might not be all *live* atoms,
+            #  since dead mol._hotspot can be found and preserved.)
+        if 0 and env.debug():
+            print "debug: len(moldict) == %d, if this always 0 we have a bug, but 0 is ok when no atoms in state" % (len(moldict))
         for atom_objkey, mol in moldict.iteritems():
             mols[id(mol)] = mol
         from chunk import _nullMol
@@ -992,23 +1007,71 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             # so all applicable diffs will be found when you look for varid_ver pairs representing current state.
             # (Not sure if that system will be good enough for permitting enough out-of-order list-modification ops.)
 
-        # == above is general; below is specific to the kind of data we find in an assembly (Atoms, Bonds, Chunks...)
-        
-        # change tracking dicts for Atoms and Bonds (not sure we want them here, as opposed to inside current_diff...) [bruce 060315]
-        self._changed_parent_Atoms = {} # atom.key -> atom (not objkey!) for atoms w/ changed assy or molecule or liveness/killedness
-            # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
-        self._changed_structure_Atoms = {} ###e format TBD, but tracks changes to element, atomtype, bond set (###k bond order?)
-        self._changed_posn_Atoms = {} # tracks changes to atom._posn (not clear what it'll do when we can treat baseposn as defining state)
-        self._changed_picked_Atoms = {} # tracks changes to atom.picked (not to _pick_time etc, we don't cover that in Undo)
+##        # == above is general; below is specific to the kind of data we find in an assembly (Atoms, Bonds, Chunks...)
+##        
+##        # change tracking dicts for Atoms and Bonds (not sure we want them here, as opposed to inside current_diff...) [bruce 060315]
+##        self._changed_parent_Atoms = {} # atom.key -> atom (not objkey!) for atoms w/ changed assy or molecule or liveness/killedness
+##            # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
+##        self._changed_structure_Atoms = {} ###e format TBD, but tracks changes to element, atomtype, bond set (###k bond order?)
+##        self._changed_posn_Atoms = {} # tracks changes to atom._posn (not clear what it'll do when we can treat baseposn as defining state)
+##        self._changed_picked_Atoms = {} # tracks changes to atom.picked (not to _pick_time etc, we don't cover that in Undo)
+##
+##        self._changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display mode; not sure if any more ###k)
+##
+##        self._changed_Bonds = {} # tracks all changes to Bonds: existence, which atoms, bond order. [bond.key or id(bond) is TBD ###k]
 
-        self._changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display mode; not sure if any more ###k)
-
-        self._changed_Bonds = {} # tracks all changes to Bonds: existence, which atoms, bond order. [bond.key or id(bond) is TBD ###k]
-
+        self.subbing_to_changedicts_now = False # whether this was initially False or True wouldn't matter much, I think...
+        self._changedicts = [] # list of *external* changedicts we subscribe to -- we are not allowed to directly modify them!
+            # (in fact it might be better to just list their cdp's rather than the dicts themselves; also more efficient ##e)
+        self.all_changed_objs = {} # this one dict subscribes to all changes on all attrs of all classes of object (for now)
         # rest of init is done later, by self.initial_checkpoint, when caller is more ready [060223]
         ###e not sure were really inited enough to return... we'll see
         return
 
+    def sub_or_unsub_changedicts(self, subQ): #060329, rewritten 060330
+        if self.subbing_to_changedicts_now != subQ:
+            del self.subbing_to_changedicts_now # we'll set it to a new value (subQ) at the end;
+                # it's a bug if something wants to know it during this method, so the temporary del is to detect that
+            ourdicts = (self.all_changed_objs,) # kluge: this is also hardcoded into sub_or_unsub_to_one_changedict
+            if subQ:
+                for ourdict in ourdicts:
+                    if ourdict:
+                        print "bug: archive's changedict should have been empty but contains:", ourdict
+##            for ourdict, globaldict_name in ((self._changed_parent_Atoms, '_changed_parent_Atoms'),
+##                                             ##k names are correct; do we need all these sep ones?
+##                                             ###e more to the point, we want to get these from clas when we hit new objs...
+##                                             # or when new classes are registered as contributing tracked objs in certain layers.
+##                                             # (thinking ahead to custom code classes, reloaded at runtime, and multiple open files)
+##                                             (self._changed_structure_Atoms, '_changed_structure_Atoms'),
+##                                             (self._changed_posn_Atoms, '_changed_posn_Atoms'),
+##                                             (self._changed_picked_Atoms, '_changed_picked_Atoms'),
+##                                             (self._changed_otherwise_Atoms, '_changed_otherwise_Atoms'),
+##                                             (self._changed_Bonds, '_changed_Bonds')):
+            cds = self._changedicts[:]
+            for changedict in cds:
+                self.sub_or_unsub_to_one_changedict(subQ, changedict)
+                continue
+                #e other things to do in some other method with each changedict:
+                # or update?
+                # cdp.process_changes()
+            if not subQ:
+                for ourdict in ourdicts:
+                    ourdict.clear() # not sure we need this, but if we're unsubbing we're missing future changes
+                        # so we might as well miss the ones we were already told about (might help to free old objects?)
+            assert map(id, cds) == map(id, self._changedicts) # since new cds during that loop are not supported properly by it
+            self.subbing_to_changedicts_now = subQ
+        return
+
+    def sub_or_unsub_to_one_changedict(self, subQ, changedict):
+        subkey = id(self)
+        ourdict = self.all_changed_objs # same one for each changedict; this might not be true in future
+        cdp = changes._cdproc_for_dictid[id(changedict)]
+        if subQ:
+            cdp.subscribe(subkey, ourdict)
+        else:
+            cdp.unsubscribe(subkey)
+        return
+    
     def _clear(self):
         """[private helper method for self.clear_undo_stack()]
         Clear our main data stores, which are set up in __init__, and everything referring to undoable objects or objkeys.
@@ -1025,6 +1088,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return
 
     def initial_checkpoint(self): # called by clear_undo_stack in two ways??? one by undo_manager? ###doc situation [060304]
+        # note: this can definitely be called twice, one way is by _clear and clear_undo_stack, that happens 2nd...
         assert not self.inited
         assy = self.assy
         cp = make_empty_checkpoint(assy, 'initial') # initial checkpoint
@@ -1038,15 +1102,56 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             #e note, self.last_cp will be augmented by a desc of varid_vers pairs about cur state; 
             # but for out of order redo, we get to old varid_vers pairs but new cp's; maybe there's a map from one to the other...
             ###k was this part of UndoManager in old code scheme? i think it was grabbed out of actual model objects in UndoManager.
+        self.sub_or_unsub_changedicts(False) # in case we've been called before (kluge)
+        self._changedicts = [] # ditto
+        self.sub_or_unsub_changedicts(True)
+        self.setup_changedicts() # do this after sub_or_unsub, to test its system for hearing about redefined classes later [060330]
         self.inited = True # should come before _setup_next_cp
         self._setup_next_cp() # don't know cptype yet (I hope it's 'begin_cmd'; should we say that to the call? #k)
         ## self.notify_observers() # current API doesn't permit this to do anything during __init__, since subs is untouched then
         return
+
+    def setup_changedicts(self):
+        assert not self._changedicts, "somehow setup_changedicts got called twice, since we already have some, "\
+               "and calling code didn't kluge this to be ok like it does in initial_checkpoint in case it's called from self._clear"
+        changes.register_postinit_object( '_archive_meet_class', self )
+            # this means we are ready to receive callbacks (now and later) on self._archive_meet_class,
+            # telling us about new classes whose objects we might want to changetrack
+        return
+    
+    def _archive_meet_class(self, class1):
+        "[private] class1 is a class whose objects we might want to changetrack. Learn how, and subscribe to necessary changedicts."
+        ###e if we've been destroyed, raise an exception to get us removed from the pairmatcher, maybe a special one that's not an
+        # error in its eyes; in current code we'll raise AttributeError on _changedicts or maybe on its extend method #####@@@@@
+        changedicts0 = changes._changedicts_for_classid[ id(class1) ] # maps name to dict, but names are only unique per-class
+        changedicts = changedicts0.values() # or .items()?
+        self._changedicts.extend( changedicts ) # no reason to ever forget about changedicts, I think [#e include name in here?]
+            # (if this gets inefficient, it's only for developers who often reload code module -- I think; review this someday ##k)
+        if self.subbing_to_changedicts_now:
+            for name, changedict in changedicts0.items():
+                del name
+                self.sub_or_unsub_to_one_changedict(True, changedict)
+                    #e someay, also passing its name, so sub-implem can know what we think about changes in it? maybe.
+        return
+
+    def get_and_clear_changed_objs(self):
+        for changedict in self._changedicts:
+            cdp = changes._cdproc_for_dictid[id(changedict)]
+            cdp.process_changes() # this is needed to add the latest changes to our own local changedict(s)
+        res = dict(self.all_changed_objs)
+        self.all_changed_objs.clear()
+        return res
     
     def destroy(self): #060126 precaution
         "free storage, make doing of our ops illegal (noop with bug warning; or maybe just exception)"
         if self.pref_report_checkpoints():
             self.debug_histmessage("(destroying: %r)" % self)
+        self.sub_or_unsub_changedicts(False)
+            # this would be wrong, someone else might be using them!
+            ##for cd in self._changedicts:
+            ##    cd.clear()
+            # it's right to clear our own, but that's done in the method we just called.
+        del self._changedicts
         self.next_cp = self.last_cp = self.initial_cp = None
         self.assy = None
         self.stored_ops = {} #e more, if it can contain any cycles -- design was that it wouldn't, but true situation not reviewed lately [060301]

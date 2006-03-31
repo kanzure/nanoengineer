@@ -283,18 +283,31 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         "Become a Classification for class class1 (applicable to its instances)"
         self.policies = {} # maps attrname to policy for that attr #k format TBD, now a map from attrname to decl val
         self.class1 = class1
-        self.attrs_with_no_dflt = [] # public list of attrs with no declared or evident default value (might be turned into a tuple)
-        self.attr_dflt_pairs = [] # public list of attr, dflt pairs, for attrs with a default value (has actual value, not a copy)
-        self.dict_of_all_state_attrs = {}
+
+        #e now something to take class1 and look up the changedicts and their names -- see changes.register_class_changedict
+        #e and let this run when we make InstanceClassification??
+        # no, we need to know about new class's chanegdicts before we see any instances!
+        # (who does? obj_classifier or undo_archive?)
+        
+        self.attrcodes_with_no_dflt = []
+            # public list of attrcodes with no declared or evident default value (might be turned into a tuple)
+            # an attrcode means a pair (attr, acode) where acode's main purpose is to let same-named attrs have different attrdicts
+            # [attrcodes were added 060330]
+        self.attrcode_dflt_pairs = []
+            # public list of attrcode, dflt pairs, for attrs with a default value (has actual value, not a copy);
+            # attrcode will be distinct whenever dflt value differs (and maybe more often) [as of 060330]
+        self.dict_of_all_state_attrcodes = {}
         self.categories = {} # (public) categories (e.g. 'selection', 'view') for attrs which declare them using _s_categorize_xxx
-        self.defaultvals = {} # (public) ###doc, ####@@@@ use more, also know is_mutable about them, maybe more policy about del on copy
+        self.attrcode_defaultvals = {} # (public) #doc
+            ##@@ use more, also know is_mutable about them, maybe more policy about del on copy
+            # as of 060330 this is only used by commented-out code not yet adapted from attr to attrcode.
         self.warn = True # from decls seen so far, do we need to warn about this class (once, when we encounter it)?
         self.debug_all_attrs = False # was env.debug(); can normally be False now that system works
         
         self._find_attr_decls(class1) # fills self.policies and some other instance variables derived from them
 
-        self.attrs_with_no_dflt = tuple(self.attrs_with_no_dflt) # optimization, I presume; bad if we let new attrs get added later
-        self.attr_dflt_pairs = tuple(self.attr_dflt_pairs)
+        self.attrcodes_with_no_dflt = tuple(self.attrcodes_with_no_dflt) # optimization, I presume; bad if we let new attrs get added later
+        self.attrcode_dflt_pairs = tuple(self.attrcode_dflt_pairs)
         
         self.S_CHILDREN_attrs = self.attrs_declared_as(S_CHILD) + \
                                 self.attrs_declared_as(S_CHILDREN) + \
@@ -309,7 +322,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
             print "InstanceClassification for %r sees no mixin or _s_attr decls; please add them or register it (nim)" \
                   % class1.__name__
 
-        if env.debug() and not self.attrs_with_no_dflt and self.attr_dflt_pairs: #060302; doesn't get printed (good)
+        if env.debug() and not self.attrcodes_with_no_dflt and self.attrcode_dflt_pairs: #060302; doesn't get printed (good)
             print "InstanceClassification for %r: all attrs have defaults, worry about bug resetting all-default objects"\
                   % class1.__name__
         return
@@ -332,18 +345,21 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                 self.warn = False # enough to be legitimate state
                 #e check if per-instance? if callable? if legal?
                 if declval in STATE_ATTR_DECLS:
-                    self.dict_of_all_state_attrs[attr_its_about] = None
                     # figure out if this attr has a known default value... in future we'll need decls to guide/override this
                     try:
                         dflt = getattr(class1, attr_its_about)
                     except AttributeError:
                         # assume no default value unless one is declared (which is nim)
-                        self.attrs_with_no_dflt.append(attr_its_about)
+                        acode = 0 ###stub, but will work initially; later will need info about whether class is diffscanned, in layer, etc
+                        attrcode = (attr_its_about, acode)
+                        self.attrcodes_with_no_dflt.append(attrcode)
                     else:
                         # attr has a default value
+                        acode = id(dflt) ###stub, but should eliminate issue of attrs with conflicting dflts in different classes
                         assert attr_its_about != 'molecule' ####@@@@ KLUGE; explained in comment near call of reset_obj_attrs_to_defaults [bruce 060313]
-                        self.attr_dflt_pairs.append( (attr_its_about, dflt) )
-                        self.defaultvals[attr_its_about] = dflt
+                        attrcode = (attr_its_about, acode)
+                        self.attrcode_dflt_pairs.append( (attrcode, dflt) )
+                        self.attrcode_defaultvals[attrcode] = dflt
                         if env.debug() and is_mutable(dflt): #env.debug() (redundant here) is just to make prerelease snapshot safer
                             if env.debug():
                                 print "debug warning: dflt val for %r in %r is mutable: %r" % (attr_its_about, class1, dflt)
@@ -352,8 +368,9 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                                 #      is mutable: array([ 0.,  0.,  0.])
 
                         if self.debug_all_attrs:
-                            print "                                               dflt val for %r is %r" % (attr_its_about, dflt,)
-                    pass
+                            print "                                               dflt val for %r is %r" % (attrcode, dflt,)
+                        pass
+                    self.dict_of_all_state_attrcodes[ attrcode ] = None
                 pass
             elif name == '_s_deepcopy': # note: exact name, and doesn't end with '_'
                 self.warn = False # enough to be legitimate data
@@ -897,17 +914,17 @@ class StateSnapshot:
     the same for all objects in one attrdict.
     """
     #e later we'll have one for whole state and one for differential state and decide if they're different classes, etc
-    def __init__(self, attrs = ()):
-        self.attrdicts = {} # maps attrnames to their dicts; each dict maps objkeys to values; public attribute for efficiency(??)
-        for attr in attrs:
-            self.make_attrdict(attr)
+    def __init__(self, attrcodes = ()):
+        self.attrdicts = {} # maps attrcodes to their dicts; each dict maps objkeys to values; public attribute for efficiency(??)
+        for attrcode in attrcodes:
+            self.make_attrdict(attrcode)
     #e methods to apply the data and to help grab the data? see also assy_become_scanned_state, SharedDiffopData (in undo_archive)
     #e future: methods to read and write the data, to diff it, etc, and state-decls to let it be compared...
     #e will __eq__ just be eq on our attrdicts? or should attrdict missing or {} be the same? guess: same.
-    def make_attrdict(self, attr):
-        "Make an attrdict for attr. Assume we don't already have one."
-        assert self.attrdicts.get(attr) is None
-        self.attrdicts[attr] = {}
+    def make_attrdict(self, attrcode):
+        "Make an attrdict for attrcode. Assume we don't already have one."
+        assert self.attrdicts.get(attrcode) is None
+        self.attrdicts[attrcode] = {}
     def size(self): ##e should this be a __len__ and/or a __nonzero__ method? ### shares code with DiffObj; use common superclass?
         "return the total number of attribute values we're storing (over all objects and all attrnames)"
         res = 0
@@ -930,10 +947,19 @@ class StateSnapshot:
         return self.__class__ is other.__class__ and not diff_snapshots(self, other)
     def __ne__(self, other):
         return not (self == other)
-    def val_diff_func_for(self, attr):
+    def val_diff_func_for(self, attrcode):
+        attr, acode = attrcode
         if attr == '_posnxxx': # kluge, should use an _s_decl; remove xxx when this should be tried out ####@@@@
             return val_diff_func_for__posn # stub for testing
         return None
+    def extract_layers(self, layernames):
+        if env.debug():
+            print "debug: extract_layers nim"
+        return StateSnapshot() #stub ####@@@@
+    def insert_layers(self, layerstuff):
+        if env.debug():
+            print "debug: insert_layers nim"
+        return #stub ####@@@@
     pass # end of class StateSnapshot
 
 def val_diff_func_for__posn((p1,p2), whatret): # purely a stub for testing, though it should work
@@ -945,13 +971,13 @@ def diff_snapshots(snap1, snap2, whatret = 0): #060227 experimental
     "Diff two snapshots. Retval format TBD. Missing attrdicts are like empty ones. obj/attr sorting by varid to be added later."
     keydict = dict(snap1.attrdicts) # shallow copy, used only for its keys (presence of big values shouldn't slow this down)
     keydict.update(snap2.attrdicts)
-    attrs = keydict.keys()
+    attrcodes = keydict.keys()
     del keydict
-    attrs.sort() # just so we're deterministic
+    attrcodes.sort() # just so we're deterministic
     res = {}
-    for attr in attrs:
-        d1 = snap1.attrdicts.get(attr, {})
-        d2 = snap2.attrdicts.get(attr, {})
+    for attrcode in attrcodes:
+        d1 = snap1.attrdicts.get(attrcode, {})
+        d2 = snap2.attrdicts.get(attrcode, {})
         # now diff these dicts; set of keys might not be the same
         dflt = _UNSET_
             # This might be correct, assuming each attrdict has been optimized to not store true dflt val for attrdict,
@@ -960,23 +986,23 @@ def diff_snapshots(snap1, snap2, whatret = 0): #060227 experimental
     
         # 060309 experimental: support special diff algs for certain attrs,
         # like sets or lists, or a single attrval representing all bonds
-        val_diff_func = snap2.val_diff_func_for(attr) # might be None; assume snap2 knows as well as snap1 what to do
-        assert val_diff_func == snap1.val_diff_func_for(attr) # make sure snap1 and snap2 agree (kluge??)
+        val_diff_func = snap2.val_diff_func_for(attrcode) # might be None; assume snap2 knows as well as snap1 what to do
+        assert val_diff_func == snap1.val_diff_func_for(attrcode) # make sure snap1 and snap2 agree (kluge??)
             #e better to use more global knowledge instead? we'll see how it's needed on the diff-applying side...
             # (we ought to clean up the OO structure, when time permits)
         diff = diffdicts(d1, d2, dflt = dflt, whatret = whatret, val_diff_func = val_diff_func)
         if diff:
-            res[attr] = diff #k ok not to copy its mutable state? I think so...
+            res[attrcode] = diff #k ok not to copy its mutable state? I think so...
     return res # just a diff-attrdicts-dict, with no empty dict members (so boolean test works ok) -- not a Snapshot itself.
 
 def diff_snapshots_oneway(snap1, snap2):
     "diff them, but only return what's needed to turn snap1 into snap2, as an object containing attrdicts (all mutable)"
-    return DiffObj( diff_snapshots(snap1, snap2, whatret = 2) ) ######@@@@@@ also store val_diff_func per attr? [060309 comment]
+    return DiffObj( diff_snapshots(snap1, snap2, whatret = 2) ) ######@@@@@@ also store val_diff_func per attrcode? [060309 comment]
 
 class DiffObj:
-    valsizes = dict(_posn = 52)
+    attrname_valsizes = dict(_posn = 52)
         # maps attrcode (just attrname for now) to our guess about the size
-        # of storing one attrval for that attr, in this kind of undo-diff;
+        # of storing one attrval for that attrcode, in this kind of undo-diff;
         # this figure 52 for _posn is purely a guess
         # (the 3 doubles themselves are 24, but they're in a Numeric array
         # and we also need to include the overhead of the entire dict item in our attrdict),
@@ -994,7 +1020,8 @@ class DiffObj:
         "return a rough guess of our RAM consumption"
         res = 0
         for attrcode, d in self.attrdicts.iteritems():
-            valsize = self.valsizes.get(attrcode, 24)
+            attr, acode = attrcode
+            valsize = self.attrname_valsizes.get(attr, 24) # it's a kluge to use attr rather than attrcode here
                 # 24 is a guess, and is conservative: 2 pointers in dict item == 8, 2 small pyobjects (8 each??)
             res += len(d) * valsize
         return res
@@ -1069,6 +1096,8 @@ def diffdicts(d1, d2, dflt = None, whatret = 0, val_diff_func = None):
                 # each one (not just on a small number of attr *names*, but a small number of *values*). E.g. one attr for the entire
                 # assy which knows all atom positions or bond types in the assy. It's just a way of letting some attrs have their
                 # own specialcase diff algs and representations.
+                # [later note: as of 060330 this val_diff_func is only supplied by val_diff_func_for, which never supplies one
+                #  except for a stub attrname we don't use, and I don't know if we'll use this scheme for A7.]
     return res
 
 # ==
@@ -1097,6 +1126,8 @@ def diff_and_copy_state(archive, assy, priorstate): #060228
         # lastsnap = priorstate.copy() #IMPLEM and review; or nevermind, if we retain 'lastsnap = cursnap' below
         lastsnap = priorstate # be sure not to modify this object!
         assert isinstance(lastsnap, StateSnapshot) # remove when works, eventually ###@@@
+        if env.debug():
+            print "used special case for priorstate being initial state; problem for diff'l scan?" # does this ever happen? yes. [as of 060329]
     else:
         assert isinstance(priorstate, StatePlace) # remove when works, eventually ###@@@
         lastsnap = steal_lastsnap_method( ) # and we promise to replace it with (new, diffobj) later, so priorstate is again defined
@@ -1104,20 +1135,43 @@ def diff_and_copy_state(archive, assy, priorstate): #060228
     # now we own lastsnap, and we'll modify it to agree with actual current state, and record the changes required to undo this...
     # initial test: use old inefficient code for this -- soon we'll optim (it might be enough to optim for atoms and bonds only)
     if 1:
+        # 060329: this is where we have to do things differently when we only want to scan changed objects.
+        # So we do the old full scan for most kinds of things, but not for the 'atoms layer' (atoms, bonds, Chunk.atoms attr).
         import undo_archive #e later, we'll inline this until we reach a function in this file
-        cursnap = undo_archive.current_state(archive, assy, use_060213_format = True)
+        cursnap = undo_archive.current_state(archive, assy, use_060213_format = True, exclude_layers = ('atoms',))
         assert cursnap[0] == 'scan_whole'
         cursnap = cursnap[1]
-        diffobj = diff_snapshots_oneway( cursnap, lastsnap )
+        lastsnap_diffscan_layers = lastsnap.extract_layers( ('atoms',) ) ########@@@@@@@@ IMPLEM
+        diffobj = diff_snapshots_oneway( cursnap, lastsnap ) # valid for everything except the 'atoms layer' ###@@@ where's its state now?
         ## lastsnap.become_copy_of(cursnap) #IMPLEM, or nevermind, just use cursnap
         lastsnap = cursnap
         del cursnap
+        if env.debug():
+            print "now we ought to modify lastsnap_diffscan_layers (and rename it) using changed obj lists (and clear those)" #####@@@@@
+            #e so how do we know which dicts to look in, for changed objs/attrs? don't the attr decls that set up layers also have to tell us that?
+            # and does it get recorded somehow in this lastsnap_diffscan_layers object, which knows the attrs it contains? yes, that would be good...
+            #
+            print "ok, are there any changed objects to look at? yes, these:", archive.get_and_clear_changed_objs() # dict, id->obj
+        
+        lastsnap.insert_layers(lastsnap_diffscan_layers) ########@@@@@@@@ IMPLEM
         new.own_this_lastsnap(lastsnap)
         if steal_lastsnap_method: #kluge, remove when initial state is a stateplace ###@@@
             priorstate.define_by_diff_from_stateplace(diffobj, new)
         new.really_changed = not not diffobj.nonempty() # remains correct even when new's definitional content changes
     return new
 
+def xxx( archive, layers = ('atoms',) ): #bruce 060329; is this really an undo_archive method? 
+    "#doc [now we ought to modify lastsnap_diffscan_layers (and rename it) using changed obj lists (and clear those)]" #####@@@@@
+    # ok, we've had a dict subscribed for awhile (necessarily), just update it one last time, then we have the candidates, not all valid.
+    # it's sub'd to several things... which somehow reg'd themselves in the 'atoms' layer...
+    for layer in layers: # perhaps the order matters, who knows
+        #e find some sort of object which knows about that layer; do we ask our obj_classifier about this? does it last per-session?
+        # what it knows is the changedict_processors, and a dict we have subscribed to them...
+        # hmm, who owns this dict? the archive? i suppose.
+        layer_obj = archive.layer_obj(layer)########@@@@@@@@ IMPLEM
+        layer_obj.update_your_changedicts()########@@@@@@@@ IMPLEM
+        layer_obj.get_your_dicts() # ....
+        
 class StatePlace:
     """basically an lval for a StateSnapshot or a (diffobj, StatePlace) pair;
     represents a logically immutable snapshot in a mutable way
@@ -1179,10 +1233,10 @@ def apply_and_reverse_diff(diff, snap):
     Return None, to remind caller we modify our argument objects.
     (Note: Calling this again on the reverse diff we returned and on the same now-modified snap should undo its effect entirely.)
     """
-    for attr, dict1 in diff.attrdicts.items():
-        dictsnap = snap.attrdicts.setdefault(attr, {})
+    for attrcode, dict1 in diff.attrdicts.items():
+        dictsnap = snap.attrdicts.setdefault(attrcode, {})
         if 1:
-            # if no special diff restoring func for this attr:
+            # if no special diff restoring func for this attrcode:
             for key, val in dict1.iteritems():
                 # iteritems is ok, though we modify dict1, since we don't add or remove items (though we do in dictsnap)
                 oldval = dictsnap.get(key, _UNSET_)
@@ -1203,7 +1257,7 @@ def apply_and_reverse_diff(diff, snap):
             #
             #   maybe think from other end -- what _s_attr decls
             # do we want, for being able to set this up the way we'd like?
-            # Maybe per-object diff & copy func, for obj owning attr, and per-object apply_and_reverse func?
+            # Maybe per-object diff & copy func, for obj owning attrcode's attr, and per-object apply_and_reverse func?
             #  Related (but purely an A8 issue): for binary mmp support, we still need to be able to save the snaps!
             #
             # ... this is called by get_snap_back_to_self, in get_attrdicts_for_immediate_use_only,
@@ -1232,10 +1286,13 @@ class obj_classifier:
     """
     def __init__(self):
         self._clas_for_class = {} # maps Python classes (values of obj.__class__ for obj an InstanceType, for now) to Classifications
-        self.dict_of_all_state_attrs = {} # maps attrnames to arbitrary values, for all state-holding attrnames ever declared to us
-        self.kluge_attr2metainfo = {}
-            # maps attrnames to the only legal attr_metainfo for that attrname; the kluge is that we require this to be constant per-attr
-        self.kluge_attr2metainfo_from_class = {}
+        self.dict_of_all_state_attrcodes = {} # maps attrcodes to arbitrary values, for all state-holding attrs ever declared to us
+#bruce 060330 zapping this
+##        self.kluge_attr2metainfo = {}
+##            # maps attrnames to the only legal attr_metainfo for that attrname;
+##            # the kluge is that we require this to be constant per-attr
+##            # [can we avoid that now that we have attrcodes?? can we replace this with attrcode2metainfo, or discard it?]
+##        self.kluge_attr2metainfo_from_class = {}
         return
     
     def classify_instance(self, obj):
@@ -1253,51 +1310,61 @@ class obj_classifier:
             pass
         # make a new Classification for this class
         clas = self._clas_for_class[class1] = InstanceClassification(class1)
-        self.dict_of_all_state_attrs.update( clas.dict_of_all_state_attrs )
-        # Store per-attrdict metainfo, which in principle could vary per-class but should be constant for one attrdict.
-        # This means that classes that disagree about metainfo for the same attrname would need to encode attrnames
-        # into distinct attrkeys to use when finding attrdicts.
-        # Right now we know that never happens, so we just assert it doesn't.
-        #e (To make this system more general (after A7) we'll need to remove assumption that attrname is the right index
-        #   for finding the attrdict. E.g. attr_dflt_pairs becomes (attr, attrkey, dflt) triples, etc.
-        #   Then the following code would need to say it would:
-        #      Figure out whether there's any problematic attrname conflicts that mean we need to encode attrnames,
-        #      so that different classes use different attrdicts for the same-named attr.
-        # )
-
-        # BTW this metainfo is needed by StateSnapshot methods and external code... review organization of all this code later.
-
-        for attr in clas.dict_of_all_state_attrs.keys():
-            attr_metainfo = (attr, clas.defaultvals.get(attr, _UNSET_), clas.categories.get(attr)) #e make this a clas method?
-            if self.kluge_attr2metainfo.has_key(attr):
-                if self.kluge_attr2metainfo[attr] != attr_metainfo:
-                    #060228 be gentler, since happens for e.g. Jig.color attrs; collect cases, then decide what to do
-                    if self.kluge_attr2metainfo[attr][1] != attr_metainfo[1]:
-                        if attr not in ('atoms','color'): # known cases as of 060228 2:38pm PST; atoms: Jig vs Chunk; color: same?
-                            msg = "undo-debug note: attr %r defaultval differs in %s and %s; ok for now but mention in bug 1586 comment" % \
-                                  (attr, class1.__name__, self.kluge_attr2metainfo_from_class[attr].class1.__name__)
-                            print msg
-                            from HistoryWidget import redmsg
-                            env.history.message(redmsg( msg ))
-                        attr_metainfo = list(attr_metainfo)
-                        attr_metainfo[1] = self.kluge_attr2metainfo[attr][1] # look the other way - ok since not using this yet ###@@@
-                        attr_metainfo = tuple(attr_metainfo)
-                assert self.kluge_attr2metainfo[attr] == attr_metainfo, \
-                        "%r == %r fails for %r (2nd class is %s, 1st clas incls %r)" % \
-                        (self.kluge_attr2metainfo[attr], attr_metainfo,
-                         attr, class1.__name__, self.kluge_attr2metainfo_from_class[attr].class1.__name__ )
-                    # require same-named attrs to have same dflt and cat (for now) -- no, dflt can differ, see above kluge ###@@@
-            else:
-                self.kluge_attr2metainfo[attr] = attr_metainfo
-                self.kluge_attr2metainfo_from_class[attr] = clas # only for debugging
+        self.dict_of_all_state_attrcodes.update( clas.dict_of_all_state_attrcodes )
+#bruce 060330 not sure if the following can be fully zapped, though most of it can. Not sure how "cats" are used yet...
+# wondering if acode should be classname. ###@@@
+#
+##        # Store per-attrdict metainfo, which in principle could vary per-class but should be constant for one attrdict.
+##        # This means that classes that disagree about metainfo for the same attrname would need to encode attrnames
+##        # into distinct attrkeys to use when finding attrdicts. [later: we're doing this with attrcodes now. 060330]
+##        # Right now we know that never happens, so we just assert it doesn't.
+##        #e (To make this system more general (after A7) we'll need to remove assumption that attrname is the right index
+##        #   for finding the attrdict. E.g. attr_dflt_pairs becomes (attr, attrkey, dflt) triples, etc.
+##        #    [update 060330: now we do this, so attrcode_dflt_pairs has ((attr, acode), dflt) and the attrkey is (attr, acode)...
+##        #     but the system implied by the earlier comment, with attrkey a unique small int, would be more efficient!
+##        #     If collect_state takes lots of time, consider switching to it. ##e]
+##        #   Then the following code would need to say it would:
+##        #      Figure out whether there's any problematic attrname conflicts that mean we need to encode attrnames,
+##        #      so that different classes use different attrdicts for the same-named attr.
+##        # )
+##
+##        # BTW this metainfo is needed by StateSnapshot methods and external code... review organization of all this code later.
+##
+##        for attrcode in clas.dict_of_all_state_attrcodes.keys():
+##            } # this loop needs to be fully understood, to be changed for attrcode, was attr.
+##            # also see if it's only use of kluge_attr2metainfo - not quite, last one is just below it and is marked
+##            attr_metainfo = (attr, clas.defaultvals.get(attr, _UNSET_), clas.categories.get(attr)) #e make this a clas method?
+ # note, that would now need to be clas.defaultvals.get(attr,...) => clas.attrcode_defaultvals.get(attrcode, ...)
+##            if self.kluge_attr2metainfo.has_key(attr):
+##                if self.kluge_attr2metainfo[attr] != attr_metainfo:
+##                    #060228 be gentler, since happens for e.g. Jig.color attrs; collect cases, then decide what to do
+##                    if self.kluge_attr2metainfo[attr][1] != attr_metainfo[1]:
+##                        if attr not in ('atoms','color'): # known cases as of 060228 2:38pm PST; atoms: Jig vs Chunk; color: same?
+##                            msg = "undo-debug note: attr %r defaultval differs in %s and %s; ok for now but mention in bug 1586 comment" % \
+##                                  (attr, class1.__name__, self.kluge_attr2metainfo_from_class[attr].class1.__name__)
+##                            print msg
+##                            from HistoryWidget import redmsg
+##                            env.history.message(redmsg( msg ))
+##                        attr_metainfo = list(attr_metainfo)
+##                        attr_metainfo[1] = self.kluge_attr2metainfo[attr][1] # look the other way - ok since not using this yet ###@@@
+##                        attr_metainfo = tuple(attr_metainfo)
+##                assert self.kluge_attr2metainfo[attr] == attr_metainfo, \
+##                        "%r == %r fails for %r (2nd class is %s, 1st clas incls %r)" % \
+##                        (self.kluge_attr2metainfo[attr], attr_metainfo,
+##                         attr, class1.__name__, self.kluge_attr2metainfo_from_class[attr].class1.__name__ )
+##                    # require same-named attrs to have same dflt and cat (for now) -- no, dflt can differ, see above kluge ###@@@
+##            else:
+##                self.kluge_attr2metainfo[attr] = attr_metainfo
+##                self.kluge_attr2metainfo_from_class[attr] = clas # only for debugging
         return clas
 
-    def metainfo4attrkey(self, attrkey): #060227; intended for use in upcoming code to diff snaps and know what kind of state changed.
-        "Return (attrname, defaultval, category) for the given attrkey. (Kluge: for now attrkey == attrname.)"
-        # Someday attrkeys won't always equal attrnames. This API can still work then, tho implem won't.
-        return self.kluge_attr2metainfo[attrkey]
+#bruce 060330 notes this is not yet used
+##    def metainfo4attrkey(self, attrkey): #060227; intended for use in upcoming code to diff snaps and know what kind of state changed.
+##        "Return (attrname, defaultval, category) for the given attrkey. (Kluge: for now attrkey == attrname.)"
+##        # Someday attrkeys won't always equal attrnames. This API can still work then, tho implem won't.
+##        return self.kluge_attr2metainfo[attrkey] # last occurrence of kluge_attr2metainfo
     
-    def collect_s_children(self, val, deferred_category_collectors = {}):
+    def collect_s_children(self, val, deferred_category_collectors = {}, exclude_layers = ()): #060329 added exclude_layers (nim #####@@@@@)
         """Collect all objects in val, and their s_children, defined as state-holding objects
         found (recursively, on these same objects) in their attributes which were
         declared S_CHILD or S_CHILDREN or S_CHILDREN_NOT_DATA using the state attribute decl system... [#doc that more precisely]
@@ -1308,7 +1375,8 @@ class obj_classifier:
            If deferred_category_collectors is provided, it should be a dict from attr-category names
         (e.g. 'selection', 'view') to usually-empty dicts, into which we'll store id/obj items
         which we reach through categorized attrs whose category names it lists, rather than scanning them
-        recursively as usual. If we reach one object along multiple attr-paths with different categories,
+        recursively as usual. (Note that we still scan the attr values, just not the objects found only inside them.)
+           If we reach one object along multiple attr-paths with different categories,
         we decide what to do independently each time (thus perhaps recursivly scanning the same object
         we store in a dict in deferred_category_collectors, or storing it in more than one of those dicts).
         Caller should ignore such extra object listings as it sees fit. 
@@ -1354,7 +1422,7 @@ class obj_classifier:
                 data_objs[id(obj1)] = obj1
             def func(obj):
                 dict1[id(obj)] = obj
-            clas.scan_children( obj1, func, deferred_category_collectors = deferred_category_collectors)
+            clas.scan_children( obj1, func, deferred_category_collectors = deferred_category_collectors) #k correct for obj1 being data?
         allobjs = transclose( saw, obj_and_dict) #e rename both args
         if 0 and env.debug(): ###e remove after debugging
             print "atom_debug: collect_s_children had %d roots, from which it reached %d objs, of which %d were data" % \
@@ -1364,7 +1432,7 @@ class obj_classifier:
             del allobjs[key]
         return allobjs # from collect_s_children
 
-    def collect_state(self, objdict, keyknower):
+    def collect_state(self, objdict, keyknower, exclude_layers = ()): #060329 added exclude_layers (nim #####@@@@@)
         """Given a dict from id(obj) to obj, which is already transclosed to include all objects of interest,
         ensure all these objs have objkeys (allocating them from keyknower (an objkey_allocator instance) as needed),
         and grab the values of all their state-holding attrs,
@@ -1372,7 +1440,7 @@ class obj_classifier:
         #e In future we'll provide a differential version too.
         """
         key4obj = keyknower.key4obj_maybe_new # or our arg could just be this method
-        snapshot = StateSnapshot(self.dict_of_all_state_attrs.keys())
+        snapshot = StateSnapshot(self.dict_of_all_state_attrcodes.keys())
             # make a place to keep all the values we're about to grab
         attrdicts = snapshot.attrdicts
         for obj in objdict.itervalues():
@@ -1382,7 +1450,8 @@ class obj_classifier:
             # also we might as well use getattr and be more flexible (not depending on __dict__ to exist). Ok, use getattr.
             # Do we optim dflt values of attrs? We ought to... even when we're differential, we're not *always* differential.
             ###e need to teach clas to know those, then.
-            for attr, dflt in clas.attr_dflt_pairs: # for attrs holding state (S_DATA, S_CHILD*, S_PARENT*, S_REF*) with dflts
+            for attrcode, dflt in clas.attrcode_dflt_pairs: # for attrs holding state (S_DATA, S_CHILD*, S_PARENT*, S_REF*) with dflts
+                attr, acode = attrcode
                 val = getattr(obj, attr, dflt)
                 # note: this dflt can depend on key -- no need for it to be the same within one attrdict,
                 # provided we have no objects whose attrs all have default values and all equal them at once [060302]
@@ -1391,8 +1460,8 @@ class obj_classifier:
                     # There's no efficient perfect test for this, and it's not worth the runtime to even guess it,
                     # since for typical cases where val needn't be stored, val is dflt since instance didn't copy it.
                     # (Not true if Undo stored the val back into the object, but it won't if it doesn't copy it out!)
-                    attrdicts[attr][key] = copy_val(val)
-            for attr in clas.attrs_with_no_dflt:
+                    attrdicts[attrcode][key] = copy_val(val)
+            for attrcode in clas.attrcodes_with_no_dflt:
                 # (This kind of attr might be useful when you want full dicts for turning into Numeric arrays later. Not sure.)
                 # Does that mean the attr must always exist on obj? Or that we should "store its nonexistence"?
                 # For simplicity, I hope latter case can always be thought of as the attr having a default.
@@ -1401,7 +1470,8 @@ class obj_classifier:
                 #valcopy = copy_val(val)
                 #attrdict = attrdicts[attr]
                 #attrdict[key] = valcopy
-                attrdicts[attr][key] = copy_val(getattr(obj, attr, _Bugval))
+                attr, acode_junk = attrcode
+                attrdicts[attrcode][key] = copy_val(getattr(obj, attr, _Bugval))
                     # We do it all in one statement, for efficiency in case compiler is not smart enough to see that local vars
                     # would not be used again; it might even save time due to lack of bytecodes to update linenumber
                     # to report in exceptions! (Though that will make bugs harder to track down, if exceptions occur.)
@@ -1424,7 +1494,7 @@ class obj_classifier:
         [#e someday we might also reset S_CACHE attrs, but not for now.]
         """
         clas = self.classify_instance(obj)
-        for attr, dflt in clas.attr_dflt_pairs:
+        for (attr, acode_junk), dflt in clas.attrcode_dflt_pairs:
             setattr(obj, attr, dflt) #e need copy_val? I suspect not, so as of 060311 1030pm PST I'll remove it as an optim.
             # [060302: i think copy_val is not needed given that we only refrain from storing val when it 'is' dflt,
             #  but i think it's ok unless some classes depend on unset attrs being a mutable shared class attr,
@@ -1432,7 +1502,7 @@ class obj_classifier:
             #  would be nice someday #e).]
             #e save this for when i have time to analyze whether it's safe:
             ## delattr(obj, attr) # save RAM -- ok (I think) since the only way we get dflts is when this would work... not sure
-        # not needed: for attr in clas.attrs_with_no_dflt: ...
+        # not needed: for attr in clas.attrcodes_with_no_dflt: ...
         return
     
     pass # end of class obj_classifier, if we didn't rename it by now

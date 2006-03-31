@@ -59,6 +59,7 @@ from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
 from mdldata import marks, links, filler
 from povheader import povpoint #bruce 050413
 from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
+from changes import register_changedict, register_class_changedicts
 
 try:
     from atombase import AtomBase
@@ -205,54 +206,23 @@ register_undo_updater( _undo_update_Atom_jigs, #bruce 060224
 
 # ==
 
-# This global dict never changes (so other modules can permanently import it), but it's periodically processed and cleared.
+# These global dicts all map atom.key -> atom, for atoms which change in various ways (different for each one).
+# The dicts themselves (as opposed to their contents) never change (so other modules can permanently import them),
+# but they are periodically processed and cleared.
+# For efficiency, they're global and not weak-valued,
+# so it's important to delete items from them when destroying atoms
+# (which is itself nim, or calls to it are; destroying assy needs to do that ####@@@@). 
+# (There's no need yet to use try/except to support reloads of this module by not replacing these dicts then.)
 
-## see below: _changed_picked_Atoms = {}
-    # maps atom.key to atom, for any atom (alive or dead) whose .picked might have changed
-    # since last call of process_changed_picked_Atoms().
-    # (It's a global dict in this module, for efficiency.
-    #  It's not weak-valued (for fear of inefficiency),
-    #  so it's important to clear it when destroying atoms (which is itself nim). ##e)
-    # (no need yet to use try/except to support reloads of this module by not replacing it then)
+# ###@@@ Note: These are not yet looked at, but the code to add atoms into them is supposedly completed circa bruce 060322.
 
-subscribers_to_changed_picked_Atoms = {} #e this will turn into an attribute of a helper class...
-    # public dict from owner-ids to subscribers; their update methods are called by process_changed_picked_Atoms
-
-def process_changed_picked_Atoms(): #e this will turn into a method of a helper class for changedicts, in changes.py
-    """Update all subscribers to _changed_picked_Atoms by passing it to their update methods
-    (which should not change its value) (typically, subscribers are themselves just dicts); then clear it.
-    [This might become a method of some controlling class for similar global change-dicts.]
-    """
-    sublist_name = "subscribers_to_changed_picked_Atoms"
-    sublist = subscribers_to_changed_picked_Atoms # actually a dict, but subdict would be an unclear localvar name (imho)
-    changedict = _changed_picked_Atoms
-    len1 = len(changedict)
-    for subkey, sub in sublist.items():
-        try:
-            unsub = sub.update( changedict) # kluge: this API is compatible with dict.update() (which returns None).
-        except:
-            print_compact_traceback("bug: exception (ignored) in .update of sub (key %r) in %s: " % (subkey, sublist_name) )
-            unsub = True
-        if unsub:
-            try:
-                del sublist[subkey]
-            except KeyError:
-                pass
-        len2 = len(changedict)
-        if len1 != len2:
-            print "bug: some sub (key %r) in %s apparently changed its length from %d to %d!" % (subkey, sublist_name, len1, len2)
-            len1 = len2
-        continue
-    changedict.clear()
-    return
-
-# These are not yet looked at, but I'll add the code to record atoms into them. All map atom.key -> atom. [bruce 060322]
-# (when we hook these up fully, we should make sure they get cleared when the atoms are destroyed,
-#  and that destroying assy does that, to avoid memory leak #e)
 
 _changed_parent_Atoms = {} # record atoms w/ changed assy or molecule or liveness/killedness
     # (an atom's assy is atom.molecule.assy; no need to track changes here to the mol's .part or .dad)
     # related attributes: __killed, molecule ###@@@ declare these?? not yet sure if that should be per-attr or not, re subclasses...
+
+register_changedict( _changed_parent_Atoms, '_changed_parent_Atoms', ('__killed', 'molecule') ) #k or must we say _Atom__killed??
+
 
 _changed_structure_Atoms = {} # tracks changes to element, atomtype, bond set (not bond order #k)
     # WARNING: there is also a related but different global dict in env.py, whose spelling differs only in 'A' vs 'a' in Atoms.
@@ -264,14 +234,27 @@ _changed_structure_Atoms = {} # tracks changes to element, atomtype, bond set (n
     # (we include jigs since they're most like a form of structure, and in future might have physical effects,
     #  and since the jigs for pi bonds are structural)
 
+register_changedict( _changed_structure_Atoms, '_changed_structure_Atoms', ('bonds', 'element', 'atomtype', 'info', 'jigs') )
+
+
 _changed_posn_Atoms = {} # tracks changes to atom._posn (not clear what it'll do when we can treat baseposn as defining state)
     # related attributes: _posn
 
-_changed_picked_Atoms = {} # tracks changes to atom.picked (not to _pick_time etc, we don't cover that in Undo)
+register_changedict( _changed_posn_Atoms, '_changed_posn_Atoms', ('_posn',) )
+
+
+_changed_picked_Atoms = {} # tracks changes to atom.picked (for live or dead atoms)
+    # (not to _pick_time etc, we don't cover that in Undo)
     # related attributes: picked
+
+register_changedict( _changed_picked_Atoms, '_changed_picked_Atoms', ('picked',) )
+
 
 _changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display mode is the only one so far)
     # related attributes: display
+
+register_changedict( _changed_otherwise_Atoms, '_changed_otherwise_Atoms', ('display',) )
+
 
 # Notes (design scratch): for which Atom attrs is the value mutable in practice? bonds, jigs, maybe _posn (probably not).
 # the rest could be handled by a setter in a new-style class, or by AtomBase
@@ -281,6 +264,12 @@ _changed_otherwise_Atoms = {} # tracks all other model changes to Atoms (display
 
 _Atom_global_dicts = [_changed_parent_Atoms, _changed_structure_Atoms, _changed_posn_Atoms,
                       _changed_picked_Atoms, _changed_otherwise_Atoms]
+    # See also some code below class Atom, which registers these changedicts as being used with that class.
+    # That code has to occur after the class is defined, but we permit the above per-changedict registrations
+    # to come first so that they can help document the dicts near the top of the file.
+    # The dicts themselves needn't come first, since they're only looked up as module globals (or from external modules),
+    # but it's easier to read the code if they do.
+    
 
 # ==
 
@@ -2448,6 +2437,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
 
     pass # end of class Atom
+
+register_class_changedicts( Atom, _Atom_global_dicts )
+    # error if one class has two same-named changedicts (so be careful re module reload)
 
 atom = Atom # old name of that class -- must remain here until all code has been revised [bruce 050610]
 
