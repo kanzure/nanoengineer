@@ -377,7 +377,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         if _nullMol is None:
             # this caused a bus error when done right after class molecule
             # defined; don't know why (class Node not yet ok??) [bruce 041116]
-            _nullMol = molecule("<not an assembly>", 'name-of-_nullMol')
+            ## _nullMol = molecule("<not an assembly>", 'name-of-_nullMol')
+            # this newer method might or might not have that problem
+            _nullMol = _make_nullMol()
         atm.molecule = _nullMol # not a real mol; absorbs invals without harm
         _changed_parent_Atoms[atm.key] = atm #bruce 060322
         # (note, we *don't* add atm to _nullMol.atoms, or do invals on it here;
@@ -2204,9 +2206,9 @@ Chunk = molecule #bruce 051227 permit this synonym; for A8 we'll probably rename
 
 # ==
 
-# The molecule _nullMol is never part of an assembly, but serves as the molecule
-# for atoms removed from other mols (when killed, or before being added to new
-# mols), so it can absorb invalidations which certain dubious code
+# The chunk _nullMol is never part of an assembly, but serves as the chunk
+# for atoms removed from other chunks (when killed, or before being added to new
+# chunks), so it can absorb invalidations which certain dubious code
 # (like depositMode via selatom) sends to killed atoms, by operating on them
 # (or invalidating bonds containing them) even after they're killed.
 
@@ -2214,6 +2216,22 @@ Chunk = molecule #bruce 051227 permit this synonym; for A8 we'll probably rename
 # So we do it when first needed, in delatom, instead. [bruce 041116]
 ## _nullMol = molecule("<not an assembly>")
 _nullMol = None
+
+def _make_nullMol(): #bruce 060331 split out and revised this, to mitigate bugs similar to bug 1796
+    "[private] Make and return (what the caller should store as) the single _nullMol object."
+    ## return molecule("<not an assembly>", 'name-of-_nullMol')
+    return _nullMol_Chunk("<not an assembly>", 'name-of-_nullMol')
+
+class _nullMol_Chunk(molecule):
+    "[private] subclass for _nullMol"
+    def changed_selection(self):
+        msg = "bug: _nullMol.changed_selection() should never be called"
+        if env.debug():
+            print_compact_stack(msg + ": ")
+        else:
+            print msg
+        return
+    pass # end of class _nullMol
 
 # ==
 
