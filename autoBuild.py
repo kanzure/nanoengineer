@@ -577,29 +577,21 @@ class NanoBuildMacOSX(NanoBuildBase):
         wf.close()
         print "----Welcome file has been written."
 
+
+    # http://developer1.apple.com/documentation/DeveloperTools/Conceptual/ \
+    #    SoftwareDistribution/Concepts/sd_pre_post_processing.html
     def _writePostFlightFile(self, pfFile):
         """Write the postflight file Mac Package Installer """
-        fix_message = """#!/bin/bash
-echo on
-echo $2
-cd /
-if [ ! -d "usr" ]; then \\
-     mkdir usr ; \\
-fi
-cd usr
-if [ ! -d "local" ]; then \\
-     mkdir local; \\
-fi
-cd local 
-if [ ! -d "lib" ]; then \\
-     mkdir lib; \\
-fi
-"""
+        instPath = os.path.basename(self.buildSourcePath)   # "nanoENGINEER-1-0.0.6"
+        appname = self.appName + '.app'
+        cf = os.path.join(instPath, appname, 'Contents/Frameworks')
+        # $2/instPath --> /Applications/nanoENGINEER-1-0.0.6
+        # $2/cf --> /Applications/nanoENGINEER-1-0.0.6/nanoENGINEER-1.app/Contents/Frameworks
         pf  = open(pfFile, 'w')
-        pf.write(fix_message)
-        instPath = os.path.basename(self.buildSourcePath)
-        pf.write("mv $2/%s/libaquaterm.1.0.0.dylib /usr/local/lib\n\n" % instPath)             
-        pf.write('exit 0\n')
+        pf.write("""#!/bin/bash
+mv $2/%s/libaquaterm.1.0.0.dylib $2/%s
+exit 0
+""" % (instPath, cf))
         pf.close()
         from stat import S_IREAD, S_IEXEC, S_IROTH, S_IXOTH  
         os.chmod(pfFile, S_IREAD | S_IEXEC | S_IROTH | S_IXOTH)
