@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 ops_connected.py -- operations on the connectivity of bond networks.
 
@@ -87,9 +87,9 @@ class ops_connected_Mixin:
         env.history.message( cmd + info)
         self.o.gl_update()
         
-    def deleteConnected(self, atomlist=None):
+    def deleteConnected(self, atomlist=None): # by mark
         """Delete any atom that can be reached from any currently
-        selected atom through a sequence of bonds.
+        selected atom through a sequence of bonds, and that is acceptable to the current selection filter.
         If <atomlist> is supplied, use it instead of the currently selected atoms.
         """
         
@@ -108,15 +108,33 @@ class ops_connected_Mixin:
         
         natoms = 0
         for atom in catoms[:]:
-            if atom.filtered(): return
+            if atom.killed():
+                continue
+                    #bruce 060331 precaution, to avoid counting bondpoints twice
+                    # (once when atom is them, once when they die when we kill their base atom)
+                    # if they can be in the passed-in list or the getConnectedAtoms retval
+                    # (I don't know if they can be)
+            if atom.is_singlet():
+                continue #bruce 060331 precaution, related to above but different (could conceivably have valence errors w/o it)
+            if atom.filtered():
+                continue #bruce 060331 fix a bug (don't know if reported) by doing 'continue' rather than 'return'.
+                # Note, the motivation for 'return' might have been (I speculate) to not traverse bonds through filtered atoms
+                # (so as to only delete a connected set of atoms), but the old code's 'return' was not a correct
+                # implementation of that, in general; it might even have deleted a nondeterministic set of atoms,
+                # depending on python dict item order and/or their order of deposition or their order in the mmp file.
             natoms += 1
             atom.kill()
         
         from platform import fix_plurals
         info = fix_plurals( "%d connected atom(s) deleted." % natoms)
+            #bruce 060331 comment: this message is sometimes wrong, since caller has deleted some atoms on click 1 of
+            # a double click, and then calls us on click 2 to delete the atoms connected to the neighbors of those.
+            # To fix this, the caller ought to pass us the number of atoms it deleted, for us to add to our number,
+            # or (better) we ought to return the number we delete so the caller can print the history message itself.
         env.history.message( cmd + info)
-        self.o.gl_update()
-            
+        ## self.o.gl_update()
+        self.w.win_update() #bruce 060331 possible bugfix (bug is unconfirmed) -- update MT too, in case some chunk is gone now
+        return
         
     def selectDoubly(self):
         """Select any atom that can be reached from any currently
