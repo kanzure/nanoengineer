@@ -365,13 +365,37 @@ def print_compact_stack( msg = "current stack:\n", skip_innermost_n = 2 ):
     print >> sys.__stderr__, msg + \
           compact_stack( skip_innermost_n = skip_innermost_n )
 
+STACKFRAME_IDS = False # don't commit with True,
+    # but set to True in debugger to see more info in compact_stack printout [bruce 060330]
+
 def compact_stack( skip_innermost_n = 1 ):
     printlines = []
     frame = sys._getframe( skip_innermost_n)
     while frame is not None: # innermost first
         filename = frame.f_code.co_filename
         lineno = frame.f_lineno
-        printlines.append("[%s:%r]" % ( os.path.basename(filename), lineno ))
+        extra = ""
+        if STACKFRAME_IDS:
+            #bruce 060330
+            # try 1 failed
+##            try:
+##                frame._CS_seencount # this exception messed up some caller, so try getattr instead... no, that was not what happened
+##            except:
+##                frame._CS_seencount = 1
+##            else:
+##                frame._CS_seencount += 1
+            # try 2 failed - frame object doesn't permit arbitrary attrs to be set on it
+##            count = getattr(frame, '_CS_seencount', 0)
+##            count += 1
+##            print frame.f_locals
+##            frame._CS_seencount = count # this is not allowed. hmm.
+            # so we'll store a new fake "local var" into the frame, assuming frame.f_locals is an ordinary dict
+            count = frame.f_locals.get('_CS_seencount', 0)
+            count += 1
+            frame.f_locals['_CS_seencount'] = count
+            if count > 1:
+                extra = "|%d" % count
+        printlines.append("[%s:%r%s]" % ( os.path.basename(filename), lineno, extra ))
         frame = frame.f_back
     printlines.reverse() # make it outermost first, like compact_traceback
     return ' '.join(printlines)
