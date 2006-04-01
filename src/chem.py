@@ -1394,7 +1394,10 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         if self.element is Singlet: return
 
         if self.filtered(): return # mark 060303. [note: bruce 060321 has always thought it was nonmodular to check this here]
-
+            #bruce 060331 comment: we can't move this inside the conditional to optimize it, since we want it to affect
+            # whether we set picked_time, but we want to set that even for already-picked atoms.
+            # (Which are reasons of dubious value if this missed optim is important (don't know if it is), but are real ones.)
+            
         self._picked_time = self.molecule.assy._select_cmd_counter #bruce 051031, for ordering selected atoms; two related attrs
         if not self.picked:
             self.picked = True
@@ -1428,18 +1431,20 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         """
         return (self._picked_time, self._picked_time_2, self.key)
     
-    def unpick(self):
-        """make the atom unselected
+    def unpick(self, filtered = True): #bruce 060331 adding filtered = False option, as part of fixing bug 1796
+        """Make the atom (self) unselected, if the selection filter permits this or if filtered = False.
         """
-        # note: this is inlined into assembly.unpickatoms (in ops_select.py)
-        # bruce 041214: should never be picked, so Singlet test is not needed,
-        # and besides if it ever *does* get picked (due to a bug) you should let
+        # note: this is inlined (perhaps with filtered = False, not sure) into assembly.unpickatoms (in ops_select.py)
+        # bruce 041214: singlets should never be picked, so Singlet test is not needed,
+        # and besides if a singlet ever *does* get picked (due to a bug) you should let
         # the user unpick it!
         ## if self.element is Singlet: return 
         
-        if self.filtered(): return  # mark 060303. [note: bruce 060321 has always thought it was nonmodular to check this here]
-        
-        if self.picked:
+        if self.picked:        
+            if filtered and self.filtered(): return  # mark 060303.
+                # [note: bruce 060321 has always thought it was nonmodular to check this here]
+                # [and as of sometime before 060331 it turns out to cause bug 1796]
+                #bruce 060331 moved this inside 'if picked', as a speed optimization
             try:
                 #bruce 050309 catch exceptions, and do this before picked=0
                 # so that if selatoms is recomputed now, the del will still work
@@ -1769,7 +1774,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         _changed_parent_Atoms[self.key] = self
         # unpick
         try:
-            self.unpick() #bruce 041029
+            self.unpick(filtered = False) #bruce 041029
+                #bruce 060331 adding filtered = False (and implementing it in unpick) to fix bug 1796
         except:
             print_compact_traceback("fyi: atom.kill: ignoring error in unpick: ")
             pass

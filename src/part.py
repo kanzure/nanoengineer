@@ -270,7 +270,9 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             # (#####@@@@@ fix atom.unpick to not remake selatoms if missing, or to let this part maintain it)
             if (not self.__dict__.has_key('selatoms')) or self.selatoms:
                 for atm in node.atoms.itervalues():
-                    atm.unpick() #e optimize this by inlining and keeping selatoms test outside of loop
+                    atm.unpick(filtered = False)
+                        #bruce 060331 precaution: added filtered = False, to fix potential serious bugs (unconfirmed)
+                        #e should optimize this by inlining and keeping selatoms test outside of loop
             self.invalidate_attrs(['molecules'], skip = ['natoms']) # this also invals bbox, center
             self.adjust_natoms(- len(node.atoms))
         self.nodecount -= 1
