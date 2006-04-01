@@ -653,6 +653,7 @@ class selectMode(basicMode):
         if not self.current_obj_clicked:
             # Atom was dragged.  Nothing to do but return.
             self.set_cmdname('Move Atom') #& Not taking. mark 060220.
+                # [now this cmdname works. (Mark, you can remove this comment whenever you like.) bruce 060331]
             self.o.assy.changed() # mark 060227
             return
             
@@ -662,6 +663,8 @@ class selectMode(basicMode):
             self.o.assy.unpickatoms()
             if a.picked:
                 nochange = True
+                #bruce 060331 comment: nochange = True is wrong, since unpickatoms might have changed something.
+                # For some reason the gl_update occurs anyway, so I don't know if this causes a real bug, so I didn't change it.
             else:
                 a.pick()
                 self.set_cmdname('Select Atom')
@@ -678,8 +681,15 @@ class selectMode(basicMode):
         elif self.o.modkeys == 'Control':
             if a.picked:
                 a.unpick()
-                self.set_cmdname('Unselect Atom')
-                env.history.message("unpicked %r" % a)
+                self.set_cmdname('Unselect Atom') #bruce 060331 comment: I think a better term (in general) would be "Deselect".
+                #bruce 060331 bugfix: if filtering prevents the unpick, don't print the message saying we unpicked it.
+                # I also fixed the message to not use the internal jargon 'unpicked'.
+                # I also added an orangemsg when filtering prevented the unpick, as we have when it prevents a delete.
+                if not a.picked:
+                    # the unpick worked (was not filtered)
+                    env.history.message("Deselected atom %r" % a)
+                else:
+                    env.history.message(orangemsg("Can't deselect atom %r due to selection filter. Hit Escape to clear the filter." % a))
             else: # Already unpicked.
                 nochange = True
             
@@ -750,6 +760,7 @@ class selectMode(basicMode):
             self.set_cmdname('Unselect Atoms')
             #env.history.message("unpicked %r and %r" % (self.bond_clicked.atom1, self.bond_clicked.atom2))
             #& Not necessary to print history msg.  mark 060210.
+            # [It's also wrong to print one, or at least the one above, if selection filter affected both atoms. bruce 060331]
                 
         elif self.o.modkeys == 'Shift+Control':
             self.bond_delete(event) 
