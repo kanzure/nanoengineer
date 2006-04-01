@@ -3,6 +3,12 @@
 # Developers: don't commit any changes unless you have full understanding of bug 1724.
 # [wware circa 060320 & bruce 060327] 
 
+'''
+all_mac_imports.py
+
+$Id$
+'''
+
 import sys, os
 
 sys.path = sys.argv[1].split(":")
@@ -26,14 +32,18 @@ if debug_1724:
     __builtins__.__import__ = __import__ # this is required, else no effect.
 
 import qt
+
+print "QT IMPORT WORKED" # this string is detected in our output by the parent process, atom.py
+sys.stdout.flush() #k needed?
+
 import multiarray   # this has the problem
 
 if "we should be faster": 
     # for speed; the above might be enough to test, and this saves 4-5 seconds [bruce 060327]
     # (it would be good to figure out which of the other ones are slow)
-    print "ALL IMPORTS COMPLETED"
+    print "ALL IMPORTS COMPLETED" # this string is detected in our output by the parent process, atom.py
     
-    sys.exit(1)    # # # 
+    sys.exit(0)    # # # 
 
 import time
 import types

@@ -87,7 +87,7 @@ if sys.platform == 'darwin':
     	# apparent reason. We have to do this in a subprocess, since when they fail, it just stops the
     	# process rather than raising an ImportError. The subprocess runs all_mac_imports.py to do the test,
     	# and we assume it succeeded only if it prints a certain string.
-    	# For more info see ####@@@@ [ a wiki url about this bug].
+    	# For more info see ####@@@@ [ a wiki url about bug 1724].
     	
     	# let developers or end-users see more info about this bug by creating a specially named empty file:
     	try:
@@ -137,14 +137,15 @@ if sys.platform == 'darwin':
     	        print "found all_mac_imports.py at %r" % allmac_path
     	    # run it and warn the user if it doesn't work
             arg = ":".join(sys.path) # pass this to the subprocess so it can use the same sys.path as us
-            cmd = sys.executable + " " + allmac_path + " " + arg
+            # try to survive presence of spaces in pathnames (which is common); use single quotes for most likelihood of working
+            cmd = "/usr/bin/env '%s' '%s' '%s'" % ( sys.executable , allmac_path , arg )
             if debug_1724:
                 os.environ['debug_1724'] = "1"
                 # so subprocess can see it (is this wise, or might it cause a heisenbug?)
             try:
-        	inf = os.popen(cmd) ####@@@@ this assumes no spaces in dirnames; fixable?
+                inf = os.popen(cmd) #k does the above cmd work with spaces in paths? maybe, but this is not tested. ####@@@@@
             except:
-                print "exception in os.popen(%r) (might be caused by spaces in pathnames); not trying all_mac_imports.py"
+                print "exception in os.popen(%r) (might be caused by spaces in pathnames); not trying all_mac_imports.py" % (cmd,)
             else:
                 lines = map(lambda x: x.rstrip(), inf.readlines())
                 if debug_1724:
@@ -154,9 +155,51 @@ if sys.platform == 'darwin':
                     print
         	inf.close()
         	if "ALL IMPORTS COMPLETED" not in lines:
-        	    ####@@@@ change this to a warning dialog
-            	    print "There were import problems (bug 1724), so giving up"
-            	    sys.exit(1)
+        	    # This means this machine is almost certainly unable to run nE-1, probably due to bug 1724.
+        	    # Print some info, including a possible workaround, into the logfile displayable by Console.app,
+        	    # and then try to put up a dialog. (The one put up by py2app if we raise an exception
+        	    # offers to open the Console, so that's probably best.)
+        	    #   This workaround printout is not super easy to notice, even if you think of looking in Console output,
+        	    # but that's ok, since we'd really rather you email support@nanorex.com first anyway, so we know whether
+        	    # anyone actually encounters this problem.
+        	    print "\n * * * * "
+            	    print "There were import problems in the test subprocess (bug 1724?); try to warn the user with a dialog..."
+            	    print
+            	    print "Note: one workaround might be to remove (or disable by renaming)"
+            	    print "/Library/Frameworks/Python.framework and perhaps /Developer/qt,"
+            	    print "so that Apple's Python, in /System/Library/Frameworks, can run this app without interference,"
+            	    print "and to avoid any chance of this app using a qt dylib other than the one it contains."
+            	    print " * * * * \n" 
+            	    if "QT IMPORT WORKED" not in lines:
+                        # let py2pp show the user a dialog, since we can't use qt for that
+                        assert 0, \
+                               "Internal error linking to self-contained qt dylib; "\
+                               "nanoENGINEER-1 can't run on this machine as it's currently configured.\n\n"\
+                               "Please contact support@nanorex.com for help."
+                    else:
+                        # use a qt dialog, if we can -- actually this is not desirable, since py2app's dialog has a Console button,
+                        # so it's commented out instead (the current code for it doesn't yet work anyway, as its comment explains)
+##                        try:
+##                            import qt
+##                            # The following QMessageBox fails with this error:
+##                            #   QPaintDevice: Must construct a QApplication before a QPaintDevice
+##                            # This could be fixed without too much trouble, but it's not really worth any trouble.
+##                            # So forget it for now, assert 0 before running it (so we'll post py2app's error dialog
+##                            # from the fallback assertion in our except clause),
+##                            # since it fails by exiting rather than by raising an exception we can catch.
+##                            assert 0 # explained above
+##                            qt.QMessageBox.critical( None, "nanoENGINEER-1",
+##                                    "Internal error in some imports; "\
+##                                    "nanoENGINEER-1 may be unable to run on this machine as it's currently configured. "\
+##                                    "It will try to start anyway, but will probably fail.\n\n"\
+##                                    "Please contact support@nanorex.com for help." ###test
+##                                    );
+##                        except:
+                            assert 0, \
+                               "Internal error during startup; "\
+                               "nanoENGINEER-1 can't run on this machine as it's currently configured.\n\n"\
+                               "Please contact support@nanorex.com for help."
+            	    ## sys.exit(1)
                 else:
                     if debug_1724:
                         print "all_mac_imports worked"
