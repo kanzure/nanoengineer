@@ -98,7 +98,8 @@ class ops_select_Mixin:
         (even in chunks with no atoms selected, which end up with
         all atoms selected). (And unselect all currently selected
         parts or atoms.)
-        """
+           Note: when atoms are selected, only affects atoms as permitted by the selection filter.
+        """ #bruce 060331 revised docstring
         self.begin_select_cmd() #bruce 051031
         cmd = "Invert Selection: "
         env.history.message(greenmsg(cmd))
@@ -124,8 +125,9 @@ class ops_select_Mixin:
         self.w.win_update()
         
     def selectExpand(self):
-        """Select any atom that is bonded to any currently selected atom.
-        """
+        """Select any atom that is bonded to any currently selected atom,
+        and whose selection is permitted by the selection filter.
+        """ #bruce 060331 revised docstring
         # Eric really needed this.  Added by Mark 050923.
         # (See also Selection.expand_atomset method. [bruce 051129])
         
@@ -161,8 +163,9 @@ class ops_select_Mixin:
         self.w.win_update()
         
     def selectContract(self):
-        """Unselects any atom which has a bond to an unselected atom, or which has any open bonds.
-        """
+        """Unselects any atom which has a bond to an unselected atom, or which has any open bonds,
+        and whose unselection is permitted by the selection filter.
+        """ #bruce 060331 revised docstring
         # Added by Mark 050923.
         
         self.begin_select_cmd() #bruce 051031
@@ -178,7 +181,7 @@ class ops_select_Mixin:
         assert self.selwhat == SELWHAT_ATOMS
         for a in self.selatoms.values():
             if a.picked: 
-                # If a select atom has an unpicked neighbor, it gets added to the contract_list
+                # If a selected atom has an unpicked neighbor, it gets added to the contract_list
                 # Bruce mentions: you can just scan realNeighbors if you want to only scan
                 # the non-singlet atoms. Users may desire this behavior - we can switch it on/off
                 # via a dashboard checkbox or user pref if we want.  Mark 050923.
@@ -189,13 +192,20 @@ class ops_select_Mixin:
         
         # Unselect the atom in the contract_list
         #bruce 051129 comment: this appears to contain only unique picked atoms (based on above code),
-        # and any atom can be unpicked (regardless of selection filter),
+        # and any atom can be unpicked (regardless of selection filter) [this later became WRONG; see below],
         # so using its len as a count of changed atoms, below, is probably correct.
+        #bruce 060331 comment & bugfix: sometime since the above comment, unpick started using selection filter.
+        # So I'll fix the atom count for the history message.
+        natoms = 0
         for a in contract_list:
+            if not a.picked:
+                continue #bruce 060331 precaution, for correct count (not needed for current code above)
             a.unpick()
+            if not a.picked: # condition is due to selection filter
+                natoms += 1
             
-        # Print summary msg to history widget.  Always do this before win/gl_update.
-        msg = fix_plurals(str(len(contract_list)) + " atom(s) unselected.")
+        # Print summary msg to history widget.
+        msg = fix_plurals(str(natoms) + " atom(s) unselected.")
         env.history.message(msg)
         
         self.w.win_update()
@@ -421,9 +431,9 @@ class ops_select_Mixin:
     
     def unpick_at_event(self, event): #renamed from unpick; modified
         """Make whatever visible atom or chunk (depending on self.selwhat)
-        is under the mouse at event get un-selected,
+        is under the mouse at event get un-selected (subject to selection filter),
         but don't change whatever else is selected.
-        """
+        """ #bruce 060331 revised docstring
         self.begin_select_cmd() #bruce 051031
         if self.o.mode.modename == 'DEPOSIT':
             atm = self.findAtomUnderMouse(event, water_cutoff = True)
@@ -434,7 +444,7 @@ class ops_select_Mixin:
                 atm.molecule.unpick()
             else:
                 assert self.selwhat == SELWHAT_ATOMS
-                atm.unpick()
+                atm.unpick() # this is subject to selection filter -- is that ok?? [bruce 060331 question]
         return
 
     # == internal selection-related routines
