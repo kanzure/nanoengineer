@@ -710,7 +710,7 @@ def createWhatsThis(self):
 
         selectAllActionText = "<u><b>Select All</b></u> (Ctrl + A)<br>"\
                        "<p><img source=\"selectAllAction\"><br> "\
-                       "During <b>Select Atoms</b> mode, this will select all the atoms in "\
+                       "When in <b>Build</b> mode, this will select all the atoms in "\
                        "the model.  Otherwise, this will select all the chunks in the model."\
                        "</p>"
 
@@ -748,7 +748,7 @@ def createWhatsThis(self):
             "Selects all the atoms that can be reached by the currently selected atom "\
             "via an unbroken chain of bonds. </p>"\
             "<p>You can also select all connected atoms by double clicking on an atom or bond "\
-            "while in <b>Select Atoms</b> or <b>Build</b> modes.</p>"
+            "while in <b>Build</b> mode.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "selectConnectedAction",
                                                        self.selectConnectedAction.iconSet().pixmap() )
@@ -1160,10 +1160,10 @@ def createWhatsThis(self):
 
         jigsAnchorActionText = "<u><b>Anchor</b></u><br>"\
                        "<p><img source=\"jigsAnchorAction\"><br> "\
-                       "Attaches a <b>Anchor</b> to the selected atom(s), which "\
+                       "Attaches an <b>Anchor</b> to the selected atom(s), which "\
                        "constrains its motion during a minimization or simulation."\
                        "</p>"\
-                       "<p>To create an Anchor, enter <b>Select Atoms</b> mode, "\
+                       "<p>To create an Anchor, enter <b>Build</b> mode, "\
                        "select the atom(s) you want to anchor and then select this action. "\
                        "Anchors are drawn as a black wireframe box around each selected atom."\
                        "</p>"
@@ -1181,7 +1181,7 @@ def createWhatsThis(self):
                        "the simulator to apply rotary motion to a set of atoms during a simulation run.  You may "\
                        "specify the <b>torque (in nN*nm)</b> and <b>speed (in Ghz)</b> of the motor."\
                        "</p>"\
-                       "<p>To create a Rotary Motor, enter <b>Select Atoms</b> mode, "\
+                       "<p>To create a Rotary Motor, enter <b>Build</b> mode, "\
                        "select the atoms you want to attach the motor to and then select this action."\
                        "</p>"
 
@@ -1198,7 +1198,7 @@ def createWhatsThis(self):
                        "the simulator to apply linear motion to a set of atoms during a simulation run.  You may "\
                        "specify the <b>force (in nN*nm)</b> and <b>stiffness (in N/m)</b> of the motor."\
                        "</p>"\
-                       "<p>To create a Linear Motor, enter <b>Select Atoms</b> mode, "\
+                       "<p>To create a Linear Motor, enter <b>Build</b> mode, "\
                        "select the atoms you want to attach the motor to and then select this action."\
                        "</p>"
 
@@ -1218,7 +1218,7 @@ def createWhatsThis(self):
                        "<p>The Langevin Thermostat is used to set and hold the temperature "\
                        "of a molecule during a simulation run."\
                        "</p>"\
-                       "<p>To create a Langevin Thermostat, enter <b>Select Atoms</b> mode, "\
+                       "<p>To create a Langevin Thermostat, enter <b>Build</b> mode, "\
                        "select a single atom and then select this action. The thermostat is drawn as a "\
                        "blue wireframe box around the selected atom."\
                        "</p>"
@@ -1237,7 +1237,7 @@ def createWhatsThis(self):
                        "<p>The temperature of the molecule will be recorded and written to a trace file "\
                        "during a simulation run."\
                        "</p>"\
-                       "<p>To create a Thermometer, enter <b>Select Atoms</b> mode, "\
+                       "<p>To create a Thermometer, enter <b>Build</b> mode, "\
                        "select a single atom and then select this action. The thermometer is drawn as a "\
                        "dark red wireframe box around the selected atom."\
                        "</p>"
@@ -1255,7 +1255,7 @@ def createWhatsThis(self):
                         "of points on the face of a square 2D surface. Nano-Hive's MPQC ESP Plane plug-in "\
                         "is used to calculate the electrostatic potential."\
                        "</p>"\
-                       "<p>To create an ESP Image, enter <b>Select Atoms</b> mode, "\
+                       "<p>To create an ESP Image, enter <b>Build</b> mode, "\
                        "select three or more atoms and then select this jig. The ESP Image is drawn as a "\
                        "plane with a bounding volume."\
                        "</p>"
@@ -1272,7 +1272,7 @@ def createWhatsThis(self):
                         "An <b>Atom Set</b> jig provides a convienient way to save an atom "\
                         "selection which can be reselected later."\
                        "</p>"\
-                       "<p>To create an Atom Set, enter <b>Select Atoms</b> mode, "\
+                       "<p>To create an Atom Set, enter <b>Build</b> mode, "\
                        "select any number of atoms and then select this jig. The Atom Set is "\
                        "drawn as a set of wireframe boxes around each atom in the selection."\
                        "</p>"\
@@ -1293,7 +1293,7 @@ def createWhatsThis(self):
                         "A <b>Measure Distance Jig</b> functions as a dimension to display the "\
                         "distance between two atoms."\
                        "</p>"\
-                       "<p>To create the Measure Distance Jig, enter <b>Select Atoms</b> mode, "\
+                       "<p>To create the Measure Distance Jig, enter <b>Build</b> mode, "\
                        "select two atoms and then select this jig. The Measure Distance Jig is "\
                        "drawn as a pair of wireframe boxes around each atom connected by "\
                        "a line and a pair of numbers.  The first number is the distance between the "\
@@ -1315,7 +1315,7 @@ def createWhatsThis(self):
                        "<p><img source=\"jigsAngleAction\"><br> "\
                         "A <b>Measure Angle Jig</b> functions as a dimension to display the "\
                         "angle between three atoms.</p>"\
-                       "<p>To create the Measure Angle Jig, enter <b>Select Atoms</b> mode, "\
+                       "<p>To create the Measure Angle Jig, enter <b>Build</b> mode, "\
                        "select three atoms and then select this jig. The Measure Angle Jig is "\
                        "drawn as a set of wireframe boxes around each atom and a number "\
                        "which is the angle between the three atoms."\
@@ -1335,7 +1335,7 @@ def createWhatsThis(self):
                        "<p><img source=\"jigsDihedralAction\"><br> "\
                         "A <b>Measure Dihedral Jig</b> functions as a dimension to display the "\
                         "dihedral angle of a four atom sequence.</p>"\
-                       "<p>To create the Measure Dihedral Jig, enter <b>Select Atoms</b> mode, "\
+                       "<p>To create the Measure Dihedral Jig, enter <b>Build</b> mode, "\
                        "select four atoms and then select this jig. The Measure Dihedral Jig is "\
                        "drawn as a set of wireframe boxes around each atom and a number "\
                        "which is the dihedral angle value."\
@@ -1356,7 +1356,7 @@ def createWhatsThis(self):
                         "A <b>GAMESS Jig</b> is used to tag a set of atoms for running a GAMESS "\
                         "calculation. <b>Energy</b> and <b>Geometry Optimization</b> calculations are supported."\
                         "</p>"\
-                        "<p>To create the GAMESS Jig, enter <b>Select Atoms</b> mode, "\
+                        "<p>To create the GAMESS Jig, enter <b>Build</b> mode, "\
                         "select the atoms to tag and then select this jig. The GAMESS Jig is drawn as a "\
                         "set of magenta wireframe boxes around each atom."\
                         "</p>"
@@ -1375,7 +1375,7 @@ def createWhatsThis(self):
                         "structures made of silicon carbide (SiC).  It is also used as a visual aid in estimating "\
                         "distances between atoms and/or other structures."\
                         "</p>"\
-                        "<p>To create the Grid Plane jig, enter <b>Select Atoms</b> mode, "\
+                        "<p>To create the Grid Plane jig, enter <b>Build</b> mode, "\
                         "select three or more atoms and then select this jig. "\
                         "</p>"\
                         "<p>The Grid Plane jig is drawn as a rectanglar plane with a grid."\
@@ -1613,16 +1613,59 @@ def create_whats_this_descriptions_for_depositMode(w):
 
     QWhatsThis.add ( w.depositAtomDashboard.bondgBtn, graphiticBondText )
     
+    
+    # Atom Selection Filter Checkbox #
+    
+    atomSelectionFilterText = "<b>Atom Selection Filter</b>"\
+                "<p>When checked, only element types listed in the <i>Atom Selection Filter List</i> "\
+                "will be selected when performing selection operations."\
+                "</p>"
+                        
+    QWhatsThis.add ( w.depositAtomDashboard.filterCB, atomSelectionFilterText)
+    
+    QToolTip.add(w.depositAtomDashboard.filterCB, qApp.translate("MainWindow","Atom Selection Filter", None))
+    
+    # Selection Filter List #
+    
+    selectionFilterListText = "<b>Atom Selection Filter List</b>"\
+                "<p>Lists which atoms will be selected when the Atom Selection Filter is enabled. "\
+                "To add more than one element type to the list, hold down Shift and select element types from the "\
+                "<i>MMKit</i>. To remove elements from the list, hold down Control and select "\
+                "the element types."\
+                "</p>"
+                        
+    QWhatsThis.add ( w.depositAtomDashboard.filterlistLE, selectionFilterListText)
+    
+    QToolTip.add(w.depositAtomDashboard.filterlistLE, qApp.translate("MainWindow","Atom Selection Filter List", None))
+
+    # Transmute button
+    transmuteButtonText = "<b>Transmute</b>"\
+                "<p>Transmutes the currently selected atom(s) to the atom type specified in the <i>MMKit</i>."\
+                "</p>"
+                        
+    QWhatsThis.add ( w.depositAtomDashboard.transmuteBtn, transmuteButtonText)
+    
+    QToolTip.add(w.depositAtomDashboard.transmuteBtn, qApp.translate("MainWindow","Transmutes selected atoms", None))
+    
+    # Force to Keep All Bonds checkbox
+    
+    keepBondsText = "<b>Force to Keep All Bonds</b>"\
+        "<p>When enabled, forces all existing bonds of transmuted atoms to remain in place."\
+        "</p>"
+                        
+    QWhatsThis.add ( w.depositAtomDashboard.transmuteCB, keepBondsText)
+    
+    QToolTip.add(w.depositAtomDashboard.transmuteCB, qApp.translate("MainWindow","Check to keep all bonds when transmuting", None))
+    
     # Autobond checkbox
     
-    autoBondText = "Enables/disables <i>Autobonding</i><br> "\
-                        "<br> When enabled, additional bonds are formed "\
-                        "automatically with the deposited atom if any "\
-                        "bondpoints of neighboring atoms fall within the VdW radius, "\
-                        "and the deposited atom has extra bondpoints available.<br>"\
-                        "<br>When disabled, the deposited atom will bond only "\
-                        "with the bondpoint (atom) clicked on."\
-                        "</p>"
+    autoBondText = "<b>Autobond</b>"\
+        "<p>Enables/disables <i>Autobonding</i>. When enabled, additional bonds are formed "\
+        "automatically with the deposited atom if any bondpoints of neighboring atoms fall within the "\
+        "VdW radius, and the deposited atom has extra bondpoints available."\
+        "</p>"\
+        "<p>When disabled, the deposited atom will bond only with the bondpoint (atom) clicked on."\
+        "</p>"
 
     QWhatsThis.add ( w.depositAtomDashboard.autobondCB, autoBondText )
     
@@ -1632,14 +1675,17 @@ def create_whats_this_descriptions_for_depositMode(w):
     
     # Water checkbox
     
-    waterText = "Enables/disables the <i>Water Surface</i> selection filter<br> "\
-                        "<br>When enabled, a semi-transparent water surface is displayed."\
-                        "The water surface serves as a selection filter.  Only atoms and bonds above "\
-                        "the surface are highlighted and pickable.<br>"\
-                        "<br>The depth of the water surface can be changed by holding down the Shift+Control/Command "\
-                        "keys and then pressing the middle mouse button and dragging the mouse up "\
-                        "and down."\
-                        "</p>"
+    waterText = "<b>Water</b>"\
+        "<p>Enables/disables the <i>Water Surface</i> selection filter."\
+        "</p>"\
+        "<p>When enabled, a semi-transparent water surface is displayed."\
+        "The water surface serves as a selection filter.  Only atoms and bonds above "\
+        "the surface are highlighted and pickable."\
+        "</p>"\
+        "<p>The depth of the water surface can be changed by holding down the Shift+Control/Command "\
+        "keys and then pressing the middle mouse button and dragging the mouse up "\
+        "and down."\
+        "</p>"
 
     QWhatsThis.add ( w.depositAtomDashboard.waterCB, waterText )
     
@@ -1649,14 +1695,15 @@ def create_whats_this_descriptions_for_depositMode(w):
     
     # Highlighting checkbox
     
-    highlightingText = "Enables/disables <i>Hover Highlighting</i>"\
-                        "<p>When enabled, atoms and bonds under the cursor "\
-                        "are highlighted to indicate what will be selected if the user clicks "\
-                        "the left mouse button.</p>"\
-                        "<p>The highlighting color for atoms and bonds can be changed "\
-                        "by selecting <b>Edit > Preferences</b> and clicking on the <b>Atoms</b> "\
-                        "or <b>Bonds</b> tab."\
-                        "</p>"
+    highlightingText = "<b>Highlighting</b>"\
+        "<p>Enables/disables <i>Hover Highlighting</i>"\
+        "</p>"\
+        "<p>When enabled, atoms and bonds under the cursor are highlighted to indicate what will "\
+        "be selected if the user clicks the left mouse button."\
+        "</p>"\
+        "<p>The highlighting color for atoms and bonds can be changed by selecting "\
+        "<b>Edit > Preferences</b> and clicking on the <b>Atoms</b> or <b>Bonds</b> tab."\
+        "</p>"
 
     QWhatsThis.add ( w.depositAtomDashboard.highlightingCB, highlightingText )
     
