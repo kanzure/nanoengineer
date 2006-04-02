@@ -127,12 +127,11 @@
         <action name="selectContractAction"/>
     </item>
     <item text="&amp;Modes" name="Modes">
-        <action name="toolsSelectMoleculesAction"/>
+        <action name="toolsDepositAtomAction"/>
         <action name="toolsSelectAtomsAction"/>
-        <separator/>
+        <action name="toolsSelectMoleculesAction"/>
         <action name="toolsMoveMoleculeAction"/>
         <separator/>
-        <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
         <action name="toolsFuseChunksAction"/>
@@ -456,7 +455,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1084</width>
+                <width>1085</width>
                 <height>29</height>
             </rect>
         </property>
@@ -877,7 +876,7 @@
                 <x>0</x>
                 <y>568</y>
                 <width>30</width>
-                <height>215</height>
+                <height>209</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -886,12 +885,11 @@
         <property name="label">
             <string>Modes</string>
         </property>
-        <action name="toolsSelectMoleculesAction"/>
+        <action name="toolsDepositAtomAction"/>
         <action name="toolsSelectAtomsAction"/>
-        <separator/>
+        <action name="toolsSelectMoleculesAction"/>
         <action name="toolsMoveMoleculeAction"/>
         <separator/>
-        <action name="toolsDepositAtomAction"/>
         <action name="toolsCookieCutAction"/>
         <action name="toolsExtrudeAction"/>
         <action name="toolsFuseChunksAction"/>
@@ -906,7 +904,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>783</y>
+                <y>777</y>
                 <width>30</width>
                 <height>95</height>
             </rect>

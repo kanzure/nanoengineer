@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Mar 23 09:28:14 2006
+# Created: Sun Apr 2 01:42:37 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6347,7 +6347,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1084,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1085,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6479,21 +6479,20 @@ class MainWindow(QMainWindow):
         self.modesToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
         self.modesToolbar.setEnabled(1)
-        self.modesToolbar.setGeometry(QRect(0,568,30,215))
+        self.modesToolbar.setGeometry(QRect(0,568,30,209))
         self.modesToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
-        self.toolsSelectMoleculesAction.addTo(self.modesToolbar)
+        self.toolsDepositAtomAction.addTo(self.modesToolbar)
         self.toolsSelectAtomsAction.addTo(self.modesToolbar)
-        self.modesToolbar.addSeparator()
+        self.toolsSelectMoleculesAction.addTo(self.modesToolbar)
         self.toolsMoveMoleculeAction.addTo(self.modesToolbar)
         self.modesToolbar.addSeparator()
-        self.toolsDepositAtomAction.addTo(self.modesToolbar)
         self.toolsCookieCutAction.addTo(self.modesToolbar)
         self.toolsExtrudeAction.addTo(self.modesToolbar)
         self.toolsFuseChunksAction.addTo(self.modesToolbar)
         self.simToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
         self.simToolbar.setEnabled(1)
-        self.simToolbar.setGeometry(QRect(0,783,30,95))
+        self.simToolbar.setGeometry(QRect(0,777,30,95))
         self.simToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.simSetupAction.addTo(self.simToolbar)
         self.simNanoHiveAction.addTo(self.simToolbar)
@@ -6593,12 +6592,11 @@ class MainWindow(QMainWindow):
         self.MenuBar.insertItem(QString(""),self.Select,8)
 
         self.Modes = QPopupMenu(self)
-        self.toolsSelectMoleculesAction.addTo(self.Modes)
+        self.toolsDepositAtomAction.addTo(self.Modes)
         self.toolsSelectAtomsAction.addTo(self.Modes)
-        self.Modes.insertSeparator()
+        self.toolsSelectMoleculesAction.addTo(self.Modes)
         self.toolsMoveMoleculeAction.addTo(self.Modes)
         self.Modes.insertSeparator()
-        self.toolsDepositAtomAction.addTo(self.Modes)
         self.toolsCookieCutAction.addTo(self.Modes)
         self.toolsExtrudeAction.addTo(self.Modes)
         self.toolsFuseChunksAction.addTo(self.Modes)
