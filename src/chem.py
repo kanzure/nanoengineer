@@ -1824,8 +1824,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         '''
         if self.is_singlet(): return False # Fixes bug 1608.  mark 060303.
         
-        if self.molecule.assy.w.elemFilterComboBox.currentItem() > 0 and \
-            self.element.name != self.molecule.assy.w.elemFilterComboBox.currentText(): return True
+        if self.molecule.assy.w.selection_filter_enabled:
+            for e in self.molecule.assy.w.filtered_elements[:]:
+                if e == self.element:
+                    return False
+            return True
+            
         return False
 
     def Hydrogenate(self):

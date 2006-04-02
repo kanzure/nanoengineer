@@ -194,7 +194,17 @@ def do_what_MainWindowUI_should_do(w):
     QToolTip.add(w.depositAtomDashboard.bondgBtn, qApp.translate("MainWindow","Graphitic Bond Tool", None))
 
     w.depositAtomDashboard.addSeparator()
+    w.depositAtomDashboard.filterCB = QCheckBox("Select Only :", w.depositAtomDashboard)
+    w.depositAtomDashboard.filterCB.setChecked(0)
+    w.depositAtomDashboard.filterlistLE = QLineEdit(w.depositAtomDashboard,"filter_syms_list")
+    w.depositAtomDashboard.filterlistLE.setReadOnly(1)
+    w.depositAtomDashboard.filterlistLE.setEnabled(0)
     
+    w.depositAtomDashboard.addSeparator()
+    w.depositAtomDashboard.transmuteBtn = QPushButton("Transmute", w.depositAtomDashboard)
+    w.depositAtomDashboard.transmuteCB = QCheckBox(" Force to Keep Bonds", w.depositAtomDashboard)
+    
+    w.depositAtomDashboard.addSeparator()
     w.depositAtomDashboard.autobondCB = QCheckBox("Autobond", w.depositAtomDashboard)
     w.depositAtomDashboard.autobondCB.setChecked(env.prefs[buildModeAutobondEnabled_prefs_key])
 
@@ -310,12 +320,14 @@ class depositMode(selectAtomsMode):
     dont_update_gui = True
     def Enter(self):
         selectAtomsMode.Enter(self)
+        
         #self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
             # moved permit_pick_atoms() to selectAtomsMode.Enter().  mark 060219.
         self.pastable = None #k would it be nicer to preserve it from the past??
             # note, this is also done redundantly in init_gui.
         self.pastables_list = [] # should be ok, since update_gui comes after this...
         self.reset_drag_vars()
+        self.w.depositAtomDashboard.filterCB.setChecked(0) # generates signal.
 
     def reset_drag_vars(self):
         selectAtomsMode.reset_drag_vars(self)
@@ -401,12 +413,17 @@ class depositMode(selectAtomsMode):
                        # This was missing. Might have been cause of bug 1545. Theory not tested (try in A8).
                        # This is needed to update cursor when buildBtn (Atom Tool) is selected.
                        # See fix_submodes_btngrp() for more info. mark 060327
+                       
+        change_connect(self.w.depositAtomDashboard.transmuteBtn,
+                        SIGNAL("clicked()"),self.transmutePressed)
         
         # Slots for the Water and Highlight checkboxes. mark 060202.    
         change_connect(self.w.depositAtomDashboard.waterCB,
                         SIGNAL("toggled(bool)"),self.setWater)
         change_connect(self.w.depositAtomDashboard.highlightingCB,
                         SIGNAL("toggled(bool)"),self.set_hoverHighlighting)
+        change_connect(self.w.depositAtomDashboard.filterCB,
+                        SIGNAL("toggled(bool)"),self.set_selection_filter)
         
         # Workaround for Qt bug. See more info in fix_submodes_btngrp() docstring. mark 060301.      
         change_connect(self.w.depositAtomDashboard.submode_btngrp,
@@ -632,15 +649,27 @@ class depositMode(selectAtomsMode):
                 hybridId = acKeys.index(key)
                 self.w.hybridComboBox.setCurrentItem(hybridId)
                 self.w.hybridComboBox.emit(SIGNAL("activated"), (hybridId,))
+                
+        # Pressing Escape does the following:
+        # 1. If a Bond Tool or the Atom Selection Filter is enabled, pressing Escape will activate the Atom Tool
+        # and disable the Atom Selection Filter. The current selection remains unchanged, however.
+        # 2. If the Atom Tool is enabed and the Atom Selection Filter is disabled, Escape will clear the 
+        # current selection.
+        # Fixes bug (nfr) 1770. mark 060402
+        if key == Qt.Key_Escape:
+            if not self.w.depositAtomDashboard.buildBtn.isOn() or self.w.selection_filter_enabled:
+                # Uncheck (disable) the Atom Selection Filter and activate the Atom Tool.
+                self.w.depositAtomDashboard.filterCB.setChecked(0) # generates signal.
+                self.w.depositAtomDashboard.buildBtn.setOn(1)
+                return
         
         selectAtomsMode.keyPress(self,key) # bruce 050128
         
         return
         
-    def update_cursor_for_no_MB(self):
+    def update_cursor_for_no_MB_selection_filter_disabled(self):
         '''Update the cursor for 'Build' mode (when no mouse button is pressed).
         '''
-
         cursor_id = self.w.depositAtomDashboard.submode_btngrp.selectedId()
         
         if self.o.modkeys is None:
@@ -1716,6 +1745,86 @@ class depositMode(selectAtomsMode):
             msg = "Water surface disabled."
         env.history.message(msg)
         self.o.gl_update()
+        
+    #== Atom Selection Filter helper methods
+        
+    def set_selection_filter(self, enabled):
+        '''Slot for Atom Selection Filter checkbox. Prints history message when selection filter is
+        enabled/disabled and updates the cursor.
+        '''
+        
+        if enabled != self.w.selection_filter_enabled:
+            if enabled:
+                env.history.message("Atom Selection Filter enabled.")
+            else:
+                env.history.message("Atom Selection Filter disabled.")
+        
+        self.w.selection_filter_enabled = enabled
+
+        #print "update_selection_filter_list(): self.w.filtered_elements=", self.w.filtered_elements
+        
+        self.update_selection_filter_list_widget()
+        self.w.depositAtomDashboard.filterlistLE.setEnabled(enabled)
+        self.update_cursor()
+    
+    def update_selection_filter_list(self):
+        '''Adds/removes the element selected in the MMKit to/from Atom Selection Filter
+        based on what modifier key is pressed (if any).
+        '''
+        eltnum = self.w.Element
+        
+        if self.o.modkeys is None:
+            self.w.filtered_elements = []
+            self.w.filtered_elements.append(PeriodicTable.getElement(eltnum))
+        if self.o.modkeys == 'Shift':
+            if not PeriodicTable.getElement(eltnum) in self.w.filtered_elements[:]:
+                self.w.filtered_elements.append(PeriodicTable.getElement(eltnum))
+        elif self.o.modkeys == 'Control':
+            if PeriodicTable.getElement(eltnum) in self.w.filtered_elements[:]:
+                self.w.filtered_elements.remove(PeriodicTable.getElement(eltnum))
+                
+        self.update_selection_filter_list_widget()
+        
+    def update_selection_filter_list_widget(self):
+        '''Updates the list of elements displayed in the Atom Selection Filter List.
+        '''
+        filtered_syms=''
+        for e in self.w.filtered_elements[:]:
+            if filtered_syms: filtered_syms += ", "
+            filtered_syms += e.symbol
+        self.w.depositAtomDashboard.filterlistLE.setText(filtered_syms)
+    
+    #== Transmute helper methods
+    
+    def get_atomtype_from_MMKit(self):
+        '''Return the current atomtype selected in the MMKit.
+        Note: While this does actually return the atomtype based on what is selected in
+        the MMKit, the hybrid is determined by hybridComboBox (hidden).
+        '''
+        elm = PeriodicTable.getElement(self.w.Element)
+        atomtype = None
+        if len(elm.atomtypes) > 1: 
+            try: 
+                hybname = self.w.hybridComboBox.currentText()
+                atype = elm.find_atomtype(hybname)
+                if atype is not None:
+                    atomtype = atype
+            except:
+                print_compact_traceback("exception (ignored): ") # error, but continue
+            pass
+        if atomtype is not None and atomtype.element is elm:
+            return atomtype
+            
+        # For element that doesn't support hybridization
+        return elm.atomtypes[0]
+        
+    def transmutePressed(self):
+        '''Slot for "Transmute" button. '''
+        force = self.w.depositAtomDashboard.transmuteCB.isChecked()
+        atomType = self.get_atomtype_from_MMKit()
+        self.w.assy.modifyTransmute(self.w.Element, force = force, atomType=atomType)
+        
+    #== Draw methods
     
     def Draw(self):
         """ Draw 

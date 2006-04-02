@@ -273,10 +273,16 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         fix_whatsthis_text_and_links(self, refix_later = (self.editMenu,)) # (main call) Fixes bug 1136.  Mark 051126.
             # [bruce 060319 added refix_later as part of fixing bug 1421]
 
-        # Start with Carbon as the default element (for Deposit Mode
-        # and the Element Selector)
-        self.Element = 6
-        self.setElement(6)
+        start_element = 6 # Carbon
+        
+        # Attr/list for Atom Selection Filter. mark 060401
+        self.filtered_elements = [] # Holds list of elements to be selected when the Atom Selection Filter is enabled.
+        self.filtered_elements.append(PeriodicTable.getElement(start_element)) # Carbon
+        self.selection_filter_enabled = False # Set to True to enable the Atom Selection Filter.
+        
+        # Start with Carbon as the default element (for Deposit Mode and the Element Selector)
+        self.Element = start_element
+        self.setElement(start_element)
         
         # 'depositState' is used by depositMode and MMKit to synchonize the 
         # depositMode dashboard (Deposit and Paste toggle buttons) and the MMKit pages (tabs).
@@ -1255,6 +1261,9 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         global MMKitWin
         
         self.Element = elt
+        
+        if self.glpane.mode.modename == 'DEPOSIT':
+            self.glpane.mode.update_selection_filter_list() # depositMode.update_selection_filter_list()
 
         #Huaicai: These are redundant since the elemChange() will do all of them. 8/10/05
         #if elementSelectorWin: elementSelectorWin.update_dialog(elt)

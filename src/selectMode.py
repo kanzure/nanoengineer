@@ -1358,7 +1358,6 @@ class selectAtomsMode(selectMode):
     highlight_singlets = False 
         # Don't highlight singlets in selectAtomsMode. Fixes bug 1540. mark 060220.
     water_enabled = False # Fixes bug 1583. mark 060301.
-    selection_filter_enabled = False # mark 060301.
         
     eCCBtab1 = [1,2, 5,6,7,8,9,10, 13,14,15,16,17,18, 32,33,34,35,36, 51,52,53,54]
         
@@ -2055,23 +2054,35 @@ class selectAtomsMode(selectMode):
         '''keyrelease event handler for selectAtomsMode.
         '''
         basicMode.keyRelease(self, key)
-        
+    
     def set_selection_filter(self, indx):
         '''Slot for Selection Filter combobox. It can also be called to set the index of the current 
         item in the combobox to <indx>.  Prints history message when selection filter is 
         enabled/disabled and updates the cursor.  When <indx> = 0, the selection filter is disabled
         and the current item is set to "All Elements".
         '''
-        #print "set_selection_filter val=",val
-        self.w.elemFilterComboBox.setCurrentItem(indx)
-        old_filter_enabled = self.selection_filter_enabled
-        self.selection_filter_enabled = indx
+        self.w.elemFilterComboBox.setCurrentItem(indx) # Doesn't generate signal (good).
+            # Updates the combobox to the new element to be filtered.
+        
         if indx:
-            if not old_filter_enabled:
-                env.history.message("Atoms Selection Filter enabled.")
+            selection_filter_enabled=True
         else:
-            if old_filter_enabled:
-                env.history.message("Atoms Selection Filter disabled.")
+            selection_filter_enabled=False
+        
+        if selection_filter_enabled != self.w.selection_filter_enabled:
+            if selection_filter_enabled:
+                env.history.message("Atom Selection Filter enabled.")
+            else:
+                env.history.message("Atom Selection Filter disabled.")
+        
+        if selection_filter_enabled: 
+            self.w.selection_filter_enabled = True
+            eltname = str(self.w.elemFilterComboBox.currentText())
+            self.w.filtered_elements = []
+            self.w.filtered_elements.append(PeriodicTable.getElement(eltname))
+        else:
+            self.w.selection_filter_enabled = False
+            self.w.filtered_elements = []
         self.update_cursor()
             
     def update_cursor_for_no_MB(self):
@@ -2079,7 +2090,7 @@ class selectAtomsMode(selectMode):
         '''
         #print "selectAtomsMode.update_cursor_for_no_MB(): button=",self.o.button, ", modkeys=", self.o.modkeys
         
-        if self.selection_filter_enabled:
+        if self.w.selection_filter_enabled:
             self.update_cursor_for_no_MB_selection_filter_enabled()
         else:
             self.update_cursor_for_no_MB_selection_filter_disabled()
