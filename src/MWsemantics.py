@@ -151,9 +151,25 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # and history widget (right)
         hsplitter = QSplitter(Qt.Horizontal, self, "ContentsWindow")
 
+        mtree_in_a_vsplitter = False #bruce 060402 experiment; works (except for initial width), but DO NOT COMMIT WITH True
+        # only bug known so far is mtree (vsplitter2) width
+        if mtree_in_a_vsplitter:
+            vsplitter2 = QSplitter(Qt.Vertical, hsplitter)
+            self.vsplitter2 = vsplitter2
+            ## vsplitter2.setBaseSize(QSize(225,150)) #k experiment, guess, height is wrong; has no effect
+            mtree_parent = vsplitter2
+            mtree_view_in_hsplitter = vsplitter2
+        else:
+            mtree_parent = hsplitter
+        
         # Create the model tree widget. Width of 225 matches width of MMKit.  Mark 060222.
-        self.mt = self.modelTreeView = modelTree(hsplitter, self)
+        self.mt = self.modelTreeView = modelTree(mtree_parent, self)
         self.modelTreeView.setMinimumSize(0, 0)
+
+        if mtree_in_a_vsplitter:
+            mtree_view_in_hsplitter = vsplitter2
+        else:
+            mtree_view_in_hsplitter = self.mt
         
         # Create the vertical-splitter between the glpane (top) and the
         # history widget (bottom) [history is new as of 041223]
@@ -191,7 +207,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
         # Some final hsplitter setup...
         hsplitter.setHandleWidth(3) # Default is 5 pixels (too wide).  mark 060222.
-        hsplitter.setResizeMode(self.modelTreeView, QSplitter.KeepSize)
+        hsplitter.setResizeMode(mtree_view_in_hsplitter, QSplitter.KeepSize)
         hsplitter.setOpaqueResize(False)
         
         # ... and some final vsplitter setup [bruce 041223]
@@ -201,6 +217,13 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.setCentralWidget(hsplitter) # This is required.
             # This makes the hsplitter the central widget, spanning the height of the mainwindow.
             # mark 060222.
+
+        if mtree_in_a_vsplitter:
+            hsplitter.setSizes([225,]) #e this works, but 225 is evidently not always the MMKit width (e.g. on bruce's iMac g4)
+            vsplitter2.setHandleWidth(3)
+            vsplitter2.setOpaqueResize(False)
+            # client code adding things to vsplitter2 may want to call something like:
+            ## vsplitter2.setResizeMode(newthing-in-vsplitter2, QSplitter.KeepSize)
 
 #bruce 060106: this is not used anymore, but don't remove the code or file entirely until after A7 goes out.
 ##        # Create a progress bar widget for use during time consuming operations,
