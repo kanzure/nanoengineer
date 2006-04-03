@@ -1826,7 +1826,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         
         if self.molecule.assy.w.selection_filter_enabled:
             for e in self.molecule.assy.w.filtered_elements[:]:
-                if e == self.element:
+                if e is self.element:
                     return False
             return True
             
