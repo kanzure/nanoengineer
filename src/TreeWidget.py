@@ -23,8 +23,9 @@ from TreeView import * # including class TreeView, and import * from many other 
 from widgets import makemenu_helper
 from platform import fix_buttons_helper
 from debug import DebugMenuMixin, print_compact_stack, print_compact_traceback
-from selectMode import selectMode
-from selectMode import selectMolsMode, selectAtomsMode
+##from selectMode import selectMode
+##from selectMode import selectMolsMode
+##from selectMode import selectAtomsMode
 allButtons = (leftButton|midButton|rightButton) #e should be defined in same file as the buttons
 from platform import tupleFromQPoint, fix_plurals
 import os
@@ -573,13 +574,15 @@ class TreeWidget(TreeView, DebugMenuMixin):
     # external update methods
     
     def update_select_mode(self): #bruce 050124; should generalize and refile; should be used for more or for all events ###@@@
+        #bruce 060403 revised this but didn't update docstring; now it can change from *Chunk modes to Build, only, I think
         """This should be called at the end of event handlers which might have
         changed the current internal selection mode (atoms vs chunks),
         to resolve disagreements between that and the visible selection mode
-        iff it's one of the Select modes. If the current mode is not one of
-        Select Atoms or Select Chunks, this routine has no effect.
+        iff it's one of the Select modes [or more generally, i assume as of 060403,
+        if the current mode wants to be ditched if selwhat has to have certain values it dislikes].
+           If the current mode is not one of Select Atoms or Select Chunks, this routine has no effect.
         (In particular, if selwhat changed but could be changed back to what it was,
-        it does nothing to correct that, and indeed it doesn't know the old value of
+        it does nothing to correct that [obs? see end of docstring], and indeed it doesn't know the old value of
         selwhat unless the current mode (being a selectMode) implies that.)
            [We should generalize this so that other modes could constrain the selection
         mode to just one of atoms vs chunks if they wanted to. However, the details of this
@@ -591,6 +594,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         selection mode to fit what is actually selected. (We always assert that selwhat
         permitted whatever was selected to be selected.)
         """
+        from selectMode import selectMolsMode
+        ## from selectMode import selectAtomsMode
         #bruce 050519 revised docstring and totally rewrote code.
         assy = self.assy
         win = self.win
@@ -608,9 +613,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
         selwhat_from_mode = None # most modes don't care
         if isinstance( mode, selectMolsMode):
             selwhat_from_mode = SELWHAT_CHUNKS
-        elif isinstance( mode, selectAtomsMode) and mode.modename == selectAtomsMode.modename:
-            #bruce 060210 added modename condition to fix bug when current mode is Build (now a subclass of Select Atoms)
-            selwhat_from_mode = SELWHAT_ATOMS
+        #bruce 060403 commenting out the following, in advance of proposed removal of Select Atoms mode entirely:
+##        elif isinstance( mode, selectAtomsMode) and mode.modename == selectAtomsMode.modename:
+##            #bruce 060210 added modename condition to fix bug when current mode is Build (now a subclass of Select Atoms)
+##            selwhat_from_mode = SELWHAT_ATOMS
         change_mode_to_fit = (selwhat_from_mode is not None) # used later; someday some modes won't follow this
         # 0c. What does current selection itself think it needs to be?
         # (If its desires are inconsistent, complain and fix them.)
@@ -653,8 +659,10 @@ class TreeWidget(TreeView, DebugMenuMixin):
                     # right after it gets initiated (almost too fast to see).
                     if selwhat == SELWHAT_CHUNKS:
                         win.toolsSelectMolecules()
+                        print "fyi: forced mode to Select Chunks" # should no longer ever happen as of 060403 
                     elif selwhat == SELWHAT_ATOMS:
-                        win.toolsSelectAtoms() #bruce 050504 making use of this case for the first time; seems to work
+                        win.toolsBuildAtoms() #bruce 060403 change: toolsSelectAtoms -> toolsBuildAtoms
+                        ## win.toolsSelectAtoms() #bruce 050504 making use of this case for the first time; seems to work
                 # that might have fixed the following too, but never mind, we'll just always do it -- sometimes it's needed.
                 if selwhat == SELWHAT_CHUNKS:
                     part.unpickatoms()

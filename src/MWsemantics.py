@@ -1021,19 +1021,19 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     ###################################
 
     # get into Select Atoms mode
-    def toolsSelectAtoms(self):
+    def toolsSelectAtoms(self): # note: this can NO LONGER be called from update_select_mode [as of bruce 060403]
         self.glpane.setMode('SELECTATOMS')
 
     # get into Select Chunks mode
-    def toolsSelectMolecules(self):
+    def toolsSelectMolecules(self):# note: this can also be called from update_select_mode [bruce 060403 comment]
         self.glpane.setMode('SELECTMOLS')
 
     # get into Move Chunks mode        
     def toolsMoveMolecule(self):
         self.glpane.setMode('MODIFY')
-
    
-    def toolsBuildAtoms(self):
+    # get into Build mode        
+    def toolsBuildAtoms(self): # note: this can now be called from update_select_mode [as of bruce 060403]
         self.depositState = 'Atoms'
         self.glpane.setMode('DEPOSIT')
 

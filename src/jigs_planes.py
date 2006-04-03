@@ -490,11 +490,13 @@ class ESPImage(RectGadget):
                 m.overdraw_with_special_color(ave_colors( 0.8, green, black))
     
     
-    def edit(self):
-        '''Force into 'Select Atom' mode before open the dialog '''
-        ## from constants import SELWHAT_ATOMS
-        
-        self.assy.o.setMode('SELECTATOMS')        
+    def edit(self): # in class ESPImage
+        '''Force into 'Build' mode before opening the dialog '''
+        #bruce 060403 changes: force Build, not Select Atoms; only do this if current mode is not Build
+        if self.assy.o.mode.modename != 'DEPOSIT':
+            self.assy.o.setMode('DEPOSIT')
+##        '''Force into 'Select Atom' mode before open the dialog '''
+##        self.assy.o.setMode('SELECTATOMS')        
         Jig.edit(self)
         
     def make_selobj_cmenu_items(self, menu_spec):
