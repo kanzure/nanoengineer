@@ -167,6 +167,17 @@ class ObjectDescender:
         else:
             self.outf.write(self.prefix(depth, pn) + trepr(v) + "\n")
 
+    def getAttributes(self, obj):
+        lst = dir(obj)
+        if hasattr(obj, "__dict__"):
+            for x in obj.__dict__.keys():
+                if x not in lst:
+                    lst.append(x)
+        lst.sort()
+        def filt(x):
+            return x not in ("__doc__",)
+        return filter(filt, lst)
+
     def descend(self, obj, depth=0, pathname=[ ]):
         if obj in self.already:
             return
@@ -175,19 +186,23 @@ class ObjectDescender:
             self.handleLeaf(obj, depth, pathname)
         if depth >= self.maxdepth:
             return
-        if type(obj) in (types.InstanceType, types.ClassType,
-                         types.ModuleType, types.FunctionType):
-            # Look at instance variables, ignore class variables and methods
+        if (hasattr(obj, "__class__") or
+            type(obj) in (types.InstanceType, types.ClassType,
+                          types.ModuleType, types.FunctionType)):
             ckeys = [ ]
-            if hasattr(obj, "__class__"):
-                ckeys = filter(lambda x: not x.startswith("__"), dir(obj.__class__))
-            ikeys = filter(lambda x: not x.startswith("__"), dir(obj))
+            if True:
+                # Look at instance variables, ignore class variables and methods
+                if hasattr(obj, "__class__"):
+                    ckeys = self.getAttributes(obj.__class__)
+            else:
+                # Look at all variables and methods
+                ckeys = ( )
+            keys = filter(lambda x: x not in ckeys, self.getAttributes(obj))
             lst = [ ]
-            for k in ikeys:
-                if k not in ckeys:
-                    x = getattr(obj, k)
-                    if not self.exclude(k, x):
-                        lst.append((k, x, pathname + [ k ]))
+            for k in keys:
+                x = getattr(obj, k)
+                if not self.exclude(k, x):
+                    lst.append((k, x, pathname + [ k ]))
             for k, v, pn in lst:
                 if self.showThis(k, v):
                     self.handleLeaf(v, depth+1, pn)
