@@ -1769,15 +1769,23 @@ def drawrectangle(pt1, pt2, rt, up, color):
     glEnd()
     glEnable(GL_LIGHTING)
 
-def drawRubberBand(pt1, pt2, c2, c3, color):
-    """Huaicai: depth test should be disabled to make the xor work """
-    glBegin(GL_LINE_LOOP)
-    glVertex(pt1[0],pt1[1],pt1[2])
-    glVertex(c2[0],c2[1],c2[2])
-    glVertex(pt2[0],pt2[1],pt2[2])
-    glVertex(c3[0],c3[1],c3[2])
-    glEnd()
-    return
+#bruce & wware 060404: drawRubberBand apparently caused bug 1814 (Zoom Tool hanging some Macs, requiring power toggle)
+# so it should not be used until debugged. Use drawrectangle instead. (For an example of how to translate between them,
+# see zoomMode.py rev 1.32 vs 1.31 in ViewCVS.) That bug was only repeatable on Bruce's & Will's iMacs G5.
+#
+# Bruce's speculations (not very definite; no evidence for them at all) about possible causes of the bug in drawRubberBand:
+# - use of glVertex instead of glVertex3f or so??? This seems unlikely, since we have other uses of it,
+#   but perhaps they work due to different arg types.
+# - use of GL_LINE_LOOP within OpenGL xor mode, and bugs in some OpenGL drivers?? I didn't check whether cookieMode does this too.
+##def drawRubberBand(pt1, pt2, c2, c3, color):
+##    """Huaicai: depth test should be disabled to make the xor work """
+##    glBegin(GL_LINE_LOOP)
+##    glVertex(pt1[0],pt1[1],pt1[2])
+##    glVertex(c2[0],c2[1],c2[2])
+##    glVertex(pt2[0],pt2[1],pt2[2])
+##    glVertex(c3[0],c3[1],c3[2])
+##    glEnd()
+##    return
        
 
 # Wrote drawbrick for the Linear Motor.  Mark [2004-10-10]
