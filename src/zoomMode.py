@@ -90,8 +90,7 @@ class zoomMode(basicMode):
         
         self.pStart = p1
         self.pPrev = p1
-        self.point2 = None
-        self.point3 = None
+        self.firstDraw = True
         
         self.o.redrawGL = False
         glDisable(GL_DEPTH_TEST)
@@ -104,31 +103,23 @@ class zoomMode(basicMode):
         self.glStatesChanged = True
         
         
-    def computePoints(self):
-          """Compute the left bottom(point2) and right top (point3) """
-          rt = self.o.right
-          up = self.o.up  
-          self.point2 = self.pStart + up*dot(up, self.pPrev - self.pStart)
-          self.point3 = self.pStart + rt*dot(rt, self.pPrev - self.pStart)
-    
-            
     def leftDrag(self, event):
         """Compute the changing rubber band window ending point. Erase    the previous window, draw the new window """
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
         
-        if self.point2 and self.point3: #Erase the previous rubber window
-            drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
-          
+        if not self.firstDraw: #Erase the previous rubber window
+            drawer.drawrectangle(self.pStart, self.pPrev, self.o.up, self.o.right, self.rbwcolor)
+        self.firstDraw = False
+
         self.pPrev = A(gluUnProject(cWxy[0], cWxy[1], 0.005))
         ##draw the new rubber band
-        self.computePoints()
-        drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
+        drawer.drawrectangle(self.pStart, self.pPrev, self.o.up, self.o.right, self.rbwcolor)
         glFlush()
         self.o.swapBuffers() #Update display
         
         
     def leftUp(self, event):
-        """"Erase the final rubber band window and do zoom if user indeed     draws a rubber band window"""
+        """Erase the final rubber band window and do zoom if user indeed     draws a rubber band window"""
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
         zoomX = (abs(cWxy[0] - self.pWxy[0]) + 0.0) / (self.o.width + 0.0)
         zoomY = (abs(cWxy[1] - self.pWxy[1]) + 0.0) / (self.o.height + 0.0)
@@ -145,7 +136,7 @@ class zoomMode(basicMode):
                 return
         
         ##Erase the last rubber-band window
-        drawer.drawRubberBand(self.pStart, self.pPrev, self.point2, self.point3, self.rbwcolor)
+        drawer.drawrectangle(self.pStart, self.pPrev, self.o.up, self.o.right, self.rbwcolor)
         glFlush()
         self.o.swapBuffers()
         
