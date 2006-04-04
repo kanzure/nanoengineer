@@ -1617,7 +1617,11 @@ class selectAtomsMode(selectMode):
         # (repaint sets new selobj, maybe highlights it).
         # [some code copied from modifyMode]
         glpane = self.o
-            
+        
+        if self.o.is_animating:
+            # If animating, do not select anything. For more info, see GLPane.animateToView(). mark 060404.
+            return
+        
         wX = event.pos().x()
         wY = glpane.height - event.pos().y()
         selobj = orig_selobj = glpane.selobj

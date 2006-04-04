@@ -247,6 +247,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.selatom = None # josh 10/11/04 supports depositMode
         
         self.jigSelectionEnabled = True # mark 060312
+        
+        self.is_animating = False # mark 060404
+            # Set to True while animating between views in animateToView() so 
+            # that selectAtomsMode.update_selobj() will not select and highlight
+            # objects under the cursor. mark 060404
 
         # [bruce 050608]
         self.glselect_dict = {} # only used within individual runs
@@ -595,6 +600,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # animation action while this one is still running.
         self.win.enableViews(False)
         
+        # 'is_animating' is checked in selectAtomsMode.update_selobj() to determine whether the 
+        # GLPane is currently animating between views.  If True, then update_selobj() will 
+        # not select any object under the cursor. mark 060404.
+        self.is_animating = True
+        
         # Main animation loop, which doesn't draw the final frame of the loop.  
         # See comments below for explanation.
         for frame in range(1, total_frames): # Notice no +1 here.
@@ -627,6 +637,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         # Enable standard view actions on toolbars/menus.
         self.win.enableViews(True)
+        
+        # Finished animating.
+        self.is_animating = False
     
     # == "callback methods" from modeMixin:
 
