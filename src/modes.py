@@ -517,7 +517,8 @@ class basicMode(anyMode):
         
         # This shows the Done button on the dashboard unless the current mode is the 
         # Default mode. Resolves bug #958 and #959. Mark 050922.
-        if self.modename == env.prefs[ defaultMode_prefs_key ]:
+        import UserPrefs
+        if self.modename == UserPrefs.default_modename(): #bruce 060403 revised this
             self.w.toolsDoneAction.setVisible(0)
         else:
             self.w.toolsDoneAction.setVisible(1)
@@ -1755,7 +1756,7 @@ class modeMixin:
             env.history.message( greenmsg( msg), norepeat_id = msg )
         return
     
-    def _find_mode(self, modename_or_obj = None): #bruce 050911 revised this
+    def _find_mode(self, modename_or_obj = None): #bruce 050911 and 060403 revised this
         """Internal method: look up the specified internal mode name (e.g. 'MODIFY' for Move mode)
         or mode-role symbolic name (e.g. '$DEFAULT_MODE') in self.modetab, and return the mode object found.
         Or if a mode object is provided, return the same-named object in self.modetab
@@ -1763,6 +1764,7 @@ class modeMixin:
            Exception if requested mode object is not found -- unlike pre-050911 code,
          never return some other mode than asked for -- let caller do that if desired.
         """
+        import UserPrefs #bruce 060403
         assert modename_or_obj, "mode arg should be a mode object or mode name, not None or whatever it is here: %r" % (modename_or_obj,)
         if type(modename_or_obj) == type(''):
             # usual case - internal or symbolic modename string
@@ -1770,13 +1772,16 @@ class modeMixin:
             if modename == '$SAFE_MODE':
                 modename = 'SELECTMOLS' #k
             elif modename == '$STARTUP_MODE':
-                modename = env.prefs[startupMode_prefs_key]
+                ## modename = env.prefs[startupMode_prefs_key]
+                modename = UserPrefs.startup_modename()
                 # Needed when Preferences | Modes | Startup Mode = Default Mode.  
                 # Mark 050921.
                 if modename == '$DEFAULT_MODE':
-                    modename = env.prefs[defaultMode_prefs_key]
+                    ## modename = env.prefs[defaultMode_prefs_key]
+                    modename = UserPrefs.default_modename()
             elif modename == '$DEFAULT_MODE':
-                modename = env.prefs[defaultMode_prefs_key]
+                ## modename = env.prefs[defaultMode_prefs_key]
+                modename = UserPrefs.default_modename()
             return self.modetab[ modename]
         else:
             # assume it's a mode object; make sure it's legit

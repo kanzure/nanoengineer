@@ -31,8 +31,39 @@ debug_sliders = False # Do not commit as True
 modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
 
 # List of Default Modes and Startup Modes.  Mark 050921.
+# [bruce 060403 guesses these need to correspond to certain combobox indices.]
 default_modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT']
 startup_modes = ['$DEFAULT_MODE', 'DEPOSIT']
+
+def fix_modename_pref( modename, modename_list, modename_fallback = None): #bruce 060403
+    """modename came from prefs db; if it's in modename_list, return it unchanged,
+    but if not, return one of the modenames in modename_list to be used in place of it, or modename_fallback.
+    This is REQUIRED for decoding any modename-valued prefs value.
+    """
+    assert len(modename_list) > 0 or modename_fallback
+    if modename in modename_list:
+        return modename
+    # handle SELECTATOMS being superseded by DEPOSIT
+    if modename == 'SELECTATOMS' and 'DEPOSIT' in modename_list:
+        return 'DEPOSIT'
+    # handle future modes not yet supported by current code
+    # (at this point it might be better to return the user's default mode;
+    #  callers wanting this can pass it as modename_fallback)
+    return modename_fallback or modename_list[-1]
+        # could use any arbitrary element rather than the last one (at -1),
+        # but in the list constants above, the last choices seem to be best
+
+def default_modename(): #bruce 060403
+    """Return the modename string of the user's default mode.
+    External code should use this, rather than directly using env.prefs[ defaultMode_prefs_key ].
+    """
+    return fix_modename_pref( env.prefs[ defaultMode_prefs_key ], default_modes)
+
+def startup_modename(): #bruce 060403
+    """Return the modename string (literal or symbolic, e.g. '$DEFAULT_MODE') of the user's startup mode.
+    External code should use this, rather than directly using env.prefs[ startupMode_prefs_key ].
+    """
+    return fix_modename_pref( env.prefs[ startupMode_prefs_key ], startup_modes, startup_modes[0] )
 
 def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
     '''Present user with the Qt file chooser to select a file.
@@ -219,12 +250,14 @@ class UserPrefs(UserPrefsDialog):
             # Update the Display Mode combobox.
         
         # Update the "Default Mode" and "Startup Mode" combo boxes.
-        self.default_mode_combox.setCurrentItem(default_modes.index(env.prefs[ defaultMode_prefs_key ]))
+        self.default_mode_combox.setCurrentItem( default_modes.index( default_modename() )) #bruce 060403 revised this
         
-        # Fix for bug 1008. Mark 050924.
-        smode = env.prefs[ startupMode_prefs_key ]
-        if smode not in startup_modes:
-            smode = startup_modes[0] # = Default Mode
+        # Fix for bug 1008. Mark 050924. [use '$DEFAULT_MODE' == startup_modes[0] if smode not in startup_modes]
+        # [then bruce 060403 revised this to do same thing in a different way]
+        smode = startup_modename()
+##        smode = env.prefs[ startupMode_prefs_key ]
+##        if smode not in startup_modes:
+##            smode = startup_modes[0] # = Default Mode
         
         self.startup_mode_combox.setCurrentItem(startup_modes.index(smode))
 
