@@ -604,36 +604,42 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # GLPane is currently animating between views.  If True, then update_selobj() will 
         # not select any object under the cursor. mark 060404.
         self.is_animating = True
-        
-        # Main animation loop, which doesn't draw the final frame of the loop.  
-        # See comments below for explanation.
-        for frame in range(1, total_frames): # Notice no +1 here.
-            wxyz1 += rot_inc
-            self.quat = Q(norm(wxyz1))
-            self.pov += pov_inc
-            self.zoomFactor += zoom_inc
-            self.scale += scale_inc
-            self.gl_update_duration()
-            # Very desirable to adjust total_frames inside the loop to maintain
-            # animation speed consistency. mark 060127.
-        
-        # The animation loop did not draw the last frame on purpose.  Instead,
-        # we snap to the destination view.  This also eliminates the possibility
-        # of any roundoff error in the increment values, which might result in a 
-        # slightly wrong final viewpoint.
-        self.snapToView(q2, s2, p2, z2, update_duration = True)
-            # snapToView() must call gl_update_duration() and not gl_update(), 
-            # or we'll have an issue if total_frames ever ends up = 1. In that case,
-            # self._repaint_duration would never get set again because gl_update_duration()
-            # would never get called again. BTW,  gl_update_duration()  (as of 060127)
-            # is only called in the main animation loop above or when a new part is loaded.
-            # gl_update_duration() should be called at other times, too (i.e. when 
-            # the display mode changes or something significant happens to the 
-            # model or display mode that would impact the rendering duration),
-            # or better yet, the number of frames should be adjusted in the 
-            # main animation loop as it plays.  This is left as something for me to do
-            # later (probably after A7). This verbose comment is left as a reminder
-            # to myself about all this.  mark 060127.
+
+        try: #bruce 060404 for exception safety (desirable for both enableViews and is_animating)
+            
+            # Main animation loop, which doesn't draw the final frame of the loop.  
+            # See comments below for explanation.
+            for frame in range(1, total_frames): # Notice no +1 here.
+                wxyz1 += rot_inc
+                self.quat = Q(norm(wxyz1))
+                self.pov += pov_inc
+                self.zoomFactor += zoom_inc
+                self.scale += scale_inc
+                self.gl_update_duration()
+                # Very desirable to adjust total_frames inside the loop to maintain
+                # animation speed consistency. mark 060127.
+            
+            # The animation loop did not draw the last frame on purpose.  Instead,
+            # we snap to the destination view.  This also eliminates the possibility
+            # of any roundoff error in the increment values, which might result in a 
+            # slightly wrong final viewpoint.
+            self.snapToView(q2, s2, p2, z2, update_duration = True)
+                # snapToView() must call gl_update_duration() and not gl_update(), 
+                # or we'll have an issue if total_frames ever ends up = 1. In that case,
+                # self._repaint_duration would never get set again because gl_update_duration()
+                # would never get called again. BTW,  gl_update_duration()  (as of 060127)
+                # is only called in the main animation loop above or when a new part is loaded.
+                # gl_update_duration() should be called at other times, too (i.e. when 
+                # the display mode changes or something significant happens to the 
+                # model or display mode that would impact the rendering duration),
+                # or better yet, the number of frames should be adjusted in the 
+                # main animation loop as it plays.  This is left as something for me to do
+                # later (probably after A7). This verbose comment is left as a reminder
+                # to myself about all this.  mark 060127.
+
+        except:
+            print_compact_traceback("bug: exception (ignored) during animateToView's loop: ")
+            pass
         
         # Enable standard view actions on toolbars/menus.
         self.win.enableViews(True)
