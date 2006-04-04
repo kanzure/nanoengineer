@@ -1,0 +1,55 @@
+#!/bin/sh
+# Simplify the process of managing a joint branch in both the cad and sim directories.
+
+PWD=`pwd`
+N=`echo $PWD | wc -c`
+M=$((N - 8))
+cadsrc=`echo $PWD | cut -c $M-$N`
+
+if [ x$cadsrc != x/cad/src ]; then
+    echo This script should be run in the cad/src directory
+    echo Current directory is $PWD
+    exit 1
+fi
+
+usage() {
+    echo Usage: $0 \<command\> [branchname]
+    echo Commands are: commit, update/up, tag, revert
+    echo Branchname needed for: commit, update/up, tag
+    exit 1
+}
+
+BRANCHNAME=$2
+
+checkbranch() {
+    if [ x$BRANCHNAME == x ]; then
+	usage
+    fi
+}
+
+case $1 in
+    tag)
+	checkbranch
+	cvs tag -b $BRANCHNAME branch `cat branch`
+	(cd ../../sim/src; cvs tag -b $BRANCHNAME branch `cat branch`)
+	;;
+    commit)
+	checkbranch
+	cvs commit -r $BRANCHNAME branch `cat branch`
+	(cd ../../sim/src; cvs commit -r $BRANCHNAME branch `cat branch`)
+	;;
+    revert)
+	cvs update -A branch `cat branch`
+	(cd ../../sim/src; cvs update -A branch `cat branch`)
+	;;
+    up|update)
+	checkbranch
+	cvs update -r $BRANCHNAME branch
+	cvs update -r $BRANCHNAME `cat branch`
+	(cd ../../sim/src; cvs update -r $BRANCHNAME branch)
+	(cd ../../sim/src; cvs update -r $BRANCHNAME `cat branch`)
+	;;
+    *)
+	echo Unknown command: $1
+	;;
+esac
