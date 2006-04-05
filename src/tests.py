@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 
 """Regression and QA test script for the simulator
 
@@ -809,6 +810,18 @@ class TraceFile:
                     assert xdif < 10.0 or (xdif / abs(x)) < 0.2, \
                            ("%s: expected %g, got %g" % (name, x, y))
                 tests.append(checkAngle)
+            elif name.startswith('Dihedral'):
+                # dihedral angles vary a lot, and they flip sign if they
+                # pass through 180 or -180
+                def checkDihedral(x, y, name=name):
+                    assert x == x, "not-a-number values in reference results"
+                    assert y == y, "not-a-number values in test results"
+                    # handle sign flips when angles jump -180 <-> +180
+                    xdif = min(abs(x - y),
+                               min(abs(x + 360 - y), abs(x - y - 360)))
+                    assert xdif < 50.0 or (xdif / abs(x)) < 0.4, \
+                           ("%s: expected %g, got %g" % (name, x, y))
+                tests.append(checkDihedral)
             else:
                 def check(x, y, name=name):
                     assert x == x, "not-a-number values in reference results"
