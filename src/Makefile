@@ -1,9 +1,15 @@
 # Makefile for the simulator
 # $Id$
 
+UNAME := $(shell uname)
+# dotted python version (2.3, 2.4)
+PYDVER := $(shell python -c "import sys; print sys.version[:3]")
+# un-dotted python version (23, 24)
+PYVER := $(shell python -c "import sys; print sys.version[0]+sys.version[2]")
+
 ifeq ($(OS),Windows_NT)
 CC = "C:/Dev-Cpp/bin/gcc.exe"
-CFLAGS=-g -I"C:/Dev-Cpp/include"
+CFLAGS=-g -I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include"
 LDFLAGS=-L"C:/Dev-Cpp/lib"
 PYREXTARGET=sim.dll
 STDC99=
@@ -85,14 +91,14 @@ structcompare.o: structcompare.c simulator.h
 
 # We need sim.c rule to build for Windows
 sim.c: simhelp.c sim.pyx
-	python c:/Python23/Scripts/pyrexc.py sim.pyx
+	python c:/Python$(PYVER)/Scripts/pyrexc.py sim.pyx
 
-libpython23.a: libpython23.a.gz
-	gunzip < libpython23.a.gz > libpython23.a
+libpython$(PYVER).a: libpython$(PYVER).a.gz
+	gunzip < libpython$(PYVER).a.gz > libpython$(PYVER).a
 
-sim.dll: sim.c $(PYREXOBJS) libpython23.a version.h
-	gcc -shared -I"C:/Python23/include" -o sim.dll sim.c $(PYREXOBJS) \
-		-Wl,--output-def,sim.def -L. -lpython23
+sim.dll: sim.c $(PYREXOBJS) libpython$(PYVER).a version.h
+	gcc -shared -I"C:/Python$(PYVER)/include" -o sim.dll sim.c $(PYREXOBJS) \
+		-Wl,--output-def,sim.def -L. -lpython$(PYVER)
 
 tables.c: gentab.py
 	python gentab.py > tables.c

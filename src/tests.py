@@ -20,7 +20,10 @@ test_C3H6.mmp for testing.
 
 __author__ = "Will"
 
-import Numeric
+try:
+    import Numeric
+except ImportError:
+    import numpy as Numeric
 import math
 import md5
 import os
@@ -640,7 +643,7 @@ class SandboxTest(TimedTest):
             if not KEEP_RESULTS:
                 rmtreeSafe(tmpdir)
 
-    def runCommand(self, opts):
+    def runCommandQt(self, opts):
         import qt
         def substFOO(str):
             if str.startswith("FOO"):
@@ -675,6 +678,32 @@ class SandboxTest(TimedTest):
         stdout.close()
         stderr.close()
         return simProcess.exitStatus()
+
+    def runCommandSubprocess(self, opts):
+        import subprocess
+        def substFOO(str):
+            if str.startswith("FOO"):
+                return self.testname + str[3:]
+            return str
+        cmdline = [ "./" + simulatorCmd ] + map(substFOO, opts)
+        stdout = open("stdout", "w")
+        stderr = open("stderr", "w")
+        p = subprocess.Popen(cmdline)
+        r = p.wait()
+        stdout.close()
+        stderr.close()
+        return r
+
+    def runCommand(self, opts):
+        usingQt = True
+        try:
+            import qt
+        except ImportError:
+            usingQt = False
+        if usingQt:
+            return self.runCommandQt(opts)
+        else:
+            return self.runCommandSubprocess(opts)
 
     def checkOutputFiles(self):
         if MD5_CHECKS:

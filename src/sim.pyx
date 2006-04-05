@@ -13,7 +13,10 @@ __author__ = "Will"
 
 ## import threading #bruce 060101 removed this since I think it's not used now
 
-import Numeric
+try:
+    import Numeric
+except ImportError:
+    import numpy as Numeric
 import unittest
 
 cdef extern from "simhelp.c": 
