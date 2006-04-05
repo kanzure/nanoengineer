@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 //#define WWDEBUG
 #include "simulator.h"
 

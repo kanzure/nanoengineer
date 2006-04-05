@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef WRITEMOVIE_H_INCLUDED
 #define WRITEMOVIE_H_INCLUDED
 

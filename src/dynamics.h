@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef DYNAMICS_H_INCLUDED
 #define DYNAMICS_H_INCLUDED
 

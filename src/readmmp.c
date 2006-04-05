@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 
 #include <limits.h>
 #include "simulator.h"

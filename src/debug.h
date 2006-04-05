@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef DEBUG_H_INCLUDED
 #define DEBUG_H_INCLUDED
 

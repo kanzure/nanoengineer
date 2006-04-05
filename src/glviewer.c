@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 // usage: glviewer < inputfile
 //
 // tracks additional input as it is appended to inputfile

@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef JIGS_H_INCLUDED
 #define JIGS_H_INCLUDED
 

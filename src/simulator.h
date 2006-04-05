@@ -24,7 +24,7 @@
     RCSID_WRITEMOVIE_H \
     RCSID_GLOBALS_H
 
-// Copyright (c) 2004 Nanorex, Inc. All Rights Reserved.
+// Copyright (c) 2004-2006 Nanorex, Inc. All Rights Reserved.
 
 // SI prefixes:
 //

@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef MINIMIZE_H_INCLUDED
 #define MINIMIZE_H_INCLUDED
 

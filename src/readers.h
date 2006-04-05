@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef READERS_H_INCLUDED
 #define READERS_H_INCLUDED
 

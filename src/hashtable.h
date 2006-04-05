@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef HASHTABLE_H_INCLUDED
 #define HASHTABLE_H_INCLUDED
 

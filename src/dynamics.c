@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #include "simulator.h"
 
 static char const rcsid[] = "$Id$";

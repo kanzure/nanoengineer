@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef ALLOCATE_H_INCLUDED
 #define ALLOCATE_H_INCLUDED
 

@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #include "simulator.h"
 
 // Everything in here has to be updated in 6 places:

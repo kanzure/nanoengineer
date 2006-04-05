@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef POTENTIAL_H_INCLUDED
 #define POTENTIAL_H_INCLUDED
 

@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef LIN_ALG_H_INCLUDED
 #define LIN_ALG_H_INCLUDED
 

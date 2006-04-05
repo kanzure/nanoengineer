@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef STRUCTCOMPARE_H_INCLUDED
 #define STRUCTCOMPARE_H_INCLUDED
 

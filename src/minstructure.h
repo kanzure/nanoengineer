@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef MINSTRUCTURE_H_INCLUDED
 #define MINSTRUCTURE_H_INCLUDED
 

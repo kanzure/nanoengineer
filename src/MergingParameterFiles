@@ -1,3 +1,4 @@
+# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 
 To merge new parameters into the parameter files (stretch.parms and
 bending.parms), with new parameters overriding older ones:

@@ -1,3 +1,5 @@
+Copyright (c) 2006 Nanorex, Inc. All rights reserved.
+
 CVS branching is sometimes usefully done with small subsets of a
 source tree. In that case, you would change the branch file to be
 a list of the files specific to your branch, like this:

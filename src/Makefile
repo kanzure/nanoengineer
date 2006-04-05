@@ -1,3 +1,4 @@
+# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # Makefile for the simulator
 # $Id$
 

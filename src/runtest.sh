@@ -1,4 +1,5 @@
 #!/bin/sh
+# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 
 # runtest.sh description.test [--generate]
 #

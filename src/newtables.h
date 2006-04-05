@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef NEWTABLES_H_INCLUDED
 #define NEWTABLES_H_INCLUDED
 

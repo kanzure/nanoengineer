@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef READXYZ_H_INCLUDED
 #define READXYZ_H_INCLUDED
 

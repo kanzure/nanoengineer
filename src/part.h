@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef PART_H_INCLUDED
 #define PART_H_INCLUDED
 

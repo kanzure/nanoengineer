@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef READMMP_H_INCLUDED
 #define READMMP_H_INCLUDED
 

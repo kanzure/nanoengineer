@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef PRINTERS_H_INCLUDED
 #define PRINTERS_H_INCLUDED
 

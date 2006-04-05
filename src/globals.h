@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 #ifndef GLOBALS_H_INCLUDED
 #define GLOBALS_H_INCLUDED
 
