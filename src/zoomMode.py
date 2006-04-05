@@ -105,6 +105,9 @@ class zoomMode(basicMode):
         
     def leftDrag(self, event):
         """Compute the changing rubber band window ending point. Erase    the previous window, draw the new window """
+        # bugs 1190, 1818 wware 060405 - sometimes Qt neglects to call leftDown before this
+        if not hasattr(self, "pWxy") or not hasattr(self, "firstDraw"):
+            return
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
         
         if not self.firstDraw: #Erase the previous rubber window
@@ -120,6 +123,9 @@ class zoomMode(basicMode):
         
     def leftUp(self, event):
         """Erase the final rubber band window and do zoom if user indeed     draws a rubber band window"""
+        # bugs 1190, 1818 wware 060405 - sometimes Qt neglects to call leftDown before this
+        if not hasattr(self, "pWxy") or not hasattr(self, "firstDraw"):
+            return
         cWxy = (event.pos().x(), self.o.height - event.pos().y())
         zoomX = (abs(cWxy[0] - self.pWxy[0]) + 0.0) / (self.o.width + 0.0)
         zoomY = (abs(cWxy[1] - self.pWxy[1]) + 0.0) / (self.o.height + 0.0)
