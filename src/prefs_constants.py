@@ -53,6 +53,7 @@ SiC_GRID = 1
 
 # General prefs
 displayCompass_prefs_key = 'A6/Display Compass'
+displayCompassLabels_prefs_key = 'A7/Display Compass Label'
 compassPosition_prefs_key = 'A6/Compass Position'
 displayOriginAxis_prefs_key = 'A6/Display Origin Axis'
 displayPOVAxis_prefs_key = 'A6/Display POV Axis'
@@ -195,6 +196,7 @@ prefs_table = (
     # General preferences [added to this table by mark 050919]
 
     ('display_compass', 'boolean', displayCompass_prefs_key, True),
+    ('display_compass_labels', 'boolean', displayCompassLabels_prefs_key, True),
     ('display_position', 'int', compassPosition_prefs_key, UPPER_RIGHT),
     ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
     ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
