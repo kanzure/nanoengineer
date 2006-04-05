@@ -1,3 +1,4 @@
+# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 """\
 Python atoms, atom sets, diff factories, diff objects (tests)
 

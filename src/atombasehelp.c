@@ -1,3 +1,4 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
 // gcc -I/usr/include/python2.4 -c -Wall atombasehelp.c 
 
 #include "Python.h"

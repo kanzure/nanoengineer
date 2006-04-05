@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 ProgressBar.py - progress bar dialog, for use while waiting for simulator
 to finish writing output into a known file of known final length.

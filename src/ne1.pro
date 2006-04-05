@@ -1,3 +1,4 @@
+# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 <!DOCTYPE kodeproject>
 <kodeproject>
  <project target="\atom.py" open="1" version="8.0" name="nanoENGINEER-1" >

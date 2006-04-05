@@ -1,3 +1,4 @@
+# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # This file is part of a mitigation of bug 1724;
 # it is partly handmade and partly automatically generated.
 # Developers: don't commit any changes unless you have full understanding of bug 1724.

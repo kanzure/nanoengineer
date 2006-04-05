@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 fileIO.py -- reading and writing miscellaneous file formats
 [see also files_mmp.py and files_pdb.py for those specific formats]

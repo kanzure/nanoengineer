@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 
 Some notes about when to change the mmp format version
 which is written into the mmpformat record, and about

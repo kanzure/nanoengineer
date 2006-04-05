@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Copyright (c) 2005 Nanorex, Inc. All rights reserved.
 
 '''
 this is just bruce's drag & drop example code -- it's not part of our product.

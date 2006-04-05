@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 ops_motion.py -- various ways of moving or spatially distorting
 selected atoms or chunks (and someday, attached jigs).

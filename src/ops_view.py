@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 ops_view.py provides viewSlotsMixin for MWsemantics,
 with view slot methods and related helper methods.

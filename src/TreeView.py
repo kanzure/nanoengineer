@@ -1,4 +1,4 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
 TreeView.py -- display and update, for a tree widget based on QListView,
 and meant to display Nodes (with interface and semantics as in Utility.py).

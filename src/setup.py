@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 '''
 setup.py
 

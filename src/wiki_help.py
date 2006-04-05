@@ -1,4 +1,4 @@
-# Copyright (c) 2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
 """
 wiki_help.py -- associate webpages (typically in a wiki) with program features,
 and provide access to them. Pages typically contain feature-specific help info,
