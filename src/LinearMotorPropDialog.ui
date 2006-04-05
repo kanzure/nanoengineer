@@ -1,5 +1,4 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<!-- Copyright (c) 2004-2005 Nanorex, Inc. All rights reserved. -->
 <class>LinearMotorPropDialog</class>
 <widget class="QDialog">
     <property name="name">
