@@ -1363,8 +1363,6 @@ class selectAtomsMode(selectMode):
         
     def __init__(self, glpane):
         selectMode.__init__(self, glpane)
-        self.hover_highlighting_enabled = env.prefs[selectAtomsModeHighlightingEnabled_prefs_key]
-            # Moved here as part of fix for bug 1620.  mark 060322
             
     def Enter(self): 
         basicMode.Enter(self)
