@@ -127,6 +127,23 @@
                                     </widget>
                                     <widget class="QCheckBox">
                                         <property name="name">
+                                            <cstring>display_compass_labels_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Display Compass Labels</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Show/Hide Display Compass</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>&lt;p&gt;&lt;b&gt;Display Compass&lt;/b&gt;&lt;/p&gt;Shows/Hides the Display Compass</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
                                             <cstring>display_origin_axis_checkbox</cstring>
                                         </property>
                                         <property name="text">
@@ -1503,6 +1520,9 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                         <property name="text">
                                             <string>Restore Default Colors</string>
                                         </property>
+                                        <property name="autoDefault">
+                                            <bool>false</bool>
+                                        </property>
                                     </widget>
                                 </hbox>
                             </widget>
@@ -1570,6 +1590,12 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                                 <property name="text">
                                                     <string>Choose...</string>
                                                 </property>
+                                                <property name="autoDefault">
+                                                    <bool>false</bool>
+                                                </property>
+                                                <property name="default">
+                                                    <bool>false</bool>
+                                                </property>
                                             </widget>
                                         </hbox>
                                     </widget>
@@ -1617,6 +1643,9 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                                 </property>
                                                 <property name="text">
                                                     <string>Choose...</string>
+                                                </property>
+                                                <property name="autoDefault">
+                                                    <bool>false</bool>
                                                 </property>
                                             </widget>
                                         </hbox>
@@ -1670,6 +1699,9 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                                 </property>
                                                 <property name="text">
                                                     <string>Choose...</string>
+                                                </property>
+                                                <property name="autoDefault">
+                                                    <bool>false</bool>
                                                 </property>
                                             </widget>
                                         </hbox>
@@ -1754,6 +1786,9 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                                 </property>
                                                 <property name="text">
                                                     <string>Choose...</string>
+                                                </property>
+                                                <property name="autoDefault">
+                                                    <bool>false</bool>
                                                 </property>
                                             </widget>
                                         </hbox>
@@ -2012,11 +2047,6 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                         </item>
                                         <item>
                                             <property name="text">
-                                                <string>Select Atoms</string>
-                                            </property>
-                                        </item>
-                                        <item>
-                                            <property name="text">
                                                 <string>Move Chunks</string>
                                             </property>
                                         </item>
@@ -2120,11 +2150,6 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                                         <item>
                                                             <property name="text">
                                                                 <string>Select Chunks</string>
-                                                            </property>
-                                                        </item>
-                                                        <item>
-                                                            <property name="text">
-                                                                <string>Select Atoms</string>
                                                             </property>
                                                         </item>
                                                         <item>
@@ -2343,6 +2368,9 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                                                                         <property name="text">
                                                                             <string>Choose...</string>
                                                                         </property>
+                                                                        <property name="autoDefault">
+                                                                            <bool>false</bool>
+                                                                        </property>
                                                                     </widget>
                                                                 </hbox>
                                                             </widget>
@@ -2356,6 +2384,9 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                                                 </property>
                                                 <property name="text">
                                                     <string>Restore Default Color</string>
+                                                </property>
+                                                <property name="autoDefault">
+                                                    <bool>false</bool>
                                                 </property>
                                             </widget>
                                             <spacer row="1" column="0">
@@ -2381,9 +2412,26 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                             </widget>
                         </grid>
                     </widget>
+                    <spacer row="0" column="2">
+                        <property name="name">
+                            <cstring>spacer8_4</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>16</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
                     <widget class="QLayoutWidget" row="0" column="1">
                         <property name="name">
-                            <cstring>layout67</cstring>
+                            <cstring>layout66</cstring>
                         </property>
                         <vbox>
                             <property name="name">
@@ -2537,7 +2585,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                             <cstring>buildmode_highlighting_checkbox</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Highligting</string>
+                                            <string>Highlighting</string>
                                         </property>
                                         <property name="toolTip" stdset="0">
                                             <string>Build mode's default setting for Highlighting at startup (enabled/disabled)</string>
@@ -2548,52 +2596,25 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     </widget>
                                 </grid>
                             </widget>
-                            <widget class="QGroupBox">
+                            <spacer>
                                 <property name="name">
-                                    <cstring>groupBox16</cstring>
+                                    <cstring>spacer58_3</cstring>
                                 </property>
-                                <property name="title">
-                                    <string>Select Atoms Mode Defaults</string>
+                                <property name="orientation">
+                                    <enum>Vertical</enum>
                                 </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QCheckBox" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>selatomsmode_highlighting_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Highligting</string>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Select Atoms mode's default setting for Highlighting at startup (enabled/disabled)</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Select Atoms mode's default setting for Highlighting at startup (enabled/disabled)</string>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>20</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
                         </vbox>
                     </widget>
-                    <spacer row="0" column="2">
-                        <property name="name">
-                            <cstring>spacer8_4</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>60</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
                 </grid>
             </widget>
             <widget class="QWidget">
@@ -2866,6 +2887,9 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                                         </property>
                                                         <property name="text">
                                                             <string>Choose...</string>
+                                                        </property>
+                                                        <property name="autoDefault">
+                                                            <bool>false</bool>
                                                         </property>
                                                     </widget>
                                                 </hbox>
@@ -3146,6 +3170,9 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                 </property>
                                 <property name="text">
                                     <string>Restore Defaults</string>
+                                </property>
+                                <property name="autoDefault">
+                                    <bool>false</bool>
                                 </property>
                             </widget>
                         </hbox>
@@ -3753,6 +3780,9 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                         <property name="text">
                                             <string>Choose...</string>
                                         </property>
+                                        <property name="autoDefault">
+                                            <bool>false</bool>
+                                        </property>
                                     </widget>
                                     <widget class="QPushButton" row="0" column="1">
                                         <property name="name">
@@ -3763,6 +3793,9 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                         </property>
                                         <property name="text">
                                             <string>Choose...</string>
+                                        </property>
+                                        <property name="autoDefault">
+                                            <bool>false</bool>
                                         </property>
                                     </widget>
                                 </grid>
@@ -4238,6 +4271,9 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                         <property name="text">
                                             <string>Save Current</string>
                                         </property>
+                                        <property name="autoDefault">
+                                            <bool>false</bool>
+                                        </property>
                                         <property name="toolTip" stdset="0">
                                             <string>Save current window position and size for next startup</string>
                                         </property>
@@ -4697,12 +4733,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>save_current_win_pos_and_size()</slot>
     </connection>
     <connection>
-        <sender>selatomsmode_highlighting_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_selatomsmode_highlighting()</slot>
-    </connection>
-    <connection>
         <sender>show_bond_labels_checkbox</sender>
         <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4852,7 +4882,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>change_bondpoint_hilite_color()</slot>
     <slot>change_level_of_detail()</slot>
     <slot>change_display_mode()</slot>
-    <slot>set_selatomsmode_highlighting()</slot>
     <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
     <slot>change_cpk_scale_factor()</slot>
     <slot>save_cpk_scale_factor()</slot>

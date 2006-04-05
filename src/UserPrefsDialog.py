@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Mon Mar 27 09:07:11 2006
+# Created: Wed Apr 5 00:33:21 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -67,6 +67,10 @@ class UserPrefsDialog(QDialog):
         self.display_compass_checkbox = QCheckBox(self.groupBox7_2,"display_compass_checkbox")
         self.display_compass_checkbox.setChecked(1)
         groupBox7_2Layout.addWidget(self.display_compass_checkbox)
+
+        self.display_compass_labels_checkbox = QCheckBox(self.groupBox7_2,"display_compass_labels_checkbox")
+        self.display_compass_labels_checkbox.setChecked(1)
+        groupBox7_2Layout.addWidget(self.display_compass_labels_checkbox)
 
         self.display_origin_axis_checkbox = QCheckBox(self.groupBox7_2,"display_origin_axis_checkbox")
         self.display_origin_axis_checkbox.setChecked(1)
@@ -454,6 +458,7 @@ class UserPrefsDialog(QDialog):
         layout25.addItem(spacer20)
 
         self.reset_bond_colors_btn = QPushButton(self.groupBox4,"reset_bond_colors_btn")
+        self.reset_bond_colors_btn.setAutoDefault(0)
         layout25.addWidget(self.reset_bond_colors_btn)
 
         groupBox4Layout.addMultiCellLayout(layout25,1,1,0,1)
@@ -476,6 +481,8 @@ class UserPrefsDialog(QDialog):
         layout37_2_2_2_2.addWidget(self.bond_stretch_color_frame)
 
         self.bond_stretch_color_btn = QPushButton(self.groupBox4,"bond_stretch_color_btn")
+        self.bond_stretch_color_btn.setAutoDefault(0)
+        self.bond_stretch_color_btn.setDefault(0)
         layout37_2_2_2_2.addWidget(self.bond_stretch_color_btn)
 
         layout79_2.addLayout(layout37_2_2_2_2,2,1)
@@ -491,6 +498,7 @@ class UserPrefsDialog(QDialog):
         layout37_2_2_2.addWidget(self.bond_hilite_color_frame)
 
         self.bond_hilite_color_btn = QPushButton(self.groupBox4,"bond_hilite_color_btn")
+        self.bond_hilite_color_btn.setAutoDefault(0)
         layout37_2_2_2.addWidget(self.bond_hilite_color_btn)
 
         layout79_2.addLayout(layout37_2_2_2,0,1)
@@ -510,6 +518,7 @@ class UserPrefsDialog(QDialog):
         layout37_2_2.addWidget(self.bond_cpk_color_frame)
 
         self.bond_cpk_color_btn = QPushButton(self.groupBox4,"bond_cpk_color_btn")
+        self.bond_cpk_color_btn.setAutoDefault(0)
         layout37_2_2.addWidget(self.bond_cpk_color_btn)
 
         layout79_2.addLayout(layout37_2_2,1,1)
@@ -537,6 +546,7 @@ class UserPrefsDialog(QDialog):
         layout37_2_2_2_2_3.addWidget(self.bond_vane_color_frame)
 
         self.bond_vane_color_btn = QPushButton(self.groupBox4,"bond_vane_color_btn")
+        self.bond_vane_color_btn.setAutoDefault(0)
         layout37_2_2_2_2_3.addWidget(self.bond_vane_color_btn)
 
         layout79_2.addLayout(layout37_2_2_2_2_3,3,1)
@@ -680,6 +690,7 @@ class UserPrefsDialog(QDialog):
         layout37.addWidget(self.bg1_color_frame)
 
         self.choose_bg1_color_btn = QPushButton(self.bg_groupbox,"choose_bg1_color_btn")
+        self.choose_bg1_color_btn.setAutoDefault(0)
         layout37.addWidget(self.choose_bg1_color_btn)
         layout67_2.addLayout(layout37)
         layout69_2.addLayout(layout67_2)
@@ -687,6 +698,7 @@ class UserPrefsDialog(QDialog):
         bg_groupboxLayout.addMultiCellLayout(layout69_2,0,0,0,1)
 
         self.restore_bgcolor_btn = QPushButton(self.bg_groupbox,"restore_bgcolor_btn")
+        self.restore_bgcolor_btn.setAutoDefault(0)
 
         bg_groupboxLayout.addWidget(self.restore_bgcolor_btn,1,1)
         spacer7_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -697,8 +709,10 @@ class UserPrefsDialog(QDialog):
         layout69.addWidget(self.mode_groupbox,1,0)
 
         TabPageLayout_3.addLayout(layout69,0,0)
+        spacer8_4 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TabPageLayout_3.addItem(spacer8_4,0,2)
 
-        layout67_3 = QVBoxLayout(None,0,6,"layout67_3")
+        layout66_2 = QVBoxLayout(None,0,6,"layout66_2")
 
         self.default_display_btngrp = QButtonGroup(self.TabPage_3,"default_display_btngrp")
         self.default_display_btngrp.setColumnLayout(0,Qt.Vertical)
@@ -726,7 +740,7 @@ class UserPrefsDialog(QDialog):
         self.default_display_btngrp.insert( self.tubes_rbtn,5)
 
         default_display_btngrpLayout.addWidget(self.tubes_rbtn,2,0)
-        layout67_3.addWidget(self.default_display_btngrp)
+        layout66_2.addWidget(self.default_display_btngrp)
 
         self.buildmode_groupbox = QGroupBox(self.TabPage_3,"buildmode_groupbox")
         self.buildmode_groupbox.setColumnLayout(0,Qt.Vertical)
@@ -750,23 +764,11 @@ class UserPrefsDialog(QDialog):
         self.buildmode_highlighting_checkbox = QCheckBox(self.buildmode_groupbox,"buildmode_highlighting_checkbox")
 
         buildmode_groupboxLayout.addMultiCellWidget(self.buildmode_highlighting_checkbox,1,1,0,1)
-        layout67_3.addWidget(self.buildmode_groupbox)
+        layout66_2.addWidget(self.buildmode_groupbox)
+        spacer58_3 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout66_2.addItem(spacer58_3)
 
-        self.groupBox16 = QGroupBox(self.TabPage_3,"groupBox16")
-        self.groupBox16.setColumnLayout(0,Qt.Vertical)
-        self.groupBox16.layout().setSpacing(6)
-        self.groupBox16.layout().setMargin(11)
-        groupBox16Layout = QGridLayout(self.groupBox16.layout())
-        groupBox16Layout.setAlignment(Qt.AlignTop)
-
-        self.selatomsmode_highlighting_checkbox = QCheckBox(self.groupBox16,"selatomsmode_highlighting_checkbox")
-
-        groupBox16Layout.addWidget(self.selatomsmode_highlighting_checkbox,0,0)
-        layout67_3.addWidget(self.groupBox16)
-
-        TabPageLayout_3.addLayout(layout67_3,0,1)
-        spacer8_4 = QSpacerItem(60,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TabPageLayout_3.addItem(spacer8_4,0,2)
+        TabPageLayout_3.addLayout(layout66_2,0,1)
         self.prefs_tab.insertTab(self.TabPage_3,QString.fromLatin1(""))
 
         self.TabPage_4 = QWidget(self.prefs_tab,"TabPage_4")
@@ -850,26 +852,27 @@ class UserPrefsDialog(QDialog):
         layout37_2_2_2_4.addWidget(self.light_color_frame)
 
         self.light_color_btn = QPushButton(self.groupBox8_2,"light_color_btn")
+        self.light_color_btn.setAutoDefault(0)
         layout37_2_2_2_4.addWidget(self.light_color_btn)
         layout82_2.addLayout(layout37_2_2_2_4)
         spacer50 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout82_2.addItem(spacer50)
         layout559.addLayout(layout82_2)
 
-        layout66_2 = QHBoxLayout(None,0,6,"layout66_2")
+        layout66_3 = QHBoxLayout(None,0,6,"layout66_3")
 
         self.light_ambient_linedit = QLineEdit(self.groupBox8_2,"light_ambient_linedit")
         self.light_ambient_linedit.setMaximumSize(QSize(40,32767))
         self.light_ambient_linedit.setReadOnly(1)
-        layout66_2.addWidget(self.light_ambient_linedit)
+        layout66_3.addWidget(self.light_ambient_linedit)
 
         self.light_ambient_slider = QSlider(self.groupBox8_2,"light_ambient_slider")
         self.light_ambient_slider.setMaxValue(100)
         self.light_ambient_slider.setOrientation(QSlider.Horizontal)
         self.light_ambient_slider.setTickmarks(QSlider.NoMarks)
         self.light_ambient_slider.setTickInterval(10)
-        layout66_2.addWidget(self.light_ambient_slider)
-        layout559.addLayout(layout66_2)
+        layout66_3.addWidget(self.light_ambient_slider)
+        layout559.addLayout(layout66_3)
 
         layout65_2 = QHBoxLayout(None,0,6,"layout65_2")
 
@@ -935,6 +938,7 @@ class UserPrefsDialog(QDialog):
         layout505.addItem(spacer57)
 
         self.lighting_restore_defaults_btn = QPushButton(self.TabPage_4,"lighting_restore_defaults_btn")
+        self.lighting_restore_defaults_btn.setAutoDefault(0)
         layout505.addWidget(self.lighting_restore_defaults_btn)
 
         TabPageLayout_4.addLayout(layout505,2,1)
@@ -1111,11 +1115,13 @@ class UserPrefsDialog(QDialog):
 
         self.nanohive_choose_btn = QPushButton(self.file_locations_grp,"nanohive_choose_btn")
         self.nanohive_choose_btn.setEnabled(0)
+        self.nanohive_choose_btn.setAutoDefault(0)
 
         layout80_2.addWidget(self.nanohive_choose_btn,1,1)
 
         self.gamess_choose_btn = QPushButton(self.file_locations_grp,"gamess_choose_btn")
         self.gamess_choose_btn.setEnabled(0)
+        self.gamess_choose_btn.setAutoDefault(0)
 
         layout80_2.addWidget(self.gamess_choose_btn,0,1)
 
@@ -1261,6 +1267,7 @@ class UserPrefsDialog(QDialog):
         groupBox10Layout.addMultiCellWidget(self.remember_win_pos_and_size_checkbox,0,0,0,1)
 
         self.save_current_btn = QPushButton(self.groupBox10,"save_current_btn")
+        self.save_current_btn.setAutoDefault(0)
 
         groupBox10Layout.addWidget(self.save_current_btn,1,0)
         spacer46 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -1346,7 +1353,6 @@ class UserPrefsDialog(QDialog):
         self.connect(self.reset_cpk_scale_factor_btn,SIGNAL("clicked()"),self.reset_cpk_scale_factor)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.save_current_btn,SIGNAL("clicked()"),self.save_current_win_pos_and_size)
-        self.connect(self.selatomsmode_highlighting_checkbox,SIGNAL("clicked()"),self.set_selatomsmode_highlighting)
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
@@ -1416,6 +1422,9 @@ class UserPrefsDialog(QDialog):
         self.display_compass_checkbox.setText(self.__tr("Display Compass"))
         QToolTip.add(self.display_compass_checkbox,self.__tr("Show/Hide Display Compass"))
         QWhatsThis.add(self.display_compass_checkbox,self.__tr("<p><b>Display Compass</b></p>Shows/Hides the Display Compass"))
+        self.display_compass_labels_checkbox.setText(self.__tr("Display Compass Labels"))
+        QToolTip.add(self.display_compass_labels_checkbox,self.__tr("Show/Hide Display Compass"))
+        QWhatsThis.add(self.display_compass_labels_checkbox,self.__tr("<p><b>Display Compass</b></p>Shows/Hides the Display Compass"))
         self.display_origin_axis_checkbox.setText(self.__tr("Display Origin Axis"))
         QToolTip.add(self.display_origin_axis_checkbox,self.__tr("Show/Hide Origin Axis"))
         QWhatsThis.add(self.display_origin_axis_checkbox,self.__tr("<p><b>Display Origin Axis</b></p>Shows/Hides the Origin Axis"))
@@ -1561,7 +1570,6 @@ class UserPrefsDialog(QDialog):
         QWhatsThis.add(self.default_mode_lbl,self.__tr("<p><b>Default Mode</b></p>This specifies which mode the user will be placed in when exiting any other mode."))
         self.default_mode_combox.clear()
         self.default_mode_combox.insertItem(self.__tr("Select Chunks"))
-        self.default_mode_combox.insertItem(self.__tr("Select Atoms"))
         self.default_mode_combox.insertItem(self.__tr("Move Chunks"))
         self.default_mode_combox.insertItem(self.__tr("Build"))
         QToolTip.add(self.default_mode_combox,self.__tr("Default Mode"))
@@ -1571,7 +1579,6 @@ class UserPrefsDialog(QDialog):
         self.display_mode_lbl.setText(self.__tr("Display Mode :"))
         self.mode_combox.clear()
         self.mode_combox.insertItem(self.__tr("Select Chunks"))
-        self.mode_combox.insertItem(self.__tr("Select Atoms"))
         self.mode_combox.insertItem(self.__tr("Move Chunks"))
         self.mode_combox.insertItem(self.__tr("Build"))
         self.mode_combox.insertItem(self.__tr("Cookie Cutter"))
@@ -1634,13 +1641,9 @@ class UserPrefsDialog(QDialog):
         QToolTip.add(self.buildmode_select_atoms_checkbox,self.__tr("Automatically select atoms when depositing"))
         QWhatsThis.add(self.buildmode_select_atoms_checkbox,self.__tr("<p><b>Select Atoms of Deposited Object</b></p>\n"
 "When depositing atoms, clipboard chunks or library parts, their atoms will automatically be selected."))
-        self.buildmode_highlighting_checkbox.setText(self.__tr("Highligting"))
+        self.buildmode_highlighting_checkbox.setText(self.__tr("Highlighting"))
         QToolTip.add(self.buildmode_highlighting_checkbox,self.__tr("Build mode's default setting for Highlighting at startup (enabled/disabled)"))
         QWhatsThis.add(self.buildmode_highlighting_checkbox,self.__tr("Build mode's default setting for Highlighting at startup (enabled/disabled)"))
-        self.groupBox16.setTitle(self.__tr("Select Atoms Mode Defaults"))
-        self.selatomsmode_highlighting_checkbox.setText(self.__tr("Highligting"))
-        QToolTip.add(self.selatomsmode_highlighting_checkbox,self.__tr("Select Atoms mode's default setting for Highlighting at startup (enabled/disabled)"))
-        QWhatsThis.add(self.selatomsmode_highlighting_checkbox,self.__tr("Select Atoms mode's default setting for Highlighting at startup (enabled/disabled)"))
         self.prefs_tab.changeTab(self.TabPage_3,self.__tr("Modes"))
         self.groupBox8_2.setTitle(self.__tr("Directional Light Properties"))
         self.light_label.setText(self.__tr("Light :"))
@@ -1907,9 +1910,6 @@ class UserPrefsDialog(QDialog):
 
     def change_display_mode(self):
         print "UserPrefsDialog.change_display_mode(): Not implemented yet"
-
-    def set_selatomsmode_highlighting(self):
-        print "UserPrefsDialog.set_selatomsmode_highlighting(): Not implemented yet"
 
     def set_buildmode_select_atoms_of_deposited_obj(self):
         print "UserPrefsDialog.set_buildmode_select_atoms_of_deposited_obj(): Not implemented yet"

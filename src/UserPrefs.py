@@ -28,11 +28,11 @@ debug_sliders = False # Do not commit as True
 
 
 # This list of mode names correspond to the names listed in the modes combo box.
-modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
+modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
 
 # List of Default Modes and Startup Modes.  Mark 050921.
 # [bruce 060403 guesses these need to correspond to certain combobox indices.]
-default_modes = ['SELECTMOLS', 'SELECTATOMS', 'MODIFY', 'DEPOSIT']
+default_modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT']
 startup_modes = ['$DEFAULT_MODE', 'DEPOSIT']
 
 def fix_modename_pref( modename, modename_list, modename_fallback = None): #bruce 060403
@@ -281,9 +281,6 @@ class UserPrefs(UserPrefsDialog):
         self.water_checkbox.setChecked(env.prefs[ buildModeWaterEnabled_prefs_key ])
         self.buildmode_highlighting_checkbox.setChecked(env.prefs[ buildModeHighlightingEnabled_prefs_key ])
         self.buildmode_select_atoms_checkbox.setChecked(env.prefs[ buildModeSelectAtomsOfDepositedObjEnabled_prefs_key ])
-        
-        # Select Atoms Mode Defaults.  mark 060203.
-        self.selatomsmode_highlighting_checkbox.setChecked(env.prefs[ selectAtomsModeHighlightingEnabled_prefs_key ])
         
 
 # Let's reorder all these _setup methods in order of appearance soon. Mark 051124.
@@ -928,12 +925,6 @@ class UserPrefs(UserPrefsDialog):
         their atoms selected.  When unchecked, deposited objects do not have their atoms selected.
         '''
         env.prefs[buildModeSelectAtomsOfDepositedObjEnabled_prefs_key] = self.buildmode_select_atoms_checkbox.isChecked()
-        
-    def set_selatomsmode_highlighting(self): # mark 060203
-        '''Set default setting for hover highlighting in Select Atoms mode. This only affects whether it is
-        enabled/disabled when starting the application and entering Select Atoms mode for the first time.
-        '''
-        env.prefs[selectAtomsModeHighlightingEnabled_prefs_key] = self.selatomsmode_highlighting_checkbox.isChecked()
         
     ########## End of slot methods for "Modes" page widgets ###########
     
