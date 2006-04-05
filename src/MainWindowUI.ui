@@ -128,7 +128,6 @@
     </item>
     <item text="&amp;Modes" name="Modes">
         <action name="toolsDepositAtomAction"/>
-        <action name="toolsSelectAtomsAction"/>
         <action name="toolsSelectMoleculesAction"/>
         <action name="toolsMoveMoleculeAction"/>
         <separator/>
@@ -455,7 +454,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1085</width>
+                <width>1087</width>
                 <height>29</height>
             </rect>
         </property>
@@ -876,7 +875,7 @@
                 <x>0</x>
                 <y>568</y>
                 <width>30</width>
-                <height>209</height>
+                <height>182</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -886,7 +885,6 @@
             <string>Modes</string>
         </property>
         <action name="toolsDepositAtomAction"/>
-        <action name="toolsSelectAtomsAction"/>
         <action name="toolsSelectMoleculesAction"/>
         <action name="toolsMoveMoleculeAction"/>
         <separator/>
@@ -904,7 +902,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>777</y>
+                <y>750</y>
                 <width>30</width>
                 <height>95</height>
             </rect>

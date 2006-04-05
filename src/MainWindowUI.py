@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Apr 2 01:42:37 2006
+# Created: Wed Apr 5 00:06:04 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6347,7 +6347,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1085,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1087,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6479,10 +6479,9 @@ class MainWindow(QMainWindow):
         self.modesToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
         self.modesToolbar.setEnabled(1)
-        self.modesToolbar.setGeometry(QRect(0,568,30,209))
+        self.modesToolbar.setGeometry(QRect(0,568,30,182))
         self.modesToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.toolsDepositAtomAction.addTo(self.modesToolbar)
-        self.toolsSelectAtomsAction.addTo(self.modesToolbar)
         self.toolsSelectMoleculesAction.addTo(self.modesToolbar)
         self.toolsMoveMoleculeAction.addTo(self.modesToolbar)
         self.modesToolbar.addSeparator()
@@ -6492,7 +6491,7 @@ class MainWindow(QMainWindow):
         self.simToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
         self.simToolbar.setEnabled(1)
-        self.simToolbar.setGeometry(QRect(0,777,30,95))
+        self.simToolbar.setGeometry(QRect(0,750,30,95))
         self.simToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.simSetupAction.addTo(self.simToolbar)
         self.simNanoHiveAction.addTo(self.simToolbar)
@@ -6593,7 +6592,6 @@ class MainWindow(QMainWindow):
 
         self.Modes = QPopupMenu(self)
         self.toolsDepositAtomAction.addTo(self.Modes)
-        self.toolsSelectAtomsAction.addTo(self.Modes)
         self.toolsSelectMoleculesAction.addTo(self.Modes)
         self.toolsMoveMoleculeAction.addTo(self.Modes)
         self.Modes.insertSeparator()
