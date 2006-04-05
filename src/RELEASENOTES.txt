@@ -2,7 +2,97 @@
 Release Notes for nanoENGINEER-1 v0.0.6 (Alpha 6)
 
 
-What's new in nanoENGINEER-1 v0.0.6 (8/17/2005):
+What's new in nanoENGINEER-1 v0.0.7 (8/17/2005):
+
+
+# Undo/Redo 
+
+
+# Build Mode Enhancements:
+  -Build mode is the new default startup mode 
+  -Select Atoms mode merged in Build mode
+  -  
+  -
+  -
+  - Jigs can be highlighted in the 3D workspace
+  - Highlighting 
+  - 'Water' in Build can be turned ON or OFF 
+  - Library tab in the MMKit
+ 
+
+# Improved Graphics and GUI
+  -
+  -
+
+# Watch minimize and simulation in real time 
+
+
+# Nanotube Generator (Insert > Nanotube) 
+  - Single Walled Carbon Nanotube Generator
+
+  
+# View
+  - Animate Between Views
+  - Set View Normal To
+  - Set View Parallel To
+  - Rotate View 180 (degrees)
+  - Rotate View +90 (degrees)
+  - Rotate View -90 (degrees)
+  - Save Named View (saves a custom view)
+
+
+#  Web based help ('wiki help') 
+
+# Local Minimize (context menu option)
+
+
+# Jigs
+  - Measure Distance
+  - Measure Angle 
+  - Measure Dihedral
+  - ESP Image
+
+
+#. Plugins 
+  - New NanoHive ESP image plugin for Windows
+
+
+# Fuse Mode
+  - Fuse Atoms option
+
+#Movie Player Mode
+  - 'Loop' the movie 
+  
+
+# Molecular Dynamics Simulator:
+ 
+
+# New Preferences (Edit > Preferences):
+  -
+  -
+  -
+  -
+  -
+  -
+
+# Several new context menu items.
+  - 
+
+# Model Tree:
+  - New model tree context menu item 
+
+# Other Useful Features
+  - Expand Selection
+  - Contract Selection
+  - Center on Common Axis
+  - Invert
+  - 'Merge' operation extended for atom selection 
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+What was new in nanoENGINEER-1 v0.0.6 (8/17/2005):
 
 1. Atomic hybridization and higher order bond types:
   - Support for the following atomic hybrid orbitals:
@@ -124,6 +214,7 @@ fix for Alpha 7.
   - Now aligns selected chunks to the first selected chunk's axis (instead
     of the average axis of all selected chunks)
 
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 What was new in nanoENGINEER-1 v0.0.5 (5/2/2005):
