@@ -4343,12 +4343,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>change_atom_hilite_color()</slot>
     </connection>
     <connection>
-        <sender>autobond_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_buildmode_autobond()</slot>
-    </connection>
-    <connection>
         <sender>bond_cpk_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4383,18 +4377,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_bondpoint_hilite_color()</slot>
-    </connection>
-    <connection>
-        <sender>buildmode_highlighting_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_buildmode_highlighting()</slot>
-    </connection>
-    <connection>
-        <sender>buildmode_select_atoms_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
     </connection>
     <connection>
         <sender>caption_fullpath_checkbox</sender>
@@ -4473,18 +4455,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <signal>activated(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_display_mode()</slot>
-    </connection>
-    <connection>
-        <sender>display_origin_axis_checkbox</sender>
-        <signal>stateChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>display_origin_axis()</slot>
-    </connection>
-    <connection>
-        <sender>display_pov_axis_checkbox</sender>
-        <signal>stateChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>display_pov_axis()</slot>
     </connection>
     <connection>
         <sender>fill_type_combox</sender>
@@ -4751,12 +4721,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>change_startup_mode()</slot>
     </connection>
     <connection>
-        <sender>water_checkbox</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_buildmode_water()</slot>
-    </connection>
-    <connection>
         <sender>undo_stack_memory_limit_spinbox</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4822,8 +4786,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
 </tabstops>
 <slots>
     <slot>display_compass()</slot>
-    <slot>display_origin_axis()</slot>
-    <slot>display_pov_axis()</slot>
     <slot>set_compass_position()</slot>
     <slot>set_gamess_path()</slot>
     <slot>setup_current_page()</slot>
@@ -4875,14 +4837,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>change_remember_win_pos_and_size()</slot>
     <slot>save_current_win_pos_and_size()</slot>
     <slot>change_view_animation_speed()</slot>
-    <slot>set_buildmode_autobond()</slot>
-    <slot>set_buildmode_water()</slot>
-    <slot>set_buildmode_highlighting()</slot>
     <slot>change_element_colors()</slot>
     <slot>change_bondpoint_hilite_color()</slot>
     <slot>change_level_of_detail()</slot>
     <slot>change_display_mode()</slot>
-    <slot>set_buildmode_select_atoms_of_deposited_obj()</slot>
     <slot>change_cpk_scale_factor()</slot>
     <slot>save_cpk_scale_factor()</slot>
     <slot>reset_cpk_scale_factor()</slot>

@@ -268,10 +268,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # Default values are set in "prefs_table" in prefs_constants.py.
         # Mark 050919.
         
-        self.displayCompass = env.prefs[displayCompass_prefs_key]
         self.compassPosition = env.prefs[compassPosition_prefs_key]
-        self.displayOriginAxis = env.prefs[displayOriginAxis_prefs_key]
-        self.displayPOVAxis = env.prefs[displayPOVAxis_prefs_key]
         self.ortho = env.prefs[defaultProjection_prefs_key]
         # This updates the checkmark in the View menu. Fixes bug #996 Mark 050925.
         self.setViewProjection(self.ortho) 
@@ -1946,7 +1943,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             pass # if it happens at all, it'll happen too often to bother users with an error message
         
         # draw coordinate-orientation arrows at upper right corner of glpane
-        if self.displayCompass:
+        if env.prefs[displayCompass_prefs_key]:
             self.drawcompass(aspect) #bruce 050608 moved this here, and rewrote it to behave then
 
         glMatrixMode(GL_MODELVIEW) #bruce 050707 precaution in case drawing code outside of paintGL forgets to do this
@@ -2237,8 +2234,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         ##Adding "X, Y, Z" text labels for Axis. By test, the following code will get
         # segmentation fault on Mandrake Linux 10.0 with libqt3-3.2.3-17mdk
         # or other 3.2.* versions, but works with libqt3-3.3.3-26mdk. Huaicai 1/15/05
-           
-        if True:###sys.platform in ['darwin', 'win32']:
+
+        if env.prefs[displayCompassLabels_prefs_key]: ###sys.platform in ['darwin', 'win32']:
                 glDisable(GL_LIGHTING)
                 glDisable(GL_DEPTH_TEST)
                 ## glPushMatrix()

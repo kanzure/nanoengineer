@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Apr 5 00:33:21 2006
+# Created: Wed Apr 5 01:59:38 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1288,15 +1288,12 @@ class UserPrefsDialog(QDialog):
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
-        self.connect(self.autobond_checkbox,SIGNAL("clicked()"),self.set_buildmode_autobond)
         self.connect(self.bond_cpk_color_btn,SIGNAL("clicked()"),self.change_bond_cpk_color)
         self.connect(self.bond_hilite_color_btn,SIGNAL("clicked()"),self.change_bond_hilite_color)
         self.connect(self.bond_line_thickness_spinbox,SIGNAL("valueChanged(int)"),self.change_bond_line_thickness)
         self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
         self.connect(self.bond_vane_color_btn,SIGNAL("clicked()"),self.change_bond_vane_color)
         self.connect(self.bondpoint_hilite_color_btn,SIGNAL("clicked()"),self.change_bondpoint_hilite_color)
-        self.connect(self.buildmode_highlighting_checkbox,SIGNAL("clicked()"),self.set_buildmode_highlighting)
-        self.connect(self.buildmode_select_atoms_checkbox,SIGNAL("clicked()"),self.set_buildmode_select_atoms_of_deposited_obj)
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
@@ -1310,8 +1307,6 @@ class UserPrefsDialog(QDialog):
         self.connect(self.default_projection_btngrp,SIGNAL("clicked(int)"),self.set_default_projection)
         self.connect(self.display_compass_checkbox,SIGNAL("stateChanged(int)"),self.display_compass)
         self.connect(self.display_mode_combox,SIGNAL("activated(int)"),self.change_display_mode)
-        self.connect(self.display_origin_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_origin_axis)
-        self.connect(self.display_pov_axis_checkbox,SIGNAL("stateChanged(int)"),self.display_pov_axis)
         self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.fill_type_changed)
         self.connect(self.gamess_checkbox,SIGNAL("toggled(bool)"),self.enable_gamess)
         self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
@@ -1356,7 +1351,6 @@ class UserPrefsDialog(QDialog):
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
-        self.connect(self.water_checkbox,SIGNAL("clicked()"),self.set_buildmode_water)
         self.connect(self.undo_stack_memory_limit_spinbox,SIGNAL("valueChanged(int)"),self.change_undo_stack_memory_limit)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
@@ -1731,12 +1725,6 @@ class UserPrefsDialog(QDialog):
     def display_compass(self):
         print "UserPrefsDialog.display_compass(): Not implemented yet"
 
-    def display_origin_axis(self):
-        print "UserPrefsDialog.display_origin_axis(): Not implemented yet"
-
-    def display_pov_axis(self):
-        print "UserPrefsDialog.display_pov_axis(): Not implemented yet"
-
     def set_compass_position(self):
         print "UserPrefsDialog.set_compass_position(): Not implemented yet"
 
@@ -1890,15 +1878,6 @@ class UserPrefsDialog(QDialog):
     def change_view_animation_speed(self):
         print "UserPrefsDialog.change_view_animation_speed(): Not implemented yet"
 
-    def set_buildmode_autobond(self):
-        print "UserPrefsDialog.set_buildmode_autobond(): Not implemented yet"
-
-    def set_buildmode_water(self):
-        print "UserPrefsDialog.set_buildmode_water(): Not implemented yet"
-
-    def set_buildmode_highlighting(self):
-        print "UserPrefsDialog.set_buildmode_highlighting(): Not implemented yet"
-
     def change_element_colors(self):
         print "UserPrefsDialog.change_element_colors(): Not implemented yet"
 
@@ -1910,9 +1889,6 @@ class UserPrefsDialog(QDialog):
 
     def change_display_mode(self):
         print "UserPrefsDialog.change_display_mode(): Not implemented yet"
-
-    def set_buildmode_select_atoms_of_deposited_obj(self):
-        print "UserPrefsDialog.set_buildmode_select_atoms_of_deposited_obj(): Not implemented yet"
 
     def change_cpk_scale_factor(self):
         print "UserPrefsDialog.change_cpk_scale_factor(): Not implemented yet"

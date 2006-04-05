@@ -203,10 +203,11 @@ class UserPrefs(UserPrefsDialog):
     def _setup_general_page(self):
         ''' Setup widgets to initial (default or defined) values on the General page.
         '''
-        self.display_compass_checkbox.setChecked(self.glpane.displayCompass)
+        connect_checkbox_with_boolean_pref( self.display_compass_checkbox, displayCompass_prefs_key )
+        connect_checkbox_with_boolean_pref( self.display_compass_labels_checkbox, displayCompassLabels_prefs_key )
+        connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
+        connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_btngrp.setButton(self.glpane.compassPosition)
-        self.display_origin_axis_checkbox.setChecked(self.glpane.displayOriginAxis)
-        self.display_pov_axis_checkbox.setChecked(self.glpane.displayPOVAxis)
         self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
         connect_checkbox_with_boolean_pref( self.high_quality_graphics_checkbox, animateHighQualityGraphics_prefs_key )
         connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
@@ -277,10 +278,10 @@ class UserPrefs(UserPrefsDialog):
             #   while the dialog is shown.
         
         # Build Mode Defaults.  mark 060203.
-        self.autobond_checkbox.setChecked(env.prefs[ buildModeAutobondEnabled_prefs_key ])
-        self.water_checkbox.setChecked(env.prefs[ buildModeWaterEnabled_prefs_key ])
-        self.buildmode_highlighting_checkbox.setChecked(env.prefs[ buildModeHighlightingEnabled_prefs_key ])
-        self.buildmode_select_atoms_checkbox.setChecked(env.prefs[ buildModeSelectAtomsOfDepositedObjEnabled_prefs_key ])
+        connect_checkbox_with_boolean_pref( self.autobond_checkbox, buildModeAutobondEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.water_checkbox, buildModeWaterEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.buildmode_highlighting_checkbox, buildModeHighlightingEnabled_prefs_key )
+        connect_checkbox_with_boolean_pref( self.buildmode_select_atoms_checkbox, buildModeSelectAtomsOfDepositedObjEnabled_prefs_key )
         
 
 # Let's reorder all these _setup methods in order of appearance soon. Mark 051124.
@@ -487,16 +488,12 @@ class UserPrefs(UserPrefsDialog):
         connect_checkbox_with_boolean_pref( self.undo_automatic_checkpoints_checkbox, undoAutomaticCheckpoints_prefs_key )
         self.undo_stack_memory_limit_spinbox.setValue( env.prefs[undoStackMemoryLimit_prefs_key] )
         
-        
         #& History height widgets have been removed for A7, to be reinstituted at a later time, probably A8. mark 060314.
         #& self.history_height_lbl.hide()
         #& self.history_height_spinbox.hide()
         
         ## self.history_height_spinbox.setValue(self.history.history_height) #bruce 050810 removed this
         
-        #bruce 050810 revised the following; nothing else about those checkboxes or prefs_keys is needed.
-##        self.msg_serial_number_checkbox.setChecked(env.prefs[historyMsgSerialNumber_prefs_key])
-##        self.msg_timestamp_checkbox.setChecked(env.prefs[historyMsgTimestamp_prefs_key])
         connect_checkbox_with_boolean_pref( self.msg_serial_number_checkbox, historyMsgSerialNumber_prefs_key )
         connect_checkbox_with_boolean_pref( self.msg_timestamp_checkbox, historyMsgTimestamp_prefs_key )
         return
@@ -539,32 +536,10 @@ class UserPrefs(UserPrefsDialog):
     ########## Slot methods for "General" page widgets ################   
 
     def display_compass(self, val):
-        '''Display or Hide the Compass
+        '''Slot for the Display Compass checkbox, which enables/disables the Display Compass Labels checkbox.
         '''
-        # set the pref
-        env.prefs[displayCompass_prefs_key] = val
-        # update the glpane
-        self.glpane.displayCompass = val
-        self.glpane.gl_update()
+        self.display_compass_labels_checkbox.setEnabled(val)
         
-    def display_origin_axis(self, val):
-        '''Display or Hide Origin Axis
-        '''
-        # set the pref
-        env.prefs[displayOriginAxis_prefs_key] = val
-        # update the glpane
-        self.glpane.displayOriginAxis = val
-        self.glpane.gl_update()
-        
-    def display_pov_axis(self, val):
-        '''Display or Hide Point of View Axis
-        '''
-        # set the pref
-        env.prefs[displayPOVAxis_prefs_key] = val
-        # update the glpane
-        self.glpane.displayPOVAxis = val
-        self.glpane.gl_update()
-
     def set_compass_position(self, val):
         '''Set position of compass, where <val> is:
             0 = upper right
@@ -901,30 +876,6 @@ class UserPrefs(UserPrefsDialog):
         if self.currentItem_mode == self.glpane.mode:
             self.glpane.setDisplay(val, True)
             self.glpane.gl_update()
-
-    def set_buildmode_autobond(self): # mark 060203
-        '''Autobond default setting for Build mode. This only affects whether it is enabled/disabled 
-        when starting the application and entering Build mode for the first time.
-        '''
-        env.prefs[buildModeAutobondEnabled_prefs_key] = self.autobond_checkbox.isChecked()
-            
-    def set_buildmode_water(self): # mark 060203
-        '''Water default setting for Build mode. This only affects whether it is enabled/disabled 
-        when starting the application and entering Build mode for the first time.
-        '''
-        env.prefs[buildModeWaterEnabled_prefs_key] = self.water_checkbox.isChecked()
-        
-    def set_buildmode_highlighting(self): # mark 060203
-        '''Set default setting for hover highlighting in Build mode. This only affects whether it is 
-        enabled/disabled when starting the application and entering Build mode for the first time.
-        '''
-        env.prefs[buildModeHighlightingEnabled_prefs_key] = self.buildmode_highlighting_checkbox.isChecked()
-        
-    def set_buildmode_select_atoms_of_deposited_obj(self): # mark 060203
-        '''Slot for 'Select Atoms of Deposited Object' checkbox. When checked (default), deposited objects have
-        their atoms selected.  When unchecked, deposited objects do not have their atoms selected.
-        '''
-        env.prefs[buildModeSelectAtomsOfDepositedObjEnabled_prefs_key] = self.buildmode_select_atoms_checkbox.isChecked()
         
     ########## End of slot methods for "Modes" page widgets ###########
     

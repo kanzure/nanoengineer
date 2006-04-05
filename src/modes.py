@@ -850,16 +850,16 @@ class basicMode(anyMode):
         """
         
         # Draw the Origin axis.
-        if self.o.displayOriginAxis: 
+        if env.prefs[displayOriginAxis_prefs_key]:
             drawer.drawaxes(5, (0.0,0.0,0.0), coloraxes=True)
         
         # Draw the Point of View axis unless it is at the origin (0,0,0).
-        if self.o.displayPOVAxis:
+        if env.prefs[displayPOVAxis_prefs_key]:
             if vlen(self.o.pov):
                 drawer.drawaxes(5, -self.o.pov)
             else:
                 # POV is at the origin (0,0,0).  Draw it if the Origin axis is not drawn. Fixes bug 735.
-                if not self.o.displayOriginAxis:
+                if not env.prefs[displayOriginAxis_prefs_key]:
                     drawer.drawaxes(5, -self.o.pov)
             
         # bruce 040929/041103 debug code -- for developers who enable this
