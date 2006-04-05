@@ -1,16 +1,16 @@
 # Copyright (c) 2006 Nanorex, Inc. All rights reserved.
-Release Notes for nanoENGINEER-1 v0.0.6 (Alpha 6)
+Release Notes for nanoENGINEER-1 v0.0.7 (Alpha 7)
 
 
-What's new in nanoENGINEER-1 v0.0.7 (8/17/2005):
+What's new in nanoENGINEER-1 v0.0.7 ():
 
 
 # Undo/Redo 
 
 
 # Build Mode Enhancements:
-  -Build mode is the new default startup mode 
-  -Select Atoms mode merged in Build mode
+  - Build mode is the new default startup mode 
+  - Select Atoms mode merged into the Build mode
   -  
   -
   -
