@@ -1201,9 +1201,12 @@ class selectMode(basicMode):
             self.Menu_spec.append(( 'Minimize 1 layer', lambda e1=None,a=selatom: self.localmin(a,1) ))
             self.Menu_spec.append(( 'Minimize 2 layers', lambda e1=None,a=selatom: self.localmin(a,2) ))
             
-        # Jig specific menu items.
-        if selobj is not None and isinstance(selobj, Jig):
-            selobj.make_selobj_cmenu_items(self.Menu_spec)
+        # selobj-specific menu items. [revised by bruce 060405; for more info see the same code in depositMode]
+        if selobj is not None and hasattr(selobj, 'make_selobj_cmenu_items'):
+            try:
+                selobj.make_selobj_cmenu_items(self.Menu_spec)
+            except:
+                print_compact_traceback("bug: exception (ignored) in make_selobj_cmenu_items for %r: " % selobj)
         
         # separator and other mode menu items.
         if self.Menu_spec:

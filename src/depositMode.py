@@ -2053,9 +2053,18 @@ class depositMode(selectAtomsMode):
                     text = 'Add bondpoints' # this text is only used if it doesn't have enough
                 self.Menu_spec.append(( text, selatom.remake_singlets )) #e should finish and use remake_baggage (and baggageNeighbors)
         
-        # Jig specific menu items.  This is duplicated in selectMode.makeMenus().
-        if selobj is not None and isinstance(selobj, Jig):
-            selobj.make_selobj_cmenu_items(self.Menu_spec)
+        # selobj-specific menu items.  This is duplicated in selectMode.makeMenus().
+        # [bruce 060405 added try/except, and generalized this from Jig-specific to selobj-specific items,
+        #  by replacing isinstance(selobj, Jig) with hasattr(selobj, 'make_selobj_cmenu_items'),
+        #  so any kind of selobj can provide more menu items using this API.
+        #  Note that the only way selobj could customize its menu items to the calling mode
+        #  would be by assuming that was the current glpane.mode. Someday we might extend the API
+        #  to pass it glpane, so we can support multiple glpanes, each in a different mode. #e]
+        if selobj is not None and hasattr(selobj, 'make_selobj_cmenu_items'):
+            try:
+                selobj.make_selobj_cmenu_items(self.Menu_spec)
+            except:
+                print_compact_traceback("bug: exception (ignored) in make_selobj_cmenu_items for %r: " % selobj)
             
         # separator and other mode menu items.
         if self.Menu_spec:
