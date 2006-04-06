@@ -40,12 +40,15 @@ def do_what_MainWindowUI_should_do(w):
     
     w.moveXLabel = QLabel(" X ", w.moveChunksDashboard)
     w.moveXSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveXSpinBox")
+    w.moveXSpinBox.setSuffix(" A")
     QToolTip.add(w.moveXSpinBox,'Delta X (Angstroms)')
     w.moveYLabel = QLabel(" Y ", w.moveChunksDashboard)
     w.moveYSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveYSpinBox")
+    w.moveYSpinBox.setSuffix(" A")
     QToolTip.add(w.moveYSpinBox,'Delta Y (Angstroms)')
     w.moveZLabel = QLabel(" Z ", w.moveChunksDashboard)
     w.moveZSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveZSpinBox")
+    w.moveZSpinBox.setSuffix(" A")
     QToolTip.add(w.moveZSpinBox,'Delta Z (Angstroms)')
     w.moveThetaLabel = QLabel(" Theta ", w.moveChunksDashboard)
     w.moveThetaSpinBox = FloatSpinBox(w.moveChunksDashboard, "moveThetaSpinBox")
@@ -64,12 +67,18 @@ def do_what_MainWindowUI_should_do(w):
     w.toolsDoneAction.addTo(w.moveChunksDashboard)
 
 def set_move_xyz(win,x,y,z):
+    '''Set values of X, Y and Z in the dashboard.
+    '''
     self = win
     self.moveXSpinBox.setFloatValue(x)
     self.moveYSpinBox.setFloatValue(y)
     self.moveZSpinBox.setFloatValue(z)
 
-def get_move_xyz(win, Plus = 1):
+def get_move_xyz(win, Plus = True):
+    '''Returns X, Y and Z values in the dashboard based on Plus.
+    If Plus is True, returns x, y, z
+    If Plus is False, returns -x, -y, -z
+    '''
     self = win
     x = self.moveXSpinBox.floatValue()
     y = self.moveYSpinBox.floatValue()
@@ -517,7 +526,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
         
-        offset = get_move_xyz(self.w, 1)
+        offset = get_move_xyz(self.w)
         self.o.assy.movesel(offset)
         self.o.gl_update()
 
@@ -528,7 +537,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
             env.history.message(redmsg("No chunks or movable jigs selected."))
             return
         
-        offset = get_move_xyz(self.w, 0)
+        offset = get_move_xyz(self.w, Plus=False)
         self.o.assy.movesel(offset)
         self.o.gl_update()
 
@@ -549,7 +558,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
               bbox.merge(m.bbox)
         pt1 = bbox.center() # pt1 = center point for bbox of selected chunk(s).
        
-        pt2 = get_move_xyz(self.w, 1) # pt2 = X, Y, Z values from dashboard.
+        pt2 = get_move_xyz(self.w) # pt2 = X, Y, Z values from dashboard.
         offset = pt2 - pt1 # Compute offset for movesel.
         
         self.o.assy.movesel(offset) # Move the selected chunk(s)/jig(s).
