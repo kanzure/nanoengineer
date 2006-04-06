@@ -168,7 +168,7 @@ minimizeStructureGradient(struct configuration *p)
     //for (i=0; i<3*Part->num_atoms; i++) {
     //  p->gradient[i] = -p->gradient[i];
     //}
-    findRMSandMaxForce(p, &rms_force, &max_force);
+    findRMSandMaxForce(p, &rms_force, &max_force); BAIL();
 
     // The initial parameter guess function is empirically determined.
     // The regression tests were run with D_MINIMIZE_PARAMETER_GUESS
@@ -334,7 +334,7 @@ minimizeStructure(struct part *part)
     if (final != NULL) {
 	// wware 060109  python exception handling
 	evaluateGradient(final);
-	findRMSandMaxForce(final, &rms_force, &max_force);
+	findRMSandMaxForce(final, &rms_force, &max_force); BAIL();
 
 	writeMinimizeMovieFrame(OutputFile, part, 1, (struct xyz *)final->coordinate, rms_force, max_force,
 				Iteration, "final structure", minimizeStructureFunctions.message);
