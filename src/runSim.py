@@ -570,6 +570,15 @@ class SimRunner:
             # probably we'll let the later sim-start code set those itself.
             self._simopts = simopts
             self._simobj = simobj
+        # wware 060406 bug 1471 - don't need a real movie, just need to hold the sim parameters
+        # if the sim parameters change, they need to be updated here
+        class FakeMovie:
+            def __init__(self, realmovie):
+                self.totalFramesRequested = realmovie.totalFramesRequested
+                self.temp = realmovie.temp
+                self.stepsper = realmovie.stepsper
+                self.watch_motion = realmovie.watch_motion
+        self.assy.stickyParams = FakeMovie(movie)
         # return whatever results are appropriate -- for now, we stored each one in an attribute (above)
         return
         
@@ -1426,6 +1435,10 @@ class simSetup_CommandRun(CommandRun):
             # might be None; will be used only for default param values for new Movie
         ## bruce 050428 don't do this so it's not hidden from apply2movies and since i think it's no longer needed:
         ## self.assy.current_movie = None # (this is restored on error)
+
+        # wware 060406 bug 1471 - check for sticky parameters from previous sim run
+        if previous_movie == None and hasattr(self.assy, "stickyParams"):
+            previous_movie = self.assy.stickyParams
 
         self.movie = None
         r = self.makeSimMovie( previous_movie) # will store self.movie as the one it made, or leave it as None if cancelled
