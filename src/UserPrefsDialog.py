@@ -1,9 +1,8 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Apr 5 01:59:38 2006
+# Created: Thu Apr 6 17:50:28 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1203,9 +1202,9 @@ class UserPrefsDialog(QDialog):
 
         layout70.addMultiCellWidget(self.undo_restore_view_checkbox,0,0,0,2)
 
-        self.textLabel1_2 = QLabel(self.TabPage_6,"textLabel1_2")
+        self.undo_stack_memory_limit_label = QLabel(self.TabPage_6,"undo_stack_memory_limit_label")
 
-        layout70.addWidget(self.textLabel1_2,2,0)
+        layout70.addWidget(self.undo_stack_memory_limit_label,2,0)
 
         TabPageLayout_6.addLayout(layout70,0,0)
         self.prefs_tab.insertTab(self.TabPage_6,QString.fromLatin1(""))
@@ -1706,7 +1705,7 @@ class UserPrefsDialog(QDialog):
 "<p>When checked, the current view is stored along with each <b><i>structural change</i></b> on the undo stack.  The view is then restored when the user undoes a structural change.</p>\n"
 "<p><b><i>Structural changes</i></b> include any operation that modifies the model. Examples include adding, deleting or moving an atom, chunk or jig. </p>\n"
 "<p>Selection (picking/unpicking) and view changes are examples of operations that do not modify the model (i.e. are not structural changes).</p>"))
-        self.textLabel1_2.setText(self.__tr("Undo Stack Memory Limit :"))
+        self.undo_stack_memory_limit_label.setText(self.__tr("Undo Stack Memory Limit :"))
         self.prefs_tab.changeTab(self.TabPage_6,self.__tr("Undo"))
         self.groupBox3.setTitle(self.__tr("Window Caption Format"))
         QToolTip.add(self.groupBox3,self.__tr("Window Border Caption Format"))

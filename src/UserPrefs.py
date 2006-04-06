@@ -488,6 +488,10 @@ class UserPrefs(UserPrefsDialog):
         connect_checkbox_with_boolean_pref( self.undo_automatic_checkpoints_checkbox, undoAutomaticCheckpoints_prefs_key )
         self.undo_stack_memory_limit_spinbox.setValue( env.prefs[undoStackMemoryLimit_prefs_key] )
         
+        # Hiding Undo Stack Memory Limit label and spinbox until Bruce hooks up the spinbox. mark 060406
+        self.undo_stack_memory_limit_label.hide()
+        self.undo_stack_memory_limit_spinbox.hide()
+        
         #& History height widgets have been removed for A7, to be reinstituted at a later time, probably A8. mark 060314.
         #& self.history_height_lbl.hide()
         #& self.history_height_spinbox.hide()

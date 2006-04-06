@@ -4066,7 +4066,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </widget>
                             <widget class="QLabel" row="2" column="0">
                                 <property name="name">
-                                    <cstring>textLabel1_2</cstring>
+                                    <cstring>undo_stack_memory_limit_label</cstring>
                                 </property>
                                 <property name="text">
                                     <string>Undo Stack Memory Limit :</string>
