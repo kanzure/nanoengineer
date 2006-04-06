@@ -502,7 +502,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         If user cancels, or anything else means we should not actually close and exit,
         return False; otherwise return True.
         """
+        # wware 060406 bug 1263 - signal the simulator that we are exiting
+        from runSim import SimRunner
         if not self.assy.has_changed():
+            SimRunner.PREPARE_TO_CLOSE = True
             return True
         else:
             rc = QMessageBox.warning( self, self.name(),
@@ -518,10 +521,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 ##Huaicai 1/6/05: While in the "Save File" dialog, if user chooses
                 ## "Cancel", the "Exit" action should be ignored. bug 300
                 if isFileSaved:
+                    SimRunner.PREPARE_TO_CLOSE = True
                     return True
                 else:
                     return False
             elif rc == 1: # Discard
+                SimRunner.PREPARE_TO_CLOSE = True
                 return True
             else: # Cancel
                 return False

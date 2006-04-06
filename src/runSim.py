@@ -71,6 +71,11 @@ class SimRunner:
     # So for now, let's make the minimal class for running the sim, up to having finished files to look at
     # but not looking at them, then the old writemovie might call this class to do most of its work
     # but also call other classes to use the results.
+
+    # wware 060406 bug 1263 - provide a mechanism to be notified when the program is exiting
+    # This is set to True in ops_files.py. This is a class (not instance) variable which matters
+    # because ops_files.py can set this without a reference to the currently active SimRunner instance.
+    PREPARE_TO_CLOSE = False
     
     def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator"):
             # [bruce 051230 added use_dylib_sim; revised 060102; 060106 added cmdname]
@@ -860,7 +865,10 @@ class SimRunner:
                     env.history.statusbar_msg("Aborted")
                     if platform.atom_debug:
                         print "atom_debug: pyrex sim: aborted" ###@@@ remove this sometime
-                    if not abortbutton.aborting():
+                    if self.PREPARE_TO_CLOSE:
+                        # wware 060406 bug 1263 - exiting the program is an acceptable way to leave this loop
+                        self.errcode = -1
+                    elif not abortbutton.aborting():
                         print "error: abort without abortbutton doing it (did a subtask intervene and finish it?)"
                         print " (or this can happen due to sim bug in which callback exceptions turn into RuntimeErrors)"####@@@@
                         from StatusBar import ABORTING #bruce 060111 9:16am PST bugfix of unreported bug
@@ -914,6 +922,10 @@ class SimRunner:
         ## print "f",
         # This happened 3550 times for minimizing a small C3 sp3 hydrocarbon... better check the time first.
         #e Maybe we should make this into a lambda, or even code it in C, to optimize it. First make it work.
+        from sim import SimulatorInterrupted
+        if self.PREPARE_TO_CLOSE:
+            # wware 060406 bug 1263 - if exiting the program, interrupt the simulator
+            raise SimulatorInterrupted
         import time
         now = time.time() # should we use real time like this, or cpu time like .clock()??
         self.__frame_number += 1

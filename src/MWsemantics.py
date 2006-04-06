@@ -376,6 +376,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         try:
             env.history.message(greenmsg("Exiting program."))
             ## this seems to take too long, and is probably not needed: self.__clear()
+            self.deleteMMKit()  # wware 060406 bug 1263 - don't leave MMKit open after exiting program
             self.assy.deinit()
                 # in particular, stop trying to update Undo/Redo actions all the time
                 # (which might cause crashes once their associated widgets are deallocated)
@@ -1240,6 +1241,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         '''
         global MMKitWin
         if MMKitWin:
+            MMKitWin.close()  # wware 060406 bug 1263 - don't leave MMKit open after exiting program
             MMKitWin = None
             self.depositState = 'Atoms' # reset so next time MMKit is created it will open to Atoms page
 
