@@ -576,7 +576,8 @@ class SimRunner:
             self._simopts = simopts
             self._simobj = simobj
         # wware 060406 bug 1471 - don't need a real movie, just need to hold the sim parameters
-        # if the sim parameters change, they need to be updated here
+        # if the sim parameters change, they need to be updated here. Updates also needed toward
+        # the end of Movie.__init__ (movie.py) and in SimSetup.setup (SimSetup.py)
         class FakeMovie:
             def __init__(self, realmovie):
                 self.totalFramesRequested = realmovie.totalFramesRequested
@@ -1449,7 +1450,7 @@ class simSetup_CommandRun(CommandRun):
         ## self.assy.current_movie = None # (this is restored on error)
 
         # wware 060406 bug 1471 - check for sticky parameters from previous sim run
-        if previous_movie == None and hasattr(self.assy, "stickyParams"):
+        if previous_movie is None and hasattr(self.assy, "stickyParams"):
             previous_movie = self.assy.stickyParams
 
         self.movie = None
