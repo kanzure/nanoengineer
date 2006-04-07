@@ -33,7 +33,7 @@ cos # x # cos(x)
 tan # x # tan(x)
 
 
-print # x # # printf("%g ", x);
-println # x # # printf("%g\n", x);
+print # x # # printf("%.12f ", x);
+println # x # # printf("%.12f\n", x);
 newline # # # printf("\n");
 ouch # # # PyErr_SetString(IguanaError, "ouch"); return EVILRETURN;

@@ -29,7 +29,7 @@
 static unsigned int xrand, yrand, zrand;	/* steal from whrandom.py */
 static iguana_thread_object root_thread;	/* never actually runs code, just the anchor
 						 * for a doubly-linked list */
-static int clock_noise_flag, task_switch_enable = 1;
+static int task_switch_enable = 1;
 PyObject *IguanaError;
 static void igthread_dealloc (iguana_thread_object * thr);
 static PyObject *igthread_getattr (iguana_thread_object * a, char *name);
@@ -458,15 +458,6 @@ igthread_setattr (iguana_thread_object * self, char *name, PyObject * v)
 /**************************************************************/
 
 static PyObject *
-ig_clock_noise (PyObject * self, PyObject * args)
-{
-    if (!PyArg_ParseTuple (args, "i", &clock_noise_flag))
-	return NULL;
-    Py_INCREF (Py_None);
-    return Py_None;
-}
-
-static PyObject *
 ig_active_threads (PyObject * self, PyObject * args)
 {
     long n;
@@ -490,49 +481,46 @@ ig_threads_step (PyObject * self, PyObject * args)
 	if (root_thread.next == &root_thread)
 	    break;
 	P = root_thread.next;
-	while (P != &root_thread)
-	    if (!clock_noise_flag || (my_rand () > 0.1)) {
-		int pc;
-		PyObject *pi;
-		igverbfunc func;
-		pc = P->program_counter;
-		if (pc >= PyList_Size (P->program)) {
-		    PyErr_SetString (IguanaError, "program ran off the end");
-		    goto handle_error;
-		}
-		pi = PyList_GetItem (P->program, pc);
-		if (!PyInt_Check (pi)) {
-		    char errstr[200];
-		    sprintf (errstr,
-			     "non-int iguana verb at position %d", pc);
-		    PyErr_SetString (IguanaError, errstr);
-		    goto handle_error;
-		}
-		func = (igverbfunc) PyInt_AsLong (pi);
-		if (func == igverb_exit && P->rspointer == 0) {
-		    /* this thread has finished its job */
-		    Q = P->next;
-		    R = P->prev;
-		    R->next = Q;
-		    Q->prev = R;
-		    P->next = P->prev = NULL;
-		    Py_DECREF (P);
-		    P = Q;
-		    task_switch_enable = 1;
-		} else {
-		    pc = (*func) (P, pc + 1);
-		    if (pc < 0)
-			goto handle_error;
-		    P->program_counter = pc;
-		}
-		if (task_switch_enable)
-		    P = P->next;
+	while (P != &root_thread) {
+	    int pc;
+	    PyObject *pi;
+	    igverbfunc func;
+	    //printf("Now serving thread %p\n", P);
+	    pc = P->program_counter;
+	    if (pc >= PyList_Size (P->program)) {
+		PyErr_SetString (IguanaError, "program ran off the end");
+		return NULL;
 	    }
+	    pi = PyList_GetItem (P->program, pc);
+	    if (!PyInt_Check (pi)) {
+		char errstr[200];
+		sprintf (errstr,
+			 "non-int iguana verb at position %d", pc);
+		PyErr_SetString (IguanaError, errstr);
+		return NULL;
+	    }
+	    func = (igverbfunc) PyInt_AsLong (pi);
+	    if (func == igverb_exit && P->rspointer == 0) {
+		/* this thread has finished its job */
+		Q = P->next;
+		R = P->prev;
+		R->next = Q;
+		Q->prev = R;
+		P->next = P->prev = NULL;
+		Py_DECREF (P);
+		P = Q;
+		task_switch_enable = 1;
+	    } else {
+		pc = (*func) (P, pc + 1);
+		if (pc < 0) return NULL;
+		P->program_counter = pc;
+	    }
+	    if (task_switch_enable)
+		P = P->next;
+	}
     }
     Py_INCREF (Py_None);
     return Py_None;
-  handle_error:
-    return NULL;
 }
 
 /* List of methods defined in the module */
@@ -540,7 +528,6 @@ ig_threads_step (PyObject * self, PyObject * args)
 static struct PyMethodDef ighelp_methods[] = {
     {"thread", (PyCFunction) new_iguana_thread, 1},
     {"active_threads", (PyCFunction) ig_active_threads, 1},
-    {"clock_noise", (PyCFunction) ig_clock_noise, 1},
     {"step", (PyCFunction) ig_threads_step, 1},
     {NULL, NULL}
 };
@@ -562,17 +549,17 @@ initighelp ()
 {
     PyObject *m, *d;
     time_t T;
+    int i;
 
     /* initialize doubly-linked list of active threads */
     root_thread.next = root_thread.prev = &root_thread;
     /* set up a random number generator */
     time (&T);
     xrand = T & 255;
-    T >>= 8;
-    yrand = T & 255;
-    T >>= 8;
-    zrand = T & 255;
-    T >>= 8;
+    yrand = (T >> 8) & 255;
+    zrand = (T >> 16) & 255;
+    for (i = 0; i < 20; i++)
+	my_rand();
     /* Create the module and add the functions */
     m = Py_InitModule3 ("ighelp", ighelp_methods, ighelp_doc);
     /* Add some symbolic constants to the module */
