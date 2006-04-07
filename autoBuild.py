@@ -503,7 +503,12 @@ class NanoBuildMacOSX(NanoBuildBase):
         appname = self.appName + '.app'
         copytree('doc', os.path.join(self.buildSourcePath, appname, 'Contents/doc'))
         copytree('images', os.path.join(self.buildSourcePath, appname, 'Contents/images'))
-        copytree('partlib', os.path.join(self.buildSourcePath, appname, 'Contents/partlib'))
+        # Put the partlib outside the app bundle, where users can see its internal
+        # directories and files. Put a symbolic link to it from the normal
+        # location inside the bundle.
+        copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
+        system('(cd %s; ln -s ../../partlib .)' %
+               os.path.join(self.buildSourcePath, appname, 'Contents'))
         #
         #
         self.binPath = binPath = os.path.join(self.buildSourcePath, appname, 'Contents/bin')
@@ -798,10 +803,10 @@ def main():
     os.rmdir(cadDir)
     builder.build()
 
-    if sys.platform == 'linux2':
-        pass
-        #builder.clean(rootDir, cleanAll = True)
-    else:
+    # The clean() method chokes on the symbolic link that I needed to use for the partlib
+    # on the Mac. It was already broken on Linux, possibly for the same reason. So only
+    # do cleanup on Windows.
+    if sys.platform == "win32":
         builder.clean(rootDir)
 
     if os.path.isdir(rootDir) and not os.listdir(rootDir): os.rmdir(rootDir)
