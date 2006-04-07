@@ -67,7 +67,6 @@ new_iguana_thread (PyObject * self, PyObject * args)
     if (!PyArg_ParseTuple (args, "OO|i", &prog, &mem, &stack_size))
 	return NULL;
     if (mem == Py_None) {
-	Py_DECREF (Py_None);
 	mem = NULL;
     }
     if (mem != NULL && mem->ob_type->tp_as_sequence == NULL) {

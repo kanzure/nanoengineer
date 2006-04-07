@@ -14,9 +14,9 @@ bar:
 quux:
     ouch exit
 
+/* this requires we set up some data memory */
 tryloop:
     600 0 do
-        /* 0 @ println */
         i 0 +!
     loop
     exit
@@ -29,12 +29,7 @@ tryloop2:
     exit
 
 quickloop:
-    600 0 do
-        /* Do nothing in the loop. It turns out
-         * "@" and "!" are really pretty slow.
-         */
-    loop
-    exit
+    600 0 do loop exit
 """
 
 class IguanaTests(unittest.TestCase):
@@ -46,9 +41,20 @@ class IguanaTests(unittest.TestCase):
     def test_loop1(self):
         self.prog.compile("main: tryloop exit")
         mem = 3 * [ 0.0 ]
-        T = self.prog.thread("main", mem)
+        self.prog.thread("main", mem)
         self.prog.run()
         assert mem[0] == (600.0 * 599) / 2
+        assert mem[1] == 0.0
+        assert mem[2] == 0.0
+
+    # this is quite slow, because we're doing lots of "@" and "!" operations
+    def test_loop1_many_threads(self):
+        self.prog.compile("main: tryloop exit")
+        mem = 3 * [ 0.0 ]
+        for i in range(1000):
+            self.prog.thread("main", mem)
+        self.prog.run()
+        assert mem[0] == 1000 * (600.0 * 599) / 2
         assert mem[1] == 0.0
         assert mem[2] == 0.0
 
@@ -57,6 +63,15 @@ class IguanaTests(unittest.TestCase):
         T = self.prog.thread("main")
         self.prog.run()
         assert T.pop() == (600.0 * 599) / 2
+
+    def test_loop2_many_threads(self):
+        self.prog.compile("main: tryloop2 exit")
+        threads = [ ]
+        for i in range(1000):
+            threads.append(self.prog.thread("main"))
+        self.prog.run()
+        for i in range(1000):
+            assert threads[i].pop() == (600.0 * 599) / 2
 
     def test_quickloop(self):
         self.prog.compile("main: quickloop exit")
@@ -81,8 +96,6 @@ class IguanaTests(unittest.TestCase):
             T = self.prog.thread("foo")
             self.prog.run()
             print T.pop()
-
-    
 
 def test():
     suite = unittest.makeSuite(IguanaTests, 'test')

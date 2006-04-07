@@ -5,7 +5,7 @@ CFLAGS=-O3 -Wall -I/usr/include/python2.4
 all: ighelp.so
 
 clean:
-	rm -f *.o *.so core *~ ighelp2.* *.pyc
+	rm -f *.o *.so core* *~ ighelp2.* *.pyc
 
 ighelp.so: ighelp.o ighelp2.o
 	gcc -shared -o ighelp.so ighelp.o ighelp2.o
