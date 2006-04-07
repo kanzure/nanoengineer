@@ -1,3 +1,6 @@
+# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
+# $Id$
+
 CC=gcc
 #CFLAGS=-g -Wall -I/usr/include/python2.4
 CFLAGS=-O3 -Wall -I/usr/include/python2.4

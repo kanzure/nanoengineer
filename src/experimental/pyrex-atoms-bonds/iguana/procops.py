@@ -1,4 +1,6 @@
 #!/usr/bin/python
+# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
+# $Id$
 
 import string, os, sys, re
 

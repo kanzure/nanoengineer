@@ -1,3 +1,6 @@
+# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
+# $Id$
+
 import iguana
 import unittest
 

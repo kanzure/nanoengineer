@@ -1,3 +1,5 @@
+/* Copyright (c) 2006 Nanorex, Inc. All rights reserved. */
+
 #define RETURN_STACK_SIZE 100
 
 typedef union {

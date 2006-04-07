@@ -1,5 +1,6 @@
 /*
  * C code for the multithreaded Iguana virtual machine
+ * Copyright (c) 2006 Nanorex, Inc. All rights reserved.
  */
 
 #include "Python.h"
