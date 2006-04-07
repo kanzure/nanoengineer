@@ -16,6 +16,9 @@ ighelp2.c: ops.b procops.py
 ighelp2.o: ighelp2.c ighelp.h
 ighelp.o: ighelp.c ighelp.h
 
+test: ighelp.so
+	python iguanatest.py
+
 shar:
 	shar ighelp.c ighelp.h iguana.py Makefile \
 		ops.b procops.py > ../ig.shar
