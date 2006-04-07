@@ -1094,9 +1094,10 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
 
     # ==
 
-    def become_state(self, state, archive): #bruce 060117 kluge [will it still be needed?]
-        from undo_archive import assy_become_state
-        return assy_become_state(self, state, archive) # this subroutine will probably become a method of class assembly
+#bruce 060407 zapped this, and the code can be removed soon
+##    def become_state(self, state, archive): #bruce 060117 kluge [will it still be needed?]
+##        from undo_archive import assy_become_state
+##        return assy_become_state(self, state, archive) # this subroutine will probably become a method of class assembly
 
     def clear(self): #bruce 060117 kluge [will it still be needed?]
         from undo_archive import assy_clear

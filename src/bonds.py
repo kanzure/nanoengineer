@@ -355,6 +355,8 @@ class Bond( StateMixin):
     atom1 = atom2 = _valid_data = None # make sure these attrs always have values!
     _saved_geom = None
 
+    _s_attr_key = S_DATA #bruce 060405, not sure why this wasn't needed before (or if it will help now) ####@@@@
+
     # this is needed for repeated destroy [bruce 060322]
     glname = 0 
     
@@ -384,6 +386,27 @@ class Bond( StateMixin):
         self.invalidate_bonded_mols() #bruce 041109 new feature
         self.glname = env.alloc_my_glselect_name( self) #bruce 050610
 
+    def _undo_aliveQ(self, archive): #bruce 060405, rewritten 060406; see also new_Bond_oursQ in undo_archive.py
+        "[see docstring of Atom version]"
+        # there are two ways to reach a bond (one per atom), so return True if either one would reach it,
+        # but also report an error if one would and one would not.
+        a1 = self.atom1
+        a2 = self.atom2
+        atm = a1; res1 = atm is not None and archive.trackedobj_liveQ(atm) and self in atm.bonds
+        atm = a2; res2 = atm is not None and archive.trackedobj_liveQ(atm) and self in atm.bonds
+        if res1 != res2:
+            print "bug: Bond._undo_aliveQ gets different answer on each atom; relevant data:", res1, res2, self
+            return True # not sure if this or False would be safer; using True so we're covered if any live atom refers to us
+        return res1
+##        # I don't recall if a1 and a2 can ever be None, so be safe.
+##        # Warning: the following inlines Atom._undo_aliveQ for a1 and a2. [but does so wrongly as of 060406]
+##        # The requirement of being in a1.bonds and a2.bonds seems necessary (and might make the __killed checks redundant),
+##        # but could be removed by changing atom.unbond (and other methods??)
+##        # to change us appropriately (maybe this is already done, I didn't check).
+##        return a1 is not None and a2 is not None \
+##               and not a1._Atom__killed and not a2._Atom__killed \
+##               and self in a1.bonds and self in a2.bonds
+    
     def destroy(self): #bruce 060322 (not yet called) ###@@@
         """[see comments in Atom.destroy docstring]
         """
@@ -890,6 +913,8 @@ class Bond( StateMixin):
             # or an intentional use of the deprecated feature of two Bonds with same atoms comparing equal.
             # If it indeed never happens (or if it does and we fix that), then I'll remove or reimplement __eq__
             # to just return "self is ob". ####@@@@ [bruce 051018]
+            # [as of bruce 060406, i never saw this, but today's changes to undo could bring it on,
+            #  so i'll leave it in (msg and implem) for A7.]
             print_compact_stack( "possible bug: different bond objects equal: %r == %r: " % (self,ob) )
         else:
             if 0 and platform.atom_debug: #bruce 051216; disabled it since immediately found a call (using Build mode)

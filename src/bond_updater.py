@@ -62,7 +62,7 @@ def update_bonds_after_each_event( _changed_structure_atoms):
     bonds_to_fix = {}
     mols_changed = {} #bruce 060126, so atom._changed_structure() doesn't need to call atom.changed() directly
     
-    for atm in _changed_structure_atoms.itervalues():
+    for atm in _changed_structure_atoms.values(): #bruce 060405 precaution: itervalues -> values, due to jig.changed_structure calls
         #e ignore killed atoms -- though at the moment they don't even show up in this list (which is bad but tolerable)
         # for singlets, just look at their base atoms [as of 050707 just look at all bonds of all unkilled atoms]
         #e when info must be recorded for later, do this per-chunk or per-part.
@@ -170,7 +170,7 @@ def process_changed_bond_types( _changed_bond_types):
     """Tell whoever needs to know that some bond types changed.
     For now, that means only bond.pi_bond_obj objects on those very bonds.
     """
-    for bond in _changed_bond_types.itervalues():
+    for bond in _changed_bond_types.values(): #bruce 060405 precaution: itervalues -> values, due to calls of code we don't control here
         obj = bond.pi_bond_obj
         if obj is not None:
             obj.changed_bond_type(bond)

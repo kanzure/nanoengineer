@@ -71,7 +71,7 @@ class OneTimeSubsList: #bruce 050804
         del self._subs # (this would expose the class's definition of _subs, if there is one; presently there's not)
             # Does this make it illegal to subscribe to this object ever again? No!
             # It causes such a subs to be immediately fulfilled.
-        for sublis in subs.itervalues():
+        for sublis in subs.values(): #bruce 060405 precaution: itervalues -> values (didn't analyze whether needed)
             for sub1 in sublis:
                 # note: fulfilling at most one elt might be acceptable if we redefined API to permit that
                 # (since all elts are identical),
@@ -811,8 +811,6 @@ class changedict_processor: #bruce 060329 moved/modified from chem.py prototype 
     pass # end of class changedict_processor
 
 
-## _changedict_processors = {} # maps dictname -> processor? 
-
 _dictname_for_dictid = {} # maps id(dict) to its name; it's ok for multiple dicts to have the same name;
     # never cleared (memory leak is ok since it's small)
 
@@ -821,10 +819,9 @@ _cdproc_for_dictid = {} # maps id(dict) to its changedict_processor;
 
 def register_changedict( changedict, its_name, related_attrs ): #bruce 060329 not yet well defined what it should do ###@@@
     #e does it need to know the involved class?
-    if env.debug():
-        print "debug: fyi: register_changedict:", its_name, related_attrs
+##    if env.debug():
+##        print "debug: fyi: register_changedict:", its_name, related_attrs
     cdp = changedict_processor( changedict, its_name )
-## _changedict_processors[its_name] = cdp #e assert no overlap??
     yyy = related_attrs # not sure these should come from an arg at all, vs per-class decls... or if we even need them...
     #stub?
     dictid = id(changedict)

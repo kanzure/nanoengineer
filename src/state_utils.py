@@ -15,6 +15,8 @@ import env
 from debug import print_compact_stack
 import platform # for atom_debug [bruce 060315]
 
+debug_priorstate_kluge = True ####@@@@@ do not commit with true
+
 SAMEVALS_SPEEDUP = False    # Use the C extension
 
 if SAMEVALS_SPEEDUP:
@@ -148,8 +150,14 @@ def transclose( toscan, collector ):
     seen = dict(toscan)
     while toscan:
         found = {}
+        len1 = len(toscan)
         for obj in toscan.itervalues():
             collector(obj, found) #e might the collector also want to know the key??
+        len2 = len(toscan)
+        if len1 != len2:
+            # btw, if this happens when toscan is not the one passed in, it's still a bug.
+            print "bug: transclose's collector %r modified dict toscan (id %#x, length %d -> %d)" % \
+                  (collector, id(toscan), len1, len2)
         # now "subtract seen from found"
         new = {}
         for key, obj in found.iteritems():
@@ -236,9 +244,14 @@ def copy_dict(val):
     return res
 
 def scan_dict(dict1, func):
+    len1 = len(dict1) #060405 new code (#####@@@@@ needs to be done in C version too!)
     for elt in dict1.itervalues(): # func must not harm dict1
         ## func(elt)
         scan_val( elt, func) #bruce 060315 bugfix
+    len2 = len(dict1)
+    if len1 != len2:
+        print "bug: scan_dict's func %r modified dict %#x (len %d -> %d) during itervalues" % \
+              (func, id(dict1), len1, len2)
     return
 
 def _same_dict_helper(v1, v2):
@@ -297,7 +310,9 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
             # public list of attrcode, dflt pairs, for attrs with a default value (has actual value, not a copy);
             # attrcode will be distinct whenever dflt value differs (and maybe more often) [as of 060330]
         self.dict_of_all_state_attrcodes = {}
+        self.attrcodes_with_undo_setattr = {} #060404, maps the attrcodes to an arbitrary value (only the keys are currently used)
         self.categories = {} # (public) categories (e.g. 'selection', 'view') for attrs which declare them using _s_categorize_xxx
+        self.attrlayers = {} # (public) similar [060404]
         self.attrcode_defaultvals = {} # (public) #doc
             ##@@ use more, also know is_mutable about them, maybe more policy about del on copy
             # as of 060330 this is only used by commented-out code not yet adapted from attr to attrcode.
@@ -338,6 +353,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         for name in hmm:
             if name.startswith('_s_attr_'):
                 attr_its_about = name[len('_s_attr_'):]
+                setattr_name = '_undo_setattr_' + attr_its_about
                 declval = getattr(class1, name)
                 self.policies[attr_its_about] = declval #k for class1, not in general
                 if self.debug_all_attrs:
@@ -347,16 +363,30 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                 if declval in STATE_ATTR_DECLS:
                     # figure out if this attr has a known default value... in future we'll need decls to guide/override this
                     try:
+                        if 'kluge': # see if this fixes some bugs... 060405 1138p
+                            # for change-tracked classes, pretend there's no such thing as a default value,
+                            # since i suspect some logic bugs in the dual meaning of missing state entries as dflt or dontcare.
+                            if class1.__name__ in ('Atom','Bond'):
+                                class1.some_attr_im_pretty_sure_it_doesnt_have
                         dflt = getattr(class1, attr_its_about)
                     except AttributeError:
                         # assume no default value unless one is declared (which is nim)
                         acode = 0 ###stub, but will work initially; later will need info about whether class is diffscanned, in layer, etc
+                        if class1.__name__ in ('Atom','Bond'): ###@@@ kluge 060404, in two places
+                            acode = class1.__name__
                         attrcode = (attr_its_about, acode)
                         self.attrcodes_with_no_dflt.append(attrcode)
                     else:
-                        # attr has a default value
+                        # attr has a default value.
+                        # first, make sure it has no _undo_setattr_ method, since our code for those has a bug
+                        # in that reset_obj_attrs_to_defaults would need to exclude those attrs, but doesn't...
+                        # for more info see the comment near its call. [060404]
+                        assert not hasattr(class1, setattr_name), "bug: attr with class default can't have %s too" % setattr_name
+                            # this limitation could be removed when we need to, by fixing the code that calls reset_obj_attrs_to_defaults
                         acode = id(dflt) ###stub, but should eliminate issue of attrs with conflicting dflts in different classes
-                        assert attr_its_about != 'molecule' ####@@@@ KLUGE; explained in comment near call of reset_obj_attrs_to_defaults [bruce 060313]
+                            # (more principled would be to use the innermost class which changed the _s_decl in a way that matters)
+                        if class1.__name__ in ('Atom','Bond'): ###@@@ kluge 060404, in two places
+                            acode = class1.__name__ # it matters that this can't equal id(dflt) for this attr in some other class
                         attrcode = (attr_its_about, acode)
                         self.attrcode_dflt_pairs.append( (attrcode, dflt) )
                         self.attrcode_defaultvals[attrcode] = dflt
@@ -371,16 +401,25 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                             print "                                               dflt val for %r is %r" % (attrcode, dflt,)
                         pass
                     self.dict_of_all_state_attrcodes[ attrcode ] = None
+                    if hasattr(class1, setattr_name):
+                        self.attrcodes_with_undo_setattr[ attrcode ] = True
+                        # only True, not e.g. the unbound method, since classes with this can share attrcodes, so it's just a hint
                 pass
             elif name == '_s_deepcopy': # note: exact name, and doesn't end with '_'
                 self.warn = False # enough to be legitimate data
             elif name == '_s_scan_children':
                 pass ## probably not: self.warn = False
-            elif name.startswith('_s_categorize_'): #060227
+            elif name.startswith('_s_categorize_'):
+                #060227; #e should we rename it _s_category_ ?? do we still need it, now that we have _s_attrlayer_ ? (we do use it)
                 attr_its_about = name[len('_s_categorize_'):]
                 declval = getattr(class1, name)
                 assert type(declval) == type('category') # not essential, just to warn of errors in initial planned uses
                 self.categories[attr_its_about] = declval
+            elif name.startswith('_s_attrlayer_'): #060404
+                attr_its_about = name[len('_s_attrlayer_'):]
+                declval = getattr(class1, name)
+                assert type(declval) == type('attrlayer') # not essential, just to warn of errors in initial planned uses
+                self.attrlayers[attr_its_about] = declval
             else:
                 print "warning: unrecognized _s_ attribute ignored:", name ##e
         return
@@ -401,18 +440,17 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         "Copy val, a (PyObject pointer to an) instance of our class"
         return val
     
-##    def delve(self, val): #e rename -- more than one way to delve, probably
-##        "Delve into val, an instance of our class"
-##        #e grab our declared attrs in some order... maybe also look in val.__dict__... btw is val already registered with a key?
-##        # might need another arg which is the archive for that
-
-    def scan_children( self, obj1, func, deferred_category_collectors = {}):
+    def scan_children( self, obj1, func, deferred_category_collectors = {}, exclude_layers = ()):
         "[for #doc of deferred_category_collectors, see caller docstring]"
         try:
             # (we might as well test this on obj1 itself, since not a lot slower than memoizing the same test on its class)
             method = obj1._s_scan_children # bug: not yet passing deferred_category_collectors ###@@@ [not needed for A7, I think]
         except AttributeError:
             for attr in self.S_CHILDREN_attrs:
+                if self.exclude(attr, exclude_layers):
+##                    if env.debug():
+##                        print "debug: scan_children exclude_layers excludes",attr,"of",obj1
+                    continue
                 val = getattr(obj1, attr, None)
                 cat = self.categories.get(attr) #e need to optimize this (separate lists of attrs with each cat)?
                 # cat is usually None; following code works then too;
@@ -429,6 +467,10 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
         else:
             method(func)
         return
+
+    def exclude(self, attr, exclude_layers):
+        "Should you scan attr (of an obj of this clas), given these exclude_layers (perhaps ())?"
+        return self.attrlayers.get(attr) in exclude_layers # correct even though .get is often None
 
     pass # end of class InstanceClassification
 
@@ -833,7 +875,7 @@ else:
 # ==
 
 class objkey_allocator:
-    """Use one of these to allocate small int keys for objects you're willing to keep forever.
+    """Use one of these to allocate small int keys (guaranteed nonzero) for objects you're willing to keep forever.
     We provide public dict attrs with our tables, and useful methods for whether we saw an object yet, etc.
        Note: a main motivation for having these keys at all is speed and space when using them as dict keys in large dicts,
     compared to python id() values. Other motivations are their uniqueness, and possible use in out-of-session encodings,
@@ -870,9 +912,10 @@ class objkey_allocator:
             key = self._lastobjkey
             assert not self.obj4key.has_key(key) # different line number than identical assert above (intended)
         self.obj4key[key] = None # placeholder; nothing is yet stored into self._key4obj, since we don't know obj!
+        assert key, "keys are required to be true, whether or not allocated by caller; this one is false: %r" % (key,)
         return key
 
-    def key4obj(self, obj): # maybe not yet directly called; untested
+    def key4obj(self, obj): # maybe not yet directly called; untested; inlined by some code
         """What's the key for this object, if it has one? Return None if we didn't yet allocate one for it.
         Ok to call on objects for which allocating a key would be illegal (in fact, on any Python values, I think #k).
         """
@@ -914,10 +957,15 @@ class StateSnapshot:
     the same for all objects in one attrdict.
     """
     #e later we'll have one for whole state and one for differential state and decide if they're different classes, etc
-    def __init__(self, attrcodes = ()):
+    def __init__(self, attrcodes = (), debugname = ""):
+        self.debugname = debugname
         self.attrdicts = {} # maps attrcodes to their dicts; each dict maps objkeys to values; public attribute for efficiency(??)
         for attrcode in attrcodes:
             self.make_attrdict(attrcode)
+        if debug_priorstate_kluge:
+            import debug
+            self._init_stack = debug.compact_stack()
+        return
     #e methods to apply the data and to help grab the data? see also assy_become_scanned_state, SharedDiffopData (in undo_archive)
     #e future: methods to read and write the data, to diff it, etc, and state-decls to let it be compared...
     #e will __eq__ just be eq on our attrdicts? or should attrdict missing or {} be the same? guess: same.
@@ -935,8 +983,10 @@ class StateSnapshot:
             #  but its being over the keys rather than over the values is even worse. IMO.)
             res += len(d)
         return res
-    def __str__(self):
-        return "<%s at %#x, %d attrdicts, %d total values>" % (self.__class__.__name__, id(self), len(self.attrdicts), self.size())
+    def __repr__(self): #060405 changed this from __str__ to __repr__
+        extra = self.debugname and " (%s)" % self.debugname or ""
+        return "<%s at %#x%s, %d attrdicts, %d total values>" % \
+               (self.__class__.__name__, id(self), extra, len(self.attrdicts), self.size())
 ##    def print_value_stats(self): # debug function, not yet needed
 ##        for d in self.attrdicts:
 ##            # (attrname in more than one class is common, due to inheritance)
@@ -949,17 +999,27 @@ class StateSnapshot:
         return not (self == other)
     def val_diff_func_for(self, attrcode):
         attr, acode = attrcode
-        if attr == '_posnxxx': # kluge, should use an _s_decl; remove xxx when this should be tried out ####@@@@
+        if attr == '_posnxxx': # kluge, should use an _s_decl; remove xxx when this should be tried out ###@@@ [not used for A7]
             return val_diff_func_for__posn # stub for testing
         return None
-    def extract_layers(self, layernames):
-        if env.debug():
-            print "debug: extract_layers nim"
-        return StateSnapshot() #stub ####@@@@
-    def insert_layers(self, layerstuff):
-        if env.debug():
-            print "debug: insert_layers nim"
-        return #stub ####@@@@
+    def extract_layers(self, layernames): #060404 first implem
+        assert layernames == ('atoms',), "layernames can't be %r" % layernames #e generalize, someday
+        res = self.__class__()
+        for attrcode, attrdict in self.attrdicts.items():
+            attr, acode = attrcode
+            if acode in ('Atom','Bond'): ###@@@ kluge 060404; assume acode is class name... only true for these two classes!!
+                res.attrdicts[attrcode] = self.attrdicts.pop(attrcode)
+##        if env.debug():
+##            print "extract_layers returns",res
+        return res
+    def insert_layers(self, layerstuff): #060404 first implem
+##        if env.debug():
+##            print "insert_layers got",layerstuff
+        for attrcode in layerstuff.attrdicts.keys():
+            assert not self.attrdicts.has_key(attrcode), "attrcode %r overlaps, between %r and %r" % (attrcode, self, layerstuff)
+        self.attrdicts.update(layerstuff.attrdicts)
+        layerstuff.attrdicts.clear() # optional, maybe not even good...
+        return
     pass # end of class StateSnapshot
 
 def val_diff_func_for__posn((p1,p2), whatret): # purely a stub for testing, though it should work
@@ -1102,6 +1162,19 @@ def diffdicts(d1, d2, dflt = None, whatret = 0, val_diff_func = None):
 
 # ==
 
+def priorstate_debug(priorstate, what = ""): #e call it, and do the init things
+    "call me only to print debug msgs"
+    ###@@@ this is to help me zap the "initial_state not being a StatePlace" kluges;
+    # i'm not sure where the bad ones are made, so find out by printing the stack when they were made.
+    try:
+        stack = priorstate._init_stack # compact_stack(), saved by __init__, for StatePlace and StateSnapshot
+    except:
+        print "bug: this has no _init_stack: %r" % (priorstate,)
+    else:
+        if not env.seen_before( ("ghjkfdhgjfdk" , stack) ):
+            print "one place we can make a %s priorstate like %r is: %s" % (what, priorstate, stack)
+    return
+
 def diff_and_copy_state(archive, assy, priorstate): #060228 
     "Return a StatePlace which presently owns the CurrentStateCopy but is willing to give it up when this is next called... #doc"
     # background: we keep a mutable snapshot of the last checkpointed state. right now it's inside priorstate (and defines
@@ -1109,69 +1182,263 @@ def diff_and_copy_state(archive, assy, priorstate): #060228
     # (as derived from assy using archive), and make a diffobject which records how we had to change it. Then we'll donate it
     # to a new immutable-state-object we make and return (<new>). But we don't want to make priorstate unusable
     # or violate its logical immutability, so we'll tell it to define itself (until further notice) based on <new> and <diffobj>.
-    try:
-        assert priorstate[0] == 'scan_whole' # might fail on some calls, we'll see
-        priorstate = priorstate[1]
-    except AttributeError: # StatePlace instance has no attribute '__getitem__'
-        pass
+
+    assert isinstance( priorstate, StatePlace) # remove when works, eventually ###@@@
     
     new = StatePlace() # will be given stewardship of our maintained copy of almost-current state, and returned
     # diffobj is not yet needed now, just returned from diff_snapshots_oneway:
     ## diffobj = DiffObj() # will record diff from new back to priorstate (one-way diff is ok, if traversing it also reverses it)
-    try:
-        steal_lastsnap_method = priorstate.steal_lastsnap
-    except:
-        steal_lastsnap_method = None # so we can use this as a flag, below
-        # special case for priorstate being initial state
-        # lastsnap = priorstate.copy() #IMPLEM and review; or nevermind, if we retain 'lastsnap = cursnap' below
-        lastsnap = priorstate # be sure not to modify this object!
-        assert isinstance(lastsnap, StateSnapshot) # remove when works, eventually ###@@@
-        if env.debug():
-            print "used special case for priorstate being initial state; problem for diff'l scan?" # does this ever happen? yes. [as of 060329]
-    else:
-        assert isinstance(priorstate, StatePlace) # remove when works, eventually ###@@@
-        lastsnap = steal_lastsnap_method( ) # and we promise to replace it with (new, diffobj) later, so priorstate is again defined
-        assert isinstance(lastsnap, StateSnapshot) # remove when works, eventually ###@@@
+    steal_lastsnap_method = priorstate.steal_lastsnap
+    lastsnap = steal_lastsnap_method( ) # and we promise to replace it with (new, diffobj) later, so priorstate is again defined
+    assert isinstance(lastsnap, StateSnapshot) # remove when works, eventually ###@@@
     # now we own lastsnap, and we'll modify it to agree with actual current state, and record the changes required to undo this...
-    # initial test: use old inefficient code for this -- soon we'll optim (it might be enough to optim for atoms and bonds only)
-    if 1:
-        # 060329: this is where we have to do things differently when we only want to scan changed objects.
-        # So we do the old full scan for most kinds of things, but not for the 'atoms layer' (atoms, bonds, Chunk.atoms attr).
-        import undo_archive #e later, we'll inline this until we reach a function in this file
-        cursnap = undo_archive.current_state(archive, assy, use_060213_format = True, exclude_layers = ('atoms',))
-        assert cursnap[0] == 'scan_whole'
-        cursnap = cursnap[1]
-        lastsnap_diffscan_layers = lastsnap.extract_layers( ('atoms',) ) ########@@@@@@@@ IMPLEM
-        diffobj = diff_snapshots_oneway( cursnap, lastsnap ) # valid for everything except the 'atoms layer' ###@@@ where's its state now?
-        ## lastsnap.become_copy_of(cursnap) #IMPLEM, or nevermind, just use cursnap
-        lastsnap = cursnap
-        del cursnap
-        if env.debug():
-            print "now we ought to modify lastsnap_diffscan_layers (and rename it) using changed obj lists (and clear those)" #####@@@@@
-            #e so how do we know which dicts to look in, for changed objs/attrs? don't the attr decls that set up layers also have to tell us that?
-            # and does it get recorded somehow in this lastsnap_diffscan_layers object, which knows the attrs it contains? yes, that would be good...
-            #
-            print "ok, are there any changed objects to look at? yes, these:", archive.get_and_clear_changed_objs() # dict, id->obj
-        
-        lastsnap.insert_layers(lastsnap_diffscan_layers) ########@@@@@@@@ IMPLEM
-        new.own_this_lastsnap(lastsnap)
-        if steal_lastsnap_method: #kluge, remove when initial state is a stateplace ###@@@
-            priorstate.define_by_diff_from_stateplace(diffobj, new)
-        new.really_changed = not not diffobj.nonempty() # remains correct even when new's definitional content changes
+    # 060329: this (to end of function) is where we have to do things differently when we only want to scan changed objects.
+    # So we do the old full scan for most kinds of things, but not for the 'atoms layer' (atoms, bonds, Chunk.atoms attr).
+    import undo_archive #e later, we'll inline this until we reach a function in this file
+    cursnap = undo_archive.current_state(archive, assy, use_060213_format = True, exclude_layers = ('atoms',))
+##    assert cursnap[0] == 'scan_whole'
+##    cursnap = cursnap[1]
+    lastsnap_diffscan_layers = lastsnap.extract_layers( ('atoms',) )
+    diffobj = diff_snapshots_oneway( cursnap, lastsnap ) # valid for everything except the 'atoms layer'
+    ## lastsnap.become_copy_of(cursnap) -- nevermind, just use cursnap
+    lastsnap = cursnap
+    del cursnap
+
+    modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers, ('atoms',), diffobj ) #060404
+    
+    lastsnap.insert_layers(lastsnap_diffscan_layers)
+    new.own_this_lastsnap(lastsnap)
+    priorstate.define_by_diff_from_stateplace(diffobj, new)        
+    new.really_changed = not not diffobj.nonempty() # remains correct even when new's definitional content changes
     return new
 
-def xxx( archive, layers = ('atoms',) ): #bruce 060329; is this really an undo_archive method? 
-    "#doc [now we ought to modify lastsnap_diffscan_layers (and rename it) using changed obj lists (and clear those)]" #####@@@@@
-    # ok, we've had a dict subscribed for awhile (necessarily), just update it one last time, then we have the candidates, not all valid.
-    # it's sub'd to several things... which somehow reg'd themselves in the 'atoms' layer...
-    for layer in layers: # perhaps the order matters, who knows
-        #e find some sort of object which knows about that layer; do we ask our obj_classifier about this? does it last per-session?
-        # what it knows is the changedict_processors, and a dict we have subscribed to them...
-        # hmm, who owns this dict? the archive? i suppose.
-        layer_obj = archive.layer_obj(layer)########@@@@@@@@ IMPLEM
-        layer_obj.update_your_changedicts()########@@@@@@@@ IMPLEM
-        layer_obj.get_your_dicts() # ....
-        
+#060407 this is the older initial-state-kluge-handling version of that, which can be zapped once the above one works
+##def diff_and_copy_state(archive, assy, priorstate): #060228 
+##    "Return a StatePlace which presently owns the CurrentStateCopy but is willing to give it up when this is next called... #doc"
+##    # background: we keep a mutable snapshot of the last checkpointed state. right now it's inside priorstate (and defines
+##    # that immutable-state-object's state), but we're going to grab it out of there and modify it to equal actual current state
+##    # (as derived from assy using archive), and make a diffobject which records how we had to change it. Then we'll donate it
+##    # to a new immutable-state-object we make and return (<new>). But we don't want to make priorstate unusable
+##    # or violate its logical immutability, so we'll tell it to define itself (until further notice) based on <new> and <diffobj>.
+##    try:
+##        assert priorstate[0] == 'scan_whole' # might fail on some calls, we'll see
+##        priorstate = priorstate[1]
+##        if env.debug():
+##            print "priorstate has a __getitem__" # this is initial, rare, statesnap
+##            priorstate_debug(priorstate, "<a __getitem__>")
+##            # this is made by clear_undo_stack, which has several ways to be called but then looks like
+##            # [assembly.py:1132]
+##            # [undo_manager.py:134]
+##            # [undo_archive.py:1404] archive.clear_undo_stack calling _clear
+##            # [undo_archive.py:1192] _clear calling initial_checkpoint
+##            # [undo_archive.py:1202] initial_checkpoint : fill_checkpoint(cp, current_state(self, assy, initial = True, **self.format_options), assy) # initial=True is ignored
+##            # [undo_archive.py:916] current_state calling mmp_state_from_assy, with try/except etc
+##            # [undo_archive.py:68] mmp_state_from_assy calling mmp_state_by_scan, wraps its snapshot with  ('scan_whole', ...)
+##            # [undo_archive.py:102] mmp_state_by_scan calling scanner.collect_state
+##            # [state_utils.py:1690] (corrected by +13) collect_state making its retval snapshot
+##            # [state_utils.py:967] (+0) StateSnapshot init
+##
+##    except AttributeError: # StatePlace instance has no attribute '__getitem__'
+##        if env.debug():
+##            print "priorstate has no __getitem__" # common, all but first, stateplace
+##            priorstate_debug(priorstate, "<no __getitem__>")
+##            # e.g. undo_checkpoint_after_command, [assembly.py:1123]
+##            # [undo_manager.py:234]
+##            # [undo_manager.py:196]
+##            # [undo_archive.py:1592] archive.checkpoint :
+##            #    state = diff_and_copy_state(self, self.assy, self.last_cp.state)
+##            # [state_utils.py:1210] diff_and_copy_state : new = StatePlace()
+##            # [state_utils.py:1408] StatePlace init
+##        pass
+##    
+##    new = StatePlace() # will be given stewardship of our maintained copy of almost-current state, and returned
+##    # diffobj is not yet needed now, just returned from diff_snapshots_oneway:
+##    ## diffobj = DiffObj() # will record diff from new back to priorstate (one-way diff is ok, if traversing it also reverses it)
+##    try:
+##        steal_lastsnap_method = priorstate.steal_lastsnap
+##    except:
+##        steal_lastsnap_method = None # so we can use this as a flag, below
+##        # special case for priorstate being initial state
+##        # lastsnap = priorstate.copy() #IMPLEM and review; or nevermind, if we retain 'lastsnap = cursnap' below
+##        lastsnap = priorstate # be sure not to modify this object!
+##        assert isinstance(lastsnap, StateSnapshot) # remove when works, eventually ###@@@
+##        if env.debug():
+##            print "used special case for priorstate being initial state; problem for diff'l scan?" # does this ever happen? yes. [as of 060329]
+##            priorstate_debug(priorstate, "<special case for priorstate being initial state>")
+##    else:
+##        assert isinstance(priorstate, StatePlace) # remove when works, eventually ###@@@
+##        lastsnap = steal_lastsnap_method( ) # and we promise to replace it with (new, diffobj) later, so priorstate is again defined
+##        assert isinstance(lastsnap, StateSnapshot) # remove when works, eventually ###@@@
+##    # now we own lastsnap, and we'll modify it to agree with actual current state, and record the changes required to undo this...
+##    # initial test: use old inefficient code for this -- soon we'll optim (it might be enough to optim for atoms and bonds only)
+##    if 1:
+##        # 060329: this is where we have to do things differently when we only want to scan changed objects.
+##        # So we do the old full scan for most kinds of things, but not for the 'atoms layer' (atoms, bonds, Chunk.atoms attr).
+##        import undo_archive #e later, we'll inline this until we reach a function in this file
+##        cursnap = undo_archive.current_state(archive, assy, use_060213_format = True, exclude_layers = ('atoms',))
+##        assert cursnap[0] == 'scan_whole'
+##        cursnap = cursnap[1]
+##        lastsnap_diffscan_layers = lastsnap.extract_layers( ('atoms',) )
+##        diffobj = diff_snapshots_oneway( cursnap, lastsnap ) # valid for everything except the 'atoms layer'
+##        ## lastsnap.become_copy_of(cursnap) -- nevermind, just use cursnap
+##        lastsnap = cursnap
+##        del cursnap
+##
+##        modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers, ('atoms',), diffobj ) #060404
+##        
+##        lastsnap.insert_layers(lastsnap_diffscan_layers)
+##        new.own_this_lastsnap(lastsnap)
+##        if steal_lastsnap_method: #kluge, remove when initial state is a stateplace ###@@@
+##            priorstate.define_by_diff_from_stateplace(diffobj, new)
+##        else:
+##            if env.debug():
+##                print "debug: fyi: used kluge to not call priorstate.define_by_diff_from_stateplace" #k does this happen?? yes, after clear undo stack
+##                priorstate_debug(priorstate, "<kluge to not call priorstate.define_by_diff_from_stateplace>")
+##        new.really_changed = not not diffobj.nonempty() # remains correct even when new's definitional content changes
+##    return new
+
+def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers, layers, diffobj ): #060404
+    #e rename lastsnap_diffscan_layers
+    """[this might become a method of the undo_archive; it will certainly be generalized, as its API suggests]
+    - Get sets of changed objects from (our subs to) global changedicts, and clear those.
+    - Use those to modify lastsnap_diffscan_layers to cover changes tracked
+      in the layers specified (for now only 'atoms' is supported),
+    - and record the diffs from that into diffobj.
+    """
+    assert len(layers) == 1 and layers[0] == 'atoms' # this is all that's supported for now
+    # Get the sets of possibly changed objects... for now, this is hardcoded as 2 dicts, for atoms and bonds,
+    # keyed by atom.key and id(bond), and with changes to all attrs lumped together (though they're tracked separately);
+    # these dicts sometimes also include atoms & bonds belonging to other assys, which we should ignore.
+    # [#e Someday we'll need to generalize this --
+    #  how will we know which (or how many) dicts to look in, for changed objs/attrs?
+    #  don't the attr decls that set up layers also have to tell us that?
+    #  and does that get recorded somehow in this lastsnap_diffscan_layers object,
+    #  which knows the attrs it contains? yes, that would be good... for some pseudocode
+    #  related to this, see commented-out method xxx, just below.]
+    chgd_atoms, chgd_bonds = archive.get_and_clear_changed_objs()
+    if env.debug():
+        print "\nchanged objects: %d atoms, %d bonds" % (len(chgd_atoms), len(chgd_bonds))
+    # discard wrong assy atoms... can we tell by having an objkey? ... imitate collect_s_children and (mainly) collect_state
+    keyknower = archive.objkey_allocator
+    _key4obj = keyknower._key4obj
+    changed_live = {} # both atoms & bonds; we'll classify, so more general (for future subclasses); not sure this is worth it
+    changed_dead = {} 
+    for akey, obj in chgd_atoms.iteritems():
+        # akey is atom.key, obj is atom
+        key = _key4obj.get(id(obj)) # inlined keyknower.key4obj; key is objkey, not atom.key
+        if key is None:
+            # discard obj unless it's ours; these submethods are also allowed to say 'no' for dead objs, even if they're one of ours
+            if archive.new_Atom_oursQ(obj):
+                key = 1 # kluge, only truth value matters; or we could allocate the key and use that, doesn't matter for now
+        if key:
+            if archive.trackedobj_liveQ(obj):
+                changed_live[id(obj)] = obj
+            else:
+                changed_dead[id(obj)] = obj                
+    for idobj, obj in chgd_bonds.iteritems():
+        key = _key4obj.get(idobj)
+        if key is None:
+            if archive.new_Bond_oursQ(obj):
+                key = 1
+        if key:
+            if archive.trackedobj_liveQ(obj):
+                changed_live[id(obj)] = obj
+            else:
+                changed_dead[id(obj)] = obj                
+    ## print "changed_live = %s, changed_dead = %s" % (changed_live,changed_dead)
+    key4obj = keyknower.key4obj_maybe_new
+    diff_attrdicts = diffobj.attrdicts
+    for attrcode in archive.obj_classifier.dict_of_all_state_attrcodes.iterkeys():
+        if attrcode[1] in ('Atom','Bond'):
+            diff_attrdicts.setdefault(attrcode, {}) # this makes some diffs too big, but speeds up our loops ###k is it ok??
+            # if this turns out to cause trouble, just remove these dicts at the end if they're still empty
+    state_attrdicts = lastsnap_diffscan_layers.attrdicts
+    objclsfr = archive.obj_classifier
+    ci = objclsfr.classify_instance
+    # warning: we now have 3 similar but not identical 'for attrcode' loop bodies,
+    # handling live/dflt, live/no-dflt, and dead.
+    for idobj, obj in changed_live.iteritems(): # similar to obj_classifier.collect_state
+        key = key4obj(obj)
+        clas = ci(obj) #e could heavily optimize this if we kept all leaf classes separate; probably should
+        for attrcode, dflt in clas.attrcode_dflt_pairs:
+            attr, acode_junk = attrcode
+            ## state_attrdict = state_attrdicts[attrcode] #k if this fails, just use setdefault with {} [it did; makes sense]
+            ## state_attrdict = state_attrdicts.setdefault(attrcode, {})
+            state_attrdict = state_attrdicts[attrcode] # this should always work now that _archive_meet_class calls classify_class
+                ##e could optim by doing this before loop (or on archive init?), if we know all changetracked classes (Atom & Bond)
+            val = getattr(obj, attr, dflt)
+            if val is dflt:
+                val = _UNSET_ # like collect_state; note, this is *not* equivalent to passing _UNSET_ as 3rd arg to getattr!
+            oldval = state_attrdict.get(key, _UNSET_) # see diffdicts and its calls, and apply_and_reverse_diff
+                # if we knew they'd be different (or usually different) we'd optim by using .pop here...
+                # but since we're lumping together all attrs when collecting changed objs, these vals are usually the same
+            if not same_vals(oldval, val):
+                # a diff! put a copy of val in state, and oldval (no need to copy) in the diffobj
+                if val is _UNSET_: # maybe this is not possible, it'll be dflt instead... i'm not positive dflt can't be _UNSET_, tho...
+                    state_attrdict.pop(key, None) # like del, but works even if no item there ###k i think this is correct
+                else:
+                    state_attrdict[key] = copy_val(val)
+                diff_attrdicts[attrcode][key] = oldval
+        dflt = None; del dflt
+        for attrcode in clas.attrcodes_with_no_dflt:
+            attr, acode_junk = attrcode
+            state_attrdict = state_attrdicts[attrcode]
+            val = getattr(obj, attr, _Bugval)
+            oldval = state_attrdict.get(key, _UNSET_) # not sure if _UNSET_ can happen, in this no-dflt case
+            if not same_vals(oldval, val):
+                state_attrdict[key] = copy_val(val)
+                try:
+                    diff_attrdict = diff_attrdicts[attrcode]
+                except:
+                    print "it failed, keys are",diff_attrdicts.keys() ####@@@@ should not happen anymore
+                    print " and state ones are",state_attrdicts.keys()
+                    ## sys.exit(1)
+                    diff_attrdict = diff_attrdicts[attrcode] = {}
+                diff_attrdict[key] = oldval #k if this fails, just use setdefault with {} 
+        attrcode = None; del attrcode
+    for idobj, obj in changed_dead.iteritems():
+        #e if we assumed these all have same clas, we could invert loop order and heavily optimize
+        key = key4obj(obj)
+        clas = ci(obj)
+        for attrcode in clas.dict_of_all_state_attrcodes.iterkeys():
+            # (this covers the attrcodes in both clas.attrcode_dflt_pairs and clas.attrcodes_with_no_dflt)
+            attr, acode_junk = attrcode
+            state_attrdict = state_attrdicts[attrcode]
+            val = _UNSET_ # convention for dead objects
+            oldval = state_attrdict.pop(key, _UNSET_) # use pop because we know val is _UNSET_
+            if oldval is not val:
+                diff_attrdicts[attrcode][key] = oldval
+        attrcode = None; del attrcode
+    if 1:
+        from undo_archive import _undo_debug_obj, _undo_debug_message
+        obj = _undo_debug_obj
+        if id(obj) in changed_dead or id(obj) in changed_live:
+            # this means obj is not None, so it's ok to take time and print things
+            key = _key4obj.get(id(obj))
+            if key is not None:
+                for attrcode, attrdict in diff_attrdicts.iteritems():
+                    if attrdict.has_key(key):
+                        _undo_debug_message( "diff for %r.%s gets %r" % (obj, attrcode[0], attrdict[key]) )
+                #e also for old and new state, i guess, and needed in apply_and_reverse_diff as well
+        pass
+    return # from modify_and_diff_snap_for_changed_objects
+    
+#e for the future, this pseudocode is related to how to generalize the use of chgd_atoms, chgd_bonds seen above.
+##def xxx( archive, layers = ('atoms',) ): #bruce 060329; is this really an undo_archive method? 
+##    # ok, we've had a dict subscribed for awhile (necessarily), just update it one last time, then we have the candidates, not all valid.
+##    # it's sub'd to several things... which somehow reg'd themselves in the 'atoms' layer...
+##    for layer in layers: # perhaps the order matters, who knows
+##        #e find some sort of object which knows about that layer; do we ask our obj_classifier about this? does it last per-session?
+##        # what it knows is the changedict_processors, and a dict we have subscribed to them...
+##        # hmm, who owns this dict? the archive? i suppose.
+##        layer_obj = archive.layer_obj(layer)##@@ IMPLEM
+##        layer_obj.update_your_changedicts()##@@ IMPLEM
+##        layer_obj.get_your_dicts() # ....
+##    # ...
+##    return
+
+# ==
+
 class StatePlace:
     """basically an lval for a StateSnapshot or a (diffobj, StatePlace) pair;
     represents a logically immutable snapshot in a mutable way
@@ -1180,11 +1447,22 @@ class StatePlace:
     def __init__(self, lastsnap = None):
         self.lastsnap = lastsnap # should be None or a mutable StateSnapshot
         self.diff_and_place = None
+        if debug_priorstate_kluge:
+            import debug
+            self._init_stack = debug.compact_stack()
+            try:
+                self._init_stack_orig_lastsnap = lastsnap._init_stack
+            except:
+                self._init_stack_orig_lastsnap = "didn't work"
+        return
     def own_this_lastsnap(self, lastsnap):
         assert self.lastsnap is None
         assert self.diff_and_place is None
         assert lastsnap is not None
         self.lastsnap = lastsnap
+        if debug_priorstate_kluge:
+            self._init_stack_lastsnap = lastsnap._init_stack
+        return
     def define_by_diff_from_stateplace(self, diff, place):
         assert self.lastsnap is None
         assert self.diff_and_place is None
@@ -1287,6 +1565,7 @@ class obj_classifier:
     def __init__(self):
         self._clas_for_class = {} # maps Python classes (values of obj.__class__ for obj an InstanceType, for now) to Classifications
         self.dict_of_all_state_attrcodes = {} # maps attrcodes to arbitrary values, for all state-holding attrs ever declared to us
+        self.attrcodes_with_undo_setattr = {} # see doc in clas
 #bruce 060330 zapping this
 ##        self.kluge_attr2metainfo = {}
 ##            # maps attrnames to the only legal attr_metainfo for that attrname;
@@ -1301,16 +1580,28 @@ class obj_classifier:
         """
         class1 = obj.__class__
         try:
-            # easy case: we know that __class__ (and it doesn't need to be redone per-object, which anyway is nim)
-            # (this is probably fast enough that we don't need to bother storing a map from id(obj) or objkey directly to clas,
-            #  which might slow us down anyway by using more memory)
+            # easy & usual case: we recognize that __class__ -- just return the memoized answer.
+            # (Only correct if that class doesn't declare to us that we need to redo this per-object, but such a decl is nim.)
+            # (This is redundant with the same optimization in classify_class, which needs it for direct calls, but that doesn't matter.)
+            # (This is probably fast enough that we don't need to bother storing a map from id(obj) or objkey directly to clas,
+            #  which might slow us down anyway by using more memory.)
             # (#e future optim, though: perhaps store clas inside the object, and also objkey, as special attrs)
             return self._clas_for_class[class1]
-        except:
+        except KeyError:
             pass
-        # make a new Classification for this class
+        return self.classify_class(class1)
+        
+    def classify_class(self, class1):
+        """Find or make (and return) an InstanceClassification for this class;
+        if you make it, memoize it and record info about its attr decls.
+        """
+        try:
+            return self._clas_for_class[class1] # redundant when called from classify_instance, but needed for direct calls
+        except KeyError:
+            pass
         clas = self._clas_for_class[class1] = InstanceClassification(class1)
         self.dict_of_all_state_attrcodes.update( clas.dict_of_all_state_attrcodes )
+        self.attrcodes_with_undo_setattr.update( clas.attrcodes_with_undo_setattr )
 #bruce 060330 not sure if the following can be fully zapped, though most of it can. Not sure how "cats" are used yet...
 # wondering if acode should be classname. ###@@@
 #
@@ -1364,7 +1655,7 @@ class obj_classifier:
 ##        # Someday attrkeys won't always equal attrnames. This API can still work then, tho implem won't.
 ##        return self.kluge_attr2metainfo[attrkey] # last occurrence of kluge_attr2metainfo
     
-    def collect_s_children(self, val, deferred_category_collectors = {}, exclude_layers = ()): #060329 added exclude_layers (nim #####@@@@@)
+    def collect_s_children(self, val, deferred_category_collectors = {}, exclude_layers = ()): #060329/060404 added exclude_layers
         """Collect all objects in val, and their s_children, defined as state-holding objects
         found (recursively, on these same objects) in their attributes which were
         declared S_CHILD or S_CHILDREN or S_CHILDREN_NOT_DATA using the state attribute decl system... [#doc that more precisely]
@@ -1422,9 +1713,11 @@ class obj_classifier:
                 data_objs[id(obj1)] = obj1
             def func(obj):
                 dict1[id(obj)] = obj
-            clas.scan_children( obj1, func, deferred_category_collectors = deferred_category_collectors) #k correct for obj1 being data?
+            clas.scan_children( obj1, func,   #k is scan_children correct for obj1 being data?
+                                deferred_category_collectors = deferred_category_collectors,
+                                exclude_layers = exclude_layers )
         allobjs = transclose( saw, obj_and_dict) #e rename both args
-        if 0 and env.debug(): ###e remove after debugging
+        if 0 and env.debug(): 
             print "atom_debug: collect_s_children had %d roots, from which it reached %d objs, of which %d were data" % \
                   (len(saw), len(allobjs), len(data_objs))
         # allobjs includes both state-holding and data-holding objects. Remove the latter.
@@ -1432,7 +1725,7 @@ class obj_classifier:
             del allobjs[key]
         return allobjs # from collect_s_children
 
-    def collect_state(self, objdict, keyknower, exclude_layers = ()): #060329 added exclude_layers (nim #####@@@@@)
+    def collect_state(self, objdict, keyknower, exclude_layers = ()): #060329/060404 added exclude_layers
         """Given a dict from id(obj) to obj, which is already transclosed to include all objects of interest,
         ensure all these objs have objkeys (allocating them from keyknower (an objkey_allocator instance) as needed),
         and grab the values of all their state-holding attrs,
@@ -1440,18 +1733,33 @@ class obj_classifier:
         #e In future we'll provide a differential version too.
         """
         key4obj = keyknower.key4obj_maybe_new # or our arg could just be this method
-        snapshot = StateSnapshot(self.dict_of_all_state_attrcodes.keys())
+        attrcodes = self.dict_of_all_state_attrcodes.keys()
+        if exclude_layers:
+            assert exclude_layers == ('atoms',) # the only one we support right here
+            attrcodes = filter( lambda (attr, acode): acode not in ('Atom','Bond'), attrcodes )
+                # this is required, otherwise insert_layers (into this) will complain about these layers already being there
+        snapshot = StateSnapshot(attrcodes)
             # make a place to keep all the values we're about to grab
         attrdicts = snapshot.attrdicts
+        len1 = len(objdict)
         for obj in objdict.itervalues():
             key = key4obj(obj)
             clas = self.classify_instance(obj)
+            if 'KLUGE': ###@@@ remove when works, at least once this code is debugged; safe for A7
+                if exclude_layers:
+                    assert exclude_layers == ('atoms',) # the only one we support right here
+                    if not ( clas.class1.__name__ not in ('Atom','Bond') ):
+                        print "bug: exclude_layers didn't stop us from seeing", obj
             # hmm, use attrs in clas or use __dict__? Either one might be way too big... start with smaller one? nah. guess.
             # also we might as well use getattr and be more flexible (not depending on __dict__ to exist). Ok, use getattr.
             # Do we optim dflt values of attrs? We ought to... even when we're differential, we're not *always* differential.
             ###e need to teach clas to know those, then.
             for attrcode, dflt in clas.attrcode_dflt_pairs: # for attrs holding state (S_DATA, S_CHILD*, S_PARENT*, S_REF*) with dflts
-                attr, acode = attrcode
+                attr, acode_junk = attrcode
+                if clas.exclude(attr, exclude_layers):
+                    if env.debug():###@@@ rm when works
+                        print "debug: collect_state exclude_layers1 excludes",attr,"of",obj
+                    continue
                 val = getattr(obj, attr, dflt)
                 # note: this dflt can depend on key -- no need for it to be the same within one attrdict,
                 # provided we have no objects whose attrs all have default values and all equal them at once [060302]
@@ -1471,6 +1779,10 @@ class obj_classifier:
                 #attrdict = attrdicts[attr]
                 #attrdict[key] = valcopy
                 attr, acode_junk = attrcode
+                if clas.exclude(attr, exclude_layers):
+                    if env.debug():###@@@ rm when works
+                        print "debug: collect_state exclude_layers2 excludes",attr,"of",obj
+                    continue
                 attrdicts[attrcode][key] = copy_val(getattr(obj, attr, _Bugval))
                     # We do it all in one statement, for efficiency in case compiler is not smart enough to see that local vars
                     # would not be used again; it might even save time due to lack of bytecodes to update linenumber
@@ -1482,19 +1794,27 @@ class obj_classifier:
                     # in diffs (not sure). If it turns out this is not always a bug, I can make this act similarly to _UNSET_
                     # in that, when storing it back, I can unset the attr (this would make Undo least likely to introduce a bug).
                     # I'm not yet doing that, but I added a comment mentioning _Bugval next to the relevant setattr in undo_archive.py.
+        len2 = len(objdict)
+        if len1 != len2:
+            # this should be impossible
+            print "bug: collect_state in %r sees objdict (id %#x) modified during itervalues (len %d -> %d)" % \
+                  (self, id(objdict), len1, len2)
         if 0 and env.debug():
             print "atom_debug: collect_state got this snapshot:", snapshot
 ##            if 1: #####@@@@@
 ##                snapshot.print_value_stats() # NIM
-        return snapshot
+        return snapshot # from collect_state
 
     def reset_obj_attrs_to_defaults(self, obj):
         """Given an obj we have saved state for, reset each attr we might save
         to its default value (which might be "missing"??), if it has one.
         [#e someday we might also reset S_CACHE attrs, but not for now.]
         """
+        from undo_archive import _undo_debug_obj, _undo_debug_message
         clas = self.classify_instance(obj)
         for (attr, acode_junk), dflt in clas.attrcode_dflt_pairs:
+            if obj is _undo_debug_obj:
+                _undo_debug_message("undo/redo: reset dflt %r.%s = %r" % (obj, attr, dflt))
             setattr(obj, attr, dflt) #e need copy_val? I suspect not, so as of 060311 1030pm PST I'll remove it as an optim.
             # [060302: i think copy_val is not needed given that we only refrain from storing val when it 'is' dflt,
             #  but i think it's ok unless some classes depend on unset attrs being a mutable shared class attr,

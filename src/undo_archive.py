@@ -19,7 +19,7 @@ from debug import print_compact_traceback, print_compact_stack
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 import env
 import state_utils
-from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state, transclose
+from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state, transclose, StatePlace, StateSnapshot
 from prefs_constants import historyMsgSerialNumber_prefs_key, undoRestoreView_prefs_key
 import changes
 
@@ -27,8 +27,36 @@ destroy_bypassed_redos = True # whether to destroy the Redo stack to save RAM
     # [not implemented yet -- flag has no effect, but shows where to do it -- 060301]
     # aka destroy alternate futures, destroy inaccessible redos...
 
-debug_undo2 = False
+debug_undo2 = False # do not commit with true
     ## = platform.atom_debug # this is probably ok to commit for now, but won't work for enabling the feature for testing
+
+debug_change_counters = False # do not commit with true
+
+# ==
+
+_undo_debug_obj = None
+    # set this to an undoable object (in debugger or perhaps using debug menu op (nim))
+    # to print history messages about what we do to it
+
+def _undo_debug_message( msg):
+    from HistoryWidget import _graymsg, quote_html
+    ## env.history.message_no_html( _graymsg( msg )) -- WRONG, would mess up _graymsg
+    env.history.message( _graymsg( quote_html( msg )))
+
+# doesn't work: from asyncore import safe_repr
+
+def safe_repr(obj, maxlen = 1000):
+    try:
+        rr = "%r" % (obj,)
+    except:
+        rr = "<repr failed for id(obj) = %#x, improve safe_repr to print its class at least>" % id(obj)
+    if len(rr) > maxlen:
+        return rr[(maxlen - 4):] + "...>" # this should also be in a try/except, even len should be
+    else:
+        return rr
+    pass
+
+# ==
 
 def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = False, **options): #bruce 060117 prototype-kluge
     """return a data-like python object encoding all the undoable state in assy
@@ -37,11 +65,12 @@ def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = Fals
     """
     if use_060213_format:
         # [guess as of 060329: initial arg doesn't matter for this scanning method, or, we never scan it before fully inited anyway]
-        return ('scan_whole', mmp_state_by_scan(archive, assy, **options) ) # not yet differential, just a different state-scanner, more general
+        return mmp_state_by_scan(archive, assy, **options)
+        ## return ('scan_whole', mmp_state_by_scan(archive, assy, **options) )
 
     assert 0 # 060301, zapped even the commented-out alternative, 060314
 
-def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329 added exclude_layers option (nim if you go deep enough ###@@@)
+def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329/060404 added exclude_layers option
     """[#doc better:]
     Return a big object listing all the undoable data reachable from assy,
     in some data-like form (but including live objrefs), mostly equivalent to a list of objkey/attr/value triples,
@@ -57,6 +86,11 @@ def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329 added exclude
     state_holding_objs_dict = scanner.collect_s_children( start_objs,
                                                           deferred_category_collectors = {'view':viewdict},
                                                           exclude_layers = exclude_layers)
+
+    # note: this is set in two places, and it's a kluge; see the comment where it's used. 
+    archive._lastscan = state_holding_objs_dict # this is kept around and later used by childobj_liveQ [060406]
+        # warning: we have to set it soon enough, since it's used in the same undo checkpoint, for new changetracked objects,
+        # right after we return.
     
     if 0 and env.debug():
         print "debug: didn't bother scanning %d view-related objects:" % len(viewdict), viewdict.values() # works [060227]; LastView
@@ -67,36 +101,49 @@ def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329 added exclude
 
 ##    print "mmp_state_by_scan",assy
     state = scanner.collect_state( state_holding_objs_dict, archive.objkey_allocator, exclude_layers = exclude_layers )
+    
     return state
 
 # ==
 
-# assy methods, here so reload works
+# assy methods, here so reload works [but as of 060407, some or all of them should not be assy methods anyway, it turns out]
 
-def assy_become_state(self, state, archive): #bruce 060117 kluge for non-modular undo; should be redesigned to be more sensible
+def assy_become_state(self, state, archive): #e should revise args, but see also the last section which uses 'self' a lot [060407 comment]
     """[self is an assy] replace our state with some new state (in an undo-private format) saved earlier by an undo checkpoint,
     using archive to interpret it if necessary
     """
-    if type(state) == type(()):
-        format, data = state
-        # state can be None if exception (bug) was caught while checkpoint was made,
-        # but it's not yet worth protecting from that here [bruce 060208]
-    else:
-        format, data = 'scan_whole', state # kluge 060301
+    #bruce 060117 kluge for non-modular undo; should be redesigned to be more sensible
+    if debug_change_counters:
+        print "assy_become_state begin, chg ctrs =", archive.assy.all_change_counters()
+
+    data = state    
+##    if type(state) == type(()):
+##        format, data = state
+##        # state can be None if exception (bug) was caught while checkpoint was made,
+##        # but it's not yet worth protecting from that here [bruce 060208]
+##    else:
+##        format, data = 'scan_whole', state # kluge 060301
     del state
-    if format == 'mmp_state':
-        assert 0 #060301 [removed commented-out support code, 060314]
-    elif format == 'scan_whole':
-        assy_become_scanned_state(self, data, archive) # that either does self.update_parts() or doesn't need it done (or both)
-        # fall thru
-    else:
-        assert 0, "unknown format %r" % (format,)
+
+    assy_become_scanned_state(archive, self, data) # that either does self.update_parts() or doesn't need it done (or both)
+##    if format == 'mmp_state':
+##        assert 0 #060301 [removed commented-out support code, 060314]
+##    elif format == 'scan_whole':
+##        assy_become_scanned_state(archive, self, data) # that either does self.update_parts() or doesn't need it done (or both)
+##        # fall thru
+##    else:
+##        assert 0, "unknown format %r" % (format,)
+    
     self.changed() #k needed? #e not always correct! (if we undo or redo to where we saved the file)
         #####@@@@@ review after scan_whole 060213
+    # the following stuff looks like it belongs in some sort of _undo_update method for class assy,
+    # or one of the related kinds of methods, like registered undo updaters ####@@@@ [060407 comment]
     assert self.part # update_parts was done already
     self.o.set_part( self.part) # try to prevent exception in GLPane.py:1637
     self.w.mt.resetAssy_and_clear()  # ditto, mt line 108
     self.w.win_update() # precaution
+    if debug_change_counters:
+        print "assy_become_state end, chg ctrs =", archive.assy.all_change_counters()
     return
 
 def assy_clear(self): #bruce 060117 draft
@@ -132,82 +179,87 @@ def assy_clear(self): #bruce 060117 draft
     self.changed()
     return
 
-# doesn't work: from asyncore import safe_repr
+# ==
 
-def safe_repr(obj, maxlen = 1000):
-    try:
-        rr = "%r" % (obj,)
-    except:
-        rr = "<repr failed for id(obj) = %#x, improve safe_repr to print its class at least>" % id(obj)
-    if len(rr) > maxlen:
-        return rr[(maxlen - 4):] + "...>" # this should also be in a try/except, even len should be
-    else:
-        return rr
-    pass
-
-def assy_become_scanned_state(self, data, archive):
+def assy_become_scanned_state(archive, assy, data): #060407 revised arg names & order
+    #e guess as of 060407: this should someday be an archive method, with some of the helpers being data methods
     "[self is an assy; data is returned by mmp_state_by_scan, and is therefore presumably a StateSnapshot or StatePlace object]"
     ####@@@@ this should really be a method of AssyUndoArchive (not just assy itself) [bruce 060313 realization]
-    assy = self
-    assert assy is archive.assy
-##    print "assy_become_scanned_state", data
+    assert assy is archive.assy # in future, maybe an archive can support more than one assy at a time, who knows
+    
+    try:
+        # remove this case once it no longer ever happens ###@@@
+        attrdicts = data.attrdicts # works for a StateSnapshot ##@@ this is dangerous, what if someone adds that attr to StatePlace?
+        if env.debug():
+            print "likely bug: assy_become_scanned_state was passed a StateSnapshot" # likely to be a bug after 060407 cleanup; common before it
+    except:
+        attrdicts = data.get_attrdicts_for_immediate_use_only() # works for a StatePlace
+    
     modified = {} # key->obj for objects we modified
+
+    # these steps are in separate functions for clarity, and so they can be profiled individually
+    mash_attrs( archive, attrdicts, modified)
+    fix_all_chunk_atomsets( attrdicts, modified)
+    call_undo_update( modified)
+    call_registered_undo_updaters( archive)
+    final_post_undo_updates( archive)
+    set_lastscan_kluge_from_modified(archive, modified)
+        ##e potential optim:
+        # this set_lastscan might not be needed, since we're about to do another checkpoint,
+        # which I'm guessing always overwrites it before it can be used;
+        # to find out someday, also store a flag saying which piece of code stored _lastscan, and check this when we use it
+
+    return # from assy_become_scanned_state
+
+def mash_attrs( archive, attrdicts, modified ):
+    """[private helper for assy_become_scanned_state:]
+    Mash new (or old) attrvals into live objects, using setattr or _undo_setattr_;
+    record which objects are modified in the given dict, using objkey->obj
+    (this will cover all reachable objects in the entire state, even if only a few *needed* to be modified,
+     in the present implem [still true even with differential atom/bond scan, as of 060406])
+    """
     # use undotted localvars, for faster access in inner loop:
     modified_get = modified.get
     obj4key = archive.obj4key
     reset_obj_attrs_to_defaults = archive.obj_classifier.reset_obj_attrs_to_defaults
+    attrcodes_with_undo_setattr = archive.obj_classifier.attrcodes_with_undo_setattr
     from state_utils import copy_val as copy
         # ideally, copy_val might depend on attr (and for some attrs is not needed at all),
         # i.e. we should grab one just for each attr farther inside this loop, and have a loop variant without it
         # (and with the various kinds of setattr/inval replacements too --
         #  maybe even let each attr have its own loop if it wants, with atoms & bonds an extreme case)
-    try:
-        attrdicts = data.attrdicts # works for a StateSnapshot ####@@@@ this is dangerous, what if someone adds that attr to StatePlace?
-    except:
-        attrdicts = data.get_attrdicts_for_immediate_use_only() # works for a StatePlace
     for attrcode, dict1 in attrdicts.items(): ##e might need to be in a specific order
         attr, acode = attrcode
-        ## might_have_undo_setattr = (attr == 'molecule')
-        # _undo_setattr_molecule turned out not to be useful so far [060314], so for speed,
-        # limit this testing kluge (which will never find an actual _undo_setattr_xxx)
-        # to a rarer attribute, but one that does exist sometimes:
-        might_have_undo_setattr = (attr == 'temperature') ###@@@ KLUGE for testing, and good enough for initial use
-            # (so might be released in A7, due to time pressures, embarrassingly enough) [bruce 060313]
+        might_have_undo_setattr = attrcodes_with_undo_setattr.has_key(attrcode) #060404; this matters now (for hotspot)
         for key, val in dict1.iteritems(): # maps objkey to attrval
             obj = modified_get(key)
             if obj is None:
                 # first time we're touching this object
                 obj = obj4key[key]
                 modified[key] = obj
-                ## reset_obj_attrs_to_defaults(obj) -- no, be a bit more subtle:
-                # If any attr of this obj might_have_undo_setattr (as determined using its attrcode), we want it to see the old value,
-                # so we don't want to reset *that* attr to its default value.
-                # One way: exception for just those attrs.
-                # Another way: exception for all attrs we plan to set specifically (only needed when "those attrs" are among them).
-                # For initial use of might_have_undo_setattr, I can be simple, then figure out the proper way later.
-                ## if attrdicts['molecule'].has_key(key): # WRONG, re attrcode
-                ##     # i.e. if we plan to set this obj's .molecule
-                ##     ....
-                # I can be even simpler, since it happens that .molecule has no default value in Atom
-                # so reset_obj_attrs_to_defaults won't touch it! This is a ####@@@@ KLUGE which needs to be thought through
-                # and fixed later, especially since I might decide to add a class default molecule = None at any time.
-                # (Probably I should assert that doesn't happen. Ok, I'll do it in state_utils.)
                 reset_obj_attrs_to_defaults(obj)
-                #######e set all attrs in obj (which we store, or are cached) to their default values (might mean delattr?)
-                # w/o this we have bugs...
+                    # Note: it's important that that didn't mess with attrs whose _undo_setattr_xxx we might call,
+                    # in case that wants to see the old value. As an initial kluge, we assert this combination never occurs
+                    # (in other code, once per class). When necessary, we'll fix that by sophisticating this code.
+                    # [bruce 060404]
                 pass
             val = copy(val) #e possible future optim: let some attrs declare that this copy is not needed [MIGHT BE A BIG OPTIM ###e]
             if might_have_undo_setattr: # optim: this flag depends on attr name
+                # note: '_undo_setattr_' is hardcoded in several places
                 setattr_name = '_undo_setattr_' + attr # only support attr-specific setattrs for now, for speed and subclass simplicity
                 try:
                     method = getattr(obj, setattr_name) #e possible future optim: store unbound method for this class and attr
                 except AttributeError:
                     pass # fall thru, use normal setattr
                 else:
+                    if obj is _undo_debug_obj:
+                        _undo_debug_message("undo/redo: %r.%s = %r, using _undo_setattr_" % (obj, attr, val))
                     method(val, archive) # note: val might be _Bugval
                     #e someday, catch exceptions, emit redmsg but continue with restoring other state, or at least other attrs
                     continue
             # else, or if we fell through:
+            if obj is _undo_debug_obj:
+                _undo_debug_message("undo/redo: %r.%s = %r" % (obj, attr, val))
             setattr(obj, attr, val) ##k might need revision in case:
                 # dflt val should be converted to missing val, either as optim or as requirement for some attrs (atomtype?) #####@@@@@
                 # dflt vals were not stored, to save space, so missing keys should be detected and something done about them ...
@@ -220,6 +272,17 @@ def assy_become_scanned_state(self, data, archive):
             # [bruce 060311 comment]
             continue
         continue
+    return # from mash_attrs
+
+def fix_all_chunk_atomsets( attrdicts, modified):
+    """[private helper for assy_become_scanned_state:]
+    Given the set of live atoms (deduced from attrdicts) and their .molecule attributes
+    (pointing from each atom to its owning chunk, which should be a live chunk),
+    replace each live chunk's .atoms attr (dict from atom.key to atom, for all its atoms)
+    with a recomputed value, and do all(??) necessary invals.
+       WARNING: CURRENT IMPLEM MIGHT ONLY BE CORRECT IF ALL LIVE CHUNKS HAVE ATOMS. [which might be a bug, not sure ##@@@@]
+    """
+    modified_get = modified.get
 #bruce 060314 this turned out not to be useful; leave it as an example
 # until analoguous stuff gets created (since the principle of organization
 # is correct, except for being nonmodular)
@@ -238,22 +301,25 @@ def assy_become_scanned_state(self, data, archive):
     # that has replaced .molecule for lots of atoms; need to fix the .atoms dicts of those mols [060314]
     if 1: # simple way to start with ####@@@@ should split into separate func for profiling (need funcs for above and below things too)
         mols = {}
-        molcode = ('molecule',0) ########@@@@@@@@ KLUGE; we want attrcode for Atom.molecule; should get clas for Atom and ask it!
+        molcode = ('molecule','Atom') ###@@@ KLUGE; we want attrcode for Atom.molecule; should get clas for Atom and ask it!
             ### how will i know if this breaks? debug code for it below can't be left in...
         moldict = attrdicts.get(molcode,{}) # {} can happen, when no Chunks (ie no live atoms) were in the state!
             # (this is a dict from atoms' objkeys to their mols, so len is number of atoms in state;
             #  i think they are all *found* atoms but as of 060330 might not be all *live* atoms,
-            #  since dead mol._hotspot can be found and preserved.)
-        if 0 and env.debug():
-            print "debug: len(moldict) == %d, if this always 0 we have a bug, but 0 is ok when no atoms in state" % (len(moldict))
+            #  since dead mol._hotspot can be found and preserved. [no longer true, 060404])
+        # warning: moldict is not a dict of mols, it's a dict from atom-representatives to those atoms' mols;
+        # it contains entries for every atom represented in the state (i.e. only for our, live atoms, if no bugs)
+        if 0 and env.debug(): ###@@@ disable when works; reenable whenever acode scheme changes
+            print "debug: len(moldict) == %d; if this is always 0 we have a bug, but 0 is ok when no atoms in state" % (len(moldict))
         for atom_objkey, mol in moldict.iteritems():
             mols[id(mol)] = mol
         from chunk import _nullMol
         for badmol in (None, _nullMol):
             if mols.has_key(id(badmol)):
                 # should only happen if undoable state contains killed or still-being-born atoms; I don't know if it can
-                # (as of 060317 tentative fix to bug 1633 comment #1, it can -- _hotspot is S_CHILD but can be killed)
-                if env.debug() and badmol is None:
+                # (as of 060317 tentative fix to bug 1633 comment #1, it can -- _hotspot is S_CHILD but can be killed [wrong now...])
+                # 060404: this is no longer true, so zap the ' and badmol is None:' from the following:
+                if env.debug():
                     print "debug: why does some atom in undoable state have .molecule = %r?" % (badmol,)
                 del mols[id(badmol)]
                 # but we also worry below about the atoms that had it (might not be needed for _nullMol; very needed for None)
@@ -266,6 +332,16 @@ def assy_become_scanned_state(self, data, archive):
         for mol in mols.itervalues():
             mol.invalidate_atom_lists() # inlines some more of Chunk.addatom
         pass
+    return # from fix_all_chunk_atomsets
+
+def call_undo_update(modified):
+    """[private helper for assy_become_scanned_state:]
+    Call the _undo_update method of every object we might have modified
+    (i.e. which is passed in the <modified> arg), which has one.
+    """
+    ##e two big missing optims:
+    # - realizing we only modified a few objects, not all of them in the state (up to the caller)
+    # - knowing that some classes don't define this method, and not scanning their instances looking for it
     for key, obj in modified.iteritems():
         ###e zap S_CACHE attrs? or depend on update funcs to zap/inval/update them? for now, the latter. Review this later. ###@@@
         try:
@@ -283,7 +359,17 @@ def assy_become_scanned_state(self, data, archive):
                 print_compact_traceback( "exception in _undo_update for %s; skipping it: " % safe_repr(obj))
             pass
         continue
-    # now do the registered undo updaters
+    return # from call_undo_update
+
+def call_registered_undo_updaters(archive):
+    """[private helper for assy_become_scanned_state:]
+    Call the registered undo updaters (on the overall model state, not the ones
+    on individual changed objects, which should already have been called),
+    in the proper order.
+    [#doc more?]
+    """
+    assy = archive.assy
+    # now 
     if 1:
         # for now, kluge it because we know there's exactly this one:
         from chem import _undo_update_Atom_jigs
@@ -294,21 +380,42 @@ def assy_become_scanned_state(self, data, archive):
         except:
             print_compact_traceback( "exception in some registered updater %s; skipping it: " % safe_repr(func))
         continue
-    #e also do some sort of general update of assy itself? or just let those be registered? for now, do this one:
-    # now i think this might not be safe, and also should not be needed:
-    ## assy.update_parts()
-    # but I'll do it at the very end (below) just to be safe in a different way.
-    #e now inval things in every Part, especially selatoms, selmols, molecules, maybe everything it recomputes
+    return # from call_registered_undo_updaters
+
+def final_post_undo_updates(archive):
+    """[private helper for assy_become_scanned_state:]
+    #doc
+    """
+    assy = archive.assy
+    #e now inval things in every Part, especially selatoms, selmols, molecules, maybe everything it recomputes [###k is this nim or not?]
     for node in assy.topnodes_with_own_parts():
         node.part._undo_update_always() # kluge, since we're supposed to call this on every object that defines it
-    assy.update_parts()
+    assy.update_parts() # i thought "we don't need this, since [true] we're about to do it as a pre-checkpoint update",
+        # but although we are, we need this one anyway, since it calls assy.changed() and we have to get that over with
+        # before restoring the change counters after Undo/Redo. [060406]
     if 1: #060302 4:45pm fix some unreported bugs about undo when hover highlighting is active -> inappropriate highlighting
         win = env.mainwindow()
         glpane = win.glpane
         glpane.selatom = glpane.selobj = None # this works; but is there a better way (like some method in GLPane)?
             # if there is, not sure it's fully safe!
             #e Also, ideally glpane should do this itself in _undo_update_always, which we should call.
-    return # from assy_become_scanned_state
+    return # from final_post_undo_updates
+
+def set_lastscan_kluge_from_modified(archive, modified): #060406
+    """[private helper for assy_become_scanned_state:]
+    #doc
+    """
+    state_holding_objs_dict = {}
+    for objkey, obj in modified.iteritems():
+        # one bad kluge: this depends on continuing to include all objs in modified, not just necessary ones!
+        # the other kluges mentioned after the loop are the way the sets of this are disconnected from the use of it.
+        if obj.__class__.__name__ not in ('Atom','Bond'):
+            # this condition is a kluge too (it's an optim, only safe if this means obj is changed-tracked)
+            continue
+        state_holding_objs_dict[id(obj)] = obj
+    # note: this is set in two places, and it's a kluge; see the comment where it's used. 
+    archive._lastscan = state_holding_objs_dict # this is kept around and later used by childobj_liveQ [060406]
+    return
 
 # ==
 
@@ -559,7 +666,10 @@ class SimpleDiff:
         cp = self.cps[1]
         assert cp.complete
         assy = archive.assy
-        assy.become_state(cp.state, archive) # note: in present implem this might effectively redundantly do some of restore_view() [060123]
+        #bruce 060407 revised following call, no longer goes thru an assy method
+        assy_become_state(assy, cp.state, archive)
+            # note: in present implem this might effectively redundantly do some of restore_view() [060123]
+            # [as of 060407 i speculate it doesn't, but sort of by accident, i.e. due to defered category collection of view objs]
         cp.metainfo.restore_view(assy)
             # note: this means Undo restores view from beginning of undone command,
             # and Redo restores view from end of redone command.
@@ -807,10 +917,11 @@ def make_empty_checkpoint(assy, cptype = None):
 
 def current_state(archive, assy, **options):
     """Return a data-like representation of complete current state of the given assy;
-    initial flag means it might be too early (in assy.__init__) to measure this
+    initial flag [ignored as of bfr 060407] means it might be too early (in assy.__init__) to measure this
     so just return an "empty state".
        On exception while attempting to represent current state, print debug error message
     and return None (which is never used as return value on success).
+       Note [060407 ###k]: this returns a StateSnapshot, not a StatePlace.
     """
     try:
         #060208 added try/except and this debug_pref
@@ -819,6 +930,7 @@ def current_state(archive, assy, **options):
             env.prefs[pkey] = False
             assert 0, "this simulates a bug in this undo checkpoint"
         data = mmp_state_from_assy(archive, assy, **options)
+        assert isinstance( data, StateSnapshot) ###k [this is just to make sure i am right about it -- i'm not 100% sure it's true - bruce 060407]
     except:
         print_compact_traceback("bug while determining state for undo checkpoint %r; subsequent undos might crash: " % options )
             ###@@@ need to improve situation in callers so crash warning is not needed (mark checkpoint as not undoable-to)
@@ -829,6 +941,12 @@ def current_state(archive, assy, **options):
     return data
 
 def fill_checkpoint(cp, state, assy): #e later replace calls to this with cp method calls
+    if not isinstance(state, StatePlace):
+        if env.debug():
+            print "likely bug: not isinstance(state, StatePlace) in fill_cp, for",state #060407 ###k not sure if correct!
+##    else:
+##        if env.debug(): ###@@@ rm when works -- it did
+##            print "good: isinstance(state, StatePlace) in fill_cp, for",state #060407 
     env.change_counter_checkpoint() ###k here?? store it??
     assert cp is not None
     assert not cp.complete
@@ -886,7 +1004,11 @@ class checkpoint_metainfo:
         #e caller should do whatever updates are needed due to this (e.g. gl_update)
     def restore_assy_change_counters(self, assy):
         #e ... and not say it doesn't if the only change is from a kind that is not normally saved.
+        if debug_change_counters:
+            print "restore_assy_change_counters begin, chg ctrs =", assy.all_change_counters()
         assy.reset_changed_for_undo( self.assy_change_counters) # never does env.change_counter_checkpoint() or the other one
+        if debug_change_counters:
+            print "restore_assy_change_counters end, chg ctrs =", assy.all_change_counters()
     pass
 
 def current_view_for_Undo(glpane, assy): #e shares code with saveNamedView
@@ -1021,9 +1143,14 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 ##        self._changed_Bonds = {} # tracks all changes to Bonds: existence, which atoms, bond order. [bond.key or id(bond) is TBD ###k]
 
         self.subbing_to_changedicts_now = False # whether this was initially False or True wouldn't matter much, I think...
-        self._changedicts = [] # list of *external* changedicts we subscribe to -- we are not allowed to directly modify them!
+        self._changedicts = [] #060404 made this a list of (changedict, ourdict) pairs, not just a list of changedicts
+            # list of pairs of *external* changedicts we subscribe to -- we are not allowed to directly modify them! --
+            #  and ourdicts for them, the appropriate one of self.all_changed_Atoms or self.all_changed_Bonds)
             # (in fact it might be better to just list their cdp's rather than the dicts themselves; also more efficient ##e)
-        self.all_changed_objs = {} # this one dict subscribes to all changes on all attrs of all classes of object (for now)
+        ## self.all_changed_objs = {} # this one dict subscribes to all changes on all attrs of all classes of object (for now)
+        self.all_changed_Atoms = {} # atom.key -> atom, for all changed Atoms (all attrs lumped together; this could be changed)
+        self.all_changed_Bonds = {} # id(bond) -> bond, for all changed Bonds (all attrs)
+        self.ourdicts = (self.all_changed_Atoms,self.all_changed_Bonds,) #e use this more
         # rest of init is done later, by self.initial_checkpoint, when caller is more ready [060223]
         ###e not sure were really inited enough to return... we'll see
         return
@@ -1032,7 +1159,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         if self.subbing_to_changedicts_now != subQ:
             del self.subbing_to_changedicts_now # we'll set it to a new value (subQ) at the end;
                 # it's a bug if something wants to know it during this method, so the temporary del is to detect that
-            ourdicts = (self.all_changed_objs,) # kluge: this is also hardcoded into sub_or_unsub_to_one_changedict
+            ourdicts = self.ourdicts
             if subQ:
                 for ourdict in ourdicts:
                     if ourdict:
@@ -1047,9 +1174,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 ##                                             (self._changed_picked_Atoms, '_changed_picked_Atoms'),
 ##                                             (self._changed_otherwise_Atoms, '_changed_otherwise_Atoms'),
 ##                                             (self._changed_Bonds, '_changed_Bonds')):
-            cds = self._changedicts[:]
-            for changedict in cds:
-                self.sub_or_unsub_to_one_changedict(subQ, changedict)
+            cd_ods = self._changedicts[:]
+            for changedict, ourdict in cd_ods:
+                self.sub_or_unsub_to_one_changedict(subQ, changedict, ourdict)
                 continue
                 #e other things to do in some other method with each changedict:
                 # or update?
@@ -1058,13 +1185,14 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 for ourdict in ourdicts:
                     ourdict.clear() # not sure we need this, but if we're unsubbing we're missing future changes
                         # so we might as well miss the ones we were already told about (might help to free old objects?)
-            assert map(id, cds) == map(id, self._changedicts) # since new cds during that loop are not supported properly by it
+            assert map(id, cd_ods) == map(id, self._changedicts) # since new cds during that loop are not supported properly by it
+                # note, this is comparing ids of tuples, but since the point is that we didn't change _changedicts,
+                # that should be ok. We can't use == since when we get to the dicts in the tuples, we have to compare ids.
             self.subbing_to_changedicts_now = subQ
         return
 
-    def sub_or_unsub_to_one_changedict(self, subQ, changedict):
+    def sub_or_unsub_to_one_changedict(self, subQ, changedict, ourdict):
         subkey = id(self)
-        ourdict = self.all_changed_objs # same one for each changedict; this might not be true in future
         cdp = changes._cdproc_for_dictid[id(changedict)]
         if subQ:
             cdp.subscribe(subkey, ourdict)
@@ -1094,7 +1222,10 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         cp = make_empty_checkpoint(assy, 'initial') # initial checkpoint
         #e the next three lines are similar to some in self.checkpoint --
         # should we make self.set_last_cp() to do part of them? compare to do_op's effect on that, when we code that. [060118] [060301 see also set_last_cp_after_undo]
-        fill_checkpoint(cp, current_state(self, assy, initial = True, **self.format_options), assy) ### it's a kluge to pass initial; revise to detect this in assy itself
+        cursnap = current_state(self, assy, initial = True, **self.format_options)
+             # initial = True is ignored; obs cmt: it's a kluge to pass initial; revise to detect this in assy itself
+        state = StatePlace(cursnap) #####k this is the central fix of the initial-state kluge [060407]
+        fill_checkpoint(cp, state, assy)
         if self.pref_report_checkpoints():
             self.debug_histmessage("(initial checkpoint: %r)" % cp)
         self.last_cp = self.initial_cp = cp
@@ -1124,22 +1255,106 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         ###e if we've been destroyed, raise an exception to get us removed from the pairmatcher, maybe a special one that's not an
         # error in its eyes; in current code we'll raise AttributeError on _changedicts or maybe on its extend method #####@@@@@
         changedicts0 = changes._changedicts_for_classid[ id(class1) ] # maps name to dict, but names are only unique per-class
-        changedicts = changedicts0.values() # or .items()?
-        self._changedicts.extend( changedicts ) # no reason to ever forget about changedicts, I think [#e include name in here?]
+        changedicts = changedicts0.values() # or .items()? someday we'll want to use the dictnames, i think... for now we don't need them
+        ## self._changedicts.extend( changedicts ) -- from when ourdict was not in there (zap this commented out line soon)
+        ourdicts = {'Atom':self.all_changed_Atoms, 'Bond':self.all_changed_Bonds} # compare to self.ourdicts, which is a list
+        ourdict = ourdicts[class1.__name__] # only those two classes are supported, for now
+        for cd in changedicts:
+            self._changedicts.append( (cd, ourdict) )
+            # no reason to ever forget about changedicts, I think
             # (if this gets inefficient, it's only for developers who often reload code module -- I think; review this someday ##k)
         if self.subbing_to_changedicts_now:
             for name, changedict in changedicts0.items():
                 del name
-                self.sub_or_unsub_to_one_changedict(True, changedict)
-                    #e someay, also passing its name, so sub-implem can know what we think about changes in it? maybe.
+                self.sub_or_unsub_to_one_changedict(True, changedict, ourdict)
+                    #e someday, also pass its name, so sub-implem can know what we think about changes in it?
+                    # maybe; but more likely, ourdict already was chosen using the name, if name needs to be used at all.
+        # optimization: ask these classes for their state_attrs decls now, so later inner loops can assume the attrdicts exist.
+        ###e WARNING: this won't be enough to handle new classes created at runtime, while this archive continues to be in use,
+        # if they contain _s_attr decls for new attrs! For that, we'd also need to add the new attrs to existing attrdicts
+        # in state or diff objects (perhaps lazily as we encounter them, by testing len(attrdicts) (?) or some version counter).
+        self.obj_classifier.classify_class( class1)
         return
 
+    def oursQ(self, obj):
+        """Is the given object (allowed to be an arbitrary Python object, including None, a list, etc)
+        known to be one of *our* undoable state-holding objects?
+        (Also True in present implem if obj has ever been one of ours;
+         this needs review if this distinction ever matters,
+         i.e. if objs once ours can later become not ours, without being destroyed.)
+        WARNING: this is intended only for use on child-scanned (non-change-tracked) objects
+        (i.e. all but Atoms or Bonds, as of 060406);
+        it's not reliable when used on change-tracked objects when deciding
+        for the first time whether to consider them ours; instead, as part of that decision,
+        they might query this for child-scanned objects which own them,
+        e.g. atoms might query it for atom.molecule.
+        """
+        #e possible optim: store self.objkey_allocator._key4obj.has_key as a private attr of self
+        return self.objkey_allocator._key4obj.has_key(id(obj))
+    
+    def new_Atom_oursQ(self, atom): #060405; rewritten 060406
+        "Is a newly seen Atom object one of ours?"
+        #e we might optim by also requiring it to be alive; review callers if this might be important
+        ##e maybe we should be calling a private Atom method for this; not sure, since we'd need to pass self for self.oursQ
+        return self.oursQ( atom.molecule ) # should be correct even if atom.molecule is None or _nullMol (says False then)    
+##        if atom._Atom__killed: # inlines Atom._undo_aliveQ [wrongly, as of 060406]
+##            return False # this might happen if it's not ours and if it's been stuck in a changedict for some time
+##        mol = atom.molecule
+##        if mol is None or mol.assy is not self.assy: # for now this handles _nullMol, in future it might not
+##            return False
+##        return True
+
+    def new_Bond_oursQ(self, bond): #060405
+        "Is a newly seen Bond object one of ours? (optional: also ok to return False if it's not alive)"
+        ##e maybe we should be calling a private Bond method for this
+        if not self.trackedobj_liveQ(bond):  #######@@@@@@@ review after 060406 bugfixes
+            return False # seems reasonable (for any kind of object)... review/doc/comment in caller ###e
+        # motivation for the above: surviving that test implies a1 & a2 are not None, and bond is in a1.bonds etc
+        a1 = bond.atom1
+        a2 = bond.atom2
+        return self.new_Atom_oursQ(a1) or self.new_Atom_oursQ(a2)
+            # Notes:
+            # - either of these conditions ought to imply the other one; 'or' is mainly used to make bugs more likely noticed;
+            #   I'm not sure which of 'or' and 'and' is more robust (if no bugs, they're equivalent, and so is using only one cond).
+            #   ONCE THIS WORKS, I SHOULD PROBABLY CHANGE FROM 'or' TO 'and' (and retest) FOR ROBUSTNESS. ######@@@@@@
+            # - the atoms might not be "new", but (for a new bond of ours) they're new enough for that method to work.
+
+    def childobj_liveQ(self, obj):
+        """Is the given object (allowed to be an arbitrary Python object, including None, a list, etc) (?? or assumed ourQ??)
+        a live child-scanned object in the last-scanned state, assuming it's a child-scanned object?
+        WARNING: it's legal to call this for any object, but for a non-child-scanned but undoable-state-holding object
+        which is one of ours (i.e. an Atom or Bond as of 060406), the return value is undefined.
+        """
+        # note: this implem is a KLUGE ####@@@@; the attr here is set in two distinct ways by differen code;
+        # more correct would be for _lastscan to be an attribute of a state snapshot
+        # (or at least of the current one, something.lastsnap or .lastcp, I forget where best to get that).
+        return self._lastscan.has_key(id(obj))
+
+    def trackedobj_liveQ(self, obj):
+        """Assuming obj is a legitimate object of a class we change-track,
+        but (even if it's ours) NOT requiring that we've already allocated an objkey for it,
+        then do the following:
+        - if it's one of ours, return whether it's alive,
+        - if not, return either False or whether it's alive
+          (i.e. which of these to do is up to the class-specific implems,
+           and our callers must tolerate either behavior).
+        Never raise an exception; on errors, print message and return False.
+        ###e maybe doc more from Atom._undo_aliveQ docstring?
+        """
+        try:
+            return obj._undo_aliveQ(self)
+        except:
+            print_compact_traceback( "exception in _undo_aliveQ for %s; assuming dead: " % safe_repr(obj))
+            return False
+        
     def get_and_clear_changed_objs(self):
-        for changedict in self._changedicts:
+        "Clear, and return copies of, the changed-atoms dict (key -> atom) and changed-bonds dict (id -> bond)."
+        for changedict, ourdict_junk in self._changedicts:
             cdp = changes._cdproc_for_dictid[id(changedict)]
             cdp.process_changes() # this is needed to add the latest changes to our own local changedict(s)
-        res = dict(self.all_changed_objs)
-        self.all_changed_objs.clear()
+        res = dict(self.all_changed_Atoms), dict(self.all_changed_Bonds) #e should generalize to a definite-order list, or name->dict
+        self.all_changed_Atoms.clear()
+        self.all_changed_Bonds.clear()
         return res
     
     def destroy(self): #060126 precaution
@@ -1148,7 +1363,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             self.debug_histmessage("(destroying: %r)" % self)
         self.sub_or_unsub_changedicts(False)
             # this would be wrong, someone else might be using them!
-            ##for cd in self._changedicts:
+            ##for cd,odjunk in self._changedicts:
             ##    cd.clear()
             # it's right to clear our own, but that's done in the method we just called.
         del self._changedicts
@@ -1253,6 +1468,17 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
         #bruce 060313: we no longer need to update mol.atpos for every chunk. See comments in chunk.py docstring about atom.index.
         # [removed commented-out code for it, 060314]
+
+# this was never tested -- it would be needed for _s_attr__hotspot,
+# but I changed to _s_attr_hotspot and _undo_setattr_hotspot instead [060404]
+##        chunks = self.assy.allNodes(Chunk) # note: this covers all Parts, whereas assy.molecules only covers the current Part
+##        for chunk in chunks:
+##            chunk.hotspot # make sure _hotpot is valid (not killed) or None [060404]
+##                # this is required for Undo Atom change-tracking to work properly, so that dead atoms (as value of _hotspot)
+##                # never need to be part of the undoable state.
+##                # (Needless to say, this should be made more modular by being somehow declared in class Chunk,
+##                #  perhaps giving it a special _undo_getattr__hotspot or so (though support for that is nim, i think). ###e)
+        
         return
     
     def checkpoint(self, cptype = None, cmdname_for_debug = "", merge_with_future = False ): # called from undo_manager
@@ -1370,7 +1596,8 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                 # note, its failure might no longer indicate a bug if we have scripting and a script can say,
                 # inside one undoable operation, "undo to point P, then do op X".
                 if self.current_diff.assert_no_changes: #060301
-                    msg = "apparent bug in Undo: self.current_diff.assert_no_changes is true, but change_counters were changed"
+                    msg = "apparent bug in Undo: self.current_diff.assert_no_changes is true, but change_counters were changed "\
+                          "from %r to %r" % (self.last_cp.assy_change_counters, self.assy.all_change_counters())
                     # we don't yet know if there's a real diff, so if this happens, we might move it later down, inside 'if really_changed'.
                     print msg
                     from HistoryWidget import redmsg # not sure this is ok to do when this module is imported, tho probably it is
@@ -1380,6 +1607,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
                     print "checkpoint %r at change %r, last cp was at %r" % (cptype, \
                                     self.assy.all_change_counters(), self.last_cp.assy_change_counters)
                 if not use_diff:
+                    # note [060407]: this old code predates StatePlace, and hasn't been tested recently, so today's initial-state cleanup
+                    # might break it, since current_state really returns cursnap, a StateSnapshot, but last_cp.state will be a StatePlace,
+                    # unless something about 'not use_diff' makes it be a StateSnapshot, which is possible and probably makes sense.
+                    # But a lot of new asserts of isinstance(state, StatePlace) will probably break in that case,
+                    # so reviving the 'not use_diff' (as a debug_pref option) might be useful for debugging but would be a bit of a job.
                     state = current_state(self, self.assy, **self.format_options) ######@@@@@@ need to optim when only some change_counters changed!
                     really_changed = (state != self.last_cp.state) # this calls StateSnapshot.__ne__ (which calls __eq__) [060227]
                     if not really_changed and env.debug():

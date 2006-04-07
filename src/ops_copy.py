@@ -272,7 +272,7 @@ class ops_copy_Mixin:
                 val = chem.Atom_prekill_prep()
                 for a in self.selatoms.itervalues():
                     a._will_kill = val # inlined a._prekill(val), for speed
-            for a in self.selatoms.values():
+            for a in self.selatoms.values(): # the above can be itervalues, but this can't be!
                 a.kill()
             self.selatoms = {} # should be redundant
             
@@ -363,7 +363,7 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
                 # we might need to recurse on their members here if the groups say no,
                 # unless that 'no' applies to copying the members too.
                 fullcopy[id(node)] = node
-        for atom in sel.selatoms.itervalues():
+        for atom in sel.selatoms.itervalues(): # this use of selatoms.itervalues is only safe because .pick/.unpick is not called
             chunk = atom.molecule
             #e for now we assume that all these chunks will always be partly copied;
             # if that changes, we'd need to figure out which ones are not copied, but not right here

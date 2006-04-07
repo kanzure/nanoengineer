@@ -527,6 +527,37 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         self.set_atomtype_but_dont_revise_singlets( atype)
         return # from atom.__init__
 
+    def _undo_aliveQ(self, archive): #bruce 060406
+        """Would this (Atom) object be picked up as a child object in a (hypothetical) complete scan of children
+        (including change-tracked objects) by the given undo_archive (or, optional to consider, by some other one)?
+        """
+        # This implem is only correct because atoms can't appear in state except inside chunks which do.
+        # (That's only true because we fix or don't save invalid _hotspots, which can be killed bondpoints.)
+        # I doubt the following implem can have a legitimate exception,
+        # so we'll let the caller catch exceptions if it wants to be robust.
+        mol = self.molecule
+        return archive.childobj_liveQ(mol) and mol.atoms.has_key(self.key)
+
+    def make_selobj_cmenu_items(self, menu_spec): #bruce 060405 (generalized from Jig method)
+        '''Add self-specific context menu items to <menu_spec> list when self is the selobj,
+        in modes that support it (e.g. depositMode and selectMode and subclasses).
+        '''
+        if platform.atom_debug:
+            from undo_archive import _undo_debug_obj
+            if self is _undo_debug_obj:
+                checked = 'checked'
+            else:
+                checked = None
+            item = ('_undo_debug_obj = %r' % self, self.set_as_undo_debug_obj, checked)
+            menu_spec.append(item)
+        return
+
+    def set_as_undo_debug_obj(self):
+        import undo_archive
+        undo_archive._undo_debug_obj = self
+        undo_archive._undo_debug_message( '_undo_debug_obj = %r' % self )
+        return
+    
     def __getattr__(self, attr):
         assert attr != 'xyz' # temporary: catch bugs in bruce 060308 rewrite
         try:

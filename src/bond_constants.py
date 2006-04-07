@@ -209,7 +209,7 @@ def _compute_bond_params(atomtype1, atomtype2, v6):
         ratio = nicelen / rcovsum
         rcov1 *= ratio
         rcov2 *= ratio
-        if platform.atom_debug:
+        if 0 and platform.atom_debug:
             print "debug: _compute_bond_params adjusts %s-%s-%s length by %f" % \
                   (atomtype1.fullname, ltr, atomtype2.fullname, ratio)
     return rcov1, rcov2

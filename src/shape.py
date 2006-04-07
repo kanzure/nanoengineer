@@ -560,13 +560,23 @@ class SelectionShape(shape):
                             break   
                                     
             if c.selSense == DELETE_SELECTION: # mark 060220.
+                todo = []
                 for mol in assy.molecules:
                     if mol.hidden: continue
                     disp = mol.get_dispdef()
                     for a in mol.atoms.itervalues():
+                        #bruce 060405 comment/bugfix: this use of itervalues looked dangerous (since mol was killed inside the loop),
+                        # but since the iterator is not continued after that, I suppose it was safe (purely a guess).
+                        # It would be safer (or more obviously safe) to build up a todo list of mols to kill after the loop.
+                        # More importantly, assy.molecules was not copied in the outer loop -- that could be a serious bug,
+                        # if it's incrementally modified. I'm fixing that now, using the todo list.
                         if c.isin(a.posn()) and a.visible(disp):
-                            a.molecule.kill()
+                            ## a.molecule.kill()
+                            todo.append(mol) #bruce 060405 bugfix
                             break
+                for mol in todo:
+                    mol.kill()
+            return
         
         def findObjInside(self, assy):
             '''Find atoms/chunks that are inside the shape. '''

@@ -90,23 +90,19 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     
     _hotspot = None
     
-##    _s_attr_hotspot = S_REF
-##    _s_attr__hotspot = S_REF
-    _s_attr__hotspot = S_CHILD # needs to be CHILD in case it temporarily refers to a killed atom (common after you deposit onto it),
-        # since otherwise, that atom's state will not be part of the stored state,
-        # and restoring that state will fail to alter the attrs of that atom as they need to.
-        ####@@@@ #e need to warn somehow if you hit a StateMixin object in S_REF but didn't store state for it;
-        ####@@@@ I'm not sure how I'll handle this once the live atoms are being differentially scanned.
-        ##e Would it be better to clean up all hotspots before taking a checkpoint?
+    _s_attr_hotspot = S_REF #bruce 060404 revised this in several ways; bug 1633 (incl. all subbugs) will need retesting.
+        # Note that this declares hotspot, not _hotspot, so that undo state never contains dead atoms.
+        # This is only ok because we provide _undo_setattr_hotspot as well.
         #
-        # history:
-        #bruce 060308 added '_s_attr_hotspot = S_REF' to fix bug 1633 (in its original description, before comment #1)
-        #bruce 060309 corrected hotspot -> _hotspot, i.e. '_s_attr__hotspot = S_REF', to fix bug 1643
-            ####@@@@ ideally we'd add debug code to detect the original error, due to presence of a _get_hotspot method;
-            # maybe we'd have an optional method (implemented by InvalMixin)
-            # to say whether an attr is legal for an undoable state decl.
-        #bruce 060317 changed this again, to '_s_attr__hotspot = S_CHILD', to fix bug 1633 comment #1
-        # (a different bug than the original bug 1633).
+        # Note that we don't put this (or Jig.atoms) into the 'atoms' _s_attrlayer, since we still need to scan them as data.
+        #
+        # Here are some old comments from when this declared _hotspot, still relevant:
+        #e we need to warn somehow if you hit a StateMixin object in S_REF but didn't store state for it
+        # (as could happen when we declared _hotspot as data, not child, and it could be a dead atom);
+        #e ideally we'd add debug code to detect the original error (declaring hotspot),
+        # due to presence of a _get_hotspot method; maybe we'd have an optional method (implemented by InvalMixin)
+        # to say whether an attr is legal for an undoable state decl. But (060404) there needs to be an exception,
+        # e.g. when _undo_setattr_hotspot exists, like now.
         
     _colorfunc = None
     # this overrides global display (GLPane.display)
@@ -130,6 +126,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # I think the latter is simpler, so I'll try it. 
     ## _s_attr_atoms = S_CHILDREN
     _s_attr_atoms = S_CHILDREN_NOT_DATA
+    _s_attrlayer_atoms = 'atoms' #bruce 060404
 
     # no need to _s_attr_ decl basecenter and quat -- they're officially arbitrary, and get replaced when things get recomputed
     # [that's the theory, anyway... bruce 060223]
@@ -148,6 +145,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         Node._undo_update(self) ##k do this before or after the following??
             # (general rule for subclass/superclass for this? guess: more like destroy than create, so do high-level (subclass) first)
         return
+
+    def _undo_setattr_hotspot(self, hotspot, archive): #bruce 060404
+        self.set_hotspot( hotspot)
     
     def __init__(self, assy, name = None):
         self.invalidate_all_bonds() # bruce 050516 -- needed in init to make sure
@@ -776,7 +776,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     def inval_display_list(self): #bruce 050804
         "This is meant to be called when something whose usage we tracked (while making our display list) next changes."
         self.changeapp(0) # that now tells self.glpane to update, if necessary
-        #########@@@@@@@@ glpane needs to track changes anyway due to external bonds....
+        ###@@@ glpane needs to track changes anyway due to external bonds.... [not sure of status of this comment; as of bruce 060404]
     
     def draw(self, glpane, dispdef):
         """draw all the atoms, using the atom's, molecule's,

@@ -453,7 +453,13 @@ class ops_select_Mixin:
         "Deselect any selected atoms (but don't change selwhat or do any updates)" #bruce 050517 added docstring
         if self.selatoms:
             from chem import _changed_picked_Atoms
-            for a in self.selatoms.itervalues():
+            ## for a in self.selatoms.itervalues():
+                #bruce 060405 comment/precaution: that use of self.selatoms.itervalues might have been safe
+                # (since actual .unpick (which would modify it) is not called in the loop),
+                # but it looks troublesome enough that we ought to make it safer, so I will:
+            selatoms = self.selatoms
+            self.selatoms = {}
+            for a in selatoms.itervalues():
                 # this inlines and optims atom.unpick
                 a.picked = False
                 _changed_picked_Atoms[a.key] = a #bruce 060321 for Undo (or future general uses)
