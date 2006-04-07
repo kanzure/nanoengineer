@@ -3,7 +3,12 @@ import unittest
 
 baseline_code = """
 +!:
-    <atomic dup @ rot + swap ! atomic> exit
+    <atomic
+        /* x p */
+        dup fetch     /* x p (*p) */
+        rot + swap    /* (*p)+x p */
+        store
+    atomic> exit
 
 foo:
     rand exit
@@ -16,6 +21,7 @@ quux:
 
 /* this requires we set up some data memory */
 tryloop:
+    0 0 store
     600 0 do
         i 0 +!
     loop
@@ -47,7 +53,7 @@ class IguanaTests(unittest.TestCase):
         assert mem[1] == 0.0
         assert mem[2] == 0.0
 
-    # this is quite slow, because we're doing lots of "@" and "!" operations
+    # this is quite slow, because we're doing lots of "fetch" and "store" operations
     def test_loop1_many_threads(self):
         self.prog.compile("main: tryloop exit")
         mem = 3 * [ 0.0 ]

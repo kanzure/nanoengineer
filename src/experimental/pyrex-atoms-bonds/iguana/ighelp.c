@@ -267,7 +267,7 @@ igverb_store(iguana_thread_object * self, int pc)
     int n;
     double d;
     if (self->memory == NULL) {
-        PyErr_SetString(IguanaError, "fetching from non-existent memory");
+        PyErr_SetString(IguanaError, "storing to non-existent memory");
         return -1;
     }
     CHECK_UNDERFLOW(2);
@@ -393,8 +393,8 @@ static struct predef {
     { "exit", igverb_exit },
     { "jump", igverb_jump },
     { "zjump", igverb_zjump },
-    { "!", igverb_store },
-    { "@", igverb_fetch },
+    { "store", igverb_store },
+    { "fetch", igverb_fetch },
     { "do", igverb_do },
     { "loop", igverb_loop },
     { "i", igverb_i },
