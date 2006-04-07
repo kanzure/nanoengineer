@@ -16,13 +16,9 @@ For now, the best documentation is the unit test.
 
 IMPROVEMENTS
 
-When compiling a program, the list of integers should be copied to a C
-int array as a one-time activity. That would make it a lot faster.
-
 Replace "exit" with ";"? I dunno.
 
 Make each iguana verb a Python object, and give each one a doc string.
-
-One way to write a program would be to write a Python list of verbs;
-it wouldn't only be strings. This could allow for programmatically
-constructed iguana programs.
+Then, one way to write a program would be to write a Python list of
+verbs; strings wouldn't be the only option. This could allow for
+programmatically constructed iguana programs.

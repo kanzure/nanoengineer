@@ -37,6 +37,7 @@ static void igthread_dealloc(iguana_thread_object * thr);
 static PyObject *igthread_getattr(iguana_thread_object * a, char *name);
 static int igthread_setattr(iguana_thread_object * self, char *name,
                             PyObject * v);
+static int igverb_lit(iguana_thread_object * self, int pc);
 
 #define EVILRETURN NULL
 
@@ -63,8 +64,8 @@ PyTypeObject iguana_thread_type = {
 static PyObject *
 new_iguana_thread(PyObject *self, PyObject *args)
 {
-    int stack_size = 100;
-    PyObject *prog, *mem = NULL;
+    int stack_size = 100, i, n;
+    PyObject *prog, *mem = NULL, *z;
     iguana_thread_object *thr, *prev, *next;
     if (!PyArg_ParseTuple(args, "OO|i", &prog, &mem, &stack_size))
         return NULL;
@@ -85,8 +86,31 @@ new_iguana_thread(PyObject *self, PyObject *args)
     thr->data_stack = malloc(stack_size * sizeof(double));
     if (thr->data_stack == NULL)
         return PyErr_NoMemory();
-    Py_INCREF(prog);
-    thr->program = prog;
+    thr->program_size = n = PyList_Size(prog);
+    thr->program = (program_entry *) malloc(n * sizeof(program_entry));
+    if (thr->program == NULL) {
+        PyErr_SetString(PyExc_MemoryError, "out of memory");
+        return NULL;
+    }
+    for (i = 0; i < n; i++) {
+	int x;
+	z = PyList_GetItem(prog, i);
+	if (!PyInt_Check(z)) {
+	    PyErr_SetString(PyExc_TypeError, "program entries should be ints");
+	    return NULL;
+	}
+	thr->program[i].ival = x = PyInt_AsLong(z);
+	if (x == (int) igverb_lit) {
+	    i++;
+	    z = PyList_GetItem(prog, i);
+	    if (!PyFloat_Check(z)) {
+		PyErr_SetString(PyExc_TypeError, "argument to LIT should be a float");
+		return NULL;
+	    }
+	    thr->program[i].dval = PyFloat_AsDouble(z);
+	}
+    }
+
     Py_XINCREF(mem);
     thr->memory = mem;
     thr->program_counter = thr->finished = 0;
@@ -109,8 +133,8 @@ new_iguana_thread(PyObject *self, PyObject *args)
 static void
 igthread_dealloc(iguana_thread_object * thr)
 {
-    Py_DECREF(thr->program);
     Py_XDECREF(thr->memory);
+    PyMem_DEL(thr->program);
     PyMem_DEL(thr->data_stack);
     PyMem_DEL(thr);
 }
@@ -180,18 +204,12 @@ igverb_rand(iguana_thread_object * self, int pc)
 static int
 igverb_lit(iguana_thread_object * self, int pc)
 {
-    PyObject *px;
     CHECK_OVERFLOW(1);
-    if (pc > PyList_Size(self->program) - 2) {
+    if (pc > self->program_size - 2) {
         PyErr_SetString(IguanaError, "badly compiled program");
         return -1;
     }
-    px = PyList_GetItem(self->program, pc);
-    if (!PyFloat_Check(px)) {
-        PyErr_SetString(IguanaError, "[lit] expected a float");
-        return -1;
-    }
-    self->data_stack[self->dspointer] = PyFloat_AsDouble(px);
+    self->data_stack[self->dspointer] = self->program[pc].dval;
     self->dspointer++;
     return pc + 1;
 }
@@ -205,7 +223,7 @@ igverb_call(iguana_thread_object * self, int pc)
     }
     self->return_stack[self->rspointer] = pc + 1;
     self->rspointer++;
-    return PyInt_AsLong(PyList_GetItem(self->program, pc));
+    return self->program[pc].ival;
 }
 
 static int
@@ -225,14 +243,14 @@ igverb_zjump(iguana_thread_object * self, int pc)
     CHECK_UNDERFLOW(1);
     self->dspointer--;
     if (self->data_stack[self->dspointer] == 0.0)
-        return PyInt_AsLong(PyList_GetItem(self->program, pc));
+        return self->program[pc].ival;
     return pc + 1;
 }
 
 static int
 igverb_jump(iguana_thread_object * self, int pc)
 {
-    return PyInt_AsLong(PyList_GetItem(self->program, pc));
+    return self->program[pc].ival;
 }
 
 static int
@@ -307,7 +325,7 @@ igverb_loop(iguana_thread_object * self, int pc)
         return pc + 1;
     }
     self->return_stack[self->rspointer - 1] = index;
-    return PyInt_AsLong(PyList_GetItem(self->program, pc));
+    return self->program[pc].ival;
 }
 
 static int
@@ -364,8 +382,7 @@ igverb_spawn(iguana_thread_object * self, int pc)
     memcpy(newguy->data_stack,
            &(self->data_stack[self->dspointer]), n * sizeof(double));
     newguy->dspointer = n;
-    newguy->program_counter =
-        PyInt_AsLong(PyList_GetItem(self->program, pc));
+    newguy->program_counter = self->program[pc].ival;
     return pc + 1;
 }
 
@@ -482,22 +499,14 @@ ig_threads_step(PyObject * self, PyObject * args)
         P = root_thread.next;
         while (P != &root_thread) {
             int pc;
-            PyObject *pi;
             igverbfunc func;
             // printf("Now serving thread %p\n", P);
             pc = P->program_counter;
-            if (pc >= PyList_Size(P->program)) {
+            if (pc >= P->program_size) {
                 PyErr_SetString(IguanaError, "program ran off the end");
                 return NULL;
             }
-            pi = PyList_GetItem(P->program, pc);
-            if (!PyInt_Check(pi)) {
-                char errstr[200];
-                sprintf(errstr, "non-int iguana verb at position %d", pc);
-                PyErr_SetString(IguanaError, errstr);
-                return NULL;
-            }
-            func = (igverbfunc) PyInt_AsLong(pi);
+            func = (igverbfunc) P->program[pc].ival;
             if (func == igverb_exit && P->rspointer == 0) {
                 /*
                  * this thread has finished its job 
