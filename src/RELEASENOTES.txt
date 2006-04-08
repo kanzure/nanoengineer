@@ -5,63 +5,89 @@ Release Notes for nanoENGINEER-1 v0.0.7 (Alpha 7)
 What's new in nanoENGINEER-1 v0.0.7 ():
 
 
-# Undo/Redo 
+1. Undo/Redo
+  - nanoENGINEER-1 now includes rich Undo/Redo functionality
+  - Automatic checkpointing can be enabled/disabled by selecting 
+    'Edit > Automatic Checkpointing'
+  - 'Edit > Clear Undo Stack' clears all Undo checkpoints to free system memory
 
-
-# Build Mode Enhancements:
+2. Build Mode Enhancements
+  - Significantly improved interactive mouse controls for building, selecting, 
+    moving and editing structures and other objects. To learn more about the
+    new mouse controls, see the 'Build Mode' section of the Mouse Control 
+    documentation by selecting 'Help > Mouse Controls...'
+  - Hover highlighting now supports bonds and jigs (not just atoms)
+  - Atoms, bonds and jigs have context menus for common commands
+  - Transmuting atoms is supported
+  - Atom Selection Filter is supported, including the specification of one or more
+    atom types (using the Shift key while selecting atoms from the MMKit) to 
+    apply the selection filter to
   - Build mode is the new default startup mode 
-  - Select Atoms mode merged into the Build mode
-  -  
-  -
-  -
-  - Jigs can be highlighted in the 3D workspace
-  - Highlighting 
-  - 'Water' in Build can be turned ON or OFF 
-  - Library tab in the MMKit
- 
+  - New Library tab in MMKit which allows the 3D preview and insertion of parts
+    from the nanoENGINEER-1 library
+  - 'Water' selection filter can be enabled/disabled from the dashboard (disabled
+    by default)
 
-# Improved Graphics and GUI
-  -
-  -
+3. Select Atoms Mode removed
 
-# Watch minimize and simulation in real time 
+4. New web-based 'Wiki Help System'
+  - Context sensitive help using F1 key
+  - Users can edit and contribute to the nanoENGINEER-1 Wiki Help System
 
+5. nanoDynamics-1 Enhancements
+  - Improved force field
+  - Watch minimize and MD simulations in real time
+  - Minimize and MD simulations can be stopped at any time, leaving atoms at their
+    current positions
 
-# Nanotube Generator (Insert > Nanotube) 
-  - Single Walled Carbon Nanotube Generator
+6. View Menu Enhancements
+  - 'Set View Normal To' sets the view to a new view based on the normal vector
+    of the current selection
+  - 'Set View Parallel To'  sets the view to a new view based on the parallel 
+    vector of the current selection
+  - 'Rotate View 180' rotates the current view 180 degrees around the vertical axis
+  - 'Rotate View +90' rotates the current view 90 degrees around the vertical axis
+  - 'Rotate View -90' rotates the current view -90 degrees around the vertical axis
+  - 'Save Named View' saves a custom view in the Model Tree
 
-  
-# View
-  - Animate Between Views
-  - Set View Normal To
-  - Set View Parallel To
-  - Rotate View 180 (degrees)
-  - Rotate View +90 (degrees)
-  - Rotate View -90 (degrees)
-  - Save Named View (saves a custom view)
+7. View Animation
+  - Which switching to a standard view (i.e. Front, Top, Home, etc.), 
+    nanoENGINEER-1 will animate from the current view to the destination view. 
+    This can be disabled from 'Edit > Preferences'.
+  - Animation speed can be changed using a slider control in the 
+    'Edit > Preferences | General' dialog
 
+8. Single Walled Carbon Nanotubes (SWCNT) can be added to the model by 
+   selecting 'Insert > Nanotube'
 
-#  Web based help ('wiki help') 
+9. Improved Graphics
+  - Rendering speeds improved
+  - Graphics quality improved
+  - Lighting and Material Specular Properties of the model can be control
+    by selecting 'Edit > Preferences | Lighting'
+  - 
 
-# Local Minimize (context menu option)
-
-
-# Jigs
+10. New Jigs
   - Measure Distance
   - Measure Angle 
   - Measure Dihedral
   - ESP Image
+  - Gridplane
+  - Atom Set
+
+11. Nano-Hive
+  - ESP image plugin for Windows
 
 
-#. Plugins 
-  - New NanoHive ESP image plugin for Windows
+12. Fuse Chunks Mode
+  - Allows user to fuse two or more chunks together using one of two methods:
+    1. Make Bonds - bondpoints between chunks will form bonds when they 
+       are near each other.
+    2. Fuse Atoms - atoms between chunks will be fused when they overlap 
+       each other.
 
-
-# Fuse Mode
-  - Fuse Atoms option
-
-#Movie Player Mode
-  - 'Loop' the movie 
+13. Movie Player Enhancements
+  - New 'Loop' option on dashboard restarts the movie when it reaches the end
   
 
 # Molecular Dynamics Simulator:
@@ -85,7 +111,6 @@ What's new in nanoENGINEER-1 v0.0.7 ():
   - Expand Selection
   - Contract Selection
   - Center on Common Axis
-  - Invert
   - 'Merge' operation extended for atom selection 
 
 
