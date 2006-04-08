@@ -355,7 +355,9 @@ class Bond( StateMixin):
     atom1 = atom2 = _valid_data = None # make sure these attrs always have values!
     _saved_geom = None
 
-    _s_attr_key = S_DATA #bruce 060405, not sure why this wasn't needed before (or if it will help now) ####@@@@
+    _s_attr_key = S_DATA #bruce 060405, not sure why this wasn't needed before (or if it will help now)
+        # (update 060407: I don't if it did help, but it still seems needed in principle.
+        #  It's change-tracked by self.changed_atoms.)
 
     # this is needed for repeated destroy [bruce 060322]
     glname = 0 

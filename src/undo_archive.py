@@ -116,23 +116,7 @@ def assy_become_state(self, state, archive): #e should revise args, but see also
     if debug_change_counters:
         print "assy_become_state begin, chg ctrs =", archive.assy.all_change_counters()
 
-    data = state    
-##    if type(state) == type(()):
-##        format, data = state
-##        # state can be None if exception (bug) was caught while checkpoint was made,
-##        # but it's not yet worth protecting from that here [bruce 060208]
-##    else:
-##        format, data = 'scan_whole', state # kluge 060301
-    del state
-
-    assy_become_scanned_state(archive, self, data) # that either does self.update_parts() or doesn't need it done (or both)
-##    if format == 'mmp_state':
-##        assert 0 #060301 [removed commented-out support code, 060314]
-##    elif format == 'scan_whole':
-##        assy_become_scanned_state(archive, self, data) # that either does self.update_parts() or doesn't need it done (or both)
-##        # fall thru
-##    else:
-##        assert 0, "unknown format %r" % (format,)
+    assy_become_scanned_state(archive, self, state) # that either does self.update_parts() or doesn't need it done (or both)
     
     self.changed() #k needed? #e not always correct! (if we undo or redo to where we saved the file)
         #####@@@@@ review after scan_whole 060213
@@ -699,96 +683,7 @@ class SimpleDiff:
 # since it looks likely SimpleDiff will use differentially-defined states without even knowing it,
 # just by having states in the checkpoints which know it themselves.
 
-##class SharedDiffopData: ####@@@@ stub, apparently, as of 060216;
-##    ###see also the become_state functions, which have similar code to apply_to;
-##    ##060222 new code in state_utils superceding some of this...
-##    """Hold replacement values for various attrs of various objects (objects are known to us only by their keys),
-##    and be able to swap them with the attrvals in the objects, in alternate "directions"
-##    """
-##    def __init__(self):
-##        assert 0 # not used as of before 060227, but slated to be used soon
-##        self.attrdiffs = {} # maps attrnames to dicts from objkey to replacement-val, for use in self.direction
-##        self.rev_attrdiffs = {} # ditto, for use in opposite direction, if we have them; typically built up while attrdiffs is applied
-##        self.direction = -1 # the direction we can next be applied in (or 0 if we can be applied in either direction??)
-##    def _swap(self):
-##        assert self.direction # otherwise we'd literally swap them
-##        self.attrdiffs = self.rev_attrdiffs # assume this is done after these were built up (should this attr be missing otherwise?)
-##        self.rev_attrdiffs = {}
-##        self.direction = - self.direction
-##    def store(self, objkey, attr, val):
-##        "this is mainly just example code, in reality we'd do some of this outside a loop, inline the rest"
-##        key2val = self.attrdiffs.get(attr, {})
-##        key2val[objkey] = val
-##    def apply_to(self, archive, direction):####@@@@ stub, apparently, as of 060216; see also the become_state functions, which have similar code
-##        """Change the archive model objects by storing into them the attrvals we have recorded for them
-##        (for a subset of obj,attr pairs), and pulling out the values we're overwriting
-##        so we'll have enough info to undo this change later..
-##        """
-##        if self.direction:
-##            assert self.direction == direction #k does this belong in caller? is it redundant with varid_vers?
-##        obj4key = archive.obj4key # for efficiency, let this be a public dict in archive
-##        objs_touched = {} # by any attrs... for merging diffs, it might be better for caller to pass this and do the update,
-##         #e  but then if our attrs come in layers, caller has to scan the diffs to merge one layer at a time, maybe... not sure;
-##         # maybe it only has to do that for update, ie track objs touched in each layer.
-##        #e we're not bothering to distinguish which attrs were touched, for now; later we might divide attrs into layers,
-##        # do layers in order, update after each layer, just objs touched in that layer.
-##        # Or, we might tell certain objs which attrs were touched (ie let them handle the touching, not setattr).
-##        for attr, key2val in self.attrdiffs.items():
-##            dflt = None # might be specific to attr; might be gotten out of obj.__class__??
-##            key2old = {} # replaces key2val
-##            for key, val in key2val.iteritems():
-##                obj = obj4key[key]
-##                # put val in obj at attr, but record the old val first, also update obj later
-##                #e in future we might ask obj if it wants us to do this in a special way
-##                oldval = getattr(obj, attr, dflt)
-##                setattr(obj, attr, val)
-##                objs_touched[key] = obj
-##                # we don't need to copy val, since we're not keeping it (we already owned it, now obj does),
-##                # or oldval, since obj no longer has it!
-##                ##e assume we don't need to encode/decode them either
-##                key2old[key] = oldval
-##            # store key2old, zap key2val
-##            self.rev_attrdiffs[attr] = key2old
-##            del self.attrdiffs[attr]
-##        assert not self.attrdiffs
-##        for obj in objs_touched.values():
-##            archive.update_touched_obj(obj) #e need to use a special order?? #e "touched" is putting it mildly
-##        #e were varid-vers part of the ordinary attrs that got modified just now??
-##        self._swap()
-##        return
-##    pass
-##
-##class BetterDiff(SimpleDiff): #060210 # someday SimpleDiff will probably go away ####@@@@ use this
-##    """A more efficient diff, which only records differences between its checkpoints,
-##    and also implements its own finalize method
-##    """
-##    def __init__(self, cp0, cp1 = None, direction = 1, **options):
-##        assert 0 # not used as of before 060227, but slated to be used soon
-##        if cp1 is None:
-##            pass ####@@@@ cp1 is new checkpoint
-##        SimpleDiff.__init__(self, cp0, cp1, direction, **options) ###e need to be passed cp1?? yes, privately...
-##        # similarly to self.command_info, we need a private shared place to store the diff data for one or the other direction,
-##        # and to know which direction it's in
-##        self.shared_diffop_data = self.options.get('_shared_diffop_data', None)
-##        if self.shared_diffop_data is None:
-##            self.shared_diffop_data = SharedDiffopData()
-##        self.options['_shared_diffop_data'] = self.shared_diffop_data
-##    def apply_to(self, archive):
-##        "apply this diff-operation to the model objects owned by archive"
-##        cp = self.cps[1]
-##        assert cp.complete
-##        #e assert cps[0] is where we start?
-##        self.shared_diffop_data.apply_to( archive, self.direction)
-##        assy = archive.assy
-##        ## assy.become_state(cp.state, archive) # note: in present implem this might effectively redundantly do some of restore_view() [060123]
-##        cp.metainfo.restore_view(assy)
-##            # note: this means Undo restores view from beginning of undone command,
-##            # and Redo restores view from end of redone command.
-##            #e (Also worry about this when undoing or redoing a chain of commands.)
-##        cp.metainfo.restore_assy_change_counters(assy) # change current-state varid_vers records
-##        archive.set_last_cp_after_undo(cp) #060301
-##        return
-##    pass
+##class SharedDiffopData: ##@@ stub, apparently, as of 060216;....
 
 # ==
 
@@ -943,10 +838,7 @@ def current_state(archive, assy, **options):
 def fill_checkpoint(cp, state, assy): #e later replace calls to this with cp method calls
     if not isinstance(state, StatePlace):
         if env.debug():
-            print "likely bug: not isinstance(state, StatePlace) in fill_cp, for",state #060407 ###k not sure if correct!
-##    else:
-##        if env.debug(): ###@@@ rm when works -- it did
-##            print "good: isinstance(state, StatePlace) in fill_cp, for",state #060407 
+            print "likely bug: not isinstance(state, StatePlace) in fill_cp, for",state #060407
     env.change_counter_checkpoint() ###k here?? store it??
     assert cp is not None
     assert not cp.complete
@@ -978,8 +870,8 @@ class checkpoint_metainfo:
         try:
             glpane = assy.o # can fail even at end of assy.__init__, but when it does, assy.w.glpane does too
         except:
-            self.view = "initial view not yet set - stub, will fail if you undo to this point" ######@@@@@@
-            if env.debug():#060301 - does this ever happen (i doubt it)
+            self.view = "initial view not yet set - stub, will fail if you undo to this point" 
+            if env.debug():#060301 - does this ever happen (i doubt it) ###@@@ never happens; someday analyze why not [060407]
                 print "debug:",self.view
         else:
             self.view = current_view_for_Undo(glpane, assy) # Csys object (for now), with an attribute pointing out the current Part
@@ -1297,17 +1189,11 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         #e we might optim by also requiring it to be alive; review callers if this might be important
         ##e maybe we should be calling a private Atom method for this; not sure, since we'd need to pass self for self.oursQ
         return self.oursQ( atom.molecule ) # should be correct even if atom.molecule is None or _nullMol (says False then)    
-##        if atom._Atom__killed: # inlines Atom._undo_aliveQ [wrongly, as of 060406]
-##            return False # this might happen if it's not ours and if it's been stuck in a changedict for some time
-##        mol = atom.molecule
-##        if mol is None or mol.assy is not self.assy: # for now this handles _nullMol, in future it might not
-##            return False
-##        return True
 
     def new_Bond_oursQ(self, bond): #060405
         "Is a newly seen Bond object one of ours? (optional: also ok to return False if it's not alive)"
         ##e maybe we should be calling a private Bond method for this
-        if not self.trackedobj_liveQ(bond):  #######@@@@@@@ review after 060406 bugfixes
+        if not self.trackedobj_liveQ(bond):
             return False # seems reasonable (for any kind of object)... review/doc/comment in caller ###e
         # motivation for the above: surviving that test implies a1 & a2 are not None, and bond is in a1.bonds etc
         a1 = bond.atom1
