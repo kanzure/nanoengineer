@@ -322,8 +322,9 @@ class basicMode(anyMode):
             if hasattr(self, attr):
                 del self.__dict__[attr]
         #bruce 050416: give it a default menu; for modes we have now, this won't ever be seen unless there are bugs
-        self.Menu_spec = [('<modename should go here>', noop, 'disabled')] ###e change to actual modename, if this is ever used
-        self.makeMenus() # bruce 040923 moved this here, from the subclasses
+        #bruce 060407 update: improve the text, re bug 1739 comment #3, since it's now visible for zoom/pan/rotate tools
+        self.Menu_spec = [("%s" % self.user_modename(), noop, 'disabled')]
+        self.makeMenus() # bruce 040923 moved this here, from the subclasses; for most modes, it replaces self.Menu_spec
         # bruce 041103 changed details of what self.makeMenus() should do
         for attr in ['Menu1','Menu2','Menu3']:
             assert not hasattr(self, attr), \
