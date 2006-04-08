@@ -576,8 +576,10 @@ class SimRunner:
             self._simopts = simopts
             self._simobj = simobj
         # wware 060406 bug 1471 - don't need a real movie, just need to hold the sim parameters
-        # if the sim parameters change, they need to be updated here. Updates also needed toward
-        # the end of Movie.__init__ (movie.py) and in SimSetup.setup (SimSetup.py)
+        # If the sim parameters change, they need to be updated in three places:
+        # Movie.__init__ (movie.py), toward the end
+        # SimSetup.setup (SimSetup.py)
+        # FakeMovie.__init (runSim.py)
         class FakeMovie:
             def __init__(self, realmovie):
                 self.totalFramesRequested = realmovie.totalFramesRequested

@@ -186,20 +186,26 @@ class Movie:
         self.moveToEnd = False
         # a flag that indicates if the wait (hourglass) cursor is displayed.
         self.waitCursor = False
+
         # simulator parameters to be used when creating this movie,
         # or that were used when it was created;
         # these should be stored in the dpb file header so they
         # can be retrieved later. These will be the default values used by
         # the simsetup dialog, or were the values entered by the user.
+        # If the sim parameters change, they need to be updated in three places:
+        # Movie.__init__ (movie.py), toward the end
+        # SimSetup.setup (SimSetup.py)
+        # FakeMovie.__init (runSim.py)
         self.totalFramesRequested = 900
             # bruce 050325 added totalFramesRequested, changed some uses of totalFrames to this
         self.temp = 300
         self.stepsper = 10
+        self.watch_motion = True # whether to show atom motion in realtime
+
         self.timestep = 10
             # Note [bruce 050325]: varying the timestep is not yet supported,
             # and this attribute is not presently used in the cad code.
         # support for new options for Alpha7 [bruce 060108]
-        self.watch_motion = True # whether to show atom motion in realtime
         self.create_movie_file = True # whether to store movie file
             # [nim (see NFR/bug 1286), treated as always T -- current code uses growing moviefile length to measure progress;
             #  to implem this, use framebuffer callback instead, but only when this option is asked for.]
