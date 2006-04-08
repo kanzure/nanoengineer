@@ -52,5 +52,6 @@ case $1 in
 	;;
     *)
 	echo Unknown command: $1
+        usage
 	;;
 esac
