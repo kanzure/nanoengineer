@@ -1233,12 +1233,15 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
             print_compact_traceback( "exception in _undo_aliveQ for %s; assuming dead: " % safe_repr(obj))
             return False
         
-    def get_and_clear_changed_objs(self):
-        "Clear, and return copies of, the changed-atoms dict (key -> atom) and changed-bonds dict (id -> bond)."
+    def get_and_clear_changed_objs(self, want_retval = True):
+        "Clear, and (unless want_retval is false) return copies of, the changed-atoms dict (key -> atom) and changed-bonds dict (id -> bond)."
         for changedict, ourdict_junk in self._changedicts:
             cdp = changes._cdproc_for_dictid[id(changedict)]
             cdp.process_changes() # this is needed to add the latest changes to our own local changedict(s)
-        res = dict(self.all_changed_Atoms), dict(self.all_changed_Bonds) #e should generalize to a definite-order list, or name->dict
+        if want_retval:
+            res = dict(self.all_changed_Atoms), dict(self.all_changed_Bonds) #e should generalize to a definite-order list, or name->dict
+        else:
+            res = None
         self.all_changed_Atoms.clear()
         self.all_changed_Bonds.clear()
         return res
@@ -1295,6 +1298,12 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         assert self.current_diff is not None
         assert cp is not None
         assert self.last_cp is not cp # since it makes no sense if it is, though it ought to work within this routine
+
+        # Clear the changed-object sets (maintained by change-tracking, for Atoms & Bonds), since whatever's in them will just slow down
+        # the next checkpoint, but nothing needs to be in them since we're assuming the model state and archived state are identical
+        # (caller has just stored archived state into model). (This should remove a big slowdown of the first operation after Undo or Redo.) [bruce 060407]
+        self.clear_changed_object_sets()
+        
         # not sure this is right, but it's simplest that could work, plus some attempts to clean up unused objects:
         self.current_diff.destroy() # just to save memory; might not be needed (probably refdecr would take care of it) since no ops stored from it yet
         self.last_cp.end_of_undo_chain_for_awhile = True # not used by anything, but might help with debugging someday; "for awhile" because we might Redo to it
@@ -1306,6 +1315,9 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.current_diff = SimpleDiff(self.last_cp, self.next_cp)
         self.current_diff.assert_no_changes = True # fyi: used where we check assy_change_counters
         return
+
+    def clear_changed_object_sets(self): #060407
+        self.get_and_clear_changed_objs(want_retval = False)
         
     def clear_undo_stack(self): #bruce 060126 to help fix bug 1398 (open file left something on Undo stack) [060304 removed *args, **kws]
         assert self.inited # note: the same-named method in undo_manager instead calls initial_checkpoint the first time
