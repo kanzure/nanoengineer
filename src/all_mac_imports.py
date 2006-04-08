@@ -37,31 +37,75 @@ import qt
 print "QT IMPORT WORKED" # this string is detected in our output by the parent process, atom.py
 sys.stdout.flush() #k needed?
 
-import multiarray   # this has the problem
+# These are the modules for which the import problem has ever been observed
+# (on a mac subject to bug 1724). For some of them, the problem was observed in some tests
+# but not in others. To test which specific module first hits the import problem
+# (on a mac subject to the bug), touch the file ~/DEBUG-1724 and read the Console.app output.
 
-if "we should be faster": 
-    # for speed; the above might be enough to test, and this saves 4-5 seconds [bruce 060327]
+import multiarray # this had the problem before, but doesn't have it on 060407
+import OpenGL.GL # this has the problem on 060407 via  GL__init___
+import OpenGL.GLU # this has the problem on 060407 via  GL__init___
+
+# These modules are seemed similar enough to the above to need to be test-imported every time:
+import OpenGL.GLUT
+import OpenGL.GLE
+
+# These modules are deemed suspicious enough to test-import every time, even though we have no 
+# specific reason to worry about them:
+
+import sip
+import Numeric
+import numeric_version
+import _numpy
+import umath
+import Precision
+import ArrayPrinter
+import LinearAlgebra
+import lapack_lite
+import MLab
+import RandomArray
+import ranlib
+import idlelib.Delegator
+import Image
+import FixTk
+import _imaging
+import ImagePalette
+import array
+import ImageOps
+import PngImagePlugin
+import ImageFile
+import ic
+import icglue
+import Carbon
+import _Res
+import Carbon.File
+import _File
+import macostools
+import MacOS
+
+# The remaining modules are unlikely to have problems, and it takes too long to always
+# test-import them all. (#e Maybe we should do it if debug_1724 is set? Maybe we should create
+# that file during the startup's dangerous phase, remove it later, so that it's left in place
+# if the error happens, so that user can repeat the test and get better debug info?)
+
+if "we should be faster, at the cost of not being as reliable":
+    # for speed; the above might be enough to test, and this saved 4-5 seconds
+    # back when only 'multiarray' was imported above [bruce 060327]
     # (it would be good to figure out which of the other ones are slow)
+    
     print "ALL IMPORTS COMPLETED" # this string is detected in our output by the parent process, atom.py
     
     sys.exit(0)    # # # 
 
 import time
 import types
-import sip
 import cPickle
 import copy_reg
 import __builtin__
 import cStringIO
-import Numeric
-import numeric_version
-import _numpy
-import umath
-import Precision
 import string
 import strop
 import math
-import ArrayPrinter
 import pickle
 import marshal
 import struct
@@ -77,17 +121,8 @@ import copy
 import StringIO
 import errno
 import __main__
-import OpenGL.GL
 import os.path
 import operator
-import OpenGL.GLU
-import OpenGL.GLUT
-import OpenGL.GLE
-import LinearAlgebra
-import lapack_lite
-import MLab
-import RandomArray
-import ranlib
 import commands
 import thread
 import shelve
@@ -96,26 +131,9 @@ import anydbm
 import dbm
 import dumbdbm
 import whichdb
-import idlelib.Delegator
-import Image
-import FixTk
-import _imaging
-import ImagePalette
-import array
-import ImageOps
-import PngImagePlugin
-import ImageFile
 import traceback
 import linecache
 import webbrowser
-import ic
-import icglue
-import Carbon
-import _Res
-import Carbon.File
-import _File
-import macostools
-import MacOS
 import unittest
 
 print "ALL IMPORTS COMPLETED"
