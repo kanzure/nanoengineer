@@ -72,10 +72,12 @@ def mmp_state_from_assy(archive, assy, initial = False, use_060213_format = Fals
 
 def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329/060404 added exclude_layers option
     """[#doc better:]
-    Return a big object listing all the undoable data reachable from assy,
-    in some data-like form (but including live objrefs), mostly equivalent to a list of objkey/attr/value triples,
-    suitable for mashing it back into assy, and whatever undoable objs it contains, at a later time.
-       You can pass exclude_layers = ('atoms') to skip the atom-layer attrs of Chunks (though not yet of Jigs, I think).
+    Return a big StateSnapshot object listing all the undoable data reachable from assy,
+    except the data deemed to be in layers listed in exclude_layers (e.g. atoms and bonds and certain sets of those),
+    in a data-like form (but including live objrefs), mostly equivalent to a list of objkey/attr/value triples,
+    suitable for mashing it back into assy (i.e. mainly and whatever undoable objs it contains), at a later time.
+       You can pass exclude_layers = ('atoms') to skip the atom-layer attrs of Chunks (though not yet of Jigs),
+    and the entire contents of Atoms & Bonds.
     """
     #e misnamed, since other things refer to this as the non-mmp option
     scanner = archive.obj_classifier
@@ -83,14 +85,14 @@ def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329/060404 added 
     viewdict = {}
     # kluge: defer collection of view-related objects and discard them, but don't bother deferring selection-related objects,
     # since for now there aren't any (and looking for them would slow us down until atoms are processed separately in a faster way).
-    state_holding_objs_dict = scanner.collect_s_children( start_objs,
+    childobj_dict = scanner.collect_s_children( start_objs,
                                                           deferred_category_collectors = {'view':viewdict},
                                                           exclude_layers = exclude_layers)
 
-    # note: this is set in two places, and it's a kluge; see the comment where it's used. 
-    archive._lastscan = state_holding_objs_dict # this is kept around and later used by childobj_liveQ [060406]
-        # warning: we have to set it soon enough, since it's used in the same undo checkpoint, for new changetracked objects,
-        # right after we return.
+##    # note: this is set in two places, and it's a kluge; see the comment where it's used. 
+##    archive._lastscan = childobj_dict # this is kept around and later used by childobj_liveQ [060406]
+##        # warning: we have to set it soon enough, since it's used in the same undo checkpoint, for new changetracked objects,
+##        # right after we return.
     
     if 0 and env.debug():
         print "debug: didn't bother scanning %d view-related objects:" % len(viewdict), viewdict.values() # works [060227]; LastView
@@ -100,23 +102,32 @@ def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329/060404 added 
     # we might have to redo the scan until nothing is killed, since subobjects might die due to this.
 
 ##    print "mmp_state_by_scan",assy
-    state = scanner.collect_state( state_holding_objs_dict, archive.objkey_allocator, exclude_layers = exclude_layers )
+    state = scanner.collect_state( childobj_dict, archive.objkey_allocator, exclude_layers = exclude_layers )
+
+    state._childobj_dict = childobj_dict
+        #060408 this replaces the _lastscan kluge above (still a kluge, but less bad);
+        # it's used (via a reference stored temporarily in the archive by a method-like helper function)
+        # by archive.childobj_liveQ, and discarded from archive before it becomes invalid,
+        # and discarded from the state we're returning when its StatePlace is asked to give it up
+        # by steal_lastsnap, which means it's becoming mutable (so _childobj_dict would also become invalid).
     
-    return state
+    return state # a StateSnapshot
 
 # ==
 
 # assy methods, here so reload works [but as of 060407, some or all of them should not be assy methods anyway, it turns out]
 
-def assy_become_state(self, state, archive): #e should revise args, but see also the last section which uses 'self' a lot [060407 comment]
+def assy_become_state(self, stateplace, archive): #e should revise args, but see also the last section which uses 'self' a lot [060407 comment]
     """[self is an assy] replace our state with some new state (in an undo-private format) saved earlier by an undo checkpoint,
     using archive to interpret it if necessary
     """
     #bruce 060117 kluge for non-modular undo; should be redesigned to be more sensible
+    assert isinstance(stateplace, StatePlace) ###k 060407
+    
     if debug_change_counters:
         print "assy_become_state begin, chg ctrs =", archive.assy.all_change_counters()
 
-    assy_become_scanned_state(archive, self, state) # that either does self.update_parts() or doesn't need it done (or both)
+    assy_become_scanned_state(archive, self, stateplace) # that either does self.update_parts() or doesn't need it done (or both)
     
     self.changed() #k needed? #e not always correct! (if we undo or redo to where we saved the file)
         #####@@@@@ review after scan_whole 060213
@@ -165,19 +176,30 @@ def assy_clear(self): #bruce 060117 draft
 
 # ==
 
-def assy_become_scanned_state(archive, assy, data): #060407 revised arg names & order
-    #e guess as of 060407: this should someday be an archive method, with some of the helpers being data methods
-    "[self is an assy; data is returned by mmp_state_by_scan, and is therefore presumably a StateSnapshot or StatePlace object]"
+def assy_become_scanned_state(archive, assy, stateplace): #060407 revised arg names & order
+    #e guess as of 060407: this should someday be an archive method, with some of the helpers being stateplace or state methods
+    "[obs: stateplace is returned by mmp_state_by_scan, and is therefore presumably a StateSnapshot or StatePlace object]"
     ####@@@@ this should really be a method of AssyUndoArchive (not just assy itself) [bruce 060313 realization]
-    assert assy is archive.assy # in future, maybe an archive can support more than one assy at a time, who knows
+    assert assy is archive.assy
+        # in future, maybe an archive can support more than one assy at a time (so this will need to be more general), who knows
     
-    try:
-        # remove this case once it no longer ever happens ###@@@
-        attrdicts = data.attrdicts # works for a StateSnapshot ##@@ this is dangerous, what if someone adds that attr to StatePlace?
-        if env.debug():
-            print "likely bug: assy_become_scanned_state was passed a StateSnapshot" # likely to be a bug after 060407 cleanup; common before it
-    except:
-        attrdicts = data.get_attrdicts_for_immediate_use_only() # works for a StatePlace
+##    try:
+##        # remove this case once it no longer ever happens ###@@@
+##        attrdicts = stateplace.attrdicts # works for a StateSnapshot ##@@ this is dangerous, what if someone adds that attr to StatePlace?
+##        if env.debug():
+##            print "likely bug: assy_become_scanned_state was passed a StateSnapshot" # likely to be a bug after 060407 cleanup; common before it
+##    except:
+
+    # note [060407]: the following mashes *all* attrs, changed or not. If we want to make Undo itself faster
+    # (as opposed to making checkpoints faster), we have to only mash the changed ones
+    # (and maybe do only the needed updates as well). That means we'd ask stateplace to pull lastsnap to itself
+    # (like this does now) but to tell us a smaller set of attrdicts containing only objects we need to change.
+    # (See get_differential_attrdicts_for_immediate_use_only for experimental code for part of this. ####@@@@)
+    #
+    # I think this involves some implicit assumptions about the stateplace with lastsnap being the one that matches
+    # the current model state (as it was last mashed into or checkpointed out of),
+    # which are true now but only required by some of the code, becoming required by more of the code.
+    attrdicts = stateplace.get_attrdicts_for_immediate_use_only() # works for a StatePlace
     
     modified = {} # key->obj for objects we modified
 
@@ -187,11 +209,12 @@ def assy_become_scanned_state(archive, assy, data): #060407 revised arg names & 
     call_undo_update( modified)
     call_registered_undo_updaters( archive)
     final_post_undo_updates( archive)
-    set_lastscan_kluge_from_modified(archive, modified)
-        ##e potential optim:
-        # this set_lastscan might not be needed, since we're about to do another checkpoint,
-        # which I'm guessing always overwrites it before it can be used;
-        # to find out someday, also store a flag saying which piece of code stored _lastscan, and check this when we use it
+# zap this soon -- not actually needed, and no longer easily doable [060408]
+##    set_lastscan_kluge_from_modified(archive, modified) # store the set of child objects presently in the model state [#e should rename]
+##        ##e potential optim:
+##        # this set_lastscan might not be needed, since we're about to do another checkpoint,
+##        # which I'm guessing always overwrites it before it can be used;
+##        # to find out someday, also store a flag saying which piece of code stored _lastscan, and check this when we use it
 
     return # from assy_become_scanned_state
 
@@ -385,21 +408,22 @@ def final_post_undo_updates(archive):
             #e Also, ideally glpane should do this itself in _undo_update_always, which we should call.
     return # from final_post_undo_updates
 
-def set_lastscan_kluge_from_modified(archive, modified): #060406
-    """[private helper for assy_become_scanned_state:]
-    #doc
-    """
-    state_holding_objs_dict = {}
-    for objkey, obj in modified.iteritems():
-        # one bad kluge: this depends on continuing to include all objs in modified, not just necessary ones!
-        # the other kluges mentioned after the loop are the way the sets of this are disconnected from the use of it.
-        if obj.__class__.__name__ not in ('Atom','Bond'):
-            # this condition is a kluge too (it's an optim, only safe if this means obj is changed-tracked)
-            continue
-        state_holding_objs_dict[id(obj)] = obj
-    # note: this is set in two places, and it's a kluge; see the comment where it's used. 
-    archive._lastscan = state_holding_objs_dict # this is kept around and later used by childobj_liveQ [060406]
-    return
+# zap this soon -- not actually needed, and no longer easily doable [060408]
+##def set_lastscan_kluge_from_modified(archive, modified): #060406
+##    """[private helper for assy_become_scanned_state:]
+##    #doc
+##    """
+##    state_holding_objs_dict = {}
+##    for objkey, obj in modified.iteritems():
+##        # one bad kluge: this depends on continuing to include all objs in modified, not just necessary ones!
+##        # the other kluges mentioned after the loop are the way the sets of this are disconnected from the use of it.
+##        if obj.__class__.__name__ not in ('Atom','Bond'):
+##            # this condition is a kluge too (it's an optim, only safe if this means obj is changed-tracked)
+##            continue
+##        state_holding_objs_dict[id(obj)] = obj
+##    # note: this is set in two places, and it's a kluge; see the comment where it's used. 
+##    archive._lastscan = state_holding_objs_dict # this is kept around and later used by childobj_liveQ [060406]
+##    return
 
 # ==
 
@@ -658,9 +682,14 @@ class SimpleDiff:
             # note: this means Undo restores view from beginning of undone command,
             # and Redo restores view from end of redone command.
             #e (Also worry about this when undoing or redoing a chain of commands.)
-            # POSSIBLE KLUGE: with current implem, applying a chain of several diffs can be done by applying the last one.
-            # The current code might perhaps do this when the skipped diffs are empty or have been merged -- don't know.
-            # This will need fixing once we're merging any nonempty diffs. ####@@@@ [060123]
+            # POSSIBLE KLUGE: with current [not anymore] implem,
+            # applying a chain of several diffs could be done by applying the last one.
+            # The current code might perhaps do this (and thus become wrong in the future)
+            # when the skipped diffs are empty or have been merged -- I don't know.
+            # This will need fixing once we're merging any nonempty diffs. ##@@ [060123]
+            # Update 060407: I don't think this is an issue now (for some time), since we traverse diffs on the stack
+            # to reach checkpoints, and then tell those "restore the state you saved",
+            # and those do this by merging a chain of diffs but that's their business.
         cp.metainfo.restore_assy_change_counters(assy) # change current-state varid_vers records
         archive.set_last_cp_after_undo(cp) #060301
         return
@@ -1168,7 +1197,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         self.obj_classifier.classify_class( class1)
         return
 
-    def oursQ(self, obj):
+    def childobj_oursQ(self, obj):
         """Is the given object (allowed to be an arbitrary Python object, including None, a list, etc)
         known to be one of *our* undoable state-holding objects?
         (Also True in present implem if obj has ever been one of ours;
@@ -1185,10 +1214,10 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
         return self.objkey_allocator._key4obj.has_key(id(obj))
     
     def new_Atom_oursQ(self, atom): #060405; rewritten 060406
-        "Is a newly seen Atom object one of ours?"
+        "Is a newly seen Atom object one of ours? [it's being seen in a changed-object set; the implem might assume that, I'm not sure]"
         #e we might optim by also requiring it to be alive; review callers if this might be important
-        ##e maybe we should be calling a private Atom method for this; not sure, since we'd need to pass self for self.oursQ
-        return self.oursQ( atom.molecule ) # should be correct even if atom.molecule is None or _nullMol (says False then)    
+        ##e maybe we should be calling a private Atom method for this; not sure, since we'd need to pass self for self.childobj_oursQ
+        return self.childobj_oursQ( atom.molecule ) # should be correct even if atom.molecule is None or _nullMol (says False then)    
 
     def new_Bond_oursQ(self, bond): #060405
         "Is a newly seen Bond object one of ours? (optional: also ok to return False if it's not alive)"
@@ -1207,25 +1236,40 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
 
     def childobj_liveQ(self, obj):
         """Is the given object (allowed to be an arbitrary Python object, including None, a list, etc) (?? or assumed ourQ??)
-        a live child-scanned object in the last-scanned state, assuming it's a child-scanned object?
+        a live child-scanned object in the last-scanned state (still being scanned, in fact), assuming it's a child-scanned object?
         WARNING: it's legal to call this for any object, but for a non-child-scanned but undoable-state-holding object
         which is one of ours (i.e. an Atom or Bond as of 060406), the return value is undefined.
+        WARNING: it's not legal to call this except during a portion of scate-scanning which briefly sets self._childobj_dict
+        to a correct value, which is a dict from id(obj) -> obj for all live child objects as detected earlier in the scan.
+        [#e Note: if we generalize the scanning to have ordered layers of objects, then this dict might keep accumulating newly found
+         live objects (during a single scan), so that each layer can use it to know which objects in the prior layer are alive.
+         Right now we use it that way but with two hardcoded layers, "child objects" and "change-tracked objects".]
         """
-        # note: this implem is a KLUGE ####@@@@; the attr here is set in two distinct ways by differen code;
-        # more correct would be for _lastscan to be an attribute of a state snapshot
-        # (or at least of the current one, something.lastsnap or .lastcp, I forget where best to get that).
-        return self._lastscan.has_key(id(obj))
+##        # note: this implem is a KLUGE ####@@@@; the attr here is set in two distinct ways by different code;
+##        # more correct would be for _lastscan to be an attribute of a state snapshot
+##        # (or at least of the current one, something.lastsnap or .lastcp, I forget where best to get that).
+##        return self._lastscan.has_key(id(obj))
+        # Note: this newer implem is still a kluge, but not as bad.
+        # self._childobj_dict is stored by caller (several call levels up), then later set to None before it becomes invalid.
+        # [060408]
+        return self._childobj_dict.has_key(id(obj))
 
     def trackedobj_liveQ(self, obj):
-        """Assuming obj is a legitimate object of a class we change-track,
-        but (even if it's ours) NOT requiring that we've already allocated an objkey for it,
-        then do the following:
-        - if it's one of ours, return whether it's alive,
-        - if not, return either False or whether it's alive
-          (i.e. which of these to do is up to the class-specific implems,
-           and our callers must tolerate either behavior).
+        """Assuming obj is a legitimate object of a class we change-track
+        (but not necessarily that we're the archive that tracks that instance, or that any archive does),
+        but *not* requiring that we've already allocated an objkey for it (even if it's definitely ours),
+        then ask its class-specific implem of _undo_aliveQ to do the following:
+        - if it's one of ours, return whether it's alive
+          (in the sense of being part of the *current* state of the model handled by this archive,
+           where "current" means according to the archive (might differ from model if archive is performing an undo to old state(??)));
+        - if it's not one of ours, return either False, or whether it's alive in its own archive's model (if it has one)
+          (which of these to do is up to the class-specific implems, and our callers must tolerate either behavior).
         Never raise an exception; on errors, print message and return False.
         ###e maybe doc more from Atom._undo_aliveQ docstring?
+        Note: we can assume that the caller is presently performing either a checkpoint, or a move to an old checkpoint,
+        and that self knows the liveQ status of all non-tracked objects, and is askable via childobj_liveQ.
+        (#e Someday we might generalize this so there is some order among classes, and then we can assume it knows
+         the liveQ status of all instances of prior classes in the order.)
         """
         try:
             return obj._undo_aliveQ(self)

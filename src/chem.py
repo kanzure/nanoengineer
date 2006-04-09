@@ -530,11 +530,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     def _undo_aliveQ(self, archive): #bruce 060406
         """Would this (Atom) object be picked up as a child object in a (hypothetical) complete scan of children
         (including change-tracked objects) by the given undo_archive (or, optional to consider, by some other one)?
+        The caller promises it will only call this when it's just done ... ###doc
         """
-        # This implem is only correct because atoms can't appear in state except inside chunks which do.
-        # (That's only true because we fix or don't save invalid _hotspots, which can be killed bondpoints.)
-        # I doubt the following implem can have a legitimate exception,
-        # so we'll let the caller catch exceptions if it wants to be robust.
+        # This implem is only correct because atoms can only appear in the archive's current state
+        # if they are owned by chunks which appear there.
+        # (That's only true because we fix or don't save invalid _hotspots, since those can be killed bondpoints.)
         mol = self.molecule
         return archive.childobj_liveQ(mol) and mol.atoms.has_key(self.key)
 

@@ -1154,21 +1154,26 @@ def diffdicts(d1, d2, dflt = None, whatret = 0, val_diff_func = None):
 
 # ==
 
-def priorstate_debug(priorstate, what = ""): #e call it, and do the init things
-    "call me only to print debug msgs"
-    ###@@@ this is to help me zap the "initial_state not being a StatePlace" kluges;
-    # i'm not sure where the bad ones are made, so find out by printing the stack when they were made.
-    try:
-        stack = priorstate._init_stack # compact_stack(), saved by __init__, for StatePlace and StateSnapshot
-    except:
-        print "bug: this has no _init_stack: %r" % (priorstate,)
-    else:
-        if not env.seen_before( ("ghjkfdhgjfdk" , stack) ):
-            print "one place we can make a %s priorstate like %r is: %s" % (what, priorstate, stack)
-    return
+##def priorstate_debug(priorstate, what = ""): #e call it, and do the init things
+##    "call me only to print debug msgs"
+##    ###@@@ this is to help me zap the "initial_state not being a StatePlace" kluges;
+##    # i'm not sure where the bad ones are made, so find out by printing the stack when they were made.
+##    try:
+##        stack = priorstate._init_stack # compact_stack(), saved by __init__, for StatePlace and StateSnapshot
+##    except:
+##        print "bug: this has no _init_stack: %r" % (priorstate,)
+##    else:
+##        if not env.seen_before( ("ghjkfdhgjfdk" , stack) ):
+##            print "one place we can make a %s priorstate like %r is: %s" % (what, priorstate, stack)
+##    return
 
-def diff_and_copy_state(archive, assy, priorstate): #060228 
-    "Return a StatePlace which presently owns the CurrentStateCopy but is willing to give it up when this is next called... #doc"
+def diff_and_copy_state(archive, assy, priorstate): #060228 (#e maybe this is really an archive method? 060408 comment & revised docstring)
+    """Figure out how the current actual model state (of assy) differs from the last model state we archived (in archive/priorstate).
+    Return a new StatePlace (representing a logically immutable snapshot of the current model state)
+    which presently owns a complete copy of that state (a mutable StateSnapshot which always tracks our most recent snapshot
+    of the actual state), but is willing to give that up (and redefine itself (equivalently) as a diff from a changed version of that)
+    when this function is next called.
+    """
     # background: we keep a mutable snapshot of the last checkpointed state. right now it's inside priorstate (and defines
     # that immutable-state-object's state), but we're going to grab it out of there and modify it to equal actual current state
     # (as derived from assy using archive), and make a diffobject which records how we had to change it. Then we'll donate it
@@ -1187,14 +1192,14 @@ def diff_and_copy_state(archive, assy, priorstate): #060228
     # 060329: this (to end of function) is where we have to do things differently when we only want to scan changed objects.
     # So we do the old full scan for most kinds of things, but not for the 'atoms layer' (atoms, bonds, Chunk.atoms attr).
     import undo_archive #e later, we'll inline this until we reach a function in this file
-    cursnap = undo_archive.current_state(archive, assy, use_060213_format = True, exclude_layers = ('atoms',))
-    lastsnap_diffscan_layers = lastsnap.extract_layers( ('atoms',) )
-    diffobj = diff_snapshots_oneway( cursnap, lastsnap ) # valid for everything except the 'atoms layer'
+    cursnap = undo_archive.current_state(archive, assy, use_060213_format = True, exclude_layers = ('atoms',)) # cur state of child objs
+    lastsnap_diffscan_layers = lastsnap.extract_layers( ('atoms',) ) # prior state of atoms & bonds, leaving only childobjs in lastsnap
+    diffobj = diff_snapshots_oneway( cursnap, lastsnap ) # valid for everything except the 'atoms layer' (atoms & bonds)
     ## lastsnap.become_copy_of(cursnap) -- nevermind, just use cursnap
     lastsnap = cursnap
     del cursnap
 
-    modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers, ('atoms',), diffobj ) #060404
+    modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers, ('atoms',), diffobj, lastsnap._childobj_dict ) #060404
     
     lastsnap.insert_layers(lastsnap_diffscan_layers)
     new.own_this_lastsnap(lastsnap)
@@ -1202,7 +1207,7 @@ def diff_and_copy_state(archive, assy, priorstate): #060228
     new.really_changed = not not diffobj.nonempty() # remains correct even when new's definitional content changes
     return new
 
-def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers, layers, diffobj ): #060404
+def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers, layers, diffobj, childobj_dict ): #060404
     #e rename lastsnap_diffscan_layers
     """[this might become a method of the undo_archive; it will certainly be generalized, as its API suggests]
     - Get sets of changed objects from (our subs to) global changedicts, and clear those.
@@ -1227,7 +1232,8 @@ def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers,
     keyknower = archive.objkey_allocator
     _key4obj = keyknower._key4obj
     changed_live = {} # both atoms & bonds; we'll classify, so more general (for future subclasses); not sure this is worth it
-    changed_dead = {} 
+    changed_dead = {}
+    archive._childobj_dict = childobj_dict # temporarily stored, for use by _oursQ and _liveQ methods (several calls deep) [060408]
     for akey, obj in chgd_atoms.iteritems():
         # akey is atom.key, obj is atom
         key = _key4obj.get(id(obj)) # inlined keyknower.key4obj; key is objkey, not atom.key
@@ -1249,7 +1255,8 @@ def modify_and_diff_snap_for_changed_objects( archive, lastsnap_diffscan_layers,
             if archive.trackedobj_liveQ(obj):
                 changed_live[id(obj)] = obj
             else:
-                changed_dead[id(obj)] = obj                
+                changed_dead[id(obj)] = obj
+    archive._childobj_dict = None
     ## print "changed_live = %s, changed_dead = %s" % (changed_live,changed_dead)
     key4obj = keyknower.key4obj_maybe_new
     diff_attrdicts = diffobj.attrdicts
@@ -1370,10 +1377,11 @@ class StatePlace:
         assert self.lastsnap is not None
         res = self.lastsnap
         self.lastsnap = None
+        res._childobj_dict = None # because caller is about to modify lastsnap, but won't modify this dict to match [060408]
         return res
     #e methods for pulling the snap back to us, too... across the pointer self.diff_and_place, i guess
-    def get_snap_back_to_self(self):
-        "[recursive (so might not be ok in practice)]"
+    def get_snap_back_to_self(self, accum_diffobj = None):
+        "[recursive (so might not be ok in practice)] [if accum_diffobj is passed, accumulate the diffs we traversed into it]"
         # predicted bug if we try this on the initial state, so, need caller to use StatePlace there ####@@@@
         # (this bug never materialized, but I don't know why not!!! [bruce 060309])
         # sanity check re that:
@@ -1385,17 +1393,32 @@ class StatePlace:
             diff, place = self.diff_and_place
             self.diff_and_place = None
             # now, we need to get snap into place (the recursive part), then steal it, apply & reverse diff, store stuff back
-            place.get_snap_back_to_self() # permits steal_lastsnap to work on it
+            place.get_snap_back_to_self(accum_diffobj = accum_diffobj) # permits steal_lastsnap to work on it
             lastsnap = place.steal_lastsnap()
+            if accum_diffobj is not None: #060407 late, experimental & nim & not yet called, for optimizing mash_attrs
+                apply_diff_to_diffobj(diff, accum_diffobj) ####IMPLEM, or find under another name, maybe as a method of diffobj
+                    #e this might be misnamed, maybe "accum or merge into"... but I like the way this name's "apply"
+                    # disambiguates the direction (the order asymmetry of combining two diffs of the "replace some lvals" form we use).
             apply_and_reverse_diff(diff, lastsnap) # note: modifies diff and lastsnap in place; no need for copy_val
             place.define_by_diff_from_stateplace(diff, self) # place will now be healed as soon as we are
             self.lastsnap = lastsnap # inlined self.own_this_lastsnap(lastsnap)
         return
     #e and for access to it, for storing it back into assy using archive
     def get_attrdicts_for_immediate_use_only(self): # [renamed, 060309]
-        "Warning: these are only for immediate use without modification!"
+        """WARNING: these are only for immediate use without modification!
+        They are shared with mutable dicts which we *will* modify the next time some other stateplace
+        has this method called on it, if not sooner!
+        """
         self.get_snap_back_to_self()
         return self.lastsnap.attrdicts
+    def get_differential_attrdicts_for_immediate_use_only(self): #060407 late, experimental & nim & not yet called
+        """WARNING: the return value depends on which stateplace last had this method
+        (or get_attrdicts_for_immediate_use_only, i.e. any caller of get_snap_back_to_self) run on it!!
+        [I think that's all, but whether more needs to be said ought to be analyzed sometime. ##k]
+        """
+        accum_diffobj = DiffObj() ###k args?
+        self.get_snap_back_to_self(accum_diffobj = accum_diffobj)
+        return accum_diffobj.attrdicts
     def _relative_RAM(self, priorplace): #060323
         """Return a guess about the RAM requirement of retaining the diff data to let this state
         be converted (by Undo) into the state represented by priorplace, also a StatePlace (??).
@@ -1426,7 +1449,12 @@ def apply_and_reverse_diff(diff, snap):
                     # whether or not oldval is _UNSET_, it indicates a diff, so we have to retain the item
                     # in dict1 or we'd think it was a non-diff at that key!
         else:
-            pass # this is WHERE I AM 060309 3:39pm. problem: this produces a val, ready to setattr into an object,
+            pass # use some specialized diff restoring func for this attrcode...
+            # this was WHERE I AM 060309 3:39pm.
+            # [note, 060407: the feature of attrcodes with specialized diff-finding or restoring functions
+            #  might still be useful someday, but turned out to be not needed for A7 and is unfinished
+            #  and not actively being developed. There might be partial support for it on the scanning side.]
+            # problem: this produces a val, ready to setattr into an object,
             # but what we need is to be able to do that setattr or actually modify_attr ourselves. hmm.
             # should we store smth that can be used to do it? not so simple i think... or at least less general
             # than it would appear... let's see how this is called. similar issues exist on the scanning side
