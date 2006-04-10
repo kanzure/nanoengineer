@@ -47,6 +47,12 @@ def _undo_debug_message( msg):
 
 def safe_repr(obj, maxlen = 1000):
     try:
+        maxlen = int(maxlen)
+        assert maxlen >= 5
+    except:
+        #e should print once-per-session error message & compact_stack (using helper function just for that purpose)
+        maxlen = 5
+    try:
         rr = "%r" % (obj,)
     except:
         rr = "<repr failed for id(obj) = %#x, improve safe_repr to print its class at least>" % id(obj)
@@ -121,7 +127,13 @@ def assy_become_state(self, stateplace, archive): #e should revise args, but see
     if debug_change_counters:
         print "assy_become_state begin, chg ctrs =", archive.assy.all_change_counters()
 
-    assy_become_scanned_state(archive, self, stateplace) # that either does self.update_parts() or doesn't need it done (or both)
+    try:
+        assy_become_scanned_state(archive, self, stateplace) # that either does self.update_parts() or doesn't need it done (or both)
+    except:
+        #060410 protect against breaking the session (though exceptions in there can end up breaking it anyway, a bit more slowly)
+        ###e bring in redmsg code for "see traceback in console", in undo_manager.py, do_main_menu_op
+        ###e and generalize that to a helper function to use for most of our debug prints
+        print_compact_traceback("bug: exception while restoring state after Undo or Redo: ")
     
     self.changed() #k needed? #e not always correct! (if we undo or redo to where we saved the file)
         #####@@@@@ review after scan_whole 060213
@@ -332,8 +344,18 @@ def mash_attrs( archive, attrdicts, modified, invalmols, differential = False ):
                 else:
                     if obj is _undo_debug_obj:
                         _undo_debug_message("undo/redo: %r.%s = %r, using _undo_setattr_" % (obj, attr, val))
-                    method(val, archive) # note: val might be _Bugval
-                    #e someday, catch exceptions, emit redmsg but continue with restoring other state, or at least other attrs
+                    try:
+                        method(val, archive) # note: val might be _Bugval
+                    except:
+                        # catch exceptions (so single-object bugs don't break Undo for the rest of the session),
+                        # continue with restoring other state, or at least other attrs
+                        print_compact_traceback("exception in %s for %s; continuing: " % (setattr_name, safe_repr(obj))) #060410
+                        ###e should also emit redmsg if not seen_before for this attr (or attrcode?) and this undo op;
+                        ###e should also revise all these debug prints to use safe_repr
+                        ###e should have an outer exception catcher which still protects the session,
+                        # since if this one is uncaught, we get a redmsg about bug in undo, and after that,
+                        # we keep getting checkpoint tracebacks;
+                        # see other comments of this date, or referring to redmsg, print_compact_traceback, seen_before
                     continue
             # else, or if we fell through:
             if obj is _undo_debug_obj:
@@ -482,6 +504,8 @@ def call_undo_update(modified): #060409 for differential mash_attrs, it's safe, 
                 method()
             except:
                 print_compact_traceback( "exception in _undo_update for %s; skipping it: " % safe_repr(obj))
+                #e should also print once-per-undo-op history message; maybe env.seen_before plus a user-op counter
+                # can be packaged into a once-er-user-op-message helper function? [060410 suggestion; search for other places to do it]
             pass
         continue
     return # from call_undo_update
@@ -777,6 +801,7 @@ class SimpleDiff:
         assy = archive.assy
         #bruce 060407 revised following call, no longer goes thru an assy method
         assy_become_state(assy, cp.state, archive)
+            ###e this could use a print_compact_traceback with redmsg...
             # note: in present implem this might effectively redundantly do some of restore_view() [060123]
             # [as of 060407 i speculate it doesn't, but sort of by accident, i.e. due to defered category collection of view objs]
         cp.metainfo.restore_view(assy)

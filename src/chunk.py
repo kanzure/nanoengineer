@@ -146,8 +146,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # (general rule for subclass/superclass for this? guess: more like destroy than create, so do high-level (subclass) first)
         return
 
-    def _undo_setattr_hotspot(self, hotspot, archive): #bruce 060404
-        self.set_hotspot( hotspot)
+    def _undo_setattr_hotspot(self, hotspot, archive): #bruce 060404; 060410 use store_if_invalid to fix new bug 1829
+        self.set_hotspot( hotspot, store_if_invalid = True)
     
     def __init__(self, assy, name = None):
         self.invalidate_all_bonds() # bruce 050516 -- needed in init to make sure
@@ -232,15 +232,18 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # tho that won't work when we can later apply this to a subtree... so review it then.
         return
     
-    def set_hotspot(self, hotspot, permit_invalid = False): #bruce 050217; 050524 added keyword arg
+    def set_hotspot(self, hotspot, silently_fix_if_invalid = False, store_if_invalid = False):
+        #bruce 050217; 050524 added keyword arg; 060410 renamed it & more
         # make sure no other code forgot to call us and set it directly
         assert not 'hotspot' in self.__dict__.keys(), "bug in some unknown other code"
         if self._hotspot is not hotspot:
             self.changed() #bruce 060324 fix bug 1532, and an unreported bug where this didn't mark file as modified
         self._hotspot = hotspot
-        # now recompute self.hotspot from the new self._hotspot (to check whether it's valid)
-        assert self.hotspot is hotspot or permit_invalid, "getattr bug, or specified hotspot is invalid"
-        assert not 'hotspot' in self.__dict__.keys(), "bug in getattr for hotspot"
+        if not store_if_invalid: # (when that's true, it's important not to recompute self.hotspot, even in an assertion)
+            # now recompute self.hotspot from the new self._hotspot (to check whether it's valid)
+            self.hotspot # this has side effects we depend on!
+            assert self.hotspot is hotspot or silently_fix_if_invalid, "getattr bug, or specified hotspot %r is invalid" % (hotspot,) ###e safe_repr
+        assert not 'hotspot' in self.__dict__.keys(), "bug in getattr for hotspot or in set_hotspot"
         return
     
     def _get_hotspot(self): #bruce 050217; used by getattr
@@ -1967,8 +1970,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     
     def _preserve_implicit_hotspot( self, hotspot): #bruce 050524 #e could also take base-atom arg to use as last resort
         if len(self.singlets) > 1 and self.hotspot is None:
-            #numol.set_hotspot( hotspot, permit_invalid = True) #Huaicai 10/13/05: fix bug 1061 by changing 'numol' to 'self'
-            self.set_hotspot( hotspot, permit_invalid = True) # this checks everything before setting it; if invalid, silent noop
+            #numol.set_hotspot( hotspot, silently_fix_if_invalid = True) #Huaicai 10/13/05: fix bug 1061 by changing 'numol' to 'self'
+            self.set_hotspot( hotspot, silently_fix_if_invalid = True) # this checks everything before setting it; if invalid, silent noop
 
     # == old copy method -- should remove ASAP but might still be needed for awhile (as of 050526)... actually we'll keep it for awhile,
     # since it's used in many places and ways in depositMode and extrudeMode... it'd be nice to rewrite it to call general copier...
