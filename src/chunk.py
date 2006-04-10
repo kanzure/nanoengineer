@@ -399,6 +399,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         some atom is joining or leaving this mol, do all needed invals
         (or this can be called once if many atoms are joining and/or leaving)
         """
+        # Note: as of 060409 I think Undo/Redo can call this on newly dead Chunks
+        # (from fix_all_chunk_atomsets_differential);
+        # I'm not 100% sure that's ok, but I can't see a problem in the method
+        # and I didn't find a bug in testing. [bruce 060409]
         self.havelist = 0
         self.haveradii = 0
         # bruce 050513 try to optimize this

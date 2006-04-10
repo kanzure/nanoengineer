@@ -387,6 +387,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     # def __init__  is just below a couple undo-update methods
 
     def _undo_update(self):
+        if self.molecule is None:
+            # new behavior as of 060409, needed to interact well with differential mash_attrs...
+            # i'm not yet fully comfortable with this (maybe we really need _nullMol in here??) ###@@@
+            print "bug (ignored): _undo_update on dead atom", self
+            return
         #bruce 060224 conservative guess -- invalidate everything we can find any other code in this file invalidating 
         for b in self.bonds:
             b.setup_invalidate()

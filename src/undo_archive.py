@@ -19,7 +19,7 @@ from debug import print_compact_traceback, print_compact_stack
 from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
 import env
 import state_utils
-from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state, transclose, StatePlace, StateSnapshot
+from state_utils import objkey_allocator, obj_classifier, diff_and_copy_state, transclose, StatePlace, StateSnapshot, _UNSET_
 from prefs_constants import historyMsgSerialNumber_prefs_key, undoRestoreView_prefs_key
 import changes
 
@@ -89,11 +89,6 @@ def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329/060404 added 
                                                           deferred_category_collectors = {'view':viewdict},
                                                           exclude_layers = exclude_layers)
 
-##    # note: this is set in two places, and it's a kluge; see the comment where it's used. 
-##    archive._lastscan = childobj_dict # this is kept around and later used by childobj_liveQ [060406]
-##        # warning: we have to set it soon enough, since it's used in the same undo checkpoint, for new changetracked objects,
-##        # right after we return.
-    
     if 0 and env.debug():
         print "debug: didn't bother scanning %d view-related objects:" % len(viewdict), viewdict.values() # works [060227]; LastView
     
@@ -101,11 +96,10 @@ def mmp_state_by_scan(archive, assy, exclude_layers = ()): #060329/060404 added 
     # to be sure the gone ones are properly killed (and don't use up much RAM). if that change anything
     # we might have to redo the scan until nothing is killed, since subobjects might die due to this.
 
-##    print "mmp_state_by_scan",assy
     state = scanner.collect_state( childobj_dict, archive.objkey_allocator, exclude_layers = exclude_layers )
 
     state._childobj_dict = childobj_dict
-        #060408 this replaces the _lastscan kluge above (still a kluge, but less bad);
+        #060408 this replaces the _lastscan kluge from ~060407 (still a kluge, but less bad);
         # it's used (via a reference stored temporarily in the archive by a method-like helper function)
         # by archive.childobj_liveQ, and discarded from archive before it becomes invalid,
         # and discarded from the state we're returning when its StatePlace is asked to give it up
@@ -183,47 +177,56 @@ def assy_become_scanned_state(archive, assy, stateplace): #060407 revised arg na
     assert assy is archive.assy
         # in future, maybe an archive can support more than one assy at a time (so this will need to be more general), who knows
     
-##    try:
-##        # remove this case once it no longer ever happens ###@@@
-##        attrdicts = stateplace.attrdicts # works for a StateSnapshot ##@@ this is dangerous, what if someone adds that attr to StatePlace?
-##        if env.debug():
-##            print "likely bug: assy_become_scanned_state was passed a StateSnapshot" # likely to be a bug after 060407 cleanup; common before it
-##    except:
-
     # note [060407]: the following mashes *all* attrs, changed or not. If we want to make Undo itself faster
     # (as opposed to making checkpoints faster), we have to only mash the changed ones
-    # (and maybe do only the needed updates as well). That means we'd ask stateplace to pull lastsnap to itself
-    # (like this does now) but to tell us a smaller set of attrdicts containing only objects we need to change.
-    # (See get_differential_attrdicts_for_immediate_use_only for experimental code for part of this. ####@@@@)
-    #
-    # I think this involves some implicit assumptions about the stateplace with lastsnap being the one that matches
-    # the current model state (as it was last mashed into or checkpointed out of),
-    # which are true now but only required by some of the code, becoming required by more of the code.
-    attrdicts = stateplace.get_attrdicts_for_immediate_use_only() # works for a StatePlace
-    
-    modified = {} # key->obj for objects we modified
+    # (and maybe do only the needed updates as well).
+    # update 060409: The debug_pref else clause tries to do this... and is now the official code for this.
 
-    # these steps are in separate functions for clarity, and so they can be profiled individually
-    mash_attrs( archive, attrdicts, modified)
-    fix_all_chunk_atomsets( attrdicts, modified)
-    call_undo_update( modified)
-    call_registered_undo_updaters( archive)
-    final_post_undo_updates( archive)
-# zap this soon -- not actually needed, and no longer easily doable [060408]
-##    set_lastscan_kluge_from_modified(archive, modified) # store the set of child objects presently in the model state [#e should rename]
-##        ##e potential optim:
-##        # this set_lastscan might not be needed, since we're about to do another checkpoint,
-##        # which I'm guessing always overwrites it before it can be used;
-##        # to find out someday, also store a flag saying which piece of code stored _lastscan, and check this when we use it
+    if not debug_pref("use differential mash_attrs?", Choice_boolean_True): # i think it's ok to decide this independently each time
+        # this is deprecated; it ought to work, and might be useful for debugging, but is no longer tested or supported [060409]
+        # (it might have problems if the atom.mol = None in differential case is bad in this case which needs _nullMol for some reason)
+        attrdicts = stateplace.get_attrdicts_for_immediate_use_only()
+        
+        modified = {} # key->obj for objects we modified
+
+        # these steps are in separate functions for clarity, and so they can be profiled individually
+        mash_attrs( archive, attrdicts, modified, 'fake invalmols -- bug if used')
+        fix_all_chunk_atomsets( attrdicts, modified)
+        call_undo_update( modified)
+        call_registered_undo_updaters( archive)
+        final_post_undo_updates( archive)
+    else:
+        # That means we'd ask stateplace to pull lastsnap to itself
+        # (like the above does now) but to tell us a smaller set of attrdicts containing only objects we need to change.
+        #
+        # I think this involves some implicit assumptions about the stateplace which has lastsnap being the same one that matches
+        # the current model state (as it was last mashed into or checkpointed out of),
+        # which are true now but only required by some of the code, becoming required by more of the code.
+
+        # WARNING: the following has an implicit argument which is "which stateplace has the lastsnap". (More info above.)
+        attrdicts = stateplace.get_attrdicts_relative_to_lastsnap() # for this to be correct, we had to ditch dflt vals for attrs...
+
+        modified = {} # key->obj for objects we modified and which are still alive
+            # (the only objs we modify that are not still alive are newly dead atoms, whose .molecule we set to None,
+            #  and perhaps newly dead chunks, removing atoms and invalidating (see comments in fix_all_chunk_atomsets_differential))
+
+        # these steps are in separate functions for clarity, and so they can be profiled individually
+        ## oldmols = {} # kluge, described elsewhere, search for 'oldmols' and this date 060409
+        invalmols = {}
+        mash_attrs( archive, attrdicts, modified, invalmols, differential = True )
+        fix_all_chunk_atomsets_differential( invalmols)
+        call_undo_update( modified) # it needs to only call it for live objects! so we only pass live objects.
+        call_registered_undo_updaters( archive)
+        final_post_undo_updates( archive)
 
     return # from assy_become_scanned_state
 
-def mash_attrs( archive, attrdicts, modified ):
+def mash_attrs( archive, attrdicts, modified, invalmols, differential = False ): #060409 added differential = True support
     """[private helper for assy_become_scanned_state:]
     Mash new (or old) attrvals into live objects, using setattr or _undo_setattr_;
     record which objects are modified in the given dict, using objkey->obj
     (this will cover all reachable objects in the entire state, even if only a few *needed* to be modified,
-     in the present implem [still true even with differential atom/bond scan, as of 060406])
+     in the present implem [still true even with differential atom/bond scan, as of 060406] [NOT TRUE ANYMORE if differential passed; 060409])
     """
     # use undotted localvars, for faster access in inner loop:
     modified_get = modified.get
@@ -235,21 +238,89 @@ def mash_attrs( archive, attrdicts, modified ):
         # i.e. we should grab one just for each attr farther inside this loop, and have a loop variant without it
         # (and with the various kinds of setattr/inval replacements too --
         #  maybe even let each attr have its own loop if it wants, with atoms & bonds an extreme case)
+    from chunk import _nullMol # can't do this at toplevel, it's not yet defined
+        # (it might even still be None when we import it here, I think, but that should be ok)
     for attrcode, dict1 in attrdicts.items(): ##e might need to be in a specific order
         attr, acode = attrcode
         might_have_undo_setattr = attrcodes_with_undo_setattr.has_key(attrcode) #060404; this matters now (for hotspot)
         for key, val in dict1.iteritems(): # maps objkey to attrval
             obj = modified_get(key)
             if obj is None:
-                # first time we're touching this object
-                obj = obj4key[key]
-                modified[key] = obj
-                reset_obj_attrs_to_defaults(obj)
-                    # Note: it's important that that didn't mess with attrs whose _undo_setattr_xxx we might call,
-                    # in case that wants to see the old value. As an initial kluge, we assert this combination never occurs
-                    # (in other code, once per class). When necessary, we'll fix that by sophisticating this code.
-                    # [bruce 060404]
+                # first time we're touching this object -- if differential, we might have seen it before but we never got a val other than _UNSET_ for it
+                obj = obj4key[key] #e optim: for differential it'd be faster to always do it this way here; for non-diff this helps us know when to reset attrs
+                if not differential:
+                    modified[key] = obj
+                    ##@@ unclear whether we sometimes need this in differential case, but probably we do [... now i think we don't]
+                    reset_obj_attrs_to_defaults(obj)
+                        # Note: it's important that that didn't mess with attrs whose _undo_setattr_xxx we might call,
+                        # in case that wants to see the old value. As an initial kluge, we assert this combination never occurs
+                        # (in other code, once per class). When necessary, we'll fix that by sophisticating this code.
+                        # [bruce 060404]
                 pass
+            if differential and attrcode == ('molecule','Atom'):
+                # obj is an Atom and we're changing its .molecule.
+                # This is a kluge to help update mol.atoms for its old and new mol.
+                # We might be able to do this with Atom._undo_setattr_molecule
+                # (though I recall rejecting that approach in the past, for non-differential mash_attrs, but I forget why),
+                # but for efficiency and simplicity we do it with this specialcase kluge (in two parts, this one for removal).
+                mol = obj.molecule
+                # mol might be _UNSET_, None, or _nullMol, in which case, we should do nothing,
+                # or perhaps it might be a real mol but obj might not be in mol.atoms,
+                # which might deserve a debug print but we should still do nothing --
+                # simplest implem of all this is just to not be bothered by not finding .atoms, or obj.key inside it.
+                try:
+                    del mol.atoms[obj.key]
+                except:
+                    if mol is not None and mol is not _nullMol and env.debug(): # remove when works!
+                        print_compact_traceback("debug fyi: expected exception in del mol.atoms[obj.key] for mol %r obj %r" % \
+                                                (mol, obj) )
+                    pass
+                else:
+                    # this is only needed if the del succeeds (even if it fails for a real mol), since only then did we change mol
+                    invalmols[id(mol)] = mol
+                if val is _UNSET_:
+                    # I'm not fully comfortable with leaving invalid mol refs in dead atoms,
+                    # so I make this exception to the general rule in this case.
+                    # (If we later add back Atom._undo_setattr_molecule, this would mess it up, but hopefully it would take over
+                    #  this kluge's job entirely.)
+                    ## val = None -- this caused e.g.
+                    ##   exception in _undo_update for X21; skipping it: exceptions.AttributeError: 'NoneType' object has no attribute 'havelist'
+                    ## which calls into question calling _undo_update on dead objs, or more likely, this one's implem,
+                    ## but maybe it's fine (not reviewed now) and this is why we have _nullMol, so store that instead of None.
+                    ## val = _nullMol
+                    ## (Let's hope this can only happen when _nullMol is not None!!! Hmm, not true! Fix it here, or let _undo_update init _nullMol and store it??
+                    ##  Neither: store None, and let _undo_update do no invals at all in that case.
+                    ##  Come to think of it, the non-differential mash_attrs probably only called undo_update on live objects!! Should we? #####@@@@@ issue on bonds too
+                    val = None
+                    obj.molecule = val
+                    # but we *don't* do modified[key] = obj, since we only want that for live objects
+                    if obj is _undo_debug_obj:
+                        _undo_debug_message("undo/redo: %r.%s = %r, and removed it from %r.atoms" % (obj, 'molecule', val, mol))
+                    continue
+                else:
+                    # this is the "add to new mol.atoms" part of the kluge.
+                    # obj is always a live atom (I think), so val should always be a real Chunk with .atoms.
+                    mol = val
+                    obj.molecule = mol
+                    mol.atoms[obj.key] = obj
+                    invalmols[id(mol)] = mol
+                    modified[key] = obj
+                    if obj is _undo_debug_obj:
+                        _undo_debug_message("undo/redo: %r.%s = %r, and added it to .atoms" % (obj, 'molecule', mol))
+                    continue
+                # this was part of try1 of fixing mol.atoms,
+                # but it had an unfixable flaw of being non-incremental, as well as minor flaws with _UNSET_:
+##                # kluge to help fix_all_chunk_atomsets in differential case
+##                oldmols = differential['oldmols'] # part of the kluge
+##                mol = obj.molecule
+##                oldmols[id(mol)] = mol
+            if differential and val is _UNSET_:
+                # this differential case can't support attrs with dflts at all, so they're turned off now [060409]
+                ## dflts = archive.obj_classifier.classify_instance(obj).attrcode_defaultvals
+                continue # because no need to setattr.
+                    # However, we *do* need to do the Atom.molecule kluge (above) first.
+                    # And we probably also need to update modified first (as we do before that).
+            modified[key] = obj # redundant if not differential (nevermind)
             val = copy(val) #e possible future optim: let some attrs declare that this copy is not needed [MIGHT BE A BIG OPTIM ###e]
             if might_have_undo_setattr: # optim: this flag depends on attr name
                 # note: '_undo_setattr_' is hardcoded in several places
@@ -282,6 +353,7 @@ def mash_attrs( archive, attrdicts, modified ):
     return # from mash_attrs
 
 def fix_all_chunk_atomsets( attrdicts, modified):
+    #060409 NOT called for differential mash_attrs; for that see fix_all_chunk_atomsets_differential
     """[private helper for assy_become_scanned_state:]
     Given the set of live atoms (deduced from attrdicts) and their .molecule attributes
     (pointing from each atom to its owning chunk, which should be a live chunk),
@@ -306,48 +378,94 @@ def fix_all_chunk_atomsets( attrdicts, modified):
 ##                # this effectively inlines that part of chunk.addatom and delatom not done by atom._undo_setattr_molecule
 ##                # (we could just add chunk into modified (localvar), but this is more efficient (maybe))
     # that has replaced .molecule for lots of atoms; need to fix the .atoms dicts of those mols [060314]
-    if 1: # simple way to start with ####@@@@ should split into separate func for profiling (need funcs for above and below things too)
-        mols = {}
-        molcode = ('molecule','Atom') ###@@@ KLUGE; we want attrcode for Atom.molecule; should get clas for Atom and ask it!
-            ### how will i know if this breaks? debug code for it below can't be left in...
-        moldict = attrdicts.get(molcode,{}) # {} can happen, when no Chunks (ie no live atoms) were in the state!
-            # (this is a dict from atoms' objkeys to their mols, so len is number of atoms in state;
-            #  i think they are all *found* atoms but as of 060330 might not be all *live* atoms,
-            #  since dead mol._hotspot can be found and preserved. [no longer true, 060404])
-        # warning: moldict is not a dict of mols, it's a dict from atom-representatives to those atoms' mols;
-        # it contains entries for every atom represented in the state (i.e. only for our, live atoms, if no bugs)
-        if 0 and env.debug(): ###@@@ disable when works; reenable whenever acode scheme changes
-            print "debug: len(moldict) == %d; if this is always 0 we have a bug, but 0 is ok when no atoms in state" % (len(moldict))
-        for atom_objkey, mol in moldict.iteritems():
-            mols[id(mol)] = mol
-        from chunk import _nullMol
-        for badmol in (None, _nullMol):
-            if mols.has_key(id(badmol)):
-                # should only happen if undoable state contains killed or still-being-born atoms; I don't know if it can
-                # (as of 060317 tentative fix to bug 1633 comment #1, it can -- _hotspot is S_CHILD but can be killed [wrong now...])
-                # 060404: this is no longer true, so zap the ' and badmol is None:' from the following:
-                if env.debug():
-                    print "debug: why does some atom in undoable state have .molecule = %r?" % (badmol,)
-                del mols[id(badmol)]
-                # but we also worry below about the atoms that had it (might not be needed for _nullMol; very needed for None)
-        for mol in mols.itervalues():
-            mol.atoms = {}
-        for atom_objkey, mol in moldict.iteritems():
-            if mol not in (None, _nullMol):
-                atom = modified_get(atom_objkey)
-                mol.atoms[ atom.key ] = atom # inlines some of Chunk.addatom; note: atom.key != atom_objkey
-        for mol in mols.itervalues():
+##    mols = oldmols or {} #060409 kluge [; note, if caller passes {} this uses a copy instead, but that's ok.]
+####    if oldmols and env.debug():
+####        print "got oldmols = %r" % (oldmols,) #### contains _UNSET_, not sure how that's possible ... i guess from new atoms?? no...
+####        # anyway, nevermind, just zap it.
+##    if oldmols:
+##        from chunk import _nullMol
+##        for badmol in (None, _nullMol, _UNSET_):
+##            # I don't know why these can be in there, but at least _nullMol can be; for now just work around it. ###@@@
+##            if env.debug():
+##                if mols.has_key(id(badmol)):
+##                    print "debug: zapping %r from oldmols" % (badmol,)
+##            oldmols.pop(id(badmol),None)
+##        if env.debug():
+##            print "debug: repaired oldmols is",oldmols
+##        pass
+##    ## mols = {}
+    mols = {}
+    molcode = ('molecule','Atom') ###@@@ KLUGE; we want attrcode for Atom.molecule; should get clas for Atom and ask it!
+        ### how will i know if this breaks? debug code for it below can't be left in...
+    moldict = attrdicts.get(molcode,{}) # {} can happen, when no Chunks (ie no live atoms) were in the state!
+        # (this is a dict from atoms' objkeys to their mols, so len is number of atoms in state;
+        #  i think they are all *found* atoms but as of 060330 might not be all *live* atoms,
+        #  since dead mol._hotspot can be found and preserved. [no longer true, 060404])
+    # warning: moldict is not a dict of mols, it's a dict from atom-representatives to those atoms' mols;
+    # it contains entries for every atom represented in the state (i.e. only for our, live atoms, if no bugs)
+    if 0 and env.debug(): ###@@@ disable when works; reenable whenever acode scheme changes
+        print "debug: len(moldict) == %d; if this is always 0 we have a bug, but 0 is ok when no atoms in state" % (len(moldict))
+    for atom_objkey, mol in moldict.iteritems():
+        mols[id(mol)] = mol
+    ######@@@@@@ 060409 BUG in differential case: mols doesn't include chunks that lost atoms but didn't gain any!
+    # (though moldict does include the atoms which they lost.)
+    # (could we resolve it by recording diffs in number of atoms per chunk, so we'd know when to recompute set of atoms??
+    #  or is it better just to somehow record the old vals of atom.molecule that we change in mash_attrs? caller could pass that in.)
+    # Ok, we're having caller pass in oldmols, for now.
+    from chunk import _nullMol
+    for badmol in (None, _nullMol):
+        if mols.has_key(id(badmol)):
+            # should only happen if undoable state contains killed or still-being-born atoms; I don't know if it can
+            # (as of 060317 tentative fix to bug 1633 comment #1, it can -- _hotspot is S_CHILD but can be killed [wrong now...])
+            # 060404: this is no longer true, so zap the ' and badmol is None:' from the following:
+            if env.debug():
+                print "debug: why does some atom in undoable state have .molecule = %r?" % (badmol,)
+            del mols[id(badmol)]
+            # but we also worry below about the atoms that had it (might not be needed for _nullMol; very needed for None)
+    for mol in mols.itervalues():
+        mol.atoms = {}
+    for atom_objkey, mol in moldict.iteritems():
+        if mol not in (None, _nullMol):
+            atom = modified_get(atom_objkey)
+            mol.atoms[ atom.key ] = atom # inlines some of Chunk.addatom; note: atom.key != atom_objkey
+    for mol in mols.itervalues():
+        try: # try/except is just for debugging
             mol.invalidate_atom_lists() # inlines some more of Chunk.addatom
-        pass
+        except:
+            print_compact_traceback("bug: why does this happen, for mol %r atoms %r? " % (mol, mol.atoms))
     return # from fix_all_chunk_atomsets
 
-def call_undo_update(modified):
+def fix_all_chunk_atomsets_differential(invalmols):
+    from chunk import _nullMol
+    for mol in invalmols.itervalues():
+        try:
+            assert mol is not _nullMol
+                # this might routinely fail; we do this in case it has an invalidate_atom_lists method that we shouldn't call
+            method = mol.invalidate_atom_lists
+        except:
+            ## if mol is None or mol is _nullMol or mol is _UNSET_:# not sure which of these can happen; not worth finding out right now
+            if mol is _UNSET_: # actually i think that's the only one that can happen
+                continue 
+            print_compact_traceback("bug (or fyi if this is None or _nullMol), for mol %r: " % (mol,))
+        else:
+            method() # inlines some of Chunk.addatom
+                # I think we can call this on newly dead Chunks;
+                # I'm not 100% sure that's ok, but I can't see a problem in the method
+                # and I didn't find a bug in testing. [060409]
+    return
+
+def call_undo_update(modified): #060409 for differential mash_attrs, it's safe, but are the objs it's called on enough? #####@@@@@
     """[private helper for assy_become_scanned_state:]
-    Call the _undo_update method of every object we might have modified
-    (i.e. which is passed in the <modified> arg), which has one.
+    Call the _undo_update method of every object we might have modified and which is still alive
+    (i.e. which is passed in the <modified> arg), which has that method.
+    [Note: caller (in differential mash_attrs case)
+     presently only modifies dead objects in one special case (atom.molecule = None),
+     but even if that changes, _undo_update should only be called on live objects;
+     it might be useful to have other _undo_xxx methods called on newly dead objects,
+     or on dead ones being brought back to life (before mash_attrs happens on them). #e]
     """
     ##e two big missing optims:
-    # - realizing we only modified a few objects, not all of them in the state (up to the caller)
+    # - realizing we only modified a few objects, not all of them in the state (up to the caller) [this is now implemented as of 060409]
     # - knowing that some classes don't define this method, and not scanning their instances looking for it
     for key, obj in modified.iteritems():
         ###e zap S_CACHE attrs? or depend on update funcs to zap/inval/update them? for now, the latter. Review this later. ###@@@
@@ -368,7 +486,7 @@ def call_undo_update(modified):
         continue
     return # from call_undo_update
 
-def call_registered_undo_updaters(archive):
+def call_registered_undo_updaters(archive): #060409 seems likely to be safe/sufficient for differential mash_attrs, but too slow ###@@@
     """[private helper for assy_become_scanned_state:]
     Call the registered undo updaters (on the overall model state, not the ones
     on individual changed objects, which should already have been called),
@@ -389,7 +507,7 @@ def call_registered_undo_updaters(archive):
         continue
     return # from call_registered_undo_updaters
 
-def final_post_undo_updates(archive):
+def final_post_undo_updates(archive): #060409 seems likely to be safe/sufficient for differential mash_attrs ###@@@
     """[private helper for assy_become_scanned_state:]
     #doc
     """
@@ -407,23 +525,6 @@ def final_post_undo_updates(archive):
             # if there is, not sure it's fully safe!
             #e Also, ideally glpane should do this itself in _undo_update_always, which we should call.
     return # from final_post_undo_updates
-
-# zap this soon -- not actually needed, and no longer easily doable [060408]
-##def set_lastscan_kluge_from_modified(archive, modified): #060406
-##    """[private helper for assy_become_scanned_state:]
-##    #doc
-##    """
-##    state_holding_objs_dict = {}
-##    for objkey, obj in modified.iteritems():
-##        # one bad kluge: this depends on continuing to include all objs in modified, not just necessary ones!
-##        # the other kluges mentioned after the loop are the way the sets of this are disconnected from the use of it.
-##        if obj.__class__.__name__ not in ('Atom','Bond'):
-##            # this condition is a kluge too (it's an optim, only safe if this means obj is changed-tracked)
-##            continue
-##        state_holding_objs_dict[id(obj)] = obj
-##    # note: this is set in two places, and it's a kluge; see the comment where it's used. 
-##    archive._lastscan = state_holding_objs_dict # this is kept around and later used by childobj_liveQ [060406]
-##    return
 
 # ==
 
@@ -1245,11 +1346,7 @@ class AssyUndoArchive: # modified from UndoArchive_older and AssyUndoArchive_old
          live objects (during a single scan), so that each layer can use it to know which objects in the prior layer are alive.
          Right now we use it that way but with two hardcoded layers, "child objects" and "change-tracked objects".]
         """
-##        # note: this implem is a KLUGE ####@@@@; the attr here is set in two distinct ways by different code;
-##        # more correct would be for _lastscan to be an attribute of a state snapshot
-##        # (or at least of the current one, something.lastsnap or .lastcp, I forget where best to get that).
-##        return self._lastscan.has_key(id(obj))
-        # Note: this newer implem is still a kluge, but not as bad.
+        # Note: this rewritten implem is still a kluge, but not as bad as ~060407's.
         # self._childobj_dict is stored by caller (several call levels up), then later set to None before it becomes invalid.
         # [060408]
         return self._childobj_dict.has_key(id(obj))

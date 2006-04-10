@@ -307,7 +307,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
             # public list of attrcodes with no declared or evident default value (might be turned into a tuple)
             # an attrcode means a pair (attr, acode) where acode's main purpose is to let same-named attrs have different attrdicts
             # [attrcodes were added 060330]
-        self.attrcode_dflt_pairs = []
+        self.attrcode_dflt_pairs = [] # as of 060409 this is not filled with anything, but in future, we'll want it again ##e
             # public list of attrcode, dflt pairs, for attrs with a default value (has actual value, not a copy);
             # attrcode will be distinct whenever dflt value differs (and maybe more often) [as of 060330]
         self.dict_of_all_state_attrcodes = {}
@@ -364,11 +364,17 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                 if declval in STATE_ATTR_DECLS:
                     # figure out if this attr has a known default value... in future we'll need decls to guide/override this
                     try:
-                        if 'kluge': # see if this fixes some bugs... 060405 1138p
-                            # for change-tracked classes, pretend there's no such thing as a default value,
-                            # since i suspect some logic bugs in the dual meaning of missing state entries as dflt or dontcare.
-                            if class1.__name__ in ('Atom','Bond'):
-                                class1.some_attr_im_pretty_sure_it_doesnt_have
+                        if 'even worse kluge 060409': ###@@@
+                            # differential mash_attrs requires no dflt vals at all, or it's too complicated.
+                            # what would be better (and will be needed to support dfltvals for binary mmp save)
+                            # would be to still store attrs with dflts here, but to change the undo iter loops
+                            # to iterate over all attrs with or without defaults, unlike now.
+                            class1.some_attr_im_pretty_sure_it_doesnt_have
+##                        if 'kluge': # see if this fixes some bugs... 060405 1138p
+##                            # for change-tracked classes, pretend there's no such thing as a default value,
+##                            # since i suspect some logic bugs in the dual meaning of missing state entries as dflt or dontcare.
+##                            if class1.__name__ in ('Atom','Bond'):
+##                                class1.some_attr_im_pretty_sure_it_doesnt_have
                         dflt = getattr(class1, attr_its_about)
                     except AttributeError:
                         # assume no default value unless one is declared (which is nim)
@@ -1019,8 +1025,8 @@ def val_diff_func_for__posn((p1,p2), whatret): # purely a stub for testing, thou
     assert type(p2) is _Numeric_array_type
     return p2 - p1
 
-def diff_snapshots(snap1, snap2, whatret = 0): #060227 experimental
-    "Diff two snapshots. Retval format TBD. Missing attrdicts are like empty ones. obj/attr sorting by varid to be added later."
+def diff_snapshots(snap1, snap2, whatret = 0): #060227 
+    "Diff two snapshots. Retval format [needs doc]. Missing attrdicts are like empty ones. obj/attr sorting by varid to be added later."
     keydict = dict(snap1.attrdicts) # shallow copy, used only for its keys (presence of big values shouldn't slow this down)
     keydict.update(snap2.attrdicts)
     attrcodes = keydict.keys()
@@ -1036,7 +1042,7 @@ def diff_snapshots(snap1, snap2, whatret = 0): #060227 experimental
             # or each hasn't been (i.e. same policy for both). Also it's assumed by diff_snapshots_oneway and its caller.
             # Needs review. ##k ###@@@ [060227-28 comment]
     
-        # 060309 experimental: support special diff algs for certain attrs,
+        # 060309 experimental [not used as of 060409]: support special diff algs for certain attrs,
         # like sets or lists, or a single attrval representing all bonds
         val_diff_func = snap2.val_diff_func_for(attrcode) # might be None; assume snap2 knows as well as snap1 what to do
         assert val_diff_func == snap1.val_diff_func_for(attrcode) # make sure snap1 and snap2 agree (kluge??)
@@ -1060,8 +1066,8 @@ class DiffObj:
         # and we also need to include the overhead of the entire dict item in our attrdict),
         # and the guesses ought to come from the attr decls anyway, not be
         # hardcoded here (or in future we could measure them in a C-coded copy_val).
-    def __init__(self, attrdicts):
-        self.attrdicts = attrdicts
+    def __init__(self, attrdicts = None):
+        self.attrdicts = attrdicts or {}
     def size(self): ### shares code with StateSnapshot; use common superclass?
         "return the total number of attribute value differences we're storing (over all objects and all attrnames)"
         res = 0
@@ -1083,6 +1089,24 @@ class DiffObj:
         return self.size() > 0
     def __nonzero__(self):
         return self.nonempty()
+    def accumulate_diffs(self, diffs): #060409
+        """Modify self to incorporate a copy of the given diffs (which should be another diffobj),
+        so that applying the new self is like applying the old self and then applying the given diffs.
+        Don't change, or be bothered by future changes to, the given diffs.
+        Return None.
+        """
+        assert isinstance(diffs, DiffObj)
+            # What really matters is that its attrdicts use _UNSET_ for missing values,
+            # and that each attrdict is independent, unlike for StateSnapshot attrdicts
+            # where the meaning of a missing value depends on whether a value is present at that key in any attrdict.
+            # Maybe we should handle this instead by renaming 'attrdicts' in one of these objects,
+            # or using differently-named get methods for them. #e
+        dicts2 = diffs.attrdicts
+        dicts1 = self.attrdicts
+        for attrcode, d2 in dicts2.iteritems():
+            d1 = dicts1.setdefault(attrcode, {})
+            d1.update(d2) # even if d1 starts out {}, it's important to copy d2 here, not share it
+        return
     pass
 
 def diffdicts(d1, d2, dflt = None, whatret = 0, val_diff_func = None):
@@ -1395,10 +1419,8 @@ class StatePlace:
             # now, we need to get snap into place (the recursive part), then steal it, apply & reverse diff, store stuff back
             place.get_snap_back_to_self(accum_diffobj = accum_diffobj) # permits steal_lastsnap to work on it
             lastsnap = place.steal_lastsnap()
-            if accum_diffobj is not None: #060407 late, experimental & nim & not yet called, for optimizing mash_attrs
-                apply_diff_to_diffobj(diff, accum_diffobj) ####IMPLEM, or find under another name, maybe as a method of diffobj
-                    #e this might be misnamed, maybe "accum or merge into"... but I like the way this name's "apply"
-                    # disambiguates the direction (the order asymmetry of combining two diffs of the "replace some lvals" form we use).
+            if accum_diffobj is not None: #060407 late, first implem on 060409 but not yet routinely called, for optimizing mash_attrs
+                accum_diffobj.accumulate_diffs(diff)
             apply_and_reverse_diff(diff, lastsnap) # note: modifies diff and lastsnap in place; no need for copy_val
             place.define_by_diff_from_stateplace(diff, self) # place will now be healed as soon as we are
             self.lastsnap = lastsnap # inlined self.own_this_lastsnap(lastsnap)
@@ -1411,14 +1433,16 @@ class StatePlace:
         """
         self.get_snap_back_to_self()
         return self.lastsnap.attrdicts
-    def get_differential_attrdicts_for_immediate_use_only(self): #060407 late, experimental & nim & not yet called
+    
+    def get_attrdicts_relative_to_lastsnap(self): #060407 late, done & always used as of 060409
         """WARNING: the return value depends on which stateplace last had this method
         (or get_attrdicts_for_immediate_use_only, i.e. any caller of get_snap_back_to_self) run on it!!
         [I think that's all, but whether more needs to be said ought to be analyzed sometime. ##k]
         """
-        accum_diffobj = DiffObj() ###k args?
+        accum_diffobj = DiffObj()
         self.get_snap_back_to_self(accum_diffobj = accum_diffobj)
-        return accum_diffobj.attrdicts
+        return accum_diffobj.attrdicts #e might be better to get more methods into diffobj and then return diffobj here
+    
     def _relative_RAM(self, priorplace): #060323
         """Return a guess about the RAM requirement of retaining the diff data to let this state
         be converted (by Undo) into the state represented by priorplace, also a StatePlace (??).
@@ -1428,9 +1452,10 @@ class StatePlace:
     pass # end of class StatePlace
 
 def apply_and_reverse_diff(diff, snap):
-    """Given a DiffObj (format TBD) <diff> and a StateSnapshot <snap> (mutable), modify <snap> by applying <diff> to it,
-    at the same time recording the values kicked out of <snap> into <diff>, turning it into a reverse diff.
-    Return None, to remind caller we modify our argument objects.
+    """Given a DiffObj <diff> and a StateSnapshot <snap> (both mutable), modify <snap> by applying <diff> to it,
+    at the same time recording the values kicked out of <snap> into <diff>, thereby turning it into a reverse diff.
+    Missing values in <snap> are represented as _UNSET_ in <diff>, in both directions (found or set in <snap>).
+       Return None, to remind caller we modify our argument objects.
     (Note: Calling this again on the reverse diff we returned and on the same now-modified snap should undo its effect entirely.)
     """
     for attrcode, dict1 in diff.attrdicts.items():
