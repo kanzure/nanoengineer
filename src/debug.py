@@ -463,10 +463,18 @@ def debug_run_command(command, source = "user debug input"): #bruce 040913-16 in
         print "empty command (from %s), nothing executed" % (source,)
         return 1
     if '\n' not in command:
-        print "will execute (from %s): %s" % (source, command)
+        msg = "will execute (from %s): %s" % (source, command)
     else:
         nlines = command.count('\n')+1
-        print "will execute (from %s; %d lines):\n%s" % (source, nlines, command)
+        msg = "will execute (from %s; %d lines):\n%s" % (source, nlines, command)
+    print msg
+    try:
+        # include in history file, so one can search old history files for useful things to execute [bruce 060409]
+        import env
+        from HistoryWidget import _graymsg, quote_html
+        env.history.message( _graymsg( quote_html( msg)))
+    except:
+        print_compact_traceback("exception in printing that to history: ")
     command = command + '\n' #k probably not needed
     try:
         ## exec command in globals()
