@@ -1598,6 +1598,82 @@ class Minimize_CommandRun(CommandRun):
             junk, atomlist, ntimes_expand = self.args
             selection = selection_from_atomlist( self.part, atomlist) #e in cleaned up code, selection object might come from outside
             selection.expand_atomset(ntimes = ntimes_expand) # ok if ntimes == 0
+
+            # Rationale for adding monovalent atoms to the selection before
+            # instantiating the sim_aspect
+            #
+            # (Refer to comments for sim_aspect.__init__.) Why is it safe to add
+            # monovalent atoms to a selection? Let's look at what happens during a
+            # local minimization.
+            #
+            # While minimiziing, we want to simulate as if the entire rest of the
+            # part is grounded, and only our selection of atoms is free to move. The
+            # most obvious approach would be to minimize all the atoms in the part
+            # while applying anchors to the atoms that aren't in the selection. But
+            # minimizing all the atoms, especially if the selection is small, is very
+            # wasteful. Applying the simulator to atoms is expensive and we want to
+            # minimize as few atoms as possible.
+            #
+            # A more economical approach is to anchor the atoms for two layers going
+            # out from the selection. The reason for going out two layers, and not just
+            # one layer, is that we need bond angle terms to simulate accurately. When
+            # we get torsion angles we will probably want to bump this up to three
+            # layers.
+            #
+            # Imagine labeling all the atoms in the selection with zero. Then take the
+            # set of unlabeled atoms that are bonded to a zero-labeled atom, and label
+            # all the atoms in that set with one. Next, take the set of yet-unlabeled
+            # atoms that are bonded to a one-labeled atom, and label the atoms in that
+            # set with two. The atoms labeled one and two become our first and second
+            # layers, and we anchor them during the minimization.
+            #
+            # In sim_aspect.__init__, the labels for zero, one and two correspond
+            # respectively to membership in the dictionaries self.moving_atoms,
+            # self.boundary1_atoms, and self.boundary2_atoms.
+            #
+            # If an atom in the selection is anchored, we don't need to go two layers
+            # out from that atom, only one layer. So we can label it with one, even
+            # though it's a member of the selection and would normally be labeled with
+            # zero. The purpose in doing this is to give the simulator a few less atoms
+            # to worry about.
+            #
+            # If a jig includes one of the selected atoms, but additionally includes
+            # atoms outside the selection, then it may not be obvious how to simulate
+            # that jig. For the present, the only jig that counts in a local
+            # minimization is an anchor, because all the other jigs are too complicated
+            # to simulate.
+            #
+            # The proposed fix here has the effect that monovalent atoms bonded to
+            # zero-labeled atoms are also labeled zero, rather than being labeled one,
+            # so they are allowed to move. Why is this OK to do?
+            #
+            # (1) Have we violated the assumption that the rest of the part is locked
+            # down? Yes, as it applies to those monovalent atoms, but they are
+            # presumably acceptable violations, since bug 1240 is regarded as a bug.
+            #
+            # (2) Have we unlocked any bond lengths or bond angles that should remain
+            # locked? Again, only those which involve (and necessarily end at) the
+            # monovalent atoms in question. The same will be true when we introduce
+            # torsion terms.
+            #
+            # (3) Have we lost any ground on the jig front? If a jig includes one or
+            # more of the monovalent atoms, possibly - but the only jigs we are
+            # simulating in this case is anchors, and those will be handled correctly.
+            # Remember that anchored atoms are only extended one layer, not two, but
+            # with a monovalent atom bonded to a selected atom, no extension is
+            # possible at all.
+            #
+            # One can debate about whether bug 1240 should be regarded as a bug. But
+            # having accepted it as a bug, one cannot object to adding these monovalents
+            # to the original selection.
+            #
+            # wware 060410 bug 1240
+            atoms = selection.selatoms
+            for atm in atoms.values():
+                # enumerate the monovalents bonded to atm
+                for atm2 in filter(lambda atm: not atm.is_singlet(), atm.baggageNeighbors()):
+                    atoms[atm2.key] = atm2
+
         else:
             assert cmdtype == MIN_ALL
             selection = self.part.selection_for_all()
