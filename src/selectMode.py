@@ -490,28 +490,47 @@ class selectMode(basicMode):
         # dragjigs contains all the selected jigs.
         self.dragjigs = self.o.assy.getSelectedJigs()
 
-    def get_dragatoms_and_baggage(self):
-    
+    def get_dragatoms_and_baggage(self): # by mark.
+        
+        #bruce 060410 optimized this; it had a quadratic algorithm (part of the cause of bugs 1828 / 1438), and other slownesses.
+        # The old code is commented out for comparison.
+        #
+        # Note: as of 060410, it looks like callers only care about the total set of atoms in the two returned lists,
+        # not about which atom is in which list, so the usefulness of having two lists is questionable.
+        # But I preserved the behavior regarding how atoms are distributed between the two lists.
+        # (I didn't preserve the order of the lists, since I'm sure this shouldn't matter.)
+        
         dragatoms = []
         baggage = []
-        nonbaggage = []
+        ## nonbaggage = []
         
-        selatoms = self.o.assy.selatoms_list()
+        selatoms = self.o.assy.selatoms
+##        selatoms = self.o.assy.selatoms_list()
         
         # Accumulate all the baggage from the selected atoms, which can include
         # selected atoms if a selected atom is another selected atom's baggage.
         # BTW, it is not possible for an atom to end up in self.baggage twice.
-        for at in selatoms[:]:
-            bag, nbag = at.baggage_and_other_neighbors()
-            baggage += bag # the baggage we'll keep.
-            #all_nonbaggage += nonbaggage
         
-        # dragatoms contains all the selected atoms minus atoms that are also baggage.
+        for at in selatoms.itervalues():
+            bag, nbag = at.baggage_and_other_neighbors()
+            baggage.extend(bag) # the baggage we'll keep.
+            #all_nonbaggage += nonbaggage
+##        for at in selatoms[:]:
+##            bag, nbag = at.baggage_and_other_neighbors()
+##            baggage += bag # the baggage we'll keep.
+##            #all_nonbaggage += nonbaggage
+
+        bagdict = dict([(at.key, None) for at in baggage]) # bruce 060410 added bagdict
+                
+        # dragatoms should contain all the selected atoms minus atoms that are also baggage.
         # It is critical that dragatoms does not contain any baggage atoms or they 
-        # will be moved twice in drag_selected_atoms(), so we removed them here.
-        for at in selatoms[:]:
-            if not at in baggage: # no baggage atoms in dragatoms.
+        # will be moved twice in drag_selected_atoms(), so we remove them here.
+        for key, at in selatoms.iteritems():
+            if key not in bagdict: # no baggage atoms in dragatoms.
                 dragatoms.append(at)
+##        for at in selatoms[:]:
+##            if not at in baggage: # no baggage atoms in dragatoms.
+##                dragatoms.append(at)
                 
         # Accumulate all the nonbaggage bonded to the selected atoms.
         # We also need to keep a record of which selected atom belongs to
