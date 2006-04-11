@@ -8,7 +8,9 @@ print v, v.product, v.authors
 """
 
 # Alphabetical by last name
-__author__ = """Josh Hall
+__author__ = """Damian Allis
+K. Eric Drexler
+Josh Hall
 Eric Messick
 Huaicai Mo
 Ninad Sathaye
@@ -20,11 +22,11 @@ class Version:
     # Every instance of Version will share the same state
     __shared_state = {
         "major": 0,
-        "minor": 0,
-        "tiny": 6,
-        "teensy": 9,   # the teensy attribute is optional
+        "minor": 7,
+        "tiny": 0,
+        # "teensy": 0,   # the teensy attribute is optional
         "releaseType": "Alpha",
-        "releaseDate": "March 2, 2006",
+        "releaseDate": "April 19, 2006",
         "product": "nanoENGINEER-1",
         "copyright": "Copyright (C) 2004-2006, Nanorex, Inc.",
         "authors": __author__
