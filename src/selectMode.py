@@ -483,14 +483,14 @@ class selectMode(basicMode):
             self.baggage, self.nonbaggage = a.baggage_and_other_neighbors()
             self.drag_multiple_atoms = False
         else:
-            self.dragatoms, self.baggage = self.get_dragatoms_and_baggage()
+            self.dragatoms, self.baggage, self.dragchunks = self.get_dragatoms_and_baggage()
                 # if no atoms in alist, dragatoms and baggage are empty lists, which is good.
             self.drag_multiple_atoms = True
             
         # dragjigs contains all the selected jigs.
         self.dragjigs = self.o.assy.getSelectedJigs()
 
-    def get_dragatoms_and_baggage(self): # by mark.
+    def get_dragatoms_and_baggage(self): # by mark. later optimized and extended by bruce, 060410.
         
         #bruce 060410 optimized this; it had a quadratic algorithm (part of the cause of bugs 1828 / 1438), and other slownesses.
         # The old code is commented out for comparison.
@@ -545,8 +545,50 @@ class selectMode(basicMode):
         #print "dragatoms = ", dragatoms
         #print "baggage = ", baggage    
         #print "nonbaggage = ", nonbaggage
+
+        #bruce 060410 new code: optimize when all atoms in existing chunks are being dragged.
+        # (##e Soon we hope to extend this to all cases, by making new temporary chunks to contain dragged atoms,
+        #  invisibly to the user, taking steps to not mess up existing chunks re their hotspot, display mode, etc.)
+##        mols = {} # id(mol) -> mol for all involved mols
+##        molcounts = {} # id(mol) -> number of atoms we're dragging in that mol
+##        atoms = {} # atom.key -> atom for all dragged atoms
+##        def doit(at):
+##            mol = at.molecule
+##            c = molcounts.setdefault(id(mol), 0)
+##            molcounts[id(mol)] = c + 1
+##            if not c:
+##                mols[id(mol)] = mol
+##            return # from doit
+        atomsets = {} # id(mol) -> (dict from atom.key -> atom) for dragged atoms in that mol
+        def doit(at):
+            mol = at.molecule
+            atoms = atomsets.setdefault(id(mol), {}) # dragged atoms which are in this mol, so far, as atom.key -> atom
+            atoms[at.key] = at # atoms serves later to count them, to let us make fragments, and to identify the source mol
+        for at in dragatoms:
+            doit(at)
+        for at in baggage:
+            doit(at)
+        dragatoms = []
+        baggage = [] # no longer used
+        dragchunks = []
+        for atomset in atomsets.itervalues():
+            assert atomset
+            mol = None # to detect bugs
+            for key, at in atomset.iteritems():
+                mol = at.molecule
+                break # i.e. pick an arbitrary item... is there an easier way? is this way efficient?
+            if len(mol.atoms) == len(atomset):
+                # all mol's atoms are being dragged
+                dragchunks.append(mol)
+            else:
+                # some but not all of mol's atoms are being dragged
+                ##e soon we can optimize this case too by separating those atoms into a temporary chunk,
+                # but for now, just drag them individually as before:
+                dragatoms.extend(atomset.itervalues())
+                    #k itervalues ok here? Should be, and seems to work ok. Faster than .values? Might be, in theory; not tested.
+            continue
         
-        return dragatoms, baggage
+        return dragatoms, baggage, dragchunks
         
     def delete_atom_and_baggage(self, event):
         '''If the object under the cursor is an atom, delete it and any baggage.  
@@ -642,6 +684,11 @@ class selectMode(basicMode):
         # Move baggage.
         for at in self.baggage:
             at.setposn(at.posn()+offset)
+
+        # Move chunks. [bruce 060410 new feature, for optimizing moving of selected atoms, re bugs 1828 / 1438]
+        for ch in self.dragchunks:
+            ch.move(offset)
+        return
         
     def atomDragUpdate(self, a, apos0):
         '''Updates the GLPane and status bar message when dragging atom <a> around.
@@ -882,7 +929,7 @@ class selectMode(basicMode):
         '''
         self.objectSetup(j)
         
-        self.dragatoms, self.baggage = self.get_dragatoms_and_baggage()
+        self.dragatoms, self.baggage, self.dragchunks = self.get_dragatoms_and_baggage()
             # if no atoms are selected, dragatoms and baggage are empty lists, which is good.
             
         # dragjigs contains all the selected jigs.
@@ -1426,7 +1473,18 @@ class selectAtomsMode(selectMode):
             # as part of the current selection in drag_selected_atoms().
             # Selected atoms that are baggage are placed in self.baggage
             # along with non-selected baggage atoms connected to dragatoms.
-            # See atomsSetup() for more information.
+            # See atomSetup() for more information.
+            #bruce 060410 note: self.dragatoms is only set along with self.baggage,
+            # and the atoms in these lists are only moved together (in all cases involving self.dragatoms,
+            #  though not in all cases involving self.baggage),
+            # so it doesn't matter which atoms are in which lists (in those cases),
+            # and probably the code should be revised to use only the self.dragatoms list (in those cases).
+            #bruce 060410 optimization and change: when all atoms in existing chunks are being dragged
+            # (or if new chunks could be temporarily and transparently made for which all their atoms were being dragged),
+            # then we can take advantage of chunk display lists to get a big speedup in dragging the atoms.
+            # We do this by listing such chunks in self.dragchunks and excluding their atoms from self.dragatoms
+            # and self.baggage.
+        self.dragchunks = []
         self.dragjigs = []
             # dragjigs is constructed in jigSetup() and contains all the selected jigs that 
             # are dragged around as part of the current selection in jigDrag().
