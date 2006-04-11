@@ -192,7 +192,7 @@ class Movie:
         # these should be stored in the dpb file header so they
         # can be retrieved later. These will be the default values used by
         # the simsetup dialog, or were the values entered by the user.
-        # If the sim parameters change, they need to be updated in three places:
+        # If the sim parameters change, they need to be updated in all places marked "SIMPARAMS"
         # Movie.__init__ (movie.py), toward the end
         # SimSetup.setup (SimSetup.py)
         # FakeMovie.__init (runSim.py)

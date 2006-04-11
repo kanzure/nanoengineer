@@ -52,7 +52,7 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
     def setup(self):
         self.movie.cancelled = True # We will assume the user will cancel
         #bruce 050324: fixed KnownBug item 27 by making these call setValue, not assign to it:
-        # If the sim parameters change, they need to be updated in three places:
+        # If the sim parameters change, they need to be updated in all places marked "SIMPARAMS"
         # Movie.__init__ (movie.py), toward the end
         # SimSetup.setup (SimSetup.py)
         # FakeMovie.__init (runSim.py)

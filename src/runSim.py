@@ -496,6 +496,7 @@ class SimRunner:
         #  that might be useful if we want to try one interface, and if it fails, try the other.)
         
         movie = self._movie # old-code compat kluge
+        self.totalFramesRequested = movie.totalFramesRequested
         moviefile = movie.filename
         if use_command_line:
             program = self.program
@@ -567,7 +568,7 @@ class SimRunner:
             simopts.OutFileName = moviefile
             if not mflag:
                 # The timestep argument "-s + (movie.timestep)" or Dt is not supported for Alpha...
-                simopts.NumFrames = movie.totalFramesRequested
+                simopts.NumFrames = movie.totalFramesRequested   # SIMPARAMS
                 simopts.Temperature = movie.temp
                 simopts.IterPerFrame = movie.stepsper
                 simopts.PrintFrameNums = 0
@@ -576,10 +577,10 @@ class SimRunner:
             self._simopts = simopts
             self._simobj = simobj
         # wware 060406 bug 1471 - don't need a real movie, just need to hold the sim parameters
-        # If the sim parameters change, they need to be updated in three places:
+        # If the sim parameters change, they need to be updated everywhere a comment says "SIMPARAMS"
         # Movie.__init__ (movie.py), toward the end
         # SimSetup.setup (SimSetup.py)
-        # FakeMovie.__init (runSim.py)
+        # FakeMovie.__init (runSim.py) and ~14 lines earlier
         class FakeMovie:
             def __init__(self, realmovie):
                 self.totalFramesRequested = realmovie.totalFramesRequested
@@ -944,7 +945,7 @@ class SimRunner:
         ###e how to improve timing:
         # let sim use up most of the real time used, measuring redraw timing in order to let that happen. see below for more.
         # always show the last frame - wware 060314
-        if debug_all_frames or self.__frame_number == self._simopts.NumFrames or \
+        if debug_all_frames or self.__frame_number == self.totalFramesRequested or \
                now > self.__callback_time + self.__sim_work_time: # this probably needs coding in C or further optim
             simtime = now - self.__callback_time # for sbar
             if debug_pyrex_prints:
