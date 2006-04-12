@@ -1,11 +1,8 @@
-"""Version information for nanoENGINEER,
-and other stuff like author list, program name, release info, etc.
-
-Example usage:
-from version import Version
-v = Version()
-print v, v.product, v.authors
+"""Version information for nanoENGINEER-1,
+including author list, program name, release info, etc.
 """
+
+__copyright__ = "Copyright (C) 2004-2006, Nanorex, Inc."
 
 # Alphabetical by last name
 __author__ = """Damian Allis
@@ -19,16 +16,21 @@ Bruce Smith
 Will Ware"""
 
 class Version:
+    """Example usage:
+    from version import Version
+    v = Version()
+    print v, v.product, v.authors
+    """
     # Every instance of Version will share the same state
     __shared_state = {
         "major": 0,
         "minor": 7,
-        "tiny": 0,
-        # "teensy": 0,   # the teensy attribute is optional
+        # "tiny": 0,     # tiny and teeny are optional
+        # "teensy": 0,   # you can have both, or just tiny, or neither
         "releaseType": "Alpha",
         "releaseDate": "April 18, 2006",
         "product": "nanoENGINEER-1",
-        "copyright": "Copyright (C) 2004-2006, Nanorex, Inc.",
+        "copyright": __copyright__,
         "authors": __author__
         }
     def __init__(self):
@@ -40,11 +42,13 @@ class Version:
     def __repr__(self):
         major = self.__shared_state["major"]
         minor = self.__shared_state["minor"]
-        tiny = self.__shared_state["tiny"]
-        str = "v%d.%d.%d" % (major, minor, tiny)
-        if self.__shared_state.has_key("teensy"):
-            teensy = self.__shared_state["teensy"]
+        str = "v%d.%d" % (major, minor)
+        if self.__shared_state.has_key("tiny"):
+            teensy = self.__shared_state["tiny"]
             str += ".%d" % teensy
+            if self.__shared_state.has_key("teensy"):
+                teensy = self.__shared_state["teensy"]
+                str += ".%d" % teensy
         return str
 
 ###############################
