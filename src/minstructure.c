@@ -211,11 +211,13 @@ minimizeStructureTermination(struct functionDefinition *fd,
                              struct configuration *current,
                              double tolerance)
 {
-    double fp = evaluate(previous);
-    double fq = evaluate(current);
+    double fp;
+    double fq;
     double rms_force;
     double max_force;
 
+    fp = evaluate(previous); BAIL();
+    fq = evaluate(current); BAIL();
     // wware 060109  python exception handling
     evaluateGradient(current); BAILR(0);
     findRMSandMaxForce(current, &rms_force, &max_force); BAILR(0);
@@ -333,7 +335,7 @@ minimizeStructure(struct part *part)
 
     if (final != NULL) {
 	// wware 060109  python exception handling
-	evaluateGradient(final);
+	evaluateGradient(final); BAIL();
 	findRMSandMaxForce(final, &rms_force, &max_force); BAIL();
 
 	writeMinimizeMovieFrame(OutputFile, part, 1, (struct xyz *)final->coordinate, rms_force, max_force,

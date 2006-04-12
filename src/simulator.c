@@ -102,11 +102,11 @@ write_traceline(const char *format, ...)
 char *py_exc_str = NULL;
 
 void
-set_py_exc_str(const char *filename, const char *funcname,
-               const char *format, ...)
+set_py_exc_str(const char *filename,
+	       const int linenum, const char *format, ...)
 {
     va_list args;
-    fprintf(stderr, "\n%s(%s) ", filename, funcname);
+    fprintf(stderr, "\n%s:%d ", filename, linenum);
     va_start(args, format);
     vfprintf(stderr, format, args);
     va_end(args);

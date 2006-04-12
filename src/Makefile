@@ -1,4 +1,3 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # Makefile for the simulator
 # $Id$
 
@@ -10,7 +9,7 @@ PYVER := $(shell python -c "import sys; print sys.version[0]+sys.version[2]")
 
 ifeq ($(OS),Windows_NT)
 CC = "C:/Dev-Cpp/bin/gcc.exe"
-CFLAGS=-g -I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include"
+CFLAGS=-g -I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
 LDFLAGS=-L"C:/Dev-Cpp/lib"
 PYREXTARGET=sim.dll
 STDC99=

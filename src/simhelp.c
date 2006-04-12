@@ -210,7 +210,7 @@ callback_writeFrame(struct part *part1, struct xyz *pos1)
 	// assert part is <previous value for part>
 	// we haven't seen this yet, but it would be important to know about
 	// wware 060109  python exception handling
-	set_py_exc_str(__FILE__, __FUNCTION__, "the part has changed");
+	set_py_exc_str(__FILE__, __LINE__, "the part has changed");
 	return;
     }
     pos = pos1;
@@ -326,7 +326,7 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 
     part = readMMP(InputFileName);
     if (part == NULL) {
-	set_py_exc_str(__FILE__, __FUNCTION__, "part is null");
+	set_py_exc_str(__FILE__, __LINE__, "part is null");
 	PYBAIL();
     }
     updateVanDerWaals(part, NULL, part->positions);
@@ -457,13 +457,13 @@ set_interrupted_flag(int value)
 }
 
 void
-set_py_exc_str(const char *filename, const char *funcname,
-               const char *format, ...)
+set_py_exc_str(const char *filename,
+               const int linenum, const char *format, ...)
 {
     va_list args;
     int n;
     if (py_exc_str != NULL) return;
-    n = sprintf(py_exc_strbuf, "%s(%s) ", filename, funcname);
+    n = sprintf(py_exc_strbuf, "\n%s:%d ", filename, linenum);
     va_start(args, format);
     vsnprintf(py_exc_strbuf + n, 1024 - n, format, args);
     va_end(args);

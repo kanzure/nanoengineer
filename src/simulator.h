@@ -159,24 +159,20 @@ extern void write_traceline(const char *format, ...);
 
 // Python exception stuff, wware 060109
 extern char *py_exc_str;
-extern void set_py_exc_str(const char *filename, const char *funcname,
-			   const char *format, ...);
+extern void set_py_exc_str(const char *filename,
+			   const int linenum, const char *format, ...);
 
-// define this to test the exception handling in pyrex sim.  Each null
-// pointer check will occasionally fail.
-//#define RANDOM_FAILURES 0.0001
-#ifdef RANDOM_FAILURES
-#define RFAIL (((double)random())/((double)RAND_MAX) < RANDOM_FAILURES) ||
-#else
-#define RFAIL
-#endif
+#define CHECKNAN(x)        ASSERT(!isnan(x))
+#define CHECKNANR(x, y)    ASSERTR(!isnan(x), y)
 
-#define NULLPTR(p)  \
-  if (RFAIL (p) == NULL) { SAY("NULLPTR\n"); \
-  set_py_exc_str(__FILE__, __FUNCTION__, "%s is null", #p); return; }
-#define NULLPTRR(p,x)  \
-  if (RFAIL (p) == NULL) { SAY("NULLPTRR\n"); \
-  set_py_exc_str(__FILE__, __FUNCTION__, "%s is null", #p); return (x); }
+#define ASSERT(c)  \
+  if (!(c)) { set_py_exc_str(__FILE__, __LINE__, \
+                             "assert failed: %s", #c); return; }
+#define ASSERTR(c, x)  \
+  if (!(c)) { set_py_exc_str(__FILE__, __LINE__, \
+                             "assert failed: %s", #c); return (x); }
+#define NULLPTR(p)  ASSERT((p) != NULL)
+#define NULLPTRR(p,x)  ASSERTR((p) != NULL, x)
 #define EXCEPTION (py_exc_str != NULL)
 #define BAIL()  \
   if (EXCEPTION) { SAY("BAIL\n"); return; }
