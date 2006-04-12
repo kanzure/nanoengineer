@@ -467,15 +467,13 @@ jigThermostat(struct jig *jig, double deltaTframe, struct xyz *position, struct 
 double
 angleBetween(struct xyz xyz1, struct xyz xyz2)
 {
-    double Lsq1, Lsq2, L1, L2, dprod;
+    double Lsq1, Lsq2, dprod;
     Lsq1 = vdot(xyz1, xyz1);
     if (Lsq1 < 1.0e-10)
 	return 0.0;
     Lsq2 = vdot(xyz2, xyz2);
     if (Lsq2 < 1.0e-10)
 	return 0.0;
-    L1 = sqrt(Lsq1);
-    L2 = sqrt(Lsq2);
     dprod = vdot(xyz1, xyz2) / sqrt(Lsq1 * Lsq2);
     if (dprod >= 1.0)
 	return 0.0;
