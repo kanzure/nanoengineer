@@ -87,6 +87,18 @@ If you create a symlink to the executable in /usr/local/bin, as an
 experienced Linux user might, it will not work. This is because
 nanoENGINEER-1 looks for its files relative to its executable.
 
+======================
+UNSUPPORTED PLATFORMS
+======================
+nanoENGINEER-1 Alpha7 is tested and supported only on : 
+ Windows XP, 
+ MAC OS X 10.3.X, 10.4 (PowerPC G4)
+ Mandrake Linux 10.0, 10.1
+
+It is not supported on Intel based MACs (e.g. Macbook Pro with Intel processor ).
+Also There are some known issues on other operating systems such as Fedora Core 4, 
+Gentoo Linux (e.g. the program hangs or some display issues etc) 
+
 
 
 ===============================
@@ -137,6 +149,12 @@ in nanoENGINEER-1.
 
    For more information on downloading and installing the Nano-Hive 
    Simulator,visit: http://www.nano-hive.org/download.shtml
+	
+   Note: ESP Image jig is not fully supported on Linux and MAC platforms. 
+   On Windows, you can perform ESP calculations for some standard cases provided 
+   that a correct version of NanoHive is installed. In general ESP image is 
+   partially supported and has many known bugs. These issues will be fixed 
+   in an upcoming release of nanoENGINEER-1. 
 
 =============
 NEW FEATURES
