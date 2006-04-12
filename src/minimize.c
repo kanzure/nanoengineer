@@ -224,6 +224,8 @@ evaluate(struct configuration *p)
     if (p->functionValueValid == 0) {
 	NULLPTRR(fd->func, 0.0);
 	(*fd->func)(p);
+	BAILR(0.0);
+	CHECKNAN(p->functionValue);
 	p->functionValueValid = 1;
 	fd->functionEvaluationCount++;
     }
@@ -259,6 +261,7 @@ evaluateGradientFromPotential(struct configuration *p)
 	pMinusDelta->coordinate[i] -= fd->gradient_delta / 2.0;
 
 	p->gradient[i] = (evaluate(pMinusDelta) - evaluate(pPlusDelta)) / fd->gradient_delta;
+	BAIL();
 	SetConfiguration(&pPlusDelta, NULL);
 	SetConfiguration(&pMinusDelta, NULL);
     }
@@ -277,14 +280,15 @@ evaluateGradient(struct configuration *p)
     if (p->gradient == NULL) {
 	p->gradient = (double *)allocate(sizeof(double) * fd->dimension);
 	if (fd->dfunc == NULL) {
-	    evaluateGradientFromPotential(p);
+	    evaluateGradientFromPotential(p); BAIL();
 	} else {
-	    (*fd->dfunc)(p);
+	    (*fd->dfunc)(p); BAIL();
 	}
 	fd->gradientEvaluationCount++;
 	p->parameter = 0.0;
 	p->maximumCoordinateInGradient = 0.0;
 	for (i=fd->dimension-1; i>=0; i--) {
+	    CHECKNAN(p->gradient[i]);
 	    gradientCoordinate = fabs(p->gradient[i]);
 	    if (p->maximumCoordinateInGradient < gradientCoordinate) {
 		p->maximumCoordinateInGradient = gradientCoordinate;
