@@ -30,7 +30,14 @@ History:
   or to update a chunk's .atpos (or even .atlist) when making an undo checkpoint.
 
   (It would be nice for Undo to not store copies of changed .atoms dicts of chunks too, but that's harder. ###e)
-  
+
+  [update, bruce 060411: I did remove atom.index from undoable state, as well as chunk.atoms, and I made atoms always store
+   their own absposns. I forgot to summarize the new rules here -- maybe I did somewhere else. Looking at the code now,
+   atoms still try to get baseposns from their chunk, which still computes that before drawing them; moving a chunk
+   probably invalidates atpos and basepos (guess, but _recompute_atpos inval decl code would seem wrong otherwise)
+   and drawing it then recomputes them -- or maybe not, since it's only when remaking display list that it should need to.
+   Sometime I should review this and see if there is some obvious optimization needed.]
+
 '''
 __author__ = "Josh"
 
@@ -105,6 +112,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # e.g. when _undo_setattr_hotspot exists, like now.
         
     _colorfunc = None
+    _dispfunc = None
     # this overrides global display (GLPane.display)
     # but is overriden by atom value if not default
     # [bruce 051011 moved it here from __init__, desirable for all undoable attrs]
@@ -142,6 +150,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.invalidate_atom_lists() # this is the least we need (in general), but doesn't cover atom posns I think
         self.invalidate_everything() # this is probably overkill, but otoh i don't even know for sure it covers invalidate_atom_lists
         self._colorfunc = None; del self._colorfunc #bruce 060308 precaution; might fix (or cause?) some "Undo in Extrude" bugs
+        self._dispfunc = None; del self._dispfunc
         Node._undo_update(self) ##k do this before or after the following??
             # (general rule for subclass/superclass for this? guess: more like destroy than create, so do high-level (subclass) first)
         return
@@ -224,8 +233,20 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             #e should this loop body be a bond method??
             m1 = b.atom1.molecule # one of m1,m2 is self but we won't bother finding out which
             m2 = b.atom2.molecule
-            if m1.part is not m2.part:
-                assert m1.part is not None and m2.part is not None ###@@@ justified??
+            try:
+                bad = (m1.part is not m2.part)
+            except: #060411 bug-safety
+                if m1 is None:
+                    m1 = b.atom1.molecule = get_nullMol()
+                    print "bug: %r.atom1.molecule was None (changing it to _nullMol)" % b
+                if m2 is None:
+                    m2 = b.atom2.molecule = get_nullMol()
+                    print "bug: %r.atom2.molecule was None (changing it to _nullMol)" % b
+                bad = True
+            if bad:
+                if not (m1.part is not None and m2.part is not None):
+                    print "bug: one of %r's atom's mol's .parts is None" % b
+                        # e.g. this will happen if above code sets a mol to _nullMol
                 b.bust() 
         # check atom-jig bonds ####@@@@ in the future! Callers also need to handle some jigs specially first, which this would destroy
         ### actually this would be inefficient from this side (it would scan all atoms), so let's let the jigs handle it...
@@ -376,6 +397,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # make atom independent of molecule
         assert atm.molecule is self
         atm.index = -1 # illegal value
+        # inlined get_nullMol:
         global _nullMol
         if _nullMol is None:
             # this caused a bus error when done right after class molecule
@@ -798,6 +820,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         if self.hidden: return
         
         self.glpane = glpane # needed for the edit method - Mark [2004-10-13]
+            # (and now also needed by BorrowerChunk during draw_dispdef's call of _dispfunc [bruce 060411])
         ##e bruce 041109: can't we figure it out from mol.dad?
         # (in getattr or in a special method)
         #bruce 050804: this is now also used in self.changeapp(),
@@ -942,25 +965,43 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         ColorSorter.finish() # grantham 20051205
         return # from molecule.draw()
 
-    def draw_displist(self, glpane, disp): #bruce 050513 optimizing this somewhat
+    def draw_displist(self, glpane, disp0): #bruce 050513 optimizing this somewhat
 
         drawLevel = self.assy.drawLevel
         drawn = {}
         ## self.externs = [] # bruce 050513 removing this
         # bruce 041014 hack for extrude -- use _colorfunc if present [part 1; optimized 050513]
         _colorfunc = self._colorfunc # might be None [as of 050524 we supply a default so it's always there]
+        _dispfunc = self._dispfunc #bruce 060411 hack for BorrowerChunk, might be more generally useful someday
         color = self.color # only used if _colorfunc is None
         bondcolor = self.color # never changed
         
         for atm in self.atoms.itervalues(): #bruce 050513 using itervalues here (probably safe, speed is needed)
             try:
+                disp = disp0
                 # bruce 041014 hack for extrude -- use _colorfunc if present [part 2; optimized 050513]
                 if _colorfunc is not None:
                     try:
                         color = _colorfunc(atm)
-                    except: # _colorfunc has a bug; reporting this would be too verbose, sorry #e could report for only 1st atom?
-                        color = self.color
-                # otherwise color is still set from above
+                    except:
+                        print_compact_traceback("bug in _colorfunc for %r and %r: " % (self, atm)) #bruce 060411 added errmsg
+                        _colorfunc = None # report the error only once per displist-redraw
+                        color = self.color # probably not needed
+                    else:
+                        #bruce 060411 hack for BorrowerChunk; done here and in this way in order to not make
+                        # ordinary drawing inefficient, and to avoid duplicating this entire method:
+                        if _dispfunc is not None:
+                            try:
+                                disp = _dispfunc(atm)
+                            except:
+                                print_compact_traceback("bug in _dispfunc for %r and %r: " % (self, atm))
+                                _dispfunc = None # report the error only once per displist-redraw
+                                disp = disp0 # probably not needed
+                                pass
+                            pass
+                        pass
+                    pass
+                # otherwise color and disp remain unchanged
                 
                 # end bruce hack 041014, except for use of color rather than
                 # self.color in atm.draw (but not in bon.draw -- good??)
@@ -1845,7 +1886,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         mapping.record_copy(self, numol)
         # also copy user-specified axis, center, etc, if we ever have those
         ## numol.setDisplay(self.display)
-        numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
+        if self._colorfunc is not None: #bruce 060411 added condition; note, this code snippet occurs in two methods
+            numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
+        if self._dispfunc is not None:
+            numol._dispfunc = self._dispfunc
         return numol
 
     def copy_full_in_mapping(self, mapping): # Chunk method [bruce 050526] #bruce 060308 major rewrite
@@ -2080,7 +2124,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         numol.dad = dad
         if dad and platform.atom_debug: #bruce 050215
             print "atom_debug: mol.copy got an explicit dad (this is deprecated):", dad
-        numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
+        if self._colorfunc is not None: #bruce 060411 added condition; note, this code snippet occurs in two methods
+            numol._colorfunc = self._colorfunc # bruce 041109 for extrudeMode.py; revised 050524
+        if self._dispfunc is not None:
+            numol._dispfunc = self._dispfunc
         return numol
 
     # ==
@@ -2126,7 +2173,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         ###e bruce 041109 comment: don't we want to repaint the glpane, too?
 
     def __str__(self):
-        return "<Chunk %r>" % self.name # bruce 041124 revised this
+        # bruce 041124 revised this; again, 060411 (can I just zap it so __repr__ is used?? Try this after A7. ##e)
+        return "<%s %r>" % (self.__class__.__name__, self.name)
 
     def __repr__(self): #bruce 041117, revised 051011
         # Note: if you extend this, make sure it doesn't recompute anything
@@ -2142,10 +2190,11 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             self.assy
         except:
             return "<Chunk %s at %#x with self.assy not set>" % (name, id(self)) #bruce 051011
+        classname = self.__class__.__name__ # not always Chunk!
         if self.assy is not None:
-            return "<Chunk %s (%d atoms) at %#x>" % (name, len(self.atoms), id(self))
+            return "<%s %s (%d atoms) at %#x>" % (classname, name, len(self.atoms), id(self))
         else:
-            return "<Chunk %s, KILLED (no assy), at %#x of %d atoms>" % (name, id(self), len(self.atoms)) # note other order
+            return "<%s %s, KILLED (no assy), at %#x of %d atoms>" % (classname, name, id(self), len(self.atoms)) # note other order
         pass
 
     def dump(self):
@@ -2222,6 +2271,15 @@ Chunk = molecule #bruce 051227 permit this synonym; for A8 we'll probably rename
 # Initing _nullMol here caused a bus error; don't know why (class Node not ready??)
 # So we do it when first needed, in delatom, instead. [bruce 041116]
 ## _nullMol = molecule("<not an assembly>")
+
+def get_nullMol():
+    "return _nullMol, after making sure it's initialized"
+    # inlined into delatom
+    global _nullMol
+    if _nullMol is None:
+        _nullMol = _make_nullMol()
+    return _nullMol
+
 _nullMol = None
 
 def _make_nullMol(): #bruce 060331 split out and revised this, to mitigate bugs similar to bug 1796
@@ -2239,6 +2297,177 @@ class _nullMol_Chunk(molecule):
             print msg
         return
     pass # end of class _nullMol
+
+# ==
+
+class BorrowerChunk(Chunk):
+    """A temporary Chunk (mostly transparent to users and Undo, when not added to MT) whose atoms belong in other chunks.
+    Useful for optimizing redraws, since it has one perhaps-small display list, and the other chunks' display lists
+    won't be modified when our atoms change (except once when we first steal their atoms, and when we add them back).
+       WARNING: removing atoms from, or adding atoms to, this pseudo-chunk is not supported.
+    Except for debugging purposes, it should never be added to the MT, or permitted to exist when arbitrary user-ops are possible.
+    Its only known safe usage pattern is to be created, used, and destroyed, during one extended operation such as a mouse-drag.
+    [If more uses are thought of, these limitations could all be removed. #e]
+    """
+    def __init__(self, atomset, name = None):
+        """#doc; atomset maps atom/key -> atom for some atoms we'll temporarily own
+        [WARNING: if all of another chunk's atoms are in atomset, creating us will kill that chunk.]
+        [WARNING: it's up to the caller to make sure all singlet neighbors of atoms in atomset
+         are also in atomset! Likely bugs if it doesn't.]
+        """
+        atoms = atomset.values() #e could optim this -- only use is to let us pick one arbitrary atom
+        egatom = atoms[0]
+        assy = egatom.molecule.assy
+        Chunk.__init__(self, assy, name or "(borrower of %d atoms, id %#x)" % (len(atoms), id(self))) #e __repr__ also incls this info
+            # initially-unexplained bug [#e refile after initial commit, since it's explained now]:
+            # once when we added 2 singlets to assy.selatoms itself (which is not allowed)
+            # and passed that as atomset (should have been 3 atoms), its length got recorded here (from len(atomset)) as 4 atoms
+            # (and later in Chunk.__repr__ it was also printed as 4 atoms),
+            # but later still, looking at self.atoms in a debugger, the proper set of 3 atoms were there.
+            # But in that debugger now I print bc to get <Chunk '(borrower of 4 atoms, id 0xb85f738)'>
+            # (wrong classname, wrong length) -- am I using old __repr__ code? Note too that it fails to print len(atoms) at all.
+            # Ah, here is the likely cause:
+            # 12. [13:35:36] pulling bondpoint X552 to (8.33, 8.08, 2.47)
+            # 13. [13:35:36] Build Mode: bonded atoms C553 and C595
+            # So it was made with 1 atom and 3 singlets, then a singlet was killed, now it won't print true number of atoms anymore;
+            # probably there's an unreported exception in __repr__, not sure why... no, it's using __str__ which is simpler!
+            # Ok, everything is explained.
+        self.part = egatom.molecule.part
+            # This is only needed if update_parts is possible while we exist -- but it might be.
+            # Note that we're not calling part.add or adding ourselves to its nodecount.
+            # Thus we reset this to None in restore_atoms_to_their_homes, before something like kill calls part.remove on us.
+
+        # now steal the atoms, but remember their homes and don't add ourselves to assy.tree.
+        # WARNING: if we steal *all* atoms from another chunk, that will cause trouble,
+        # but preventing this is up to the caller! [#e put this into another method, so it can be called again later??]
+        # We optimize this by lots of inlining, since we need it to be fast for lots of atoms.
+        harmedmols = {} # id(mol) -> mol for all mols whose atoms we steal from
+        origmols = {} # atom.key - original atom.molecule
+        self.origmols = origmols
+        self.harmedmols = harmedmols
+        # self.atoms was initialized in Chunk.__init__
+        for key, atom in atomset.iteritems():
+            mol = atom.molecule
+            assert mol is not self
+            if isinstance(mol, self.__class__):
+                print "%r: borrowing %r from another borrowerchunk %r is not supported" % (self, atom, mol)
+                    # whether it might work, I have no idea
+            harmedmols[id(mol)] = mol
+            # inline part of mol.delatom(atom):
+            #e do this later: mol.invalidate_atom_lists()
+            _changed_parent_Atoms[key] = atom
+            del mol.atoms[key] # callers can check for KeyError, always an error
+            # don't do this (but i don't think it prevents all harm from stealing all mol's atoms):
+            ## if not mol.atoms:
+            ##     mol.kill()
+            # inline part of self.addatom(atom):
+            atom.molecule = self
+            atom.index = -1 # illegal value
+            self.atoms[key] = atom
+            #e do this later: self.invalidate_atom_lists()
+            # remember where atom came from:
+            origmols[key] = mol
+        # do what we saved for later in the inlined delatom and addatom calls:
+        for mol in harmedmols.itervalues():
+            natoms = len(mol.atoms)
+            if not natoms:
+                print "bug: BorrowerChunk stole all atoms from %r; potential for harm is not yet known" % mol
+            mol.invalidate_atom_lists()
+        self.invalidate_atom_lists()
+        return
+    # instead of overriding draw_displist, it's enough to define _colorfunc and _dispfunc to help it:
+    def _colorfunc(self, atm):
+        """Define this to use atm's home mol's color instead of self.color, and also so that self._dispfunc gets called
+        [overrides self._colorfunc = None; this scheme will get messed up if self ever gets copied,
+         since the copy code (two methods in Chunk) will set an instance attribute pointing to the bound method of the original]
+        """
+        #e this has bugs if we removed atoms from self -- that's not supported (#e could override delatom to support it)
+        return self.origmols[atm.key].color
+    def _dispfunc(self, atm):
+        origmol = self.origmols[atm.key]
+        glpane = origmol.glpane # set shortly before this call, in origmol.draw_displist (kluge)
+        disp = origmol.get_dispdef(glpane)
+        return disp
+    def restore_atoms_to_their_homes(self):
+        "Put your atoms back where they belong (calling this multiple times should be ok)"
+        #e this has bugs if we added atoms to self -- that's not supported (#e could override addatom to support it)
+        origmols = self.origmols
+        for key, atom in self.atoms.iteritems():
+            _changed_parent_Atoms[key] = atom
+            origmol = origmols[key]
+            atom.molecule = origmol
+            atom.index = -1 # illegal value
+            origmol.atoms[key] = atom
+        for mol in self.harmedmols.itervalues():
+            mol.invalidate_atom_lists()
+        self.atoms = {}
+        self.origmols = {}
+        self.harmedmols = {}
+        self.part = None
+        self.invalidate_atom_lists() # might not matter anymore; hope it's ok when we have no atoms
+        return
+    def kill(self):
+        self.restore_atoms_to_their_homes() # or should we delete them instead?? (this should never matter in our planned uses)
+            # this includes self.part = None
+        Chunk.kill(self)
+    # for testing, we might let one of these show up in the MT, and then we need these cmenu methods for it:
+    def __CM_Restore_Atoms_To_Their_Homes(self):
+        self.restore_atoms_to_their_homes()
+        assy = self.assy
+        self.kill()
+        assy.w.win_update() # at least mt_update is needed
+    #e we might need destroy and/or kill methods which call restore_atoms_to_their_homes
+    pass
+
+    # Some notes about BorrowerChunk [bruce 060411]
+    ##    If an undo checkpoint occurs while the atoms are stolen,
+    ##    it won't contain them (it will be as if they were deleted, I think).
+    ##    This might be tolerable for A7 (if tested for safety), since cp's during drag
+    ##    are rare -- or it might not, if problems are caused by bonds from existing to dead atoms!
+    ##
+    ##    When we want to fix it, here are some possible ways:
+    #     - make the missing-atoms scheme work, by making the bonds from existing to dead atoms also seem to be missing, somehow.
+    ##    - let this chunk be scanned by Undo (ie make it a child of the assy, in a special place
+    ##    so not in the MT), and let it have an _undo_update method
+    ##    (or the like) which merges its atoms back into their homes. (It might turn out this is required
+    ##    anyway, if having it missing during a cp causes unforseen problems.)
+    ##    - disable cp's during drag.
+    ##    - merge undo diffs from the drag.
+
+def debug_make_BorrowerChunk(target):
+    "(for debugging only)"
+    debug_make_BorrowerChunk_raw(True)
+
+def debug_make_BorrowerChunk_no_addmol(target):
+    "(for debugging only)"
+    debug_make_BorrowerChunk_raw(False)
+
+def debug_make_BorrowerChunk_raw(do_addmol = True):
+    from HistoryWidget import orangemsg, redmsg, quote_html
+    from undo_archive import safe_repr #e needs a better home!
+    win = env.mainwindow()
+    atomset = win.assy.selatoms
+    if not atomset:
+        env.history.message(redmsg("Need selected atoms to make a BorrowerChunk (for debugging only)"))
+    else:
+        atomset = dict(atomset) # since we shouldn't really add singlets to assy.selatoms...
+        for atom in atomset.values(): # not itervalues, we're changing it in the loop!
+            # BTW Python is nicer about this than I expected:
+            # exceptions.RuntimeError: dictionary changed size during iteration
+            for bp in atom.singNeighbors(): # likely bugs if these are not added into the set!
+                atomset[bp.key] = bp
+        chunk = BorrowerChunk(atomset)
+        if do_addmol:
+            win.assy.addmol(chunk)
+        import __main__
+        __main__._bc = chunk
+        env.history.message(orangemsg("__main__._bc = %s (for debugging only)" % quote_html(safe_repr(chunk))))
+    win.win_update() #k is this done by caller?
+    return
+
+from debug import register_debug_menu_command
+register_debug_menu_command("make BorrowerChunk", debug_make_BorrowerChunk)
+register_debug_menu_command("make BorrowerChunk (no addmol)", debug_make_BorrowerChunk_no_addmol)
 
 # ==
 
