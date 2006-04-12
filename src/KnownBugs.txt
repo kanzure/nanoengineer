@@ -5,13 +5,13 @@ Some of the Bug Fixes In Alpha 7
 
 1. Undo/ Redo is implemented
 2. Selection/Display/Jigs: If more than 1 jigs (other than motors) are attached to the same atom , only first jig in the order (in the model tree) gets highlighted (756) 
-3. Some bugs where MMKit's clipboard view doesn't get updated when you do modifications in the 3D workspace (876, 1570,1573)
+3. Some bugs where MMKit's clipboard view doesn't get updated when you do modifications in the 3D workspace (876, 1570, and 1573)
 
 
   
 UNSUPPORTED FEATURES:
 
-1. Bond Inference not supported but a limited valence error check supported. 
+#. Bond Inference not supported but a limited valence error check supported. 
 
 By the term 'bond inference' we mean automatically deciding what type of bond will be formed between the participating elements. It is not supported for this version of ne-1. When an element is deposited, by default, all the bonds are single bonds. User must manually change the bond type between the elements in 'Build mode'. However, if the structure is not chemically correct (bad valences etc), ne-1 shows a 'pink wire frame' around each atom indicating valence errors.  This 'valence error' display, by default, is set to ON. It can be turned On or Off from the 'Bonds' tab in the Preferences dialog. (Edit>Preference…).  
 Note that there are some kinds of chemical errors this (the Valence Error Checker) doesn't detect. For example, it can't tell whether rings should be aromatic or not. All it checks is that the bonds on each atom could possibly add up to the right number of valence electrons. The Valence Error Checker doesn't treat graphitic and aromatic bonds differently.
@@ -24,14 +24,15 @@ Example:
 -- You can change this bond type to a triple bond by:  (a) highlight the bondpoint, right click and then from the context menu that popped up, select triple bond. OR (b) from the Build dashboard, click on the button that corresponds to a triple bond, now move your mouse such that the bond gets highlighted and then left click. 
 -- By following this procedure, you can change the bond order. Observe that, when the triple bond is formed, the valence error wire frames will go away. 
         
-3. PDBs With Multiple Bond Information Not Supported 
+# PDBs With Multiple Bond Information Not Supported 
  This version of ne-1 treats all bond types as single bonds while reading from or writing to a PDB file. Also, it doesn't save the hybridization type into the PDB file. For example, (sp2) hybridized Carbon in a structure will be saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond Therefore, save your models ONLY in MMP file format to avoid major loss of work (569, 763)
  
 SIMULATOR / MINIMIZE
-4. Simulator/Minimize: will support bonding between elements specified in the element selector of nanoENGINEER-1. But note that bond stretching involving Fluorine atoms, or bond bending involving Boron, use estimated rather than calculated parameters.  
-5. Simulator/Minimize: Multiple bonding between certain elements is generally supported, but some parameters, notably for double bonds involving nitrogen, are estimated.  
-6. Simulator/Minimize: The simulator doesn't take into account the effect of torsion. This will make systems with double or aromatic/graphitic bonds act less stiff than they really would.   
-7. Simulator: Electrostatic interactions are not supported; in particular, the hydrogen and dative bonds are not handled. 
+# Simulator/Minimize: will support bonding between elements specified in the element selector of nanoENGINEER-1. But note that bond stretching involving Fluorine atoms, or bond bending involving Boron, use estimated rather than calculated parameters.  
+# Simulator/Minimize: Multiple bonding between certain elements is generally supported, but some parameters, notably for double bonds involving nitrogen, are estimated.  
+# Simulator/Minimize: The simulator doesn't take into account the effect of torsion. This will make systems with double or aromatic/graphitic bonds act less stiff than they really would.   
+# Simulator: Electrostatic interactions are not supported; in particular, the hydrogen and dative bonds are not handled. 
+# Enable motor in minimize feature is experimental. Enabling a motor in minimization may result in high values of rms force. 
 
 GAMESS Jig
 8. GAMESS jig can be added by select some atoms first in 'Select Atoms' mode and then attaching this jig by using Menu item: Jigs>Gamess. This jig can be attached to a maximum of 200 atoms. 
@@ -52,42 +53,49 @@ MISCELLANEOUS
  
 KNOWN BUGS (ALL PLATFORMS)
 
-ESP IMAGE 
+ESP IMAGE JIG (NANO-HIVE)
 
 ESP image has many known bugs or unimplemented features. Some Examples: 
 - ESP calculations on some structures is not done and a black ESP image is created
 - Program switches to Select Atoms mode while inserting an ESP jig 
 - Some bugs in the ESP dialog box options and implementation
 
+MINIMIZE/SIMULATOR
+(see also: the Unsupported Features section)
+
+# For some structures it needs multiple executions of 'minimize' to boil down the high force to a lower value. (567) 
+# Quite often, the rms & high force inconsistently increase during each execution of 'minimize'. Thus minimizing a structure could result in a new structure with a higher RMS force value than the input structure.  It should be the case that the new structure will always have a lower potential energy than the input structure, even if the RMS force value may sometimes be higher. This will be fixed in a future release of the product. (1377)
+# Minimize operation for some elements with higher order bond types doesn't work. See 'Unsupported Features' section for more info. (805) 
+# Simulator: In some cases, hydrogen atoms or other elements 'fly away' while running a simulation movie. This happens when atom centers are very close and therefore the repulsive force becomes very high (528, 558) 
+# Enable motor in minimize feature is experimental and has some bugs. Examples- the final rms and high force values after minimize are large, it takes long time to finish minimize operation. (1835, 1836)
+
 
 SELECTION 
 
 # Selection: Can not select a chunk by clicking on any of the bonds in that chunk. (11) 
 
-#Selection wireframes won't be displayed or will act weirdly on some platforms.This could be due to the old version graphics driver on your machine. Example: Some Windows XP users with Intel Integrated 855 graphics reported this problem which went away after installing an updated version of that driver (Intel 855 chipset driver 6.14.10.4497.). It is highly recommended that you use up-to-date drivers to avoid this issue (1720)
+#Selection wireframes won't be displayed or will act weirdly on some platforms. This could be due to the old version graphics driver on your machine. Example: Some Windows XP users with Intel Integrated 855 graphics reported this problem which went away after installing an updated version of that driver (Intel 855 chipset driver 6.14.10.4497.). It is highly recommended that you use up-to-date drivers to avoid this issue (1720)
 
 # Contract Selection doesn't work correctly in some cases. Also the What's this text doesn't clearly explain this feature. (1358)
 
  
 BUILD MODE
 
-# Build: While in this mode, you can not delete an atom in the 3D workspace using Shift + Ctrl + left click (Shift + Cmd +click on MAC) operation if that atom is represented in 'lines display'. The atom center doesn't get highlighted while in lines display. For the same reason, you can not move the atom using left mouse drag. Simple workaround exists. Change the display representation to Tubes or CPK or Ball&Stick , then highlight the atom center and do Shift +Ctrl+ left click or left drag operation.(715-2)  
+# Build: In lines display , the atom center doesn't get highlighted (if the atom is not selected). Thus, you can not perform operations such as change hybridization , move the atom while in lines mode  Simple workaround is to change the display representation to Tubes or CPK or Ball&Stick.(1837)  
 
-# Build/ Bond Order : The context menu 'Reposition Bondpoints' of an atom reorients the bondpoints but while doing so, it makes the bondpoint type as single.  Let's assume that a Carbon atom with (sp2) hybridization is deposited in build mode. Now you highlight one of its bondpoints, right click and select 'double bond' from the context menu. The representation of the bondpoint will change to a 'double bondpoint'. Now, if you highlight the atom center, right click and select 'reposition bondpoints', it will clear the 'double bondpoint' representation you just made and thus, all three bondpoints of (sp2) carbon will be represented as single bond types. (839) 
+# Build/ Bond Order : The context menu 'Reposition Bondpoints' of an atom reorients the bondpoints but while doing so, it makes the bondpoint type as single.  Let's assume that a Carbon atom with (sp2) hybridization is deposited in build mode. Now you highlight one of its bondpoints, right click and select 'double bond' from the context menu. The representation of the bondpoint will change to a 'double bondpoint'. Now, if you highlight the atom center, right click and select 'reposition bondpoints', it will clear the 'double bondpoint' representation you just made and thus, all three bondpoints of (sp2) carbon will be represented as single bond type. (839) 
  
-MODELING KIT IN BUILD MODE
+MOLECULAR MODELING KIT IN BUILD MODE
  
 This feature has some known bugs. Also refer to Linux Only Bugs and 'Dialogs and Dashboards' bug sections for some related issues. 
  
 # Modeling Kit: Sometimes this dialog box doesn't close even after main window of ne-1 is closed. It goes away after a few seconds though. (852)  
-#  Modeling Kit: For lower resolution screens the Modeling kit occupies most of the Model Tree space, thus obscures most of the Model Tree area.(844)  
-11. Modeling Kit: If the 'Clipboard' tab of Build mode's Modeling Kit dialog is open and then you hit a keyboard modifier key (e.g. C, 'S', '1' etc), the program is supposed to switch back to 'Atoms' tab (i.e. the next time you  click inside the 3D workspace, it will deposit the atom displayed in the 'thumbnail view'  window of that dialog and not the 'paste able chunk' on the clipboard) . 
----But in some cases, it doesn't because of a 'keyfocus' problem. In order to overcome this bug, try clicking inside 3D workspace once, then hit a modifier key. Now it should change to 'Atoms' tab. 
+#  Modeling Kit: For lower resolution screens the Modeling kit occupies most of the Model Tree space, thus obscures most of the Model Tree area.(1437)  
+# Modeling Kit: If the 'Clipboard' tab of Build mode's Modeling Kit dialog is open and then you hit a keyboard modifier key (e.g. C, 'S', '1' etc), the program is supposed to switch back to 'Atoms' tab. But in some cases, it doesn't because of a keyfocus issue. In order to overcome this bug, try clicking inside 3D workspace once, then hit a modifier key. Now it should change to 'Atoms' tab. 
 
 MOVE MODE
  
 #  Move: Keyboard modifier keys that constrain translation or rotation around an axis (e.g. press 'Y' and 'R' to rotate the selected chunk around Y axis.), doesn't work for the first time after you perform 'delta +' or 'delta ,' operations (which move a chunk by a specific distance). A workaround is to press and release the modifier keys and then press them again to perform these operations. (674)  
-13. Move absolute: if more than 1 chunk is selected, and you hit 'Move Absolute' button on the dashboard, it doesn't move the individual chunk's CG to the specified X,Y,Z location. (879) 
  
 EXTRUDE MODE
  
@@ -114,14 +122,6 @@ FUSE CHUNKS MODE
 # Fuse Chunks can not bond elements of two or more chunks if they are already bonded. Also, some history messages are not correct.  (580)  
 # Fuse Chunks: operations while in this mode are sluggish if it's a large model. However, its performance is improved compared to Alpha6 (689) 
  
-MINIMIZE/SIMULATOR
-(see also: the Unsupported Features section)
-
-# For some structures minimize needs multiple executions of 'minimize' to boil down the high force to a lower value. (567) 
-# Quite often, the rms & high force inconsistently increase during each execution of 'minimize'. Thus minimizing a structure could result in a new structure with a higher RMS force value than the input structure.  It should be the case that the new structure will always have a lower potential energy than the input structure, even if the RMS force value may sometimes be higher. This will be fixed in a future relase (1377)
-# Minimize operation for some elements with higher order bond types doesn't work. See 'Unsupported Features' section for more info. (805) 
-# Simulator: In some cases, hydrogen atoms or other elements 'fly away' while running a simulation movie. This happens when atom centers are very close and therefore the repulsive force becomes very high (528, 558) 
-
 MOVIE PLAYER
 
 # Movie playing is lot slower for large models on some low system configuration machines (1757)
@@ -138,22 +138,21 @@ NAMING
  
 CURSOR , HIGHLIGHTING AND DISPLAY RELATED BUGS
  
-35. Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck. Usually, if you press and release the Shift or Ctrl/Cmd key, the appropriate cursor is restored.(113, 158,404)  
-37. Display: Larger atoms can obscure bondpoints when displayed in CPK mode. (258)  
-38. Display: Bondpoints are not seen in sp, sp2 Carbon and sp2 Oxygen, when these are represented with Van der Waals display (656)  
-39. Display: The front clipping plane will sometimes clip objects that should not be clipped  
-40. Display: bond and atom center highlighting in build mode has some bugs. The highlighting flicker whenever there is a selection or valence error wire frame around the atom center. (715) 
-41. Display: Valence error wire frame is displayed even for invisible atoms. Also, while Build mode when you move cursor inside such a wire frame, even the invisible atom center gets highlighted. (870) 
-42. Atom center and other highlighting are problematic in some cases. Examples: More than one nanoENGINEER-1 applications are running, Vertical splitter of the Model Tree is dragged to adjust Model Tree's width, Main nE-1 window is maximized etc. (1241, 1243, 1637)
+# Atom center and other highlighting are problematic in some cases. Examples: More than one nanoENGINEER-1 applications are running, Vertical splitter of the Model Tree is dragged to adjust Model Tree's width, Main nE-1 window is maximized etc. (1241, 1243, 1637)
+# Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck. Usually, if you press and release the Shift or Ctrl/Cmd key, the appropriate cursor is restored.(113, 158,404)  
+# Display: The front clipping plane will sometimes clip objects that should not be clipped  
+# Display: Valence error wire frame is displayed even for invisible atoms. Also, while Build mode when you move cursor inside such a wire frame, even the invisible atom center gets highlighted. (870) 
 
 DIALOGS AND DASHBOARD
  
-42. Users operating ne-1 with a low screen resolution and large font size report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don't operate correctly, some property forms such as Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)  
+# Users operating ne-1 with a low screen resolution and large font size report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don't operate correctly, some property forms such as Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)  
  
 POVRAY RENDERING
  
 #  Povray rendering doesn't show different bond types (it will be supported feature for this version) (830)  
 #  Povray rendering of lines display is shown as black lines, motor arrows are not rendered (226, 527)  
+# If a motor is attached to only a single atom, povray image can not be rendered (719)
+#povray image rendered incorrectly in some orientations of the linear motor (1755)
 
 
 MISCELLANEOUS
@@ -161,10 +160,7 @@ MISCELLANEOUS
 # User can not save exclusive features of nanoENGINEER-1 into the PDB file format. Some examples of such 'MMP file only' features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  ne-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)  
 # Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results. (362)  
 # Jigs: Rotary and Linear motors do not move with the chunks they are attached to. However, after moving the chunks, you can reposition the motor by right clicking on the motor name in the Model Tree and then using context menu option 'recenter on atoms'    (168) 
-# Some times program crashes after executing File >Exit command. (1714)
-# Bond lengths: After minimize operation the bonds between some elements are shown stretched. This is because bond lengths of some elements used in ne-1 simulator are slightly different than the ones used in ne-1's CAD code. This will be fixed in a future release. (900) 
 # Zoom/Pan/Rotate Tools: If you click on Zoom, Pan or Rotate tools while in Build, the MMKit and other Build features will become temporarily unavailable while you use these tools. (1518)
-# If you select the part icon (top icon in the model tree) and hit the delete key (or click Delete), the entire part will be deleted without asking the user for confirmation. Hit Undo to restore the previous state if you accidentally delete the whole model (147)  
 # Any file currently opened by nanoENGINEER-1 can be manually deleted from the computer without any warning message. (215) 
 
  
@@ -182,6 +178,7 @@ MACINTOSH ONLY BUGS
 2. Icon tray/bar redrawing of the icon images will show up overlapped, zig-zagged, cracked, etc. in certain situations. In worst cases, the right-side icon bars will go invisible until the invisible bar is clicked on, which redraws the bar but changes your button. This usually only happens when resizing the main window by dragging its "resize handle" on the lower right of the window frame. The workaround is to resize it to be a bit smaller than you want, and then make it a bit bigger again so that it's the desired size. Some users report that the toolbars always draw wrongly after that initial down-sizing, but then they always draw properly again after that final small up-sizing. (861) 
 3. Occasionally, bouncing between programs will lead to the menu (screen top) disappearing, only to re-appear with mouseover (or mouseover+click).  
 4. On Mac OS X Tiger, the tool buttons don't look 'pressed'. On other platforms this is not a problem. ne-1 provides a workaround for this. In the 3D Workspace (i.e. Graphics area), press Shift and Option keys and do Command click to bring up the debug menu. Now select the "Mac OS 10.4 QToolbutton Workaround" command from this debug menu. This will resolve the issue. (878) 
+5. On some MACs , some cursors and icons in MMKit and dashboard are not displayed (1824, 1838)
  
 LINUX ONLY BUGS
 
