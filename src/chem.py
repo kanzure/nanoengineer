@@ -734,7 +734,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
                 # note: since mol.basepos exists, mol.atlist does, so self.index is a valid index into both of them
                 # [bruce 060313 comment]
         # fallback to slower code from 041201:
-        return mol.quat.unrot(self.posn() - mol.basecenter)
+        return mol.quat.unrot(self.posn() - mol.basecenter) # this inlines mol.abs_to_base( self.posn() ) [bruce 060411 comment]
 
     def setposn(self, pos):
         """set the atom's absolute position,
