@@ -1,5 +1,5 @@
 # Copyright (c) 2006 Nanorex, Inc. All rights reserved.
-nanoENGINEER-1 v0.7.0 (Alpha 7)
+nanoENGINEER-1 v0.7 (Alpha 7)
 
 Some of the Bug Fixes In Alpha 7
 
@@ -39,7 +39,7 @@ GAMESS Jig
 -- Certain GAMESS optimization runs or Energy calculation can take very long time (hours/days). While a GAMESS job is being performed, user is not allowed to do any other operation in that session of ne-1. User must wait till the GAMESS job is finished or opt to terminate it by hitting 'Cancel' button in the progress bar. 
 -- Also, certain GAMESS run may create large output files. So make sure that your system has enough disk space to handle such runs. ALL GAMESS jobs are save inside the 'Job Manager' directory. (User's home directory/ Nanorex/Job Manager) (742)
  
-ESP IMAGE / NANAO-HIVE
+ESP IMAGE / NANO-HIVE
 9. ESP Image jig is not fully supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided that a correct version of NanoHive is installed. In general ESP image is partially supported and has many known bugs. These issues will be fixed in an upcoming release of nanoENGINEER-1. 
 
 

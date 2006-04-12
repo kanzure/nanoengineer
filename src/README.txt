@@ -4,7 +4,7 @@ README
 VERSION/INFO
 =============
  
-  This is nanoENGINEER-1 v0.7.0 (Alpha 7) as of April 18 , 2006.
+  This is nanoENGINEER-1 v0.7 (Alpha 7) as of April 18,2006.
   See the COPYRIGHT section for distribution and copyright notices.
   Send all bug reports and questions for nanoENGINEER-1 to 
   support@nanorex.com.
@@ -66,14 +66,14 @@ The default name it gives is (for example):
 "nanoENGINEER-1 v0.0.6 (Alpha6)" 
 
 This is a bug in the Windows installer.  
-For now, manually type in:"nanoENGINEER-1 v0.7.0 (Alpha7)"
+For now, manually type in:"nanoENGINEER-1 v0.7 (Alpha7)"
 
 --------------------------------------------------------------
 
 INSTALLATION ON Mandrake Linux 10.1
 
 The RPM can be installed through the Mandrake Linux Control Center. 
-It will be installed into /usr/local/nanoENGINEER-1-0.7.0/  on your 
+It will be installed into /usr/local/nanoENGINEER-1-0.7/  on your 
 local machine.There is a package dependency for GLUT, so it will ask 
 you for the appropriate CD.
 
@@ -81,7 +81,7 @@ Note that the RPM does not add a menu item to the Start menu, nor does
 it add a desktop icon for ne-1.  This is easy to do yourself by creating 
 a desktop icon that points directly to the ne-1 executable, located at: 
 
-/usr/local/nanoENGINEER-1-0.7.0/program/nanoENGINEER-1
+/usr/local/nanoENGINEER-1-0.7/program/nanoENGINEER-1
 
 If you create a symlink to the executable in /usr/local/bin, as an
 experienced Linux user might, it will not work. This is because
@@ -96,7 +96,7 @@ nanoENGINEER-1 Alpha7 is tested and supported only on :
  Mandrake Linux 10.0, 10.1
 
 It is not supported on Intel based MACs (e.g. Macbook Pro with Intel processor ).
-Also There are some known issues on other operating systems such as Fedora Core 4, 
+Also, there are some known issues on other operating systems such as Fedora Core 4, 
 Gentoo Linux (e.g. the program hangs or some display issues etc) 
 
 
