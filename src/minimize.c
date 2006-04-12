@@ -225,7 +225,7 @@ evaluate(struct configuration *p)
 	NULLPTRR(fd->func, 0.0);
 	(*fd->func)(p);
 	BAILR(0.0);
-	CHECKNAN(p->functionValue);
+	CHECKNANR(p->functionValue, 0.0);
 	p->functionValueValid = 1;
 	fd->functionEvaluationCount++;
     }
