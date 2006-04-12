@@ -718,8 +718,11 @@ class selectMode(basicMode):
         
         if not self.current_obj_clicked:
             # Atom was dragged.  Nothing to do but return.
-            self.set_cmdname('Move Atom') #& Not taking. mark 060220.
-                # [now this cmdname works. (Mark, you can remove this comment whenever you like.) bruce 060331]
+            if self.drag_multiple_atoms:
+                self.set_cmdname('Move Atoms') #bruce 060412 added plural variant
+            else:
+                self.set_cmdname('Move Atom')
+            ##e note about command names: if jigs were moved too, "Move Selected Objects" might be better... [bruce 060412 comment]
             self.o.assy.changed() # mark 060227
             return
             
@@ -781,7 +784,10 @@ class selectMode(basicMode):
             self.o.assy.deleteConnected( self.neighbors_of_last_deleted_atom )
         else:
             self.o.assy.selectConnected( [ self.obj_doubleclicked ] )
-      
+        # the assy.xxxConnected routines do their own win_update or gl_update as needed. [bruce 060412 comment]
+        ##e set_cmdname would be useful here, conditioned on whether they did anything [bruce 060412 comment]
+        return
+    
 #== End of Atom selection and dragging helper methods
 
 #== Bond selection helper methods
@@ -875,6 +881,8 @@ class selectMode(basicMode):
             self.o.assy.deleteConnected( [ self.obj_doubleclicked.atom1, self.obj_doubleclicked.atom2 ] )
         else:
             self.o.assy.selectConnected( [ self.obj_doubleclicked.atom1 ] )
+        # the assy.xxxConnected routines do their own win_update or gl_update as needed. [bruce 060412 comment]
+        return
         
 #== End of bond selection helper methods
 
@@ -982,7 +990,8 @@ class selectMode(basicMode):
         if self.o.modkeys is None:
             self.o.assy.unpickatoms()
             if j.picked:
-                nochange = True
+                # bruce 060412 fix unreported bug: remove nochange = True, in case atoms were just unpicked
+                pass ## nochange = True
             else:
                 j.pick()
                 self.set_cmdname('Select Jig')
@@ -998,16 +1007,20 @@ class selectMode(basicMode):
             if j.picked:
                 j.unpick()
                 self.set_cmdname('Unselect Jig')
-                env.history.message("unpicked %r" % j)
+                env.history.message("Unselected %r" % j.name) #bruce 060412 capitalized text, replaced j -> j.name
+                     #bruce 060412 comment: I think a better term (in general) would be "Deselect".
             else: # Already unpicked.
                 nochange = True
             
         elif self.o.modkeys == 'Shift+Control':
-            env.history.message("deleted %r" % j.name) #fixed bug 1641. mark 060314.
-            for a in j.atoms[:]:
-                # Build list of deleted jig's atoms before they are lost.
-                self.atoms_of_last_deleted_jig.append(a)
+            env.history.message("Deleted %r" % j.name) #fixed bug 1641. mark 060314. #bruce 060412 revised text
+            # Build list of deleted jig's atoms before they are lost.
+            self.atoms_of_last_deleted_jig.extend(j.atoms) #bruce 060412 optimized this
+##            for a in j.atoms[:]:
+##                self.atoms_of_last_deleted_jig.append(a)
             j.kill()
+                #bruce 060412 wonders how j.kill() affects the idea of double-clicking this same jig to delete its atoms too,
+                # since the jig is gone by the time of the 2nd click. See comments in jigLeftDouble for more info.
             self.set_cmdname('Delete Jig')
             self.w.win_update()
             return
@@ -1020,21 +1033,45 @@ class selectMode(basicMode):
         self.o.gl_update()
         
     def jigLeftDouble(self):
-        '''Jig <j> was double clicked, so select, unselect or delete it based on the current modkey.
+        '''Jig <j> was double clicked, so select, unselect or delete its atoms based on the current modkey.
         - If no modkey is pressed, pick the jig's atoms.
         - If Shift is pressed, pick the jig's atoms, adding them to the current selection.
         - If Ctrl is pressed,  unpick the jig's atoms, removing them from the current selection.
         - If Shift+Control (Delete) is pressed, delete the jig's atoms.
         '''
+        #bruce 060412 thinks that the jig transdelete feature (delete the jig's atoms on shift-control-dblclick)
+        # might be more dangerous than useful:
+        # - it might happen on a wireframe jig, like an Anchor, if user intended to transdelete on an atom instead;
+        # - it might happen if user intended to delete jig and then delete an atom behind it (epecially since the jig
+        #   becomes invisible after the first click), if two intended single clicks were interpreted as a double click;
+        # - it seems rarely needed, so it could just as well be in the jig's context menu instead.
+        # To mitigate this problem, I'll add a history message saying that it happened.
+        # I'll also optimize some loops (by removing [:]) and fix bug 1816 (missing update).
         if self.o.modkeys == 'Control':
-            for a in self.obj_doubleclicked.atoms[:]:
+            for a in self.obj_doubleclicked.atoms:
                 a.unpick()
         elif self.o.modkeys == 'Shift+Control':
-            for a in self.atoms_of_last_deleted_jig[:]:
-                a.kill()
+            #bruce 060418 rewrote this, to fix bug 1816 and do other improvements
+            # (though I think it should be removed, as explained above)
+            atoms = self.atoms_of_last_deleted_jig # a list of atoms
+            self.atoms_of_last_deleted_jig = [] # for safety
+            if atoms:
+                self.set_cmdname("Delete Jig's Atoms")
+                    #bruce 060412. Should it be something else? 'Delete Atoms', 'Delete Atoms of Jig', "Delete Jig's Atoms"
+                    # Note, this presently ends up as a separate operation in the
+                    # Undo stack from the first click deleting the jig, but in the future these ops might be merged in the Undo stack,
+                    # and if they are, this command name should be changed to cover deleting both the jig and its atoms.
+                env.history.message("Deleted jig's %d atoms" % len(atoms))
+                    # needed since this could be done by accident, and in some cases could go unnoticed
+                    # (count could be wrong if jig.kill() already killed some of the atoms for some reason; probably never happens)
+                self.w.win_update() # fix bug 1816
+                for a in atoms:
+                    a.kill() ##e could be optimized using prekill
         else:
-            for a in self.obj_doubleclicked.atoms[:]:
+            for a in self.obj_doubleclicked.atoms:
                 a.pick()
+        self.o.gl_update() #bruce 060412 fix some possible unreported bugs
+        return
         
 #== End of singlet helper methods
 
