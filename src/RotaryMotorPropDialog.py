@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'RotaryMotorPropDialog.ui'
 #
-# Created: Wed Apr 12 00:00:56 2006
+# Created: Wed Apr 12 10:35:27 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -268,7 +268,7 @@ class RotaryMotorPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(434,375).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(361,375).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
