@@ -130,6 +130,7 @@ minimizeStructureGradient(struct configuration *p)
         }
     } else {
 	calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
+	BAIL();
     }
 
     parameterLimit = MAXDOUBLE;
@@ -143,6 +144,7 @@ minimizeStructureGradient(struct configuration *p)
                                            p->coordinate + jig->coordinateIndex,
                                            p->gradient + jig->coordinateIndex);
             motorGradient = fabs(*(p->gradient + jig->coordinateIndex));
+	    CHECKNAN(motorGradient);
             if (motorGradient < 1e-8) {
                 motorGradient = 1e-8;
             }

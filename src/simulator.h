@@ -164,11 +164,13 @@ extern void set_py_exc_str(const char *filename,
 
 #define CHECKNAN(x)        ASSERT(!isnan(x))
 #define CHECKNANR(x, y)    ASSERTR(!isnan(x), y)
+#define CHECKVEC(v)        CHECKNAN(v.x); CHECKNAN(v.y); CHECKNAN(v.z)
+#define CHECKVECR(v,r)     CHECKNANR(v.x,r); CHECKNANR(v.y,r); CHECKNANR(v.z,r)
 
-#define ASSERT(c)  \
+#define ASSERT(c)    BAIL(); \
   if (!(c)) { set_py_exc_str(__FILE__, __LINE__, \
                              "assert failed: %s", #c); return; }
-#define ASSERTR(c, x)  \
+#define ASSERTR(c, x)   BAILR(x); \
   if (!(c)) { set_py_exc_str(__FILE__, __LINE__, \
                              "assert failed: %s", #c); return (x); }
 #define NULLPTR(p)  ASSERT((p) != NULL)
