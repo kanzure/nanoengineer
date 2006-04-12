@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>277</width>
-            <height>315</height>
+            <width>368</width>
+            <height>347</height>
         </rect>
     </property>
     <property name="caption">
@@ -75,7 +75,7 @@
                                 <cstring>textLabel1_2</cstring>
                             </property>
                             <property name="text">
-                                <string>Stiffness</string>
+                                <string>Stiffness:</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>
@@ -89,7 +89,7 @@
                                 <cstring>textLabel1_5</cstring>
                             </property>
                             <property name="text">
-                                <string>Enable in Minimize :</string>
+                                <string>Enable in Minimize (experimental)</string>
                             </property>
                             <property name="alignment">
                                 <set>AlignVCenter|AlignRight</set>
@@ -464,7 +464,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="247">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000be49444154789cad533b0e85300cb311074b4f46b9198760676167436c66a1bcea3dfad48a588ad47ceac6894a49f044e7cae64148522184780724bd32000220338b92c0da19922c164a024948625f2bcdccc6a7f8344d03c94fde437292db24b9054a960ff9850f6ddba63cd1ea2fcb729f0940f33cffb4bdef7b95bcbcceccd003c0baaec50bc7715411a73a5eadbac17dcb1d008410e2bf9fd004338bc8d6fed6988848161f95544e7ea137b391e47075fbf85f9b20e996ed22d97bcb27b7f9592b3ba1eaa30000000049454e44ae426082</data>
+        <data format="PNG" length="247">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000be49444154388dad533b0e85300cb311074b4f46b9198760676167436c66a1bcea3dfad48a588ad47ceac6894a49f044e7cae64148522184780724bd32000220338b92c0da19922c164a024948625f2bcdccc6a7f8344d03c94fde437292db24b9054a960ff9850f6ddba63cd1ea2fcb729f0940f33cffb4bdef7b95bcbcceccd003c0baaec50bc7715411a73a5eadbac17dcb1d008410e2bf9fd004338bc8d6fed6988848161f95544e7ea137b391e47075fbf85f9b20e996ed22d97bcb27b7f9592b135a1e3e0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>

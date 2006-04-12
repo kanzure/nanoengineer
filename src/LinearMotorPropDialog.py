@@ -1,9 +1,8 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\LinearMotorPropDialog.ui'
+# Form implementation generated from reading ui file 'LinearMotorPropDialog.ui'
 #
-# Created: Tue Mar 7 20:34:29 2006
+# Created: Wed Apr 12 00:00:44 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -15,7 +14,7 @@ image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
     "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x00" \
-    "\xbe\x49\x44\x41\x54\x78\x9c\xad\x53\x3b\x0e\x85" \
+    "\xbe\x49\x44\x41\x54\x38\x8d\xad\x53\x3b\x0e\x85" \
     "\x30\x0c\xb3\x11\x07\x4b\x4f\x46\xb9\x19\x87\x60" \
     "\x67\x61\x67\x43\x6c\x66\xa1\xbc\xea\x3d\xfa\xd4" \
     "\x8a\x58\x8a\xd4\x7c\xea\xc6\x89\x4a\x49\xf0\x44" \
@@ -31,7 +30,7 @@ image0_data = \
     "\x33\x8b\xc8\xd6\xfe\xd6\x98\x88\x48\x16\x1f\x95" \
     "\x54\x4e\x7e\xa1\x37\xb3\x91\xe4\x70\x75\xfb\xf8" \
     "\x5f\x9b\x20\xe9\x96\xed\x22\xd9\x7b\xcb\x27\xb7" \
-    "\xf9\x59\x2b\x3b\xa1\xea\xa3\x00\x00\x00\x00\x49" \
+    "\xf9\x59\x2b\x13\x5a\x1e\x3e\x00\x00\x00\x00\x49" \
     "\x45\x4e\x44\xae\x42\x60\x82"
 
 class LinearMotorPropDialog(QDialog):
@@ -210,7 +209,7 @@ class LinearMotorPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(277,315).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(368,347).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
@@ -235,8 +234,8 @@ class LinearMotorPropDialog(QDialog):
         self.setCaption(self.__tr("Linear Motor Properties"))
         self.nameTextLabel.setText(self.__tr("Name:"))
         self.textLabel1.setText(self.__tr("Force:"))
-        self.textLabel1_2.setText(self.__tr("Stiffness"))
-        self.textLabel1_5.setText(self.__tr("Enable in Minimize :"))
+        self.textLabel1_2.setText(self.__tr("Stiffness:"))
+        self.textLabel1_5.setText(self.__tr("Enable in Minimize (experimental)"))
         self.textLabel1_4.setText(self.__tr("pN"))
         self.enable_minimize_checkbox.setText(QString.null)
         self.nameLineEdit.setText(QString.null)

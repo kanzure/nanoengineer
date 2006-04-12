@@ -1,9 +1,8 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
+# Form implementation generated from reading ui file 'RotaryMotorPropDialog.ui'
 #
-# Created: Tue Mar 7 20:18:13 2006
+# Created: Wed Apr 12 00:00:56 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -15,7 +14,7 @@ image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
     "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x02" \
-    "\xd5\x49\x44\x41\x54\x78\x9c\x95\x93\xbd\x4b\xec" \
+    "\xd5\x49\x44\x41\x54\x38\x8d\x95\x93\xbd\x4b\xec" \
     "\x40\x14\xc5\x4f\xe4\x15\x51\xd4\x26\x8d\x85\x0a" \
     "\xca\x04\x83\x4e\x10\x2d\x14\x4b\x21\xb3\x8b\x42" \
     "\x44\x45\x16\x65\xc5\xd6\xca\x4a\x41\x04\xad\x46" \
@@ -75,8 +74,8 @@ image0_data = \
     "\xba\xbe\xbe\x96\x9f\x3b\x62\x8c\x51\x26\x93\xf9" \
     "\x3a\xcb\xed\xc6\x67\xe0\x77\xda\xbf\x4c\x69\x57" \
     "\xba\xae\x93\xaa\xaa\x88\xe3\xf8\xaf\xdc\xb6\xab" \
-    "\x6f\x81\xff\x5b\xbf\x01\xcc\x4b\x51\xfe\x29\x59" \
-    "\xb9\x97\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
+    "\x6f\x81\xff\x5b\xbf\x01\xcc\x4b\x51\xfe\xb5\x14" \
+    "\xce\x40\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
     "\x60\x82"
 
 class RotaryMotorPropDialog(QDialog):
@@ -269,7 +268,7 @@ class RotaryMotorPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(280,340).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(434,375).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
@@ -310,7 +309,7 @@ class RotaryMotorPropDialog(QDialog):
         self.textLabel1.setText(self.__tr("Torque :"))
         self.textLabel1_2_3.setText(self.__tr("Initial Speed :"))
         self.textLabel1_2.setText(self.__tr("Final Speed :"))
-        self.textLabel1_5.setText(self.__tr("Enable in Minimize :"))
+        self.textLabel1_5.setText(self.__tr("Enable in Minimize (experimental) :"))
         self.enable_minimize_checkbox.setText(QString.null)
         self.textLabel1_4.setText(self.__tr("nN-nm"))
         self.textLabel2_2.setText(self.__tr("GHz"))
