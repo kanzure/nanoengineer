@@ -71,6 +71,9 @@ cdef extern from "simhelp.c":
     void initializeBondTable()
     double getBondEquilibriumDistance(int element1, int element2, char bondOrder)
 
+cdef extern from "string.h":
+    int strcmp(char *s1, char *s2)
+
 # wware 060111  a special exception for simulator interruptions
 class SimulatorInterrupted(Exception):
     pass
@@ -89,127 +92,125 @@ cdef class BaseSimulator:
     # at one time (trying this will crash); but it's ok to use several in succession 
     # except for the issue of the globals not being reset to their initial values.
     
-    def __getattr__(self, key):
+    def __getattr__(self, char *key):
         verifySimObject(self)
         if key.startswith('_'):
             # important optimization (when Python asks for __xxx__) [bruce 060102]
             raise AttributeError, key
-        # the following could probably be optimized by converting key into a C string
-        # [bruce guess 060102; comment in two places]
-        if key == "debug_flags":
+        if strcmp(key, "debug_flags") == 0:
             return debug_flags
-        elif key == "Iteration":
+        elif strcmp(key, "Iteration") == 0:
             return Iteration
-        elif key == "ToMinimize":
+        elif strcmp(key, "ToMinimize") == 0:
             return ToMinimize
-        elif key == "IterPerFrame":
+        elif strcmp(key, "IterPerFrame") == 0:
             return IterPerFrame
-        elif key == "NumFrames":
+        elif strcmp(key, "NumFrames") == 0:
             return NumFrames
-        elif key == "DumpAsText":
+        elif strcmp(key, "DumpAsText") == 0:
             return DumpAsText
-        elif key == "DumpIntermediateText":
+        elif strcmp(key, "DumpIntermediateText") == 0:
             return DumpIntermediateText
-        elif key == "PrintFrameNums":
+        elif strcmp(key, "PrintFrameNums") == 0:
             return PrintFrameNums
-        elif key == "OutputFormat":
+        elif strcmp(key, "OutputFormat") == 0:
             return OutputFormat
-        elif key == "KeyRecordInterval":
+        elif strcmp(key, "KeyRecordInterval") == 0:
             return KeyRecordInterval
-        elif key == "DirectEvaluate":
+        elif strcmp(key, "DirectEvaluate") == 0:
             return DirectEvaluate
-        elif key == "Interrupted":
+        elif strcmp(key, "Interrupted") == 0:
             return Interrupted
-        elif key == "IDKey":
+        elif strcmp(key, "IDKey") == 0:
             return IDKey
-        elif key == "baseFilename":
+        elif strcmp(key, "baseFilename") == 0:
             #bruce 051230 prevent exception when this is NULL (its default value)
             if BaseFileName == NULL:
                 # not sure if None would be permitted here
                 # probably it would, but this is better anyway
                 return ""
             return BaseFileName
-        elif key == "OutFileName":
+        elif strcmp(key, "OutFileName") == 0:
             if OutputFileName == NULL:
+                # should we raise an AttributeError here?
                 return ""
             return OutputFileName
-        elif key == "TraceFileName":
+        elif strcmp(key, "TraceFileName") == 0:
             if TraceFileName == NULL:
+                # should we raise an AttributeError here?
                 return ""
             return TraceFileName
-        elif key == "Dt":
+        elif strcmp(key, "Dt") == 0:
             return Dt
-        elif key == "Dx":
+        elif strcmp(key, "Dx") == 0:
             return Dx
-        elif key == "Dmass":
+        elif strcmp(key, "Dmass") == 0:
             return Dmass
-        elif key == "Temperature":
+        elif strcmp(key, "Temperature") == 0:
             return Temperature
         else:
             raise AttributeError, key
 
-    def __setattr__(self, key, value):
+    def __setattr__(self, char *key, value):
         verifySimObject(self)
-        # the following could probably be optimized by converting key into a C string
-        # [bruce guess 060102; comment in two places]
-        if key == "debug_flags":
+        if strcmp(key, "debug_flags") == 0:
             global debug_flags
             debug_flags = value
-        elif key == "Iteration":
+        elif strcmp(key, "Iteration") == 0:
             global Iteration
             Iteration = value
-        elif key == "ToMinimize":
+        elif strcmp(key, "ToMinimize") == 0:
             global ToMinimize
             ToMinimize = value
-        elif key == "IterPerFrame":
+        elif strcmp(key, "IterPerFrame") == 0:
             global IterPerFrame
             IterPerFrame = value
-        elif key == "NumFrames":
+        elif strcmp(key, "NumFrames") == 0:
             global NumFrames
             NumFrames = value
-        elif key == "DumpAsText":
+        elif strcmp(key, "DumpAsText") == 0:
             global DumpAsText
             DumpAsText = value
-        elif key == "DumpIntermediateText":
+        elif strcmp(key, "DumpIntermediateText") == 0:
             global DumpIntermediateText
             DumpIntermediateText = value
-        elif key == "PrintFrameNums":
+        elif strcmp(key, "PrintFrameNums") == 0:
             global PrintFrameNums
             PrintFrameNums = value
-        elif key == "OutputFormat":
+        elif strcmp(key, "OutputFormat") == 0:
             global OutputFormat
             OutputFormat = value
-        elif key == "KeyRecordInterval":
+        elif strcmp(key, "KeyRecordInterval") == 0:
             global KeyRecordInterval
             KeyRecordInterval = value
-        elif key == "DirectEvaluate":
+        elif strcmp(key, "DirectEvaluate") == 0:
             global DirectEvaluate
             DirectEvaluate = value
-        elif key == "Interrupted":
+        elif strcmp(key, "Interrupted") == 0:
             global Interrupted
             Interrupted = value
-        elif key == "IDKey":
+        elif strcmp(key, "IDKey") == 0:
             global IDKey
             IDKey = value
-        elif key == "baseFilename":
+        elif strcmp(key, "baseFilename") == 0:
             global BaseFileName
             BaseFileName = value
-        elif key == "OutFileName":
+        elif strcmp(key, "OutFileName") == 0:
             global OutputFileName
             OutputFileName = value
-        elif key == "TraceFileName":
+        elif strcmp(key, "TraceFileName") == 0:
             global TraceFileName
             TraceFileName = value
-        elif key == "Dt":
+        elif strcmp(key, "Dt") == 0:
             global Dt
             Dt = value
-        elif key == "Dx":
+        elif strcmp(key, "Dx") == 0:
             global Dx
             Dx = value
-        elif key == "Dmass":
+        elif strcmp(key, "Dmass") == 0:
             global Dmass
             Dmass = value
-        elif key == "Temperature":
+        elif strcmp(key, "Temperature") == 0:
             global Temperature
             Temperature = value
         else:
