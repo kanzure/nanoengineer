@@ -6,6 +6,12 @@
 
 static char const rcsid[] = "$Id$";
 
+#if 0
+/* turn off CHECKNAN and CHECKNANR when we need performance */
+#define CHECKNAN(x)
+#define CHECKNANR(x,y)
+#endif
+
 // incremented each time either the potential or gradient is
 // calculated.  Used to match values in bond->valid to determine the
 // need to recalculate bond->inverseLength and bond->rUnit.
@@ -29,15 +35,27 @@ setRUnit(struct xyz *position, struct bond *b, double *pr)
   double rSquared;
 
   // rv points from a1 to a2
+  CHECKNAN(position[b->a1->index].x);
+  CHECKNAN(position[b->a1->index].y);
+  CHECKNAN(position[b->a1->index].z);
+  CHECKNAN(position[b->a2->index].x);
+  CHECKNAN(position[b->a2->index].y);
+  CHECKNAN(position[b->a2->index].z);
   vsub2(rv, position[b->a2->index], position[b->a1->index]);
+  CHECKNAN(rv.x);
+  CHECKNAN(rv.y);
+  CHECKNAN(rv.z);
   rSquared = vdot(rv, rv);
+  CHECKNAN(rSquared);
   r = sqrt(rSquared);
+  CHECKNAN(r);
   if (r < 0.001) {
     // atoms are on top of each other
     b->inverseLength = 1000;
     vsetc(b->rUnit, 1.0);
   } else {
     b->inverseLength = 1.0 / r;
+    CHECKNAN(b->inverseLength);
     vmul2c(b->rUnit, rv, b->inverseLength); /* unit vector along r from a1 to a2 */
   }
   if (pr) {
@@ -283,7 +301,9 @@ calculatePotential(struct part *p, struct xyz *position)
       // we presume here that rUnit is invalid, and we need r
       // anyway.
       setRUnit(position, bond, &r);
+      BAILR(0.0);
       potential += stretchPotential(p, stretch, stretch->stretchType, r);
+      CHECKNANR(potential, 0.0);
     }
   }
 			
@@ -292,17 +312,22 @@ calculatePotential(struct part *p, struct xyz *position)
   if (!DEBUG(D_SKIP_BEND)) { // -D7
     for (j=0; j<p->num_bends; j++) {
       bend = &p->bends[j];
+      NULLPTRR(bend, 0.0);
 
       bond1 = bend->b1;
+      NULLPTRR(bond1, 0.0);
       bond2 = bend->b2;
+      NULLPTRR(bond2, 0.0);
 
       // Update rUnit for both bonds, if necessary.  Note that we
       // don't need r or rSquared here.
       if (bond1->valid != validSerial) {
         setRUnit(position, bond1, NULL);
+	BAILR(0.0);
       }
       if (bond2->valid != validSerial) {
         setRUnit(position, bond2, NULL);
+	BAILR(0.0);
       }
       
       // v1, v2 are the unit vectors FROM the central atom TO the
@@ -318,8 +343,16 @@ calculatePotential(struct part *p, struct xyz *position)
         vset(v2, bond2->rUnit);
       }
 
+      CHECKNANR(v1.x, 0.0);
+      CHECKNANR(v1.y, 0.0);
+      CHECKNANR(v1.z, 0.0);
+      CHECKNANR(v2.x, 0.0);
+      CHECKNANR(v2.y, 0.0);
+      CHECKNANR(v2.z, 0.0);
       cosTheta = vdot(v1, v2);
+      CHECKNANR(cosTheta, 0.0);
       theta = acos(cosTheta);
+      CHECKNANR(theta, 0.0);
 
 #if 0
 #define ACOS_POLY_A -0.0820599
@@ -337,10 +370,13 @@ calculatePotential(struct part *p, struct xyz *position)
       
       // bType->kb in yJ/rad^2 (1e-24 J/rad^2)
       bType = bend->bendType;
+      CHECKNANR(bType->kb, 0.0);
+      CHECKNANR(bType->theta0, 0.0);
       dTheta = (theta - bType->theta0);
       ff = 0.5 * dTheta * dTheta * bType->kb;
       // ff is in yJ (1e-24 J), potential in aJ (1e-18 J)
       potential += ff * 1e-6;
+      CHECKNANR(potential, 0.0);
     }
   }
 
@@ -359,6 +395,7 @@ calculatePotential(struct part *p, struct xyz *position)
       rSquared = vdot(rv, rv);
       r = sqrt(rSquared);
       potential += vanDerWaalsPotential(p, vdw, vdw->parameters, r);
+      CHECKNANR(potential, 0.0);
     }
   }
   
@@ -409,6 +446,7 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
 
       // we presume here that rUnit is invalid, and we need r anyway
       setRUnit(position, bond, &r);
+      BAIL();
 
       gradient = stretchGradient(p, stretch, stretch->stretchType, r);
       // rUnit points from a1 to a2; F = -gradient
@@ -438,9 +476,11 @@ calculateGradient(struct part *p, struct xyz *position, struct xyz *force)
       // don't need r or rSquared here.
       if (bond1->valid != validSerial) {
         setRUnit(position, bond1, NULL);
+        BAIL();
       }
       if (bond2->valid != validSerial) {
         setRUnit(position, bond2, NULL);
+        BAIL();
       }
       
       // v1, v2 are the unit vectors FROM the central atom TO the
