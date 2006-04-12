@@ -216,8 +216,8 @@ minimizeStructureTermination(struct functionDefinition *fd,
     double rms_force;
     double max_force;
 
-    fp = evaluate(previous); BAIL();
-    fq = evaluate(current); BAIL();
+    fp = evaluate(previous); BAILR(0);
+    fq = evaluate(current); BAILR(0);
     // wware 060109  python exception handling
     evaluateGradient(current); BAILR(0);
     findRMSandMaxForce(current, &rms_force, &max_force); BAILR(0);
