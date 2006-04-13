@@ -51,7 +51,6 @@ static void *mostRecentSimObject = NULL;
 char *py_exc_str = NULL;
 static char py_exc_strbuf[1024];
 PyObject *simulatorInterruptedException;
-static int srand_done = 0;
 
 PyObject *
 specialExceptionIs(PyObject *specialExcep)
@@ -71,10 +70,6 @@ start_python_call(void)
 {
     py_exc_str = NULL;
     callback_exception = 0;
-    if (!srand_done) {
-	srand(0);
-	srand_done = 1;
-    }
 }
 
 static PyObject *

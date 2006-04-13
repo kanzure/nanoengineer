@@ -74,6 +74,9 @@ cdef extern from "simhelp.c":
 cdef extern from "string.h":
     int strcmp(char *s1, char *s2)
 
+cdef extern from "stdlib.h":
+    void srand(unsigned int)
+
 # wware 060111  a special exception for simulator interruptions
 class SimulatorInterrupted(Exception):
     pass
@@ -227,6 +230,7 @@ cdef class BaseSimulator:
         verifySimObject(self)
         setFrameCallbackFunc(frame_callback)
         setWriteTraceCallbackFunc(trace_callback)
+        srand(0)
         try:
             everythingElse()
         finally:
