@@ -29,13 +29,20 @@ checkbranch() {
 }
 
 case $1 in
-    tag)
+    tag|up|update|merge)
 	checkbranch
+	;;
+    *)
+	BRANCHNAME=$(grep "^/branch/" CVS/Entries | sed "s#.*/##" | cut -c 2-)
+	;;
+esac
+
+case $1 in
+    tag)
 	cvs tag -b $BRANCHNAME branch `cat branch`
 	(cd ../../sim/src; cvs tag -b $BRANCHNAME branch `cat branch`)
 	;;
     commit)
-	checkbranch
 	cvs commit -r $BRANCHNAME branch `cat branch`
 	(cd ../../sim/src; cvs commit -r $BRANCHNAME branch `cat branch`)
 	;;
@@ -44,11 +51,16 @@ case $1 in
 	(cd ../../sim/src; cvs update -A branch `cat branch`)
 	;;
     up|update)
-	checkbranch
 	cvs update -r $BRANCHNAME branch
 	cvs update -r $BRANCHNAME `cat branch`
 	(cd ../../sim/src; cvs update -r $BRANCHNAME branch)
 	(cd ../../sim/src; cvs update -r $BRANCHNAME `cat branch`)
+	;;
+    merge)
+	cvs update -r $BRANCHNAME branch
+	cvs update -j $BRANCHNAME `cat branch`
+	(cd ../../sim/src; cvs update -r $BRANCHNAME branch)
+	(cd ../../sim/src; cvs update -j $BRANCHNAME `cat branch`)
 	;;
     *)
 	echo Unknown command: $1
