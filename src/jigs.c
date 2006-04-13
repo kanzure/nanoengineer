@@ -82,6 +82,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     double theta, cos_theta, sin_theta;
     double m;
     const double minspeed = 1.0;  // radians per second, very slow
+    const double maxm = 1.0e-4;  // max value for multiplier, make it stable
     struct xyz anchor;
 
 #ifdef WWDEBUG
@@ -117,7 +118,10 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     } else {
 	m = jig->j.rmotor.stall / jig->j.rmotor.speed;
     }
-    // m is yocto Kg m^2 sec^-1 radian^-1
+    // clip m to maintain stability
+    if (m > maxm) m = maxm;
+    else if (m < -maxm) m = -maxm;
+    // m is yocto Kg m^2 sec^-1 radian^-1: it converts radians/second to pN-pm
     // motorq is yNm
     motorq = m * (jig->j.rmotor.speed - omega);
     // don't let the torque get too big
