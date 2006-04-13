@@ -365,36 +365,36 @@ class extrudeMode(basicMode):
     # no __init__ method needed
     
     # methods related to entering this mode
-
-    def connect_controls(self): ###@@@ josh has some disconnect code in cookieMode, now; should be imitated here
-        "connect the dashboard controls to their slots in this method"
-        #k i call this from Enter; depositMode calls the equivalent from init_gui -- which is better?
+    
+    def connect_or_disconnect_signals(self, connect): #bruce 060412 made this from connect_controls (finally!)
+        "connect or disconnect the dashboard controls to their slots in this method"
+        if connect:
+            change_connect = self.w.connect
+            # old comment:
+            #k i call this from Enter; depositMode calls the equivalent from init_gui -- which is better?
+            # new comment:
+            # guess as of bruce 060412: init_gui would be better, but I don't think it matters much and I don't want to
+            # take time to change it now (hard to analyze, since other code in Enter might depend on when this is being done).
+        else:
+            change_connect = self.w.disconnect
+            # this is new as of bruce 060412; called from restore_gui; might help with bug 1750
         
-        ###e we'll need to disconnect these when we're done, but we don't do that yet
-        # (predict this is a speed hit, but probably not a bug)
-
-        
-        ## from some other code:
-        ## self.connect(self.NumFramesWidget,SIGNAL("valueChanged(int)"),self.NumFramesValueChanged)
-        ## but we should destroy conn when we exit the mode... but i guess i can save that for later... since spinbox won't be shown then
-        # and since redundant conns will not kill me for now.
-        # self.w is a guess for where to put the conn, not sure it matters as long as its a Qt object
-        self.w.connect(self.w.extrudeSpinBox_n,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
-        self.w.connect(self.w.extrudeSpinBox_x,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
-        self.w.connect(self.w.extrudeSpinBox_y,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
-        self.w.connect(self.w.extrudeSpinBox_z,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
-        self.w.connect(self.w.extrudeSpinBox_length,SIGNAL("valueChanged(int)"),self.length_value_changed) # needs its own slot
+        change_connect(self.w.extrudeSpinBox_n,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
+        change_connect(self.w.extrudeSpinBox_x,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
+        change_connect(self.w.extrudeSpinBox_y,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
+        change_connect(self.w.extrudeSpinBox_z,SIGNAL("valueChanged(int)"),self.spinbox_value_changed)
+        change_connect(self.w.extrudeSpinBox_length,SIGNAL("valueChanged(int)"),self.length_value_changed) # needs its own slot
 
         for toggle in self.w.extrude_pref_toggles:
-            self.w.connect(toggle, SIGNAL("stateChanged(int)"), self.toggle_value_changed)
+            change_connect(toggle, SIGNAL("stateChanged(int)"), self.toggle_value_changed)
 
         slider = self.w.extrudeBondCriterionSlider
-        self.w.connect(slider, SIGNAL("valueChanged(int)"), self.slider_value_changed)
+        change_connect(slider, SIGNAL("valueChanged(int)"), self.slider_value_changed)
 
         if self.w.extrudeSpinBox_circle_n and self.is_revolve: ###k??
-            self.w.connect(self.w.extrudeSpinBox_circle_n,SIGNAL("valueChanged(int)"),self.circle_n_value_changed)
+            change_connect(self.w.extrudeSpinBox_circle_n,SIGNAL("valueChanged(int)"),self.circle_n_value_changed)
 
-        self.w.connect(self.w.extrude_productTypeComboBox,SIGNAL("activated(int)"), self.ptype_value_changed)
+        change_connect(self.w.extrude_productTypeComboBox,SIGNAL("activated(int)"), self.ptype_value_changed)
         return
 
     def ptype_value_changed(self, val):
@@ -548,7 +548,8 @@ class extrudeMode(basicMode):
         #e is this obs? or just nim?? [041017 night]
         self.recompute_for_new_bend() # ... and whatever depends on the bend from each repunit to the next (varies only in Revolve)
 
-        self.connect_controls()
+        ## self.connect_controls()
+        self.connect_or_disconnect_signals(True)
         ## i think this is safer *after* the first update_from_controls, not before it...
         # but i won't risk changing it right now (since tonight's bugfixes might go into josh's demo). [041017 night]
         
@@ -567,6 +568,8 @@ class extrudeMode(basicMode):
             print "fyi: extrude/revolve debug instructions: __main__.mode = this extrude mode obj; use debug window; has members assy, etc"
             ##print "also, use Menu1 entries to run debug code, like explore() to check out singlet pairs in self.basemol"
 
+        return # from Enter
+    
     singlet_color = {} # we also do this in clear()
     def colorfunc(self, atom): # uses a hack in chem.py atom.draw to use mol._colorfunc
         return self.singlet_color.get(atom.info) # ok if this is None
@@ -1311,6 +1314,8 @@ class extrudeMode(basicMode):
             self.w.revolveDashboard.hide()
         else:
             self.w.extrudeDashboard.hide()
+
+        self.connect_or_disconnect_signals(False) #bruce 060412, hoping it helps with bug 1750
         
         # Re-enable QAction items
         self.w.disable_QActions_for_extrudeMode(False)
