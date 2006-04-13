@@ -6,27 +6,22 @@ Some of the Bug Fixes In Alpha 7
 1. Undo/ Redo is implemented
 2. Selection/Display/Jigs: If more than 1 jigs (other than motors) are attached to the same atom , only first jig in the order (in the model tree) gets highlighted (756) 
 3. Some bugs where MMKit's clipboard view doesn't get updated when you do modifications in the 3D workspace (876, 1570, and 1573)
-
+4. Simulator doesn't work for an opened file where the user doesn't have permission to write (396)
 
   
 UNSUPPORTED FEATURES:
 
-#. Bond Inference not supported but a limited valence error check supported. 
+#UNDO/REDO 
+- Undo/Redo knows nothing about the mode the program was in. For example, if you extrude a moiety while in extrude, return to your default mode and then hit Undo, it will only separate the base and repeat units. It will not go back to extrude mode. (1391)
+- MMKit tab and button changes and most changes made in the dashboards are not recorded in the Undo stack 
+- On very large models, undo and other operation might become slower. Further performance improvements will be implemented in a future release of the software
 
-By the term 'bond inference' we mean automatically deciding what type of bond will be formed between the participating elements. It is not supported for this version of ne-1. When an element is deposited, by default, all the bonds are single bonds. User must manually change the bond type between the elements in 'Build mode'. However, if the structure is not chemically correct (bad valences etc), ne-1 shows a 'pink wire frame' around each atom indicating valence errors.  This 'valence error' display, by default, is set to ON. It can be turned On or Off from the 'Bonds' tab in the Preferences dialog. (Edit>Preference…).  
-Note that there are some kinds of chemical errors this (the Valence Error Checker) doesn't detect. For example, it can't tell whether rings should be aromatic or not. All it checks is that the bonds on each atom could possibly add up to the right number of valence electrons. The Valence Error Checker doesn't treat graphitic and aromatic bonds differently.
+# MEMORY PROBLEMS
+ - Memory consumed by the application increases due to repeated execution of certain operations such as opening and closing a file (often termed as ‘memory leaks’. This affects the overall performance of the software and could result in a crash. This version doesn’t prevent such memory leaks. 
 
-Example:
--- In Build mode, select 'Carbon' and then change its hybridization to 'sp' by clicking on the appropriate button in this dialog.
--- Deposit this (sp) Carbon in the 3D Workspace. Observe that both bondpoints of   the deposited are single bonds and a pink wire frame appears around the atom center indicating valence errors.
--- Now select (sp) Nitrogen from the Modeling Kit
--- Highlight one of the bondpoints of (sp) carbon and deposit this (sp) Nitrogen, Notice that a single bond will be formed between the C(sp) and N(sp). But ne-1 will display valence error wire frames around these atoms. 
--- You can change this bond type to a triple bond by:  (a) highlight the bondpoint, right click and then from the context menu that popped up, select triple bond. OR (b) from the Build dashboard, click on the button that corresponds to a triple bond, now move your mouse such that the bond gets highlighted and then left click. 
--- By following this procedure, you can change the bond order. Observe that, when the triple bond is formed, the valence error wire frames will go away. 
-        
 # PDBs With Multiple Bond Information Not Supported 
  This version of ne-1 treats all bond types as single bonds while reading from or writing to a PDB file. Also, it doesn't save the hybridization type into the PDB file. For example, (sp2) hybridized Carbon in a structure will be saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond Therefore, save your models ONLY in MMP file format to avoid major loss of work (569, 763)
- 
+
 SIMULATOR / MINIMIZE
 # Simulator/Minimize: will support bonding between elements specified in the element selector of nanoENGINEER-1. But note that bond stretching involving Fluorine atoms, or bond bending involving Boron, use estimated rather than calculated parameters.  
 # Simulator/Minimize: Multiple bonding between certain elements is generally supported, but some parameters, notably for double bonds involving nitrogen, are estimated.  
@@ -40,9 +35,13 @@ GAMESS Jig
 -- Also, certain GAMESS run may create large output files. So make sure that your system has enough disk space to handle such runs. ALL GAMESS jobs are save inside the 'Job Manager' directory. (User's home directory/ Nanorex/Job Manager) (742)
  
 ESP IMAGE / NANO-HIVE
-9. ESP Image jig is not fully supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided that a correct version of NanoHive is installed. In general ESP image is partially supported and has many known bugs. These issues will be fixed in an upcoming release of nanoENGINEER-1. 
+9. ESP Image jig is not fully supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided that a correct version of NanoHive is installed. In general ESP image is partially supported and has many known bugs. These issues will be fixed in an upcoming release of nanoENGINEER-1.
 
+# Bond Inference not supported but a limited valence error check supported. 
 
+By the term 'bond inference' we mean automatically deciding what type of bond will be formed between the participating elements. It is not supported for this version of ne-1. When an element is deposited, by default, all the bonds are single bonds. User must manually change the bond type between the elements in 'Build mode'. However, if the structure is not chemically correct (bad valences etc), ne-1 shows a 'pink wire frame' around each atom indicating valence errors.  This 'valence error' display, by default, is set to ON. It can be turned On or Off from the 'Bonds' tab in the Preferences dialog. (Edit>Preference…).  
+Note that there are some kinds of chemical errors this (the Valence Error Checker) doesn't detect. For example, it can't tell whether rings should be aromatic or not. All it checks is that the bonds on each atom could possibly add up to the right number of valence electrons. The Valence Error Checker doesn't treat graphitic and aromatic bonds differently.
+      
 
 MISCELLANEOUS
  
