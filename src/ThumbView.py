@@ -14,6 +14,9 @@ from constants import *
 from assembly import assembly 
 import env
 
+# debugging flags -- do not commit with True
+debug_thumbview = False
+
 class ThumbView(QGLWidget):
     """A simple version of OpenGL widget, which can be used to show a simple thumb view of models when loading models or color changing. 
     General rules for multiple QGLWidget uses: make sure the rendering context is current. 
@@ -562,7 +565,7 @@ class ElementView(ThumbView):
         mol = molecule(assy, 'dummy') 
         atm = atom(elm.symbol, pos, mol)
         atm.display = dispMode
-        ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom: ####@@@@
+        ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom:
         ## atm.set_atomtype_but_dont_revise_singlets('sp2')
         ## see also atm.element.atomtypes -> a list of available atomtype objects for that element
         ## (which can be passed to set_atomtype_but_dont_revise_singlets)
@@ -601,6 +604,8 @@ class MMKitView(ThumbView):
         
     def drawModel(self):
         """The method for element drawing """
+        if debug_thumbview:
+            print "debug: MMKitView.drawModel, model is %r" % (self.model,) #bruce 060412
         if self.model:
            if isinstance(self.model, molecule):
                self.model.draw(self, None)
@@ -652,7 +657,7 @@ class MMKitView(ThumbView):
         mol = molecule(assy, 'dummy') 
         atm = atom(elm.symbol, pos, mol)
         atm.display = dispMode
-        ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom: ####@@@@
+        ## bruce 050510 comment: this is approximately how you should change the atom type (e.g. to sp2) for this new atom:
         if self.hybrid_type_name:
             atm.set_atomtype_but_dont_revise_singlets(self.hybrid_type_name)
         ## see also atm.element.atomtypes -> a list of available atomtype objects for that element
@@ -690,6 +695,10 @@ class MMKitView(ThumbView):
 
     def updateModel(self, newObj):
         '''Set new chunk or assembly for display'''
+        if debug_thumbview:
+            print "debug: MMKitView.updateModel, __main__._newObj = %r" % (newObj,) #bruce 060412
+            import __main__
+            __main__._newObj = newObj
         self.model = newObj
 
         #Reset hotspot related stuff for a new assembly

@@ -518,7 +518,8 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
                 kids = []
                 node.apply2all( kids.append ) # includes node itself
                 for kid in kids:
-                    assert kid.part is node.part
+                    #bruce 060412 added output string to this assert
+                    assert kid.part is node.part, "%r.part == %r, %r.part is %r, should be same" % (kid, kid.part, node, node.part)
                 assert node.part.nodecount == len(kids), "node.part.nodecount %d != len(kids) %d" % (node.part.nodecount, len(kids))
             except:
                 print "exception while checking part-related stuff about node:", node, "in assy", self
@@ -634,18 +635,14 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         and if so return its .part, and if not return None after emitting debug prints
         (which always indicates a bug, I'm 90% sure as I write it -- except maybe during init ###k #doc).
         """
-        if sg is None or sg.part is None or sg.part.topnode is not sg:
-            #doc: ... assy.tree.part being None.
-            # (which might happen during init, and trying to make a part for it might infrecur or otherwise be bad.)
-            # so if following debug print gets printed, we might extend it to check whether that "good excuse" is the case.
-            if 0 and platform.atom_debug:
-                print_compact_stack("atom_debug: fyi: selgroup.part problem during: ")
-            if 1:
-                # for now, always raise an exception #####@@@@@
-                assert sg is not None
-                assert sg.part is not None
-                assert sg.part.topnode is not None
-                assert sg.part.topnode is sg, "part %r topnode is %r should be %r" % (sg.part, sg.part.topnode, sg)
+        try:
+            assert sg is not None
+            assert sg.part is not None, "sg %r .part should not be None" % (sg,) #bruce 060412
+            assert sg.part.topnode is not None, "part %r topnode is None, should be %r" % (sg.part, sg) #bruce 060412
+            assert sg.part.topnode is sg, "part %r topnode is %r should be %r" % (sg.part, sg.part.topnode, sg)
+        except:
+            print_compact_traceback("bug: in assy %r, selgroup.part problem: " % self ) # printing assy in case it's not the main one
+            print_compact_stack(" location of selgroup.part problem: ")
             return None
         return sg.part
 
@@ -808,13 +805,13 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
 ##                    containing_node = containing_node.dad
             part = self.selgroup_part(sg)
             if part is None:
-                #e [this IS REDUNDANT with debug prints inside selgroup_part] [which for debugging are now asserts #####@@@@@]
-                # no point in trying to fix it -- if that was possible, current_selgroup() did it.
-                # if it has no bugs, the only problem it couldn't fix would be assy.tree.part being None.
-                # (which might happen during init, and trying to make a part for it might infrecur or otherwise be bad.)
-                # so if following debug print gets printed, we might extend it to check whether that "good excuse" is the case.
-                if platform.atom_debug:
-                    print_compact_stack("atom_debug: fyi: assy.part getattr finds selgroup problem: ")
+##                #e [this IS REDUNDANT with debug prints inside selgroup_part]
+##                # no point in trying to fix it -- if that was possible, current_selgroup() did it.
+##                # if it has no bugs, the only problem it couldn't fix would be assy.tree.part being None.
+##                # (which might happen during init, and trying to make a part for it might infrecur or otherwise be bad.)
+##                # so if following debug print gets printed, we might extend it to check whether that "good excuse" is the case.
+##                if 1:
+##                    print_compact_stack("atom_debug: fyi: assy %r getattr .part finds selgroup problem: " % self )
                 return None
             return part
         elif attr in self.part_attrs_all:

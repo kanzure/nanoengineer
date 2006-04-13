@@ -30,6 +30,9 @@ AtomsPage=0
 ClipboardPage=1
 LibraryPage=2
 
+# debugging flags -- do not commit with True
+debug_mmkit_events = False
+
 class MMKit(MMKitDialog):
     bond_id2name =['sp3', 'sp2', 'sp', 'sp2(graphitic)']
     
@@ -100,7 +103,39 @@ class MMKit(MMKitDialog):
         self.connect(self.w.depositAtomDashboard.depositBtn, SIGNAL("stateChanged(int)"), self.depositBtnStateChanged)
         
         self.connect(self.dirView, SIGNAL("selectionChanged(QListViewItem *)"), self.partChanged)
+
+        return # from __init__
+
+    # ==
+    
+    #bruce 060412 added everything related to __needs_update_xxx, to fix bugs 1726, 1629 and mitigate bug 1677;
+    # for more info see the comments where update_clipboard_items is called (in depositMode.py).
         
+    __needs_update_clipboard_items = False
+        # (there could be other flags like this for other kinds of updates we might need)
+
+    def update_clipboard_items(self):
+        self.__needs_update_clipboard_items = True
+        self.update() # this makes sure self.event will get called; it might be better to test the flag only in self.repaint, not sure
+        return
+    
+    def event(self, event): #bruce 060412 debug code, but also checks all self.__needs_update_xxx flags (an essential bugfix)
+        if debug_mmkit_events:
+            print "debug: MMKit.event got %r, type %r" % (event, event.type())
+                # Qt doc for QEvent lists 'enum type' codes; the subclass is also printed by %r
+        
+        if self.__needs_update_clipboard_items:
+            self.__really_update_clipboard_items()
+            self.__needs_update_clipboard_items = False
+        
+        res = MMKitDialog.event(self, event)
+        if debug_mmkit_events:
+            if res is not None:
+                print "debug: MMKit.event returns %r" % (res,) # usually True, sometimes False
+        # if we return None we get TypeError: invalid result type from MMKit.event()
+        return res
+
+    # ==
     
     def pasteBtnStateChanged(self, state):
         '''Slot method. Called when the state of the Paste button of deposit dashboard has been changed. '''
@@ -316,7 +351,7 @@ class MMKit(MMKitDialog):
         self.elemGLPane.updateModel(newChunk)
         
     
-    def update_clipboard_items(self):
+    def __really_update_clipboard_items(self): #bruce 060412 renamed this from update_clipboard_items to __really_update_clipboard_items
         '''Updates the items in the clipboard's listview, if the clipboard is currently shown. '''
         if self.currentPageOpen(ClipboardPage): #bruce 060313 added this condition to fix bugs 1631, 1669, and MMKit part of 1627
             self._clipboardPageView() # includes self.update_clipboard_page_icon()

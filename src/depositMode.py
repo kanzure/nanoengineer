@@ -22,7 +22,7 @@ import platform
 from debug import print_compact_traceback
 from elements import PeriodicTable
 from Utility import imagename_to_pixmap
-from HistoryWidget import orangemsg
+from HistoryWidget import orangemsg, redmsg
 
 from bonds import bond_atoms
 from bond_constants import V_SINGLE
@@ -454,10 +454,14 @@ class depositMode(selectAtomsMode):
         #  but we'll keep it (in fact improve it) in case it's needed now
         #  for new reasons -- i don't know if it is, but someday it might be]
         if self.dont_update_gui:
-            print "update_gui returns since self.dont_update_gui" ####@@@@
+            pass ## print "update_gui returns since self.dont_update_gui" ####@@@@
             # Getting msg after depositing an atom, then selecting a bondpoint and 
             # "Select Hotspot and Copy" from the GLPane menu.
             # Is it a bug??? Mark 051212.
+            # bruce 060412 replies: I don't know; it might be. Perhaps we should do what MMKit does as of today,
+            # and defer all UpdateDashboard actions until another event handler (here, or better in basicMode).
+            # But for now I'll disable the debug print and we can defer this issue unless it becomes suspected
+            # in specific bugs.
             return
         # now we know self.dont_update_gui == False, so ok that we reset it to that below (I hope)
         self.dont_update_gui = True
@@ -569,6 +573,14 @@ class depositMode(selectAtomsMode):
             ## so it will happen the first time we're setting it up, too:
             ## self.resubscribe_to_clipboard_members_changed()
             self.MMKit.update_clipboard_items() # Fixes bugs 1569, 1570, 1572 and 1573. mark 060306.
+                # Note and bugfix, bruce 060412: doing this now was also causing traceback bugs 1726, 1629,
+                # and the traceback part of bug 1677, and some related (perhaps unreported) bugs.
+                # The problem was that this is called during pasteBond's addmol (due to its addchild), before it's finished,
+                # at a time when the .part structure is invalid (since the added mol's .part has not yet been set).
+                # To fix bugs 1726, 1629 and mitigate bug 1677, I revised the interface to MMKit.update_clipboard_items
+                # (in the manner which was originally recommented in call_after_next_changed_members's docstring) 
+                # so that it only sets a flag and updates (triggering an MMKit repaint event), deferring all UI effects to
+                # the next MMKit event.
         return
 
     def resubscribe_to_clipboard_members_changed(self):
@@ -993,16 +1005,32 @@ class depositMode(selectAtomsMode):
             
         selectAtomsMode.leftDouble(self, event)
         
-        
+        return
 
 # == end of LMB event handler methods
 
+    def MMKit_clipboard_part(self): #bruce 060412; implem is somewhat of a guess, based on the code of self.deposit_from_MMKit
+        "If the MMKit is currently set to a clipboard item, return that item's Part, else return None."
+        if self.w.depositState != 'Clipboard':
+            return None
+        if not self.pastable:
+            return None
+        return self.pastable.part
+    
     def transdeposit_from_MMKit(self, singlet):
         '''Trans-deposit the current object in the MMKit on all singlets reachable through 
         any sequence of bonds to the singlet <singlet>.
         '''
 
         if not singlet.is_singlet(): 
+            return
+
+        # bruce 060412: fix bug 1677 (though this fix's modularity should be improved;
+        #  perhaps it would be better to detect this error in deposit_from_MMKit).
+        # See also other comments dated today about separate fixes of some parts of that bug.
+        mmkit_part = self.MMKit_clipboard_part() # a Part or None
+        if mmkit_part and self.o.assy.part is mmkit_part:
+            env.history.message(redmsg("Can't transdeposit the MMKit's current clipboard item onto itself."))
             return
         
         singlet_list = self.o.assy.getConnectedSinglets([singlet])
@@ -1014,23 +1042,44 @@ class depositMode(selectAtomsMode):
             self.o.assy.unpickatoms()
         
         self.transdepositing = True
-        nobjs=0
-        for s in singlet_list[:]: # singlet_list built in singletSetup()
+        nobjs = 0
+        ntried = 0 
+        msg_deposited_obj = None
+        for s in singlet_list: # singlet_list built in singletSetup() [not true; is that a bug?? bruce 060412 question]
             if not s.killed(): # takes care of self.obj_doubleclicked, too.
                 deposited_obj = self.deposit_from_MMKit(s)
-                nobjs += 1
+                ntried += 1
+                if deposited_obj is not None:
+                    #bruce 060412 -- fix part of bug 1677 -- wrong histmsg 'Nothing Transdeposited' and lack of mt_update
+                    msg_deposited_obj = deposited_obj # I think these will all be the same, so we just use the last one
+                    nobjs += 1
         self.transdepositing = False
         self.o.modkeys = modkeys # restore the modkeys state to real state.
+
+        del deposited_obj
         
-        if deposited_obj is None: 
+        if msg_deposited_obj is None: 
             # Let user know nothing was trandeposited. Fixes bug 1678. mark 060314.
+            # (This was incorrect in bug 1677 since it assumed all deposited_obj return values were the same,
+            #  but in that bug (as one of several problems in it) the first retval was not None but the last one was,
+            #  so this caused a wrong message and a failure to update the MT. Fixed those parts of bug 1677
+            #  by introducing msg_deposited_obj and using that here instead of deposited_obj. Fixed other parts of it
+            #  in MMKit and elsewhere in this method. [bruce 060412])
             env.history.message('Nothing Transdeposited')
             return
             
-        self.set_cmdname('Transdeposit ' + deposited_obj)
-        deposited_obj += '(s)'
+        self.set_cmdname('Transdeposit ' + msg_deposited_obj)
+        msg_deposited_obj += '(s)'
         
-        info = fix_plurals( "%d %s deposited." % (nobjs, deposited_obj) ) 
+        info = fix_plurals( "%d %s deposited." % (nobjs, msg_deposited_obj) )
+        if ntried > nobjs:
+            # Note 1: this will be true in bug 1677 (until it's entirely fixed) [bruce 060412]
+            # Note 2: this code was tested and worked, before I fully fixed bug 1677;
+            # now that bug is fully fixed above (in the same commit as this code),
+            # so this code is not known to ever run,
+            # but I'll leave it in in case it mitigates any undiscovered bugs.
+            info += " (%d not deposited due to a bug)" % (ntried - nobjs)
+            info = orangemsg(info)
         env.history.message(info)
         self.w.win_update()
 
@@ -1521,7 +1570,7 @@ class depositMode(selectAtomsMode):
     
     def pasteBond(self, sing):
         """If self.pastable has an unambiguous hotspot,
-        paste a copy of it onto the given singlet;
+        paste a copy of self.pastable onto the given singlet;
         return (the copy, description) or (None, whynot)
         """
         pastable = self.pastable
@@ -1549,6 +1598,9 @@ class depositMode(selectAtomsMode):
         # so there's no need to explicitly forget it here.
         if self.pickit():
             numol.pickatoms()
+            #bruce 060412 worries whether pickatoms is illegal or ineffective (in both pasteBond and pasteFree)
+            # given that numol.part is presumably not yet set (until after addmol). But these seem to work
+            # (assuming I'm testing them properly), so I'm not changing this. [Why do they work?? ###@@@]
         self.o.assy.addmol(numol) # do this last, in case it computes bbox
         return numol, "copy of %r" % pastable.name
         
@@ -1586,6 +1638,8 @@ class depositMode(selectAtomsMode):
         numol.move(pos - cursor_spot)
         if self.pickit():
             numol.pickatoms()
+            #bruce 060412 worries whether pickatoms is illegal or ineffective (in both pasteBond and pasteFree)
+            # before addmol... for more info see the same comment in pasteBond.
         self.o.assy.addmol(numol) 
         return numol, "copy of %r" % pastable.name
 
