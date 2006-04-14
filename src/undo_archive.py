@@ -521,7 +521,7 @@ def call_registered_undo_updaters(archive): #060409 seems likely to be safe/suff
     # now 
     if 1:
         # for now, kluge it because we know there's exactly this one:
-        from chem import _undo_update_Atom_jigs
+        from chem import _undo_update_Atom_jigs # WARNING: as of 060414 this also does essential undo updates unrelated to jigs
         updaters_in_order = [_undo_update_Atom_jigs]
     for func in updaters_in_order:
         try:

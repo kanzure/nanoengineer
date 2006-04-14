@@ -82,6 +82,8 @@ import env
 from state_utils import StateMixin #bruce 060223
 from undo_archive import register_undo_updater
 
+debug_1779 = False # do not commit with True, but leave the related code in for now [bruce 060414]
+
 ## from chunk import *
 # -- done at end of file,
 # until other code that now imports its symbols from this module
@@ -166,6 +168,13 @@ from inval import InvalMixin #bruce 050510
 def _undo_update_Atom_jigs(archive, assy):
     "[register this to run after all Jigs, atoms, and bonds are updated, as cache-invalidator for a.jigs and b.pi_bond_obj]"
     del archive
+    if 1:
+        # bruce 060414 fix bug 1779 (more efficient than doing something in Atom._undo_update, for every atom)
+        # KLUGE: assume this always runs (true as of 060414), not only if there are jigs or under some other "when needed" conds.
+        # Note: it would be best to increment this counter at the start and end of every user op, but there's not yet any central place
+        # for code to run at times like that (except some undo-related code which runs at other times too).
+        import Utility
+        Utility._will_kill_count += 1
     from chunk import Chunk # not at toplevel, to avoid recursive import
     from jigs import Jig
     mols = assy.allNodes(Chunk) # note: this covers all Parts, whereas assy.molecules only covers the current Part.
@@ -1602,7 +1611,12 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             #bruce 060327 optim of chunk.kill: if we're being killed right now, don't make a new bondpoint
             import Utility
             if self._will_kill == Utility._will_kill_count:
+                if debug_1779:
+                    print "debug_1779: self._will_kill %r == Utility._will_kill_count %r" % \
+                      ( self._will_kill , Utility._will_kill_count )
                 return None
+        if debug_1779:
+            print "debug_1779: atom.unbond on %r is making X" % self
         x = atom('X', b.ubp(self), self.molecule) # invals mol as needed
         #bruce 050727 new feature: copy the bond type from the old bond (being broken) to the new open bond that replaces it
         bond_copied_atoms( self, x, b)
@@ -1744,6 +1758,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     def killed(self): #bruce 041029; totally revised by bruce 050702
         """(Public method) Report whether an atom has been killed.
         """
+        if platform.atom_debug: # this cond is for speed
+            mol = self.molecule
+            from chunk import _nullMol
+            better_alive_answer = mol is not None and self.key in mol.atoms and mol is not _nullMol ##e and mol is not killed???
+            if (not not better_alive_answer) != (not self.__killed):
+                if platform.atom_debug(): #060414 re bug 1779, but it never printed for it (worth keeping in for other bugs)
+                    print "debug: better_alive_answer is %r but (not self.__killed) is %r" % (better_answer , not self.__killed)
         return self.__killed
     
     def killed_with_debug_checks(self): # renamed by bruce 050702; was called killed(); by bruce 041029
@@ -1794,7 +1815,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         (Note that molecules left with no atoms, by this or any other op,
         will themselves be killed.)
         """
-        
+        if debug_1779:
+            print "debug_1779: atom.kill on %r" % self
         if self.__killed:
             if not self.element is Singlet:
                 print_compact_stack("fyi: atom %r killed twice; ignoring:\n" % self)
@@ -1835,6 +1857,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # remove bonds
         for b in self.bonds[:]: #bruce 050214 copy list as a precaution
             n = b.other(self)
+            if debug_1779:
+                print "debug_1779: atom.kill on %r is calling unbond on %r" % (self,b)
             n.unbond(b) # note: this can create a new singlet on n, if n is real,
                         # which requires computing b.ubp which uses self.posn()
                         # or self.baseposn(); or it can kill n if it's a singlet.
