@@ -235,7 +235,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             m2 = b.atom2.molecule
             try:
                 bad = (m1.part is not m2.part)
-            except: #060411 bug-safety
+            except: # bruce 060411 bug-safety
                 if m1 is None:
                     m1 = b.atom1.molecule = get_nullMol()
                     print "bug: %r.atom1.molecule was None (changing it to _nullMol)" % b
@@ -245,7 +245,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 bad = True
             if bad:
                 if not (m1.part is not None and m2.part is not None):
-                    print "bug: one of %r's atom's mol's .parts is None" % b
+                    print_compact_stack( "bug: one of %r's atom's mol's .parts is None: " % b )
+                        # bruce 060412 print -> print_compact_stack
                         # e.g. this will happen if above code sets a mol to _nullMol
                 b.bust() 
         # check atom-jig bonds ####@@@@ in the future! Callers also need to handle some jigs specially first, which this would destroy
@@ -2308,35 +2309,40 @@ class BorrowerChunk(Chunk):
     Except for debugging purposes, it should never be added to the MT, or permitted to exist when arbitrary user-ops are possible.
     Its only known safe usage pattern is to be created, used, and destroyed, during one extended operation such as a mouse-drag.
     [If more uses are thought of, these limitations could all be removed. #e]
+       update 060412: trying to make it fully safe for Undo cp, and in case it's accidently left alive (in GLPane or MT).
+    But not trying to make results perfectly transparent or "correct" in those cases, since we'll try to prevent them.
+    E.g. for mmp save, it'll save as a normal Chunk would.
     """
-    def __init__(self, atomset, name = None):
-        """#doc; atomset maps atom/key -> atom for some atoms we'll temporarily own
+    def __init__(self, assy, atomset = None, name = None): # revised 060413
+        """#doc; for doc of atomset, see take_atomset
+        """
+        Chunk.__init__(self, assy, self._name_when_empty(assy))
+        if atomset is not None:
+            self.take_atomset(atomset, name = name)
+        return
+
+    def _name_when_empty(self, assy = None):
+        if assy is None:
+            assy = self.assy
+        del assy # not yet used; might use id or repr someday
+        return "(empty borrower id %#x)" % id(self)
+
+    def take_atomset(self, atomset, name = None):
+        """#doc; atomset maps atom.key -> atom for some atoms we'll temporarily own
         [WARNING: if all of another chunk's atoms are in atomset, creating us will kill that chunk.]
         [WARNING: it's up to the caller to make sure all singlet neighbors of atoms in atomset
          are also in atomset! Likely bugs if it doesn't.]
+        If you want to call this again on new atoms, call self.demolish first.
         """
+        if not name:
+            name = "(borrower of %d atoms, id %#x)" % (len(atomset), id(self)) #e __repr__ also incls this info
+        self.name = name # no use for prior value of self.name #k is there a set_name we should be using??
         atoms = atomset.values() #e could optim this -- only use is to let us pick one arbitrary atom
         egatom = atoms[0]
-        assy = egatom.molecule.assy
-        Chunk.__init__(self, assy, name or "(borrower of %d atoms, id %#x)" % (len(atoms), id(self))) #e __repr__ also incls this info
-            # initially-unexplained bug [#e refile after initial commit, since it's explained now]:
-            # once when we added 2 singlets to assy.selatoms itself (which is not allowed)
-            # and passed that as atomset (should have been 3 atoms), its length got recorded here (from len(atomset)) as 4 atoms
-            # (and later in Chunk.__repr__ it was also printed as 4 atoms),
-            # but later still, looking at self.atoms in a debugger, the proper set of 3 atoms were there.
-            # But in that debugger now I print bc to get <Chunk '(borrower of 4 atoms, id 0xb85f738)'>
-            # (wrong classname, wrong length) -- am I using old __repr__ code? Note too that it fails to print len(atoms) at all.
-            # Ah, here is the likely cause:
-            # 12. [13:35:36] pulling bondpoint X552 to (8.33, 8.08, 2.47)
-            # 13. [13:35:36] Build Mode: bonded atoms C553 and C595
-            # So it was made with 1 atom and 3 singlets, then a singlet was killed, now it won't print true number of atoms anymore;
-            # probably there's an unreported exception in __repr__, not sure why... no, it's using __str__ which is simpler!
-            # Ok, everything is explained.
-        self.part = egatom.molecule.part
-            # This is only needed if update_parts is possible while we exist -- but it might be.
-            # Note that we're not calling part.add or adding ourselves to its nodecount.
-            # Thus we reset this to None in restore_atoms_to_their_homes, before something like kill calls part.remove on us.
-
+        egmol = egatom.molecule # do this now, since we're going to change it in the loop
+        del atoms, egatom
+        assy = egmol.assy
+        assert assy is self.assy
         # now steal the atoms, but remember their homes and don't add ourselves to assy.tree.
         # WARNING: if we steal *all* atoms from another chunk, that will cause trouble,
         # but preventing this is up to the caller! [#e put this into another method, so it can be called again later??]
@@ -2345,7 +2351,7 @@ class BorrowerChunk(Chunk):
         origmols = {} # atom.key - original atom.molecule
         self.origmols = origmols
         self.harmedmols = harmedmols
-        # self.atoms was initialized in Chunk.__init__
+        # self.atoms was initialized to {} in Chunk.__init__, or restored to that in self.demolish()
         for key, atom in atomset.iteritems():
             mol = atom.molecule
             assert mol is not self
@@ -2374,7 +2380,18 @@ class BorrowerChunk(Chunk):
                 print "bug: BorrowerChunk stole all atoms from %r; potential for harm is not yet known" % mol
             mol.invalidate_atom_lists()
         self.invalidate_atom_lists()
-        return
+
+        try:
+            part = egmol.part
+            part.add(self) ###e not 100% sure this is ok; need to call part.remove too (and we do)
+            assert part is self.part # Part.add should do this (if it was not already done)
+        except:
+            print "data from following exception: egmol = %r, its part = %r, self.part = %r" % \
+                  ( egmol, part, self.part )
+            raise
+        
+        return # from take_atomset
+    
     # instead of overriding draw_displist, it's enough to define _colorfunc and _dispfunc to help it:
     def _colorfunc(self, atm):
         """Define this to use atm's home mol's color instead of self.color, and also so that self._dispfunc gets called
@@ -2403,13 +2420,44 @@ class BorrowerChunk(Chunk):
         self.atoms = {}
         self.origmols = {}
         self.harmedmols = {}
-        self.part = None
+        ## self.part = None
         self.invalidate_atom_lists() # might not matter anymore; hope it's ok when we have no atoms
+        if self.part is not None:
+            self.part.remove(self)
         return
+    def demolish(self):
+        "Restore atoms, and make self reusable (but up to caller to remove self from any .dad it might have)"
+        self.restore_atoms_to_their_homes()
+        self.name = self._name_when_empty()
+        return
+    def take_atoms_from_list(self, atomlist):
+        """We must be empty (ready for reuse).
+        Divide atoms in atomlist by chunk; take the atoms we can (without taking all atoms from any chunk);
+        return a pair of lists (other_chunks, other_atoms), where other_chunks are chunks whose atoms were all in atomlist,
+        and other_atoms is a list of atoms we did not take for some other reason
+        (presently always [] since there is no other reason we can't take an atom).
+        """
+        # note: some recent selectMode code for setting up dragatoms is similar enough (in finding other_chunks)
+        # that it might make sense to pull out a common helper routine
+        other_chunks = []
+        other_atoms = [] # never changed
+        our_atoms = []
+        chunks_and_atoms = divide_atomlist_by_chunk(atomlist) # list of pairs (chunk, atoms in it)
+        for chunk, atlist in chunks_and_atoms:
+            if len(chunk.atoms) == len(atlist):
+                other_chunks.append(chunk)
+            else:
+                our_atoms.extend(atlist)
+        atomset = dict([(a.key, a) for a in our_atoms])
+        self.take_atomset( atomset)
+        return other_chunks, other_atoms
     def kill(self):
         self.restore_atoms_to_their_homes() # or should we delete them instead?? (this should never matter in our planned uses)
             # this includes self.part = None
         Chunk.kill(self)
+    def destroy(self):
+        self.kill()
+        self.name = "(destroyed borrowerchunk)"
     # for testing, we might let one of these show up in the MT, and then we need these cmenu methods for it:
     def __CM_Restore_Atoms_To_Their_Homes(self):
         self.restore_atoms_to_their_homes()
@@ -2434,6 +2482,14 @@ class BorrowerChunk(Chunk):
     ##    - disable cp's during drag.
     ##    - merge undo diffs from the drag.
 
+def divide_atomlist_by_chunk(atomlist): # similar to some recent code for setting up dragatoms in selectMode, but not identical
+    "Given a list of atoms, return a list of pairs (chunk, atoms in that chunk from that list). Assume no atom appears twice."
+    resdict = {} # id(chunk) -> list of one or more atoms from it
+    for at in atomlist:
+        chunk = at.molecule
+        resdict.setdefault(id(chunk), []).append(at)
+    return [(atlist[0].molecule, atlist) for atlist in resdict.itervalues()]
+
 def debug_make_BorrowerChunk(target):
     "(for debugging only)"
     debug_make_BorrowerChunk_raw(True)
@@ -2450,13 +2506,14 @@ def debug_make_BorrowerChunk_raw(do_addmol = True):
     if not atomset:
         env.history.message(redmsg("Need selected atoms to make a BorrowerChunk (for debugging only)"))
     else:
-        atomset = dict(atomset) # since we shouldn't really add singlets to assy.selatoms...
+        atomset = dict(atomset) # copy it, since we shouldn't really add singlets to assy.selatoms...
         for atom in atomset.values(): # not itervalues, we're changing it in the loop!
             # BTW Python is nicer about this than I expected:
             # exceptions.RuntimeError: dictionary changed size during iteration
             for bp in atom.singNeighbors(): # likely bugs if these are not added into the set!
                 atomset[bp.key] = bp
-        chunk = BorrowerChunk(atomset)
+            assy = atom.molecule.assy # these are all the same, and we do this at least once
+        chunk = BorrowerChunk(assy, atomset)
         if do_addmol:
             win.assy.addmol(chunk)
         import __main__

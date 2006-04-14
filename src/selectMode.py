@@ -9,6 +9,7 @@ from modes import *
 from HistoryWidget import orangemsg
 from chunk import molecule
 import env
+from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 
 _count = 0
 
@@ -22,7 +23,6 @@ DRAG_STICKINESS_LIMIT = 4 # in pixels; reset in each leftDown via a debug_pref
     #& To do: Make it a user pref in the Prefs Dialog.  Also consider a different var/pref
     #& for singlet vs. atom drag stickiness limits. Mark 060213.
 
-from debug_prefs import debug_pref, Choice
 _ds_Choice = Choice([0,1,2,3,4,5,6,7,8,9,10], default_value = DRAG_STICKINESS_LIMIT)
 
 DRAG_STICKINESS_LIMIT_prefs_key = "A7/Drag Stickiness Limit"
@@ -486,6 +486,7 @@ class selectMode(basicMode):
             self.dragatoms, self.baggage, self.dragchunks = self.get_dragatoms_and_baggage()
                 # if no atoms in alist, dragatoms and baggage are empty lists, which is good.
             self.drag_multiple_atoms = True
+            self.maybe_use_bc = debug_pref("use bc to drag mult?", Choice_boolean_False) #bruce 060414
             
         # dragjigs contains all the selected jigs.
         self.dragjigs = self.o.assy.getSelectedJigs()
@@ -674,8 +675,56 @@ class selectMode(basicMode):
         # in the loop before it, or adjBaggage (which compares a.posn() to
         # px) would think atom <a> was not moving.
         return
+
+    #bruce 060414 move selatoms optimization (won't be enabled by default in A7)
+    # (very important for dragging atomsets that are part of big chunks but not all of them)
+    # UNFINISHED -- still needs:
+    # - failsafe for demolishing bc if drag doesn't end properly
+    # - disable undo cp's when bc exists (or maybe during any drag of any kind in any mode)
+    # - fix checkparts assertfail (or disable checkparts) when bc exists and atom_debug set
+    # - not a debug pref anymore
+    # - work for single atom too (with its baggage, implying all bps for real atoms in case chunk rule for that matters)
+    # - (not directly related:)
+    #   review why reset_drag_vars is only called in selectAtomsMode but the vars are used in the superclass selectMode
+    # 
+    bc_in_use = None # None, or a BorrowerChunk in use for the current drag,
+            # which should be drawn while in use, and demolished when the drag is done (without fail!) #####@@@@@ need failsafe
+    _reusable_borrowerchunks = [] # a freelist of empty BorrowerChunks not now being used (a class variable, not instance variable)
+
+    def allocate_empty_borrowerchunk(self):
+        "Someone wants a BorrowerChunk; allocate one from our freelist or a new one"
+        while self._reusable_borrowerchunks:
+            # try to use one from this list
+            bc = self._reusable_borrowerchunks.pop()
+            if bc.assy is self.o.assy:
+                # bc is still suitable for reuse
+                return bc
+            else:
+                # it's not
+                bc.destroy()
+                continue
+            pass
+        # list is empty, just return a new one
+        from chunk import BorrowerChunk
+        return BorrowerChunk(self.o.assy)
+
+    def deallocate_borrowerchunk(self, bc):
+        bc.demolish() # so it stores nothing now, but can be reused later; repeated calls must be ok
+        self._reusable_borrowerchunks.append(bc)
+
+    maybe_use_bc = False # precaution
     
     def drag_selected_atoms(self, offset):
+
+        if self.maybe_use_bc and self.dragatoms and self.bc_in_use is None:
+            #bruce 060414 move selatoms optimization (unfinished); as of 060414 this never happens unless you set a debug_pref.
+            # See long comment above for more info.
+            bc = self.allocate_empty_borrowerchunk()
+            self.bc_in_use = bc
+            other_chunks, other_atoms = bc.take_atoms_from_list( self.dragatoms )
+            self.dragatoms = other_atoms # usually []
+            self.dragchunks.extend(other_chunks) # usually []
+            self.dragchunks.append(bc)
         
         # Move dragatoms.
         for at in self.dragatoms: #bruce 060315 optimization: remove unneeded [:] from both loops
@@ -686,8 +735,21 @@ class selectMode(basicMode):
             at.setposn(at.posn()+offset)
 
         # Move chunks. [bruce 060410 new feature, for optimizing moving of selected atoms, re bugs 1828 / 1438]
+        # Note, these might be chunks containing selected atoms (and no unselected atoms, except baggage), not selected chunks.
+        # All that matters is that we want to move them as a whole (as an optimization of moving their atoms individually).
+        # Note, as of 060414 one of them might be a BorrowerChunk.
         for ch in self.dragchunks:
             ch.move(offset)
+        
+        return
+
+    def deallocate_bc_in_use(self):
+        """If self.bc_in_use is not None, it's a BorrowerChunk and we need to deallocate it --
+         this must be called at the end of any drag which might have allocated it.
+         """
+        if self.bc_in_use is not None:
+            self.deallocate_borrowerchunk( self.bc_in_use )
+            self.bc_in_use = None
         return
         
     def atomDragUpdate(self, a, apos0):
@@ -715,6 +777,8 @@ class selectMode(basicMode):
         - If Ctrl is pressed,  unpick <a>, removing it from the current selection.
         - If Shift+Control (Delete) is pressed, delete atom <a>.
         '''
+
+        self.deallocate_bc_in_use()
         
         if not self.current_obj_clicked:
             # Atom was dragged.  Nothing to do but return.
@@ -978,6 +1042,8 @@ class selectMode(basicMode):
         - If Ctrl is pressed,  unpick <j>, removing it from the current selection.
         - If Shift+Control (Delete) is pressed, delete jig <j>.
         '''
+
+        self.deallocate_bc_in_use()
         
         if not self.current_obj_clicked:
             # Jig was dragged.  Nothing to do but return.
@@ -1255,6 +1321,8 @@ class selectMode(basicMode):
             except ImportError:
                 env.history.message(redmsg("Can't import Pyrex OpenGL or maybe bearing_data.py, rebuild it"))
         else:
+            if self.bc_in_use is not None: #bruce 060414
+                self.bc_in_use.draw(self.o, 'fake dispdef kluge')
             # bruce comment 040922: code is almost identical with modifyMode.Draw;
             # the difference (no check for self.o.assy existing) might be a bug in this version, or might have no effect.
             basicMode.Draw(self)   
@@ -1502,6 +1570,7 @@ class selectAtomsMode(selectMode):
             #   'Bond'
         self.drag_multiple_atoms = False
             # set to True when we are dragging a movable unit of 2 or more atoms.
+        self.maybe_use_bc = False # whether to use the BorrowerChunk optimization for the current drag (experimental) [bruce 060414]
         self.current_obj = None
             # current_obj is the object under the cursor when the LMB was pressed.
         self.dragatoms = []
