@@ -112,7 +112,10 @@ allQuats = quats100 + quats110 + quats111
 
 MIN_REPAINT_TIME = 0.01 # minimum time to repaint (in seconds)
 
-button = {0:None, 1:'LMB', 2:'RMB', 4:'MMB'}
+button = {0:None, 1:'LMB', 2:'RMB', 4:'MMB'} ###e NEEDS RENAME -- global variables need to be given more distinctive names
+    # (but to rename it, someone has to search the entire program for places that might import it and use it,
+    #  and preferably do it many weeks before a release so any rare bugs it causes might be found)
+    # Also, the numeric constants need to be replaced by named constants from Qt (or at least from constants.py).
 
 class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     """Mouse input and graphics output in the main view window.

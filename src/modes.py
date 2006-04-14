@@ -846,8 +846,9 @@ class basicMode(anyMode):
     
     def Draw(self):
         """Generic Draw method, with drawing code common to all modes.
-           Specific modes should call this within their own Draw method,
-           unless they have a good reason not to.
+           Specific modes should call this somewhere within their own Draw method,
+           unless they have a good reason not to. Note: it doesn't draw the model,
+           since not all modes want to always draw it.
         """
         
         # Draw the Origin axis.
