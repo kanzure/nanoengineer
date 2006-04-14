@@ -590,7 +590,7 @@ def createWhatsThis(self):
                        "<b>Default Display Mode</b>."\
                        "</p>"\
                        "<p>The <b>Default Display Mode</b> can be changed via the "\
-                       "<b>Edit > Preferences</b> menu and selecting the <b>General</b> tab."\
+                       "<b>Edit > Preferences</b> menu and selecting the <b>Modes</b> tab."\
                        "</p>"\
                        "<p>The <b>Current or Default Display Mode</b> is displayed in the status bar in the "\
                        "lower right corner of the main window."\
