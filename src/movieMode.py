@@ -99,6 +99,15 @@ class movieMode(basicMode):
         else:
             self._controls(0) # Movie control buttons are disabled.
 
+        # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
+        # We do this last, so as not to do it if there are exceptions in the rest of the method,
+        # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
+        # [bruce 060414; same thing done in some other modes]
+        import undo_manager
+        undo_manager.disable_undo_checkpoints('Movie Player')
+        undo_manager.disable_UndoRedo('Movie Player', "in Movie Player") # optimizing this for shortness in menu text
+            # this makes Undo menu commands and tooltips look like "Undo (not permitted in Movie Player)" (and similarly for Redo)
+
     def _controls(self, On = True): #bruce 050427
         _controls( self.w, On)
 
@@ -139,8 +148,21 @@ class movieMode(basicMode):
 ##        return None
 
     def restore_gui(self):
+        "[#doc]"
+        # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
+        # do it first to protect it from exceptions in the rest of this method
+        # (since if it never happens, Undo/Redo won't work for the rest of the session)
+        # [bruce 060414; same thing done in some other modes]
+        import undo_manager
+        undo_manager.reenable_undo_checkpoints('Movie Player')
+        undo_manager.reenable_UndoRedo('Movie Player')
+        self.set_cmdname('Movie Player') # this covers all changes while we were in the mode
+            # (somewhat of a kluge, and whether this is the best place to do it is unknown;
+            #  without this the cmdname is "Done")
+
         self.w.moviePlayerDashboard.hide()
         self.w.disable_QActions_for_movieMode(False)
+        return
 
     def makeMenus(self):
         self.Menu_spec = [

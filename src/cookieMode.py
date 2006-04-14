@@ -109,10 +109,32 @@ class cookieMode(basicMode):
         # operations like enter/init/cancel, etc, are kind of confusing.
         # The code readability is also not very good. --Huaicai
         self.setThickness(self.ctrlPanel.layerCellsSpinBox.value())
+
+        # I don't know if this is better to do here or just before setThickness (or if it matters): ####@@@@
+        # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
+        # We do this last, so as not to do it if there are exceptions in the rest of the method,
+        # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
+        # [bruce 060414; same thing done in some other modes]
+        import undo_manager
+        undo_manager.disable_undo_checkpoints('Cookie Mode')
+        undo_manager.disable_UndoRedo('Cookie Mode', "in Cookie Cutter") # optimizing this for shortness in menu text
+            # this makes Undo menu commands and tooltips look like "Undo (not permitted in Cookie Cutter)" (and similarly for Redo)
    
    
     def restore_gui(self):
         """Restore GUI items when exit every time. """
+
+        # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
+        # do it first to protect it from exceptions in the rest of this method
+        # (since if it never happens, Undo/Redo won't work for the rest of the session)
+        # [bruce 060414; same thing done in some other modes]
+        import undo_manager
+        undo_manager.reenable_undo_checkpoints('Cookie Mode')
+        undo_manager.reenable_UndoRedo('Cookie Mode')
+        self.set_cmdname('Cookie Cutter') # this covers all changes while we were in the mode
+            # (somewhat of a kluge, and whether this is the best place to do it is unknown;
+            #  without this the cmdname is "Done")
+
         self.ctrlPanel.restoreGui()
         
         if not self.savedOrtho:
