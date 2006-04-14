@@ -1125,6 +1125,16 @@ class extrudeMode(basicMode):
             self.w.toolsExtrudeAction.setOn(1) # make the Extrude tool icon look pressed (and the others not)
             self.w.extrudeDashboard.show()
             patch_modename_labels(self.w, "Extrude")
+
+        # Disable Undo/Redo actions, and undo checkpoints, during this mode (they *must* be reenabled in restore_gui).
+        # We do this last, so as not to do it if there are exceptions in the rest of the method,
+        # since if it's done and never undone, Undo/Redo won't work for the rest of the session.
+        # [bruce 060414, to mitigate bug 1625]
+        import undo_manager
+        undo_manager.disable_undo_checkpoints('Extrude')
+        undo_manager.disable_UndoRedo('Extrude', "during Extrude")
+            # this makes Undo menu commands and tooltips look like "Undo (not permitted during Extrude)" (and similarly for Redo)
+        
         return
 
     # methods related to exiting this mode [bruce 040922 made these from old Done and Flush methods]
@@ -1310,15 +1320,28 @@ class extrudeMode(basicMode):
         return self._stateDoneOrCancel( cancelling = 1) # closest we can come to cancelling
     
     def restore_gui(self):
+        "[#doc]"
+        # Reenable Undo/Redo actions, and undo checkpoints (disabled in init_gui);
+        # do it first to protect it from exceptions in the rest of this method
+        # (since if it never happens, Undo/Redo won't work for the rest of the session)
+        # [bruce 060414]
+        import undo_manager
+        undo_manager.reenable_undo_checkpoints('Extrude')
+        undo_manager.reenable_UndoRedo('Extrude')
+        self.set_cmdname('Extrude') # this covers all changes while we were in the mode
+            # (somewhat of a kluge, and whether this is the best place to do it is unknown;
+            #  without this the cmdname is "Done")
+        
+        # Re-enable QAction items
+        # [bruce 060414 moved this earlier in the method]
+        self.w.disable_QActions_for_extrudeMode(False)
+
         if self.is_revolve:
             self.w.revolveDashboard.hide()
         else:
             self.w.extrudeDashboard.hide()
 
         self.connect_or_disconnect_signals(False) #bruce 060412, hoping it helps with bug 1750
-        
-        # Re-enable QAction items
-        self.w.disable_QActions_for_extrudeMode(False)
         
         return
 

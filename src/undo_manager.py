@@ -74,6 +74,8 @@ class AssyUndoManager(UndoManager):
         if platform.is_macintosh(): 
             win = assy.w
             win.editRedoAction.setAccel(win._MainWindow__tr("Ctrl+Shift+Z")) # set up incorrectly (for Mac) as "Ctrl+Y"
+                # note: long before 060414 this is probably no longer needed (since now done in whatsthis.py),
+                # but it's safe and can be left in as a backup.
         # exercise the debug-only old pref (deprecated to use it):
         self.auto_checkpoint_pref() # exercise this, so it shows up in the debug-prefs submenu right away
             # (fixes bug in which the pref didn't show up until the first undoable change was made) [060125]
@@ -182,18 +184,20 @@ class AssyUndoManager(UndoManager):
             self.undo_checkpoint_after_command( self.__begin_retval )
             self.__begin_retval = False # should not matter
         return
-    
+
     def checkpoint(self, *args, **kws):
         # Note, as of 060127 this is called *much* more frequently than before (for every signal->slot to a python slot);
         # we will need to optimize it when state hasn't changed. ###@@@
-        global _AutoCheckpointing_enabled
-        opts = dict(merge_with_future = not _AutoCheckpointing_enabled)
-            # i.e., when not auto-checkpointing and when caller doesn't override,
-            # we'll ask archive.checkpoint to (efficiently) merge changes so far with upcoming changes
-            # (but to still cause real changes to trash redo stack, and to still record enough info
-            #  to allow us to properly remake_UI_menuitems)
-        opts.update(kws) # we'll pass it differently from the manual checkpoint maker... ##e
-        res = self.archive.checkpoint( *args, **opts )
+        global _AutoCheckpointing_enabled, _disable_checkpoints
+        res = None
+        if not _disable_checkpoints: ###e are there any exceptions to this, like for initial cps?? (for open file in extrude)
+            opts = dict(merge_with_future = not _AutoCheckpointing_enabled)
+                # i.e., when not auto-checkpointing and when caller doesn't override,
+                # we'll ask archive.checkpoint to (efficiently) merge changes so far with upcoming changes
+                # (but to still cause real changes to trash redo stack, and to still record enough info
+                #  to allow us to properly remake_UI_menuitems)
+            opts.update(kws) # we'll pass it differently from the manual checkpoint maker... ##e
+            res = self.archive.checkpoint( *args, **opts )
         self.remake_UI_menuitems() # needed here for toolbuttons and accel keys; not called for initial cp during self.archive init
             # (though for menu items themselves, the aboutToShow signal would be sufficient)
         return res # maybe no retval, this is just a precaution
@@ -318,14 +322,25 @@ class AssyUndoManager(UndoManager):
         # and get passed the menu (or list of them) from the caller, which is I guess assy.__init__.
         if undo_archive.debug_undo2:
             print "debug_undo2: running remake_UI_menuitems (could be direct call or signal)"
-        undos, redos = self.undo_redo_ops()
+        global _disable_UndoRedo
+        disable_reasons = list(_disable_UndoRedo) # avoid bugs if it changes while this function runs (might never happen)
+        if disable_reasons:
+            undos, redos = [], [] # note: more code notices the same condition, below
+        else:
+            undos, redos = self.undo_redo_ops()
         win = self.assy.w
         undo_mitem = win.editUndoAction
         redo_mitem = win.editRedoAction
         for ops, action, optype in [(undos, undo_mitem, 'Undo'), (redos, redo_mitem, 'Redo')]: #e or could grab op.optype()?
             extra = ""
+            if disable_reasons:
+                try:
+                    why_not = str(disable_reasons[0][1]) # kluges: depends on list format, and its whymsgs being designed for this use
+                except:
+                    why_not = ""
+                extra += " (not permitted %s)" % why_not # why_not is e.g. "during drag" (nim) or "during Extrude"
             if undo_archive.debug_undo2:
-                extra = " (%s)" % str(time.time()) # show when it's updated in the menu text (remove when works) ####@@@@
+                extra += " (%s)" % str(time.time()) # show when it's updated in the menu text (remove when works) ####@@@@
             if ops:
                 action.setEnabled(True)
                 if not ( len(ops) == 1): #e there should always be just one for now
@@ -345,7 +360,7 @@ class AssyUndoManager(UndoManager):
                 action.setEnabled(False)
                 ## action.setText("Can't %s" % optype) # someday we might have to say "can't undo Cmdxxx" for certain cmds
                 ## action.setMenuText("Nothing to %s" % optype)
-                text = "%s" % optype + extra
+                text = "%s%s" % (optype, extra)
                 action.setMenuText(text) # for 061117 commit, look like it used to look, for the time being
                 fix_tooltip(action, text)
                 self._current_main_menu_ops[optype] = None
@@ -417,6 +432,10 @@ class AssyUndoManager(UndoManager):
     def do_main_menu_op(self, optype):
         "optype should be Undo or Redo"
         op_was_available = not not self._current_main_menu_ops.get(optype)
+        global _disable_UndoRedo
+        if _disable_UndoRedo: #060414
+            env.history.message(redmsg("%s is not permitted now (and this action was only offered due to a bug)" % optype))
+            return
         global _AutoCheckpointing_enabled
         disabled = not _AutoCheckpointing_enabled #060312
         if disabled:
@@ -533,7 +552,7 @@ def set_initial_AutoCheckpointing_enabled( enabled, update_UI = False, print_to_
     "set autocheckpointing (perhaps for internal use), doing UI updates only if asked, emitting history only if asked"
     editAutoCheckpointing(enabled, update_UI = update_UI, print_to_history = print_to_history) # same API except for option defaults
     return
-    
+
 def editMakeCheckpoint():
     '''This is called from MWsemantics.editMakeCheckpoint, which is documented as
     "Slot for making a checkpoint (only available when Automatic Checkpointing is disabled)."
@@ -664,6 +683,70 @@ def editClearUndoStack(): #bruce 060304, modified from Mark's prototype in MWsem
 #     actually implement the freeing of all stored ops, which can't be that hard given that it's easy to tell which ones to free --
 #     *all* of them! guess: stored_ops.clear(), in archive, in all calls of clear_undo_stack.
 
+# ==
+
+# API for temporarily disabling undo checkpoints and/or Undo/Redo commands [bruce 060414, to help mitigate bug 1625 et al]
+
+try:
+    # Whether to disable Undo checkpoints temporarily, due the mode, or (nim) being inside a drag, etc
+    _disable_checkpoints # on reload, use old value unchanged
+except:
+    _disable_checkpoints = [] # list of (code,string) pairs, corresponding to reasons we're disabled, most recent last
+        # (usually only the first one will be shown to user)
+
+try:
+    # Whether to disable offering of Undo and Redo commands temporarily
+    _disable_UndoRedo
+except:
+    _disable_UndoRedo = []
+
+def disable_undo_checkpoints(whycode, whymsg = ""):
+    """Disable all undo checkpoints from now until a corresponding reenable call (with the same whycode) is made.
+    Intended for temporary internal uses, or for use during specific modes or brief UI actions (eg drags).
+    WARNING: if nothing reenables them, they will remain disabled for the rest of the session.
+    """
+    global _disable_checkpoints
+    _disable_checkpoints = _do_whycode_disable( _disable_checkpoints, whycode, whymsg)
+    return
+   
+def disable_UndoRedo(whycode, whymsg = ""):
+    """Disable the Undo/Redo user commands from now until a corresponding reenable call (with the same whycode) is made.
+    Intended for temporary internal uses, or for use during specific modes or brief UI actions (eg drags).
+    WARNING: if nothing reenables them, they will remain disabled for the rest of the session.
+    """
+    global _disable_UndoRedo
+    _disable_UndoRedo = _do_whycode_disable( _disable_UndoRedo, whycode, whymsg)
+    #e make note of need to update UI? I doubt we need this or have a good place to see the note.
+    #e ideally this would be part of some uniform scheme to let things subscribe to changes to that list.
+    return
+
+def reenable_undo_checkpoints(whycode):
+    global _disable_checkpoints
+    _disable_checkpoints = _do_whycode_reenable( _disable_checkpoints, whycode)
+
+def reenable_UndoRedo(whycode):
+    global _disable_UndoRedo
+    _disable_UndoRedo = _do_whycode_reenable( _disable_UndoRedo, whycode)
+
+def _do_whycode_disable( reasons_list_val, whycode, whymsg):
+    "[private helper function for maintaining whycode,whymsg lists]"
+    res = filter( lambda (code,msg): code != whycode , reasons_list_val ) # zap items with same whycode
+    if len(res) < len(reasons_list_val) and env.debug():
+        print_compact_stack("debug fyi: redundant call of _do_whycode_disable, whycode %r msg %r, preserved reasons %r" % \
+                            ( whycode, whymsg, res ) )
+    res.append( (whycode, whymsg) ) # put the changed one at the end (#k good??)
+    return res
+
+def _do_whycode_reenable( reasons_list_val, whycode):
+    "[private helper function for maintaining whycode,whymsg lists]"
+    res = filter( lambda (code,msg): code != whycode , reasons_list_val ) # zap items with same whycode
+    if len(res) == len(reasons_list_val) and env.debug():
+        print_compact_stack("debug fyi: redundant call of _do_whycode_reenable, whycode %r, remaining reasons %r" % \
+                            ( whycode, res ) )
+    return res
+
+# ==
+
 def external_begin_cmd_checkpoint(assy, cmdname = "command"): #bruce 060324 for use in widgets.py ##e use in GLPane/TreeWidget??
     "Call this with the assy you're modifying, or None. Pass whatever it returns to external_end_cmd_checkpoint later."
     # As of 060328 we use other code similar to these funcs in both GLPane.py and TreeWidget.py...
@@ -690,5 +773,7 @@ def external_end_cmd_checkpoint(assy, begin_retval):
         # warning: this is a poorly-considered kluge.  ###@@@  [bruce 060328]
         assy.undo_checkpoint_after_command(begin_retval or False)
     return
+
+# ==
 
 # end
