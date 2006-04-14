@@ -72,7 +72,7 @@ class MMKit(MMKitDialog):
             self.mmkit_tab.setTabLabel (self.libraryPage, 'Lib')
         else:
             # Add icons to MMKit's tabs. mark 060223.
-            atoms_pm = imagename_to_pixmap("atom.png")
+            atoms_pm = imagename_to_pixmap("atoms.png")
             self.mmkit_tab.setTabIconSet ( self.atomsPage, QIconSet(atoms_pm))
         
             clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
