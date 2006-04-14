@@ -404,6 +404,10 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element
   double end;
 
   // periodicTable[].vanDerWaalsRadius is in 1e-10 m
+  // maximum rvdw is 2.25e-10 m for Si, so highest cutoff radius is 675 pm
+  // minimum rvdw is 0.97e-10 m for Li, so lowest cutoff radius is 291 pm
+  // Carbon is 1.94e-10 m, cutoff at 582 pm
+  // Hydrogen is 1.5e-10 m, cutoff for H~C interaction at 516 pm
   // so rvdW is in 1e-12 m or pm
   vdw->rvdW = 100.0 * (periodicTable[element1].vanDerWaalsRadius +
                   periodicTable[element2].vanDerWaalsRadius);
