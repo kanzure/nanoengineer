@@ -17,7 +17,7 @@ SIGTERMhandler(int sig)
 }
 
 static void
-usage()
+usage(void)
 {
                 
     fprintf(stderr, "\ncommand line parameters:\n\

@@ -103,7 +103,7 @@ static GLUquadricObj *quad;
 static Display *xDisplay;
 
 static void
-resetEye()
+resetEye(void)
 {
   eyeR = 1000.0;
   eyeTheta = 0.0;
@@ -170,7 +170,7 @@ renderObject(struct Object *o)
 }
 
 static void
-renderFrame()
+renderFrame(void)
 {
   struct Object *o;
   
@@ -187,7 +187,7 @@ renderFrame()
 }
 
 static void
-doPaint()
+doPaint(void)
 {
   float lightPosition[4] = { 1.0, 0.5, -0.1, 0.0 };
 
@@ -232,7 +232,7 @@ doPaint()
 }
 
 static void
-repaint()
+repaint(void)
 {
   needRepaint = 1;
 }
@@ -370,7 +370,7 @@ processLine(char *s)
 
 
 static void
-processStdin()
+processStdin(void)
 {
   int nread;
   int startOfLine;
@@ -408,7 +408,7 @@ processStdin()
 }
 
 static int
-processX()
+processX(void)
 {
   XEvent event;
 
