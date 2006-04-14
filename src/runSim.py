@@ -124,7 +124,7 @@ class SimRunner:
             self.spawn_process()
                 # spawn_process is misnamed since it can go thru either interface (pyrex or exec OS process),
                 # since it also monitors progress and waits until it's done,
-                # and insert results back into part, either in realtime or when done.
+                # and insert results back into part, either in real time or when done.
                 # result error code (or abort button flag) stored in self.errcode
         except:
             print_compact_traceback("bug in simulator-calling code: ")
@@ -471,7 +471,7 @@ class SimRunner:
         self.setup_sim_args() # stores them in an attribute, whose name and value depends on self.use_dylib_sim
         # Now run the sim to completion (success or fail or user abort),
         # as well as whatever updates we do at the same time in the cad code
-        # (progress bar, showing movie in realtime [nim but being added circa 051231], ...)
+        # (progress bar, showing movie in real time [nim but being added circa 051231], ...)
         if self.use_dylib_sim:
             self.sim_loop_using_dylib() #bruce 051231 wrote this anew
         else:
@@ -622,7 +622,7 @@ class SimRunner:
                 QObject.connect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
             simProcess.setArguments(arguments)
             if self._movie.watch_motion:
-                env.history.message(orangemsg("(watch motion in realtime is only implemented for pyrex interface to simulator)"))
+                env.history.message(orangemsg("(watch motion in real time is only implemented for pyrex interface to simulator)"))
                 # note: we have no plans to change that; instead, the pyrex interface will become the usual one
                 # except for background or remote jobs. [bruce 060109]
             if not self._movie.create_movie_file:
@@ -811,7 +811,7 @@ class SimRunner:
                 env.history.message(orangemsg("(option to not create movie file is not yet implemented)")) # for pyrex sim
                 # NFR/bug 1286; other comments describe how to implement it; it would need a warning
                 # (esp if both checkboxes unchecked, since no frame output in that case, tho maybe tracef warnings alone are useful)
-            editwarning = "Warning: editing structure during sim causes tracebacks; cancelling an abort skips some realtime display time"
+            editwarning = "Warning: editing structure during sim causes tracebacks; cancelling an abort skips some real time display time"
             if not seen_before(editwarning): #bruce 060317 added this condition
                 env.history.message(orangemsg( editwarning ))
             env.call_qApp_processEvents() # so user can see that history message
@@ -1013,8 +1013,8 @@ class SimRunner:
             if self.abortbutton_controller.aborting():
                 # extra space to distinguish which line got it -- this one is probably rarer, mainly gets it if nested task aborted(??)
                 self.abort_sim_run("got real  abort at frame %d" % frame_number)######@@@@@@ also set self-aborting flag to be used above
-            # mflag=1 -> minimize, user preference determines whether we watch it in realtime
-            # mflag=0 -> dynamics, watch_motion (from movie setup dialog) determines realtime
+            # mflag=1 -> minimize, user preference determines whether we watch it in real time
+            # mflag=0 -> dynamics, watch_motion (from movie setup dialog) determines real time
             elif ((not self.mflag and self._movie.watch_motion) or
                   (self.mflag and env.prefs[watchRealtimeMinimization_prefs_key])):
                 from sim import getFrame
@@ -1285,7 +1285,7 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     Return value: false on success, true (actually an error code but no caller uses that)
     on failure (error message already emitted).
       Either way (success or not), also copy errors and warnings from tracefile to history,
-    if print_sim_warnings = True. Someday this should happen in realtime;
+    if print_sim_warnings = True. Someday this should happen in real time;
     for now [as of 050407] it happens once when we're done.
     """
     #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
