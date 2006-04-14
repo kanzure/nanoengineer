@@ -1,121 +1,134 @@
 # Copyright (c) 2006 Nanorex, Inc. All rights reserved.
-Release Notes for nanoENGINEER-1 v0.7 (Alpha 7)
 
+Release Notes for nanoENGINEER-1 v0.7 (Alpha 7)
 
 What's new in nanoENGINEER-1 v0.7 (4/18/2006):
 
-
-1. Undo/Redo
+1. Undo/Redo:
   - nanoENGINEER-1 now includes rich Undo/Redo functionality
   - Automatic checkpointing can be enabled/disabled by selecting 
     'Edit > Automatic Checkpointing'
   - 'Edit > Clear Undo Stack' clears all Undo checkpoints to free system memory
 
-2. Build Mode Enhancements
+2. 'Select Atoms Mode' has been merged with 'Build Mode'.
+
+3. Build Mode:
   - Significantly improved interactive mouse controls for building, selecting, 
     moving and editing structures and other objects. To learn more about the
     new mouse controls, see the 'Build Mode' section of the Mouse Control 
     documentation by selecting 'Help > Mouse Controls...'
   - Hover highlighting now supports bonds and jigs (not just atoms)
   - Atoms, bonds and jigs have context menus for common commands
-  - Transmuting atoms is supported
-  - Atom Selection Filter is supported, including the specification of one or more
-    atom types (using the Shift key while selecting atoms from the MMKit) to 
-    apply the selection filter to
-  - Build mode is the new default startup mode 
-  - New Library tab in MMKit which allows the 3D preview and insertion of parts
-    from the nanoENGINEER-1 library
-  - 'Water' selection filter can be enabled/disabled from the dashboard (disabled
-    by default)
+  - Atom Selection Filter, which allows the selection of one or more atom 
+    types (using the Shift key while selecting atoms from the MMKit) to apply
+    the selection filter to
+  - Transmute atoms
+  - New Library tab in MMKit allows 3D preview and insertion of parts from
+    the nanoENGINEER-1 library
+  - 'Water' selection filter can be enabled/disabled from the dashboard
+    (disabled by default)
+  - Build mode is the new default startup mode
 
-3. Select Atoms Mode removed
-
-4. New web-based 'Wiki Help System'
+4. On-Line Wiki Help:
   - Context sensitive help using F1 key
-  - Users can edit and contribute to the nanoENGINEER-1 Wiki Help System
+  - Users can contribute to and/or edit the On-Line Wiki Help documentation
 
-5. nanoDynamics-1 Enhancements
+5. Molecular Dynamic Simulation:
   - Improved force field
   - Watch minimize and MD simulations in real time
-  - Minimize and MD simulations can be stopped at any time, leaving atoms at their
-    current positions
+  - Minimize and MD simulations can be stopped at any time, leaving atoms at 
+    their current positions
 
-6. View Menu Enhancements
+6. View Menu/Toolbar:
   - 'Set View Normal To' sets the view to a new view based on the normal vector
     of the current selection
   - 'Set View Parallel To'  sets the view to a new view based on the parallel 
     vector of the current selection
-  - 'Rotate View 180' rotates the current view 180 degrees around the vertical axis
-  - 'Rotate View +90' rotates the current view 90 degrees around the vertical axis
-  - 'Rotate View -90' rotates the current view -90 degrees around the vertical axis
-  - 'Save Named View' saves a custom view in the Model Tree
+  - 'Rotate View 180' rotates the current view 180 degrees around the vertical
+    axis
+  - 'Rotate View +90' rotates the current view 90 degrees around the vertical 
+    axis
+  - 'Rotate View -90' rotates the current view -90 degrees around the vertical
+    axis
+  - 'Save Named View' saves the current view as a custom view in the Model 
+    Tree. Using the context menu of the Named View icon in the Model Tree,
+    the view can be restored. 
 
-7. View Animation
-  - Which switching to a standard view (i.e. Front, Top, Home, etc.), 
-    nanoENGINEER-1 will animate from the current view to the destination view. 
-    This can be disabled from 'Edit > Preferences'.
-  - Animation speed can be changed using a slider control in the 
-    'Edit > Preferences | General' dialog
+7. Single Walled Carbon Nanotubes:
+   SWCNT can be added to the model by selecting 'Insert > Nanotube' and 
+   specifying the chirality and length
 
-8. Single Walled Carbon Nanotubes (SWCNT) can be added to the model by 
-   selecting 'Insert > Nanotube'
+8. Graphics:
+  - In general, rendering speed and quality are improved
+  - 'View Animation', which animates the model between the current view
+    and the destination view.  This helps maintain model/view orientation
+    when switching to a standard view (i.e. Front, Top, Home, etc.)
+  - 'Help > Graphic Card Info...' displays details about the system's
+    graphics card
 
-9. Improved Graphics
-  - Rendering speeds improved
-  - Graphics quality improved
-  - Lighting and Material Specular Properties of the model can be control
-    by selecting 'Edit > Preferences | Lighting'
-  - 
+9. New Jigs:
+  - 'Measure Distance Jig' displays the distance between the nuclei and the 
+    VdW radii of two atoms.
+  - 'Measure Angle' displays the angle made by three atoms.
+  - 'Measure Dihedral' displays the dihedral angle of a four atom sequence.
+  - 'ESP Image' allows the user to visualize the electrostatic potential 
+    of points on the face of a square 2D surface. Nano-Hive's MPQC ESP Plane 
+    plug-in is used to calculate the electrostatic potential.
+  - 'Gridplane' allows the user to insert a 2D square or SiC grid into the
+    part to help measure distances or fuse chunks of SiC.
+  - 'Atom Set' allows the user to group and easily select arbitrary sets of 
+    atoms in the part.
 
-10. New Jigs
-  - Measure Distance
-  - Measure Angle 
-  - Measure Dihedral
-  - ESP Image
-  - Gridplane
-  - Atom Set
+10. Nano-Hive:
+  - ESP Image plugin (tested on Windows only)
 
-11. Nano-Hive
-  - ESP image plugin for Windows
-
-
-12. Fuse Chunks Mode
+11. Fuse Chunks Mode:
   - Allows user to fuse two or more chunks together using one of two methods:
     1. Make Bonds - bondpoints between chunks will form bonds when they 
-       are near each other.
+       are near each other
     2. Fuse Atoms - atoms between chunks will be fused when they overlap 
-       each other.
+       each other
 
-13. Movie Player Enhancements
+12. Movie Player:
   - New 'Loop' option on dashboard restarts the movie when it reaches the end
-  
-
-# Molecular Dynamics Simulator:
+  - 'POV-Ray Series' supports the 'Skip' value in the dashboard so that the
+    skipped frames are not saved as POV-Ray files
  
+13. New Preferences (Edit > Preferences):
+  - Display Compass Labels
+  - View Animation
+    - Animation speed can be changed using a slider control in the 
+      'Edit > Preferences | General' dialog
+    - View Animation can be enabled/disabled
+  - Minimization: Watch in Real-time
+  - Bondpoint Highlighting Color
+  - Ball and Stick Atom Scale
+  - Ball and Stick Bond Scale
+  - CPK Atom Scale
+  - Level of Detail
+  - Bond Line Thickness
+  - Startup Mode
+  - Default Mode
+  - Display Mode (for each Mode)
+  - Build Mode Defaults settings, including Autobond, Water, Highlighting,
+    and Select Atoms of Deposited Object
+  - Additional Lighting parameters, including Color, Specular value and light
+    position
+  - Material Specular Properties
+  - Nano-Hive Plug-in
+  - Undo settings, including:
+    - Restore View when Undoing Structural Changes
+    - Automatic Checkpoints (default setting)
+  - Window Position and Size Save button
 
-# New Preferences (Edit > Preferences):
-  -
-  -
-  -
-  -
-  -
-  -
+14. Miscellaneous:
+  - 'Select > Expand Selection' selects any atom that is a neighbor of a 
+    currently selected atom
+  - 'Select > Contract Selection' deselects any atom that is a neighbor of a 
+    non-picked atom or has a bondpoint
+  - 'Modify > Merge' operation extended for atom selection (i.e. Build Mode)
 
-# Several new context menu items.
-  - 
-
-# Model Tree:
-  - New model tree context menu item 
-
-# Other Useful Features
-  - Expand Selection
-  - Contract Selection
-  - Center on Common Axis
-  - 'Merge' operation extended for atom selection 
-
-
-
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 What was new in nanoENGINEER-1 v0.0.6 (8/17/2005):
 
@@ -239,7 +252,7 @@ fix for Alpha 7.
   - Now aligns selected chunks to the first selected chunk's axis (instead
     of the average axis of all selected chunks)
 
-++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
 What was new in nanoENGINEER-1 v0.0.5 (5/2/2005):
@@ -306,8 +319,7 @@ What was new in nanoENGINEER-1 v0.0.5 (5/2/2005):
   - Jigs can be located anywhere in the Model Tree, and this location is
     not altered when saving the MMP file.
 
-
-
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 What was new in v0.0.4 (3/14/2005):
 
@@ -331,6 +343,7 @@ What was new in v0.0.4 (3/14/2005):
    dpb_filename-trace.txt
 6. Simulator: new toolbar/menu contains Simulator, Movie Player and Plot Tool.
 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 What was new in v0.0.3 (2/28/2005):
 
@@ -348,6 +361,7 @@ What was new in v0.0.3 (2/28/2005):
 8. Extrude Tool: The bond-offset spheres are rendered in a manner to clue 
    the user on which configurations will produce the most bonds. 
 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 What was new in v0.0.2 (2/14/2005):
 
@@ -355,6 +369,7 @@ What was new in v0.0.2 (2/14/2005):
 2. Fixed bug in cad that limited the simulator to no more than 940 frames
    on Windows.
 
++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 What was new in v0.0.1 (2/2/2005):
 
