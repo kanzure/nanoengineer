@@ -257,10 +257,29 @@ class ops_select_Mixin:
 
     def permit_pick_parts(self): #bruce 050125; see also pickParts, but that can leave some chunks initially selected
         "ensure it's legal to pick chunks using mouse selection, and deselect any selected atoms (if picking chunks does so)"
-        if self.assy.selwhat != SELWHAT_CHUNKS:
+        #bruce 060414 revised this to try to fix bug 1819
+        # (and perhaps related bugs like 1106, where atoms & chunks are both selected)
+        
+        if self.selatoms and self.assy.selwhat == SELWHAT_CHUNKS and env.debug():
+            print "debug: bug: permit_pick_parts sees self.selatoms even though self.assy.selwhat == SELWHAT_CHUNKS; unpicking them"
+                # Note: this happens during bug 1819, and indicates a bug in the code that led up to here,
+                # probably something about selatoms being per-part, but selwhat (and MT part-switch conventions re selection)
+                # being for the assy -- maybe we need to deselect atoms, not only chunks, when switching parts (not yet done).
+                # In the meantime, warn only the developer, and try to fix the situation
+                # by doing the following anyway (which the pre-060414 code did not).
+        if self.selatoms:
             self.unpickatoms()
-            self.assy.set_selwhat(SELWHAT_CHUNKS) #bruce 050517 revised API of this call
+        self.assy.set_selwhat(SELWHAT_CHUNKS) # not super-fast (could optim using our own test), but that's ok here
         return
+# pre-060414 code, plus debug print which was printed when reproducing bug 1819
+##        if self.assy.selwhat != SELWHAT_CHUNKS:
+##            self.unpickatoms()
+##            self.assy.set_selwhat(SELWHAT_CHUNKS) #bruce 050517 revised API of this call
+##        else:
+##            if self.selatoms:
+##                print "bug (fyi): self.selatoms even though self.assy.selwhat == SELWHAT_CHUNKS" #bruce 060414 re bug 1819, 1106
+##                #e do the same things in this case too? first see if we get the debug message.
+##        return
 
     def permit_pick_atoms(self): #bruce 050517 added this for use in some mode Enter methods -- but not sure they need it!
         "ensure it's legal to pick atoms using mouse selection, and deselect any selected chunks (if picking atoms does so)"
