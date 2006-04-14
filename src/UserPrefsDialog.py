@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Apr 6 17:50:28 2006
+# Created: Fri Apr 14 13:26:54 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1283,7 +1283,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(565,424).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(574,424).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -1438,9 +1438,9 @@ class UserPrefsDialog(QDialog):
         self.lower_right_btn.setText(QString.null)
         QToolTip.add(self.lower_right_btn,self.__tr("Lower right"))
         self.groupBox14.setTitle(self.__tr("Minimization"))
-        self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch In Realtime"))
-        QToolTip.add(self.watch_min_in_realtime_checkbox,self.__tr("Enable/disable real-time graphical updates during minimizations"))
-        QWhatsThis.add(self.watch_min_in_realtime_checkbox,self.__tr("<p><b>Watch In Realtime</b></p>Enables/disables real-time graphical updates during minimizations"))
+        self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch In Real Time"))
+        QToolTip.add(self.watch_min_in_realtime_checkbox,self.__tr("Enable/disable real time graphical updates during minimizations"))
+        QWhatsThis.add(self.watch_min_in_realtime_checkbox,self.__tr("<p><b>Watch In Real Time</b></p>Enables/disables real time graphical updates during minimizations"))
         self.default_projection_btngrp.setTitle(self.__tr("Default Projection"))
         QToolTip.add(self.default_projection_btngrp,QString.null)
         QWhatsThis.add(self.default_projection_btngrp,QString.null)

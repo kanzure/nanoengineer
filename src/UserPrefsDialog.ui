@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>565</width>
+            <width>574</width>
             <height>424</height>
         </rect>
     </property>
@@ -366,13 +366,13 @@
                                                     <cstring>watch_min_in_realtime_checkbox</cstring>
                                                 </property>
                                                 <property name="text">
-                                                    <string>Watch In Realtime</string>
+                                                    <string>Watch In Real Time</string>
                                                 </property>
                                                 <property name="toolTip" stdset="0">
-                                                    <string>Enable/disable real-time graphical updates during minimizations</string>
+                                                    <string>Enable/disable real time graphical updates during minimizations</string>
                                                 </property>
                                                 <property name="whatsThis" stdset="0">
-                                                    <string>&lt;p&gt;&lt;b&gt;Watch In Realtime&lt;/b&gt;&lt;/p&gt;Enables/disables real-time graphical updates during minimizations</string>
+                                                    <string>&lt;p&gt;&lt;b&gt;Watch In Real Time&lt;/b&gt;&lt;/p&gt;Enables/disables real time graphical updates during minimizations</string>
                                                 </property>
                                             </widget>
                                         </vbox>
