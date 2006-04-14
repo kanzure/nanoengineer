@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'LinearMotorPropDialog.ui'
+# Form implementation generated from reading ui file 'C:\atom\cad\src\LinearMotorPropDialog.ui'
 #
-# Created: Wed Apr 12 10:35:27 2006
+# Created: Fri Apr 14 14:28:02 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,24 +14,25 @@ image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
     "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x00" \
-    "\xbe\x49\x44\x41\x54\x38\x8d\xad\x53\x3b\x0e\x85" \
-    "\x30\x0c\xb3\x11\x07\x4b\x4f\x46\xb9\x19\x87\x60" \
-    "\x67\x61\x67\x43\x6c\x66\xa1\xbc\xea\x3d\xfa\xd4" \
-    "\x8a\x58\x8a\xd4\x7c\xea\xc6\x89\x4a\x49\xf0\x44" \
-    "\xe7\xca\xe6\x41\x48\x52\x21\x84\x78\x07\x24\xbd" \
-    "\x32\x00\x02\x20\x33\x8b\x92\xc0\xda\x19\x92\x2c" \
-    "\x16\x4a\x02\x49\x48\x62\x5f\x2b\xcd\xcc\xc6\xa7" \
-    "\xf8\x34\x4d\x03\xc9\x4f\xde\x43\x72\x92\xdb\x24" \
-    "\xb9\x05\x4a\x96\x0f\xf9\x85\x0f\x6d\xdb\xa6\x3c" \
-    "\xd1\xea\x2f\xcb\x72\x9f\x09\x40\xf3\x3c\xff\xb4" \
-    "\xbd\xef\x7b\x95\xbc\xbc\xce\xcc\xd0\x03\xc0\xba" \
-    "\xae\xc5\x0b\xc7\x71\x54\x11\xa7\x3a\x5e\xad\xba" \
-    "\xc1\x7d\xcb\x1d\x00\x84\x10\xe2\xbf\x9f\xd0\x04" \
-    "\x33\x8b\xc8\xd6\xfe\xd6\x98\x88\x48\x16\x1f\x95" \
-    "\x54\x4e\x7e\xa1\x37\xb3\x91\xe4\x70\x75\xfb\xf8" \
-    "\x5f\x9b\x20\xe9\x96\xed\x22\xd9\x7b\xcb\x27\xb7" \
-    "\xf9\x59\x2b\x13\x5a\x1e\x3e\x00\x00\x00\x00\x49" \
-    "\x45\x4e\x44\xae\x42\x60\x82"
+    "\xc4\x49\x44\x41\x54\x78\x9c\xed\x94\x31\x0e\x83" \
+    "\x30\x0c\x45\x3f\x15\x5b\xb7\x1c\xa3\xca\x19\xb8" \
+    "\x47\xd8\x7b\x81\x5c\x27\x37\x61\x64\x44\x8c\x88" \
+    "\x2d\xea\x12\xa9\x1b\x03\x51\x66\x77\x29\x11\x91" \
+    "\x5a\x30\x34\x63\xdf\x92\x58\xb1\xbf\x23\x5b\x36" \
+    "\xc0\x40\xd5\x8a\x00\xd0\xfb\xfc\x0d\x55\x2b\x22" \
+    "\x22\x32\x61\x24\x13\xc6\x5d\xd1\x82\xa1\x49\x26" \
+    "\x8c\xd1\xb8\x5f\x6f\x9b\x71\x17\xc6\x0f\xe3\xfd" \
+    "\x69\x1f\x89\x7d\x9a\xac\x35\x5c\xc1\x12\x2b\xb8" \
+    "\x8e\x5c\x4a\x00\x18\x86\x21\x8b\x98\x94\x32\x6d" \
+    "\xca\x34\x4d\x68\x9a\x06\x52\xca\xcd\x40\xef\x3d" \
+    "\x9c\x73\x1f\x7d\xcb\xb5\x58\x55\x55\x49\xb6\x33" \
+    "\x44\x41\x21\x04\xda\xb6\x45\xdf\xf7\xd0\x5a\xa3" \
+    "\xeb\xba\xaf\x41\x21\x04\xcc\xf3\x0c\x6b\x2d\xb4" \
+    "\xd6\xc9\x5b\x01\x80\x72\xd6\x30\x7b\x97\x8f\xc0" \
+    "\x4a\xbc\x3b\x7a\x47\x61\x09\x2e\x23\xf7\x5f\x5f" \
+    "\xe7\x39\xb2\xbe\x5e\xa3\x7c\x71\x8b\xd8\x9f\x60" \
+    "\x3f\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42\x60" \
+    "\x82"
 
 class LinearMotorPropDialog(QDialog):
     def __init__(self,parent = None,name = None,modal = 0,fl = 0):
@@ -46,71 +47,6 @@ class LinearMotorPropDialog(QDialog):
         self.setSizeGripEnabled(1)
 
         LinearMotorPropDialogLayout = QGridLayout(self,1,1,11,6,"LinearMotorPropDialogLayout")
-
-        layout30 = QHBoxLayout(None,0,6,"layout30")
-
-        layout29 = QVBoxLayout(None,0,6,"layout29")
-
-        self.nameTextLabel = QLabel(self,"nameTextLabel")
-        self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.nameTextLabel)
-
-        self.textLabel1 = QLabel(self,"textLabel1")
-        textLabel1_font = QFont(self.textLabel1.font())
-        self.textLabel1.setFont(textLabel1_font)
-        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.textLabel1)
-
-        self.textLabel1_2 = QLabel(self,"textLabel1_2")
-        self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.textLabel1_2)
-
-        self.textLabel1_5 = QLabel(self,"textLabel1_5")
-        self.textLabel1_5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout29.addWidget(self.textLabel1_5)
-        layout30.addLayout(layout29)
-
-        layout28 = QGridLayout(None,1,1,0,6,"layout28")
-
-        self.textLabel1_4 = QLabel(self,"textLabel1_4")
-
-        layout28.addWidget(self.textLabel1_4,1,1)
-
-        layout29_2 = QHBoxLayout(None,0,6,"layout29_2")
-
-        self.enable_minimize_checkbox = QCheckBox(self,"enable_minimize_checkbox")
-        layout29_2.addWidget(self.enable_minimize_checkbox)
-        spacer16 = QSpacerItem(80,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout29_2.addItem(spacer16)
-
-        layout28.addMultiCellLayout(layout29_2,3,3,0,1)
-
-        self.stiffnessLineEdit = QLineEdit(self,"stiffnessLineEdit")
-        self.stiffnessLineEdit.setFrameShape(QLineEdit.LineEditPanel)
-        self.stiffnessLineEdit.setFrameShadow(QLineEdit.Sunken)
-        self.stiffnessLineEdit.setAlignment(QLineEdit.AlignLeft)
-
-        layout28.addWidget(self.stiffnessLineEdit,2,0)
-
-        self.nameLineEdit = QLineEdit(self,"nameLineEdit")
-        self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
-        self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
-        self.nameLineEdit.setAlignment(QLineEdit.AlignLeft)
-        self.nameLineEdit.setReadOnly(0)
-
-        layout28.addMultiCellWidget(self.nameLineEdit,0,0,0,1)
-
-        self.forceLineEdit = QLineEdit(self,"forceLineEdit")
-        self.forceLineEdit.setAlignment(QLineEdit.AlignLeft)
-
-        layout28.addWidget(self.forceLineEdit,1,0)
-
-        self.textLabel2 = QLabel(self,"textLabel2")
-
-        layout28.addWidget(self.textLabel2,2,1)
-        layout30.addLayout(layout28)
-
-        LinearMotorPropDialogLayout.addLayout(layout30,0,0)
 
         self.groupBox3 = QGroupBox(self,"groupBox3")
         self.groupBox3.setColumnLayout(0,Qt.Vertical)
@@ -188,9 +124,9 @@ class LinearMotorPropDialog(QDialog):
 
         groupBox3Layout.addWidget(self.colorTextLabel,3,0)
 
-        LinearMotorPropDialogLayout.addWidget(self.groupBox3,1,0)
+        LinearMotorPropDialogLayout.addWidget(self.groupBox3,2,0)
         spacer6 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        LinearMotorPropDialogLayout.addItem(spacer6,2,0)
+        LinearMotorPropDialogLayout.addItem(spacer6,3,0)
 
         layout45 = QHBoxLayout(None,0,6,"layout45")
         spacer7 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -205,11 +141,78 @@ class LinearMotorPropDialog(QDialog):
         self.cancel_btn.setAutoDefault(0)
         layout45.addWidget(self.cancel_btn)
 
-        LinearMotorPropDialogLayout.addLayout(layout45,3,0)
+        LinearMotorPropDialogLayout.addLayout(layout45,4,0)
+
+        layout21 = QHBoxLayout(None,0,6,"layout21")
+
+        layout19 = QVBoxLayout(None,0,6,"layout19")
+
+        self.nameTextLabel = QLabel(self,"nameTextLabel")
+        self.nameTextLabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout19.addWidget(self.nameTextLabel)
+
+        self.textLabel1 = QLabel(self,"textLabel1")
+        textLabel1_font = QFont(self.textLabel1.font())
+        self.textLabel1.setFont(textLabel1_font)
+        self.textLabel1.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout19.addWidget(self.textLabel1)
+
+        self.textLabel1_2 = QLabel(self,"textLabel1_2")
+        self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout19.addWidget(self.textLabel1_2)
+        layout21.addLayout(layout19)
+
+        layout20 = QGridLayout(None,1,1,0,6,"layout20")
+
+        self.forceLineEdit = QLineEdit(self,"forceLineEdit")
+        self.forceLineEdit.setAlignment(QLineEdit.AlignLeft)
+
+        layout20.addWidget(self.forceLineEdit,1,0)
+
+        self.textLabel2 = QLabel(self,"textLabel2")
+
+        layout20.addWidget(self.textLabel2,2,1)
+
+        self.textLabel1_4 = QLabel(self,"textLabel1_4")
+
+        layout20.addWidget(self.textLabel1_4,1,1)
+
+        self.nameLineEdit = QLineEdit(self,"nameLineEdit")
+        self.nameLineEdit.setFrameShape(QLineEdit.LineEditPanel)
+        self.nameLineEdit.setFrameShadow(QLineEdit.Sunken)
+        self.nameLineEdit.setAlignment(QLineEdit.AlignLeft)
+        self.nameLineEdit.setReadOnly(0)
+
+        layout20.addMultiCellWidget(self.nameLineEdit,0,0,0,1)
+
+        self.stiffnessLineEdit = QLineEdit(self,"stiffnessLineEdit")
+        self.stiffnessLineEdit.setFrameShape(QLineEdit.LineEditPanel)
+        self.stiffnessLineEdit.setFrameShadow(QLineEdit.Sunken)
+        self.stiffnessLineEdit.setAlignment(QLineEdit.AlignLeft)
+
+        layout20.addWidget(self.stiffnessLineEdit,2,0)
+        layout21.addLayout(layout20)
+        spacer10 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout21.addItem(spacer10)
+
+        LinearMotorPropDialogLayout.addLayout(layout21,0,0)
+
+        layout22 = QHBoxLayout(None,0,6,"layout22")
+
+        self.textLabel1_5 = QLabel(self,"textLabel1_5")
+        self.textLabel1_5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout22.addWidget(self.textLabel1_5)
+
+        self.enable_minimize_checkbox = QCheckBox(self,"enable_minimize_checkbox")
+        layout22.addWidget(self.enable_minimize_checkbox)
+        spacer16 = QSpacerItem(92,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout22.addItem(spacer16)
+
+        LinearMotorPropDialogLayout.addLayout(layout22,1,0)
 
         self.languageChange()
 
-        self.resize(QSize(352,347).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(277,315).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
@@ -232,14 +235,6 @@ class LinearMotorPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Linear Motor Properties"))
-        self.nameTextLabel.setText(self.__tr("Name:"))
-        self.textLabel1.setText(self.__tr("Force:"))
-        self.textLabel1_2.setText(self.__tr("Stiffness:"))
-        self.textLabel1_5.setText(self.__tr("Enable in Minimize (experimental)"))
-        self.textLabel1_4.setText(self.__tr("pN"))
-        self.enable_minimize_checkbox.setText(QString.null)
-        self.nameLineEdit.setText(QString.null)
-        self.textLabel2.setText(self.__tr("N/m"))
         self.groupBox3.setTitle(self.__tr("Size and Color"))
         self.textLabel3.setText(self.__tr("Angstroms"))
         self.textLabel3_3.setText(self.__tr("Angstroms"))
@@ -253,6 +248,14 @@ class LinearMotorPropDialog(QDialog):
         self.ok_btn.setAccel(self.__tr("Alt+O"))
         self.cancel_btn.setText(self.__tr("&Cancel"))
         self.cancel_btn.setAccel(self.__tr("Alt+C"))
+        self.nameTextLabel.setText(self.__tr("Name:"))
+        self.textLabel1.setText(self.__tr("Force:"))
+        self.textLabel1_2.setText(self.__tr("Stiffness:"))
+        self.textLabel2.setText(self.__tr("N/m"))
+        self.textLabel1_4.setText(self.__tr("pN"))
+        self.nameLineEdit.setText(QString.null)
+        self.textLabel1_5.setText(self.__tr("Enable in Minimize (experimental) :"))
+        self.enable_minimize_checkbox.setText(QString.null)
 
 
     def change_jig_color(self):
