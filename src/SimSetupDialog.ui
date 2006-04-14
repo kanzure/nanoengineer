@@ -21,6 +21,9 @@
     <property name="modal">
         <bool>true</bool>
     </property>
+    <property name="whatsThis" stdset="0">
+        <string>&lt;b&gt;nanoDynamics-1 Setup&lt;/b&gt;&lt;p&gt;nanoENGINEER-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click &lt;b&gt;Run Simulation&lt;/b&gt;.&lt;/p&gt;</string>
+    </property>
     <grid>
         <property name="name">
             <cstring>unnamed</cstring>
@@ -114,6 +117,12 @@
                                     <property name="value">
                                         <number>900</number>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Total Frames value</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;Total Frames&lt;/b&gt;&lt;p&gt;The number of frames for the simulation run.&lt;/p&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QSpinBox">
                                     <property name="name">
@@ -128,6 +137,12 @@
                                     <property name="value">
                                         <number>10</number>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Steps per Frame</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;Steps per Frame&lt;/b&gt;&lt;p&gt;The time duration between frames. 10 steps = 1 femtosecond.&lt;/p&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QSpinBox">
                                     <property name="name">
@@ -138,6 +153,12 @@
                                     </property>
                                     <property name="value">
                                         <number>300</number>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Temperature</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;Temperature&lt;/b&gt;&lt;p&gt;The temperature of the simulation in Kelvin (300 K = room temp)&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                             </vbox>
@@ -237,10 +258,16 @@
                         <cstring>watch_motion_checkbox</cstring>
                     </property>
                     <property name="text">
-                        <string>Watch motion in realtime</string>
+                        <string>Watch motion in real time</string>
                     </property>
                     <property name="checked">
                         <bool>true</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Enables real time graphical updates during simulation runs</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>&lt;p&gt;&lt;b&gt;Watch Motion In Real Time&lt;/b&gt;&lt;/p&gt;Enables real time graphical updates during simulation runs.</string>
                     </property>
                 </widget>
             </grid>

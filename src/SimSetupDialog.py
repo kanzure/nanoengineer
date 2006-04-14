@@ -1,9 +1,8 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Sun Mar 26 15:00:48 2006
+# Created: Fri Apr 14 13:32:51 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -151,16 +150,25 @@ class SimSetupDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("nanoDynamics-1 Setup"))
+        QWhatsThis.add(self,self.__tr("<b>nanoDynamics-1 Setup</b><p>nanoENGINEER-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click <b>Run Simulation</b>.</p>"))
         self.parms_grpbox.setTitle(self.__tr("Parameters"))
         self.textLabel5.setText(self.__tr("Total Frames:"))
         self.textLabel2.setText(self.__tr("Steps per Frame :"))
         self.textLabel3.setText(self.__tr("Temperature :"))
+        QToolTip.add(self.nframesSB,self.__tr("Total Frames value"))
+        QWhatsThis.add(self.nframesSB,self.__tr("<b>Total Frames</b><p>The number of frames for the simulation run.</p>"))
+        QToolTip.add(self.stepsperSB,self.__tr("Steps per Frame"))
+        QWhatsThis.add(self.stepsperSB,self.__tr("<b>Steps per Frame</b><p>The time duration between frames. 10 steps = 1 femtosecond.</p>"))
+        QToolTip.add(self.tempSB,self.__tr("Temperature"))
+        QWhatsThis.add(self.tempSB,self.__tr("<b>Temperature</b><p>The temperature of the simulation in Kelvin (300 K = room temp)</p>"))
         self.textLabel2_2.setText(self.__tr("0.1 femtosecond"))
         self.textLabel3_2.setText(self.__tr("Kelvin"))
         self.run_sim_btn.setText(self.__tr("Run Simulation"))
         self.cancel_btn.setText(self.__tr("Cancel"))
         self.groupBox2.setTitle(self.__tr("Simulation Options"))
-        self.watch_motion_checkbox.setText(self.__tr("Watch motion in realtime"))
+        self.watch_motion_checkbox.setText(self.__tr("Watch motion in real time"))
+        QToolTip.add(self.watch_motion_checkbox,self.__tr("Enables real time graphical updates during simulation runs"))
+        QWhatsThis.add(self.watch_motion_checkbox,self.__tr("<p><b>Watch Motion In Real Time</b></p>Enables real time graphical updates during simulation runs."))
 
 
     def NumFramesValueChanged(self,a0):
