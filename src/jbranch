@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # Simplify the process of managing a joint branch in both the cad and sim directories.
 
@@ -29,13 +29,15 @@ checkbranch() {
 }
 
 case $1 in
-    tag|up|update|merge)
+    tag|up|update|merge|commit)
 	checkbranch
 	;;
     *)
 	BRANCHNAME=$(grep "^/branch/" CVS/Entries | sed "s#.*/##" | cut -c 2-)
 	;;
 esac
+
+echo Branch is $BRANCHNAME
 
 case $1 in
     tag)
