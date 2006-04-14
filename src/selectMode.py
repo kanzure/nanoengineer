@@ -1987,7 +1987,7 @@ class selectAtomsMode(selectMode):
     def leftDown(self, event):
         '''Event handler for all LMB press events.'''
 
-        self.set_cmdname('BuildClick')
+        self.set_cmdname('BuildClick') #e (this should be set again later (during the same drag) to a more specific command name)
         
         self.o.assy.permit_pick_atoms() # Fixes bug 1413, 1477, 1478 and 1479.  Mark 060218.
         self.reset_drag_vars()
