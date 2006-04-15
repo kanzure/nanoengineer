@@ -85,15 +85,17 @@ SELECTION
 BUILD MODE
 # Highlighting in Build mode is problematic in some cases. Examples: 1) When more than one nanoENGINEER-1 applications are running. 2) If vertical splitter of the Model Tree is dragged to adjust Model Tree's width 3) If Main nE-1 window is maximized etc. (1241, 1243, 1637)
 
+# Zoom/Pan/Rotate Tools in Build mode: If you click on Zoom, Pan or Rotate tools while in Build, the MMKit and other Build features will become temporarily unavailable while you use these tools. (1518)
 # Build: In lines display , the atom center doesn't get highlighted (if the atom is not selected). Thus, you can not perform operations such as change hybridization , move the atom while in lines mode  Simple workaround is to change the display representation to Tubes or CPK or Ball&Stick.(1837)  
-
 # Build/ Bond Order : The context menu 'Reposition Bondpoints' of an atom reorients the bondpoints but while doing so, it makes the bondpoint type as single.  Let's assume that a Carbon atom with (sp2) hybridization is deposited in build mode. Now you highlight one of its bondpoints, right click and select 'double bond' from the context menu. The representation of the bondpoint will change to a 'double bondpoint'. Now, if you highlight the atom center, right click and select 'reposition bondpoints', it will clear the 'double bondpoint' representation you just made and thus, all three bondpoints of (sp2) carbon will be represented as single bond type. (839) 
  
 MOLECULAR MODELING KIT IN BUILD MODE
  
 This feature has some known bugs. Also refer to Linux Only Bugs and 'Dialogs and Dashboards' bug sections for some related issues. 
  
-# Modeling Kit: Sometimes this dialog box doesn't close even after main window of ne-1 is closed. It goes away after a few seconds though. (852)  
+# MMKit: Sometimes this dialog box doesn't close even after main window of ne-1 is closed. It goes away after a few seconds though. (852)  
+# MMKit: MMKit’s 3-D thumbnail view doesn’t get updated in some cases.(1848)
+# Library tab: If the library tab is showing a large model in the thumbnail view , you switch to some other tab and then return to the library tab, it might take long time to open that tab. (939)
 #  Modeling Kit: For lower resolution screens the Modeling kit occupies most of the Model Tree space, thus obscures most of the Model Tree area.(1437)  
 # Modeling Kit: If the 'Clipboard' tab of Build mode's Modeling Kit dialog is open and then you hit a keyboard modifier key (e.g. C, 'S', '1' etc), the program is supposed to switch back to 'Atoms' tab. But in some cases, it doesn't because of a keyfocus issue. In order to overcome this bug, try clicking inside 3D workspace once, then hit a modifier key. Now it should change to 'Atoms' tab. 
 
@@ -153,9 +155,11 @@ DIALOGS AND DASHBOARD
 POVRAY RENDERING
  
 #  Povray rendering doesn't show different bond types (it will be supported feature for this version) (830)  
-#  Povray rendering of lines display is shown as black lines, motor arrows are not rendered (226, 527)  
+# Povray rendering of lines display is shown as black lines (226)
+# Motor arrows are not rendered (527)  
 # If a motor is attached to only a single atom, povray image can not be rendered (719)
-#povray image rendered incorrectly in some orientations of the linear motor (1755)
+# Povray image rendered incorrectly in some orientations of the linear motor (1755)
+# Measurement jigs, ESP Image Volume(outline) and Grid lines in a grid plane jig are not rendered in the generated povray file.  (1084, 1196, 1198)
 
 
 MISCELLANEOUS
@@ -163,10 +167,8 @@ MISCELLANEOUS
 # User can not save exclusive features of nanoENGINEER-1 into the PDB file format. Some examples of such 'MMP file only' features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  ne-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)  
 # Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results. (362)  
 # Jigs: Rotary and Linear motors do not move with the chunks they are attached to. However, after moving the chunks, you can reposition the motor by right clicking on the motor name in the Model Tree and then using context menu option 'recenter on atoms'    (168) 
-# Zoom/Pan/Rotate Tools: If you click on Zoom, Pan or Rotate tools while in Build, the MMKit and other Build features will become temporarily unavailable while you use these tools. (1518)
 # Any file currently opened by nanoENGINEER-1 can be manually deleted from the computer without any warning message. (215) 
 
- 
  
 WINDOWS ONLY BUGS
  
