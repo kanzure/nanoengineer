@@ -173,6 +173,10 @@ def _undo_update_Atom_jigs(archive, assy):
         # KLUGE: assume this always runs (true as of 060414), not only if there are jigs or under some other "when needed" conds.
         # Note: it would be best to increment this counter at the start and end of every user op, but there's not yet any central place
         # for code to run at times like that (except some undo-related code which runs at other times too).
+        #
+        # A more principled and safer fix would be either for kill functions participating in "prekill" to take
+        # an argument, unique per prekill/kill event, or to ensure the global counter (acting as if it was that argument)
+        # was unique by again incrementing it after the kill call returns within the same code that had initiated the prekill.
         import Utility
         Utility._will_kill_count += 1
     from chunk import Chunk # not at toplevel, to avoid recursive import
