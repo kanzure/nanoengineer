@@ -1141,12 +1141,12 @@ sic_vpdat = [[0.0, sic_yU, 0.0], [sic_uLen+sic_hLen, 0.0, 0.0], [sic_uLen, sic_y
     
 
 def setup():
-    global CylList, diamondGridList, CapList, CubeList, solidCubeList
+    global CylList, diamondGridList, CapList, CubeList, solidCubeList, wiresphere1list
     global sphereList, rotSignList, linearLineList, linearArrowList
     global circleList, lonsGridList, lonsEdges, lineCubeList, SiCGridList
     global use_c_renderer_pref
 
-    listbase = glGenLists(numSphereSizes + 21)
+    listbase = glGenLists(numSphereSizes + 22)
 
     for i in range(numSphereSizes):
         sphereList += [listbase+i]
@@ -1163,8 +1163,32 @@ def setup():
         glEnd()
         glEndList()
 
-
-    CylList = listbase+numSphereSizes
+    wiresphere1list = listbase + numSphereSizes #bruce 060415
+    didlines = {} # don't draw each triangle edge more than once
+    def shoulddoline(v1,v2):
+        v1 = tuple(v1) # make sure not list (unhashable) or Numeric array (bug in __eq__)
+        v2 = tuple(v2)
+        if (v1,v2) not in didlines:
+            didlines[(v1,v2)] = didlines[(v2,v1)] = None
+            return True
+        return False
+    def doline(v1,v2):
+        if shoulddoline(v1,v2):
+            glVertex3fv(v1)
+            glVertex3fv(v2)
+        return
+    glNewList(wiresphere1list, GL_COMPILE)
+    glBegin(GL_LINES)
+    ocdec = getSphereTriangles(1)
+    for tri in ocdec:
+        #e could probably optim this more, e.g. using a vertex array or VBO or maybe GL_LINE_STRIP
+        doline(tri[0], tri[1])
+        doline(tri[1], tri[2])
+        doline(tri[2], tri[0])
+    glEnd()
+    glEndList()
+    
+    CylList = listbase + numSphereSizes + 1
     glNewList(CylList, GL_COMPILE)
     glBegin(GL_TRIANGLE_STRIP)
     for (vtop, ntop, vbot, nbot) in cylinderEdges:
@@ -1480,16 +1504,25 @@ def drawsphere(color, pos, radius, detailLevel):
     ColorSorter.schedule_sphere(color, pos, radius, detailLevel)
 
 def drawwiresphere(color, pos, radius, detailLevel=1):
+    assert detailLevel == 1
+    from debug_prefs import debug_pref, Choice_boolean_False
+    newway = debug_pref("new wirespheres?", Choice_boolean_False) #bruce 060415 experiment, re iMac G4 wiresphere bug
+    oldway = not newway
     glColor3fv(color)
     glDisable(GL_LIGHTING)
-    glPolygonMode(GL_FRONT, GL_LINE)
+    if oldway:
+        glPolygonMode(GL_FRONT, GL_LINE)
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius,radius,radius)
-    glCallList(sphereList[detailLevel])
+    if oldway:
+        glCallList(sphereList[detailLevel])
+    else:
+        glCallList(wiresphere1list)
     glEnable(GL_LIGHTING)
     glPopMatrix()
-    glPolygonMode(GL_FRONT, GL_FILL)
+    if oldway:
+        glPolygonMode(GL_FRONT, GL_FILL)
     return
 
 def drawcylinder(color, pos1, pos2, radius, capped=0):
