@@ -69,6 +69,7 @@ LARGE_MODEL = 5000
 
 debug_parts = False # set this to True in a debugger, to enable some print statements, etc
 
+debug_1855 = False # DO NOT COMMIT WITH TRUE [bruce 060415]
 
 class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             ops_atoms_Mixin, ops_connected_Mixin, ops_copy_Mixin,
@@ -111,7 +112,11 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
     def _undo_update_always(self): #bruce 060224
         "This is run on every Part still around after an Undo or Redo op, whether or not it was modified by that op."
         # (though to be honest, that's due to a kluge, as of 060224 -- it won't yet run this on any other class!)
-        self.invalidate_attrs( self.invalidatable_attrs() ) # especially selmols, selatoms, and molecules, but i guess all of them matter
+        attrs = self.invalidatable_attrs()
+        if debug_1855:
+            print "debug_1855: part %r _undo_update_always will inval %r" % (self, attrs,)
+            # this looks ok
+        self.invalidate_attrs( attrs) # especially selmols, selatoms, and molecules, but i guess all of them matter
             ###e should InvalMixin *always* do this? (unless overridden somehow?) guess: not quite.
         # don't call this, it can't be allowed to exist (I think):
         ## StateMixin._undo_update_always(self)
@@ -558,17 +563,27 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
 
     _inputs_for_selatoms = [] # only inval directly (same reasons as selmols; this one is *usually* updated incrementally, for speed)
     def _recompute_selatoms(self):
-        if self.selwhat != SELWHAT_ATOMS:
-            # optimize, by trusting selwhat to be correct.
-            # This is slightly dangerous until changes to assy's current selgroup/part
-            # also fix up selatoms, and perhaps even verify no atoms selected in new part.
-            # But it's likely that there are no such bugs, so we can try it this way for now.
-            # BTW, someday we might permit selecting atoms and chunks at same time,
-            # and this will need revision -- perhaps we'll have a selection-enabled boolean
-            # for each type of selectable thing; perhaps we'll keep selatoms at {} when they're
-            # known to be unselectable.
-            # [bruce 050308]
-            return {} # caller (InvalMixin.__getattr__) will store this into self.selatoms
+        if debug_1855:
+            print "debug_1855: part %r _recompute_selatoms, self.selwhat is %r, so we %s assume result is {} without checking" % \
+                  ( self, self.selwhat, {False:"WON'T",True:"WILL (not anymore)"}[self.selwhat != SELWHAT_ATOMS] )
+            # Note: this optim (below, now removed) was wrong after undo in that bug...
+            # I don't trust it to be always right even aside from Undo, so I'll remove it for A7.
+            # For A8 maybe we should replace it with an optim based on an accurate per-part count of picked atoms?
+            # Killed nodes might fail to get uncounted, but that would be ok. ##e
+#bruce 060415 zapping this to fix bug 1855...
+# but if we find selatoms and this would have said not to, should we fix selwhat??
+# For now we just complain (debug only) but don't fix it. ###@@@
+##        if self.selwhat != SELWHAT_ATOMS:
+##            # optimize, by trusting selwhat to be correct.
+##            # This is slightly dangerous until changes to assy's current selgroup/part
+##            # also fix up selatoms, and perhaps even verify no atoms selected in new part.
+##            # But it's likely that there are no such bugs, so we can try it this way for now.
+##            # BTW, someday we might permit selecting atoms and chunks at same time,
+##            # and this will need revision -- perhaps we'll have a selection-enabled boolean
+##            # for each type of selectable thing; perhaps we'll keep selatoms at {} when they're
+##            # known to be unselectable.
+##            # [bruce 050308]
+##            return {} # caller (InvalMixin.__getattr__) will store this into self.selatoms
         self.selatoms = 333 # not a valid dictlike thing
         res = {}
         def func_selatoms(nn):
@@ -580,6 +595,13 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             return # from func_selatoms only
         self.topnode.apply2all( func_selatoms)
         self.selatoms = res
+        if debug_1855:
+            print "debug_1855: part %r _recompute_selatoms did so, stores %r" % (self, res,)
+            # guess: maybe this runs too early, before enough is updated, due to smth asking for it, maybe for incr update purposes
+        if res and self.selwhat != SELWHAT_ATOMS and platform.atom_debug:
+            #bruce 060415; this prints, even after fix (or mitigation to nothing but debug prints) of bug 1855,
+            # and I don't yet see an easy way to avoid that, so making it debug-only for A7.
+            print "debug: bug: part %r found %d selatoms, even though self.selwhat != SELWHAT_ATOMS (not fixed)" % (self,len(res))
         return
 
     def selatoms_list(self): #bruce 051031
