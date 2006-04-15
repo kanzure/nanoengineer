@@ -1504,9 +1504,9 @@ def drawsphere(color, pos, radius, detailLevel):
     ColorSorter.schedule_sphere(color, pos, radius, detailLevel)
 
 def drawwiresphere(color, pos, radius, detailLevel=1):
-    assert detailLevel == 1
-    from debug_prefs import debug_pref, Choice_boolean_False
-    newway = debug_pref("new wirespheres?", Choice_boolean_False) #bruce 060415 experiment, re iMac G4 wiresphere bug
+    ## assert detailLevel == 1 # true, but leave out for speed
+    from debug_prefs import debug_pref, Choice_boolean_True
+    newway = debug_pref("new wirespheres?", Choice_boolean_True) #bruce 060415 experiment, re iMac G4 wiresphere bug; fixes it!
     oldway = not newway
     glColor3fv(color)
     glDisable(GL_LIGHTING)
