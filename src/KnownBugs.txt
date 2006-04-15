@@ -5,7 +5,7 @@ This file documents some bug fixes, unsupported features and some of the commonl
 
 Some of the Bug Fixes In Alpha 7
 
-1. Undo/ Redo is implemented
+1. Bugs and some confusing implementations in Build mode user interface
 2. Selection/Display/Jigs: If more than 1 jigs (other than motors) are attached to the same atom , only first jig in the order (in the model tree) gets highlighted (756) 
 3. Some bugs where MMKit's clipboard view doesn't get updated when you do modifications in the 3D workspace (876, 1570, and 1573)
 4. Simulator doesn't work for an opened file where the user doesn't have permission to write (396)
@@ -46,21 +46,24 @@ MISCELLANEOUS
  
 # Unicode characters are not supported for naming the items in the model tree. (474)
 # nanoENGINEER-1 Alpha7 is tested and supported only on Windows XP, MAC OS X 10.3.X, 10.4 and Mandrake Linux 10.0, 10.1. It is not supported on Intel based MACs (e.g. Macbook pro).  There are some known issues on other operating systems such as Fedora Core 4, Gentoo Linux (e.g. the program hangs or some display issues etc).  (1049, 1058, 1201, 1724)
-
  
  
 KNOWN BUGS (ALL PLATFORMS)
 
 MEMORY AND PERFORMANCE PROBLEMS
-- Memory consumed by the application increases due to repeated execution of certain operations such as opening and closing a file (often termed as ‘memory leaks’. This affects the overall performance of the software and could result in a crash. This version doesn’t prevent such memory leaks. 
-- nE-1 has some known performance problems while using some features. As a result, some operations take considerably longer times. This is particularly true when you are handling a large file. Examples: Opening a large file, Operations performed in Fuse mode, moving selected atoms, Selecting and deselecting some atoms from a large chunk, deleting some atoms , Undoing or redoing these operations, playing a movie on a large model etc. may take longer time when the file size is large. 
+# Memory consumed by the application increases due to repeated execution of certain operations such as opening and closing a file (often termed as ‘memory leaks’. This affects the overall performance of the software and could result in a crash. This version doesn’t prevent such memory leaks. 
+# nE-1 has some known performance problems while using some features. As a result, some operations take considerably longer times. This is particularly true when you are handling a large file. 
+Examples: Opening a large file, Operations performed in Fuse mode, moving selected atoms, Selecting and deselecting some atoms from a large chunk, deleting some atoms , Undoing or redoing these operations, playing a movie on a large model etc. may take longer time when the file size is large. (991, 1473, 1674, 1704, 1750, 1778)
+
+#Movie playing is lot slower for large models on some low system configuration machines (1757)
+
 
  
 ESP IMAGE JIG (NANO-HIVE)
 
 ESP image has many known bugs or unimplemented features. Some Examples: 
 - ESP calculations on some structures is not done and a black ESP image is created
-- Program switches to Select Atoms mode while inserting an ESP jig 
+- Program switches to Build mode while inserting an ESP jig 
 - Some bugs in the ESP dialog box options and implementation
 
 MINIMIZE/SIMULATOR
@@ -122,11 +125,11 @@ COOKIE CUTTER
 # Cookie Cutter/Display bug: the 3D workspace (graphics area) turns into a black display if you resize the ne-1 window while drawing an auto shape e.g. a circle or a hexagon etc. The original display can be regained by hitting any key. (687) 
  
 FUSE CHUNKS MODE
- 
+
+# Fuse Chunks: operations while in this mode are sluggish if it's a large model. However, its performance is improved compared to Alpha6 (689) 
 # Fuse Chunks: If the chunks were 'merged' in previous operation while bonding them together, 'Back Up' button on the dashboard doesn't 'unmerge' them. It only deletes the bond formed in earlier operation. (486-10)  
 # Fuse Chunks: Back up button on dashboard to delete a bond formed in previous operation deletes the bond, but it doesn't restore the previous bond angles. (502-16)  
 # Fuse Chunks can not bond elements of two or more chunks if they are already bonded. Also, some history messages are not correct.  (580)  
-# Fuse Chunks: operations while in this mode are sluggish if it's a large model. However, its performance is improved compared to Alpha6 (689) 
  
 MOVIE PLAYER
 
