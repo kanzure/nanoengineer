@@ -879,7 +879,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
     _last_glprefs_data_used_by_lights = None #bruce 051212, replaces/generalizes _last_override_light_specular
     
-    def _setup_lighting(self):
+    def _setup_lighting(self): # as of bruce 060415, this is mostly duplicated between GLPane (has comments) and ThumbView ###@@@
         """[private method]
         Set up lighting in the model (according to self._lights).
         [Called from both initializeGL and paintGL.]
@@ -1617,7 +1617,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         drawer._glprefs.update() #bruce 051126; kluge: have to do this before lighting *and* inside standard_repaint_0
         
-        if self.need_setup_lighting or self._last_glprefs_data_used_by_lights != drawer.glprefs_data_used_by_setup_standard_lights():
+        if self.need_setup_lighting \
+          or self._last_glprefs_data_used_by_lights != drawer.glprefs_data_used_by_setup_standard_lights() \
+          or debug_pref("always setup_lighting?", Choice_boolean_False):
+            #bruce 060415 added debug_pref("always setup_lighting?"), in GLPane and ThumbView [KEEP DFLTS THE SAME!!];
+            # using it makes specularity work on my iMac G4,
+            # except for brief periods as you move mouse around to change selobj (also observed on G5, but less frequently I think).
+            # BTW using this (on G4) has no effect on whether "new wirespheres" is needed to make wirespheres visible.
+            #
             # (bruce 051126 added override_light_specular part of condition)
             # I don't know if it matters to avoid calling this every time...
             # in case it's slow, we'll only do it when it might have changed.

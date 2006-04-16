@@ -68,25 +68,36 @@ class ThumbView(QGLWidget):
         '''Draw the selected object. Subclass need to override it'''
         pass
     
-            
-    def initializeGL(self):
-        """set up lighting in the model, which is the same as that in GLPane, so we can reproduce the same shading effect.
+    def _setup_lighting(self): # as of bruce 060415, this is mostly duplicated between GLPane (has comments) and ThumbView ###@@@
+        """[private method]
+        Set up lighting in the model.
+        [Called from both initializeGL and paintGL.]
         """
-
         glEnable(GL_NORMALIZE)
 
+        glMatrixMode(GL_PROJECTION)
+        glLoadIdentity()
+        glMatrixMode(GL_MODELVIEW)
+        glLoadIdentity()
+
+        #bruce 060415 moved following from ThumbView.initializeGL to this split-out method...
         #bruce 051212 revised lighting code to share prefs and common code with GLPane
         # (to fix bug 1200 and mitigate bugs 475 and 1158;
         #  fully fixing those would require updating lighting in all ThumbView widgets
         #  whenever lighting prefs change, including making .update calls on them,
         #  and is not planned for near future since it's easy enough to close & reopen them)
         try:
-            lights = shareWidget._lights
+            lights = self.shareWidget._lights #bruce 060415 shareWidget --> self.shareWidget; presumably always failed before that
+                ####@@@@ will this fix some bugs about common lighting prefs??
         except:
             lights = drawer._default_lights
         
-        drawer.setup_standard_lights( lights) #bruce 051212
-        
+        drawer.setup_standard_lights( lights)
+        return
+    
+    def initializeGL(self):
+        self._setup_lighting()
+
         glShadeModel(GL_SMOOTH)
         glEnable(GL_DEPTH_TEST)
         glEnable(GL_CULL_FACE)
@@ -167,6 +178,12 @@ class ThumbView(QGLWidget):
             For every redraw, color & depth butter are cleared, view projection are reset, view location & orientation are also reset. 
         """
         if not self.initialised: return
+
+        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+        if debug_pref("always setup_lighting?", Choice_boolean_False):
+            #bruce 060415 added debug_pref("always setup_lighting?"), in GLPane and ThumbView [KEEP DFLTS THE SAME!!];
+            # see comments in GLPane
+            self._setup_lighting() #bruce 060415 added this call
         
         c=self.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
