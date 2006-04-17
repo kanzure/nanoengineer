@@ -107,11 +107,11 @@ class NanoBuildBase:
             system("cp -r %s ." % os.path.join(self.sourceDirectory, "cad"))
             system("cp -r %s ." % os.path.join(self.sourceDirectory, "sim"))
         elif not self.cvsTag:
-            system('cvs -Q checkout -l cad/doc')
-            system('cvs -Q checkout -P cad/src cad/images sim cad/partlib')
+            system('cvs -Q -z9 checkout -l cad/doc')
+            system('cvs -Q -z9 checkout -P cad/src cad/images sim cad/partlib')
         else:
-            system('cvs -Q checkout -r %s -l cad/doc' % self.cvsTag)
-            system('cvs -Q checkout -r %s -R cad/src cad/images sim cad/partlib' % self.cvsTag)
+            system('cvs -Q -z9 checkout -r %s -l cad/doc' % self.cvsTag)
+            system('cvs -Q -z9 checkout -r %s -R cad/src cad/images sim cad/partlib' % self.cvsTag)
 
         # Remove all those 'CVS' directories and their entries.
         self.removeCVSFiles('cad')
@@ -755,7 +755,7 @@ def main():
     # Get the version information by checking out only the 
     # version.py file like this:
     #
-    # cvs -Q checkout cad/src/version.py
+    # cvs -Q -z9 checkout cad/src/version.py
     #
     # Mark 051117
 
@@ -765,9 +765,9 @@ def main():
         system("rm -rf " + cadDir)
         system("cp -r %s %s" % (os.path.join(sourceDirectory, "cad"), cadDir))
     elif cvsTag:
-        system("cvs -Q checkout -r %s cad/src/version.py" % cvsTag)
+        system("cvs -Q -z9 checkout -r %s cad/src/version.py" % cvsTag)
     else:
-        system("cvs -Q checkout cad/src/version.py")
+        system("cvs -Q -z9 checkout cad/src/version.py")
     
     sys.path.append(os.path.join(cadDir, "src"))
     from version import Version
