@@ -35,9 +35,13 @@ What's new in nanoENGINEER-1 v0.7 (4/18/2006):
 5. Molecular Dynamic Simulation:
   - Improved force field. Formal bend parameters have replaced guessed values
     for all single bond combinations
+  - Warnings emitted when parameters are used that are not determined
+    by quantum calculations
+  - Warnings when bonds exceed reasonable limits during simulation
   - Watch minimize and MD simulations in real time
   - Minimize and MD simulations can be stopped at any time, leaving atoms at 
     their current positions
+  - Improved minimization algorithm
 
 6. View Menu/Toolbar:
   - 'Set View Normal To' sets the view to a new view based on the normal vector
