@@ -263,13 +263,18 @@ class NanoBuildWin32(NanoBuildBase):
         isf.write("; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES! \n\n")
         isf.write("[Setup]\n")
         isf.write("AppName=%s\n" % appName)
-        appnamever = appName + " v" + version + "." + releaseNo
+        if releaseNo:
+            appnamever = appName + " v" + version + "." + releaseNo
+            ver = "v%s.%s" % (version, releaseNo)
+        else:
+            appnamever = appName + " v" + version
+            ver = "v%s" % version
         if not status:
-            isf.write("AppVerName=%s v%s.%s\n" % (appName, version, releaseNo))
+            isf.write("AppVerName=%s %s\n" % (appName, version))
             isf.write("DefaultDirName={pf}\\" + appnamever + "\n")
             isf.write("DefaultGroupName="+ appnamever + "\n")
         else:
-            isf.write("AppVerName=%s v%s.%s %s\n" % (appName, version, releaseNo, status))
+            isf.write("AppVerName=%s %s %s\n" % (appName, ver, status))
             isf.write("DefaultDirName={pf}\\" + appnamever + " " + status + "\n")
             isf.write("DefaultGroupName="+ appnamever + " " + status + "\n")
         isf.write("UninstallDisplayIcon={app}\\uninst.ico\n")
