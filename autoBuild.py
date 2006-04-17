@@ -392,7 +392,10 @@ class NanoBuildLinux(NanoBuildBase):
                   "design and simulate nano-components and nano-machines.\n")
         spf.write("Name: %s\n" % appName)
         spf.write("Version: %s\n" % version)
-        spf.write("Release: %s\n" % releaseNo)
+        if releaseNo:
+            spf.write("Release: %s\n" % releaseNo)
+        else:
+            spf.write("Release: 0\n")
         otherStuff = """License: GPL
 Group: Applications/CAD
 Source: project.tgz
@@ -773,8 +776,10 @@ def main():
     PMMT = VERSION.product + "-"
     if specialVersion != None:
         PMMT += specialVersion
-    else:
+    elif hasattr(VERSION, "tiny"):
         PMMT += "%d.%d.%d" % (VERSION.major, VERSION.minor, VERSION.tiny)
+    else:
+        PMMT += "%d.%d" % (VERSION.major, VERSION.minor)
     sys.path = sp
     
     #answer = "maybe"
@@ -795,9 +800,12 @@ def main():
             if answer == 'no':
                 sys.exit()
 
+    relNo = ""
+    if hasattr(VERSION, "tiny"):
+        relNo = "%d" % VERSION.tiny
     builder = NanoBuild(appName, iconFile, rootDir,
                         "%d.%d" % (VERSION.major, VERSION.minor),
-                        "%d" % VERSION.tiny, VERSION.releaseType, cvsTag)
+                        relNo, VERSION.releaseType, cvsTag)
     builder.sourceDirectory = sourceDirectory
     builder.clean(cadDir, True)
     os.rmdir(cadDir)
