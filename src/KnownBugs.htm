@@ -1,1266 +1,410 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
-<html xmlns:o="urn:schemas-microsoft-com:office:office"
-xmlns:w="urn:schemas-microsoft-com:office:word"
-xmlns:st1="urn:schemas-microsoft-com:office:smarttags"
-xmlns="http://www.w3.org/TR/REC-html40">
-
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
 <head>
-<meta http-equiv=Content-Type content="text/html; charset=iso-8859-1">
-<meta name=ProgId content=Word.Document>
-<meta name=Generator content="Microsoft Word 11">
-<meta name=Originator content="Microsoft Word 11">
-<link rel=File-List href="KnownBugs_files/filelist.xml">
-<title>nanoENGINEER-1&#8482; Known Bugs</title>
-<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
- name="City"/>
-<o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
- name="place"/>
-<!--[if gte mso 9]><xml>
- <w:WordDocument>
-  <w:View>Print</w:View>
-  <w:Zoom>75</w:Zoom>
-  <w:SpellingState>Clean</w:SpellingState>
-  <w:GrammarState>Clean</w:GrammarState>
-  <w:ValidateAgainstSchemas/>
-  <w:SaveIfXMLInvalid>false</w:SaveIfXMLInvalid>
-  <w:IgnoreMixedContent>false</w:IgnoreMixedContent>
-  <w:AlwaysShowPlaceholderText>false</w:AlwaysShowPlaceholderText>
-  <w:BrowserLevel>MicrosoftInternetExplorer4</w:BrowserLevel>
- </w:WordDocument>
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <w:LatentStyles DefLockedState="false" LatentStyleCount="156">
- </w:LatentStyles>
-</xml><![endif]--><!--[if !mso]><object
- classid="clsid:38481807-CA0E-42D2-BF39-B33AF135CC4D" id=ieooui></object>
-<style>
-st1\:*{behavior:url(#ieooui) }
-</style>
-<![endif]-->
-<style>
-<!--
- /* Style Definitions */
- p.MsoNormal, li.MsoNormal, div.MsoNormal
-	{mso-style-parent:"";
-	margin:0in;
-	margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";
-	color:black;}
-h3
-	{mso-margin-top-alt:auto;
-	margin-right:0in;
-	mso-margin-bottom-alt:auto;
-	margin-left:0in;
-	mso-pagination:widow-orphan;
-	mso-outline-level:3;
-	font-size:13.5pt;
-	font-family:"Times New Roman";
-	color:black;
-	font-weight:bold;}
-a:link, span.MsoHyperlink
-	{color:blue;
-	text-decoration:underline;
-	text-underline:single;}
-a:visited, span.MsoHyperlinkFollowed
-	{color:purple;
-	text-decoration:underline;
-	text-underline:single;}
-p
-	{mso-margin-top-alt:auto;
-	margin-right:0in;
-	mso-margin-bottom-alt:auto;
-	margin-left:0in;
-	mso-pagination:widow-orphan;
-	font-size:12.0pt;
-	font-family:"Times New Roman";
-	mso-fareast-font-family:"Times New Roman";
-	color:black;}
-span.SpellE
-	{mso-style-name:"";
-	mso-spl-e:yes;}
-span.GramE
-	{mso-style-name:"";
-	mso-gram-e:yes;}
-@page Section1
-	{size:8.5in 11.0in;
-	margin:1.0in 1.25in 1.0in 1.25in;
-	mso-header-margin:.5in;
-	mso-footer-margin:.5in;
-	mso-paper-source:0;}
-div.Section1
-	{page:Section1;}
- /* List Definitions */
- @list l0
-	{mso-list-id:111021996;
-	mso-list-template-ids:-1283319726;}
-@list l0:level1
-	{mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l0:level2
-	{mso-level-tab-stop:1.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l0:level3
-	{mso-level-tab-stop:1.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l0:level4
-	{mso-level-tab-stop:2.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l0:level5
-	{mso-level-tab-stop:2.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l0:level6
-	{mso-level-tab-stop:3.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l0:level7
-	{mso-level-tab-stop:3.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l0:level8
-	{mso-level-tab-stop:4.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l0:level9
-	{mso-level-tab-stop:4.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l1
-	{mso-list-id:412436947;
-	mso-list-template-ids:-832821460;}
-@list l1:level1
-	{mso-level-number-format:bullet;
-	mso-level-text:\F0B7;
-	mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;
-	mso-ansi-font-size:10.0pt;
-	font-family:Symbol;}
-@list l1:level2
-	{mso-level-tab-stop:1.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l1:level3
-	{mso-level-tab-stop:1.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l1:level4
-	{mso-level-tab-stop:2.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l1:level5
-	{mso-level-tab-stop:2.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l1:level6
-	{mso-level-tab-stop:3.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l1:level7
-	{mso-level-tab-stop:3.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l1:level8
-	{mso-level-tab-stop:4.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l1:level9
-	{mso-level-tab-stop:4.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l2
-	{mso-list-id:1821968358;
-	mso-list-template-ids:-2086739540;}
-@list l2:level1
-	{mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l2:level2
-	{mso-level-tab-stop:1.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l2:level3
-	{mso-level-tab-stop:1.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l2:level4
-	{mso-level-tab-stop:2.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l2:level5
-	{mso-level-tab-stop:2.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l2:level6
-	{mso-level-tab-stop:3.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l2:level7
-	{mso-level-tab-stop:3.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l2:level8
-	{mso-level-tab-stop:4.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l2:level9
-	{mso-level-tab-stop:4.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3
-	{mso-list-id:1830780848;
-	mso-list-template-ids:-1452536992;}
-@list l3:level1
-	{mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level2
-	{mso-level-tab-stop:1.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level3
-	{mso-level-tab-stop:1.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level4
-	{mso-level-tab-stop:2.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level5
-	{mso-level-tab-stop:2.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level6
-	{mso-level-tab-stop:3.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level7
-	{mso-level-tab-stop:3.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level8
-	{mso-level-tab-stop:4.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l3:level9
-	{mso-level-tab-stop:4.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l4
-	{mso-list-id:1976791910;
-	mso-list-template-ids:-1482767588;}
-@list l4:level1
-	{mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l4:level2
-	{mso-level-tab-stop:1.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l4:level3
-	{mso-level-tab-stop:1.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l4:level4
-	{mso-level-tab-stop:2.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l4:level5
-	{mso-level-tab-stop:2.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l4:level6
-	{mso-level-tab-stop:3.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l4:level7
-	{mso-level-tab-stop:3.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l4:level8
-	{mso-level-tab-stop:4.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l4:level9
-	{mso-level-tab-stop:4.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l5
-	{mso-list-id:2070885124;
-	mso-list-template-ids:-1596923048;}
-@list l5:level1
-	{mso-level-tab-stop:.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l5:level2
-	{mso-level-tab-stop:1.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l5:level3
-	{mso-level-tab-stop:1.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l5:level4
-	{mso-level-tab-stop:2.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l5:level5
-	{mso-level-tab-stop:2.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l5:level6
-	{mso-level-tab-stop:3.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l5:level7
-	{mso-level-tab-stop:3.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l5:level8
-	{mso-level-tab-stop:4.0in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-@list l5:level9
-	{mso-level-tab-stop:4.5in;
-	mso-level-number-position:left;
-	text-indent:-.25in;}
-ol
-	{margin-bottom:0in;}
-ul
-	{margin-bottom:0in;}
--->
-</style>
-<!--[if gte mso 10]>
-<style>
- /* Style Definitions */
- table.MsoNormalTable
-	{mso-style-name:"Table Normal";
-	mso-tstyle-rowband-size:0;
-	mso-tstyle-colband-size:0;
-	mso-style-noshow:yes;
-	mso-style-parent:"";
-	mso-padding-alt:0in 5.4pt 0in 5.4pt;
-	mso-para-margin:0in;
-	mso-para-margin-bottom:.0001pt;
-	mso-pagination:widow-orphan;
-	font-size:10.0pt;
-	font-family:"Times New Roman";
-	mso-ansi-language:#0400;
-	mso-fareast-language:#0400;
-	mso-bidi-language:#0400;}
-</style>
-<![endif]-->
-<meta name=CREATED content="20050816;15220300">
-<meta name=CHANGED content="20050816;15455300">
-<!--[if gte mso 9]><xml>
- <u1:DocumentProperties>
-  <u1:Author>Mark Sims</u1:Author>
-  <u1:LastAuthor>Ninad Sathaye</u1:LastAuthor>
-  <u1:Revision>100</u1:Revision>
-  <u1:TotalTime>2151</u1:TotalTime>
-  <u1:Created>2005-08-13T15:16:00Z</u1:Created>
-  <u1:LastSaved>2005-08-15T16:03:00Z</u1:LastSaved>
-  <u1:Pages>1</u1:Pages>
-  <u1:Words>2895</u1:Words>
-  <u1:Characters>16503</u1:Characters>
-  <u1:Company> </u1:Company>
-  <u1:Lines>137</u1:Lines>
-  <u1:Paragraphs>38</u1:Paragraphs>
-  <u1:CharactersWithSpaces>19360</u1:CharactersWithSpaces>
-  <u1:Version>11.5703</u1:Version>
- </u1:DocumentProperties>
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <u2:WordDocument>
-  <u2:View>Print</u2:View>
-  <u2:Zoom>75</u2:Zoom>
-  <u2:SpellingState>Clean</u2:SpellingState>
-  <u2:GrammarState>Clean</u2:GrammarState>
-  <u2:PunctuationKerning/>
-  <u2:ValidateAgainstSchemas/>
-  <u2:SaveIfXMLInvalid>false</u2:SaveIfXMLInvalid>
-  <u2:IgnoreMixedContent>false</u2:IgnoreMixedContent>
-  <u2:AlwaysShowPlaceholderText>false</u2:AlwaysShowPlaceholderText>
-  <u2:Compatibility>
-   <u2:BreakWrappedTables/>
-   <u2:SnapToGridInCell/>
-   <u2:WrapTextWithPunct/>
-   <u2:UseAsianBreakRules/>
-   <u2:DontGrowAutofit/>
-  </u2:Compatibility>
-  <u2:BrowserLevel>MicrosoftInternetExplorer4</u2:BrowserLevel>
- </u2:WordDocument>
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <u3:LatentStyles DefLockedState="false" LatentStyleCount="156">  </u3:LatentStyles>
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <u4:shapedefaults u5:ext="edit" spidmax="23554"/>
-</xml><![endif]--><!--[if gte mso 9]><xml>
- <u6:shapelayout u7:ext="edit">
-  <u6:idmap u7:ext="edit" data="1"/>
- </u6:shapelayout>
-</xml><![endif]-->
+  <meta content="text/html; charset=ISO-8859-1" http-equiv="content-type">
+  <title>Known Bugs</title>
 </head>
-
-<body lang=EN-US link=blue vlink=purple style='tab-interval:.5in'>
-
-<div class=Section1>
-
-<p class=MsoNormal><span class=GramE><b><span style='font-size:20.0pt'>nanoENGINEER-1</span></b></span>&#8482;
-<b><span style='font-size:20.0pt'>v0.0.7 (Alpha 7)<o:p></o:p></span></b></p>
-
-<p class=MsoNormal><o:p>&nbsp;</o:p></p>
-
-<p class=MsoNormal>&nbsp;<b><u><span style='font-size:16.0pt'>Some of the Bug
-Fixes <span class=GramE>In</span> Alpha 7<o:p></o:p></span></u></b></p>
-
-<p class=MsoNormal><b><u><span style='font-size:16.0pt'><o:p><span
- style='text-decoration:none'>&nbsp;</span></o:p></span></u></b></p>
-
-<p class=MsoNormal><o:p>&nbsp;</o:p></p>
-
-<p class=MsoNormal>&nbsp;&nbsp;</p>
-
-<p class=MsoNormal><b><u><span style='font-size:16.0pt'>Unsupported Features:<o:p></o:p></span></u></b></p>
-
-<p class=MsoNormal><o:p>&nbsp;</o:p></p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Undo/Redo
-not implemented. (<span class=GramE>this</span> will be added in Alpha 7).</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.25in;
-margin-bottom:.0001pt'><o:p>&nbsp;</o:p></p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><b
-style='mso-bidi-font-weight:normal'>Bond Inference not supported but a limited
-valence error check supported.</b> </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.25in;
-margin-bottom:.0001pt'>By the term &#8216;bond inference&#8217; we mean
-automatically deciding what type of bond will be formed between the
-participating elements. It is not supported for this version of ne-1. When an
-element is deposited, by default, all the bonds are single bonds. User must
-manually change the bond type between the elements in &#8216;Build mode&#8217;.
-However, if the structure is not chemically correct (bad valences etc), ne-1
-shows a &#8216;pink wire frame&#8217; around each atom indicating valence
-errors.&nbsp; This &#8216;valence error&#8217; display, by default, is set to
-ON. It can be turned <span class=GramE>On</span> or Off from the
-&#8216;Bonds&#8217; tab in the Preferences dialog. (Edit&gt;Preference&#8230;).
-&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.25in;
-margin-bottom:.0001pt'>Note that there are some kinds of chemical errors this
-(the Valence Error Checker) doesn't detect. For example, it can't tell whether
-rings should be aromatic or not. All it checks is that the bonds on each atom
-could possibly add up to the right number of valence electrons. The Valence
-Error Checker doesn&#8217;t treat graphitic and aromatic bonds differently.</p>
-
-<p class=MsoNormal>&nbsp;<b>Example:<o:p></o:p></b></p>
-
-<p class=MsoNormal style='margin-left:.5in'>-- In Build mode, select &#8216;Carbon&#8217;
-and then change its hybridization to &#8216;sp&#8217; by clicking on the
-appropriate button in this dialog.<b><o:p></o:p></b></p>
-
-<p class=MsoNormal style='margin-left:.5in'>-- Deposit this (sp) Carbon in the
-3D Workspace. Observe that both open bonds of<span style='mso-spacerun:yes'>  
-</span>the deposited are single bonds and a pink wire frame appears around the
-atom center indicating valence errors.</p>
-
-<p class=MsoNormal style='margin-left:.5in'>-- Now select (sp) Nitrogen from
-the Modeling Kit</p>
-
-<p class=MsoNormal style='margin-left:.5in'>-- Highlight one of the open bonds
-of (sp) carbon and deposit this (sp) Nitrogen, Notice that a single bond will
-be formed between the <span class=GramE>C(</span>sp) and N(sp). But ne-1 will
-display valence error wire frames around these atoms. </p>
-
-<p class=MsoNormal style='margin-left:.5in'>-- You can change this bond type to
-a triple bond by:&nbsp; (a) highlight the open bond, right click and then from
-the context menu that popped up, select triple bond. OR (b) from the Build
-dashboard, click on the button that corresponds to a triple bond, now move your
-mouse such that the bond gets highlighted and then left click. </p>
-
-<p class=MsoNormal style='margin-left:.5in'>-- By following this procedure, you
-can change the bond order. Observe that, when the triple bond is formed, the
-valence error wire frames will go away. </p>
-
-<p class=MsoNormal style='text-indent:.5in'><o:p>&nbsp;</o:p></p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>3.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]><span
-class=SpellE><b>PDBs</b></span> <b>With Multiple Bond Information Not Supported</b>
-</p>
-
-<p class=MsoNormal style='margin-left:.25in'>&nbsp;This version of ne-1 treats
-all bond types as single bonds while reading from or writing to a PDB file.
-Also, it doesn&#8217;t save the hybridization type into the PDB file. For
-example, (sp2) hybridized Carbon in a structure will be saved as a sp3
-hybridized Carbon with wrong bond valence. <span class=GramE>(3 bonds instead
-of 4).</span> Also, the double bond of this (sp2) Carbon is saved as a single bond
-Therefore, save your models ONLY in MMP file format to avoid major loss of work
-(569, 763)</p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.25in;
-margin-bottom:.0001pt'>Simulator / Minimize</h3>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>4.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Simulator/Minimize:
-will support bonding between elements specified in the element selector of
-nanoENGINEER-1. But note that bond stretching involving Fluorine atoms, or bond
-bending involving Boron, use estimated rather than calculated parameters.
-&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>5.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Simulator/Minimize:
-Multiple bonding between certain elements is generally supported, but some
-parameters, notably for double bonds involving nitrogen, are estimated. &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>6.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Simulator/Minimize:
-The simulator doesn&#8217;t take into account the effect of torsion. This will
-make systems with double or aromatic/graphitic bonds act less stiff than they
-really would.&nbsp; &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>7.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Simulator:
-Electrostatic interactions are not supported; in particular, the hydrogen and
-dative bonds are not handled. </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.25in;
-margin-bottom:.0001pt'><o:p>&nbsp;</o:p></p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>GAMESS Jig</h3>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>8.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>GAMESS
-jig can be added by select some atoms first in &#8216;Select Atoms&#8217; mode
-and then attaching this jig by using Menu item: Jigs&gt;<span class=SpellE>Gamess</span>.
-This jig can be attached to a maximum of 200 atoms. </p>
-
-<p class=MsoNormal style='margin-left:.5in'>-- Certain GAMESS optimization runs
-or Energy calculation can take very long time (hours/days). While a GAMESS job
-is being performed, user is not allowed to do any other operation in that
-session of ne-1. User must wait till the GAMESS job is finished or opt to
-terminate it by hitting &#8216;Cancel&#8217; button in the progress bar. </p>
-
-<p class=MsoNormal style='margin-left:.5in'>-- Also, certain GAMESS run may
-create large output files. So make sure that your system has enough disk space
-to handle such runs. ALL GAMESS jobs are <span class=GramE>save</span> inside the
-&#8216;Job Manager&#8217; directory. (User&#8217;s home directory/ Nanorex/Job
-Manager) (742)</p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Miscellaneous</h3>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>9.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>The
-symmetry information for a selected chunk cannot be obtained. (261) </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>10.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Unicode
-characters are not supported for naming the items in the model tree. (474)</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l0 level1 lfo4;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>11.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Points,
-lines, and planes are not implemented yet. (47) </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p class=MsoNormal><b><u><span style='font-size:16.0pt'>Known Bugs (All
-Platforms)</span></u></b></p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Various Delete Operations</h3>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Delete
-operation cannot be undone. In fact, Undo/Redo <span class=GramE>are</span> not
-implemented yet. SAVE YOUR WORK OFTEN! &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>If
-you select the part icon (top icon in the model tree) and hit the delete key
-(or click Delete), the entire part will be deleted without asking the user for
-confirmation. (147) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>3.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Any
-file currently opened by nanoENGINEER-1 can be manually deleted from the computer
-without any warning message. (215) </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.25in;
-margin-bottom:.0001pt'><o:p>&nbsp;</o:p></p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Selection Modes (Select Atoms and
-Select Chunks)</h3>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.25in;
-margin-bottom:.0001pt'><o:p>&nbsp;</o:p></p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>4.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Selection:
-Can not select a chunk if cursor is inside the selection polyhedron but not
-pointing inside perimeter of any of the atoms or bonds in that chunk. (11) </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>5.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Selection/Display/Jigs:
-If more than 1 jig (other than motors) is attached to the same atom , only
-first jig in the order (model tree) gets highlighted (756) </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Build Mode</h3>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>6.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Build:
-While in this mode, you can not delete an atom in the 3D workspace using Ctrl +
-left click (<span class=SpellE>Cmd</span> +click on MAC) operation if that atom
-is represented in &#8216;lines display&#8217;. The atom center doesn&#8217;t
-get highlighted while in lines display. For the same reason, you can not move
-the atom using left mouse drag. Simple workaround exists. Change the display
-representation to Tubes or CPK or VDW , then highlight the atom center and do
-Ctrl+ left click or left drag&nbsp; or shift + left drag operation.(715-2)
-&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>7.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Build/
-Bond Order : The context menu &#8216;Reposition Open Bonds&#8217; of an atom
-reorients the open bonds but while doing so, it makes the open bond type as
-single.&nbsp; Let&#8217;s assume that a Carbon atom with (sp2) hybridization is
-deposited in build mode. Now you highlight one of its open bonds, right click
-and select &#8216;double bond&#8217; from the context menu. The representation
-of the open bond will change to a &#8216;double open bond&#8217;. Now, if you
-highlight the atom center, right click and select &#8216;reposition open
-bonds&#8217;, it will clear the &#8216;double open bond&#8217; representation
-you just made and thus, all three open bonds of (sp2) carbon will be
-represented as single bond types. (839) </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Modeling Kit in Build Mode</h3>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p class=MsoNormal>This feature is still under development and has some known
-bugs. Also refer to Linux Only Bugs and &#8216;Dialogs and Dashboards&#8217;
-bug sections for some related issues. </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>8.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>The
-Modeling Kit has two tabs in it viz. &#8216;Atoms&#8217; and
-&#8216;Clipboard&#8217;. The &#8216;Clipboard&#8217; tab, when displayed, will
-allow one to deposit &#8216;paste-able chunks&#8217; (if any) in the 3D
-Workspace. (<span class=GramE>simply</span> select a chunk in the list and then
-single click into the 3D workspace(Graphics area) in order to
-&#8216;paste&#8217; this whole chunk . </p>
-
-<p class=MsoNormal style='margin-left:.5in'>The bug or unsupported feature:
-Suppose &#8216;Paste&#8217; tab of Modeling Kit dialog is &#8216;open&#8217;,
-Now you select a chunk from the Model Tree and copy it to the clipboard (by
-Edit&gt;Copy) , the list of the &#8216;paste able chunks&#8217; under the
-Clipboard tab of the dialog is supposed to get updated. But it doesn&#8217;t do
-so automatically. You must hit &#8216;Update&#8217; button inside this dialog
-to see an updated list of available chunks to paste. &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>9.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Modeling
-Kit: Sometimes this dialog box doesn&#8217;t close even after main window of
-ne-1 is closed. It dies away after a few seconds though. (852) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>10.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Modeling
-Kit: For lower resolution screens the Modeling kit occupies most of the Model
-Tree space, thus obscures most of the Model Tree area.(844) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>11.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Modeling
-Kit: If the &#8216;Clipboard&#8217; tab of Build mode&#8217;s Modeling Kit
-dialog is open and then you hit a keyboard modifier key (e.g. C,
-&#8216;S&#8217;, &#8216;1&#8217; etc), the program is supposed to switch back
-to &#8216;Atoms&#8217; tab (i.e. the next time you<span class=GramE>&nbsp; click</span>
-inside the 3D workspace, it will deposit the atom displayed in the
-&#8216;thumbnail view&#8217;&nbsp; window of that dialog and not the
-&#8216;paste able chunk&#8217; on the clipboard) . </p>
-
-<p class=MsoNormal style='margin-left:1.0in'>---But in some cases, it
-doesn&#8217;t because of a &#8216;<span class=SpellE>keyfocus</span>&#8217;
-problem. In order to overcome this bug, try clicking inside 3D workspace once,
-then hit a modifier key. Now it should change to &#8216;Atoms&#8217; tab. </p>
-
-<p class=MsoNormal style='margin-left:1.0in'>--- There are some other related
-bugs too. Examples: the thumbnail view window sometimes doesn&#8217;t show
-updated display etc. (876)</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Move Mode</h3>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>12.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Move: Keyboard
-modifier keys that constrain translation or rotation around an axis (e.g. press
-&#8216;Y&#8217; and &#8216;R&#8217; to rotate the selected chunk around Y
-axis.), doesn&#8217;t work for the first time after you perform &#8216;delta
-+&#8217; or &#8216;delta &#8211;<span class=GramE>&#8216; operations</span>
-(which move a chunk by a specific distance). A workaround is to press and
-release the modifier keys and then press them again to perform these
-operations. (674) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>13.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Move
-absolute: if more than 1 chunk is selected, and you hit &#8216;Move
-Absolute&#8217; button on the dashboard, it doesn't move the individual chunk's
-CG to the specified X<span class=GramE>,Y,Z</span> location. (879) </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Extrude Mode</h3>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>14.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>&nbsp;The
-'extrude a ring' feature has some bugs. These will be fixed for the Beta
-release of nanoENGINEER-1. To use <span class=SpellE>extrude's</span> 'Ring
-Mode' effectively, make sure you follow these steps: &nbsp;</p>
-
-<p class=MsoNormal style='margin-left:.25in'>-- Get everything adjusted first
-in the 'rod mode'.&nbsp; For example, select the proper bond offset sphere or
-arrange the copy units such that you can see their open bonds highlighted in a
-way you would like to bond them. (In general, while in the ring mode,
-adjustments made from graphics area don&#8217;t work)</p>
-
-<p class=MsoNormal style='margin-left:.25in'>-- Then, you may switch to
-&quot;Ring Mode&quot; by selecting ring from the rod pull-down menu on the
-dashboard. While viewing the ring, you may increase the number of copies. </p>
-
-<p class=MsoNormal style='margin-left:.25in'>-- If you need to do any further
-adjustments, switch back to &quot;Rod Mode&quot;, make changes and switch back
-to the &quot;Ring Mode&quot;. &nbsp;</p>
-
-<p class=MsoNormal style='margin-left:.25in'>-- Select the 'Done' button on the
-dashboard when finished. (155)</p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>15.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Extrude:
-Separates the chunk permanently when atoms are partially selected and then
-extrude mode is cancelled. (198) </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>16.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Extrude:
-Multiple chunks are automatically merged into a single chuck, even when cancel
-is hit. (397) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>17.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]><span
-class=SpellE>Extrude&#8217;s</span> ring feature doesn&#8217;t take the
-curvature into account while forming the bonds. (494) </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.25in;
-margin-bottom:.0001pt'><o:p>&nbsp;</o:p></p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Cookie Cutter</h3>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.25in;
-margin-bottom:.0001pt'><o:p>&nbsp;</o:p></p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Cookie
-Cutter: Large selections can cause response latency. (8) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Cookie
-Cutter: Right click while rotating the grid using middle mouse drag operation,
-changes the grid orientation (59) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>3.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Cookie
-Cutter/Display bug: the 3D workspace (graphics area) turns into a black display
-if you resize the ne-1 window while drawing an auto shape e.g. a circle or a
-hexagon etc. The original display can be regained by hitting any key. (687) </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Fuse Chunks Mode</h3>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>4.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Fuse
-Chunks: If the chunks were &#8216;merged&#8217; in previous operation while bonding
-them together, &#8216;Back Up&#8217; button on the dashboard doesn&#8217;t
-&#8216;unmerge&#8217; them. It only deletes the bond formed in earlier
-operation. (486-10) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>5.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Fuse
-Chunks: Back up button on dashboard to delete a bond formed in previous
-operation deletes the bond, but it doesn&#8217;t restore the previous bond
-angles. (502-16) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>6.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Fuse
-Chunks can not bond elements of two or more chunks if they are already bonded.
-Also, some history messages are not correct.&nbsp; (580) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>7.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Fuse
-Chunks: operations while in this mode are sluggish if it&#8217;s a large model
-and has large number of open bonds. (689) </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Minimize/Simulator</h3>
-
-<p class=MsoNormal>(<span class=GramE>see</span> also: the Unsupported Features
-section)</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>8.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>For
-some structures minimize needs multiple executions of &#8216;minimize&#8217; to
-boil down the high force to a lower value. (567)&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>9.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Minimize
-operation for some elements with higher order bond types doesn&#8217;t work.
-See &#8216;Unsupported Features&#8217; section for more info. (805)&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>10.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Simulator:
-In some cases, hydrogen atoms or other elements &#8216;fly away&#8217; while
-running a simulation movie. This happens when atom centers are very close and
-therefore the repulsive force becomes very high (528, 558) </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Movie Player</h3>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>11.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>&nbsp;Extrude
-Tool/Movie: Simulation movie becomes invalid if it is created while in extrude
-mode, after adjusting the chunks (to be extruded) as &#8216;bondable&#8217;
-with their copy units. (495) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>12.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Movie/Clipboard:
-While playing a simulation movie, if you click on a different clipboard item
-(rather a clipboard &#8216;Part&#8217;), then the movie can not be
-&#8216;viewed&#8217;. But it continues to run. <span class=GramE>ne-1</span>
-doesn&#8217;t print a warning message to instruct user to click on the
-appropriate &#8216;Part&#8217;, for which the movie is created for,&nbsp; to
-view the movie. (578-5) </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>13.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]><span
-style='mso-spacerun:yes'> </span>Movie: If you run a simulation and then modify
-the model further (e.g. delete some atoms etc), the movie becomes invalid.<span
-style='mso-spacerun:yes'>  </span><span class=GramE>ne-1</span> generally
-identifies such situations. But in certain cases, it doesn&#8217;t.<span
-style='mso-spacerun:yes'>  </span>Some Examples: After creating a simulation
-movie, if you &#8216;Hydrogenate&#8217; some chunks or change the bond types or
-&#8216;transmute&#8217; some elements to a different one. To avoid this, always
-rerun a simulation after doing such modifications for the correct results.
-(901)</p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Naming</h3>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>14.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Naming of
-created items: When starting a new part or opening a new file, the object name
-indexing is not reset to 1. For example, new chunk names continue to increment from
-the previous part's index number. (64) </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>15.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Naming
-GAMESS Jigs: If a <span class=SpellE>Gamess</span> jig contains a Forward or
-Backward Slash in it (e.g. &#8220;AM1/None&#8221;), then the <span
-class=SpellE>Gamess</span> job will fail. So do not include these characters
-while naming this jig. (796) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>16.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Naming a
-File (plot tool bug): Do not save a file with a single quote symbol in it. This
-affects the plot tool and you won&#8217;t be able to see the plot tool results.
-For example, if a file is named <span class=GramE>as :</span> &#8220;
-Bob&#8217;s molecule &#8221; , the plot tool will not plot the results if any.
-(712) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>17.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Model Tree:
-Dragging and dropping objects onto the part icon at the top of the list places
-the items(s) at the bottom of the list. Similarly, dragging and dropping items
-onto a group folder places them at the bottom of the group, not the top.&nbsp;
-(360) </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Cursor and Display Related Bugs</h3>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>18.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Cursors:
-Middle mouse button &quot;Hint Cursors&quot; can sometimes get stuck. Usually,
-if you press and release the Shift or Ctrl/<span class=SpellE>Cmd</span> key,
-the appropriate cursor is restored.(113, 158,404) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>19.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Cursors:
-The skull and crossbones cursor in build mode will not display (when pressing
-Ctrl/<span class=SpellE>Cmd</span>) after clicking in the Model Tree area.
-(217) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>20.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Display:
-Larger atoms can obscure open bonds when displayed in <span class=SpellE>VdW</span>
-mode. (258) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>21.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Display:
-Open bonds are not seen in sp, sp2 Carbon and sp2 Oxygen, when these are
-represented with Van der Waals display (656) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>22.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Display:
-The front clipping plane will sometimes clip objects that should not be clipped
-&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>23.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Display:
-bond and atom center highlighting in build mode has some bugs. The highlighting
-flicker whenever there is a selection or valence error wire frame around the
-atom center. (715) </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>24.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Display: <st1:City
-w:st="on"><st1:place w:st="on">Valence</st1:place></st1:City> error wire frame
-is displayed even for invisible atoms. Also, while Build mode when you move
-cursor inside such a wire frame, even the invisible atom center gets
-highlighted. (870) &nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'><o:p>&nbsp;</o:p></h3>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Dialogs and Dashboard</h3>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>25.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Users
-operating ne-1 with a low screen resolution and large font size report bugs in
-the dialog boxes and dashboards. In such cases, the dashboard items of some
-modes are not visible, tolerance slider bars don&#8217;t operate correctly,
-some property forms such as Modeling Kit occupy most of the space in model tree
-etc. (513, 581, 844) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>26.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]><span
-class=GramE>Zoom</span> Tool: Some Mac users report cosmetic bugs. It is a good
-idea to save your work before using it.</p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Povray Rendering</h3>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>27.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>&nbsp;Povray
-rendering doesn't show different bond types (it will be supported feature for
-this version) (830) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>28.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>&nbsp;Povray
-rendering of lines display is shown as black lines, motor arrows are not
-rendered (226, 527) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>29.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Povray file
-of a model neglects the user defined lighting and displays the povray image in
-ne-1&#8217;s default lighting. (447) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>30.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Povray:
-Background fill type is not saved in a povray file. Only solid background can
-be rendered. (888) </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.25in;
-margin-bottom:.0001pt'><o:p>&nbsp;</o:p></p>
-
-<h3 style='margin:0in;margin-bottom:.0001pt'>Miscellaneous</h3>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>31.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>User can not
-save exclusive features of nanoENGINEER-1 into the PDB file format. Some
-examples of such &#8216;MMP file only&#8217; features include jigs, groups,
-hidden states of chunks, multiple chunks, entire clipboard feature etc.&nbsp; <span
-class=GramE>ne-1</span> doesn't give enough warning messages for users trying
-to save such features into a PDB file. (252) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>32.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Only open
-one main window. Opening more than one nanoENGINEER-1 application window will
-have unexpected results. (362) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>33.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Jigs:
-Rotary and Linear motors do not move with the chunks they are attached to.
-However, after moving the chunks, you can reposition the motor by right
-clicking on the motor name in the Model Tree and then using context menu option
-&#8216;<span class=SpellE>recenter</span> on atoms&#8217;&nbsp;&nbsp;&nbsp;
-(168) </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l3 level1 lfo6;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>34.<span
-style='font:7.0pt "Times New Roman"'>&nbsp; </span></span><![endif]>Bond
-lengths: After minimize operation the bonds between some elements are shown
-stretched. This is because bond lengths of some elements used in ne-1 simulator
-are slightly different than the ones used in ne-1's CAD code. This will be
-fixed in a future release. (900) </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p class=MsoNormal><b><u><span style='font-size:16.0pt'>Windows Only Bugs</span></u></b></p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l4 level1 lfo8;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>During
-drag-and-drop, node icons are not shown in the cursor's drag object. (360) </p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l4 level1 lfo8;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>On
-very rear occasions, the File&gt;<span class=GramE>Open ,</span> Save , Save
-dialogs don&#8217;t pop up because of some python.exe application problems. It
-might happen if you are working with a huge file with lots of GAMESS jigs in
-it. Again, it is very unlikely to happen. Saving your work often while working
-on large file is recommended. (774) </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p class=MsoNormal><b><u><span style='font-size:16.0pt'>Macintosh Only Bugs</span></u></b></p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l2 level1 lfo10;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Sometimes
-a cursor's bitmask will suddenly not work, leaving a white square around the
-cursor. (772)</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l2 level1 lfo10;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Icon
-tray/bar redrawing of the icon images will show up overlapped, <span
-class=SpellE>zig-zagged</span>, cracked, etc. in certain situations. In worst
-cases, the right-side icon bars will go invisible until the invisible bar is
-clicked on, which redraws the bar but changes your button. This usually only
-happens when resizing the main window by dragging its &quot;resize handle&quot;
-on the lower right of the window frame. The workaround is to resize it to be a
-bit smaller than you want, and then make it a bit bigger again so that it's the
-desired size. Some users report that the toolbars always draw wrongly after
-that initial down-sizing, but then they always draw properly again after that
-final small up-sizing. (861)&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l2 level1 lfo10;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>3.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Occasionally,
-bouncing between programs will lead to the menu (screen top) disappearing, only
-to re-appear with <span class=SpellE>mouseover</span> (or <span class=SpellE>mouseover+click</span>).
-&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l2 level1 lfo10;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>4.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>On
-Mac OS X Tiger, the tool buttons don&#8217;t look &#8216;pressed&#8217;. On
-other platforms this is not a problem. <span class=GramE>ne-1</span> provides a
-workaround for this. In the 3D Workspace (i.e. Graphics area), press Shift and
-Option keys and do Command click to bring up the debug menu. Now select the
-&quot;Mac OS 10.4 <span class=SpellE>QToolbutton</span> Workaround&quot;
-command from this debug menu. This will resolve the issue. (878) </p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p class=MsoNormal><b><u><span style='font-size:16.0pt'>Linux Only Bugs</span></u></b></p>
-
-<p class=MsoNormal>&nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l5 level1 lfo12;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>1.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Opening
-a plot file from the plot tool dialogs needs &#8216;<span class=SpellE>kwrite</span>&#8217;
-editor which is available with only with KDE desktop (434) &nbsp;</p>
-
-<p style='margin-top:0in;margin-right:0in;margin-bottom:0in;margin-left:.5in;
-margin-bottom:.0001pt;text-indent:-.25in;mso-list:l5 level1 lfo12;tab-stops:
-list .5in'><![if !supportLists]><span style='mso-list:Ignore'>2.<span
-style='font:7.0pt "Times New Roman"'>&nbsp;&nbsp;&nbsp;&nbsp; </span></span><![endif]>Modeling
-Kit in Build Mode: When you enter build mode, this dialog first appears in the
-middle of the 3D workspace (graphics area)<span class=GramE>&nbsp; for</span> a
-fraction of second and then it is moved to the left hand side of the ne-1 main
-window. The amount of time this dialog stays inside the 3D workspace depends on
-the model size. (844) </p>
-
-</div>
-
+<body>
+# Copyright (c) 2006 Nanorex, Inc. All rights reserved.<br>
+nanoENGINEER-1 v0.7 (Alpha 7)<br>
+<br>
+This file documents some bug fixes, unsupported features and some of the commonly encountered bugs in nanoENGINEER-1 Alpha7. <br>
+<br>
+Some of the Bug Fixes In Alpha 7<br>
+<br>
+1. Bugs and some confusing implementations in Build mode user interface<br>
+2. Selection/Display/Jigs: If more than 1 jigs (other than motors) are
+attached to the same atom , only first jig in the order (in the model
+tree) gets highlighted (756) <br>
+3. Some bugs where MMKit's clipboard view doesn't get updated when you
+do modifications in the 3D workspace (876, 1570, and 1573)<br>
+4. Simulator doesn't work for an opened file where the user doesn't have permission to write (396)<br>
+<br>
+&nbsp; <br>
+UNSUPPORTED FEATURES:<br>
+<br>
+#UNDO/REDO <br>
+- Undo/Redo knows nothing about the mode the program was in. For
+example, if you extrude a moiety while in extrude, return to your
+default mode and then hit Undo, it will only separate the base and
+repeat units. It will not go back to extrude mode. (1391)<br>
+- MMKit tab and button changes and most changes made in the dashboards are not recorded in the Undo stack <br>
+- On large models, undo and other operation might become slower.
+Further performance improvements will be implemented in a future
+release of the software<br>
+<br>
+# PDBs With Multiple Bond Information Not Supported <br>
+&nbsp;This version of ne-1 treats all bond types as single bonds while
+reading from or writing to a PDB file. Also, it doesn't save the
+hybridization type into the PDB file. For example, (sp2) hybridized
+Carbon in a structure will be saved as a sp3 hybridized Carbon with
+wrong bond valence. (3 bonds instead of 4). Also, the double bond of
+this (sp2) Carbon is saved as a single bond Therefore, save your models
+ONLY in MMP file format to avoid major loss of work (569, 763)<br>
+<br>
+SIMULATOR / MINIMIZE<br>
+# Simulator/Minimize: will support bonding between elements specified
+in the element selector of nanoENGINEER-1. But note that bond
+stretching involving Fluorine atoms, or bond bending involving Boron,
+use estimated rather than calculated parameters. &nbsp;<br>
+# Simulator/Minimize: Multiple bonding between certain elements is
+generally supported, but some parameters, notably for double bonds
+involving nitrogen, are estimated. &nbsp;<br>
+# Simulator/Minimize: The simulator doesn't take into account the
+effect of torsion. This will make systems with double or
+aromatic/graphitic bonds act less stiff than they really would.&nbsp;
+&nbsp;<br>
+# Simulator: Electrostatic interactions are not supported; in particular, the hydrogen and dative bonds are not handled. <br>
+# Enable motor in minimize feature is experimental. Enabling a motor in minimization may result in high values of rms force. <br>
+<br>
+GAMESS Jig<br>
+8. GAMESS jig can be added by select some atoms first in 'Select Atoms'
+mode and then attaching this jig by using Menu item: Jigs&gt;Gamess.
+This jig can be attached to a maximum of 200 atoms. <br>
+-- Certain GAMESS optimization runs or Energy calculation can take very
+long time (hours/days). While a GAMESS job is being performed, user is
+not allowed to do any other operation in that session of ne-1. User
+must wait till the GAMESS job is finished or opt to terminate it by
+hitting 'Cancel' button in the progress bar. <br>
+-- Also, certain GAMESS run may create large output files. So make sure
+that your system has enough disk space to handle such runs. ALL GAMESS
+jobs are save inside the 'Job Manager' directory. (User's home
+directory/ Nanorex/Job Manager) (742)<br>
+&nbsp;<br>
+ESP IMAGE / NANO-HIVE<br>
+9. ESP Image jig is not fully supported on Linux and MAC platforms. On
+Windows, you can perform ESP calculations for some standard cases
+provided that a correct version of NanoHive is installed. In general
+ESP image is partially supported and has many known bugs. These issues
+will be fixed in an upcoming release of nanoENGINEER-1.<br>
+<br>
+# Bond Inference not supported but a limited valence error check supported. <br>
+<br>
+By the term 'bond inference' we mean automatically deciding what type
+of bond will be formed between the participating elements. It is not
+supported for this version of ne-1. When an element is deposited, by
+default, all the bonds are single bonds. User must manually change the
+bond type between the elements in 'Build mode'. However, if the
+structure is not chemically correct (bad valences etc), ne-1 shows a
+'pink wire frame' around each atom indicating valence errors.&nbsp;
+This 'valence error' display, by default, is set to ON. It can be
+turned On or Off from the 'Bonds' tab in the Preferences dialog.
+(Edit&gt;Preference&#133;). &nbsp;<br>
+Note that there are some kinds of chemical errors this (the Valence
+Error Checker) doesn't detect. For example, it can't tell whether rings
+should be aromatic or not. All it checks is that the bonds on each atom
+could possibly add up to the right number of valence electrons. The
+Valence Error Checker doesn't treat graphitic and aromatic bonds
+differently.<br>
+&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;<br>
+<br>
+MISCELLANEOUS<br>
+&nbsp;<br>
+# Unicode characters are not supported for naming the items in the model tree. (474)<br>
+# nanoENGINEER-1 Alpha7 is tested and supported only on Windows XP, MAC
+OS X 10.3.X, 10.4 and Mandrake Linux 10.0, 10.1. It is not supported on
+Intel based MACs (e.g. Macbook pro).&nbsp; There are some known issues
+on other operating systems such as Fedora Core 4, Gentoo Linux (e.g.
+the program hangs or some display issues etc).&nbsp; (1049, 1058, 1201,
+1724)<br>
+&nbsp;<br>
+&nbsp;<br>
+KNOWN BUGS (ALL PLATFORMS)<br>
+<br>
+MEMORY AND PERFORMANCE PROBLEMS<br>
+# Memory consumed by the application increases due to repeated
+execution of certain operations such as opening and closing a file
+(often termed as &#145;memory leaks&#146;. This affects the overall performance
+of the software and could result in a crash. This version doesn&#146;t
+prevent such memory leaks. <br>
+# nE-1 has some known performance problems while using some features.
+As a result, some operations take considerably longer times. This is
+particularly true when you are handling a large file. <br>
+Examples: Opening a large file, Operations performed in Fuse mode,
+moving selected atoms, Selecting and deselecting some atoms from a
+large chunk, deleting some atoms , Undoing or redoing these operations,
+playing a movie on a large model etc. may take longer time when the
+file size is large. (991, 1473, 1674, 1704, 1750, 1778)<br>
+<br>
+#Movie playing is lot slower for large models on some low system configuration machines (1757)<br>
+<br>
+<br>
+&nbsp;<br>
+ESP IMAGE JIG (NANO-HIVE)<br>
+<br>
+ESP image has many known bugs or unimplemented features. Some Examples: <br>
+- ESP calculations on some structures is not done and a black ESP image is created<br>
+- Program switches to Build mode while inserting an ESP jig <br>
+- Some bugs in the ESP dialog box options and implementation<br>
+<br>
+MINIMIZE/SIMULATOR<br>
+(see also: the Unsupported Features section)<br>
+<br>
+# For some structures it needs multiple executions of 'minimize' to boil down the high force to a lower value. (567) <br>
+# Quite often, the rms &amp; high force inconsistently increase during
+each execution of 'minimize'. Thus minimizing a structure could result
+in a new structure with a higher RMS force value than the input
+structure.&nbsp; It should be the case that the new structure will
+always have a lower potential energy than the input structure, even if
+the RMS force value may sometimes be higher. This will be fixed in a
+future release of the product. (1377)<br>
+# Minimize operation for some elements with higher order bond types
+doesn't work. See 'Unsupported Features' section for more info. (805) <br>
+# Simulator: In some cases, hydrogen atoms or other elements 'fly away'
+while running a simulation movie. This happens when atom centers are
+very close and therefore the repulsive force becomes very high (528,
+558) <br>
+# Enable motor in minimize feature is experimental and has some bugs.
+Examples- the final rms and high force values after minimize are large,
+it takes long time to finish minimize operation. (1835, 1836)<br>
+<br>
+<br>
+SELECTION <br>
+<br>
+# Selection: Can not select a chunk by clicking on any of the bonds in that chunk. (11) <br>
+<br>
+#Selection wireframes won't be displayed or will act weirdly on some
+platforms. This could be due to the old version graphics driver on your
+machine. Example: Some Windows XP users with Intel Integrated 855
+graphics reported this problem which went away after installing an
+updated version of that driver (Intel 855 chipset driver
+6.14.10.4497.). It is highly recommended that you use up-to-date
+drivers to avoid this issue (1720)<br>
+<br>
+# Contract Selection doesn't work correctly in some cases. Also the
+What's this text doesn't clearly explain this feature. (1358)<br>
+<br>
+&nbsp;<br>
+BUILD MODE<br>
+# Highlighting in Build mode is problematic in some cases. Examples: 1)
+When more than one nanoENGINEER-1 applications are running. 2) If
+vertical splitter of the Model Tree is dragged to adjust Model Tree's
+width 3) If Main nE-1 window is maximized etc. (1241, 1243, 1637)<br>
+<br>
+# Zoom/Pan/Rotate Tools in Build mode: If you click on Zoom, Pan or
+Rotate tools while in Build, the MMKit and other Build features will
+become temporarily unavailable while you use these tools. (1518)<br>
+# Build: In lines display , the atom center doesn't get highlighted (if
+the atom is not selected). Thus, you can not perform operations such as
+change hybridization , move the atom while in lines mode&nbsp; Simple
+workaround is to change the display representation to Tubes or CPK or
+Ball&amp;Stick.(1837) &nbsp;<br>
+# Build/ Bond Order : The context menu 'Reposition Bondpoints' of an
+atom reorients the bondpoints but while doing so, it makes the
+bondpoint type as single.&nbsp; Let's assume that a Carbon atom with
+(sp2) hybridization is deposited in build mode. Now you highlight one
+of its bondpoints, right click and select 'double bond' from the
+context menu. The representation of the bondpoint will change to a
+'double bondpoint'. Now, if you highlight the atom center, right click
+and select 'reposition bondpoints', it will clear the 'double
+bondpoint' representation you just made and thus, all three bondpoints
+of (sp2) carbon will be represented as single bond type. (839) <br>
+&nbsp;<br>
+MOLECULAR MODELING KIT IN BUILD MODE<br>
+&nbsp;<br>
+This feature has some known bugs. Also refer to Linux Only Bugs and
+'Dialogs and Dashboards' bug sections for some related issues. <br>
+&nbsp;<br>
+# MMKit: Sometimes this dialog box doesn't close even after main window
+of ne-1 is closed. It goes away after a few seconds though. (852) &nbsp;<br>
+# MMKit: MMKit&#146;s 3-D thumbnail view doesn&#146;t get updated in some cases.(1848)<br>
+# Library tab: If the library tab is showing a large model in the
+thumbnail view , you switch to some other tab and then return to the
+library tab, it might take long time to open that tab. (939)<br>
+#&nbsp; Modeling Kit: For lower resolution screens the Modeling kit
+occupies most of the Model Tree space, thus obscures most of the Model
+Tree area.(1437) &nbsp;<br>
+# Modeling Kit: If the 'Clipboard' tab of Build mode's Modeling Kit
+dialog is open and then you hit a keyboard modifier key (e.g. C, 'S',
+'1' etc), the program is supposed to switch back to 'Atoms' tab. But in
+some cases, it doesn't because of a keyfocus issue. In order to
+overcome this bug, try clicking inside 3D workspace once, then hit a
+modifier key. Now it should change to 'Atoms' tab. <br>
+<br>
+MOVE MODE<br>
+&nbsp;<br>
+#&nbsp; Move: Keyboard modifier keys that constrain translation or
+rotation around an axis (e.g. press 'Y' and 'R' to rotate the selected
+chunk around Y axis.), doesn't work for the first time after you
+perform 'delta +' or 'delta ,' operations (which move a chunk by a
+specific distance). A workaround is to press and release the modifier
+keys and then press them again to perform these operations. (674) &nbsp;<br>
+&nbsp;<br>
+EXTRUDE MODE<br>
+&nbsp;<br>
+# &nbsp;The 'extrude a ring' feature has some bugs. These will be fixed
+for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode'
+effectively, make sure you follow these steps: &nbsp;<br>
+-- Get everything adjusted first in the 'rod mode'.&nbsp; For example,
+select the proper bond offset sphere or arrange the copy units such
+that you can see their bondpoints highlighted in a way you would like
+to bond them. (In general, while in the ring mode, adjustments made
+from graphics area don't work)<br>
+-- Then, you may switch to "Ring Mode" by selecting ring from the rod
+pull-down menu on the dashboard. While viewing the ring, you may
+increase the number of copies. <br>
+-- If you need to do any further adjustments, switch back to "Rod Mode", make changes and switch back to the "Ring Mode". &nbsp;<br>
+-- Select the 'Done' button on the dashboard when finished. (155)<br>
+&nbsp;<br>
+# Extrude: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) <br>
+16. Extrude: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397) &nbsp;<br>
+17. Extrude's ring feature doesn't take the curvature into account while forming the bonds. (494) <br>
+<br>
+COOKIE CUTTER<br>
+<br>
+# Cookie Cutter: Large selections can cause response latency. (8) &nbsp;<br>
+# Cookie Cutter: Right click while rotating the grid using middle mouse drag operation, changes the grid orientation (59) &nbsp;<br>
+# Cookie Cutter/Display bug: the 3D workspace (graphics area) turns
+into a black display if you resize the ne-1 window while drawing an
+auto shape e.g. a circle or a hexagon etc. The original display can be
+regained by hitting any key. (687) <br>
+&nbsp;<br>
+FUSE CHUNKS MODE<br>
+<br>
+# Fuse Chunks: operations while in this mode are sluggish if it's a
+large model. However, its performance is improved compared to Alpha6
+(689) <br>
+# Fuse Chunks: If the chunks were 'merged' in previous operation while
+bonding them together, 'Back Up' button on the dashboard doesn't
+'unmerge' them. It only deletes the bond formed in earlier operation.
+(486-10) &nbsp;<br>
+# Fuse Chunks: Back up button on dashboard to delete a bond formed in
+previous operation deletes the bond, but it doesn't restore the
+previous bond angles. (502-16) &nbsp;<br>
+# Fuse Chunks can not bond elements of two or more chunks if they are
+already bonded. Also, some history messages are not correct.&nbsp;
+(580) &nbsp;<br>
+&nbsp;<br>
+MOVIE PLAYER<br>
+<br>
+# Movie playing is lot slower for large models on some low system configuration machines (1757)<br>
+# &nbsp;Extrude Tool/Movie: Simulation movie becomes invalid if it is
+created while in extrude mode, after adjusting the chunks (to be
+extruded) as 'bondable' with their copy units. (495) &nbsp;<br>
+# Movie/Clipboard: While playing a simulation movie, if you click on a
+different clipboard item (rather a clipboard 'Part'), then the movie
+can not be 'viewed'. But it continues to run. ne-1 doesn't print a
+warning message to instruct user to click on the appropriate 'Part',
+for which the movie is created for,&nbsp; to view the movie. (578-5) <br>
+30.&nbsp; Movie: If you run a simulation and then modify the model
+further (e.g. delete some atoms etc), the movie becomes invalid.&nbsp;
+ne-1 generally identifies such situations. But in certain cases, it
+doesn't.&nbsp; Some Examples: After creating a simulation movie, if you
+'Hydrogenate' some chunks or change the bond types or 'transmute' some
+elements to a different one. To avoid this, always rerun a simulation
+after doing such modifications for the correct results. (901)<br>
+&nbsp;<br>
+NAMING<br>
+&nbsp;<br>
+31. Naming of created items: When starting a new part or opening a new
+file, the object name indexing is not reset to 1. For example, new
+chunk names continue to increment from the previous part's index
+number. (64) <br>
+32. Naming GAMESS Jigs: If a Gamess jig contains a Forward or Backward
+Slash in it (e.g. 'AM1/None'), then the Gamess job will fail. So do not
+include these characters while naming this jig. (796) &nbsp;<br>
+33. Naming a File (plot tool bug): Do not save a file with a single
+quote symbol in it. This affects the plot tool and you won't be able to
+see the plot tool results. For example, if a file is named as : ' Bob's
+molecule ' , the plot tool will not plot the results if any. (712)
+&nbsp;<br>
+34. Model Tree: Dragging and dropping objects onto the part icon at the
+top of the list places the items(s) at the bottom of the list.
+Similarly, dragging and dropping items onto a group folder places them
+at the bottom of the group, not the top.&nbsp; (360) <br>
+&nbsp;<br>
+CURSOR AND DISPLAY RELATED BUGS<br>
+&nbsp;<br>
+# Cursors: Middle mouse button "Hint Cursors" can sometimes get stuck.
+Usually, if you press and release the Shift or Ctrl/Cmd key, the
+appropriate cursor is restored.(113, 158,404) &nbsp;<br>
+# Display: The front clipping plane will sometimes clip objects that should not be clipped &nbsp;<br>
+# Display: Valence error wire frame is displayed even for invisible
+atoms. Also, while Build mode when you move cursor inside such a wire
+frame, even the invisible atom center gets highlighted. (870) <br>
+<br>
+DIALOGS AND DASHBOARD<br>
+&nbsp;<br>
+# Users operating ne-1 with a low screen resolution and large font size
+report bugs in the dialog boxes and dashboards. In such cases, the
+dashboard items of some modes are not visible, tolerance slider bars
+don't operate correctly, some property forms such as Modeling Kit
+occupy most of the space in model tree etc. (513, 581, 844) &nbsp;<br>
+&nbsp;<br>
+POVRAY RENDERING<br>
+&nbsp;<br>
+# &nbsp;Povray rendering doesn't show different bond types (it will be supported feature for this version) (830) &nbsp;<br>
+# Povray rendering of lines display is shown as black lines (226)<br>
+# Motor arrows are not rendered (527) &nbsp;<br>
+# If a motor is attached to only a single atom, povray image can not be rendered (719)<br>
+# Povray image rendered incorrectly in some orientations of the linear motor (1755)<br>
+# Measurement jigs, ESP Image Volume(outline) and Grid lines in a grid
+plane jig are not rendered in the generated povray file.&nbsp; (1084,
+1196, 1198)<br>
+<br>
+<br>
+MISCELLANEOUS<br>
+&nbsp;<br>
+# User can not save exclusive features of nanoENGINEER-1 into the PDB
+file format. Some examples of such 'MMP file only' features include
+jigs, groups, hidden states of chunks, multiple chunks, entire
+clipboard feature etc.&nbsp; ne-1 doesn't give enough warning messages
+for users trying to save such features into a PDB file. (252) &nbsp;<br>
+# Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results. (362) &nbsp;<br>
+# Jigs: Rotary and Linear motors do not move with the chunks they are
+attached to. However, after moving the chunks, you can reposition the
+motor by right clicking on the motor name in the Model Tree and then
+using context menu option 'recenter on atoms'&nbsp;&nbsp;&nbsp; (168) <br>
+# Any file currently opened by nanoENGINEER-1 can be manually deleted from the computer without any warning message. (215) <br>
+<br>
+&nbsp;<br>
+WINDOWS ONLY BUGS<br>
+&nbsp;<br>
+1. On some machines, the program crashes after while running repeated simulations in some special cases. (1753) <br>
+<br>
+2. During drag-and-drop, node icons are not shown in the cursor's drag object. (360) <br>
+3. On very rear occasions, the File&gt;Open , Save , Save dialogs don't
+pop up because of some python.exe application problems. It might happen
+if you are working with a huge file with lots of GAMESS jigs in it.
+Again, it is very unlikely to happen. Saving your work often while
+working on large file is recommended. (774) <br>
+&nbsp;<br>
+MACINTOSH ONLY BUGS<br>
+&nbsp;<br>
+1. Sometimes a cursor's bitmask will suddenly not work, leaving a white square around the cursor. (772)<br>
+2. Icon tray/bar redrawing of the icon images will show up overlapped,
+zig-zagged, cracked, etc. in certain situations. In worst cases, the
+right-side icon bars will go invisible until the invisible bar is
+clicked on, which redraws the bar but changes your button. This usually
+only happens when resizing the main window by dragging its "resize
+handle" on the lower right of the window frame. The workaround is to
+resize it to be a bit smaller than you want, and then make it a bit
+bigger again so that it's the desired size. Some users report that the
+toolbars always draw wrongly after that initial down-sizing, but then
+they always draw properly again after that final small up-sizing. (861)
+<br>
+3. Occasionally, bouncing between programs will lead to the menu
+(screen top) disappearing, only to re-appear with mouseover (or
+mouseover+click). &nbsp;<br>
+4. On Mac OS X Tiger, the tool buttons don't look 'pressed'. On other
+platforms this is not a problem. ne-1 provides a workaround for this.
+In the 3D Workspace (i.e. Graphics area), press Shift and Option keys
+and do Command click to bring up the debug menu. Now select the "Mac OS
+10.4 QToolbutton Workaround" command from this debug menu. This will
+resolve the issue. (878) <br>
+5. On some MACs , some cursors and icons in MMKit and dashboard are not displayed (1824, 1838)<br>
+&nbsp;<br>
+LINUX ONLY BUGS<br>
+<br>
+1. System crashes while accessing wiki help via the URL provided in
+What's this text of that mode. Workaround is to use the Mode specific
+Wiki Help dialog that pops up when you hit F1 key (1447)<br>
+2.Opening a plot file from the plot tool dialogs needs 'kwrite' editor
+which is available with only with KDE desktop (434) &nbsp;<br>
+3. Modeling Kit in Build Mode: When you enter build mode, this dialog
+first appears in the middle of the 3D workspace (graphics area)&nbsp;
+for a fraction of second and then it is moved to the left hand side of
+the ne-1 main window. The amount of time this dialog stays inside the
+3D workspace depends on the model size. (844) <br>
 </body>
-
 </html>
