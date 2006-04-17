@@ -10,7 +10,7 @@ What's new in nanoENGINEER-1 v0.7 (4/18/2006):
     'Edit > Automatic Checkpointing'
   - 'Edit > Clear Undo Stack' clears all Undo checkpoints to free system memory
 
-2. 'Select Atoms Mode' has been merged with 'Build Mode'.
+2. 'Select Atoms Mode' has been merged with 'Build Mode'
 
 3. Build Mode:
   - Significantly improved interactive mouse controls for building, selecting, 
@@ -19,22 +19,22 @@ What's new in nanoENGINEER-1 v0.7 (4/18/2006):
     documentation by selecting 'Help > Mouse Controls...'
   - Hover highlighting now supports bonds and jigs (not just atoms)
   - Atoms, bonds and jigs have context menus for common commands
-  - Atom Selection Filter, which allows the selection of one or more atom 
-    types (using the Shift key while selecting atoms from the MMKit) to apply
-    the selection filter to
+  - Atom Selection Filter, which filters the selection of one or more atom 
+    types when performing atom selection operations
   - Transmute atoms
-  - New Library tab in MMKit allows 3D preview and insertion of parts from
+  - New Library tab in the MMKit allows 3D preview and insertion of parts from
     the nanoENGINEER-1 library
   - 'Water' selection filter can be enabled/disabled from the dashboard
     (disabled by default)
   - Build mode is the new default startup mode
 
 4. On-Line Wiki Help:
-  - Context sensitive help using F1 key
+  - Context sensitive help using the F1 key
   - Users can contribute to and/or edit the On-Line Wiki Help documentation
 
 5. Molecular Dynamic Simulation:
-  - Improved force field
+  - Improved force field. Formal bend parameters have replaced guessed values
+    for all single bond combinations
   - Watch minimize and MD simulations in real time
   - Minimize and MD simulations can be stopped at any time, leaving atoms at 
     their current positions
@@ -42,7 +42,7 @@ What's new in nanoENGINEER-1 v0.7 (4/18/2006):
 6. View Menu/Toolbar:
   - 'Set View Normal To' sets the view to a new view based on the normal vector
     of the current selection
-  - 'Set View Parallel To'  sets the view to a new view based on the parallel 
+  - 'Set View Parallel To' sets the view to a new view based on the parallel 
     vector of the current selection
   - 'Rotate View 180' rotates the current view 180 degrees around the vertical
     axis
@@ -52,10 +52,10 @@ What's new in nanoENGINEER-1 v0.7 (4/18/2006):
     axis
   - 'Save Named View' saves the current view as a custom view in the Model 
     Tree. Using the context menu of the Named View icon in the Model Tree,
-    the view can be restored. 
+    the view can be restored
 
 7. Single Walled Carbon Nanotubes:
-   SWCNT can be added to the model by selecting 'Insert > Nanotube' and 
+   SWCNTs can be added to the model by selecting 'Insert > Nanotube' and 
    specifying the chirality and length
 
 8. Graphics:
@@ -68,19 +68,19 @@ What's new in nanoENGINEER-1 v0.7 (4/18/2006):
 
 9. New Jigs:
   - 'Measure Distance Jig' displays the distance between the nuclei and the 
-    VdW radii of two atoms.
-  - 'Measure Angle' displays the angle made by three atoms.
-  - 'Measure Dihedral' displays the dihedral angle of a four atom sequence.
+    VdW radii of two atoms
+  - 'Measure Angle' displays the angle made by three atoms
+  - 'Measure Dihedral' displays the dihedral angle of a four atom sequence
   - 'ESP Image' allows the user to visualize the electrostatic potential 
     of points on the face of a square 2D surface. Nano-Hive's MPQC ESP Plane 
-    plug-in is used to calculate the electrostatic potential.
+    plug-in is used to calculate the electrostatic potential
   - 'Gridplane' allows the user to insert a 2D square or SiC grid into the
-    part to help measure distances or fuse chunks of SiC.
+    part to help measure distances or fuse chunks of SiC
   - 'Atom Set' allows the user to group and easily select arbitrary sets of 
-    atoms in the part.
+    atoms in the part
 
 10. Nano-Hive:
-  - ESP Image plugin (tested on Windows only)
+  - ESP Image plug-in (tested on Windows only)
 
 11. Fuse Chunks Mode:
   - Allows user to fuse two or more chunks together using one of two methods:
@@ -100,7 +100,7 @@ What's new in nanoENGINEER-1 v0.7 (4/18/2006):
     - Animation speed can be changed using a slider control in the 
       'Edit > Preferences | General' dialog
     - View Animation can be enabled/disabled
-  - Minimization: Watch in Real-time
+  - Minimization: Watch in real-time
   - Bondpoint Highlighting Color
   - Ball and Stick Atom Scale
   - Ball and Stick Bond Scale
