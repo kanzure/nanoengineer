@@ -1319,15 +1319,24 @@ class basicMode(anyMode):
         # Later, we may add a flag to determine if we should ignore autorepeating key events.
         # If a mode needs these events, simply override keyPressEvent and keyReleaseEvent.
         # Mark 050412
-        if e.isAutoRepeat(): return
-        self.keyPress(e.key())
+        #bruce 060516 extending this by adding keyPressAutoRepeating and keyReleaseAutoRepeating,
+        # usually but not always ignored.
+        if e.isAutoRepeat():
+            self.keyPressAutoRepeating(e.key())
+        else:
+            self.keyPress(e.key())
+        return
         
     def keyReleaseEvent(self, e):
         
         # Ignore autorepeating key events.  Read comments in keyPressEvent above for more detail.
         # Mark 050412
-        if e.isAutoRepeat(): return
-        self.keyRelease(e.key())
+        #bruce 060516 extending this; see same comment.
+        if e.isAutoRepeat():
+            self.keyReleaseAutoRepeating(e.key())
+        else:
+            self.keyRelease(e.key())
+        return
 
     # the old key event API (for modes which don't override keyPressEvent etc)
     
@@ -1367,6 +1376,11 @@ class basicMode(anyMode):
         elif 0 and platform.atom_debug:#bruce 051201 -- might be wrong depending on how subclasses call this, so disabled for now
             print "atom_debug: fyi: glpane keyPress ignored:", key
         return
+
+    def keyPressAutoRepeating(self, key): #bruce 060416
+        if key in (Qt.Key_Period, Qt.Key_Comma):
+            self.keyPress(key)
+        return
     
     def keyRelease(self,key): # mark 2004-10-11
         #e bruce comment 041220: lots of modes change cursors on this, but they
@@ -1375,6 +1389,11 @@ class basicMode(anyMode):
         # track the set of modifiers and use some sort of inval/update system.
         # (Someday. These are low-priority bugs.)
         pass
+
+    def keyReleaseAutoRepeating(self, key): #bruce 060416
+        if key in (Qt.Key_Period, Qt.Key_Comma):
+            self.keyRelease(key)
+        return
         
     def update_cursor(self): # mark 060227
         '''Update the cursor based on the current mouse button and mod keys pressed.
