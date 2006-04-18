@@ -603,8 +603,8 @@ class NanoBuildMacOSX(NanoBuildBase):
         pf  = open(pfFile, 'w')
         pf.write("""#!/bin/bash
 mv $2/%s/libaquaterm.1.0.0.dylib $2/%s
-(cd $2; find . -type d -exec chmod ugo+rx {} \;)
-(cd $2; find . -type f -exec chmod ugo+r {} \;)
+(cd $2/instPath; find . -type d -exec chmod ugo+rx {} \;)
+(cd $2/instPath; find . -type f -exec chmod ugo+r {} \;)
 exit 0
 """ % (instPath, cf))
         pf.close()
