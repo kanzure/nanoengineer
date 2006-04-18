@@ -2,8 +2,8 @@ mmpformat 050920 required; 051103 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
-csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (0.707107, 0.000000, -0.707107, 0.000000) (27.068290) (0.012182, -0.026075, -0.006815) (1.000000)
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (24.970498) (0.012182, -0.026075, -0.006815) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (24.970498) (0.012182, -0.026075, -0.006815) (1.000000)
 egroup (View Data)
 group (Strained-shell Sleeve Bearing)
 info opengroup open = True
