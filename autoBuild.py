@@ -372,15 +372,18 @@ class NanoBuildLinux(NanoBuildBase):
         copy(os.path.join(self.atomPath,'cad/src/RELEASENOTES.txt'), os.path.join(self.buildSourcePath, 'doc'))
 
     def freezePythonExecutable(self):
-        # Mandrake calls it 'libsip', not 'sip' ... when did this happen?  wware 051212
+        # Mandrake 10.1 calls it 'libsip', Mandriva 2006 calls it 'sip'
         try:
-            cmd = ('FreezePython --include-modules=libsip,dbhash --exclude-modules=OpenGL --install-dir=' +
-                   os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
+            cmd = ('FreezePython --include-modules=libsip,dbhash' +
+                   ' --exclude-modules=OpenGL' +
+                   ' --install-dir=' + self.progPath +
+                   ' --target-name=' + self.appName + ' atom.py')
             system(cmd)
         except:
-            # Mandriva 2006 calls it "sip"
-            cmd = ('FreezePython --include-modules=sip,dbhash --exclude-modules=OpenGL --install-dir=' +
-                   os.path.join(self.buildSourcePath, 'program') + ' --target-name=' + self.appName + '  atom.py')
+            cmd = ('FreezePython --include-modules=sip,dbhash' +
+                   ' --exclude-modules=OpenGL' +
+                   ' --install-dir=' + self.progPath +
+                   ' --target-name=' + self.appName + ' atom.py')
             system(cmd)
         #Copy OpenGL package into buildSource/program
         copytree(os.path.join(PYLIBPATH, 'site-packages', 'OpenGL'),
@@ -396,11 +399,15 @@ class NanoBuildLinux(NanoBuildBase):
         spf.write("AutoReqProv: 0 \n\nSummary: A CAD software package for a nanoengineer to " +
                   "design and simulate nano-components and nano-machines.\n")
         spf.write("Name: %s\n" % appName)
-        spf.write("Version: %s\n" % version)
         if releaseNo:
+            spf.write("Version: %s\n" % version)
             spf.write("Release: %s\n" % releaseNo)
         else:
-            spf.write("Release: 0\n")
+            fields = version.split(".")
+            earlyVersion = ".".join(fields[:-1])
+            lateVersion = fields[-1]
+            spf.write("Version: %s\n" % earlyVersion)
+            spf.write("Release: %s\n" % lateVersion)
         otherStuff = """License: GPL
 Group: Applications/CAD
 Source: project.tgz
