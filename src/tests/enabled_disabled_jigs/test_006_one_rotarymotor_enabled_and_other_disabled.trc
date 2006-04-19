@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_006_one_rotarymotor_enabled_and_other_disabled.trc test_006_one_rotarymotor_enabled_and_other_disabled.mmp 
-# Date and Time: Mon Feb 13 23:41:13 2006
+# Date and Time: Wed Apr 19 10:53:26 2006
 # Input File: test_006_one_rotarymotor_enabled_and_other_disabled.mmp
 # Output File: test_006_one_rotarymotor_enabled_and_other_disabled.xyz
 # Trace File: test_006_one_rotarymotor_enabled_and_other_disabled.trc
@@ -29,5 +29,5 @@
 #     Time       Distance        Distance        Angle           T.meter         speed           torque          
 #  picosec       Distance-40     Distance-41     Angle-42        Thermo-43       Rotary Motor-81                
 #
-    0.0100          11.9830         11.9915        90.58491          446.03           0.384           0.373
+    0.0100          11.9826         11.9915        90.58298          446.35           1.289          -0.173
 # Done: 

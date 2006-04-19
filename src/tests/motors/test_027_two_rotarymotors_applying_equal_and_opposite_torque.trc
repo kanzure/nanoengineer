@@ -1,12 +1,12 @@
 # nanoENGINEER-1.com Simulator Trace File, Version 050310
 #
-# uname -a: Linux orbit.syzygy.com 2.6.15.6.20060313debug #1 Mon Mar 13 15:58:23 PST 2006 i686 GNU/Linux
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
 # 
 # CFLAGS: -g -Wmissing-prototypes -Wall
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_027_two_rotarymotors_applying_equal_and_opposite_torque.trc test_027_two_rotarymotors_applying_equal_and_opposite_torque.mmp 
-# Date and Time: Tue Mar 21 11:00:50 2006
+# Date and Time: Wed Apr 19 10:53:30 2006
 # Input File: test_027_two_rotarymotors_applying_equal_and_opposite_torque.mmp
 # Output File: test_027_two_rotarymotors_applying_equal_and_opposite_torque.xyz
 # Trace File: test_027_two_rotarymotors_applying_equal_and_opposite_torque.trc
@@ -28,5 +28,5 @@
 #     Time       speed           torque          T.meter         speed           torque          
 #  picosec       Rotary Motor-34                 Thermo-36       Rotary Motor-37                
 #
-    0.0100            1.558          -0.037          293.22           1.558          -0.037
+    0.0100            1.445           0.033          331.73           1.445           0.033
 # Done: 

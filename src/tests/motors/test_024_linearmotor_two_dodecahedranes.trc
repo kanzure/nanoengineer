@@ -1,6 +1,6 @@
 # nanoENGINEER-1.com Simulator Trace File, Version 050310
 #
-# uname -a: Linux orbit.syzygy.com 2.6.15.6.20060313debug #1 Mon Mar 13 15:58:23 PST 2006 i686 GNU/Linux
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
 # 
 # CFLAGS: -g -Wmissing-prototypes -Wall
 # LDFLAGS: -L/usr/lib -lm
@@ -11,7 +11,7 @@
 # Info: Using quality 1 parameters for X-1-C.sp3-1-C bend
 # Info: Computed kb: 1.622653e+06, theta0: 1.910600e+00
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_024_linearmotor_two_dodecahedranes.trc test_024_linearmotor_two_dodecahedranes.mmp 
-# Date and Time: Tue Mar 21 11:00:34 2006
+# Date and Time: Wed Apr 19 10:53:30 2006
 # Input File: test_024_linearmotor_two_dodecahedranes.mmp
 # Output File: test_024_linearmotor_two_dodecahedranes.xyz
 # Trace File: test_024_linearmotor_two_dodecahedranes.trc

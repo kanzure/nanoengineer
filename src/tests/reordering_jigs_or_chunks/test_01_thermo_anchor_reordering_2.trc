@@ -1,12 +1,12 @@
 # nanoENGINEER-1.com Simulator Trace File, Version 050310
 #
-# uname -a: Linux orbit.syzygy.com 2.6.15.6.20060313debug #1 Mon Mar 13 15:58:23 PST 2006 i686 GNU/Linux
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
 # 
 # CFLAGS: -g -Wmissing-prototypes -Wall
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_01_thermo_anchor_reordering_2.trc test_01_thermo_anchor_reordering_2.mmp 
-# Date and Time: Tue Mar 21 11:00:22 2006
+# Date and Time: Wed Apr 19 10:53:24 2006
 # Input File: test_01_thermo_anchor_reordering_2.mmp
 # Output File: test_01_thermo_anchor_reordering_2.xyz
 # Trace File: test_01_thermo_anchor_reordering_2.trc

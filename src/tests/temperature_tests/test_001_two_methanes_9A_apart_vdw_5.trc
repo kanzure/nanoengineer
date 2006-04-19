@@ -6,7 +6,7 @@
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_001_two_methanes_9A_apart_vdw_5.trc test_001_two_methanes_9A_apart_vdw_5.mmp 
-# Date and Time: Mon Feb 13 13:50:55 2006
+# Date and Time: Wed Apr 19 10:53:25 2006
 # Input File: test_001_two_methanes_9A_apart_vdw_5.mmp
 # Output File: test_001_two_methanes_9A_apart_vdw_5.xyz
 # Trace File: test_001_two_methanes_9A_apart_vdw_5.trc

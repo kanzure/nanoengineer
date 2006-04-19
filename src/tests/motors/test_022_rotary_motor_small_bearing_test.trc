@@ -1,12 +1,12 @@
 # nanoENGINEER-1.com Simulator Trace File, Version 050310
 #
-# uname -a: Linux orbit.syzygy.com 2.6.15.6.20060313debug #1 Mon Mar 13 15:58:23 PST 2006 i686 GNU/Linux
+# uname -a: Linux localhost 2.6.12-12mdk #1 Fri Sep 9 18:15:22 CEST 2005 i686 AMD Athlon(tm) XP 3000+ unknown GNU/Linux
 # 
 # CFLAGS: -g -Wmissing-prototypes -Wall
 # LDFLAGS: -L/usr/lib -lm
 # 
 # Command Line: ./simulator -i100 -f1 --dump-as-text --trace-file test_022_rotary_motor_small_bearing_test.trc test_022_rotary_motor_small_bearing_test.mmp 
-# Date and Time: Tue Mar 21 11:01:18 2006
+# Date and Time: Wed Apr 19 10:53:32 2006
 # Input File: test_022_rotary_motor_small_bearing_test.mmp
 # Output File: test_022_rotary_motor_small_bearing_test.xyz
 # Trace File: test_022_rotary_motor_small_bearing_test.trc
@@ -35,5 +35,5 @@
 #     Time       speed           torque          Anchor          T.meter         T.meter         T.stat          Anchor          Distance        Anchor          Distance        Angle           Distance        
 #  picosec       Rotary Motor-16                 Anchor-166      Thermo-167      Thermo-168      Stat-169        Anchor-172      Distance-174    Anchor-175      Distance-176    Angle-177       Distance-178   
 #
-    0.0100            2.340           0.324            1.17          252.87          486.84            0.15            0.00         24.9640            0.00         25.0351         0.06830         24.9817
+    0.0100            3.646          -0.317            1.17          251.67          486.02            0.15            0.00         24.9645            0.00         25.0345         0.06433         24.9824
 # Done: 
