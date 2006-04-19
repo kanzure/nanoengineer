@@ -399,15 +399,11 @@ class NanoBuildLinux(NanoBuildBase):
         spf.write("AutoReqProv: 0 \n\nSummary: A CAD software package for a nanoengineer to " +
                   "design and simulate nano-components and nano-machines.\n")
         spf.write("Name: %s\n" % appName)
+        spf.write("Version: %s\n" % version)
         if releaseNo:
-            spf.write("Version: %s\n" % version)
             spf.write("Release: %s\n" % releaseNo)
         else:
-            fields = version.split(".")
-            earlyVersion = ".".join(fields[:-1])
-            lateVersion = fields[-1]
-            spf.write("Version: %s\n" % earlyVersion)
-            spf.write("Release: %s\n" % lateVersion)
+            spf.write("Release: 0\n")
         otherStuff = """License: GPL
 Group: Applications/CAD
 Source: project.tgz
