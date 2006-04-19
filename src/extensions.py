@@ -31,6 +31,8 @@ __author__ = 'bruce'
 have_pyrex_test = False
 
 import platform
+debug_pyrex_test = 0 ## was platform.atom_debug, changed to 0 for A7 release by bruce 060419
+
 import env
 from debug import register_debug_menu_command, call_func_with_timing_histmsg, print_compact_traceback
 
@@ -41,9 +43,9 @@ try:
     #e run a self-test and/or run our own test on it?
     have_pyrex_test = True
 except:
-    if platform.atom_debug: ### this condition will become "if 1" when developers are required to have Pyrex installed
-        print_compact_traceback("atom_debug: exception importing pyrex_test or something inside it: ")
-        print "atom_debug: Can't import pyrex_test; we'll define stub functions for its functions,"
+    if debug_pyrex_test: ### this condition will become "if 1" when developers are required to have Pyrex installed
+        print_compact_traceback("debug_pyrex_test: exception importing pyrex_test or something inside it: ")
+        print "debug_pyrex_test: Can't import pyrex_test; we'll define stub functions for its functions,"
         print "but trying to use them will raise an exception; see README-Pyrex for how to fix this."
     
     def nbonds(mols): # stub function; in some cases it might be useful to define a correct but slow stub instead of a NIM stub
