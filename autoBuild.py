@@ -200,6 +200,12 @@ class NanoBuildBase:
 ###################################################
 
 class NanoBuildWin32(NanoBuildBase):
+
+    def  __init__(self, appname, iconfile, rootDir, version, relNo, stat, tag):
+        NanoBuildBase.__init__(self, appname, iconfile, rootDir, version, relNo, stat, tag)
+        # are we running in a Cygwin terminal or a DOS window?
+        self.cygwin = (os.environ.get('TERM') == 'cygwin')
+
     def prepareSources(self):
         """Checkout source code from cvs for the release """
         print "\n------------------------------------------------------\nPreparing Sources"
@@ -307,7 +313,10 @@ class NanoBuildWin32(NanoBuildBase):
         tmpZipFile = os.path.join(self.buildSourcePath, 'program/temp1234.zip')
         print "archFile", archFile
         print "tmpZipFile", tmpZipFile
-        print "pwd", listResults("pwd")[0]
+        if self.cygwin:
+            print "pwd", listResults("pwd")[0]
+        else:
+            print "pwd", listResults("cd")[0]
         print "dir", os.listdir(".")
         os.rename(archFile, tmpZipFile)
         os.mkdir(archFile)
@@ -335,7 +344,7 @@ class NanoBuildWin32(NanoBuildBase):
         outputFile = PMMT + '-w32'
         # Run Inno Setup command to build the install package for Windows (only).
         commLine = 'iscc  /Q  /O"' + self.rootPath + '" /F"' + outputFile + '"  ' + issFile
-        system(commLine)
+        ret = system(commLine)
         if ret == 1:
             errMsg = "The command line parameters are invalid: %s" % commLine
         elif ret == 2:
