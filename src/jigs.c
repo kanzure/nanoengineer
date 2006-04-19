@@ -63,11 +63,6 @@ jigGround(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz 
  * control. 1 N/m and 0.1 N/m give oscillations but they don't go crazy.
  */
 #define SPRING_STIFFNESS  10.0
-/*
- * This seems to damp out vibrations for a wide range of angular loads
- * and motor parameters.
- */
-#define DAMPING_COEFFICIENT  1.0e4
 
 void
 jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *new_position, struct xyz *force)
@@ -77,7 +72,8 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     struct xyz tmp;
     struct xyz f;
     struct xyz r;
-    double omega, domega_dt, mass;
+    //double omega, domega_dt, mass;
+    double omega, domega_dt;
     double motorq, dragTorque = 0.0;
     double theta, cos_theta, sin_theta;
     double m;
@@ -136,8 +132,6 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 
     /* nudge atoms toward their new places */
     for (k = 0; k < jig->num_atoms; k++) {
-	struct xyz rprev;
-	double damping;
 	a1 = jig->atoms[k]->index;
 	// get the position of this atom's anchor
 	anchor = jig->j.rmotor.center;
@@ -150,27 +144,13 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
             writeSimplePositionMarker(&anchor, 5.0, 1.0, 1.0, 1.0);
             writeSimplePositionMarker(&jig->j.rmotor.center, 5.0, 1.0, 1.0, 1.0);
         }
-	// compute a force pushing on the atom, spring term plus damper term
+	// compute a force pushing on the atom
+	// r in pm, SPRING_STIFFNESS in N/m, force in pN
+	// inverseMass in sec**2/kg, position change in pm
 	r = position[a1];
 	vsub(r, anchor);
-	rprev = r;
-        // r in pm, SPRING_STIFFNESS in N/m, f in pN
-	vmul2c(f, r, -SPRING_STIFFNESS);
-	// If the spring stretches much, that probably means we need more
-	// damping, so increase the effective damping coefficient, but don't
-	// let it get too big.
-	damping = 1.0 + 0.001 * vdot(r, r);
-	if (damping > 5.0) damping = 5.0;
-	else if (damping < -5.0) damping = -5.0;
-	damping *= DAMPING_COEFFICIENT;
-	vsub(r, jig->j.rmotor.rPrevious[k]);
-	vmul2c(tmp, r, -damping);
-	vadd(f, tmp);
-	jig->j.rmotor.rPrevious[k] = rprev;
-
-	// nudge the new positions accordingly
-	mass = jig->atoms[k]->type->mass * 1e-27;
-	vadd2scale(new_position[a1], f, Dt*Dt/mass);
+	// nudge the new positions
+	vadd2scale(new_position[a1], r, -SPRING_STIFFNESS * jig->atoms[k]->inverseMass);
 
 	// compute the drag torque pulling back on the motor
 	r = vdif(position[a1], jig->j.rmotor.center);
