@@ -32,7 +32,7 @@ if SAMEVALS_SPEEDUP:
     except ImportError:
         SAMEVALS_SPEEDUP = False
 
-# see debug flags, below
+debug_same_vals = False #bruce 060419; relates to bug 1869
 
 ### TODO:
 '''
@@ -330,6 +330,7 @@ class InstanceClassification(Classification): #k used to be called StateHolderIn
                                 self.attrs_declared_as(S_CHILDREN_NOT_DATA)  #e sorted somehow? no need yet.
         
         self._objs_are_data = copiers_for_InstanceType_class_names.has_key(class1.__name__) or hasattr(class1, '_s_deepcopy')
+            # WARNING: this code is duplicated/optimized in _same_InstanceType_helper [as of bruce 060419, for A7]
 
         if self.warn and env.debug():
             # note: this should not be env.debug() since anyone adding new classes needs to see it...
@@ -494,6 +495,9 @@ copiers_for_InstanceType_class_names = {} # copier functions for InstanceTypes w
     # (This is mainly for use when we can't add methods to the classes themselves.
     #  The copiers should verify the class is the expected one, and return the original object unchanged if not
     #  (perhaps with a warning), or raise an exception if they "own" the classname.)
+    #
+    # WARNING: some code is optimized to assume without checking that copiers_for_InstanceType_class_names is empty,
+    # so search for all uses of it (in commented out code) if you ever add something to it. [bruce 060419]
 
 # scanners_for_class_names would work the same way, but we don't need it yet.
 
@@ -579,7 +583,8 @@ def scan_val(val, func):
         scanner(val, func) # we optimize by not storing any scanner for atomic types, or a few others.
     return
 
-_n_sv = _n_svh = 0
+#bruce 060419 zapped these for A7 (leftover debug code, and a slowdown)
+##_n_sv = _n_svh = 0
 
 def same_vals(v1, v2): #060303
     """Efficiently scan v1 and v2 in parallel to determine whether they're the same, for purposes of undoable state
@@ -594,9 +599,9 @@ def same_vals(v1, v2): #060303
     will change one of them and not the other (for whole objects or for their parts).
        ###doc for InstanceType... note that we get what we want by using __eq__ for the most part...
     """
-    if 1:
-        global _n_sv
-        _n_sv += 1
+##    if 1:
+##        global _n_sv
+##        _n_sv += 1
     if v1 is v2:
         # Optimization:
         # this will happen in practice when whole undoable attrvals are immutable
@@ -608,20 +613,21 @@ def same_vals(v1, v2): #060303
     try:
         _same_vals_helper(v1, v2)
     except _NotTheSame:
-        if env.debug() and not (v1 != v2):
-            print "debug warning: same_vals says False but 'not !=' says True, for",v1,v2 ###@@@ remove when pattern seen
+        if debug_same_vals and not (v1 != v2):
+            print "debug_same_vals: same_vals says False but 'not !=' says True, for",v1,v2
+                # happens for bug 1869 (even though it's fixed; cause is understood)
         return False
-    if env.debug() and (v1 != v2):
-        print "debug warning: same_vals says True but '!=' also says True, for",v1,v2 ###@@@ remove when pattern seen
+    if debug_same_vals and (v1 != v2):
+        print "debug_same_vals: same_vals says True but '!=' also says True, for",v1,v2 ##@@ remove when pattern seen
     return True
 
 def _same_vals_helper(v1, v2): #060303
     """[private recursive helper for same_vals] raise _NotTheSame if v1 is not the same as v2
     (i.e. if their type or structure differs, or if any corresponding parts are not the same)
     """
-    if 1:
-        global _n_svh
-        _n_svh += 1
+##    if 1:
+##        global _n_svh
+##        _n_svh += 1
     typ = type(v1)
     if typ is not type(v2):
         raise _NotTheSame
@@ -636,6 +642,9 @@ def _same_vals_helper(v1, v2): #060303
     #  but that aspect of our specification doesn't matter much.)
     if v1 != v2:
         raise _NotTheSame
+    ###k is it reasonable to treat naive non-InstanceType objects as the same if they are merely __eq__ ?
+    # guess: yes, and is even good, but it's not obviously good nor obviously necessary. See also the comments
+    # above _same_InstanceType_helper. [bruce 060419]
     return    
     
 known_type_copiers[type([])] = copy_list
@@ -731,6 +740,34 @@ known_type_scanners[ InstanceType ] = scan_InstanceType
 # Do we need it before then? Not sure. Maybe not; need to define __eq__ better in GAMESS Jig (bug 1616) but _s_same_as
 # can probably be the same method. OTOH should we let DataMixin be the thing that makes _s_same_as default to __eq__?? ###
 ######@@@@@@
+# update, bruce 060419, after thinking about bug 1869 (complaint about different bonds with same key):
+# - The Bond object needs to use id for sameness, in Undo diffs at least (only caller of same_vals?) (but can't use id for __eq__ yet).
+#   - Q: What is it about Bond that decides that -- Bond? StateMixin? not DataMixin?
+#     A: The fact that scan_children treats it as a "child object", not as a data object (see obj_is_data method).
+#     That's what makes Undo change attrs in it, which only makes sense if Undo treats refs to it (in values of other attrs,
+#      which it's diffing) as the same iff their id is same.
+# Conclusion: we need to use the same criterion in same_vals, via a new _same_InstanceType_helper -- *not* (only) a new method
+# as suggested above and in a comment I added to bug 1869 report. For now, we don't need the new method at all.
+
+def _same_InstanceType_helper(obj1, obj2): #bruce 060419, relates to bug 1869; see detailed comment above
+    if obj1 is obj2:
+        return # not just an optimization -- remaining code assumes obj1 is not obj2
+    # We might like to ask classify_instance(obj1).obj_is_data, but we have no canonical object-classifier to ask,
+    # so for A7 (no time to clean this up) we'lljust duplicate its code instead (and optimize it too).
+    class1 = obj1.__class__
+    ###k don't check copiers_for_InstanceType_class_names.has_key(class1.__name__), since that's always False for now.
+    obj_is_data = hasattr(class1, '_s_deepcopy')
+    if obj_is_data:
+        if obj1 != obj2: # rely on our implem of __eq__
+            raise _NotTheSame
+        else:
+            return
+    else:
+        # otherwise the 'is' test above caught sameness
+        raise _NotTheSame
+    pass
+
+known_type_same_helpers[ InstanceType ] = _same_InstanceType_helper
 
 # ==
 
