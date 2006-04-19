@@ -601,7 +601,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         message = (("Welcome to %s v%s.%s %s. You will be guided through the steps " +
                     "necessary to install this software. By default, this software " +
                     "will be installed into /Applications directory with all files " +
-                    "under its own sub-directory. So, just relax.\n") %
+                    "under its own sub-directory.\n") %
                    (self.appName, self.version, self.releaseNo, self.status))
         wf.write(message)
         wf.close()
