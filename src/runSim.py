@@ -987,7 +987,8 @@ class SimRunner:
                     env.history.statusbar_msg(self.cmdname + ": " + msg)
         # wware 060310, bug 1343
         from platform import hhmmss_str
-        msg = "Elapsed Time: " + hhmmss_str(int(time.time() - self.startTime))
+        # NFR, change "Elapsed Time" message to include simulation frame number, wware 060419
+        msg = ("Frame %d, T=" % self.__frame_number) + hhmmss_str(int(time.time() - self.startTime))
         env.history.progress_msg(msg)
         if not self.mflag:
             # wware 060310, bug 1294
