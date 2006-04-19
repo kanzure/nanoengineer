@@ -452,7 +452,20 @@ bracketMinimum(struct configuration **ap,
 	SetConfiguration(&c, u);
 	SetConfiguration(&u, NULL);
     }
-    if (Interrupted || EXCEPTION) {
+    if (Interrupted) {
+        SetConfiguration(&a, NULL);
+	evaluateGradient(p);
+	BAIL();
+	parameterLimit = fabs(p->functionDefinition->parameter_limit);
+	*bp = gradientOffset(p,
+			     signClamp(p->functionDefinition->initial_parameter_guess,
+				       parameterLimit / (GOLDEN_RATIO + 1.0)));
+        SetConfiguration(&c, NULL);
+        SetConfiguration(&u, NULL);
+        Leave(bracketMinimum, 0);
+        return;
+    }
+    if (EXCEPTION) {
         // We haven't succeeded in bracketing, so we leave the results
         // as all NULL's.  Caller needs to check for this.
         SetConfiguration(&a, NULL);
@@ -666,6 +679,7 @@ linearMinimize(struct configuration *p,
     Enter();
     bracketMinimum(&a, &b, &c, p);
     BAILR(NULL);
+    if (Interrupted) return b;
     NULLPTRR(a, p);
     NULLPTRR(b, p);
     NULLPTRR(c, p);
