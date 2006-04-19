@@ -178,7 +178,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 	dragTorque += vdot(tmp, jig->j.rmotor.axis);
     }
 
-    domega_dt = (motorq + dragTorque) / jig->j.rmotor.momentOfInertia;
+    domega_dt = (motorq - dragTorque) / jig->j.rmotor.momentOfInertia;
     theta = jig->j.rmotor.theta + omega * Dt;
     jig->j.rmotor.omega = omega = jig->j.rmotor.omega + domega_dt * Dt;
 
