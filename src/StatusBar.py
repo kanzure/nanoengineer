@@ -23,14 +23,14 @@ def do_what_MainWindowUI_should_do(win):
     
     # Create progressbar.
     win.status_pbar = QProgressBar(win)
-    win.status_pbar.setMaximumWidth(300)
+    win.status_pbar.setMaximumWidth(250)
     win.status_pbar.setCenterIndicator(True)
     win.statusBar().addWidget(win.status_pbar,0,True)
     win.status_pbar.hide()
     
     # Create a status message bar. Bug 1343, wware 060309
     win.statusMsgLabel = QLabel(win.statusBar(), "statusMsgLabel")
-    win.statusMsgLabel.setMinimumWidth(150)
+    win.statusMsgLabel.setMinimumWidth(200)
     win.statusMsgLabel.setFrameStyle( QFrame.Panel | QFrame.Sunken )
     win.statusBar().addWidget(win.statusMsgLabel, 0, True)
     
