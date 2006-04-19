@@ -174,8 +174,9 @@ class PlotTool(PlotToolDialog):
         f.write("set key left box\n")
         f.write("set xlabel \"time  (picoseconds)\"\n")
         f.write("set ylabel \"%s\"\n"%(ytitle))
-        f.write("plot '%s' using 1:%d title \"Data Points\" with lines lt 2,\\\n"%(self.traceFile,col))
-        f.write("       '%s' using 1:%d:(0.5) smooth acsplines title \"Average\" lt 3\n"%(self.traceFile,col))
+        f.write('plot "%s" using 1:%d title \"Data Points\" with lines lt 2,\\\n'%(self.traceFile,col))
+        f.write('       "%s" using 1:%d:(0.5) smooth acsplines title \"Average\" lt 3\n'%(self.traceFile,col))
+            # Fixed bug 712 by swapping single quote (') with double quote(") around traceFile (%s).
         
         if sys.platform == 'win32': 
             # The plot will stay up until the OK or Cancel button is clicked.
