@@ -14,6 +14,7 @@ History:
 __author__ = "Will"
 
 import os
+import os.path
 import sys
 import getopt
 from shutil import *
@@ -178,7 +179,7 @@ class NanoBuildBase:
                     os.rmdir(cvsDir)
 
     def clean(self, rootPath, cleanAll=False):
-        """Clean everything created temporaly"""
+        """Clean everything created temporarily"""
         for root, dirs, files in os.walk(rootPath, topdown=False):
             for name in files:
                 if cleanAll:
@@ -189,7 +190,11 @@ class NanoBuildBase:
                     print "Keep file: ", name
 
             for name in dirs:
-                os.rmdir(os.path.join(root, name))
+                fname = os.path.join(root, name)
+                if os.path.isdir(fname):
+                    os.rmdir(fname)
+                else:
+                    os.remove(fname)   # symbolic link
 
     def makePlatformPackage(self):
         """Packages are different for different platforms. Linux wants an RPM.
