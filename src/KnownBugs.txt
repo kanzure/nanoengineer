@@ -5,10 +5,15 @@ This file documents some bug fixes, unsupported features and some of the commonl
 
 Some of the Bug Fixes In Alpha 7
 
-1. Bugs and some confusing implementations in Build mode user interface
-2. Selection/Display/Jigs: If more than 1 jigs (other than motors) are attached to the same atom , only first jig in the order (in the model tree) gets highlighted (756) 
-3. Some bugs where MMKit's clipboard view doesn't get updated when you do modifications in the 3D workspace (876, 1570, and 1573)
-4. Simulator doesn't work for an opened file where the user doesn't have permission to write (396)
+1. Miscellaneous bug fixes and the user interface enhancements in Build mode
+2. Some bugs where MMKit's clipboard view doesn't get updated when you do modifications in the 3D workspace (876, 1570, and 1573)
+3. Rendered povray image doesn’t render user defined lighting and background fill color (447-mitigated, 888)
+4. Selection/Display/Jigs: If more than 1 jigs (other than motors) are attached to the same atom , only first jig in the order (in the model tree) gets highlighted (756) 
+5. Simulator doesn't work for an opened file where the user doesn't have permission to write (396)
+6. Improved force field. Formal bend parameters have replaced guessed values for all single bond combinations
+7. Naming a File (plot tool bug): If a file is named as Bob's molecule, the plot tool will not plot the results because of the apostrophe S present in the file's name (712)  
+
+
 
   
 UNSUPPORTED FEATURES:
@@ -29,7 +34,7 @@ SIMULATOR / MINIMIZE
 # Enable motor in minimize feature is experimental. Enabling a motor in minimization may result in high values of rms force. 
 
 GAMESS Jig
-8. GAMESS jig can be added by select some atoms first in 'Select Atoms' mode and then attaching this jig by using Menu item: Jigs>Gamess. This jig can be attached to a maximum of 200 atoms. 
+#. GAMESS jig can be added by select some atoms first in 'Select Atoms' mode and then attaching this jig by using Menu item: Jigs>Gamess. This jig can be attached to a maximum of 200 atoms. 
 -- Certain GAMESS optimization runs or Energy calculation can take very long time (hours/days). While a GAMESS job is being performed, user is not allowed to do any other operation in that session of ne-1. User must wait till the GAMESS job is finished or opt to terminate it by hitting 'Cancel' button in the progress bar. 
 -- Also, certain GAMESS run may create large output files. So make sure that your system has enough disk space to handle such runs. ALL GAMESS jobs are save inside the 'Job Manager' directory. (User's home directory/ Nanorex/Job Manager) (742)
  
@@ -38,7 +43,7 @@ ESP IMAGE / NANO-HIVE
 
 # Bond Inference not supported but a limited valence error check supported. 
 
-By the term 'bond inference' we mean automatically deciding what type of bond will be formed between the participating elements. It is not supported for this version of ne-1. When an element is deposited, by default, all the bonds are single bonds. User must manually change the bond type between the elements in 'Build mode'. However, if the structure is not chemically correct (bad valences etc), ne-1 shows a 'pink wire frame' around each atom indicating valence errors.  This 'valence error' display, by default, is set to ON. It can be turned On or Off from the 'Bonds' tab in the Preferences dialog. (Edit>Preference…).  
+By the term 'bond inference' we mean automatically deciding what type of bond will be formed between the participating elements. It is not supported for this version of ne-1. When an element is deposited, by default, all the bonds are single bonds. User must manually change the bond type between the elements in 'Build mode'. However, if the structure is not chemically correct (bad valences etc), ne-1 shows a 'pink wire frame' around each atom indicating valence errors.  This 'valence error' display, by default, is enabled. It can be changed from the 'Bonds' tab in the Preferences dialog. (Edit>Preference…).  
 Note that there are some kinds of chemical errors this (the Valence Error Checker) doesn't detect. For example, it can't tell whether rings should be aromatic or not. All it checks is that the bonds on each atom could possibly add up to the right number of valence electrons. The Valence Error Checker doesn't treat graphitic and aromatic bonds differently.
       
 
@@ -52,10 +57,11 @@ KNOWN BUGS (ALL PLATFORMS)
 
 MEMORY AND PERFORMANCE PROBLEMS
 # Memory consumed by the application increases due to repeated execution of certain operations such as opening and closing a file (often termed as ‘memory leaks’. This affects the overall performance of the software and could result in a crash. This version doesn’t prevent such memory leaks. 
-# nE-1 has some known performance problems while using some features. As a result, some operations take considerably longer times. This is particularly true when you are handling a large file. 
-Examples: Opening a large file, Operations performed in Fuse mode, moving selected atoms, Selecting and deselecting some atoms from a large chunk, deleting some atoms , Undoing or redoing these operations, playing a movie on a large model etc. may take longer time when the file size is large. (991, 1473, 1674, 1704, 1750, 1778)
 
-#Movie playing is lot slower for large models on some low system configuration machines (1757)
+# nE-1 has some known performance problems while using some features. As a result, some operations take considerably longer times. This is particularly true when you are handling a large file. 
+Examples: Opening a large file, Operations performed in Fuse mode, moving selected atoms, Selecting and deselecting some atoms from a large chunk, deleting some atoms, Undoing or redoing these operations, playing a movie on a large model etc. may take longer time when the file size is large. (991, 1473, 1674, 1704, 1750, 1778)
+
+#Movie playing is lot slower for large models on some low system configuration machines. Also, other normal operations such as opening a file become slower for such machines (1757)
 
 
  
@@ -115,8 +121,8 @@ EXTRUDE MODE
 -- Select the 'Done' button on the dashboard when finished. (155)
  
 # Extrude: Separates the chunk permanently when atoms are partially selected and then extrude mode is cancelled. (198) 
-16. Extrude: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)  
-17. Extrude's ring feature doesn't take the curvature into account while forming the bonds. (494) 
+# Extrude: Multiple chunks are automatically merged into a single chuck, even when cancel is hit. (397)  
+# Extrude's ring feature doesn't take the curvature into account while forming the bonds. (494) 
 
 COOKIE CUTTER
 
@@ -134,16 +140,15 @@ FUSE CHUNKS MODE
 MOVIE PLAYER
 
 # Movie playing is lot slower for large models on some low system configuration machines (1757)
-#  Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode, after adjusting the chunks (to be extruded) as 'bondable' with their copy units. (495)  
+# Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode, after adjusting the chunks (to be extruded) as 'bondable' with their copy units. (495)  
 # Movie/Clipboard: While playing a simulation movie, if you click on a different clipboard item (rather a clipboard 'Part'), then the movie can not be 'viewed'. But it continues to run. ne-1 doesn't print a warning message to instruct user to click on the appropriate 'Part', for which the movie is created for,  to view the movie. (578-5) 
-30.  Movie: If you run a simulation and then modify the model further (e.g. delete some atoms etc), the movie becomes invalid.  ne-1 generally identifies such situations. But in certain cases, it doesn't.  Some Examples: After creating a simulation movie, if you 'Hydrogenate' some chunks or change the bond types or 'transmute' some elements to a different one. To avoid this, always rerun a simulation after doing such modifications for the correct results. (901)
+#  Movie: If you run a simulation and then modify the model further (e.g. delete some atoms etc), the movie becomes invalid.  ne-1 generally identifies such situations. But in certain cases, it doesn't.  Some Examples: After creating a simulation movie, if you 'Hydrogenate' some chunks or change the bond types or 'transmute' some elements to a different one. To avoid this, always rerun a simulation after doing such modifications for the correct results. (901)
  
 NAMING
  
-31. Naming of created items: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64) 
-32. Naming GAMESS Jigs: If a Gamess jig contains a Forward or Backward Slash in it (e.g. 'AM1/None'), then the Gamess job will fail. So do not include these characters while naming this jig. (796)  
-33. Naming a File (plot tool bug): Do not save a file with a single quote symbol in it. This affects the plot tool and you won't be able to see the plot tool results. For example, if a file is named as : ' Bob's molecule ' , the plot tool will not plot the results if any. (712)  
-34. Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360) 
+# Naming of created items: When starting a new part or opening a new file, the object name indexing is not reset to 1. For example, new chunk names continue to increment from the previous part's index number. (64) 
+# Naming GAMESS Jigs: If a Gamess jig contains a Forward or Backward Slash in it (e.g. 'AM1/None'), then the Gamess job will fail. So do not include these characters while naming this jig. (796)  
+# Model Tree: Dragging and dropping objects onto the part icon at the top of the list places the items(s) at the bottom of the list. Similarly, dragging and dropping items onto a group folder places them at the bottom of the group, not the top.  (360) 
  
 CURSOR AND DISPLAY RELATED BUGS
  
@@ -157,7 +162,7 @@ DIALOGS AND DASHBOARD
  
 POVRAY RENDERING
  
-#  Povray rendering doesn't show different bond types (it will be supported feature for this version) (830)  
+# Povray rendering doesn't show different bond types (it will be supported feature for this version) (830)  
 # Povray rendering of lines display is shown as black lines (226)
 # Motor arrows are not rendered (527)  
 # If a motor is attached to only a single atom, povray image can not be rendered (719)
@@ -169,27 +174,29 @@ MISCELLANEOUS
  
 # User can not save exclusive features of nanoENGINEER-1 into the PDB file format. Some examples of such 'MMP file only' features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  ne-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)  
 # Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results. (362)  
-# Jigs: Rotary and Linear motors do not move with the chunks they are attached to. However, after moving the chunks, you can reposition the motor by right clicking on the motor name in the Model Tree and then using context menu option 'recenter on atoms'    (168) 
 # Any file currently opened by nanoENGINEER-1 can be manually deleted from the computer without any warning message. (215) 
 
  
 WINDOWS ONLY BUGS
  
-1. On some machines, the program crashes after while running repeated simulations in some special cases. (1753) 
+# On some machines, the program crashes after while running repeated simulations in some special cases. (1753) 
 
-2. During drag-and-drop, node icons are not shown in the cursor's drag object. (360) 
-3. On very rear occasions, the File>Open , Save , Save dialogs don't pop up because of some python.exe application problems. It might happen if you are working with a huge file with lots of GAMESS jigs in it. Again, it is very unlikely to happen. Saving your work often while working on large file is recommended. (774) 
+# During drag-and-drop, node icons are not shown in the cursor's drag object. (360) 
+# On very rear occasions, the File>Open, Save, Save dialogs don't pop up because of some python.exe application problems. It might happen if you are working with a huge file with lots of GAMESS jigs in it. Again, it is very unlikely to happen. Saving your work often while working on large file is recommended. (774) 
  
 MACINTOSH ONLY BUGS
  
-1. Sometimes a cursor's bitmask will suddenly not work, leaving a white square around the cursor. (772)
-2. Icon tray/bar redrawing of the icon images will show up overlapped, zig-zagged, cracked, etc. in certain situations. In worst cases, the right-side icon bars will go invisible until the invisible bar is clicked on, which redraws the bar but changes your button. This usually only happens when resizing the main window by dragging its "resize handle" on the lower right of the window frame. The workaround is to resize it to be a bit smaller than you want, and then make it a bit bigger again so that it's the desired size. Some users report that the toolbars always draw wrongly after that initial down-sizing, but then they always draw properly again after that final small up-sizing. (861) 
-3. Occasionally, bouncing between programs will lead to the menu (screen top) disappearing, only to re-appear with mouseover (or mouseover+click).  
-4. On Mac OS X Tiger, the tool buttons don't look 'pressed'. On other platforms this is not a problem. ne-1 provides a workaround for this. In the 3D Workspace (i.e. Graphics area), press Shift and Option keys and do Command click to bring up the debug menu. Now select the "Mac OS 10.4 QToolbutton Workaround" command from this debug menu. This will resolve the issue. (878) 
-5. On some MACs , some cursors and icons in MMKit and dashboard are not displayed (1824, 1838)
+# Sometimes a cursor's bitmask will suddenly not work, leaving a white square around the cursor. (772)
+# On iMac the 'material specular highlighting' doesn't show up (1866). 
+# Icon toolbar redrawing of the icon images will show up overlapped, zig-zagged, cracked, etc. in certain situations. In worst cases, the right-side icon bars will go invisible until the invisible bar is clicked on, which redraws the bar but changes your button. This usually only happens when resizing the main window by dragging its "resize handle" on the lower right of the window frame. The workaround is to resize it to be a bit smaller than you want, and then make it a bit bigger again so that it's the desired size. Some users report that the toolbars always draw wrongly after that initial down-sizing, but then they always draw properly again after that final small up-sizing. (861) 
+# Occasionally, bouncing between programs will lead to the menu (screen top) disappearing, only to re-appear with mouseover (or mouseover+click).  
+# On Mac OS X Tiger, the tool buttons don't look 'pressed'. On other platforms this is not a problem. ne-1 provides a workaround for this. In the 3D Workspace (i.e. Graphics area), press Shift and Option keys and do Command click to bring up the debug menu. Now select the "Mac OS 10.4 QToolbutton Workaround" command from this debug menu. This will resolve the issue. (878) 
+# On some MACs , some cursors and icons in MMKit and dashboard are not displayed (1824, 1838)
  
 LINUX ONLY BUGS
 
-1. System crashes while accessing wiki help via the URL provided in What's this text of that mode. Workaround is to use the Mode specific Wiki Help dialog that pops up when you hit F1 key (1447)
-2.Opening a plot file from the plot tool dialogs needs 'kwrite' editor which is available with only with KDE desktop (434)  
-3. Modeling Kit in Build Mode: When you enter build mode, this dialog first appears in the middle of the 3D workspace (graphics area)  for a fraction of second and then it is moved to the left hand side of the ne-1 main window. The amount of time this dialog stays inside the 3D workspace depends on the model size. (844) 
+# System crashes while accessing wiki help via the URL provided in What's this text of that mode. Workaround is to use the Mode specific Wiki Help dialog that pops up when you hit F1 key (1447)
+# Minimize progress messages in the status bar is truncated for lower resolution and larger font size (1794)  
+# Status bar text on bottom right corner can get obscured during minimize or simulation and thus affects the display of (for example) the minimize progress.  (1282)
+#Opening a plot file from the plot tool dialogs needs 'kwrite' editor which is available with only with KDE desktop (434)  
+# Modeling Kit in Build Mode: When you enter build mode, this dialog first appears in the middle of the 3D workspace (graphics area) for a fraction of second and then it is moved to the left hand side of the ne-1 main window. The amount of time this dialog stays inside the 3D workspace depends on the model size. (844) 
