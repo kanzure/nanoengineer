@@ -665,6 +665,7 @@ linearMinimize(struct configuration *p,
 
     Enter();
     bracketMinimum(&a, &b, &c, p);
+    BAIL();
     NULLPTRR(a, p);
     NULLPTRR(b, p);
     NULLPTRR(c, p);
