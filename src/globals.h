@@ -53,6 +53,8 @@ extern int ComputedParameterWarning;
 
 extern int InterruptionWarning;
 
+extern int _last_iteration;
+
 /** constants: timestep (.1 femtosecond), scale of distance (picometers) */
 extern double Dt;
 extern double Dx;

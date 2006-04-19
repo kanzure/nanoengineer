@@ -146,6 +146,10 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 	vadd(anchor, tmp);
 	vmul2c(tmp, jig->j.rmotor.w[k], sin_theta);
 	vadd(anchor, tmp);
+        if (_last_iteration && DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) { // -D15
+            writeSimplePositionMarker(&anchor, 5.0, 1.0, 1.0, 1.0);
+            writeSimplePositionMarker(&jig->j.rmotor.center, 5.0, 1.0, 1.0, 1.0);
+        }
 	// compute a force pushing on the atom, spring term plus damper term
 	r = position[a1];
 	vsub(r, anchor);

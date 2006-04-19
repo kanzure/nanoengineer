@@ -67,7 +67,9 @@ oneDynamicsFrame(struct part *part,
 
     // wware 060110  don't handle Interrupted with the BAIL mechanism
     for (loop=0; loop < iters && !Interrupted; loop++) {
-	
+
+	_last_iteration = loop == iters - 1;
+        
 	Iteration++;
 	
 	// wware 060109  python exception handling
@@ -209,6 +211,9 @@ dynamicsMovie(struct part *part)
 	oneDynamicsFrame(part, IterPerFrame,
 			 averagePositions, &oldPositions, &newPositions, &positions, force);
 	writeDynamicsMovieFrame(OutputFile, i, part, averagePositions);
+        if (DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) {
+            writeSimpleMovieFrame(part, newPositions, force, "");
+        }
     }
     if (PrintFrameNums) printf("\n");
     

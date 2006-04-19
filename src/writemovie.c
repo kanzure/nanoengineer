@@ -345,6 +345,9 @@ static void writeNewOutputTrailer(FILE *f, struct part *part, int frameNumber)
 
 void writeOutputHeader(FILE *f, struct part *part)
 {
+    if (DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) { // -D15
+        return;
+    }
     if (!DumpAsText) {
         initializeDeltaBuffers(part);
     }
@@ -365,6 +368,9 @@ void writeOutputHeader(FILE *f, struct part *part)
 
 void writeOutputTrailer(FILE *f, struct part *part, int frameNumber)
 {
+    if (DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) { // -D15
+        return;
+    }
     switch (OutputFormat) {
     case 0:
         writeXYZOutputTrailer(f, part, frameNumber);
@@ -531,6 +537,9 @@ writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forc
  */
 void writeDynamicsMovieFrame(FILE *outf, int n, struct part *part, struct xyz *pos)
 {
+    if (DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) { // -D15
+        return;
+    }
     callback_writeFrame(part, pos);  // wware 060101  callback for pyrex
     if (outf != NULL) {
 	switch (OutputFormat) {
@@ -601,3 +610,10 @@ int writeMinimizeMovieFrame(FILE *outf,
     }
     return InterruptionWarning;
 }
+
+/*
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * End:
+ */

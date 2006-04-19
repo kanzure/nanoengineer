@@ -56,6 +56,11 @@ int ExcessiveEnergyWarningThisFrame;
 int ComputedParameterWarning;
 int InterruptionWarning;
 
+// set to one in dynamics when processing the last iteration within a
+// frame.  For debugging, hence the leading _.  Doesn't need
+// initialization here.
+int _last_iteration;
+
 /** constants: timestep (.1 femtosecond), scale of distance (picometers) */
 double Dt;              // seconds
 double Dx;              // meters

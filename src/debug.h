@@ -38,6 +38,8 @@ extern int debug_flags;
 #define D_STRESS_MOVIE    (1<<12)
 #define D_VERIFY_VDW      (1<<13)
 #define D_MINIMIZE_PARAMETER_GUESS (1<<14)
+#define D_DYNAMICS_SIMPLE_MOVIE (1<<15)
+
 
 #define TYPE_ERROR 1
 #define TYPE_WARNING 2
