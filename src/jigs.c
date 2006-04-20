@@ -65,24 +65,29 @@ jigGround(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz 
 #define SPRING_STIFFNESS  10.0
 
 /*
- * Ordinarily the units of a damping coefficient are force divided by
- * velocity. With our Verlet integration scheme, the only way to
- * represent velocity is as a difference between positions at two
- * consecutive time steps, so instead of velocity we have velocity
- * times 0.1 picoseconds, and the unit is picometers. Force is in
- * piconewtons, so the units for DAMPING_COEFFICIENT are newtons per
- * meter.
+ * We want a damping coefficient that is dimensionless and ranges from
+ * zero to one, where zero is no damping at all, and one is complete
+ * damping, no sinusoidal component at all.
  *
- * A value for DAMPING_CEOEFFICIENT of 10^4 N/m is equivalent to a
- * "normal" damping coefficient of 10^4 piconewtons per (meter per
- * second) or 10^-8 newton-seconds per meter.
+ * The magic equation here is Mx'' = -Kx - Dx', where M is atom mass,
+ * x is atom displacement in the direction of the spring, K is spring
+ * stiffness. D is a constant which multiplies by a velocity to give a
+ * force, and it acts like friction. Plug in Laplace operator "s" as a
+ * derivative, and we have s**2 + (D/M)s  + (K/M) = 0. The solutions to
+ * this equation describe the two mechanical resonances of the system,
+ * and the negative-ness of the real parts tell us how quickly the
+ * oscillations in omega die away.
  *
- * Empricially I found this to be a seemingly good value, but I'd like
- * to know that with the typical velocities of jiggling atoms, the
- * resulting damping forces are small compared to those of modestly
- * stretched bonds.
+ * Let z be our dimensionless number between zero and one, and let D =
+ * 2z * sqrt(KM). Then the resonances occur at
+ *
+ *     s = sqrt(K/M) * (-z +/- j * sqrt(1-z**2))
+ *
+ * where "j" is sqrt(-1), giving the imaginary part of s. The real
+ * part is negative, indicating that it's stable. A positive real part
+ * would mean the oscillations were going to grow with time, a bad
+ * thing.
  */
-#define DAMPING_COEFFICIENT  1.0e4
 
 void
 jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *new_position, struct xyz *force)
@@ -171,8 +176,18 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
         // r in pm, SPRING_STIFFNESS in N/m, f in pN
 	vmul2c(f, r, -SPRING_STIFFNESS);
 	if (jig->j.rmotor.damping_enabled) {
+
+	    // this could be optimized a bit more but the intent would be less clear
+	    // frictionOverDt = 2 * jig->j.rmotor.dampingCoefficient *
+	    //     sqrt(SPRING_STIFFNESS / jig->atoms[k]->inverseMass);
+	    // vmul2c(tmp, r, -frictionOverDt);
+
+	    // friction is force divided by velocity
+	    double friction = 2 * jig->j.rmotor.dampingCoefficient *
+		sqrt(SPRING_STIFFNESS * 1.e-27 * jig->atoms[k]->type->mass);
 	    vsub(r, jig->j.rmotor.rPrevious[k]);
-	    vmul2c(tmp, r, -DAMPING_COEFFICIENT);
+	    // we need a factor of Dt because of Verlet integration
+	    vmul2c(tmp, r, -friction / Dt);
 	    vadd(f, tmp);
 	    jig->j.rmotor.rPrevious[k] = rprev;
 	}

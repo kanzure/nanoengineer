@@ -1006,7 +1006,7 @@ makeRotaryMotor(struct part *p, char *name,
     
     // convert from gigahertz to radians per second
     j->j.rmotor.speed = speed * 2.0e9 * Pi;
-    j->j.rmotor.dampingCoefficient = 0.001;
+    j->j.rmotor.dampingCoefficient = 0.7071;
     j->j.rmotor.center = *center;
     j->j.rmotor.axis = uvec(*axis);
     // axis now has a length of one
