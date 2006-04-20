@@ -116,6 +116,13 @@ struct jig
 
             // current angular speed in radians per second.
 	    double omega;
+	    
+	    // For each atom in motor, the previous displacement of the atom
+	    // from its rotating anchor, used for damping oscillations
+	    struct xyz *rPrevious;
+	    
+	    // A boolean to tell whether or not damping is switched on.
+	    int damping_enabled;
 	} rmotor;
 	
 	struct {

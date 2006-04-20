@@ -64,6 +64,26 @@ jigGround(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz 
  */
 #define SPRING_STIFFNESS  10.0
 
+/*
+ * Ordinarily the units of a damping coefficient are force divided by
+ * velocity. With our Verlet integration scheme, the only way to
+ * represent velocity is as a difference between positions at two
+ * consecutive time steps, so instead of velocity we have velocity
+ * times 0.1 picoseconds, and the unit is picometers. Force is in
+ * piconewtons, so the units for DAMPING_COEFFICIENT are newtons per
+ * meter.
+ *
+ * A value for DAMPING_CEOEFFICIENT of 10^4 N/m is equivalent to a
+ * "normal" damping coefficient of 10^4 piconewtons per (meter per
+ * second) or 10^-8 newton-seconds per meter.
+ *
+ * Empricially I found this to be a seemingly good value, but I'd like
+ * to know that with the typical velocities of jiggling atoms, the
+ * resulting damping forces are small compared to those of modestly
+ * stretched bonds.
+ */
+#define DAMPING_COEFFICIENT  1.0e4
+
 void
 jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *new_position, struct xyz *force)
 {
@@ -72,7 +92,6 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
     struct xyz tmp;
     struct xyz f;
     struct xyz r;
-    //double omega, domega_dt, mass;
     double omega, domega_dt;
     double motorq, dragTorque = 0.0;
     double theta, cos_theta, sin_theta;
@@ -132,6 +151,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 
     /* nudge atoms toward their new places */
     for (k = 0; k < jig->num_atoms; k++) {
+	struct xyz rprev;
 	a1 = jig->atoms[k]->index;
 	// get the position of this atom's anchor
 	anchor = jig->j.rmotor.center;
@@ -144,13 +164,21 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
             writeSimplePositionMarker(&anchor, 5.0, 1.0, 1.0, 1.0);
             writeSimplePositionMarker(&jig->j.rmotor.center, 5.0, 1.0, 1.0, 1.0);
         }
-	// compute a force pushing on the atom
-	// r in pm, SPRING_STIFFNESS in N/m, force in pN
-	// inverseMass in sec**2/kg, position change in pm
+	// compute a force pushing on the atom, spring term plus damper term
 	r = position[a1];
 	vsub(r, anchor);
-	// nudge the new positions
-	vadd2scale(new_position[a1], r, -SPRING_STIFFNESS * jig->atoms[k]->inverseMass);
+	rprev = r;
+        // r in pm, SPRING_STIFFNESS in N/m, f in pN
+	vmul2c(f, r, -SPRING_STIFFNESS);
+	if (jig->j.rmotor.damping_enabled) {
+	    vsub(r, jig->j.rmotor.rPrevious[k]);
+	    vmul2c(tmp, r, -DAMPING_COEFFICIENT);
+	    vadd(f, tmp);
+	    jig->j.rmotor.rPrevious[k] = rprev;
+	}
+
+	// nudge the new positions accordingly
+	vadd2scale(new_position[a1], f, jig->atoms[k]->inverseMass);
 
 	// compute the drag torque pulling back on the motor
 	r = vdif(position[a1], jig->j.rmotor.center);

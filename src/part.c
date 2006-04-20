@@ -113,9 +113,11 @@ destroyPart(struct part *p)
                 free(j->j.rmotor.u);
                 free(j->j.rmotor.v);
                 free(j->j.rmotor.w);
+                free(j->j.rmotor.rPrevious);
                 j->j.rmotor.u = NULL;
                 j->j.rmotor.v = NULL;
                 j->j.rmotor.w = NULL;
+                j->j.rmotor.rPrevious = NULL;
             }
         }
         free(j);
@@ -1012,6 +1014,7 @@ makeRotaryMotor(struct part *p, char *name,
     j->j.rmotor.u = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
     j->j.rmotor.v = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
     j->j.rmotor.w = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
+    j->j.rmotor.rPrevious = (struct xyz *)allocate(sizeof(struct xyz) * atomListLength);
     j->j.rmotor.momentOfInertia = 0.0;
     for (i = 0; i < j->num_atoms; i++) {
 	struct xyz r, v;
@@ -1033,6 +1036,8 @@ makeRotaryMotor(struct part *p, char *name,
 	j->j.rmotor.v[i] = v;
 	j->j.rmotor.w[i] = vx(j->j.rmotor.axis, v);
 	j->j.rmotor.momentOfInertia += mass * lenv * lenv;
+	vsetc(j->j.rmotor.rPrevious[i], 0.0);
+	j->j.rmotor.damping_enabled = 1;
     }
     
     // Add a flywheel with many times the moment of inertia of the atoms
