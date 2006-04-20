@@ -14,7 +14,6 @@ History:
 __author__ = "Will"
 
 import os
-import os.path
 import sys
 import getopt
 from shutil import *
@@ -36,6 +35,31 @@ def listResults(cmd):
     def strip(x):
         return x.rstrip()
     return map(strip, os.popen(cmd).readlines())
+
+def clean(rootPath, cleanAll=False):
+    """Clean everything created temporarily"""
+    for root, dirs, files in os.walk(rootPath, topdown=False):
+        for name in files:
+            if cleanAll:
+                os.remove(os.path.join(root, name))
+            elif not (name.endswith('w32.exe') or name.endswith('.dmg') or name.endswith('.tar.gz')):
+                os.remove(os.path.join(root, name))
+            else:
+                print "Keep file: ", name
+
+        for name in dirs:
+            fname = os.path.join(root, name)
+            if os.path.isdir(fname):
+                clean(fname, cleanAll)
+                try:
+                    os.rmdir(fname)
+                except OSError:
+                    # when not doing cleanAll, we may sometimes leave a directory
+                    # around if it isn't empty
+                    if cleanAll:
+                        raise
+            else:
+                os.remove(fname)   # symbolic link
 
 class AbstractMethod(Exception):
     """Indicates that something must be overloaded because it isn't usefully
@@ -72,12 +96,12 @@ class NanoBuildBase:
         self.makePlatformPackage()
 
     def setupBuildSourcePath(self):
-        self.buildSourcePath = os.path.join(self.rootPath, self.appName)
+        raise AbstractMethod
 
     def createDirectories(self):
         """Create directories structure, return true if success"""
         if os.path.isdir(self.rootPath):
-            self.clean(self.rootPath, cleanAll = True)
+            clean(self.rootPath, cleanAll=True)
         else:
             os.mkdir(self.rootPath)
 
@@ -175,26 +199,8 @@ class NanoBuildBase:
             for name in dirs:
                 if name == 'CVS': 
                     cvsDir = os.path.join(root, name)
-                    self.clean(cvsDir, True)
+                    clean(cvsDir, True)
                     os.rmdir(cvsDir)
-
-    def clean(self, rootPath, cleanAll=False):
-        """Clean everything created temporarily"""
-        for root, dirs, files in os.walk(rootPath, topdown=False):
-            for name in files:
-                if cleanAll:
-                    os.remove(os.path.join(root, name))
-                elif not (name.endswith('w32.exe') or name.endswith('.dmg') or name.endswith('.tar.gz')):
-                    os.remove(os.path.join(root, name))
-                else:
-                    print "Keep file: ", name
-
-            for name in dirs:
-                fname = os.path.join(root, name)
-                if os.path.isdir(fname):
-                    os.rmdir(fname)
-                else:
-                    os.remove(fname)   # symbolic link
 
     def makePlatformPackage(self):
         """Packages are different for different platforms. Linux wants an RPM.
@@ -210,6 +216,9 @@ class NanoBuildWin32(NanoBuildBase):
         NanoBuildBase.__init__(self, appname, iconfile, rootDir, version, relNo, stat, tag)
         # are we running in a Cygwin terminal or a DOS window?
         self.cygwin = (os.environ.get('TERM') == 'cygwin')
+
+    def setupBuildSourcePath(self):
+        self.buildSourcePath = os.path.join(self.rootPath, self.appName)
 
     def prepareSources(self):
         """Checkout source code from cvs for the release """
@@ -595,6 +604,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         self.buildSourcePath = os.path.join(self.installRootPath, PMMT)
         self.diskImagePath = os.path.join(self.rootPath, 'diskImage')
         self.resourcePath = os.path.join(self.rootPath, 'resources')
+
     def createWelcomeFile(self, welcomeFile):
         """Write the welcome file for Mac package installer """
         wf = open(welcomeFile, 'w')
@@ -784,16 +794,13 @@ def main():
     # Mark 051117
 
     sp = sys.path
-    cadDir = os.path.join(os.getcwd(), "cad")
-    if sourceDirectory:
-        system("rm -rf " + cadDir)
-        system("cp -r %s %s" % (os.path.join(sourceDirectory, "cad"), cadDir))
-    elif cvsTag:
-        system("cvs -Q -z9 checkout -r %s cad/src/version.py" % cvsTag)
-    else:
-        system("cvs -Q -z9 checkout cad/src/version.py")
+    if not sourceDirectory:
+        if cvsTag:
+            system("cvs -Q -z9 checkout -r %s cad/src/version.py" % cvsTag)
+        else:
+            system("cvs -Q -z9 checkout cad/src/version.py")
     
-    sys.path.append(os.path.join(cadDir, "src"))
+    sys.path.append(os.path.join(sourceDirectory, "cad", "src"))
     from version import Version
     global VERSION, PMMT
     VERSION = Version()
@@ -818,11 +825,16 @@ def main():
 
     if os.path.isdir(rootDir):
         answer = "maybe"
-        while answer not in ['yes', 'no']:
-            answer = raw_input(("Do you want to use the existing directory %s? " +
-                                "All its contents will be erased (yes or no): ") % rootDir)
-            if answer == 'no':
+        answer = raw_input(("The directory %s already exists. " +
+                            "Destroy it and all its contents? (yes or no): ") % rootDir)
+        if answer.lower() != 'yes':
+            sys.exit()
+        clean(rootDir, cleanAll=True)
+        if os.path.isdir(rootDir):
+            if os.listdir(rootDir):
+                print "Expected " + rootDir + " would be empty, but it isn't"
                 sys.exit()
+            os.rmdir(rootDir)
 
     relNo = ""
     if hasattr(VERSION, "tiny"):
@@ -831,17 +843,13 @@ def main():
                         "%d.%d" % (VERSION.major, VERSION.minor),
                         relNo, VERSION.releaseType, cvsTag)
     builder.sourceDirectory = sourceDirectory
-    builder.clean(cadDir, True)
-    os.rmdir(cadDir)
     builder.build()
 
-    # The clean() method chokes on the symbolic link that I needed to use for the partlib
-    # on the Mac. It was already broken on Linux, possibly for the same reason. So only
-    # do cleanup on Windows.
-    if sys.platform == "win32":
-        builder.clean(rootDir)
-
-    if os.path.isdir(rootDir) and not os.listdir(rootDir): os.rmdir(rootDir)
+    if True:
+        # disable these things if you want to study the work area after a build
+        clean(rootDir)
+        if os.path.isdir(rootDir) and not os.listdir(rootDir):
+            os.rmdir(rootDir)
 
 if __name__ == '__main__':
     main()
