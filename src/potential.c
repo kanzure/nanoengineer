@@ -142,7 +142,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
         (k < stretchType->minPhysicalTableIndex ||
          k > stretchType->maxPhysicalTableIndex))
     {
-      WARNING2("excessive energy on %s bond at iteration %d", stretchType->bondName, Iteration);
+      WARNING2("excessive energy on %s bond at iteration %d -- further warnings suppressed", stretchType->bondName, Iteration);
       ExcessiveEnergyWarningThisFrame++;
     }
     if (k < 0) {
@@ -239,7 +239,7 @@ vanDerWaalsGradient(struct part *p, struct vanDerWaals *vdw, struct vanDerWaalsP
       !ExcessiveEnergyWarning &&
       k < parameters->minPhysicalTableIndex)
   {
-    WARNING2("excessive energy in %s vdw at iteration %d", parameters->vdwName, Iteration);
+    WARNING2("excessive energy in %s vdw at iteration %d -- further warnings suppressed", parameters->vdwName, Iteration);
     ExcessiveEnergyWarningThisFrame++;
   }
 
