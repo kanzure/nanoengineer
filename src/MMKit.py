@@ -46,40 +46,19 @@ class MMKit(MMKitDialog):
         self.newModel = None  ## used to save the selected lib part
         
         self.flayout = None
-        
-        if sys.platform == 'darwin': # inlined platform.is_macintosh()
-            # Work around for bug 1659. Sometimes the program crashes on MacOS when
-            # setting tab icons in the MMKit's tabwidget. mark 060310.
-            #bruce 060313 isolating Mac-specificness into self.icon_tabs and letting a debug_pref override it.
-            dflt_icon_tabs = False # for fear of bug 1659, though so far it only affects one specific machine
-        else:
-            dflt_icon_tabs = True # what we really want on all platforms, if not for bug 1659
-        
-        from debug_prefs import debug_pref, Choice_boolean_False, Choice_boolean_True
-        if dflt_icon_tabs:
-            choice = Choice_boolean_True
-        else:
-            choice = Choice_boolean_False
-        self.icon_tabs = debug_pref("use icons in MMKit tabs?", choice, prefs_key = "A7/MMKit tab icons")
-            #e Changes to this only take effect in the next session.
-            # Ideally we'd add a history message about that, when this is changed.
-            # (It's not yet easy to do that in a supported way in debug_pref.) [bruce 060313]
 
-        if not self.icon_tabs:
-            self.mmkit_tab.setMargin ( 0 ) 
-            self.mmkit_tab.setTabLabel (self.atomsPage, 'Atoms')
-            self.mmkit_tab.setTabLabel (self.clipboardPage, 'Clipbd')
-            self.mmkit_tab.setTabLabel (self.libraryPage, 'Lib')
-        else:
-            # Add icons to MMKit's tabs. mark 060223.
-            atoms_pm = imagename_to_pixmap("atoms.png")
-            self.mmkit_tab.setTabIconSet ( self.atomsPage, QIconSet(atoms_pm))
-        
-            clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
-            self.mmkit_tab.setTabIconSet ( self.clipboardPage, QIconSet(clipboard_pm)) # (modified in another method below)
-        
-            library_pm = imagename_to_pixmap("library.png")
-            self.mmkit_tab.setTabIconSet ( self.libraryPage, QIconSet(library_pm))
+        # wware 060420 - it looks like bugs 1659 and 1824 are really fixed now,
+        # so reinstate original icon tab code
+
+        # Add icons to MMKit's tabs. mark 060223.
+        atoms_pm = imagename_to_pixmap("atoms.png")
+        self.mmkit_tab.setTabIconSet ( self.atomsPage, QIconSet(atoms_pm))
+
+        clipboard_pm = imagename_to_pixmap("clipboard-empty.png")
+        self.mmkit_tab.setTabIconSet ( self.clipboardPage, QIconSet(clipboard_pm)) # (modified in another method below)
+
+        library_pm = imagename_to_pixmap("library.png")
+        self.mmkit_tab.setTabIconSet ( self.libraryPage, QIconSet(library_pm))
         
         # Tab tooltips. mark 060326
         self.mmkit_tab.setTabToolTip (self.atomsPage, 'Atoms')
@@ -446,10 +425,6 @@ class MMKit(MMKitDialog):
     def update_clipboard_page_icon(self):
         '''Updates the Clipboard page (tab) icon with a full or empty clipboard icon.
         '''
-        if not self.icon_tabs:
-            # Work around for bug 1659. mark 060310 [revised by bruce 060313]
-            return
-            
         if self.w.assy.shelf.get_pastable_chunks():
             clipboard_pm = imagename_to_pixmap("clipboard-full.png")
         else:
