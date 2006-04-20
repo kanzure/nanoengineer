@@ -92,6 +92,7 @@ struct jig
 	    double stall; // zero speed torque in pN-pm
 	    double speed; // zero torque speed in radians per second
             double minimizeTorque; // torque in nN-nm
+            double dampingCoefficient; // on springs between atoms and flywheel
 	    
 	    // A point on the motor axis
 	    struct xyz center;
@@ -268,6 +269,8 @@ extern void makeThermostat(struct part *p, char *name, double temperature, int f
 extern struct jig * makeRotaryMotor(struct part *p, char *name, double stall, double speed, struct xyz *center, struct xyz *axis, int atomListLength, int *atomList);
 
 extern void setInitialSpeed(struct jig *j, double initialSpeed);
+
+extern void setDampingCoefficient(struct jig *j, double dampingCoefficient);
 
 extern void makeLinearMotor(struct part *p, char *name, double force, double stiffness, struct xyz *center, struct xyz *axis, int atomListLength, int *atomList);
 

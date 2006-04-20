@@ -1006,6 +1006,7 @@ makeRotaryMotor(struct part *p, char *name,
     
     // convert from gigahertz to radians per second
     j->j.rmotor.speed = speed * 2.0e9 * Pi;
+    j->j.rmotor.dampingCoefficient = 0.001;
     j->j.rmotor.center = *center;
     j->j.rmotor.axis = uvec(*axis);
     // axis now has a length of one
@@ -1057,6 +1058,12 @@ setInitialSpeed(struct jig *j, double initialSpeed)
 {
     j->j.rmotor.omega = initialSpeed * 2.0e9 * Pi;
     // maybe also set minimizeTorque
+}
+
+void
+setDampingCoefficient(struct jig *j, double dampingCoefficient)
+{
+    j->j.rmotor.dampingCoefficient = dampingCoefficient;
 }
 
 // Create a linear motor jig in this part, given the name of the jig,

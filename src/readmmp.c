@@ -378,6 +378,7 @@ readMMP(char *filename)
   int previousAtomID = -1; // ID of atom just defined, so we can back-reference to it in later lines
   struct jig *previousRotaryMotor = NULL; // for back-reference of info line setting initial_speed
   double initialSpeed;
+  double dampingCoefficient;
   double stall;
   double speed;
   double force;
@@ -475,6 +476,17 @@ readMMP(char *filename)
             mmpParseError(mmp);
           }
           setInitialSpeed(previousRotaryMotor, initialSpeed);
+        } else if (!strcmp(tok, "damping_coefficient")) {
+          consumeWhitespace(mmp);
+          expectToken(mmp, "=");
+          expectDouble(mmp, &dampingCoefficient, 0);
+          consumeRestOfLine(mmp);
+
+          if (previousRotaryMotor == NULL) {
+            ERROR("setting damping_coefficient without previous rotary motor");
+            mmpParseError(mmp);
+          }
+          setDampingCoefficient(previousRotaryMotor, dampingCoefficient);
         }
       }
     }
