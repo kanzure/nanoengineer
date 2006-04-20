@@ -51,6 +51,7 @@ class MMKit(MMKitDialog):
         # hardware self.icon_tabs to True and simplify code accordingly. But we're not 100% certain, so by leaving
         # it as a debug pref, we can help any users who see those bugs come up again.
         # wware 060420
+        from debug_prefs import debug_pref, Choice_boolean_True
         self.icon_tabs = debug_pref("use icons in MMKit tabs?", Choice_boolean_True, prefs_key = "A7/mmkit tab icons")
             #e Changes to this only take effect in the next session.
             # Ideally we'd add a history message about that, when this is changed.
