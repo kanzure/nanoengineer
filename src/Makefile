@@ -129,7 +129,7 @@ teststructcompare: structcompare.c minimize.o allocate.o lin-alg.o
 
 glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
-	$(CC) -o glviewer $(LDFLAGS) -lGL -lGLU glviewer.o allocate.o
+	$(CC) -o glviewer $(LDFLAGS) -L/usr/X11R6/lib -lGL -lGLU glviewer.o allocate.o
 
 sim.so: Makefile $(PYREXSRCS) version.h bends.gen bonds.gen sim.pyx simhelp.c
 	python setup.py build_ext --inplace
@@ -151,7 +151,7 @@ clean:
 	rm -f version.h bonds.gen bends.gen
 	rm -f $(SIMTARGET) moldisp molsim physeng sim.so sim.c
 	rm -f glviewer
-	rm -f *.o *.a *.dll *.def sim.c *.so *~ fmc.mmp dumpstruct.xyz *.pyc *.gcno
+	rm -f *.o *.a *.dll *.def sim.c *.so \.\#* *~ fmc.mmp dumpstruct.xyz *.pyc *.gcno
 	rm -rf html gmon.out build obj
 	rm -f tests/*/*.trcnew
 	rm -f tests/*/*.altout
