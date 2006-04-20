@@ -794,13 +794,16 @@ def main():
     # Mark 051117
 
     sp = sys.path
-    if not sourceDirectory:
-        if cvsTag:
-            system("cvs -Q -z9 checkout -r %s cad/src/version.py" % cvsTag)
-        else:
-            system("cvs -Q -z9 checkout cad/src/version.py")
+    cadDir = os.path.join(os.getcwd(), "cad")
+    if sourceDirectory:
+        system("rm -rf " + cadDir)
+        system("cp -r %s %s" % (os.path.join(sourceDirectory, "cad"), cadDir))
+    elif cvsTag:
+        system("cvs -Q -z9 checkout -r %s cad/src/version.py" % cvsTag)
+    else:
+        system("cvs -Q -z9 checkout cad/src/version.py")
     
-    sys.path.append(os.path.join(sourceDirectory, "cad", "src"))
+    sys.path.append(os.path.join(cadDir, "src"))
     from version import Version
     global VERSION, PMMT
     VERSION = Version()
@@ -825,16 +828,11 @@ def main():
 
     if os.path.isdir(rootDir):
         answer = "maybe"
-        answer = raw_input(("The directory %s already exists. " +
-                            "Destroy it and all its contents? (yes or no): ") % rootDir)
-        if answer.lower() != 'yes':
-            sys.exit()
-        clean(rootDir, cleanAll=True)
-        if os.path.isdir(rootDir):
-            if os.listdir(rootDir):
-                print "Expected " + rootDir + " would be empty, but it isn't"
+        while answer not in ['yes', 'no']:
+            answer = raw_input(("Do you want to use the existing directory %s? " +
+                                "All its contents will be erased (yes or no): ") % rootDir)
+            if answer == 'no':
                 sys.exit()
-            os.rmdir(rootDir)
 
     relNo = ""
     if hasattr(VERSION, "tiny"):
@@ -843,13 +841,17 @@ def main():
                         "%d.%d" % (VERSION.major, VERSION.minor),
                         relNo, VERSION.releaseType, cvsTag)
     builder.sourceDirectory = sourceDirectory
+    clean(cadDir, True)
+    os.rmdir(cadDir)
     builder.build()
 
-    if True:
-        # disable these things if you want to study the work area after a build
+    # The clean() method chokes on the symbolic link that I needed to use for the partlib
+    # on the Mac. It was already broken on Linux, possibly for the same reason. So only
+    # do cleanup on Windows.
+    if sys.platform == "win32":
         clean(rootDir)
-        if os.path.isdir(rootDir) and not os.listdir(rootDir):
-            os.rmdir(rootDir)
+
+    if os.path.isdir(rootDir) and not os.listdir(rootDir): os.rmdir(rootDir)
 
 if __name__ == '__main__':
     main()
