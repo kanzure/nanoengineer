@@ -1302,7 +1302,10 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     movie.currentFrame = 0 #bruce 060108 moved this here, was in some caller's success cases
     movie.realtime_played_framenumber = 0 #bruce 060108
     movie.minimize_flag = not not mflag # whether we're doing some form of Minimize [bruce 060112]
+    # wware 060420 - disable atom/bond highlighting while simulating, improves simulator performance
+    part.assy.o.is_animating = True
     simrun.run_using_old_movie_obj_to_hold_sim_params(movie)
+    part.assy.o.is_animating = False
     if 1:
         #bruce 060108 part of fixing bug 1273
         fn = movie.realtime_played_framenumber
