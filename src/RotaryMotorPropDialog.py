@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Fri Apr 14 14:27:58 2006
+# Created: Wed Apr 19 21:47:43 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -307,11 +307,23 @@ class RotaryMotorPropDialog(QDialog):
         self.textLabel1_2_3.setText(self.__tr("Initial Speed :"))
         self.textLabel1_2.setText(self.__tr("Final Speed :"))
         self.nameLineEdit.setText(QString.null)
+        QToolTip.add(self.nameLineEdit,self.__tr("Name of rotary motor."))
+        QWhatsThis.add(self.nameLineEdit,self.__tr("<b>Name</b><p>Name of Rotary Motor</p>"))
+        QToolTip.add(self.torqueLineEdit,self.__tr("Simulation will begin with the motor's torque set to this value."))
+        QWhatsThis.add(self.torqueLineEdit,self.__tr("<b>Torque </b><p>Simulation will begin with the motor's torque set to this value.</p>"))
+        QToolTip.add(self.speedLineEdit,self.__tr("The final velocity of the motor's flywheel."))
+        QWhatsThis.add(self.speedLineEdit,self.__tr("<b>Final Speed</b><p>The final velocity of the motor's flywheel.</p>"))
         self.textLabel1_4.setText(self.__tr("nN-nm"))
         self.textLabel2.setText(self.__tr("GHz"))
         self.textLabel2_2.setText(self.__tr("GHz"))
+        QToolTip.add(self.initialSpeedLineEdit,self.__tr("The beginning velocity of the motor's flywheel."))
+        QWhatsThis.add(self.initialSpeedLineEdit,self.__tr("<b>Initial Speed</b><p>Simulation will begin with the motor's flywheel rotating at this velocity.</p>"))
         self.textLabel1_5.setText(self.__tr("Enable in Minimize (experimental) :"))
+        QToolTip.add(self.textLabel1_5,self.__tr("If checked, the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations to begin with rotary motors running at speed, this feature requires more work to be useful."))
+        QWhatsThis.add(self.textLabel1_5,self.__tr("<b>Enable in Minimize <i>(experimental)</i></b><p>If checked, the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations to begin with rotary motors running at speed, this feature requires more work to be useful.</p>"))
         self.enable_minimize_checkbox.setText(QString.null)
+        QToolTip.add(self.enable_minimize_checkbox,self.__tr("If checked, the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations to begin with rotary motors running at speed, this feature requires more work to be useful."))
+        QWhatsThis.add(self.enable_minimize_checkbox,self.__tr("<b>Enable in Minimize <i>(experimental)</i></b><p>If checked, the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations to begin with rotary motors running at speed, this feature requires more work to be useful.</p>"))
         self.groupBox1.setTitle(self.__tr("Size and Color"))
         self.choose_color_btn.setText(self.__tr("Choose..."))
         self.textLabel1_2_2_2.setText(self.__tr("Spoke Radius :"))
