@@ -155,7 +155,7 @@ if sys.platform == 'darwin':
                     print
         	inf.close()
         	if "ALL IMPORTS COMPLETED" not in lines:
-        	    # This means this machine is almost certainly unable to run nE-1, probably due to bug 1724.
+        	    # This means this machine is almost certainly unable to run nE-1, probably due to bug 1724 or 1882.
         	    # Print some info, including a possible workaround, into the logfile displayable by Console.app,
         	    # and then try to put up a dialog. (The one put up by py2app if we raise an exception
         	    # offers to open the Console, so that's probably best.)
@@ -163,7 +163,7 @@ if sys.platform == 'darwin':
         	    # but that's ok, since we'd really rather you email support@nanorex.com first anyway, so we know whether
         	    # anyone actually encounters this problem.
         	    print "\n * * * * "
-            	    print "There were import problems in the test subprocess (bug 1724?); try to warn the user with a dialog..."
+            	    print "There were import problems in the test subprocess (bug 1724? 1882?); try to warn the user with a dialog..."
             	    print
             	    print "Note: one workaround might be to remove (or disable by renaming)"
             	    print "/Library/Frameworks/Python.framework and perhaps /Developer/qt,"
@@ -171,14 +171,21 @@ if sys.platform == 'darwin':
             	    print "and to avoid any chance of this app using a qt dylib other than the one it contains."
             	    print " * * * * \n" 
             	    if "QT IMPORT WORKED" not in lines:
-                        # let py2pp show the user a dialog, since we can't use qt for that
+                        # This is not bug 1724, and no specific causes are known except file permission problems in the installer
+                        # (probably fixed in autoBuild.py rev 1.51 on 060420), or bug 1882 (Intel Mac problems in qt.so).
+                        # Let py2app show the user a dialog, since obviously we can't use Qt for one.
+                        # (We do this by raising an exception, and a py2app startup file turns its text into a dialog.)
                         assert 0, \
                                "Internal error linking to self-contained qt dylib; "\
-                               "nanoENGINEER-1 can't run on this machine as it's currently configured.\n\n"\
-                               "Please contact support@nanorex.com for help."
+                               "this might be caused by a bug in the nanoENGINEER-1 installer, "\
+                               "or by this version of nE-1 not working properly on Intel Macs.\n"\
+                               "\n"\
+                               "Please contact support@nanorex.com for help and more information."
                     else:
-                        # use a qt dialog, if we can -- actually this is not desirable, since py2app's dialog has a Console button,
-                        # so it's commented out instead (the current code for it doesn't yet work anyway, as its comment explains)
+                        # This is probably bug 1724.
+                        # We could in theory use a Qt dialog -- but actually this is not desirable, since py2app's dialog
+                        # is better since it has a button which opens Console.app. (The following commented-out code
+                        #  shows how we might try to use a Qt dialog, but it doesn't yet work, as its comment explains.)
 ##                        try:
 ##                            import qt
 ##                            # The following QMessageBox fails with this error:
@@ -195,10 +202,16 @@ if sys.platform == 'darwin':
 ##                                    "Please contact support@nanorex.com for help." ###test
 ##                                    );
 ##                        except:
+                        # So in this case too, we raise an exception in order to get py2app to show it in a dialog.
+                        # The only known cause of this is bug 1724; there may also be unknown causes.
                             assert 0, \
-                               "Internal error during startup; "\
-                               "nanoENGINEER-1 can't run on this machine as it's currently configured.\n\n"\
-                               "Please contact support@nanorex.com for help."
+                                "Internal error during startup; "\
+                                "nanoENGINEER-1 can't run on this machine as it's currently configured.\n"\
+                                "\n"\
+                                "(The known causes of this problem have a simple solution, "\
+                                "but one which the nE-1 installer can't perform automatically.)\n"\
+                                "\n"\
+                                "Please contact support@nanorex.com for help and more information."
             	    ## sys.exit(1)
                 else:
                     if debug_1724:
