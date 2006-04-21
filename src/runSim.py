@@ -587,6 +587,10 @@ class SimRunner:
                 self.temp = realmovie.temp
                 self.stepsper = realmovie.stepsper
                 self.watch_motion = realmovie.watch_motion
+            def fyi_reusing_your_moviefile(self, moviefile):
+                pass
+            def might_be_playable(self):
+                return False
         self.assy.stickyParams = FakeMovie(movie)
         # return whatever results are appropriate -- for now, we stored each one in an attribute (above)
         return
