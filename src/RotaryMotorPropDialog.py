@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\RotaryMotorPropDialog.ui'
 #
-# Created: Wed Apr 19 21:47:43 2006
+# Created: Fri Apr 21 17:22:21 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -90,24 +90,7 @@ class RotaryMotorPropDialog(QDialog):
         self.setIcon(self.image0)
         self.setSizeGripEnabled(1)
 
-        RotaryMotorPropDialogLayout = QGridLayout(self,1,1,11,6,"RotaryMotorPropDialogLayout")
-        spacer6 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        RotaryMotorPropDialogLayout.addItem(spacer6,3,0)
-
-        layout45 = QHBoxLayout(None,0,6,"layout45")
-        spacer7 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout45.addItem(spacer7)
-
-        self.ok_btn = QPushButton(self,"ok_btn")
-        self.ok_btn.setAutoDefault(0)
-        self.ok_btn.setDefault(0)
-        layout45.addWidget(self.ok_btn)
-
-        self.cancel_btn = QPushButton(self,"cancel_btn")
-        self.cancel_btn.setAutoDefault(0)
-        layout45.addWidget(self.cancel_btn)
-
-        RotaryMotorPropDialogLayout.addLayout(layout45,4,0)
+        RotaryMotorPropDialogLayout = QVBoxLayout(self,11,6,"RotaryMotorPropDialogLayout")
 
         layout10 = QHBoxLayout(None,0,6,"layout10")
 
@@ -178,21 +161,32 @@ class RotaryMotorPropDialog(QDialog):
         layout10.addLayout(layout9)
         spacer5_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout10.addItem(spacer5_2)
+        RotaryMotorPropDialogLayout.addLayout(layout10)
 
-        RotaryMotorPropDialogLayout.addLayout(layout10,0,0)
+        layout13 = QHBoxLayout(None,0,6,"layout13")
 
-        layout11 = QHBoxLayout(None,0,6,"layout11")
+        layout11 = QVBoxLayout(None,0,6,"layout11")
+
+        self.dampers_textlabel = QLabel(self,"dampers_textlabel")
+        self.dampers_textlabel.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout11.addWidget(self.dampers_textlabel)
 
         self.textLabel1_5 = QLabel(self,"textLabel1_5")
         self.textLabel1_5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout11.addWidget(self.textLabel1_5)
+        layout13.addLayout(layout11)
+
+        layout12 = QVBoxLayout(None,0,6,"layout12")
+
+        self.dampers_checkbox = QCheckBox(self,"dampers_checkbox")
+        layout12.addWidget(self.dampers_checkbox)
 
         self.enable_minimize_checkbox = QCheckBox(self,"enable_minimize_checkbox")
-        layout11.addWidget(self.enable_minimize_checkbox)
-        spacer16 = QSpacerItem(83,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout11.addItem(spacer16)
-
-        RotaryMotorPropDialogLayout.addLayout(layout11,1,0)
+        layout12.addWidget(self.enable_minimize_checkbox)
+        layout13.addLayout(layout12)
+        spacer16_2 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout13.addItem(spacer16_2)
+        RotaryMotorPropDialogLayout.addLayout(layout13)
 
         self.groupBox1 = QGroupBox(self,"groupBox1")
         self.groupBox1.setColumnLayout(0,Qt.Vertical)
@@ -269,12 +263,27 @@ class RotaryMotorPropDialog(QDialog):
         self.textLabel3_3 = QLabel(self.groupBox1,"textLabel3_3")
 
         groupBox1Layout.addWidget(self.textLabel3_3,2,2)
+        RotaryMotorPropDialogLayout.addWidget(self.groupBox1)
+        spacer6 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        RotaryMotorPropDialogLayout.addItem(spacer6)
 
-        RotaryMotorPropDialogLayout.addWidget(self.groupBox1,2,0)
+        layout45 = QHBoxLayout(None,0,6,"layout45")
+        spacer7 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout45.addItem(spacer7)
+
+        self.ok_btn = QPushButton(self,"ok_btn")
+        self.ok_btn.setAutoDefault(0)
+        self.ok_btn.setDefault(0)
+        layout45.addWidget(self.ok_btn)
+
+        self.cancel_btn = QPushButton(self,"cancel_btn")
+        self.cancel_btn.setAutoDefault(0)
+        layout45.addWidget(self.cancel_btn)
+        RotaryMotorPropDialogLayout.addLayout(layout45)
 
         self.languageChange()
 
-        self.resize(QSize(280,344).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(280,368).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.reject)
@@ -298,10 +307,6 @@ class RotaryMotorPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Rotary Motor Properties"))
-        self.ok_btn.setText(self.__tr("&OK"))
-        self.ok_btn.setAccel(self.__tr("Alt+O"))
-        self.cancel_btn.setText(self.__tr("&Cancel"))
-        self.cancel_btn.setAccel(self.__tr("Alt+C"))
         self.nameTextLabel.setText(self.__tr("Name :"))
         self.textLabel1.setText(self.__tr("Torque :"))
         self.textLabel1_2_3.setText(self.__tr("Initial Speed :"))
@@ -318,9 +323,15 @@ class RotaryMotorPropDialog(QDialog):
         self.textLabel2_2.setText(self.__tr("GHz"))
         QToolTip.add(self.initialSpeedLineEdit,self.__tr("The beginning velocity of the motor's flywheel."))
         QWhatsThis.add(self.initialSpeedLineEdit,self.__tr("<b>Initial Speed</b><p>Simulation will begin with the motor's flywheel rotating at this velocity.</p>"))
+        self.dampers_textlabel.setText(self.__tr("Dampers :"))
+        QToolTip.add(self.dampers_textlabel,self.__tr("If checked, the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations to begin with rotary motors running at speed, this feature requires more work to be useful."))
+        QWhatsThis.add(self.dampers_textlabel,self.__tr("<b>Enable in Minimize <i>(experimental)</i></b><p>If checked, the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations to begin with rotary motors running at speed, this feature requires more work to be useful.</p>"))
         self.textLabel1_5.setText(self.__tr("Enable in Minimize (experimental) :"))
         QToolTip.add(self.textLabel1_5,self.__tr("If checked, the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations to begin with rotary motors running at speed, this feature requires more work to be useful."))
         QWhatsThis.add(self.textLabel1_5,self.__tr("<b>Enable in Minimize <i>(experimental)</i></b><p>If checked, the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations to begin with rotary motors running at speed, this feature requires more work to be useful.</p>"))
+        self.dampers_checkbox.setText(QString.null)
+        QToolTip.add(self.dampers_checkbox,self.__tr("If checked, dampers are enabled in the simulator."))
+        QWhatsThis.add(self.dampers_checkbox,self.__tr("<b>Dampers</b><p>If checked, the dampers are enabled for this motor during a simulation. See the Rotary Motors web page on the nanoENGINEER-1 Wiki for more information.</p>"))
         self.enable_minimize_checkbox.setText(QString.null)
         QToolTip.add(self.enable_minimize_checkbox,self.__tr("If checked, the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations to begin with rotary motors running at speed, this feature requires more work to be useful."))
         QWhatsThis.add(self.enable_minimize_checkbox,self.__tr("<b>Enable in Minimize <i>(experimental)</i></b><p>If checked, the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations to begin with rotary motors running at speed, this feature requires more work to be useful.</p>"))
@@ -333,6 +344,10 @@ class RotaryMotorPropDialog(QDialog):
         self.textLabel3_2.setText(self.__tr("Angstroms"))
         self.textLabel3.setText(self.__tr("Angstroms"))
         self.textLabel3_3.setText(self.__tr("Angstroms"))
+        self.ok_btn.setText(self.__tr("&OK"))
+        self.ok_btn.setAccel(self.__tr("Alt+O"))
+        self.cancel_btn.setText(self.__tr("&Cancel"))
+        self.cancel_btn.setAccel(self.__tr("Alt+C"))
 
 
     def change_jig_color(self):

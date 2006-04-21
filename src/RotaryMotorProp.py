@@ -33,6 +33,7 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         self.radiusLineEdit.setText(str(self.jig.radius))
         self.sradiusLineEdit.setText(str(self.jig.sradius)) # spoke radius
         self.enable_minimize_checkbox.setChecked(self.jig.enable_minimize)
+        self.dampers_checkbox.setChecked(True) # Bruce should replace True with the proper attr.  Mark 060421.
 
     def change_jig_color(self):
         '''Slot method to change the jig's color.'''
