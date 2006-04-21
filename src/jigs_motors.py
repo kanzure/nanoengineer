@@ -204,7 +204,7 @@ class RotaryMotor(Motor):
     _initial_posns = None #bruce 060310 added default values for _initial_* and added them to copyable_attrs, to fix bug 1656
     _initial_quats = None
     
-    copyable_attrs = Motor.copyable_attrs + ('torque', 'initial_speed', 'speed', 'enable_minimize', \
+    copyable_attrs = Motor.copyable_attrs + ('torque', 'initial_speed', 'speed', 'enable_minimize', 'dampers_enabled', \
                                              'length', 'radius', 'sradius', \
                                              'center', 'axis', \
                                              '_initial_posns', '_initial_quats' )
@@ -471,7 +471,8 @@ class LinearMotor(Motor):
     icon_names = ["lmotor.png", "lmotor-hide.png"]
     featurename = "Linear Motor" #bruce 051203
 
-    copyable_attrs = Motor.copyable_attrs + ('force', 'stiffness', 'length', 'width', 'sradius', 'center', 'axis', 'enable_minimize')
+    copyable_attrs = Motor.copyable_attrs + ('force', 'stiffness', 'length', 'width', 'sradius', 'center', 'axis', \
+                                             'enable_minimize', 'dampers_enabled')
 
     # create a blank Linear Motor not connected to anything
     def __init__(self, assy, atomlist = []): #bruce 050526 added optional atomlist arg

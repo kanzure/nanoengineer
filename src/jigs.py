@@ -68,17 +68,25 @@ class Jig(Node):
     # But at least we'll give them default values for the sake of new jig subclasses. [bruce 050425]
     color = normcolor = (0.5, 0.5, 0.5)
     
-    # "Enable Minimize" is only supported for motors.  Otherwise, it is ignored.  Mark 051006.
+    # "Enable in Minimize" is only supported for motors.  Otherwise, it is ignored.  Mark 051006.
     # [I suspect the cad code supports it for all jigs, but only provides a UI to set it for motors. -- bruce 051102]
     enable_minimize = False # whether a jig should apply forces to atoms during Minimize
         # [should be renamed 'enable_in_minimize', but I'm putting this off since it affects lots of files -- bruce 051102]
         # WARNING: this is added to copyable_attrs in some subclasses, rather than here
         # (which is bad style, IMHO, but I won't change it for now). [bruce 060228 comment]
+        # (update, bruce 060421: it may be bad style, but in current copy & undo code it also saves memory & time
+        #  if there are lots of jigs. I don't know if there can yet be lots of jigs in practice, in ways that affect those things,
+        #  since I forget the details of pi_bond_sp_chain jigs.)
+
+    dampers_enabled = True # whether a jig which can have dampers should actually have them (default True in cad and sim)
+        # (only used in rotary motor sim & UI so far, but supported for read & write for all jigs,
+        #  and for copy for rotary and linear motors) [bruce 060421 for A7]
     
     atoms = None
     cntl = None # see set_cntl method (creation of these deferred until first needed, by bruce 050526)
     
-    copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color') # added in some subclasses: 'enable_minimize'
+    copyable_attrs = Node.copyable_attrs + ('pickcolor', 'normcolor', 'color')
+        # added in some subclasses: 'enable_minimize', 'dampers_enabled'
         # most Jig subclasses need to extend this further
 
     _s_attr_atoms = S_REFS #bruce 060228 fix bug 1592 [untested]
@@ -348,6 +356,8 @@ class Jig(Node):
         Node.writemmp_info_leaf(self, mapping)
         if self.enable_minimize:
             mapping.write("info leaf enable_in_minimize = True\n") #bruce 051102
+        if not self.dampers_enabled:
+            mapping.write("info leaf dampers_enabled = False\n") #bruce 060421
         return
 
     def readmmp_info_leaf_setitem( self, key, val, interp ): #bruce 051102
@@ -356,6 +366,10 @@ class Jig(Node):
             # val should be "True" or "False" (unrecognized vals are treated as False)
             val = (val == 'True')
             self.enable_minimize = val
+        elif key == ['dampers_enabled']:
+            # val should be "True" or "False" (unrecognized vals are treated as True)
+            val = (val != 'False')
+            self.dampers_enabled = val
         else:
             Node.readmmp_info_leaf_setitem( self, key, val, interp)
         return
@@ -469,7 +483,7 @@ class Jig(Node):
         midpart = self.mmp_record_jigspecific_midpart()
         lastpart = self._mmp_record_last_part(mapping) # note: this also calls atnums_or_None
 
-        if lastpart == " ": # kluge! should return a flag instead [bruce 051102 for "enable minimize"]
+        if lastpart == " ": # kluge! should return a flag instead [bruce 051102 for "enable in minimize"]
             # this happens during "minimize selection" if a jig is enabled for minimize but none of its atoms are being minimized.
             return "# jig with no selected atoms skipped for minimize\n", False
         
@@ -483,7 +497,7 @@ class Jig(Node):
         """
         return ""
 
-    # Added "return_partial_list" after a discussion with Bruce about enable minimize jigs.
+    # Added "return_partial_list" after a discussion with Bruce about "enable in minimize" jigs.
     # This would allow a partial atom list to be returned.
     # [Mark 051006 defined return_partial_list API; bruce 051031 revised docstring and added implem,
     #  here and in one subclass.]

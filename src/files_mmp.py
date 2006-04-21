@@ -95,6 +95,10 @@ Part Properties dialog), so no harm is caused by changing it.
 
 '050920 required; 051102 preferred' -- bruce, adding "info leaf enable_in_minimize"
 
+'050920 required; 051103 preferred' -- this value existed for some time; unknown whether the prior one actually existed or not
+
+'050920 required; 060421 preferred' -- bruce, adding "info leaf dampers_enabled"
+
 ===
 
 General notes about when to change the mmp format version:
@@ -107,7 +111,7 @@ new file, which is initially in the same directory as this file.]
 
 """
 
-MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 051103 preferred'
+MMP_FORMAT_VERSION_TO_WRITE = '050920 required; 060421 preferred'
 #bruce modified this to indicate required & ideal reader versions... see general notes above.
 
 from Numeric import *

@@ -33,7 +33,7 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         self.radiusLineEdit.setText(str(self.jig.radius))
         self.sradiusLineEdit.setText(str(self.jig.sradius)) # spoke radius
         self.enable_minimize_checkbox.setChecked(self.jig.enable_minimize)
-        self.dampers_checkbox.setChecked(True) # Bruce should replace True with the proper attr.  Mark 060421.
+        self.dampers_checkbox.setChecked(self.jig.dampers_enabled) # mark & bruce 060421
 
     def change_jig_color(self):
         '''Slot method to change the jig's color.'''
@@ -64,6 +64,7 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         self.change_motor_size(gl_update=False)
         
         self.jig.enable_minimize = self.enable_minimize_checkbox.isChecked()
+        self.jig.dampers_enabled = self.dampers_checkbox.isChecked() # bruce 060421
         
         self.jig.assy.w.win_update() # Update model tree
         self.jig.assy.changed()
