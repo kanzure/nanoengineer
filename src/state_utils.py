@@ -861,9 +861,16 @@ else:
         # note: this is the type of a QColor instance, not of the class!
         # type(QColor) is <type 'sip.wrappertype'>, which we'll just treat as a constant,
         # so we don't need to handle it specially.
-    assert QColor_type != InstanceType
-    ## wrong: copiers_for_InstanceType_class_names['qt.QColor'] = copy_QColor
-    known_type_copiers[ QColor_type ] = copy_QColor
+    if QColor_type != InstanceType:
+        ## wrong: copiers_for_InstanceType_class_names['qt.QColor'] = copy_QColor
+        known_type_copiers[ QColor_type ] = copy_QColor
+    else:
+        print "Warning: QColor_type is %r, id %#x,\n and InstanceType is %r, id %#x," % \
+              ( QColor_type, id(QColor_type), InstanceType, id(InstanceType) )
+        print " and they should be != but are not,"
+        print " so Undo is not yet able to copy QColors properly; this is not known to cause bugs"
+        print " but its full implications are not yet understood. So far this is only known to happen"
+        print " in some systems running Mandrake Linux 10.1. [message last updated 060421]"
     # no scanner for QColor is needed, since it contains no InstanceType objects.
     # no same_helper is needed, since '!=' will work correctly (only possible since it contains no general Python objects).
     del QColor, QColor_type
