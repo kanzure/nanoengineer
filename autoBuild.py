@@ -1,10 +1,12 @@
-# Copyright (c) 2004-2005 Nanorex, Inc.  All rights reserved.
+# Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
 autoBuild.py -- Creates the nanoENGINEER-1 install package for Windows, Mac and Linux.
 
 $Id$
 
 History:
+
+060420 bruce minor changes
 
 051110 Taken over by Will Ware
 
@@ -49,7 +51,9 @@ def clean(rootPath, cleanAll=False):
 
         for name in dirs:
             fname = os.path.join(root, name)
-            if os.path.isdir(fname):
+            if os.path.islink(fname):
+                os.remove(fname)   # symbolic link (try 2)
+            elif os.path.isdir(fname):
                 clean(fname, cleanAll)
                 try:
                     os.rmdir(fname)
@@ -59,7 +63,7 @@ def clean(rootPath, cleanAll=False):
                     if cleanAll:
                         raise
             else:
-                os.remove(fname)   # symbolic link
+                os.remove(fname)   # symbolic link (try 1, didn't work on Mac partlib, left in in case it helps other things)
 
 class AbstractMethod(Exception):
     """Indicates that something must be overloaded because it isn't usefully
@@ -75,9 +79,13 @@ class NanoBuildBase:
         self.rootPath = rootDir # sub-directory where the executable and temporary files are stored
         self.appName = appname # Application name, e.g., 'nanoENGINEER-1'
         self.iconFile = iconfile # The icon file name
-        self.version = version # version number, e.g. '0.0'
-        self.releaseNo = relNo # release number, e.g. '7'
-        self.status = stat # release status, e.g. 'a', 'b', which mean 'Alpha', 'Beta' respectly.
+        self.version = version # version number, e.g. '0.7'
+        self.releaseNo = relNo # release number, e.g. '1' (can be missing; presumably actual value is then '')
+        if self.releaseNo:
+            self.fullversion = "%s.%s" % (self.version, self.releaseNo) #bruce 060420 to help support missing self.releaseNo
+        else:
+            self.fullversion = self.version
+        self.status = stat # release status, e.g. 'a', 'b', which mean 'Alpha', 'Beta' respectively. [or missing???]
         self.cvsTag = tag # cvs tag name that you want to use to build the package, without it,
         # it will just use the current version in cvs repository.
         self.sourceDirectory = None # For debug: if you want local sources instead of real
@@ -86,6 +94,11 @@ class NanoBuildBase:
         self.atomPath = os.path.join(self.rootPath, 'atom')
         self.setupBuildSourcePath()
 
+    def startup_warnings(self):
+        """Print warnings about prerequisites, etc, to user, specific to each platform.
+        """
+        pass
+    
     def build(self):
         '''Main build method.'''
         self.createDirectories()
@@ -129,6 +142,7 @@ class NanoBuildBase:
         if self.sourceDirectory:
             # we would only do this when experimenting anyway, so we don't
             # need the restriction on cad/doc here
+            ####e THIS EFFECT OF -s NEEDS TO BE DOCUMENTED! [bruce 060420 comment]
             system("cp -r %s ." % os.path.join(self.sourceDirectory, "cad"))
             system("cp -r %s ." % os.path.join(self.sourceDirectory, "sim"))
         elif not self.cvsTag:
@@ -146,7 +160,7 @@ class NanoBuildBase:
         print "----------Sources have been checked out and made.\n"
 
     def buildSimulator(self):
-        """Checkout source code from cvs for the release """
+        """Build the simulators (standalone and pyrex)"""
         os.chdir(os.path.join(self.atomPath, 'sim/src'))
         system('make')
         system('make pyx')
@@ -274,21 +288,18 @@ class NanoBuildWin32(NanoBuildBase):
             # this happens, apparently not a problem
             print "Warning, exit status for 'python setup.py py2exe' was not zero"
 
-    def createIssFile(self, issFile, appName, version, releaseNo, sourceDir, status):
+    def createIssFile(self, issFile, appName, sourceDir, status):
         """Create the iss file (script) to build package on Windows.  The iss script
         contains all the instructions for the installation package.
         """
+        version = self.version
         print "\n------------------------------------------------------\nCreating Inno Setup configuration script"
         isf = open(issFile, 'w')
         isf.write("; SEE THE DOCUMENTATION FOR DETAILS ON CREATING .ISS SCRIPT FILES! \n\n")
         isf.write("[Setup]\n")
         isf.write("AppName=%s\n" % appName)
-        if releaseNo:
-            appnamever = appName + " v" + version + "." + releaseNo
-            ver = "v%s.%s" % (version, releaseNo)
-        else:
-            appnamever = appName + " v" + version
-            ver = "v%s" % version
+        appnamever = appName + " v" + self.fullversion #bruce 060420 simplified this code to use self.fullversion
+        ver = "v%s" % self.fullversion
         if not status:
             isf.write("AppVerName=%s %s\n" % (appName, version))
             isf.write("DefaultDirName={pf}\\" + appnamever + "\n")
@@ -353,7 +364,7 @@ class NanoBuildWin32(NanoBuildBase):
         self._addDLLs()
         issFile = os.path.join(self.rootPath, 'setup.iss')
         print "self.status: ", self.status
-        self.createIssFile(issFile, self.appName, self.version, self.releaseNo,
+        self.createIssFile(issFile, self.appName,
                             self.buildSourcePath, self.status)
         outputFile = PMMT + '-w32'
         # Run Inno Setup command to build the install package for Windows (only).
@@ -513,6 +524,16 @@ fi
 ########################################################
 
 class NanoBuildMacOSX(NanoBuildBase):
+
+    def startup_warnings(self): #bruce 060420
+        print "* * * WARNING: after most of this script has finished, we'll run a sudo chown root"
+        print "command which might ask for your root password."
+        print
+        print "(making sure some required imports will succeed)"
+        import py2app as _junk # required by 'python setup.py py2app'
+        ##e should also make sure the files we'll later copy are there, e.g. gnuplot
+        return
+    
     def createMiddleDirectories(self):
         os.mkdir(self.installRootPath)
         os.mkdir(self.diskImagePath)
@@ -526,15 +547,19 @@ class NanoBuildMacOSX(NanoBuildBase):
         #
         os.chdir(self.currentPath)
         copy('background.jpg', self.resourcePath)
-        copy('libaquaterm.1.0.0.dylib', self.buildSourcePath)
+        ## copy('libaquaterm.1.0.0.dylib', self.buildSourcePath) # done later, so gets directly into right place
         copy('setup.py', os.path.join(self.atomPath,'cad/src'))
         #
         #
         self.freezePythonExecutable()
         #
         #
-        os.chdir(os.path.join(self.atomPath,'cad'))
         appname = self.appName + '.app'
+        cfdir = os.path.join(self.buildSourcePath, appname, 'Contents', 'Frameworks')
+        assert os.path.isdir(cfdir) #bruce 060420
+        copy( os.path.join(self.currentPath, 'libaquaterm.1.0.0.dylib'), cfdir )
+            #bruce 060420 moved this here, replacing postflight script's move, making postflight script unnecessary
+        os.chdir(os.path.join(self.atomPath,'cad'))
         copytree('doc', os.path.join(self.buildSourcePath, appname, 'Contents/doc'))
         copytree('images', os.path.join(self.buildSourcePath, appname, 'Contents/images'))
         # Put the partlib outside the app bundle, where users can see its internal
@@ -547,19 +572,21 @@ class NanoBuildMacOSX(NanoBuildBase):
         #
         self.binPath = binPath = os.path.join(self.buildSourcePath, appname, 'Contents/bin')
         os.mkdir(binPath)
-        ne1files = listResults("find " + self.buildSourcePath + " -name nanoENGINEER-1.py")
-        for f in ne1files:
-            os.chmod(f, 0755)
+#bruce 060420 zapping this, since redundant with new chmod code done later for all files (and 755 should be 775 anyway):
+##        ne1files = listResults("find " + self.buildSourcePath + " -name nanoENGINEER-1.py")
+##        for f in ne1files:
+##            os.chmod(f, 0755)
         self.copyOtherSources()
-        print "------All python modules are packaged tegether."
+        print "------All python modules are packaged together."
 
 
     def freezePythonExecutable(self):
         os.chdir(os.path.join(self.atomPath,'cad/src'))
         os.rename('atom.py', self.appName + '.py')
-        system('python setup.py py2app --includes=sip --excludes=OpenGL --iconfile %s  -d %s' %
+        #bruce 060420 adding more excludes: _tkinter (otherwise it copies /Library/Frameworks/{Tcl,Tk}.framework into Contents/Frameworks)
+        system('python setup.py py2app --includes=sip --excludes=OpenGL,_tkinter --iconfile %s  -d %s' %
                (self.iconFile, self.buildSourcePath))
-
+        return
 
     # We really want to do something like this:
     #
@@ -608,36 +635,38 @@ class NanoBuildMacOSX(NanoBuildBase):
     def createWelcomeFile(self, welcomeFile):
         """Write the welcome file for Mac package installer """
         wf = open(welcomeFile, 'w')
-        message = (("Welcome to %s v%s.%s %s. You will be guided through the steps " +
+        message = (("Welcome to %s v%s %s. You will be guided through the steps " + #bruce 060420 used fullversion to support missing releaseNo
                     "necessary to install this software. By default, this software " +
-                    "will be installed into /Applications directory with all files " +
-                    "under its own sub-directory.\n") %
-                   (self.appName, self.version, self.releaseNo, self.status))
+                    "will be installed into the /Applications folder with all files " +
+                    "contained in their own sub-folder, %s.\n") %
+                   (self.appName, self.fullversion, self.status, os.path.basename(self.buildSourcePath)))
         wf.write(message)
         wf.close()
         print "----Welcome file has been written."
 
-
-    # http://developer1.apple.com/documentation/DeveloperTools/Conceptual/ \
-    #    SoftwareDistribution/Concepts/sd_pre_post_processing.html
-    def _writePostFlightFile(self, pfFile):
-        """Write the postflight file Mac Package Installer """
-        instPath = os.path.basename(self.buildSourcePath)   # "nanoENGINEER-1-0.0.6"
-        appname = self.appName + '.app'
-        cf = os.path.join(instPath, appname, 'Contents/Frameworks')
-        # $2/instPath --> /Applications/nanoENGINEER-1-0.0.6
-        # $2/cf --> /Applications/nanoENGINEER-1-0.0.6/nanoENGINEER-1.app/Contents/Frameworks
-        pf  = open(pfFile, 'w')
-        pf.write("""#!/bin/bash
-mv $2/%s/libaquaterm.1.0.0.dylib $2/%s
-(cd $2/%s; find . -type d -exec chmod ugo+rx {} \;)
-(cd $2/%s; find . -type f -exec chmod ugo+r {} \;)
-exit 0
-""" % (instPath, cf, instPath, instPath))
-        pf.close()
-        from stat import S_IREAD, S_IEXEC, S_IROTH, S_IXOTH  
-        os.chmod(pfFile, S_IREAD | S_IEXEC | S_IROTH | S_IXOTH)
-        print "----Postflight file has been written."
+#bruce 060420 postflight script is no longer needed, but let the code remain,
+# in case we need it later for something (note, this version was not tested since last changed):
+    # http://developer1.apple.com/documentation/DeveloperTools/Conceptual/SoftwareDistribution/Concepts/sd_pre_post_processing.html
+##    def _writePostFlightFile(self, pfFile):
+##        """Write the postflight file Mac Package Installer """
+##        instPath = os.path.basename(self.buildSourcePath)   # "nanoENGINEER-1-0.0.6"
+##        appname = self.appName + '.app'
+##        cf = os.path.join(instPath, appname, 'Contents/Frameworks')
+##        # $2/instPath --> /Applications/nanoENGINEER-1-0.0.6
+##        # $2/cf --> /Applications/nanoENGINEER-1-0.0.6/nanoENGINEER-1.app/Contents/Frameworks
+##        pf  = open(pfFile, 'w')
+##        pf.write("""#!/bin/bash
+##mv "$2/%s/libaquaterm.1.0.0.dylib" "$2/%s"
+##exit 0
+##""" % (instPath, cf )) ## , instPath, instPath
+###bruce 060420 removed the following from that string, since superseded by a better fix
+### (and it didn't handle spaces in $2 either); also fixed remaining $2's above to tolerate spaces
+####(cd $2/%s; find . -type d -exec chmod ugo+rx {} \;)
+####(cd $2/%s; find . -type f -exec chmod ugo+r {} \;)
+##        pf.close()
+##        from stat import S_IREAD, S_IEXEC, S_IROTH, S_IXOTH  
+##        os.chmod(pfFile, S_IREAD | S_IEXEC | S_IROTH | S_IXOTH)
+##        print "----Postflight file has been written."
 
     def createPlistFile(self, plistFile,  appName, majorVer, minorVer,  releaseNo):
         """ Write InfoPlist file to build package of PackageMaker (Mac OS X)."""
@@ -648,13 +677,18 @@ exit 0
 <dict>
         <key>CFBundleGetInfoString</key>
       """
+        if releaseNo:
+            fullversion = majorVer + '.' + minorVer + '.' + releaseNo
+        else:
+            #bruce 060420 to support missing releaseNo
+            fullversion = majorVer + '.' + minorVer
         plf.write(titleDoc)
-        plf.write('<string>' + appName + ' Version ' + majorVer + '.' + minorVer + '.' + releaseNo + '</string>\n')
+        plf.write('<string>' + appName + ' Version ' + fullversion + '</string>\n')
         nextDoc = "\t<key>CFBundleIdentifier</key>\n\t<string>www.nanorex.com</string>\n\t<key>CFBundleName</key>\n"
         plf.write(nextDoc)
-        plf.write('\t<string>' + appName + '-' + majorVer + '.' + minorVer + '.' + releaseNo + '</string>\n')
+        plf.write('\t<string>' + appName + '-' + fullversion + '</string>\n')
         plf.write('\t<key>CFBundleShortVersionString</key>\n')
-        plf.write('\t<string>' + majorVer + '.' + minorVer + '.' + releaseNo + '</string>\n')
+        plf.write('\t<string>' + fullversion + '</string>\n')
         plf.write('\t<key>IFMajorVersion</key>\n')
         plf.write('\t<integer>' + majorVer + '</integer>\n')
         plf.write('\t<key>IFMinorVersion</key>\n')
@@ -688,20 +722,50 @@ exit 0
     def makePlatformPackage(self):
         welcomeFile = os.path.join(self.resourcePath, 'Welcome.txt')
         self.createWelcomeFile(welcomeFile)
-        postflightFile = os.path.join(self.resourcePath, 'postflight')
-        self._writePostFlightFile(postflightFile)
+#bruce 060420 no longer needed
+##        postflightFile = os.path.join(self.resourcePath, 'postflight')
+##        self._writePostFlightFile(postflightFile)
         plistFile = os.path.join(self.rootPath, 'Info.plist')
         words = self.version.split('.')
         self.createPlistFile(plistFile, self.appName, words[0], words[1], self.releaseNo)
         pkgName = os.path.join(self.diskImagePath, PMMT + '.pkg')
         descrip = os.path.join(self.currentPath, 'Description.plist')
+        # Fix file permissions and ownership, following recommendations of section on "Setting File Ownership and Permissions" in
+        # http://developer1.apple.com/documentation/DeveloperTools/Conceptual/SoftwareDistribution/Concepts/sd_permissions_author.html
+        # which says all files and dirs should be user root, group admin, permissions 775 or in some cases 664,
+        # and this should be done before PackageMaker, not in the postflight script.
+        # It's too hard for us to decide which ones need 775, and it's ok for most of them to be 775 even if they don't need it,
+        # so I'll just make them all 775 except for selected user-visible files for which +x is ugly.
+        # [bruce 060420]
+        print "fixing file permissions and ownership, in %s" % self.buildSourcePath
+        system("chmod -R 775 %s" % self.buildSourcePath)
+        for no_x_pattern in [ "*.txt", "*.htm", "partlib/*/*.mmp", "partlib/*/*/*.mmp" ]:
+            system("chmod ugo-x %s/%s" % ( self.buildSourcePath, no_x_pattern))
+        system("chmod -R o+w %s/%s" % ( self.buildSourcePath, 'partlib' ))
+            # we want to do this to directories for sure; not sure about files, but ok for now
+# redundant now:
+##        for other_write_pattern in [ "partlib/*/*.mmp", "partlib/*/*/*.mmp" ]:
+##            system("chmod o+w %s/%s" % ( self.buildSourcePath, other_write_pattern))
+        system("chgrp -R admin %s" % self.buildSourcePath)
+        print
+        print "Now we will do sudo chown -R root %s -- *** THIS MIGHT REQUIRE YOUR ROOT PASSWORD:\7" % self.buildSourcePath
+        system("sudo chown -R root %s" % self.buildSourcePath)
+            # do chown root last, since after that we can't change things inside (unless running as root)
+        print "done fixing file permissions and ownership"
         # Run PackageMaker to build the final installation package
         try:
             system('PackageMaker -build -p ' + pkgName + ' -f ' + self.installRootPath +
                    ' -r ' + self.resourcePath + ' -i ' + plistFile + ' -d ' + descrip)
         except NonZeroExitStatus:
             # this happens, apparently not a problem
-            print "Warning, exit status for PackageMaker was not zero"
+            # [actually it can be a problem when this is the reason: sh: line 1: PackageMaker: command not found
+            #  and I don't yet know whether /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker
+            #  will be the right thing to run. I will try it (in my tcsh):
+            #  % set path = ( /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS $path )
+            #  This seemed to work.
+            #  --bruce 060420
+            # ]
+            print "Warning, exit status for PackageMaker was not zero (this is common)"
         imageFile = os.path.join(self.rootPath, PMMT + '.dmg')
         system('hdiutil create -srcfolder ' + self.diskImagePath +
                ' -format UDZO  ' + imageFile)
@@ -814,7 +878,9 @@ def main():
         PMMT += "%d.%d.%d" % (VERSION.major, VERSION.minor, VERSION.tiny)
     else:
         PMMT += "%d.%d" % (VERSION.major, VERSION.minor)
-    sys.path = sp
+    sys.path = sp ### WARNING: this line might have been intended to restore the original sys.path,
+    ### but in fact it has no effect, since sp and sys.path refer to the same mutable list.
+    ### [bruce 060420 comment]
     
     #answer = "maybe"
     #while answer not in ['yes', 'no']:
@@ -841,6 +907,8 @@ def main():
                         "%d.%d" % (VERSION.major, VERSION.minor),
                         relNo, VERSION.releaseType, cvsTag)
     builder.sourceDirectory = sourceDirectory
+    print
+    builder.startup_warnings() #bruce 060420 (it would be nice to do this earlier #e)
     clean(cadDir, True)
     os.rmdir(cadDir)
     builder.build()
