@@ -187,6 +187,34 @@ oneDynamicsFrame(struct part *part,
     *pPositions = positions;
 }
 
+#define SECONDS_PER_MINUTE 60
+#define SECONDS_PER_HOUR (SECONDS_PER_MINUTE * 60)
+#define SECONDS_PER_DAY (SECONDS_PER_HOUR * 24)
+
+static char *
+formatSeconds(double seconds, char *buf)
+{
+    double secs = seconds;
+    int mins = 0;
+    int hours = 0;
+    int days = 0;
+
+    if (secs > SECONDS_PER_DAY) {
+        days = secs / SECONDS_PER_DAY;
+        secs -= days * SECONDS_PER_DAY;
+    }
+    if (secs > SECONDS_PER_HOUR) {
+        hours = secs / SECONDS_PER_HOUR;
+        secs -= hours * SECONDS_PER_HOUR;
+    }
+    if (secs > SECONDS_PER_MINUTE) {
+        mins = secs / SECONDS_PER_MINUTE;
+        secs -= mins * SECONDS_PER_MINUTE;
+    }
+    sprintf(buf, "%02d:%02d:%02d:%09.6f", days, hours, mins, secs);
+    return buf;
+}
+
 void
 dynamicsMovie(struct part *part)
 {
@@ -196,10 +224,23 @@ dynamicsMovie(struct part *part)
     struct xyz *positions =  (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
     struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
     int i;
+    int timefailure = 0;
+    struct timeval start;
+    struct timeval end;
+    double elapsedSeconds;
+    char timebuffer[256];
     
     for (i = 0; i < part->num_atoms; i++) {
 	vset(positions[i], part->positions[i]);
 	vsub2(oldPositions[i], positions[i], part->velocities[i]);
+    }
+
+    // we should probably use times() to get user and system time
+    // instead of wall time, but the clock ticks conversions appear to
+    // be system dependant.
+    if (gettimeofday(&start, NULL)) {
+        timefailure = errno;
+        errno = 0;
     }
 
     // wware 060110  don't handle Interrupted with the BAIL mechanism
@@ -216,6 +257,28 @@ dynamicsMovie(struct part *part)
         }
     }
     if (PrintFrameNums) printf("\n");
+
+    if (gettimeofday(&end, NULL)) {
+        timefailure = errno;
+    }
+        
+    if (timefailure) {
+        errno = timefailure;
+        perror("gettimeofday");
+        errno = 0;
+    } else {
+        end.tv_sec -= start.tv_sec;
+        end.tv_usec -= start.tv_usec;
+        if (end.tv_usec < 0) {
+            end.tv_sec--;
+            end.tv_usec += 1000000;
+        }
+        elapsedSeconds = (double)end.tv_sec + (double)end.tv_usec / 1e6;
+        write_traceline("# Duration: %s, %f sec/frame, %f sec/iteration\n",
+                        formatSeconds(elapsedSeconds, timebuffer),
+                        elapsedSeconds / (double)i,
+                        elapsedSeconds / (double)(i * IterPerFrame));
+    }
     
 #if 0
     // do the time-reversal (for debugging)
