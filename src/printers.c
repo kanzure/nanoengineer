@@ -93,6 +93,31 @@ void traceHeader(struct part *part)
     write_traceline("# Number of Atoms: %d\n", part->num_atoms);
     write_traceline("# \n");
 
+    for (i=0; i<part->num_jigs; i++) {
+        j = part->jigs[i];
+        switch (j->type) {
+                    
+        case Thermostat:
+            write_traceline("# %s Temperature setting: %f K\n", j->name, j->j.thermostat.temperature);
+            break;
+
+        case LinearMotor:
+            write_traceline("# %s Force: %f pN\n", j->name, j->j.lmotor.force);
+            write_traceline("# %s Stiffness: %f N/m\n", j->name, j->j.lmotor.stiffness);
+            break;
+               
+        case RotaryMotor:
+            write_traceline("# %s Zero Speed Torque: %f nN-nm\n", j->name, j->j.rmotor.stall / 1e6);
+            write_traceline("# %s Zero Torque Speed: %f Ghz\n", j->name, j->j.rmotor.speed / (2.0e9 * Pi));
+            write_traceline("# %s Initial Speed: %f Ghz\n", j->name, j->j.rmotor.omega / (2.0e9 * Pi));
+            write_traceline("# %s Damping coefficient: %f\n", j->name, j->j.rmotor.damping_enabled ? j->j.rmotor.dampingCoefficient : 0.0);
+            break;
+
+        default:
+            break;
+        }
+    }    
+    write_traceline("#\n");
     
     ncols = 0;
     
