@@ -1006,6 +1006,8 @@ makeRotaryMotor(struct part *p, char *name,
     
     // convert from gigahertz to radians per second
     j->j.rmotor.speed = speed * 2.0e9 * Pi;
+    // critical damping gets us up to speed as quickly as possible
+    // http://hyperphysics.phy-astr.gsu.edu/hbase/oscda2.html
     j->j.rmotor.dampingCoefficient = 0.7071;
     j->j.rmotor.center = *center;
     j->j.rmotor.axis = uvec(*axis);
