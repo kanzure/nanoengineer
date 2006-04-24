@@ -998,6 +998,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         installdir = "Running from: " + filePath
         techsupport = "For technical support, send email to support@nanorex.com"
         website = "Website: www.nanoengineer-1.com"
+        wiki = "Wiki: www.nanoengineer-1.net"
         aboutstr = product + " " + versionString \
                        + "\n\n" \
                        + date \
@@ -1008,7 +1009,9 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
                        + "\n\n" \
                        + techsupport \
                        + "\n" \
-                       + website
+                       + website \
+                       + "\n" \
+                       + wiki
                       
         QMessageBox.about ( self, "About nanoENGINEER-1", aboutstr)
              
