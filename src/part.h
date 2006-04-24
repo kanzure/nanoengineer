@@ -272,6 +272,8 @@ extern void setInitialSpeed(struct jig *j, double initialSpeed);
 
 extern void setDampingCoefficient(struct jig *j, double dampingCoefficient);
 
+extern void setDampingEnabled(struct jig *j, int dampingEnabled);
+
 extern void makeLinearMotor(struct part *p, char *name, double force, double stiffness, struct xyz *center, struct xyz *axis, int atomListLength, int *atomList);
 
 extern void printXYZ(FILE *f, struct xyz p);

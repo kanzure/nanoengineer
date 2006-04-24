@@ -487,10 +487,23 @@ readMMP(char *filename)
             mmpParseError(mmp);
           }
           setDampingCoefficient(previousRotaryMotor, dampingCoefficient);
+        } else if (!strcmp(tok, "enable_in_minimize")) {
+          // info leaf enable_in_minimize = True
+          consumeWhitespace(mmp);
+          expectToken(mmp, "=");
+          consumeWhitespace(mmp);
+          tok = readToken(mmp);
+          consumeRestOfLine(mmp);
+
+          if (previousRotaryMotor == NULL) {
+            ERROR("setting enable_in_minimize without previous rotary motor");
+            mmpParseError(mmp);
+          }
+          setDampingEnabled(previousRotaryMotor, !strcmp(tok, "True"));
         }
       }
     }
-
+  
     // bondO atno atno atno ...
     // Indicates bonds of order O between previous atom and listed
     // atoms.

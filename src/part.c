@@ -1068,6 +1068,12 @@ setDampingCoefficient(struct jig *j, double dampingCoefficient)
     j->j.rmotor.dampingCoefficient = dampingCoefficient;
 }
 
+void
+setDampingEnabled(struct jig *j, int dampingEnabled)
+{
+    j->j.rmotor.damping_enabled = dampingEnabled;
+}
+
 // Create a linear motor jig in this part, given the name of the jig,
 // parameters controlling the motor, and the list of atoms to include.
 // Atoms in the jig are constrained to move in the direction given by
@@ -1262,6 +1268,7 @@ printJig(FILE *f, struct part *p, struct jig *j)
 	fprintf(f, "  top speed: %13.10e radians per second\n", j->j.rmotor.speed);
 	fprintf(f, "  current speed: %13.10e radians per second\n", j->j.rmotor.omega);
 	fprintf(f, "  minimize torque: %13.10e pN-pm\n", j->j.rmotor.minimizeTorque * 1e6);
+	fprintf(f, "  damping: %13.10e\n", j->j.rmotor.damping_enabled ? j->j.rmotor.dampingCoefficient : 0.0);
 	fprintf(f, "  center: ");
 	printXYZ(f, j->j.rmotor.center);
 	fprintf(f, "\n");
