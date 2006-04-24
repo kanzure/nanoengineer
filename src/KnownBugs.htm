@@ -9,30 +9,31 @@ xmlns="http://www.w3.org/TR/REC-html40">
 <meta name=Generator content="Microsoft Word 11">
 <meta name=Originator content="Microsoft Word 11">
 <link rel=File-List href="KnownBugs_files/filelist.xml">
-<title># Copyright (c) 2006 Nanorex, Inc</title>
+<title>Known Bugs nanoENGINEER-1</title>
 <o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
  name="City"/>
 <o:SmartTagType namespaceuri="urn:schemas-microsoft-com:office:smarttags"
  name="place"/>
 <!--[if gte mso 9]><xml>
  <o:DocumentProperties>
-  <o:Author>Ninad Sathaye</o:Author>
+  <o:Author>Nanorex Inc.</o:Author>
   <o:LastAuthor>Ninad Sathaye</o:LastAuthor>
-  <o:Revision>2</o:Revision>
-  <o:TotalTime>4</o:TotalTime>
-  <o:Created>2006-04-24T21:21:00Z</o:Created>
-  <o:LastSaved>2006-04-24T21:21:00Z</o:LastSaved>
+  <o:Revision>8</o:Revision>
+  <o:TotalTime>9</o:TotalTime>
+  <o:Created>2006-04-24T22:25:00Z</o:Created>
+  <o:LastSaved>2006-04-24T22:31:00Z</o:LastSaved>
   <o:Pages>1</o:Pages>
-  <o:Words>3335</o:Words>
-  <o:Characters>19014</o:Characters>
+  <o:Words>3361</o:Words>
+  <o:Characters>19160</o:Characters>
   <o:Company>Nanorex, Inc.</o:Company>
-  <o:Lines>158</o:Lines>
+  <o:Lines>159</o:Lines>
   <o:Paragraphs>44</o:Paragraphs>
-  <o:CharactersWithSpaces>22305</o:CharactersWithSpaces>
+  <o:CharactersWithSpaces>22477</o:CharactersWithSpaces>
   <o:Version>11.6568</o:Version>
  </o:DocumentProperties>
 </xml><![endif]--><!--[if gte mso 9]><xml>
  <w:WordDocument>
+  <w:Zoom>BestFit</w:Zoom>
   <w:SpellingState>Clean</w:SpellingState>
   <w:GrammarState>Clean</w:GrammarState>
   <w:PunctuationKerning/>
@@ -70,6 +71,13 @@ st1\:*{behavior:url(#ieooui) }
 	font-family:"Times New Roman";
 	mso-fareast-font-family:"Times New Roman";}
 p.MsoPlainText, li.MsoPlainText, div.MsoPlainText
+	{margin:0in;
+	margin-bottom:.0001pt;
+	mso-pagination:widow-orphan;
+	font-size:10.0pt;
+	font-family:"Courier New";
+	mso-fareast-font-family:"Times New Roman";}
+pre
 	{margin:0in;
 	margin-bottom:.0001pt;
 	mso-pagination:widow-orphan;
@@ -131,7 +139,8 @@ and some of the commonly encountered bugs in nanoENGINEER-1 Alpha7. </p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>Some of the Bug Fixes <span class=GramE>In</span> Alpha 7</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>Some of the Bug
+Fixes in Alpha 7<o:p></o:p></b></p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
@@ -164,11 +173,12 @@ apostrophe S present in the file's name (712) &nbsp;</p>
 
 <p class=MsoPlainText>&nbsp;&nbsp;</p>
 
-<p class=MsoPlainText>UNSUPPORTED FEATURES:</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>UNSUPPORTED
+FEATURES:<o:p></o:p></b></p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>#UNDO/REDO </p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>UNDO/REDO <o:p></o:p></b></p>
 
 <p class=MsoPlainText>- Undo/Redo knows nothing about the mode the program was
 in. For example, if you extrude a moiety while in extrude, return to your
@@ -184,8 +194,9 @@ release of the software</p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>#<span class=SpellE>PDBs</span> <span class=GramE>With</span>
-Multiple Bond Information Not Supported </p>
+<p class=MsoPlainText><span class=SpellE><b style='mso-bidi-font-weight:normal'>PDBs</b></span><b
+style='mso-bidi-font-weight:normal'> <span class=GramE>With</span> Multiple
+Bond Information Not Supported <o:p></o:p></b></p>
 
 <p class=MsoPlainText>&nbsp;This version of ne-1 treats all bond types as
 single bonds while reading from or writing to a PDB file. Also, it doesn't save
@@ -197,7 +208,8 @@ in MMP file format to avoid major loss of work (569, 763)</p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>SIMULATOR / MINIMIZE</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>SIMULATOR /
+MINIMIZE<o:p></o:p></b></p>
 
 <p class=MsoPlainText># Simulator/Minimize: will support bonding between
 elements specified in the element selector of nanoENGINEER-1. </p>
@@ -223,7 +235,7 @@ structures is not supported. </p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>GAMESS Jig</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>GAMESS Jig<o:p></o:p></b></p>
 
 <p class=MsoPlainText>#GAMESS jig can be added by select some atoms first in
 'Select Atoms' mode and then attaching this jig by using Menu item: Jigs&gt;<span
@@ -243,7 +255,8 @@ directory. (User's home directory/ Nanorex/Job Manager) (742)</p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>ESP IMAGE / NANO-HIVE</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>ESP IMAGE /
+NANO-HIVE<o:p></o:p></b></p>
 
 <p class=MsoPlainText># ESP Image jig is not fully supported on Linux and MAC
 platforms. On Windows, you can perform ESP calculations for some standard cases
@@ -253,8 +266,8 @@ These issues will be fixed in an upcoming release of nanoENGINEER-1.</p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText># Bond Inference not supported but a limited valence
-error check supported. </p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>Bond Inference not
+supported but a limited valence error check supported. <o:p></o:p></b></p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
@@ -278,7 +291,7 @@ Error Checker doesn't treat graphitic and aromatic bonds differently.</p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>MISCELLANEOUS</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>MISCELLANEOUS<o:p></o:p></b></p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
@@ -297,11 +310,13 @@ etc).<span style='mso-spacerun:yes'>  </span>(1049, 1058, 1201, 1724)</p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>KNOWN BUGS (ALL PLATFORMS)</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>KNOWN BUGS (ALL
+PLATFORMS)<o:p></o:p></b></p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>MEMORY AND PERFORMANCE PROBLEMS</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>MEMORY AND
+PERFORMANCE PROBLEMS<o:p></o:p></b></p>
 
 <p class=MsoPlainText><span class=GramE># Memory consumed by the application
 increases due to repeated execution of certain operations such as opening and
@@ -309,19 +324,15 @@ closing a file (often termed as ‘memory leaks’.</span> This affects the overall
 performance of the software and could result in a crash. This version doesn’t
 prevent such memory leaks. </p>
 
-<p class=MsoPlainText><o:p>&nbsp;</o:p></p>
-
 <p class=MsoPlainText># nE-1 has some known performance problems while using
-some features. As a result, some operations take considerably longer times.
-This is particularly true when you are handling a large file. </p>
+some features. As a result, some operations take considerably longer times. This
+is particularly true when you are handling a large file. </p>
 
 <p class=MsoPlainText>Examples: Opening a large file, Operations performed in
 Fuse mode, moving selected atoms, Selecting and deselecting some atoms from a
 large chunk, deleting some atoms, Undoing or redoing these operations, playing
 a movie on a large model etc. may take longer time when the file size is large.
 (991, 1473, 1674, 1704, 1750, 1778)</p>
-
-<p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
 <p class=MsoPlainText>#Movie playing is lot slower for large models on some low
 system configuration machines. Also, other normal operations such as opening a
@@ -331,7 +342,8 @@ file become slower for such machines (1757)</p>
 
 <p class=MsoPlainText><span style='mso-spacerun:yes'> </span></p>
 
-<p class=MsoPlainText>ESP IMAGE JIG (NANO-HIVE)</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>ESP IMAGE JIG
+(NANO-HIVE)<o:p></o:p></b></p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
@@ -349,7 +361,7 @@ implementation</p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>MINIMIZE/SIMULATOR</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>MINIMIZE/SIMULATOR<o:p></o:p></b></p>
 
 <p class=MsoPlainText>(<span class=GramE>see</span> also: the Unsupported
 Features section)</p>
@@ -374,10 +386,9 @@ of the product. (1377)</p>
 elements with higher order bond types doesn't work. See 'Unsupported Features'
 section for more info. (805)&nbsp;</p>
 
-<p class=MsoPlainText># Simulator: In some cases, hydrogen atoms or other
-elements 'fly away' while running a simulation movie. This happens when atom
-centers are very close and therefore the repulsive force becomes very high
-(528, 558) </p>
+<p class=MsoPlainText># Simulator: In some cases, hydrogen atoms or other elements
+'fly away' while running a simulation movie. This happens when atom centers are
+very close and therefore the repulsive force becomes very high (528, 558) </p>
 
 <p class=MsoPlainText># Rotary motor doesn't rotate if a thermostat is attached
 to the chunk. Workaround is not to attach a thermostat jig when a rotary motor
@@ -386,12 +397,10 @@ is present (1889)</p>
 <p class=MsoPlainText># Linear motor doesn't move the atoms if a thermostat jig
 is attached (1893)</p>
 
-<p class=MsoNormal style='mso-layout-grid-align:none;text-autospace:none'><span
-style='font-size:10.0pt;font-family:"Courier New"'># Linear Motor: Even when
-there are two parts far enough apart that they shouldn't interact too much, the
-presence or absence of one part strongly affects the linear motor behavior. In
-such cases, the linear motor doesn’t move the attached atoms (1895)</span><span
-style='font-size:11.0pt;font-family:Arial'><o:p></o:p></span></p>
+<p class=MsoPlainText># Linear Motor: Even when there are two parts far enough
+apart that they shouldn't interact too much, the presence or absence of one
+part strongly affects the linear motor behavior. In such cases, the linear
+motor doesn’t move the attached atoms (1895)</p>
 
 <p class=MsoPlainText># Enable motor in minimize feature is experimental and
 has some bugs. Examples- the final <span class=SpellE>rms</span> and high force
@@ -402,23 +411,19 @@ operation. (1835, 1836)</p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>SELECTION </p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>SELECTION <o:p></o:p></b></p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
 <p class=MsoPlainText># Selection: Can not select a chunk by clicking on any of
 the bonds in that chunk. (11) </p>
 
-<p class=MsoPlainText><o:p>&nbsp;</o:p></p>
-
-<p class=MsoPlainText>#Selection wireframes won't be displayed or will act
-weirdly on some platforms. This could be due to the old version graphics driver
-on your machine. Example: Some Windows XP users with Intel Integrated 855
-graphics reported this problem which went away after installing an updated
-version of that driver (Intel 855 chipset driver 6.14.10.4497.). It is highly
-recommended that you use up-to-date drivers to avoid this issue (1720)</p>
-
-<p class=MsoPlainText><o:p>&nbsp;</o:p></p>
+<p class=MsoPlainText># Selection wireframes won't be displayed or will act weirdly
+on some platforms. This could be due to the old version graphics driver on your
+machine. Example: Some Windows XP users with Intel Integrated 855 graphics
+reported this problem which went away after installing an updated version of
+that driver (Intel 855 chipset driver 6.14.10.4497.). It is highly recommended
+that you use up-to-date drivers to avoid this issue (1720)</p>
 
 <p class=MsoPlainText># Contract Selection doesn't work correctly in some
 cases. Also the <span class=GramE>What's</span> this text doesn't clearly
@@ -428,15 +433,13 @@ explain this feature. (1358)</p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>BUILD MODE</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>BUILD MODE<o:p></o:p></b></p>
 
 <p class=MsoPlainText># <span class=GramE>Highlighting</span> in Build mode is
 problematic in some cases. Examples: 1) When more than one nanoENGINEER-1
 applications are running. 2) If vertical splitter of the Model Tree is dragged
 to adjust Model Tree's width 3) If Main nE-1 window is maximized etc. (1241,
 1243, <span class=GramE>1637</span>)</p>
-
-<p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
 <p class=MsoPlainText># Zoom/Pan/Rotate Tools in Build mode: If you click on
 Zoom, Pan or Rotate tools while in Build, the <span class=SpellE>MMKit</span>
@@ -464,7 +467,8 @@ of (sp2) carbon will be represented as single bond type. (839) </p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>MOLECULAR MODELING KIT IN BUILD MODE</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>MOLECULAR MODELING
+KIT IN BUILD MODE<o:p></o:p></b></p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
@@ -490,10 +494,9 @@ model in the thumbnail <span class=GramE>view ,</span> you switch to some other
 tab and then return to the library tab, it might take long time to open that
 tab. (939)</p>
 
-<p class=MsoPlainText><span class=GramE>#<span style='mso-spacerun:yes'> 
-</span>Modeling</span> Kit: For lower resolution screens the Modeling kit
-occupies most of the Model Tree space, thus obscures most of the Model Tree
-area.(1437) &nbsp;</p>
+<p class=MsoPlainText># Modeling Kit: For lower resolution screens the Modeling
+kit occupies most of the Model Tree space, thus obscures most of the Model Tree
+area<span class=GramE>.(</span>1437) &nbsp;</p>
 
 <p class=MsoPlainText># Modeling Kit: If the 'Clipboard' tab of Build mode's
 Modeling Kit dialog is open and then you hit a keyboard modifier key (e.g. C,
@@ -517,7 +520,7 @@ press them again to perform these operations. (674) &nbsp;</p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>EXTRUDE MODE</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>EXTRUDE MODE<o:p></o:p></b></p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
@@ -543,8 +546,6 @@ Mode&quot;. &nbsp;</p>
 <p class=MsoPlainText>-- Select the 'Done' button on the dashboard when
 finished. (155)</p>
 
-<p class=MsoPlainText>&nbsp;</p>
-
 <p class=MsoPlainText># Extrude: Separates the chunk permanently when atoms are
 partially selected and then extrude mode is cancelled. (198) </p>
 
@@ -556,15 +557,15 @@ doesn't take the curvature into account while forming the bonds. (494) </p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>COOKIE CUTTER</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>COOKIE CUTTER<o:p></o:p></b></p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
 <p class=MsoPlainText># Cookie Cutter: Large selections can cause response
 latency. (8) &nbsp;</p>
 
-<p class=MsoPlainText># Cookie Cutter: Right click while rotating the grid using
-middle mouse drag operation, changes the grid orientation (59) &nbsp;</p>
+<p class=MsoPlainText># Cookie Cutter: Right click while rotating the grid
+using middle mouse drag operation, changes the grid orientation (59) &nbsp;</p>
 
 <p class=MsoPlainText># Cookie Cutter/Display bug: the 3D workspace (graphics
 area) turns into a black display if you resize the ne-1 window while drawing an
@@ -573,7 +574,7 @@ by hitting any key. (687) </p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>FUSE CHUNKS MODE</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>FUSE CHUNKS MODE<o:p></o:p></b></p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
@@ -582,9 +583,9 @@ if it's a large model. However, its performance is improved compared to Alpha6
 (689) </p>
 
 <p class=MsoPlainText># Fuse Chunks: If the chunks were 'merged' in previous
-operation while bonding them together, 'Back Up' button on the dashboard
-doesn't 'unmerge' them. It only deletes the bond formed in earlier operation.
-(486-10) &nbsp;</p>
+operation while bonding them together, 'Back Up' button on the dashboard doesn't
+'unmerge' them. It only deletes the bond formed in earlier operation. (486-10)
+&nbsp;</p>
 
 <p class=MsoPlainText># Fuse Chunks: Back up button on dashboard to delete a
 bond formed in previous operation deletes the bond, but it doesn't restore the
@@ -596,7 +597,7 @@ if they are already bonded. Also, some history messages are not correct.&nbsp;
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>MOVIE PLAYER</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>MOVIE PLAYER<o:p></o:p></b></p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
@@ -613,19 +614,18 @@ movie can not be 'viewed'. But it continues to run. <span class=GramE>ne-1</span
 doesn't print a warning message to instruct user to click on the appropriate
 'Part', for which the movie is created for,&nbsp; to view the movie. (578-5) </p>
 
-<p class=MsoPlainText><span class=GramE>#<span style='mso-spacerun:yes'> 
-</span>Movie</span>: If you run a simulation and then modify the model further
-(e.g. delete some atoms etc), the movie becomes invalid.<span
-style='mso-spacerun:yes'>  </span><span class=GramE>ne-1</span> generally identifies
-such situations. But in certain cases, it doesn't.<span
-style='mso-spacerun:yes'>  </span>Some Examples: After creating a simulation
-movie, if you 'Hydrogenate' some chunks or change the bond types or 'transmute'
-some elements to a different one. To avoid this, always rerun a simulation
-after doing such modifications for the correct results. (901)</p>
+<p class=MsoPlainText># Movie: If you run a simulation and then modify the
+model further (e.g. delete some atoms etc), the movie becomes invalid.<span
+style='mso-spacerun:yes'>  </span><span class=GramE>ne-1</span> generally
+identifies such situations. But in certain cases, it doesn't.<span
+style='mso-spacerun:yes'>  </span>Some Examples: After creating a simulation movie,
+if you 'Hydrogenate' some chunks or change the bond types or 'transmute' some
+elements to a different one. To avoid this, always rerun a simulation after
+doing such modifications for the correct results. (901)</p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>NAMING</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>NAMING<o:p></o:p></b></p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
@@ -646,7 +646,8 @@ bottom of the group, not the top.&nbsp; (360) </p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>CURSOR AND DISPLAY RELATED BUGS</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>CURSOR AND DISPLAY
+RELATED BUGS<o:p></o:p></b></p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
@@ -665,7 +666,8 @@ gets highlighted. (870) </p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>DIALOGS AND DASHBOARD</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>DIALOGS AND
+DASHBOARD<o:p></o:p></b></p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
@@ -677,7 +679,7 @@ space in model tree etc. (513, 581, <span class=GramE>844</span>) &nbsp;</p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>POVRAY RENDERING</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>POVRAY RENDERING<o:p></o:p></b></p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
@@ -703,16 +705,15 @@ file.<span style='mso-spacerun:yes'>  </span>(1084, 1196, 1198)</p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
-<p class=MsoPlainText>MISCELLANEOUS</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>MISCELLANEOUS<o:p></o:p></b></p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
 <p class=MsoPlainText># User can not save exclusive features of nanoENGINEER-1
 into the PDB file format. Some examples of such 'MMP file only' features
-include jigs, groups, hidden states of chunks, multiple chunks, entire
-clipboard feature etc.&nbsp; <span class=GramE>ne-1</span> doesn't give enough
-warning messages for users trying to save such features into a PDB file. (252)
-&nbsp;</p>
+include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard
+feature etc.&nbsp; <span class=GramE>ne-1</span> doesn't give enough warning
+messages for users trying to save such features into a PDB file. (252) &nbsp;</p>
 
 <p class=MsoPlainText># <span class=GramE>Only</span> open one main window.
 Opening more than one nanoENGINEER-1 application window will have unexpected
@@ -726,7 +727,7 @@ message. (215) </p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>WINDOWS ONLY BUGS</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>WINDOWS ONLY BUGS<o:p></o:p></b></p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
@@ -746,7 +747,8 @@ work often while working on large file is recommended. (774) </p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>MACINTOSH ONLY BUGS</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>MACINTOSH ONLY
+BUGS<o:p></o:p></b></p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
@@ -786,7 +788,7 @@ and dashboard are not displayed (1824, 1838)</p>
 
 <p class=MsoPlainText>&nbsp;</p>
 
-<p class=MsoPlainText>LINUX ONLY BUGS</p>
+<p class=MsoPlainText><b style='mso-bidi-font-weight:normal'>LINUX ONLY BUGS<o:p></o:p></b></p>
 
 <p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
@@ -807,15 +809,24 @@ the status bar is truncated for lower resolution and larger font size
 during minimize or simulation and thus affects the display of (for example) the
 minimize progress.<span style='mso-spacerun:yes'>  </span>(1282)</p>
 
-<p class=MsoPlainText>#Opening a plot file from the plot tool dialogs needs '<span
-class=SpellE>kwrite</span>' editor which is available with only with KDE desktop
-(434) &nbsp;</p>
+<p class=MsoPlainText># Opening a plot file from the plot tool dialogs needs
+'kwrite' editor which is available with only with KDE desktop (434) &nbsp;</p>
 
 <p class=MsoPlainText># Modeling Kit in Build Mode: When you enter build mode,
-this dialog first appears in the middle of the 3D workspace (graphics
-area)&nbsp;for a fraction of second and then it is moved to the left hand side
-of the ne-1 main window. The amount of time this dialog stays inside the 3D
-workspace depends on the model size. (844) </p>
+this dialog first appears in the middle of the 3D workspace (graphics area)&nbsp;for
+a fraction of second and then it is moved to the left hand side of the ne-1
+main window. The amount of time this dialog stays inside the 3D workspace
+depends on the model size. (844) </p>
+
+<p class=MsoPlainText># <span class=GramE>When</span> you start the program in
+a consol window, some warning messages will be printed. E.g. Warning: import <span
+class=SpellE>bsddb</span> failed; using some other db format for preferences
+file giving it a different name in case that uses an incompatible binary
+format; this means, when you upgrade to <span class=SpellE>bsddb</span>, you'll
+lose your preferences. This is a known issue and will be fixed in a future
+release. (1896)</p>
+
+<p class=MsoPlainText><o:p>&nbsp;</o:p></p>
 
 </div>
 
