@@ -200,7 +200,7 @@ class Movie:
             # bruce 050325 added totalFramesRequested, changed some uses of totalFrames to this
         self.temp = 300
         self.stepsper = 10
-        self.watch_motion = True # whether to show atom motion in realtime
+        self.watch_motion = False # whether to show atom motion in realtime
 
         self.timestep = 10
             # Note [bruce 050325]: varying the timestep is not yet supported,
