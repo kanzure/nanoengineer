@@ -1,13 +1,15 @@
 # Makefile for the simulator
 # $Id$
 
-UNAME := $(shell uname)
 # dotted python version (2.3, 2.4)
 PYDVER := $(shell python -c "import sys; print sys.version[:3]")
 # un-dotted python version (23, 24)
 PYVER := $(shell python -c "import sys; print sys.version[0]+sys.version[2]")
 
 ifeq ($(OS),Windows_NT)
+# I think it's one dollar sign for DOS and two for Cygwin
+UNAME_A=$(shell ver)
+# UNAME_A=$$(shell ver)   # Cygwin: but in this case use 'uname -a' anyway
 CC = "C:/Dev-Cpp/bin/gcc.exe"
 CFLAGS=-g -I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
 LDFLAGS=-L"C:/Dev-Cpp/lib"
@@ -16,6 +18,8 @@ STDC99=
 SIMTARGET=simulator.exe
 else
 # non-Windows
+UNAME := $(shell uname)
+UNAME_A=$$(uname -a)
 CC=gcc
 CFLAGS=-g -Wmissing-prototypes -Wall
 # -pg
@@ -27,8 +31,6 @@ PYREXTARGET=sim.so
 STDC99=-std=c99
 SIMTARGET=simulator
 endif
-
-UNAME_A=$$(uname -a)
 
 PYREXOBJS=\
 	allocate.o \
