@@ -40,6 +40,12 @@
                     <property name="name">
                         <cstring>widthLineEdit</cstring>
                     </property>
+                    <property name="frameShape">
+                        <enum>LineEditPanel</enum>
+                    </property>
+                    <property name="frameShadow">
+                        <enum>Sunken</enum>
+                    </property>
                     <property name="alignment">
                         <set>AlignLeft</set>
                     </property>
@@ -359,6 +365,20 @@
                             <property name="alignment">
                                 <set>AlignLeft</set>
                             </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Simulations will begin with the motor's force set to this value.</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>&lt;b&gt;Force &lt;/b&gt;&lt;p&gt;Simulations will begin with the motor's force set to this
+value. The integral displacement of the linear motor's atoms is computed
+using Hooke's Law where:&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;displacement = - Force  / Stiffness&lt;/b&gt;.&lt;/p&gt;
+&lt;p&gt;The negative sign indicates that the force exerted by the spring is in
+direct opposition to the direction of displacement. It is called a
+"restoring force", as it tends to restore the system to equilibrium.&lt;/p&gt;
+&lt;p&gt;When stiffness = 0, the restoring force is 0 and the displacement will
+continue in one direction.&lt;/p&gt;</string>
+                            </property>
                         </widget>
                         <widget class="QLabel" row="2" column="1">
                             <property name="name">
@@ -395,6 +415,12 @@
                             <property name="readOnly">
                                 <bool>false</bool>
                             </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Name of Linear Motor</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>&lt;b&gt;Name&lt;/b&gt;&lt;p&gt;Name of Linear Motor that appears in the Model Tree&lt;/p&gt;</string>
+                            </property>
                         </widget>
                         <widget class="QLineEdit" row="2" column="0">
                             <property name="name">
@@ -408,6 +434,20 @@
                             </property>
                             <property name="alignment">
                                 <set>AlignLeft</set>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Simulation will begin with the motor's stiffness set to this value.</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>&lt;b&gt;Stiffness &lt;/b&gt;&lt;p&gt;Simulations will begin with the motor's stiffness set to this
+value. The integral displacement of the linear motor's atoms is computed
+using Hooke's Law where:&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;displacement = - Force  / Stiffness&lt;/b&gt;.&lt;/p&gt;
+&lt;p&gt;The negative sign indicates that the force exerted by the spring is in
+direct opposition to the direction of displacement. It is called a
+"restoring force", as it tends to restore the system to equilibrium.&lt;/p&gt;
+&lt;p&gt;When stiffness = 0, the restoring force is 0 and the displacement will
+continue in one direction.&lt;/p&gt;</string>
                             </property>
                         </widget>
                     </grid>
@@ -449,6 +489,12 @@
                     <property name="alignment">
                         <set>AlignVCenter|AlignRight</set>
                     </property>
+                    <property name="toolTip" stdset="0">
+                        <string>If checked, the force value is applied to the motor's atoms during minimization.</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>&lt;b&gt;Enable in Minimize &lt;i&gt;(experimental)&lt;/i&gt;&lt;/b&gt;&lt;p&gt;If checked, the force specified above will be applied to the motor's atoms during a structure minimization.  While intended to allow simulations to begin with linear motors running at speed, this feature requires more work to be useful.&lt;/p&gt;</string>
+                    </property>
                 </widget>
                 <widget class="QCheckBox">
                     <property name="name">
@@ -456,6 +502,12 @@
                     </property>
                     <property name="text">
                         <string></string>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>If checked, the force value is applied to the motor's atoms during minimization.</string>
+                    </property>
+                    <property name="whatsThis" stdset="0">
+                        <string>&lt;b&gt;Enable in Minimize &lt;i&gt;(experimental)&lt;/i&gt;&lt;/b&gt;&lt;p&gt;If checked, the force specified above will be applied to the motor's atoms during a structure minimization.  While intended to allow simulations to begin with linear motors running at speed, this feature requires more work to be useful.&lt;/p&gt;</string>
                     </property>
                 </widget>
                 <spacer>
