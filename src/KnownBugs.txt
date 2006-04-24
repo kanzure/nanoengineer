@@ -79,6 +79,7 @@ MINIMIZE/SIMULATOR
 # Simulator: In some cases, hydrogen atoms or other elements 'fly away' while running a simulation movie. This happens when atom centers are very close and therefore the repulsive force becomes very high (528, 558) 
 # Rotary motor doesn't rotate if a thermostat is attached to the chunk. Workaround is not to attach a thermostat jig when a rotary motor is present (1889)
 # Linear motor doesn't move the atoms if a thermostat jig is attached (1893)
+# Linear Motor: Even when there are two parts far enough apart that they shouldn't interact too much, the presence or absence of one part strongly affects the linear motor behavior. In such cases, the linear motor doesn’t move the attached atoms (1895)
 # Enable motor in minimize feature is experimental and has some bugs. Examples- the final rms and high force values after minimize are large, it takes long time to finish minimize operation. (1835, 1836)
 
 
