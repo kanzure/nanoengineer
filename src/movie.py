@@ -200,7 +200,9 @@ class Movie:
             # bruce 050325 added totalFramesRequested, changed some uses of totalFrames to this
         self.temp = 300
         self.stepsper = 10
-        self.watch_motion = False # whether to show atom motion in realtime
+        self.watch_motion = False # whether to show atom motion in realtime [changed by Mark, 060424]
+            # (note: this default value affects Dynamics, but not Minimize, which uses its own user pref for this,
+            #  but never changes this value to match that [as of 060424; note added by Bruce])
 
         self.timestep = 10
             # Note [bruce 050325]: varying the timestep is not yet supported,
