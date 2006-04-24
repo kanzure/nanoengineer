@@ -170,12 +170,23 @@ class PlotTool(PlotToolDialog):
         if sys.platform == 'darwin': 
             f.write("set terminal aqua\n") # GNUplot for Mac needs this.
             
-        f.write("set title \"%s\\n Trace file: %s\\n Created: %s\"\n"%(title, self.traceFile,self.date))
+        # On Windows, self.traceFile can have backward slashes (\) as separators.
+        # GNUplot commands interpret backslashes as escape characters. This requires two backslash 
+        # characters in place of one as a separator. This is only a problem on Windows since
+        # Linux and MacOS always use forward slashes as file separators.  
+        # If a backslash appears in a Linux/MacOS tracefile name, GNUplot would very likely puke 
+        # on it, too. I recommend always replacing a single backslash with double backslashes, but
+        # for now only do this on Windows.
+        # Fixes bug 1894.  Mark 060424.
+        if sys.platform == 'win32':
+            traceFile = self.traceFile.replace('\\','\\\\')
+            
+        f.write("set title \"%s\\n Trace file: %s\\n Created: %s\"\n"%(title, traceFile, self.date))
         f.write("set key left box\n")
         f.write("set xlabel \"time  (picoseconds)\"\n")
         f.write("set ylabel \"%s\"\n"%(ytitle))
-        f.write('plot "%s" using 1:%d title \"Data Points\" with lines lt 2,\\\n'%(self.traceFile,col))
-        f.write('       "%s" using 1:%d:(0.5) smooth acsplines title \"Average\" lt 3\n'%(self.traceFile,col))
+        f.write('plot "%s" using 1:%d title \"Data Points\" with lines lt 2,\\\n'%(traceFile, col))
+        f.write('       "%s" using 1:%d:(0.5) smooth acsplines title \"Average\" lt 3\n'%(traceFile, col))
             # Fixed bug 712 by swapping single quote (') with double quote(") around traceFile (%s).
         
         if sys.platform == 'win32': 
