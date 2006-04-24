@@ -8,8 +8,8 @@ Some of the Bug Fixes In Alpha 7
 1. Miscellaneous bug fixes and the user interface enhancements in Build mode
 2. Some bugs where MMKit's clipboard view doesn't get updated when you do modifications in the 3D workspace (876, 1570, and 1573)
 3. Rendered povray image doesn’t render user defined lighting and background fill color (447-mitigated, 888)
-4. Selection/Display/Jigs: If more than 1 jigs (other than motors) are attached to the same atom , only first jig in the order (in the model tree) gets highlighted (756) 
-5. Simulator doesn't work for an opened file where the user doesn't have permission to write (396)
+4. Selection/Display/Jigs: If more than 1 jigs (other than motors) are attached to the same atom, only first jig in the order (in the model tree) gets highlighted (756) 
+5. Simulator doesn't work for an opened file where the user doesn't have permission to write. (Now nE-1 prints a red history message when it can’t write the file)(396)
 6. Improved force field. Formal bend parameters have replaced guessed values for all single bond combinations
 7. Naming a File (plot tool bug): If a file is named as Bob's molecule, the plot tool will not plot the results because of the apostrophe S present in the file's name (712)  
 
@@ -27,11 +27,12 @@ UNSUPPORTED FEATURES:
  This version of ne-1 treats all bond types as single bonds while reading from or writing to a PDB file. Also, it doesn't save the hybridization type into the PDB file. For example, (sp2) hybridized Carbon in a structure will be saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond Therefore, save your models ONLY in MMP file format to avoid major loss of work (569, 763)
 
 SIMULATOR / MINIMIZE
-# Simulator/Minimize: will support bonding between elements specified in the element selector of nanoENGINEER-1. But note that bond stretching involving Fluorine atoms, or bond bending involving Boron, use estimated rather than calculated parameters.  
+# Simulator/Minimize: will support bonding between elements specified in the element selector of nanoENGINEER-1. 
 # Simulator/Minimize: Multiple bonding between certain elements is generally supported, but some parameters, notably for double bonds involving nitrogen, are estimated.  
 # Simulator/Minimize: The simulator doesn't take into account the effect of torsion. This will make systems with double or aromatic/graphitic bonds act less stiff than they really would.   
 # Simulator: Electrostatic interactions are not supported; in particular, the hydrogen and dative bonds are not handled. 
-# Enable motor in minimize feature is experimental. Enabling a motor in minimization may result in high values of rms force. 
+# Enable motor in minimize feature is experimental. Enabling a motor in minimization may result in high values of rms force. Also, minimize will take long time to finish
+# Nanotubes: The simulator doesn't take into account the effect of torsion. The simulation/minimization of nanotubes and similar structures is not supported. 
 
 GAMESS Jig
 #. GAMESS jig can be added by select some atoms first in 'Select Atoms' mode and then attaching this jig by using Menu item: Jigs>Gamess. This jig can be attached to a maximum of 200 atoms. 
@@ -75,7 +76,7 @@ ESP image has many known bugs or unimplemented features. Some Examples:
 MINIMIZE/SIMULATOR
 (see also: the Unsupported Features section)
 
-# For some structures it needs multiple executions of 'minimize' to boil down the high force to a lower value. (567) 
+# For some structures it needs multiple executions of 'minimize' to boil down the high force to a lower value. Sometimes, even after repeated minimize operations, it gives high rms and high force values(805,1892) 
 # Quite often, the rms & high force inconsistently increase during each execution of 'minimize'. Thus minimizing a structure could result in a new structure with a higher RMS force value than the input structure.  It should be the case that the new structure will always have a lower potential energy than the input structure, even if the RMS force value may sometimes be higher. This will be fixed in a future release of the product. (1377)
 # Minimize operation for some elements with higher order bond types doesn't work. See 'Unsupported Features' section for more info. (805) 
 # Simulator: In some cases, hydrogen atoms or other elements 'fly away' while running a simulation movie. This happens when atom centers are very close and therefore the repulsive force becomes very high (528, 558) 
@@ -103,6 +104,7 @@ MOLECULAR MODELING KIT IN BUILD MODE
 This feature has some known bugs. Also refer to Linux Only Bugs and 'Dialogs and Dashboards' bug sections for some related issues. 
  
 # MMKit: Sometimes this dialog box doesn't close even after main window of ne-1 is closed. It goes away after a few seconds though. (852)  
+# If an MMP file in the MMKit’s library has jigs those won’t be pasted along with the part. Also, group records won’t be available when you paste a part from the library (1164, 1080)
 # MMKit: MMKit’s 3-D thumbnail view doesn’t get updated in some cases.(1848)
 # Library tab: If the library tab is showing a large model in the thumbnail view , you switch to some other tab and then return to the library tab, it might take long time to open that tab. (939)
 #  Modeling Kit: For lower resolution screens the Modeling kit occupies most of the Model Tree space, thus obscures most of the Model Tree area.(1437)  
