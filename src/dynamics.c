@@ -187,6 +187,7 @@ oneDynamicsFrame(struct part *part,
     *pPositions = positions;
 }
 
+#ifndef WIN32
 #define SECONDS_PER_MINUTE 60
 #define SECONDS_PER_HOUR (SECONDS_PER_MINUTE * 60)
 #define SECONDS_PER_DAY (SECONDS_PER_HOUR * 24)
@@ -214,6 +215,7 @@ formatSeconds(double seconds, char *buf)
     sprintf(buf, "%02d:%02d:%02d:%09.6f", days, hours, mins, secs);
     return buf;
 }
+#endif
 
 void
 dynamicsMovie(struct part *part)
@@ -224,17 +226,20 @@ dynamicsMovie(struct part *part)
     struct xyz *positions =  (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
     struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
     int i;
+#ifndef WIN32
     int timefailure = 0;
     struct timeval start;
     struct timeval end;
     double elapsedSeconds;
     char timebuffer[256];
+#endif
     
     for (i = 0; i < part->num_atoms; i++) {
 	vset(positions[i], part->positions[i]);
 	vsub2(oldPositions[i], positions[i], part->velocities[i]);
     }
 
+#ifndef WIN32
     // we should probably use times() to get user and system time
     // instead of wall time, but the clock ticks conversions appear to
     // be system dependant.
@@ -242,6 +247,7 @@ dynamicsMovie(struct part *part)
         timefailure = errno;
         errno = 0;
     }
+#endif
 
     // wware 060110  don't handle Interrupted with the BAIL mechanism
     for (i = 0; i < NumFrames && !Interrupted; i++) {
@@ -258,6 +264,7 @@ dynamicsMovie(struct part *part)
     }
     if (PrintFrameNums) printf("\n");
 
+#ifndef WIN32
     if (gettimeofday(&end, NULL)) {
         timefailure = errno;
     }
@@ -279,6 +286,7 @@ dynamicsMovie(struct part *part)
                         elapsedSeconds / (double)i,
                         elapsedSeconds / (double)(i * IterPerFrame));
     }
+#endif
     
 #if 0
     // do the time-reversal (for debugging)
