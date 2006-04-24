@@ -6,7 +6,7 @@ VERSION/INFO
 
 This is nanoENGINEER-1 v0.7 (Alpha 7) as of April 18, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for nanoENGINEER-1 to support@nanorex.com.
 
-You may access the most current copy of this file on-line at: http://www.nanoengineer-1.com in the Documentation section.
+You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Readme_A7
 
 ===========================
 MINIMUM SYSTEM REQUIREMENTS
@@ -98,12 +98,15 @@ Note: ESP Image jig is not fully supported on Linux and MAC platforms. On Window
 ============
 NEW FEATURES
 ============
-See RELEASENOTES.txt for the latest info, including new features. You may access the most current copy of this file on-line at: http://www.nanoengineer-1.com in the Documentation section.
+See RELEASENOTES.txt for the latest info, including new features. You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Release_Notes_A7
+
 
 ====================================
 KNOWN BUGS AND UNSUPPORTED FEATURES
 ====================================
-See KnownBugs.txt for the latest info regarding new bug, fixed bugs and unsupported features.  You may access the most current copy of this file on-line at: http://www.nanoengineer-1.com in the Documentation section.
+See KnownBugs.txt for the latest info regarding new bug, fixed bugs and unsupported features.  You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Known_Bugs_A7
+
+
 
 =========
 COPYRIGHT
@@ -115,4 +118,4 @@ Nanorex, Inc. disclaims all warranties with regard to this software, including a
 
 In no event shall Nanorex be liable for any special, indirect or consequential damages or any damages whatsoever resulting from loss of use, data or profits, whether in an action of contract, negligence or other tortious action, arising out of or in connection with the use or performance of this software.
 
-Please see the file LICENSE (distributed in the same directory as this file)for the license covering nanoENGINEER-1, since this depends on the platform and how the entire program was distributed. If no file named LICENSE was distributed in this file's directory, then all rights for use or distribution of nanoENGINEER-1 are reserved by Nanorex.
+Please see the file LICENSE (distributed in the same directory as this file) for the license covering nanoENGINEER-1, since this depends on the platform and how the entire program was distributed. If no file named LICENSE was distributed in this file's directory, then all rights for use or distribution of nanoENGINEER-1 are reserved by Nanorex, Inc.
