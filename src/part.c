@@ -1009,6 +1009,7 @@ makeRotaryMotor(struct part *p, char *name,
     // critical damping gets us up to speed as quickly as possible
     // http://hyperphysics.phy-astr.gsu.edu/hbase/oscda2.html
     j->j.rmotor.dampingCoefficient = 0.7071;
+    j->j.rmotor.damping_enabled = 1;
     j->j.rmotor.center = *center;
     j->j.rmotor.axis = uvec(*axis);
     // axis now has a length of one
@@ -1040,7 +1041,6 @@ makeRotaryMotor(struct part *p, char *name,
 	j->j.rmotor.w[i] = vx(j->j.rmotor.axis, v);
 	j->j.rmotor.momentOfInertia += mass * lenv * lenv;
 	vsetc(j->j.rmotor.rPrevious[i], 0.0);
-	j->j.rmotor.damping_enabled = 1;
     }
     
     // Add a flywheel with many times the moment of inertia of the atoms

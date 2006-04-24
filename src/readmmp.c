@@ -379,6 +379,7 @@ readMMP(char *filename)
   struct jig *previousRotaryMotor = NULL; // for back-reference of info line setting initial_speed
   double initialSpeed;
   double dampingCoefficient;
+  int dampingEnabled;
   double stall;
   double speed;
   double force;
@@ -487,19 +488,20 @@ readMMP(char *filename)
             mmpParseError(mmp);
           }
           setDampingCoefficient(previousRotaryMotor, dampingCoefficient);
-        } else if (!strcmp(tok, "enable_in_minimize")) {
-          // info leaf enable_in_minimize = True
+        } else if (!strcmp(tok, "dampers_enabled")) {
+          // info leaf dampers_enabled = False
           consumeWhitespace(mmp);
           expectToken(mmp, "=");
           consumeWhitespace(mmp);
           tok = readToken(mmp);
+          dampingEnabled = strcmp(tok, "False") ? 1 : 0;
           consumeRestOfLine(mmp);
 
           if (previousRotaryMotor == NULL) {
-            ERROR("setting enable_in_minimize without previous rotary motor");
+            ERROR("setting dampers_enabled without previous rotary motor");
             mmpParseError(mmp);
           }
-          setDampingEnabled(previousRotaryMotor, !strcmp(tok, "True"));
+          setDampingEnabled(previousRotaryMotor, dampingEnabled);
         }
       }
     }
