@@ -370,13 +370,12 @@
                             </property>
                             <property name="whatsThis" stdset="0">
                                 <string>&lt;b&gt;Force &lt;/b&gt;&lt;p&gt;Simulations will begin with the motor's force set to this
-value. The integral displacement of the linear motor's atoms is computed
-using Hooke's Law where:&lt;/p&gt;
-&lt;p&gt;&lt;b&gt;displacement = - Force  / Stiffness&lt;/b&gt;.&lt;/p&gt;
-&lt;p&gt;The negative sign indicates that the force exerted by the spring is in
+value. On each simulation time step, the displacement of the linear motor's atoms are computed using Hooke's Law, where:&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;displacement (x) = - Force(F) / Stiffness(k)&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;The negative sign indicates that the force exerted by the motor (a spring) is in
 direct opposition to the direction of displacement. It is called a
 "restoring force", as it tends to restore the system to equilibrium.&lt;/p&gt;
-&lt;p&gt;When stiffness = 0, the restoring force is 0 and the displacement will
+&lt;p&gt;When Stiffness = 0, the restoring force is 0 and the displacement will
 continue in one direction.&lt;/p&gt;</string>
                             </property>
                         </widget>
@@ -436,17 +435,16 @@ continue in one direction.&lt;/p&gt;</string>
                                 <set>AlignLeft</set>
                             </property>
                             <property name="toolTip" stdset="0">
-                                <string>Simulation will begin with the motor's stiffness set to this value.</string>
+                                <string>Simulations will begin with the motor's stiffness set to this value.</string>
                             </property>
                             <property name="whatsThis" stdset="0">
                                 <string>&lt;b&gt;Stiffness &lt;/b&gt;&lt;p&gt;Simulations will begin with the motor's stiffness set to this
-value. The integral displacement of the linear motor's atoms is computed
-using Hooke's Law where:&lt;/p&gt;
-&lt;p&gt;&lt;b&gt;displacement = - Force  / Stiffness&lt;/b&gt;.&lt;/p&gt;
-&lt;p&gt;The negative sign indicates that the force exerted by the spring is in
+value. On each simulation time step, the displacement of the linear motor's atoms are computed using Hooke's Law, where:&lt;/p&gt;
+&lt;p&gt;&lt;b&gt;displacement (x) = - Force(F) / Stiffness(k)&lt;/b&gt;&lt;/p&gt;
+&lt;p&gt;The negative sign indicates that the force exerted by the motor (a spring) is in
 direct opposition to the direction of displacement. It is called a
 "restoring force", as it tends to restore the system to equilibrium.&lt;/p&gt;
-&lt;p&gt;When stiffness = 0, the restoring force is 0 and the displacement will
+&lt;p&gt;When Stiffness = 0, the restoring force is 0 and the displacement will
 continue in one direction.&lt;/p&gt;</string>
                             </property>
                         </widget>
