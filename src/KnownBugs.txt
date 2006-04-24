@@ -1,5 +1,5 @@
 # Copyright (c) 2006 Nanorex, Inc. All rights reserved.
-nanoENGINEER-1 v0.7 (Alpha 7)
+nanoENGINEER-1 v0.7 (Alpha 7). Release Date: April 24, 2006
 
 This file documents some bug fixes, unsupported features and some of the commonly encountered bugs in nanoENGINEER-1 Alpha7. 
 
@@ -13,8 +13,6 @@ Some of the Bug Fixes In Alpha 7
 6. Improved force field. Formal bend parameters have replaced guessed values for all single bond combinations
 7. Naming a File (plot tool bug): If a file is named as Bob's molecule, the plot tool will not plot the results because of the apostrophe S present in the file's name (712)  
 
-
-
   
 UNSUPPORTED FEATURES:
 
@@ -23,7 +21,7 @@ UNSUPPORTED FEATURES:
 - MMKit tab and button changes and most changes made in the dashboards are not recorded in the Undo stack 
 - On large models, undo and other operation might become slower. Further performance improvements will be implemented in a future release of the software
 
-# PDBs With Multiple Bond Information Not Supported 
+#PDBs With Multiple Bond Information Not Supported 
  This version of ne-1 treats all bond types as single bonds while reading from or writing to a PDB file. Also, it doesn't save the hybridization type into the PDB file. For example, (sp2) hybridized Carbon in a structure will be saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond Therefore, save your models ONLY in MMP file format to avoid major loss of work (569, 763)
 
 SIMULATOR / MINIMIZE
@@ -35,12 +33,12 @@ SIMULATOR / MINIMIZE
 # Nanotubes: The simulator doesn't take into account the effect of torsion. The simulation/minimization of nanotubes and similar structures is not supported. 
 
 GAMESS Jig
-#. GAMESS jig can be added by select some atoms first in 'Select Atoms' mode and then attaching this jig by using Menu item: Jigs>Gamess. This jig can be attached to a maximum of 200 atoms. 
+#GAMESS jig can be added by select some atoms first in 'Select Atoms' mode and then attaching this jig by using Menu item: Jigs>Gamess. This jig can be attached to a maximum of 200 atoms. 
 -- Certain GAMESS optimization runs or Energy calculation can take very long time (hours/days). While a GAMESS job is being performed, user is not allowed to do any other operation in that session of ne-1. User must wait till the GAMESS job is finished or opt to terminate it by hitting 'Cancel' button in the progress bar. 
 -- Also, certain GAMESS run may create large output files. So make sure that your system has enough disk space to handle such runs. ALL GAMESS jobs are save inside the 'Job Manager' directory. (User's home directory/ Nanorex/Job Manager) (742)
  
 ESP IMAGE / NANO-HIVE
-9. ESP Image jig is not fully supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided that a correct version of NanoHive is installed. In general ESP image is partially supported and has many known bugs. These issues will be fixed in an upcoming release of nanoENGINEER-1.
+# ESP Image jig is not fully supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided that a correct version of NanoHive is installed. In general ESP image is partially supported and has many known bugs. These issues will be fixed in an upcoming release of nanoENGINEER-1.
 
 # Bond Inference not supported but a limited valence error check supported. 
 
@@ -64,7 +62,6 @@ Examples: Opening a large file, Operations performed in Fuse mode, moving select
 
 #Movie playing is lot slower for large models on some low system configuration machines. Also, other normal operations such as opening a file become slower for such machines (1757)
 
-
  
 ESP IMAGE JIG (NANO-HIVE)
 
@@ -76,10 +73,12 @@ ESP image has many known bugs or unimplemented features. Some Examples:
 MINIMIZE/SIMULATOR
 (see also: the Unsupported Features section)
 
-# For some structures it needs multiple executions of 'minimize' to boil down the high force to a lower value. Sometimes, even after repeated minimize operations, it gives high rms and high force values(805,1892) 
+# For some structures it needs multiple executions of 'minimize' to boil down the high force to a lower value. Sometimes, even after repeated minimize operations, it gives high rms and high force values(1892) 
 # Quite often, the rms & high force inconsistently increase during each execution of 'minimize'. Thus minimizing a structure could result in a new structure with a higher RMS force value than the input structure.  It should be the case that the new structure will always have a lower potential energy than the input structure, even if the RMS force value may sometimes be higher. This will be fixed in a future release of the product. (1377)
 # Minimize operation for some elements with higher order bond types doesn't work. See 'Unsupported Features' section for more info. (805) 
 # Simulator: In some cases, hydrogen atoms or other elements 'fly away' while running a simulation movie. This happens when atom centers are very close and therefore the repulsive force becomes very high (528, 558) 
+# Rotary motor doesn't rotate if a thermostat is attached to the chunk. Workaround is not to attach a thermostat jig when a rotary motor is present (1889)
+# Linear motor doesn't move the atoms if a thermostat jig is attached (1893)
 # Enable motor in minimize feature is experimental and has some bugs. Examples- the final rms and high force values after minimize are large, it takes long time to finish minimize operation. (1835, 1836)
 
 
@@ -112,7 +111,7 @@ This feature has some known bugs. Also refer to Linux Only Bugs and 'Dialogs and
 
 MOVE MODE
  
-#  Move: Keyboard modifier keys that constrain translation or rotation around an axis (e.g. press 'Y' and 'R' to rotate the selected chunk around Y axis.), doesn't work for the first time after you perform 'delta +' or 'delta ,' operations (which move a chunk by a specific distance). A workaround is to press and release the modifier keys and then press them again to perform these operations. (674)  
+# Move: Keyboard modifier keys that constrain translation or rotation around an axis (e.g. press 'Y' and 'R' to rotate the selected chunk around Y axis.), doesn't work for the first time after you perform 'delta +' or 'delta ,' operations (which move a chunk by a specific distance). A workaround is to press and release the modifier keys and then press them again to perform these operations. (674)  
  
 EXTRUDE MODE
  
@@ -198,6 +197,7 @@ MACINTOSH ONLY BUGS
 LINUX ONLY BUGS
 
 # System crashes while accessing wiki help via the URL provided in What's this text of that mode. Workaround is to use the Mode specific Wiki Help dialog that pops up when you hit F1 key (1447)
+# nanoENGINEER-1 sometimes crashes while operating on a bigger file and extensively using features such as clipboard, copy, extrude, select, undo etc. (1885)
 # Minimize progress messages in the status bar is truncated for lower resolution and larger font size (1794)  
 # Status bar text on bottom right corner can get obscured during minimize or simulation and thus affects the display of (for example) the minimize progress.  (1282)
 #Opening a plot file from the plot tool dialogs needs 'kwrite' editor which is available with only with KDE desktop (434)  
