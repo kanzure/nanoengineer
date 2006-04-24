@@ -1,16 +1,16 @@
 README
 
-============ 
+============= 
 VERSION/INFO
-============
+=============
 
 This is nanoENGINEER-1 v0.7 (Alpha 7) as of April 24, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for nanoENGINEER-1 to support@nanorex.com.
 
 You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Readme_A7
 
-===========================
+============================
 MINIMUM SYSTEM REQUIREMENTS
-===========================
+============================
 
   Linux:
     1 GHz Intel/AMD processor or equivalent 
@@ -39,9 +39,9 @@ Recommended for all platforms:
     Screen resolution:  1024 X 768 or higher. 
     Default desktop font size: 12 ('normal' on Windows XP)
  
-==============================
+===============================
 INSTALLATION of nanoENGINEER-1
-==============================
+===============================
 
 INSTALLATION on Windows and MAC OS
 
@@ -58,9 +58,9 @@ Note that the RPM does not add a menu item to the Start menu, nor does it add a 
 
 If you create a symlink to the executable in /usr/local/bin, as an experienced Linux user might, it will not work. This is because nanoENGINEER-1 looks for its files relative to its executable.
 
-=====================
+======================
 UNSUPPORTED PLATFORMS
-=====================
+======================
 nanoENGINEER-1 Alpha7 is tested and supported only on : 
  - Windows XP, 
  - MAC OS X 10.3.X, 10.4 (PowerPC G4)
@@ -95,22 +95,22 @@ This is needed if you want to use the Nano-Hive plugin option available in nanoE
 	
 Note: ESP Image jig is not fully supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided    that a correct version of Nano-Hive (Nano-Hive-1.2.0-Beta-1) is installed. In general, ESP image has many known bugs. These issues will be fixed in an upcoming release of nanoENGINEER-1. 
 
-============
+=============
 NEW FEATURES
-============
+=============
 See RELEASENOTES.txt for the latest info, including new features. You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Release_Notes_A7
 
 
 ====================================
 KNOWN BUGS AND UNSUPPORTED FEATURES
 ====================================
-See KnownBugs.txt for the latest info regarding new bug, fixed bugs and unsupported features.  You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Known_Bugs_A7
+See KnownBugs.htm for the latest info regarding new bug, fixed bugs and unsupported features.  You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Known_Bugs_A7
 
 
 
-=========
+==========
 COPYRIGHT
-=========
+==========
 
 Copyright (c) 2004-2006 Nanorex, Inc. 
 
