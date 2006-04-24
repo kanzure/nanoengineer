@@ -4,7 +4,7 @@ README
 VERSION/INFO
 ============
 
-This is nanoENGINEER-1 v0.7 (Alpha 7) as of April 18, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for nanoENGINEER-1 to support@nanorex.com.
+This is nanoENGINEER-1 v0.7 (Alpha 7) as of April 24, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for nanoENGINEER-1 to support@nanorex.com.
 
 You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Readme_A7
 
