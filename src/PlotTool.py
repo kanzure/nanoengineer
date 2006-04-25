@@ -131,6 +131,8 @@ class PlotTool(PlotToolDialog):
         self.dpbname = field_to_content["Output File"]
         
         ncols = number_of_columns
+
+        self.ncols = ncols #bruce 060425 part of traceback bugfix
         
         # Populate the plot combobox with plotting options.
         if ncols:
@@ -143,12 +145,27 @@ class PlotTool(PlotToolDialog):
             env.history.message(msg)
             return 1
         
-        self.lastplot = 0
+        self.lastplot = 0 #bruce 060425 guesses this is no longer needed after my bugfix below for when this returned 1 above,
+            # and also wonders if 0 was indeed an illegal column number (if not, it was incorrect, but I don't know).
+            # But, not knowing, I will leave it in.
         return
 
+    lastplot = "impossible value for a column number"
+        #bruce 060425 part of fixing traceback bug when the first plot you try (by pressing Plot button)
+        # was for an mmp file with no plottable jigs. This commit comes after A7 tag and release,
+        # but will probably make it into a remade A7 or A7.0.1.
+
+    ncols = 0 #bruce 060425 part of fixing traceback bug
+    
     def genPlot(self):
         """Generates GNUplot plotfile, then calls self.runGNUplot.
         """
+        if self.ncols < 1:
+            #bruce 060425 part of fixing traceback bug
+            msg = redmsg("Nothing to plot.") # more details not needed, they were already printed when plot tool came up.
+            env.history.message(cmd + msg)
+            return
+            
         col = self.plot_combox.currentItem() + 2 # Column number to plot
         
         # If this plot was the same as the last plot, just run GNUplot on the plotfile.
