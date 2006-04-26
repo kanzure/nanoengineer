@@ -94,6 +94,9 @@ class NanoBuildBase:
         self.atomPath = os.path.join(self.rootPath, 'atom')
         self.setupBuildSourcePath()
 
+    def get_md5(self, file):
+        return listResults("md5sum " + file + " | cut -c -32")[0]
+
     def startup_warnings(self):
         """Print warnings about prerequisites, etc, to user, specific to each platform.
         """
@@ -233,6 +236,9 @@ class NanoBuildWin32(NanoBuildBase):
 
     def setupBuildSourcePath(self):
         self.buildSourcePath = os.path.join(self.rootPath, self.appName)
+
+    def get_md5(self, file):
+        return ""
 
     def prepareSources(self):
         """Checkout source code from cvs for the release """
@@ -525,6 +531,11 @@ fi
 
 class NanoBuildMacOSX(NanoBuildBase):
 
+    LIBAQUA_MD5 = "6b6ba1b9d567cb6d809398fef79e2f10"
+
+    def get_md5(self, file):
+        return listResults("md5 " + file + " | cut -d'=' -f 2 | cut -c 2-")[0]
+
     def startup_warnings(self): #bruce 060420
         print "* * * WARNING: after most of this script has finished, we'll run a sudo chown root"
         print "command which might ask for your root password."
@@ -532,6 +543,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         print "(making sure some required imports will succeed)"
         import py2app as _junk # required by 'python setup.py py2app'
         ##e should also make sure the files we'll later copy are there, e.g. gnuplot
+        assert self.get_md5(os.path.join(self.currentPath, 'libaquaterm.1.0.0.dylib')) == self.LIBAQUA_MD5
         return
     
     def createMiddleDirectories(self):
@@ -557,8 +569,8 @@ class NanoBuildMacOSX(NanoBuildBase):
         appname = self.appName + '.app'
         cfdir = os.path.join(self.buildSourcePath, appname, 'Contents', 'Frameworks')
         assert os.path.isdir(cfdir) #bruce 060420
-        copy( os.path.join(self.currentPath, 'libaquaterm.1.0.0.dylib'), cfdir )
-            #bruce 060420 moved this here, replacing postflight script's move, making postflight script unnecessary
+        copy(os.path.join(self.currentPath, 'libaquaterm.1.0.0.dylib'), cfdir)
+        #bruce 060420 moved this here, replacing postflight script's move, making postflight script unnecessary
         os.chdir(os.path.join(self.atomPath,'cad'))
         copytree('doc', os.path.join(self.buildSourcePath, appname, 'Contents/doc'))
         copytree('images', os.path.join(self.buildSourcePath, appname, 'Contents/images'))
@@ -572,10 +584,10 @@ class NanoBuildMacOSX(NanoBuildBase):
         #
         self.binPath = binPath = os.path.join(self.buildSourcePath, appname, 'Contents/bin')
         os.mkdir(binPath)
-#bruce 060420 zapping this, since redundant with new chmod code done later for all files (and 755 should be 775 anyway):
-##        ne1files = listResults("find " + self.buildSourcePath + " -name nanoENGINEER-1.py")
-##        for f in ne1files:
-##            os.chmod(f, 0755)
+        #bruce 060420 zapping this, since redundant with new chmod code done later for all files (and 755 should be 775 anyway):
+        ##        ne1files = listResults("find " + self.buildSourcePath + " -name nanoENGINEER-1.py")
+        ##        for f in ne1files:
+        ##            os.chmod(f, 0755)
         self.copyOtherSources()
         print "------All python modules are packaged together."
 
@@ -722,9 +734,9 @@ class NanoBuildMacOSX(NanoBuildBase):
     def makePlatformPackage(self):
         welcomeFile = os.path.join(self.resourcePath, 'Welcome.txt')
         self.createWelcomeFile(welcomeFile)
-#bruce 060420 no longer needed
-##        postflightFile = os.path.join(self.resourcePath, 'postflight')
-##        self._writePostFlightFile(postflightFile)
+        #bruce 060420 no longer needed
+        ##        postflightFile = os.path.join(self.resourcePath, 'postflight')
+        ##        self._writePostFlightFile(postflightFile)
         plistFile = os.path.join(self.rootPath, 'Info.plist')
         words = self.version.split('.')
         self.createPlistFile(plistFile, self.appName, words[0], words[1], self.releaseNo)
@@ -742,10 +754,10 @@ class NanoBuildMacOSX(NanoBuildBase):
         for no_x_pattern in [ "*.txt", "*.htm", "partlib/*/*.mmp", "partlib/*/*/*.mmp" ]:
             system("chmod ugo-x %s/%s" % ( self.buildSourcePath, no_x_pattern))
         system("chmod -R o+w %s/%s" % ( self.buildSourcePath, 'partlib' ))
-            # we want to do this to directories for sure; not sure about files, but ok for now
-# redundant now:
-##        for other_write_pattern in [ "partlib/*/*.mmp", "partlib/*/*/*.mmp" ]:
-##            system("chmod o+w %s/%s" % ( self.buildSourcePath, other_write_pattern))
+        # we want to do this to directories for sure; not sure about files, but ok for now
+        # redundant now:
+        ##        for other_write_pattern in [ "partlib/*/*.mmp", "partlib/*/*/*.mmp" ]:
+        ##            system("chmod o+w %s/%s" % ( self.buildSourcePath, other_write_pattern))
         system("chgrp -R admin %s" % self.buildSourcePath)
         print
         print "Now we will do sudo chown -R root %s -- *** THIS MIGHT REQUIRE YOUR ROOT PASSWORD:\7" % self.buildSourcePath
@@ -850,21 +862,17 @@ def main():
             usage()
             sys.exit()
 
-    # Get the version information by checking out only the 
-    # version.py file like this:
-    #
-    # cvs -Q -z9 checkout cad/src/version.py
-    #
-    # Mark 051117
 
-    sp = sys.path
+    sp = sys.path[:]
     cadDir = os.path.join(os.getcwd(), "cad")
     if sourceDirectory:
         system("rm -rf " + cadDir)
         system("cp -r %s %s" % (os.path.join(sourceDirectory, "cad"), cadDir))
     elif cvsTag:
+        # Get the version information by checking out only the version.py file
         system("cvs -Q -z9 checkout -r %s cad/src/version.py" % cvsTag)
     else:
+        # Get the version information by checking out only the version.py file
         system("cvs -Q -z9 checkout cad/src/version.py")
     
     sys.path.append(os.path.join(cadDir, "src"))
@@ -878,16 +886,7 @@ def main():
         PMMT += "%d.%d.%d" % (VERSION.major, VERSION.minor, VERSION.tiny)
     else:
         PMMT += "%d.%d" % (VERSION.major, VERSION.minor)
-    sys.path = sp ### WARNING: this line might have been intended to restore the original sys.path,
-    ### but in fact it has no effect, since sp and sys.path refer to the same mutable list.
-    ### [bruce 060420 comment]
-    
-    #answer = "maybe"
-    #while answer not in ['yes', 'no']:
-    #    answer = raw_input(("\nThis will create the installation package for %s? " +
-    #                        "\nDo you want to continue (yes or no): ") % PMMT)
-    #    if answer == 'no':
-    #        sys.exit()
+    sys.path = sp[:]
 
     if not rootDir:
         rootDir = os.path.join(currentDir, PMMT)
