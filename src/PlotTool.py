@@ -20,6 +20,9 @@ from HistoryWidget import redmsg, greenmsg, orangemsg
 from movie import find_saved_movie
 from platform import open_file_in_editor
 import env
+from debug import print_compact_traceback
+
+debug_gnuplot = False
 
 debug_plottool = False
 
@@ -208,13 +211,24 @@ class PlotTool(PlotToolDialog):
         
         if sys.platform == 'win32': 
             # The plot will stay up until the OK or Cancel button is clicked.
-            f.write("pause mouse \"Click OK or Cancel to Quit\"") 
+            f.write("pause mouse \"Click OK or Cancel to Quit\"\n")
+                #bruce 060425 added \n at end (probably doesn't matter, not sure)
+        elif sys.platform == 'darwin':
+            #bruce 060425 added this case, since on Mac the pause is useless (AquaTerm stays up without it)
+            # and perhaps undesirable (causes AquaTerm dialog warning when user quits it).
+            # Maybe a quit at the end is never needed, or maybe it's also useful on non-Macs -- I don't know.
+            # I tried without the quit and the gnuplot process terminated anyway, so I won't include the quit.
+            if debug_gnuplot:
+                f.write("pause 120\n") # just long enough to see it in ps output for debugging
+                # Note: during this pause, if user tries to quit AquaTerm, they get a warning dialog about clients still connected,
+                # but after this pause elapses, the gnuplot process is not running, and the user can quit AquaTerm with no dialog.
+            pass # or could do f.write("quit\n")
         else: 
             # "pause mouse" doesn't work on Linux as it does on Windows.
             # I suspect this is because QProcess doesn't spawn a child, but forks a sibling process.
             # The workaround is thus: plot will stick around for 3600 seconds (1 hr).
             # Mark 050310
-            f.write("pause 3600")
+            f.write("pause 3600\n") #bruce 060425 added \n at end (probably doesn't matter, not sure)
         
         f.close()
 
@@ -239,14 +253,26 @@ class PlotTool(PlotToolDialog):
         else:
             program = os.path.normpath(filePath + '/../bin/gnuplot')
 
-        #Huaicai 3/18:  set environment variable to make gluplot use a specific AquaTerm on Mac
+        #Huaicai 3/18:  set environment variable to make gnuplot use a specific AquaTerm on Mac
         environVb = None
         if sys.platform == 'darwin':
             aquaPath = os.path.join(os.path.normpath(filePath + '/../bin'), 'AquaTerm.app')
             environVb =  QStringList(QString('AQUATERM_PATH=%s' % aquaPath))
+            if 1:
+                #bruce 060425 thinks the following might also be needed.
+                # In my tests, it made no difference, whether /usr/local/lib/libaquaterm.1.0.0.dylib
+                # was a bad dylib or was missing. But it seems desirable in theory so I'll leave it in.
+                dyld_path = os.environ.get('DYLD_LIBRARY_PATH') # set in atom.py
+                if dyld_path:
+                    dfd = 'DYLD_LIBRARY_PATH=%s' % dyld_path
+                    if debug_gnuplot:
+                        print dfd # it does happen
+                    environVb.append(dfd)
+                pass
+            pass
 	 
 	        #The other option is to set it in the parent process using the Python way, 
-	        # but the previous way is better.    
+	        # but the previous way is better.    [huaicai comment]
             #os.environ['AQUATERM_PATH']=aquaPath
         
 
@@ -257,9 +283,8 @@ class PlotTool(PlotToolDialog):
             return
         
         # Create arguments list for plotProcess.
-#        args = [program, self.plotFile]
         args = [program, plotfile]
-#        print "args = ", args
+        ###e It might also be good to pass gnuplot some arg to tell it to ignore ~/.gnuplot. [bruce 060425 guess]
         arguments = QStringList()
         for arg in args:
             arguments.append(arg)
@@ -275,7 +300,16 @@ class PlotTool(PlotToolDialog):
                 env.history.message(redmsg("GNUplot failed to run!"))
             else: 
                 env.history.message("Running GNUplot file: " + plotfile)
-            
+                if debug_gnuplot:
+                    try:
+                        #bruce 060425 debug code; Qt assistant for QProcess says this won't work on Windows (try it there anyway).
+                        pid = plotProcess.processIdentifier()
+                        pid = int(pid) # this is what is predicted to fail on Windows
+                        env.history.message("(debug: gnuplot is %r, its process id is %d)" % (program, pid))
+                    except:
+                        print_compact_traceback("debug: exception printing processIdentifier (might be normal on Windows): ")
+                    pass
+                pass
         except: # We had an exception.
             print"exception in GNUplot; continuing: "
             if plotProcess:
