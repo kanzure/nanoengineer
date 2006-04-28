@@ -122,8 +122,12 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         import fusechunksMode as _fusechunksMode
         _fusechunksMode.do_what_MainWindowUI_should_do(self)
         
+        # Load additional icons to QAction iconsets.
+        # self.load_icons_to_iconsets() # Uncomment this line to test if Redo button has custom icon when disabled. mark 060427
+        
         # Load all the custom cursors
-        self.loadCursors()
+        from cursors import loadCursors
+        loadCursors(self)
         
         # Hide all dashboards
         self.hideDashboards()
@@ -1354,263 +1358,19 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def validateThickness(self, s):
         if self.vd.validate( s, 0 )[0] != 2: self.ccLayerThicknessLineEdit.setText(s[:-1])
 
-#######  Load Cursors #########################################
-    def loadCursors(self):
-
+#######  Load IconSets #########################################
+    def load_icons_to_iconsets(self):
+        '''Load additional icons to QAction icon sets that are used in MainWindow toolbars and menus.
+        This is experimental. mark 060427.
+        '''
+    
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
-
-        # Create "SelectWaitCursor" cursor.  Added 060111 by Mark.
-        self.SelectWaitCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectWaitCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectWaitCursor-bm.bmp"),
-            0, 0)
-            
-        # Create "SelectAtomsCursor" cursor
-        self.SelectAtomsCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectAtomsCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectAtomsCursor-bm.bmp"),
-            0, 0)
-
-        # Create "SelectAtomsAddCursor" cursor
-        self.SelectAtomsAddCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectAtomsAddCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectAtomsAddCursor-bm.bmp"),
-            0, 0)
-
-        # Create "SelectAtomsSubtractCursor" cursor
-        self.SelectAtomsSubtractCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectAtomsSubtractCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectAtomsSubtractCursor-bm.bmp"),
-            0, 0)
-            
-        # Create "SelectAtomsFilterCursor" cursor
-        self.SelectAtomsFilterCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectAtomsFilterCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectAtomsFilterCursor-bm.bmp"),
-            0, 0)
-            
-        # Create "SelectAtomsAddFilterCursor" cursor
-        self.SelectAtomsAddFilterCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectAtomsAddFilterCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectAtomsAddFilterCursor-bm.bmp"),
-            0, 0)
-            
-        # Create "SelectAtomsSubtractFilterCursor" cursor
-        self.SelectAtomsSubtractFilterCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectAtomsSubtractFilterCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectAtomsSubtractFilterCursor-bm.bmp"),
-            0, 0)
-            
-        # Create "DeleteFilterCursor" cursor. Fixes bug 1604. mark 060303.
-        self.DeleteFilterCursor = QCursor(
-            QBitmap(filePath + "/../images/DeleteFilterCursor.bmp"),
-            QBitmap(filePath + "/../images/DeleteFilterCursor-bm.bmp"),
-            0, 0)
-                                        
-        # Create "SelectMolsCursor" cursor
-        self.SelectMolsCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectMolsCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectMolsCursor-bm.bmp"),
-            0, 0)
-
-        # Create "SelectMolsAddCursor" cursor
-        self.SelectMolsAddCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectMolsAddCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectMolsAddCursor-bm.bmp"),
-            0, 0)
+        small_disabled_on_icon_fname = filePath + "/../images/redoAction_small_disabled_off.png"
         
-        # Create "SelectMolsSubtractCursor" cursor
-        self.SelectMolsSubtractCursor = QCursor(
-            QBitmap(filePath + "/../images/SelectMolsSubtractCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectMolsSubtractCursor-bm.bmp"),
-            0, 0)
-        
-        # Create "CookieCursor" cursor
-        self.CookieCursor = QCursor(
-            QBitmap(filePath + "/../images/CookieCursor.bmp"),
-            QBitmap(filePath + "/../images/CookieCursor-bm.bmp"),
-            -1, -1)
-                    
-        # Create "CookieAddCursor" cursor
-        self.CookieAddCursor = QCursor(
-            QBitmap(filePath + "/../images/CookieAddCursor.bmp"),
-            QBitmap(filePath + "/../images/CookieAddCursor-bm.bmp"),
-            -1, -1)
-
-        # Create "CookieSubtractCursor" cursor
-        self.CookieSubtractCursor = QCursor(
-            QBitmap(filePath + "/../images/CookieSubtractCursor.bmp"),
-            QBitmap(filePath + "/../images/CookieSubtractCursor-bm.bmp"),
-            -1, -1)
-            
-        # Create "RotateCursor" cursor
-        self.RotateCursor = QCursor(
-            QBitmap(filePath + "/../images/RotateCursor.bmp"),
-            QBitmap(filePath + "/../images/RotateCursor-bm.bmp"),
-            0, 0)
-            
-        # Create "RotateZCursor" cursor
-        self.RotateZCursor = QCursor(
-            QBitmap(filePath + "/../images/RotateZCursor.bmp"),
-            QBitmap(filePath + "/../images/RotateZCursor-bm.bmp"),
-            0, 0)
-            
-        # Create "MoveCursor" cursor
-        self.MoveCursor = QCursor(
-            QBitmap(filePath + "/../images/MoveCursor.bmp"),
-            QBitmap(filePath + "/../images/MoveCursor-bm.bmp"),
-            0, 0)
-            
-        # Create "MoveSelectCursor" cursor
-        self.MoveSelectCursor = QCursor(
-            QBitmap(filePath + "/../images/MoveSelectCursor.bmp"),
-            QBitmap(filePath + "/../images/MoveSelectCursor-bm.bmp"),
-            -1, -1)
-
-        # Create "MoveAddCursor" cursor
-        self.MoveAddCursor = QCursor(
-            QBitmap(filePath + "/../images/MoveAddCursor.bmp"),
-            QBitmap(filePath + "/../images/MoveAddCursor-bm.bmp"),
-            -1, -1)
-            
-        # Create "MoveSubtractCursor" cursor
-        self.MoveSubtractCursor = QCursor(
-            QBitmap(filePath + "/../images/MoveSubtractCursor.bmp"),
-            QBitmap(filePath + "/../images/MoveSubtractCursor-bm.bmp"),
-            -1, -1)
-                                    
-        # Create "MoveRotateMolCursor" cursor
-        self.MoveRotateMolCursor = QCursor(
-            QBitmap(filePath + "/../images/MoveRotateMolCursor.bmp"),
-            QBitmap(filePath + "/../images/MoveRotateMolCursor-bm.bmp"),
-            -1, -1)
-                                    
-        # Create "RotateMolCursor" cursor
-        self.RotateMolCursor = QCursor(
-            QBitmap(filePath + "/../images/RotateMolCursor.bmp"),
-            QBitmap(filePath + "/../images/RotateMolCursor-bm.bmp"),
-            -1, -1)
-                        
-        # Create "DepositAtomCursor" cursor [differently for Mac or non-Mac]
-        if not platform.is_macintosh():
-          # use original code
-          self.DepositAtomCursor = QCursor(
-            QBitmap(filePath + "/../images/DepositAtomCursor.bmp"),
-            QBitmap(filePath + "/../images/DepositAtomCursor-bm.bmp"),
-            0, 32)
-            #bruce 041104 note: 32 is beyond the pixel array; 31 might be better
-        else:
-          # bruce 041104 bugfix for Mac, whose hotspot can't be (0,31) since
-          # that acts like (0,15) or so; in fact, by experiment, hotspot (x,y)
-          # acts like ( min(x,15), min(y,15) ) (exact value of upper limit is
-          # a guess); so a workaround is to invert the cursor and the desired
-          # hotspot in y (though we might decide to just do this on all
-          # platforms, for a uniform look):
-          self.DepositAtomCursor = QCursor(
-            QBitmap(filePath + "/../images/DepositAtomCursor.bmp").xForm(QWMatrix(1,0,0,-1, 0,0)),
-            QBitmap(filePath + "/../images/DepositAtomCursor-bm.bmp").xForm(QWMatrix(1,0,0,-1, 0,0)),
-            0, 0)
-        
-        # Create "DeleteCursor" cursor
-        self.DeleteCursor = QCursor(
-            QBitmap(filePath + "/../images/DeleteCursor.bmp"),
-            QBitmap(filePath + "/../images/DeleteCursor-bm.bmp"),
-            0, 0)
-            
-        # Create "ZoomCursor" cursor
-        self.ZoomCursor = QCursor(
-            QBitmap(filePath + "/../images/ZoomCursor.bmp"),
-            QBitmap(filePath + "/../images/ZoomCursor-bm.bmp"),
-            10, 10)
-            
-        # Create "ZoomPOVCursor" cursor
-        self.ZoomPOVCursor = QCursor(
-            QBitmap(filePath + "/../images/ZoomPOVCursor.bmp"),
-            QBitmap(filePath + "/../images/ZoomPOVCursor-bm.bmp"),
-            -1, -1)
-        
-        # Create "BondToolCursor" list
-        self.BondToolCursor = []
-        self.BondToolCursor.append(QCursor(
-            QBitmap(filePath + "/../images/SelectAtomsCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectAtomsCursor-bm.bmp"),
-            0, 0))
-        self.BondToolCursor.append(QCursor(
-            QBitmap(filePath + "/../images/Bond1ToolCursor.bmp"),
-            QBitmap(filePath + "/../images/Bond1ToolCursor-bm.bmp"),
-            0, 0))
-        self.BondToolCursor.append(QCursor(
-            QBitmap(filePath + "/../images/Bond2ToolCursor.bmp"),
-            QBitmap(filePath + "/../images/Bond2ToolCursor-bm.bmp"),
-            0, 0))
-        self.BondToolCursor.append(QCursor(
-            QBitmap(filePath + "/../images/Bond3ToolCursor.bmp"),
-            QBitmap(filePath + "/../images/Bond3ToolCursor-bm.bmp"),
-            0, 0))
-        self.BondToolCursor.append(QCursor(
-            QBitmap(filePath + "/../images/BondAToolCursor.bmp"),
-            QBitmap(filePath + "/../images/BondAToolCursor-bm.bmp"),
-            0, 0))
-        self.BondToolCursor.append(QCursor(
-            QBitmap(filePath + "/../images/BondGToolCursor.bmp"),
-            QBitmap(filePath + "/../images/BondGToolCursor-bm.bmp"),
-            0, 0))
-            
-        # Create "BondToolAddCursor" list
-        self.BondToolAddCursor = []
-        self.BondToolAddCursor.append(QCursor(
-            QBitmap(filePath + "/../images/SelectAtomsAddCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectAtomsAddCursor-bm.bmp"),
-            0, 0))
-        self.BondToolAddCursor.append(QCursor(
-            QBitmap(filePath + "/../images/Bond1ToolAddCursor.bmp"),
-            QBitmap(filePath + "/../images/Bond1ToolAddCursor-bm.bmp"),
-            0, 0))
-        self.BondToolAddCursor.append(QCursor(
-            QBitmap(filePath + "/../images/Bond2ToolAddCursor.bmp"),
-            QBitmap(filePath + "/../images/Bond2ToolAddCursor-bm.bmp"),
-            0, 0))
-        self.BondToolAddCursor.append(QCursor(
-            QBitmap(filePath + "/../images/Bond3ToolAddCursor.bmp"),
-            QBitmap(filePath + "/../images/Bond3ToolAddCursor-bm.bmp"),
-            0, 0))
-        self.BondToolAddCursor.append(QCursor(
-            QBitmap(filePath + "/../images/BondAToolAddCursor.bmp"),
-            QBitmap(filePath + "/../images/BondAToolAddCursor-bm.bmp"),
-            0, 0))
-        self.BondToolAddCursor.append(QCursor(
-            QBitmap(filePath + "/../images/BondGToolAddCursor.bmp"),
-            QBitmap(filePath + "/../images/BondGToolAddCursor-bm.bmp"),
-            0, 0))
-            
-        # Create "BondToolSubtractCursor" list
-        self.BondToolSubtractCursor = []
-        self.BondToolSubtractCursor.append(QCursor(
-            QBitmap(filePath + "/../images/SelectAtomsSubtractCursor.bmp"),
-            QBitmap(filePath + "/../images/SelectAtomsSubtractCursor-bm.bmp"),
-            0, 0))
-        self.BondToolSubtractCursor.append(QCursor(
-            QBitmap(filePath + "/../images/Bond1ToolSubtractCursor.bmp"),
-            QBitmap(filePath + "/../images/Bond1ToolSubtractCursor-bm.bmp"),
-            0, 0))
-        self.BondToolSubtractCursor.append(QCursor(
-            QBitmap(filePath + "/../images/Bond2ToolSubtractCursor.bmp"),
-            QBitmap(filePath + "/../images/Bond2ToolSubtractCursor-bm.bmp"),
-            0, 0))
-        self.BondToolSubtractCursor.append(QCursor(
-            QBitmap(filePath + "/../images/Bond3ToolSubtractCursor.bmp"),
-            QBitmap(filePath + "/../images/Bond3ToolSubtractCursor-bm.bmp"),
-            0, 0))
-        self.BondToolSubtractCursor.append(QCursor(
-            QBitmap(filePath + "/../images/BondAToolSubtractCursor.bmp"),
-            QBitmap(filePath + "/../images/BondAToolSubtractCursor-bm.bmp"),
-            0, 0))
-        self.BondToolSubtractCursor.append(QCursor(
-            QBitmap(filePath + "/../images/BondGToolSubtractCursor.bmp"),
-            QBitmap(filePath + "/../images/BondGToolSubtractCursor-bm.bmp"),
-            0, 0))
-
-        return # from loadCursors
+        # Add the small "disabled/off" icon for the Redo QAction, displayed when editRedoAction.setDisabled(1).
+        editRedoIconSet = self.editRedoAction.iconSet()
+        editRedoIconSet.setPixmap ( small_disabled_on_icon_fname, QIconSet.Small, QIconSet.Disabled, QIconSet.Off )
+        self.editRedoAction.setIconSet ( editRedoIconSet )
     
     def hideDashboards(self):
         # [bruce 050408 comment: this list should be recoded somehow so that it
