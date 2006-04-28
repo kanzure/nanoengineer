@@ -569,8 +569,11 @@ class NanoBuildMacOSX(NanoBuildBase):
         appname = self.appName + '.app'
         cfdir = os.path.join(self.buildSourcePath, appname, 'Contents', 'Frameworks')
         assert os.path.isdir(cfdir) #bruce 060420
-        copy(os.path.join(self.currentPath, 'libaquaterm.1.0.0.dylib'), cfdir)
         #bruce 060420 moved this here, replacing postflight script's move, making postflight script unnecessary
+        copy(os.path.join(self.currentPath, 'libaquaterm.1.0.0.dylib'), cfdir)
+        # wware 060428 record lib md5s before prebinding step
+        system("(cd %s; md5 * > original-md5s.txt)" % cfdir)
+
         os.chdir(os.path.join(self.atomPath,'cad'))
         copytree('doc', os.path.join(self.buildSourcePath, appname, 'Contents/doc'))
         copytree('images', os.path.join(self.buildSourcePath, appname, 'Contents/images'))
