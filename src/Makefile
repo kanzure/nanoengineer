@@ -21,7 +21,8 @@ else
 UNAME := $(shell uname)
 UNAME_A=$$(uname -a)
 CC=gcc
-CFLAGS=-g -Wmissing-prototypes -Wall
+#CFLAGS=-g -Wmissing-prototypes -Wall
+CFLAGS=-pthread -fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes -Wstrict-prototypes -fPIC -I/usr/include/python2.3
 # -pg
 # Note: these CFLAGS are probably not used to build the files for Pyrex, 
 # only for the standalone simulator executable. [bruce 051230 guess]
@@ -32,7 +33,7 @@ STDC99=-std=c99
 SIMTARGET=simulator
 endif
 
-PYREXOBJS=\
+COMMONOBJS=\
 	allocate.o \
 	dynamics.o \
 	globals.o \
@@ -51,9 +52,11 @@ PYREXOBJS=\
 	structcompare.o \
 	writemovie.o
 
-PYREXSRCS=$(PYREXOBJS:.o=.c)
+PYREXSRCS=$(COMMONOBJS:.o=.c)
 
-SIMOBJS=$(PYREXOBJS) simulator.o
+SIMOBJS=$(COMMONOBJS) simulator.o
+
+PYREXOBJS=$(COMMONOBJS) sim.o
 
 EXE_DIRECTORY=../../cad/bin
 #EXE_DIRECTORY=~/bin
@@ -91,6 +94,7 @@ SUFFIXES: .c .h .o ;
 structcompare.o: structcompare.c simulator.h
 	$(CC) -c $(STDC99) $(CFLAGS) -o structcompare.o structcompare.c
 
+ifeq ($(OS),Windows_NT)
 # We need sim.c rule to build for Windows
 sim.c: simhelp.c sim.pyx
 	python c:/Python$(PYVER)/Scripts/pyrexc.py sim.pyx
@@ -101,6 +105,17 @@ libpython$(PYVER).a: libpython$(PYVER).a.gz
 sim.dll: sim.c $(PYREXOBJS) libpython$(PYVER).a version.h
 	gcc -shared -I"C:/Python$(PYVER)/include" -o sim.dll sim.c $(PYREXOBJS) \
 		-Wl,--output-def,sim.def -L. -lpython$(PYVER)
+else
+# here's the distutils version:
+#sim.so: Makefile $(PYREXSRCS) version.h bends.gen bonds.gen sim.pyx simhelp.c
+#	python setup.py build_ext --inplace
+
+sim.c: sim.pyx simhelp.c
+	pyrexc sim.pyx
+
+sim.so: $(PYREXOBJS)
+	$(CC) -pthread -shared $(PYREXOBJS) -o sim.so
+endif
 
 tables.c: gentab.py
 	python gentab.py > tables.c
@@ -132,9 +147,6 @@ teststructcompare: structcompare.c minimize.o allocate.o lin-alg.o
 glviewer: glviewer.c allocate.o
 	$(CC) -o glviewer.o $(CFLAGS) -c glviewer.c
 	$(CC) -o glviewer $(LDFLAGS) -L/usr/X11R6/lib -lGL -lGLU glviewer.o allocate.o
-
-sim.so: Makefile $(PYREXSRCS) version.h bends.gen bonds.gen sim.pyx simhelp.c
-	python setup.py build_ext --inplace
 
 install: $(SIMTARGET)
 	if [ ! -d $$HOME/bin ] ; then \
