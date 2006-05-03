@@ -2037,6 +2037,10 @@ class Main(unittest.TextTestRunner):
             """
             global VERBOSE_FAILURES
             VERBOSE_FAILURES = True
+        def verbose_progress(x):
+            """print verbose test names as progress indicator instead of dots.
+            """
+            self.verbosity = 2
 
         def help(x):
             """print help information
@@ -2062,6 +2066,7 @@ class Main(unittest.TextTestRunner):
                    keep,
                    todo_tasks,
                    verbose_failures,
+                   verbose_progress,
                    help)
 
         # Default behavior is to do all the tests, including the slow ones,
