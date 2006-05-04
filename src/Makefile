@@ -22,7 +22,8 @@ UNAME := $(shell uname)
 UNAME_A=$$(uname -a)
 CC=gcc
 #CFLAGS=-g -Wmissing-prototypes -Wall
-CFLAGS=-pthread -fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes -Wstrict-prototypes -fPIC -I/usr/include/python2.3
+CFLAGS=-pthread -fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
+  -Wstrict-prototypes -fPIC -I/usr/include/python$(PYDVER)
 # -pg
 # Note: these CFLAGS are probably not used to build the files for Pyrex, 
 # only for the standalone simulator executable. [bruce 051230 guess]
