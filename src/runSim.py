@@ -60,7 +60,25 @@ if debug_sim_exceptions:
 
 _FAILURE_ALREADY_DOCUMENTED = -10101
 
-    
+# ==
+
+def timestep_flag_and_arg( mflag = False): #bruce 060503
+    from debug_prefs import debug_pref, Choice
+    timestep_fs_str = debug_pref("dynamics timestep (fs)", Choice(["0.1", "0.2", "0.5", "1.0"]), non_debug = True)
+    timestep_fs = float(timestep_fs_str)
+        # kluge: we use a string in the menu, since float 0.1 shows up in menu text as 0.100000000000000001 or so
+    timestep = timestep_fs * 1e-15
+    use_timestep_arg = (timestep_fs != 0.1) and not mflag
+        # only supply the arg if not minimizing, and if a non-default value is chosen
+        # (in case the code to supply it has a bug, or supplies it to the sim in the wrong format)
+    return use_timestep_arg, timestep
+
+##timestep_flag_and_arg() # Exercise the debug_pref so it shows up in the debug menu before the first sim/min run...
+##    # Oops, this doesn't work from here, since this module is not imported until it's needed! Never mind for now,
+##    # since it won't be an issue later when timestep is again supported as a movie attribute.
+
+# ==
+
 class SimRunner:
     "class for running the simulator [subclasses can run it in special ways, maybe]"
     #bruce 050330 making this from writemovie and maybe some of Movie/SimSetup; experimental,
@@ -516,7 +534,14 @@ class SimRunner:
         # the use_dylib code for formarg is farther below
 
         self._simopts = self._simobj = self._arguments = None # appropriate subset of these is set below
-        
+
+        use_timestep_arg = False
+        if 1: #######@@@@@@@ bruce 060503: add debug_pref to let user vary simulator timestep
+            # (we also read the value on import, in separate code above, to make sure it gets into the debug menu right away)
+            use_timestep_arg, timestep = timestep_flag_and_arg(mflag)
+            # boolean and float (timestep in seconds)
+            if use_timestep_arg:
+                env.history.message(orangemsg("Note: using experimental non-default dynamics timestamp of %r femtoseconds" % (timestep * 1e15)))
         if use_command_line:
             # "args" = arguments for the simulator.
             #SIMOPT -- this appears to be the only place the entire standalone simulator command line is created.
@@ -537,6 +562,9 @@ class SimRunner:
                             traceFileArg,
                             outfileArg,
                             infile]
+            if use_timestep_arg: #bruce 060503; I'm guessing that two separate arguments are needed for this, and that %f will work
+                args.insert(1, '--time-step')
+                args.insert(2, '%f' % timestep)
             if debug_sim:
                 print  "program = ",program
                 print  "Spawnv args are %r" % (args,) # note: we didn't yet remove args equal to "", that's done below
@@ -568,6 +596,8 @@ class SimRunner:
             simopts.OutFileName = moviefile
             if not mflag:
                 # The timestep argument "-s + (movie.timestep)" or Dt is not supported for Alpha...
+                if use_timestep_arg: #bruce 060503
+                    simopts.Dt = timestep
                 simopts.NumFrames = movie.totalFramesRequested   # SIMPARAMS
                 simopts.Temperature = movie.temp
                 simopts.IterPerFrame = movie.stepsper
