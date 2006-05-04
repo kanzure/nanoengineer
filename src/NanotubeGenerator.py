@@ -144,7 +144,8 @@ class Chirality:
                 for n2, m2 in bondDict[atm]:
                     try:
                         atm2 = dict2[(n2, m2)]
-                        bonds.bond_atoms(atm, atm2, bonds.V_GRAPHITE)
+                        if not bonds.bonded(atm, atm2):
+                            bonds.bond_atoms(atm, atm2, bonds.V_GRAPHITE)
                     except KeyError:
                         pass
 
