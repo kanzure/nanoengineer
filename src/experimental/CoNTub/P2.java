@@ -4,6 +4,11 @@ import java.awt.event.*;
 import java.applet.*;
 import java.text.*;
 
+/*
+ * This is the GUI element that we use when we're doing heterojunctions, and is therefore
+ * of great interest. The really interesting stuff appears to be in the makemol() method.
+ */
+
 public class P2 extends JPanel implements ActionListener, ItemListener
 {
 	private JButton B1, B2;
@@ -234,6 +239,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 		double lent1 = 0;
 		double lent2 = 0;
 
+		// Get parameters from the GUI.
 		try {
 			i1 = Integer.parseInt (t1.getText ().trim ());	//pillamos indice se tubos
 			j1 = Integer.parseInt (t2.getText ().trim ());
@@ -267,7 +273,8 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 
 
 
-		boolean cambio1 = false;
+		// If the user put in any negative parameters, fix that now
+		boolean cambio1 = false;  // cambio --> change
 		boolean cambio2 = false;
 		for (; (i1 < 0) || (j1 < 0);) {
 			int i1n = -j1;
@@ -300,6 +307,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 		}
 
 
+		// Check validity conditions on parameters
 		if (i2 == i1 && j2 == j1) {
 			JOptionPane.showMessageDialog (null, "Error: Indices of both tubes coincide", "Error", JOptionPane.ERROR_MESSAGE);
 			return;
@@ -318,12 +326,14 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 		boolean creciente = true;
 		int c = 0;
 
+		// Create the two nanotubes to be joined
 		NTA = new Nanotubo (i1, j1, 2.46);
 		NTB = new Nanotubo (i2, j2, 2.46);
 
 		int guess = naproxatomos (NTA.radio (), lent1, NTB.radio (),
 					  lent2);
 
+		// Warn if structure is large enough to be potentially problematic
 		if (guess > 6000) {
 			JOptionPane.showMessageDialog (null, "Structure will have more than 6000 Atoms. Process stopped.", "STOP", 0);
 			return;
@@ -339,6 +349,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 		} else
 			pan3D.unsetlrd ();
 
+		// The actual algorithm starts here
 		int nad = j2 - j1;
 		int mad = i1 - i2 + j1 - j2;
 		int nbd = i1 + j1 - j2;

@@ -5,20 +5,21 @@ class Nanotubo
 	int primos[] = { 1, 2, 3, 5, 7, 11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47,
 		53, 59, 61, 67, 71, 73, 79, 83, 89, 97, 1
 	};
-	double altura[], phi[];
+	double altura[], phi[];  // altura --> height
 	double A = 2.46, deltaz1, deltaz2, deltaphi1, deltaphi2;;
 
 	Nanotubo (int I, int J)
 	{
 		this.i1 = I;
 		this.i2 = J;
-		ordenmin = 1;
+		ordenmin = 1;  // orden --> order
 		d = 1;
 
 		int nn = i1, mm = i2;
 		altura = new double[100];
 		phi = new double[100];
 
+		// find common factors between nn and mm, move them to d
 		for (int i = 1; i <= 25; i++) {
 			for (int j = 1; ((nn % primos[i]) == 0)
 			     && ((mm % primos[i]) == 0); j++) {
@@ -29,6 +30,7 @@ class Nanotubo
 
 		deltaz1 = A * Math.sin (Math.PI / 3 - quiral ());
 		deltaz2 = A * Math.sin (quiral ());	//esto, al estar bajo Q, es positivo cuando deberia ser negativo! OJO a esto!
+		// this, when being under Q, is positive when it would have to be negative! WATCH this!
 		deltaphi1 = A / radio () * Math.cos (Math.PI / 3 - quiral ());
 		deltaphi2 = A / radio () * Math.cos (quiral ());
 
