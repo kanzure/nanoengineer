@@ -126,6 +126,74 @@ _font = {
           (3, 4)),
     }
 
+
+class Font3D:
+
+    WIDTH = 5
+    HEIGHT = 7
+    SCALE = 0.08
+
+    def __init__(self, xoff, yoff, right, up, rot90):
+        if rot90:
+            self.xflip = xflip = right[1] < 0.0
+            self.yflip = yflip = up[0] < 0.0
+        else:
+            self.xflip = xflip = right[0] < 0.0
+            self.yflip = yflip = up[1] < 0.0
+
+        xgap = self.WIDTH
+        halfheight = 0.5 * self.HEIGHT
+
+        if xflip:
+            xgap *= -self.SCALE
+            def fx(x): return self.SCALE * (self.WIDTH - 1 - x)
+        else:
+            xgap *= self.SCALE
+            def fx(x): return self.SCALE * x
+
+        if yflip:
+            def fy(y): return self.SCALE * (self.HEIGHT - 1 - y)
+        else:
+            def fy(y): return self.SCALE * y
+
+        if rot90:
+            yoff += xgap
+            xoff -= halfheight * self.SCALE
+            def tfm(x, y, yoff1):
+                return Numeric.array((xoff + yoff1 + fy(y), yoff + fx(x), 0.0))
+        else:
+            xoff += xgap
+            yoff -= halfheight * self.SCALE
+            def tfm(x, y, yoff1):
+                return Numeric.array((xoff + fx(x), yoff + yoff1 + fy(y), 0.0))
+        self.tfm = tfm
+
+    def drawCharacter(self, ch, tfm):
+        from dimensions import _font
+        if _font.has_key(ch):
+            seq = _font[ch]
+        else:
+            seq = _font['X']
+        seq = map(lambda tpl: apply(tfm,tpl), seq)
+        for i in range(len(seq) - 1):
+            pos1, pos2 = seq[i], seq[i+1]
+            # somebody has already taken care of glBegin(GL_LINES)
+            glVertex(pos1[0], pos1[1], pos1[2])
+            glVertex(pos2[0], pos2[1], pos2[2])
+            # somebody has already taken care of glEnd()
+
+    def drawString(self, str, yoff):
+        n = len(str)
+        if self.xflip:
+            def fi(i): return i - (n + 1)
+        else:
+            def fi(i): return i
+        for i in range(n):
+            def tfm2(x, y):
+                return self.tfm(x + 5 * fi(i), y, yoff)
+            self.drawCharacter(str[i], tfm2)
+
+
 def drawCharacter(char, color, xfm):
     if _font.has_key(char):
         seq = _font[char]

@@ -245,8 +245,8 @@ class GridPlane(RectGadget):
 
         glTranslatef( self.center[0], self.center[1], self.center[2])
         q = self.quat
-        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z) 
-        
+        glRotatef( q.angle*180.0/pi, q.x, q.y, q.z)
+
         hw = self.width/2.0; hh = self.height/2.0
         corners_pos = [V(-hw, hh, 0.0), V(-hw, -hh, 0.0), V(hw, -hh, 0.0), V(hw, hh, 0.0)]
         
@@ -262,7 +262,7 @@ class GridPlane(RectGadget):
             
         if self.grid_type == SQUARE_GRID:
             drawGPGrid(grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing,
-                       self.assy.o.up, self.assy.o.right)
+                       q.unrot(self.assy.o.up), q.unrot(self.assy.o.right))
         else:
             drawSiCGrid(grid_color, self.line_type, self.width, self.height)
         

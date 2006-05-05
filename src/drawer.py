@@ -2011,28 +2011,6 @@ def drawPlane(color, w, h, textureReady, opacity, SOLID=False, pickCheckOnly=Fal
     glEnable(GL_LIGHTING)
     return
 
-from dimensions import _font
-
-def drawCharacter(char, xfm):
-    if _font.has_key(char):
-        seq = _font[char]
-    else:
-        seq = _font['X']
-    seq = map(lambda tpl,xfm=xfm: apply(xfm,tpl), seq)
-    for i in range(len(seq) - 1):
-        pos1, pos2 = seq[i], seq[i+1]
-        # somebody has already taken care of glBegin(GL_LINES)
-        glVertex(pos1[0], pos1[1], pos1[2])
-        glVertex(pos2[0], pos2[1], pos2[2])
-        # somebody has already taken care of glEnd()
-
-def drawString(str, xfm):
-    for i in range(len(str)):
-        def xfm2(x, y):
-            return xfm(x + i * 5, y)
-        drawCharacter(str[i], xfm2)
-
-            
 def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
     '''Draw grid lines for a Grid Plane, where:
     color = grid line color
@@ -2043,10 +2021,8 @@ def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
     uh = height spacing between grid lines
     '''
 
-    assert h >= 0.0
-    assert w >= 0.0
-
     from prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
+    from dimensions import Font3D
     
     if line_type == NO_LINE:
         return
@@ -2077,68 +2053,50 @@ def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
     
     glBegin(GL_LINES)
 
-    def tfmGen(xoff, yoff, right, up, swap):
-        if right > 0.0:
-            def fx(x): return 0.1 * x
-        else:
-            def fx(x): return 1.5 - 0.1 * x
-        if up > 0.0:
-            def fy(y): return 0.1 * y
-        else:
-            def fy(y): return 0.6 - 0.1 * y
-        if swap:
-            def fxy(x, y):
-                return fy(y), fx(x)
-        else:
-            def fxy(x, y):
-                return fx(x), fy(y)
-        def tfm(x, y):
-            x, y = fxy(x, y)
-            return Numeric.array((xoff + x, yoff + y, 0.0))
-        return tfm
-    
     #Draw horizontal lines
     y1 = 0
+    f3d = Font3D(hw, y1, right, up, False)
     while y1 > -hh:
         glVertex3f(-hw, y1, Z_OFF)
         glVertex3f(hw, y1, Z_OFF)
-        tfm = tfmGen(hw + 0.5, y1 - 0.3, right[0], up[1], False)
-        drawString("%g" % y1, tfm)
+        f3d.drawString("%g" % y1, y1)
         y1 -= uh
+    f3d.drawString("%g" % y1, y1)
 
     y1 = 0
     while y1 < hh:
         glVertex3f(-hw, y1, Z_OFF)
         glVertex3f(hw, y1, Z_OFF)
-        tfm = tfmGen(hw + 0.5, y1 - 0.3, right[0], up[1], False)
-        drawString("%g" % y1, tfm)
+        f3d.drawString("%g" % y1, y1)
         y1 += uh
+    f3d.drawString("%g" % y1, y1)
 
-    #Draw vertical lines    
+    #Draw vertical lines
     x1 = 0
-    while x1 < hw:        
+    f3d = Font3D(x1, hh, right, up, True)
+    while x1 < hw:
         glVertex3f(x1, hh, Z_OFF)
         glVertex3f(x1, -hh, Z_OFF)
-        tfm = tfmGen(x1 - 0.3, hh + 0.5, right[1], up[0], True)
-        drawString("%g" % x1, tfm)
+        f3d.drawString("%g" % x1, x1)
         x1 += uw
-    
+    f3d.drawString("%g" % x1, x1)
+
     x1 = 0
-    while x1 > -hw:        
+    while x1 > -hw:
         glVertex3f(x1, hh, Z_OFF)
         glVertex3f(x1, -hh, Z_OFF)
-        tfm = tfmGen(x1 - 0.3, hh + 0.5, right[1], up[0], True)
-        drawString("%g" % x1, tfm)
+        f3d.drawString("%g" % x1, x1)
         x1 -= uw
-    
+    f3d.drawString("%g" % x1, x1)
+
     glEnd()
-    
+
     if line_type > 1:
         glDisable (GL_LINE_STIPPLE)
-    
+
     #glDisable(GL_LINE_SMOOTH)
     #glDisable(GL_BLEND)
-    
+
     glEnable(GL_LIGHTING)
     return
 
