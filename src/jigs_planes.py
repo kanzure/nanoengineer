@@ -261,7 +261,8 @@ class GridPlane(RectGadget):
             drawLineLoop(color, corners_pos)
             
         if self.grid_type == SQUARE_GRID:
-            drawGPGrid(grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing)
+            drawGPGrid(grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing,
+                       self.assy.o.up, self.assy.o.right)
         else:
             drawSiCGrid(grid_color, self.line_type, self.width, self.height)
         
