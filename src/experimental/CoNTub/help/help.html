@@ -1,0 +1,110 @@
+<div align="center"><h1>CoNTub 1.0:<br>
+Software for connecting two arbitrary carbon nanotubes</h1>
+Cite this work as: "CoNTub: an algorithm for connecting two arbitrary carbon nanotubes." S. Melchor; J.A. Dobado. 
+Journal of Chemical Information and Computer Sciences, 44, 1639-1646 (2004)S. Melchor; J.A. Dobado.</div><hr>
+
+<h2>Introduction</h2>
+This software is a set of tools dedicated to the construction of complex carbon nanotube structures for their use in computational chemistry.
+CoNTub is organized in five Tabbed panels, the first three being dedicated to structure generation, the fourth to the output in the Protein Data Bank
+(PDB) file format, and the fifth is the short help section you are reading right now.
+<br><br>
+Carbon Nanotubes are a new material discovered in 1991 by Sumio Iijima [1], consisting in nanoscopic graphitic fibers, where the carbon atoms
+are arranged forming tubes. These fibers are hollow, and can be composed by more than one layer. Their tubular form gives them an extraordinary
+mechanical ellasticity and strength, with lightweight characteristics.[2] Additionally, they show different conductivity
+depending on their specific geometry [3]. In the recent years, it has been shown that bent nanotubes present asymmetric resistance,[4][5] similar
+to that of diodes, that has opened the field of nanoelectronics. These bent nanotubes present a special geometry that causes this behavior, because it is not a
+single nanotube, but rather the fusion of two perfect nanotubes, that is called a nanotube heterojunction, or more generally, carbon heterostructures
+<br><br>
+Therefore, it was needed a computer application to build these complex structures, and specially, nanotube heterojunctions, for designing and investigate
+new nanotube-based devices, and this is what CoNTub was made for.
+CoNTub allows you to generate easily the geometry of some of these molecules, and more specifically, two-tube heterojunctions, single walled
+nanotubes (SWNT) and multi-walled nanotubes (MWNT).
+<br><br>
+Here follows a brief description of the components of CoNTub and their use.
+
+<h2>3D Viewer</h2>
+All panels that construct nanotube structures use the same 3D viewer, that allows an easy inspection of the molecule. You may rotate
+the molecule  by simply dragging the mouse over the viewer, as well as modify the molecule position with the arrow keys. The zoom scale
+can be modified with <em>&lt;PgUp&gt;</em> and <em>&lt;PgDown&gt;</em> keys, and the original orientation and scale
+is restored by pressing <em>&lt;Space&gt;</em>  <br> at any time. The display incorporates several additional features:
+<ul>
+Display atoms in Ball&Stick Model: The default representation uses the simple Stick representation, but Ball&Stick can be used for special rendering  (Text Shortcut - b)
+</ul>
+<ol>
+Display atom labels: For Atom identification (Text Shortcut - l)
+</ol>
+<ol>
+Cut back: Often, the structure is not clear if back part of the molecule is displayed.
+ Cutting the back makes a much nicer picture (Text Shortcut - c)
+</ol>
+<br>
+Hint: the text shortcuts work only if the mouse is over the display.
+
+<h2>Heterojunction Generation</h2>
+This is the core of CoNTub program. Here we have implemented the algebra developed previously [6]. In this work we asked ourselves the question of wether it was or not possible
+to join two perfect carbon nanotubes, independently of their geometry, radius or chirality. The answer was affirmative: the simplest heterojuction possible is
+made with the insertion of non-hexagonal rings, called generally defects, or disclinations, and more precisely two, a pentagon and a heptagon. Within these
+considerations, there is always a possible connection between them. provided by an specific mathematical formula. Even more, the solution is unique, depending only
+of the indices (i,j) of both tubes.
+<br><br>
+If there is only one solution to the connection between two tubes, that means that there are a lot of "false" answers. Imagine two different nanotube
+fragments, with their open ends located one next to the other. With luck, you can start connecting carbon atoms, introducing bonds bridging both
+structures, until a stable structure is formed. But this would be highly unusual. More probably, after the construction, you may obtain dangling bonds, or
+octagons, squares, or various pentagons and heptagons, leading to structures highly unstable, not resembling to the structures that appear in the real nanotubes.
+<br><br>
+CoNTub does all this connections for you. Translates the mathematical formula into real geometry that can be inmediately visualized and manipulated, providing a
+ready-to-go PDB structure with the adequate connectivity. You have to merely introduce the indices of both tubes, and their length, and after pressing the CREATE button,
+the structure is displayed. You may select also which atoms you prefer to be placed in the open parts of the nanotube. For structure stability, hydrogens and
+nitrogens are offered for that purpose in the apropriate combo-box
+<br><br>
+Under the display is placed a log that keeps you informed about the generation process, that details which process has been employed, the number of atoms composing
+each part, and so on.
+
+<h2>Single-walled Nanotube Generation</h2>
+Although the geometry of a single walled carbon nanotube can be calculated by any undergraduate student with programming skills,
+ it can be useful for those people with no time for programming and debugging. It use is even simpler than in the previous section:
+ It is only necessary to introduce the indices of the tube,
+ its desired length, and the type of atom for termination of dangling bonds. After pressing the CREATE button or <em>&lt;Enter&gt;</em> key, the Nanotube is
+ displayed, as well as its electronic band structure and density of states (DOS), following a simple tight-binding model.[7]
+
+<h2>Multi-walled Nanotube Generation</h2>
+This section corresponds to the building of multiple tubes with the same axis and length. You have to introduce the indices of the most inner tube (i,j),
+ the desired length (l), the number of shells (N), and the approximate distance between shells or spacing (S) in Angstrom. The default value for spacing
+  corresponds to the standard distance between layers in cristalline graphite (3.4 &Aring;). The program selects automatically the indices of the remaining tubes,
+ trying to adjust the interlayer spacing, and tries to use tubes with the same chirality as that of the inner nanotube.
+
+<h2>Output</h2>
+Here, the structures generated in the first three panels are prepared for their storage in the Protein Data Bank (PDB) File format. Pressing one of the
+three buttons that appear below, the PDB file for heterojunctions, SWNT or MWNT is displayed.
+<br><br>
+This is an application that is downloaded to your computer and executed there, so there are security restrictions inherent to JAVA applications.
+The most confortable option for the user is to allow writing the structure directly in the hard disk, but this requires what is called <em>Signed Applets</em>,
+ what means that the user trusts the software. Unfortunately, the increasing number of viruses and malicious code has reduced the confidence in software
+ applications, so we have decided to provide the safest option: The structure is displayed and the user can copy the file to his favourite Text editor with
+ the traditional <em>Copy & Paste</em> technique.
+<br><br>
+ <font size="-1">Hint: If the file is large, selecting the whole text could be tedious. We reccomend the following: Mouse-clicking at the end of the document;
+  Press (and keep pressed) the <em>&lt;UpCase&gt;</em> key; With the mouse, move the vertical displacement bar to the beginning of the document, where you may click now
+  at the first character. The whole file should be now selected, and now you may release the <em>&lt;UpCase&gt; </em>key and copy the text with <em>&lt;CTRL&gt;</em>-C
+</font>
+
+<h2>Limits and Requirements</h2>
+The structures that can be generated with CoNTub can be really huge, if certain values are introduced in the input. Therefore, in order to prevent
+overflowing your computer, we have limited the use of CoNTub to molecules with less than 6000 atoms. For large molecules (4000-6000 atoms),
+ a low-end display is used, and you are prompted for confirmation.
+<br>
+Generally speaking, any 1Ghz computer should handle any structure. With a Pentium 200Mhz, it is not recomended to generate strutures with more than 1000 atoms.
+
+
+<h2>Short Bibliographic Reference</h2>
+
+<font size="-1">
+[1] Iijima, S. Helical Microtubules of Graphitic Carbon. <em>Nature</em> <strong>1991</strong>, <em>354</em>, 56-58.<br>
+[2] Dresselhaus, M.S.; Dresselhaus, G.; Eklund, P.C. Science of Fullerenes and Carbon Nanotubes; <em>Academic Press: San Diego</em>, <strong>1995</strong>.<br>
+[3] Hamada, N.; Sawada. S.; Oshiyama, A. New One-Dimensional Conductors - Graphitic Microtubules. Phys. Rev. Lett. <strong>1992</strong>, <em>68</em>, 1597-1581.<br>
+[4] Collins, P.G.; Zettl, A.; Bando, H.; Thess, A.; Smalley,R.E. Nanotube Nanodevice. <em>Science</em> <strong>1997</strong>, <em>278</em>, 100-103.<br>
+[5] Yao, Z.; Postma, H.W.C.; Balents, L.; Dekker, C. Carbon Nanotube Intramolecular Junctions. <em>Nature</em> <strong>1999</strong>, <em>402</em>, 273-276.<br>
+[6] Melchor, S.; Khokhriakov, N.V.; Savinskii, S.S. Geometry of Multi-Tube Carbon Clusters and Electronic Transmission in Nanotube Contacts. <em>Mol. Eng.</em> <strong>1999</strong>, <em>8</em>, 315-344.<br>
+[7] Savinskii, S.S.; Khokhriakov, N.V. Characteristic Features of the Pi-Electron States of Carbon Nanotubes. <em> J. Exp. Theor. Phys.</em> <strong>1997</strong>, <em>84</em>, 1131-1137.<br>
+</font>
+<img src="tubo.png" width="800" height="126" align="middle" border="0">
