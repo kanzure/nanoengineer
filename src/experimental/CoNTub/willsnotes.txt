@@ -1,0 +1,46 @@
+== Will's notes about the CoNTub Java code ==
+
+The long-term goal is to translate the CoNTub code into C or Python,
+and to do so in a way that's easy to use in our system. There are over
+7000 lines of Java code, commented in Spanish, so this task may be
+infeasible for a very near-term release.
+
+A shorter-term goal (to be done entirely in Java) is to separate
+CoNTub's graphical user interface from its computational logic, so
+that we can put together a command-line executable that can be called
+from nE-1. This should suffice for the next minor release.
+
+With the completion of a command-line executable, it may become clear
+that a much smaller amount of Java code may need to be translated into
+C or Python. This would make the longer-term goal more feasible.
+
+My preliminary effort will therefore be aimed at building a
+command-line executable.
+* Identify the places in the Java code where parameters go in and results come out.
+* Write a wrapper main() that accepts command line arguments and produces output files.
+* Differentiate which classes are necessary for this task. The remainder are needed only for the GUI applet version, and will never need to be translated to C or Python.
+
+== Digging into details ==
+
+There are three Java classes, P1, P15, and P2, which generate
+structures, respectively the single-walled nanotube, the multi-walled
+nanotube, and the heterojunction between two nanotubes. These classes
+extend JPanel and are part of the user interface. There are two more
+extensions of JPanel. We don't care about P3 because it's simply a
+help screen. P35 is where output files are presented to the user.
+Since applets don't have privileges to write files to the hard disk,
+the user must cut-and-paste the information from a text field, in the
+form of a PDB file.
+
+For creating a single-walled nanotube, the immediately relevant
+classes are therefore P1 and P35.
+
+The structure of P1.java is this: GUI activity makes a call to the
+actionPerformed method which determines the parameters i and j
+(nanotube chirality) and l (nanotube length). A call is then made to
+the generatubo method, which creates the list of atoms and bonds for a
+nanotube of those specifications.
+
+The data structure for a molecule is the MoleculaT class. (There is
+also a MoleculaB class, and I don't yet fully understand the
+distinction.)

@@ -11,8 +11,16 @@ class tabPe
 	static String simbolo[];
 	static Color col[];
 	static double sz[], en1[], en2[], en3[];
+	private static tabPe inst = null;
 
-	  tabPe ()
+	static tabPe getInstance()
+	{
+		if (inst == null)
+			inst = new tabPe();
+		return inst;
+	}
+
+	private tabPe ()
 	{
 		simbolo = new String[104];
 		sz = new double[104];

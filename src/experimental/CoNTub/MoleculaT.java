@@ -89,7 +89,7 @@ int generaanillo(int a1,int a2, pto3D cideprev, Molecula maux)*/
 		return mo;
 	}
 
-	void proyecta (MoleculaT maux)
+	void proyecta (MoleculaT maux)  // proyecta --> literally, "it projects": something to do with projections
 	{
 		proyecta (nvert () - 1, maux);
 	}			//Insisto, el ultimo es nvert-1
@@ -104,6 +104,7 @@ int generaanillo(int a1,int a2, pto3D cideprev, Molecula maux)*/
 		mueve (i, sustituido);
 	}
 
+	// THIS AUTHORIZES US TO ELIMINATE THE MAUX USE
 	pto3D proyecta (pto3D psus)	//ESTO NOS AUTORIZA PARA ELIMINAR EL USO DE MAUX
 	{
 		MoleculaT molau = new MoleculaT ();
@@ -120,6 +121,7 @@ int generaanillo(int a1,int a2, pto3D cideprev, Molecula maux)*/
 
 	pto3D proyecta (pto3D sustituido, MoleculaT maux)
 	{			//los puntos auxiliares se ponen en la molecula auxiliar, pa que no incordien
+		// the auxiliary points are put in the auxiliary molecule, pa that do not incordien
 		pto3D pto = sustituido.clona ();	//El punto a proyectar (copia, claro)
 		pto3D pt = pto.menos (TEST1);	//respecto al final del primer tubo
 		pto3D pp = pt.proyeccplano (TESTC);	//se proyecta en el plano TC
@@ -198,26 +200,34 @@ int generaanillo(int a1,int a2, pto3D cideprev, Molecula maux)*/
 		}
 	}
 
-	void centraentorno ()
+	void centraentorno ()   // literally, "it centers surroundings"
 	{
 		centraentorno (this.nvert () - 1);
 	}
 
-	Mensaje sniff (pto3D candidato, int gen)	//El punto propuesto, y el indice del atomo a partir del cual se crea.
-	{			//Funcion que calcule el numero de vecinos ponderado y devuelve el mensaje (error o no)
+	// The proposed point, and the index of the atom from which it is created.
+	// El punto propuesto, y el indice del atomo a partir del cual se crea.
+	// mensaje --> message, pto3D --> punto3D --> 3D point
+	Mensaje sniff (pto3D candidato, int gen)
+	{
+		//Funcion que calcule el numero de vecinos ponderado y devuelve el mensaje (error o no)
 		//y toma la decision de añadir o no el átomo
+		// Function that calculates the number of neighbors weighed and it gives back the message (error or not)
+		// and makes the decision to add or not the atom
 		int nvecnorte = 0, nvecsur = -1, nveccono = 0, nvecinos = 0;
 		int nvn[] = new int[10];	//espero que nunca haya mas de diez vecinos
+		// I hope that never it has but of ten neighbors
 		int nvs[] = new int[10];
 		int nvc[] = new int[10];
 
 		double nvecpond = 0;
 		String cadena = "";
 		pto3D ptoprop = new pto3D ();
-		int recom = 0;	//accion recomendada
-		Mensaje mens = new Mensaje ();	//el mensaje de salida extendido;
+		int recom = 0;	//accion recomendada --> recommended action
+		Mensaje mens = new Mensaje ();	//el mensaje de salida extendido; --> the extended message of exit
 		boolean ocupado = false;
 		//Cada una de estas variablex recoge un tipo de parametro
+		//Each one of these variables gathers a type of parameter
 
 		for (int i = 0; i < nvert (); i++) {
 			pto3D ptox = vert (i);
@@ -248,6 +258,8 @@ int generaanillo(int a1,int a2, pto3D cideprev, Molecula maux)*/
 
 		//Y AQUI decidimos, en funcion de esos numeros, si tiene 0, 1, 2  o mas (erroneo) vecinos (descontando el
 		// si hay coincidencia
+		// AND HERE we decided, based on those numbers, if it has 0, 1, 2 or but (erroneous) neighboring ones,
+		// discounting if there is coincidence
 		if (ocupado) {
 			cadena = "\nPossition Occupied";
 			nvecinos = -1;
@@ -266,28 +278,46 @@ int generaanillo(int a1,int a2, pto3D cideprev, Molecula maux)*/
 
 		//si hay dos valores discrepantes, dar mensaje de warning
 		//si hay tres valores, marcamos nvec como "9"
+		// If there are two discrepant values, to give message of warning.
+		// If there are three values, we marked nvec like "9".
 
 		//Si esta vacio (case 0), explora mas alla en torno a
 		//un circulo perpendicular al atomo conectado (gen), aprovechamos la libertad para distender la cosa
 		//se busca el/los ptos donde los vecinos estan mas cerca
 		//con una distancia de corte adecuada (no mas alla de cierta esfera
+		// If this emptiness (case 0), explores beyond around I circulate perpendicular to
+		// the connected atom (gene), we took advantage of the freedom to distender the thing
+		// it looks for ptos el/los where the neighbors estan close but with a suitable distance
+		// of cut (not beyond certain sphere.
+
 		//De esos minimos, habra posiciones casi ocupadas, y posiciones libres, pero con
 		//vecinos
 		//si no estan vacias ni pueden tener vecinos, no  pasa nada, se pone el pto candidato y se acaba
+		// Of those minimums, habra almost occupied positions, and free positions, but with neighbors
+		// if they do not estan empty nor can have neighbors, does not pass anything, pto is put
+		// candidate and it finishes.
 
 		//si alguna pos explorada encaja (con un margen de error mas amplio), adecuar la pos para un encaje optimo
 		// ssi dos encajan, centrar la posicion resultante entre ambos encajes
+		// if some pos explored fit (with a margin of ample error but), to adapt the pos for an
+		// optimal embroider if two fit, to center the resulting position between both embroiders
 
 		//Si case 1, se comprueba que el angulo es correcto, Si lo es, ajustar distancias, comprobar que el tercer punto esta realmente vacio
+		// If case 1, it is verified that the angle is correct, If is it, to fit distances, to verify that the third really empty point this
 		//Si case 2, comprobar angulos, y si OK, centrar
+		// If case 2, to verify angles, and if OK, to center
 		//si case 3, probablemente hay un atomo demasiado cerca, y haya que sustituirlo. Se escoge entre el
 		//candidato y el existente, en funcion de distancias y angulos.
+		// If case 3, probably there is an atom too much close, and is necessary to replace it. One
+		// chooses between the candidate and the existing one, based on distances and angles.
 
-		if (nvecinos == 0) {	//por ahora lo añadimos y ya esta.
+		if (nvecinos == 0) {	//por ahora lo añadimos y ya esta. --> so far we added and already this to it.
 			ptoprop = candidato.clona ();
 			recom = 1;
 		} else if (nvecinos == -1) {
-			ptoprop = vert (atomoqueocupa (candidato, 0.5)).clona ();	//si esta ocupado. la salida marca el punto que se ha ocupado
+			ptoprop = vert (atomoqueocupa (candidato, 0.5)).clona ();
+			//si esta ocupado. la salida marca el punto que se ha ocupado
+			// if this occupied. the exit marks the point that has taken care
 			recom = 4;	//no añadir
 		} else if (nvecinos == 1) {	//medimos distancia al vecino y al generador, y el pto
 			//propuesto sera gen+(vec-gen)/2+proyplano(vec-gen)escalado (1/raizde3)

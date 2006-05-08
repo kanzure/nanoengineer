@@ -25,7 +25,7 @@ class Atomo
 		pers = "  ";
 		mconec = new int[10];
 		  mconecA = new int[10];
-		  TablaP = new tabPe ();
+		  TablaP = tabPe.getInstance();
 
 	}
 
@@ -39,13 +39,13 @@ class Atomo
 		r = radio;
 		mconec = new int[10];
 		mconecA = new int[10];
-		TablaP = new tabPe ();
+		TablaP = tabPe.getInstance();
 
 	}
 
 	Atomo (pto3D p, int t)
 	{
-		TablaP = new tabPe ();
+		TablaP = tabPe.getInstance();
 		tipo = t;
 		vert = p.clona ();
 		etiq = TablaP.getSimbolo (t);
@@ -59,7 +59,7 @@ class Atomo
 
 	Atomo (pto3D p, int t, Color c)
 	{
-		TablaP = new tabPe ();
+		TablaP = tabPe.getInstance();
 		tipo = t;
 		vert = p.clona ();
 		etiq = TablaP.getSimbolo (t);

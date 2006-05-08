@@ -142,8 +142,8 @@ public class P1 extends JPanel implements ActionListener, ItemListener
 
 	void generatubo (int a, int b, double c)
 	{
-		formato fi, fd;
-		SW.vaciar ();
+		formato fi, fd;  // formats for printing numbers
+		SW.vaciar ();   // vaciar --> empty/clear: remove all atoms and bonds
 		Nanotubo NT = new Nanotubo (a, b);
 
 		int guess = (int) (NT.radio () * 2 * Math.PI * c * 0.34);

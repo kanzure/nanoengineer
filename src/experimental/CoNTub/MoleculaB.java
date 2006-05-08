@@ -17,17 +17,18 @@ import java.util.AbstractList;
 
 class MoleculaB
 {
-	ArrayList susatomos;	//de ATOMOS
+	ArrayList susatomos;	//de ATOMOS, literally, "his atoms"
 	int nselec;
 	String info;		//pequeña cadena informativa para pasar un mini titulo
+	// small informative string to pass a short title
 	formato fm = new formato (6, "###.0");
 	double xmin, xmax, ymin, ymax, zmin, zmax;
-	tabPe TablaP;
+	tabPe TablaP;   // periodic table - this could be a singlet
 
 	  MoleculaB ()
 	{
 		susatomos = new ArrayList (0);
-		TablaP = new tabPe ();
+		TablaP = tabPe.getInstance();
 		nselec = 0;
 		info = "";
 	}
@@ -38,6 +39,8 @@ class MoleculaB
 
 	void addVert (pto3D punto, int ti, Color c)
 	{
+		// punto --> point, position
+		// ti is element number
 		susatomos.add (new Atomo (punto, ti, c));
 	}
 
@@ -99,7 +102,7 @@ class MoleculaB
 	void vaciar ()
 	{
 		susatomos = new ArrayList (0);
-		TablaP = new tabPe ();
+		TablaP = tabPe.getInstance();
 	}
 
 	void deseleccionar ()
