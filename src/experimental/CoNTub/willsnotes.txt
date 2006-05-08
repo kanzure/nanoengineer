@@ -52,17 +52,6 @@ large structures.
 
 These appear to be the classes necessary for a standalone executable.
 This list isn't final, but the final list should not be larger than
-this.
-	anillo.java
-	Atomo.java
-	formato.java
-	mensaje.java
-	Minimol.java
-	MoleculaB.java
-	MoleculaT.java
-	Nanotubo.java
-	W1.java
-	pto2D.java
-	pto3D.java
-	TabPe.java
-
+this: Atomo, Mensaje, Minimol, MoleculaB, MoleculaT, Nanotubo, anillo,
+formato, pto2D, pto3D, tabPe, plus any new classes we write to subsume
+functionality from P1, P15, P2, and P35.
