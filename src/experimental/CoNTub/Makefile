@@ -22,6 +22,19 @@ JAVASRCS=anillo.java \
 	pto3D.java \
 	TabPe.java
 
+WSRCS=anillo.java \
+	Atomo.java \
+	formato.java \
+	mensaje.java \
+	Minimol.java \
+	MoleculaB.java \
+	MoleculaT.java \
+	Nanotubo.java \
+	W1.java \
+	pto2D.java \
+	pto3D.java \
+	TabPe.java
+
 #	parchetubo.java \
 #	P1old.java \
 
@@ -34,6 +47,9 @@ CLASSES=$(JAVASRCS:.java=.class)
 
 all:
 	javac $(JAVASRCS)
+
+w:
+	javac $(WSRCS)
 
 clean:
 	rm -f *~ '#*' *.class cscope.out
