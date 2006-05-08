@@ -16,9 +16,6 @@ C or Python. This would make the longer-term goal more feasible.
 
 My preliminary effort will therefore be aimed at building a
 command-line executable.
-* Identify the places in the Java code where parameters go in and results come out.
-* Write a wrapper main() that accepts command line arguments and produces output files.
-* Differentiate which classes are necessary for this task. The remainder are needed only for the GUI applet version, and will never need to be translated to C or Python.
 
 == Digging into details ==
 
@@ -47,4 +44,25 @@ distinction.) The MoleculaT class has a method (addVert) for adding
 atoms, and three other salient methods. The cierraH and cierraN
 methods terminate the ends of the nanotube with hydrogen and nitrogen
 respectively. The ponconec method creates the bonds. There is also a
-centrar method which centers a structure
+centrar method which centers a structure.
+
+There appears to be a big opportunity for performance improvement in
+the cierraH/cierraN and ponconec methods. This will be important for
+large structures.
+
+These appear to be the classes necessary for a standalone executable.
+This list isn't final, but the final list should not be larger than
+this.
+	anillo.java
+	Atomo.java
+	formato.java
+	mensaje.java
+	Minimol.java
+	MoleculaB.java
+	MoleculaT.java
+	Nanotubo.java
+	W1.java
+	pto2D.java
+	pto3D.java
+	TabPe.java
+

@@ -59,22 +59,23 @@ public class W1
 	}
 
 	protected void finish(MoleculaT SW, int terminator) {
-		System.out.println("begin finish");
 		SW.centrar ();
 		SW.ponconec ();
 		if (terminator == HYDROGEN) {
 			SW.cierraH ();
-			System.out.println("A");
 			SW.ponconec ();
 		} else if (terminator == NITROGEN) {
 			SW.cierraN ();
 			SW.ponconec ();
 		}
-		System.out.println("end finish");
 	}
 
-	public String printpdb() {
-		return SW.printpdb();
+	public String pdb() {
+		return SW.pdb();
+	}
+
+	public String mmp() {
+		return SW.mmp();
 	}
 
 // 	public MoleculaT molT () {
@@ -89,6 +90,7 @@ public class W1
 		c = Double.parseDouble(argv[2]);
 		terminator = Integer.parseInt(argv[3]);
 		W1 w1 = new W1(a, b, c, terminator);
-		System.out.println(w1.printpdb());
+		System.out.println(w1.mmp());
+		// System.out.println(w1.pdb());
 	}
 }

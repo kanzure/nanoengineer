@@ -17,6 +17,8 @@ import java.util.AbstractList;
 
 class MoleculaB
 {
+	public static final boolean MOLDEBUG = false;
+
 	ArrayList susatomos;	//de ATOMOS, literally, "his atoms"
 	int nselec;
 	String info;		//pequeña cadena informativa para pasar un mini titulo
@@ -302,6 +304,8 @@ class MoleculaB
 				int tipB = ((Atomo) susatomos.get (j)).tipo;
 				double distamax = param * (TablaP.en1[tipA] + TablaP.en1[tipB]);	//PARAMETRO AQUI
 				if (ptoa.dista (ptob) < distamax && ptoa.dista (ptob) > 0.6) {
+					if (MOLDEBUG)
+						System.out.println("Connect: " + i + " " + j);
 					int k = mc[0] + 1;
 					mc[0] = k;
 					mc[k] = j;

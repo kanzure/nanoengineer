@@ -52,6 +52,6 @@ w:
 	javac $(WSRCS)
 
 clean:
-	rm -f *~ '#*' *.class cscope.out
+	rm -f *~ *\# *.class cscope.out
 
 classes: $(CLASSES)
