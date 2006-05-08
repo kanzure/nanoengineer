@@ -482,8 +482,10 @@ int generaanillo(int a1,int a2, pto3D cideprev, Molecula maux)*/
 		return cadena;
 	}
 
-	void cierraH ()
+	// My impression is that this is closing up any unfinished hexagons at the end of a nanotube.
+	void cierraH ()  // cierra --> it closes, H -> hydrogen
 	{			//ESTABLECER EN FUNCION DE RADIO Y ORIENTACION HEXAGONO
+		// TO ESTABLISH BASED ON RADIUS AND HEXAGONAL DIRECTION
 		for (int i = 0; i < nvert (); i++) {
 
 			int pos = i;
@@ -507,7 +509,7 @@ int generaanillo(int a1,int a2, pto3D cideprev, Molecula maux)*/
 
 	}
 
-	void cierraN ()
+	void cierraN ()  // cierra --> it closes, N -> nitrogen
 	{
 
 		for (int i = 0; i < nvert (); i++) {

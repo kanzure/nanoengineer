@@ -282,7 +282,7 @@ class MoleculaB
 		ponconec (1.30);
 	}
 
-	void ponconec (double param)
+	void ponconec (double param)  // ponconec --> put connected??
 	{
 		int nv = susatomos.size ();
 		for (int i = 0; i < nv; i++) {
@@ -290,8 +290,10 @@ class MoleculaB
 			int tipA = ((Atomo) susatomos.get (i)).tipo;
 
 			//reiniciamos el array de conectividad
+			// we reinitiated the connectivity Array 
 			int mc[] = new int[10];
 			mc[0] = 0;	//un array para cada atomo i
+			// an Array for each atom i
 			for (int j = 1; j <= 9; j++)
 				mc[j] = 0;
 
@@ -308,8 +310,11 @@ class MoleculaB
 
 			//y lo ponemos como un todo El array es mejor manejarlo como un todo, incluso seria
 			//conveniente para girarlo, poder sacar y meter un vert[] solo de puntos, en funcion de su efectividad
+			// and we put it as a whole the Array is better to handle it like a whole, serious even advisable to
+			// turn it, to be able to remove and to put vert [] single of points, based on its effectiveness
 			((Atomo) susatomos.get (i)).mconec = mc;
 		}
+		// depura --> it purifies
 		depuraconec ();	//OJO!!!
 	}
 
@@ -317,6 +322,7 @@ class MoleculaB
 	{
 		ponconec (1.1);
 		//CONTINUAR LA ELIMINACION DE CONEXIIONES REDUNDANTES!!
+		//TO CONTINUE THE ELIMINATION OF REDUNDANT CONNECTIONS!!
 	}
 
 	void reconec ()
@@ -325,7 +331,7 @@ class MoleculaB
 	}
 
 	void reconec (double param)
-	{			//IGUAL QUE PONCONEC; pero sin iniciar
+	{			//IGUAL QUE PONCONEC; pero sin iniciar --> JUST AS PONCONEC; but without initiating
 		int nv = susatomos.size ();
 		for (int i = 0; i < nv; i++) {
 			pto3D ptoa = ((Atomo) susatomos.get (i)).vert;
@@ -346,6 +352,7 @@ class MoleculaB
 	{
 		reconec (1.1);
 		//CONTINUAR LA ELIMINACION DE CONEXIIONES REDUNDANTES!!
+		//TO CONTINUE THE ELIMINATION OF REDUNDANT CONNECTIONS!!
 	}
 
 	int depuraconec ()	//metodo paraeliminar conectividades redundantes, angulos demasiado pequeños (<60, en principio)
@@ -396,7 +403,7 @@ class MoleculaB
  		}
    }*/
 
-	int nvec (int n)	//NUMERO DE VECINOS
+	int nvec (int n)	//NUMERO DE VECINOS --> number of neighbors
 	{
 		int nv = 0;
 		pto3D pto = ((Atomo) susatomos.get (n)).vert;

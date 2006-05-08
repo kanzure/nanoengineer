@@ -36,6 +36,6 @@ all:
 	javac $(JAVASRCS)
 
 clean:
-	rm -f *~ *.class
+	rm -f *~ '#*' *.class cscope.out
 
 classes: $(CLASSES)

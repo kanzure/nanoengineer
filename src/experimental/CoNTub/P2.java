@@ -403,6 +403,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 				      A * r3 / 2 * (m + j2));
 
 
+		// detectanconc --> they detect conc?
 		int nconc = detectanconc (pB, pA, pC, pD);
 
 		if (nconc == 0 || nconc == 1) {
@@ -410,6 +411,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 			txlog.setText (txlog.getText () + ". Starting cone determination:");
 
 //DETECTAMOS EL RETCTANGULO que contiene el trapezoide magico
+//WE DETECTED the RECTANGLE that contains the magical trapezoid 
 			double maxcx = Math.max (Math.max (pA.x, pB.x),
 						 Math.max (pC.x, pD.x));
 			double maxcy = Math.max (Math.max (pA.y, pB.y),
@@ -520,8 +522,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 				anT2 = pA.menos (pV).a2D ().anguloccwhasta (pC.menos (pV).a2D ());
 			double dhT2 = anT2 * 6.0;
 			txlog.setText (txlog.getText () + " Tubes 1 and 2 form a dihedral angle of " + (int) (dhT2 * 180. / Math.PI) + " deg.");
-
-//y creamos los vec
+//y creamos los vec --> and we create the vector
 			if (!creciente) {
 				lt1 = new pto3D (Math.sin (curvaP), 0, Math.cos (curvaP));
 				lt2 = new pto3D (Math.sin (curvaH) * Math.cos (dhT2), Math.sin (curvaH) * Math.sin (dhT2), Math.cos (curvaH));
@@ -540,7 +541,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 			pto2D pAcm1 = new pto2D (0.0, 0.0);
 			pto2D pBcm1 = new pto2D (A * (i1 + j1 * 0.5),
 						 A * r3 / 2 * j1);
-//determinamos el vector transpuesto
+//determinamos el vector transpuesto --> we determine the transposed vector
 			pto2D pTcm1 = new pto2D (pBcm1.y, -pBcm1.x);
 			pto3D pTcm1corto = pTcm1.aversor ().escala (lent1);
 			pto2D pCcm1 = pAcm1.mas (pTcm1corto).a2D ();
@@ -567,7 +568,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 			int[][] posis1 = new int[3][nummax1];
 			int indi1 = 0;
 
-			for (int cely = sty1; cely <= eny1; cely++)	//recorrido vertical
+			for (int cely = sty1; cely <= eny1; cely++)	//recorrido vertical --> vertical route
 				for (int celx = stx1; celx <= enx1; celx++)	//recorrido horizontal
 				{
 					pto2D at1 = new pto2D (celx * A,
@@ -624,6 +625,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 			double da1 = pV.dista (pA);
 			pto3D pAm1 = pA.ptomediocon (pB);
 			double dop1 = pV.dista (pAm1);
+			// proyectado --> projected
 			pto3D pdefproy1 = new pto3D (da1 * Math.sin (angucono), 0, fc * (db - da1) * Math.cos (angucono));	//P proyectado 
 			pto3D odefproy1 = new pto3D (-dop1 * Math.sin (angucono), 0, fc * (db - dop1) * Math.cos (angucono));	//P proyectado
 			pto3D pstart1 = pdefproy1.ptomediocon (odefproy1);
@@ -652,8 +654,10 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 					an = pA.menos (pV).a2D ().anguloccwhasta (puntoproy.menos (pV).a2D ());
 				}
 
-				double TX = di * Math.sin (angucono) * Math.cos (an * 6.0) - ratio1x * diz;	// pero para el ajuste del primer tubo, es negativo
-				double TY = di * Math.sin (angucono) * Math.sin (an * 6.0) - ratio1y * diz;	//
+				double TX = di * Math.sin (angucono) * Math.cos (an * 6.0) - ratio1x * diz;
+				// pero para el ajuste del primer tubo, es negativo
+				// but for the adjustment of the first tube, it is negative
+				double TY = di * Math.sin (angucono) * Math.sin (an * 6.0) - ratio1y * diz;
 
 				double TZ = fc * (db - di) * Math.cos (angucono) - diz;
 
@@ -963,6 +967,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 
 
 //Definimos los puntos que enmarcan los tubos
+//We define the points that frame the tubes -- bounding boxes, maybe?
 			pto2D vlong1 = new pto2D (pB1.y, -pB1.x);
 			pto2D vlong2 = new pto2D (-pB2.y, pB2.x);
 
@@ -1060,6 +1065,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 			txlog.setText (txlog.getText () + "Filling 2nd tube planar projection ");
 
 //hay que calcular la macrocelda del comienzo, que debe ser el centro de un hexagono
+//it is necessary to calculate the macrocell of the beginning, that must be the center of a hexagon
 			int sty2 = (int) Math.round ((mincy2 - 3.0) / A / r3);
 			int stx2 = (int) Math.round ((mincx2 - 3.0) / A);
 			int enx2 = (int) Math.round ((maxcx2 + 3.0) / A);
@@ -1129,6 +1135,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 			double Cy2 = C2 * Math.tan (AL2);	//y estos tres tambien!!
 			double Cy = (Cy1 + Cy2) * 0.5;
 
+			// the sines deformed after the contraction, change!
 			double tanAL1d = Cy1 / C;	//los senos deformados /despues de la contraccion, cambian!
 			double tanAL2d = Cy2 / C;	//los senos deformados /despues de la contraccion, cambian!
 			double tanBE1d = Cy1 / B;	//los senos deformados /despues de la contraccion, cambian!
@@ -1144,6 +1151,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 			double ratio22 = tanBE2d - tanBEM;
 			double R = (B + C) / 2.0 / Math.PI;
 
+			// this is an angle in radians
 			double curvaP = 0.4;	//esto es un angulillo en radianes
 			double curvaH = 0.4;
 
@@ -1215,6 +1223,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 					co = 1.0;	//ES el Gap de AProximacion;
 				else
 					co = (zf + GMI) / (-GAP + GMI);	//num siempre creciente, den negativo
+					// always increasing number, gives negative
 
 				pto3D pperf = aproxNTchap (ptemp,	//Punto a aproximar
 							   tipoat,
@@ -1294,6 +1303,7 @@ public class P2 extends JPanel implements ActionListener, ItemListener
 
 
 //final y visualizacin
+//end and visualization
 		HJ.reconec (1.35);
 		txlog.setText (txlog.getText () + "\n\nRefining process: ");
 

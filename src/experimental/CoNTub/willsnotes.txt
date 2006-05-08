@@ -43,4 +43,8 @@ nanotube of those specifications.
 
 The data structure for a molecule is the MoleculaT class. (There is
 also a MoleculaB class, and I don't yet fully understand the
-distinction.)
+distinction.) The MoleculaT class has a method (addVert) for adding
+atoms, and three other salient methods. The cierraH and cierraN
+methods terminate the ends of the nanotube with hydrogen and nitrogen
+respectively. The ponconec method creates the bonds. There is also a
+centrar method which centers a structure
