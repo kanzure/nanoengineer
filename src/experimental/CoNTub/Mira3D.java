@@ -19,7 +19,7 @@ public class Mira3D extends JPanel implements MouseListener, MouseMotionListener
 
 	double escala;
 	double dim = 0;
-	int morden[][] = new int[2000][200];
+	int morden[][] = new int[6000][200];
 
 	Minimol mmol, mmolg;	//La molecula en si y la que gira, que es la que se visualiza
 	boolean pintado = true;
@@ -77,7 +77,7 @@ public class Mira3D extends JPanel implements MouseListener, MouseMotionListener
 		int nplanos = (int) (4 * dim);
 
 		if (!lrd)	//solo con display normal
-		{		//reiniciamos la matriz de orden mo[2000][2000]
+		{		//reiniciamos la matriz de orden mo[6000][2000]
 			for (int i = 1; i <= nplanos; i++)
 				morden[i][0] = 0;
 			//calculamos la matriz de orden
@@ -397,7 +397,7 @@ public class Mira3D extends JPanel implements MouseListener, MouseMotionListener
 	public void resetea ()
 	{			//Molecula
 		mmolg = mmol.clona ();
-		if (mmol.nvert > 2000)
+		if (mmol.nvert > 6000)
 			lrdf = true;
 		else
 			lrdf = false;
