@@ -56,7 +56,7 @@ this: Atomo, Mensaje, Minimol, MoleculaB, MoleculaT, Nanotubo, anillo,
 formato, pto2D, pto3D, tabPe, plus any new classes we write to subsume
 functionality from P1, P15, P2, and P35.
 
-== The classes I'm writing ==
+== The W1 class does single-walled nanotubes ==
 
 The W1 class is a command-line version of the P1 class. It accepts
 parameters for chirality, length, and termination, and creates a
@@ -67,3 +67,38 @@ output, so it would typically be called like this.
 
 The structure specified here contains 2240 atoms and takes about 0.4
 seconds to generate.
+
+"java W1" is how we tell the Java virtual machine to run the main()
+method in the W1 class. The four parameters are:
+* first chirality parameter
+* second chirality parameter
+* length of the tube in angstroms
+* element number for termination
+** 1 for hydrogen termination
+** 7 for nitrogen termination
+** anything else for dangling bonds, no termination
+
+== The W2 class does nanotube heterojunctions ==
+
+The W1 class is a command-line version of the P1 class. It accepts
+parameters for chirality, length, and termination, and creates a
+single-walled nanotube. It produces an MMP file which goes to standard
+output, so it would typically be called like this.
+
+ java W2 20 0 20 30 0 20 1 > ~/nt.mmp
+
+The structure specified here contains 1450 atoms and takes about 0.7
+seconds to generate.
+
+"java W2" is how we tell the Java virtual machine to run the main()
+method in the W2 class. The four parameters are:
+* first chirality parameter, first tube
+* second chirality parameter, first tube
+* length of the tube in angstroms, first tube
+* first chirality parameter, second tube
+* second chirality parameter, second tube
+* length of the tube in angstroms, second tube
+* element number for termination
+** 1 for hydrogen termination
+** 7 for nitrogen termination
+** anything else for dangling bonds, no termination

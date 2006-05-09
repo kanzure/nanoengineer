@@ -1,16 +1,5 @@
-import java.applet.Applet;
-import java.awt.Image;
-import java.awt.*;
-import java.awt.Event;
-import java.awt.Graphics;
-import java.awt.Dimension;
-import java.io.*;
-import java.net.URL;
+import java.awt.Color;
 import java.util.Hashtable;
-import java.awt.image.IndexColorModel;
-import java.awt.image.ColorModel;
-import javax.swing.*;
-import java.applet.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.AbstractList;
@@ -38,7 +27,6 @@ class MoleculaB
 
 //LISTA DE METODOS BASICOS!!!
 //A REHACER!!
-
 
 	void addVert (pto3D punto, int ti, Color c)
 	{

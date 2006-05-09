@@ -1,19 +1,26 @@
 //package nt;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.applet.*;
-import java.text.*;
 import java.util.logging.*;
 
 public class W1
 {
-	//protected static final formato fo = new formato (8, "#0.000");
-	//protected static final formato fd = new formato (8, "###0.000");	//para los doble precision
-	//protected static final formato fi = new formato (5, "#####");	//para los enteros
+	/* -------- Logging for errors, warnings, and info -------- */
 
 	protected static Logger logger = Logger.getLogger("mylogger");
+	static {
+		logger.setLevel(Level.WARNING);
+	}
+
+	protected static void logLevel(String str) {
+		if ("info".equals(str))
+			logger.setLevel(Level.INFO);
+		else if ("off".equals(str))
+			logger.setLevel(Level.OFF);
+		else
+			logger.setLevel(Level.WARNING);
+	}
+
+	/* ---------------------- */
 
 	public static final int HYDROGEN = 1;
 	public static final int NITROGEN = 7;

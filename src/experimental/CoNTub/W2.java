@@ -1,13 +1,5 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.applet.*;
-import java.text.*;
-import java.util.logging.Level;
-
 /*
- * This is the GUI element that we use when we're doing heterojunctions, and is therefore
- * of great interest. The really interesting stuff appears to be in the makemol() method.
+ * Command-line stuff for doing heterojunctions.
  */
 
 public class W2 extends W1
@@ -32,20 +24,18 @@ public class W2 extends W1
 				  j2 + ") Nanotube Heterojunction with lengths " +
 				  lent1 + " and " + lent2 + " A.");
 		logger.info
-			("---------------------------------------------------------\n"
-			 + " GENERATION OF A (" + i1 + "," + j1 + ")-(" + i2 +
-			 "," + j2 + ") CARBON NANOTUBE JUNCTION\n" +
+			("---------------------------------------------------------\n" +
+			 " GENERATION OF A (" + i1 + "," + j1 + ")-(" + i2 + "," +
+			 j2 + ") CARBON NANOTUBE JUNCTION\n" +
 			 "---------------------------------------------------------\n");
 
 
 		if (i1 == 0 && j1 == 0) {
-			JOptionPane.showMessageDialog (null, "Error: 1st tube's indices are incorrect",
-						       "Error", JOptionPane.ERROR_MESSAGE);
+			logger.severe ("1st tube's indices are incorrect");
 			return;
 		}
 		if (i2 == 0 && j2 == 0) {
-			JOptionPane.showMessageDialog (null, "Error: 2nd tube's indices are incorrect",
-						       "Error", JOptionPane.ERROR_MESSAGE);
+			logger.severe ("2nd tube's indices are incorrect");
 			return;
 		}
 
@@ -70,11 +60,11 @@ public class W2 extends W1
 		}
 
 		if (cambio1) {
-			logger.warning ("Warning: Indices of 1st tube automatically translated to ("
+			logger.warning ("Indices of 1st tube automatically translated to ("
 					+ i1 + "," + j1 + ")");
 		}
 		if (cambio2) {
-			logger.warning ("Warning: Indices of 2nd tube automatically translated to ("
+			logger.warning ("Indices of 2nd tube automatically translated to ("
 					+ i2 + "," + j2 + ")");
 		}
 
@@ -168,7 +158,7 @@ public class W2 extends W1
 		int nconc = detectanconc (pB, pA, pC, pD);
 
 		if (nconc == 0 || nconc == 1) {
-			logger.info ("\n\nHeterojunction requires a cone");
+			logger.info ("Heterojunction requires a cone");
 			logger.info (". Starting cone determination:");
 
 			//DETECTAMOS EL RETCTANGULO que contiene el trapezoide magico
@@ -182,10 +172,10 @@ public class W2 extends W1
 			double mincy = Math.min (Math.min (pA.y, pB.y),
 						 Math.min (pC.y, pD.y));
 			if (despleg) {
-				molecule.addVert (pA, 8, Color.black);
-				molecule.addVert (pB, 8, Color.black);
-				molecule.addVert (pC, 8, Color.black);
-				molecule.addVert (pD, 8, Color.black);
+				molecule.addVert (pA, 8);
+				molecule.addVert (pB, 8);
+				molecule.addVert (pC, 8);
+				molecule.addVert (pD, 8);
 				molecule.conecta (molecule.nvert () - 1, molecule.nvert () - 2);
 				molecule.conecta (molecule.nvert () - 2, molecule.nvert () - 4);
 				molecule.conecta (molecule.nvert () - 4, molecule.nvert () - 3);
@@ -209,22 +199,22 @@ public class W2 extends W1
 					if (at1.dentro4l (pB, pA, pC, pD)) {
 						conoplano.addVert (at1, 6);
 						if (despleg)
-							molecule.addVert (at1, 6, Color.orange);
+							molecule.addVert (at1, 6);
 					}	//
 					if (at2.dentro4l (pB, pA, pC, pD)) {
 						conoplano.addVert (at2, 6);
 						if (despleg)
-							molecule.addVert (at2, 6, Color.orange);
+							molecule.addVert (at2, 6);
 					}	//
 					if (at3.dentro4l (pB, pA, pC, pD)) {
 						conoplano.addVert (at3, 6);
 						if (despleg)
-							molecule.addVert (at3, 6, Color.orange);
+							molecule.addVert (at3, 6);
 					}	//
 					if (at4.dentro4l (pB, pA, pC, pD)) {
 						conoplano.addVert (at4, 6);
 						if (despleg)
-							molecule.addVert (at4, 6, Color.orange);
+							molecule.addVert (at4, 6);
 					}	//
 				}
 
@@ -265,7 +255,8 @@ public class W2 extends W1
 
 
 			if (lent1 <= 15. || lent2 <= 15.)
-				logger.info ("\n\nWarning: Open ends remain deformed: Increase length up to 15 Angstrom.");
+				logger.warning
+					("Open ends remain deformed: Increase length up to 15 Angstrom.");
 
 			double curvaP = 0.22;
 			double curvaH = 0.22;
@@ -273,7 +264,7 @@ public class W2 extends W1
 			pto3D lt1 = new pto3D ();
 			pto3D lt2 = new pto3D ();
 
-			logger.info ("\n\nDetermination of both tubes. ");
+			logger.info ("Determination of both tubes. ");
 
 
 			double anT2;
@@ -282,14 +273,17 @@ public class W2 extends W1
 			else
 				anT2 = pA.menos (pV).a2D ().anguloccwhasta (pC.menos (pV).a2D ());
 			double dhT2 = anT2 * 6.0;
-			logger.info (" Tubes 1 and 2 form a dihedral angle of " + (int) (dhT2 * 180. / Math.PI) + " deg.");
+			logger.info (" Tubes 1 and 2 form a dihedral angle of " +
+				     (int) (dhT2 * 180. / Math.PI) + " deg.");
 			//y creamos los vec --> and we create the vector
 			if (!creciente) {
 				lt1 = new pto3D (Math.sin (curvaP), 0, Math.cos (curvaP));
-				lt2 = new pto3D (Math.sin (curvaH) * Math.cos (dhT2), Math.sin (curvaH) * Math.sin (dhT2), Math.cos (curvaH));
+				lt2 = new pto3D (Math.sin (curvaH) * Math.cos (dhT2),
+						 Math.sin (curvaH) * Math.sin (dhT2), Math.cos (curvaH));
 			} else {
 				lt1 = new pto3D (-Math.sin (curvaH), 0, Math.cos (curvaH));
-				lt2 = new pto3D (-Math.sin (curvaP) * Math.cos (dhT2), -Math.sin (curvaP) * Math.sin (dhT2), Math.cos (curvaP));
+				lt2 = new pto3D (-Math.sin (curvaP) * Math.cos (dhT2),
+						 -Math.sin (curvaP) * Math.sin (dhT2), Math.cos (curvaP));
 			}
 
 			double ratio1x = lt1.x / lt1.z;
@@ -297,7 +291,7 @@ public class W2 extends W1
 			double ratio2x = lt2.x / lt2.z;
 			double ratio2y = lt2.y / lt2.z;
 
-			logger.info ("\n\nStarting 1st tube construction. ");
+			logger.info ("Starting 1st tube construction. ");
 
 			pto2D pAcm1 = new pto2D (0.0, 0.0);
 			pto2D pBcm1 = new pto2D (A * (i1 + j1 * 0.5),
@@ -347,7 +341,7 @@ public class W2 extends W1
 						posis1[2][indi1] = cely * 2;
 						indi1++;
 						if (despleg)
-							molecule.addVert (at1, 6, Color.blue);
+							molecule.addVert (at1, 6);
 					}	//
 					if (at2.dentro4l (pAcm1, pBcm1, pDcm1, pCcm1)) {
 						cachotubo1.addVert (at2, 6);
@@ -356,7 +350,7 @@ public class W2 extends W1
 						posis1[2][indi1] = cely * 2 - 2;
 						indi1++;
 						if (despleg)
-							molecule.addVert (at2, 6, Color.blue);
+							molecule.addVert (at2, 6);
 					}	//
 					if (at3.dentro4l (pAcm1, pBcm1, pDcm1, pCcm1)) {
 						cachotubo1.addVert (at3, 6);
@@ -365,7 +359,7 @@ public class W2 extends W1
 						posis1[2][indi1] = cely * 2 - 1;
 						indi1++;
 						if (despleg)
-							molecule.addVert (at3, 6, Color.blue);
+							molecule.addVert (at3, 6);
 					}	//
 					if (at4.dentro4l (pAcm1, pBcm1, pDcm1, pCcm1)) {
 						cachotubo1.addVert (at4, 6);
@@ -374,7 +368,7 @@ public class W2 extends W1
 						posis1[2][indi1] = cely * 2 - 1;
 						indi1++;
 						if (despleg)
-							molecule.addVert (at4, 6, Color.blue);
+							molecule.addVert (at4, 6);
 					}	//
 				}
 
@@ -450,7 +444,7 @@ public class W2 extends W1
 
 				if (!despleg)
 					if (!molecule.ocupa1 (pperf))
-						molecule.addVert (pperf, 6, Color.gray);
+						molecule.addVert (pperf, 6);
 
 
 
@@ -528,7 +522,7 @@ public class W2 extends W1
 						posis2[2][indi2] = cely * 2;
 						indi2++;
 						if (despleg)
-							molecule.addVert (at1, 6, Color.red);
+							molecule.addVert (at1, 6);
 					}	//
 					if (at2.dentro4l (pBcm2, pAcm2, pCcm2, pDcm2)) {
 						cachotubo2.addVert (at2, 6);
@@ -537,7 +531,7 @@ public class W2 extends W1
 						posis2[2][indi2] = cely * 2 - 2;
 						indi2++;
 						if (despleg)
-							molecule.addVert (at2, 6, Color.red);
+							molecule.addVert (at2, 6);
 					}	//
 					if (at3.dentro4l (pBcm2, pAcm2, pCcm2, pDcm2)) {
 						cachotubo2.addVert (at3, 6);
@@ -546,7 +540,7 @@ public class W2 extends W1
 						posis2[2][indi2] = cely * 2 - 1;
 						indi2++;
 						if (despleg)
-							molecule.addVert (at3, 6, Color.red);
+							molecule.addVert (at3, 6);
 					}	//
 					if (at4.dentro4l (pBcm2, pAcm2, pCcm2, pDcm2)) {
 						cachotubo2.addVert (at4, 6);
@@ -555,7 +549,7 @@ public class W2 extends W1
 						posis2[2][indi2] = cely * 2 - 1;
 						indi2++;
 						if (despleg)
-							molecule.addVert (at4, 6, Color.red);
+							molecule.addVert (at4, 6);
 					}	//
 				}
 
@@ -631,7 +625,7 @@ public class W2 extends W1
 
 				if (!despleg)
 					if (!molecule.ocupa1 (pperf))
-						molecule.addVert (pperf, 6, Color.gray);
+						molecule.addVert (pperf, 6);
 
 
 			}
@@ -657,7 +651,7 @@ public class W2 extends W1
 
 
 
-			logger.info ("\n\nStructure (" +
+			logger.info ("Structure (" +
 				     i1 + "," + j1 + ")-(" + i2 + "," + j2 + ") completed with " + molecule.nvert () + " atoms");
 		} else {
 
@@ -687,7 +681,7 @@ public class W2 extends W1
 				n = nai;
 				m = mai;
 			} else
-				JOptionPane.showMessageDialog (null, "Warning: Unexpected geometry!!", "Warning", JOptionPane.INFORMATION_MESSAGE);
+				logger.warning ("Unexpected geometry!!");
 
 			pto2D pC1 = new pto2D (A * (n + m * 0.5), A * r3 / 2 * m);
 
@@ -714,13 +708,13 @@ public class W2 extends W1
 			double lm = Math.max (lonmint1, lonmint2);
 
 			if (lent1 <= lonmint1) {
-				logger.info ("\n\nWarning: 1st tube's length too short: Augmented automatically to " + (int) (lonmint1 + 1) + " Angstrom.");
+				logger.info ("Warning: 1st tube's length too short: Augmented automatically to " + (int) (lonmint1 + 1) + " Angstrom.");
 			}
 			if (lent2 <= lonmint2) {
-				logger.info ("\n\nWarning: 2nd tube's length too short: Augmented automatically to " + (int) (lonmint2 + 1) + " Angstrom.");
+				logger.info ("Warning: 2nd tube's length too short: Augmented automatically to " + (int) (lonmint2 + 1) + " Angstrom.");
 			}
 			if (lent1 <= 15. || lent2 <= 15.)
-				logger.info ("\n\nWarning: Open ends remain deformed: Increase length up to 15 Angstrom.");
+				logger.info ("Warning: Open ends remain deformed: Increase length up to 15 Angstrom.");
 
 
 			//Definimos los puntos que enmarcan los tubos
@@ -756,7 +750,7 @@ public class W2 extends W1
 			double mincy2 = Math.min (Math.min (pA2.y, pB2.y),
 						  Math.min (pA2b.y, pB2b.y));
 
-			logger.info ("\n\nStarting 1st tube construction. ");
+			logger.info ("Starting 1st tube construction. ");
 			logger.info ("Filling 1st tube planar projection ");
 
 			MoleculaB cachot1 = new MoleculaB ();
@@ -1050,10 +1044,10 @@ public class W2 extends W1
 
 
 				if (!molecule.ocupa1 (pperf))
-					molecule.addVert (pperf, 6, Color.gray);
+					molecule.addVert (pperf, 6);
 			}
 
-			logger.info ("\n\nStructure (" +
+			logger.info ("Structure (" +
 				     i1 + "," + j1 + ")-(" + i2 + "," + j2 + ") completed with " + molecule.nvert () + " atoms");
 
 		}
@@ -1062,7 +1056,7 @@ public class W2 extends W1
 		//final y visualizacin
 		//end and visualization
 		molecule.reconec (1.35);
-		logger.info ("\n\nRefining process: ");
+		logger.info ("Refining process: ");
 
 		int eliminados = molecule.depuraconec ();
 		logger.info (eliminados + " bonds removed and ");
@@ -1196,7 +1190,6 @@ public class W2 extends W1
 	public static void main(String[] argv) {
 		int i1, j1, i2, j2, terminator;
 		double lent1, lent2;
-		logger.setLevel(Level.WARNING);
 		i1 = Integer.parseInt(argv[0]);
 		j1 = Integer.parseInt(argv[1]);
 		lent1 = Double.parseDouble(argv[2]);
