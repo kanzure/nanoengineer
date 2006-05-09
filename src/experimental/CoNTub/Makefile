@@ -31,6 +31,7 @@ WSRCS=anillo.java \
 	MoleculaT.java \
 	Nanotubo.java \
 	W1.java \
+	W15.java \
 	W2.java \
 	pto2D.java \
 	pto3D.java \
