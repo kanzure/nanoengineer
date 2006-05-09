@@ -393,17 +393,28 @@ class MoleculaB
 
 	void reconec (double param)
 	{			//IGUAL QUE PONCONEC; pero sin iniciar --> JUST AS PONCONEC; but without initiating
+		HashMap buckets = new HashMap();
 		int nv = susatomos.size ();
 		for (int i = 0; i < nv; i++) {
-			pto3D ptoa = ((Atomo) susatomos.get (i)).vert;
-			int tipA = ((Atomo) susatomos.get (i)).tipo;
+			Atomo atm = (Atomo) susatomos.get (i);
+			atm.index = i;
+			pto3D ptoa = atm.vert;
+			ArrayList alst = getBucket(buckets, ptoa);
+			alst.add(atm);
+		}
+		for (int i = 0; i < nv; i++) {
+			Atomo atm = (Atomo) susatomos.get (i);
+			pto3D ptoa = atm.vert;
+			int tipA = atm.tipo;
 
-			for (int j = 0; j < nv; j++) {
-				pto3D ptob = ((Atomo) susatomos.get (j)).vert;
-				int tipB = ((Atomo) susatomos.get (j)).tipo;
+			ArrayList alst = getNeighborhood(buckets, ptoa);
+			for (int j = 0; j < alst.size(); j++) {
+				Atomo atm2 = (Atomo) alst.get(j);
+				pto3D ptob = atm2.vert;
+				int tipB = atm2.tipo;
 				double distamax = param * (TablaP.en1[tipA] + TablaP.en1[tipB]);	//PARAMETRO AQUI
 				if (ptoa.dista (ptob) < distamax && ptoa.dista (ptob) > 0.6)
-					conecta (i, j);
+					conecta (i, atm2.index);
 			}
 		}
 		//depuraconec();                          //OJO!!!
