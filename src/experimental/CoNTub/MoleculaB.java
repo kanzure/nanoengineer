@@ -27,19 +27,12 @@ class MoleculaB
 	double xmin, xmax, ymin, ymax, zmin, zmax;
 	tabPe TablaP;   // periodic table - this could be a singlet
 
-	/*******
-	Atomo.BucketMap bucketMap;
-	********/
-
 	  MoleculaB ()
 	{
 		susatomos = new ArrayList (0);
 		TablaP = tabPe.getInstance();
 		nselec = 0;
 		info = "";
-		/**********
-			   bucketMap = new Atomo.BucketMap();
-		***********/
 	}
 
 //LISTA DE METODOS BASICOS!!!
@@ -296,18 +289,8 @@ class MoleculaB
 
 	void ponconec (double param)  // ponconec --> put connected??
 	{
-		System.out.println("PONCONEC");
 		int nv = susatomos.size ();
-		/**********
 		for (int i = 0; i < nv; i++) {
-			Atomo atm = (Atomo) susatomos.get(i);
-			atm.index = i;
-			Atomo.Bucket b = bucketMap.get(atm.vert);
-			b.add(atm);
-		}
-		*********/
-		for (int i = 0; i < nv; i++) {
-			System.out.println("i " + i);
 			Atomo atm = (Atomo) susatomos.get (i);
 			pto3D ptoa = atm.vert;
 			int tipA = atm.tipo;
@@ -319,21 +302,6 @@ class MoleculaB
 			// an Array for each atom i
 			for (int j = 1; j <= 9; j++)
 				mc[j] = 0;
-			/************
-			java.util.Iterator vecinos = atm.getIterator(bucketMap);
-			while (vecinos.hasNext()) {
-				Atomo atm2 = (Atomo) vecinos.next();
-				System.out.println("vecino " + atm2);
-				pto3D ptob = atm2.vert;
-				int tipB = atm2.tipo;
-				double distamax = param * (TablaP.en1[tipA] + TablaP.en1[tipB]);	//PARAMETRO AQUI
-				if (ptoa.dista (ptob) < distamax && ptoa.dista (ptob) > 0.6) {
-					int k = mc[0] + 1;
-					mc[0] = k;
-					mc[k] = atm2.index;
-				}
-			}
-			*************/
 
 			for (int j = 0; j < nv; j++) {
 				pto3D ptob = ((Atomo) susatomos.get (j)).vert;
