@@ -55,3 +55,15 @@ This list isn't final, but the final list should not be larger than
 this: Atomo, Mensaje, Minimol, MoleculaB, MoleculaT, Nanotubo, anillo,
 formato, pto2D, pto3D, tabPe, plus any new classes we write to subsume
 functionality from P1, P15, P2, and P35.
+
+== The classes I'm writing ==
+
+The W1 class is a command-line version of the P1 class. It accepts
+parameters for chirality, length, and termination, and creates a
+single-walled nanotube. It produces an MMP file which goes to standard
+output, so it would typically be called like this.
+
+ java W1 40 0 60 1 > ~/nt.mmp
+
+The structure specified here contains 2240 atoms and takes about 0.4
+seconds to generate.

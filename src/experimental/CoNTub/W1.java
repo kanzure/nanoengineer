@@ -5,13 +5,24 @@ import java.awt.*;
 import java.awt.event.*;
 import java.applet.*;
 import java.text.*;
+import java.util.logging.*;
 
 public class W1
 {
+	//protected static final formato fo = new formato (8, "#0.000");
+	//protected static final formato fd = new formato (8, "###0.000");	//para los doble precision
+	//protected static final formato fi = new formato (5, "#####");	//para los enteros
+
+	protected static Logger logger = Logger.getLogger("mylogger");
+
 	public static final int HYDROGEN = 1;
 	public static final int NITROGEN = 7;
 
-	protected MoleculaT SW;
+	protected MoleculaT molecule;
+
+	protected W1() {
+		// the constructor inherited by W2 and others
+	}
 
 	/*
 	 * (a, b) - nanotube chirality
@@ -19,9 +30,8 @@ public class W1
 	 * terminator - an element number for terminating atoms, ignored if not HYDROGEN or NITROGEN
 	 */
 	public W1(int a, int b, double c, int terminator) {
-		SW = new MoleculaT ();
-		formato fi, fd;  // formats for printing numbers
-		SW.vaciar ();   // vaciar --> empty/clear: remove all atoms and bonds
+		molecule = new MoleculaT ();
+		molecule.vaciar ();   // vaciar --> empty/clear: remove all atoms and bonds
 		Nanotubo NT = new Nanotubo (a, b);
 
 		// estimated number of atoms
@@ -45,31 +55,31 @@ public class W1
 				zc = NT.radio () * (float) Math.cos (NT.deltaphi () * i +
 								     NT.deltaphic () +
 								     2 * (float) Math.PI / NT.d () * j);
-				SW.addVert (x, y, z, 6);
-				SW.addVert (xc, yc, zc, 6);
+				molecule.addVert (x, y, z, 6);
+				molecule.addVert (xc, yc, zc, 6);
 			}
 		}
-		finish(SW, terminator);
+		finish(terminator);
 	}
 
-	protected void finish(MoleculaT SW, int terminator) {
-		SW.centrar ();
-		SW.ponconec ();
+	protected void finish(int terminator) {
+		molecule.centrar ();
+		molecule.ponconec ();
 		if (terminator == HYDROGEN) {
-			SW.cierraH ();
-			SW.ponconec ();
+			molecule.cierraH ();
+			molecule.ponconec ();
 		} else if (terminator == NITROGEN) {
-			SW.cierraN ();
-			SW.ponconec ();
+			molecule.cierraN ();
+			molecule.ponconec ();
 		}
 	}
 
 	public String pdb() {
-		return SW.pdb();
+		return molecule.pdb();
 	}
 
 	public String mmp() {
-		return SW.mmp();
+		return molecule.mmp();
 	}
 
 	public static void main(String[] argv) {
