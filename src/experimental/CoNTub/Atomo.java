@@ -15,6 +15,7 @@ class Atomo
 	int mconec[];
 	int mconecA[];		//array de conec alternativas (para newzmat)
 	tabPe TablaP;
+	int index;
 
 	  Atomo ()
 	{

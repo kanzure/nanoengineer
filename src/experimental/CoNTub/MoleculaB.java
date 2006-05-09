@@ -12,6 +12,7 @@ import java.awt.image.ColorModel;
 import javax.swing.*;
 import java.applet.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.AbstractList;
 
 
@@ -282,6 +283,48 @@ class MoleculaB
 	}
 //ESTA es una autentica sustitucion
 
+	// A Bucket is a cube-sized container to represent the coarse positions of atoms. It is
+	// used to find bonds faster - we can pre-sort the atoms into buckets, and when we want
+	// to find nearby atoms quickly, we only need to search the nearby buckets.
+
+	// Un Bucket es un envase cubo-clasificado para representar las posiciones gruesas de
+	// átomos. Se utiliza para encontrar enlaces más rápidos - preclasificación de la poder los
+	// átomos en los Buckets, y cuando deseamos encontrar los átomos próximos rápidamente,
+	// nosotros necesitamos solamente buscar los Buckets próximos.
+
+	private static final double BUCKETWIDTH = 1.5 * 1.24;
+
+	private ArrayList getBucket(HashMap buckets, pto3D v) {
+		int x = (int) ((v.x - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
+		int y = (int) ((v.y - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
+		int z = (int) ((v.z - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
+		Integer key = new Integer((x * 5000 + y) * 5000 + z);
+		if (buckets.get(key) == null)
+			buckets.put(key, new ArrayList());
+		return (ArrayList) buckets.get(key);
+	}
+
+	// Search the 3x3x3 nearest buckets
+	private ArrayList getNeighborhood(HashMap buckets, pto3D v) {
+		int x = (int) ((v.x - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
+		int y = (int) ((v.y - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
+		int z = (int) ((v.z - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
+		ArrayList alst = new ArrayList();
+		for (int dx = -1; dx <= 1; dx++)
+			for (int dy = -1; dy <= 1; dy++)
+				for (int dz = -1; dz <= 1; dz++) {
+					Integer key = new Integer(((x + dx) * 5000 + y + dy) * 5000 + z + dz);
+					ArrayList alst2 = (ArrayList) buckets.get(key);
+					if (alst2 != null)
+						for (int i = 0; i < alst2.size(); i++) {
+							Object atm = alst2.get(i);
+							if (!alst.contains(atm))
+								alst.add(atm);
+						}
+				}
+		return alst;
+	}
+
 	void ponconec ()
 	{
 		ponconec (1.30);
@@ -289,7 +332,15 @@ class MoleculaB
 
 	void ponconec (double param)  // ponconec --> put connected??
 	{
+		HashMap buckets = new HashMap();
 		int nv = susatomos.size ();
+		for (int i = 0; i < nv; i++) {
+			Atomo atm = (Atomo) susatomos.get (i);
+			atm.index = i;
+			pto3D ptoa = atm.vert;
+			ArrayList alst = getBucket(buckets, ptoa);
+			alst.add(atm);
+		}
 		for (int i = 0; i < nv; i++) {
 			Atomo atm = (Atomo) susatomos.get (i);
 			pto3D ptoa = atm.vert;
@@ -303,16 +354,18 @@ class MoleculaB
 			for (int j = 1; j <= 9; j++)
 				mc[j] = 0;
 
-			for (int j = 0; j < nv; j++) {
-				pto3D ptob = ((Atomo) susatomos.get (j)).vert;
-				int tipB = ((Atomo) susatomos.get (j)).tipo;
+			ArrayList alst = getNeighborhood(buckets, ptoa);
+			for (int j = 0; j < alst.size(); j++) {
+				Atomo atm2 = (Atomo) alst.get(j);
+				pto3D ptob = atm2.vert;
+				int tipB = atm2.tipo;
 				double distamax = param * (TablaP.en1[tipA] + TablaP.en1[tipB]);	//PARAMETRO AQUI
 				if (ptoa.dista (ptob) < distamax && ptoa.dista (ptob) > 0.6) {
 					if (MOLDEBUG)
 						System.out.println("Connect: " + i + " " + j);
 					int k = mc[0] + 1;
 					mc[0] = k;
-					mc[k] = j;
+					mc[k] = atm2.index;
 				}
 			}
 

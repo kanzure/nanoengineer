@@ -25,16 +25,10 @@ public class W1
 		Nanotubo NT = new Nanotubo (a, b);
 
 		// estimated number of atoms
-		int guess = (int) (NT.radio () * 2 * Math.PI * c * 0.34);
-
-		if (guess > 6000) {
-			// throw new Exception("too many atoms");
-			// worry?
-		} else if (guess > 4000) {
-			// worry?
-		} else if (guess > 2000) {
-			// worry?
-		}
+		// int guess = (int) (NT.radio () * 2 * Math.PI * c * 0.34);
+		// In the original code, this was used as a basis to not compute structures that were
+		// too big. I think the reason for not doing them was that they took too long with
+		// bond enumeration as an order-N-squared operation.
 
 		double x, xc, y, yc, z, zc;
 		for (int i = 1; i * NT.deltaz () <= c; i++) {
