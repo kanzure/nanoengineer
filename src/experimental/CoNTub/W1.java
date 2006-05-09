@@ -60,6 +60,7 @@ public class W1
 
 	protected void finish(MoleculaT SW, int terminator) {
 		SW.centrar ();
+		System.out.println("CALL PONCONEC");
 		SW.ponconec ();
 		if (terminator == HYDROGEN) {
 			SW.cierraH ();
@@ -77,10 +78,6 @@ public class W1
 	public String mmp() {
 		return SW.mmp();
 	}
-
-// 	public MoleculaT molT () {
-// 		return SW;
-// 	}
 
 	public static void main(String[] argv) {
 		int a, b, terminator;

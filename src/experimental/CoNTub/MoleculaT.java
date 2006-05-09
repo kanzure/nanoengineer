@@ -482,7 +482,7 @@ int generaanillo(int a1,int a2, pto3D cideprev, Molecula maux)*/
 		return cadena;
 	}
 
-	// My impression is that this is closing up any unfinished hexagons at the end of a nanotube.
+	// Terminate any unfinished hexagons at the end of a nanotube with hydrogens.
 	void cierraH ()  // cierra --> it closes, H -> hydrogen
 	{			//ESTABLECER EN FUNCION DE RADIO Y ORIENTACION HEXAGONO
 		// TO ESTABLISH BASED ON RADIUS AND HEXAGONAL DIRECTION
@@ -509,6 +509,7 @@ int generaanillo(int a1,int a2, pto3D cideprev, Molecula maux)*/
 
 	}
 
+	// Terminate any unfinished hexagons at the end of a nanotube with nitrogens.
 	void cierraN ()  // cierra --> it closes, N -> nitrogen
 	{
 
