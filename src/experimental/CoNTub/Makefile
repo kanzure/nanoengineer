@@ -3,7 +3,6 @@ JAVASRCS=anillo.java \
 	formato.java \
 	GLienzo2.java \
 	GLienzo.java \
-	mensaje.java \
 	Minimol.java \
 	Mira3D.java \
 	MoleculaB.java \
@@ -22,20 +21,8 @@ JAVASRCS=anillo.java \
 	pto3D.java \
 	TabPe.java
 
-WSRCS=anillo.java \
-	Atomo.java \
-	formato.java \
-	mensaje.java \
-	Minimol.java \
-	MoleculaB.java \
-	MoleculaT.java \
-	Nanotubo.java \
-	W1.java \
-	W15.java \
-	W2.java \
-	pto2D.java \
-	pto3D.java \
-	TabPe.java
+# other files get compiled automatically
+WSRCS=W1.java W15.java W2.java TabPe.java
 
 #	parchetubo.java \
 #	P1old.java \

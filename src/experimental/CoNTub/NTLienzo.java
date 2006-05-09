@@ -1,9 +1,9 @@
 //package nt;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.applet.*;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
 
 public class NTLienzo extends JPanel
 {				//Creamos la clase NTLienzo, que es una subclase de Canvas

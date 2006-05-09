@@ -1,9 +1,5 @@
 //package nt;
 
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.applet.*;
 import java.text.*;
 
 public class formato

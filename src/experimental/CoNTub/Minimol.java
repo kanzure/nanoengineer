@@ -1,11 +1,4 @@
-import java.awt.*;
-import java.awt.Event;
-import java.awt.Graphics;
-import java.awt.Dimension;
-import java.io.*;
-import java.util.Hashtable;
-import java.awt.image.IndexColorModel;
-import java.awt.image.ColorModel;
+import java.awt.Color;
 
 class Minimol
 {

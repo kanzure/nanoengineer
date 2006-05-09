@@ -1,13 +1,19 @@
-import javax.swing.*;
-import java.awt.*;
-import java.awt.event.*;
-import java.applet.*;
-import java.io.*;
-import java.awt.geom.*;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.BasicStroke;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
+import java.awt.Font;
+import java.awt.event.MouseEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.awt.event.KeyListener;
 
 public class Mira3D extends JPanel implements MouseListener, MouseMotionListener, KeyListener
 {
-
 	Image Buffer;
 	Graphics BuffGr;
 	int Ox, Oy, Nx, Ny, Ax, Ay, Sx, Sy;
