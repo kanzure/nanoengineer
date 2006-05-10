@@ -1,6 +1,7 @@
 #ifndef MOLECULAT_H_INCLUDED
 #define MOLECULAT_H_INCLUDED
 
+#include <iostream>
 #include "MoleculaB.h"
 #include "pto3D.h"
 
@@ -49,10 +50,12 @@ class MoleculaT: public MoleculaB
     String MoleculaT::exploraanillo (int atocentro);
     //OJO, esta distancia media no incluye el enlace priemro, ani[1],ani[2], porque es el que va a ser sustituido
     double dmedia (anillo ani);
-    String pdb ();
-    String pdb (String inf);
-    String mmp ();
-    String mmp (String inf);
+    //String pdb ();
+    //String pdb (String inf);
+    std::ostream& mmp (std::ostream& ost);
+    std::ostream& mmp (std::ostream& ost, String inf);
+    //String mmp ();
+    //String mmp (String inf);
 };
 
 #endif

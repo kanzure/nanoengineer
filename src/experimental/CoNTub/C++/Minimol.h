@@ -8,17 +8,17 @@
 
 class Minimol
 {
-    int nvert;
-    pto3D *miniverts;
     String *minietiqs;
     String *miniperss;
     float *minisizes;
     Color *minicolor;
     int *miniselec;
-    int **miniconec;
     double xmin, xmax, ymin, ymax, zmin, zmax;
 
 public:
+    int nvert;
+    pto3D *miniverts;
+    int **miniconec;
 
     Minimol (int nv)
     {
