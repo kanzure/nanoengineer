@@ -1,5 +1,6 @@
 #include "anillo.h"
 #include "Atomo.h"
+#include "String.h"
 
 void anillo::addVert (int pton) {
     if (num < 14) {
@@ -13,12 +14,13 @@ void anillo::setCentro (pto3D *cide) {
 }
 
 String *anillo::poncentroide (MoleculaT *mol) {
-    String st = "";
+    String *st = new String("");
     pto3D *ncide = new pto3D ();
     for (int i = 1; i <= num; i++) {
 	Atomo *at = (Atomo*) mol->susatomos->get (vert[i]);
 	ncide = ncide->mas (at->vert);
-	st = st + "\n" + ncide->aTexto ();
+	st = st + "\n";
+	st = st + ncide->aTexto ();
     }
     centroide = ncide->escala (1 / (double) num);
     return st;
@@ -139,7 +141,7 @@ void anillo::rota (int giro) {	//pasa los indices hacia abajo(si giro>0), con lo
 }
 
 String *anillo::aCadena () {
-    String cad = new String("Miembros: ");
+    String *cad = new String("Miembros: ");
     for (int i = 1; i <= num; i++)
 	cad = cad + " " + vert[i];
     if (centroide != null)
