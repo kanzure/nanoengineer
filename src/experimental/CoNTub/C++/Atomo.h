@@ -9,17 +9,17 @@ class Atomo
 {
     int tipo;
     int selec;
-    String etiq;
-    String pers;
-    Color color;
-    double r;		//de doubles
-    int *mconec;
     int *mconecA;		//array de conec alternativas (para newzmat)
     tabPe TablaP;
     int index;
 
  public:
     pto3D vert;
+    int *mconec;
+    String etiq;
+    String pers;
+    Color color;
+    double r;		//de doubles
 
     Atomo () {
 	vert = pto3D (0.0, 0.0, 0.0);

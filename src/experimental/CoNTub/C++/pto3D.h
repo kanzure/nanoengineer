@@ -7,9 +7,9 @@ class pto2D;
 
 class pto3D
 {
+ public:
     float x, y, z;
 
- public:
     pto3D (void) {
 	x = 0.0f;
 	y = 0.0f;

@@ -1,6 +1,7 @@
 #ifndef STRING_H_INCLUDED
 #define STRING_H_INCLUDED
 
+#include <iostream>
 #include <string.h>
 
 class String

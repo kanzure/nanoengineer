@@ -70,6 +70,7 @@ class MoleculaB
     double distancia (int a, int b);
     double angulo (int a, int b, int c);
     double dihedro (int a, int b, int c, int d);
+    int nvec (int i);
     int nvert ();
     pto3D vert (int i);
     int tipo (int i);

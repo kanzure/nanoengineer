@@ -13,7 +13,6 @@ class MoleculaB
 	int nselec;
 	String info;		//pequeña cadena informativa para pasar un mini titulo
 	// small informative string to pass a short title
-	formato fm = new formato (6, "###.0");
 	double xmin, xmax, ymin, ymax, zmin, zmax;
 	tabPe TablaP;   // periodic table - this could be a singlet
 

@@ -46,13 +46,13 @@ class MoleculaT: public MoleculaB
     //ESTA ES LA AARIABLE EMTRE = Y ! QUE DICE SI EL ALGORITMO ES
     // TOTALMENTE RELAJADO (1)(SIGUIENDO PARAMETROS DE VECINO)
     // o estricto (0) (SIGUENDO conectividad TRIGONAL)
-    char * exploraanillo (int atocentro);
+    String MoleculaT::exploraanillo (int atocentro);
     //OJO, esta distancia media no incluye el enlace priemro, ani[1],ani[2], porque es el que va a ser sustituido
     double dmedia (anillo ani);
-    char * pdb ();
-    char * pdb (char * inf);
-    char * mmp ();
-    char * mmp (char * inf);
+    String pdb ();
+    String pdb (String inf);
+    String mmp ();
+    String mmp (String inf);
 };
 
 #endif

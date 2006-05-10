@@ -1,64 +1,63 @@
-//package nt;
+#include "formato.h"
 
-import java.text.*;
-
-public class formato
+formato::formato ()
 {
-	DecimalFormat formato;
-	int longitud;
-	String distrib;
-
-	public formato ()
-	{
-		formato = new DecimalFormat ();
-	}			//Constructor neutro
+    //formato = new DecimalFormat ();
+}			//Constructor neutro
 
 
-	public formato (int l, String tipo)
-	{			//constructor con longitud de cadena y numero de decimales.
-		formato = new DecimalFormat (tipo);
-		DecimalFormatSymbols dfs = new DecimalFormatSymbols ();
-		String ch = ".";
+formato::formato (int l, String tipo)
+{			//constructor con longitud de cadena y numero de decimales.
+#if 0
+    formato = new DecimalFormat (tipo);
+    DecimalFormatSymbols dfs = new DecimalFormatSymbols ();
+    String ch = ".";
 
-		dfs.setDecimalSeparator (ch.toCharArray ()[0]);
-		formato.setDecimalFormatSymbols (dfs);
-		longitud = l;
-	}
-
-
-	String aCadena (double numero)
-	{
-		String s = formato.format (numero);
-		int l = s.length ();
-		String t = "";
-		for (int i = 1; i <= longitud - l; i++)
-			t = t + " ";
-		String fin = t + s;
-		return fin;
-	}
-
-	String aCadena (float numero)
-	{
-		String s = formato.format (numero);
-		int l = s.length ();
-		String t = " ";
-		for (int i = 1; i <= longitud - l; i++)
-			t = t + " ";
-		String fin = t + s;
-		return fin;
-	}
-
-	String aCadena (int numero)
-	{
-		String s = formato.format (numero);
-		int l = s.length ();
-		String t = "";
-		for (int i = 1; i <= longitud - l; i++)
-			t = t + " ";
-		String fin = t + s;
-		return fin;
-	}
+    dfs.setDecimalSeparator (ch.toCharArray ()[0]);
+    formato.setDecimalFormatSymbols (dfs);
+    longitud = l;
+#endif
+}
 
 
+String formato::aCadena (double numero)
+{
+#if 0
+    String s = formato.format (numero);
+    int l = s.length ();
+    String t = "";
+    for (int i = 1; i <= longitud - l; i++)
+	t = t + " ";
+    String fin = t + s;
+    return fin;
+#endif
+    return String("abc");
+}
 
+String formato::aCadena (float numero)
+{
+#if 0
+    String s = formato.format (numero);
+    int l = s.length ();
+    String t = " ";
+    for (int i = 1; i <= longitud - l; i++)
+	t = t + " ";
+    String fin = t + s;
+    return fin;
+#endif
+    return String("abc");
+}
+
+String formato::aCadena (int numero)
+{
+#if 0
+    String s = formato.format (numero);
+    int l = s.length ();
+    String t = "";
+    for (int i = 1; i <= longitud - l; i++)
+	t = t + " ";
+    String fin = t + s;
+    return fin;
+#endif
+    return String("abc");
 }

@@ -9,6 +9,8 @@ public:
     ArrayList(void) { }
     ArrayList(int n) { }
     Atomo get(int i);
+    void add(Atomo a);
+    int size();
 };
 
 #endif
