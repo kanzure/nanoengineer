@@ -5,24 +5,10 @@
 class pto2D: public pto3D
 {
  public:
-    pto2D ()
-	{
-	    x = 0.0f;
-	    y = 0.0f;
-	    z = 0.0f;
-	}
-    pto2D (float xt, float yt)
-	{
-	    x = xt;
-	    y = yt;
-	    z = 0.0f;
-	}
-    pto2D (double xt, double yt)
-	{
-	    x = (float) xt;
-	    y = (float) yt;
-	    z = 0.0f;
-	}
+    pto2D ();
+    pto2D (float xt, float yt);
+    pto2D (double xt, double yt);
+    pto2D (pto3D other);
     int dentro3 (pto2D A, pto2D B, pto2D C);
     int dentro3l (pto2D A, pto2D B, pto2D C);
     int dentrocasi3 (pto2D A, pto2D B, pto2D v1, pto2D v2);

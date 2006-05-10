@@ -1,6 +1,7 @@
 #include <math.h>
 #include "pto3D.h"
 #include "pto2D.h"
+#include "formato.h"
 
 void pto3D::giroxr (double theta)
 {
