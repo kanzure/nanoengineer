@@ -14,7 +14,7 @@ class Atomo
 	double r = 0;		//de doubles
 	int mconec[];
 	int mconecA[];		//array de conec alternativas (para newzmat)
-	tabPe TablaP;
+	TabPe TablaP;
 	int index;
 
 	  Atomo ()
@@ -28,7 +28,7 @@ class Atomo
 		pers = "  ";
 		mconec = new int[10];
 		  mconecA = new int[10];
-		  TablaP = tabPe.getInstance();
+		  TablaP = TabPe.getInstance();
 
 	}
 
@@ -42,13 +42,13 @@ class Atomo
 		r = radio;
 		mconec = new int[10];
 		mconecA = new int[10];
-		TablaP = tabPe.getInstance();
+		TablaP = TabPe.getInstance();
 
 	}
 
 	Atomo (pto3D p, int t)
 	{
-		TablaP = tabPe.getInstance();
+		TablaP = TabPe.getInstance();
 		tipo = t;
 		vert = p.clona ();
 		etiq = TablaP.getSimbolo (t);
@@ -62,7 +62,7 @@ class Atomo
 
 	Atomo (pto3D p, int t, Color c)
 	{
-		TablaP = tabPe.getInstance();
+		TablaP = TabPe.getInstance();
 		tipo = t;
 		vert = p.clona ();
 		etiq = TablaP.getSimbolo (t);

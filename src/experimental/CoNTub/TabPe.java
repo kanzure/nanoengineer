@@ -2,22 +2,22 @@
 
 import java.awt.Color;
 
-class tabPe
+class TabPe
 {
 
 	static String simbolo[];
 	static Color col[];
 	static double sz[], en1[], en2[], en3[];
-	private static tabPe inst = null;
+	private static TabPe inst = null;
 
-	static tabPe getInstance()
+	static TabPe getInstance()
 	{
 		if (inst == null)
-			inst = new tabPe();
+			inst = new TabPe();
 		return inst;
 	}
 
-	private tabPe ()
+	private TabPe ()
 	{
 		simbolo = new String[104];
 		sz = new double[104];

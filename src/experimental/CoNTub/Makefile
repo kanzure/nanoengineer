@@ -41,6 +41,23 @@ w:
 	javac $(WSRCS)
 
 clean:
-	rm -f *~ *\# *.class cscope.out
+	rm -f *~ *\# *.class cscope.out W1
 
 classes: $(CLASSES)
+
+# Try using gcc to build a java executable that doesn't rely on the JVM.
+
+THESEGUYS=W1.java \
+	anillo.java \
+	Atomo.java \
+	formato.java \
+	Minimol.java \
+	MoleculaT.java \
+	MoleculaB.java \
+	pto2D.java \
+	pto3D.java \
+	Nanotubo.java \
+	TabPe.java
+
+W1: $(THESEGUYS)
+	gcj -O2 --main=W1 $(THESEGUYS) -o W1

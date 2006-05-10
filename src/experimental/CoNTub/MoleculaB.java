@@ -15,12 +15,12 @@ class MoleculaB
 	// small informative string to pass a short title
 	formato fm = new formato (6, "###.0");
 	double xmin, xmax, ymin, ymax, zmin, zmax;
-	tabPe TablaP;   // periodic table - this could be a singlet
+	TabPe TablaP;   // periodic table - this could be a singlet
 
 	  MoleculaB ()
 	{
 		susatomos = new ArrayList (0);
-		TablaP = tabPe.getInstance();
+		TablaP = TabPe.getInstance();
 		nselec = 0;
 		info = "";
 	}
@@ -93,7 +93,7 @@ class MoleculaB
 	void vaciar ()
 	{
 		susatomos = new ArrayList (0);
-		TablaP = tabPe.getInstance();
+		TablaP = TabPe.getInstance();
 	}
 
 	void deseleccionar ()
