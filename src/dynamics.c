@@ -65,6 +65,11 @@ oneDynamicsFrame(struct part *part,
     // See http://www.nanoengineer-1.net/mediawiki/index.php?title=Verlet_integration
     // for a discussion of how dynamics is done in the simulator.
 
+    // we want:
+    // x(t+dt) = 2x(t) - x(t-dt) + A dt^2
+    // or:
+    // newPositions = 2 * positions - oldPositions + A dt^2
+    
     // wware 060110  don't handle Interrupted with the BAIL mechanism
     for (loop=0; loop < iters && !Interrupted; loop++) {
 
@@ -80,8 +85,13 @@ oneDynamicsFrame(struct part *part,
         /* Atom moved from oldPositions to positions last time,
            now we move it the same amount from positions to newPositions */
         for (j=0; j<part->num_atoms; j++) {
+            // f = positions - oldPositions
             vsub2(f,positions[j],oldPositions[j]);
+            // newPositions = positions + f
+            // or:
+            // newPositions = 2 * positions - oldPositions
             vadd2(newPositions[j],positions[j],f);
+            // after this, we will need to add A dt^2 to newPositions
         }
 	
 	// pre-force jigs
@@ -101,12 +111,28 @@ oneDynamicsFrame(struct part *part,
 	/* convert forces to accelerations, giving new positions */
 	//FoundKE = 0.0;		/* and add up total KE */
 	for (j=0; j<part->num_atoms; j++) {
+            // to complete Verlet integration, this needs to do:
+            // newPositions += A dt^2
+            //
+            // force[] is in pN, mass is in g, Dt in seconds, f in pm
 	    vmul2c(f,force[j],part->atoms[j]->inverseMass); // inverseMass = Dt*Dt/mass
 
-	    if (!ExcessiveEnergyWarning && vlen(f)>0.15) { // 0.15 is just below H flyaway
-		WARNING3("Excessive force %.6f in iteration %d on atom %d -- further warnings suppressed", vlen(f), Iteration, j+1);
-                ExcessiveEnergyWarningThisFrame++;
-	    }
+            // XXX: 0.15 probably needs a scaling by Dt
+            // 0.15 = deltaX
+            // keMax = m v^2 / 2
+            // v^2 = 2 keMax / m
+            // v = deltaX / Dt = sqrt(2 keMax / m)
+            // deltaX = Dt sqrt(2 keMax / m)
+
+            // We probably don't want to do this, because a large raw
+            // velocity isn't a problem, it's just when that creates a
+            // high force between atoms that it becomes a problem.  We
+            // check that elsewhere.
+            
+	    //if (!ExcessiveEnergyWarning && vlen(f)>0.15) { // 0.15 is just below H flyaway
+            // WARNING3("Excessive force %.6f in iteration %d on atom %d -- further warnings suppressed", vlen(f), Iteration, j+1);
+            // ExcessiveEnergyWarningThisFrame++;
+            //}
 	    
 	    vadd(newPositions[j],f);
 	    vadd(averagePositions[j],newPositions[j]);
