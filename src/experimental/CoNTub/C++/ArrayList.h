@@ -11,6 +11,9 @@ public:
     Atomo get(int i);
     void add(Atomo a);
     int size();
+    void remove(int);
+    void set(int, Atomo);
+    int contains(Atomo);
 };
 
 #endif

@@ -5,6 +5,7 @@
 #include "TabPe.h"
 #include "ArrayList.h"
 #include "Color.h"
+#include "HashMap.h"
 
 #define MOLDEBUG  0
 
@@ -16,6 +17,9 @@ class MoleculaB
     double xmin, xmax, ymin, ymax, zmin, zmax;
     tabPe TablaP;   // periodic table - this could be a singlet
 
+    ArrayList getBucket(HashMap buckets, pto3D v);
+    ArrayList getNeighborhood(HashMap buckets, pto3D v);
+
  public:
     ArrayList susatomos;	//de ATOMOS, literally, "his atoms"
 
@@ -25,11 +29,11 @@ class MoleculaB
 	info = String("");
     }
 
-    void addVert (pto3D punto, int ti, Color *c);
+    void addVert (pto3D punto, int ti, Color c);
     void addVert (pto3D punto, int ti);
     void addVert (double x, double y, double z, int ti);
-    void addVert (double x, double y, double z, int ti, String *e);
-    void addVert (pto3D p, int ti, String *e);
+    void addVert (double x, double y, double z, int ti, String e);
+    void addVert (pto3D p, int ti, String e);
     double getDim ();
     double getLejania ();
     void vaciar ();
@@ -61,6 +65,9 @@ class MoleculaB
     void reconec (double param);
     void reconecsafe ();
 
+    //metodo paraeliminar conectividades redundantes, angulos demasiado pequeños (<60, en principio)
+    int depuraconec ();
+
     //metodo paraeliminar conectividades redundantes, angulos demasiado pequeños (<60, en principio);
     void centraentorno (int num);
     void centraentorno ();
@@ -74,14 +81,14 @@ class MoleculaB
     int nvert ();
     pto3D vert (int i);
     int tipo (int i);
-    String *etiq (int i);
-    String *pers (int i);
-    Color *color (int i);
+    String etiq (int i);
+    String pers (int i);
+    Color color (int i);
     double r (int i);
     int selecstatus (int i);
     void selecciona (int i, int status);
-    void setInfo (String *in);
-    String *getInfo ();
+    void setInfo (String in);
+    String getInfo ();
     void marcaborra (int aborrar);
     void borramarcados ();
 };
