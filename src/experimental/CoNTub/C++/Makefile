@@ -20,3 +20,6 @@ OBJS=$(SRCS:.cpp=.o)
 	g++ -c $(@:.o=.cpp)
 
 objs: $(OBJS)
+
+clean:
+	rm -f *.o *~

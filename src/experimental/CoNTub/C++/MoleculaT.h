@@ -12,14 +12,14 @@ class MoleculaT: public MoleculaB
     int std;	//dice si esta definido el segundo tubo
 
  public:
-    pto3D *TEST1;		//fin del tubo, vc que conecta fin de T1 y principio T2,eje del T2
-    pto3D *TESTC;
-    pto3D *TEST2;
+    pto3D TEST1;		//fin del tubo, vc que conecta fin de T1 y principio T2,eje del T2
+    pto3D TESTC;
+    pto3D TEST2;
 
     MoleculaT () {
-	TEST1 = new pto3D ();
-	TEST2 = new pto3D ();
-	TESTC = new pto3D ();
+	TEST1 = pto3D ();
+	TEST2 = pto3D ();
+	TESTC = pto3D ();
 	R1 = 0;
 	R2 = 0;
 	std = 0;

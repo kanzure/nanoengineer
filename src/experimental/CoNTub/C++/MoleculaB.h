@@ -4,28 +4,25 @@
 #include "String.h"
 #include "TabPe.h"
 #include "ArrayList.h"
-
-class Color;
-class ArrayList;
+#include "Color.h"
 
 #define MOLDEBUG  0
 
 class MoleculaB
 {
     int nselec;
-    String *info;		//pequeña cadena informativa para pasar un mini titulo
+    String info;		//pequeña cadena informativa para pasar un mini titulo
     // small informative string to pass a short title
     double xmin, xmax, ymin, ymax, zmin, zmax;
-    tabPe *TablaP;   // periodic table - this could be a singlet
+    tabPe TablaP;   // periodic table - this could be a singlet
 
  public:
-    ArrayList *susatomos;	//de ATOMOS, literally, "his atoms"
+    ArrayList susatomos;	//de ATOMOS, literally, "his atoms"
 
     MoleculaB () {
-	susatomos = new ArrayList (0);
 	TablaP = tabPe_getInstance();
 	nselec = 0;
-	info = new String("");
+	info = String("");
     }
 
     void addVert (pto3D punto, int ti, Color *c);

@@ -1,6 +1,8 @@
 #ifndef PTO3D_H_INCLUDED
 #define PTO3D_H_INCLUDED
 
+#include <iostream>
+#include "String.h"
 class pto2D;
 
 class pto3D
@@ -48,30 +50,41 @@ class pto3D
     void girozg (double thetag, pto3D pau);
 ///////////////////////////////////////////////////
 
-    pto3D *ngirar (double theta, pto3D *eje);
-    pto3D *ngirag (double thetag, pto3D *pau);
+    pto3D ngirar (double theta, pto3D eje);
+    pto3D ngirag (double thetag, pto3D pau);
 
 /////////////////////////////////////////////////
-    pto3D *mas (pto3D *pto2);
-    pto3D *menos (pto3D *pto2);
-    double prodesc (pto3D *pto2);
-    pto3D *prodvect (pto3D *pto2);
-    double dista (pto3D *pto2);
-    pto3D *escala (double factor);
-    double anguloconr (pto3D *pto2);
-    double angulocong (pto3D *pto2);
+    pto3D mas (pto3D pto2);
+    pto3D menos (pto3D pto2);
+    double prodesc (pto3D pto2);
+    pto3D prodvect (pto3D pto2);
+    double dista (pto3D pto2);
+    pto3D escala (double factor);
+    double anguloconr (pto3D pto2);
+    double angulocong (pto3D pto2);
     double modulo ();
-    pto3D *proyeccplano (pto3D *pto2);
+    pto3D proyeccplano (pto3D pto2);
     //ACLARACION dihedro positivo es cuando, mirando en el sentido marcado
-    double dihedror (pto3D *ptoc, pto3D *pto1);
-    double dihedrog (pto3D *ptoc, pto3D *pto1);
-    pto3D *aversor ();
-    void versoriza ();
-    char * aTexto ();
-    pto3D *clona ();
-    pto3D *ptomediocon (pto3D *v1);
-    pto3D *ptopondcon (pto3D *v1, double param);
-    pto3D *a2D ();
+    double dihedror (pto3D ptoc, pto3D pto1);
+    double dihedrog (pto3D ptoc, pto3D pto1);
+    pto3D aversor (void);
+    void versoriza (void);
+    String aTexto (void);
+    pto3D clona (void);
+    pto3D ptomediocon (pto3D v1);
+    pto3D ptopondcon (pto3D v1, double param);
+    pto2D a2D (void);
+    /* http://gethelp.devx.com/techtips/cpp_pro/10min/10min0400.asp */
+    friend std::ostream& operator<< (std::ostream& s, const pto3D& a) {
+	s << "<pto3D " << a.x << " " << a.y << " " << a.z << ">";
+	return s;
+    }
+    //std::ostream& operator<< (const pto3D&);
+    int valid(void) {
+	return x < 0.5e20 || y < 0.5e20 || z < 0.5e20;
+    }
 };
+
+static pto3D INVALID_PTO3D = pto3D(1.0e20, 1.0e20, 1.0e20);
 
 #endif

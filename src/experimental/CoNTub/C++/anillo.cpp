@@ -9,49 +9,49 @@ void anillo::addVert (int pton) {
     }
 }
 
-void anillo::setCentro (pto3D *cide) {
+void anillo::setCentro (pto3D cide) {
     centroide = cide;
 }
 
-String *anillo::poncentroide (MoleculaT *mol) {
-    String *st = new String("");
-    pto3D *ncide = new pto3D ();
+String anillo::poncentroide (MoleculaT mol) {
+    String st = String("");
+    pto3D ncide = pto3D ();
     for (int i = 1; i <= num; i++) {
-	Atomo *at = (Atomo*) mol->susatomos->get (vert[i]);
-	ncide = ncide->mas (at->vert);
+	Atomo at = (Atomo) mol.susatomos.get (vert[i]);
+	ncide = ncide.mas (at.vert);
 	st = st + "\n";
-	st = st + ncide->aTexto ();
+	st = st + ncide.aTexto ();
     }
-    centroide = ncide->escala (1 / (double) num);
+    centroide = ncide.escala (1 / (double) num);
     return st;
 }
 
 
-void anillo::centracentroide (MoleculaT *mol) {
-    pto3D *ncide = new pto3D ();
+void anillo::centracentroide (MoleculaT mol) {
+    pto3D ncide = pto3D ();
     for (int i = 1; i <= num; i++) {
-	Atomo *at = (Atomo *) mol->susatomos->get (vert[i]);
-	ncide = ncide->mas (at->vert);
+	Atomo at = (Atomo) mol.susatomos.get (vert[i]);
+	ncide = ncide.mas (at.vert);
     }
-    ncide->escala (1 / num);
-    if (ncide->dista (centroide) < 0.7)
+    ncide.escala (1 / num);
+    if (ncide.dista (centroide) < 0.7)
 	centroide = ncide;
 }
 
 
-void anillo::ordena (pto3D *vecref, MoleculaT *mol) {	//vector de referencia y molecula a la que pertenecen (con toda  informacion 3D
+void anillo::ordena (pto3D vecref, MoleculaT mol) {	//vector de referencia y molecula a la que pertenecen (con toda  informacion 3D
     //creamos un vector que nos indique donde esta el exterior del tubo, y desde donde miramos
-    pto3D *ciderel = centroide->menos (mol->TEST1);
-    pto3D *vtop = ciderel->proyeccplano (mol->TESTC);
+    pto3D ciderel = centroide.menos (mol.TEST1);
+    pto3D vtop = ciderel.proyeccplano (mol.TESTC);
     //Buscamos atomo mas cercano por la derecha
     int dcha = 0;
     double dis = 10;
     for (int i = 1; i <= num; i++) {
-	Atomo *at = (Atomo *) mol->susatomos->get (vert[i]);
-	pto3D *p = at->vert;
-	pto3D *a = p->menos (centroide)->menos (vecref);
-	double di = vecref->dista (p->menos (centroide));
-	double dh = a->dihedrog (vecref, vtop);
+	Atomo at = (Atomo) mol.susatomos.get (vert[i]);
+	pto3D p = at.vert;
+	pto3D a = p.menos (centroide).menos (vecref);
+	double di = vecref.dista (p.menos (centroide));
+	double dh = a.dihedrog (vecref, vtop);
 	if (di < dis && dh > 30 && dh < 150) {
 	    dis = di;
 	    dcha = i;
@@ -62,26 +62,26 @@ void anillo::ordena (pto3D *vecref, MoleculaT *mol) {	//vector de referencia y m
 
 }
 
-void anillo::ordenaccw (int ini, MoleculaT *mol) {	//vector de referencia y molecula a la que pertenecen (con toda  informacion 3D
+void anillo::ordenaccw (int ini, MoleculaT mol) {	//vector de referencia y molecula a la que pertenecen (con toda  informacion 3D
     int *newvert = new int[num + 1];
     //creamos un vector que nos indique donde esta el exterior del tubo, y desde donde miramos
-    pto3D *ciderel = centroide->menos (mol->TEST1);
-    pto3D *vtop = ciderel->proyeccplano (mol->TESTC);
+    pto3D ciderel = centroide.menos (mol.TEST1);
+    pto3D vtop = ciderel.proyeccplano (mol.TESTC);
     //Comenzamos por el atomo de inicio
     newvert[1] = ini;
 
     for (int i = 2; i <= num; i++) {
-	pto3D *pobj = ((Atomo *) mol->susatomos->get (newvert[i - 1]))->vert;
+	pto3D pobj = ((Atomo) mol.susatomos.get (newvert[i - 1])).vert;
 	int nizq = 0;
 	double dihedrotemp = 0;
 	double distan = 10;
 	for (int j = 1; j <= num; j++) {
-	    Atomo *at = (Atomo *) mol->susatomos->get (vert[j]);
-	    pto3D *c = at->vert;
-	    pto3D *a = c->menos (pobj);
-	    pto3D *b = pobj->menos (centroide);
-	    double dist = a->modulo ();
-	    double dhdr = a->dihedrog (b, vtop);
+	    Atomo at = (Atomo) mol.susatomos.get (vert[j]);
+	    pto3D c = at.vert;
+	    pto3D a = c.menos (pobj);
+	    pto3D b = pobj.menos (centroide);
+	    double dist = a.modulo ();
+	    double dhdr = a.dihedrog (b, vtop);
 	    if (dist < distan && dist > 0.01 && dhdr > -150 && dhdr < -30) {
 		distan = dist;
 		nizq = j;
@@ -94,25 +94,25 @@ void anillo::ordenaccw (int ini, MoleculaT *mol) {	//vector de referencia y mole
 	vert[i] = newvert[i];
 }
 
-void anillo::ordenacw (int ini, MoleculaT *mol) {	//vector de referencia y molecula a la que pertenecen (con toda  informacion 3D
+void anillo::ordenacw (int ini, MoleculaT mol) {	//vector de referencia y molecula a la que pertenecen (con toda  informacion 3D
     int *newvert = new int[num + 1];
     //creamos un vector que nos indique donde esta el exterior del tubo, y desde donde miramos
-    pto3D *ciderel = centroide->menos (mol->TEST1);
-    pto3D *vtop = ciderel->proyeccplano (mol->TESTC);
+    pto3D ciderel = centroide.menos (mol.TEST1);
+    pto3D vtop = ciderel.proyeccplano (mol.TESTC);
     //Comenzamos por el atomo de inicio
     newvert[1] = ini;
 
     for (int i = 2; i <= num; i++) {
-	pto3D *pobj = ((Atomo *) mol->susatomos->get (newvert[i - 1]))->vert;
+	pto3D pobj = ((Atomo) mol.susatomos.get (newvert[i - 1])).vert;
 	int nizq = 0;
 	double dihedrotemp = 0;
 	double distan = 10;
 	for (int j = 1; j <= num; j++) {
-	    pto3D *c = ((Atomo *) mol->susatomos->get (vert[j]))->vert;
-	    pto3D *a = c->menos (pobj);
-	    pto3D *b = pobj->menos (centroide);
-	    double dist = a->modulo ();
-	    double dhdr = a->dihedrog (b, vtop);
+	    pto3D c = ((Atomo) mol.susatomos.get (vert[j])).vert;
+	    pto3D a = c.menos (pobj);
+	    pto3D b = pobj.menos (centroide);
+	    double dist = a.modulo ();
+	    double dhdr = a.dihedrog (b, vtop);
 	    if (dist < distan && dist > 0.01 && dhdr < 150 && dhdr > 30) {
 		distan = dist;
 		nizq = j;
@@ -140,12 +140,27 @@ void anillo::rota (int giro) {	//pasa los indices hacia abajo(si giro>0), con lo
 
 }
 
-String *anillo::aCadena () {
-    String *cad = new String("Miembros: ");
+#if 0
+String anillo::aCadena () {
+    String cad = String("Miembros: ");
     for (int i = 1; i <= num; i++)
 	cad = cad + " " + vert[i];
-    if (centroide != null)
-	cad = cad + " centroide en " + centroide->aTexto ();
+    if (centroide != NULL)
+	cad = cad + " centroide en " + centroide.aTexto ();
 
     return cad;
+}
+#endif
+
+/* http://gethelp.devx.com/techtips/cpp_pro/10min/10min0400.asp */
+std::ostream& operator<< (std::ostream& s, anillo &a) {
+    s << "Miembros: ";
+    for (int i = 1; i <= a.num; i++)
+	s << " " << a.vert[i];
+    if (a.centroide.valid()) {
+	s << " centroide en ";
+	s << a.centroide;
+    }
+    //s << " centroide en " << a.centroide.aTexto ();
+    return s;
 }

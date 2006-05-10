@@ -1,6 +1,7 @@
 #ifndef ANILLO_H_INCLUDED
 #define ANILLO_H_INCLUDED
 
+#include <iostream>
 #include <stdlib.h>
 
 #include "pto3D.h"
@@ -11,26 +12,27 @@
 
 class anillo
 {
-    int num;
-    pto3D *centroide;
-    int *vert;
-
  public:
+    int num;
+    int *vert;
+    pto3D centroide;
+
     anillo () {
 	num = 0;
-	centroide = NULL;
+	centroide = INVALID_PTO3D;
 	vert = new int[15];
     }
 
     void addVert (int pton);
-    void setCentro (pto3D *cide);
-    String *poncentroide (MoleculaT *mol);
-    void centracentroide (MoleculaT *mol);
-    void ordena (pto3D *vecref, MoleculaT *mol);
-    void ordenaccw (int ini, MoleculaT *mol);
-    void ordenacw (int ini, MoleculaT *mol);
+    void setCentro (pto3D cide);
+    String poncentroide (MoleculaT mol);
+    void centracentroide (MoleculaT mol);
+    void ordena (pto3D vecref, MoleculaT mol);
+    void ordenaccw (int ini, MoleculaT mol);
+    void ordenacw (int ini, MoleculaT mol);
     void rota (int giro);
-    String *aCadena ();
+    //String aCadena ();
+    std::ostream& operator<< (const anillo&);
 };
 
 #endif
