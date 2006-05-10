@@ -3,18 +3,18 @@
 
 class Color {
  public:
-    int r, g, b;
+    float r, g, b;
 
     Color() {
-	r = g = b = 0;
+	r = g = b = 0.0f;
     }
-    Color(int r1, int g1, int b1) {
+    Color(float r1, float g1, float b1) {
 	r = r1;
 	g = g1;
 	b = b1;
     }
 };
 
-#define BLACK  Color(0, 0, 0)
+#define BLACK  Color(0.0f, 0.0f, 0.0f)
 
 #endif

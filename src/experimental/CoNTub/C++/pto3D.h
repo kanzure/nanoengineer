@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include "String.h"
-class pto2D;
+
+class pto2D;  // do not include pto2D.h here: circular definition
 
 class pto3D
 {

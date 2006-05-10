@@ -5,7 +5,7 @@
 #include "MoleculaB.h"
 #include "pto3D.h"
 
-class anillo;
+class anillo;   // avoid circular definition, do not include "anillo.h"
 
 class MoleculaT: public MoleculaB
 {
