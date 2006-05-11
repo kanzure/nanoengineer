@@ -11,7 +11,7 @@ public:
     ArrayList(void);
     ArrayList(int n);
     ~ArrayList(void);
-    Atomo get(int i);
+    Atomo *get(int i);
     void add(Atomo a);
     int size(void);
     void remove(int);

@@ -3,16 +3,6 @@
 
 typedef int boolean;
 
-#if 0
-MoleculaB::MoleculaB ()
-{
-    susatomos = ArrayList ();
-    TablaP = tabPe.getInstance();
-    nselec = 0;
-    info = "";
-}
-#endif
-
 //LISTA DE METODOS BASICOS!!!
 //A REHACER!!
 
@@ -36,14 +26,16 @@ void MoleculaB::addVert (double x, double y, double z, int ti)
 //Metodos para añadir etiquetas personalizadas
 void MoleculaB::addVert (double x, double y, double z, int ti, String e)
 {
+    int n = susatomos.size();
     addVert (x, y, z, ti);
-    ((Atomo) susatomos.get (susatomos.size ())).pers = e;
+    susatomos.get(n)->pers = e;
 }
 
 void MoleculaB::addVert (pto3D p, int ti, String e)
 {
+    int n = susatomos.size();
     addVert (p, ti);
-    ((Atomo) susatomos.get (susatomos.size ())).pers = e;
+    susatomos.get(n)->pers = e;
 }
 
 double MoleculaB::getDim ()
@@ -53,8 +45,8 @@ double MoleculaB::getDim ()
 	return 0;
     for (int i = 0; i < susatomos.size (); i++) {
 	for (int j = i + 1; j < susatomos.size (); j++) {
-	    pto3D v = ((Atomo) susatomos.get (i)).vert;
-	    pto3D w = ((Atomo) susatomos.get (j)).vert;
+	    pto3D v = susatomos.get(i)->vert;
+	    pto3D w = susatomos.get(j)->vert;
 	    double dist = v.dista (w);
 	    if (dist > Dim)
 		Dim = dist;
@@ -69,7 +61,7 @@ double MoleculaB::getLejania ()
     if (susatomos.size () <= 1)
 	return 0;
     for (int i = 0; i < susatomos.size (); i++) {
-	pto3D v = ((Atomo) susatomos.get (i)).vert;
+	pto3D v = susatomos.get(i)->vert;
 	pto3D c = pto3D (0, 0, 0);
 	double dist = v.dista (c);
 	if (dist > lej)
@@ -87,7 +79,7 @@ void MoleculaB::vaciar ()
 void MoleculaB::deseleccionar ()
 {
     for (int i = 0; i < susatomos.size (); i++)
-	((Atomo) susatomos.get (i)).selec = 0;
+	susatomos.get(i)->selec = 0;
     nselec = 0;
 }
 //HABRIA QUE PONER HERRAMIENTAS DE SELECCIONADO
@@ -99,34 +91,39 @@ void MoleculaB::centrar ()
 	return;
     double x = 0, y = 0, z = 0;
     int nv = susatomos.size ();
+    std::cout << "atom 0 x " << susatomos.get(0)->vert.x << "\n";
     for (int i = 0; i < nv; i++) {
-	x = x + ((Atomo) susatomos.get (i)).vert.x / nv;
-	y = y + ((Atomo) susatomos.get (i)).vert.y / nv;
-	z = z + ((Atomo) susatomos.get (i)).vert.z / nv;
+	x = x + susatomos.get(i)->vert.x / nv;
+	y = y + susatomos.get(i)->vert.y / nv;
+	z = z + susatomos.get(i)->vert.z / nv;
     }
+    pto3D center = pto3D(x, y, z);
+    std::cout << "x center " << x << "\n";
+    std::cout << "nv " << nv << "\n";
     for (int i = 0; i < nv; i++) {
-	((Atomo) susatomos.get (i)).vert.x -= x;
-	((Atomo) susatomos.get (i)).vert.y -= y;
-	((Atomo) susatomos.get (i)).vert.z -= z;
+	susatomos.get(i)->vert.x -= x;
+	susatomos.get(i)->vert.y -= y;
+	susatomos.get(i)->vert.z -= z;
     }
+    std::cout << "atom 0 x " << susatomos.get(0)->vert.x << "\n";
 }
 
 void MoleculaB::giroxr (double th)
 {
     for (int i = 0; i < susatomos.size (); i++) {
-	((Atomo) susatomos.get (i)).vert.giroxr (th);
+	susatomos.get(i)->vert.giroxr (th);
     }
 }
 void MoleculaB::giroyr (double th)
 {
     for (int i = 0; i < susatomos.size (); i++) {
-	((Atomo) susatomos.get (i)).vert.giroyr (th);
+	susatomos.get(i)->vert.giroyr (th);
     }
 }
 void MoleculaB::girozr (double th)
 {
     for (int i = 0; i < susatomos.size (); i++) {
-	((Atomo) susatomos.get (i)).vert.girozr (th);
+	susatomos.get(i)->vert.girozr (th);
     }
 }
 
@@ -147,7 +144,7 @@ MoleculaB MoleculaB::clona ()
 {
     MoleculaB mo = MoleculaB ();
     for (int i = 0; i < susatomos.size (); i++) {
-	mo.susatomos.add (susatomos.get (i));
+	mo.susatomos.add (*susatomos.get(i));
     }
     return mo;
 }
@@ -175,7 +172,7 @@ boolean MoleculaB::ocupa1 (pto3D pto1)
 {
     boolean oc = false;
     for (int i = 0; i < susatomos.size (); i++) {
-	pto3D pto2 = ((Atomo) susatomos.get (i)).vert;
+	pto3D pto2 = susatomos.get(i)->vert;
 	double dist = pto2.dista (pto1);
 	if (dist < 0.5)
 	    oc = true;
@@ -187,7 +184,7 @@ boolean MoleculaB::ocupa (pto3D pto1, double limite)
 {
     boolean oc = false;
     for (int i = 0; i < susatomos.size (); i++) {
-	pto3D pto2 = ((Atomo) susatomos.get (i)).vert;
+	pto3D pto2 = susatomos.get(i)->vert;
 	double dist = pto2.dista (pto1);
 	if (dist < limite)
 	    oc = true;
@@ -199,7 +196,7 @@ boolean MoleculaB::ocupa2 (pto3D pto1)
 {
     boolean oc = false;
     for (int i = 0; i < susatomos.size (); i++) {
-	pto3D pto2 = ((Atomo) susatomos.get (i)).vert;
+	pto3D pto2 = susatomos.get(i)->vert;
 	double dist = pto2.dista (pto1);
 	if (dist < 1.3)
 	    oc = true;
@@ -211,7 +208,7 @@ int MoleculaB::atomoqueocupa1 (pto3D pto)
 {
     int ocup = 0;
     for (int i = 0; i < susatomos.size (); i++) {
-	pto3D pto2 = ((Atomo) susatomos.get (i)).vert;
+	pto3D pto2 = susatomos.get(i)->vert;
 	if (pto.dista (pto2) < 0.5)
 	    ocup = i;
     }
@@ -222,7 +219,7 @@ int MoleculaB::atomoqueocupa (pto3D pto, double limite)
 {
     int ocup = 0;
     for (int i = 0; i < susatomos.size (); i++) {
-	pto3D pto2 = ((Atomo) susatomos.get (i)).vert;
+	pto3D pto2 = susatomos.get(i)->vert;
 	if (pto.dista (pto2) < limite)
 	    ocup = i;
     }
@@ -233,7 +230,7 @@ int MoleculaB::atomoqueocupa2 (pto3D pto)
 {
     int ocup = 0;
     for (int i = 0; i < susatomos.size (); i++) {
-	pto3D pto2 = ((Atomo) susatomos.get (i)).vert;
+	pto3D pto2 = susatomos.get(i)->vert;
 	if (pto.dista (pto2) < 1.3)
 	    ocup = i;
     }
@@ -243,13 +240,13 @@ int MoleculaB::atomoqueocupa2 (pto3D pto)
 void MoleculaB::mueve (int num, double x, double y, double z)
 {
     if (num < susatomos.size ())
-	((Atomo) susatomos.get (num)).vert = pto3D (x, y, z);
+	susatomos.get(num)->vert = pto3D (x, y, z);
 }			//OJO A LAS SUSTITUCIONES //ANTES ERA SUSTITUYE
 
 void MoleculaB::mueve (int s, pto3D pto)
 {
     if (s < susatomos.size ())
-	((Atomo) susatomos.get (s)).vert = pto;
+	susatomos.get(s)->vert = pto;
 }
 
 void MoleculaB::sustituye (int num, int ti, pto3D pto)
@@ -293,9 +290,9 @@ ArrayList MoleculaB::getNeighborhood(HashMap buckets, pto3D v) {
 		if (buckets.hasKey(key)) {
 		    ArrayList alst2 = (ArrayList) buckets.get(key);
 		    for (int i = 0; i < alst2.size(); i++) {
-			Atomo atm = alst2.get(i);
-			if (!alst.contains(atm))
-			    alst.add(atm);
+			Atomo *atm = alst2.get(i);
+			if (!alst.contains(*atm))
+			    alst.add(*atm);
 		    }
 		}
 	    }
@@ -312,16 +309,16 @@ void MoleculaB::ponconec (double param)  // ponconec --> put connected??
     HashMap buckets = HashMap();
     int nv = susatomos.size ();
     for (int i = 0; i < nv; i++) {
-	Atomo atm = (Atomo) susatomos.get (i);
-	atm.index = i;
-	pto3D ptoa = atm.vert;
+	Atomo *atm = susatomos.get(i);
+	atm->index = i;
+	pto3D ptoa = atm->vert;
 	ArrayList alst = getBucket(buckets, ptoa);
-	alst.add(atm);
+	alst.add(*atm);
     }
     for (int i = 0; i < nv; i++) {
-	Atomo atm = (Atomo) susatomos.get (i);
-	pto3D ptoa = atm.vert;
-	int tipA = atm.tipo;
+	Atomo *atm = susatomos.get(i);
+	pto3D ptoa = atm->vert;
+	int tipA = atm->tipo;
 
 	//reiniciamos el array de conectividad
 	// we reinitiated the connectivity Array
@@ -333,14 +330,14 @@ void MoleculaB::ponconec (double param)  // ponconec --> put connected??
 
 	ArrayList alst = getNeighborhood(buckets, ptoa);
 	for (int j = 0; j < alst.size(); j++) {
-	    Atomo atm2 = (Atomo) alst.get(j);
-	    pto3D ptob = atm2.vert;
-	    int tipB = atm2.tipo;
+	    Atomo *atm2 = alst.get(j);
+	    pto3D ptob = atm2->vert;
+	    int tipB = atm2->tipo;
 	    double distamax = param * (TablaP.en1[tipA] + TablaP.en1[tipB]);	//PARAMETRO AQUI
 	    if (ptoa.dista (ptob) < distamax && ptoa.dista (ptob) > 0.6) {
 		int k = mc[0] + 1;
 		mc[0] = k;
-		mc[k] = atm2.index;
+		mc[k] = atm2->index;
 	    }
 	}
 
@@ -348,7 +345,7 @@ void MoleculaB::ponconec (double param)  // ponconec --> put connected??
 	//conveniente para girarlo, poder sacar y meter un vert[] solo de puntos, en funcion de su efectividad
 	// and we put it as a whole the Array is better to handle it like a whole, serious even advisable to
 	// turn it, to be able to remove and to put vert [] single of points, based on its effectiveness
-	((Atomo) susatomos.get (i)).mconec = mc;
+	susatomos.get(i)->mconec = mc;
     }
     // depura --> it purifies
     depuraconec ();	//OJO!!!
@@ -371,25 +368,25 @@ void MoleculaB::reconec (double param)
     HashMap buckets = HashMap();
     int nv = susatomos.size ();
     for (int i = 0; i < nv; i++) {
-	Atomo atm = (Atomo) susatomos.get (i);
-	atm.index = i;
-	pto3D ptoa = atm.vert;
+	Atomo *atm = susatomos.get(i);
+	atm->index = i;
+	pto3D ptoa = atm->vert;
 	ArrayList alst = getBucket(buckets, ptoa);
-	alst.add(atm);
+	alst.add(*atm);
     }
     for (int i = 0; i < nv; i++) {
-	Atomo atm = (Atomo) susatomos.get (i);
-	pto3D ptoa = atm.vert;
-	int tipA = atm.tipo;
+	Atomo *atm = susatomos.get (i);
+	pto3D ptoa = atm->vert;
+	int tipA = atm->tipo;
 
 	ArrayList alst = getNeighborhood(buckets, ptoa);
 	for (int j = 0; j < alst.size(); j++) {
-	    Atomo atm2 = (Atomo) alst.get(j);
-	    pto3D ptob = atm2.vert;
-	    int tipB = atm2.tipo;
+	    Atomo *atm2 = alst.get(j);
+	    pto3D ptob = atm2->vert;
+	    int tipB = atm2->tipo;
 	    double distamax = param * (TablaP.en1[tipA] + TablaP.en1[tipB]);	//PARAMETRO AQUI
 	    if (ptoa.dista (ptob) < distamax && ptoa.dista (ptob) > 0.6)
-		conecta (i, atm2.index);
+		conecta (i, atm2->index);
 	}
     }
     //depuraconec();                          //OJO!!!
@@ -406,13 +403,13 @@ int MoleculaB::depuraconec ()	//metodo paraeliminar conectividades redundantes, 
 {
     int dc = 0;
     for (int i = 0; i < susatomos.size (); i++) {
-	pto3D pa = ((Atomo) susatomos.get (i)).vert;
+	pto3D pa = susatomos.get(i)->vert;
 	int *mc = new int[10];
-	mc = ((Atomo) susatomos.get (i)).mconec;
+	mc = susatomos.get(i)->mconec;
 	for (int j = 1; j <= mc[0]; j++) {
-	    pto3D pb = ((Atomo) susatomos.get (mc[j])).vert;
+	    pto3D pb = susatomos.get(mc[j])->vert;
 	    for (int k = 1; k <= mc[0]; k++) {
-		pto3D pc = ((Atomo) susatomos.get (mc[k])).vert;
+		pto3D pc = susatomos.get(mc[k])->vert;
 
 		//ahora la condicion para que
 		double angulo = pb.menos (pa).angulocong (pc.menos (pa));
@@ -453,9 +450,9 @@ int MoleculaB::depuraconec ()	//metodo paraeliminar conectividades redundantes, 
 int MoleculaB::nvec (int n)	//NUMERO DE VECINOS --> number of neighbors
 {
     int nv = 0;
-    pto3D pto = ((Atomo) susatomos.get (n)).vert;
+    pto3D pto = susatomos.get(n)->vert;
     for (int j = 0; j < susatomos.size (); j++) {
-	pto3D p = ((Atomo) susatomos.get (j)).vert;
+	pto3D p = susatomos.get(j)->vert;
 	if (pto.dista (p) < 1.6 && pto.dista (p) > 0.1)
 	    nv++;
     }
@@ -465,12 +462,12 @@ int MoleculaB::nvec (int n)	//NUMERO DE VECINOS --> number of neighbors
 
 void MoleculaB::centraentorno (int num)	//Centra un atomo en su entorno de tres vecinos
 {
-    pto3D pto = ((Atomo) susatomos.get (num)).vert;
+    pto3D pto = susatomos.get(num)->vert;
     int numvert = nvec (num);
     pto3D posnueva = pto3D ();
     if (numvert == 3) {
 	for (int i = 0; i < susatomos.size (); i++) {
-	    pto3D ptov = ((Atomo) susatomos.get (i)).vert;
+	    pto3D ptov = susatomos.get(i)->vert;
 	    if (ptov.dista (pto) < 1.6)
 		posnueva = posnueva.mas (ptov.escala (0.333));
 	}
@@ -488,8 +485,8 @@ void MoleculaB::conecta (int i, int j)
 {
 
 
-    int *mci = ((Atomo) susatomos.get (i)).mconec;
-    int *mcj = ((Atomo) susatomos.get (j)).mconec;
+    int *mci = susatomos.get(i)->mconec;
+    int *mcj = susatomos.get(j)->mconec;
 
     int ni = mci[0];
     int nj = mcj[0];
@@ -512,15 +509,15 @@ void MoleculaB::conecta (int i, int j)
 	mcj[nj + 1] = i;
     }
 
-    ((Atomo) susatomos.get (i)).mconec = mci;
-    ((Atomo) susatomos.get (j)).mconec = mcj;
+    susatomos.get(i)->mconec = mci;
+    susatomos.get(j)->mconec = mcj;
 }
 
 
 void MoleculaB::conectaA (int i, int j)	//Metodo alternativo para la matriz z
 {
-    int *mci = ((Atomo) susatomos.get (i)).mconecA;
-    int *mcj = ((Atomo) susatomos.get (j)).mconecA;
+    int *mci = susatomos.get(i)->mconecA;
+    int *mcj = susatomos.get(j)->mconecA;
 
     int ni = mci[0];
     int nj = mcj[0];
@@ -541,15 +538,15 @@ void MoleculaB::conectaA (int i, int j)	//Metodo alternativo para la matriz z
 	mcj[0] = nj + 1;
 	mcj[nj + 1] = i;
     }
-    ((Atomo) susatomos.get (i)).mconecA = mci;
-    ((Atomo) susatomos.get (j)).mconecA = mcj;
+    susatomos.get(i)->mconecA = mci;
+    susatomos.get(j)->mconecA = mcj;
 }
 
 
 void MoleculaB::desconecta (int i, int j)
 {
-    int *mci = ((Atomo) susatomos.get (i)).mconec;
-    int *mcj = ((Atomo) susatomos.get (j)).mconec;
+    int *mci = susatomos.get(i)->mconec;
+    int *mcj = susatomos.get(j)->mconec;
 
     int ni = mci[0];
     int nj = mcj[0];
@@ -579,25 +576,25 @@ void MoleculaB::desconecta (int i, int j)
 
 double MoleculaB::distancia (int a, int b)
 {
-    pto3D v = ((Atomo) susatomos.get (a)).vert;
-    pto3D w = ((Atomo) susatomos.get (b)).vert;
+    pto3D v = susatomos.get(a)->vert;
+    pto3D w = susatomos.get(b)->vert;
     return v.dista (w);
 }
 
 double MoleculaB::angulo (int a, int b, int c)	// OJO, en GRADOS
 {
-    pto3D v = ((Atomo) susatomos.get (a)).vert;
-    pto3D w = ((Atomo) susatomos.get (b)).vert;
-    pto3D u = ((Atomo) susatomos.get (c)).vert;
+    pto3D v = susatomos.get(a)->vert;
+    pto3D w = susatomos.get(b)->vert;
+    pto3D u = susatomos.get(c)->vert;
     return u.menos (w).angulocong (v.menos (w));
 }
 
 double MoleculaB::dihedro (int a, int b, int c, int d)	//OJO en GRADOS
 {
-    pto3D v = ((Atomo) susatomos.get (a)).vert;
-    pto3D w = ((Atomo) susatomos.get (b)).vert;
-    pto3D u = ((Atomo) susatomos.get (c)).vert;
-    pto3D s = ((Atomo) susatomos.get (d)).vert;
+    pto3D v = susatomos.get(a)->vert;
+    pto3D w = susatomos.get(b)->vert;
+    pto3D u = susatomos.get(c)->vert;
+    pto3D s = susatomos.get(d)->vert;
     pto3D v1 = v.menos (w);
     pto3D v2 = w.menos (u);
     pto3D v3 = s.menos (u);
@@ -611,36 +608,36 @@ int MoleculaB::nvert ()
 
 pto3D MoleculaB::vert (int i)
 {
-    return ((Atomo) susatomos.get (i)).vert;
+    return susatomos.get(i)->vert;
 }
 int MoleculaB::tipo (int i)
 {
-    return ((Atomo) susatomos.get (i)).tipo;
+    return susatomos.get(i)->tipo;
 }
 String MoleculaB::etiq (int i)
 {
-    return ((Atomo) susatomos.get (i)).etiq;
+    return susatomos.get(i)->etiq;
 }
 String MoleculaB::pers (int i)
 {
-    return ((Atomo) susatomos.get (i)).pers;
+    return susatomos.get(i)->pers;
 }
 Color MoleculaB::color (int i)
 {
-    return ((Atomo) susatomos.get (i)).color;
+    return susatomos.get(i)->color;
 }
 double MoleculaB::r (int i)
 {
-    return ((Atomo) susatomos.get (i)).r;
+    return susatomos.get(i)->r;
 }
 
 int MoleculaB::selecstatus (int i)
 {
-    return ((Atomo) susatomos.get (i)).selec;
+    return susatomos.get(i)->selec;
 }
 void MoleculaB::selecciona (int i, int status)
 {
-    ((Atomo) susatomos.get (i)).selec = status;
+    susatomos.get(i)->selec = status;
 }
 
 void MoleculaB::setInfo (String in)
@@ -654,14 +651,14 @@ String MoleculaB::getInfo ()
 
 void MoleculaB::marcaborra (int aborrar)
 {
-    ((Atomo) susatomos.get (aborrar)).selec = -1;
+    susatomos.get(aborrar)->selec = -1;
 
 }
 
 void MoleculaB::borramarcados ()
 {
     for (int i = 0; i < nvert (); i++) {
-	if (((Atomo) susatomos.get (i)).selec == -1) {
+	if (susatomos.get(i)->selec == -1) {
 	    rm (i);
 	    i--;
 	}	//ya que hemos borrado uno, el indice ha de bajar uno, ya que se ocrre el resto

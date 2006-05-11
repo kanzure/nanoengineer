@@ -1,46 +1,6 @@
 #include <math.h>
 #include "Minimol.h"
 
-#if 0
-Minimol::Minimol (int nv)
-{
-    nvert = nv;
-    miniverts = new pto3D[nvert];
-    minietiqs = new String[nvert];
-    miniperss = new String[nvert];
-    minisizes = new float[nvert];
-    minicolor = new Color[nvert];
-    miniselec = new int[nvert];
-    miniconec = new int[nvert][10];
-}
-
-
-Minimol::Minimol (MoleculaB mo)
-{
-    //Creacion de una minimolecula rapida para manipulacion dentro de un visor 3D
-    //A partir de una molecula compleja tipo MoleculaB
-    nvert = mo.susatomos.size ();
-    miniverts = new pto3D[nvert];
-    minietiqs = new String[nvert];
-    miniperss = new String[nvert];
-    minisizes = new float[nvert];
-    minicolor = new Color[nvert];
-    miniselec = new int[nvert];
-    miniconec = new int[nvert][10];
-    for (int i = 0; i < nvert; i++) {
-	Atomo at = (Atomo) mo.susatomos.get (i);
-	miniverts[i] = new pto3D (at.vert.x, at.vert.y, at.vert.z);
-	minietiqs[i] = at.etiq;
-	miniperss[i] = at.pers;
-	minisizes[i] = (float) at.r;
-	minicolor[i] = at.color;
-	miniselec[i] = 0;
-	for (int j = 0; j < 10; j++)
-	    miniconec[i][j] = at.mconec[j];
-    }
-}
-#endif
-
 void Minimol::vaciar ()
 {
 }

@@ -1,6 +1,7 @@
 #ifndef MOLECULAB_H_INCLUDED
 #define MOLECULAB_H_INCLUDED
 
+#include <iostream>
 #include "String.h"
 #include "TabPe.h"
 #include "ArrayList.h"
@@ -91,6 +92,10 @@ class MoleculaB
     String getInfo ();
     void marcaborra (int aborrar);
     void borramarcados ();
+    friend std::ostream& operator<< (std::ostream& s, const MoleculaB& a) {
+	s << "<MoleculaT " << a.info << ">";
+	return s;
+    }
 };
 
 #endif

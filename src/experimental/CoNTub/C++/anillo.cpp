@@ -17,8 +17,8 @@ String anillo::poncentroide (MoleculaT mol) {
     String st = String("");
     pto3D ncide = pto3D ();
     for (int i = 1; i <= num; i++) {
-	Atomo at = (Atomo) mol.susatomos.get (vert[i]);
-	ncide = ncide.mas (at.vert);
+	Atomo *at = mol.susatomos.get (vert[i]);
+	ncide = ncide.mas (at->vert);
 	st = st + "\n";
 	st = st + ncide.aTexto ();
     }
@@ -30,8 +30,8 @@ String anillo::poncentroide (MoleculaT mol) {
 void anillo::centracentroide (MoleculaT mol) {
     pto3D ncide = pto3D ();
     for (int i = 1; i <= num; i++) {
-	Atomo at = (Atomo) mol.susatomos.get (vert[i]);
-	ncide = ncide.mas (at.vert);
+	Atomo *at = mol.susatomos.get (vert[i]);
+	ncide = ncide.mas (at->vert);
     }
     ncide.escala (1 / num);
     if (ncide.dista (centroide) < 0.7)
@@ -47,8 +47,8 @@ void anillo::ordena (pto3D vecref, MoleculaT mol) {	//vector de referencia y mol
     int dcha = 0;
     double dis = 10;
     for (int i = 1; i <= num; i++) {
-	Atomo at = (Atomo) mol.susatomos.get (vert[i]);
-	pto3D p = at.vert;
+	Atomo *at = mol.susatomos.get (vert[i]);
+	pto3D p = at->vert;
 	pto3D a = p.menos (centroide).menos (vecref);
 	double di = vecref.dista (p.menos (centroide));
 	double dh = a.dihedrog (vecref, vtop);
@@ -71,13 +71,13 @@ void anillo::ordenaccw (int ini, MoleculaT mol) {	//vector de referencia y molec
     newvert[1] = ini;
 
     for (int i = 2; i <= num; i++) {
-	pto3D pobj = ((Atomo) mol.susatomos.get (newvert[i - 1])).vert;
+	pto3D pobj = mol.susatomos.get(newvert[i - 1])->vert;
 	int nizq = 0;
 	double dihedrotemp = 0;
 	double distan = 10;
 	for (int j = 1; j <= num; j++) {
-	    Atomo at = (Atomo) mol.susatomos.get (vert[j]);
-	    pto3D c = at.vert;
+	    Atomo *at = mol.susatomos.get (vert[j]);
+	    pto3D c = at->vert;
 	    pto3D a = c.menos (pobj);
 	    pto3D b = pobj.menos (centroide);
 	    double dist = a.modulo ();
@@ -103,12 +103,12 @@ void anillo::ordenacw (int ini, MoleculaT mol) {	//vector de referencia y molecu
     newvert[1] = ini;
 
     for (int i = 2; i <= num; i++) {
-	pto3D pobj = ((Atomo) mol.susatomos.get (newvert[i - 1])).vert;
+	pto3D pobj = mol.susatomos.get(newvert[i - 1])->vert;
 	int nizq = 0;
 	double dihedrotemp = 0;
 	double distan = 10;
 	for (int j = 1; j <= num; j++) {
-	    pto3D c = ((Atomo) mol.susatomos.get (vert[j])).vert;
+	    pto3D c = mol.susatomos.get(vert[j])->vert;
 	    pto3D a = c.menos (pobj);
 	    pto3D b = pobj.menos (centroide);
 	    double dist = a.modulo ();

@@ -80,7 +80,6 @@ class pto3D
 	s << "<pto3D " << a.x << " " << a.y << " " << a.z << ">";
 	return s;
     }
-    //std::ostream& operator<< (const pto3D&);
     int valid(void) {
 	return x < 0.5e20 || y < 0.5e20 || z < 0.5e20;
     }

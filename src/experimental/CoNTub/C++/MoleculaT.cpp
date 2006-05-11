@@ -12,8 +12,8 @@ MoleculaT MoleculaT::clonaT ()
     /// SI SE USA SOLO EL METODO CLONA; EL RESULTADO ES UNA MOLECULA BASICA
     MoleculaT mo = MoleculaT ();
     for (int i = 0; i < nvert (); i++) {
-	Atomo a = susatomos.get (i);
-	mo.susatomos.add (a);
+	Atomo *a = susatomos.get(i);
+	mo.susatomos.add (*a);
     }
     mo.TEST1 = TEST1;
     mo.TEST2 = TEST2;
@@ -146,7 +146,7 @@ void MoleculaT::cierraH ()  // cierra --> it closes, H -> hydrogen
     for (int i = 0; i < nvert (); i++) {
 
 	int pos = i;
-	int *mc = ((Atomo) susatomos.get (i)).mconec;
+	int *mc = susatomos.get(i)->mconec;
 
 	if (mc[0] == 1) {	//Sustitucion
 	    int conec = mc[1];
@@ -173,7 +173,7 @@ void MoleculaT::cierraN ()  // cierra --> it closes, N -> nitrogen
     for (int i = 0; i < nvert (); i++) {
 
 	//int pos = i;
-	int *mc = ((Atomo) susatomos.get (i)).mconec;
+	int *mc = susatomos.get(i)->mconec;
 	//La logica es la siguiente: Si la conectividad es 1, eliminamos y vemos el siguiente, si es uno, se elimina y se sigue
 	//hasta que sea dos, en cuyo caso se sustituye por un nitro.
 	//Hay un problema, cuando se elimina un atomo, las conectividades no se actualizan, por lo que debemos, en un primer paso,
@@ -187,7 +187,7 @@ void MoleculaT::cierraN ()  // cierra --> it closes, N -> nitrogen
 	    int atprev = i;	//inicializamos la variable del atomo previo
 	    int conectado = mc[1];	//y el atomo conectado
 	    while (sale == false) {
-		int *mctemp = ((Atomo) susatomos.get (conectado)).mconec;	//Matriz conectividad del conectado
+		int *mctemp = susatomos.get(conectado)->mconec;	//Matriz conectividad del conectado
 		if (mctemp[0] == 1) {
 		    marcaborra (conectado);
 		    sale = true;
@@ -226,7 +226,7 @@ void MoleculaT::cierraN ()  // cierra --> it closes, N -> nitrogen
     for (int i = 0; i < nvert (); i++) {	//HAcemos un segundo pase para nitrar los flecos cerrados sobre si mismos
 
 	int pos = i;
-	int *mc = ((Atomo) susatomos.get (i)).mconec;
+	int *mc = susatomos.get(i)->mconec;
 
 
 	if (mc[0] == 2) {	// Sustitucion N y no hace falta ver conectividades de nuevo, porque ya esta bien, y lo que hariamos
@@ -243,12 +243,12 @@ int MoleculaT::remataconec ()	//METODO A usar solo con estructuras grafiticas
 {
     int nr = 0;
     for (int i = 0; i < nvert () - 1; i++) {
-	int *mc1 = ((Atomo) susatomos.get (i)).mconec;
+	int *mc1 = susatomos.get(i)->mconec;
 	double distamin = 10;	//en A. Solo se conec si la distamin es menor que el vector  de la celda, 2.46 (o mejor, 2.2 porseguridad)
 	int enlazado = 0;
 	if (mc1[0] == 2)
 	    for (int j = i + 1; j < nvert (); j++) {
-		int *mc2 = ((Atomo) susatomos.get (j)).mconec;
+		int *mc2 = susatomos.get(j)->mconec;
 		//AHora si, si ambas conectividades son dos, planteamos si son o no enlazables.
 		if (mc2[0] == 2) {
 		    double dis = vert (i).dista (vert (j));
@@ -296,7 +296,7 @@ String MoleculaT::exploraanillo (int atocentro)
     // TOTALMENTE RELAJADO (1)(SIGUIENDO PARAMETROS DE VECINO)
     // o estricto (0) (SIGUENDO conectividad TRIGONAL)
     double P = 0.5;
-    int *mc = ((Atomo) susatomos.get (atocentro)).mconec;
+    int *mc = susatomos.get(atocentro)->mconec;
     pto3D ptocentro = vert (atocentro);
     int atobif = 0;
 
@@ -320,7 +320,7 @@ String MoleculaT::exploraanillo (int atocentro)
 	    for (int i = 3; as; i++)	//as es anillosigue: chequea si el anillo tiene continuidad
 		{
 		    boolean admitido = false;
-		    int *mci = ((Atomo) susatomos.get (an.vert[i])).mconec;
+		    int *mci = susatomos.get(an.vert[i])->mconec;
 		    for (int k = 1; k <= mci[0]; k++)	//Buscamos entre todos los conectados
 			{
 			    int cdto = mci[k];	//este es el candidato
@@ -369,7 +369,7 @@ String MoleculaT::exploraanillo (int atocentro)
 	    }
 	}
 	//Puerta que ahora si que impide que se haga todo el proceso si la conectividad es distinta de 3
-	int *mcbif = ((Atomo) susatomos.get (atobif)).mconec;
+	int *mcbif = susatomos.get(atobif)->mconec;
 	if (mcbif[0] != 3)
 	    return "Atomo bifurcado presenta mala conectividad (" + mcbif[0] + ")";
 
@@ -404,7 +404,7 @@ String MoleculaT::exploraanillo (int atocentro)
 	for (int i = 3; asa; i++)	//as es anillosigue: chequea si el anillo tiene continuidad
 	    {
 		boolean admitido = false;
-		int *mci = ((Atomo) susatomos.get (ana.vert[i])).mconec;
+		int *mci = susatomos.get(ana.vert[i])->mconec;
 		for (int k = 1; k <= mci[0]; k++)	//Buscamos entre todos los conectados
 		    {
 			int cdto = mci[k];	//este es el candidato
@@ -431,7 +431,7 @@ String MoleculaT::exploraanillo (int atocentro)
 	for (int i = 3; asb; i++)	//as es anillosigue: chequea si el anillo tiene continuidad
 	    {
 		boolean admitido = false;
-		int *mci = ((Atomo) susatomos.get (anb.vert[i])).mconec;
+		int *mci = susatomos.get(anb.vert[i])->mconec;
 		for (int k = 1; k <= mci[0]; k++)	//Buscamos entre todos los conectados
 		    {
 			int cdto = mci[k];	//este es el candidato
@@ -613,7 +613,7 @@ String MoleculaT::exploraanillo (int atocentro)
 	anb.addVert (mc[2]);
 
 	boolean asa = false;	//hasta que no veamos el tercero, el anillo parece no sequir
-	int *mca2 = ((Atomo) susatomos.get (ana.vert[2])).mconec;
+	int *mca2 = susatomos.get(ana.vert[2])->mconec;
 	for (int i = 1; i <= mca2[0]; i++) {
 	    if ((mca2[i] != ana.vert[1]) && (abs (dihedro (anb.vert[2], anb.vert[1], ana.vert[2], mca2[i])) > 90)) {
 		asa = true;
@@ -623,7 +623,7 @@ String MoleculaT::exploraanillo (int atocentro)
 	for (int i = 3; asa; i++)	//as es anillosigue: chequea si el anillo tiene continuidad
 	    {
 		boolean admitido = false;
-		int *mci = ((Atomo) susatomos.get (ana.vert[i])).mconec;
+		int *mci = susatomos.get(ana.vert[i])->mconec;
 		for (int k = 1; k <= mci[0]; k++)	//Buscamos entre todos los conectados
 		    {
 			int cdto = mci[k];	//este es el candidato
@@ -646,7 +646,7 @@ String MoleculaT::exploraanillo (int atocentro)
 
 
 	boolean asb = false;	//hasta que no veamos el tercero, el anillo parece no sequir
-	int *mcb2 = ((Atomo) susatomos.get (anb.vert[2])).mconec;
+	int *mcb2 = susatomos.get(anb.vert[2])->mconec;
 	for (int i = 1; i <= mcb2[0]; i++) {
 	    if ((mcb2[i] != anb.vert[1]) && (abs (dihedro (ana.vert[2], ana.vert[1], anb.vert[2], mcb2[i])) > 90)) {
 		asb = true;
@@ -656,7 +656,7 @@ String MoleculaT::exploraanillo (int atocentro)
 
 	for (int i = 3; asb; i++)	//as es anillosigue: chequea si el anillo tiene continuidad
 	    {
-		int *mci = ((Atomo) susatomos.get (anb.vert[i])).mconec;
+		int *mci = susatomos.get(anb.vert[i])->mconec;
 		boolean admitido = false;
 		for (int k = 1; k <= mci[0]; k++)	//Buscamos entre todos los conectados
 		    {
@@ -801,9 +801,9 @@ std::ostream& MoleculaT::mmp (std::ostream& ost, String inf)
 
     Minimol mmol = Minimol(*this);
     for (int i = 0; i < mmol.nvert; i++) {
-	Atomo atm = (Atomo) susatomos.get(i);
-	int tip1 = atm.tipo;
-	ost << "atom " << (i + 1) << " (" << atm.tipo << ") (" <<
+	Atomo *atm = susatomos.get(i);
+	int tip1 = atm->tipo;
+	ost << "atom " << (i + 1) << " (" << atm->tipo << ") (" <<
 	    (int) (1000 * mmol.miniverts[i].x) << ", " <<
 	    (int) (1000 * mmol.miniverts[i].y) << ", " <<
 	    (int) (1000 * mmol.miniverts[i].z) << ") def\n";
@@ -813,9 +813,9 @@ std::ostream& MoleculaT::mmp (std::ostream& ost, String inf)
 	int numneighbors1 = 0;
 	for (int j = 1; j <= mmol.miniconec[i][0]; j++) {
 	    int x = mmol.miniconec[i][j];
-	    Atomo atm2 = (Atomo) susatomos.get(x);
+	    Atomo *atm2 = susatomos.get(x);
 	    if (x < i) {
-		if (tip1 == 6 && atm2.tipo == 6) {
+		if (tip1 == 6 && atm2->tipo == 6) {
 		    // graphitic bond
 		    neighborsG[numneighborsG++] = x + 1;
 		} else {

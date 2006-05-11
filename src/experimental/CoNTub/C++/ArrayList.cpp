@@ -23,12 +23,12 @@ ArrayList::ArrayList(int n)
 
 ArrayList::~ArrayList(void)
 {
-    delete[] contents;
+    //delete[] contents;
 }
 
-Atomo ArrayList::get(int i)
+Atomo * ArrayList::get(int i)
 {
-    return contents[i];
+    return &contents[i];
 }
 
 void ArrayList::add(Atomo a)

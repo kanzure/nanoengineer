@@ -50,15 +50,15 @@ public:
 	miniconec = new int*[nvert];
 	for (int i = 0; i < nvert; i++) {
 	    miniconec[i] = new int[10];
-	    Atomo at = (Atomo) mo.susatomos.get (i);
-	    miniverts[i] = pto3D (at.vert.x, at.vert.y, at.vert.z);
-	    minietiqs[i] = at.etiq;
-	    miniperss[i] = at.pers;
-	    minisizes[i] = (float) at.r;
-	    minicolor[i] = at.color;
+	    Atomo *at = mo.susatomos.get(i);
+	    miniverts[i] = pto3D (at->vert.x, at->vert.y, at->vert.z);
+	    minietiqs[i] = at->etiq;
+	    miniperss[i] = at->pers;
+	    minisizes[i] = (float) at->r;
+	    minicolor[i] = at->color;
 	    miniselec[i] = 0;
 	    for (int j = 0; j < 10; j++)
-		miniconec[i][j] = at.mconec[j];
+		miniconec[i][j] = at->mconec[j];
 	}
     }
 
