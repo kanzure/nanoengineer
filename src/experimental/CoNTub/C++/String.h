@@ -5,17 +5,22 @@
 
 class String
 {
+    int len;
     char *contents;
  public:
-    String() { }
-    int length();
+    String() {
+	contents = "";
+	len = 0;
+    }
+    int length(void) {
+	return len;
+    }
     String(char *s) {
 	contents = s;
+	len = strlen(s);
     }
     String operator+ (char *x) {
-	String y;
-	std::cerr << "NOT IMPLEMENTED YET";
-	return y;
+	return *this + String(x);
     }
     String operator+ (String x) {
 	String y;

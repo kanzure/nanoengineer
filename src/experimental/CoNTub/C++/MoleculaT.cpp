@@ -172,7 +172,7 @@ void MoleculaT::cierraN ()  // cierra --> it closes, N -> nitrogen
 
     for (int i = 0; i < nvert (); i++) {
 
-	int pos = i;
+	//int pos = i;
 	int *mc = ((Atomo) susatomos.get (i)).mconec;
 	//La logica es la siguiente: Si la conectividad es 1, eliminamos y vemos el siguiente, si es uno, se elimina y se sigue
 	//hasta que sea dos, en cuyo caso se sustituye por un nitro.
@@ -186,7 +186,7 @@ void MoleculaT::cierraN ()  // cierra --> it closes, N -> nitrogen
 	    marcaborra (i);	//lo marcamos para borrar el primero
 	    int atprev = i;	//inicializamos la variable del atomo previo
 	    int conectado = mc[1];	//y el atomo conectado
-	    for (; sale = false;) {
+	    while (sale == false) {
 		int *mctemp = ((Atomo) susatomos.get (conectado)).mconec;	//Matriz conectividad del conectado
 		if (mctemp[0] == 1) {
 		    marcaborra (conectado);
@@ -770,7 +770,7 @@ String MoleculaT::pdb (String inf)
 
 std::ostream& MoleculaT::mmp (std::ostream& ost)
 {
-    mmp(ost, "");
+    return mmp(ost, "");
 }
 
 std::ostream& MoleculaT::mmp (std::ostream& ost, String inf)

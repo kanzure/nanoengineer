@@ -24,7 +24,7 @@ class W1
      */
     W1(int a, int b, double c, int terminator);
 
-    String mmp();
+    std::ostream& mmp(std::ostream&);
 };
 
 #endif

@@ -80,15 +80,15 @@ boolean pto2D::dentrocasi3 (pto2D A, pto2D B, pto2D v1, pto2D v2)
 
 boolean pto2D::dentro4cv (pto2D A, pto2D B, pto2D C, pto2D D, double p)
 {
-    //SOLO VALIDO PARA TRAP CONVEXOS
-
-    //        C---------------------D
-    //       /                      \
-    //      A-----------------------B
-    // TRAPEZOIDE MAGICO compuesto por A= 0, B quiral 1er tubo
-    //C origen segundo tubo D=final segundo tubo
-    //angulos subtendidos BAC y CDB
-
+    /*
+     * SOLO VALIDO PARA TRAP CONVEXOS
+     *         C---------------------D
+     *        /                       \
+     *       A-------------------------B
+     *  TRAPEZOIDE MAGICO compuesto por A= 0, B quiral 1er tubo
+     * C origen segundo tubo D=final segundo tubo
+     * angulos subtendidos BAC y CDB
+     */
     //Calculamos centroide,
     pto2D centro = A.mas (B).mas (C).mas (D).escala (0.25).a2D ();
     //Vectores  de conexion a cada uno de los cuatro
@@ -303,8 +303,8 @@ boolean pto2D::dentro4 (pto2D A, pto2D B, pto2D C, pto2D D, double p)
 	int oconb = ocon1 + 3;
 	if (oconb > 3)
 	    oconb -= 4;
-	boolean fueraa = !dentro3l (ap[ocon1], ap[ocona], ap[ocon2]);
-	boolean fuerab = !dentro3l (ap[ocon1], ap[oconb], ap[ocon2]);
+	//boolean fueraa = !dentro3l (ap[ocon1], ap[ocona], ap[ocon2]);
+	//boolean fuerab = !dentro3l (ap[ocon1], ap[oconb], ap[ocon2]);
 	//if (fueraa&&fuerab) return true;
 	//else return false;}
 	return true;

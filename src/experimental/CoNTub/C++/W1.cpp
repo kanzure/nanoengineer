@@ -1,4 +1,6 @@
+#include <iostream>
 #include <math.h>
+#include <stdlib.h>
 
 #include "W1.h"
 #include "Nanotubo.h"
@@ -55,20 +57,19 @@ void W1::finish(int terminator)
     }
 }
 
-String W1::mmp()
+std::ostream& W1::mmp(std::ostream& s)
 {
-    return molecule.mmp();
+    return molecule.mmp(s);
 }
 
 int main(int argc, char *argv[])
 {
     int a, b, terminator;
     double c;
-    a = Integer.parseInt(argv[0]);
-    b = Integer.parseInt(argv[1]);
-    c = Double.parseDouble(argv[2]);
-    terminator = Integer.parseInt(argv[3]);
+    a = atoi(argv[1]);
+    b = atoi(argv[2]);
+    c = atof(argv[3]);
+    terminator = atoi(argv[4]);
     W1 w1 = W1(a, b, c, terminator);
-    System.out.println(w1.mmp());
-    // System.out.println(w1.pdb());
+    w1.mmp(std::cout);
 }

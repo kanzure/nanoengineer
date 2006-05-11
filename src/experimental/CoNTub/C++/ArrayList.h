@@ -5,12 +5,15 @@
 
 class ArrayList
 {
+    int _size, capacity;
+    Atomo *contents;
 public:
-    ArrayList(void) { }
-    ArrayList(int n) { }
+    ArrayList(void);
+    ArrayList(int n);
+    ~ArrayList(void);
     Atomo get(int i);
     void add(Atomo a);
-    int size();
+    int size(void);
     void remove(int);
     void set(int, Atomo);
     int contains(Atomo);

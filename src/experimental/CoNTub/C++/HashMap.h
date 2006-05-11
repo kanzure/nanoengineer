@@ -3,14 +3,18 @@
 
 #include <iostream>
 #include <string.h>
+#include <exception>
 #include "ArrayList.h"
 
 class HashMap
 {
+    int size, capacity;
+    int *keys;
+    ArrayList *values;
 public:
-    HashMap() { }
+    HashMap(void);
     void put(int, ArrayList);
-    ArrayList get(int);
+    ArrayList get(int) throw();
     int hasKey(int);
 };
 

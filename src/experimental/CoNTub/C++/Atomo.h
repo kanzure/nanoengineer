@@ -31,6 +31,7 @@ class Atomo
 	mconec = new int[10];
 	mconecA = new int[10];
 	TablaP = tabPe_getInstance();
+	index = -1;
     }
 
     Atomo (int t, int s, String e, String p, pto3D pto, Color c, double radio) {
@@ -43,6 +44,7 @@ class Atomo
 	mconec = new int[10];
 	mconecA = new int[10];
 	TablaP = tabPe_getInstance();
+	index = -1;
     }
 
     Atomo (pto3D p, int t) {
@@ -55,6 +57,7 @@ class Atomo
 	r = TablaP.getSize (t);
 	mconec = new int[10];
 	mconecA = new int[10];
+	index = -1;
     }
 
     Atomo (pto3D p, int t, Color c) {
@@ -67,6 +70,7 @@ class Atomo
 	r = TablaP.getSize (t);
 	mconec = new int[10];
 	mconecA = new int[10];
+	index = -1;
     }
 };
 
