@@ -25,6 +25,7 @@ class W1
 	    molecule.ponconec ();
 	}
     }
+    void logInfo(String x) { }
 
  public:
 

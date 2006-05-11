@@ -23,11 +23,21 @@ class String
 	contents = new char[len + 1];
 	strcpy(contents, tmp);
     }
+    String(double p) {
+	char tmp[50];
+	sprintf(tmp, "%lf", p);
+	len = strlen(tmp);
+	contents = new char[len + 1];
+	strcpy(contents, tmp);
+    }
     String(char *s) {
 	contents = s;
 	len = strlen(s);
     }
     String operator+ (int x) {
+	return *this + String(x);
+    }
+    String operator+ (double x) {
 	return *this + String(x);
     }
     String operator+ (char *x) {

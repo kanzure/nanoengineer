@@ -4,10 +4,11 @@
 class Nanotubo
 {
     double *altura, *phi;  // altura --> height
-    double A, deltaz1, deltaz2, deltaphi1, deltaphi2;;
+    double A;
 
  public:
     int i1, i2, ordenmin, _d;
+    double deltaz1, deltaz2, deltaphi1, deltaphi2;
     Nanotubo (int I, int J);
     Nanotubo (int I, int J, double aalt);
     double deltaz ();
