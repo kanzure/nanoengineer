@@ -75,3 +75,42 @@ int AtomList::contains(Atomo a)
     }
     return 0;
 }
+
+/*
+ * There is a very effective optimization that can be used
+ * for neighborhoods. I am not doing it here until I think
+ * we need it, because it's a bit of work. As you add atoms
+ * to the AtomList, you save a pointer to them in one of several
+ * lists, pre-sorting atoms by coarse position. Doing so is
+ * very quick. Then when you want the neighborhood around an
+ * atom, you need only search the nearby buckets.
+ */
+
+#define GAP  (1.5 * 1.42)
+
+int closeEnough(Atomo *a1, Atomo *a2)
+{
+    double distx = a1->vert.x - a2->vert.x;
+    if (distx < -GAP || distx > GAP)
+	return 0;
+    double disty = a1->vert.y - a2->vert.y;
+    if (disty < -GAP || disty > GAP)
+	return 0;
+    double distz = a1->vert.z - a2->vert.z;
+    if (distz < -GAP || distz > GAP)
+	return 0;
+    double distsq = distx * distx + disty * disty +
+	distz * distz;
+    return distsq < GAP * GAP;
+}
+
+AtomList AtomList::neighborhood(Atomo *a)
+{
+    AtomList al = AtomList();
+    for (int i = 0; i < _size; i++) {
+	Atomo *b = &contents[i];
+	if (closeEnough(a, b))
+	    al.add(*b);
+    }
+    return al;
+}

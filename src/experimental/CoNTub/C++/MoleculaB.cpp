@@ -72,7 +72,7 @@ double MoleculaB::getLejania ()
 
 void MoleculaB::vaciar ()
 {
-    susatomos = ArrayList (0);
+    susatomos = AtomList (0);
     TablaP = tabPe_getInstance();
 }
 
@@ -91,21 +91,17 @@ void MoleculaB::centrar ()
 	return;
     double x = 0, y = 0, z = 0;
     int nv = susatomos.size ();
-    std::cout << "atom 0 x " << susatomos.get(0)->vert.x << "\n";
     for (int i = 0; i < nv; i++) {
 	x = x + susatomos.get(i)->vert.x / nv;
 	y = y + susatomos.get(i)->vert.y / nv;
 	z = z + susatomos.get(i)->vert.z / nv;
     }
     pto3D center = pto3D(x, y, z);
-    std::cout << "x center " << x << "\n";
-    std::cout << "nv " << nv << "\n";
     for (int i = 0; i < nv; i++) {
 	susatomos.get(i)->vert.x -= x;
 	susatomos.get(i)->vert.y -= y;
 	susatomos.get(i)->vert.z -= z;
     }
-    std::cout << "atom 0 x " << susatomos.get(0)->vert.x << "\n";
 }
 
 void MoleculaB::giroxr (double th)
@@ -256,49 +252,6 @@ void MoleculaB::sustituye (int num, int ti, pto3D pto)
 }
 //ESTA es una autentica sustitucion
 
-// A Bucket is a cube-sized container to represent the coarse positions of atoms. It is
-// used to find bonds faster - we can pre-sort the atoms into buckets, and when we want
-// to find nearby atoms quickly, we only need to search the nearby buckets.
-
-// Un Bucket es un envase cubo-clasificado para representar las posiciones gruesas de
-// átomos. Se utiliza para encontrar enlaces más rápidos - preclasificación de la poder los
-// átomos en los Buckets, y cuando deseamos encontrar los átomos próximos rápidamente,
-// nosotros necesitamos solamente buscar los Buckets próximos.
-
-#define  BUCKETWIDTH   (1.5 * 1.24)
-
-ArrayList MoleculaB::getBucket(HashMap buckets, pto3D v) {
-    int x = (int) ((v.x - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
-    int y = (int) ((v.y - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
-    int z = (int) ((v.z - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
-    int key = (x * 5000 + y) * 5000 + z;
-    if (!buckets.hasKey(key))
-	buckets.put(key, ArrayList());
-    return (ArrayList) buckets.get(key);
-}
-
-// Search the 3x3x3 nearest buckets
-ArrayList MoleculaB::getNeighborhood(HashMap buckets, pto3D v) {
-    int x = (int) ((v.x - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
-    int y = (int) ((v.y - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
-    int z = (int) ((v.z - 0.5*BUCKETWIDTH) / BUCKETWIDTH);
-    ArrayList alst = ArrayList();
-    for (int dx = -1; dx <= 1; dx++)
-	for (int dy = -1; dy <= 1; dy++)
-	    for (int dz = -1; dz <= 1; dz++) {
-		int key = ((x + dx) * 5000 + y + dy) * 5000 + z + dz;
-		if (buckets.hasKey(key)) {
-		    ArrayList alst2 = (ArrayList) buckets.get(key);
-		    for (int i = 0; i < alst2.size(); i++) {
-			Atomo *atm = alst2.get(i);
-			if (!alst.contains(*atm))
-			    alst.add(*atm);
-		    }
-		}
-	    }
-    return alst;
-}
-
 void MoleculaB::ponconec ()
 {
     ponconec (1.30);
@@ -306,14 +259,10 @@ void MoleculaB::ponconec ()
 
 void MoleculaB::ponconec (double param)  // ponconec --> put connected??
 {
-    HashMap buckets = HashMap();
     int nv = susatomos.size ();
     for (int i = 0; i < nv; i++) {
 	Atomo *atm = susatomos.get(i);
 	atm->index = i;
-	pto3D ptoa = atm->vert;
-	ArrayList alst = getBucket(buckets, ptoa);
-	alst.add(*atm);
     }
     for (int i = 0; i < nv; i++) {
 	Atomo *atm = susatomos.get(i);
@@ -328,7 +277,7 @@ void MoleculaB::ponconec (double param)  // ponconec --> put connected??
 	for (int j = 1; j <= 9; j++)
 	    mc[j] = 0;
 
-	ArrayList alst = getNeighborhood(buckets, ptoa);
+	AtomList alst = susatomos.neighborhood(atm);
 	for (int j = 0; j < alst.size(); j++) {
 	    Atomo *atm2 = alst.get(j);
 	    pto3D ptob = atm2->vert;
@@ -365,21 +314,17 @@ void MoleculaB::reconec ()
 
 void MoleculaB::reconec (double param)
 {			//IGUAL QUE PONCONEC; pero sin iniciar --> JUST AS PONCONEC; but without initiating
-    HashMap buckets = HashMap();
     int nv = susatomos.size ();
     for (int i = 0; i < nv; i++) {
 	Atomo *atm = susatomos.get(i);
 	atm->index = i;
-	pto3D ptoa = atm->vert;
-	ArrayList alst = getBucket(buckets, ptoa);
-	alst.add(*atm);
     }
     for (int i = 0; i < nv; i++) {
 	Atomo *atm = susatomos.get (i);
 	pto3D ptoa = atm->vert;
 	int tipA = atm->tipo;
 
-	ArrayList alst = getNeighborhood(buckets, ptoa);
+	AtomList alst = susatomos.neighborhood(atm);
 	for (int j = 0; j < alst.size(); j++) {
 	    Atomo *atm2 = alst.get(j);
 	    pto3D ptob = atm2->vert;

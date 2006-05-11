@@ -72,6 +72,12 @@ class Atomo
 	mconecA = new int[10];
 	index = -1;
     }
+
+    friend std::ostream& operator<< (std::ostream& s, const Atomo& a) {
+	s << "<Atom " << a.index << " " <<
+	    a.vert.x << " " << a.vert.y << " " << a.vert.z << ">";
+	return s;
+    }
 };
 
 #endif

@@ -2,10 +2,9 @@ CXX=g++
 CXXFLAGS=-Wall -g
 
 SRCS=anillo.cpp \
-	ArrayList.cpp \
+	AtomList.cpp \
 	Atomo.cpp \
 	formato.cpp \
-	HashMap.cpp \
 	Minimol.cpp \
 	MoleculaB.cpp \
 	MoleculaT.cpp \

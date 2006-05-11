@@ -4,9 +4,8 @@
 #include <iostream>
 #include "String.h"
 #include "TabPe.h"
-#include "ArrayList.h"
+#include "AtomList.h"
 #include "Color.h"
-#include "HashMap.h"
 
 #define MOLDEBUG  0
 
@@ -18,11 +17,8 @@ class MoleculaB
     double xmin, xmax, ymin, ymax, zmin, zmax;
     tabPe TablaP;   // periodic table - this could be a singlet
 
-    ArrayList getBucket(HashMap buckets, pto3D v);
-    ArrayList getNeighborhood(HashMap buckets, pto3D v);
-
  public:
-    ArrayList susatomos;	//de ATOMOS, literally, "his atoms"
+    AtomList susatomos;	//de ATOMOS, literally, "his atoms"
 
     MoleculaB () {
 	TablaP = tabPe_getInstance();

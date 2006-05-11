@@ -1,5 +1,5 @@
-#ifndef ARRAYLIST_H_INCLUDED
-#define ARRAYLIST_H_INCLUDED
+#ifndef ATOMLIST_H_INCLUDED
+#define ATOMLIST_H_INCLUDED
 
 #include "Atomo.h"
 
@@ -12,6 +12,7 @@ public:
     AtomList(int n);
     ~AtomList(void);
     Atomo *get(int i);
+    AtomList neighborhood(Atomo *);
     void add(Atomo a);
     int size(void);
     void remove(int);
