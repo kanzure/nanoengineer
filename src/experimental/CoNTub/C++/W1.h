@@ -11,9 +11,20 @@
 
 class W1
 {
+ protected:
+    W1(void) { }
     MoleculaT molecule;
-
-    void finish(int terminator);
+    void finish(int terminator) {
+	molecule.centrar ();
+	molecule.ponconec ();
+	if (terminator == HYDROGEN) {
+	    molecule.cierraH ();
+	    molecule.ponconec ();
+	} else if (terminator == NITROGEN) {
+	    molecule.cierraN ();
+	    molecule.ponconec ();
+	}
+    }
 
  public:
 
@@ -24,7 +35,9 @@ class W1
      */
     W1(int a, int b, double c, int terminator);
 
-    std::ostream& mmp(std::ostream&);
+    std::ostream& mmp(std::ostream& s) {
+	return molecule.mmp(s);
+    }
 };
 
 #endif

@@ -1,16 +1,12 @@
 #include "TabPe.h"
 
-static int tabPeReady = 0;
-static tabPe tabPeInst;
+static tabPe instance;
 
-tabPe tabPe_getInstance()
+tabPe *periodicTable(void)
 {
-    if (!tabPeReady) {
-	tabPeInst = tabPe();
-	tabPeReady = 1;
-    }
-    return tabPeInst;
+    return &instance;
 }
+
 
 tabPe::tabPe ()
 {

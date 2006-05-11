@@ -15,7 +15,6 @@ class Atomo
     double r;		//de doubles
     int tipo;
     int *mconecA;		//array de conec alternativas (para newzmat)
-    tabPe TablaP;
     int index;
 
     Atomo () {
@@ -27,17 +26,15 @@ class Atomo
 	pers = "  ";
 	mconec = new int[10];
 	mconecA = new int[10];
-	TablaP = tabPe_getInstance();
 	index = -1;
     }
 
     Atomo (pto3D p, int t) {
-	TablaP = tabPe_getInstance();
 	tipo = t;
 	vert = p.clona ();
-	etiq = TablaP.getSimbolo (t);
+	etiq = periodicTable()->getSimbolo (t);
 	pers = "  ";
-	r = TablaP.getSize (t);
+	r = periodicTable()->getSize (t);
 	mconec = new int[10];
 	mconecA = new int[10];
 	index = -1;

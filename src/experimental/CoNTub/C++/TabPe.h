@@ -14,6 +14,6 @@ class tabPe
     double getSize (int t);
 };
 
-extern tabPe tabPe_getInstance(void);
+tabPe *periodicTable(void);
 
 #endif

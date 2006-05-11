@@ -14,13 +14,11 @@ class MoleculaB
     String info;		//pequeña cadena informativa para pasar un mini titulo
     // small informative string to pass a short title
     double xmin, xmax, ymin, ymax, zmin, zmax;
-    tabPe TablaP;   // periodic table - this could be a singlet
 
  public:
     AtomList susatomos;	//de ATOMOS, literally, "his atoms"
 
     MoleculaB () {
-	TablaP = tabPe_getInstance();
 	nselec = 0;
 	info = String("");
     }

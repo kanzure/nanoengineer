@@ -2,6 +2,7 @@
 #define STRING_H_INCLUDED
 
 #include <iostream>
+#include "string.h"
 
 class String
 {
@@ -15,30 +16,47 @@ class String
     int length(void) {
 	return len;
     }
+    String(int p) {
+	char tmp[50];
+	sprintf(tmp, "%d", p);
+	len = strlen(tmp);
+	contents = new char[len + 1];
+	strcpy(contents, tmp);
+    }
     String(char *s) {
 	contents = s;
 	len = strlen(s);
+    }
+    String operator+ (int x) {
+	return *this + String(x);
     }
     String operator+ (char *x) {
 	return *this + String(x);
     }
     String operator+ (String x) {
-	String y;
-	std::cerr << "NOT IMPLEMENTED YET";
-	return y;
+	String s = String();
+	s.len = len + x.len;
+	s.contents = new char[s.len + 1];
+	strcpy(s.contents, contents);
+	strcpy(s.contents + len, x.contents);
+	return s;
     }
-    String operator+= (char *x) {
-	String y;
-	std::cerr << "NOT IMPLEMENTED YET";
-	return y;
+    void operator+= (String x) {
+	int newlen = len + x.len;
+	char *newcontents = new char[newlen + 1];
+	strcpy(newcontents, contents);
+	strcpy(newcontents + len, x.contents);
+	len = newlen;
+	contents = newcontents;
     }
-    String operator+= (String x) {
-	String y;
-	std::cerr << "NOT IMPLEMENTED YET";
-	return y;
-    }
-    void append(String x) {
-	std::cerr << "NOT IMPLEMENTED YET";
+    void operator+= (char *y) {
+	String x = String(y);
+	int newlen = len + x.len;
+	char *newcontents = new char[newlen + 1];
+	strcpy(newcontents, contents);
+	strcpy(newcontents + len, x.contents);
+	len = newlen;
+	contents = newcontents;
     }
     /* http://gethelp.devx.com/techtips/cpp_pro/10min/10min0400.asp */
     friend std::ostream& operator<< (std::ostream& s, const String& x) {

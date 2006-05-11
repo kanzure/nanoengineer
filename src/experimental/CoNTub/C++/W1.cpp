@@ -44,24 +44,6 @@ W1::W1(int a, int b, double c, int terminator)
     finish(terminator);
 }
 
-void W1::finish(int terminator)
-{
-    molecule.centrar ();
-    molecule.ponconec ();
-    if (terminator == HYDROGEN) {
-	molecule.cierraH ();
-	molecule.ponconec ();
-    } else if (terminator == NITROGEN) {
-	molecule.cierraN ();
-	molecule.ponconec ();
-    }
-}
-
-std::ostream& W1::mmp(std::ostream& s)
-{
-    return molecule.mmp(s);
-}
-
 int main(int argc, char *argv[])
 {
     int a, b, terminator;

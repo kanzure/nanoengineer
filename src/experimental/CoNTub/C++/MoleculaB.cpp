@@ -66,7 +66,6 @@ double MoleculaB::getLejania ()
 void MoleculaB::vaciar ()
 {
     susatomos = AtomList (0);
-    TablaP = tabPe_getInstance();
 }
 
 void MoleculaB::deseleccionar ()
@@ -275,7 +274,8 @@ void MoleculaB::ponconec (double param)  // ponconec --> put connected??
 	    Atomo *atm2 = alst.get(j);
 	    pto3D ptob = atm2->vert;
 	    int tipB = atm2->tipo;
-	    double distamax = param * (TablaP.en1[tipA] + TablaP.en1[tipB]);	//PARAMETRO AQUI
+	    double distamax = param * (periodicTable()->en1[tipA] +
+				       periodicTable()->en1[tipB]);	//PARAMETRO AQUI
 	    if (ptoa.dista (ptob) < distamax && ptoa.dista (ptob) > 0.6) {
 		int k = mc[0] + 1;
 		mc[0] = k;
@@ -322,7 +322,8 @@ void MoleculaB::reconec (double param)
 	    Atomo *atm2 = alst.get(j);
 	    pto3D ptob = atm2->vert;
 	    int tipB = atm2->tipo;
-	    double distamax = param * (TablaP.en1[tipA] + TablaP.en1[tipB]);	//PARAMETRO AQUI
+	    double distamax = param * (periodicTable()->en1[tipA] +
+				       periodicTable()->en1[tipB]);	//PARAMETRO AQUI
 	    if (ptoa.dista (ptob) < distamax && ptoa.dista (ptob) > 0.6)
 		conecta (i, atm2->index);
 	}
