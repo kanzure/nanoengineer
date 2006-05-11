@@ -70,7 +70,6 @@ class pto3D
     double dihedrog (pto3D ptoc, pto3D pto1);
     pto3D aversor (void);
     void versoriza (void);
-    String aTexto (void);
     pto3D clona (void);
     pto3D ptomediocon (pto3D v1);
     pto3D ptopondcon (pto3D v1, double param);

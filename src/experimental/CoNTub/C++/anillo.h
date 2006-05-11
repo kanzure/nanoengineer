@@ -25,13 +25,11 @@ class anillo
 
     void addVert (int pton);
     void setCentro (pto3D cide);
-    String poncentroide (MoleculaT mol);
     void centracentroide (MoleculaT mol);
     void ordena (pto3D vecref, MoleculaT mol);
     void ordenaccw (int ini, MoleculaT mol);
     void ordenacw (int ini, MoleculaT mol);
     void rota (int giro);
-    //String aCadena ();
     std::ostream& operator<< (const anillo&);
 };
 

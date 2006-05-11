@@ -1,7 +1,6 @@
 #include <math.h>
 #include "pto3D.h"
 #include "pto2D.h"
-#include "formato.h"
 
 void pto3D::giroxr (double theta)
 {
@@ -321,13 +320,6 @@ void pto3D::versoriza ()
     x = pc.x;
     y = pc.y;
     z = pc.z;
-}
-
-String pto3D::aTexto ()
-{
-    formato f = formato (7, "##0.000");
-    String texto = f.aCadena (x) + "," + f.aCadena (y) + "," + f.aCadena (z);
-    return texto;
 }
 
 pto3D pto3D::clona ()

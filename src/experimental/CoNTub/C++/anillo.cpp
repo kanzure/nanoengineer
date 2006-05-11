@@ -13,19 +13,6 @@ void anillo::setCentro (pto3D cide) {
     centroide = cide;
 }
 
-String anillo::poncentroide (MoleculaT mol) {
-    String st = String("");
-    pto3D ncide = pto3D ();
-    for (int i = 1; i <= num; i++) {
-	Atomo *at = mol.susatomos.get (vert[i]);
-	ncide = ncide.mas (at->vert);
-	st = st + "\n";
-	st = st + ncide.aTexto ();
-    }
-    centroide = ncide.escala (1 / (double) num);
-    return st;
-}
-
 
 void anillo::centracentroide (MoleculaT mol) {
     pto3D ncide = pto3D ();
