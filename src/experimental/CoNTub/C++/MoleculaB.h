@@ -5,7 +5,6 @@
 #include "String.h"
 #include "TabPe.h"
 #include "AtomList.h"
-#include "Color.h"
 
 #define MOLDEBUG  0
 
@@ -26,7 +25,6 @@ class MoleculaB
 	info = String("");
     }
 
-    void addVert (pto3D punto, int ti, Color c);
     void addVert (pto3D punto, int ti);
     void addVert (double x, double y, double z, int ti);
     void addVert (double x, double y, double z, int ti, String e);
@@ -80,7 +78,6 @@ class MoleculaB
     int tipo (int i);
     String etiq (int i);
     String pers (int i);
-    Color color (int i);
     double r (int i);
     int selecstatus (int i);
     void selecciona (int i, int status);

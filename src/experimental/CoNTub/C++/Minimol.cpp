@@ -100,7 +100,6 @@ Minimol Minimol::clona ()
 	mmn.minietiqs[i] = minietiqs[i];
 	mmn.miniperss[i] = miniperss[i];
 	mmn.minisizes[i] = minisizes[i];
-	mmn.minicolor[i] = minicolor[i];
 	mmn.miniselec[i] = miniselec[i];
 	for (int j = 0; j < 10; j++)
 	    mmn.miniconec[i][j] = miniconec[i][j];

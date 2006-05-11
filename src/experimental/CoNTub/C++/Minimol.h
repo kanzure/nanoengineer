@@ -3,7 +3,6 @@
 
 #include "pto3D.h"
 #include "String.h"
-#include "Color.h"
 #include "MoleculaB.h"
 
 class Minimol
@@ -11,7 +10,6 @@ class Minimol
     String *minietiqs;
     String *miniperss;
     float *minisizes;
-    Color *minicolor;
     int *miniselec;
     double xmin, xmax, ymin, ymax, zmin, zmax;
 
@@ -27,7 +25,6 @@ public:
 	minietiqs = new String[nvert];
 	miniperss = new String[nvert];
 	minisizes = new float[nvert];
-	minicolor = new Color[nvert];
 	miniselec = new int[nvert];
 	miniconec = new int*[nvert];
 	for (int i = 0; i < nvert; i++) {
@@ -45,7 +42,6 @@ public:
 	minietiqs = new String[nvert];
 	miniperss = new String[nvert];
 	minisizes = new float[nvert];
-	minicolor = new Color[nvert];
 	miniselec = new int[nvert];
 	miniconec = new int*[nvert];
 	for (int i = 0; i < nvert; i++) {
@@ -55,7 +51,6 @@ public:
 	    minietiqs[i] = at->etiq;
 	    miniperss[i] = at->pers;
 	    minisizes[i] = (float) at->r;
-	    minicolor[i] = at->color;
 	    miniselec[i] = 0;
 	    for (int j = 0; j < 10; j++)
 		miniconec[i][j] = at->mconec[j];

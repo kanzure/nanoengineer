@@ -6,13 +6,6 @@ typedef int boolean;
 //LISTA DE METODOS BASICOS!!!
 //A REHACER!!
 
-void MoleculaB::addVert (pto3D punto, int ti, Color c)
-{
-    // punto --> point, position
-    // ti is element number
-    susatomos.add (Atomo (punto, ti, c));
-}
-
 void MoleculaB::addVert (pto3D punto, int ti)
 {
     susatomos.add (Atomo (punto, ti));
@@ -566,10 +559,6 @@ String MoleculaB::etiq (int i)
 String MoleculaB::pers (int i)
 {
     return susatomos.get(i)->pers;
-}
-Color MoleculaB::color (int i)
-{
-    return susatomos.get(i)->color;
 }
 double MoleculaB::r (int i)
 {
