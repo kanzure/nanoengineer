@@ -317,7 +317,7 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 	int eny1 = (int) round ((maxcy1 + 3.0) / A / r3);
 
 	int nummax1 = (int) (6 * (maxcx1 - mincx1) * (maxcy1 - mincy1) / A / A / r3);
-	int **posis1 = new int[3][nummax1];
+	int *posis1 = new int[3 * nummax1];
 	int indi1 = 0;
 
 	for (int cely = sty1; cely <= eny1; cely++)	//recorrido vertical --> vertical route
@@ -333,36 +333,36 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 					   cely * A * r3 - A / 2.0 / r3);
 		    if (at1.dentro4l (pAcm1, pBcm1, pDcm1, pCcm1)) {
 			cachotubo1.addVert (at1, 6);
-			posis1[0][indi1] = 1;
-			posis1[1][indi1] = celx - cely;
-			posis1[2][indi1] = cely * 2;
+			posis1[indi1] = 1;
+			posis1[nummax1 + indi1] = celx - cely;
+			posis1[2*nummax1 + indi1] = cely * 2;
 			indi1++;
 			if (despleg)
 			    molecule.addVert (at1, 6);
 		    }	//
 		    if (at2.dentro4l (pAcm1, pBcm1, pDcm1, pCcm1)) {
 			cachotubo1.addVert (at2, 6);
-			posis1[0][indi1] = 2;
-			posis1[1][indi1] = celx - cely + 1;
-			posis1[2][indi1] = cely * 2 - 2;
+			posis1[indi1] = 2;
+			posis1[nummax1 + indi1] = celx - cely + 1;
+			posis1[2*nummax1 + indi1] = cely * 2 - 2;
 			indi1++;
 			if (despleg)
 			    molecule.addVert (at2, 6);
 		    }	//
 		    if (at3.dentro4l (pAcm1, pBcm1, pDcm1, pCcm1)) {
 			cachotubo1.addVert (at3, 6);
-			posis1[0][indi1] = 2;
-			posis1[1][indi1] = celx - cely + 1;
-			posis1[2][indi1] = cely * 2 - 1;
+			posis1[indi1] = 2;
+			posis1[nummax1 + indi1] = celx - cely + 1;
+			posis1[2*nummax1 + indi1] = cely * 2 - 1;
 			indi1++;
 			if (despleg)
 			    molecule.addVert (at3, 6);
 		    }	//
 		    if (at4.dentro4l (pAcm1, pBcm1, pDcm1, pCcm1)) {
 			cachotubo1.addVert (at4, 6);
-			posis1[0][indi1] = 1;
-			posis1[1][indi1] = celx - cely + 1;
-			posis1[2][indi1] = cely * 2 - 1;
+			posis1[indi1] = 1;
+			posis1[nummax1 + indi1] = celx - cely + 1;
+			posis1[2*nummax1 + indi1] = cely * 2 - 1;
 			indi1++;
 			if (despleg)
 			    molecule.addVert (at4, 6);
@@ -413,9 +413,9 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 
 	    pto3D ptemp = pto3D (TX, TY, TZ);
 
-	    int tipoat = posis1[0][i];
-	    int celdai = posis1[1][i];
-	    int celdaj = posis1[2][i];
+	    int tipoat = posis1[i];
+	    int celdai = posis1[nummax1 + i];
+	    int celdaj = posis1[2*nummax1 + i];
 	    double co = 0.0;
 
 	    if (diz < GMI)
@@ -496,7 +496,7 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 	int eny2 = (int) round ((maxcy2 + 3.0) / A / r3);
 
 	int nummax2 = (int) (6 * (maxcx2 - mincx2) * (maxcy2 - mincy2) / A / A / r3);
-	int **posis2 = new int[3][nummax2];
+	int *posis2 = new int[3 * nummax2];
 	int indi2 = 0;
 
 	for (int cely = sty2; cely <= eny2; cely++)	//recorrido vertical, con
@@ -512,36 +512,36 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 					   cely * A * r3 - A / 2.0 / r3);
 		    if (at1.dentro4l (pBcm2, pAcm2, pCcm2, pDcm2)) {
 			cachotubo2.addVert (at1, 6);
-			posis2[0][indi2] = 1;
-			posis2[1][indi2] = celx - cely;
-			posis2[2][indi2] = cely * 2;
+			posis2[indi2] = 1;
+			posis2[nummax2 + indi2] = celx - cely;
+			posis2[2*nummax2 + indi2] = cely * 2;
 			indi2++;
 			if (despleg)
 			    molecule.addVert (at1, 6);
 		    }	//
 		    if (at2.dentro4l (pBcm2, pAcm2, pCcm2, pDcm2)) {
 			cachotubo2.addVert (at2, 6);
-			posis2[0][indi2] = 2;
-			posis2[1][indi2] = celx - cely + 1;
-			posis2[2][indi2] = cely * 2 - 2;
+			posis2[indi2] = 2;
+			posis2[nummax2 + indi2] = celx - cely + 1;
+			posis2[2*nummax2 + indi2] = cely * 2 - 2;
 			indi2++;
 			if (despleg)
 			    molecule.addVert (at2, 6);
 		    }	//
 		    if (at3.dentro4l (pBcm2, pAcm2, pCcm2, pDcm2)) {
 			cachotubo2.addVert (at3, 6);
-			posis2[0][indi2] = 2;
-			posis2[1][indi2] = celx - cely + 1;
-			posis2[2][indi2] = cely * 2 - 1;
+			posis2[indi2] = 2;
+			posis2[nummax2 + indi2] = celx - cely + 1;
+			posis2[2*nummax2 + indi2] = cely * 2 - 1;
 			indi2++;
 			if (despleg)
 			    molecule.addVert (at3, 6);
 		    }	//
 		    if (at4.dentro4l (pBcm2, pAcm2, pCcm2, pDcm2)) {
 			cachotubo2.addVert (at4, 6);
-			posis2[0][indi2] = 1;
-			posis2[1][indi2] = celx - cely + 1;
-			posis2[2][indi2] = cely * 2 - 1;
+			posis2[indi2] = 1;
+			posis2[nummax2 + indi2] = celx - cely + 1;
+			posis2[2*nummax2 + indi2] = cely * 2 - 1;
 			indi2++;
 			if (despleg)
 			    molecule.addVert (at4, 6);
@@ -596,9 +596,9 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 
 	    pto3D ptemp = pto3D (TX, TY, TZ);
 
-	    int tipoat = posis2[0][i];
-	    int celdai = posis2[1][i] - n;
-	    int celdaj = posis2[2][i] - m;
+	    int tipoat = posis2[i];
+	    int celdai = posis2[nummax2 + i] - n;
+	    int celdaj = posis2[2*nummax2 + i] - m;
 	    double co = 0.0;
 
 	    if (diz < GMI)
@@ -703,10 +703,12 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 	// double lm = max (lonmint1, lonmint2);
 
 	if (lent1 <= lonmint1) {
-	    logInfo (String("Warning: 1st tube's length too short: Augmented automatically to ") + (int) (lonmint1 + 1) + " Angstrom.");
+	    logInfo (String("Warning: 1st tube's length too short: Augmented automatically to ")
+		     + (int) (lonmint1 + 1) + " Angstrom.");
 	}
 	if (lent2 <= lonmint2) {
-	    logInfo (String("Warning: 2nd tube's length too short: Augmented automatically to ") + (int) (lonmint2 + 1) + " Angstrom.");
+	    logInfo (String("Warning: 2nd tube's length too short: Augmented automatically to ")
+		     + (int) (lonmint2 + 1) + " Angstrom.");
 	}
 	if (lent1 <= 15. || lent2 <= 15.)
 	    logInfo (String("Warning: Open ends remain deformed: Increase length up to 15 Angstrom."));
@@ -757,7 +759,7 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 	int eny1 = (int) round ((maxcy1 + 3.0) / A / r3);
 
 	int nummax1 = (int) (4 * (maxcx1 - mincx1) * (maxcy1 - mincy1) / A / A / r3);
-	int **posis1 = new int[3][nummax1];
+	int *posis1 = new int[3 * nummax1];
 	int indi1 = 0;
 	for (int cely = sty1; cely <= eny1; cely++)	//recorrido vertical
 	    for (int celx = stx1; celx <= enx1; celx++)	//recorrido horizontal
@@ -773,33 +775,33 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 		    if (at1.dentro4l (pA1, pC1, pC1b, pA1b)
 			|| at1.dentro4l (pC1, pB1, pB1b, pC1b)) {
 			cachot1.addVert (at1, 6);
-			posis1[0][indi1] = 1;
-			posis1[1][indi1] = celx - cely;
-			posis1[2][indi1] = cely * 2;
+			posis1[indi1] = 1;
+			posis1[nummax1 + indi1] = celx - cely;
+			posis1[2*nummax1 + indi1] = cely * 2;
 			indi1++;
 		    }	//molecule.addVert(at1,7);
 		    if (at2.dentro4l (pA1, pC1, pC1b, pA1b)
 			|| at2.dentro4l (pC1, pB1, pB1b, pC1b)) {
 			cachot1.addVert (at2, 6);
-			posis1[0][indi1] = 2;
-			posis1[1][indi1] = celx - cely + 1;
-			posis1[2][indi1] = cely * 2 - 2;
+			posis1[indi1] = 2;
+			posis1[nummax1 + indi1] = celx - cely + 1;
+			posis1[2*nummax1 + indi1] = cely * 2 - 2;
 			indi1++;
 		    }	//molecule.addVert(at2,7);
 		    if (at3.dentro4l (pA1, pC1, pC1b, pA1b)
 			|| at3.dentro4l (pC1, pB1, pB1b, pC1b)) {
 			cachot1.addVert (at3, 6);
-			posis1[0][indi1] = 2;
-			posis1[1][indi1] = celx - cely + 1;
-			posis1[2][indi1] = cely * 2 - 1;
+			posis1[indi1] = 2;
+			posis1[nummax1 + indi1] = celx - cely + 1;
+			posis1[2*nummax1 + indi1] = cely * 2 - 1;
 			indi1++;
 		    }	//molecule.addVert(at3,7);
 		    if (at4.dentro4l (pA1, pC1, pC1b, pA1b)
 			|| at4.dentro4l (pC1, pB1, pB1b, pC1b)) {
 			cachot1.addVert (at4, 6);
-			posis1[0][indi1] = 1;
-			posis1[1][indi1] = celx - cely + 1;
-			posis1[2][indi1] = cely * 2 - 1;
+			posis1[indi1] = 1;
+			posis1[nummax1 + indi1] = celx - cely + 1;
+			posis1[2*nummax1 + indi1] = cely * 2 - 1;
 			indi1++;
 		    }	//molecule.addVert(at4,7);
 		}
@@ -818,7 +820,7 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 	int eny2 = (int) round ((maxcy2 + 3.0) / A / r3);
 
 	int nummax2 = (int) (4 * (maxcx2 - mincx2) * (maxcy2 - mincy2) / A / A / r3);
-	int **posis2 = new int[3][nummax2];
+	int *posis2 = new int[3 * nummax2];
 	int indi2 = 0;
 	for (int cely = sty2; cely <= eny2; cely++)	//recorrido vertical,
 	    for (int celx = stx2; celx <= enx2; celx++)	//recorrido horizontal
@@ -834,33 +836,33 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 		    if (at1.dentro4l (pA2, pA2b, pC2b, pC2)
 			|| at1.dentro4l (pC2, pC2b, pB2b, pB2)) {
 			cachot2.addVert (at1, 6);
-			posis2[0][indi2] = 1;
-			posis2[1][indi2] = celx - cely;
-			posis2[2][indi2] = cely * 2;
+			posis2[indi2] = 1;
+			posis2[nummax2 + indi2] = celx - cely;
+			posis2[2*nummax2 + indi2] = cely * 2;
 			indi2++;
 		    }	//molecule.addVert(at1,1);
 		    if (at2.dentro4l (pA2, pA2b, pC2b, pC2)
 			|| at2.dentro4l (pC2, pC2b, pB2b, pB2)) {
 			cachot2.addVert (at2, 6);
-			posis2[0][indi2] = 2;
-			posis2[1][indi2] = celx - cely + 1;
-			posis2[2][indi2] = cely * 2 - 2;
+			posis2[indi2] = 2;
+			posis2[nummax2 + indi2] = celx - cely + 1;
+			posis2[2*nummax2 + indi2] = cely * 2 - 2;
 			indi2++;
 		    }	//molecule.addVert(at2,1);
 		    if (at3.dentro4l (pA2, pA2b, pC2b, pC2)
 			|| at3.dentro4l (pC2, pC2b, pB2b, pB2)) {
 			cachot2.addVert (at3, 6);
-			posis2[0][indi2] = 2;
-			posis2[1][indi2] = celx - cely + 1;
-			posis2[2][indi2] = cely * 2 - 1;
+			posis2[indi2] = 2;
+			posis2[nummax2 + indi2] = celx - cely + 1;
+			posis2[2*nummax2 + indi2] = cely * 2 - 1;
 			indi2++;
 		    }	//molecule.addVert(at3,1);
 		    if (at4.dentro4l (pA2, pA2b, pC2b, pC2)
 			|| at4.dentro4l (pC2, pC2b, pB2b, pB2)) {
 			cachot2.addVert (at4, 6);
-			posis2[0][indi2] = 1;
-			posis2[1][indi2] = celx - cely + 1;
-			posis2[2][indi2] = cely * 2 - 1;
+			posis2[indi2] = 1;
+			posis2[nummax2 + indi2] = celx - cely + 1;
+			posis2[2*nummax2 + indi2] = cely * 2 - 1;
 			indi2++;
 		    }	//molecule.addVert(at4,1);
 		}
@@ -958,9 +960,9 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 	    double zf = ym;
 
 	    pto3D ptemp = pto3D (xf, yf, zf);
-	    int tipoat = posis1[0][i];
-	    int celdai = posis1[1][i];
-	    int celdaj = posis1[2][i];
+	    int tipoat = posis1[i];
+	    int celdai = posis1[nummax1 + i];
+	    int celdaj = posis1[2*nummax1 + i];
 
 	    double co = 0.0;
 	    if (htolq > -GMI)
@@ -1011,9 +1013,9 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 
 	    pto3D ptemp = pto3D (xf, yf, zf);
 
-	    int tipoat = posis2[0][i];
-	    int celdai = posis2[1][i];
-	    int celdaj = posis2[2][i];
+	    int tipoat = posis2[i];
+	    int celdai = posis2[nummax2 + i];
+	    int celdaj = posis2[2*nummax2 + i];
 
 
 	    double co = 0.0;
