@@ -3,14 +3,14 @@
 
 #include "Atomo.h"
 
-class ArrayList
+class AtomList
 {
     int _size, capacity;
     Atomo *contents;
 public:
-    ArrayList(void);
-    ArrayList(int n);
-    ~ArrayList(void);
+    AtomList(void);
+    AtomList(int n);
+    ~AtomList(void);
     Atomo *get(int i);
     void add(Atomo a);
     int size(void);

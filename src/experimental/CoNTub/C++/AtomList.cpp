@@ -1,18 +1,18 @@
 /*
- * This is a C++ version of Java's ArrayList class.
+ * This is a C++ version of Java's AtomList class.
  */
 
 #include <assert.h>
-#include "ArrayList.h"
+#include "AtomList.h"
 
-ArrayList::ArrayList(void)
+AtomList::AtomList(void)
 {
     _size = 0;
     capacity = 20;
     contents = new Atomo[capacity];
 }
 
-ArrayList::ArrayList(int n)
+AtomList::AtomList(int n)
 {
     _size = 0;
     if (n < 20)
@@ -21,17 +21,17 @@ ArrayList::ArrayList(int n)
     contents = new Atomo[n];
 }
 
-ArrayList::~ArrayList(void)
+AtomList::~AtomList(void)
 {
     //delete[] contents;
 }
 
-Atomo * ArrayList::get(int i)
+Atomo * AtomList::get(int i)
 {
     return &contents[i];
 }
 
-void ArrayList::add(Atomo a)
+void AtomList::add(Atomo a)
 {
     if (_size + 1 > capacity) {
 	Atomo *newcontents;
@@ -45,12 +45,12 @@ void ArrayList::add(Atomo a)
     contents[_size++] = a;
 }
 
-int ArrayList::size(void)
+int AtomList::size(void)
 {
     return _size;
 }
 
-void ArrayList::remove(int i)
+void AtomList::remove(int i)
 {
     assert(i < _size);
     while (i + 1 < _size) {
@@ -60,12 +60,12 @@ void ArrayList::remove(int i)
     _size--;
 }
 
-void ArrayList::set(int i, Atomo a)
+void AtomList::set(int i, Atomo a)
 {
     contents[i] = a;
 }
 
-int ArrayList::contains(Atomo a)
+int AtomList::contains(Atomo a)
 {
     for (int i = 0; i < _size; i++) {
 	assert(a.index != -1);
