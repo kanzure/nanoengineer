@@ -12,14 +12,8 @@ W15::W15(int a, int b, double c, int nshells, double sshell, int terminator)
     String s = String("Multi-walled nanotube with inner indices (");
     s += a;
     s += ",";
-    molecule.setInfo (String("Multi-walled nanotube with inner indices (") + a + "," +
-			     b + ")" + " and " + nshells + " shells");
-
-    if (false) {
-	int guess = (int) (NT.radio () * 2 * M_PI * c * 0.34);
-	for (int i = 1; i <= nshells; i++)
-	    guess = guess + (int) ((NT.radio () + sshell * i) * 2 * M_PI * c * 0.34);
-    }
+    molecule.setInfo (String("Multi-walled nanotube with inner indices (") +
+		      a + "," + b + ")" + " and " + nshells + " shells");
 
     double x, xc, y, yc, z, zc;
     for (int i = 1; i * NT.deltaz () <= c; i++) {
@@ -96,12 +90,12 @@ W15::W15(int a, int b, double c, int nshells, double sshell, int terminator)
 int main(int argc, char *argv[]) {
     int a, b, nshell, terminator;
     double c, sshell;
-    a = atoi(argv[0]);
-    b = atoi(argv[1]);
-    c = atof(argv[2]);
-    nshell = atoi(argv[3]);
-    sshell = atoi(argv[4]);
-    terminator = atoi(argv[5]);
+    a = atoi(argv[1]);
+    b = atoi(argv[2]);
+    c = atof(argv[3]);
+    nshell = atoi(argv[4]);
+    sshell = atoi(argv[5]);
+    terminator = atoi(argv[6]);
     W15 w15 = W15(a, b, c, nshell, sshell, terminator);
     w15.mmp(std::cout);
 }
