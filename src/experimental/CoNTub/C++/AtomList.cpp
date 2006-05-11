@@ -107,13 +107,11 @@ int closeEnough(Atomo *a1, Atomo *a2)
 
 AtomList AtomList::neighborhood(Atomo *a)
 {
-    std::cout << "begin neighboarhood\n";
     AtomList al = AtomList();
     for (int i = 0; i < _size; i++) {
 	Atomo *b = &contents[i];
 	if (closeEnough(a, b))
 	    al.add(*b);
     }
-    std::cout << "end neighboarhood\n";
     return al;
 }

@@ -50,22 +50,22 @@ deps:
 
 anillo.o: anillo.h
 anillo.o: pto3D.h
-anillo.o: String.h MoleculaT.h MoleculaB.h TabPe.h Color.h AtomList.h Atomo.h
+anillo.o: String.h MoleculaT.h MoleculaB.h TabPe.h AtomList.h Atomo.h
 AtomList.o: AtomList.h
-AtomList.o: Atomo.h pto3D.h String.h TabPe.h Color.h
+AtomList.o: Atomo.h pto3D.h String.h TabPe.h
 formato.o: formato.h String.h
-Minimol.o: Minimol.h pto3D.h String.h Color.h
+Minimol.o: Minimol.h pto3D.h String.h
 Minimol.o: MoleculaB.h TabPe.h AtomList.h Atomo.h
 MoleculaB.o: MoleculaB.h String.h TabPe.h
-MoleculaB.o: Color.h AtomList.h Atomo.h pto3D.h
+MoleculaB.o: AtomList.h Atomo.h pto3D.h
 MoleculaT.o: MoleculaT.h MoleculaB.h String.h
-MoleculaT.o: TabPe.h Color.h AtomList.h Atomo.h pto3D.h Minimol.h anillo.h
+MoleculaT.o: TabPe.h AtomList.h Atomo.h pto3D.h Minimol.h anillo.h
 Nanotubo.o: Nanotubo.h
 pto2D.o: pto2D.h
 pto2D.o: pto3D.h String.h
 pto3D.o: pto3D.h
 pto3D.o: String.h pto2D.h formato.h
-TabPe.o: TabPe.h String.h Color.h
+TabPe.o: TabPe.h String.h
 W1.o: W1.h
-W1.o: MoleculaT.h MoleculaB.h String.h TabPe.h Color.h AtomList.h Atomo.h
-W1.o: pto3D.h Nanotubo.h
+W1.o: MoleculaT.h MoleculaB.h String.h TabPe.h AtomList.h Atomo.h pto3D.h
+W1.o: Nanotubo.h
