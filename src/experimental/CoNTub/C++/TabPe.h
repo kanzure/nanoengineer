@@ -3,6 +3,13 @@
 
 #include "String.h"
 
+/*
+ * There is never a need for more than one periodic table in any
+ * program run. The periodicTable() function provides a pointer to
+ * an instance of the periodic table, and that's the right thing
+ * to use.
+ */
+
 class tabPe
 {
     String *simbolo;

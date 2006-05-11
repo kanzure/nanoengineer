@@ -1,5 +1,5 @@
 CXX=g++
-CXXFLAGS=-Wall -g
+CXXFLAGS=-Wall -O3
 
 SRCS=anillo.cpp \
 	AtomList.cpp \
@@ -27,6 +27,8 @@ OBJS=$(SRCS:.cpp=.o)
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $(@:.o=.cpp)
 
+all: W1 W15 W2
+
 W1: $(W1SRCS:.cpp=.o)
 	$(CXX) $(CXXFLAGS) -o W1 $(W1SRCS:.cpp=.o)
 
@@ -35,8 +37,6 @@ W15: $(W15SRCS:.cpp=.o)
 
 W2: $(W2SRCS:.cpp=.o)
 	$(CXX) $(CXXFLAGS) -o W2 $(W2SRCS:.cpp=.o)
-
-# objs: $(OBJS)
 
 clean:
 	rm -f *.o *~ core.* W1 W15 W2
