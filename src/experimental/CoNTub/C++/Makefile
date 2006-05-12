@@ -18,15 +18,14 @@ ifeq ($(strip $(UNAME)),Darwin)
 CFLAGS=-DMACOSX
 CXXFLAGS=-DMACOSX
 LDFLAGS=-lm
-DESTDIR=/opt/local/bin
 else
 #---------------------------------------- Unix
 PYREXC=pyrexc
 CFLAGS=-O3
 CXXFLAGS=-O3
 LDFLAGS=-lm
-DESTDIR=$$HOME/bin
 endif
+DESTDIR=$$HOME/bin
 CC=gcc
 CXX=g++
 CFLAGS+=-g -Wall -Wmissing-prototypes
