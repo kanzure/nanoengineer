@@ -16,8 +16,10 @@ else
 #---------------------------------------- Start Unix/Mac stuff
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
-CFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.Framework/Headers
+CFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.Framework/Headers -g -Wall
+CXXFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.Framework/Headers -g -Wall
 LDFLAGS=-lm
+DESTDIR=/opt/local/bin
 else
 #---------------------------------------- Unix
 PYREXC=pyrexc
@@ -26,6 +28,7 @@ PYREXC=pyrexc
 CFLAGS=-g -Wall
 CXXFLAGS=-g -Wall
 LDFLAGS=-lm
+DESTDIR=$$HOME/bin
 endif
 CC=gcc
 CXX=g++
@@ -60,9 +63,9 @@ OBJS=$(SRCS:.cpp=.o)
 all: $(TARGETSW) $(TARGETMW) $(TARGETHJ)
 
 install: $(TARGETSW) $(TARGETMW) $(TARGETHJ)
-	cp $(TARGETSW) $$HOME/bin
-	cp $(TARGETMW) $$HOME/bin
-	cp $(TARGETHJ) $$HOME/bin
+	cp $(TARGETSW) $(DESTDIR)
+	cp $(TARGETMW) $(DESTDIR)
+	cp $(TARGETHJ) $(DESTDIR)
 
 $(TARGETSW): $(W1SRCS:.cpp=.o)
 	$(CXX) $(CXXFLAGS) -o $(TARGETSW) $(W1SRCS:.cpp=.o)
