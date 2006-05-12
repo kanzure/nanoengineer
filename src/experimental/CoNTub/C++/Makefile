@@ -29,6 +29,11 @@ OBJS=$(SRCS:.cpp=.o)
 
 all: W1 W15 W2
 
+install: W1 W15 W2
+	cp W1 $$HOME/bin
+	cp W15 $$HOME/bin
+	cp W2 $$HOME/bin
+
 W1: $(W1SRCS:.cpp=.o)
 	$(CXX) $(CXXFLAGS) -o W1 $(W1SRCS:.cpp=.o)
 
