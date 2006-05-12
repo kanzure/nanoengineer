@@ -4,9 +4,8 @@ ifeq (XX$(OS),XXWindows_NT)
 #---------------------------------------- Start Windows stuff
 CC="C:/Dev-Cpp/bin/gcc.exe"
 CXX="C:/Dev-Cpp/bin/g++.exe"
-CFLAGS=-g -Wall -Wmissing-prototypes
-CFLAGS+=-I"C:/Dev-Cpp/include"
-CXXFLAGS+=-Wall -I"C:/Dev-Cpp/include"
+CFLAGS=-I"C:/Dev-Cpp/include"
+CXXFLAGS=-I"C:/Dev-Cpp/include"
 LDFLAGS=-Wl,--output-def,quux.def -L. -L"C:/Dev-Cpp/lib"
 TARGETSW=SW.exe
 TARGETMW=MW.exe
@@ -16,22 +15,22 @@ else
 #---------------------------------------- Start Unix/Mac stuff
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
-CFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.Framework/Headers -g -Wall
-CXXFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.Framework/Headers -g -Wall
+CFLAGS=-DMACOSX
+CXXFLAGS=-DMACOSX
 LDFLAGS=-lm
 DESTDIR=/opt/local/bin
 else
 #---------------------------------------- Unix
 PYREXC=pyrexc
-# It turns out I need /usr/X11R6/(include,lib) to get the stuff for
-# OpenGL. This is NOT a dependency on X11 proper.
-CFLAGS=-g -Wall
-CXXFLAGS=-g -Wall
+CFLAGS=-O3
+CXXFLAGS=-O3
 LDFLAGS=-lm
 DESTDIR=$$HOME/bin
 endif
 CC=gcc
 CXX=g++
+CFLAGS+=-g -Wall -Wmissing-prototypes
+CXXFLAGS+=-g -Wall
 TARGETSW=SW
 TARGETMW=MW
 TARGETHJ=HJ
