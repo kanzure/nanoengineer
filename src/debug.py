@@ -501,6 +501,22 @@ def debug_runpycode_from_a_dialog( source = "some debug menu??"):
         print "run py code: cancelled"
     return
 
+def debug_hackNanotubes_from_a_dialog( source = "some debug menu??"):
+    title = "debug: SW/MW/HJ nanotubes"
+    label = "put in parameters, e.g. 'SW 20 0 30 1' or\n'HJ 20 10 20 5 0 20 1' or\n'MW 20 5 15 3 5 1'"
+    from qt import QInputDialog # bruce 041216 bugfix
+    text, ok = QInputDialog.getText(title, label)
+    if ok:
+        # fyi: type(text) == <class '__main__.qt.QString'>
+        command = str(text)
+        command += " > /tmp/nt.mmp"
+        if os.system(command) == 0:
+            from MWsemantics import windowList
+            windowList[0].fileOpen("/tmp/nt.mmp")
+    else:
+        print "run py code: cancelled"
+    return
+
 # ==
 
 def debug_timing_test_pycode_from_a_dialog( ): #bruce 051117
@@ -719,6 +735,7 @@ class DebugMenuMixin:
             #bruce 041217 made this item conditional on whether it will work
             res.extend( [
                 ('run py code', self._debug_runpycode),
+                ('SW/MW/HJ nanotubes', self._debug_hackNanotubes),
                 ('speed-test py code', self._debug_timepycode), #bruce 051117; include this even if not platform.atom_debug
             ] )
         #bruce 050416: use a "checkmark item" now that we're remaking this menu dynamically:
@@ -927,6 +944,12 @@ class DebugMenuMixin:
     def _debug_runpycode(self):
         from debug import debug_runpycode_from_a_dialog
         debug_runpycode_from_a_dialog( source = self.debug_menu_source_name() )
+            # e.g. "GLPane debug menu"
+        return
+
+    def _debug_hackNanotubes(self):
+        from debug import debug_hackNanotubes_from_a_dialog
+        debug_hackNanotubes_from_a_dialog( source = self.debug_menu_source_name() )
             # e.g. "GLPane debug menu"
         return
 
