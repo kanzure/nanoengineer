@@ -1,5 +1,39 @@
+UNAME := $(shell uname)
+
+ifeq (XX$(OS),XXWindows_NT)
+#---------------------------------------- Start Windows stuff
+CC="C:/Dev-Cpp/bin/gcc.exe"
+CXX="C:/Dev-Cpp/bin/g++.exe"
+CFLAGS=-g -Wall -Wmissing-prototypes
+CFLAGS+=-I"C:/Dev-Cpp/include"
+CXXFLAGS+=-Wall -I"C:/Dev-Cpp/include"
+LDFLAGS=-Wl,--output-def,quux.def -L. -L"C:/Dev-Cpp/lib"
+TARGETSW=SW.exe
+TARGETMW=MW.exe
+TARGETHJ=HJ.exe
+#---------------------------------------- End of Windows stuff
+else
+#---------------------------------------- Start Unix/Mac stuff
+ifeq ($(strip $(UNAME)),Darwin)
+#---------------------------------------- Mac
+CFLAGS=-DMACOSX -I/System/Library/Frameworks/AGL.Framework/Headers
+LDFLAGS=-lm
+else
+#---------------------------------------- Unix
+PYREXC=pyrexc
+# It turns out I need /usr/X11R6/(include,lib) to get the stuff for
+# OpenGL. This is NOT a dependency on X11 proper.
+CFLAGS=-g -Wall
+CXXFLAGS=-g -Wall
+LDFLAGS=-lm
+endif
+CC=gcc
 CXX=g++
-CXXFLAGS=-Wall -O3
+TARGETSW=SW
+TARGETMW=MW
+TARGETHJ=HJ
+#---------------------------------------- End of Unix/Mac stuff
+endif
 
 SRCS=anillo.cpp \
 	AtomList.cpp \
@@ -16,10 +50,6 @@ W1SRCS=$(SRCS) W1.cpp
 W15SRCS=$(SRCS) W15.cpp
 W2SRCS=$(SRCS) W2.cpp
 
-#	W15.cpp \
-#	W1.cpp \
-#	W2.cpp
-
 OBJS=$(SRCS:.cpp=.o)
 
 .SUFFIXES: .h .cpp .o ;
@@ -27,24 +57,24 @@ OBJS=$(SRCS:.cpp=.o)
 .cpp.o:
 	$(CXX) $(CXXFLAGS) -c $(@:.o=.cpp)
 
-all: W1 W15 W2
+all: $(TARGETSW) $(TARGETMW) $(TARGETHJ)
 
-install: W1 W15 W2
-	cp W1 $$HOME/bin
-	cp W15 $$HOME/bin
-	cp W2 $$HOME/bin
+install: $(TARGETSW) $(TARGETMW) $(TARGETHJ)
+	cp $(TARGETSW) $$HOME/bin
+	cp $(TARGETMW) $$HOME/bin
+	cp $(TARGETHJ) $$HOME/bin
 
-W1: $(W1SRCS:.cpp=.o)
-	$(CXX) $(CXXFLAGS) -o W1 $(W1SRCS:.cpp=.o)
+$(TARGETSW): $(W1SRCS:.cpp=.o)
+	$(CXX) $(CXXFLAGS) -o $(TARGETSW) $(W1SRCS:.cpp=.o)
 
-W15: $(W15SRCS:.cpp=.o)
-	$(CXX) $(CXXFLAGS) -o W15 $(W15SRCS:.cpp=.o)
+$(TARGETMW): $(W15SRCS:.cpp=.o)
+	$(CXX) $(CXXFLAGS) -o $(TARGETMW) $(W15SRCS:.cpp=.o)
 
-W2: $(W2SRCS:.cpp=.o)
-	$(CXX) $(CXXFLAGS) -o W2 $(W2SRCS:.cpp=.o)
+$(TARGETHJ): $(W2SRCS:.cpp=.o)
+	$(CXX) $(CXXFLAGS) -o $(TARGETHJ) $(W2SRCS:.cpp=.o)
 
 clean:
-	rm -f *.o *~ core.* W1 W15 W2
+	rm -f *.o *~ core.* $(TARGETSW) $(TARGETMW) $(TARGETHJ)
 
 deps:
 	makedepend $(SRCS) W1.cpp W15.cpp W2.cpp -f - | \
