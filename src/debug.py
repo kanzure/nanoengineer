@@ -506,15 +506,18 @@ def debug_hackNanotubes_from_a_dialog( source = "some debug menu??"):
     label = "put in parameters, e.g. 'SW 20 0 30 1' or\n'HJ 20 10 20 5 0 20 1' or\n'MW 20 5 15 3 5 1'"
     from qt import QInputDialog # bruce 041216 bugfix
     text, ok = QInputDialog.getText(title, label)
+    from platform import find_or_make_Nanorex_subdir
+    contubPath = find_or_make_Nanorex_subdir('CoNTub')
+    ntmmp = os.path.join(contubPath, "nt.mmp")
     if ok:
         # fyi: type(text) == <class '__main__.qt.QString'>
         command = str(text)
-        command += " > /tmp/nt.mmp"
+        command += " > " + ntmmp
         if os.system(command) == 0:
             from MWsemantics import windowList
-            windowList[0].fileOpen("/tmp/nt.mmp")
+            windowList[0].fileOpen(ntmmp)
     else:
-        print "run py code: cancelled"
+        print "hack graphene structures: cancelled"
     return
 
 # ==
