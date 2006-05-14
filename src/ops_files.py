@@ -155,7 +155,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if recentFile:
             if not os.path.exists(recentFile):
               QMessageBox.warning( self, self.name(),
-                "This file doesn't exist any more.", QMessageBox.Ok, QMessageBox.NoButton)
+                "The file " + recentFile + " doesn't exist any more.", QMessageBox.Ok, QMessageBox.NoButton)
               if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
               return
             
