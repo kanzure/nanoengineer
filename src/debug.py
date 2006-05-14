@@ -512,7 +512,9 @@ def debug_hackNanotubes_from_a_dialog( source = "some debug menu??"):
     if ok:
         # fyi: type(text) == <class '__main__.qt.QString'>
         command = str(text)
-        command += " > " + ntmmp
+        command += ' > "' + ntmmp + '"' 
+            # Filenames with whitespace characters need to be in double quotes. Mark 060514
+        print "System command: [",  command, "]"
         if os.system(command) == 0:
             from MWsemantics import windowList
             windowList[0].fileOpen(ntmmp)
