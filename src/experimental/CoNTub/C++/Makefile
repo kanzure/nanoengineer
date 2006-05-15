@@ -4,8 +4,8 @@ ifeq (XX$(OS),XXWindows_NT)
 #---------------------------------------- Start Windows stuff
 CC="C:/Dev-Cpp/bin/gcc.exe"
 CXX="C:/Dev-Cpp/bin/g++.exe"
-CFLAGS=-I"C:/Dev-Cpp/include"
-CXXFLAGS=-I"C:/Dev-Cpp/include"
+CFLAGS=-g -Wall -I"C:/Dev-Cpp/include"
+CXXFLAGS=-g -Wall -I"C:/Dev-Cpp/include"
 LDFLAGS=-Wl,--output-def,quux.def -L. -L"C:/Dev-Cpp/lib"
 TARGETSW=SW.exe
 TARGETMW=MW.exe

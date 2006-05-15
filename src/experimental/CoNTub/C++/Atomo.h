@@ -26,6 +26,8 @@ class Atomo
 	pers = "  ";
 	mconec = new int[10];
 	mconecA = new int[10];
+	mconec[0] = 0;
+	mconecA[0] = 0;
 	index = -1;
     }
 
@@ -37,6 +39,8 @@ class Atomo
 	r = periodicTable()->getSize (t);
 	mconec = new int[10];
 	mconecA = new int[10];
+	mconec[0] = 0;
+	mconecA[0] = 0;
 	index = -1;
     }
 
