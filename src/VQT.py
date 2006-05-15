@@ -445,44 +445,68 @@ def twistor_angle(axis, pt1, pt2): #bruce 050724 split this out of twistor()
 def proj2sphere(x, y):
     d = (x*x + y*y) ** .5
     theta = pi * 0.5 * d
-    s=sin(theta)
-    if d>0.0001: return V(s*x/d, s*y/d, cos(theta))
+    s = sin(theta)
+    if d > 0.0001: return V(s*x/d, s*y/d, cos(theta))
     else: return V(0.0, 0.0, 1.0)
 
 class Trackball:
-    '''A trackball object.    The current transformation matrix
-       can be retrieved using the "matrix" attribute.'''
-
+    """A trackball object."""
+    #bruce 060514 revisions:
+    # - add/revise some docstrings and comments
+    # - compare vectors and quats to None rather than using boolean tests (possible bugfix)
+    # - clean up some duplicated code
+    # Planned generalizations (nim): let a global setting control the trackball algorithm.
+    # (In principle, that should be supplied by the caller, since it's associated with
+    #  the interface in which the trackball is being used.)
     def __init__(self, wide, high):
-        '''Create a Trackball object.
-           "size" is the radius of the inner trackball
-           sphere. '''
-        self.w2=wide/2.0
-        self.h2=high/2.0
-        self.scale = 1.1 / min(wide/2.0, high/2.0)
+        """Create a Trackball object.
+        Arguments are window width and height in pixels (the same as for self.rescale()),
+        or can be guesses if the caller will call self.rescale() with correct arguments
+        before the trackball is used.
+        """
+        self.rescale(wide, high)
         self.quat = Q(1,0,0,0)
         self.oldmouse = None
+            # note: oldmouse and newmouse are not mouse positions; they come out of proj2sphere.
+            # I think they're related to a non-incremental trackball goal; not sure yet. [bruce 060514 comment]
 
     def rescale(self, wide, high):
-        self.w2=wide/2.0
-        self.h2=high/2.0
+        """This should be called when the trackball's window or pane has been resized
+        to the given values (window width and height in pixels).
+        """
+        self.w2 = wide/2.0
+        self.h2 = high/2.0
         self.scale = 1.1 / min(wide/2.0, high/2.0)
 
     def start(self, px, py):
-        self.oldmouse=proj2sphere((px-self.w2)*self.scale,
-                                  (self.h2-py)*self.scale)
+        """This should be called in a mouseDown binding, with window coordinates of the mouse."""
+        self.oldmouse = proj2sphere( (px - self.w2)*self.scale,
+                                     (self.h2 - py)*self.scale )
 
-    def update(self, px, py, uq=None):
+    def update(self, px, py, uq = None):
+        """This should be called in a mouseDrag binding, with window coordinates of the mouse;
+        return value is an incremental quat, to be used in conjunction with uq as explained below.
+           For trackballing the entire model space (whose orientation is stored in (for example) glpane.quat),
+        caller should not pass uq, and should increment glpane.quat by the return value (i.e. glpane.quat += retval).
+           For trackballing an object with orientation obj.quat, drawn subject to (for example) glpane.quat,
+        caller should pass uq = glpane.quat, and should increment obj.quat by the return value.
+        (If caller didn't pass uq in that case, our retval would be suitable for incrementing obj.quat + glpane.quat,
+         or glpane.quat alone, but this is not the same as a retval suitable for incrementing obj.quat alone.)
+        """
+        #bruce 060514 revised this code (should be equivalent to the prior code), added docstring
         newmouse = proj2sphere((px-self.w2)*self.scale,
                                (self.h2-py)*self.scale)
-        if self.oldmouse and not uq:
+        if self.oldmouse is not None:
             quat = Q(self.oldmouse, newmouse)
-        elif self.oldmouse and uq:
-            quat =  uq + Q(self.oldmouse, newmouse) - uq
+            if uq is not None:
+                quat = uq + quat - uq
         else:
+            print "warning: trackball.update sees oldmouse is None (should not happen)" #bruce 060514
             quat = Q(1,0,0,0)
         self.oldmouse = newmouse
         return quat
+    pass # end of class Trackball
+
 
 def ptonline(xpt, lpt, ldr):
     """return the point on a line (point lpt, direction ldr)
