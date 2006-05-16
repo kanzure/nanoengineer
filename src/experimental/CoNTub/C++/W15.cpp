@@ -102,7 +102,7 @@ int main(int argc, char *argv[]) {
     if (*p != '\0') goto bad_input;
     nshell = strtol(argv[4], &p, 10);
     if (*p != '\0') goto bad_input;
-    sshell = strtol(argv[5], &p, 10);
+    sshell = strtod(argv[5], &p);
     if (*p != '\0') goto bad_input;
     terminator = strtol(argv[6], &p, 10);
     if (*p != '\0') goto bad_input;
