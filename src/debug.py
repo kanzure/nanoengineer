@@ -508,16 +508,17 @@ def debug_hackNanotubes_from_a_dialog( source = "some debug menu??", nanotubeInd
     text, ok = QInputDialog.getText(title, label)
     if ok:
         from platform import find_or_make_Nanorex_subdir
+        from HistoryWidget import redmsg
         contubPath = find_or_make_Nanorex_subdir('CoNTub')
         ntmmp = os.path.join(contubPath, "nt.mmp")
         # fyi: type(text) == <class '__main__.qt.QString'>
         command = os.path.join(contubPath, str(text))
         command += (' %d > ' % nanotubeIndex[0]) + ntmmp
-        nanotubeIndex[0] += 1
 	print "System command: [", command, "]"
         if os.system(command) == 0:
             from MWsemantics import windowList
             from files_mmp import insertmmp
+            nanotubeIndex[0] += 1
             # What will we do if we ever have multiple windows??
             w = windowList[0]
             try:
@@ -531,6 +532,8 @@ def debug_hackNanotubes_from_a_dialog( source = "some debug menu??", nanotubeInd
             else:
                 w.assy.changed() # The file and the part are not the same.
                 env.history.message( "MMP file inserted: " + ntmmp )
+        else:
+            env.history.message(redmsg("Command failed: \"" + command + "\""))
     else:
         print "hack graphene structures: cancelled"
     return
