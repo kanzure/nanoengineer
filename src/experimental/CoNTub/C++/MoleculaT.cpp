@@ -724,12 +724,12 @@ double MoleculaT::dmedia (anillo ani)
 
 }
 
-std::ostream& MoleculaT::mmp (std::ostream& ost)
+std::ostream& MoleculaT::mmp (std::ostream& ost, int index)
 {
-    return mmp(ost, "");
+    return mmp(ost, "", index);
 }
 
-std::ostream& MoleculaT::mmp (std::ostream& ost, String inf)
+std::ostream& MoleculaT::mmp (std::ostream& ost, String inf, int index)
 {
     ost << "mmpformat 050920 required; 051103 preferred\n";
     if (inf.length() > 0) {
@@ -750,7 +750,7 @@ std::ostream& MoleculaT::mmp (std::ostream& ost, String inf)
 	"egroup (View Data)\n" <<
 	"group (Nanotube)\n" <<
 	"info opengroup open = True\n" <<
-	"mol (Nanotube-1) def\n";
+	"mol (Nanotube-" << index << ") def\n";
 
     Minimol mmol = Minimol(*this);
     for (int i = 0; i < mmol.nvert; i++) {

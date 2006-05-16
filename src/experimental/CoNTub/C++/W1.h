@@ -13,7 +13,6 @@ class W1
 {
  protected:
     W1(void) { }
-    MoleculaT molecule;
     void finish(int terminator) {
 	molecule.centrar ();
 	molecule.ponconec ();
@@ -28,17 +27,13 @@ class W1
     void logInfo(String x) { }
 
  public:
-
+    MoleculaT molecule;
     /*
      * (a, b) - nanotube chirality
      * c - nanotube length in angstroms
      * terminator - an element number for terminating atoms, ignored if not HYDROGEN or NITROGEN
      */
     W1(int a, int b, double c, int terminator);
-
-    std::ostream& mmp(std::ostream& s) {
-	return molecule.mmp(s);
-    }
 };
 
 #endif

@@ -88,7 +88,7 @@ W15::W15(int a, int b, double c, int nshells, double sshell, int terminator)
 }
 
 int main(int argc, char *argv[]) {
-    int a, b, nshell, terminator;
+    int a, b, nshell, terminator, index;
     double c, sshell;
     a = atoi(argv[1]);
     b = atoi(argv[2]);
@@ -96,6 +96,7 @@ int main(int argc, char *argv[]) {
     nshell = atoi(argv[4]);
     sshell = atoi(argv[5]);
     terminator = atoi(argv[6]);
+    index = atoi(argv[7]);
     W15 w15 = W15(a, b, c, nshell, sshell, terminator);
-    w15.mmp(std::cout);
+    w15.molecule.mmp(std::cout, index);
 }

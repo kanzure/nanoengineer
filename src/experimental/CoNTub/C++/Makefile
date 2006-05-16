@@ -25,7 +25,7 @@ CFLAGS=-O3
 CXXFLAGS=-O3
 LDFLAGS=-lm
 endif
-DESTDIR=$$HOME/bin
+DESTDIR=$(shell python -c "import os; print os.path.expanduser('~/Nanorex/CoNTub')")
 CC=gcc
 CXX=g++
 CFLAGS+=-g -Wall -Wmissing-prototypes
@@ -61,6 +61,7 @@ OBJS=$(SRCS:.cpp=.o)
 all: $(TARGETSW) $(TARGETMW) $(TARGETHJ)
 
 install: $(TARGETSW) $(TARGETMW) $(TARGETHJ)
+	mkdir -p $(DESTDIR)
 	cp $(TARGETSW) $(DESTDIR)
 	cp $(TARGETMW) $(DESTDIR)
 	cp $(TARGETHJ) $(DESTDIR)

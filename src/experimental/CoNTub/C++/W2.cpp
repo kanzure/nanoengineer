@@ -1164,7 +1164,7 @@ pto3D W2::aproxNTchap (pto3D pto,	//pto es el punto a aproximar
 
 int main(int argc, char *argv[])
 {
-    int i1, j1, i2, j2, terminator;
+    int i1, j1, i2, j2, terminator, index;
     double lent1, lent2;
     i1 = atoi(argv[1]);
     j1 = atoi(argv[2]);
@@ -1173,6 +1173,7 @@ int main(int argc, char *argv[])
     j2 = atoi(argv[5]);
     lent2 = atof(argv[6]);
     terminator = atoi(argv[7]);
+    index = atoi(argv[8]);
     W2 w2 = W2(i1, j1, lent1, i2, j2, lent2, terminator);
-    w2.mmp(std::cout);
+    w2.molecule.mmp(std::cout, index);
 }

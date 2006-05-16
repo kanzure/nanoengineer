@@ -46,12 +46,13 @@ W1::W1(int a, int b, double c, int terminator)
 
 int main(int argc, char *argv[])
 {
-    int a, b, terminator;
+    int a, b, terminator, index;
     double c;
     a = atoi(argv[1]);
     b = atoi(argv[2]);
     c = atof(argv[3]);
     terminator = atoi(argv[4]);
+    index = atoi(argv[5]);
     W1 w1 = W1(a, b, c, terminator);
-    w1.mmp(std::cout);
+    w1.molecule.mmp(std::cout, index);
 }
