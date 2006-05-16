@@ -501,23 +501,36 @@ def debug_runpycode_from_a_dialog( source = "some debug menu??"):
         print "run py code: cancelled"
     return
 
-def debug_hackNanotubes_from_a_dialog( source = "some debug menu??"):
+def debug_hackNanotubes_from_a_dialog( source = "some debug menu??", nanotubeIndex=[ 1 ]):
     title = "debug: SW/MW/HJ nanotubes"
     label = "put in parameters, e.g. 'SW 20 0 30 1' or\n'HJ 20 10 20 5 0 20 1' or\n'MW 20 5 15 3 5 1'"
     from qt import QInputDialog # bruce 041216 bugfix
     text, ok = QInputDialog.getText(title, label)
-    from platform import find_or_make_Nanorex_subdir
-    contubPath = find_or_make_Nanorex_subdir('CoNTub')
-    ntmmp = os.path.join(contubPath, "nt.mmp")
     if ok:
+        from platform import find_or_make_Nanorex_subdir
+        contubPath = find_or_make_Nanorex_subdir('CoNTub')
+        ntmmp = os.path.join(contubPath, "nt.mmp")
         # fyi: type(text) == <class '__main__.qt.QString'>
-        command = str(text)
-        command += ' > "' + ntmmp + '"' 
-            # Filenames with whitespace characters need to be in double quotes. Mark 060514
-        print "System command: [",  command, "]"
+        command = os.path.join(contubPath, str(text))
+        command += (' %d > ' % nanotubeIndex[0]) + ntmmp
+        nanotubeIndex[0] += 1
+	print "System command: [", command, "]"
         if os.system(command) == 0:
             from MWsemantics import windowList
-            windowList[0].fileOpen(ntmmp)
+            from files_mmp import insertmmp
+            # What will we do if we ever have multiple windows??
+            w = windowList[0]
+            try:
+                insertmmp(w.assy, ntmmp)
+                w.glpane.scale = w.assy.bbox.scale()
+                w.glpane.gl_update()
+                w.mt.mt_update()
+            except:
+                print_compact_traceback( "Error inserting MMP file [%s]: " % ntmmp )
+                env.history.message( redmsg( "Error while inserting MMP file: " + ntmmp) )
+            else:
+                w.assy.changed() # The file and the part are not the same.
+                env.history.message( "MMP file inserted: " + ntmmp )
     else:
         print "hack graphene structures: cancelled"
     return
