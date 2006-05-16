@@ -48,11 +48,25 @@ int main(int argc, char *argv[])
 {
     int a, b, terminator, index;
     double c;
-    a = atoi(argv[1]);
-    b = atoi(argv[2]);
-    c = atof(argv[3]);
-    terminator = atoi(argv[4]);
-    index = atoi(argv[5]);
+    char *p;
+
+    if (argc < 6)
+	goto bad_input;
+    a = strtol(argv[1], &p, 10);
+    if (*p != '\0') goto bad_input;
+    b = strtol(argv[2], &p, 10);
+    if (*p != '\0') goto bad_input;
+    c = strtod(argv[3], &p);
+    if (*p != '\0') goto bad_input;
+    terminator = strtol(argv[4], &p, 10);
+    if (*p != '\0') goto bad_input;
+    index = strtol(argv[5], &p, 10);
+    if (*p != '\0') {
+    bad_input:
+	std::cerr << "BAD INPUT\n";
+	return -1;
+    }
     W1 w1 = W1(a, b, c, terminator);
     w1.molecule.mmp(std::cout, index);
+    return 0;
 }

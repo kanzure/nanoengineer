@@ -90,13 +90,29 @@ W15::W15(int a, int b, double c, int nshells, double sshell, int terminator)
 int main(int argc, char *argv[]) {
     int a, b, nshell, terminator, index;
     double c, sshell;
-    a = atoi(argv[1]);
-    b = atoi(argv[2]);
-    c = atof(argv[3]);
-    nshell = atoi(argv[4]);
-    sshell = atoi(argv[5]);
-    terminator = atoi(argv[6]);
-    index = atoi(argv[7]);
+    char *p;
+
+    if (argc < 8)
+	goto bad_input;
+    a = strtol(argv[1], &p, 10);
+    if (*p != '\0') goto bad_input;
+    b = strtol(argv[2], &p, 10);
+    if (*p != '\0') goto bad_input;
+    c = strtod(argv[3], &p);
+    if (*p != '\0') goto bad_input;
+    nshell = strtol(argv[4], &p, 10);
+    if (*p != '\0') goto bad_input;
+    sshell = strtol(argv[5], &p, 10);
+    if (*p != '\0') goto bad_input;
+    terminator = strtol(argv[6], &p, 10);
+    if (*p != '\0') goto bad_input;
+    index = strtol(argv[7], &p, 10);
+    if (*p != '\0') {
+    bad_input:
+	std::cerr << "BAD INPUT\n";
+	return -1;
+    }
     W15 w15 = W15(a, b, c, nshell, sshell, terminator);
     w15.molecule.mmp(std::cout, index);
+    return 0;
 }

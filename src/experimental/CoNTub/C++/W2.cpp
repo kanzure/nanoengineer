@@ -1166,14 +1166,31 @@ int main(int argc, char *argv[])
 {
     int i1, j1, i2, j2, terminator, index;
     double lent1, lent2;
-    i1 = atoi(argv[1]);
-    j1 = atoi(argv[2]);
-    lent1 = atof(argv[3]);
-    i2 = atoi(argv[4]);
-    j2 = atoi(argv[5]);
-    lent2 = atof(argv[6]);
-    terminator = atoi(argv[7]);
-    index = atoi(argv[8]);
+    char *p;
+
+    if (argc < 9)
+	goto bad_input;
+    i1 = strtol(argv[1], &p, 10);
+    if (*p != '\0') goto bad_input;
+    j1 = strtol(argv[2], &p, 10);
+    if (*p != '\0') goto bad_input;
+    lent1 = strtod(argv[3], &p);
+    if (*p != '\0') goto bad_input;
+    i2 = strtol(argv[4], &p, 10);
+    if (*p != '\0') goto bad_input;
+    j2 = strtol(argv[5], &p, 10);
+    if (*p != '\0') goto bad_input;
+    lent2 = strtod(argv[6], &p);
+    if (*p != '\0') goto bad_input;
+    terminator = strtol(argv[7], &p, 10);
+    if (*p != '\0') goto bad_input;
+    index = strtol(argv[8], &p, 10);
+    if (*p != '\0') {
+    bad_input:
+	std::cerr << "BAD INPUT\n";
+	return -1;
+    }
     W2 w2 = W2(i1, j1, lent1, i2, j2, lent2, terminator);
     w2.molecule.mmp(std::cout, index);
+    return 0;
 }
