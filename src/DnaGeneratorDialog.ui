@@ -1,0 +1,239 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>DnaGeneratorDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>DnaGeneratorDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>463</width>
+            <height>145</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Dna Generator</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <widget class="QLabel">
+        <property name="name">
+            <cstring>textLabel1</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>20</y>
+                <width>90</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Sequence :</string>
+        </property>
+    </widget>
+    <widget class="QLineEdit">
+        <property name="name">
+            <cstring>lineEdit2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>100</x>
+                <y>20</y>
+                <width>340</width>
+                <height>24</height>
+            </rect>
+        </property>
+    </widget>
+    <widget class="QCheckBox">
+        <property name="name">
+            <cstring>checkBox2</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>50</y>
+                <width>80</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Spine A</string>
+        </property>
+    </widget>
+    <widget class="QCheckBox">
+        <property name="name">
+            <cstring>checkBox5</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>360</x>
+                <y>50</y>
+                <width>80</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Bases B</string>
+        </property>
+    </widget>
+    <widget class="QCheckBox">
+        <property name="name">
+            <cstring>checkBox4</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>260</x>
+                <y>50</y>
+                <width>80</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Spine B</string>
+        </property>
+    </widget>
+    <widget class="QCheckBox">
+        <property name="name">
+            <cstring>checkBox3</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>100</x>
+                <y>50</y>
+                <width>80</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Bases A</string>
+        </property>
+    </widget>
+    <spacer>
+        <property name="name">
+            <cstring>spacer5</cstring>
+        </property>
+        <property name="orientation">
+            <enum>Vertical</enum>
+        </property>
+        <property name="sizeType">
+            <enum>MinimumExpanding</enum>
+        </property>
+        <property name="sizeHint">
+            <size>
+                <width>101</width>
+                <height>16</height>
+            </size>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>150</x>
+                <y>80</y>
+                <width>101</width>
+                <height>16</height>
+            </rect>
+        </property>
+    </spacer>
+    <widget class="QLayoutWidget">
+        <property name="name">
+            <cstring>layout30</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>100</y>
+                <width>300</width>
+                <height>32</height>
+            </rect>
+        </property>
+        <hbox>
+            <property name="name">
+                <cstring>unnamed</cstring>
+            </property>
+            <spacer>
+                <property name="name">
+                    <cstring>spacer1</cstring>
+                </property>
+                <property name="orientation">
+                    <enum>Horizontal</enum>
+                </property>
+                <property name="sizeType">
+                    <enum>Expanding</enum>
+                </property>
+                <property name="sizeHint">
+                    <size>
+                        <width>92</width>
+                        <height>20</height>
+                    </size>
+                </property>
+            </spacer>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>ok_btn</cstring>
+                </property>
+                <property name="minimumSize">
+                    <size>
+                        <width>0</width>
+                        <height>30</height>
+                    </size>
+                </property>
+                <property name="text">
+                    <string>&amp;OK</string>
+                </property>
+                <property name="accel">
+                    <string>Alt+O</string>
+                </property>
+                <property name="default">
+                    <bool>true</bool>
+                </property>
+            </widget>
+            <widget class="QPushButton">
+                <property name="name">
+                    <cstring>cancel_btn</cstring>
+                </property>
+                <property name="minimumSize">
+                    <size>
+                        <width>0</width>
+                        <height>30</height>
+                    </size>
+                </property>
+                <property name="text">
+                    <string>&amp;Cancel</string>
+                </property>
+                <property name="accel">
+                    <string>Alt+C</string>
+                </property>
+            </widget>
+        </hbox>
+    </widget>
+</widget>
+<images>
+    <image name="image0">
+        <data format="PNG" length="206">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d0000009549444154388ded943d1282301085bf28458c570887c4522c74b4e5245c80a1a5f13ab65a3cab306847580a677ce5b79997bfb7eb2461a98da9db4f18ba18bce9236e1fcfd70538b75d0fc07d1800a88e357359dbf50e49c4e0d5dcae8ac12b2993c1b498162c61e3091398163318489fa6df3bce6048b28f8dfd9557fb14abd814299c87fa0440b9df91cb6085d673facfc3a57a03afecb2697ff968240000000049454e44ae426082</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>ok_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>DnaGeneratorDialog</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>cancel_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>DnaGeneratorDialog</receiver>
+        <slot>reject()</slot>
+    </connection>
+</connections>
+<tabstops>
+    <tabstop>ok_btn</tabstop>
+    <tabstop>cancel_btn</tabstop>
+</tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">DnaGeneratorDialog.ui.h</include>
+</includes>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
