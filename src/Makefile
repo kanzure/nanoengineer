@@ -104,7 +104,7 @@ libpython$(PYVER).a: libpython$(PYVER).a.gz
 	gunzip < libpython$(PYVER).a.gz > libpython$(PYVER).a
 
 sim.dll: sim.c $(PYREXOBJS) libpython$(PYVER).a version.h
-	gcc -shared -I"C:/Python$(PYVER)/include" -o sim.dll sim.c $(PYREXOBJS) \
+	gcc -shared -I"C:/Python$(PYVER)/include" -o sim.dll $(PYREXOBJS) \
 		-Wl,--output-def,sim.def -L. -lpython$(PYVER)
 else
 # here's the distutils version:
