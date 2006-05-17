@@ -274,6 +274,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # Create the Nanotube generator dialog.  Fixes bug 1091. Mark 060112.
         from NanotubeGenerator import NanotubeGenerator
         self.nanotubecntl = NanotubeGenerator(self)
+        from DnaGenerator import DnaGenerator
+        self.dnacntl = DnaGenerator(self)
 
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
@@ -1119,6 +1121,9 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         
     def insertNanotube(self):
         self.nanotubecntl.show()
+
+    def insertDna(self):
+        self.dnacntl.show()
 
     #### Movie Player Dashboard Slots ############
 

@@ -9,14 +9,11 @@
             <x>0</x>
             <y>0</y>
             <width>463</width>
-            <height>145</height>
+            <height>151</height>
         </rect>
     </property>
     <property name="caption">
         <string>Dna Generator</string>
-    </property>
-    <property name="icon">
-        <pixmap>image0</pixmap>
     </property>
     <widget class="QLabel">
         <property name="name">
@@ -36,7 +33,7 @@
     </widget>
     <widget class="QLineEdit">
         <property name="name">
-            <cstring>lineEdit2</cstring>
+            <cstring>seq_linedit</cstring>
         </property>
         <property name="geometry">
             <rect>
@@ -46,10 +43,13 @@
                 <height>24</height>
             </rect>
         </property>
+        <property name="text">
+            <string>GATTACA</string>
+        </property>
     </widget>
     <widget class="QCheckBox">
         <property name="name">
-            <cstring>checkBox2</cstring>
+            <cstring>spineAchkbox</cstring>
         </property>
         <property name="geometry">
             <rect>
@@ -62,42 +62,13 @@
         <property name="text">
             <string>Spine A</string>
         </property>
-    </widget>
-    <widget class="QCheckBox">
-        <property name="name">
-            <cstring>checkBox5</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>360</x>
-                <y>50</y>
-                <width>80</width>
-                <height>22</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Bases B</string>
+        <property name="checked">
+            <bool>true</bool>
         </property>
     </widget>
     <widget class="QCheckBox">
         <property name="name">
-            <cstring>checkBox4</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>260</x>
-                <y>50</y>
-                <width>80</width>
-                <height>22</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Spine B</string>
-        </property>
-    </widget>
-    <widget class="QCheckBox">
-        <property name="name">
-            <cstring>checkBox3</cstring>
+            <cstring>basesAchkbox</cstring>
         </property>
         <property name="geometry">
             <rect>
@@ -110,32 +81,48 @@
         <property name="text">
             <string>Bases A</string>
         </property>
+        <property name="checked">
+            <bool>true</bool>
+        </property>
     </widget>
-    <spacer>
+    <widget class="QCheckBox">
         <property name="name">
-            <cstring>spacer5</cstring>
-        </property>
-        <property name="orientation">
-            <enum>Vertical</enum>
-        </property>
-        <property name="sizeType">
-            <enum>MinimumExpanding</enum>
-        </property>
-        <property name="sizeHint">
-            <size>
-                <width>101</width>
-                <height>16</height>
-            </size>
+            <cstring>spineBchkbox</cstring>
         </property>
         <property name="geometry">
             <rect>
-                <x>150</x>
-                <y>80</y>
-                <width>101</width>
-                <height>16</height>
+                <x>260</x>
+                <y>50</y>
+                <width>80</width>
+                <height>22</height>
             </rect>
         </property>
-    </spacer>
+        <property name="text">
+            <string>Spine B</string>
+        </property>
+        <property name="checked">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QCheckBox">
+        <property name="name">
+            <cstring>basesBchkbox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>360</x>
+                <y>50</y>
+                <width>80</width>
+                <height>22</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Bases B</string>
+        </property>
+        <property name="checked">
+            <bool>true</bool>
+        </property>
+    </widget>
     <widget class="QLayoutWidget">
         <property name="name">
             <cstring>layout30</cstring>
@@ -143,9 +130,9 @@
         <property name="geometry">
             <rect>
                 <x>10</x>
-                <y>100</y>
+                <y>80</y>
                 <width>300</width>
-                <height>32</height>
+                <height>50</height>
             </rect>
         </property>
         <hbox>
@@ -209,11 +196,6 @@
         </hbox>
     </widget>
 </widget>
-<images>
-    <image name="image0">
-        <data format="PNG" length="206">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d0000009549444154388ded943d1282301085bf28458c570887c4522c74b4e5245c80a1a5f13ab65a3cab306847580a677ce5b79997bfb7eb2461a98da9db4f18ba18bce9236e1fcfd70538b75d0fc07d1800a88e357359dbf50e49c4e0d5dcae8ac12b2993c1b498162c61e3091398163318489fa6df3bce6048b28f8dfd9557fb14abd814299c87fa0440b9df91cb6085d673facfc3a57a03afecb2697ff968240000000049454e44ae426082</data>
-    </image>
-</images>
 <connections>
     <connection>
         <sender>ok_btn</sender>
@@ -232,8 +214,5 @@
     <tabstop>ok_btn</tabstop>
     <tabstop>cancel_btn</tabstop>
 </tabstops>
-<includes>
-    <include location="local" impldecl="in implementation">DnaGeneratorDialog.ui.h</include>
-</includes>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
