@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>574</width>
-            <height>424</height>
+            <height>402</height>
         </rect>
     </property>
     <property name="caption">
@@ -1538,6 +1538,21 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                         <property name="name">
                                             <cstring>textLabel3_2</cstring>
                                         </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>5</hsizetype>
+                                                <vsizetype>5</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="paletteForegroundColor">
+                                            <color>
+                                                <red>0</red>
+                                                <green>0</green>
+                                                <blue>0</blue>
+                                            </color>
+                                        </property>
                                         <property name="text">
                                             <string>Bond Highlighting :</string>
                                         </property>
@@ -2025,6 +2040,21 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                     <widget class="QLabel" row="1" column="0">
                                         <property name="name">
                                             <cstring>default_mode_lbl</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>5</hsizetype>
+                                                <vsizetype>5</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="paletteForegroundColor">
+                                            <color>
+                                                <red>0</red>
+                                                <green>0</green>
+                                                <blue>0</blue>
+                                            </color>
                                         </property>
                                         <property name="text">
                                             <string>Default Mode :</string>
@@ -4089,7 +4119,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                     </property>
                     <spacer row="2" column="0">
                         <property name="name">
-                            <cstring>spacer11_3</cstring>
+                            <cstring>spacer94</cstring>
                         </property>
                         <property name="orientation">
                             <enum>Vertical</enum>
@@ -4100,11 +4130,11 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="sizeHint">
                             <size>
                                 <width>20</width>
-                                <height>20</height>
+                                <height>16</height>
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" row="1" column="0">
+                    <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">
                         <property name="name">
                             <cstring>layout15</cstring>
                         </property>
@@ -4237,39 +4267,80 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </spacer>
                         </hbox>
                     </widget>
-                    <widget class="QLayoutWidget" row="0" column="0">
+                    <spacer row="0" column="1">
                         <property name="name">
-                            <cstring>layout51</cstring>
+                            <cstring>spacer47</cstring>
                         </property>
-                        <hbox>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>70</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QGroupBox" row="0" column="0">
+                        <property name="name">
+                            <cstring>groupBox10</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Window Position and Size</string>
+                        </property>
+                        <grid>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QGroupBox">
+                            <widget class="QLayoutWidget" row="0" column="0">
                                 <property name="name">
-                                    <cstring>groupBox10</cstring>
+                                    <cstring>layout115</cstring>
                                 </property>
-                                <property name="title">
-                                    <string>Window Position and Size</string>
-                                </property>
-                                <grid>
+                                <vbox>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QCheckBox" row="0" column="0" rowspan="1" colspan="2">
+                                    <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>remember_win_pos_and_size_checkbox</cstring>
+                                            <cstring>textLabel1_2</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Remember window position and size</string>
+                                            <string>Current Size :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
-                                    <widget class="QPushButton" row="1" column="0">
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel1_2_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Saved Size :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QLayoutWidget" row="0" column="2">
+                                <property name="name">
+                                    <cstring>layout116</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QPushButton">
                                         <property name="name">
                                             <cstring>save_current_btn</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Save Current</string>
+                                            <string>Save Current Size</string>
                                         </property>
                                         <property name="autoDefault">
                                             <bool>false</bool>
@@ -4281,43 +4352,116 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                             <string>Saves the main window's current position and size for the next time the program starts.</string>
                                         </property>
                                     </widget>
-                                    <spacer row="1" column="1">
+                                    <widget class="QPushButton">
                                         <property name="name">
-                                            <cstring>spacer46</cstring>
+                                            <cstring>restore_saved_size_btn</cstring>
                                         </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
+                                        <property name="text">
+                                            <string>Restore Saved Size</string>
                                         </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
+                                        <property name="autoDefault">
+                                            <bool>false</bool>
                                         </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>40</width>
-                                                <height>20</height>
-                                            </size>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Save current window position and size for next startup</string>
                                         </property>
-                                    </spacer>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>Saves the main window's current position and size for the next time the program starts.</string>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QLayoutWidget" row="0" column="1">
+                                <property name="name">
+                                    <cstring>layout117</cstring>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QSpinBox" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>current_width_spinbox</cstring>
+                                        </property>
+                                        <property name="suffix">
+                                            <string> pixels</string>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>2048</number>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>640</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>640</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit" row="1" column="2">
+                                        <property name="name">
+                                            <cstring>saved_height_lineedit</cstring>
+                                        </property>
+                                        <property name="readOnly">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QSpinBox" row="0" column="2">
+                                        <property name="name">
+                                            <cstring>current_height_spinbox</cstring>
+                                        </property>
+                                        <property name="suffix">
+                                            <string> pixels</string>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>2000</number>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>480</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>480</number>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLineEdit" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>saved_width_lineedit</cstring>
+                                        </property>
+                                        <property name="readOnly">
+                                            <bool>true</bool>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="0" column="1">
+                                        <property name="name">
+                                            <cstring>textLabel1_2_2_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>x</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignCenter</set>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel" row="1" column="1">
+                                        <property name="name">
+                                            <cstring>textLabel1_2_2_2_2</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>x</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignCenter</set>
+                                        </property>
+                                    </widget>
                                 </grid>
                             </widget>
-                            <spacer>
+                            <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="3">
                                 <property name="name">
-                                    <cstring>spacer47</cstring>
+                                    <cstring>remember_win_pos_and_size_checkbox</cstring>
                                 </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
+                                <property name="text">
+                                    <string>Always save current window position and size when quitting</string>
                                 </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>40</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </hbox>
+                            </widget>
+                        </grid>
                     </widget>
                 </grid>
             </widget>
@@ -4726,6 +4870,24 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <receiver>UserPrefsDialog</receiver>
         <slot>change_undo_stack_memory_limit()</slot>
     </connection>
+    <connection>
+        <sender>current_width_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_window_size()</slot>
+    </connection>
+    <connection>
+        <sender>current_height_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_window_size()</slot>
+    </connection>
+    <connection>
+        <sender>restore_saved_size_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>restore_saved_size()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -4847,6 +5009,8 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>change_undo_restore_view()</slot>
     <slot>change_undo_automatic_checkpointing()</slot>
     <slot>change_undo_stack_memory_limit()</slot>
+    <slot>change_window_size()</slot>
+    <slot>restore_saved_size()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

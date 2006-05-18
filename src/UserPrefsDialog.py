@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Fri Apr 14 13:26:54 2006
+# Created: Thu May 18 00:22:44 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -466,6 +466,8 @@ class UserPrefsDialog(QDialog):
         layout79_2 = QGridLayout(None,1,1,0,6,"layout79_2")
 
         self.textLabel3_2 = QLabel(self.groupBox4,"textLabel3_2")
+        self.textLabel3_2.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.textLabel3_2.sizePolicy().hasHeightForWidth()))
+        self.textLabel3_2.setPaletteForegroundColor(QColor(0,0,0))
         self.textLabel3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         layout79_2.addWidget(self.textLabel3_2,0,0)
@@ -608,6 +610,8 @@ class UserPrefsDialog(QDialog):
         layout68.addWidget(self.startup_mode_combox,0,1)
 
         self.default_mode_lbl = QLabel(self.TabPage_3,"default_mode_lbl")
+        self.default_mode_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.default_mode_lbl.sizePolicy().hasHeightForWidth()))
+        self.default_mode_lbl.setPaletteForegroundColor(QColor(0,0,0))
         self.default_mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         layout68.addWidget(self.default_mode_lbl,1,0)
@@ -1211,8 +1215,8 @@ class UserPrefsDialog(QDialog):
 
         self.TabPage_7 = QWidget(self.prefs_tab,"TabPage_7")
         TabPageLayout_7 = QGridLayout(self.TabPage_7,1,1,11,6,"TabPageLayout_7")
-        spacer11_3 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_7.addItem(spacer11_3,2,0)
+        spacer94 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_7.addItem(spacer94,2,0)
 
         layout15 = QHBoxLayout(None,0,6,"layout15")
 
@@ -1251,9 +1255,9 @@ class UserPrefsDialog(QDialog):
         spacer9_2 = QSpacerItem(210,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout15.addItem(spacer9_2)
 
-        TabPageLayout_7.addLayout(layout15,1,0)
-
-        layout51 = QHBoxLayout(None,0,6,"layout51")
+        TabPageLayout_7.addMultiCellLayout(layout15,1,1,0,1)
+        spacer47 = QSpacerItem(70,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TabPageLayout_7.addItem(spacer47,0,1)
 
         self.groupBox10 = QGroupBox(self.TabPage_7,"groupBox10")
         self.groupBox10.setColumnLayout(0,Qt.Vertical)
@@ -1262,28 +1266,80 @@ class UserPrefsDialog(QDialog):
         groupBox10Layout = QGridLayout(self.groupBox10.layout())
         groupBox10Layout.setAlignment(Qt.AlignTop)
 
-        self.remember_win_pos_and_size_checkbox = QCheckBox(self.groupBox10,"remember_win_pos_and_size_checkbox")
+        layout115 = QVBoxLayout(None,0,6,"layout115")
 
-        groupBox10Layout.addMultiCellWidget(self.remember_win_pos_and_size_checkbox,0,0,0,1)
+        self.textLabel1_2 = QLabel(self.groupBox10,"textLabel1_2")
+        self.textLabel1_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout115.addWidget(self.textLabel1_2)
+
+        self.textLabel1_2_2 = QLabel(self.groupBox10,"textLabel1_2_2")
+        self.textLabel1_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout115.addWidget(self.textLabel1_2_2)
+
+        groupBox10Layout.addLayout(layout115,0,0)
+
+        layout116 = QVBoxLayout(None,0,6,"layout116")
 
         self.save_current_btn = QPushButton(self.groupBox10,"save_current_btn")
         self.save_current_btn.setAutoDefault(0)
+        layout116.addWidget(self.save_current_btn)
 
-        groupBox10Layout.addWidget(self.save_current_btn,1,0)
-        spacer46 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        groupBox10Layout.addItem(spacer46,1,1)
-        layout51.addWidget(self.groupBox10)
-        spacer47 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout51.addItem(spacer47)
+        self.restore_saved_size_btn = QPushButton(self.groupBox10,"restore_saved_size_btn")
+        self.restore_saved_size_btn.setAutoDefault(0)
+        layout116.addWidget(self.restore_saved_size_btn)
 
-        TabPageLayout_7.addLayout(layout51,0,0)
+        groupBox10Layout.addLayout(layout116,0,2)
+
+        layout117_2 = QGridLayout(None,1,1,0,6,"layout117_2")
+
+        self.current_width_spinbox = QSpinBox(self.groupBox10,"current_width_spinbox")
+        self.current_width_spinbox.setMaxValue(2048)
+        self.current_width_spinbox.setMinValue(640)
+        self.current_width_spinbox.setValue(640)
+
+        layout117_2.addWidget(self.current_width_spinbox,0,0)
+
+        self.saved_height_lineedit = QLineEdit(self.groupBox10,"saved_height_lineedit")
+        self.saved_height_lineedit.setReadOnly(1)
+
+        layout117_2.addWidget(self.saved_height_lineedit,1,2)
+
+        self.current_height_spinbox = QSpinBox(self.groupBox10,"current_height_spinbox")
+        self.current_height_spinbox.setMaxValue(2000)
+        self.current_height_spinbox.setMinValue(480)
+        self.current_height_spinbox.setValue(480)
+
+        layout117_2.addWidget(self.current_height_spinbox,0,2)
+
+        self.saved_width_lineedit = QLineEdit(self.groupBox10,"saved_width_lineedit")
+        self.saved_width_lineedit.setReadOnly(1)
+
+        layout117_2.addWidget(self.saved_width_lineedit,1,0)
+
+        self.textLabel1_2_2_2 = QLabel(self.groupBox10,"textLabel1_2_2_2")
+        self.textLabel1_2_2_2.setAlignment(QLabel.AlignCenter)
+
+        layout117_2.addWidget(self.textLabel1_2_2_2,0,1)
+
+        self.textLabel1_2_2_2_2 = QLabel(self.groupBox10,"textLabel1_2_2_2_2")
+        self.textLabel1_2_2_2_2.setAlignment(QLabel.AlignCenter)
+
+        layout117_2.addWidget(self.textLabel1_2_2_2_2,1,1)
+
+        groupBox10Layout.addLayout(layout117_2,0,1)
+
+        self.remember_win_pos_and_size_checkbox = QCheckBox(self.groupBox10,"remember_win_pos_and_size_checkbox")
+
+        groupBox10Layout.addMultiCellWidget(self.remember_win_pos_and_size_checkbox,1,1,0,2)
+
+        TabPageLayout_7.addWidget(self.groupBox10,0,0)
         self.prefs_tab.insertTab(self.TabPage_7,QString.fromLatin1(""))
 
         UserPrefsDialogLayout.addWidget(self.prefs_tab,0,0)
 
         self.languageChange()
 
-        self.resize(QSize(574,424).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(574,402).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -1352,6 +1408,9 @@ class UserPrefsDialog(QDialog):
         self.connect(self.show_valence_errors_checkbox,SIGNAL("toggled(bool)"),self.change_show_valence_errors)
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
         self.connect(self.undo_stack_memory_limit_spinbox,SIGNAL("valueChanged(int)"),self.change_undo_stack_memory_limit)
+        self.connect(self.current_width_spinbox,SIGNAL("valueChanged(int)"),self.change_window_size)
+        self.connect(self.current_height_spinbox,SIGNAL("valueChanged(int)"),self.change_window_size)
+        self.connect(self.restore_saved_size_btn,SIGNAL("clicked()"),self.restore_saved_size)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_origin_axis_checkbox)
@@ -1715,10 +1774,19 @@ class UserPrefsDialog(QDialog):
         self.caption_suffix_linedit.setText(QString.null)
         self.caption_fullpath_checkbox.setText(self.__tr("Display full path of part"))
         self.groupBox10.setTitle(self.__tr("Window Position and Size"))
-        self.remember_win_pos_and_size_checkbox.setText(self.__tr("Remember window position and size"))
-        self.save_current_btn.setText(self.__tr("Save Current"))
+        self.textLabel1_2.setText(self.__tr("Current Size :"))
+        self.textLabel1_2_2.setText(self.__tr("Saved Size :"))
+        self.save_current_btn.setText(self.__tr("Save Current Size"))
         QToolTip.add(self.save_current_btn,self.__tr("Save current window position and size for next startup"))
         QWhatsThis.add(self.save_current_btn,self.__tr("Saves the main window's current position and size for the next time the program starts."))
+        self.restore_saved_size_btn.setText(self.__tr("Restore Saved Size"))
+        QToolTip.add(self.restore_saved_size_btn,self.__tr("Save current window position and size for next startup"))
+        QWhatsThis.add(self.restore_saved_size_btn,self.__tr("Saves the main window's current position and size for the next time the program starts."))
+        self.current_width_spinbox.setSuffix(self.__tr(" pixels"))
+        self.current_height_spinbox.setSuffix(self.__tr(" pixels"))
+        self.textLabel1_2_2_2.setText(self.__tr("x"))
+        self.textLabel1_2_2_2_2.setText(self.__tr("x"))
+        self.remember_win_pos_and_size_checkbox.setText(self.__tr("Always save current window position and size when quitting"))
         self.prefs_tab.changeTab(self.TabPage_7,self.__tr("Window"))
 
 
@@ -1907,6 +1975,12 @@ class UserPrefsDialog(QDialog):
 
     def change_undo_stack_memory_limit(self):
         print "UserPrefsDialog.change_undo_stack_memory_limit(): Not implemented yet"
+
+    def change_window_size(self):
+        print "UserPrefsDialog.change_window_size(): Not implemented yet"
+
+    def restore_saved_size(self):
+        print "UserPrefsDialog.restore_saved_size(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

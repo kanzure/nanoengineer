@@ -505,7 +505,28 @@ class UserPrefs(UserPrefsDialog):
     def _setup_window_page(self): #bruce 050810 revised this, and also call it from __init__ to be safe
         ''' Setup widgets to initial (default or defined) values on the window page.
         '''
+        from platform import screen_pos_size, get_window_pos_size
+        
+        # Update the max value of the Current Size Spinboxes
+        screen = screen_pos_size()
+        ((x0,y0),(w,h)) = screen
+        self.current_width_spinbox.setMaxValue(w)
+        self.current_height_spinbox.setMaxValue(h)
+        
+        # Set value of the Current Size Spinboxes
+        pos, size = get_window_pos_size(self.w)
+        self.current_width_spinbox.setValue(size[0])
+        self.current_height_spinbox.setValue(size[1])
+        
+        # Set string of Saved Size Lineedits
+        from platform import get_prefs_for_window_pos_size
+        from prefs_constants import mainwindow_geometry_prefs_key_prefix
+        keyprefix = mainwindow_geometry_prefs_key_prefix
+        pos, size = get_prefs_for_window_pos_size( self.w, keyprefix)
+        self.update_saved_size(size[0], size[1])
+
         connect_checkbox_with_boolean_pref( self.remember_win_pos_and_size_checkbox, rememberWinPosSize_prefs_key )
+        
         self.caption_prefix_linedit.setText(env.prefs[captionPrefix_prefs_key])
         self.caption_suffix_linedit.setText(env.prefs[captionSuffix_prefs_key])
             ##e someday we should make a 2-way connector function for LineEdits too
@@ -1120,6 +1141,15 @@ class UserPrefs(UserPrefsDialog):
     ########## Slot methods for "Window" (former name "Caption") page widgets ################
 
     #e there are some new slot methods for this in other places, which should be refiled here. [bruce 050811]
+    
+    def change_window_size(self, val=0):
+        '''Slot for both the width and height spinboxes that change the current window size.
+        Also called from other slots to change the window size based on new values in spinboxes.
+        <val> is not used.
+        '''
+        w = self.current_width_spinbox.value()
+        h = self.current_height_spinbox.value()
+        self.w.resize(w,h)
 
     def change_remember_win_pos_and_size(self, state): #bruce 051218 ##k args
         #& print "change_remember_win_pos_and_size is not yet implemented (acts as if never checked); arg was", state
@@ -1134,14 +1164,33 @@ class UserPrefs(UserPrefsDialog):
         # either since signals are false alarms during init, or env.prefs is not set up, or exception in load-size code(?);
         #  for part of that use win._ok_to_autosave_geometry_changes
         # ideally, dim the manual-save button when this is checked (if not too early to let this checkbox work)
+        
+    def update_saved_size(self, w, h):
+        'Update the saved width and height text'
+        self.saved_width_lineedit.setText(QString(str(w) + " pixels"))
+        self.saved_height_lineedit.setText(QString(str(h) + " pixels"))
 
     def save_current_win_pos_and_size(self): #bruce 051218; see also debug.py's _debug_save_window_layout
         from platform import save_window_pos_size
         from prefs_constants import mainwindow_geometry_prefs_key_prefix
-        win = self.w
         keyprefix = mainwindow_geometry_prefs_key_prefix
-        save_window_pos_size( win, keyprefix) # prints history message
+        save_window_pos_size( self.w, keyprefix) # prints history message
+        size = self.w.size()
+        self.update_saved_size(size.width(), size.height())
         return
+    
+    def restore_saved_size(self):
+        'Restore the window size, but not the position, from the prefs db'
+        from platform import get_prefs_for_window_pos_size
+        from prefs_constants import mainwindow_geometry_prefs_key_prefix
+        keyprefix = mainwindow_geometry_prefs_key_prefix
+        pos, size = get_prefs_for_window_pos_size( self.w, keyprefix)
+        w = size[0]
+        h = size[1]
+        self.update_saved_size(w, h)
+        self.current_width_spinbox.setValue(w)
+        self.current_height_spinbox.setValue(h)
+        self.change_window_size()
     
     def set_caption_fullpath(self, val): #bruce 050810 revised this
         # there is now a separate connection which sets the pref, so this is not needed:
