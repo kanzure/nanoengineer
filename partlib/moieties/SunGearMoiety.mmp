@@ -1,4 +1,4 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 060421 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
@@ -7,12 +7,12 @@ csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.682714) (0.000000, 0
 egroup (View Data)
 group (SunGearMoiety)
 info opengroup open = True
-mol (SunGearMoiety) tub
+mol (SunGearMoiety) def
 atom 1 (0) (-722, -68, 2896) def
 atom 2 (16) (1441, -2118, -1769) def
 atom 3 (0) (1255, -115, 2755) def
 atom 4 (0) (331, 1672, 2751) def
-atom 5 (6) (-1124, -587, 1015) def
+atom 5 (6) (-1124, -587, 1014) def
 atom 6 (6) (-955, 310, 2268) def
 bond1 5 1
 atom 7 (16) (-1510, -2057, -1570) def
@@ -42,9 +42,9 @@ atom 19 (0) (2142, -946, 785) def
 bond1 14
 atom 20 (0) (2407, -1745, -1853) def
 bond1 2
-atom 21 (0) (2002, 477, -519) def
+atom 21 (0) (2001, 477, -519) def
 bond1 18
-atom 22 (0) (2188, 467, 2026) def
+atom 22 (0) (2188, 467, 2025) def
 bond1 11
 atom 23 (0) (-1836, -876, 1052) def
 bond1 5

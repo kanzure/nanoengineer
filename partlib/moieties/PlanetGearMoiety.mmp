@@ -1,14 +1,13 @@
-mmpformat 050130 required; 050217 optional
+mmpformat 050920 required; 060421 preferred
 kelvin 300
-group (Data)
+group (View Data)
+info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (6.415867) (0.000000, 0.000000, 0.000000) (1.000000)
 csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (6.415867) (0.000000, 0.000000, 0.000000) (1.000000)
-datum (XY) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 0.000000, 1.000000) (0.000000, 1.000000, 0.000000)
-datum (YZ) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (1.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000)
-datum (ZX) (0, 0, 255) plane (0.000000, 0.000000, 0.000000) (0.000000, 1.000000, 0.000000) (0.000000, 1.000000, 0.000000)
-egroup (Data)
+egroup (View Data)
 group (PlanetGearMoiety)
-mol (Molecule.2) tub
+info opengroup open = True
+mol (Molecule.2) def
 atom 1 (6) (-48, -1, -1480) def
 atom 2 (6) (-51, -26, 1615) def
 atom 3 (6) (-51, 1312, -757) def
@@ -58,5 +57,6 @@ bond1 4
 egroup (PlanetGearMoiety)
 end1
 group (Clipboard)
+info opengroup open = False
 egroup (Clipboard)
 end molecular machine part PlanetGearMoiety

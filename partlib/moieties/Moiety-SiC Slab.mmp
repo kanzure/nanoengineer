@@ -1,4 +1,4 @@
-mmpformat 050920 required; 051103 preferred
+mmpformat 050920 required; 060421 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
@@ -7,7 +7,7 @@ csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (9.807596) (0.000000, 0
 egroup (View Data)
 group (Moiety-SiC Slab)
 info opengroup open = True
-mol (Moiety-SiC Slab) tub
+mol (Moiety-SiC Slab) def
 atom 1 (14) (1041, -772, 1182) def
 atom 2 (14) (1063, -774, -1173) def
 bond1 1

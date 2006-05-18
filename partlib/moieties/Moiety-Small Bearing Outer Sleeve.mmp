@@ -1,4 +1,4 @@
-mmpformat 050920 required; 051103 preferred
+mmpformat 050920 required; 060421 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
@@ -7,7 +7,7 @@ csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.539764) (-0.920768, 
 egroup (View Data)
 group (Moiety-Small Bearing Outer Sleeve)
 info opengroup open = True
-mol (outer sleeve moiety) tub
+mol (outer sleeve moiety) def
 atom 1 (6) (62, 6759, 1275) def
 atom 2 (6) (48, 5875, -24) def
 bond1 1

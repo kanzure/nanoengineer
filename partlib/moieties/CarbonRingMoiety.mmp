@@ -1,4 +1,4 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 060421 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
@@ -7,7 +7,7 @@ csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (5.656335) (-0.043000, 
 egroup (View Data)
 group (CarbonRingMoiety)
 info opengroup open = True
-mol (Moiety) tub
+mol (Moiety) def
 atom 1 (6) (1377, -2003, -2960) def
 info atom atomtype = sp2
 atom 2 (6) (8, -2429, -2989) def

@@ -1,4 +1,4 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 060421 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
@@ -7,7 +7,7 @@ csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (10.878988) (0.000000, 
 egroup (View Data)
 group (PlanCarrMoiety)
 info opengroup open = True
-mol (Moiety) tub
+mol (Moiety) def
 atom 1 (6) (-1559, 1254, 3369) def
 atom 2 (1) (-2019, 307, 3625) def
 bond1 1
@@ -166,7 +166,7 @@ atom 79 (1) (-735, -5190, -4129) def
 bond1 78
 atom 80 (6) (-3080, -1080, -3171) def
 bond1 68 75
-atom 81 (1) (-2930, -425, -4028) def
+atom 81 (1) (-2930, -425, -4027) def
 bond1 80
 atom 82 (6) (-2143, -3287, 607) def
 bond1 70 73
@@ -184,9 +184,9 @@ atom 88 (8) (-1988, -6243, -714) def
 bond1 77
 atom 89 (8) (-1915, -6443, -2754) def
 bond1 78
-atom 90 (6) (-2014, -2270, 1828) def
+atom 90 (6) (-2013, -2270, 1828) def
 bond1 82 85
-atom 91 (1) (-2042, -2818, 2764) def
+atom 91 (1) (-2041, -2818, 2764) def
 bond1 90
 atom 92 (8) (-1904, -6470, 1348) def
 bond1 83
