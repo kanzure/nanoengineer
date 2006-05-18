@@ -4886,35 +4886,51 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
 <tabstops>
     <tabstop>prefs_tab</tabstop>
     <tabstop>display_compass_checkbox</tabstop>
+    <tabstop>display_compass_labels_checkbox</tabstop>
     <tabstop>display_origin_axis_checkbox</tabstop>
     <tabstop>display_pov_axis_checkbox</tabstop>
     <tabstop>upper_right_btn</tabstop>
+    <tabstop>watch_min_in_realtime_checkbox</tabstop>
     <tabstop>radioButton12</tabstop>
+    <tabstop>high_quality_graphics_checkbox</tabstop>
     <tabstop>animate_views_checkbox</tabstop>
+    <tabstop>animation_speed_slider</tabstop>
+    <tabstop>ok_btn</tabstop>
+    <tabstop>change_element_colors_btn</tabstop>
     <tabstop>atom_hilite_color_btn</tabstop>
+    <tabstop>bondpoint_hilite_color_btn</tabstop>
     <tabstop>hotspot_color_btn</tabstop>
     <tabstop>reset_atom_colors_btn</tabstop>
     <tabstop>cpk_atom_rad_spinbox</tabstop>
-    <tabstop>vwd_rbtn</tabstop>
-    <tabstop>cpk_rbtn</tabstop>
-    <tabstop>tubes_rbtn</tabstop>
-    <tabstop>lines_rbtn</tabstop>
+    <tabstop>cpk_scale_factor_linedit</tabstop>
+    <tabstop>cpk_scale_factor_slider</tabstop>
+    <tabstop>level_of_detail_combox</tabstop>
     <tabstop>bond_hilite_color_btn</tabstop>
     <tabstop>bond_cpk_color_btn</tabstop>
     <tabstop>bond_stretch_color_btn</tabstop>
     <tabstop>bond_vane_color_btn</tabstop>
     <tabstop>reset_bond_colors_btn</tabstop>
-    <tabstop>bond_line_thickness_spinbox</tabstop>
     <tabstop>cpk_cylinder_rad_spinbox</tabstop>
+    <tabstop>bond_line_thickness_spinbox</tabstop>
     <tabstop>radioButton11</tabstop>
     <tabstop>show_bond_labels_checkbox</tabstop>
     <tabstop>show_valence_errors_checkbox</tabstop>
-    <tabstop>default_mode_combox</tabstop>
     <tabstop>startup_mode_combox</tabstop>
+    <tabstop>default_mode_combox</tabstop>
     <tabstop>mode_combox</tabstop>
+    <tabstop>display_mode_combox</tabstop>
     <tabstop>fill_type_combox</tabstop>
     <tabstop>choose_bg1_color_btn</tabstop>
     <tabstop>restore_bgcolor_btn</tabstop>
+    <tabstop>vwd_rbtn</tabstop>
+    <tabstop>cpk_rbtn</tabstop>
+    <tabstop>tubes_rbtn</tabstop>
+    <tabstop>lines_rbtn</tabstop>
+    <tabstop>autobond_checkbox</tabstop>
+    <tabstop>buildmode_highlighting_checkbox</tabstop>
+    <tabstop>buildmode_select_atoms_checkbox</tabstop>
+    <tabstop>water_checkbox</tabstop>
+    <tabstop>light_combobox</tabstop>
     <tabstop>light_checkbox</tabstop>
     <tabstop>light_color_btn</tabstop>
     <tabstop>light_ambient_linedit</tabstop>
@@ -4926,6 +4942,13 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <tabstop>light_x_linedit</tabstop>
     <tabstop>light_y_linedit</tabstop>
     <tabstop>light_z_linedit</tabstop>
+    <tabstop>ms_on_checkbox</tabstop>
+    <tabstop>ms_finish_linedit</tabstop>
+    <tabstop>ms_finish_slider</tabstop>
+    <tabstop>ms_shininess_linedit</tabstop>
+    <tabstop>ms_shininess_slider</tabstop>
+    <tabstop>ms_brightness_linedit</tabstop>
+    <tabstop>ms_brightness_slider</tabstop>
     <tabstop>lighting_restore_defaults_btn</tabstop>
     <tabstop>gamess_checkbox</tabstop>
     <tabstop>gamess_path_linedit</tabstop>
@@ -4933,12 +4956,21 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <tabstop>nanohive_checkbox</tabstop>
     <tabstop>nanohive_path_linedit</tabstop>
     <tabstop>nanohive_choose_btn</tabstop>
+    <tabstop>undo_restore_view_checkbox</tabstop>
+    <tabstop>undo_automatic_checkpoints_checkbox</tabstop>
+    <tabstop>undo_stack_memory_limit_spinbox</tabstop>
     <tabstop>msg_serial_number_checkbox</tabstop>
     <tabstop>msg_timestamp_checkbox</tabstop>
+    <tabstop>current_width_spinbox</tabstop>
+    <tabstop>current_height_spinbox</tabstop>
+    <tabstop>save_current_btn</tabstop>
+    <tabstop>saved_width_lineedit</tabstop>
+    <tabstop>saved_height_lineedit</tabstop>
+    <tabstop>restore_saved_size_btn</tabstop>
+    <tabstop>remember_win_pos_and_size_checkbox</tabstop>
     <tabstop>caption_prefix_linedit</tabstop>
     <tabstop>caption_suffix_linedit</tabstop>
     <tabstop>caption_fullpath_checkbox</tabstop>
-    <tabstop>ok_btn</tabstop>
 </tabstops>
 <slots>
     <slot>display_compass()</slot>
