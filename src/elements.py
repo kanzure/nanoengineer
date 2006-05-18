@@ -174,6 +174,7 @@ class ElementPeriodicTable(Singleton):
 ## H -- 0.31
 ## F -- 0.7
 ## C -- 0.77 [compare to DIAMOND_BOND_LENGTH (1.544) in constants.py [bruce 051102 comment]]
+#### 1.544 is a bond length, double the covalent radius, so pretty consistent - wware 060518
 ## B -- 0.8
 ## S -- 1.07
 ## P -- 1.08
