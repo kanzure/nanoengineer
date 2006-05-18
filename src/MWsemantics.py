@@ -381,6 +381,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def cleanUpBeforeExiting(self): #bruce 060127 added this re bug 1412 (Python crashes on exit, newly common)
         try:
             env.history.message(greenmsg("Exiting program."))
+            if env.prefs[rememberWinPosSize_prefs_key]: # Fixes bug 1249-2. Mark 060518.
+                self.uprefs.save_current_win_pos_and_size()
             ## this seems to take too long, and is probably not needed: self.__clear()
             self.deleteMMKit()  # wware 060406 bug 1263 - don't leave MMKit open after exiting program
             self.assy.deinit()

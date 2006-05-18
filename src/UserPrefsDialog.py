@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu May 18 00:22:44 2006
+# Created: Thu May 18 01:20:03 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1398,7 +1398,6 @@ class UserPrefsDialog(QDialog):
         self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.prefs_tab,SIGNAL("selected(const QString&)"),self.setup_current_page)
-        self.connect(self.remember_win_pos_and_size_checkbox,SIGNAL("toggled(bool)"),self.change_remember_win_pos_and_size)
         self.connect(self.reset_atom_colors_btn,SIGNAL("clicked()"),self.reset_atom_colors)
         self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)
         self.connect(self.reset_cpk_scale_factor_btn,SIGNAL("clicked()"),self.reset_cpk_scale_factor)
@@ -1936,9 +1935,6 @@ class UserPrefsDialog(QDialog):
 
     def change_high_quality_graphics(self):
         print "UserPrefsDialog.change_high_quality_graphics(): Not implemented yet"
-
-    def change_remember_win_pos_and_size(self):
-        print "UserPrefsDialog.change_remember_win_pos_and_size(): Not implemented yet"
 
     def save_current_win_pos_and_size(self):
         print "UserPrefsDialog.save_current_win_pos_and_size(): Not implemented yet"

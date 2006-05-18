@@ -4811,12 +4811,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>setup_current_page()</slot>
     </connection>
     <connection>
-        <sender>remember_win_pos_and_size_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_remember_win_pos_and_size()</slot>
-    </connection>
-    <connection>
         <sender>reset_atom_colors_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -4996,7 +4990,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>change_material_brightness_start()</slot>
     <slot>change_material_brightness_stop()</slot>
     <slot>change_high_quality_graphics()</slot>
-    <slot>change_remember_win_pos_and_size()</slot>
     <slot>save_current_win_pos_and_size()</slot>
     <slot>change_view_animation_speed()</slot>
     <slot>change_element_colors()</slot>

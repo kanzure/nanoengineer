@@ -1150,20 +1150,6 @@ class UserPrefs(UserPrefsDialog):
         w = self.current_width_spinbox.value()
         h = self.current_height_spinbox.value()
         self.w.resize(w,h)
-
-    def change_remember_win_pos_and_size(self, state): #bruce 051218 ##k args
-        #& print "change_remember_win_pos_and_size is not yet implemented (acts as if never checked); arg was", state
-        # Let the user know this is NIY. Addresses bug 1249 for A7. mark 060314.
-        msg = "Remember Window Position and Size is not implemented yet."
-        from HistoryWidget import orangemsg
-        env.history.message(orangemsg(msg))
-        #e implem notes:
-        # needs a prefs key for this checkbox (what's the default?) and to grab it into widget when this page is inited
-        # need to catch signals from pos/size changes
-        # need to make sure it's not too early to save geom,
-        # either since signals are false alarms during init, or env.prefs is not set up, or exception in load-size code(?);
-        #  for part of that use win._ok_to_autosave_geometry_changes
-        # ideally, dim the manual-save button when this is checked (if not too early to let this checkbox work)
         
     def update_saved_size(self, w, h):
         'Update the saved width and height text'
