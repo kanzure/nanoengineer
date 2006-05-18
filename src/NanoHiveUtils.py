@@ -299,7 +299,7 @@ def verify_program(program, version_flag, vstring):
     while not p.canReadLineStdout():
         time.sleep(0.25)
         duration = time.time() - start
-        if duration > 2.0: # 2 seconds
+        if duration > 5.0: # Anything less than 5 seconds is not long enough. Mark 060518.
             return 1
     
     output = 'Not vstring'
