@@ -553,31 +553,24 @@ def save_window_pos_size( win, keyprefix): #bruce 050913 removed histmessage arg
     env.history.message("saved window position %r and size %r" % (pos,size))
     return
 
-def load_window_pos_size( win, keyprefix, defaults = None, screen = None): #bruce 050913 removed histmessage arg
+def load_window_pos_size( win, keyprefix, defaults = None, screen = None): #bruce 050913 removed histmessage arg; 060517 revised
     """Load the last-saved size and position of the given main window, win,
     from the preferences database, using keys based on the given keyprefix,
     which caller ought to reserve for geometry aspects of the main window.
-    Then set win's actual position and size (using supplied defaults, and
+    (If no prefs have been stored, return reasonable or given defaults.)
+       Then set win's actual position and size (using supplied defaults, and
     limited by supplied screen size, both given as ((pos_x,pos_y),(size_x,size_y)).
     (#e Someday, maybe restore more aspects like dock layout and splitter bar positions??)
     """
-    if defaults is None:
-        defaults = get_window_pos_size(win)
-    dpos, dsize = defaults
-    px,py = dpos # check correctness of args, even if not used later
-    sx,sy = dsize
     if screen is None:
         screen = screen_pos_size()
     ((x0,y0),(w,h)) = screen
     x1 = x0 + w
     y1 = y0 + h
-    import preferences
-    prefs = preferences.prefs_context()
-    ksize, kpos = size_pos_keys( keyprefix)
-    pos = prefs.get(kpos, dpos)
-    size = prefs.get(ksize, dsize)
+
+    pos, size = get_prefs_for_window_pos_size( win, keyprefix, defaults)
     # now use pos and size, within limits set by screen
-    px,py = pos # (reuses varnames from dpos check above)
+    px,py = pos
     sx,sy = size
     if sx > w: sx = w
     if sy > h: sy = h
@@ -589,6 +582,25 @@ def load_window_pos_size( win, keyprefix, defaults = None, screen = None): #bruc
     win.resize(sx,sy)
     win.move(px,py)
     return
+
+def get_prefs_for_window_pos_size( win, keyprefix, defaults = None):
+    """Load and return the last-saved size and position of the given main window, win,
+    from the preferences database, using keys based on the given keyprefix,
+    which caller ought to reserve for geometry aspects of the main window.
+    (If no prefs have been stored, return reasonable or given defaults.)
+    """
+    #bruce 060517 split this out of load_window_pos_size
+    if defaults is None:
+        defaults = get_window_pos_size(win)
+    dpos, dsize = defaults
+    px,py = dpos # check correctness of args, even if not used later
+    sx,sy = dsize
+    import preferences
+    prefs = preferences.prefs_context()
+    ksize, kpos = size_pos_keys( keyprefix)
+    pos = prefs.get(kpos, dpos)
+    size = prefs.get(ksize, dsize)
+    return pos, size
 
 def open_file_in_editor(file, hflag = True): #bruce 050913 revised this
     """Opens a file in a standard text editor.
