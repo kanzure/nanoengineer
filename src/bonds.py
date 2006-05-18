@@ -313,24 +313,26 @@ def neighborhoodGenerator(atomlist, maxradius):
         return lst
     return region
 
-def inferBonds(atoms):
+def inferBonds(mol):
     maxBondLength = 2.0
-    neighborhood = neighborhoodGenerator(atoms, maxBondLength)
     # first remove any coincident singlets
+    singlets = filter(lambda a: a.is_singlet(), mol.atoms.values())
     removable = { }
-    for atm1 in atoms:
-        if atm1.is_singlet():
-            key1 = atm1.key
-            pos1 = atm1.posn()
-            for atm2 in neighborhood(pos1):
-                if atm2.is_singlet():
-                    key2 = atm2.key
-                    dist = vlen(atm1.posn() - atm2.posn())
-                    if key2 != key1 and dist < 1.0:
-                        removable[key1] = 1
-                        removable[key2] = 1
-    atoms = filter(lambda atm: not removable.has_key(atm.key), atoms)
-    for atm1 in atoms:
+    singletNeighborhood = neighborhoodGenerator(singlets, maxBondLength)
+    for sing1 in singlets:
+        key1 = sing1.key
+        pos1 = sing1.posn()
+        for sing2 in singletNeighborhood(pos1):
+            dist = vlen(pos1 - sing2.posn())
+            # not sure how big a margin we should have for
+            # "coincident"
+            if 0.001 < dist < 2.0:
+                removable[key1] = sing1
+                removable[sing2.key] = sing2
+    for badGuy in removable.values():
+        mol.delatom(badGuy)
+    neighborhood = neighborhoodGenerator(mol.atoms.values(), maxBondLength)
+    for atm1 in mol.atoms.values():
         key1 = atm1.key
         pos1 = atm1.posn()
         radius1 = atm1.atomtype.rcovalent

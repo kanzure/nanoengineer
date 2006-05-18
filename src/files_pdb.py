@@ -90,7 +90,7 @@ def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & d
         return None
     if numconects == 0:
         env.history.message(orangemsg("PDB file has no bond info; inferring bonds"))
-        inferBonds(mol.atoms.values())
+        inferBonds(mol)
     return mol
     
 # read a Protein DataBank-format file into a single molecule
