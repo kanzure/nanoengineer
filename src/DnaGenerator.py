@@ -18,8 +18,7 @@ import env
 from HistoryWidget import redmsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
 from VQT import A, dot, vlen
-from files_pdb import neighborhoodGenerator
-from bonds import bond_atoms
+from bonds import inferBonds
 
 # There are three kinds of DNA helix geometries, A, B, and Z. I got my hands
 # on a Z file first, so that's what I'm going with.
@@ -151,18 +150,7 @@ class DnaGenerator(DnaGeneratorDialog):
         makeDna(mol, self.seq_linedit.text(),
                 self.spineAchkbox.isChecked(), self.basesAchkbox.isChecked(),
                 self.spineBchkbox.isChecked(), self.basesBchkbox.isChecked())
-
-        # infer bonds
-        maxBondLength = 2.0
-        atoms = mol.atoms
-        neighborhood = neighborhoodGenerator(atoms.values(), maxBondLength)
-        for atm1 in atoms.values():
-            key1 = atm1.key
-            for atm2 in neighborhood(atm1.posn()):
-                bondLen = vlen(atm1.posn() - atm2.posn())
-                idealBondLen = atm1.atomtype.rcovalent + atm2.atomtype.rcovalent
-                if atm2.key < key1 and 0.8 * idealBondLen < bondLen < 1.2 * idealBondLen:
-                    bond_atoms(atm1, atm2)
+        inferBonds(mol.atoms.values())
 
         part = self.win.assy.part
         part.ensure_toplevel_group()

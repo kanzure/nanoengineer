@@ -284,6 +284,62 @@ def bond_v6(bond):
     "Return bond.v6. Useful in map, filter, etc."
     return bond.v6
 
+# This is an order(N) operation that produces a function which gets a
+# list of potential neighbors in order(1) time. This is handy for
+# inferring bonds for PDB files that lack any bonding information.
+def neighborhoodGenerator(atomlist, maxradius):
+    def quantize(vec, maxradius=maxradius):
+        return (int(vec[0] / maxradius),
+                int(vec[1] / maxradius),
+                int(vec[2] / maxradius))
+    buckets = { }
+    for atom in atomlist:
+        key = quantize(atom.posn())
+        try:
+            buckets[key].append(atom)
+        except KeyError:
+            buckets[key] = [ atom ]
+    def region(center, quantize=quantize, buckets=buckets):
+        lst = [ ]
+        x0, y0, z0 = quantize(center)
+        for x in range(x0 - 1, x0 + 2):
+            for y in range(y0 - 1, y0 + 2):
+                for z in range(z0 - 1, z0 + 2):
+                    key = (x, y, z)
+                    try:
+                        lst += buckets[key]
+                    except KeyError:
+                        pass
+        return lst
+    return region
+
+def inferBonds(atoms):
+    maxBondLength = 2.0
+    neighborhood = neighborhoodGenerator(atoms, maxBondLength)
+    # first remove any coincident singlets
+    removable = { }
+    for atm1 in atoms:
+        if atm1.is_singlet():
+            key1 = atm1.key
+            pos1 = atm1.posn()
+            for atm2 in neighborhood(pos1):
+                if atm2.is_singlet():
+                    key2 = atm2.key
+                    dist = vlen(atm1.posn() - atm2.posn())
+                    if key2 != key1 and dist < 1.0:
+                        removable[key1] = 1
+                        removable[key2] = 1
+    atoms = filter(lambda atm: not removable.has_key(atm.key), atoms)
+    for atm1 in atoms:
+        key1 = atm1.key
+        pos1 = atm1.posn()
+        radius1 = atm1.atomtype.rcovalent
+        for atm2 in neighborhood(pos1):
+            bondLen = vlen(pos1 - atm2.posn())
+            idealBondLen = radius1 + atm2.atomtype.rcovalent
+            if atm2.key < key1 and 0.8 * idealBondLen < bondLen < 1.2 * idealBondLen:
+                bond_atoms(atm1, atm2)
+
 # ==
 
 _changed_Bonds = {} # tracks all changes to Bonds: existence/liveness (maybe not needed), which atoms, bond order

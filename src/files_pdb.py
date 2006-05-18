@@ -13,42 +13,14 @@ bruce 050901 used env.history in some places.
 
 import os
 from chunk import molecule
-from chem import atom, bond_atoms
+from chem import atom
+from bonds import inferBonds
 from string import capitalize
 from elements import PeriodicTable, Singlet
 from platform import fix_plurals
 from HistoryWidget import redmsg, orangemsg
 from VQT import A, vlen
 import env #bruce 050901
-
-# This is an order(N) operation that produces a function which gets a
-# list of potential neighbors in order(1) time. This is handy for
-# inferring bonds for PDB files that lack any bonding information.
-def neighborhoodGenerator(atomlist, maxradius):
-    def quantize(vec, maxradius=maxradius):
-        return (int(vec[0] / maxradius),
-                int(vec[1] / maxradius),
-                int(vec[2] / maxradius))
-    buckets = { }
-    for atom in atomlist:
-        key = quantize(atom.posn())
-        try:
-            buckets[key].append(atom)
-        except KeyError:
-            buckets[key] = [ atom ]
-    def region(center, quantize=quantize, buckets=buckets):
-        lst = [ ]
-        x0, y0, z0 = quantize(center)
-        for x in range(x0 - 1, x0 + 2):
-            for y in range(y0 - 1, y0 + 2):
-                for z in range(z0 - 1, z0 + 2):
-                    key = (x, y, z)
-                    try:
-                        lst += buckets[key]
-                    except KeyError:
-                        pass
-        return lst
-    return region
 
 def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & docstring in several ways
     """Read a Protein DataBank-format file into a single new chunk, which is returned,
@@ -118,15 +90,7 @@ def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & d
         return None
     if numconects == 0:
         env.history.message(orangemsg("PDB file has no bond info; inferring bonds"))
-        maxBondLength = 2.0
-        neighborhood = neighborhoodGenerator(mol.atoms.values(), maxBondLength)
-        for atm1 in mol.atoms.values():
-            key1 = atm1.key
-            for atm2 in neighborhood(atm1.posn()):
-                bondLen = vlen(atm1.posn() - atm2.posn())
-                idealBondLen = atm1.atomtype.rcovalent + atm2.atomtype.rcovalent
-                if atm2.key < key1 and 0.8 * idealBondLen < bondLen < 1.2 * idealBondLen:
-                    bond_atoms(atm1, atm2)
+        inferBonds(mol.atoms.values())
     return mol
     
 # read a Protein DataBank-format file into a single molecule
