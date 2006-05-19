@@ -1,0 +1,98 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.153929) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (groups.mmp)
+info opengroup open = True
+mol (Group 168) def
+atom 1 (8) (-6952, -3439, 699) def
+info atom atomtype = sp2
+atom 2 (15) (-5760, -4490, 499) def
+bond1 1
+atom 3 (8) (-4932, -4508, 1689) def
+info atom atomtype = sp2
+bond1 2
+atom 4 (8) (-6401, -5732, 19) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-4911, -3840, -691) def
+info atom atomtype = sp3
+bond1 2
+atom 6 (6) (-4420, -4646, -1751) def
+info atom atomtype = sp3
+bond1 5
+atom 7 (6) (-3010, -4192, -2081) def
+info atom atomtype = sp3
+bond1 6
+atom 8 (8) (-3060, -2823, -2551) def
+info atom atomtype = sp3
+bond1 7
+atom 9 (6) (-2024, -4197, -881) def
+info atom atomtype = sp2
+bond1 7
+atom 10 (6) (-1882, -2749, -471) def
+info atom atomtype = sp3
+bond1 9
+atom 11 (6) (-2090, -2041, -1841) def
+info atom atomtype = sp3
+bond1 8 10
+atom 12 (7) (-2655, -670, -1740) def
+info atom atomtype = sp3
+bond1 11
+atom 13 (6) (-1737, 357, -1501) def
+info atom atomtype = sp2
+bond1 12
+atom 14 (8) (-539, 123, -1381) def
+info atom atomtype = sp2
+bond1 13
+atom 15 (7) (-2199, 1630, -1601) def
+info atom atomtype = sp3
+bond1 13
+atom 16 (6) (-3517, 1896, -1531) def
+info atom atomtype = sp2
+bond1 15
+atom 17 (8) (-3898, 3050, -1431) def
+info atom atomtype = sp2
+bond1 16
+atom 18 (6) (-4465, 838, -1781) def
+info atom atomtype = sp2
+bond1 16
+atom 19 (6) (-5936, 1090, -1938) def
+info atom atomtype = sp3
+bond1 18
+atom 20 (6) (-3989, -401, -1871) def
+info atom atomtype = sp2
+bond1 12 18
+atom 21 (1) (-4408, -5701, -1441) def
+bond1 6
+atom 22 (1) (-5064, -4531, -2635) def
+bond1 6
+atom 23 (1) (-2612, -4847, -2870) def
+bond1 7
+atom 24 (1) (-1134, -2007, -2385) def
+bond1 11
+atom 25 (1) (-2652, -2456, 258) def
+bond1 10
+atom 26 (1) (-885, -2542, -55) def
+bond1 10
+atom 27 (1) (-2418, -4800, -50) def
+bond1 9
+atom 28 (1) (-4680, -1222, -2053) def
+bond1 20
+atom 29 (1) (-1551, 2382, -1728) def
+bond1 15
+atom 30 (1) (-6453, 844, -1000) def
+bond1 19
+atom 31 (1) (-6330, 461, -2751) def
+bond1 19
+atom 32 (1) (-6102, 2150, -2182) def
+bond1 19
+egroup (groups.mmp)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part groups.mmp
