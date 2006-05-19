@@ -5,9 +5,8 @@ info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
 csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.153929) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
-group (groups.mmp)
+group (cytosine)
 info opengroup open = True
-mol (Group 1) def
 atom 1 (15) (-5759, -4512, 2275) def
 atom 2 (8) (-4931, -4530, 3465) def
 info atom atomtype = sp2
@@ -85,9 +84,9 @@ atom 29 (1) (-3248, 3908, 382) def
 bond1 16
 atom 30 (1) (-4941, 3346, 411) def
 bond1 16
-egroup (groups.mmp)
+egroup (cytosine)
 end1
 group (Clipboard)
 info opengroup open = False
 egroup (Clipboard)
-end molecular machine part groups.mmp
+end molecular machine part cytosine

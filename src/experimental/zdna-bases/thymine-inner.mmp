@@ -5,9 +5,8 @@ info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
 csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.153929) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
-group (groups.mmp)
+group (thymine)
 info opengroup open = True
-mol (Group 168) def
 atom 1 (8) (-6952, -3439, 699) def
 info atom atomtype = sp2
 atom 2 (15) (-5760, -4490, 499) def
@@ -90,9 +89,9 @@ atom 31 (1) (-6330, 461, -2751) def
 bond1 19
 atom 32 (1) (-6102, 2150, -2182) def
 bond1 19
-egroup (groups.mmp)
+egroup (thymine)
 end1
 group (Clipboard)
 info opengroup open = False
 egroup (Clipboard)
-end molecular machine part groups.mmp
+end molecular machine part thymine

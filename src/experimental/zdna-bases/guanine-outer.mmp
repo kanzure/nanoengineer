@@ -5,9 +5,8 @@ info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
 csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.153929) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
-group (groups.mmp)
+group (guanine)
 info opengroup open = True
-mol (Group 9) def
 atom 1 (8) (-3038, -3716, 3884) def
 info atom atomtype = sp2
 atom 2 (15) (-3461, -5253, 4024) def
@@ -94,9 +93,9 @@ atom 32 (1) (-1701, -2618, -364) def
 bond1 20
 atom 33 (1) (-1253, -897, -227) def
 bond1 20
-egroup (groups.mmp)
+egroup (guanine)
 end1
 group (Clipboard)
 info opengroup open = False
 egroup (Clipboard)
-end molecular machine part groups.mmp
+end molecular machine part guanine
