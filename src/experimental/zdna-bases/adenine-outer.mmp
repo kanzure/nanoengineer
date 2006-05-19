@@ -7,88 +7,89 @@ csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.153929) (0.000000, 0
 egroup (View Data)
 group (adenine)
 info opengroup open = True
-atom 1 (8) (-3044, -3708, 3292) def
+mol (adenine) def
+atom 1 (8) (-3044, -3708, 1935) def
 info atom atomtype = sp2
-atom 2 (15) (-3467, -5244, 3432) def
+atom 2 (15) (-3467, -5244, 2075) def
 bond1 1
-atom 3 (8) (-2294, -6076, 3241) def
+atom 3 (8) (-2294, -6076, 1884) def
 info atom atomtype = sp2
 bond1 2
-atom 4 (8) (-4263, -5346, 4672) def
+atom 4 (8) (-4263, -5346, 3315) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-4441, -5472, 2182) def
+atom 5 (8) (-4441, -5472, 825) def
 info atom atomtype = sp3
 bond1 2
-atom 6 (6) (-4040, -5012, 891) def
+atom 6 (6) (-4040, -5012, -464) def
 info atom atomtype = sp3
 bond1 5
-atom 7 (6) (-5118, -5383, -108) def
+atom 7 (6) (-5118, -5383, -1464) def
 info atom atomtype = sp3
 bond1 6
-atom 8 (8) (-6281, -4573, 82) def
+atom 8 (8) (-6281, -4573, -1274) def
 info atom atomtype = sp3
 bond1 7
-atom 9 (6) (-4691, -5180, -1598) def
+atom 9 (6) (-4691, -5180, -2955) def
 info atom atomtype = sp2
 bond1 7
-atom 10 (6) (-5905, -4639, -2308) def
+atom 10 (6) (-5905, -4639, -3664) def
 info atom atomtype = sp3
 bond1 9
-atom 11 (6) (-6726, -3988, -1157) def
+atom 11 (6) (-6726, -3988, -2514) def
 info atom atomtype = sp3
 bond1 8 10
-atom 12 (7) (-6566, -2570, -1057) def
+atom 12 (7) (-6566, -2570, -2414) def
 info atom atomtype = sp3
 bond1 11
-atom 13 (6) (-7584, -1693, -1008) def
+atom 13 (6) (-7584, -1693, -2365) def
 info atom atomtype = sp2
 bond1 12
-atom 14 (7) (-7188, -440, -977) def
+atom 14 (7) (-7188, -440, -2334) def
 info atom atomtype = sp2
 bond1 13
-atom 15 (6) (-5817, -530, -878) def
+atom 15 (6) (-5817, -530, -2234) def
 info atom atomtype = sp2
 bond1 14
-atom 16 (6) (-4846, 498, -778) def
+atom 16 (6) (-4846, 498, -2135) def
 info atom atomtype = sp2
 bond1 15
-atom 17 (7) (-5059, 1777, -685) def
+atom 17 (7) (-5059, 1777, -2041) def
 info atom atomtype = sp3
 bond1 16
-atom 18 (7) (-3541, 22, -788) def
+atom 18 (7) (-3541, 22, -2144) def
 info atom atomtype = sp2
 bond1 16
-atom 19 (6) (-3230, -1295, -887) def
+atom 19 (6) (-3230, -1295, -2244) def
 info atom atomtype = sp2
 bond1 18
-atom 20 (7) (-4139, -2270, -977) def
+atom 20 (7) (-4139, -2270, -2334) def
 info atom atomtype = sp2
 bond1 19
-atom 21 (6) (-5391, -1822, -968) def
+atom 21 (6) (-5391, -1822, -2324) def
 info atom atomtype = sp2
 bond1 12 15 20
-atom 22 (1) (-3911, -3919, 910) def
+atom 22 (1) (-3911, -3919, -445) def
 bond1 6
-atom 23 (1) (-3089, -5488, 606) def
+atom 23 (1) (-3089, -5488, -750) def
 bond1 6
-atom 24 (1) (-5377, -6440, 48) def
+atom 24 (1) (-5377, -6440, -1308) def
 bond1 7
-atom 25 (1) (-7792, -4210, -1316) def
+atom 25 (1) (-7792, -4210, -2673) def
 bond1 11
-atom 26 (1) (-5620, -3890, -3062) def
+atom 26 (1) (-5620, -3890, -4419) def
 bond1 10
-atom 27 (1) (-6474, -5448, -2790) def
+atom 27 (1) (-6474, -5448, -4146) def
 bond1 10
-atom 28 (1) (-3852, -4472, -1676) def
+atom 28 (1) (-3852, -4472, -3033) def
 bond1 9
-atom 29 (1) (-8631, -1991, -993) def
+atom 29 (1) (-8631, -1991, -2350) def
 bond1 13
-atom 30 (1) (-6023, 2140, -676) def
+atom 30 (1) (-6023, 2140, -2033) def
 bond1 17
-atom 31 (1) (-4264, 2429, -620) def
+atom 31 (1) (-4264, 2429, -1977) def
 bond1 17
-atom 32 (1) (-2182, -1572, -894) def
+atom 32 (1) (-2182, -1572, -2251) def
 bond1 19
 egroup (adenine)
 end1

@@ -7,82 +7,83 @@ csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.153929) (0.000000, 0
 egroup (View Data)
 group (cytosine)
 info opengroup open = True
-atom 1 (8) (-3022, -3706, 1516) def
+mol (cytosine) def
+atom 1 (8) (-3022, -3706, 1934) def
 info atom atomtype = sp2
-atom 2 (15) (-3445, -5242, 1656) def
+atom 2 (15) (-3445, -5242, 2074) def
 bond1 1
-atom 3 (8) (-2272, -6074, 1466) def
+atom 3 (8) (-2272, -6074, 1884) def
 info atom atomtype = sp2
 bond1 2
-atom 4 (8) (-4240, -5344, 2896) def
+atom 4 (8) (-4240, -5344, 3314) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-4419, -5470, 406) def
+atom 5 (8) (-4419, -5470, 824) def
 info atom atomtype = sp3
 bond1 2
-atom 6 (6) (-4017, -5010, -883) def
+atom 6 (6) (-4017, -5010, -464) def
 info atom atomtype = sp3
 bond1 5
-atom 7 (6) (-5095, -5381, -1884) def
+atom 7 (6) (-5095, -5381, -1465) def
 info atom atomtype = sp3
 bond1 6
-atom 8 (8) (-6258, -4571, -1693) def
+atom 8 (8) (-6258, -4571, -1275) def
 info atom atomtype = sp3
 bond1 7
-atom 9 (6) (-4669, -5178, -3373) def
+atom 9 (6) (-4669, -5178, -2955) def
 info atom atomtype = sp2
 bond1 7
-atom 10 (6) (-5882, -4637, -4083) def
+atom 10 (6) (-5882, -4637, -3665) def
 info atom atomtype = sp3
 bond1 9
-atom 11 (6) (-6703, -3986, -2933) def
+atom 11 (6) (-6703, -3986, -2515) def
 info atom atomtype = sp3
 bond1 8 10
-atom 12 (7) (-6544, -2568, -2833) def
+atom 12 (7) (-6544, -2568, -2415) def
 info atom atomtype = sp3
 bond1 11
-atom 13 (6) (-5300, -1928, -2751) def
+atom 13 (6) (-5300, -1928, -2333) def
 info atom atomtype = sp2
 bond1 12
-atom 14 (8) (-4307, -2691, -2706) def
+atom 14 (8) (-4307, -2691, -2288) def
 info atom atomtype = sp2
 bond1 13
-atom 15 (7) (-5169, -585, -2708) def
+atom 15 (7) (-5169, -585, -2290) def
 info atom atomtype = sp2
 bond1 13
-atom 16 (6) (-6274, 175, -2697) def
+atom 16 (6) (-6274, 175, -2279) def
 info atom atomtype = sp2
 bond1 15
-atom 17 (7) (-6123, 1494, -2664) def
+atom 17 (7) (-6123, 1494, -2246) def
 info atom atomtype = sp3
 bond1 16
-atom 18 (6) (-7579, -395, -2715) def
+atom 18 (6) (-7579, -395, -2297) def
 info atom atomtype = sp2
 bond1 16
-atom 19 (6) (-7665, -1729, -2791) def
+atom 19 (6) (-7665, -1729, -2372) def
 info atom atomtype = sp2
 bond1 12 18
-atom 20 (1) (-3889, -3918, -865) def
+atom 20 (1) (-3889, -3918, -446) def
 bond1 6
-atom 21 (1) (-3067, -5486, -1168) def
+atom 21 (1) (-3067, -5486, -750) def
 bond1 6
-atom 22 (1) (-5354, -6439, -1727) def
+atom 22 (1) (-5354, -6439, -1309) def
 bond1 7
-atom 23 (1) (-7768, -4209, -3091) def
+atom 23 (1) (-7768, -4209, -2673) def
 bond1 11
-atom 24 (1) (-5597, -3889, -4837) def
+atom 24 (1) (-5597, -3889, -4419) def
 bond1 10
-atom 25 (1) (-6451, -5446, -4565) def
+atom 25 (1) (-6451, -5446, -4147) def
 bond1 10
-atom 26 (1) (-3829, -4471, -3452) def
+atom 26 (1) (-3829, -4471, -3034) def
 bond1 9
-atom 27 (1) (-8471, 227, -2670) def
+atom 27 (1) (-8471, 227, -2252) def
 bond1 18
-atom 28 (1) (-5178, 1904, -2651) def
+atom 28 (1) (-5178, 1904, -2233) def
 bond1 17
-atom 29 (1) (-6951, 2107, -2651) def
+atom 29 (1) (-6951, 2107, -2233) def
 bond1 17
-atom 30 (1) (-8654, -2184, -2820) def
+atom 30 (1) (-8654, -2184, -2401) def
 bond1 19
 egroup (cytosine)
 end1

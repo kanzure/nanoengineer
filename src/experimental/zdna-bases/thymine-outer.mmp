@@ -7,87 +7,88 @@ csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.153929) (0.000000, 0
 egroup (View Data)
 group (thymine)
 info opengroup open = True
-atom 1 (8) (-3029, -3696, 2107) def
+mol (thymine) def
+atom 1 (8) (-3029, -3696, 1935) def
 info atom atomtype = sp2
-atom 2 (15) (-3452, -5233, 2248) def
+atom 2 (15) (-3452, -5233, 2075) def
 bond1 1
-atom 3 (8) (-2278, -6065, 2058) def
+atom 3 (8) (-2278, -6065, 1885) def
 info atom atomtype = sp2
 bond1 2
-atom 4 (8) (-4246, -5335, 3488) def
+atom 4 (8) (-4246, -5335, 3315) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-4425, -5460, 997) def
+atom 5 (8) (-4425, -5460, 825) def
 info atom atomtype = sp3
 bond1 2
-atom 6 (6) (-4024, -5000, -291) def
+atom 6 (6) (-4024, -5000, -464) def
 info atom atomtype = sp3
 bond1 5
-atom 7 (6) (-5102, -5371, -1292) def
+atom 7 (6) (-5102, -5371, -1464) def
 info atom atomtype = sp3
 bond1 6
-atom 8 (8) (-6265, -4562, -1102) def
+atom 8 (8) (-6265, -4562, -1274) def
 info atom atomtype = sp3
 bond1 7
-atom 9 (6) (-4674, -5169, -2782) def
+atom 9 (6) (-4674, -5169, -2954) def
 info atom atomtype = sp2
 bond1 7
-atom 10 (6) (-5889, -4628, -3492) def
+atom 10 (6) (-5889, -4628, -3664) def
 info atom atomtype = sp3
 bond1 9
-atom 11 (6) (-6710, -3976, -2342) def
+atom 11 (6) (-6710, -3976, -2514) def
 info atom atomtype = sp3
 bond1 8 10
-atom 12 (7) (-6549, -2558, -2242) def
+atom 12 (7) (-6549, -2558, -2414) def
 info atom atomtype = sp3
 bond1 11
-atom 13 (6) (-5306, -1918, -2160) def
+atom 13 (6) (-5306, -1918, -2332) def
 info atom atomtype = sp2
 bond1 12
-atom 14 (8) (-4314, -2681, -2115) def
+atom 14 (8) (-4314, -2681, -2287) def
 info atom atomtype = sp2
 bond1 13
-atom 15 (7) (-5175, -575, -2117) def
+atom 15 (7) (-5175, -575, -2289) def
 info atom atomtype = sp3
 bond1 13
-atom 16 (6) (-6279, 184, -2106) def
+atom 16 (6) (-6279, 184, -2278) def
 info atom atomtype = sp2
 bond1 15
-atom 17 (8) (-6141, 1396, -2076) def
+atom 17 (8) (-6141, 1396, -2248) def
 info atom atomtype = sp2
 bond1 16
-atom 18 (6) (-7585, -386, -2124) def
+atom 18 (6) (-7585, -386, -2296) def
 info atom atomtype = sp2
 bond1 16
-atom 19 (6) (-8834, 444, -2063) def
+atom 19 (6) (-8834, 444, -2235) def
 info atom atomtype = sp3
 bond1 18
-atom 20 (6) (-7671, -1719, -2199) def
+atom 20 (6) (-7671, -1719, -2371) def
 info atom atomtype = sp2
 bond1 12 18
-atom 21 (1) (-3896, -3908, -273) def
+atom 21 (1) (-3896, -3908, -445) def
 bond1 6
-atom 22 (1) (-3074, -5476, -577) def
+atom 22 (1) (-3074, -5476, -749) def
 bond1 6
-atom 23 (1) (-5360, -6428, -1136) def
+atom 23 (1) (-5360, -6428, -1308) def
 bond1 7
-atom 24 (1) (-7775, -4198, -2500) def
+atom 24 (1) (-7775, -4198, -2672) def
 bond1 11
-atom 25 (1) (-5604, -3880, -4247) def
+atom 25 (1) (-5604, -3880, -4419) def
 bond1 10
-atom 26 (1) (-6457, -5437, -3974) def
+atom 26 (1) (-6457, -5437, -4146) def
 bond1 10
-atom 27 (1) (-3835, -4461, -2861) def
+atom 27 (1) (-3835, -4461, -3033) def
 bond1 9
-atom 28 (1) (-4268, -154, -2094) def
+atom 28 (1) (-4268, -154, -2266) def
 bond1 15
-atom 29 (1) (-8660, -2174, -2228) def
+atom 29 (1) (-8660, -2174, -2400) def
 bond1 20
-atom 30 (1) (-9232, 432, -1038) def
+atom 30 (1) (-9232, 432, -1210) def
 bond1 19
-atom 31 (1) (-9583, 30, -2753) def
+atom 31 (1) (-9583, 30, -2925) def
 bond1 19
-atom 32 (1) (-8600, 1479, -2353) def
+atom 32 (1) (-8600, 1479, -2525) def
 bond1 19
 egroup (thymine)
 end1
