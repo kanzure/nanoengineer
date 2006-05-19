@@ -178,6 +178,16 @@ struct torsion
     //params;
 };
 
+struct outOfPlane
+{
+    struct atom *ac;
+    struct atom *a1;
+    struct atom *a2;
+    struct atom *a3;
+    //params;
+};
+
+
 struct part 
 {
     // Where this part was loaded from
@@ -226,7 +236,10 @@ struct part
     struct bend *bends;
     
     int num_torsions;
-    struct torsion **torsions;
+    struct torsion *torsions;
+    
+    int num_outOfPlanes;
+    struct outOfPlane *outOfPlanes;
     
     struct xyz *positions;
     struct xyz *velocities;
@@ -243,6 +256,10 @@ extern struct part *endPart(struct part *p);
 extern void generateStretches(struct part *p);
 
 extern void generateBends(struct part *p);
+
+extern void generateTorsions(struct part *p);
+
+extern void generateOutOfPlanes(struct part *p);
 
 extern void updateVanDerWaals(struct part *p, void *validity, struct xyz *positions);
 
@@ -297,6 +314,10 @@ extern void printVanDerWaals(FILE *f, struct part *p, struct vanDerWaals *v);
 extern void printStretch(FILE *f, struct part *p, struct stretch *s);
 
 extern void printBend(FILE *f, struct part *p, struct bend *b);
+
+extern void printTorsion(FILE *f, struct part *p, struct torsion *t);
+
+extern void printOutOfPlane(FILE *f, struct part *p, struct outOfPlane *o);
 
 extern void printPart(FILE *f, struct part *p);
 

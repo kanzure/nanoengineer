@@ -153,6 +153,12 @@ destroyPart(struct part *p)
         free(p->torsions);
         p->torsions = NULL;
     }
+
+    // nothing in an outOfPlane needs freeing
+    if (p->outOfPlanes != NULL) {
+        free(p->outOfPlanes);
+        p->outOfPlanes = NULL;
+    }
     
     free(p);
 }
@@ -341,6 +347,133 @@ generateBends(struct part *p)
 		makeBend(p, bend_index++, a, j, k);
 	    }
 	}
+    }
+}
+
+static void
+makeTorsion(struct part *p, int index, struct bond *center, struct bond *b1, struct bond *b2)
+{
+    struct torsion *t = &(p->torsions[index]);
+
+    t->aa = center->a1;
+    t->ab = center->a2;
+    t->a1 = b1->a1 == t->aa ? b1->a2 : b1->a1;
+    t->a2 = b2->a1 == t->ab ? b2->a2 : b2->a1;
+}
+
+// Creates a torsion for each triplet of adjacent bonds in the part,
+// where the center bond is graphitic, aromatic, or double.
+void
+generateTorsions(struct part *p)
+{
+    int i;
+    int j;
+    int k;
+    int torsion_index = 0;
+    struct bond *b;
+    
+    // first, count the number of torsions
+    for (i=0; i<p->num_bonds; i++) {
+	b = p->bonds[i];
+        CHECK_VALID_BOND(b);
+        switch (b->order) {
+        case 'a':
+        case 'g':
+        case '2':
+            for (j=0; j<b->a1->num_bonds; j++) {
+                if (b->a1->bonds[j] != b) {
+                    for (k=0; k<b->a2->num_bonds; k++) {
+                        if (b->a2->bonds[k] != b) {
+                            p->num_torsions++;
+                        }
+                    }
+                }
+            }
+        default:
+            break;
+        }
+        
+    }
+    
+    p->torsions = (struct torsion *)allocate(sizeof(struct torsion) * p->num_torsions);
+    
+    // now, fill them in (make sure loop structure is same as above)
+    for (i=0; i<p->num_bonds; i++) {
+	b = p->bonds[i];
+        CHECK_VALID_BOND(b);
+        switch (b->order) {
+        case 'a':
+        case 'g':
+        case '2':
+            for (j=0; j<b->a1->num_bonds; j++) {
+                if (b->a1->bonds[j] != b) {
+                    for (k=0; k<b->a2->num_bonds; k++) {
+                        if (b->a2->bonds[k] != b) {
+                            makeTorsion(p, torsion_index++, b, b->a1->bonds[j], b->a2->bonds[k]);
+                        }
+                    }
+                }
+            }
+        default:
+            break;
+        }
+        
+    }
+}
+
+static void
+makeOutOfPlane(struct part *p, int index, struct atom *a)
+{
+    struct outOfPlane *o = &(p->outOfPlanes[index]);
+    struct bond *b;
+    
+    o->ac = a;
+    b = a->bonds[0];
+    o->a1 = b->a1 == a ? b->a2 : b->a1;
+    b = a->bonds[1];
+    o->a2 = b->a1 == a ? b->a2 : b->a1;
+    b = a->bonds[2];
+    o->a3 = b->a1 == a ? b->a2 : b->a1;
+}
+
+// Creates an outOfPlane for each sp2 atom
+void
+generateOutOfPlanes(struct part *p)
+{
+    int i;
+    int outOfPlane_index = 0;
+    struct atom *a;
+    
+    // first, count the number of outOfPlanes
+    for (i=0; i<p->num_atoms; i++) {
+	a = p->atoms[i];
+        switch (a->hybridization) {
+        case sp2:
+        case sp2_g:
+            if (a->num_bonds == 3) {
+                p->num_outOfPlanes++;
+            }
+        default:
+            break;
+        }
+        
+    }
+    
+    p->outOfPlanes = (struct outOfPlane *)allocate(sizeof(struct outOfPlane) * p->num_outOfPlanes);
+    
+    // now, fill them in (make sure loop structure is same as above)
+    for (i=0; i<p->num_atoms; i++) {
+	a = p->atoms[i];
+        switch (a->hybridization) {
+        case sp2:
+        case sp2_g:
+            if (a->num_bonds == 3) {
+                makeOutOfPlane(p, outOfPlane_index++, a);
+            } // else WARNING ???
+        default:
+            break;
+        }
+        
     }
 }
 
@@ -1407,6 +1540,44 @@ printBend(FILE *f, struct part *p, struct bend *b)
 }
 
 void
+printTorsion(FILE *f, struct part *p, struct torsion *t)
+{
+    NULLPTR(t);
+    NULLPTR(t->a1);
+    NULLPTR(t->aa);
+    NULLPTR(t->ab);
+    NULLPTR(t->a2);
+    fprintf(f, " torsion ");
+    printAtomShort(f, t->a1);
+    fprintf(f, " - ");
+    printAtomShort(f, t->aa);
+    fprintf(f, " = ");
+    printAtomShort(f, t->ab);
+    fprintf(f, " - ");
+    printAtomShort(f, t->a2);
+    fprintf(f, "\n");
+}
+
+void
+printOutOfPlane(FILE *f, struct part *p, struct outOfPlane *o)
+{
+    NULLPTR(o);
+    NULLPTR(o->ac);
+    NULLPTR(o->a1);
+    NULLPTR(o->a2);
+    NULLPTR(o->a3);
+    fprintf(f, " outOfPlane ");
+    printAtomShort(f, o->ac);
+    fprintf(f, " - (");
+    printAtomShort(f, o->a1);
+    fprintf(f, ", ");
+    printAtomShort(f, o->a2);
+    fprintf(f, ", ");
+    printAtomShort(f, o->a3);
+    fprintf(f, ")\n");
+}
+
+void
 printPart(FILE *f, struct part *p)
 {
     int i;
@@ -1429,6 +1600,12 @@ printPart(FILE *f, struct part *p)
     }
     for (i=0; i<p->num_bends; i++) {
 	printBend(f, p, &p->bends[i]);
+    }
+    for (i=0; i<p->num_torsions; i++) {
+	printTorsion(f, p, &p->torsions[i]);
+    }
+    for (i=0; i<p->num_outOfPlanes; i++) {
+	printOutOfPlane(f, p, &p->outOfPlanes[i]);
     }
 }
 

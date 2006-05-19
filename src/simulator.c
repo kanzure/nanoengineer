@@ -379,6 +379,8 @@ main(int argc, char **argv)
     updateVanDerWaals(part, NULL, part->positions);
     generateStretches(part);
     generateBends(part);
+    generateTorsions(part);
+    generateOutOfPlanes(part);
 
     if (printPotentialEnergy) {
         struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
