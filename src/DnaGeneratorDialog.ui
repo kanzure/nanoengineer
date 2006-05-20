@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>463</width>
-            <height>151</height>
+            <width>358</width>
+            <height>161</height>
         </rect>
     </property>
     <property name="caption">
@@ -31,25 +31,9 @@
             <string>Sequence :</string>
         </property>
     </widget>
-    <widget class="QLineEdit">
-        <property name="name">
-            <cstring>seq_linedit</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>100</x>
-                <y>20</y>
-                <width>340</width>
-                <height>24</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>GATTACA</string>
-        </property>
-    </widget>
     <widget class="QCheckBox">
         <property name="name">
-            <cstring>spineAchkbox</cstring>
+            <cstring>strandAchkbox</cstring>
         </property>
         <property name="geometry">
             <rect>
@@ -60,34 +44,31 @@
             </rect>
         </property>
         <property name="text">
-            <string>Spine A</string>
+            <string>Strand A</string>
         </property>
         <property name="checked">
             <bool>true</bool>
         </property>
     </widget>
-    <widget class="QCheckBox">
+    <widget class="QLineEdit">
         <property name="name">
-            <cstring>basesAchkbox</cstring>
+            <cstring>seq_linedit</cstring>
         </property>
         <property name="geometry">
             <rect>
                 <x>100</x>
-                <y>50</y>
-                <width>80</width>
-                <height>22</height>
+                <y>20</y>
+                <width>240</width>
+                <height>24</height>
             </rect>
         </property>
         <property name="text">
-            <string>Bases A</string>
-        </property>
-        <property name="checked">
-            <bool>true</bool>
+            <string>GATTACA</string>
         </property>
     </widget>
     <widget class="QCheckBox">
         <property name="name">
-            <cstring>spineBchkbox</cstring>
+            <cstring>strandBchkbox</cstring>
         </property>
         <property name="geometry">
             <rect>
@@ -98,26 +79,7 @@
             </rect>
         </property>
         <property name="text">
-            <string>Spine B</string>
-        </property>
-        <property name="checked">
-            <bool>true</bool>
-        </property>
-    </widget>
-    <widget class="QCheckBox">
-        <property name="name">
-            <cstring>basesBchkbox</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>360</x>
-                <y>50</y>
-                <width>80</width>
-                <height>22</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Bases B</string>
+            <string>Strand B</string>
         </property>
         <property name="checked">
             <bool>true</bool>
@@ -131,7 +93,7 @@
             <rect>
                 <x>10</x>
                 <y>80</y>
-                <width>300</width>
+                <width>240</width>
                 <height>50</height>
             </rect>
         </property>

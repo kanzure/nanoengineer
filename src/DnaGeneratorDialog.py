@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'DnaGeneratorDialog.ui'
 #
-# Created: Wed May 17 17:11:43 2006
+# Created: Fri May 19 13:26:17 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -23,27 +23,19 @@ class DnaGeneratorDialog(QDialog):
         self.textLabel1 = QLabel(self,"textLabel1")
         self.textLabel1.setGeometry(QRect(10,20,90,30))
 
+        self.strandAchkbox = QCheckBox(self,"strandAchkbox")
+        self.strandAchkbox.setGeometry(QRect(10,50,80,22))
+        self.strandAchkbox.setChecked(1)
+
         self.seq_linedit = QLineEdit(self,"seq_linedit")
-        self.seq_linedit.setGeometry(QRect(100,20,340,24))
+        self.seq_linedit.setGeometry(QRect(100,20,240,24))
 
-        self.spineAchkbox = QCheckBox(self,"spineAchkbox")
-        self.spineAchkbox.setGeometry(QRect(10,50,80,22))
-        self.spineAchkbox.setChecked(1)
-
-        self.basesAchkbox = QCheckBox(self,"basesAchkbox")
-        self.basesAchkbox.setGeometry(QRect(100,50,80,22))
-        self.basesAchkbox.setChecked(1)
-
-        self.spineBchkbox = QCheckBox(self,"spineBchkbox")
-        self.spineBchkbox.setGeometry(QRect(260,50,80,22))
-        self.spineBchkbox.setChecked(1)
-
-        self.basesBchkbox = QCheckBox(self,"basesBchkbox")
-        self.basesBchkbox.setGeometry(QRect(360,50,80,22))
-        self.basesBchkbox.setChecked(1)
+        self.strandBchkbox = QCheckBox(self,"strandBchkbox")
+        self.strandBchkbox.setGeometry(QRect(260,50,80,22))
+        self.strandBchkbox.setChecked(1)
 
         LayoutWidget = QWidget(self,"layout30")
-        LayoutWidget.setGeometry(QRect(10,80,300,50))
+        LayoutWidget.setGeometry(QRect(10,80,240,50))
         layout30 = QHBoxLayout(LayoutWidget,11,6,"layout30")
         spacer1 = QSpacerItem(92,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout30.addItem(spacer1)
@@ -59,7 +51,7 @@ class DnaGeneratorDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(463,151).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(358,161).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
@@ -71,11 +63,9 @@ class DnaGeneratorDialog(QDialog):
     def languageChange(self):
         self.setCaption(self.__tr("Dna Generator"))
         self.textLabel1.setText(self.__tr("Sequence :"))
+        self.strandAchkbox.setText(self.__tr("Strand A"))
         self.seq_linedit.setText(self.__tr("GATTACA"))
-        self.spineAchkbox.setText(self.__tr("Spine A"))
-        self.basesAchkbox.setText(self.__tr("Bases A"))
-        self.spineBchkbox.setText(self.__tr("Spine B"))
-        self.basesBchkbox.setText(self.__tr("Bases B"))
+        self.strandBchkbox.setText(self.__tr("Strand B"))
         self.ok_btn.setText(self.__tr("&OK"))
         self.ok_btn.setAccel(self.__tr("Alt+O"))
         self.cancel_btn.setText(self.__tr("&Cancel"))
