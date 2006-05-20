@@ -276,6 +276,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.nanotubecntl = NanotubeGenerator(self)
         from DnaGenerator import DnaGenerator
         self.dnacntl = DnaGenerator(self)
+        from CommentProp import CommentProp
+        self.commentcntl = CommentProp(self)
 
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
@@ -1126,6 +1128,19 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
     def insertDna(self):
         self.dnacntl.show()
+        
+    def insertComment(self):
+        '''Insert a new comment into the model tree.
+        '''
+        from Utility import Comment
+        comment = Comment(self.assy, None, text='')
+        self.commentcntl.setup(comment)
+        
+        if self.commentcntl.Accepted:
+            part = self.assy.part
+            part.ensure_toplevel_group()
+            part.topnode.addchild(comment)
+            self.mt.mt_update()
 
     #### Movie Player Dashboard Slots ############
 

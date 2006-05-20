@@ -2216,6 +2216,66 @@ class Csys(DataNode):
 
     pass # end of class Csys
 
+class Comment(DataNode):
+    """A Comment stores a comment in the MMP file, accessible from the Model Tree as a node.
+    """
+    
+    sym = "Comment"
+
+    def __init__(self, assy, name, text=''):
+        self.const_icon = imagename_to_pixmap("comment.png")
+        if name:
+            Node.__init__(self, assy, name)
+        else:
+            Node.__init__(self, assy, genViewNum("%s-" % self.sym))
+        self.text = text
+        return
+
+    def show_in_model_tree(self):
+        "[overrides Node method]"
+        return True
+        
+    def edit(self):
+        "Opens Comment dialog with current text."
+        self.assy.w.commentcntl.setup(self)
+
+    # Disable writemmp since it may corrupt a file if it has multiple lines.
+    # Bruce will fix this. Mark 060520.
+    def writemmp_disabled(self, mapping):
+        mapping.write("comment (" + mapping.encode_name(self.name) +
+                ") %s\n" % self.text)
+        self.writemmp_info_leaf(mapping)
+
+    def copy(self, dad=None): # Not sure if this is needed (too tired to check).  Ask Bruce. Mark 060520.
+        #bruce 050420 -- revise this (it was a stub) for sake of Part view propogation upon topnode ungrouping;
+        # note that various Node.copy methods are not yet consistent, and I'm not fixing this now.
+        # (When I do, I think they will not accept "dad" but will accept a "mapping", and will never rename the copy.)
+        # The data copied is the same as what can be passed to init and what writemmp writes.
+        # Note that the copy needs to have the same exact name, not a variant (since the name
+        # is meaningful for the internal uses of this object, in the present implem).
+        assert dad is None
+        if "a kluge is ok since I'm in a hurry":
+            # the data in this Csys might not be up-to-date, since the glpane "caches it"
+            # (if we're the Home or Last View of its current Part)
+            # and doesn't write it back after every user event!
+            # probably it should... but until it does, do it now, before copying it!
+            self.assy.o.saveLastView()                
+        if 0 and platform.atom_debug:
+            print "atom_debug: copying comment:", self
+        return Comment( self.assy, self.name, self.text)
+
+    def __str__(self):
+        return "<comment " + self.name + ">"
+        
+    def will_copy_if_selected(self, sel, realCopy): # This also needs to be reviewed by Bruce. Mark 060520.
+        "Copying a comment NIY.  [overrides Node method]"
+        if realCopy:
+            msg = "Copying comments is not implemented yet.  %s not copied." % (self.name)
+            from HistoryWidget import orangemsg
+            env.history.message(orangemsg(msg))
+        return False
+
+    pass # end of class Comment
 
 # bruce 050417: removing class Datum (and ignoring its mmp record "datum"),
 # since it has no useful effect (and not writing it will not even be

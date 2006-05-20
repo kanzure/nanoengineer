@@ -1,0 +1,128 @@
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>CommentPropDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>CommentPropDialog</cstring>
+    </property>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>390</width>
+            <height>275</height>
+        </rect>
+    </property>
+    <property name="caption">
+        <string>Comment</string>
+    </property>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>0</number>
+        </property>
+        <property name="spacing">
+            <number>0</number>
+        </property>
+        <widget class="QTextEdit" row="0" column="0">
+            <property name="name">
+                <cstring>comment_textedit</cstring>
+            </property>
+            <property name="paletteBackgroundColor">
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>127</blue>
+                </color>
+            </property>
+        </widget>
+        <widget class="QLayoutWidget" row="1" column="0">
+            <property name="name">
+                <cstring>layout7</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>3</number>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>date_time_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Date/Time Stamp</string>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer1</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancel_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>ok__btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>OK</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </grid>
+</widget>
+<images>
+    <image name="image0">
+        <data format="PNG" length="550">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000001ed49444154789cad95cd6ed34010c77ff6da4e6a9a84d2504844fa21b820d413cf012f81843871e6ca2b70e2803870e5c283d01315126a13a940691b8a9a4fc76b7b773924751c256989c84823cd4a333fcd7f66645bc6189669f652698073197c7afbc2d86600960292c92c9d89cde8a9358cc4fd098a3c7bf5ce9a001a6578fafc25b87d205ca8ab37af3f4c7708124c130816820d6dac2805265104aa0b0c16e729350d545a11ca2e79b1383036f134109560a22e3859a0379132cf4c6669e36c1d41d80191bd4b0328aeb559401d8724411be51611e975c623bf0e385e4a5aaa6249afdf66f00ff557d9c40ccfea0d943ca39b4012f4489216965364637b17dfbf3d9f9299520ab4848decb4f8755807b386e728a2e037896eb35aaee0af5c01d4e339a7921dc7a3b653246c4b36aa3db636a156c9e1d99aa0d58444ce7715cd906c79e4fc75b676bad4bf1eb3fbd066adb08291113f1bc7dc293771733eb62546f9d90ef534500828144b201e705f69beec9d70efd6053922dce006a7477bdcdd7e4c4e148605ee6cf599a580635c4a7e99d54a01db3b64fff3776a6589bb9ef0e3db0127a701d54a053f5f22efe553a892721ad8b76ef2fee3c1f0f3a541477d4c9ca771ee106a0d910b8e42ec9fe3581d6c4b10896123179dccf11b63fedb9f3caa6e5ec6d6b27f017f0194320b05977f4c750000000049454e44ae426082</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>cancel_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>CommentPropDialog</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>ok__btn</sender>
+        <signal>clicked()</signal>
+        <receiver>CommentPropDialog</receiver>
+        <slot>accept()</slot>
+    </connection>
+    <connection>
+        <sender>date_time_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>CommentPropDialog</receiver>
+        <slot>insert_date_time_stamp()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>insert_date_time_stamp()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>
