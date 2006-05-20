@@ -17,10 +17,10 @@ from chem import molecule, Atom
 import env
 from HistoryWidget import redmsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
-from VQT import V, dot, vlen
+from VQT import A, V, dot, vlen
 from bonds import inferBonds
 from files_mmp import insertmmp
-
+import re
 
 def rotateTranslate(v, theta, z):
     c, s = cos(theta), sin(theta)
@@ -28,73 +28,87 @@ def rotateTranslate(v, theta, z):
     y = -s * v[0] + c * v[1]
     return V(x, y, v[2] + z)
 
-def addAtoms(mol, atoms, transforms=[ ]):
-    lst = [ ]
-    for elem, pos in atoms:
-        for T in transforms:
-            pos = T(pos)
-        lst.append(Atom(elem, pos, mol))
-    return lst
+atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 
 class Dna:
     """This base class may want to provide some provision for the
     fact that we have a two-base periodicity in Z DNA. Or should that
     all be handled there?
     """
-    def make(self, assy, sequence, strandA, strandB):
+    def insertmmp(self, mol, basefile, tfm):
+        lst = [ ]
+        for line in open(basefile).readlines():
+            m = atompat.match(line)
+            if m:
+                elem = {
+                    0: 'X',
+                    1: 'H',
+                    6: 'C',
+                    7: 'N',
+                    8: 'O',
+                    15: 'P',
+                    }[int(m.group(2))]
+                xyz = A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
+                lst.append(Atom(elem, tfm(xyz), mol))
+        return lst
+
+    def make(self, mol, sequence, strandA, strandB):
         sequence = str(sequence).upper()
 
-        theta = 0.0
-        z = -0.5 * self.BASE_SPACING * (len(sequence) - 1)
         if strandA:
+            theta = 0.0
+            z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
             for i in range(len(sequence)):
-                basename, zInner, zOuter = {
-                    #'C': ('cytosine', 2.7, -0.3),
-                    #'G': ('guanine',  0.3, 2.4),
-                    #'A': ('adenine',  0.9, 0.9),
-                    #'T': ('thymine',  2.1, 1.6),
-                    'C': ('cytosine', -1.656, -2.275),
-                    'G': ('guanine',  -4.024, 0.685),
-                    'A': ('adenine',  -3.432, -1.091),
-                    'T': ('thymine',  -2.248, -0.499),
+                basename = {
+                    'C': 'cytosine',
+                    'G': 'guanine',
+                    'A': 'adenine',
+                    'T': 'thymine',
                     }[sequence[i]]
                 if (i & 1) != 0:
                     suffix = 'outer'
+                    zoffset = 2.045
                 else:
                     suffix = 'inner'
+                    zoffset = 0.0
                 basefile = 'experimental/zdna-bases/%s-%s.mmp' % (basename, suffix)
-                def tfm(v, theta=theta, z=z):
-                    return rotateTranslate(v, theta, z)
-                # ignore mol??
-                insertmmp(assy, basefile, tfm)
-                theta += self.TWIST_PER_BASE
-                z += self.BASE_SPACING
+                def tfm(v, theta=theta, z1=z+zoffset):
+                    return rotateTranslate(v, theta, z1)
+                self.insertmmp(mol, basefile, tfm)
+                theta -= self.TWIST_PER_BASE
+                z -= self.BASE_SPACING
 
-        theta = self.STRAND_B_ANGLE
-        z = -0.5 * self.BASE_SPACING * (len(sequence) - 1)
         if strandB:
+            theta = self.STRAND_B_ANGLE + (pi / 6) * (len(sequence) - 1)
+            z = -2.1 - 0.5 * self.BASE_SPACING * (len(sequence) - 1)
             for i in range(len(sequence)):
-            # The 3'-to-5' direction is reversed for strand B.
-                basename, zInner, zOuter = {
-                    'G': ('cytosine', 2.7, -0.3),
-                    'C': ('guanine',  0.3, 2.4),
-                    'T': ('adenine',  0.9, 0.9),
-                    'A': ('thymine',  2.1, 1.6),
-                    }[sequence[i]]
-                # outer/inner is flipped from strand A
-                if (i & 1) == 0:
-                    suffix = 'outer'
-                else:
+                # The 3'-to-5' direction is reversed for strand B.
+                j = len(sequence) - 1 - i
+                basename = {
+                    'G': 'cytosine',
+                    'C': 'guanine',
+                    'T': 'adenine',
+                    'A': 'thymine',
+                    }[sequence[j]]
+                if (j & 1) != 0:
                     suffix = 'inner'
+                    zoffset = 2.045
+                    thetaCenter = 0.0
+                else:
+                    suffix = 'outer'
+                    zoffset = 0.0
+                    thetaCenter = 0.0
                 basefile = 'experimental/zdna-bases/%s-%s.mmp' % (basename, suffix)
-                def flip_3_5(v):
+                def flip_3_5(v, thetaCenter=thetaCenter):
                     # flip theta, flip z
-                    # theta is atan2(y,x) so flipping y will work
-                    # any discrepancy can be folded into STRAND_B_ANGLE
-                    return V(v[0], -v[1], -v[2])
-                def tfm(v, theta=theta, z=z, flip_3_5=flip_3_5):
-                    return rotateTranslate(flip_3_5(v), theta, z)
-                insertmmp(assy, basefile, tfm)
+                    x, y, z = tuple(v)
+                    r, theta = (x**2 + y**2) ** 0.5, atan2(y, x)
+                    theta = 2 * thetaCenter - theta
+                    x, y = r * cos(theta), r * sin(theta)
+                    return V(x, y, -z)
+                def tfm(v, theta=theta, z1=z+zoffset, flip_3_5=flip_3_5):
+                    return rotateTranslate(flip_3_5(v), theta, z1)
+                self.insertmmp(mol, basefile, tfm)
                 theta += self.TWIST_PER_BASE
                 z += self.BASE_SPACING
 
@@ -103,7 +117,7 @@ class Dna:
 # on a Z file first, so that's what I'm going with.
 
 class Unimplemented(Dna):
-    def make(self, assy, sequence, strandA, strandB):
+    def make(self, mol, sequence, strandA, strandB):
         raise Exception("This flavor of DNA is not yet implemented");
 
 class A_Dna(Unimplemented):
@@ -120,7 +134,8 @@ class Z_Dna(Dna):
 
     TWIST_PER_BASE = pi / 6     # in radians
     BASE_SPACING = 3.715        # in angstroms
-    STRAND_B_ANGLE = pi   # in radians - what's the real value????????
+    # This value for the strand B angle really surprises me. I don't understand it.
+    STRAND_B_ANGLE = 0.5 * pi
 
     # Take care of the directory name, and the alternation of inner and
     # outer bases, which won't occur in A and B DNA.
@@ -163,12 +178,14 @@ class DnaGenerator(DnaGeneratorDialog):
         env.history.message(cmd + "DNA not created, there was a problem.")
 
     def buildChunk(self):
+        mol = molecule(self.win.assy, chem.gensym("DNA-"))
         # dna = A_Dna()
         # dna = B_Dna()
         dna = Z_Dna()
-        dna.make(self.win.assy, self.seq_linedit.text(),
+        dna.make(mol, self.seq_linedit.text(),
                  self.strandAchkbox.isChecked(), self.strandBchkbox.isChecked())
+        inferBonds(mol)
         part = self.win.assy.part
         part.ensure_toplevel_group()
-        #part.topnode.addchild(mol)
+        part.topnode.addchild(mol)
         self.win.mt.mt_update()
