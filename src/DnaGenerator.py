@@ -161,16 +161,11 @@ class DnaGenerator(DnaGeneratorDialog):
 
         env.history.message(cmd + "Creating DNA. This may take a moment...")
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-        if False:
-            try:
-                self.buildChunk()
-                env.history.message(cmd + "Done.")
-            except Exception, e:
-                env.history.message(cmd + redmsg(str(e.args[0])))
-        else:
+        try:
             self.buildChunk()
             env.history.message(cmd + "Done.")
-            
+        except Exception, e:
+            env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
         QApplication.restoreOverrideCursor() # Restore the cursor
         QDialog.accept(self)
 
