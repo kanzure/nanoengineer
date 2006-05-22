@@ -57,6 +57,9 @@ class Dna:
 
     def make(self, mol, sequence, strandA, strandB):
         sequence = str(sequence).upper()
+        for ch in sequence:
+            if ch not in 'GACT':
+                raise Exception('Unknown DNA base (not G, A, C, or T): ' + ch)
 
         if strandA:
             theta = 0.0
@@ -78,32 +81,55 @@ class Dna:
                 basefile, zoffset, thetaOffset = \
                           self.strandBinfo(sequence, i)
                 def tfm(v, theta=theta+thetaOffset, z1=z+zoffset):
-                    # flip theta, flip z
-                    # We can flip theta just by reversing the sign of y
+                    # Flip theta, flip z
+                    # Cheesy hack: flip theta by reversing the sign of y,
+                    # since theta = atan2(y,x)
                     return rotateTranslate(V(v[0], -v[1], -v[2]), theta, z1)
                 self.insertmmp(mol, basefile, tfm)
                 theta -= self.TWIST_PER_BASE
                 z -= self.BASE_SPACING
 
 
-# There are three kinds of DNA helix geometries, A, B, and Z. I got my hands
-# on a Z file first, so that's what I'm going with.
-
 class A_Dna(Dna):
     TWIST_PER_BASE = 0  # WRONG
     BASE_SPACING = 0    # WRONG
     def strandAinfo(self, sequence, i):
-        raise Exception("Not yet implemented -- please try Z DNA for now");
+        raise Exception("A-DNA is not yet implemented -- please try B- or Z-DNA");
     def strandBinfo(self, sequence, i):
-        raise Exception("Not yet implemented -- please try Z DNA for now");
+        raise Exception("A-DNA is not yet implemented -- please try B- or Z-DNA");
 
 class B_Dna(Dna):
-    TWIST_PER_BASE = 0  # WRONG
-    BASE_SPACING = 0    # WRONG
+    TWIST_PER_BASE = -36 * pi / 180   # degrees
+    BASE_SPACING = 3.391              # angstroms
     def strandAinfo(self, sequence, i):
-        raise Exception("Not yet implemented -- please try Z DNA for now");
+        basename = {
+            'C': 'cytosine',
+            'G': 'guanine',
+            'A': 'adenine',
+            'T': 'thymine',
+            }[sequence[i]]
+        zoffset = 0.0
+        thetaOffset = 0.0
+        basefile = 'experimental/bdna-bases/%s.mmp' % basename
+        return (basefile, zoffset, thetaOffset)
+
     def strandBinfo(self, sequence, i):
-        raise Exception("Not yet implemented -- please try Z DNA for now");
+        basename = {
+            'G': 'cytosine',
+            'C': 'guanine',
+            'T': 'adenine',
+            'A': 'thymine',
+            }[sequence[i]]
+        zoffset = 0.0
+        # The thetaOffset requires some empirical and apparently non-sensical
+        # tweaking to get right. The reason for this is the cheesy hack I did
+        # for the theta flip on the B strand. The tidy approach would be to
+        # find a center theta for each base, and flip theta around that center.
+        # I didn't do this primarily because I wasn't sure the bonds would match
+        # up. And this isn't so ugly, we're just tweaking one number.
+        thetaOffset = 210 * (pi / 180)
+        basefile = 'experimental/bdna-bases/%s.mmp' % basename
+        return (basefile, zoffset, thetaOffset)
 
 class Z_Dna(Dna):
     TWIST_PER_BASE = pi / 6     # in radians
@@ -174,7 +200,6 @@ class DnaGenerator(DnaGeneratorDialog):
 
     def accept(self):
         'Slot for the OK button'
-
         strandA = self.strandAchkbox.isChecked()
         strandB = self.strandBchkbox.isChecked()
         if strandA or strandB:
@@ -201,6 +226,6 @@ class DnaGenerator(DnaGeneratorDialog):
         QDialog.accept(self)
 
     def reject(self):
-        # The user hit the cancel button. End the dialog without
-        # saying or doing anything.
+        'Slot for the Cancel button'
+        # End the dialog without saying or doing anything.
         QDialog.accept(self)
