@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>358</width>
-            <height>161</height>
+            <width>279</width>
+            <height>232</height>
         </rect>
     </property>
     <property name="caption">
@@ -31,25 +31,6 @@
             <string>Sequence :</string>
         </property>
     </widget>
-    <widget class="QCheckBox">
-        <property name="name">
-            <cstring>strandAchkbox</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>10</x>
-                <y>50</y>
-                <width>80</width>
-                <height>22</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Strand A</string>
-        </property>
-        <property name="checked">
-            <bool>true</bool>
-        </property>
-    </widget>
     <widget class="QLineEdit">
         <property name="name">
             <cstring>seq_linedit</cstring>
@@ -58,31 +39,12 @@
             <rect>
                 <x>100</x>
                 <y>20</y>
-                <width>240</width>
+                <width>150</width>
                 <height>24</height>
             </rect>
         </property>
         <property name="text">
             <string>GATTACA</string>
-        </property>
-    </widget>
-    <widget class="QCheckBox">
-        <property name="name">
-            <cstring>strandBchkbox</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>260</x>
-                <y>50</y>
-                <width>80</width>
-                <height>22</height>
-            </rect>
-        </property>
-        <property name="text">
-            <string>Strand B</string>
-        </property>
-        <property name="checked">
-            <bool>true</bool>
         </property>
     </widget>
     <widget class="QLayoutWidget">
@@ -92,9 +54,9 @@
         <property name="geometry">
             <rect>
                 <x>10</x>
-                <y>80</y>
-                <width>240</width>
-                <height>50</height>
+                <y>170</y>
+                <width>220</width>
+                <height>40</height>
             </rect>
         </property>
         <hbox>
@@ -157,6 +119,111 @@
             </widget>
         </hbox>
     </widget>
+    <widget class="QCheckBox">
+        <property name="name">
+            <cstring>strandBchkbox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>150</x>
+                <y>100</y>
+                <width>80</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Strand B</string>
+        </property>
+        <property name="checked">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QCheckBox">
+        <property name="name">
+            <cstring>strandAchkbox</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>150</x>
+                <y>60</y>
+                <width>80</width>
+                <height>30</height>
+            </rect>
+        </property>
+        <property name="text">
+            <string>Strand A</string>
+        </property>
+        <property name="checked">
+            <bool>true</bool>
+        </property>
+    </widget>
+    <widget class="QButtonGroup">
+        <property name="name">
+            <cstring>dnaTypeButtonGroup</cstring>
+        </property>
+        <property name="geometry">
+            <rect>
+                <x>10</x>
+                <y>50</y>
+                <width>90</width>
+                <height>101</height>
+            </rect>
+        </property>
+        <property name="title">
+            <string>DNA type</string>
+        </property>
+        <widget class="QRadioButton">
+            <property name="name">
+                <cstring>zDnaButton</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>11</x>
+                    <y>71</y>
+                    <width>70</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>Z DNA</string>
+            </property>
+        </widget>
+        <widget class="QRadioButton">
+            <property name="name">
+                <cstring>bDnaButton</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>40</y>
+                    <width>70</width>
+                    <height>31</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>B DNA</string>
+            </property>
+            <property name="checked">
+                <bool>true</bool>
+            </property>
+        </widget>
+        <widget class="QRadioButton">
+            <property name="name">
+                <cstring>aDnaButton</cstring>
+            </property>
+            <property name="geometry">
+                <rect>
+                    <x>10</x>
+                    <y>20</y>
+                    <width>70</width>
+                    <height>20</height>
+                </rect>
+            </property>
+            <property name="text">
+                <string>A DNA</string>
+            </property>
+        </widget>
+    </widget>
 </widget>
 <connections>
     <connection>
@@ -171,10 +238,22 @@
         <receiver>DnaGeneratorDialog</receiver>
         <slot>reject()</slot>
     </connection>
+    <connection>
+        <sender>dnaTypeButtonGroup</sender>
+        <signal>clicked(int)</signal>
+        <receiver>DnaGeneratorDialog</receiver>
+        <slot>dnaTypeClicked(int)</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>ok_btn</tabstop>
     <tabstop>cancel_btn</tabstop>
 </tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">DnaGeneratorDialog.ui.h</include>
+</includes>
+<slots>
+    <slot>dnaTypeClicked( int )</slot>
+</slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
