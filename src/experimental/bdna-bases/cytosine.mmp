@@ -9,7 +9,7 @@ group (cytosine)
 info opengroup open = True
 mol (cytosine) def
 atom 1 (8) (-8604, 1481, 3532) def
-info atom atomtype = sp2
+info atom atomtype = sp3
 atom 2 (15) (-8691, 1845, 1983) def
 bond1 1
 atom 3 (8) (-9762, 2835, 1763) def
@@ -31,7 +31,7 @@ atom 8 (8) (-4625, 4033, 1733) def
 info atom atomtype = sp3
 bond1 7
 atom 9 (6) (-6455, 4931, 543) def
-info atom atomtype = sp2
+info atom atomtype = sp3
 bond1 7
 atom 10 (6) (-5783, 3889, -336) def
 info atom atomtype = sp3
@@ -84,6 +84,10 @@ atom 29 (1) (-1410, -1575, 55) def
 bond1 17
 atom 30 (1) (-3041, -2272, 252) def
 bond1 17
+atom 31 (0) (-8412, 862, 3717) def
+bond1 1
+atom 32 (0) (-6223, 5615, 337) def
+bond1 9
 egroup (cytosine)
 end1
 group (Clipboard)

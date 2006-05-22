@@ -16,7 +16,7 @@ class AtomType:
         return '<' + self.symbol + '>'
 
 periodicTable = [
-    AtomType('X', 0, 0.3),
+    AtomType('X', 0, 0.0),
     AtomType('H', 1, 0.31),
     AtomType('C', 6, 0.77),
     AtomType('N', 7, 0.73),
@@ -32,18 +32,32 @@ def lookupAtomType(num):
 
 class Atom:
     def __init__(self, mmpline):
-        mmpline = mmpline.rstrip()
-        self.mmpline = mmpline
-        fields = mmpline.split()
-        self.key = string.atoi(fields[1])
-        self.style = fields[6]
-        self.hybridization = None
-        self.base = None
-        self.atomtype = lookupAtomType(string.atoi(fields[2][1:-1]))
-        self.x = 0.001 * string.atoi(fields[3][1:-1])
-        self.y = 0.001 * string.atoi(fields[4][:-1])
-        self.z = 0.001 * string.atoi(fields[5][:-1])
+        if mmpline != None:
+            mmpline = mmpline.rstrip()
+            self.mmpline = mmpline
+            fields = mmpline.split()
+            self.key = string.atoi(fields[1])
+            self.style = fields[6]
+            self.hybridization = None
+            self.base = None
+            self.atomtype = lookupAtomType(string.atoi(fields[2][1:-1]))
+            self.x = 0.001 * string.atoi(fields[3][1:-1])
+            self.y = 0.001 * string.atoi(fields[4][:-1])
+            self.z = 0.001 * string.atoi(fields[5][:-1])
+        else:
+            self.mmpline = None
+            self.key = 0
+            self.style = None
+            self.hybridization = None
+            self.base = None
+            self.atomtype = lookupAtomType(0)
+            self.x = 0.0
+            self.y = 0.0
+            self.z = 0.0
         self.bonds = [ ]
+
+    def is_singlet(self):
+        return self.atomtype.symbol == 'X'
 
     def clone(self):
         a = Atom(self.mmpline)
@@ -72,7 +86,7 @@ class Atom:
         except KeyError:
             self.hybridization = None
     def posn(self):
-        return A((self.x, self.y, self.z))
+        return V(self.x, self.y, self.z)
     def __repr__(self):
         r = "<%s %d (%g, %g, %g)" % \
                (self.atomtype.symbol, self.key, self.x, self.y, self.z)
@@ -88,14 +102,40 @@ class Atom:
             r += " ]"
         return r + ">"
 
+class Bondpoint(Atom):
+    def __init__(self, owner, v):
+        Atom.__init__(self, mmpline=None)
+        self.style = owner.style
+        self.base = owner.base
+        self.x = v[0]
+        self.y = v[1]
+        self.z = v[2]
+        self.bonds = [ owner.key ]
+    def __repr__(self):
+        r = "<%s %d (%g, %g, %g)" % \
+               (self.atomtype.symbol, self.key, self.x, self.y, self.z)
+        r += " %s" % self.style
+        if self.base != None:
+            r += " (base %d)" % self.base
+        if self.bonds:
+            r += " ["
+            for b in self.bonds:
+                r += " " + repr(b)
+            r += " ]"
+        return r + ">"
+
+class MakeBondpoint(Exception):
+    pass
+
 class Base:
-    def __init__(self, atoms, key):
+    def __init__(self, strand, key):
         self.key = key
         self.atomlist = [ ]
         self.phosphorusZcoord = 0.
-        self.newAtoms = 0
-        self.style = atoms[key].style
-        self.addAtom(atoms[key])
+        self.strand = strand
+        atm0 = strand.atoms[key]
+        self.style = atm0.style
+        self.addAtom(atm0)
 
     def __cmp__(self, other):
         return -cmp(self.phosphorusZcoord, other.phosphorusZcoord)
@@ -108,27 +148,46 @@ class Base:
 
     def addAtom(self, a):
         k = a.key
-        if a.style == self.style and a not in self.atomlist:
-            a.base = self.key
-            self.atomlist.append(a)
-            if a.atomtype.symbol == 'P':
-                self.phosphorusZcoord = a.z
-            self.newAtoms += 1
+        if a not in self.atomlist:
+            if a.style == self.style:
+                a.base = self.key
+                self.atomlist.append(a)
+                if a.atomtype.symbol == 'P':
+                    self.phosphorusZcoord = a.z
+            else:
+                raise MakeBondpoint
 
-    def addLayer(self, atoms):
+    def addLayer(self):
+        atoms = self.strand.atoms
         newguys = [ ]
         for a in self.atomlist:
             for k in a.bonds:
-                a2 = atoms[k]
-                newguys.append(a2)
-        self.newAtoms = 0
-        for a in newguys:
-            self.addAtom(a)
-        return self.newAtoms
+                if k not in newguys and k not in self.keys():
+                    newguys.append(k)
+                    atoms[k].buddy = a
+        newAtoms = 0
+        for k in newguys:
+            a2 = atoms[k]
+            a = a2.buddy
+            try:
+                self.addAtom(a2)
+                newAtoms += 1
+            except MakeBondpoint:
+                # don't make this bondpoint if it's already been made
+                if not hasattr(a, 'gotBondpoint'):
+                    p1, p2 = a.posn(), a2.posn()
+                    r1, r2 = a.atomtype.rcovalent, a2.atomtype.rcovalent
+                    p = (r2 * p1 + r1 * p2) / (r1 + r2)
+                    bpt = Bondpoint(a, p)
+                    # pick up a new key
+                    self.strand.addAtom(bpt)
+                    self.addAtom(bpt)
+                    a.gotBondpoint = True
+        return newAtoms
 
-    def grow(self, atoms):
+    def grow(self):
         while True:
-            if self.addLayer(atoms) == 0:
+            if self.addLayer() == 0:
                 return
 
 class Strand:
@@ -206,10 +265,10 @@ class Strand:
         while len(remainingKeys) > 0:
             baseKey = remainingKeys[0]
             print "Base", baseKey
-            base = Base(self.atoms, baseKey)
+            base = Base(self, baseKey)
             self.bases.append(base)
             remainingKeys = remainingKeys[1:]
-            base.grow(self.atoms)
+            base.grow()
             for key in base.keys():
                 if key in remainingKeys:
                     remainingKeys.remove(key)
@@ -304,19 +363,6 @@ end molecular machine part %(groupname)s
         outf.close()
 
 ########################################
-
-def writeMmp(filename='groups.mmp', groupname=None, selectedBase=None, theta=0.0, zdiff=0.0):
-
-    g = Strand('strund1.mmp')
-
-    if selectedBase != None:
-        g = g.filter(lambda atm,n=selectedBase: atm.base == n)
-
-    def tfm(x, y, z, c=cos(theta), s=sin(theta), zdiff=zdiff):
-        return c * x + s * y, -s * x + c * y, z + zdiff
-    g.transform(tfm)
-
-    g.writeMmp(filename, groupname)
 
 if True:
     g = Strand('strund1.mmp')

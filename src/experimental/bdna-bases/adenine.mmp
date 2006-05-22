@@ -9,7 +9,7 @@ group (adenine)
 info opengroup open = True
 mol (adenine) def
 atom 1 (8) (-8479, 1567, 3555) def
-info atom atomtype = sp2
+info atom atomtype = sp3
 atom 2 (15) (-8567, 1931, 2005) def
 bond1 1
 atom 3 (8) (-9638, 2922, 1785) def
@@ -31,7 +31,7 @@ atom 8 (8) (-4501, 4119, 1755) def
 info atom atomtype = sp3
 bond1 7
 atom 9 (6) (-6332, 5016, 565) def
-info atom atomtype = sp2
+info atom atomtype = sp3
 bond1 7
 atom 10 (6) (-5659, 3975, -314) def
 info atom atomtype = sp3
@@ -91,6 +91,10 @@ atom 31 (1) (-195, -1753, -33) def
 bond1 17
 atom 32 (1) (563, 2645, -141) def
 bond1 19
+atom 33 (0) (-8287, 948, 3739) def
+bond1 1
+atom 34 (0) (-6099, 5701, 359) def
+bond1 9
 egroup (adenine)
 end1
 group (Clipboard)

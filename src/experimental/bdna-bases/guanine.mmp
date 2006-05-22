@@ -28,7 +28,7 @@ atom 7 (8) (-4700, 4059, 1722) def
 info atom atomtype = sp3
 bond1 6
 atom 8 (6) (-6531, 4958, 532) def
-info atom atomtype = sp2
+info atom atomtype = sp3
 bond1 6
 atom 9 (6) (-5859, 3916, -347) def
 info atom atomtype = sp3
@@ -90,10 +90,14 @@ bond1 17
 atom 31 (1) (627, 3851, -207) def
 bond1 19
 atom 32 (8) (-8842, 1477, 3412) def
-info atom atomtype = sp2
+info atom atomtype = sp3
 bond1 1
 atom 33 (1) (1533, 2318, -308) def
 bond1 19
+atom 34 (0) (-9290, 1005, 3485) def
+bond1 32
+atom 35 (0) (-6298, 5642, 326) def
+bond1 8
 egroup (guanine)
 end1
 group (Clipboard)

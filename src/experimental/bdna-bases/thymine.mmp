@@ -9,7 +9,7 @@ group (thymine)
 info opengroup open = True
 mol (thymine) def
 atom 1 (8) (-8597, 1738, 3588) def
-info atom atomtype = sp2
+info atom atomtype = sp3
 atom 2 (15) (-8685, 2102, 2038) def
 bond1 1
 atom 3 (8) (-9756, 3093, 1818) def
@@ -31,7 +31,7 @@ atom 8 (8) (-4618, 4290, 1788) def
 info atom atomtype = sp3
 bond1 7
 atom 9 (6) (-6449, 5188, 598) def
-info atom atomtype = sp2
+info atom atomtype = sp3
 bond1 7
 atom 10 (6) (-5777, 4145, -282) def
 info atom atomtype = sp3
@@ -90,6 +90,10 @@ atom 31 (1) (-4694, -1861, 817) def
 bond1 19
 atom 32 (1) (-1191, 885, 82) def
 bond1 15
+atom 33 (0) (-8405, 1119, 3772) def
+bond1 1
+atom 34 (0) (-6216, 5872, 392) def
+bond1 9
 egroup (thymine)
 end1
 group (Clipboard)
