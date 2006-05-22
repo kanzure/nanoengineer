@@ -168,7 +168,9 @@ class movieMode(basicMode):
         self.Menu_spec = [
             ('Cancel', self.Cancel),
             ('Reset Movie', self.ResetMovie),
-            ('Done', self.Done)
+            ('Done', self.Done),
+            None,
+            ('Change Background Color...', self.w.dispBGColor),
          ]
 
     def ResetMovie(self):
@@ -580,7 +582,7 @@ class movieDashboardSlotsMixin:
                 self.assy.current_movie.filename = tmpname # restore the dpb filename.
                 self.assy.current_movie._setup(0) # To fix bug 358.  Mark  050201
         return # from fileSaveMovie
-    
+        
     pass # end of class movieDashboardSlotsMixin
 
 # end
