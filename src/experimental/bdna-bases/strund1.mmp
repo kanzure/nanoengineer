@@ -5,7 +5,7 @@ info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
 csys (LastView) (0.707107, -0.000000, -0.707107, -0.000000) (21.795463) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
-group (strand1)
+group (strund1)
 info opengroup open = True
 mol (bdna.pdb) def
 atom 1 (15) (-8767, 1872, 20672) def
@@ -238,7 +238,7 @@ bond1 99
 atom 101 (8) (3326, 8035, 9742) lin
 info atom atomtype = sp2
 bond1 99
-atom 102 (8) (4681, 5989, 10282) def
+atom 102 (8) (4681, 5989, 10282) lin
 bond1 99
 atom 103 (6) (5480, 5228, 11222) lin
 bond1 102
@@ -322,7 +322,7 @@ atom 137 (8) (6108, -752, 6902) def
 bond1 136
 atom 138 (6) (8116, -402, 5712) def
 bond1 136
-atom 139 (8) (8523, -1712, 5322) def
+atom 139 (8) (8523, -1712, 5322) lin
 bond1 138
 atom 140 (6) (6960, 45, 4832) def
 bond1 138
@@ -646,7 +646,7 @@ info atom atomtype = sp2
 bond1 270 276
 atom 279 (1) (-6360, -6100, -5190) def
 bond1 263
-atom 280 (1) (-4978, -4985, -4918) lin
+atom 280 (1) (-4978, -4985, -4918) def
 bond1 263
 atom 281 (1) (-7231, -4027, -5786) def
 bond1 264
@@ -889,9 +889,9 @@ atom 386 (1) (2816, 2682, -18688) lin
 bond1 373
 atom 387 (1) (2648, 909, -18789) lin
 bond1 373
-egroup (strand1)
+egroup (strund1)
 end1
 group (Clipboard)
 info opengroup open = False
 egroup (Clipboard)
-end molecular machine part strand1
+end molecular machine part strund1
