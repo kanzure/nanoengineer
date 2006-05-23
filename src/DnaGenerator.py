@@ -166,39 +166,79 @@ class DnaGenerator(dna_dialog):
     def __init__(self, win):
         dna_dialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
         self.win = win
-        self.dnaType = 'B'
+        self.mol = None
+        self.inputChanged = True
+
+    def build_dna(self):
+        'Slot for the OK button'
+        if self.inputChanged:
+            self.remove_dna()
+        if self.mol == None:
+            seq = str(self.base_textedit.text()).upper()
+            if len(seq) > 0:
+                dnatype = self.dna_type_combox.currentText()
+                if dnatype == 'A-DNA':
+                    dna = A_Dna()
+                elif dnatype == 'B-DNA':
+                    dna = B_Dna()
+                elif dnatype == 'Z-DNA':
+                    dna = Z_Dna()
+                strandA = True
+                strandB = (self.endings_combox.currentText() == 'Double')
+                self.inputChanged = False
+                if strandA or strandB:
+                    env.history.message(cmd + "Creating DNA. This may take a moment...")
+                    QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+                    try:
+                        self.mol = mol = molecule(self.win.assy, gensym("DNA-"))
+                        dna.make(mol, seq, strandA, strandB)
+                        inferBonds(mol)
+                        part = self.win.assy.part
+                        part.ensure_toplevel_group()
+                        part.topnode.addchild(mol)
+                        self.win.win_update()
+                        self.win.mt.mt_update()
+                        env.history.message(cmd + "Done.")
+                    except Exception, e:
+                        env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+                    QApplication.restoreOverrideCursor() # Restore the cursor
+
+    def remove_dna(self):
+        if self.mol != None:
+            part = self.win.assy.part
+            part.ensure_toplevel_group()
+            part.topnode.delmember(self.mol)
+            self.win.win_update()
+            self.win.mt.mt_update()
+            self.mol = None
+
+    def dna_type_combox_textChanged(self,a0):
+        self.inputChanged = True
+
+    def endings_combox_textChanged(self,a0):
+        self.inputChanged = True
+
+    def base_textedit_textChanged(self):
+        self.inputChanged = True
+
+    def preview_btn_clicked(self):
+        self.build_dna()
 
     def ok_btn_clicked(self):
         'Slot for the OK button'
-        seq = str(self.base_textedit.text()).upper()
-        if len(seq) > 0:
-            dnatype = self.dna_type_combox.currentText()
-            if dnatype == 'A-DNA':
-                dna = A_Dna()
-            elif dnatype == 'B-DNA':
-                dna = B_Dna()
-            elif dnatype == 'Z-DNA':
-                dna = Z_Dna()
-            strandA = True
-            strandB = (self.endings_combox.currentText() == 'Double')
-            if strandA or strandB:
-                env.history.message(cmd + "Creating DNA. This may take a moment...")
-                QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-                try:
-                    mol = molecule(self.win.assy, gensym("DNA-"))
-                    dna.make(mol, seq, strandA, strandB)
-                    inferBonds(mol)
-                    part = self.win.assy.part
-                    part.ensure_toplevel_group()
-                    part.topnode.addchild(mol)
-                    self.win.mt.mt_update()
-                    env.history.message(cmd + "Done.")
-                except Exception, e:
-                    env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
-                QApplication.restoreOverrideCursor() # Restore the cursor
+        self.build_dna()
+        self.mol = None
         QDialog.accept(self)
 
-    def complement_btn_pressed(self):
+    def abort_btn_clicked(self):
+        self.cancel_btn_clicked()
+
+    def cancel_btn_clicked(self):
+        'Slot for the OK button'
+        self.remove_dna()
+        QDialog.accept(self)
+
+    def complement_btn_clicked(self):
         seq = ''
         for ch in str(self.base_textedit.text()).upper():
             if ch == 'G': seq += 'C'
@@ -210,7 +250,7 @@ class DnaGenerator(dna_dialog):
                 return
         self.base_textedit.setText(seq)
 
-    def reverse_btn_pressed(self):
+    def reverse_btn_clicked(self):
         seq = ''
         for ch in str(self.base_textedit.text()).upper():
             if ch not in 'CGAT':

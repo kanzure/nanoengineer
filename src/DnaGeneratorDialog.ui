@@ -730,12 +730,6 @@
         <slot>toggle_nt_parameters_grpbox()</slot>
     </connection>
     <connection>
-        <sender>cancel_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>dna_dialog</receiver>
-        <slot>close()</slot>
-    </connection>
-    <connection>
         <sender>grpbtn2</sender>
         <signal>clicked()</signal>
         <receiver>dna_dialog</receiver>
@@ -760,22 +754,52 @@
         <slot>ok_btn_clicked()</slot>
     </connection>
     <connection>
+        <sender>preview_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>dna_dialog</receiver>
+        <slot>preview_btn_clicked()</slot>
+    </connection>
+    <connection>
         <sender>abort_btn</sender>
         <signal>clicked()</signal>
         <receiver>dna_dialog</receiver>
-        <slot>close()</slot>
+        <slot>abort_btn_clicked()</slot>
     </connection>
     <connection>
         <sender>complement_btn</sender>
-        <signal>pressed()</signal>
+        <signal>clicked()</signal>
         <receiver>dna_dialog</receiver>
-        <slot>complement_btn_pressed()</slot>
+        <slot>complement_btn_clicked()</slot>
     </connection>
     <connection>
         <sender>reverse_btn</sender>
-        <signal>pressed()</signal>
+        <signal>clicked()</signal>
         <receiver>dna_dialog</receiver>
-        <slot>reverse_btn_pressed()</slot>
+        <slot>reverse_btn_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>cancel_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>dna_dialog</receiver>
+        <slot>cancel_btn_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>dna_type_combox</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>dna_dialog</receiver>
+        <slot>dna_type_combox_textChanged(const QString&amp;)</slot>
+    </connection>
+    <connection>
+        <sender>endings_combox</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>dna_dialog</receiver>
+        <slot>endings_combox_textChanged(const QString&amp;)</slot>
+    </connection>
+    <connection>
+        <sender>base_textedit</sender>
+        <signal>textChanged()</signal>
+        <receiver>dna_dialog</receiver>
+        <slot>base_textedit_textChanged()</slot>
     </connection>
 </connections>
 <includes>
@@ -791,6 +815,14 @@
     <slot>close()</slot>
     <slot>complement_btn_pressed()</slot>
     <slot>reverse_btn_pressed()</slot>
+    <slot>preview_btn_clicked()</slot>
+    <slot>abort_btn_clicked()</slot>
+    <slot>complement_btn_clicked()</slot>
+    <slot>reverse_btn_clicked()</slot>
+    <slot>cancel_btn_clicked()</slot>
+    <slot>dna_type_combox_textChanged( const QString &amp; )</slot>
+    <slot>endings_combox_textChanged( const QString &amp; )</slot>
+    <slot>base_textedit_textChanged()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

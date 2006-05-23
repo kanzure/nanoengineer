@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'DnaGeneratorDialog.ui'
 #
-# Created: Tue May 23 00:29:48 2006
+# Created: Tue May 23 14:42:32 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1442,14 +1442,18 @@ class dna_dialog(QDialog):
 
         self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.open_sponsor_homepage)
         self.connect(self.grpbtn1,SIGNAL("clicked()"),self.toggle_nt_parameters_grpbox)
-        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.close)
         self.connect(self.grpbtn2,SIGNAL("clicked()"),self.toggle_mwcnt_grpbox)
         self.connect(self.whatsthis_btn,SIGNAL("clicked()"),self.enter_WhatsThisMode)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
         self.connect(self.done_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
-        self.connect(self.abort_btn,SIGNAL("clicked()"),self.close)
-        self.connect(self.complement_btn,SIGNAL("pressed()"),self.complement_btn_pressed)
-        self.connect(self.reverse_btn,SIGNAL("pressed()"),self.reverse_btn_pressed)
+        self.connect(self.preview_btn,SIGNAL("clicked()"),self.preview_btn_clicked)
+        self.connect(self.abort_btn,SIGNAL("clicked()"),self.abort_btn_clicked)
+        self.connect(self.complement_btn,SIGNAL("clicked()"),self.complement_btn_clicked)
+        self.connect(self.reverse_btn,SIGNAL("clicked()"),self.reverse_btn_clicked)
+        self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
+        self.connect(self.dna_type_combox,SIGNAL("textChanged(const QString&)"),self.dna_type_combox_textChanged)
+        self.connect(self.endings_combox,SIGNAL("textChanged(const QString&)"),self.endings_combox_textChanged)
+        self.connect(self.base_textedit,SIGNAL("textChanged()"),self.base_textedit_textChanged)
 
 
     def languageChange(self):
@@ -1511,6 +1515,30 @@ class dna_dialog(QDialog):
 
     def reverse_btn_pressed(self):
         print "dna_dialog.reverse_btn_pressed(): Not implemented yet"
+
+    def preview_btn_clicked(self):
+        print "dna_dialog.preview_btn_clicked(): Not implemented yet"
+
+    def abort_btn_clicked(self):
+        print "dna_dialog.abort_btn_clicked(): Not implemented yet"
+
+    def complement_btn_clicked(self):
+        print "dna_dialog.complement_btn_clicked(): Not implemented yet"
+
+    def reverse_btn_clicked(self):
+        print "dna_dialog.reverse_btn_clicked(): Not implemented yet"
+
+    def cancel_btn_clicked(self):
+        print "dna_dialog.cancel_btn_clicked(): Not implemented yet"
+
+    def dna_type_combox_textChanged(self,a0):
+        print "dna_dialog.dna_type_combox_textChanged(const QString&): Not implemented yet"
+
+    def endings_combox_textChanged(self,a0):
+        print "dna_dialog.endings_combox_textChanged(const QString&): Not implemented yet"
+
+    def base_textedit_textChanged(self):
+        print "dna_dialog.base_textedit_textChanged(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("dna_dialog",s,c)
