@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'DnaGeneratorDialog.ui'
 #
-# Created: Tue May 23 14:42:32 2006
+# Created: Tue May 23 15:10:22 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1451,9 +1451,6 @@ class dna_dialog(QDialog):
         self.connect(self.complement_btn,SIGNAL("clicked()"),self.complement_btn_clicked)
         self.connect(self.reverse_btn,SIGNAL("clicked()"),self.reverse_btn_clicked)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
-        self.connect(self.dna_type_combox,SIGNAL("textChanged(const QString&)"),self.dna_type_combox_textChanged)
-        self.connect(self.endings_combox,SIGNAL("textChanged(const QString&)"),self.endings_combox_textChanged)
-        self.connect(self.base_textedit,SIGNAL("textChanged()"),self.base_textedit_textChanged)
 
 
     def languageChange(self):

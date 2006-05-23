@@ -21,6 +21,8 @@ from VQT import A, V, dot, vlen
 from bonds import inferBonds
 import re
 
+DEBUG = True
+
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 
 class Dna:
@@ -32,6 +34,8 @@ class Dna:
             base = self.baseCache[basefile]
         else:
             base = [ ]
+            if not os.path.exists(basefile):
+                raise Exception("can't find file: " + basefile)
             for line in open(basefile).readlines():
                 m = atompat.match(line)
                 if m:
@@ -51,7 +55,7 @@ class Dna:
             lst.append(Atom(elem, tfm(xyz), mol))
         return lst
 
-    def make(self, mol, sequence, strandA, strandB,
+    def make(self, mol, sequence, doubleStrand,
              basenameA={'C': 'cytosine',
                         'G': 'guanine',
                         'A': 'adenine',
@@ -70,19 +74,18 @@ class Dna:
             y = -s * v[0] + c * v[1]
             return V(x, y, v[2] + z)
 
-        if strandA:
-            theta = 0.0
-            z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
-            for i in range(len(sequence)):
-                basefile, zoffset, thetaOffset = \
-                          self.strandAinfo(basenameA[sequence[i]], i)
-                def tfm(v, theta=theta+thetaOffset, z1=z+zoffset):
-                    return rotateTranslate(v, theta, z1)
-                self.insertmmp(mol, basefile, tfm)
-                theta -= self.TWIST_PER_BASE
-                z -= self.BASE_SPACING
+        theta = 0.0
+        z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
+        for i in range(len(sequence)):
+            basefile, zoffset, thetaOffset = \
+                      self.strandAinfo(basenameA[sequence[i]], i)
+            def tfm(v, theta=theta+thetaOffset, z1=z+zoffset):
+                return rotateTranslate(v, theta, z1)
+            self.insertmmp(mol, basefile, tfm)
+            theta -= self.TWIST_PER_BASE
+            z -= self.BASE_SPACING
 
-        if strandB:
+        if doubleStrand:
             theta = 0.0
             z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
             for i in range(len(sequence)):
@@ -141,7 +144,7 @@ class Z_Dna(Dna):
             suffix = 'inner'
             zoffset = 0.0
         thetaOffset = 0.0
-        basefile = os.path.join(expdir, 'zdna-bases', '%s.mmp' % basename)
+        basefile = os.path.join(expdir, 'zdna-bases', '%s-%s.mmp' % (basename, suffix))
         return (basefile, zoffset, thetaOffset)
 
     def strandBinfo(self, basename, i):
@@ -152,7 +155,7 @@ class Z_Dna(Dna):
             suffix = 'outer'
             zoffset = -2.1
         thetaOffset = 0.5 * pi
-        basefile = os.path.join(expdir, 'zdna-bases', '%s.mmp' % basename)
+        basefile = os.path.join(expdir, 'zdna-bases', '%s-%s.mmp' % (basename, suffix))
         return (basefile, zoffset, thetaOffset)
 
 
@@ -167,41 +170,41 @@ class DnaGenerator(dna_dialog):
         dna_dialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
         self.win = win
         self.mol = None
-        self.inputChanged = True
+        self.previousParams = None
 
     def build_dna(self):
         'Slot for the OK button'
-        if self.inputChanged:
+        seq = str(self.base_textedit.text()).upper()
+        dnatype = str(self.dna_type_combox.currentText())
+        double = str(self.endings_combox.currentText())
+        params = (seq, dnatype, double)
+        if self.previousParams != params:
             self.remove_dna()
+            self.previousParams = params
         if self.mol == None:
-            seq = str(self.base_textedit.text()).upper()
             if len(seq) > 0:
-                dnatype = self.dna_type_combox.currentText()
                 if dnatype == 'A-DNA':
                     dna = A_Dna()
                 elif dnatype == 'B-DNA':
                     dna = B_Dna()
                 elif dnatype == 'Z-DNA':
                     dna = Z_Dna()
-                strandA = True
-                strandB = (self.endings_combox.currentText() == 'Double')
-                self.inputChanged = False
-                if strandA or strandB:
-                    env.history.message(cmd + "Creating DNA. This may take a moment...")
-                    QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-                    try:
-                        self.mol = mol = molecule(self.win.assy, gensym("DNA-"))
-                        dna.make(mol, seq, strandA, strandB)
-                        inferBonds(mol)
-                        part = self.win.assy.part
-                        part.ensure_toplevel_group()
-                        part.topnode.addchild(mol)
-                        self.win.win_update()
-                        self.win.mt.mt_update()
-                        env.history.message(cmd + "Done.")
-                    except Exception, e:
-                        env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
-                    QApplication.restoreOverrideCursor() # Restore the cursor
+                doubleStrand = (double == 'Double')
+                env.history.message(cmd + "Creating DNA. This may take a moment...")
+                QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+                try:
+                    self.mol = mol = molecule(self.win.assy, gensym("DNA-"))
+                    dna.make(mol, seq, doubleStrand)
+                    inferBonds(mol)
+                    part = self.win.assy.part
+                    part.ensure_toplevel_group()
+                    part.topnode.addchild(mol)
+                    self.win.win_update()
+                    self.win.mt.mt_update()
+                    env.history.message(cmd + "Done.")
+                except Exception, e:
+                    env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+                QApplication.restoreOverrideCursor() # Restore the cursor
 
     def remove_dna(self):
         if self.mol != None:
@@ -211,15 +214,6 @@ class DnaGenerator(dna_dialog):
             self.win.win_update()
             self.win.mt.mt_update()
             self.mol = None
-
-    def dna_type_combox_textChanged(self,a0):
-        self.inputChanged = True
-
-    def endings_combox_textChanged(self,a0):
-        self.inputChanged = True
-
-    def base_textedit_textChanged(self):
-        self.inputChanged = True
 
     def preview_btn_clicked(self):
         self.build_dna()

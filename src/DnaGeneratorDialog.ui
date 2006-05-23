@@ -783,24 +783,6 @@
         <receiver>dna_dialog</receiver>
         <slot>cancel_btn_clicked()</slot>
     </connection>
-    <connection>
-        <sender>dna_type_combox</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>dna_dialog</receiver>
-        <slot>dna_type_combox_textChanged(const QString&amp;)</slot>
-    </connection>
-    <connection>
-        <sender>endings_combox</sender>
-        <signal>textChanged(const QString&amp;)</signal>
-        <receiver>dna_dialog</receiver>
-        <slot>endings_combox_textChanged(const QString&amp;)</slot>
-    </connection>
-    <connection>
-        <sender>base_textedit</sender>
-        <signal>textChanged()</signal>
-        <receiver>dna_dialog</receiver>
-        <slot>base_textedit_textChanged()</slot>
-    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">DnaGeneratorDialog.ui.h</include>
