@@ -7,14 +7,10 @@ $Id$
 
 Other files define other subclasses of Node, such as molecule and Jig.
 
-This file should have a more descriptive name, but that can wait.
+This file should eventually be split into separate modules for Node, Group and specialized Groups, and others.
 
-#e Should be split into separate modules for Node, Group and specialized Groups, and others.
-
-History: originally by Josh; gradually has been greatly extended by Bruce
+History: originally by Josh; gradually has been greatly extended by Bruce,
 but the basic structure of Nodes and Groups has not been changed.
-
-050901 bruce used env.history in some places.
 """
 __author__ = "Josh"
 
@@ -132,16 +128,10 @@ class Node( StateMixin):
     is_movable = False #mark 060120
 
     copyable_attrs = ('name', 'hidden', 'open', 'disabled_by_user_choice') #bruce 050526
-        # (see also _um_undoable_attrs [obs] and __declare_undoable_attrs [bruce 060223])
+        # (see also __declare_undoable_attrs [bruce 060223])
         # subclasses need to extend this
         #e could someday use these to help make mmp writing and reading more uniform,
         # if we also listed the ones handled specially (so we can only handle the others in the new uniform way)
-
-    ## extra_undoable_attrs = ('dad', 'picked', 'part') # the undoable attrs besides whatever's included in copyable_attrs
-        # subclasses need to extend this
-        #bruce 060209 revised this
-        #e (but would "everything in __dict__" make more sense?) ###k
-        ##e prior_part?
 
     _s_attr_dad = S_PARENT #obs cmt: overridden (bug) (doesn't matter for now) [i think that's fixed now, anyway, 060224]
     _s_attr_picked = S_DATA
@@ -152,10 +142,6 @@ class Node( StateMixin):
     _s_attr_assy = S_PARENT
         # assy can't be left out, since on some or all killed nodes it's foolishly set to None, which is
         # a change we need to undo when we revive them.
-
-#bruce 060209 commented this out (it can be removed in a couple months):
-##    extra_undoable_attrs = ('dad',) #bruce 051013; subclasses extend this
-##        ###@@@ #e need to add any more?? picked? guess: no. part: probably not, since set by posn in tree. assy? no.
 
     def _undo_update(self): #bruce 060223
         # no change to .part, since that's declared as S_CHILD
@@ -255,14 +241,9 @@ class Node( StateMixin):
         return self.assy is not None and self.part is not None and self.dad is not None
             ###e and we're under root? does that method exist? (or should viewpoint objects count here?)
 
-##    def _um_undoable_attrs(self): #bruce 051011, revised 051013; reviewed 060209
-##        """[overrides UndoStateMixin method; see its docstring]
-##        """
-##        return self.copyable_attrs + self.extra_undoable_attrs
-
     def __declare_undoable_attrs(self): #bruce 060223
         """[private method for internal use by Node.__init__ only; temporary kluge until individual _s_attr decls are added]
-        Scan the deprecated per-class list, copyable_attrs (not extra_undoable_attrs since those are all declared individually now),
+        Scan the perhaps-someday-to-be-deprecated per-class list, copyable_attrs,
         and add _s_attr decls for the attrs listed in them to self.__class__ (Node or any of its subclasses).
         Don't override any such decls already present, if possible [not sure if you can tell which class added them #k].
         Should be run only once per Node subclass, but needs an example object (self) to run on.
@@ -271,7 +252,7 @@ class Node( StateMixin):
         subclass = self.__class__
         if debug_undoable_attrs:
             print "debug: running __declare_undoable_attrs in", subclass
-        for attr in subclass.copyable_attrs: ## no longer needed, declared individually now: + subclass.extra_undoable_attrs:
+        for attr in subclass.copyable_attrs:
             name = "_s_attr_" + attr
             if hasattr(subclass, name):
                 if debug_undoable_attrs:
@@ -999,6 +980,8 @@ class Node( StateMixin):
         return None # conservative version
 
     copy_partial_in_mapping = copy_full_in_mapping # equivalent for all jigs which need it, as of 050526 [method name added 050704]
+        # Note (bruce 060523): this might be wrong for jigs that overrode copy_full_in_mapping,
+        # but since copy_partial_in_mapping is not presently called, I won't bother to clean it up for now.
 
     def copy_in_mapping_with_specified_atoms(self, mapping, atoms): #bruce circa 050525; docstring revised 050704
         "#doc; certain subclasses should override [e.g. chunk]; for use in copying selected atoms"
@@ -1069,6 +1052,7 @@ class Node( StateMixin):
         # or which for some other reason is not declared in self.copyable_attrs.
         ##e note: docstring and perhaps method name should be changed; most calls should remain,
         # but all overridings of this method (and/or related decls of mutable_attrs) should be reviewed for removal.
+        # [as of 060523, the only override is in jig_Gamess.py, and it could probably be removed but that requires analysis.]
         """[this docstring is out of date as of 051003]
         If any copyable_attrs of self are mutable and might be shared with another copy of self
         (by self.copy_copyable_attrs_to(target) -- where this method might then be called on self or target or both),
@@ -1385,8 +1369,6 @@ class Group(Node):
         # or to relegate it to a help submenu rather than MT context menu, or in some other way make it less visible...
         # [bruce 051201]
     
-    ## extra_undoable_attrs = Node.extra_undoable_attrs + ('members',) #bruce 051013; reviewed 060209
-
     _s_attr_members = S_CHILDREN
 
     def __init__(self, name, assy, dad, list = []): ###@@@ review inconsistent arg order
@@ -2086,6 +2068,55 @@ class Group(Node):
 # everything below here is fairly specialized and probably belongs in other files.
 # [bruce 050121 comment]
 
+class SimpleCopyMixin(Node):
+    # This will probably just become the default implems for these methods in Node, rather than its own class...
+    # but first, test it in Comment and View. When it's stable, also see if the copy methods in Jig and even Chunk
+    # can make use of these methods somehow (perhaps with these modified to call new optional subclass methods).
+    # [bruce 060523]
+    """Node subclasses that want to be copyable via their _s_attr or copyable_attrs decls,
+    and that don't need any optimizations for atoms or bonds or for avoiding full copy_val of all attrs,
+    and that don't need any special cases like worrying about refs to other copied things needing to be
+    transformed through the mapping (i.e. for which all copyable attrs are pure data, not node or atom refs),
+    can mix in this class, BEFORE Node, provided they contain a correct definition of _um_initargs
+    for use in creating the copy-stub.
+    """
+    def will_copy_if_selected(self, sel, realCopy):
+        "[overrides Node method]"
+        return True
+
+    def copy_full_in_mapping(self, mapping): # warning: most of this code is copied from the Jig method.
+        clas = self.__class__
+        method = self._um_initargs # fyi: for Node, the returned args are assy, name
+        args, kws = method()
+        new = clas(*args, **kws)
+        # store special info to help _copy_fixup_at_end
+        # (note: these attrnames don't start with __ since name-mangling would prevent
+        #  subclasses from overriding _copy_fixup_at_end or this method)
+        new._orig = self
+        new._mapping = mapping
+        new.name = "[being copied]" # should never be seen
+        mapping.do_at_end( new._copy_fixup_at_end)
+        #k any need to call mapping.record_copy?? probably not for now, but maybe later if these nodes can be ref'd by others
+        # (or maybe the general copy code that calls this will take care of that then).
+        return new
+
+    def _copy_fixup_at_end(self): # warning: most of this code is copied from the Jig method.
+        """[Private method]
+        This runs at the end of a copy operation to copy attributes from the old node
+        (which could have been done at the start but might as well be done now for most of them).
+        Self is the copy, self._orig is the original.
+        """
+        orig = self._orig
+        del self._orig
+        mapping = self._mapping
+        del self._mapping
+        copy = self
+        orig.copy_copyable_attrs_to(copy) # this uses copy_val on all attrs
+        return
+
+    pass # end of class SimpleCopyMixin
+
+
 ViewNum = 0
 def genViewNum(string):
     """return string appended with a unique view number"""
@@ -2093,7 +2124,7 @@ def genViewNum(string):
     ViewNum += 1
     return string + str(ViewNum)
     
-class Csys(Node):
+class Csys(SimpleCopyMixin, Node):
     """The Csys is used to store all the parameters needed to save and restore a view.
     It is used in two distinct ways:
         1) as a Named View created by the user and visible as a node in the model tree
@@ -2101,6 +2132,14 @@ class Csys(Node):
     """
     
     sym = "View"
+
+    copyable_attrs = Node.copyable_attrs + ('scale', 'pov', 'zoomFactor', 'quat') #bruce 060523
+        # (note: for copy, this is redundant with _um_initargs (that's ok),
+        #  but for Undo, it's important to list these here or give them _s_attr decls.
+        #  This fixes a presumed bug (perhaps unreported -- now bug 1942) in Undo of Set_to_Current_View.
+        #  Bug 1369 (copy) is fixed by _um_initargs and SimpleCopyMixin, not by this.)
+
+    scale = pov = zoomFactor = quat = None # Undo might require these to have default values (not sure) [bruce 060523]
 
     def __init__(self, assy, name, scale, pov, zoomFactor, w, x = None, y = None, z = None):
         self.const_icon = imagename_to_pixmap("csys.png")
@@ -2128,6 +2167,17 @@ class Csys(Node):
             # Best revision would probably just be to disallow this form! #e 
         return
 
+    def _um_initargs(self): #bruce 060523 to help make it copyable from the UI (fixes bug 1369 along with SimpleCopyMixin)
+        "#doc [warning: see comment where this is called in this class -- it has to do more than its general spec requires]"
+        # (split out of self.copy)
+        if "a kluge is ok since I'm in a hurry":
+            # the data in this Csys might not be up-to-date, since the glpane "caches it"
+            # (if we're the Home or Last View of its current Part)
+            # and doesn't write it back after every user event!
+            # probably it should... but until it does, do it now, before copying it!
+            self.assy.o.saveLastView()
+        return (self.assy, self.name, self.scale, self.pov, self.zoomFactor, self.quat), {}
+    
     def show_in_model_tree(self):
         #bruce 050128; nothing's wrong with showing them, except that they are unselectable
         # and useless for anything except being renamed by dblclick (which can lead to bugs
@@ -2143,7 +2193,7 @@ class Csys(Node):
                 ") (%f, %f, %f, %f) (%f) (%f, %f, %f) (%f)\n" % v)
         self.writemmp_info_leaf(mapping) #bruce 050421 (only matters once these are present in main tree)
 
-    def copy(self, dad=None):
+    def copy(self, dad = None): #bruce 060523 revised this (should be equivalent)
         #bruce 050420 -- revise this (it was a stub) for sake of Part view propogation upon topnode ungrouping;
         # note that various Node.copy methods are not yet consistent, and I'm not fixing this now.
         # (When I do, I think they will not accept "dad" but will accept a "mapping", and will never rename the copy.)
@@ -2151,22 +2201,18 @@ class Csys(Node):
         # Note that the copy needs to have the same exact name, not a variant (since the name
         # is meaningful for the internal uses of this object, in the present implem).
         assert dad is None
-        if "a kluge is ok since I'm in a hurry":
-            # the data in this Csys might not be up-to-date, since the glpane "caches it"
-            # (if we're the Home or Last View of its current Part)
-            # and doesn't write it back after every user event!
-            # probably it should... but until it does, do it now, before copying it!
-            self.assy.o.saveLastView()                
+        args, kws = self._um_initargs()
+            # note: we depend on our own _um_initargs returning enough info for a full copy,
+            # though it doesn't have to in general.
         if 0 and platform.atom_debug:
             print "atom_debug: copying csys:", self
-        return Csys( self.assy, self.name, self.scale, self.pov, self.zoomFactor, self.quat )
+        return Csys( *args, **kws )
 
     def __str__(self):
         #bruce 050420 comment: this is inadequate, but before revising it
         # I'd have to verify it's not used internally, like Jig.__repr__ used to be!!
         return "<csys " + self.name + ">"
 
-        
     def __CM_Change_View(self): #mark 060122
         self.change_view()
         
@@ -2190,28 +2236,18 @@ class Csys(Node):
         self.pov = V(self.assy.o.pov[0], self.assy.o.pov[1], self.assy.o.pov[2])
         self.zoomFactor = self.assy.o.zoomFactor
         self.quat = Q(self.assy.o.quat)
-        self.assy.changed()
+        self.assy.changed() ###e we should make this check whether it really changed? (or will Undo do that??)
         
         from HistoryWidget import greenmsg
         cmd = greenmsg("Set View: ")
         msg = 'View "%s" now set to the current view.' % (self.name)
         env.history.message( cmd + msg )
-        
-    def will_copy_if_selected(self, sel, realCopy):
-        "Copying a named view NIY.  Maybe A8.  [overrides Node method]"
-        if realCopy:
-            # Tell user reason why not.  Mark 060124.
-            msg = "Copying named views not implemented yet.  %s not copied." % (self.name)
-            from HistoryWidget import orangemsg
-            env.history.message(orangemsg(msg))
-        return False
 
     pass # end of class Csys
 
-class Comment(Node):
+class Comment(SimpleCopyMixin, Node):
     """A Comment stores a comment in the MMP file, accessible from the Model Tree as a node.
     """
-
     # text representation: self.lines is a list of lines (str or unicode python strings).
     # This is the fundamental representation for use by mmp read/write, copy, and Undo.
     # For convenience, get_text() and set_text() are also available.
@@ -2221,7 +2257,8 @@ class Comment(Node):
     lines = ()
 
     copyable_attrs = Node.copyable_attrs + ('lines',)
-        #bruce 060523 this fixes bug 1939 (undo) and apparently 1938 (file modified), but not yet 1940 (copy)
+        #bruce 060523 this fixes bug 1939 (undo) and apparently 1938 (file modified),
+        # and together with SimpleCopyMixin it also fixes bug 1940 (copy) 
 
     def __init__(self, assy, name, text=''):
         self.const_icon = imagename_to_pixmap("comment.png")
@@ -2315,37 +2352,9 @@ class Comment(Node):
         self.writemmp_info_leaf(mapping)
         return
 
-    #### following code not yet reviewed or cleaned up; copy or undo of this node is probably not working yet -- bruce 060522
-            
-    def copy(self, dad=None): # Not sure if this is needed (too tired to check).  Ask Bruce. Mark 060520.
-        #bruce 050420 -- revise this (it was a stub) for sake of Part view propogation upon topnode ungrouping;
-        # note that various Node.copy methods are not yet consistent, and I'm not fixing this now.
-        # (When I do, I think they will not accept "dad" but will accept a "mapping", and will never rename the copy.)
-        # The data copied is the same as what can be passed to init and what writemmp writes.
-        # Note that the copy needs to have the same exact name, not a variant (since the name
-        # is meaningful for the internal uses of this object, in the present implem).
-        assert dad is None
-        if "a kluge is ok since I'm in a hurry":
-            # the data in this Csys might not be up-to-date, since the glpane "caches it"
-            # (if we're the Home or Last View of its current Part)
-            # and doesn't write it back after every user event!
-            # probably it should... but until it does, do it now, before copying it!
-            self.assy.o.saveLastView()                
-        if 0 and platform.atom_debug:
-            print "atom_debug: copying comment:", self
-        return Comment( self.assy, self.name, self.text)
-
     def __str__(self):
         return "<comment " + self.name + ">"
         
-    def will_copy_if_selected(self, sel, realCopy): # This also needs to be reviewed by Bruce. Mark 060520.
-        "Copying a comment NIY.  [overrides Node method]"
-        if realCopy:
-            msg = "Copying comments is not implemented yet.  %s not copied." % (self.name)
-            from HistoryWidget import orangemsg
-            env.history.message(orangemsg(msg))
-        return False
-
     pass # end of class Comment
 
 # bruce 050417: commenting out class Datum (and ignoring its mmp record "datum"),
