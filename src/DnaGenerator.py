@@ -12,20 +12,13 @@ __author__ = "Will"
 
 from DnaGeneratorDialog import DnaGeneratorDialog
 from math import atan2, sin, cos, pi
-import assembly, chem, bonds, Utility
-from chem import molecule, Atom
+from chem import molecule, Atom, gensym
 import env
 from HistoryWidget import redmsg, greenmsg
-from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
+from qt import Qt, QApplication, QCursor, QDialog
 from VQT import A, V, dot, vlen
 from bonds import inferBonds
 import re
-
-def rotateTranslate(v, theta, z):
-    c, s = cos(theta), sin(theta)
-    x = c * v[0] + s * v[1]
-    y = -s * v[0] + c * v[1]
-    return V(x, y, v[2] + z)
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 
@@ -57,18 +50,32 @@ class Dna:
             lst.append(Atom(elem, tfm(xyz), mol))
         return lst
 
-    def make(self, mol, sequence, strandA, strandB):
+    def make(self, mol, sequence, strandA, strandB,
+             basenameA={'C': 'cytosine',
+                        'G': 'guanine',
+                        'A': 'adenine',
+                        'T': 'thymine'},
+             basenameB={'G': 'cytosine',
+                        'C': 'guanine',
+                        'T': 'adenine',
+                        'A': 'thymine'}):
         sequence = str(sequence).upper()
         for ch in sequence:
             if ch not in 'GACT':
                 raise Exception('Unknown DNA base (not G, A, C, or T): ' + ch)
+
+        def rotateTranslate(v, theta, z):
+            c, s = cos(theta), sin(theta)
+            x = c * v[0] + s * v[1]
+            y = -s * v[0] + c * v[1]
+            return V(x, y, v[2] + z)
 
         if strandA:
             theta = 0.0
             z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
             for i in range(len(sequence)):
                 basefile, zoffset, thetaOffset = \
-                          self.strandAinfo(sequence, i)
+                          self.strandAinfo(basenameA[sequence[i]], i)
                 def tfm(v, theta=theta+thetaOffset, z1=z+zoffset):
                     return rotateTranslate(v, theta, z1)
                 self.insertmmp(mol, basefile, tfm)
@@ -81,7 +88,7 @@ class Dna:
             for i in range(len(sequence)):
                 # The 3'-to-5' direction is reversed for strand B.
                 basefile, zoffset, thetaOffset = \
-                          self.strandBinfo(sequence, i)
+                          self.strandBinfo(basenameB[sequence[i]], i)
                 def tfm(v, theta=theta+thetaOffset, z1=z+zoffset):
                     # Flip theta, flip z
                     # Cheesy hack: flip theta by reversing the sign of y,
@@ -93,6 +100,10 @@ class Dna:
 
 
 class A_Dna(Dna):
+    """The geometry for A-DNA is very twisty and funky. I'd probably need to
+    take a few days to research it. It's not a simple helix (like B) or an
+    alternating helix (like Z).
+    """
     TWIST_PER_BASE = 0  # WRONG
     BASE_SPACING = 0    # WRONG
     def strandAinfo(self, sequence, i):
@@ -101,34 +112,17 @@ class A_Dna(Dna):
         raise Exception("A-DNA is not yet implemented -- please try B- or Z-DNA");
 
 class B_Dna(Dna):
-    TWIST_PER_BASE = -36 * pi / 180   # degrees
+    TWIST_PER_BASE = -36 * pi / 180   # radians
     BASE_SPACING = 3.391              # angstroms
-    def strandAinfo(self, sequence, i):
-        basename = {
-            'C': 'cytosine',
-            'G': 'guanine',
-            'A': 'adenine',
-            'T': 'thymine',
-            }[sequence[i]]
+
+    def strandAinfo(self, basename, i):
         zoffset = 0.0
         thetaOffset = 0.0
         basefile = 'experimental/bdna-bases/%s.mmp' % basename
         return (basefile, zoffset, thetaOffset)
 
-    def strandBinfo(self, sequence, i):
-        basename = {
-            'G': 'cytosine',
-            'C': 'guanine',
-            'T': 'adenine',
-            'A': 'thymine',
-            }[sequence[i]]
+    def strandBinfo(self, basename, i):
         zoffset = 0.0
-        # The thetaOffset requires some empirical and apparently non-sensical
-        # tweaking to get right. The reason for this is the cheesy hack I did
-        # for the theta flip on the B strand. The tidy approach would be to
-        # find a center theta for each base, and flip theta around that center.
-        # I didn't do this primarily because I wasn't sure the bonds would match
-        # up. And this isn't so ugly, we're just tweaking one number.
         thetaOffset = 210 * (pi / 180)
         basefile = 'experimental/bdna-bases/%s.mmp' % basename
         return (basefile, zoffset, thetaOffset)
@@ -137,17 +131,7 @@ class Z_Dna(Dna):
     TWIST_PER_BASE = pi / 6     # in radians
     BASE_SPACING = 3.715        # in angstroms
 
-    # Z-DNA has a periodicity of two bases. The odd-numbered basis
-    # have one orientation, the even-numbered bases have another.
-    # Take care of the directory name, and the alternation of inner and
-    # outer bases, which won't occur in A and B DNA.
-    def strandAinfo(self, sequence, i):
-        basename = {
-            'C': 'cytosine',
-            'G': 'guanine',
-            'A': 'adenine',
-            'T': 'thymine',
-            }[sequence[i]]
+    def strandAinfo(self, basename, i):
         if (i & 1) != 0:
             suffix = 'outer'
             zoffset = 2.045
@@ -158,13 +142,7 @@ class Z_Dna(Dna):
         basefile = 'experimental/zdna-bases/%s-%s.mmp' % (basename, suffix)
         return (basefile, zoffset, thetaOffset)
 
-    def strandBinfo(self, sequence, i):
-        basename = {
-            'G': 'cytosine',
-            'C': 'guanine',
-            'T': 'adenine',
-            'A': 'thymine',
-            }[sequence[i]]
+    def strandBinfo(self, basename, i):
         if (i & 1) != 0:
             suffix = 'inner'
             zoffset = -0.055
@@ -208,7 +186,7 @@ class DnaGenerator(DnaGeneratorDialog):
             env.history.message(cmd + "Creating DNA. This may take a moment...")
             QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
             try:
-                mol = molecule(self.win.assy, chem.gensym("DNA-"))
+                mol = molecule(self.win.assy, gensym("DNA-"))
                 if self.dnaType == 'A':
                     dna = A_Dna()
                 elif self.dnaType == 'B':
