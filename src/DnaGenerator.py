@@ -220,10 +220,15 @@ class DnaGenerator(dna_dialog):
                 seq = ch + seq
         self.base_textedit.setText(seq)
 
-    def close(self):
-        'Slot for the Cancel button'
-        # End the dialog without saying or doing anything.
-        QDialog.accept(self)
+    def close(self, e=None):
+        """When the user closes dialog by clicking the 'X' button on
+        the dialog title bar, this method is called.
+        """
+        try:
+            QDialog.accept(self)
+            return True
+        except:
+            return False
 
     def open_sponsor_homepage(self):
         env.history.message(orangemsg('Sponsor homepage: Not implemented yet'))
