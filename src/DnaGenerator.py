@@ -14,6 +14,7 @@ from DnaGeneratorDialog import dna_dialog
 from math import atan2, sin, cos, pi
 from chem import molecule, Atom, gensym
 import env
+import os
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog
 from VQT import A, V, dot, vlen
@@ -98,6 +99,8 @@ class Dna:
                 z -= self.BASE_SPACING
 
 
+expdir = os.path.join(os.curdir, 'experimental')
+
 class A_Dna(Dna):
     """The geometry for A-DNA is very twisty and funky. I'd probably need to
     take a few days to research it. It's not a simple helix (like B) or an
@@ -117,13 +120,13 @@ class B_Dna(Dna):
     def strandAinfo(self, basename, i):
         zoffset = 0.0
         thetaOffset = 0.0
-        basefile = 'experimental/bdna-bases/%s.mmp' % basename
+        basefile = os.path.join(expdir, 'bdna-bases', '%s.mmp' % basename)
         return (basefile, zoffset, thetaOffset)
 
     def strandBinfo(self, basename, i):
         zoffset = 0.0
         thetaOffset = 210 * (pi / 180)
-        basefile = 'experimental/bdna-bases/%s.mmp' % basename
+        basefile = os.path.join(expdir, 'bdna-bases', '%s.mmp' % basename)
         return (basefile, zoffset, thetaOffset)
 
 class Z_Dna(Dna):
@@ -138,7 +141,7 @@ class Z_Dna(Dna):
             suffix = 'inner'
             zoffset = 0.0
         thetaOffset = 0.0
-        basefile = 'experimental/zdna-bases/%s-%s.mmp' % (basename, suffix)
+        basefile = os.path.join(expdir, 'zdna-bases', '%s.mmp' % basename)
         return (basefile, zoffset, thetaOffset)
 
     def strandBinfo(self, basename, i):
@@ -149,7 +152,7 @@ class Z_Dna(Dna):
             suffix = 'outer'
             zoffset = -2.1
         thetaOffset = 0.5 * pi
-        basefile = 'experimental/zdna-bases/%s-%s.mmp' % (basename, suffix)
+        basefile = os.path.join(expdir, 'zdna-bases', '%s.mmp' % basename)
         return (basefile, zoffset, thetaOffset)
 
 
