@@ -59,7 +59,6 @@ class Dna:
                         'C': 'guanine',
                         'T': 'adenine',
                         'A': 'thymine'}):
-        sequence = str(sequence).upper()
         for ch in sequence:
             if ch not in 'GACT':
                 raise Exception('Unknown DNA base (not G, A, C, or T): ' + ch)
@@ -168,30 +167,32 @@ class DnaGenerator(dna_dialog):
 
     def ok_btn_clicked(self):
         'Slot for the OK button'
-        dnatype = self.dna_type_combox.currentText()
-        if dnatype == 'A-DNA':
-            dna = A_Dna()
-        elif dnatype == 'B-DNA':
-            dna = B_Dna()
-        elif dnatype == 'Z-DNA':
-            dna = Z_Dna()
-        strandA = True
-        strandB = (self.endings_combox.currentText() == 'Double')
-        if strandA or strandB:
-            env.history.message(cmd + "Creating DNA. This may take a moment...")
-            QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-            try:
-                mol = molecule(self.win.assy, gensym("DNA-"))
-                dna.make(mol, self.base_textedit.text(), strandA, strandB)
-                inferBonds(mol)
-                part = self.win.assy.part
-                part.ensure_toplevel_group()
-                part.topnode.addchild(mol)
-                self.win.mt.mt_update()
-                env.history.message(cmd + "Done.")
-            except Exception, e:
-                env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
-            QApplication.restoreOverrideCursor() # Restore the cursor
+        seq = str(self.base_textedit.text()).upper()
+        if len(seq) > 0:
+            dnatype = self.dna_type_combox.currentText()
+            if dnatype == 'A-DNA':
+                dna = A_Dna()
+            elif dnatype == 'B-DNA':
+                dna = B_Dna()
+            elif dnatype == 'Z-DNA':
+                dna = Z_Dna()
+            strandA = True
+            strandB = (self.endings_combox.currentText() == 'Double')
+            if strandA or strandB:
+                env.history.message(cmd + "Creating DNA. This may take a moment...")
+                QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+                try:
+                    mol = molecule(self.win.assy, gensym("DNA-"))
+                    dna.make(mol, seq, strandA, strandB)
+                    inferBonds(mol)
+                    part = self.win.assy.part
+                    part.ensure_toplevel_group()
+                    part.topnode.addchild(mol)
+                    self.win.mt.mt_update()
+                    env.history.message(cmd + "Done.")
+                except Exception, e:
+                    env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+                QApplication.restoreOverrideCursor() # Restore the cursor
         QDialog.accept(self)
 
     def complement_btn_pressed(self):
