@@ -28,7 +28,7 @@ atom 7 (8) (-3059, -2845, -974) def
 info atom atomtype = sp3
 bond1 6
 atom 8 (6) (-2024, -4219, 695) def
-info atom atomtype = sp2
+info atom atomtype = sp3
 bond1 6
 atom 9 (6) (-1881, -2771, 1105) def
 info atom atomtype = sp3
@@ -61,7 +61,7 @@ atom 18 (6) (-3987, -423, -294) def
 info atom atomtype = sp2
 bond1 11 17
 atom 19 (8) (-6888, -3582, 2388) def
-info atom atomtype = sp2
+info atom atomtype = sp3
 bond1 1
 atom 20 (1) (-4408, -5723, 135) def
 bond1 5
@@ -85,6 +85,10 @@ atom 29 (1) (-3248, 3908, 182) def
 bond1 16
 atom 30 (1) (-4941, 3346, 211) def
 bond1 16
+atom 31 (0) (-7132, -3726, 2978) def
+bond1 19
+atom 32 (0) (-1364, -4492, 468) def
+bond1 8
 egroup (cytosine)
 end1
 group (Clipboard)

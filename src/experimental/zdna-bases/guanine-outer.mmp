@@ -8,9 +8,9 @@ egroup (View Data)
 group (guanine)
 info opengroup open = True
 mol (guanine) def
-atom 1 (8) (-3038, -3716, 1934) def
-info atom atomtype = sp2
-atom 2 (15) (-3461, -5253, 2074) def
+atom 1 (8) (-3038, -3716, 1935) def
+info atom atomtype = sp3
+atom 2 (15) (-3461, -5253, 2075) def
 bond1 1
 atom 3 (8) (-2288, -6085, 1884) def
 info atom atomtype = sp2
@@ -18,7 +18,7 @@ bond1 2
 atom 4 (8) (-4255, -5355, 3314) def
 info atom atomtype = sp2
 bond1 2
-atom 5 (8) (-4434, -5481, 824) def
+atom 5 (8) (-4434, -5481, 825) def
 info atom atomtype = sp3
 bond1 2
 atom 6 (6) (-4033, -5020, -464) def
@@ -30,22 +30,22 @@ bond1 6
 atom 8 (8) (-6274, -4582, -1275) def
 info atom atomtype = sp3
 bond1 7
-atom 9 (6) (-4684, -5189, -2955) def
-info atom atomtype = sp2
+atom 9 (6) (-4684, -5189, -2954) def
+info atom atomtype = sp3
 bond1 7
-atom 10 (6) (-5898, -4648, -3665) def
+atom 10 (6) (-5898, -4648, -3664) def
 info atom atomtype = sp3
 bond1 9
-atom 11 (6) (-6719, -3996, -2515) def
+atom 11 (6) (-6719, -3996, -2514) def
 info atom atomtype = sp3
 bond1 8 10
-atom 12 (7) (-6559, -2578, -2416) def
+atom 12 (7) (-6559, -2578, -2415) def
 info atom atomtype = sp3
 bond1 11
 atom 13 (6) (-7578, -1701, -2365) def
 info atom atomtype = sp2
 bond1 12
-atom 14 (7) (-7181, -449, -2335) def
+atom 14 (7) (-7181, -449, -2334) def
 info atom atomtype = sp2
 bond1 13
 atom 15 (6) (-5810, -539, -2234) def
@@ -60,40 +60,44 @@ bond1 16
 atom 18 (7) (-3534, 14, -2144) def
 info atom atomtype = sp3
 bond1 16
-atom 19 (6) (-3223, -1303, -2245) def
+atom 19 (6) (-3223, -1303, -2244) def
 info atom atomtype = sp2
 bond1 18
-atom 20 (7) (-1975, -1628, -2245) def
+atom 20 (7) (-1975, -1628, -2244) def
 info atom atomtype = sp3
 bond1 19
-atom 21 (7) (-4132, -2279, -2335) def
+atom 21 (7) (-4132, -2279, -2334) def
 info atom atomtype = sp2
 bond1 19
-atom 22 (6) (-5384, -1830, -2326) def
+atom 22 (6) (-5384, -1830, -2325) def
 info atom atomtype = sp2
 bond1 12 15 21
-atom 23 (1) (-3905, -3928, -446) def
+atom 23 (1) (-3905, -3928, -445) def
 bond1 6
-atom 24 (1) (-3084, -5496, -750) def
+atom 24 (1) (-3084, -5496, -749) def
 bond1 6
-atom 25 (1) (-5369, -6449, -1309) def
+atom 25 (1) (-5369, -6449, -1308) def
 bond1 7
-atom 26 (1) (-7785, -4218, -2673) def
+atom 26 (1) (-7785, -4218, -2672) def
 bond1 11
 atom 27 (1) (-5614, -3900, -4420) def
 bond1 10
-atom 28 (1) (-6467, -5457, -4147) def
+atom 28 (1) (-6467, -5457, -4146) def
 bond1 10
-atom 29 (1) (-3845, -4481, -3034) def
+atom 29 (1) (-3845, -4481, -3033) def
 bond1 9
-atom 30 (1) (-8625, -2000, -2352) def
+atom 30 (1) (-8625, -2000, -2351) def
 bond1 13
 atom 31 (1) (-2787, 675, -2074) def
 bond1 18
-atom 32 (1) (-1701, -2618, -2314) def
+atom 32 (1) (-1701, -2618, -2313) def
 bond1 20
 atom 33 (1) (-1253, -897, -2176) def
 bond1 20
+atom 34 (0) (-3427, -3208, 2138) def
+bond1 1
+atom 35 (0) (-4481, -5866, -3234) def
+bond1 9
 egroup (guanine)
 end1
 group (Clipboard)

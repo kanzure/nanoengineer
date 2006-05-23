@@ -1,8 +1,11 @@
 #!/usr/bin/python
 
-import sys, string
+import os, sys, string
 from math import *
-from VQT import A, vlen
+
+sys.path.append("/home/wware/polosims/cad/src")
+
+from VQT import A, V, vlen
 
 class AtomType:
     def __init__(self, symbol, number, rcovalent):
@@ -13,7 +16,7 @@ class AtomType:
         return '<' + self.symbol + '>'
 
 periodicTable = [
-    AtomType('X', 0, 0.3),
+    AtomType('X', 0, 0.0),
     AtomType('H', 1, 0.31),
     AtomType('C', 6, 0.77),
     AtomType('N', 7, 0.73),
@@ -29,18 +32,39 @@ def lookupAtomType(num):
 
 class Atom:
     def __init__(self, mmpline):
-        mmpline = mmpline.rstrip()
-        self.mmpline = mmpline
-        fields = mmpline.split()
-        self.key = string.atoi(fields[1])
-        self.style = fields[6]
-        self.hybridization = None
-        self.group = None
-        self.atomtype = lookupAtomType(string.atoi(fields[2][1:-1]))
-        self.x = 0.001 * string.atoi(fields[3][1:-1])
-        self.y = 0.001 * string.atoi(fields[4][:-1])
-        self.z = 0.001 * string.atoi(fields[5][:-1])
+        if mmpline != None:
+            mmpline = mmpline.rstrip()
+            self.mmpline = mmpline
+            fields = mmpline.split()
+            self.key = string.atoi(fields[1])
+            self.style = fields[6]
+            self.hybridization = None
+            self.base = None
+            self.atomtype = lookupAtomType(string.atoi(fields[2][1:-1]))
+            self.x = 0.001 * string.atoi(fields[3][1:-1])
+            self.y = 0.001 * string.atoi(fields[4][:-1])
+            self.z = 0.001 * string.atoi(fields[5][:-1])
+        else:
+            self.mmpline = None
+            self.key = 0
+            self.style = None
+            self.hybridization = None
+            self.base = None
+            self.atomtype = lookupAtomType(0)
+            self.x = 0.0
+            self.y = 0.0
+            self.z = 0.0
         self.bonds = [ ]
+
+    def is_singlet(self):
+        return self.atomtype.symbol == 'X'
+
+    def clone(self):
+        a = Atom(self.mmpline)
+        for attr in ('key', 'style', 'hybridization', 'base', 'atomtype',
+                     'x', 'y', 'z', 'bonds'):
+            setattr(a, attr, getattr(self, attr))
+        return a
 
     def hybridize(self, hybrids={
         'C': { 4: 'sp3',
@@ -62,15 +86,15 @@ class Atom:
         except KeyError:
             self.hybridization = None
     def posn(self):
-        return A((self.x, self.y, self.z))
+        return V(self.x, self.y, self.z)
     def __repr__(self):
         r = "<%s %d (%g, %g, %g)" % \
                (self.atomtype.symbol, self.key, self.x, self.y, self.z)
         r += " %s" % self.style
         if self.hybridization != None:
             r += " %s" % self.hybridization
-        if self.group != None:
-            r += " (group %d)" % self.group
+        if self.base != None:
+            r += " (base %d)" % self.base
         if self.bonds:
             r += " ["
             for b in self.bonds:
@@ -78,10 +102,103 @@ class Atom:
             r += " ]"
         return r + ">"
 
-class Group:
-    def __init__(self):
+class Bondpoint(Atom):
+    def __init__(self, owner, v):
+        Atom.__init__(self, mmpline=None)
+        self.style = owner.style
+        self.base = owner.base
+        self.x = v[0]
+        self.y = v[1]
+        self.z = v[2]
+        self.bonds = [ owner.key ]
+    def __repr__(self):
+        r = "<%s %d (%g, %g, %g)" % \
+               (self.atomtype.symbol, self.key, self.x, self.y, self.z)
+        r += " %s" % self.style
+        if self.base != None:
+            r += " (base %d)" % self.base
+        if self.bonds:
+            r += " ["
+            for b in self.bonds:
+                r += " " + repr(b)
+            r += " ]"
+        return r + ">"
+
+class MakeBondpoint(Exception):
+    pass
+
+class Base:
+    def __init__(self, strand, key):
+        self.key = key
+        self.atomlist = [ ]
+        self.phosphorusZcoord = 0.
+        self.strand = strand
+        atm0 = strand.atoms[key]
+        self.style = atm0.style
+        self.addAtom(atm0)
+
+    def __cmp__(self, other):
+        return -cmp(self.phosphorusZcoord, other.phosphorusZcoord)
+
+    def keys(self):
+        return map(lambda a: a.key, self.atomlist)
+
+    def __len__(self):
+        return len(self.atomlist)
+
+    def addAtom(self, a):
+        k = a.key
+        if a not in self.atomlist:
+            if a.style == self.style:
+                a.base = self.key
+                self.atomlist.append(a)
+                if a.atomtype.symbol == 'P':
+                    self.phosphorusZcoord = a.z
+            else:
+                raise MakeBondpoint
+
+    def addLayer(self):
+        atoms = self.strand.atoms
+        newguys = [ ]
+        for a in self.atomlist:
+            for k in a.bonds:
+                if k not in newguys and k not in self.keys():
+                    newguys.append(k)
+                    atoms[k].buddy = a
+        newAtoms = 0
+        for k in newguys:
+            a2 = atoms[k]
+            a = a2.buddy
+            try:
+                self.addAtom(a2)
+                newAtoms += 1
+            except MakeBondpoint:
+                # don't make this bondpoint if it's already been made
+                if not hasattr(a, 'gotBondpoint'):
+                    p1, p2 = a.posn(), a2.posn()
+                    r1, r2 = a.atomtype.rcovalent, a2.atomtype.rcovalent
+                    p = (r2 * p1 + r1 * p2) / (r1 + r2)
+                    bpt = Bondpoint(a, p)
+                    # pick up a new key
+                    self.strand.addAtom(bpt)
+                    self.addAtom(bpt)
+                    a.gotBondpoint = True
+        return newAtoms
+
+    def grow(self):
+        while True:
+            if self.addLayer() == 0:
+                return
+
+class Strand:
+    def __init__(self, filename=None):
         self.atoms = { }
         self.nextKey = 1
+        self.bases = [ ]
+        if filename != None:
+            for L in open(filename).readlines():
+                if L.startswith("atom"):
+                    self.addAtom(Atom(L))
 
     def addAtom(self, a):
         a.key = key = self.nextKey
@@ -89,8 +206,13 @@ class Group:
         self.atoms[key] = a
 
     def transform(self, t):
-        for a in self.atoms.values():
-            a.x, a.y, a.z = t(a.x, a.y, a.z)
+        if t.func_code.co_argcount == 1:
+            for a in self.atoms.values():
+                v = V(a.x, a.y, a.z)
+                a.x, a.y, a.z = tuple(t(v))
+        else:
+            for a in self.atoms.values():
+                a.x, a.y, a.z = t(a.x, a.y, a.z)
 
     def addAtomFromMmp(self, mmpline):
         self.addAtom(Atom(mmpline))
@@ -136,37 +258,65 @@ class Group:
                     bond_atoms(atm1, atm2)
             atm1.hybridize()
 
-    def assignSubgroups(self):
+    def assignBases(self):
         self.inferBonds()
         remainingKeys = self.atoms.keys()
         while len(remainingKeys) > 0:
-            groupKey = remainingKeys[0]
-            print "Group", groupKey
-            group = [ groupKey ]
+            baseKey = remainingKeys[0]
+            print "Base", baseKey
+            base = Base(self, baseKey)
+            self.bases.append(base)
             remainingKeys = remainingKeys[1:]
-            style = self.atoms[groupKey].style
-            self.atoms[groupKey].group = groupKey
-            while True:
-                growth = [ ]
-                for key in group:
-                    a = self.atoms[key]
-                    for k2 in a.bonds:
-                        if a.style == self.atoms[k2].style and k2 not in group and k2 not in growth:
-                            growth.append(k2)
-                            remainingKeys.remove(k2)
-                            self.atoms[k2].group = groupKey
-                if len(growth) == 0:
-                    break
-                group += growth
+            base.grow()
+            for key in base.keys():
+                if key in remainingKeys:
+                    remainingKeys.remove(key)
 
-    def filter(self, filt):
-        atomlist = filter(filt, self.atoms.values())
+    def baseSort(self):
+        self.bases.sort()
+        self.renumberAtoms(lambda a1, a2: cmp(a1.base, a2.base))
+
+    def renumberAtoms(self, sortfunc=None):
         # Renumber their keys, and recompute bonds with new keys
+        atomlist = self.atoms.values()
+        if sortfunc != None:
+            atomlist.sort(sortfunc)
         self.atoms = { }
         self.nextKey = 1
         for i in range(len(atomlist)):
             self.addAtom(atomlist[i])
         self.inferBonds()
+
+    def filter(self, filt):
+        s = Strand()
+        for a in self.atoms.values():
+            if filt(a):
+                s.addAtom(a.clone())
+        s.inferBonds()
+        return s
+
+    def writeManyMmps(self, specs, tfm0, tfm):
+        # discard tiny "bases" and any atoms in them
+        tinybases = filter(lambda b: len(b) < 6, self.bases)
+        for b in tinybases:
+            for a in b.atomlist:
+                del self.atoms[a.key]
+            self.bases.remove(b)
+        # sort bases in order of decreasing phosphorus z coord
+        self.baseSort()
+        for index, groupname, filename in specs:
+            basekey = self.bases[index].key
+            base = self.filter(lambda a: a.base == basekey)
+            def tfm2(x, y, z, tfm0=tfm0, tfm=tfm, index=index):
+                v = V(x,y,z)
+                v = tfm0(v)
+                while index:
+                    v = tfm(v)
+                    index -= 1
+                return tuple(v)
+            base.transform(tfm2)
+            base.writeMmp(filename, groupname)
+
 
     mmptext = """mmpformat 050920 required; 060421 preferred
 kelvin 300
@@ -187,23 +337,13 @@ end molecular machine part %(groupname)s
 """
 
     def writeMmp(self, filename, groupname=None):
-        # Sort the atoms by what group they are in
-        atomlist = self.atoms.values()
-        atomlist.sort(lambda a1, a2: cmp(a1.group, a2.group))
-        # Renumber their keys, and recompute bonds with new keys
-        self.atoms = { }
-        self.nextKey = 1
-        for i in range(len(atomlist)):
-            self.addAtom(atomlist[i])
-        self.inferBonds()
-        # write the file
         s = ""
         thisgroup = None
         for a in self.atoms.values():
             if groupname == None:
-                if thisgroup != a.group:
-                    s += "mol (Group %d) def\n" % a.group
-                    thisgroup = a.group
+                if thisgroup != a.base:
+                    s += "mol (Strand %d) def\n" % a.base
+                    thisgroup = a.base
             s += ("atom %d (%d) (%d, %d, %d) def\n" %
                   (a.key, a.atomtype.number,
                    int(1000 * a.x), int(1000 * a.y), int(1000 * a.z)))
@@ -223,58 +363,36 @@ end molecular machine part %(groupname)s
 
 ########################################
 
-def writeMmp(filename='groups.mmp', groupname=None, selectedGroup=None, theta=0.0, zdiff=0.0):
-
-    g = Group()
-    for L in open('strund1.mmp').readlines():
-        if L.startswith("atom"):
-            g.addAtom(Atom(L))
-    g.assignSubgroups()
-
-    """To include just one group in the MMP file, use selectedGroup to choose
-    the groupKey. Otherwise you'll get the whole strand, with groups
-    imported as distinct chunks.
-    """
-    if selectedGroup != None:
-        g.filter(lambda atm,n=selectedGroup: atm.group == n)
-
-    """To rotate these guys all into the same orientation, use these
-    values...
-
-    Group 1 -> crank = 0 -> theta = 0, zdiff = -20.2
-    Group 9 -> crank = 1 -> theta = 30, zdiff = -20.2 + 1.67
-    Group 41 -> crank = 2 -> theta = 60, zdiff = -20.2 + 1.67 + 5.76
-    Group 74 -> crank = 3 -> theta = 90, zdiff = -20.2 + 2*1.67 + 5.76
-    Group 104 -> crank = 3 -> theta = 90, zdiff = -20.2 + 2*1.67 + 2*5.76
-    Group 136 -> crank = 3 -> theta = 90, zdiff = -20.2 + 3*1.67 + 2*5.76
-    etc...
-    """
-    def tfm(x, y, z, c=cos(theta), s=sin(theta), zdiff=zdiff):
-        return c * x + s * y, -s * x + c * y, z + zdiff
-    g.transform(tfm)
-
-    g.writeMmp(filename, groupname)
+g = Strand('strund1.mmp')
+g.assignBases()
+g.baseSort()
 
 if True:
-    theta = 0.0
-    zdiff = -20.2
-    for (i, groupkey, groupname, filename) in (
-        (0, 1, 'cytosine', 'cytosine-inner.mmp'),
-        (1, 9, 'guanine', 'guanine-outer.mmp'),
-        #(2, 41, 'cytosine', 'cytosine-inner.mmp'),
-        (3, 74, 'adenine', 'adenine-outer.mmp'),
-        (4, 104, 'adenine', 'adenine-inner.mmp'),
-        #(5, 136, 'adenine', 'adenine-outer.mmp'),
-        (6, 168, 'thymine', 'thymine-inner.mmp'),
-        (7, 200, 'thymine', 'thymine-outer.mmp'),
-        #(8, 232, 'thymine', 'thymine-inner.mmp'),
-        (9, 264, 'cytosine', 'cytosine-outer.mmp'),
-        (10, 296, 'guanine', 'guanine-inner.mmp'),
-        #(11, 326, 'cytosine', 'cytosine-outer.mmp')
-        ):
-        filename = 'experimental/zdna-bases/' + filename
-        theta = i * (pi / 6)
-        zdiff = -20.2 + int((i+1)/2) * 1.67 + int(i/2) * 5.76
-        writeMmp(filename, groupname, groupkey, theta, zdiff)
+    specs = [
+        (0, 'cytosine', 'cytosine-inner.mmp'),
+        (1, 'guanine', 'guanine-outer.mmp'),
+        (3, 'adenine', 'adenine-outer.mmp'),
+        (4, 'adenine', 'adenine-inner.mmp'),
+        (6, 'thymine', 'thymine-inner.mmp'),
+        (7, 'thymine', 'thymine-outer.mmp'),
+        (9, 'cytosine', 'cytosine-outer.mmp'),
+        (10, 'guanine', 'guanine-inner.mmp'),
+        ]
+    k = [ 0 ]
+    def tfm0(v, k=k):
+        k[0] = 0
+        return V(v[0], v[1], v[2] - 20.2)
+    def tfm(v, k=k):
+        angle = pi / 6
+        x, y, z = tuple(v)
+        c, s = cos(angle), sin(angle)
+        x, y = c * x + s * y, -s * x + c * y
+        if (k[0] & 1) == 0:
+            zdiff = 1.67
+        else:
+            zdiff = 5.76
+        k[0] += 1
+        return V(x, y, z + zdiff)
+    g.writeManyMmps(specs, tfm0, tfm)
 else:
-    writeMmp('groups.mmp')
+    g.writeMmp('groups.mmp', None)
