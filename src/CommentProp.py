@@ -4,7 +4,9 @@ $Id$
 
 History:
 
-New feature for Alpha 8. Stores a comment in the MMP file, accessible from the Model Tree as a node.
+060520 mark: New feature for Alpha 8. Stores a comment in the MMP file, accessible from the Model Tree as a node.
+
+060522 bruce: minor changes, including changing representation of comment's text.
 
 """
 
@@ -24,13 +26,14 @@ class CommentProp(CommentPropDialog):
         <comment> - the comment node object.
         '''
         self.comment = comment
-        
-        if self.comment.text:
-            self.new_comment=False
-        else:
-            self.new_comment=True
+
+#bruce 060522 removed this (not used, no longer correct)
+##        if self.comment.text:
+##            self.new_comment=False
+##        else:
+##            self.new_comment=True
             
-        self.comment_textedit.setText(self.comment.text) 
+        self.comment_textedit.setText(self.comment.get_text()) 
             # Load comment text.
         self.comment_textedit.moveCursor(QTextEdit.MoveEnd, False)
             # Sets cursor position to the end of the textedit document.
@@ -55,5 +58,10 @@ class CommentProp(CommentPropDialog):
     # OK Button
     #################
     def accept(self):
-        self.comment.text = self.comment_textedit.text()
+        ## self.comment.text = self.comment_textedit.text()
+        self.comment.set_text(self.comment_textedit.text())
         QDialog.accept(self)
+
+    pass
+
+# end

@@ -99,6 +99,8 @@ Part Properties dialog), so no harm is caused by changing it.
 
 '050920 required; 060421 preferred' -- bruce, adding "info leaf dampers_enabled"
 
+'050920 required; 060522 preferred' -- bruce, adding "comment" and "info leaf commentline <encoding>" [will be in Alpha8]
+
 ===
 
 General notes about when to change the mmp format version:
@@ -327,6 +329,15 @@ class _readmmp_state:
             # note, unlike old code we've already popped a group; shouldn't matter [bruce 050405]
             return "mismatched group records: egroup %r tried to match group %r" % (name, curname) #bruce 050405 revised this msg
         return None # success
+
+    def _read_comment(self, card): #bruce 060522
+        name = getname(card, "Comment")
+        name = self.decode_name(name) #bruce 050618
+        comment = Comment(self.assy,  name)
+        comment._init_line1(card) # card ends with a newline
+        self.addmember(comment)
+        # subsequent lines (if any) come from info leaf records
+        return
     
     def _read_mol(self, card): # mol: start a molecule
         name = getname(card, "Mole")
