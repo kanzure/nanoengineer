@@ -10,11 +10,11 @@ http://en.wikipedia.org/wiki/Image:Dna_pairing_aa.gif
 
 __author__ = "Will"
 
-from DnaGeneratorDialog import DnaGeneratorDialog
+from DnaGeneratorDialog import dna_dialog
 from math import atan2, sin, cos, pi
 from chem import molecule, Atom, gensym
 import env
-from HistoryWidget import redmsg, greenmsg
+from HistoryWidget import redmsg, orangemsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog
 from VQT import A, V, dot, vlen
 from bonds import inferBonds
@@ -158,42 +158,31 @@ class Z_Dna(Dna):
 
 cmd = greenmsg("Insert Dna: ")
 
-class DnaGenerator(DnaGeneratorDialog):
+class DnaGenerator(dna_dialog):
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        DnaGeneratorDialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
+        dna_dialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
         self.win = win
         self.dnaType = 'B'
-        
-        # Default DNA parameters
-        #self.dnaTypeButtonGroup.setCheckable(True)
-        self.bDnaButton.setChecked(True)
-        self.strandAchkbox.setChecked(True)
-        self.strandBchkbox.setChecked(True)
-        self.seq_linedit.setText('GATTACA')
 
-    def dnaTypeClicked(self, a0):
-        if a0 == 2: self.dnaType = 'A'
-        elif a0 == 1: self.dnaType = 'B'
-        elif a0 == 0: self.dnaType = 'Z'
-
-    def accept(self):
+    def ok_btn_clicked(self):
         'Slot for the OK button'
-        strandA = self.strandAchkbox.isChecked()
-        strandB = self.strandBchkbox.isChecked()
+        dnatype = self.dna_type_combox.currentText()
+        if dnatype == 'A-DNA':
+            dna = A_Dna()
+        elif dnatype == 'B-DNA':
+            dna = B_Dna()
+        elif dnatype == 'Z-DNA':
+            dna = Z_Dna()
+        strandA = True
+        strandB = (self.endings_combox.currentText() == 'Double')
         if strandA or strandB:
             env.history.message(cmd + "Creating DNA. This may take a moment...")
             QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
             try:
                 mol = molecule(self.win.assy, gensym("DNA-"))
-                if self.dnaType == 'A':
-                    dna = A_Dna()
-                elif self.dnaType == 'B':
-                    dna = B_Dna()
-                elif self.dnaType == 'Z':
-                    dna = Z_Dna()
-                dna.make(mol, self.seq_linedit.text(), strandA, strandB)
+                dna.make(mol, self.base_textedit.text(), strandA, strandB)
                 inferBonds(mol)
                 part = self.win.assy.part
                 part.ensure_toplevel_group()
@@ -205,7 +194,35 @@ class DnaGenerator(DnaGeneratorDialog):
             QApplication.restoreOverrideCursor() # Restore the cursor
         QDialog.accept(self)
 
-    def reject(self):
+    def complement_btn_pressed(self):
+        seq = ''
+        for ch in str(self.base_textedit.text()).upper():
+            if ch == 'G': seq += 'C'
+            elif ch == 'C': seq += 'G'
+            elif ch == 'A': seq += 'T'
+            elif ch == 'T': seq += 'A'
+            else:
+                env.history.message(redmsg('Bogus DNA sequence: ' + ch))
+                return
+        self.base_textedit.setText(seq)
+
+    def reverse_btn_pressed(self):
+        seq = ''
+        for ch in str(self.base_textedit.text()).upper():
+            if ch not in 'CGAT':
+                env.history.message(redmsg('Bogus DNA sequence: ' + ch))
+                return
+            else:
+                seq = ch + seq
+        self.base_textedit.setText(seq)
+
+    def close(self):
         'Slot for the Cancel button'
         # End the dialog without saying or doing anything.
         QDialog.accept(self)
+
+    def open_sponsor_homepage(self):
+        env.history.message(orangemsg('Sponsor homepage: Not implemented yet'))
+
+    def enter_WhatsThisMode(self):
+        env.history.message(orangemsg('WhatsThis: Not implemented yet'))
