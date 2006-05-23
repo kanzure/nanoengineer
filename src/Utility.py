@@ -646,14 +646,18 @@ class Node( StateMixin):
         return
 
     def node_icon(self, display_prefs):
-        """#doc this
+        """#doc this - should return a cached icon
         [all Node subclasses should override this]
         """
-        msg = "bug - Node subclass %s forgot to override node_icon method" % self.__class__.__name__
-        fake_filename = msg
-        return imagename_to_pixmap( fake_filename)
-            # should print msg, at most once per class
-            # (some people might consider this a kluge)
+        try:
+            return self.const_icon # let simple nodes just set this in __init__ and be done with it [bruce 060523]
+        except:
+            msg = "bug - Node subclass %s forgot to override node_icon method or set self.const_icon" % self.__class__.__name__
+            fake_filename = msg
+            return imagename_to_pixmap( fake_filename)
+                # should print msg, at most once per class
+                # (some people might consider this a kluge)
+        pass
     
     # most methods before this are by bruce [050108 or later] and should be reviewed when my rewrite is done ###@@@
 
@@ -2082,18 +2086,6 @@ class Group(Node):
 # everything below here is fairly specialized and probably belongs in other files.
 # [bruce 050121 comment]
 
-
-class DataNode(Node):
-    "class for Csys and Datum nodes"
-    ## def rename_enabled(self): return False
-    ##   (removed by bruce 050127 -- this exception apparently no longer desired, at least for Csys)
-    
-    def drag_enabled(self): return False #e might want to permit drag-copy-state of Csys (home view state)
-    def drop_enabled(self): return False #e might want to permit drop-set-state of Csys
-    def node_icon(self, display_prefs):
-        return self.const_icon # set in their init methods
-    pass
-
 ViewNum = 0
 def genViewNum(string):
     """return string appended with a unique view number"""
@@ -2101,7 +2093,7 @@ def genViewNum(string):
     ViewNum += 1
     return string + str(ViewNum)
     
-class Csys(DataNode):
+class Csys(Node):
     """The Csys is used to store all the parameters needed to save and restore a view.
     It is used in two distinct ways:
         1) as a Named View created by the user and visible as a node in the model tree
@@ -2216,7 +2208,7 @@ class Csys(DataNode):
 
     pass # end of class Csys
 
-class Comment(DataNode):
+class Comment(Node):
     """A Comment stores a comment in the MMP file, accessible from the Model Tree as a node.
     """
 
@@ -2228,9 +2220,11 @@ class Comment(DataNode):
 
     lines = ()
 
+    copyable_attrs = Node.copyable_attrs + ('lines',)
+        #bruce 060523 this fixes bug 1939 (undo) and apparently 1938 (file modified), but not yet 1940 (copy)
+
     def __init__(self, assy, name, text=''):
         self.const_icon = imagename_to_pixmap("comment.png")
-
         if not name:
             name = genViewNum("%s-" % self.sym)
         Node.__init__(self, assy, name)
@@ -2298,7 +2292,7 @@ class Comment(DataNode):
             # key[1] is the encoding, and val is one line in the comment
             self._add_line(val, key[1])
         else:
-            DataNode.readmmp_info_leaf_setitem( self, key, val, interp)
+            Node.readmmp_info_leaf_setitem( self, key, val, interp)
         return
     
     def edit(self):
@@ -2354,57 +2348,11 @@ class Comment(DataNode):
 
     pass # end of class Comment
 
-# bruce 050417: removing class Datum (and ignoring its mmp record "datum"),
-# since it has no useful effect (and not writing it will not even be
-# noticed by old code reading our mmp files). But the code should be kept around,
-# since we might reuse some of it when we someday have real "datum planes".
-# More info about this can be found in other comments/emails.
-##class Datum(DataNode):
-##    """ A datum point, plane, or line"""
-##    
-##    def __init__(self, assy, name, type, cntr, x = V(0,0,1), y = V(0,1,0)):
-##        self.const_icon = imagename_to_pixmap("datumplane.png")
-##        Node.__init__(self, assy, name)
-##        self.type = type
-##        self.center = cntr
-##        self.x = x
-##        self.y = y
-##        self.rgb = (0,0,255)
-##
-##    def show_in_model_tree(self): #bruce 050127
-##        "[overrides Node method]"
-##        return False
-##        
-##    def writemmp(self, mapping):
-##        mapping.write("datum (" + mapping.encode_name(self.name) + ") " +
-##                "(%d, %d, %d) " % self.rgb +
-##                self.type + " " +
-##                "(%f, %f, %f) " % tuple(self.center) +
-##                "(%f, %f, %f) " % tuple(self.x) +
-##                "(%f, %f, %f)\n" % tuple(self.y))
-##
-##    def __str__(self):
-##        return "<datum " + self.name + ">"
-##
-##    def copy(self, dad, offset):
-##        #bruce 050417 comment: this should not have "offset" arg,
-##        # since Node.copy doesn't, so if a Datum object gets into main part MT
-##        # (which only happens if you construct a nonstandard mmp file by hand,
-##        #  but could also happen if we used them more generally in future code)
-##        # and user tries to copy it in MT (using this code), we get a traceback.
-##        # This means that Datum objects (stored using their current mmp record)
-##        # will never be safe to include in assy.tree of mmp files which should
-##        # be readable by old code, and they have no meaningful effect in their
-##        # standard location (assy.viewdata), so we might as well deprecate their
-##        # mmp record, discard it whenever read by new code and never write it
-##        # into mmp files, and start from scratch when we want real "datum planes".
-##        new = Datum(self.assy, self.name, self.type,
-##                    self.center+offset, self.x, self.y)
-##        new.rgb = self.rgb
-##        new.dad = dad
-##        return new
-##
-##    pass # end of class Datum
+# bruce 050417: commenting out class Datum (and ignoring its mmp record "datum"),
+# since it has no useful effect.
+# bruce 060523: removing the commented out code. In case it's useful for Datum Planes,
+# it can be found in cvs rev 1.149 or earlier. It referred to cad/images/datumplane.png.
+
 
 # rest of file added by bruce 050108/050109, needs review when done ###@@@
 
