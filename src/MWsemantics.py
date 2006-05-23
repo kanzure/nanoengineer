@@ -1136,7 +1136,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         comment = Comment(self.assy, None, text='')
         self.commentcntl.setup(comment)
         
-        if self.commentcntl.Accepted:
+        if self.commentcntl.result() == QDialog.Accepted:
             part = self.assy.part
             part.ensure_toplevel_group()
             part.topnode.addchild(comment)
