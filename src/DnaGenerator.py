@@ -19,7 +19,6 @@ from HistoryWidget import redmsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
 from VQT import A, V, dot, vlen
 from bonds import inferBonds
-from files_mmp import insertmmp
 import re
 
 def rotateTranslate(v, theta, z):
@@ -30,29 +29,32 @@ def rotateTranslate(v, theta, z):
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 
-def odd(n):
-    return (n & 1) != 0
-
 class Dna:
-    """This base class may want to provide some provision for the
-    fact that we have a two-base periodicity in Z DNA. Or should that
-    all be handled there?
-    """
+
+    baseCache = { }
+
     def insertmmp(self, mol, basefile, tfm):
+        if self.baseCache.has_key(basefile):
+            base = self.baseCache[basefile]
+        else:
+            base = [ ]
+            for line in open(basefile).readlines():
+                m = atompat.match(line)
+                if m:
+                    elem = {
+                        0: 'X',
+                        1: 'H',
+                        6: 'C',
+                        7: 'N',
+                        8: 'O',
+                        15: 'P',
+                        }[int(m.group(2))]
+                    xyz = A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
+                    base.append((elem, xyz))
+            self.baseCache[basefile] = base
         lst = [ ]
-        for line in open(basefile).readlines():
-            m = atompat.match(line)
-            if m:
-                elem = {
-                    0: 'X',
-                    1: 'H',
-                    6: 'C',
-                    7: 'N',
-                    8: 'O',
-                    15: 'P',
-                    }[int(m.group(2))]
-                xyz = A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
-                lst.append(Atom(elem, tfm(xyz), mol))
+        for elem, xyz in base:
+            lst.append(Atom(elem, tfm(xyz), mol))
         return lst
 
     def make(self, mol, sequence, strandA, strandB):
@@ -146,7 +148,7 @@ class Z_Dna(Dna):
             'A': 'adenine',
             'T': 'thymine',
             }[sequence[i]]
-        if odd(i):
+        if (i & 1) != 0:
             suffix = 'outer'
             zoffset = 2.045
         else:
@@ -163,7 +165,7 @@ class Z_Dna(Dna):
             'T': 'adenine',
             'A': 'thymine',
             }[sequence[i]]
-        if odd(i):
+        if (i & 1) != 0:
             suffix = 'inner'
             zoffset = -0.055
         else:
