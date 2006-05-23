@@ -134,12 +134,15 @@ class Font3D:
     SCALE = 0.08
 
     def __init__(self, xoff, yoff, right, up, rot90):
+
+        # The out-of-screen direction for text should always agree with
+        # the "real" out-of-screen direction.
+        self.outOfScreen = cross(right, up)
+
         if rot90:
             self.xflip = xflip = right[1] < 0.0
-            self.yflip = yflip = up[0] < 0.0
         else:
             self.xflip = xflip = right[0] < 0.0
-            self.yflip = yflip = up[1] < 0.0
 
         xgap = self.WIDTH
         halfheight = 0.5 * self.HEIGHT
@@ -151,21 +154,24 @@ class Font3D:
             xgap *= self.SCALE
             def fx(x): return self.SCALE * x
 
-        if yflip:
-            def fy(y): return self.SCALE * (self.HEIGHT - 1 - y)
-        else:
-            def fy(y): return self.SCALE * y
-
         if rot90:
             yoff += xgap
             xoff -= halfheight * self.SCALE
-            def tfm(x, y, yoff1):
-                return Numeric.array((xoff + yoff1 + fy(y), yoff + fx(x), 0.0))
+            def tfm(x, y, yoff1, yflip):
+                if yflip:
+                    y1 = self.SCALE * (self.HEIGHT - 1 - y)
+                else:
+                    y1 = self.SCALE * y
+                return Numeric.array((xoff + yoff1 + y1, yoff + fx(x), 0.0))
         else:
             xoff += xgap
             yoff -= halfheight * self.SCALE
-            def tfm(x, y, yoff1):
-                return Numeric.array((xoff + fx(x), yoff + yoff1 + fy(y), 0.0))
+            def tfm(x, y, yoff1, yflip):
+                if yflip:
+                    y1 = self.SCALE * (self.HEIGHT - 1 - y)
+                else:
+                    y1 = self.SCALE * y
+                return Numeric.array((xoff + fx(x), yoff + yoff1 + y1, 0.0))
         self.tfm = tfm
 
     def drawCharacter(self, ch, tfm):
@@ -188,11 +194,16 @@ class Font3D:
             def fi(i): return i - (n + 1)
         else:
             def fi(i): return i
+        # figure out what the yflip should be
+        p0 = self.tfm(0, 0, yoff, False)
+        px = self.tfm(1, 0, yoff, False) - p0
+        py = self.tfm(0, 1, yoff, False) - p0
+        textOutOfScreen = cross(px, py)
+        yflip = vdot(textOutOfScreen, self.outOfScreen) < 0.0
         for i in range(n):
             def tfm2(x, y):
-                return self.tfm(x + 5 * fi(i), y, yoff)
+                return self.tfm(x + 5 * fi(i), y, yoff, yflip)
             self.drawCharacter(str[i], tfm2)
-
 
 def drawCharacter(char, color, xfm):
     if _font.has_key(char):
