@@ -191,6 +191,8 @@ sponsorInfo = '''<?xml version="1.0" encoding="utf-8"?>
 </sponsor>
 '''
 
+sponsorInfo = ""
+
 ##################################
 
 cmd = greenmsg("Insert Dna: ")
@@ -203,6 +205,30 @@ class DnaGenerator(dna_dialog):
         self.win = win
         self.mol = None
         self.previousParams = None
+
+        # Sponsor stuff
+        # (1) download the sponsor information
+        # (2) store the text and the logo in files somewhere in ~/Nanorex
+        # (3) use the logo to replace the existing logo
+        # (4) be ready, when the user clicks the sponsor button, to pop up the text
+        magicUrl = 'http://willware.net/sponsorfoo.xml'
+        import urllib
+        try:
+            f = urllib.urlopen(magicUrl)
+            r = f.read()
+            info = parseString(r)
+        except:
+            info = sponsorInfo
+
+        tmpdir = find_or_make_Nanorex_subdir('Sponsors')
+        self.sponsorLogo = sponsorLogo = os.path.join(tmpdir, 'logo.png')
+        self.sponsorText = sponsorText = os.path.join(tmpdir, 'sponsor.txt')
+        open(sponsorLogo, 'w').write(base64.decodestring(self.getXmlText(info, 'logo')))
+        open(sponsorText, 'w').write(self.getXmlText(info, 'text'))
+
+        qimg = QImage(sponsorLogo)
+        qpxmp = QPixmap(qimg)
+        self.sponsor_btn.setPixmap(qpxmp)
 
     def build_dna(self):
         'Slot for the OK button'
@@ -317,28 +343,7 @@ class DnaGenerator(dna_dialog):
         return rc
 
     def open_sponsor_homepage(self):
-
-        if True:
-            magicUrl = 'http://willware.net/sponsorfoo.xml'
-            import urllib
-            f = urllib.urlopen(magicUrl)
-            r = f.read()
-            info = parseString(r)
-        else:
-            # local copy
-            info = parseString(sponsorInfo)
-
-        logo = self.getXmlText(info, 'logo')
-        text = self.getXmlText(info, 'text')
-
-        tmpdir = find_or_make_Nanorex_subdir('sponsor')
-        sponsorLogo = os.path.join(tmpdir, 'logo.png')
-        open(sponsorLogo, 'w').write(base64.decodestring(logo))
-        qimg = QImage(sponsorLogo)
-        qpxmp = QPixmap(qimg)
-        self.sponsor_btn.setPixmap(qpxmp)
-
-        w = WikiHelpBrowser(text)
+        w = WikiHelpBrowser(open(self.sponsorText).read())
         w.show()
 
     def enter_WhatsThisMode(self):
