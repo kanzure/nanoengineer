@@ -232,7 +232,7 @@ class DnaGenerator(dna_dialog):
 
     def build_dna(self):
         'Slot for the OK button'
-        seq = str(self.base_textedit.text()).upper()
+        seq = self.get_sequence()
         dnatype = str(self.dna_type_combox.currentText())
         double = str(self.endings_combox.currentText())
         params = (seq, dnatype, double)
@@ -290,26 +290,32 @@ class DnaGenerator(dna_dialog):
         self.remove_dna()
         QDialog.accept(self)
 
-    def complement_btn_clicked(self):
+    def get_sequence(self, reverse=False, complement=False,
+                     cdict={'C':'G', 'G':'C', 'A':'T', 'T':'A'}):
         seq = ''
         for ch in str(self.base_textedit.text()).upper():
-            if ch == 'G': seq += 'C'
-            elif ch == 'C': seq += 'G'
-            elif ch == 'A': seq += 'T'
-            elif ch == 'T': seq += 'A'
+            if ch in 'CGAT':
+                if complement:
+                    ch = cdict[ch]
+                seq += ch
+            elif ch in '\ \t\r\n':
+                pass
             else:
-                env.history.message(redmsg('Bogus DNA sequence: ' + ch))
-                return
+                env.history.message(redmsg('Bogus DNA base: ' + ch +
+                                           ' (should be C, G, A, or T)'))
+                return ''
+        if reverse:
+            seq = list(seq)
+            seq.reverse()
+            seq = ''.join(seq)
+        return seq
+
+    def complement_btn_clicked(self):
+        seq = self.get_sequence(complement=True)
         self.base_textedit.setText(seq)
 
     def reverse_btn_clicked(self):
-        seq = ''
-        for ch in str(self.base_textedit.text()).upper():
-            if ch not in 'CGAT':
-                env.history.message(redmsg('Bogus DNA sequence: ' + ch))
-                return
-            else:
-                seq = ch + seq
+        seq = self.get_sequence(reverse=True)
         self.base_textedit.setText(seq)
 
     def close(self, e=None):
@@ -317,7 +323,7 @@ class DnaGenerator(dna_dialog):
         the dialog title bar, this method is called.
         """
         try:
-            QDialog.accept(self)
+            self.cancel_btn_clicked()
             return True
         except:
             return False
