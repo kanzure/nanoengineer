@@ -53,6 +53,7 @@ from drawer import *
 from shape import *
 
 from constants import *
+from bond_constants import V_SINGLE
 from qt import *
 from Utility import *
 from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
@@ -2131,6 +2132,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return
 
     def best_atomtype_for_numbonds(self, atype_now = None, elt = None): #bruce 050702; elt arg added 050707
+        # see also best_atype in bond_utils.py, which does something different but related [bruce 060523]
         """Compute and return the best guess for this atom's atomtype,
         given its current element (or the passed one),"""
         """[Public method]
@@ -2274,6 +2276,44 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # in all other cases, do the change (even if it's a noop) and also replace all singlets with 0 or more new ones
         self.direct_Transmute( elt, atomtype)
         return
+
+    def permitted_btypes_for_bond(self, bond): #bruce 060523
+        """If we are a real atom:
+        Given one of our bonds (either real or open),
+        and considering as fixed only its and our real bonds' existence
+        (not their current bond types or our current atomtype),
+        and ignoring everything else about the given bond (like the other atom on it),
+        return the set of bond types it could have
+        (as a dict from permitted bond v6's to lists of atomtypes that permit them),
+        without forcing valence errors on this atom
+        (but assuming the other bonds can adjust in btype however needed).
+           Only consider disallowing bond types whose order is too high,
+        not too low, even though the latter might also be needed in theory
+        [I'm not sure -- bruce 060523]).
+           If we are a bondpoint:
+        return something in the same format which permits all bondtypes.
+        """
+        bonds = [] # which bonds (besides bond) need to keep existing (with order 1 or higher)?
+        nbonds = 0 # how many bonds (including bond, whether or not it's open) need to keep existing?
+        for b in self.bonds:
+            if b is not bond and not b.is_open_bond():
+                bonds.append(b)
+            elif b is bond:
+                nbonds += 1
+        min_other_valence = len(bonds) # probably the only way this bonds list is used
+        permitted = {} # maps each permitted v6 to the list of atomtypes which permit it (in same order as self.element.atomtypes)
+        is_singlet = self.is_singlet() #k not sure if the cond that uses this is needed
+        for atype in self.element.atomtypes:
+            if nbonds > atype.numbonds:
+                continue # atype doesn't permit enough bonds
+            # if we changed self to that atomtype, how high could bond's valence be? (expressed as its permitted valences)
+            # Do we take into account min_other_valence, or not? Yes, I think.
+            ##k review once this is tried. Maybe debug print whether this matters. #e
+            # There are two limits: atype.permitted_v6_list, and atype.valence minus min_other_valence.
+            for v6 in atype.permitted_v6_list:
+                if is_singlet or v6 <= (atype.valence - min_other_valence) * V_SINGLE:
+                    permitted.setdefault(v6, []).append(atype)
+        return permitted
 
     def direct_Transmute(self, elt, atomtype): #bruce 050511 split this out of Transmute
         """[Public method, does all needed invalidations:]
