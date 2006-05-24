@@ -16,10 +16,14 @@ from chem import molecule, Atom, gensym
 import env
 import os
 from HistoryWidget import redmsg, orangemsg, greenmsg
-from qt import Qt, QApplication, QCursor, QDialog
+from qt import Qt, QApplication, QCursor, QDialog, QImage, QPixmap
 from VQT import A, V, dot, vlen
 from bonds import inferBonds
 import re
+import base64
+from wiki_help import WikiHelpBrowser
+from xml.dom.minidom import parseString  # or parse, for file
+from platform import find_or_make_Nanorex_subdir
 
 DEBUG = True
 
@@ -158,8 +162,36 @@ class Z_Dna(Dna):
         basefile = os.path.join(expdir, 'zdna-bases', '%s-%s.mmp' % (basename, suffix))
         return (basefile, zoffset, thetaOffset)
 
-
 #################################
+
+# This is a file that the program would periodically download from our server.
+# It would be cached for when the user is working offline. If I were feeling
+# fancy, I would post this file on my own webserver
+
+sponsorInfo = '''<?xml version="1.0" encoding="utf-8"?>
+<sponsor>
+    <!-- Base64 encoded PNG file -->
+    <logo>iVBORw0KGgoAAAANSUhEUgAAAFAAAAAeCAMAAACMnWmDAAAAwFBMVEXgGCD3xcfjMR72zhTrcxrv
+    horsbnP1tbf//8zkOT///9PztBbxlJb63t/oWBzujRj56BL////kNDvufYLoUljhHibzpqj51dbm
+    TBztgBn32xPxpxb87ebugoblPx3vi4/hJB/wmhfpXGL//+Tsc3f0wRXwj5P0rK785t7pZRv1t7rx
+    mp3mQ0r+9fLtdHjiJi774uP4ycrmSiH98PDzqKv//+D1sLP75OXqYGX2u73ten4AAAAAAAAAAAAA
+    AAAAAAA5wl0TAAAACXRSTlP//////////wBTT3gSAAAAAWJLR0Q/PmMwdQAAAAlwSFlzAAAASAAA
+    AEgARslrPgAAAfFJREFUSMel1g1vmzAQBuBzoKwNWzgTNrBpAllLMjAbTNCt3f//YTPfZtFaTE9K
+    YkfiyWsfRoHbq9p+O+//X4dpeL7fXl8N1189CBgqNtlGmZgwr/ppGXgYicQw+LGfHLlhJPEMvHnQ
+    BG07jg1jwJP29R7QRLneFLuFMgxkSjTfAcb81Hx0EWPehjvxeD3IsN0+B3fQBGXNZDeLqAfGvNu9
+    HTZBw06H/ss1oIlOByPv39o1t3lXgUbThWGQot1NxoE2eEQcbh65faduCwE2iJt1oDNGYXLEx5Vy
+    pS1aYDJkkpuJMtdwYEIMR3CvAcY4ZgoQnXH9Mi8fwYMGuJv2StoGjmduN4XVAh0lCMoaeyubZa4B
+    E+X2MCTIFD5cAcYqYc9APmXXAANlYZAyxo7qbAXIEIOcPAsBrldYhGTFxSd3uetC7gHxipyKH5Gn
+    AYaylxbNKHUrEUUR+PW9yH5RUkGURcSrhO/VZK8Byj6AqCkpH0mRN+AHWhCfAs39WoIUKs8VpQYo
+    2wDk2d9nFimtqPSzO/qpOkjQLV8kKH6+eJaol4MBqg+VQDYFPv/52j8eGEu1m5LOQIbTyQP1x5aD
+    7HXQ0AZPynHol6yCCNZjpAXa6tH4p1ow+k3yxeDTR1hYX5b9FdlWl+iNOt80dfl+ffHtX3qHXE7Q
+    ENyTAAAAAElFTkSuQmCC</logo>
+    <text>[http://www.mcdonalds.com Purveyors] of fine dining experiences
+    throughout the world</text>
+</sponsor>
+'''
+
+##################################
 
 cmd = greenmsg("Insert Dna: ")
 
@@ -264,8 +296,50 @@ class DnaGenerator(dna_dialog):
         except:
             return False
 
+    def getXmlText(self, doc, tag):
+        parent = doc.getElementsByTagName(tag)[0]
+        start, middle, finish = re.compile('\['), re.compile(' '), re.compile('\]')
+        rc = ""
+        for node in parent.childNodes:
+            if node.nodeType == node.TEXT_NODE:
+                rc = rc + node.data
+        while True:
+            m = start.search(rc)
+            if m == None:
+                break
+            s, e = m.start(), m.end()
+            m = middle.search(rc[e:])
+            s2, e2 = m.start() + e, m.end() + e
+            m = finish.search(rc[e2:])
+            s3, e3 = m.start() + e2, m.end() + e2
+            mid = "<a href=\"%s\">%s</a>" % (rc[e:s2], rc[e2:s3])
+            rc = rc[:s] + mid + rc[e3:]
+        return rc
+
     def open_sponsor_homepage(self):
-        env.history.message(orangemsg('Sponsor homepage: Not implemented yet'))
+
+        if True:
+            magicUrl = 'http://willware.net/sponsorfoo.xml'
+            import urllib
+            f = urllib.urlopen(magicUrl)
+            r = f.read()
+            info = parseString(r)
+        else:
+            # local copy
+            info = parseString(sponsorInfo)
+
+        logo = self.getXmlText(info, 'logo')
+        text = self.getXmlText(info, 'text')
+
+        tmpdir = find_or_make_Nanorex_subdir('sponsor')
+        sponsorLogo = os.path.join(tmpdir, 'logo.png')
+        open(sponsorLogo, 'w').write(base64.decodestring(logo))
+        qimg = QImage(sponsorLogo)
+        qpxmp = QPixmap(qimg)
+        self.sponsor_btn.setPixmap(qpxmp)
+
+        w = WikiHelpBrowser(text)
+        w.show()
 
     def enter_WhatsThisMode(self):
         env.history.message(orangemsg('WhatsThis: Not implemented yet'))
