@@ -106,7 +106,7 @@ class Dna:
                 z -= self.BASE_SPACING
 
 
-expdir = os.path.join(os.curdir, 'experimental')
+expdir = os.path.join(os.getcwd(), 'experimental')
 
 class A_Dna(Dna):
     """The geometry for A-DNA is very twisty and funky. I'd probably need to
