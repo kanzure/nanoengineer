@@ -2310,8 +2310,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             # Do we take into account min_other_valence, or not? Yes, I think.
             ##k review once this is tried. Maybe debug print whether this matters. #e
             # There are two limits: atype.permitted_v6_list, and atype.valence minus min_other_valence.
+            # But the min_other_valence is the max of two things: other real bonds, or required numbonds (for this atype)
+            # minus 1 (really, that times the minimum bond order for this atomtype, if that's not 1, but minimum bond order
+            # not being 1 is nim in all current code).
+            # (BTW, re fixed bug 1944, I don't know why double is in N(sp2)g's permitted_v6_list, and that's wrong
+            # and remains unfixed, though our_min_other_valence makes it not matter in this code.)
             for v6 in atype.permitted_v6_list:
-                if is_singlet or v6 <= (atype.valence - min_other_valence) * V_SINGLE:
+                our_min_other_valence = max(min_other_valence, atype.numbonds - 1) #bruce 060524 fix bug 1944
+                if is_singlet or v6 <= (atype.valence - our_min_other_valence) * V_SINGLE:
                     permitted.setdefault(v6, []).append(atype)
         return permitted
 
