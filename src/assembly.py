@@ -84,7 +84,7 @@ from movie import *
 from jigs import *
 from jig_Gamess import *
 from Utility import *
-from HistoryWidget import greenmsg, redmsg
+from HistoryWidget import greenmsg, redmsg, orangemsg
 from platform import fix_plurals
 import platform
 import env
@@ -765,7 +765,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
                     raise 
                 msg = "Warning: deselected some previously selected items"
             try:
-                env.history.message( redmsg( msg))
+                env.history.message( orangemsg( msg))
             except:
                 pass # too early? (can this happen?)
 
