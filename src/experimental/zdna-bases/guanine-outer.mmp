@@ -5,11 +5,10 @@ info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
 csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.153929) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
-group (guanine)
+group (guanine-outer)
 info opengroup open = True
 mol (guanine) def
 atom 1 (8) (-3038, -3716, 1935) def
-info atom atomtype = sp3
 atom 2 (15) (-3461, -5253, 2075) def
 bond1 1
 atom 3 (8) (-2288, -6085, 1884) def
@@ -19,35 +18,27 @@ atom 4 (8) (-4255, -5355, 3314) def
 info atom atomtype = sp2
 bond1 2
 atom 5 (8) (-4434, -5481, 825) def
-info atom atomtype = sp3
 bond1 2
 atom 6 (6) (-4033, -5020, -464) def
-info atom atomtype = sp3
 bond1 5
 atom 7 (6) (-5111, -5391, -1464) def
-info atom atomtype = sp3
 bond1 6
 atom 8 (8) (-6274, -4582, -1275) def
-info atom atomtype = sp3
 bond1 7
 atom 9 (6) (-4684, -5189, -2954) def
-info atom atomtype = sp3
 bond1 7
 atom 10 (6) (-5898, -4648, -3664) def
-info atom atomtype = sp3
 bond1 9
 atom 11 (6) (-6719, -3996, -2514) def
-info atom atomtype = sp3
 bond1 8 10
 atom 12 (7) (-6559, -2578, -2415) def
-info atom atomtype = sp3
 bond1 11
 atom 13 (6) (-7578, -1701, -2365) def
 info atom atomtype = sp2
 bond1 12
 atom 14 (7) (-7181, -449, -2334) def
 info atom atomtype = sp2
-bond1 13
+bond2 13
 atom 15 (6) (-5810, -539, -2234) def
 info atom atomtype = sp2
 bond1 14
@@ -56,22 +47,21 @@ info atom atomtype = sp2
 bond1 15
 atom 17 (8) (-5045, 1725, -2045) def
 info atom atomtype = sp2
-bond1 16
+bond2 16
 atom 18 (7) (-3534, 14, -2144) def
-info atom atomtype = sp3
 bond1 16
 atom 19 (6) (-3223, -1303, -2244) def
 info atom atomtype = sp2
 bond1 18
 atom 20 (7) (-1975, -1628, -2244) def
-info atom atomtype = sp3
 bond1 19
 atom 21 (7) (-4132, -2279, -2334) def
 info atom atomtype = sp2
-bond1 19
+bond2 19
 atom 22 (6) (-5384, -1830, -2325) def
 info atom atomtype = sp2
-bond1 12 15 21
+bond1 12 21
+bond2 15
 atom 23 (1) (-3905, -3928, -445) def
 bond1 6
 atom 24 (1) (-3084, -5496, -749) def
@@ -98,9 +88,9 @@ atom 34 (0) (-3427, -3208, 2138) def
 bond1 1
 atom 35 (0) (-4481, -5866, -3234) def
 bond1 9
-egroup (guanine)
+egroup (guanine-outer)
 end1
 group (Clipboard)
 info opengroup open = False
 egroup (Clipboard)
-end molecular machine part guanine
+end molecular machine part guanine-outer

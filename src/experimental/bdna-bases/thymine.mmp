@@ -9,8 +9,7 @@ group (thymine)
 info opengroup open = True
 mol (thymine) def
 atom 1 (8) (-8597, 1738, 3588) def
-info atom atomtype = sp3
-atom 2 (15) (-8685, 2102, 2038) def
+atom 2 (15) (-8685, 2102, 2037) def
 bond1 1
 atom 3 (8) (-9756, 3093, 1818) def
 info atom atomtype = sp2
@@ -19,53 +18,44 @@ atom 4 (8) (-8787, 851, 1248) def
 info atom atomtype = sp2
 bond1 2
 atom 5 (8) (-7260, 2771, 1788) def
-info atom atomtype = sp3
 bond1 2
 atom 6 (6) (-6782, 3766, 2728) def
-info atom atomtype = sp3
 bond1 5
 atom 7 (6) (-5969, 4812, 1998) def
-info atom atomtype = sp3
 bond1 6
 atom 8 (8) (-4618, 4290, 1788) def
-info atom atomtype = sp3
 bond1 7
 atom 9 (6) (-6449, 5188, 598) def
-info atom atomtype = sp3
 bond1 7
 atom 10 (6) (-5777, 4145, -282) def
-info atom atomtype = sp3
 bond1 9
 atom 11 (6) (-4445, 3941, 427) def
-info atom atomtype = sp3
 bond1 8 10
 atom 12 (7) (-3948, 2540, 378) def
-info atom atomtype = sp3
 bond1 11
 atom 13 (6) (-2589, 2358, 228) def
 info atom atomtype = sp2
 bond1 12
 atom 14 (8) (-1806, 3287, 137) def
 info atom atomtype = sp2
-bond1 13
+bond2 13
 atom 15 (7) (-2173, 1042, 188) def
-info atom atomtype = sp3
 bond1 13
 atom 16 (6) (-2969, -73, 278) def
 info atom atomtype = sp2
 bond1 15
 atom 17 (8) (-2480, -1208, 228) def
 info atom atomtype = sp2
-bond1 16
+bond2 16
 atom 18 (6) (-4375, 212, 427) def
 info atom atomtype = sp2
 bond1 16
 atom 19 (6) (-5282, -975, 537) def
-info atom atomtype = sp3
 bond1 18
 atom 20 (6) (-4820, 1484, 478) def
 info atom atomtype = sp2
-bond1 12 18
+bond1 12
+bond2 18
 atom 21 (1) (-7641, 4248, 3218) def
 bond1 6
 atom 22 (1) (-6152, 3279, 3487) def
