@@ -186,7 +186,42 @@ class ObjectDescender:
             self.handleLeaf(obj, depth, pathname)
         if depth >= self.maxdepth:
             return
-        if (hasattr(obj, "__class__") or
+        if type(obj) in (types.ListType, types.TupleType):
+            lst = [ ]
+            if len(pathname) > 0:
+                lastitem = pathname[-1]
+                pathname = pathname[:-1]
+            else:
+                lastitem = ""
+            for i in range(len(obj)):
+                x = obj[i]
+                if not self.exclude(i, x):
+                    y = pathname + [ lastitem + ("[%d]" % i) ]
+                    lst.append((i, x, y))
+            for i, v, pn in lst:
+                if self.showThis(i, v):
+                    self.handleLeaf(v, depth+1, pn)
+            for i, v, pn in lst:
+                self.descend(v, depth+1, pn)
+        elif type(obj) in (types.DictType,):
+            keys = obj.keys()
+            lst = [ ]
+            if len(pathname) > 0:
+                lastitem = pathname[-1]
+                pathname = pathname[:-1]
+            else:
+                lastitem = ""
+            for k in keys:
+                x = obj[k]
+                if not self.exclude(k, x):
+                    y = pathname + [ lastitem + ("[%s]" % repr(k)) ]
+                    lst.append((k, x, y))
+            for k, v, pn in lst:
+                if self.showThis(k, v):
+                    self.handleLeaf(v, depth+1, pn)
+            for k, v, pn in lst:
+                self.descend(v, depth+1, pn)
+        elif (hasattr(obj, "__class__") or
             type(obj) in (types.InstanceType, types.ClassType,
                           types.ModuleType, types.FunctionType)):
             ckeys = [ ]
@@ -208,31 +243,14 @@ class ObjectDescender:
                     self.handleLeaf(v, depth+1, pn)
             for k, v, pn in lst:
                 self.descend(v, depth+1, pn)
-        elif type(obj) in (types.ListType, types.TupleType):
-            lst = [ ]
-            if len(pathname) > 0:
-                lastitem = pathname[-1]
-                pathname = pathname[:-1]
-            else:
-                lastitem = ""
-            for i in range(len(obj)):
-                x = obj[i]
-                if not self.exclude(i, x):
-                    y = pathname + [ lastitem + ("[%d]" % i) ]
-                    lst.append((i, x, y))
-            for i, v, pn in lst:
-                if self.showThis(i, v):
-                    self.handleLeaf(v, depth+1, pn)
-            for i, v, pn in lst:
-                self.descend(v, depth+1, pn)
 
-def objectBrowse(obj, maxdepth=5, exclude=None):
+def objectBrowse(obj, maxdepth=5, exclude=None, outf=sys.stderr):
     if exclude == None:
         def exclude(attrname, obj): return False
     class Descend(ObjectDescender):
-        def exclude(self, attrname):
-            return exclude(attrname)
-    od = ObjectDescender(maxdepth=maxdepth)
+        def exclude(self, attrname, obj):
+            return exclude(attrname, obj)
+    od = Descend(maxdepth=maxdepth, outf=outf)
     od.descend(obj, pathname=['arg'])
 
 def findChild(obj, test, maxdepth=8):
@@ -256,11 +274,13 @@ def testDescend():
     x.a = 3.14159
     x.b = "When in the course of human events"
     x.c = y
+    x.d = [3,1,4,1,6]
     y.a = 2.71828
     y.b = "Apres moi, le deluge"
     y.c = z
     z.a = [x, y, z]
     z.b = range(12)
+    x.e = {'y': y, 'z': z}
     objectBrowse(x)
     def test(name, val):
         return name == "a"
