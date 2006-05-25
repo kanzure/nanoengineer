@@ -3,93 +3,72 @@
   <sponsor>
     <!-- Names become parts of filenames, and should not have spaces-->
     <!-- in them. -->
-    <name>McDonalds</name>
-    <keywords>DNA</keywords>
+    <name>Zyvex</name>
+    <keywords>DNA, Nanotubes</keywords>
     <!-- Base64 encoded PNG file -->
-    <logo>iVBORw0KGgoAAAANSUhEUgAAAFAAAAAeCAMAAACMnWmDAAAAwFBMVEXgGCD3xcfjMR72zhTrcxrv
-    horsbnP1tbf//8zkOT///9PztBbxlJb63t/oWBzujRj56BL////kNDvufYLoUljhHibzpqj51dbm
-    TBztgBn32xPxpxb87ebugoblPx3vi4/hJB/wmhfpXGL//+Tsc3f0wRXwj5P0rK785t7pZRv1t7rx
-    mp3mQ0r+9fLtdHjiJi774uP4ycrmSiH98PDzqKv//+D1sLP75OXqYGX2u73ten4AAAAAAAAAAAAA
-    AAAAAAA5wl0TAAAACXRSTlP//////////wBTT3gSAAAAAWJLR0Q/PmMwdQAAAAlwSFlzAAAASAAA
-    AEgARslrPgAAAfFJREFUSMel1g1vmzAQBuBzoKwNWzgTNrBpAllLMjAbTNCt3f//YTPfZtFaTE9K
-    YkfiyWsfRoHbq9p+O+//X4dpeL7fXl8N1189CBgqNtlGmZgwr/ppGXgYicQw+LGfHLlhJPEMvHnQ
-    BG07jg1jwJP29R7QRLneFLuFMgxkSjTfAcb81Hx0EWPehjvxeD3IsN0+B3fQBGXNZDeLqAfGvNu9
-    HTZBw06H/ss1oIlOByPv39o1t3lXgUbThWGQot1NxoE2eEQcbh65faduCwE2iJt1oDNGYXLEx5Vy
-    pS1aYDJkkpuJMtdwYEIMR3CvAcY4ZgoQnXH9Mi8fwYMGuJv2StoGjmduN4XVAh0lCMoaeyubZa4B
-    E+X2MCTIFD5cAcYqYc9APmXXAANlYZAyxo7qbAXIEIOcPAsBrldYhGTFxSd3uetC7gHxipyKH5Gn
-    AYaylxbNKHUrEUUR+PW9yH5RUkGURcSrhO/VZK8Byj6AqCkpH0mRN+AHWhCfAs39WoIUKs8VpQYo
-    2wDk2d9nFimtqPSzO/qpOkjQLV8kKH6+eJaol4MBqg+VQDYFPv/52j8eGEu1m5LOQIbTyQP1x5aD
-    7HXQ0AZPynHol6yCCNZjpAXa6tH4p1ow+k3yxeDTR1hYX5b9FdlWl+iNOt80dfl+ffHtX3qHXE7Q
-    ENyTAAAAAElFTkSuQmCC</logo>
-    <text>[http://www.mcdonalds.com Purveyors] of fine dining experiences
-    throughout the world</text>
+    <logo>iVBORw0KGgoAAAANSUhEUgAAAGsAAAA3CAIAAACEkSPXAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
+    WXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH1gUZFhMqT72VcQAAADF0RVh0Q29tbWVudABOYW5vdGVj
+    aG5vbG9neSBhdCBaeXZleCAtIE1vemlsbGEgRmlyZWZveEPDc7EAAAk6SURBVHja7VpfTBvJGR9D
+    wHHYTYi1xLEBE6ebi0iVkwiBh4u8p6hSJIJkq/R6rpY8VZWMGtWHVEdHC49+4AQPd5Yq4bwWoyDV
+    nC4IWzopqmTr+mBMrCqqo1S+A2yHBNuiIbuwAcS5D1Nthpn12oZGVbN84gHvn29mfvP9+X3frK5U
+    KoFjOYLUVflcriDdv3/f6XTqdDqdTnfp0qW7f/QvLS2JotY3QKdug7mCFP76zwsLC6lUKp1OY3dZ
+    lr1y5Up/f393d3d3d7dGISyVl1AoxLJsNUpYlv3tH77K5rdL2hNlBLP5bYfDUetmOByORCKhNQQV
+    vDhXkO7+5lepVOrWL3/3s+ttHR0d8PrS0tLfV97k/vHo4cOHKsb44MEDbXk0hqgg/BgKhUKhUDmX
+    zOa3Q6GQioWyLKspS8QRnJrK03QyHt+q+KZKlHQ4HBpFMJvfZtknACRY9kk4/Kriy4lEohyIgUBA
+    iwhOTeUBSMC/I4KoHTMEaATk+R9kBAFI0HRyaipfE4gOhyMQCCQSiWx+WyPk5m0uXlzc5vkf0umd
+    g2lBn0z+lKJ06ulobm7uUSL361/cuHz5Gnw4V5DWMyktJOUT8n/ffPMKgw8A4HIZK8IHABgYGBgY
+    OHBlPZNaXV2VAdVEXTw7u0HwEv3QZ2cPp3d1dVVznQXSAHt7m9paDIdQKoqlYrF43JsBHEcdTumz
+    Z4+12N0i8bJaGw+hMVeQlpaWtIig3U4fXZ0oluKxiPzzvU8jBxB0OptZVn9E+L799ms5AsotCa0g
+    2Nlp6O1tQu9lMrs1OS8KHwDAZL2iBQRPoB7HcdTMzFtOk83uVYndeiaFxT6GYQ6Xx/+PEQQA9A9Q
+    7KRepjWxmCCKJTKWwbORV9Kb9UwK9g1Jvb32Po2ek0Qimy7XsiDsw5/hMNvXd4YMdgAAFcanqWMT
+    nA/29Z3xeM7JP6enN0iuVywWVeBjGOby5WtaZDOy+HyW0VEz/H9+fjMS2axeHcMwt279XAskpkJN
+    AkGk6XpB2Pd4srmCVE3Bq0H41Ko6n88yO2vjOCqd3rn50feLi9sw7Sr6L8Mw3d3dAwMDWoMPVDxx
+    F8VSMFicnFwHAMzMXKyre0qylo6ODi10sQ6JIIqj1dp49XojZDAyZ242nNQsdjUgeCzVMuqKtceL
+    largNl/QtbUYFhe3i8U9hmnArqOm/fSphL3b2WkgL2IvwqBc7gGotljcy2R2s9m99vYG6D3yA7mC
+    9CSxi04MjgudqdysAABQLcM09PScOgyCnw+/nJnZoOn6ik/Oztqa7Se93mw0KqLPezznfL63QLjd
+    K/Pzb6mSIOyPjprNF3RebzaZPLCGiYlWt9uAcn70rsl0YmbmYlsLEMVSLPZ6fPxlMinJRQEUltV7
+    vSa3uwUA8CSxi2mAc4a1g9u9gi4Tzqqn51Qksvndd1tnP9wCAogug99/eqk2BHMFKR7fghrVn2RZ
+    /dXrjSguio9FIptoDQ6QQ4W1tT2VUcbHX2J3PZ5zPT2ncgUJ7rHiW+n0ztBQxmpt7Os7Y7ef7uoy
+    RKMi2UYJBApQgzwEzxtHRsyQz539cOvhn34cGTk/Pb0BPq3EZjBZmBPJYwBFgWcDFKVra8MbtO3t
+    DSgQ2F2/v12xGUHT9XKvNxAoYCvnOMrns+QK0s2Pvi8HHzYoRekUm6G5gnTv3nP0Cs8bg0EbRele
+    rJRSQh4A4LhbBwCw2fSV+SAm2ewey+rlP46jOI4iPZqm6+/cMVbURgLB80a5ALdYGspRAsir0OEm
+    J9thhEE3mOOocJgNh1ms8Z5MStCabtxoIif/+fAB6+Y4KhC4gMZBAABna00JefQArlovHvrsLPpa
+    s+FkMFhMJp9j65mYaJWBQDcKA4L03+Fhk6y53ByCwSLmB9B/ZddDYZWDfTR64MPRFyulthZw9Xqj
+    yXQCxWtych3bg4WFD2SiRlE6920WZhjXzTbUV6pFEPOvsbE1vz+PzoBl9X5/O9bIUXTGYLCIGaDX
+    a0Kzm1LN00AaIIybuYKEXYewotENzTnycnp7m1DIMPiCf7FiPJeidIqTrCEXyxYEsxW2mJmZi+oo
+    lAOC542Dg8yB3ToYQE2mE52dBtIAYdwcG1vDri8v74yNrcktTvSWxdIg++OdO8b5+U0yZUH4qm8P
+    14agYr7jOAr1GsW8AYEwX9BhQNB0/fCwCd1tssKBYREbFMZNUSxhGJFPYnsj61fMyCyrrwm+mhn1
+    4CcZMhVWOaQiEBMTrRUt126nY7HX6Lgsq//iy/MAgFjsNcYc1QUNzbHY67W1PXKSKoH4SAgqfpfE
+    88YvvjxfDj7suLmtrXFhTkSB4DgK819ynTBjYo1er9cEB81kdjE35HmjzaZfXt4plw9RWk66cDQq
+    BoNFSLz/mwhGIpseTxaDb3TUPDJiVm8rwA6jon/BjFlNVyIWE1BD43mjvELSB1V2FF2OInyyzpoQ
+    rMwHA4GCy7WMwsey+nCY9fks6uvHCs94fAsFAs2YKiII+2iJBuOmSqBA4csVpLGxNayIXlzc9niy
+    qELslDwe30I7yke1wUCgcO/ec2y7enubGKYhECigfPvGjSYVKkPShZERc5VTREdXxz2ZlCKRTbv9
+    9CvpzZPE7vj4y2hUnJ3d8Pvb7fbTFKXLFSQsFk1MtAIAhoYy6DwX5kS5DD8SgouL2yR8AID5+U2S
+    B4yOmkkEMdYqy8jIeRX7xZK4Cu4YaReEfZdruavLgDp4Or1z+3Y6Hu/s7DQMfpLBNtLtbiEPgmpy
+    ZDUvfvx4S3H9grCPXafpeqezmew4KapVxLqi0HQ9ibvT2YwVZ4KwH40eyFc0XT81ZTVf0PX3/xNL
+    6LAiZJgGTElNjqyGIBanVaSryyAzVZLBqNtRleLxnCNx7+k5NTHRqtJw43njo0cfDA4yJA/z+//D
+    Ycmdho58VC8WxZLNpud5YzVaOI4ivZIkVop2RMq1a03YuDZb2a9p3e4Wq7Vxenojl9uV+Z3F0mC3
+    005nM+ybwpCN6uQ4St6PZsNJj+dcOQL0v+zykxRydNTs81ne0XCiWHolvVGs4t+pvEMEP/74GRZ3
+    /vq3n7x/nyPVvSO9Y2NrZNx5L7/mqntH/uv358s1UI8RrNyA8HqzWOsQNgKOEaxKpr76F+a/Lpfx
+    Pf4a8/jE/ajybwWNLhln9hP1AAAAAElFTkSuQmCC</logo>
+    <text>[http://www.zyvex.com/ Zyvex] commercializes nanotechnology
+    to address real-world applications. We focus on short and
+    long-term nanotechnology applications with high-growth potential.
+    Our short to intermediate term goal is to exploit the major
+    improvements offered by our products and capabilities -- often 10
+    to 10,000 times better than existing technologies.[P] Zyvex's
+    [http://www.zyvex.com/Products/materials.html NanoSolve Materials]
+    product line delivers nano-additives and concentrates to a growing
+    list of customers, and an expanding list of real-world
+    applications. Zyvex additives can deliver enhanced electrical,
+    mechanical, or other physical properties by selectively
+    transferring the superior intrinsic properties of carbon nanotubes
+    into composite materials.</text>
   </sponsor>
-  <sponsor>
-    <name>NewYorkState</name>
-    <keywords>DNA</keywords>
-    <!-- Base64 encoded PNG file -->
-    <logo>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</logo>
-    <text>There's an adventure and splendid scenery around every turn in the road in
-    [http://www.iloveny.state.ny.us/ New York].</text>
-  </sponsor>
+  <!--
   <sponsor>
     <name>Ford</name>
     <keywords>DNA</keywords>
-    <!-- Base64 encoded PNG file -->
     <logo>iVBORw0KGgoAAAANSUhEUgAAAGMAAAAvCAIAAAB4w+PVAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
     WXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH1gUZEigDNrRK+QAAF65JREFUaN7tenl4lNXZ91me55l9
     TyaZTLYh+0JCwhK2gMgewKWCu9X61a0tRdvX+ipWrVWRWqy12rd1/VSwxQpugCyRPZCgEEggJASS
@@ -208,10 +187,10 @@
     Mazda, Mercury and Volvo. Its automotive-related services include
     Ford Motor Credit Company.</text>
   </sponsor>
+  -->
   <sponsor>
-    <name>Ford</name>
+    <name>SME</name>
     <keywords>DNA</keywords>
-    <!-- Base64 encoded PNG file -->
     <logo>iVBORw0KGgoAAAANSUhEUgAAADkAAAAuCAIAAAAdqSbxAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
     WXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH1gUZFgYN3QLGDgAAC9lJREFUWMPNWWlUU9cWPvdmIiET
     hATCIBgEZBBDEUVQAQUUtYIDta3L1lYWpcs6gENbtT6saKsCdS261LbLyrKTWpWCSCtSKwXBMgQQ
@@ -270,7 +249,7 @@
     6AAAAABJRU5ErkJggg==</logo>
 
     <text>The [http://www.sme.org/ Society of Manufacturing
-    Engineers][P] The Society of Manufacturing Engineers is dedicated
+    Engineers] is dedicated
     to bringing people and information together to advance
     manufacturing knowledge. We are internationally recognized by
     manufacturing practitioners, companies and other organizations as
