@@ -1,4 +1,4 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 060421 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
@@ -7,7 +7,7 @@ csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (2.541012) (0.000000, 0
 egroup (View Data)
 group (-COCl %28acyl chloride%29)
 info opengroup open = True
-mol (-COCl) tub
+mol (-COCl) def
 atom 1 (6) (18, -55, 0) def
 info atom atomtype = sp2
 atom 2 (0) (-336, -670, 0) def

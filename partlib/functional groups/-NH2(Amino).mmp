@@ -1,4 +1,4 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 060421 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
@@ -7,7 +7,7 @@ csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (8.100000) (0.000000, 0
 egroup (View Data)
 group (-NH2%28Amino%29)
 info opengroup open = True
-mol (Chunk-N224) tub
+mol (Chunk-N224) def
 atom 1 (7) (-102, 134, -103) def
 atom 2 (0) (-801, 104, -64) def
 bond1 1

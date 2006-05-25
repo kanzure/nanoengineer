@@ -1,13 +1,13 @@
-mmpformat 050502 required; 050706 preferred
+mmpformat 050920 required; 060421 preferred
 kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
 csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (2.333344) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
-group (-C=O- %28ketone%29)
+group (-CO %28ketone%29)
 info opengroup open = True
-mol (-C=O-) tub
+mol (-C=O-) def
 atom 1 (6) (85, -52, 0) def
 info atom atomtype = sp2
 atom 2 (0) (-214, -635, -270) def
@@ -17,9 +17,9 @@ bond1 1
 atom 4 (8) (-543, 1037, 0) def
 info atom atomtype = sp2
 bond2 1
-egroup (-C=O- %28ketone%29)
+egroup (-CO %28ketone%29)
 end1
 group (Clipboard)
 info opengroup open = False
 egroup (Clipboard)
-end molecular machine part -C=O- (ketone)
+end molecular machine part -CO (ketone)
