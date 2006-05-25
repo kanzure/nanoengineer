@@ -323,12 +323,13 @@ def inferBonds(mol):
         key1 = sing1.key
         pos1 = sing1.posn()
         for sing2 in singletNeighborhood(pos1):
+            key2 = sing2.key
             dist = vlen(pos1 - sing2.posn())
             # not sure how big a margin we should have for
             # "coincident"
-            if 0.001 < dist < 2.0:
+            if key1 != key2 and dist < 2.0:
                 removable[key1] = sing1
-                removable[sing2.key] = sing2
+                removable[key2] = sing2
     for badGuy in removable.values():
         mol.delatom(badGuy)
     neighborhood = neighborhoodGenerator(mol.atoms.values(), maxBondLength)

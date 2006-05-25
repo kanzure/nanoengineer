@@ -10,56 +10,32 @@ http://en.wikipedia.org/wiki/Image:Dna_pairing_aa.gif
 
 __author__ = "Will"
 
-from DnaGeneratorDialog import dna_dialog
-from math import atan2, sin, cos, pi
-from chem import molecule, Atom, gensym
-import env
+import sys
 import os
-from HistoryWidget import redmsg, orangemsg, greenmsg
-from qt import Qt, QApplication, QCursor, QDialog, QImage, QPixmap
-from VQT import A, V, dot, vlen
-from bonds import inferBonds
+import env
 import re
+import urllib
 import base64
+from math import atan2, sin, cos, pi
+from xml.dom.minidom import parseString
+from qt import Qt, QApplication, QCursor, QDialog, QImage, QPixmap
+from DnaGeneratorDialog import dna_dialog
+from chem import Atom, gensym
+from Utility import Group
+from HistoryWidget import redmsg, orangemsg, greenmsg
+from VQT import A, V, dot, vlen
+from bonds import inferBonds, bond_atoms
 from wiki_help import WikiHelpBrowser
-from xml.dom.minidom import parseString  # or parse, for file
 from platform import find_or_make_Nanorex_subdir
-
-DEBUG = True
+from files_mmp import _readmmp
+from debug import objectBrowse
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
+basepath = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'experimental')
 
 class Dna:
 
-    baseCache = { }
-
-    def insertmmp(self, mol, basefile, tfm):
-        if self.baseCache.has_key(basefile):
-            base = self.baseCache[basefile]
-        else:
-            base = [ ]
-            if not os.path.exists(basefile):
-                raise Exception("can't find file: " + basefile)
-            for line in open(basefile).readlines():
-                m = atompat.match(line)
-                if m:
-                    elem = {
-                        0: 'X',
-                        1: 'H',
-                        6: 'C',
-                        7: 'N',
-                        8: 'O',
-                        15: 'P',
-                        }[int(m.group(2))]
-                    xyz = A(map(float, [m.group(3),m.group(4),m.group(5)]))/1000.0
-                    base.append((elem, xyz))
-            self.baseCache[basefile] = base
-        lst = [ ]
-        for elem, xyz in base:
-            lst.append(Atom(elem, tfm(xyz), mol))
-        return lst
-
-    def make(self, mol, sequence, doubleStrand,
+    def make(self, assy, grp, sequence, doubleStrand,
              basenameA={'C': 'cytosine',
                         'G': 'guanine',
                         'A': 'adenine',
@@ -68,6 +44,19 @@ class Dna:
                         'C': 'guanine',
                         'T': 'adenine',
                         'A': 'thymine'}):
+        def insertmmp(filename, tfm):
+            grouplist  = _readmmp(assy, filename, isInsert = True)
+            if not grouplist:
+                raise Exception("Trouble with DNA base: " + filename)
+            viewdata, mainpart, shelf = grouplist
+            for member in mainpart.members:
+                for atm in member.atoms.values():
+                    atm._posn = tfm(atm._posn)
+            del viewdata
+            for member in mainpart.members:
+                grp.addchild(member)
+            shelf.kill()
+
         for ch in sequence:
             if ch not in 'GACT':
                 raise Exception('Unknown DNA base (not G, A, C, or T): ' + ch)
@@ -85,7 +74,7 @@ class Dna:
                       self.strandAinfo(basenameA[sequence[i]], i)
             def tfm(v, theta=theta+thetaOffset, z1=z+zoffset):
                 return rotateTranslate(v, theta, z1)
-            self.insertmmp(mol, basefile, tfm)
+            insertmmp(basefile, tfm)
             theta -= self.TWIST_PER_BASE
             z -= self.BASE_SPACING
 
@@ -101,12 +90,37 @@ class Dna:
                     # Cheesy hack: flip theta by reversing the sign of y,
                     # since theta = atan2(y,x)
                     return rotateTranslate(V(v[0], -v[1], -v[2]), theta, z1)
-                self.insertmmp(mol, basefile, tfm)
+                insertmmp(basefile, tfm)
                 theta -= self.TWIST_PER_BASE
                 z -= self.BASE_SPACING
 
-
-expdir = os.path.join(os.getcwd(), 'experimental')
+        # find coincident singlets, remove them, connect their owner atoms
+        singlets = { }
+        removable = { }
+        def dictOnly(n, x):
+            import types
+            return type(x) == types.DictType
+        for m in grp.members:
+            for atm in m.atoms.values():
+                if atm.is_singlet():
+                    singlets[atm.key] = atm
+        from bonds import neighborhoodGenerator
+        sgn = neighborhoodGenerator(singlets.values(), 2.0)
+        for sing1 in singlets.values():
+            key1 = sing1.key
+            pos1 = sing1.posn()
+            for sing2 in sgn(pos1):
+                dist = vlen(pos1 - sing2.posn())
+                key2 = sing2.key
+                if key1 != key2 and dist < 2.0:
+                    removable[key1] = sing1
+                    removable[key2] = sing2
+                    b1, b2 = sing1.bonds[0], sing2.bonds[0]
+                    owner1 = b1.other(sing1)
+                    owner2 = b2.other(sing2)
+                    bond_atoms(owner1, owner2)
+        for atm in removable.values():
+            atm.kill()
 
 class A_Dna(Dna):
     """The geometry for A-DNA is very twisty and funky. I'd probably need to
@@ -127,13 +141,13 @@ class B_Dna(Dna):
     def strandAinfo(self, basename, i):
         zoffset = 0.0
         thetaOffset = 0.0
-        basefile = os.path.join(expdir, 'bdna-bases', '%s.mmp' % basename)
+        basefile = os.path.join(basepath, 'bdna-bases', '%s.mmp' % basename)
         return (basefile, zoffset, thetaOffset)
 
     def strandBinfo(self, basename, i):
         zoffset = 0.0
         thetaOffset = 210 * (pi / 180)
-        basefile = os.path.join(expdir, 'bdna-bases', '%s.mmp' % basename)
+        basefile = os.path.join(basepath, 'bdna-bases', '%s.mmp' % basename)
         return (basefile, zoffset, thetaOffset)
 
 class Z_Dna(Dna):
@@ -148,7 +162,7 @@ class Z_Dna(Dna):
             suffix = 'inner'
             zoffset = 0.0
         thetaOffset = 0.0
-        basefile = os.path.join(expdir, 'zdna-bases', '%s-%s.mmp' % (basename, suffix))
+        basefile = os.path.join(basepath, 'zdna-bases', '%s-%s.mmp' % (basename, suffix))
         return (basefile, zoffset, thetaOffset)
 
     def strandBinfo(self, basename, i):
@@ -159,39 +173,8 @@ class Z_Dna(Dna):
             suffix = 'outer'
             zoffset = -2.1
         thetaOffset = 0.5 * pi
-        basefile = os.path.join(expdir, 'zdna-bases', '%s-%s.mmp' % (basename, suffix))
+        basefile = os.path.join(basepath, 'zdna-bases', '%s-%s.mmp' % (basename, suffix))
         return (basefile, zoffset, thetaOffset)
-
-#################################
-
-# This is a file that the program would periodically download from our server.
-# It would be cached for when the user is working offline. If I were feeling
-# fancy, I would post this file on my own webserver
-
-sponsorInfo = '''<?xml version="1.0" encoding="utf-8"?>
-<sponsor>
-    <!-- Base64 encoded PNG file -->
-    <logo>iVBORw0KGgoAAAANSUhEUgAAAFAAAAAeCAMAAACMnWmDAAAAwFBMVEXgGCD3xcfjMR72zhTrcxrv
-    horsbnP1tbf//8zkOT///9PztBbxlJb63t/oWBzujRj56BL////kNDvufYLoUljhHibzpqj51dbm
-    TBztgBn32xPxpxb87ebugoblPx3vi4/hJB/wmhfpXGL//+Tsc3f0wRXwj5P0rK785t7pZRv1t7rx
-    mp3mQ0r+9fLtdHjiJi774uP4ycrmSiH98PDzqKv//+D1sLP75OXqYGX2u73ten4AAAAAAAAAAAAA
-    AAAAAAA5wl0TAAAACXRSTlP//////////wBTT3gSAAAAAWJLR0Q/PmMwdQAAAAlwSFlzAAAASAAA
-    AEgARslrPgAAAfFJREFUSMel1g1vmzAQBuBzoKwNWzgTNrBpAllLMjAbTNCt3f//YTPfZtFaTE9K
-    YkfiyWsfRoHbq9p+O+//X4dpeL7fXl8N1189CBgqNtlGmZgwr/ppGXgYicQw+LGfHLlhJPEMvHnQ
-    BG07jg1jwJP29R7QRLneFLuFMgxkSjTfAcb81Hx0EWPehjvxeD3IsN0+B3fQBGXNZDeLqAfGvNu9
-    HTZBw06H/ss1oIlOByPv39o1t3lXgUbThWGQot1NxoE2eEQcbh65faduCwE2iJt1oDNGYXLEx5Vy
-    pS1aYDJkkpuJMtdwYEIMR3CvAcY4ZgoQnXH9Mi8fwYMGuJv2StoGjmduN4XVAh0lCMoaeyubZa4B
-    E+X2MCTIFD5cAcYqYc9APmXXAANlYZAyxo7qbAXIEIOcPAsBrldYhGTFxSd3uetC7gHxipyKH5Gn
-    AYaylxbNKHUrEUUR+PW9yH5RUkGURcSrhO/VZK8Byj6AqCkpH0mRN+AHWhCfAs39WoIUKs8VpQYo
-    2wDk2d9nFimtqPSzO/qpOkjQLV8kKH6+eJaol4MBqg+VQDYFPv/52j8eGEu1m5LOQIbTyQP1x5aD
-    7HXQ0AZPynHol6yCCNZjpAXa6tH4p1ow+k3yxeDTR1hYX5b9FdlWl+iNOt80dfl+ffHtX3qHXE7Q
-    ENyTAAAAAElFTkSuQmCC</logo>
-    <text>[http://www.mcdonalds.com Purveyors] of fine dining experiences
-    throughout the world</text>
-</sponsor>
-'''
-
-sponsorInfo = ""
 
 ##################################
 
@@ -203,32 +186,31 @@ class DnaGenerator(dna_dialog):
     def __init__(self, win):
         dna_dialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
         self.win = win
-        self.mol = None
+        self.group = None
         self.previousParams = None
 
-        # Sponsor stuff
-        # (1) download the sponsor information
-        # (2) store the text and the logo in files somewhere in ~/Nanorex
-        # (3) use the logo to replace the existing logo
-        # (4) be ready, when the user clicks the sponsor button, to pop up the text
-        magicUrl = 'http://willware.net/sponsorfoo.xml'
-        import urllib
         try:
+            # Sponsor stuff
+            # (1) download the sponsor information
+            # (2) store the text and the logo in files somewhere in ~/Nanorex
+            # (3) use the logo to replace the existing logo
+            # (4) be ready, when the user clicks the sponsor button, to pop up the text
+            magicUrl = 'http://willware.net/sponsorfoo.xml'
             f = urllib.urlopen(magicUrl)
             r = f.read()
             info = parseString(r)
+
+            tmpdir = find_or_make_Nanorex_subdir('Sponsors')
+            self.sponsorLogo = sponsorLogo = os.path.join(tmpdir, 'logo.png')
+            self.sponsorText = sponsorText = os.path.join(tmpdir, 'sponsor.txt')
+            open(sponsorLogo, 'wb').write(base64.decodestring(self.getXmlText(info, 'logo')))
+            open(sponsorText, 'w').write(self.getXmlText(info, 'text'))
+
+            qimg = QImage(sponsorLogo)
+            qpxmp = QPixmap(qimg)
+            self.sponsor_btn.setPixmap(qpxmp)
         except:
-            info = sponsorInfo
-
-        tmpdir = find_or_make_Nanorex_subdir('Sponsors')
-        self.sponsorLogo = sponsorLogo = os.path.join(tmpdir, 'logo.png')
-        self.sponsorText = sponsorText = os.path.join(tmpdir, 'sponsor.txt')
-        open(sponsorLogo, 'wb').write(base64.decodestring(self.getXmlText(info, 'logo')))
-        open(sponsorText, 'w').write(self.getXmlText(info, 'text'))
-
-        qimg = QImage(sponsorLogo)
-        qpxmp = QPixmap(qimg)
-        self.sponsor_btn.setPixmap(qpxmp)
+            pass
 
     def build_dna(self):
         'Slot for the OK button'
@@ -239,7 +221,7 @@ class DnaGenerator(dna_dialog):
         if self.previousParams != params:
             self.remove_dna()
             self.previousParams = params
-        if self.mol == None:
+        if self.group == None:
             if len(seq) > 0:
                 if dnatype == 'A-DNA':
                     dna = A_Dna()
@@ -251,27 +233,29 @@ class DnaGenerator(dna_dialog):
                 env.history.message(cmd + "Creating DNA. This may take a moment...")
                 QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
                 try:
-                    self.mol = mol = molecule(self.win.assy, gensym("DNA-"))
-                    dna.make(mol, seq, doubleStrand)
-                    inferBonds(mol)
+                    #self.group = group = molecule(self.win.assy, gensym("DNA-"))
                     part = self.win.assy.part
                     part.ensure_toplevel_group()
-                    part.topnode.addchild(mol)
+                    name = gensym("DNA-")
+                    self.group = grp = Group(name, self.win.assy, part.topnode)
+                    dna.make(self.win.assy, grp, seq, doubleStrand)
+                    #part.topnode.addchild(grp)
                     self.win.win_update()
                     self.win.mt.mt_update()
                     env.history.message(cmd + "Done.")
                 except Exception, e:
                     env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+                    raise
                 QApplication.restoreOverrideCursor() # Restore the cursor
 
     def remove_dna(self):
-        if self.mol != None:
+        if self.group != None:
             part = self.win.assy.part
             part.ensure_toplevel_group()
-            part.topnode.delmember(self.mol)
+            part.topnode.delmember(self.group)
             self.win.win_update()
             self.win.mt.mt_update()
-            self.mol = None
+            self.group = None
 
     def preview_btn_clicked(self):
         self.build_dna()
@@ -279,7 +263,7 @@ class DnaGenerator(dna_dialog):
     def ok_btn_clicked(self):
         'Slot for the OK button'
         self.build_dna()
-        self.mol = None
+        self.group = None
         QDialog.accept(self)
 
     def abort_btn_clicked(self):

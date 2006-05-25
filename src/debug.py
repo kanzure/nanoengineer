@@ -133,15 +133,22 @@ def linenum():
         print f.f_code.co_filename, f.f_code.co_name, f.f_lineno
 
 # ==
+def standardExclude(attr, obj):
+    from MWsemantics import MWsemantics
+    from GLPane import GLPane
+    # I am rarely interested in peeking inside these, and they create
+    # tons of output.
+    return isinstance(obj, MWsemantics) or isinstance(obj, GLPane)
+
 class ObjectDescender:
     def __init__(self, maxdepth, outf=sys.stderr):
         self.already = [ ]
         self.maxdepth = maxdepth
         self.outf = outf
 
-    def exclude(self, attrname, obj):
+    def exclude(self, attr, obj):
         return False
-    def showThis(self, attrname, obj):
+    def showThis(self, attr, obj):
         return True
 
     def prefix(self, depth, pn):
@@ -244,24 +251,21 @@ class ObjectDescender:
             for k, v, pn in lst:
                 self.descend(v, depth+1, pn)
 
-def objectBrowse(obj, maxdepth=5, exclude=None, outf=sys.stderr):
-    if exclude == None:
-        def exclude(attrname, obj): return False
-    class Descend(ObjectDescender):
-        def exclude(self, attrname, obj):
-            return exclude(attrname, obj)
-    od = Descend(maxdepth=maxdepth, outf=outf)
+def objectBrowse(obj, maxdepth=5, exclude=standardExclude, showThis=None, outf=sys.stderr):
+    od = ObjectDescender(maxdepth=maxdepth, outf=outf)
+    if showThis != None:
+        od.showThis = showThis
+    od.exclude = exclude
     od.descend(obj, pathname=['arg'])
 
-def findChild(obj, test, maxdepth=8):
+def findChild(obj, showThis, maxdepth=8):
     # Drill down deeper because we're being more selective
-    class Finder(ObjectDescender):
-        def showThis(self, n, x):
-            return test(n, x)
-        def prefix(self, depth, pn):
-            # no indentation
-            return (".".join(pn) + ": ")
+    def prefix(depth, pn):
+        # no indentation
+        return (".".join(pn) + ": ")
     f = Finder(maxdepth=maxdepth)
+    f.showThis = showThis
+    f.prefix = prefix
     f.descend(obj, pathname=['arg'])
 
 # python -c "import debug; debug.testDescend()"
