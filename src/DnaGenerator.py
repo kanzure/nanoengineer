@@ -223,7 +223,7 @@ class DnaGenerator(dna_dialog):
         tmpdir = find_or_make_Nanorex_subdir('Sponsors')
         self.sponsorLogo = sponsorLogo = os.path.join(tmpdir, 'logo.png')
         self.sponsorText = sponsorText = os.path.join(tmpdir, 'sponsor.txt')
-        open(sponsorLogo, 'w').write(base64.decodestring(self.getXmlText(info, 'logo')))
+        open(sponsorLogo, 'wb').write(base64.decodestring(self.getXmlText(info, 'logo')))
         open(sponsorText, 'w').write(self.getXmlText(info, 'text'))
 
         qimg = QImage(sponsorLogo)
