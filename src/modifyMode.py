@@ -64,6 +64,13 @@ def do_what_MainWindowUI_should_do(w):
     
     w.moveChunksDashboard.addSeparator()
     
+    # I needed this for nanocar animation. Mark 060524.
+    w.moveChunksDashboard.rotateAsUnitCB = QCheckBox("Rotate as unit", w.moveChunksDashboard)
+    w.moveChunksDashboard.rotateAsUnitCB.setChecked(1)
+    QToolTip.add(w.moveChunksDashboard.rotateAsUnitCB,'Rotate selection as a unit')
+    
+    w.moveChunksDashboard.addSeparator()
+    
     w.toolsDoneAction.addTo(w.moveChunksDashboard)
 
 def set_move_xyz(win,x,y,z):
@@ -181,11 +188,9 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         if self.o.modkeys is None:
             self.o.setCursor(self.w.MoveSelectCursor)
         elif self.o.modkeys == 'Shift':
-            #self.o.setCursor(self.w.MoveAddCursor)
-            self.o.setCursor(self.w.MoveRotateMolCursor)
+            self.o.setCursor(self.w.MoveAxisRotateMolCursor)
         elif self.o.modkeys == 'Control':
-            #self.o.setCursor(self.w.MoveSubtractCursor)
-            self.o.setCursor(self.w.RotateMolCursor)
+            self.o.setCursor(self.w.MoveFreeRotateMolCursor)
         elif self.o.modkeys == 'Shift+Control':
             self.o.setCursor(self.w.DeleteCursor)
         else:
@@ -374,7 +379,13 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         self.o.SaveMouse(event)
         q = self.o.trackball.update(self.o.MousePos[0],self.o.MousePos[1],
                                     self.o.quat)
-        self.o.assy.rotsel(q)
+        
+        if self.w.moveChunksDashboard.rotateAsUnitCB.isChecked():
+            self.o.assy.rotsel(q) # Rotate the selection as a unit.
+        else:
+            for mol in self.o.assy.selmols: # Rotate each chunk individually.
+                mol.rot(q)
+
         self.o.gl_update()
 
     def leftCntlUp(self, event):
@@ -515,7 +526,11 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         dy = theta / 180.0 * pi # Convert to radians
         qrot = Q(ma,dy) # Quat for rotation delta.
         
-        self.o.assy.rotsel(qrot) # [Huaicai 8/30/05: call this method instead]
+        if self.w.moveChunksDashboard.rotateAsUnitCB.isChecked():
+            self.o.assy.rotsel(qrot) # Rotate the selection as a unit.
+        else:
+            for mol in self.o.assy.selmols: # Rotate each chunk individually.
+                mol.rot(qrot)
     
         self.o.gl_update()
       
