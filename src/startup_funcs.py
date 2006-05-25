@@ -119,6 +119,10 @@ def before_most_imports( main_globals ):
         #  which would make them very hard to notice or debug. This risk is only justified in a few
         #  special cases.)
     
+    # download sponsor info, if it's available
+    from Sponsors import downloadSponsorInfo
+    downloadSponsorInfo()
+
     return # from before_most_imports
 
     

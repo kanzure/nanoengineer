@@ -14,10 +14,7 @@ import sys
 import os
 import env
 import re
-import urllib
-import base64
 from math import atan2, sin, cos, pi
-from xml.dom.minidom import parseString
 from qt import Qt, QApplication, QCursor, QDialog, QImage, QPixmap
 from DnaGeneratorDialog import dna_dialog
 from chem import Atom, gensym
@@ -25,10 +22,8 @@ from Utility import Group
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from VQT import A, V, dot, vlen
 from bonds import inferBonds, bond_atoms
-from wiki_help import WikiHelpBrowser
-from platform import find_or_make_Nanorex_subdir
 from files_mmp import _readmmp
-from debug import objectBrowse
+from Sponsors import findSponsor
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 basepath = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'experimental')
@@ -188,29 +183,8 @@ class DnaGenerator(dna_dialog):
         self.win = win
         self.group = None
         self.previousParams = None
-
-        try:
-            # Sponsor stuff
-            # (1) download the sponsor information
-            # (2) store the text and the logo in files somewhere in ~/Nanorex
-            # (3) use the logo to replace the existing logo
-            # (4) be ready, when the user clicks the sponsor button, to pop up the text
-            magicUrl = 'http://willware.net/sponsorfoo.xml'
-            f = urllib.urlopen(magicUrl)
-            r = f.read()
-            info = parseString(r)
-
-            tmpdir = find_or_make_Nanorex_subdir('Sponsors')
-            self.sponsorLogo = sponsorLogo = os.path.join(tmpdir, 'logo.png')
-            self.sponsorText = sponsorText = os.path.join(tmpdir, 'sponsor.txt')
-            open(sponsorLogo, 'wb').write(base64.decodestring(self.getXmlText(info, 'logo')))
-            open(sponsorText, 'w').write(self.getXmlText(info, 'text'))
-
-            qimg = QImage(sponsorLogo)
-            qpxmp = QPixmap(qimg)
-            self.sponsor_btn.setPixmap(qpxmp)
-        except:
-            pass
+        self.sponsor = sponsor = findSponsor('DNA')
+        sponsor.configureSponsorButton(self.sponsor_btn)
 
     def build_dna(self):
         'Slot for the OK button'
@@ -312,29 +286,8 @@ class DnaGenerator(dna_dialog):
         except:
             return False
 
-    def getXmlText(self, doc, tag):
-        parent = doc.getElementsByTagName(tag)[0]
-        start, middle, finish = re.compile('\['), re.compile(' '), re.compile('\]')
-        rc = ""
-        for node in parent.childNodes:
-            if node.nodeType == node.TEXT_NODE:
-                rc = rc + node.data
-        while True:
-            m = start.search(rc)
-            if m == None:
-                break
-            s, e = m.start(), m.end()
-            m = middle.search(rc[e:])
-            s2, e2 = m.start() + e, m.end() + e
-            m = finish.search(rc[e2:])
-            s3, e3 = m.start() + e2, m.end() + e2
-            mid = "<a href=\"%s\">%s</a>" % (rc[e:s2], rc[e2:s3])
-            rc = rc[:s] + mid + rc[e3:]
-        return rc
-
     def open_sponsor_homepage(self):
-        w = WikiHelpBrowser(open(self.sponsorText).read())
-        w.show()
+        self.sponsor.wikiHelp()
 
     def enter_WhatsThisMode(self):
         env.history.message(orangemsg('WhatsThis: Not implemented yet'))
