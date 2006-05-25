@@ -7,6 +7,7 @@ from platform import find_or_make_Nanorex_subdir
 import socket
 import re
 import random
+import time
 from debug import print_compact_stack, print_compact_traceback
 
 # Sponsor stuff
@@ -145,20 +146,29 @@ def downloadSponsorInfo():
         return rc
     xmlfile = os.path.join(_sponsordir, 'sponsors.xml')
     try:
-        # Don't waste more than five seconds trying to get a network
-        # connection.
-        socket.setdefaulttimeout(5)
-        f = urllib.urlopen(_magicUrl)
-        r = f.read()
-        f.close()
-        # If we got this far, we have info to replace whatever is
-        # currently in the xml file. If we never got this far but
-        # the file did exist, then we'll just use the old info.
+        wantRefresh = False
         if os.path.exists(xmlfile):
-            os.remove(xmlfile)
-        f = open(xmlfile, 'w')
-        f.write(r)
-        f.close()
+            age = time.time() - os.path.getctime(xmlfile)
+            # refresh every two days
+            if age > 2 * 24 * 3600:
+                wantRefresh = True
+        else:
+            wantRefresh = True
+        if wantRefresh:
+            # Don't waste more than five seconds trying to get a network
+            # connection.
+            socket.setdefaulttimeout(5)
+            f = urllib.urlopen(_magicUrl)
+            r = f.read()
+            f.close()
+            # If we got this far, we have info to replace whatever is
+            # currently in the xml file. If we never got this far but
+            # the file did exist, then we'll just use the old info.
+            if os.path.exists(xmlfile):
+                os.remove(xmlfile)
+            f = open(xmlfile, 'w')
+            f.write(r)
+            f.close()
     except:
         print_compact_traceback("trouble getting sponsor info: ")
         print_compact_stack("trouble getting sponsor info: ")
@@ -170,13 +180,15 @@ def downloadSponsorInfo():
             info = parseString(r)
             for sp_info in info.getElementsByTagName('sponsor'):
                 sp_name = getXmlText(sp_info, 'name')
+                sp_imgfile = os.path.join(_sponsordir, 'logo_%s.png' % sp_name)
                 sp_keywords = getXmlText(sp_info, 'keywords')
                 sp_keywords = map(lambda x: x.strip(),
                                   sp_keywords.split(','))
                 sp_text = fixHtml(getXmlText(sp_info, 'text'))
-                sp_png = base64.decodestring(getXmlText(sp_info, 'logo'))
-                sp_imgfile = os.path.join(_sponsordir, 'logo_%s.png' % sp_name)
-                open(sp_imgfile, 'wb').write(sp_png)
+                if not os.path.exists(sp_imgfile) or \
+                   os.path.getctime(sp_imgfile) < os.path.getctime(xmlfile):
+                    sp_png = base64.decodestring(getXmlText(sp_info, 'logo'))
+                    open(sp_imgfile, 'wb').write(sp_png)
                 sp = Sponsor(sp_name, sp_text, sp_imgfile)
                 for keyword in sp_keywords:
                     if not _sponsors.has_key(keyword):
