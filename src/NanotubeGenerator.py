@@ -10,14 +10,19 @@ for notes about what's going on here.
 
 __author__ = "Will"
 
-from NanotubeGeneratorDialog import NanotubeGeneratorDialog
+from NanotubeGeneratorDialog import nanotube_dialog
 from math import atan2, sin, cos, pi
 import assembly, chem, bonds, Utility
-from chem import molecule, Atom
+from chem import molecule, Atom, gensym
 import env
 from HistoryWidget import redmsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
 from VQT import dot
+import string
+from widgets import double_fixup
+from debug import Stopwatch, objectBrowse
+from Utility import Group
+from Sponsors import findSponsor
 
 sqrt3 = 3 ** 0.5
 
@@ -152,103 +157,161 @@ class Chirality:
 
 cmd = greenmsg("Insert Nanotube: ")
 
-class NanotubeGenerator(NanotubeGeneratorDialog):
+class NanotubeGenerator(nanotube_dialog):
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        NanotubeGeneratorDialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
+        nanotube_dialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
         self.win = win
+        self.mol = None
         
         # Validator for the length linedit widget.
         self.validator = QDoubleValidator(self)
-        self.validator.setRange(0.0, 1000.0, 2) # Range of nanotube length (0-100, 2 decimal places)
+        # Range of nanotube length (0-1000, 2 decimal places)
+        self.validator.setRange(0.0, 1000.0, 2)
         self.length_linedit.setValidator(self.validator)
         self.cursor_pos = 0
-        
-        # Default nanotube parameters.
-        self.n = 5
-        self.m = 5
-        self.length = 5.0 # Angstoms
-        self.lenstr = '%1.2f' % self.length # Also used for validation
-        
-        self.setup()
+        self.lenstr = str(self.length_linedit.text())
+        self.sponsor = sponsor = findSponsor('Nanotubes')
+        sponsor.configureSponsorButton(self.sponsor_btn)
+   
+    def toggle_nt_distortion_grpbox(self):
+        print "nanotube_dialog.toggle_nt_distortion_grpbox(): Not implemented yet"
 
+    def open_sponsor_homepage(self):
+        print "nanotube_dialog.open_sponsor_homepage(): Not implemented yet"
 
-    # These four methods are needed to implement the GUI semantics.
-    
-    def setup(self):
-        self.n_spinbox.setValue(self.n)
-        self.m_spinbox.setValue(self.m)
-        self.length_linedit.setText(self.lenstr)
+    def toggle_nt_parameters_grpbox(self):
+        print "nanotube_dialog.toggle_nt_parameters_grpbox(): Not implemented yet"
 
-    def accept(self):
-        'Slot for the OK button'
-        
-        # Get length from length_linedit and make sure it is not zero.
-        # length_linedit's validator makes sure this has a valid number (float).  
-        # The only exception is when there is no text.  Mark 051103.
-        import string
-        if self.length_linedit.text():
-            self.length = string.atof(str(self.length_linedit.text()))
-        else:
-            self.length = 0.0
-            env.history.message(cmd + redmsg("Please specify length."))
-            return
-        
-        # This can take a few seconds.  Inform the user.  100 is a guess on my part.  Mark 051103.
-        if self.length > 100.0:
-            env.history.message(cmd + "Creating nanotube. This may take a moment...")
-            QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-            self.generateTube()
-            env.history.message(cmd + "Done.")
-            QApplication.restoreOverrideCursor() # Restore the cursor
-        else: # Nanotubes under 100 Angstroms shouldn't take long.
-            env.history.message(cmd + "Nanotube created.")
-            self.generateTube()
-            
+    def toggle_mwcnt_grpbox(self):
+        print "nanotube_dialog.toggle_mwcnt_grpbox(): Not implemented yet"
+
+    def enter_WhatsThisMode(self):
+        print "nanotube_dialog.enter_WhatsThisMode(): Not implemented yet"
+
+    def changeLength(self):
+        print "nanotube_dialog.changeLength(): Not implemented yet"
+
+    def nChanged(self,a0):
+        print "nanotube_dialog.nChanged(const QString&): Not implemented yet"
+
+    def mChanged(self,a0):
+        print "nanotube_dialog.mChanged(const QString&): Not implemented yet"
+
+    def bondLengthChanged(self):
+        print "nanotube_dialog.bondLengthChanged(): Not implemented yet"
+
+    def doneClicked(self):
+        print "nanotube_dialog.doneClicked(): Not implemented yet"
+
+    def close(self, e=None):
+        """When the user closes dialog by clicking the 'X' button on
+        the dialog title bar, this method is called.
+        """
+        try:
+            self.cancel_btn_clicked()
+            return True
+        except:
+            return False
+
+    def zDistortChanged(self):
+        print "nanotube_dialog.zDistortChanged(): Not implemented yet"
+
+    def xyDistortChanged(self):
+        print "nanotube_dialog.xyDistortChanged(): Not implemented yet"
+
+    def abortClicked(self):
+        self.cancel_btn_clicked()
+
+    def previewClicked(self):
+        self.remove_tube()
+        self.build_tube()
+       
+    def cancel_btn_clicked(self):
+        self.remove_tube()
         QDialog.accept(self)
 
-    def generateTube(self):
-        try:
-            self.n
-            self.m
-            self.length
-        except AttributeError:
-            env.history.message(cmd + redmsg("Please specify chirality (n, m) and length."))
-            return
-        self.chirality = Chirality(self.n, self.m)
-        self.buildChunk()
+    def ok_btn_clicked(self):
+        self.build_tube()
+        self.mol = None
+        QDialog.accept(self)
 
-    def setN(self, n):
-        'Slot for chiral (N) spinbox'
-        self.n = n
-
-    def setM(self, m):
-        'Slot for chiral (M) spinbox'
-        self.m = m
+    def sponsor_btn_clicked(self):
+        self.sponsor.wikiHelp()
 
     def length_fixup(self):
         '''Slot for the Length linedit widget.
         This gets called each time a user types anything into the widget.
         '''
-        from widgets import double_fixup
         self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
         self.length_linedit.setText(self.lenstr)
 
-    def buildChunk(self):
+    def build_tube(self):
+# With the DNA generator, I didn't bother to recreate it if all the
+# parameters were exactly the same. I might be able to reuse that idea
+# here, so keep this handy.
+#
+##         seq = self.get_sequence()
+##         dnatype = str(self.dna_type_combox.currentText())
+##         double = str(self.endings_combox.currentText())
+##         params = (seq, dnatype, double)
+##         if self.previousParams != params:
+##             self.remove_dna()
+##             self.previousParams = params
+##         if self.mol == None:
+
+        self.remove_tube()
+        # Get length from length_linedit and make sure it is not zero.
+        # length_linedit's validator makes sure this has a valid number (float).  
+        # The only exception is when there is no text.  Mark 051103.
+        if self.length_linedit.text():
+            self.length = string.atof(str(self.length_linedit.text()))
+        else:
+            self.length = 0.0
+            env.history.message(cmd + redmsg("Please specify a valid length."))
+            return
+
+        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
+        try:
+            #group = Group(gensym("Nanotube-"), self.win.assy, part.topnode)
+            # This can take a few seconds. Inform the user.
+            # 100 is a guess on my part. Mark 051103.
+            if self.length > 100.0:
+                env.history.message(cmd + "Creating nanotube. This may take a moment...")
+                self.generate_tube()
+                env.history.message(cmd + "Done.")
+            else: # Nanotubes under 100 Angstroms shouldn't take long.
+                self.generate_tube()
+                env.history.message(cmd + "Nanotube created.")
+        except Exception, e:
+            env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+        QApplication.restoreOverrideCursor() # Restore the cursor
+
+    def remove_tube(self):
+        if self.mol != None:
+            part = self.win.assy.part
+            part.ensure_toplevel_group()
+            part.topnode.delmember(self.mol)
+            self.win.win_update()
+            self.win.mt.mt_update()
+            self.mol = None
+
+    def generate_tube(self):
+        self.chirality = Chirality(self.chirality_n_spinbox.value(),
+                                   self.chirality_m_spinbox.value())
         PROFILE = False
         if PROFILE:
-            from debug import Stopwatch
             sw = Stopwatch()
             sw.start()
         length = self.length
         xyz = self.chirality.xyz
-        self.mol = molecule(self.win.assy, chem.gensym("Nanotube-"))
-        atoms = self.mol.atoms
+        mol = molecule(self.win.assy, gensym("Nanotube-"))
+        atoms = mol.atoms
         mlimits = self.chirality.mlimits
         # populate the tube with some extra carbons on the ends
         # so that we can trim them later
-        self.chirality.populate(self.mol, length + 4 * Chirality.MAXLEN)
+        self.chirality.populate(mol, length + 4 * Chirality.MAXLEN)
 
         # Judgement call: because we're discarding carbons with funky
         # valences, we will necessarily get slightly more ragged edges
@@ -279,5 +342,7 @@ class NanotubeGenerator(NanotubeGeneratorDialog):
 
         part = self.win.assy.part
         part.ensure_toplevel_group()
-        part.topnode.addchild(self.mol)
+        part.topnode.addchild(mol)
+        self.win.win_update()
         self.win.mt.mt_update()
+        self.mol = mol
