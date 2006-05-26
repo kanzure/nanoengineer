@@ -4,7 +4,7 @@
     <!-- Names become parts of filenames, and should not have spaces-->
     <!-- in them. -->
     <name>Zyvex</name>
-    <keywords>DNA, Nanotubes</keywords>
+    <keywords>Nanotubes</keywords>
     <!-- Base64 encoded PNG file -->
     <logo>iVBORw0KGgoAAAANSUhEUgAAAGsAAAA3CAIAAACEkSPXAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
     WXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH1gUZFhMqT72VcQAAADF0RVh0Q29tbWVudABOYW5vdGVj
