@@ -69,7 +69,8 @@ class PermissionDialog(QDialog):
             "sponsors. This enables us to recoup some of our development costs " +
             "by putting buttons with sponsor logos on some dialogs. If you click " +
             "on a sponsor logo button, you will get a small window with some " +
-            "information about that sponsor. May we do this?")
+            "information about that sponsor. May we do this? Otherwise we'll " +
+            "just use buttons with our own Nanorex logo.")
 
     def __init__(self, win):
         self.xmlfile = os.path.join(_sponsordir, 'sponsors.xml')
@@ -87,10 +88,10 @@ class PermissionDialog(QDialog):
             return
         QDialog.__init__(self, None)
         self.setName("Permission")
-        accessPermissionLayout = QGridLayout(self,1,3,0,-1,"PermissionLayout")
+        layout = QGridLayout(self,1,3,0,-1,"PermissionLayout")
         self.text_browser = QTextBrowser(self,"text_browser")
-        accessPermissionLayout.addMultiCellWidget(self.text_browser,0,0,0,3)
-        self.text_browser.setMinimumSize(400, 50)
+        layout.addMultiCellWidget(self.text_browser,0,0,0,3)
+        self.text_browser.setMinimumSize(400, 80)
         self.setCaption('May we use your network connection?')
         self.text_browser.setText(self.text)
         self.accept_button = QPushButton(self,"accept_button")
@@ -101,10 +102,10 @@ class PermissionDialog(QDialog):
         self.decline_once_button.setText("Not now")
         self.decline_always_button = QPushButton(self,"decline_always_button")
         self.decline_always_button.setText("Never")
-        accessPermissionLayout.addWidget(self.accept_button,1,0)
-        accessPermissionLayout.addWidget(self.accept_once_button,1,1)
-        accessPermissionLayout.addWidget(self.decline_once_button,1,2)
-        accessPermissionLayout.addWidget(self.decline_always_button,1,3)
+        layout.addWidget(self.accept_button,1,0)
+        layout.addWidget(self.accept_once_button,1,1)
+        layout.addWidget(self.decline_once_button,1,2)
+        layout.addWidget(self.decline_always_button,1,3)
         self.connect(self.accept_button,SIGNAL("clicked()"),self.acceptAlways)
         self.connect(self.accept_once_button,SIGNAL("clicked()"),self.acceptJustOnce)
         self.connect(self.decline_once_button,SIGNAL("clicked()"),self.declineJustOnce)
