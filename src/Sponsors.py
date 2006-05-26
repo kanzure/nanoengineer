@@ -11,8 +11,8 @@ import random
 import string
 import time
 from debug import print_compact_stack, print_compact_traceback
-from qt import *  # Qt, QDialog, QImage, QPixmap, QGridLayout, QTextBrowser, QPushButton, QSizePolicy
-from prefs_constants import sponsor_download_permission_prefs_key
+from qt import *
+from prefs_constants import sponsor_download_permission_prefs_key, sponsor_permanent_permission_prefs_key
 
 # Sponsor stuff
 # (1) download the sponsor information
@@ -61,53 +61,75 @@ class Sponsor:
         w.show()
 
 class PermissionDialog(QDialog):
+
+    # Politely explain what we're doing as clearly as possible. This will be the
+    # user's first experience of the sponsorship system and we want to use the
+    # Google axiom of "Don't be evil".
+    text = ("We would like to use your network connection to update a list of our " +
+            "sponsors. This enables us to recoup some of our development costs " +
+            "by putting buttons with sponsor logos on some dialogs. If you click " +
+            "on a sponsor logo button, you will get a small window with some " +
+            "information about that sponsor. May we do this?")
+
     def __init__(self, win):
         self.xmlfile = os.path.join(_sponsordir, 'sponsors.xml')
         self.win = win
         self.after = win.afterGettingPermission
         self.fini = False
-        if env.prefs[sponsor_download_permission_prefs_key]:
-            self.doTheDownload()
+        if not self.refreshWanted():
             self.finish()
             return
-        if not self.refreshWanted():
+        if env.prefs[sponsor_permanent_permission_prefs_key]:
+            # we have a permanent answer so no need for a dialog
+            if env.prefs[sponsor_download_permission_prefs_key]:
+                self.doTheDownload()
             self.finish()
             return
         QDialog.__init__(self, None)
         self.setName("Permission")
-        accessPermissionLayout = QGridLayout(self,1,2,5,-1,"PermissionLayout")
+        accessPermissionLayout = QGridLayout(self,1,3,0,-1,"PermissionLayout")
         self.text_browser = QTextBrowser(self,"text_browser")
-        accessPermissionLayout.addMultiCellWidget(self.text_browser,0,0,0,1)
-        self.text_browser.setMinimumSize(400, 200)
+        accessPermissionLayout.addMultiCellWidget(self.text_browser,0,0,0,3)
+        self.text_browser.setMinimumSize(400, 50)
         self.setCaption('May we use your network connection?')
-        self.text_browser.setText("<qt bgcolor=\"#FFFFFF\">" +
-                                  "We would like to use your network connection to update a " +
-                                  "list of our sponsors. May we do this?")
+        self.text_browser.setText(self.text)
         self.accept_button = QPushButton(self,"accept_button")
-        self.accept_button.setText("OK always")
+        self.accept_button.setText("Always OK")
         self.accept_once_button = QPushButton(self,"accept_once_button")
         self.accept_once_button.setText("OK this time")
-        self.decline_button = QPushButton(self,"decline_button")
-        self.decline_button.setText("No")
+        self.decline_once_button = QPushButton(self,"decline_once_button")
+        self.decline_once_button.setText("Not this time")
+        self.decline_always_button = QPushButton(self,"decline_always_button")
+        self.decline_always_button.setText("Never")
         accessPermissionLayout.addWidget(self.accept_button,1,0)
         accessPermissionLayout.addWidget(self.accept_once_button,1,1)
-        accessPermissionLayout.addWidget(self.decline_button,1,2)
-        spacer = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        accessPermissionLayout.addItem(spacer,1,0)
-        self.resize(QSize(300, 300).expandedTo(self.minimumSizeHint()))
-        self.clearWState(Qt.WState_Polished)
+        accessPermissionLayout.addWidget(self.decline_once_button,1,2)
+        accessPermissionLayout.addWidget(self.decline_always_button,1,3)
         self.connect(self.accept_button,SIGNAL("clicked()"),self.acceptAlways)
-        self.connect(self.accept_once_button,SIGNAL("clicked()"),self.justOnce)
-        self.connect(self.decline_button,SIGNAL("clicked()"),self.decline)
+        self.connect(self.accept_once_button,SIGNAL("clicked()"),self.acceptJustOnce)
+        self.connect(self.decline_once_button,SIGNAL("clicked()"),self.declineJustOnce)
+        self.connect(self.decline_always_button,SIGNAL("clicked()"),self.declineAlways)
 
     def acceptAlways(self):
         env.prefs[sponsor_download_permission_prefs_key] = True
+        env.prefs[sponsor_permanent_permission_prefs_key] = True
         self.doTheDownload()
         self.close()
 
-    def justOnce(self):
-        env.prefs[sponsor_download_permission_prefs_key] = False
+    def acceptJustOnce(self):
+        env.prefs[sponsor_permanent_permission_prefs_key] = False
         self.doTheDownload()
+        self.close()
+
+    def declineAlways(self):
+        env.prefs[sponsor_download_permission_prefs_key] = False
+        env.prefs[sponsor_permanent_permission_prefs_key] = True
+        self.finish()
+        self.close()
+
+    def declineJustOnce(self):
+        env.prefs[sponsor_permanent_permission_prefs_key] = False
+        self.finish()
         self.close()
 
     def doTheDownload(self):
@@ -132,11 +154,6 @@ class PermissionDialog(QDialog):
             f.write(r)
             f.close()
         self.finish()
-
-    def decline(self):
-        env.prefs[sponsor_download_permission_prefs_key] = False
-        self.finish()
-        self.close()
 
     def refreshWanted(self):
         if os.path.exists(self.xmlfile):
@@ -253,9 +270,16 @@ M+oN1N/rXXXJ2F21T9R1AVj08tp1F+0AUtxVh99ckp7g6LJGAOu37l700SUyWZnXufnhcTMn3Yxv
 zPCk6A1JJv/KDTt00WO/pu/7mU4KTyAtYCSZqbMjhOB1u+EiCUAPQmc2Iqi+75b++Uvfd0v/mPJ/
 ZB4c8k4fONAAAAAASUVORK5CYII='''
 
-_nanorexText = 'Creators of [http://www.nanoengineer-1.com nanoENGINEER-1]'
+# If the user sees this, it's because he opted not to download sponsor
+# information. That probably means he doesn't want to see a live web
+# link in the text here. We can put a dead one that he can cut and
+# paste into his browser.
+_nanorexText = """\
+Nanorex created nanoENGINEER-1, the program you're using right now.
+Please see http://www.nanoengineer-1.com for more information."""
+
 _defsp_png = base64.decodestring(_nanorexLogo)
-_defsp_imgfile = os.path.join(_sponsordir, 'logo_nanorex.png')
+_defsp_imgfile = os.path.join(_sponsordir, 'logo_Nanorex.png')
 open(_defsp_imgfile, 'wb').write(_defsp_png)
 _defaultSponsor = Sponsor('Nanorex', fixHtml(_nanorexText), _defsp_imgfile)
 
