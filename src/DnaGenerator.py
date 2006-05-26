@@ -122,6 +122,7 @@ class A_Dna(Dna):
     take a few days to research it. It's not a simple helix (like B) or an
     alternating helix (like Z).
     """
+    geometry = "A-DNA"
     TWIST_PER_BASE = 0  # WRONG
     BASE_SPACING = 0    # WRONG
     def strandAinfo(self, sequence, i):
@@ -130,6 +131,7 @@ class A_Dna(Dna):
         raise Exception("A-DNA is not yet implemented -- please try B- or Z-DNA");
 
 class B_Dna(Dna):
+    geometry = "B-DNA"
     TWIST_PER_BASE = -36 * pi / 180   # radians
     BASE_SPACING = 3.391              # angstroms
 
@@ -146,6 +148,7 @@ class B_Dna(Dna):
         return (basefile, zoffset, thetaOffset)
 
 class Z_Dna(Dna):
+    geometry = "Z-DNA"
     TWIST_PER_BASE = pi / 6     # in radians
     BASE_SPACING = 3.715        # in angstroms
 
@@ -207,19 +210,15 @@ class DnaGenerator(dna_dialog):
                 env.history.message(cmd + "Creating DNA. This may take a moment...")
                 QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
                 try:
-                    #self.group = group = molecule(self.win.assy, gensym("DNA-"))
                     part = self.win.assy.part
                     part.ensure_toplevel_group()
-                    name = gensym("DNA-")
-                    self.group = grp = Group(name, self.win.assy, part.topnode)
+                    self.group = grp = Group(gensym("DNA-"), self.win.assy, part.topnode)
                     dna.make(self.win.assy, grp, seq, doubleStrand)
-                    #part.topnode.addchild(grp)
                     self.win.win_update()
                     self.win.mt.mt_update()
-                    env.history.message(cmd + "Done.")
+                    env.history.message(cmd + "Done creating a strand of %s." % dna.geometry)
                 except Exception, e:
                     env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
-                    raise
                 QApplication.restoreOverrideCursor() # Restore the cursor
 
     def remove_dna(self):
