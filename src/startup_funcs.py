@@ -119,10 +119,6 @@ def before_most_imports( main_globals ):
         #  which would make them very hard to notice or debug. This risk is only justified in a few
         #  special cases.)
     
-    # download sponsor info, if it's available
-    from Sponsors import downloadSponsorInfo
-    downloadSponsorInfo()
-
     return # from before_most_imports
 
     
@@ -243,6 +239,7 @@ def pre_main_show( win):
 
 def post_main_show( win): # bruce 050902 added this
     "Do whatever should be done after the main window is shown, but before the Qt event loop is started."
+
     pass ####e rebuild pyx modules if necessary and safe -- but only for developers, not end-users
 
 # end

@@ -137,6 +137,7 @@ captionFullPath_prefs_key = 'A6/Caption Full Path'
 # Bug-workaround prefs, Mac-specific
 
 QToolButton_MacOSX_Tiger_workaround_prefs_key = 'A6/QToolButton MacOSX Tiger workaround' #bruce 050810
+sponsor_download_permission_prefs_key = 'A8/Sponsor download permission'
 
 #==
 
@@ -288,6 +289,7 @@ prefs_table = (
     # ...
 
     ('', 'boolean', QToolButton_MacOSX_Tiger_workaround_prefs_key, False ), #bruce 050810
+    ('', 'boolean', sponsor_download_permission_prefs_key, False ),
 
 )
 

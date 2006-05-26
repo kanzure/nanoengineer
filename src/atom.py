@@ -382,6 +382,9 @@ if __name__ == '__main__':
     except:
         pass
 
+    if not foo.permdialog.fini:
+        foo.permdialog.show()
+  
     if atom_debug_profile_filename:
         if PROFILE_WITH_HOTSHOT:
             profile = hotshot.Profile(atom_debug_profile_filename)

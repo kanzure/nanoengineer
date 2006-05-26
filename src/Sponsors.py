@@ -5,10 +5,14 @@ from xml.dom.minidom import parseString
 from wiki_help import WikiHelpBrowser
 from platform import find_or_make_Nanorex_subdir
 import socket
+import env
 import re
 import random
+import string
 import time
 from debug import print_compact_stack, print_compact_traceback
+from qt import *  # Qt, QDialog, QImage, QPixmap, QGridLayout, QTextBrowser, QPushButton, QSizePolicy
+from prefs_constants import sponsor_download_permission_prefs_key
 
 # Sponsor stuff
 # (1) download the sponsor information
@@ -20,31 +24,11 @@ _sponsordir = find_or_make_Nanorex_subdir('Sponsors')
 _magicUrl = 'http://willware.net/sponsors.xml'
 _sponsors = { }
 
-class Sponsor:
-    def __init__(self, name, text, imgfile):
-        self.name = name
-        self.text = text
-        self.imgfile = imgfile
-
-    def configureSponsorButton(self, btn):
-        from qt import QImage, QPixmap
-        qimg = QImage(self.imgfile)
-        qpxmp = QPixmap(qimg)
-        btn.setPixmap(qpxmp)
-
-    def wikiHelp(self):
-        w = WikiHelpBrowser(self.text)
-        w.show()
-
-def fixHtml(rc,
-            para=re.compile('\[P\]'),
-            startUrl=re.compile('\['), middleUrl=re.compile(' '), finishUrl=re.compile('\]')):
-    while True:
-        m = para.search(rc)
-        if m == None:
-            break
-        s, e = m.start(), m.end()
-        rc = rc[:s] + '<p>' + rc[e:]
+def fixHtml(rc):
+    startUrl=re.compile('\[')
+    middleUrl=re.compile(' ')
+    finishUrl=re.compile('\]')
+    rc = string.replace(rc, '[P]', '<p>')
     while True:
         m = startUrl.search(rc)
         if m == None:
@@ -56,6 +40,147 @@ def fixHtml(rc,
         s3, e3 = m.start() + e2, m.end() + e2
         mid = "<a href=\"%s\">%s</a>" % (rc[e:s2], rc[e2:s3])
         rc = rc[:s] + mid + rc[e3:]
+
+
+class Sponsor:
+    def __init__(self, name, text, imgfile):
+        self.name = name
+        self.text = text
+        self.imgfile = imgfile
+
+    def __repr__(self):
+        return '<' + self.name + '>'
+
+    def configureSponsorButton(self, btn):
+        qimg = QImage(self.imgfile)
+        qpxmp = QPixmap(qimg)
+        btn.setPixmap(qpxmp)
+
+    def wikiHelp(self):
+        w = WikiHelpBrowser(self.text, caption=self.name)
+        w.show()
+
+class PermissionDialog(QDialog):
+    def __init__(self, win):
+        self.xmlfile = os.path.join(_sponsordir, 'sponsors.xml')
+        self.win = win
+        self.after = win.afterGettingPermission
+        self.fini = False
+        if env.prefs[sponsor_download_permission_prefs_key]:
+            self.doTheDownload()
+            self.finish()
+            return
+        if not self.refreshWanted():
+            self.finish()
+            return
+        QDialog.__init__(self, None)
+        self.setName("Permission")
+        accessPermissionLayout = QGridLayout(self,1,2,5,-1,"PermissionLayout")
+        self.text_browser = QTextBrowser(self,"text_browser")
+        accessPermissionLayout.addMultiCellWidget(self.text_browser,0,0,0,1)
+        self.text_browser.setMinimumSize(400, 200)
+        self.setCaption('May we use your network connection?')
+        self.text_browser.setText("<qt bgcolor=\"#FFFFFF\">" +
+                                  "We would like to use your network connection to update a " +
+                                  "list of our sponsors. May we do this?")
+        self.accept_button = QPushButton(self,"accept_button")
+        self.accept_button.setText("OK always")
+        self.accept_once_button = QPushButton(self,"accept_once_button")
+        self.accept_once_button.setText("OK this time")
+        self.decline_button = QPushButton(self,"decline_button")
+        self.decline_button.setText("No")
+        accessPermissionLayout.addWidget(self.accept_button,1,0)
+        accessPermissionLayout.addWidget(self.accept_once_button,1,1)
+        accessPermissionLayout.addWidget(self.decline_button,1,2)
+        spacer = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        accessPermissionLayout.addItem(spacer,1,0)
+        self.resize(QSize(300, 300).expandedTo(self.minimumSizeHint()))
+        self.clearWState(Qt.WState_Polished)
+        self.connect(self.accept_button,SIGNAL("clicked()"),self.acceptAlways)
+        self.connect(self.accept_once_button,SIGNAL("clicked()"),self.justOnce)
+        self.connect(self.decline_button,SIGNAL("clicked()"),self.decline)
+
+    def acceptAlways(self):
+        env.prefs[sponsor_download_permission_prefs_key] = True
+        self.doTheDownload()
+        self.close()
+
+    def justOnce(self):
+        env.prefs[sponsor_download_permission_prefs_key] = False
+        self.doTheDownload()
+        self.close()
+
+    def doTheDownload(self):
+        # Don't waste more than five seconds trying to get a network
+        # connection.
+        socket.setdefaulttimeout(5)
+        ok = False
+        try:
+            f = urllib.urlopen(_magicUrl)
+            r = f.read()
+            f.close()
+            ok = True
+        except OSError:
+            pass
+        if ok:
+            # If we got this far, we have info to replace whatever is
+            # currently in the xml file. If we never got this far but
+            # the file did exist, then we'll just use the old info.
+            if os.path.exists(self.xmlfile):
+                os.remove(self.xmlfile)
+            f = open(self.xmlfile, 'w')
+            f.write(r)
+            f.close()
+        self.finish()
+
+    def decline(self):
+        env.prefs[sponsor_download_permission_prefs_key] = False
+        self.finish()
+        self.close()
+
+    def refreshWanted(self):
+        if os.path.exists(self.xmlfile):
+            age = time.time() - os.path.getctime(self.xmlfile)
+            # refresh every two days
+            if age < 2 * 24 * 3600:
+                return False
+        return True
+
+    def finish(self):
+        def getXmlText(doc, tag):
+            parent = doc.getElementsByTagName(tag)[0]
+            rc = ""
+            for node in parent.childNodes:
+                if node.nodeType == node.TEXT_NODE:
+                    rc = rc + node.data
+            return rc
+        if os.path.exists(self.xmlfile):
+            try:
+                f = open(self.xmlfile)
+                r = f.read()
+                f.close()
+                info = parseString(r)
+                for sp_info in info.getElementsByTagName('sponsor'):
+                    sp_name = getXmlText(sp_info, 'name')
+                    sp_imgfile = os.path.join(_sponsordir, 'logo_%s.png' % sp_name)
+                    sp_keywords = getXmlText(sp_info, 'keywords')
+                    sp_keywords = map(lambda x: x.strip(),
+                                      sp_keywords.split(','))
+                    sp_text = fixHtml(getXmlText(sp_info, 'text'))
+                    if not os.path.exists(sp_imgfile) or \
+                       os.path.getctime(sp_imgfile) < os.path.getctime(self.xmlfile):
+                        sp_png = base64.decodestring(getXmlText(sp_info, 'logo'))
+                        open(sp_imgfile, 'wb').write(sp_png)
+                    sp = Sponsor(sp_name, sp_text, sp_imgfile)
+                    for keyword in sp_keywords:
+                        if not _sponsors.has_key(keyword):
+                            _sponsors[keyword] = [ ]
+                        _sponsors[keyword].append(sp)
+            except:
+                print_compact_traceback("trouble getting sponsor info: ")
+                print_compact_stack("trouble getting sponsor info: ")
+        self.after()
+        self.fini = True
 
 ###############################################
 
@@ -135,68 +260,6 @@ open(_defsp_imgfile, 'wb').write(_defsp_png)
 _defaultSponsor = Sponsor('Nanorex', fixHtml(_nanorexText), _defsp_imgfile)
 
 ###############################################
-
-def downloadSponsorInfo():
-    def getXmlText(doc, tag):
-        parent = doc.getElementsByTagName(tag)[0]
-        rc = ""
-        for node in parent.childNodes:
-            if node.nodeType == node.TEXT_NODE:
-                rc = rc + node.data
-        return rc
-    xmlfile = os.path.join(_sponsordir, 'sponsors.xml')
-    try:
-        wantRefresh = False
-        if os.path.exists(xmlfile):
-            age = time.time() - os.path.getctime(xmlfile)
-            # refresh every two days
-            if age > 2 * 24 * 3600:
-                wantRefresh = True
-        else:
-            wantRefresh = True
-        if wantRefresh:
-            # Don't waste more than five seconds trying to get a network
-            # connection.
-            socket.setdefaulttimeout(5)
-            f = urllib.urlopen(_magicUrl)
-            r = f.read()
-            f.close()
-            # If we got this far, we have info to replace whatever is
-            # currently in the xml file. If we never got this far but
-            # the file did exist, then we'll just use the old info.
-            if os.path.exists(xmlfile):
-                os.remove(xmlfile)
-            f = open(xmlfile, 'w')
-            f.write(r)
-            f.close()
-    except:
-        print_compact_traceback("trouble getting sponsor info: ")
-        print_compact_stack("trouble getting sponsor info: ")
-    if os.path.exists(xmlfile):
-        try:
-            f = open(xmlfile)
-            r = f.read()
-            f.close()
-            info = parseString(r)
-            for sp_info in info.getElementsByTagName('sponsor'):
-                sp_name = getXmlText(sp_info, 'name')
-                sp_imgfile = os.path.join(_sponsordir, 'logo_%s.png' % sp_name)
-                sp_keywords = getXmlText(sp_info, 'keywords')
-                sp_keywords = map(lambda x: x.strip(),
-                                  sp_keywords.split(','))
-                sp_text = fixHtml(getXmlText(sp_info, 'text'))
-                if not os.path.exists(sp_imgfile) or \
-                   os.path.getctime(sp_imgfile) < os.path.getctime(xmlfile):
-                    sp_png = base64.decodestring(getXmlText(sp_info, 'logo'))
-                    open(sp_imgfile, 'wb').write(sp_png)
-                sp = Sponsor(sp_name, sp_text, sp_imgfile)
-                for keyword in sp_keywords:
-                    if not _sponsors.has_key(keyword):
-                        _sponsors[keyword] = [ ]
-                    _sponsors[keyword].append(sp)
-        except:
-            print_compact_traceback("trouble getting sponsor info: ")
-            print_compact_stack("trouble getting sponsor info: ")
 
 def findSponsor(keyword):
     if not _sponsors.has_key(keyword):

@@ -36,6 +36,7 @@ from elementColors import elementColors
 from elementSelector import elementSelector 
 from MMKit import MMKit
 from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
+from Sponsors import PermissionDialog
 
 # most of the file format imports are probably no longer needed; I'm removing some of them
 # (but we need to check for imports of them from here by other modules) [bruce 050907]
@@ -270,14 +271,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # Create the Help dialog. Mark 050812
         from help import Help
         self.help = Help()
-        
-        # Create the Nanotube generator dialog.  Fixes bug 1091. Mark 060112.
-        from NanotubeGenerator import NanotubeGenerator
-        self.nanotubecntl = NanotubeGenerator(self)
-        from DnaGenerator import DnaGenerator
-        self.dnacntl = DnaGenerator(self)
+
         from CommentProp import CommentProp
         self.commentcntl = CommentProp(self)
+        self.permdialog = PermissionDialog(self)
 
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
@@ -365,6 +362,18 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # should be done in the _init_after_geometry_is_set method below, not here. [bruce guess 060104]
 
         return # from MWsemantics.__init__
+
+    def closeEvent(self, ce):
+        fileSlotsMixin.closeEvent(self, ce)
+        if not self.permdialog.fini:
+            self.permdialog.close()
+
+    def afterGettingPermission(self):
+        # Create the Nanotube generator dialog.  Fixes bug 1091. Mark 060112.
+        from NanotubeGenerator import NanotubeGenerator
+        self.nanotubecntl = NanotubeGenerator(self)
+        from DnaGenerator import DnaGenerator
+        self.dnacntl = DnaGenerator(self)
 
     def _init_after_geometry_is_set(self): #bruce 060104 renamed this from startRun and replaced its docstring.
         """Do whatever initialization of self needs to wait until its geometry has been set.
@@ -1305,8 +1314,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
            self.depositState = 'Atoms'
            MMKitWin.update_dialog(self.Element)     
            MMKitWin.show()
-           
-          
+
+
     # this routine sets the displays to reflect elt
     # [bruce 041215: most of this should be made a method in elementSelector.py #e]
     def setElement(self, elt):
