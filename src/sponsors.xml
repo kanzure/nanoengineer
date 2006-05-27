@@ -1,4 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!--
+This file should be put on the server. We should also post a file called
+sponsors.md5, which gets generated like this:
+
+import md5
+m = md5.new()
+m.update(open('sponsors.xml').read())
+open('sponsors.md5', 'w').write(m.digest())
+
+It would be good to come up with a script that automatically uploads these
+to the server. In the case of Will's server, that script would look like
+this.
+
+import md5, os
+m = md5.new()
+m.update(open('sponsors.xml').read())
+open('sponsors.md5', 'w').write(m.digest())
+os.system('scp sponsors.xml willware.net:/var/www/html')
+os.system('scp sponsors.md5 willware.net:/var/www/html')
+-->
+
 <sponsors>
   <sponsor>
     <!-- Names become parts of filenames, and should not have spaces-->
