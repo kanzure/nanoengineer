@@ -1,27 +1,56 @@
-import os
-import urllib
+# Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
+"""
+Sponsors.py
+
+$Id$
+
+We want to recoup some of the costs of developing nanoENGINEER-1 in a
+way consistent with its GPL licensing. One way to do that is to have
+sponsors, and to offer the sponsors advertising space in a way that
+doesn't bother the user. Some UI dialogs will have buttons with
+sponsor logos on them, and if you click on a sponsor logo button,
+you'll get more information and maybe a link to their website. There
+are no unsolicited pop-ups in this system.
+
+We want to be able to update sponsor information without asking the
+user to download a new version. So we have the program fetch recent
+sponsor information from our server. We don't want this to annoy the
+user, in terms of either network bandwidth or privacy concerns, so
+we have a permission dialog that explains what we're doing and asks
+the user for permission to do it.
+"""
+
+__author__ = "Will"
+
 import base64
+import env
+import md5
+import os
+import random
+import re
+import socket
+import string
+import time
+import urllib
 from xml.dom.minidom import parseString
 from wiki_help import WikiHelpBrowser
 from platform import find_or_make_Nanorex_subdir
-import socket
-import env
-import re
-import random
-import string
-import time
 from debug import print_compact_stack, print_compact_traceback
 from qt import *
 from prefs_constants import sponsor_download_permission_prefs_key, sponsor_permanent_permission_prefs_key
+from HistoryWidget import redmsg, orangemsg, greenmsg
 
-# Sponsor stuff
-# (1) download the sponsor information
-# (2) store the text and the logo in files somewhere in ~/Nanorex
-# (3) use the logo to replace the button's existing logo
-# (4) be ready, when the user clicks the sponsor button, to pop up the text
+# One might decide that downloading even just the MD5 hash would
+# constitute a violation of the user's privacy. Should we ask
+# permission before downloading the MD5? If yes, then the user
+# will be subjected to more frequent permission dialogs, which
+# may be irritating.
+NEED_PERMISSION_TO_DOWNLOAD_MD5 = False
 
 _sponsordir = find_or_make_Nanorex_subdir('Sponsors')
-_magicUrl = 'http://willware.net/sponsors.xml'
+_nanorex_server = 'http://willware.net/'
+_sponsors_xml = _nanorex_server + 'sponsors.xml'
+_sponsors_md5 = _nanorex_server + 'sponsors.md5'
 _sponsors = { }
 
 def fixHtml(rc):
@@ -40,7 +69,6 @@ def fixHtml(rc):
         s3, e3 = m.start() + e2, m.end() + e2
         mid = "<a href=\"%s\">%s</a>" % (rc[e:s2], rc[e2:s3])
         rc = rc[:s] + mid + rc[e3:]
-
 
 class Sponsor:
     def __init__(self, name, text, imgfile):
@@ -77,6 +105,7 @@ class PermissionDialog(QDialog):
         self.win = win
         self.after = win.afterGettingPermission
         self.fini = False
+        self._gotPermission = False
         if not self.refreshWanted():
             self.finish()
             return
@@ -133,36 +162,63 @@ class PermissionDialog(QDialog):
         self.finish()
         self.close()
 
-    def doTheDownload(self):
+    def getRemoteFile(self, url):
+        # This may raise OSError if the URL can't be opened.
         # Don't waste more than five seconds trying to get a network
         # connection.
         socket.setdefaulttimeout(5)
-        ok = False
-        try:
-            f = urllib.urlopen(_magicUrl)
-            r = f.read()
-            f.close()
-            ok = True
-        except OSError:
-            pass
-        if ok:
-            # If we got this far, we have info to replace whatever is
-            # currently in the xml file. If we never got this far but
-            # the file did exist, then we'll just use the old info.
-            if os.path.exists(self.xmlfile):
-                os.remove(self.xmlfile)
-            f = open(self.xmlfile, 'w')
-            f.write(r)
-            f.close()
-        self.finish()
+        f = urllib.urlopen(url)
+        r = f.read()
+        f.close()
+        return r
 
     def refreshWanted(self):
-        if os.path.exists(self.xmlfile):
-            age = time.time() - os.path.getctime(self.xmlfile)
+        if not os.path.exists(self.xmlfile):
+            return True
+        if NEED_PERMISSION_TO_DOWNLOAD_MD5:
             # refresh every two days
+            # getmtime? getctime?
+            age = time.time() - os.path.getmtime(self.xmlfile)
             if age < 2 * 24 * 3600:
                 return False
-        return True
+        else:
+            # refresh whenever the MD5 hash changes
+            return self.md5Mismatch()
+
+    def md5Mismatch(self):
+        # Check the MD5 hash - if it hasn't changed, then there is
+        # no reason to download sponsors.xml.
+        try:
+            r = self.getRemoteFile(_sponsors_md5)
+            m = md5.new()
+            m.update(open(self.xmlfile).read())
+            digest = base64.encodestring(m.digest())
+            return (r != digest)
+        except:
+            return True
+
+    def doTheDownload(self):
+        try:
+            getIt = True
+            if NEED_PERMISSION_TO_DOWNLOAD_MD5:
+                # We couldn't check earlier because we didn't have
+                # permission yet, but now we do. If the MD5 hash
+                # already matches, then we don't need to get it.
+                getIt = self.md5Mismatch()
+            if getIt:
+                r = getRemoteFile(_sponsors_xml)
+                # If we got this far, we have info to replace the
+                # local copy of sponsors.xml. If we never got this far
+                # but a local copy exists, then we'll just use the
+                # existing local copy.
+                if os.path.exists(self.xmlfile):
+                    os.remove(self.xmlfile)
+                f = open(self.xmlfile, 'w')
+                f.write(r)
+                f.close()
+        except:
+            pass
+        self.finish()
 
     def finish(self):
         def getXmlText(doc, tag):

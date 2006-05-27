@@ -13,10 +13,12 @@ It would be good to come up with a script that automatically uploads these
 to the server. In the case of Will's server, that script would look like
 this.
 
-import md5, os
+#!/usr/bin/python
+import md5, os, base64
 m = md5.new()
 m.update(open('sponsors.xml').read())
-open('sponsors.md5', 'w').write(m.digest())
+digest = base64.encodestring(m.digest())
+open('sponsors.md5', 'w').write(digest)
 os.system('scp sponsors.xml willware.net:/var/www/html')
 os.system('scp sponsors.md5 willware.net:/var/www/html')
 -->
