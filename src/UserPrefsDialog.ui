@@ -3705,11 +3705,297 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                 <attribute name="title">
                     <string>Plug-ins</string>
                 </attribute>
-                <grid>
+                <vbox>
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <spacer row="1" column="0">
+                    <widget class="QGroupBox">
+                        <property name="name">
+                            <cstring>file_locations_grp</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Location of Executables</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLineEdit" row="0" column="2">
+                                <property name="name">
+                                    <cstring>nanohive_path_linedit</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="readOnly">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton" row="0" column="3">
+                                <property name="name">
+                                    <cstring>nanohive_choose_btn</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="text">
+                                    <string>Choose...</string>
+                                </property>
+                                <property name="autoDefault">
+                                    <bool>false</bool>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="0" column="1">
+                                <property name="name">
+                                    <cstring>nanohive_lbl</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>5</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                    <size>
+                                        <width>60</width>
+                                        <height>0</height>
+                                    </size>
+                                </property>
+                                <property name="text">
+                                    <string>Nano-Hive :</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Enable Nano-Hive.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Enable Nano-Hive.</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox" row="0" column="0">
+                                <property name="name">
+                                    <cstring>nanohive_checkbox</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Enable Nano-Hive.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Enable Nano-Hive.</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox" row="2" column="0">
+                                <property name="name">
+                                    <cstring>gamess_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Enable GAMESS.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Enable GAMESS.</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="2" column="1">
+                                <property name="name">
+                                    <cstring>gamess_lbl</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>5</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                    <size>
+                                        <width>60</width>
+                                        <height>0</height>
+                                    </size>
+                                </property>
+                                <property name="text">
+                                    <string>GAMESS :</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Enable GAMESS.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Enable GAMESS.</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="2" column="2">
+                                <property name="name">
+                                    <cstring>gamess_path_linedit</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="maximumSize">
+                                    <size>
+                                        <width>32767</width>
+                                        <height>32767</height>
+                                    </size>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="maxLength">
+                                    <number>32767</number>
+                                </property>
+                                <property name="readOnly">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton" row="2" column="3">
+                                <property name="name">
+                                    <cstring>gamess_choose_btn</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="text">
+                                    <string>Choose...</string>
+                                </property>
+                                <property name="autoDefault">
+                                    <bool>false</bool>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="1" column="2">
+                                <property name="name">
+                                    <cstring>povray_path_linedit</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="maximumSize">
+                                    <size>
+                                        <width>32767</width>
+                                        <height>32767</height>
+                                    </size>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="maxLength">
+                                    <number>32767</number>
+                                </property>
+                                <property name="readOnly">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton" row="1" column="3">
+                                <property name="name">
+                                    <cstring>povray_choose_btn</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="text">
+                                    <string>Choose...</string>
+                                </property>
+                                <property name="autoDefault">
+                                    <bool>false</bool>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox" row="1" column="0">
+                                <property name="name">
+                                    <cstring>povray_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Enable GAMESS.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Enable GAMESS.</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="1" column="1">
+                                <property name="name">
+                                    <cstring>povray_lbl</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>5</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="minimumSize">
+                                    <size>
+                                        <width>60</width>
+                                        <height>0</height>
+                                    </size>
+                                </property>
+                                <property name="text">
+                                    <string>POV-Ray :</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Enable GAMESS.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>Enable GAMESS.</string>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <spacer>
                         <property name="name">
                             <cstring>spacer24</cstring>
                         </property>
@@ -3722,223 +4008,11 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="sizeHint">
                             <size>
                                 <width>20</width>
-                                <height>40</height>
+                                <height>120</height>
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QGroupBox" row="0" column="0">
-                        <property name="name">
-                            <cstring>file_locations_grp</cstring>
-                        </property>
-                        <property name="title">
-                            <string>Location of Executables</string>
-                        </property>
-                        <grid>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QLayoutWidget" row="0" column="1">
-                                <property name="name">
-                                    <cstring>layout80</cstring>
-                                </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QLineEdit" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>nanohive_path_linedit</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>false</bool>
-                                        </property>
-                                        <property name="frameShape">
-                                            <enum>LineEditPanel</enum>
-                                        </property>
-                                        <property name="frameShadow">
-                                            <enum>Sunken</enum>
-                                        </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
-                                        <property name="readOnly">
-                                            <bool>true</bool>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLineEdit" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>gamess_path_linedit</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>false</bool>
-                                        </property>
-                                        <property name="maximumSize">
-                                            <size>
-                                                <width>32767</width>
-                                                <height>32767</height>
-                                            </size>
-                                        </property>
-                                        <property name="frameShape">
-                                            <enum>LineEditPanel</enum>
-                                        </property>
-                                        <property name="frameShadow">
-                                            <enum>Sunken</enum>
-                                        </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
-                                        <property name="maxLength">
-                                            <number>32767</number>
-                                        </property>
-                                        <property name="readOnly">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QPushButton" row="1" column="1">
-                                        <property name="name">
-                                            <cstring>nanohive_choose_btn</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>false</bool>
-                                        </property>
-                                        <property name="text">
-                                            <string>Choose...</string>
-                                        </property>
-                                        <property name="autoDefault">
-                                            <bool>false</bool>
-                                        </property>
-                                    </widget>
-                                    <widget class="QPushButton" row="0" column="1">
-                                        <property name="name">
-                                            <cstring>gamess_choose_btn</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>false</bool>
-                                        </property>
-                                        <property name="text">
-                                            <string>Choose...</string>
-                                        </property>
-                                        <property name="autoDefault">
-                                            <bool>false</bool>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
-                            <widget class="QLayoutWidget" row="0" column="0">
-                                <property name="name">
-                                    <cstring>layout63</cstring>
-                                </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QLabel" row="0" column="1">
-                                        <property name="name">
-                                            <cstring>gamess_lbl</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>1</hsizetype>
-                                                <vsizetype>5</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="minimumSize">
-                                            <size>
-                                                <width>60</width>
-                                                <height>0</height>
-                                            </size>
-                                        </property>
-                                        <property name="text">
-                                            <string>GAMESS :</string>
-                                        </property>
-                                        <property name="alignment">
-                                            <set>AlignVCenter|AlignRight</set>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Enable GAMESS.</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Enable GAMESS.</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="1" column="1">
-                                        <property name="name">
-                                            <cstring>nanohive_lbl</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>1</hsizetype>
-                                                <vsizetype>5</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
-                                        </property>
-                                        <property name="minimumSize">
-                                            <size>
-                                                <width>60</width>
-                                                <height>0</height>
-                                            </size>
-                                        </property>
-                                        <property name="text">
-                                            <string>Nano-Hive :</string>
-                                        </property>
-                                        <property name="alignment">
-                                            <set>AlignVCenter|AlignRight</set>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Enable Nano-Hive.</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Enable Nano-Hive.</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QCheckBox" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>gamess_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Enable GAMESS.</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Enable GAMESS.</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QCheckBox" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>nanohive_checkbox</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Enable Nano-Hive.</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Enable Nano-Hive.</string>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
-                        </grid>
-                    </widget>
-                </grid>
+                </vbox>
             </widget>
             <widget class="QWidget">
                 <property name="name">
@@ -4882,6 +4956,18 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <receiver>UserPrefsDialog</receiver>
         <slot>restore_saved_size()</slot>
     </connection>
+    <connection>
+        <sender>povray_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>enable_povray()</slot>
+    </connection>
+    <connection>
+        <sender>povray_choose_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_povray_path()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -5036,6 +5122,8 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>change_undo_stack_memory_limit()</slot>
     <slot>change_window_size()</slot>
     <slot>restore_saved_size()</slot>
+    <slot>enable_povray()</slot>
+    <slot>set_povray_path()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

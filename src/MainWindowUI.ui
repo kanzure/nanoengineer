@@ -98,6 +98,8 @@
         <action name="setViewOppositeAction"/>
         <action name="setViewPlus90Action"/>
         <action name="setViewMinus90Action"/>
+        <separator/>
+        <action name="viewRaytraceSceneAction"/>
     </item>
     <item text="&amp;Display" name="displayMenu">
         <action name="dispDefaultAction"/>
@@ -247,7 +249,7 @@
             <rect>
                 <x>280</x>
                 <y>0</y>
-                <width>424</width>
+                <width>458</width>
                 <height>29</height>
             </rect>
         </property>
@@ -274,6 +276,8 @@
         <action name="setViewOppositeAction"/>
         <action name="setViewPlus90Action"/>
         <action name="setViewMinus90Action"/>
+        <separator/>
+        <action name="viewRaytraceSceneAction"/>
     </toolbar>
     <toolbar dock="2">
         <property name="name">
@@ -284,7 +288,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>704</x>
+                <x>738</x>
                 <y>0</y>
                 <width>182</width>
                 <height>29</height>
@@ -312,8 +316,8 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>886</x>
-                <y>0</y>
+                <x>0</x>
+                <y>29</y>
                 <width>210</width>
                 <height>29</height>
             </rect>
@@ -341,7 +345,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>0</x>
+                <x>210</x>
                 <y>29</y>
                 <width>42</width>
                 <height>29</height>
@@ -3913,6 +3917,17 @@
             <string>Inserts a comment in the part.</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>viewRaytraceSceneAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image142</iconset>
+        </property>
+        <property name="text">
+            <string>Raytrace Scene</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4340,6 +4355,9 @@
     </image>
     <image name="image141">
         <data format="PNG" length="558">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000001f549444154789cd595bb6e13411486bfddd95d3b4b6c136202b6702e8206a1543c07bc0412a2a2a6e515a82810052d0d0f422a222494d8129790c404c5d7f5de6686c256b4e3781d2ce182231d698e74e6d399ffcc99b1b4d62cc3eca550970976b2c187d7cfb4ad4760492035335566ad27a1523051f27750e6c98b37d64cb0969ac74f9f833b04c2852a7cf5f25d7ec510816e03c142d0b1992734c0691c83ec03a3c5b952e683a59284519fa2581c9ce8241f8c4cd1711f9c2cd8bb9436cbb4326373878a21ec81c80e8d06cc63ceb479609584a44117e9961117373c99f85560b379c680c8246230ec32fa0bce557649e3d3660b199dd24f210d06a46907cb29b3b1bd8befdfcc274d3d3906d8123651afc3cfc326e8353c471207bf485597d56a0d7f650e58997d30a4701c8fc64e99b01bb1511fb0b5098d5a01cf56049d36a451becb788e149647c15f676ba74ff3f311bbf76dd64a2be828e647eb885bd5366ec1c7b6c4243f5bb1792d0cb010502a5740dce3ae547cda3be6ce8d730ac4b8c1354ebeee717bfb2105511a6f70f395996a1e38daa5e25759ad95b0bd43f63f7ea3518d70d753be7f39e0f824a05eabe1172b14bde2055c46513e78685de7edfb83f1b3a940c5437452a475e6102a05b10b8e44ec9fe1583d6c4b108b7141e7bda921d25aff137ff4a0be998dadffeecffb03bcd61103e04640aa0000000049454e44ae426082</data>
+    </image>
+    <image name="image142">
+        <data format="PNG" length="1270">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000004bd49444154789cb5d55b6c14551cc7f1efececb47b9dd9ee76ed5e5a4a2d12419494ab02da202251c4800685c883c148022f16880981f0400cc1c468c084070334249a402028098407e4120c05b9831004ca5ababbdd6dbbedb2bbddceec75c607d24a8320c6f87ffe9f4f4ecef99fdf110cc3e0ff28f33f35ecdeb4dba23ad4458228540394cb650ab9c2c1ba6b75b1c5fb16971fb74e78dc8e777cbb634670547065fde8fa6535811a644566402d934e6548c6a3c4e25de7a291e8a1552dab363f15bcff83fda2e97dd396e9d3a7af08d406944cc1c40f97f3ecb9aa124997d0cb06ae0a9d39c141de08a6c8dcbb75b63bdebd74ed86b59d4f848f1e39ba7de6ab3357d91d76ee76ab7cbc793fcec10ec67b0a48a24e7b34c1d94899786001d58146364e4df34c39de11eb8c35afd9b026f2b7f0deeff77db360e1fcd576879d68bc9f9d7b8ff2f6cb8db81417c96c8e0b7191bc962140177b0efcc891c169786ac7b27dbe9544c7efed05add0dcb2be250e601a42b77dbd6d6ed3e489cbed363b5a5623126ae7a337a7e0703808c7a27c76d2c6ba5be3f9fcbc8fad27d3bc37772e93f4cb2432798e5d8fe3aff33f77f8c4e12f86bc61785460d4726f8d57c90e6649f424f07b7d20406f6f2fd74309ce770e5299efc53410e7c2cd76b29ac62b939b404b72bb3382ac280482814f04419047c06eb77b89a96c229bcaa297740072851c0075354e4c778f70ffe241f4db87a9089f44511c88ae201432588a290401a64d9a0e16960cc35bbfdcba5cae92d1f21a39ed01a61b3a86c94076b9b82ffa5933cda0a67d27bed84f2c6d1e8720d9387647c59cb8c194514e4a851256ab8531a3c72c87bf1e88d96436912fe629954b14f5225a3ec7cd5084ea9a5ad69fb633c9d9ccc27745fcd61c92ec66ebf12e6e5cfb8d59de3463ea83c39b71581ce68761344d43b6c968250dddd011cd26825e85af0e5ca64f9fc5d1bbf7e0e659c6d50708273b1007a22c18e765deecd9381c764449a45028a0e6541e864b3ddd3d381d4e74f4e1f1ab72b9a81cdd04b7b288d1d334f9c121f630695c15631b5fa3aaaa0aa7d3895371a2eb3ae9549a642a591a865bd6b5b4b67ed7bacbef0f5069ab006168caa1ad4b82c455a6c9dd7c387f36a25944122524b384cd6ec3ed7153a55411ee0a130afd415faaaf75c4510ca407f67677c79704eb82889219418050bf412293c39b38c5a27766e0b43bb1dbedd86d76a44a09abd58ac3e140d554c29d612e5dbd0439f68e8093e9646bdfc5beb72a6d16c5e3f62055983913355399f8954f9b1b9065054551f0d678b1daac48a204268162a148a433c2f973e769efbcb3cb308ccc0878d3e64d3f373436b4565a2dab9b5e6ac25be3a52d5462516d2fcf8f69c02c99f1783cc8b28c6012300c8362be40e86e88b6336d1cffe578bb9a52370e7923f2b823d4b166c2c40995e9646a55dd0b5329c6922c9e37015555a9aeae465664008af922fdc97ec2f7c29c6e3bcd8953273a123d89398661c487ac47d24d1004d157ebdb5237fef5152f363628cffaac58ac16fc3e3f15960a0a5a81647f92dba1db5cb97a852b37ae9c55f3ea5243339e1c9b4325d9a4191eb767a5dbe55ee6f3f85014e5c1256706e8eaed2296889fcb64d3870ccd78baa07fa44110ac585968c2540da0eb3ae43908c40cc3f8f75fd37fad3f017077125f93a3866a0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5219,6 +5237,12 @@
         <receiver>MainWindow</receiver>
         <slot>zoomTool()</slot>
     </connection>
+    <connection>
+        <sender>viewRaytraceSceneAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>viewRaytraceScene()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5397,6 +5421,7 @@
     <slot>editClearUndoStack()</slot>
     <slot>insertDna()</slot>
     <slot>insertComment()</slot>
+    <slot>viewRaytraceScene()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

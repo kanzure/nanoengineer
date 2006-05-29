@@ -114,10 +114,13 @@ material_specular_brightness_prefs_key = 'A7/Material Specular Brightness'
 wiki_help_prefix_prefs_key = 'A7/Wiki Help Prefix'
 
 # Plug-ins prefs [added by mark 050918]
-gmspath_prefs_key = 'A6/GAMESS Path'
-gamess_enabled_prefs_key = 'A7/GAMESS Enabled'
 nanohive_path_prefs_key = 'A7/Nano-Hive Executable Path'
 nanohive_enabled_prefs_key = 'A7/Nano-Hive Enabled'
+povray_path_prefs_key = 'A8/POV-Ray Executable Path'
+povray_enabled_prefs_key = 'A8/POV-Ray Enabled'
+gmspath_prefs_key = 'A6/GAMESS Path'
+gamess_enabled_prefs_key = 'A7/GAMESS Enabled'
+
 
 # Undo and History prefs
 undoRestoreView_prefs_key = 'A7/Undo Restore View'
@@ -268,10 +271,13 @@ prefs_table = (
 
     # Plug-ins preferences [added to this table by mark 050919]
     
-    ('gamess_exe_path', 'string', gmspath_prefs_key, "" ),
-    ('gamess_enabled', 'boolean', gamess_enabled_prefs_key, False ),
     ('nanohive_exe_path', 'string', nanohive_path_prefs_key, "" ),
     ('nanohive_enabled', 'boolean', nanohive_enabled_prefs_key, False ),
+    ('povray_exe_path', 'string', povray_path_prefs_key, "" ),
+    ('povray_enabled', 'boolean', povray_enabled_prefs_key, False ),
+    ('gamess_exe_path', 'string', gmspath_prefs_key, "" ),
+    ('gamess_enabled', 'boolean', gamess_enabled_prefs_key, False ),
+    
 
     # Undo and History preferences [added to this table by bruce 050810]
     ('', 'boolean', undoRestoreView_prefs_key, False), # mark 060314

@@ -318,3 +318,31 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         part.ensure_toplevel_group()
         part.topnode.addchild(csys)
         self.mt.mt_update()
+        
+    def viewRaytraceScene(self):
+        '''Slot for "View > Raytrace Scene" action'''
+        
+        cmd = greenmsg("Raytrace Scene: ")
+        
+        errmsgs = ["Error: POV-Ray plug-in not enabled.",
+                            "Error: POV-Ray Plug-in path is empty.",
+                            "Error: POV-Ray plug-in path points to a file that does not exist.",
+                            "Error: POV-Ray plug-in is not Version 3.6",
+                            "Error: POV-Ray failed."]
+                            
+        assy = self.assy
+        part = self.assy.part
+        glpane = self.glpane
+        from povray import get_tmp_povray_filenames, raytrace_scene_using_povray
+        pov, png = get_tmp_povray_filenames("raytrace_scene")
+        from fileIO import writepovfile
+        writepovfile(part, glpane, pov)
+        r = raytrace_scene_using_povray(assy, pov, png, glpane.width, glpane.height)
+        
+        if r:
+            msg = redmsg(errmsgs[r-1])
+            env.history.message( cmd + msg )
+            return
+            
+        msg = "POV-Ray rendering complete."
+        env.history.message( cmd + msg ) 

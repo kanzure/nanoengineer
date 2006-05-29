@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu May 18 01:32:28 2006
+# Created: Sat May 27 10:58:54 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1086,9 +1086,7 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
 
         self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
-        TabPageLayout_5 = QGridLayout(self.TabPage_5,1,1,11,6,"TabPageLayout_5")
-        spacer24 = QSpacerItem(20,40,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_5.addItem(spacer24,1,0)
+        TabPageLayout_5 = QVBoxLayout(self.TabPage_5,11,6,"TabPageLayout_5")
 
         self.file_locations_grp = QGroupBox(self.TabPage_5,"file_locations_grp")
         self.file_locations_grp.setColumnLayout(0,Qt.Vertical)
@@ -1097,15 +1095,43 @@ class UserPrefsDialog(QDialog):
         file_locations_grpLayout = QGridLayout(self.file_locations_grp.layout())
         file_locations_grpLayout.setAlignment(Qt.AlignTop)
 
-        layout80_2 = QGridLayout(None,1,1,0,6,"layout80_2")
-
         self.nanohive_path_linedit = QLineEdit(self.file_locations_grp,"nanohive_path_linedit")
         self.nanohive_path_linedit.setEnabled(0)
         self.nanohive_path_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.nanohive_path_linedit.setFrameShadow(QLineEdit.Sunken)
         self.nanohive_path_linedit.setReadOnly(1)
 
-        layout80_2.addWidget(self.nanohive_path_linedit,1,0)
+        file_locations_grpLayout.addWidget(self.nanohive_path_linedit,0,2)
+
+        self.nanohive_choose_btn = QPushButton(self.file_locations_grp,"nanohive_choose_btn")
+        self.nanohive_choose_btn.setEnabled(0)
+        self.nanohive_choose_btn.setAutoDefault(0)
+
+        file_locations_grpLayout.addWidget(self.nanohive_choose_btn,0,3)
+
+        self.nanohive_lbl = QLabel(self.file_locations_grp,"nanohive_lbl")
+        self.nanohive_lbl.setEnabled(1)
+        self.nanohive_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.nanohive_lbl.sizePolicy().hasHeightForWidth()))
+        self.nanohive_lbl.setMinimumSize(QSize(60,0))
+        self.nanohive_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        file_locations_grpLayout.addWidget(self.nanohive_lbl,0,1)
+
+        self.nanohive_checkbox = QCheckBox(self.file_locations_grp,"nanohive_checkbox")
+        self.nanohive_checkbox.setEnabled(1)
+
+        file_locations_grpLayout.addWidget(self.nanohive_checkbox,0,0)
+
+        self.gamess_checkbox = QCheckBox(self.file_locations_grp,"gamess_checkbox")
+
+        file_locations_grpLayout.addWidget(self.gamess_checkbox,2,0)
+
+        self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
+        self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
+        self.gamess_lbl.setMinimumSize(QSize(60,0))
+        self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        file_locations_grpLayout.addWidget(self.gamess_lbl,2,1)
 
         self.gamess_path_linedit = QLineEdit(self.file_locations_grp,"gamess_path_linedit")
         self.gamess_path_linedit.setEnabled(0)
@@ -1115,51 +1141,43 @@ class UserPrefsDialog(QDialog):
         self.gamess_path_linedit.setMaxLength(32767)
         self.gamess_path_linedit.setReadOnly(1)
 
-        layout80_2.addWidget(self.gamess_path_linedit,0,0)
-
-        self.nanohive_choose_btn = QPushButton(self.file_locations_grp,"nanohive_choose_btn")
-        self.nanohive_choose_btn.setEnabled(0)
-        self.nanohive_choose_btn.setAutoDefault(0)
-
-        layout80_2.addWidget(self.nanohive_choose_btn,1,1)
+        file_locations_grpLayout.addWidget(self.gamess_path_linedit,2,2)
 
         self.gamess_choose_btn = QPushButton(self.file_locations_grp,"gamess_choose_btn")
         self.gamess_choose_btn.setEnabled(0)
         self.gamess_choose_btn.setAutoDefault(0)
 
-        layout80_2.addWidget(self.gamess_choose_btn,0,1)
+        file_locations_grpLayout.addWidget(self.gamess_choose_btn,2,3)
 
-        file_locations_grpLayout.addLayout(layout80_2,0,1)
+        self.povray_path_linedit = QLineEdit(self.file_locations_grp,"povray_path_linedit")
+        self.povray_path_linedit.setEnabled(0)
+        self.povray_path_linedit.setMaximumSize(QSize(32767,32767))
+        self.povray_path_linedit.setFrameShape(QLineEdit.LineEditPanel)
+        self.povray_path_linedit.setFrameShadow(QLineEdit.Sunken)
+        self.povray_path_linedit.setMaxLength(32767)
+        self.povray_path_linedit.setReadOnly(1)
 
-        layout63_2 = QGridLayout(None,1,1,0,6,"layout63_2")
+        file_locations_grpLayout.addWidget(self.povray_path_linedit,1,2)
 
-        self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
-        self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
-        self.gamess_lbl.setMinimumSize(QSize(60,0))
-        self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        self.povray_choose_btn = QPushButton(self.file_locations_grp,"povray_choose_btn")
+        self.povray_choose_btn.setEnabled(0)
+        self.povray_choose_btn.setAutoDefault(0)
 
-        layout63_2.addWidget(self.gamess_lbl,0,1)
+        file_locations_grpLayout.addWidget(self.povray_choose_btn,1,3)
 
-        self.nanohive_lbl = QLabel(self.file_locations_grp,"nanohive_lbl")
-        self.nanohive_lbl.setEnabled(1)
-        self.nanohive_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.nanohive_lbl.sizePolicy().hasHeightForWidth()))
-        self.nanohive_lbl.setMinimumSize(QSize(60,0))
-        self.nanohive_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        self.povray_checkbox = QCheckBox(self.file_locations_grp,"povray_checkbox")
 
-        layout63_2.addWidget(self.nanohive_lbl,1,1)
+        file_locations_grpLayout.addWidget(self.povray_checkbox,1,0)
 
-        self.gamess_checkbox = QCheckBox(self.file_locations_grp,"gamess_checkbox")
+        self.povray_lbl = QLabel(self.file_locations_grp,"povray_lbl")
+        self.povray_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.povray_lbl.sizePolicy().hasHeightForWidth()))
+        self.povray_lbl.setMinimumSize(QSize(60,0))
+        self.povray_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        layout63_2.addWidget(self.gamess_checkbox,0,0)
-
-        self.nanohive_checkbox = QCheckBox(self.file_locations_grp,"nanohive_checkbox")
-        self.nanohive_checkbox.setEnabled(1)
-
-        layout63_2.addWidget(self.nanohive_checkbox,1,0)
-
-        file_locations_grpLayout.addLayout(layout63_2,0,0)
-
-        TabPageLayout_5.addWidget(self.file_locations_grp,0,0)
+        file_locations_grpLayout.addWidget(self.povray_lbl,1,1)
+        TabPageLayout_5.addWidget(self.file_locations_grp)
+        spacer24 = QSpacerItem(20,120,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_5.addItem(spacer24)
         self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
 
         self.TabPage_6 = QWidget(self.prefs_tab,"TabPage_6")
@@ -1410,6 +1428,8 @@ class UserPrefsDialog(QDialog):
         self.connect(self.current_width_spinbox,SIGNAL("valueChanged(int)"),self.change_window_size)
         self.connect(self.current_height_spinbox,SIGNAL("valueChanged(int)"),self.change_window_size)
         self.connect(self.restore_saved_size_btn,SIGNAL("clicked()"),self.restore_saved_size)
+        self.connect(self.povray_checkbox,SIGNAL("toggled(bool)"),self.enable_povray)
+        self.connect(self.povray_choose_btn,SIGNAL("clicked()"),self.set_povray_path)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_compass_labels_checkbox)
@@ -1761,23 +1781,33 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab.changeTab(self.TabPage_4,self.__tr("Lighting"))
         self.file_locations_grp.setTitle(self.__tr("Location of Executables"))
         self.nanohive_path_linedit.setText(QString.null)
-        self.gamess_path_linedit.setText(QString.null)
-        QToolTip.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
-        QWhatsThis.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
         self.nanohive_choose_btn.setText(self.__tr("Choose..."))
-        self.gamess_choose_btn.setText(self.__tr("Choose..."))
-        self.gamess_lbl.setText(self.__tr("GAMESS :"))
-        QToolTip.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
-        QWhatsThis.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
         self.nanohive_lbl.setText(self.__tr("Nano-Hive :"))
         QToolTip.add(self.nanohive_lbl,self.__tr("Enable Nano-Hive."))
         QWhatsThis.add(self.nanohive_lbl,self.__tr("Enable Nano-Hive."))
-        self.gamess_checkbox.setText(QString.null)
-        QToolTip.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
-        QWhatsThis.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
         self.nanohive_checkbox.setText(QString.null)
         QToolTip.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
         QWhatsThis.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
+        self.gamess_checkbox.setText(QString.null)
+        QToolTip.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
+        QWhatsThis.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
+        self.gamess_lbl.setText(self.__tr("GAMESS :"))
+        QToolTip.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
+        QWhatsThis.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
+        self.gamess_path_linedit.setText(QString.null)
+        QToolTip.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+        QWhatsThis.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+        self.gamess_choose_btn.setText(self.__tr("Choose..."))
+        self.povray_path_linedit.setText(QString.null)
+        QToolTip.add(self.povray_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+        QWhatsThis.add(self.povray_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+        self.povray_choose_btn.setText(self.__tr("Choose..."))
+        self.povray_checkbox.setText(QString.null)
+        QToolTip.add(self.povray_checkbox,self.__tr("Enable GAMESS."))
+        QWhatsThis.add(self.povray_checkbox,self.__tr("Enable GAMESS."))
+        self.povray_lbl.setText(self.__tr("POV-Ray :"))
+        QToolTip.add(self.povray_lbl,self.__tr("Enable GAMESS."))
+        QWhatsThis.add(self.povray_lbl,self.__tr("Enable GAMESS."))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
         self.groupBox17.setTitle(self.__tr("History Preferences"))
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
@@ -2009,6 +2039,12 @@ class UserPrefsDialog(QDialog):
 
     def restore_saved_size(self):
         print "UserPrefsDialog.restore_saved_size(): Not implemented yet"
+
+    def enable_povray(self):
+        print "UserPrefsDialog.enable_povray(): Not implemented yet"
+
+    def set_povray_path(self):
+        print "UserPrefsDialog.set_povray_path(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

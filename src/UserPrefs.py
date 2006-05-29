@@ -226,14 +226,18 @@ class UserPrefs(UserPrefsDialog):
         else:
             self.gamess_lbl.setText("GAMESS :")
 
+        # Nano-Hive executable path.
+        self.nanohive_checkbox.setChecked(env.prefs[nanohive_enabled_prefs_key])
+        self.nanohive_path_linedit.setText(env.prefs[nanohive_path_prefs_key])
+        
+        # POV-Ray executable path.
+        self.povray_checkbox.setChecked(env.prefs[povray_enabled_prefs_key])
+        self.povray_path_linedit.setText(env.prefs[povray_path_prefs_key])
+        
         # GAMESS executable path.
         self.gamess_checkbox.setChecked(env.prefs[gamess_enabled_prefs_key])
         self.gamess_path_linedit.setText(env.prefs[gmspath_prefs_key])
         
-        # Nano-Hive executable path.
-        self.nanohive_checkbox.setChecked(env.prefs[nanohive_enabled_prefs_key])
-        self.nanohive_path_linedit.setText(env.prefs[nanohive_path_prefs_key])
-
     def _setup_modes_page(self):
         ''' Setup widgets to initial (default or defined) values on the Modes page.
         '''
@@ -1125,6 +1129,36 @@ class UserPrefs(UserPrefsDialog):
             env.prefs[nanohive_path_prefs_key] = ''
             env.prefs[nanohive_enabled_prefs_key] = False
             
+    def set_povray_path(self):
+        '''Slot for POV-Ray path "Choose" button.
+        '''
+        povray_exe = get_filename_and_save_in_prefs(self, povray_path_prefs_key, 'Choose POV-Ray Executable')
+         
+        if povray_exe:
+            self.povray_path_linedit.setText(povray_exe)
+            
+    def enable_povray(self, enable=True):
+        '''POV-Ray is enabled when enable=True.
+        POV-Ray is disabled when enable=False.
+        '''
+        if enable:
+            self.povray_path_linedit.setEnabled(1)
+            self.povray_choose_btn.setEnabled(1)
+            env.prefs[povray_enabled_prefs_key] = True
+            
+            # Sets the POV-Ray (executable) path to the standard location, if it exists.
+            if not env.prefs[povray_path_prefs_key]:
+                from povray import get_default_povray_path
+                env.prefs[povray_path_prefs_key] = get_default_povray_path()
+            
+            self.povray_path_linedit.setText(env.prefs[povray_path_prefs_key])
+            
+        else:
+            self.povray_path_linedit.setEnabled(0)
+            self.povray_choose_btn.setEnabled(0)
+            self.povray_path_linedit.setText("")
+            env.prefs[povray_path_prefs_key] = ''
+            env.prefs[povray_enabled_prefs_key] = False
                             
     ########## End of slot methods for "Plug-ins" page widgets ###########
     

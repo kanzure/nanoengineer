@@ -514,6 +514,21 @@ def createWhatsThis(self):
 
         self.setViewMinus90Action.setWhatsThis( setViewMinus90ActionText )
         
+        #### Raytrace Scene ####
+        
+        viewRaytraceSceneActionText = "<u><b>Raytrace Scene</b></u><br>"\
+                       "<p><img source=\"viewRaytraceSceneAction\"><br> "\
+                       "Raytrace the current scene using POV-Ray. This provides a convenient way to preview "\
+                       "the results of a POV-Ray scene rendering."\
+                       "</p>" \
+                       "POV-Ray must be installed for this feature to work. POV-Ray can be downloaded from http://www.povray.org" \
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "viewRaytraceSceneAction",
+                                                       self.viewRaytraceSceneAction.iconSet().pixmap() )
+
+        self.viewRaytraceSceneAction.setWhatsThis( viewRaytraceSceneActionText )
+        
         ##############################################
         # Grids Toolbar
         ##############################################
