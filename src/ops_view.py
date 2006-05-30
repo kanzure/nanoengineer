@@ -324,24 +324,17 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         
         cmd = greenmsg("Raytrace Scene: ")
         
-        errmsgs = ["Error: POV-Ray plug-in not enabled.",
-                            "Error: POV-Ray Plug-in path is empty.",
-                            "Error: POV-Ray plug-in path points to a file that does not exist.",
-                            "Error: POV-Ray plug-in is not Version 3.6",
-                            "Error: POV-Ray failed."]
-                            
         assy = self.assy
         part = self.assy.part
         glpane = self.glpane
-        from povray import get_tmp_povray_filenames, raytrace_scene_using_povray
-        pov, png = get_tmp_povray_filenames("raytrace_scene")
+        from povray import get_raytrace_scene_filename, raytrace_scene_using_povray
+        pov = get_raytrace_scene_filename("nanoENGINEER-1_raytrace_scene")
         from fileIO import writepovfile
         writepovfile(part, glpane, pov)
-        r = raytrace_scene_using_povray(assy, pov, png, glpane.width, glpane.height)
+        r, why = raytrace_scene_using_povray(assy, pov, glpane.width, glpane.height)
         
         if r:
-            msg = redmsg(errmsgs[r-1])
-            env.history.message( cmd + msg )
+            env.history.message( cmd + redmsg(why) )
             return
             
         msg = "POV-Ray rendering complete."
