@@ -126,6 +126,7 @@ from jigs_planes import *
 from jigs_motors import *
 from jigs_measurements import *
 from Utility import *
+from Comment import Comment
 from povheader import povheader, povpoint # this might no longer be needed [bruce 050414 comment]
 from mdldata import * # this might no longer be needed [bruce 050414 comment]
 from HistoryWidget import redmsg
