@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>333</width>
-            <height>258</height>
+            <width>297</width>
+            <height>245</height>
         </rect>
     </property>
     <property name="caption">
@@ -28,152 +28,377 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <property name="spacing">
-            <number>21</number>
+        <property name="margin">
+            <number>0</number>
         </property>
-        <widget class="QGroupBox" row="0" column="0">
+        <property name="spacing">
+            <number>0</number>
+        </property>
+        <widget class="QFrame" row="0" column="0">
             <property name="name">
-                <cstring>parms_grpbox</cstring>
+                <cstring>base_frame</cstring>
             </property>
-            <property name="title">
-                <string>Parameters</string>
+            <property name="frameShape">
+                <enum>StyledPanel</enum>
             </property>
-            <hbox>
+            <property name="frameShadow">
+                <enum>Raised</enum>
+            </property>
+            <grid>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QLayoutWidget">
+                <property name="margin">
+                    <number>3</number>
+                </property>
+                <property name="spacing">
+                    <number>3</number>
+                </property>
+                <widget class="QGroupBox" row="0" column="0">
                     <property name="name">
-                        <cstring>layout27</cstring>
+                        <cstring>parms_grpbox</cstring>
                     </property>
-                    <hbox>
+                    <property name="frameShape">
+                        <enum>StyledPanel</enum>
+                    </property>
+                    <property name="title">
+                        <string></string>
+                    </property>
+                    <vbox>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLayoutWidget">
+                        <property name="margin">
+                            <number>4</number>
+                        </property>
+                        <property name="spacing">
+                            <number>1</number>
+                        </property>
+                        <widget class="QLabel">
                             <property name="name">
-                                <cstring>layout24</cstring>
+                                <cstring>parameters_label</cstring>
                             </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel5</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Total Frames:</string>
-                                    </property>
-                                    <property name="alignment">
-                                        <set>AlignVCenter|AlignRight</set>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel2</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Steps per Frame :</string>
-                                    </property>
-                                    <property name="alignment">
-                                        <set>AlignVCenter|AlignRight</set>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel3</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Temperature :</string>
-                                    </property>
-                                    <property name="alignment">
-                                        <set>AlignVCenter|AlignRight</set>
-                                    </property>
-                                </widget>
-                            </vbox>
+                            <property name="paletteForegroundColor">
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>255</blue>
+                                </color>
+                            </property>
+                            <property name="text">
+                                <string>Parameters</string>
+                            </property>
+                        </widget>
+                        <widget class="Line">
+                            <property name="name">
+                                <cstring>line2_4_2</cstring>
+                            </property>
+                            <property name="frameShape">
+                                <enum>HLine</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="midLineWidth">
+                                <number>0</number>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
-                                <cstring>layout25</cstring>
+                                <cstring>layout27</cstring>
                             </property>
-                            <vbox>
+                            <hbox>
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout24</cstring>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textLabel5</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Total Frames:</string>
+                                            </property>
+                                            <property name="alignment">
+                                                <set>AlignVCenter|AlignRight</set>
+                                            </property>
+                                        </widget>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textLabel2</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Steps per Frame :</string>
+                                            </property>
+                                            <property name="alignment">
+                                                <set>AlignVCenter|AlignRight</set>
+                                            </property>
+                                        </widget>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textLabel3</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Temperature :</string>
+                                            </property>
+                                            <property name="alignment">
+                                                <set>AlignVCenter|AlignRight</set>
+                                            </property>
+                                        </widget>
+                                    </vbox>
+                                </widget>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout25</cstring>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <widget class="QSpinBox">
+                                            <property name="name">
+                                                <cstring>nframesSB</cstring>
+                                            </property>
+                                            <property name="maxValue">
+                                                <number>90000</number>
+                                            </property>
+                                            <property name="minValue">
+                                                <number>1</number>
+                                            </property>
+                                            <property name="lineStep">
+                                                <number>15</number>
+                                            </property>
+                                            <property name="value">
+                                                <number>900</number>
+                                            </property>
+                                            <property name="toolTip" stdset="0">
+                                                <string>Total Frames value</string>
+                                            </property>
+                                            <property name="whatsThis" stdset="0">
+                                                <string>&lt;b&gt;Total Frames&lt;/b&gt;&lt;p&gt;The number of frames for the simulation run.&lt;/p&gt;</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QSpinBox">
+                                            <property name="name">
+                                                <cstring>stepsperSB</cstring>
+                                            </property>
+                                            <property name="maxValue">
+                                                <number>99999</number>
+                                            </property>
+                                            <property name="minValue">
+                                                <number>1</number>
+                                            </property>
+                                            <property name="value">
+                                                <number>10</number>
+                                            </property>
+                                            <property name="toolTip" stdset="0">
+                                                <string>Steps per Frame</string>
+                                            </property>
+                                            <property name="whatsThis" stdset="0">
+                                                <string>&lt;b&gt;Steps per Frame&lt;/b&gt;&lt;p&gt;The time duration between frames. 10 steps = 1 femtosecond.&lt;/p&gt;</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QSpinBox">
+                                            <property name="name">
+                                                <cstring>tempSB</cstring>
+                                            </property>
+                                            <property name="maxValue">
+                                                <number>99999</number>
+                                            </property>
+                                            <property name="value">
+                                                <number>300</number>
+                                            </property>
+                                            <property name="toolTip" stdset="0">
+                                                <string>Temperature</string>
+                                            </property>
+                                            <property name="whatsThis" stdset="0">
+                                                <string>&lt;b&gt;Temperature&lt;/b&gt;&lt;p&gt;The temperature of the simulation in Kelvin (300 K = room temp)&lt;/p&gt;</string>
+                                            </property>
+                                        </widget>
+                                    </vbox>
+                                </widget>
+                                <widget class="QLayoutWidget">
+                                    <property name="name">
+                                        <cstring>layout26</cstring>
+                                    </property>
+                                    <vbox>
+                                        <property name="name">
+                                            <cstring>unnamed</cstring>
+                                        </property>
+                                        <spacer>
+                                            <property name="name">
+                                                <cstring>spacer4</cstring>
+                                            </property>
+                                            <property name="orientation">
+                                                <enum>Horizontal</enum>
+                                            </property>
+                                            <property name="sizeType">
+                                                <enum>Expanding</enum>
+                                            </property>
+                                            <property name="sizeHint">
+                                                <size>
+                                                    <width>255</width>
+                                                    <height>20</height>
+                                                </size>
+                                            </property>
+                                        </spacer>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textLabel2_2</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>0.1 femtosecond</string>
+                                            </property>
+                                        </widget>
+                                        <widget class="QLabel">
+                                            <property name="name">
+                                                <cstring>textLabel3_2</cstring>
+                                            </property>
+                                            <property name="text">
+                                                <string>Kelvin</string>
+                                            </property>
+                                        </widget>
+                                    </vbox>
+                                </widget>
+                            </hbox>
+                        </widget>
+                    </vbox>
+                </widget>
+                <widget class="QGroupBox" row="1" column="0">
+                    <property name="name">
+                        <cstring>groupBox2</cstring>
+                    </property>
+                    <property name="frameShape">
+                        <enum>StyledPanel</enum>
+                    </property>
+                    <property name="title">
+                        <string></string>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="margin">
+                            <number>4</number>
+                        </property>
+                        <property name="spacing">
+                            <number>1</number>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>sim_options_label</cstring>
+                            </property>
+                            <property name="paletteForegroundColor">
+                                <color>
+                                    <red>0</red>
+                                    <green>0</green>
+                                    <blue>255</blue>
+                                </color>
+                            </property>
+                            <property name="text">
+                                <string>Simulation Options</string>
+                            </property>
+                        </widget>
+                        <widget class="Line">
+                            <property name="name">
+                                <cstring>line2_4</cstring>
+                            </property>
+                            <property name="frameShape">
+                                <enum>HLine</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="midLineWidth">
+                                <number>0</number>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>watch_motion_checkbox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Watch motion in real time</string>
+                            </property>
+                            <property name="checked">
+                                <bool>true</bool>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Enables real time graphical updates during simulation runs</string>
+                            </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>&lt;p&gt;&lt;b&gt;Watch Motion In Real Time&lt;/b&gt;&lt;/p&gt;Enables real time graphical updates during simulation runs.</string>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout19</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>update_label</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Update every</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
                                 <widget class="QSpinBox">
                                     <property name="name">
-                                        <cstring>nframesSB</cstring>
+                                        <cstring>update_number_spinbox</cstring>
                                     </property>
                                     <property name="maxValue">
-                                        <number>90000</number>
+                                        <number>9999</number>
                                     </property>
                                     <property name="minValue">
                                         <number>1</number>
                                     </property>
-                                    <property name="lineStep">
-                                        <number>15</number>
-                                    </property>
                                     <property name="value">
-                                        <number>900</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Total Frames value</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Total Frames&lt;/b&gt;&lt;p&gt;The number of frames for the simulation run.&lt;/p&gt;</string>
-                                    </property>
-                                </widget>
-                                <widget class="QSpinBox">
-                                    <property name="name">
-                                        <cstring>stepsperSB</cstring>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>99999</number>
-                                    </property>
-                                    <property name="minValue">
                                         <number>1</number>
                                     </property>
-                                    <property name="value">
-                                        <number>10</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Steps per Frame</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Steps per Frame&lt;/b&gt;&lt;p&gt;The time duration between frames. 10 steps = 1 femtosecond.&lt;/p&gt;</string>
-                                    </property>
                                 </widget>
-                                <widget class="QSpinBox">
+                                <widget class="QComboBox">
+                                    <item>
+                                        <property name="text">
+                                            <string>frames</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>minutes</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>hours</string>
+                                        </property>
+                                    </item>
                                     <property name="name">
-                                        <cstring>tempSB</cstring>
-                                    </property>
-                                    <property name="maxValue">
-                                        <number>99999</number>
-                                    </property>
-                                    <property name="value">
-                                        <number>300</number>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>Temperature</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Temperature&lt;/b&gt;&lt;p&gt;The temperature of the simulation in Kelvin (300 K = room temp)&lt;/p&gt;</string>
+                                        <cstring>update_units_combobox</cstring>
                                     </property>
                                 </widget>
-                            </vbox>
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout26</cstring>
-                            </property>
-                            <vbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
                                 <spacer>
                                     <property name="name">
-                                        <cstring>spacer4</cstring>
+                                        <cstring>spacer2</cstring>
                                     </property>
                                     <property name="orientation">
                                         <enum>Horizontal</enum>
@@ -183,52 +408,62 @@
                                     </property>
                                     <property name="sizeHint">
                                         <size>
-                                            <width>255</width>
+                                            <width>30</width>
                                             <height>20</height>
                                         </size>
                                     </property>
                                 </spacer>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel2_2</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>0.1 femtosecond</string>
-                                    </property>
-                                </widget>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>textLabel3_2</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Kelvin</string>
-                                    </property>
-                                </widget>
-                            </vbox>
+                            </hbox>
                         </widget>
-                    </hbox>
+                    </vbox>
                 </widget>
-            </hbox>
+            </grid>
         </widget>
+        <spacer row="1" column="0">
+            <property name="name">
+                <cstring>spacer17</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>16</height>
+                </size>
+            </property>
+        </spacer>
         <widget class="QLayoutWidget" row="2" column="0">
             <property name="name">
-                <cstring>layout28</cstring>
+                <cstring>layout20</cstring>
             </property>
             <hbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QPushButton">
+                <property name="margin">
+                    <number>4</number>
+                </property>
+                <spacer>
                     <property name="name">
-                        <cstring>run_sim_btn</cstring>
+                        <cstring>spacer18</cstring>
                     </property>
-                    <property name="text">
-                        <string>Run Simulation</string>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
                     </property>
-                    <property name="default">
-                        <bool>true</bool>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
                     </property>
-                </widget>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
                 <widget class="QPushButton">
                     <property name="name">
                         <cstring>cancel_btn</cstring>
@@ -240,37 +475,18 @@
                         <bool>false</bool>
                     </property>
                 </widget>
-            </hbox>
-        </widget>
-        <widget class="QGroupBox" row="1" column="0">
-            <property name="name">
-                <cstring>groupBox2</cstring>
-            </property>
-            <property name="title">
-                <string>Simulation Options</string>
-            </property>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QCheckBox" row="0" column="0">
+                <widget class="QPushButton">
                     <property name="name">
-                        <cstring>watch_motion_checkbox</cstring>
+                        <cstring>run_sim_btn</cstring>
                     </property>
                     <property name="text">
-                        <string>Watch motion in real time</string>
+                        <string>Run Simulation</string>
                     </property>
-                    <property name="checked">
+                    <property name="default">
                         <bool>true</bool>
                     </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Enables real time graphical updates during simulation runs</string>
-                    </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>&lt;p&gt;&lt;b&gt;Watch Motion In Real Time&lt;/b&gt;&lt;/p&gt;Enables real time graphical updates during simulation runs.</string>
-                    </property>
                 </widget>
-            </grid>
+            </hbox>
         </widget>
     </grid>
 </widget>
@@ -291,6 +507,24 @@
         <signal>clicked()</signal>
         <receiver>SimSetupDialog</receiver>
         <slot>close()</slot>
+    </connection>
+    <connection>
+        <sender>watch_motion_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>update_number_spinbox</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>watch_motion_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>update_units_combobox</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>watch_motion_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>update_label</receiver>
+        <slot>setEnabled(bool)</slot>
     </connection>
 </connections>
 <slots>

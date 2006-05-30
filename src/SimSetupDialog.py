@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Fri Apr 14 13:32:51 2006
+# Created: Tue May 30 18:59:33 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -52,14 +52,31 @@ class SimSetupDialog(QDialog):
         self.setIcon(self.image0)
         self.setModal(1)
 
-        SimSetupDialogLayout = QGridLayout(self,1,1,11,21,"SimSetupDialogLayout")
+        SimSetupDialogLayout = QGridLayout(self,1,1,0,0,"SimSetupDialogLayout")
 
-        self.parms_grpbox = QGroupBox(self,"parms_grpbox")
+        self.base_frame = QFrame(self,"base_frame")
+        self.base_frame.setFrameShape(QFrame.StyledPanel)
+        self.base_frame.setFrameShadow(QFrame.Raised)
+        base_frameLayout = QGridLayout(self.base_frame,1,1,3,3,"base_frameLayout")
+
+        self.parms_grpbox = QGroupBox(self.base_frame,"parms_grpbox")
+        self.parms_grpbox.setFrameShape(QGroupBox.StyledPanel)
         self.parms_grpbox.setColumnLayout(0,Qt.Vertical)
-        self.parms_grpbox.layout().setSpacing(6)
-        self.parms_grpbox.layout().setMargin(11)
-        parms_grpboxLayout = QHBoxLayout(self.parms_grpbox.layout())
+        self.parms_grpbox.layout().setSpacing(1)
+        self.parms_grpbox.layout().setMargin(4)
+        parms_grpboxLayout = QVBoxLayout(self.parms_grpbox.layout())
         parms_grpboxLayout.setAlignment(Qt.AlignTop)
+
+        self.parameters_label = QLabel(self.parms_grpbox,"parameters_label")
+        self.parameters_label.setPaletteForegroundColor(QColor(0,0,255))
+        parms_grpboxLayout.addWidget(self.parameters_label)
+
+        self.line2_4_2 = QFrame(self.parms_grpbox,"line2_4_2")
+        self.line2_4_2.setFrameShape(QFrame.HLine)
+        self.line2_4_2.setFrameShadow(QFrame.Sunken)
+        self.line2_4_2.setMidLineWidth(0)
+        self.line2_4_2.setFrameShape(QFrame.HLine)
+        parms_grpboxLayout.addWidget(self.line2_4_2)
 
         layout27 = QHBoxLayout(None,0,6,"layout27")
 
@@ -111,47 +128,86 @@ class SimSetupDialog(QDialog):
         layout27.addLayout(layout26)
         parms_grpboxLayout.addLayout(layout27)
 
-        SimSetupDialogLayout.addWidget(self.parms_grpbox,0,0)
+        base_frameLayout.addWidget(self.parms_grpbox,0,0)
 
-        layout28 = QHBoxLayout(None,0,6,"layout28")
-
-        self.run_sim_btn = QPushButton(self,"run_sim_btn")
-        self.run_sim_btn.setDefault(1)
-        layout28.addWidget(self.run_sim_btn)
-
-        self.cancel_btn = QPushButton(self,"cancel_btn")
-        self.cancel_btn.setDefault(0)
-        layout28.addWidget(self.cancel_btn)
-
-        SimSetupDialogLayout.addLayout(layout28,2,0)
-
-        self.groupBox2 = QGroupBox(self,"groupBox2")
+        self.groupBox2 = QGroupBox(self.base_frame,"groupBox2")
+        self.groupBox2.setFrameShape(QGroupBox.StyledPanel)
         self.groupBox2.setColumnLayout(0,Qt.Vertical)
-        self.groupBox2.layout().setSpacing(6)
-        self.groupBox2.layout().setMargin(11)
-        groupBox2Layout = QGridLayout(self.groupBox2.layout())
+        self.groupBox2.layout().setSpacing(1)
+        self.groupBox2.layout().setMargin(4)
+        groupBox2Layout = QVBoxLayout(self.groupBox2.layout())
         groupBox2Layout.setAlignment(Qt.AlignTop)
+
+        self.sim_options_label = QLabel(self.groupBox2,"sim_options_label")
+        self.sim_options_label.setPaletteForegroundColor(QColor(0,0,255))
+        groupBox2Layout.addWidget(self.sim_options_label)
+
+        self.line2_4 = QFrame(self.groupBox2,"line2_4")
+        self.line2_4.setFrameShape(QFrame.HLine)
+        self.line2_4.setFrameShadow(QFrame.Sunken)
+        self.line2_4.setMidLineWidth(0)
+        self.line2_4.setFrameShape(QFrame.HLine)
+        groupBox2Layout.addWidget(self.line2_4)
 
         self.watch_motion_checkbox = QCheckBox(self.groupBox2,"watch_motion_checkbox")
         self.watch_motion_checkbox.setChecked(1)
+        groupBox2Layout.addWidget(self.watch_motion_checkbox)
 
-        groupBox2Layout.addWidget(self.watch_motion_checkbox,0,0)
+        layout19 = QHBoxLayout(None,0,6,"layout19")
 
-        SimSetupDialogLayout.addWidget(self.groupBox2,1,0)
+        self.update_label = QLabel(self.groupBox2,"update_label")
+        self.update_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout19.addWidget(self.update_label)
+
+        self.update_number_spinbox = QSpinBox(self.groupBox2,"update_number_spinbox")
+        self.update_number_spinbox.setMaxValue(9999)
+        self.update_number_spinbox.setMinValue(1)
+        self.update_number_spinbox.setValue(1)
+        layout19.addWidget(self.update_number_spinbox)
+
+        self.update_units_combobox = QComboBox(0,self.groupBox2,"update_units_combobox")
+        layout19.addWidget(self.update_units_combobox)
+        spacer2 = QSpacerItem(30,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout19.addItem(spacer2)
+        groupBox2Layout.addLayout(layout19)
+
+        base_frameLayout.addWidget(self.groupBox2,1,0)
+
+        SimSetupDialogLayout.addWidget(self.base_frame,0,0)
+        spacer17 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        SimSetupDialogLayout.addItem(spacer17,1,0)
+
+        layout20 = QHBoxLayout(None,4,6,"layout20")
+        spacer18 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout20.addItem(spacer18)
+
+        self.cancel_btn = QPushButton(self,"cancel_btn")
+        self.cancel_btn.setDefault(0)
+        layout20.addWidget(self.cancel_btn)
+
+        self.run_sim_btn = QPushButton(self,"run_sim_btn")
+        self.run_sim_btn.setDefault(1)
+        layout20.addWidget(self.run_sim_btn)
+
+        SimSetupDialogLayout.addLayout(layout20,2,0)
 
         self.languageChange()
 
-        self.resize(QSize(333,258).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(297,245).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.createMoviePressed)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.close)
+        self.connect(self.watch_motion_checkbox,SIGNAL("toggled(bool)"),self.update_number_spinbox.setEnabled)
+        self.connect(self.watch_motion_checkbox,SIGNAL("toggled(bool)"),self.update_units_combobox.setEnabled)
+        self.connect(self.watch_motion_checkbox,SIGNAL("toggled(bool)"),self.update_label.setEnabled)
 
 
     def languageChange(self):
         self.setCaption(self.__tr("nanoDynamics-1 Setup"))
         QWhatsThis.add(self,self.__tr("<b>nanoDynamics-1 Setup</b><p>nanoENGINEER-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click <b>Run Simulation</b>.</p>"))
-        self.parms_grpbox.setTitle(self.__tr("Parameters"))
+        self.parms_grpbox.setTitle(QString.null)
+        self.parameters_label.setText(self.__tr("Parameters"))
         self.textLabel5.setText(self.__tr("Total Frames:"))
         self.textLabel2.setText(self.__tr("Steps per Frame :"))
         self.textLabel3.setText(self.__tr("Temperature :"))
@@ -163,12 +219,18 @@ class SimSetupDialog(QDialog):
         QWhatsThis.add(self.tempSB,self.__tr("<b>Temperature</b><p>The temperature of the simulation in Kelvin (300 K = room temp)</p>"))
         self.textLabel2_2.setText(self.__tr("0.1 femtosecond"))
         self.textLabel3_2.setText(self.__tr("Kelvin"))
-        self.run_sim_btn.setText(self.__tr("Run Simulation"))
-        self.cancel_btn.setText(self.__tr("Cancel"))
-        self.groupBox2.setTitle(self.__tr("Simulation Options"))
+        self.groupBox2.setTitle(QString.null)
+        self.sim_options_label.setText(self.__tr("Simulation Options"))
         self.watch_motion_checkbox.setText(self.__tr("Watch motion in real time"))
         QToolTip.add(self.watch_motion_checkbox,self.__tr("Enables real time graphical updates during simulation runs"))
         QWhatsThis.add(self.watch_motion_checkbox,self.__tr("<p><b>Watch Motion In Real Time</b></p>Enables real time graphical updates during simulation runs."))
+        self.update_label.setText(self.__tr("Update every"))
+        self.update_units_combobox.clear()
+        self.update_units_combobox.insertItem(self.__tr("frames"))
+        self.update_units_combobox.insertItem(self.__tr("minutes"))
+        self.update_units_combobox.insertItem(self.__tr("hours"))
+        self.cancel_btn.setText(self.__tr("Cancel"))
+        self.run_sim_btn.setText(self.__tr("Run Simulation"))
 
 
     def NumFramesValueChanged(self,a0):
