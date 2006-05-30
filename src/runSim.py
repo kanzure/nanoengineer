@@ -1019,19 +1019,19 @@ class SimRunner:
                     msg = tp.progress_text()
                 if msg:
                     env.history.statusbar_msg(self.cmdname + ": " + msg)
-        # wware 060310, bug 1343
-        from platform import hhmmss_str
-        if self.mflag:
-            # Minimization, give "Elapsed Time" message
-            msg = "Elapsed time: " + hhmmss_str(int(time.time() - self.startTime))
-        else:
-            # Dynamics, give simulation frame number, total frames, and time, wware 060419
-            msg = (("Frame %d/%d, T=" % (self.__frame_number, self.totalFramesRequested)) +
-                   hhmmss_str(int(time.time() - self.startTime)))
-        env.history.progress_msg(msg)
-        if not self.mflag:
-            # wware 060310, bug 1294
-            self.win.status_pbar.setProgress(self.__frame_number)
+            # wware 060310, bug 1343 [indented by bruce 060530 so it only happens on every nth frame (important speedup)]
+            from platform import hhmmss_str
+            if self.mflag:
+                # Minimization, give "Elapsed Time" message
+                msg = "Elapsed time: " + hhmmss_str(int(time.time() - self.startTime))
+            else:
+                # Dynamics, give simulation frame number, total frames, and time, wware 060419
+                msg = (("Frame %d/%d, T=" % (self.__frame_number, self.totalFramesRequested)) +
+                       hhmmss_str(int(time.time() - self.startTime)))
+            env.history.progress_msg(msg)
+            if not self.mflag:
+                # wware 060310, bug 1294
+                self.win.status_pbar.setProgress(self.__frame_number)
         return
 
     def sim_frame_callback_worker(self, frame_number): #bruce 060102
