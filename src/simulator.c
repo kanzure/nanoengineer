@@ -198,8 +198,6 @@ main(int argc, char **argv)
         perror("signal(SIGTERM)");
         exit(1);
     }
-
-    //debug_flags = D_GRADIENT_FROM_POTENTIAL;
     
     CommandLine = assembleCommandLine(argc, argv);
     while ((opt = getopt_long(argc, argv,

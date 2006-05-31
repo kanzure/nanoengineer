@@ -359,6 +359,17 @@ makeTorsion(struct part *p, int index, struct bond *center, struct bond *b1, str
     t->ab = center->a2;
     t->a1 = b1->a1 == t->aa ? b1->a2 : b1->a1;
     t->a2 = b2->a1 == t->ab ? b2->a2 : b2->a1;
+
+    // Barrior to rotation of a simple alkene is about 265 kJ/mol, but
+    // can be on the order of 50 kJ/mol for "captodative ethylenes",
+    // where the charge density on the carbons involved in the double
+    // bond has been significantly altered.
+    // [[Advanced Organic Chemistry, Jerry March, Fourth Edition,
+    // Chapter 4, p.129.]]
+    // A is in aJ/rad^2, but rotational barrior is 2A
+    // 2.65e5 J/mol == 4.4e-19 J/bond
+    // A = 2.2e-19 or 0.22 aJ
+    t->A = 0.22; // XXX need to get actual value from real parameters
 }
 
 // Creates a torsion for each triplet of adjacent bonds in the part,
@@ -434,6 +445,9 @@ makeOutOfPlane(struct part *p, int index, struct atom *a)
     o->a2 = b->a1 == a ? b->a2 : b->a1;
     b = a->bonds[2];
     o->a3 = b->a1 == a ? b->a2 : b->a1;
+
+    // A is in aJ/pm^2
+    o->A = 0.005; // XXX need to get actual value from real parameters
 }
 
 // Creates an outOfPlane for each sp2 atom

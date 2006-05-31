@@ -176,6 +176,7 @@ struct torsion
     struct atom *ab;
     struct atom *a2;
     //params;
+    double A; // aJ/rad^2
 };
 
 struct outOfPlane
@@ -185,6 +186,7 @@ struct outOfPlane
     struct atom *a2;
     struct atom *a3;
     //params;
+    double A; // aJ/pm^2
 };
 
 

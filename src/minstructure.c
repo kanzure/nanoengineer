@@ -119,16 +119,19 @@ minimizeStructureGradient(struct configuration *p)
 
     // wware 060109  python exception handling
     updateVanDerWaals(Part, p, (struct xyz *)p->coordinate); BAIL();
-    if (DEBUG(D_GRADIENT_FROM_POTENTIAL)) { // -D 10
+    if (DEBUG(D_GRADIENT_FROM_POTENTIAL) || DEBUG(D_GRADIENT_COMPARISON)) { // -D10 || -D18
 	// wware 060109  python exception handling
 	evaluateGradientFromPotential(p); BAIL();
         if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
+            struct xyz offset = { 0.0, 10.0, 20.0 };
+            
             forces = (struct xyz *)p->gradient;
             for (i=0; i<Part->num_atoms; i++) {
-                writeSimpleForceVector((struct xyz *)p->coordinate, i, &forces[i], 6, 1000000.0); // yellow
+                writeSimpleForceVectorOffset((struct xyz *)p->coordinate, i, &forces[i], 6, 1e7, offset); // yellow
             }
         }
-    } else {
+    }
+    if (!DEBUG(D_GRADIENT_FROM_POTENTIAL)) { // ! -D10
 	calculateGradient(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient);
 	BAIL();
     }

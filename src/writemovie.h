@@ -16,6 +16,8 @@ extern void writeSimplePositionMarker(struct xyz *position, float radius, float 
 
 extern void writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int color, double scale);
 
+extern void writeSimpleForceVectorOffset(struct xyz *positions, int i, struct xyz *force, int color, double scale, struct xyz offset);
+
 extern void writeSimpleStressVector(struct xyz *positions, int a1, int a2, int ac, double stress, double min, double max);
 
 extern void writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forces, const char *format, ...);

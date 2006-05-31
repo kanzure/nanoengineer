@@ -39,6 +39,9 @@ extern int debug_flags;
 #define D_VERIFY_VDW      (1<<13)
 #define D_MINIMIZE_PARAMETER_GUESS (1<<14)
 #define D_DYNAMICS_SIMPLE_MOVIE (1<<15)
+#define D_SKIP_TORSION (1<<16)
+#define D_SKIP_OUT_OF_PLANE (1<<17)
+#define D_GRADIENT_COMPARISON (1<<18)
 
 
 #define TYPE_ERROR 1

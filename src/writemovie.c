@@ -434,14 +434,20 @@ writeSimplePositionMarker(struct xyz *position, float radius, float r, float g, 
           r, g, b);
 }
 
-static float forceColors[7][3] = {
+static float forceColors[13][3] = {
     { 1.0, 1.0, 1.0 }, // 0 white:   total force on atom
     { 1.0, 0.0, 0.0 }, // 1 red:     stretch force
     { 0.0, 1.0, 0.0 }, // 2 green:   bend force on central atom
     { 0.0, 0.0, 1.0 }, // 3 blue:    bend force on non-central atom
     { 0.0, 1.0, 1.0 }, // 4 cyan:    vdw force
     { 1.0, 0.0, 1.0 }, // 5 magenta: 
-    { 1.0, 1.0, 0.0 }  // 6 yellow:  total force on atom from potential deltas
+    { 1.0, 1.0, 0.0 }, // 6 yellow:  total force on atom from potential deltas
+    { 1.0, 1.0, 0.5 }, // 7
+    { 1.0, 0.5, 1.0 }, // 8
+    { 0.5, 1.0, 1.0 }, // 9
+    { 0.5, 0.5, 1.0 }, // 10
+    { 0.5, 1.0, 0.5 }, // 11
+    { 1.0, 0.5, 0.5 }  // 12
 };
 
 void
@@ -458,6 +464,31 @@ writeSimpleForceVector(struct xyz *positions, int i, struct xyz *force, int colo
                 positions[i].x + (force->x * scale * SimpleMovieForceScale),
                 positions[i].y + (force->y * scale * SimpleMovieForceScale),
                 positions[i].z + (force->z * scale * SimpleMovieForceScale),
+                forceColors[color][0],
+                forceColors[color][1],
+                forceColors[color][2]);
+        if (color != 0) {
+            f = *force;
+            fSquared = vdot(f, f);
+            fprintf(stderr, "force: %f type: %d\n", sqrt(fSquared), color);
+        }
+    }
+}
+
+void
+writeSimpleForceVectorOffset(struct xyz *positions, int i, struct xyz *force, int color, double scale, struct xyz offset)
+{
+    double fSquared;
+    struct xyz f;
+    
+    if (1 /*!atom[i].inJig*/) {
+        fprintf(OutputFile, "l %f %f %f %f %f %f %f %f %f\n",
+                positions[i].x + offset.x,
+                positions[i].y + offset.y,
+                positions[i].z + offset.z,
+                positions[i].x + offset.x + (force->x * scale * SimpleMovieForceScale),
+                positions[i].y + offset.y + (force->y * scale * SimpleMovieForceScale),
+                positions[i].z + offset.z + (force->z * scale * SimpleMovieForceScale),
                 forceColors[color][0],
                 forceColors[color][1],
                 forceColors[color][2]);
@@ -522,7 +553,7 @@ writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forc
     for (i=0; i<part->num_atoms; i++) {
         writeSimpleAtomPosition(part, positions, i);
         if (forces != NULL && !part->atoms[i]->isGrounded) {
-          writeSimpleForceVector(positions, i, &forces[i], 0, 1.0);
+          writeSimpleForceVector(positions, i, &forces[i], 0, 10.0);
         }
     }
     fprintf(OutputFile, "f ");

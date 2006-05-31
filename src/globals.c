@@ -84,6 +84,7 @@ void
 reinit_globals(void)
 {
     debug_flags = 0;
+    //debug_flags = D_SKIP_VDW | D_SKIP_OUT_OF_PLANE ;
     Interrupted = 0;
     Iteration = 0;
     CommandLine = NULL;
