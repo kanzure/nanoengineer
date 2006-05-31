@@ -289,7 +289,7 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
                     dna.make(self.win.assy, grp, seq, doubleStrand)
                 except Exception, e:
                     env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
-                    self.group = None
+                    self.remove_struct()
                 QApplication.restoreOverrideCursor() # Restore the cursor
 
     def get_sequence(self, reverse=False, complement=False,

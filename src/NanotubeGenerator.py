@@ -204,11 +204,14 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
                 self.generate_tube()
         except Exception, e:
             env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+            self.remove_struct()
         QApplication.restoreOverrideCursor() # Restore the cursor
 
     def generate_tube(self):
-        self.chirality = Chirality(self.chirality_n_spinbox.value(),
-                                   self.chirality_m_spinbox.value())
+        n = self.chirality_n_spinbox.value()
+        m = self.chirality_m_spinbox.value()
+        assert n >= m, 'n cannot be smaller than m'
+        self.chirality = Chirality(n, m)
         PROFILE = False
         if PROFILE:
             sw = Stopwatch()
