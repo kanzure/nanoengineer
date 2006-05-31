@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>305</width>
+            <width>306</width>
             <height>293</height>
         </rect>
     </property>
@@ -414,7 +414,7 @@
                         </widget>
                         <widget class="QButtonGroup" row="3" column="0">
                             <property name="name">
-                                <cstring>update_grpbox</cstring>
+                                <cstring>update_btngrp</cstring>
                             </property>
                             <property name="frameShape">
                                 <enum>StyledPanel</enum>
@@ -539,7 +539,7 @@
     <connection>
         <sender>watch_motion_checkbox</sender>
         <signal>toggled(bool)</signal>
-        <receiver>update_grpbox</receiver>
+        <receiver>update_btngrp</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
 </connections>

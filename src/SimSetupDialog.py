@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
 #
-# Created: Tue May 30 20:18:26 2006
+# Created: Tue May 30 20:27:34 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -171,52 +171,52 @@ class SimSetupDialog(QDialog):
 
         groupBox2Layout.addWidget(self.watch_motion_checkbox,2,0)
 
-        self.update_grpbox = QButtonGroup(self.groupBox2,"update_grpbox")
-        self.update_grpbox.setFrameShape(QButtonGroup.StyledPanel)
-        self.update_grpbox.setFrameShadow(QButtonGroup.Sunken)
-        self.update_grpbox.setColumnLayout(0,Qt.Vertical)
-        self.update_grpbox.layout().setSpacing(6)
-        self.update_grpbox.layout().setMargin(11)
-        update_grpboxLayout = QGridLayout(self.update_grpbox.layout())
-        update_grpboxLayout.setAlignment(Qt.AlignTop)
+        self.update_btngrp = QButtonGroup(self.groupBox2,"update_btngrp")
+        self.update_btngrp.setFrameShape(QButtonGroup.StyledPanel)
+        self.update_btngrp.setFrameShadow(QButtonGroup.Sunken)
+        self.update_btngrp.setColumnLayout(0,Qt.Vertical)
+        self.update_btngrp.layout().setSpacing(6)
+        self.update_btngrp.layout().setMargin(11)
+        update_btngrpLayout = QGridLayout(self.update_btngrp.layout())
+        update_btngrpLayout.setAlignment(Qt.AlignTop)
 
-        self.update_number_spinbox = QSpinBox(self.update_grpbox,"update_number_spinbox")
+        self.update_number_spinbox = QSpinBox(self.update_btngrp,"update_number_spinbox")
         self.update_number_spinbox.setMaxValue(9999)
         self.update_number_spinbox.setMinValue(1)
         self.update_number_spinbox.setValue(1)
 
-        update_grpboxLayout.addWidget(self.update_number_spinbox,1,1)
+        update_btngrpLayout.addWidget(self.update_number_spinbox,1,1)
 
-        self.update_units_combobox = QComboBox(0,self.update_grpbox,"update_units_combobox")
+        self.update_units_combobox = QComboBox(0,self.update_btngrp,"update_units_combobox")
 
-        update_grpboxLayout.addWidget(self.update_units_combobox,1,2)
+        update_btngrpLayout.addWidget(self.update_units_combobox,1,2)
         spacer2 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        update_grpboxLayout.addItem(spacer2,1,3)
+        update_btngrpLayout.addItem(spacer2,1,3)
 
-        self.update_every_rbtn = QRadioButton(self.update_grpbox,"update_every_rbtn")
-        self.update_grpbox.insert( self.update_every_rbtn,1)
+        self.update_every_rbtn = QRadioButton(self.update_btngrp,"update_every_rbtn")
+        self.update_btngrp.insert( self.update_every_rbtn,1)
 
-        update_grpboxLayout.addWidget(self.update_every_rbtn,1,0)
+        update_btngrpLayout.addWidget(self.update_every_rbtn,1,0)
 
-        self.update_asap_rbtn = QRadioButton(self.update_grpbox,"update_asap_rbtn")
+        self.update_asap_rbtn = QRadioButton(self.update_btngrp,"update_asap_rbtn")
         self.update_asap_rbtn.setChecked(1)
-        self.update_grpbox.insert( self.update_asap_rbtn,0)
+        self.update_btngrp.insert( self.update_asap_rbtn,0)
 
-        update_grpboxLayout.addMultiCellWidget(self.update_asap_rbtn,0,0,0,3)
+        update_btngrpLayout.addMultiCellWidget(self.update_asap_rbtn,0,0,0,3)
 
-        groupBox2Layout.addWidget(self.update_grpbox,3,0)
+        groupBox2Layout.addWidget(self.update_btngrp,3,0)
         base_frameLayout.addWidget(self.groupBox2)
 
         SimSetupDialogLayout.addWidget(self.base_frame,0,0)
 
         self.languageChange()
 
-        self.resize(QSize(305,293).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(306,293).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.run_sim_btn,SIGNAL("clicked()"),self.createMoviePressed)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.close)
-        self.connect(self.watch_motion_checkbox,SIGNAL("toggled(bool)"),self.update_grpbox.setEnabled)
+        self.connect(self.watch_motion_checkbox,SIGNAL("toggled(bool)"),self.update_btngrp.setEnabled)
 
 
     def languageChange(self):
@@ -242,7 +242,7 @@ class SimSetupDialog(QDialog):
         self.watch_motion_checkbox.setText(self.__tr("Watch motion in real time"))
         QToolTip.add(self.watch_motion_checkbox,self.__tr("Enables real time graphical updates during simulation runs"))
         QWhatsThis.add(self.watch_motion_checkbox,self.__tr("<p><b>Watch Motion In Real Time</b></p>Enables real time graphical updates during simulation runs."))
-        self.update_grpbox.setTitle(QString.null)
+        self.update_btngrp.setTitle(QString.null)
         self.update_units_combobox.clear()
         self.update_units_combobox.insertItem(self.__tr("frames"))
         self.update_units_combobox.insertItem(self.__tr("seconds"))
