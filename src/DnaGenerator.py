@@ -203,7 +203,13 @@ class GeneratorBaseClass:
             self.group = None
 
     def preview_btn_clicked(self):
-        self.build_struct()
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        try:
+            self.build_struct()
+        except Exception, e:
+            env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+            self.remove_struct()
+        QApplication.restoreOverrideCursor() # Restore the cursor
         self.win.win_update()
         self.win.mt.mt_update()
 
@@ -212,10 +218,15 @@ class GeneratorBaseClass:
 
     def ok_btn_clicked(self):
         'Slot for the OK button'
-        self.build_struct()
-        if self.group != None:
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        try:
+            self.build_struct()
             self.done_history_msg()
             self.group = None
+        except Exception, e:
+            env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+            self.remove_struct()
+        QApplication.restoreOverrideCursor() # Restore the cursor
         self.win.win_update()
         self.win.mt.mt_update()
         QDialog.accept(self)
@@ -280,17 +291,14 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
                     dna = Z_Dna()
                 self.dna = dna  # needed for done msg
                 doubleStrand = (double == 'Double')
-                env.history.message(cmd + "Creating DNA. This may take a moment...")
-                QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-                try:
-                    part = self.win.assy.part
-                    part.ensure_toplevel_group()
-                    self.group = grp = Group(gensym("DNA-"), self.win.assy, part.topnode)
-                    dna.make(self.win.assy, grp, seq, doubleStrand)
-                except Exception, e:
-                    env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
-                    self.remove_struct()
-                QApplication.restoreOverrideCursor() # Restore the cursor
+                if len(seq) > 30:
+                    env.history.message(cmd + "Creating DNA. This may take a moment...")
+                else:
+                    env.history.message(cmd + "Creating DNA.")
+                part = self.win.assy.part
+                part.ensure_toplevel_group()
+                self.group = grp = Group(gensym("DNA-"), self.win.assy, part.topnode)
+                dna.make(self.win.assy, grp, seq, doubleStrand)
 
     def get_sequence(self, reverse=False, complement=False,
                      cdict={'C':'G', 'G':'C', 'A':'T', 'T':'A'}):

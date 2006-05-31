@@ -191,21 +191,13 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             env.history.message(cmd + redmsg("Please specify a valid length."))
             return
 
-        QApplication.setOverrideCursor(QCursor(Qt.WaitCursor))
-        try:
-            #group = Group(gensym("Nanotube-"), self.win.assy, part.topnode)
-            # This can take a few seconds. Inform the user.
-            # 100 is a guess on my part. Mark 051103.
-            if self.length > 100.0:
-                env.history.message(cmd + "Creating nanotube. This may take a moment...")
-                self.generate_tube()
-                env.history.message(cmd + "Done.")
-            else: # Nanotubes under 100 Angstroms shouldn't take long.
-                self.generate_tube()
-        except Exception, e:
-            env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
-            self.remove_struct()
-        QApplication.restoreOverrideCursor() # Restore the cursor
+        # This can take a few seconds. Inform the user.
+        # 100 is a guess on my part. Mark 051103.
+        if self.length > 100.0:
+            env.history.message(cmd + "Creating nanotube. This may take a moment...")
+        else: # Nanotubes under 100 Angstroms shouldn't take long.
+            env.history.message(cmd + "Creating nanotube.")
+        self.generate_tube()
 
     def generate_tube(self):
         n = self.chirality_n_spinbox.value()
