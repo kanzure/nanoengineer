@@ -30,7 +30,7 @@ bruce 051231 partly-done code for using pyrex interface to sim; see use_dylib
 from debug import print_compact_traceback
 import platform
 from platform import fix_plurals
-import os, sys
+import os, sys, time
 from math import sqrt
 from SimSetup import SimSetup
 from qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject, SIGNAL
@@ -515,6 +515,7 @@ class SimRunner:
         
         movie = self._movie # old-code compat kluge
         self.totalFramesRequested = movie.totalFramesRequested
+        self.update_cond = movie.update_cond
         moviefile = movie.filename
         if use_command_line:
             program = self.program
@@ -617,6 +618,8 @@ class SimRunner:
                 self.temp = realmovie.temp
                 self.stepsper = realmovie.stepsper
                 self.watch_motion = realmovie.watch_motion
+                self._update_data = realmovie._update_data
+                self.update_cond = realmovie.update_cond # probably not needed
             def fyi_reusing_your_moviefile(self, moviefile):
                 pass
             def might_be_playable(self):
@@ -663,7 +666,6 @@ class SimRunner:
                 env.history.message(orangemsg("(option to not create movie file is not yet implemented)")) # for non-pyrex sim
                 # NFR/bug 1286 not useful for non-pyrex sim, won't be implemented, this msg will be revised then
                 # to say "not supported for command-line simulator"
-            import time
             start = time.time() #bruce 060103 compute duration differently
             simProcess.start()
             # Launch the progress bar, and let it monitor and show progress and wait until
@@ -854,7 +856,6 @@ class SimRunner:
             # (items 1 & 2 & 4 have been done)
             # 3. if callback caller in C has an exception from callback, it should not *keep* calling it, but reset it to NULL
 
-            import time
             # wware 060309, bug 1343
             self.startTime = start = time.time()
             
@@ -876,6 +877,7 @@ class SimRunner:
                     # so self.tracefile_callback does something [bruce 060109]
 
                 from sim import SimulatorInterrupted #bruce 060112 - not sure this will work here vs outside 'def' ###k
+                self.sim_frame_callback_prep()
                 try:
                     simgo( frame_callback = frame_callback, trace_callback = trace_callback )
                         # note: if this calls a callback which raises an exception, that exception gets
@@ -948,91 +950,137 @@ class SimRunner:
         abortbutton.finish() # whether or not there was an exception and/or it aborted
         return
 
-    __callback_time = -1 ###e we could easily optim our test by storing this plus __sim_work_time
+    __last_3dupdate_time = -1
+    __last_progress_update_time = -1
     __frame_number = 0 # starts at 0 so incrementing it labels first frame as 1 (since initial frame is not returned)
         #k ought to verify that in sim code -- seems correct, looking at coords and total number of frames
         # note: we never need to reset __frame_number since this is a single-use object.
         # could this relate to bug 1297? [bruce 060110] (apparently not [bruce 060111])
-    __sim_work_time = 0.05 # initial value -- we'll run sim_frame_callback_worker 20 times per second, with this value
+##    __sim_work_time = 0.05 # initial value -- we'll run sim_frame_callback_worker 20 times per second, with this value
+    __last_3dupdate_frame = 0
+    __last_pytime = 0.03 # guess (this is a duration)
+
+    def sim_frame_callback_prep(self):
+        self.__last_3dupdate_time = self.__last_progress_update_time = time.time()
+
+    def sim_frame_callback_update_check(self, simtime, pytime, nframes):
+        "[#doc is in SimSetup.py and in caller]"
+        res = True
+        revert = False
+        if self.update_cond:
+            try:
+                res = self.update_cond(simtime, pytime, nframes) # should be a boolean value
+            except:
+                self.update_cond = None
+                print_compact_traceback("exception in self.update_cond ignored, reverting to default cond: ")
+                revert = True
+        else:
+            revert = True
+        if revert:
+            try:
+                res = (simtime >= max(0.05, min(pytime * 4, 2.0)))
+            except:
+                print_compact_traceback("exception in default cond, just always updating: ")
+                res = True
+        return res
+        
     def sim_frame_callback(self): #bruce 060102
         "Per-frame callback function for simulator object."
-        # some of these prints I commented out need to show up as fields in the progress bar instead...
-        ## print "f",
-        # This happened 3550 times for minimizing a small C3 sp3 hydrocarbon... better check the time first.
-        #e Maybe we should make this into a lambda, or even code it in C, to optimize it. First make it work.
-        from sim import SimulatorInterrupted
+        # Note: this was called 3550 times for minimizing a small C3 sp3 hydrocarbon... better check the elapsed time quickly.
+        #e Maybe we should make this into a lambda, or even code it in C, to optimize it.
         if self.PREPARE_TO_CLOSE:
             # wware 060406 bug 1263 - if exiting the program, interrupt the simulator
+            from sim import SimulatorInterrupted
             raise SimulatorInterrupted
-        import time
-        now = time.time() # should we use real time like this, or cpu time like .clock()??
         self.__frame_number += 1
         if debug_all_frames:
             from sim import getFrame
             if debug_sim_exceptions:
-                # intentially buggy code
+                # intentionally buggy code
                 print "frame %d" % self.__frame_number, self._simobj.getFrame() # this is a bug, that attr should not exist
             else:
                 # correct code
                 print "frame %d" % self.__frame_number, getFrame()[debug_all_frames_atom_index]
             pass
-        ###e how to improve timing:
-        # let sim use up most of the real time used, measuring redraw timing in order to let that happen. see below for more.
-        # always show the last frame - wware 060314
-        if debug_all_frames or self.__frame_number == self.totalFramesRequested or \
-               now > self.__callback_time + self.__sim_work_time: # this probably needs coding in C or further optim
-            simtime = now - self.__callback_time # for sbar
-            if debug_pyrex_prints:
-                print "sim hit frame %d in" % self.__frame_number, simtime
-                    #e maybe let frame number be an arg from C to the callback in the future?
-            self.__callback_time = now
-            # Note that we don't only store this time, but the time *after* we do our other work here, in case redraw takes long.
-            # i.e. we always let sim run for 0.05 sec even if our python loop body took longer.
-            # maybe best to let sim run even longer, i.e. max(0.05, python loop body time), but no more than say 1 or 2 sec.
-            ####@@@@ where i am - fill in loop body, right here. don't worry about progbar for now, or abort -- just movie.
-            try:
-                self.sim_frame_callback_worker( self.__frame_number) # might call self.abort_sim_run()
-            except:
-                print_compact_traceback("exception in sim_frame_callback_worker, aborting run: ")
-                self.abort_sim_run("exception in sim_frame_callback_worker(%d)" % self.__frame_number ) # sets flag inside sim object
-            self.__callback_time = time.time() # in case later than 'now' set earlier
-            # use this difference to adjust 0.05 above, for the upcoming period of sim work;
-            # note, in current code this also affects abortability
-            pytime = self.__callback_time - now
-            if debug_pyrex_prints:
-                print "python stuff took", pytime
-                # python stuff took 0.00386619567871 -- for when no real work done, just overhead; small real egs more like 0.03
-            self.__sim_work_time = max(0.05, min(pytime * 4, 2.0))
-            if debug_pyrex_prints:
-                print "set self.__sim_work_time to", self.__sim_work_time
-            # set status bar
-            if debug_timing_loop_on_sbar:
-                # debug: show timing loop properties
-                msg = "sim took %0.3f, hit frame %03d, py took %0.3f, next simtime %0.3f" % \
-                      (simtime, self.__frame_number, pytime, self.__sim_work_time)
-                env.history.statusbar_msg(msg)
-            else:
-                # wware 060309, bug 1343
-                msg = ""
-                tp = self.tracefileProcessor
-                if tp:
-                    msg = tp.progress_text()
-                if msg:
-                    env.history.statusbar_msg(self.cmdname + ": " + msg)
-            # wware 060310, bug 1343 [indented by bruce 060530 so it only happens on every nth frame (important speedup)]
-            from platform import hhmmss_str
-            if self.mflag:
-                # Minimization, give "Elapsed Time" message
-                msg = "Elapsed time: " + hhmmss_str(int(time.time() - self.startTime))
-            else:
-                # Dynamics, give simulation frame number, total frames, and time, wware 060419
-                msg = (("Frame %d/%d, T=" % (self.__frame_number, self.totalFramesRequested)) +
-                       hhmmss_str(int(time.time() - self.startTime)))
-            env.history.progress_msg(msg)
-            if not self.mflag:
-                # wware 060310, bug 1294
-                self.win.status_pbar.setProgress(self.__frame_number)
-        return
+        try:
+            # Decide whether to update the 3D view and/or the progress indicators.
+            # Original code: let sim use up most of the real time used, measuring redraw timing in order to let that happen.
+            # see below for more info.
+            #bruce 060530 generalizing this to ask self.update_cond how to decide.
+            now = time.time() # real time
+            simtime = now - self.__last_3dupdate_time # time the sim has been churning away since the last update was completed
+            pytime = self.__last_pytime
+            nframes = self.__frame_number - self.__last_3dupdate_frame
+            update_3dview = self.sim_frame_callback_update_check( simtime, pytime, nframes ) # call this even if later code overrides it
+            # always show the last frame - wware 060314
+            if self.__frame_number == self.totalFramesRequested or debug_all_frames:
+                update_3dview = True
+            # now we know whether we want to update the 3d view (and save new values for the __last variables).
+            if update_3dview:
+                if debug_pyrex_prints:
+                    print "sim hit frame %d in" % self.__frame_number, simtime
+                        #e maybe let frame number be an arg from C to the callback in the future?
+                self.__last_3dupdate_time = now
+                self.__last_3dupdate_frame = self.__frame_number
+                # Note that we also (redundantly) store over this the time *after* we do our other work here, in case redraw takes long.
+                # i.e.(??) (when using original code) we always let sim run for 0.05 sec even if our python loop body took longer.
+                # maybe best to let sim run even longer, i.e. max(0.05, python loop body time), but no more than say 1 or 2 sec.
+                try:
+                    self.sim_frame_callback_worker( self.__frame_number) # might call self.abort_sim_run()
+                except:
+                    print_compact_traceback("exception in sim_frame_callback_worker, aborting run: ")
+                    self.abort_sim_run("exception in sim_frame_callback_worker(%d)" % self.__frame_number ) # sets flag inside sim object
+                self.__last_3dupdate_time = time.time() # in case later than 'now' set earlier
+                # use this difference to adjust 0.05 above, for the upcoming period of sim work;
+                # note, in current code this also affects abortability
+                pytime = self.__last_3dupdate_time - now
+                self.__last_pytime = pytime
+                if debug_pyrex_prints:
+                    print "python stuff took", pytime
+                    # python stuff took 0.00386619567871 -- for when no real work done, just overhead; small real egs more like 0.03
+    ##            self.__sim_work_time = max(0.05, min(pytime * 4, 2.0)) # this is how much we want to let the sim work, before next update
+    ##            if debug_pyrex_prints:
+    ##                print "set self.__sim_work_time to", self.__sim_work_time
+                # set status bar
+                if debug_timing_loop_on_sbar:
+                    # debug: show timing loop properties
+                    msg = "sim took %0.3f, hit frame %03d, py took %0.3f" % \
+                          (simtime, self.__frame_number, pytime)
+                    env.history.statusbar_msg(msg)
+                else:
+                    # wware 060309, bug 1343
+                    msg = ""
+                    tp = self.tracefileProcessor
+                    if tp:
+                        msg = tp.progress_text()
+                    if msg:
+                        env.history.statusbar_msg(self.cmdname + ": " + msg)
+                now = self.__last_3dupdate_time
+            if now >= self.__last_progress_update_time + 1.0 or update_3dview and now >= self.__last_progress_update_time + 0.2:
+                # wware 060310, bug 1343 [modified by bruce 060530 so it happens at most once per second (important speedup)]
+                self.__last_progress_update_time = now
+                from platform import hhmmss_str
+                if self.mflag:
+                    # Minimization, give "Elapsed Time" message
+                    msg = "Elapsed time: " + hhmmss_str(int(time.time() - self.startTime))
+                else:
+                    # Dynamics, give simulation frame number, total frames, and time, wware 060419
+                    msg = (("Frame %d/%d, T=" % (self.__frame_number, self.totalFramesRequested)) +
+                           hhmmss_str(int(time.time() - self.startTime)))
+                env.history.progress_msg(msg)
+                if not self.mflag:
+                    # wware 060310, bug 1294
+                    self.win.status_pbar.setProgress(self.__frame_number)
+        except:
+            #bruce 060530 -- ideally we'd propogate the exception up to our caller the sim,
+            # and it would propogate it back to the python calling code in this object,
+            # so there would be no need to print it here. But that seems to be broken now,
+            # whether in the sim or in the calling Python I don't know, so I'll print it here too.
+            # But then I'll reraise it for when that gets fixed, and since even now it does succeed
+            # in aborting the sim.
+            print_compact_traceback("exception in sim_frame_callback (will be propogated to sim): ")
+            raise
+        return # from sim_frame_callback
 
     def sim_frame_callback_worker(self, frame_number): #bruce 060102
         """Do whatever should be done on frame_callbacks that don't return immediately

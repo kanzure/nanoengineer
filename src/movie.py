@@ -203,7 +203,9 @@ class Movie:
         self.watch_motion = False # whether to show atom motion in realtime [changed by Mark, 060424]
             # (note: this default value affects Dynamics, but not Minimize, which uses its own user pref for this,
             #  but never changes this value to match that [as of 060424; note added by Bruce])
+        self._update_data = None
 
+        self.update_cond = None
         self.timestep = 10
             # Note [bruce 050325]: varying the timestep is not yet supported,
             # and this attribute is not presently used in the cad code.

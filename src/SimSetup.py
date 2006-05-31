@@ -22,6 +22,8 @@ __author__ = "Mark"
 from SimSetupDialog import *
 import os
 from movie import Movie
+from debug import print_compact_traceback
+import env
 
 class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
     "dialog class for setting up a simulator run"
@@ -65,6 +67,12 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         #self.create_movie_file_checkbox.setChecked( self.previous_movie.create_movie_file ) 
             # whether to store movie file (see NFR/bug 1286). [bruce & mark 060108]
             # create_movie_file_checkbox removed for A7 (bug 1729). mark 060321
+        if self.previous_movie._update_data:
+            update_number, update_units, update_as_fast_as_possible_data = self.previous_movie._update_data
+            self.update_btngrp.setButton( update_as_fast_as_possible_data)
+            self.update_number_spinbox.setValue( update_number)
+            self.update_units_combobox.setCurrentText( update_units)
+                #k let's hope this changes the current choice, not the popup menu item text for the current choice!
         return
     
     def createMoviePressed(self):
@@ -84,6 +92,50 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         #self.movie.create_movie_file = self.create_movie_file_checkbox.isChecked() 
             # removed for A7 (bug 1729). mark 060321
         self.movie.create_movie_file = True
+
+        try:
+            if self.movie.watch_motion:
+                #bruce 060530 use new watch_motion rate parameters
+                # first grab them from the UI
+                update_as_fast_as_possible_data = self.update_btngrp.selectedId() # 0 means yes, 1 means no (for now)
+                    # ( or -1 means neither, but that's prevented by how the button group is set up, at least when it's enabled)
+                update_as_fast_as_possible = (update_as_fast_as_possible_data != 1)
+                update_number = self.update_number_spinbox.value() # 1, 2, etc (or perhaps 0??)
+                update_units = str(self.update_units_combobox.currentText()) # 'frames', 'seconds', 'minutes', 'hours'
+                # for sake of propogating them to the next sim run:
+                self._update_data = update_number, update_units, update_as_fast_as_possible_data
+                if env.debug():
+                    print "debug: self.update_btngrp.selectedId() = %r" % (update_as_fast_as_possible_data,)
+                    print "debug: self.update_number_spinbox.value() is %r" % self.update_number_spinbox.value() # e.g. 1
+                    print "debug: combox text is %r" % str(self.update_units_combobox.currentText()) # e.g. 'frames'
+                # Now figure out what they mean, as a function for deciding whether to update the 3D view
+                # when a frame is received, given the time since the last update finished, the time that update took,
+                # and the number of frames since then (1 or more). Notes: the Qt progress update will be done independently of this,
+                # at most once per second (in runSim.py). The last frame we expect to receive will always be updated
+                # (this func will be called anyway in case it wants to do something else with the info like store it somewhere,
+                #  but its return value will be ignored for the last frame).
+                # The details of these functions (and the UI feeding them) are likely to be changed soon.
+                if update_as_fast_as_possible:
+                    # This radiobutton is misnamed; it really means "use the old code,
+                    # i.e. not worse than 20% slowdown, with threshholds".
+                    # It's also ambiguous -- does "fast" mean "fast progress"
+                    # or "often" (which are opposites)? It sort of means "often".
+                    # It also probably ought to be a "faster if possible" checkbox instead.
+                    update_cond = ( lambda simtime, pytime, nframes:
+                                    simtime >= max(0.05, min(pytime * 4, 2.0)) )
+                elif update_units == 'frames':
+                    update_cond = ( lambda simtime, pytime, nframes, _nframes = update_number:  nframes >= _nframes )
+                elif update_units == 'seconds':
+                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number:  simtime + pytime >= _timelimit )
+                elif update_units == 'minutes':
+                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 60:  simtime + pytime >= _timelimit )
+                elif update_units == 'hours':
+                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 3600:  simtime + pytime >= _timelimit )
+                else:
+                    print "don't know how to set update_cond from (%r, %r)" % (update_number, update_units)
+                self.movie.update_cond = update_cond
+        except:
+            print_compact_traceback("exception trying to set update_cond: ")
 
         suffix = self.suffix
         if self.assy.filename: # Could be an MMP or PDB file.
