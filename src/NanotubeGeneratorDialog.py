@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Fri May 26 17:14:03 2006
+# Created: Wed May 31 10:22:19 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -678,13 +678,13 @@ class nanotube_dialog(QDialog):
         self.connect(self.nt_parameters_grpbtn,SIGNAL("clicked()"),self.toggle_nt_parameters_grpbox)
         self.connect(self.mwcnt_grpbtn,SIGNAL("clicked()"),self.toggle_mwcnt_grpbox)
         self.connect(self.whatsthis_btn,SIGNAL("clicked()"),self.enter_WhatsThisMode)
-        self.connect(self.done_btn,SIGNAL("clicked()"),self.doneClicked)
-        self.connect(self.abort_btn,SIGNAL("clicked()"),self.abortClicked)
-        self.connect(self.preview_btn,SIGNAL("clicked()"),self.previewClicked)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
         self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
         self.connect(self.length_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
+        self.connect(self.preview_btn,SIGNAL("clicked()"),self.preview_btn_clicked)
+        self.connect(self.abort_btn,SIGNAL("clicked()"),self.abort_btn_clicked)
+        self.connect(self.done_btn,SIGNAL("clicked()"),self.done_btn_clicked)
 
 
     def languageChange(self):
@@ -795,6 +795,15 @@ class nanotube_dialog(QDialog):
 
     def length_fixup(self):
         print "nanotube_dialog.length_fixup(): Not implemented yet"
+
+    def preview_btn_clicked(self):
+        print "nanotube_dialog.preview_btn_clicked(): Not implemented yet"
+
+    def abort_btn_clicked(self):
+        print "nanotube_dialog.abort_btn_clicked(): Not implemented yet"
+
+    def done_btn_clicked(self):
+        print "nanotube_dialog.done_btn_clicked(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("nanotube_dialog",s,c)

@@ -154,17 +154,17 @@ class Chirality:
                     except KeyError:
                         pass
 
-
 cmd = greenmsg("Insert Nanotube: ")
 
-class NanotubeGenerator(nanotube_dialog):
+from DnaGenerator import GeneratorBaseClass
+
+# GeneratorBaseClass must come BEFORE the dialog in the list of parents
+class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         nanotube_dialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
-        self.win = win
-        self.mol = None
-        
+        GeneratorBaseClass.__init__(self, win)
         # Validator for the length linedit widget.
         self.validator = QDoubleValidator(self)
         # Range of nanotube length (0-1000, 2 decimal places)
@@ -174,94 +174,13 @@ class NanotubeGenerator(nanotube_dialog):
         self.lenstr = str(self.length_linedit.text())
         self.sponsor = sponsor = findSponsor('Nanotubes')
         sponsor.configureSponsorButton(self.sponsor_btn)
-   
-    def toggle_nt_distortion_grpbox(self):
-        print "nanotube_dialog.toggle_nt_distortion_grpbox(): Not implemented yet"
 
-    def open_sponsor_homepage(self):
-        print "nanotube_dialog.open_sponsor_homepage(): Not implemented yet"
+    ###################################################
+    # How to build this kind of structure, along with
+    # any necessary helper functions
 
-    def toggle_nt_parameters_grpbox(self):
-        print "nanotube_dialog.toggle_nt_parameters_grpbox(): Not implemented yet"
-
-    def toggle_mwcnt_grpbox(self):
-        print "nanotube_dialog.toggle_mwcnt_grpbox(): Not implemented yet"
-
-    def enter_WhatsThisMode(self):
-        print "nanotube_dialog.enter_WhatsThisMode(): Not implemented yet"
-
-    def changeLength(self):
-        print "nanotube_dialog.changeLength(): Not implemented yet"
-
-    def nChanged(self,a0):
-        print "nanotube_dialog.nChanged(const QString&): Not implemented yet"
-
-    def mChanged(self,a0):
-        print "nanotube_dialog.mChanged(const QString&): Not implemented yet"
-
-    def bondLengthChanged(self):
-        print "nanotube_dialog.bondLengthChanged(): Not implemented yet"
-
-    def doneClicked(self):
-        print "nanotube_dialog.doneClicked(): Not implemented yet"
-
-    def close(self, e=None):
-        """When the user closes dialog by clicking the 'X' button on
-        the dialog title bar, this method is called.
-        """
-        try:
-            self.cancel_btn_clicked()
-            return True
-        except:
-            return False
-
-    def zDistortChanged(self):
-        print "nanotube_dialog.zDistortChanged(): Not implemented yet"
-
-    def xyDistortChanged(self):
-        print "nanotube_dialog.xyDistortChanged(): Not implemented yet"
-
-    def abortClicked(self):
-        self.cancel_btn_clicked()
-
-    def previewClicked(self):
-        self.remove_tube()
-        self.build_tube()
-       
-    def cancel_btn_clicked(self):
-        self.remove_tube()
-        QDialog.accept(self)
-
-    def ok_btn_clicked(self):
-        self.build_tube()
-        self.mol = None
-        QDialog.accept(self)
-
-    def sponsor_btn_clicked(self):
-        self.sponsor.wikiHelp()
-
-    def length_fixup(self):
-        '''Slot for the Length linedit widget.
-        This gets called each time a user types anything into the widget.
-        '''
-        self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
-        self.length_linedit.setText(self.lenstr)
-
-    def build_tube(self):
-# With the DNA generator, I didn't bother to recreate it if all the
-# parameters were exactly the same. I might be able to reuse that idea
-# here, so keep this handy.
-#
-##         seq = self.get_sequence()
-##         dnatype = str(self.dna_type_combox.currentText())
-##         double = str(self.endings_combox.currentText())
-##         params = (seq, dnatype, double)
-##         if self.previousParams != params:
-##             self.remove_dna()
-##             self.previousParams = params
-##         if self.mol == None:
-
-        self.remove_tube()
+    def build_struct(self):
+        self.remove_struct()
         # Get length from length_linedit and make sure it is not zero.
         # length_linedit's validator makes sure this has a valid number (float).  
         # The only exception is when there is no text.  Mark 051103.
@@ -283,19 +202,9 @@ class NanotubeGenerator(nanotube_dialog):
                 env.history.message(cmd + "Done.")
             else: # Nanotubes under 100 Angstroms shouldn't take long.
                 self.generate_tube()
-                env.history.message(cmd + "Nanotube created.")
         except Exception, e:
             env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
         QApplication.restoreOverrideCursor() # Restore the cursor
-
-    def remove_tube(self):
-        if self.mol != None:
-            part = self.win.assy.part
-            part.ensure_toplevel_group()
-            part.topnode.delmember(self.mol)
-            self.win.win_update()
-            self.win.mt.mt_update()
-            self.mol = None
 
     def generate_tube(self):
         self.chirality = Chirality(self.chirality_n_spinbox.value(),
@@ -345,4 +254,29 @@ class NanotubeGenerator(nanotube_dialog):
         part.topnode.addchild(mol)
         self.win.win_update()
         self.win.mt.mt_update()
-        self.mol = mol
+        self.group = mol
+
+    def length_fixup(self):
+        '''Slot for the Length linedit widget.
+        This gets called each time a user types anything into the widget.
+        '''
+        self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
+        self.length_linedit.setText(self.lenstr)
+
+
+    ###################################################
+    # The done message
+
+    def done_history_msg(self):
+        env.history.message(cmd + "Nanotube created.")
+
+    ###################################################
+    # Any special controls for this kind of structure
+
+    def complement_btn_clicked(self):
+        seq = self.get_sequence(complement=True)
+        self.base_textedit.setText(seq)
+
+    def reverse_btn_clicked(self):
+        seq = self.get_sequence(reverse=True)
+        self.base_textedit.setText(seq)

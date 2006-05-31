@@ -178,50 +178,22 @@ class Z_Dna(Dna):
 
 cmd = greenmsg("Insert Dna: ")
 
-class DnaGenerator(dna_dialog):
+# There is some logic associated with Preview/OK/Abort that's complicated enough
+# to put it in one place, so that individual generators can focus on what they
+# need to do.
+
+class GeneratorBaseClass:
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
-        dna_dialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
         self.win = win
         self.group = None
         self.previousParams = None
-        self.sponsor = sponsor = findSponsor('DNA')
-        sponsor.configureSponsorButton(self.sponsor_btn)
 
-    def build_dna(self):
-        'Slot for the OK button'
-        seq = self.get_sequence()
-        dnatype = str(self.dna_type_combox.currentText())
-        double = str(self.endings_combox.currentText())
-        params = (seq, dnatype, double)
-        if self.previousParams != params:
-            self.remove_dna()
-            self.previousParams = params
-        if self.group == None:
-            if len(seq) > 0:
-                if dnatype == 'A-DNA':
-                    dna = A_Dna()
-                elif dnatype == 'B-DNA':
-                    dna = B_Dna()
-                elif dnatype == 'Z-DNA':
-                    dna = Z_Dna()
-                doubleStrand = (double == 'Double')
-                env.history.message(cmd + "Creating DNA. This may take a moment...")
-                QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-                try:
-                    part = self.win.assy.part
-                    part.ensure_toplevel_group()
-                    self.group = grp = Group(gensym("DNA-"), self.win.assy, part.topnode)
-                    dna.make(self.win.assy, grp, seq, doubleStrand)
-                    self.win.win_update()
-                    self.win.mt.mt_update()
-                    env.history.message(cmd + "Done creating a strand of %s." % dna.geometry)
-                except Exception, e:
-                    env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
-                QApplication.restoreOverrideCursor() # Restore the cursor
+    def build_struct(self):
+        raise Exception("Not implemented in the base class")
 
-    def remove_dna(self):
+    def remove_struct(self):
         if self.group != None:
             part = self.win.assy.part
             part.ensure_toplevel_group()
@@ -231,21 +203,94 @@ class DnaGenerator(dna_dialog):
             self.group = None
 
     def preview_btn_clicked(self):
-        self.build_dna()
+        self.build_struct()
+        self.win.win_update()
+        self.win.mt.mt_update()
+
+    def done_history_msg(self):
+        raise Exception("Not implemented in the base class")
 
     def ok_btn_clicked(self):
         'Slot for the OK button'
-        self.build_dna()
-        self.group = None
+        self.build_struct()
+        if self.group != None:
+            self.done_history_msg()
+            self.group = None
+        self.win.win_update()
+        self.win.mt.mt_update()
         QDialog.accept(self)
+
+    def done_btn_clicked(self):
+        self.ok_btn_clicked()
 
     def abort_btn_clicked(self):
         self.cancel_btn_clicked()
 
     def cancel_btn_clicked(self):
         'Slot for the OK button'
-        self.remove_dna()
+        self.remove_struct()
         QDialog.accept(self)
+
+    def close(self, e=None):
+        """When the user closes dialog by clicking the 'X' button on
+        the dialog title bar, this method is called.
+        """
+        try:
+            self.cancel_btn_clicked()
+            return True
+        except:
+            return False
+
+    def open_sponsor_homepage(self):
+        self.sponsor.wikiHelp()
+
+    def enter_WhatsThisMode(self):
+        env.history.message(orangemsg('WhatsThis: Not implemented yet'))
+
+
+# GeneratorBaseClass must come BEFORE the dialog in the list of parents
+class DnaGenerator(GeneratorBaseClass, dna_dialog):
+
+    # pass window arg to constructor rather than use a global, wware 051103
+    def __init__(self, win):
+        dna_dialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
+        GeneratorBaseClass.__init__(self, win)
+        self.sponsor = sponsor = findSponsor('DNA')
+        sponsor.configureSponsorButton(self.sponsor_btn)
+
+    ###################################################
+    # How to build this kind of structure, along with
+    # any necessary helper functions
+
+    def build_struct(self):
+        seq = self.get_sequence()
+        dnatype = str(self.dna_type_combox.currentText())
+        double = str(self.endings_combox.currentText())
+        params = (seq, dnatype, double)
+        if self.previousParams != params:
+            self.remove_struct()
+            self.previousParams = params
+        if self.group == None:
+            if len(seq) > 0:
+                if dnatype == 'A-DNA':
+                    dna = A_Dna()
+                elif dnatype == 'B-DNA':
+                    dna = B_Dna()
+                elif dnatype == 'Z-DNA':
+                    dna = Z_Dna()
+                self.dna = dna  # needed for done msg
+                doubleStrand = (double == 'Double')
+                env.history.message(cmd + "Creating DNA. This may take a moment...")
+                QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+                try:
+                    part = self.win.assy.part
+                    part.ensure_toplevel_group()
+                    self.group = grp = Group(gensym("DNA-"), self.win.assy, part.topnode)
+                    dna.make(self.win.assy, grp, seq, doubleStrand)
+                except Exception, e:
+                    env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+                    self.group = None
+                QApplication.restoreOverrideCursor() # Restore the cursor
 
     def get_sequence(self, reverse=False, complement=False,
                      cdict={'C':'G', 'G':'C', 'A':'T', 'T':'A'}):
@@ -267,6 +312,15 @@ class DnaGenerator(dna_dialog):
             seq = ''.join(seq)
         return seq
 
+    ###################################################
+    # The done message
+
+    def done_history_msg(self):
+        env.history.message(cmd + "Done creating a strand of %s." % self.dna.geometry)
+
+    ###################################################
+    # Any special controls for this kind of structure
+
     def complement_btn_clicked(self):
         seq = self.get_sequence(complement=True)
         self.base_textedit.setText(seq)
@@ -274,19 +328,3 @@ class DnaGenerator(dna_dialog):
     def reverse_btn_clicked(self):
         seq = self.get_sequence(reverse=True)
         self.base_textedit.setText(seq)
-
-    def close(self, e=None):
-        """When the user closes dialog by clicking the 'X' button on
-        the dialog title bar, this method is called.
-        """
-        try:
-            self.cancel_btn_clicked()
-            return True
-        except:
-            return False
-
-    def open_sponsor_homepage(self):
-        self.sponsor.wikiHelp()
-
-    def enter_WhatsThisMode(self):
-        env.history.message(orangemsg('WhatsThis: Not implemented yet'))

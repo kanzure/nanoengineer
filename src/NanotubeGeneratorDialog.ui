@@ -1085,24 +1085,6 @@
         <slot>enter_WhatsThisMode()</slot>
     </connection>
     <connection>
-        <sender>done_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>nanotube_dialog</receiver>
-        <slot>doneClicked()</slot>
-    </connection>
-    <connection>
-        <sender>abort_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>nanotube_dialog</receiver>
-        <slot>abortClicked()</slot>
-    </connection>
-    <connection>
-        <sender>preview_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>nanotube_dialog</receiver>
-        <slot>previewClicked()</slot>
-    </connection>
-    <connection>
         <sender>cancel_btn</sender>
         <signal>clicked()</signal>
         <receiver>nanotube_dialog</receiver>
@@ -1126,7 +1108,28 @@
         <receiver>nanotube_dialog</receiver>
         <slot>length_fixup()</slot>
     </connection>
+    <connection>
+        <sender>preview_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>nanotube_dialog</receiver>
+        <slot>preview_btn_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>abort_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>nanotube_dialog</receiver>
+        <slot>abort_btn_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>done_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>nanotube_dialog</receiver>
+        <slot>done_btn_clicked()</slot>
+    </connection>
 </connections>
+<includes>
+    <include location="local" impldecl="in implementation">NanotubeGeneratorDialog.ui.h</include>
+</includes>
 <slots>
     <slot>toggle_nt_distortion_grpbox()</slot>
     <slot>open_sponsor_homepage()</slot>
@@ -1146,6 +1149,9 @@
     <slot>ok_btn_clicked()</slot>
     <slot>sponsor_btn_clicked()</slot>
     <slot>length_fixup()</slot>
+    <slot>preview_btn_clicked()</slot>
+    <slot>abort_btn_clicked()</slot>
+    <slot>done_btn_clicked()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
