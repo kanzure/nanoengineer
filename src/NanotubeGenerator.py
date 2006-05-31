@@ -210,6 +210,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
     def generate_tube(self):
         n = self.chirality_n_spinbox.value()
         m = self.chirality_m_spinbox.value()
+        assert n > 0, 'n cannot be zero'
         assert n >= m, 'n cannot be smaller than m'
         self.chirality = Chirality(n, m)
         PROFILE = False
