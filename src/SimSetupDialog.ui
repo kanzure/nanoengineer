@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>297</width>
-            <height>245</height>
+            <width>305</width>
+            <height>293</height>
         </rect>
     </property>
     <property name="caption">
@@ -34,6 +34,75 @@
         <property name="spacing">
             <number>0</number>
         </property>
+        <widget class="QLayoutWidget" row="2" column="0">
+            <property name="name">
+                <cstring>layout20</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>4</number>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer18</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancel_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>run_sim_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Run Simulation</string>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+        <spacer row="1" column="0">
+            <property name="name">
+                <cstring>spacer17</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>16</height>
+                </size>
+            </property>
+        </spacer>
         <widget class="QFrame" row="0" column="0">
             <property name="name">
                 <cstring>base_frame</cstring>
@@ -44,7 +113,7 @@
             <property name="frameShadow">
                 <enum>Raised</enum>
             </property>
-            <grid>
+            <vbox>
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
@@ -54,7 +123,7 @@
                 <property name="spacing">
                     <number>3</number>
                 </property>
-                <widget class="QGroupBox" row="0" column="0">
+                <widget class="QGroupBox">
                     <property name="name">
                         <cstring>parms_grpbox</cstring>
                     </property>
@@ -274,7 +343,7 @@
                         </widget>
                     </vbox>
                 </widget>
-                <widget class="QGroupBox" row="1" column="0">
+                <widget class="QGroupBox">
                     <property name="name">
                         <cstring>groupBox2</cstring>
                     </property>
@@ -284,7 +353,7 @@
                     <property name="title">
                         <string></string>
                     </property>
-                    <vbox>
+                    <grid>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
@@ -294,7 +363,7 @@
                         <property name="spacing">
                             <number>1</number>
                         </property>
-                        <widget class="QLabel">
+                        <widget class="QLabel" row="0" column="0">
                             <property name="name">
                                 <cstring>sim_options_label</cstring>
                             </property>
@@ -309,7 +378,7 @@
                                 <string>Simulation Options</string>
                             </property>
                         </widget>
-                        <widget class="Line">
+                        <widget class="Line" row="1" column="0">
                             <property name="name">
                                 <cstring>line2_4</cstring>
                             </property>
@@ -326,7 +395,7 @@
                                 <enum>Horizontal</enum>
                             </property>
                         </widget>
-                        <widget class="QCheckBox">
+                        <widget class="QCheckBox" row="2" column="0">
                             <property name="name">
                                 <cstring>watch_motion_checkbox</cstring>
                             </property>
@@ -343,26 +412,24 @@
                                 <string>&lt;p&gt;&lt;b&gt;Watch Motion In Real Time&lt;/b&gt;&lt;/p&gt;Enables real time graphical updates during simulation runs.</string>
                             </property>
                         </widget>
-                        <widget class="QLayoutWidget">
+                        <widget class="QButtonGroup" row="3" column="0">
                             <property name="name">
-                                <cstring>layout19</cstring>
+                                <cstring>update_grpbox</cstring>
                             </property>
-                            <hbox>
+                            <property name="frameShape">
+                                <enum>StyledPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="title">
+                                <string></string>
+                            </property>
+                            <grid>
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>update_label</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>Update every</string>
-                                    </property>
-                                    <property name="alignment">
-                                        <set>AlignVCenter|AlignRight</set>
-                                    </property>
-                                </widget>
-                                <widget class="QSpinBox">
+                                <widget class="QSpinBox" row="1" column="1">
                                     <property name="name">
                                         <cstring>update_number_spinbox</cstring>
                                     </property>
@@ -376,10 +443,15 @@
                                         <number>1</number>
                                     </property>
                                 </widget>
-                                <widget class="QComboBox">
+                                <widget class="QComboBox" row="1" column="2">
                                     <item>
                                         <property name="text">
                                             <string>frames</string>
+                                        </property>
+                                    </item>
+                                    <item>
+                                        <property name="text">
+                                            <string>seconds</string>
                                         </property>
                                     </item>
                                     <item>
@@ -396,7 +468,7 @@
                                         <cstring>update_units_combobox</cstring>
                                     </property>
                                 </widget>
-                                <spacer>
+                                <spacer row="1" column="3">
                                     <property name="name">
                                         <cstring>spacer2</cstring>
                                     </property>
@@ -408,85 +480,41 @@
                                     </property>
                                     <property name="sizeHint">
                                         <size>
-                                            <width>30</width>
+                                            <width>16</width>
                                             <height>20</height>
                                         </size>
                                     </property>
                                 </spacer>
-                            </hbox>
+                                <widget class="QRadioButton" row="1" column="0">
+                                    <property name="name">
+                                        <cstring>update_every_rbtn</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Update every</string>
+                                    </property>
+                                    <property name="buttonGroupId">
+                                        <number>1</number>
+                                    </property>
+                                </widget>
+                                <widget class="QRadioButton" row="0" column="0" rowspan="1" colspan="4">
+                                    <property name="name">
+                                        <cstring>update_asap_rbtn</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Update as fast as possible</string>
+                                    </property>
+                                    <property name="checked">
+                                        <bool>true</bool>
+                                    </property>
+                                    <property name="buttonGroupId">
+                                        <number>0</number>
+                                    </property>
+                                </widget>
+                            </grid>
                         </widget>
-                    </vbox>
+                    </grid>
                 </widget>
-            </grid>
-        </widget>
-        <spacer row="1" column="0">
-            <property name="name">
-                <cstring>spacer17</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>20</width>
-                    <height>16</height>
-                </size>
-            </property>
-        </spacer>
-        <widget class="QLayoutWidget" row="2" column="0">
-            <property name="name">
-                <cstring>layout20</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>4</number>
-                </property>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer18</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>40</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>cancel_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Cancel</string>
-                    </property>
-                    <property name="default">
-                        <bool>false</bool>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>run_sim_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Run Simulation</string>
-                    </property>
-                    <property name="default">
-                        <bool>true</bool>
-                    </property>
-                </widget>
-            </hbox>
+            </vbox>
         </widget>
     </grid>
 </widget>
@@ -511,19 +539,7 @@
     <connection>
         <sender>watch_motion_checkbox</sender>
         <signal>toggled(bool)</signal>
-        <receiver>update_number_spinbox</receiver>
-        <slot>setEnabled(bool)</slot>
-    </connection>
-    <connection>
-        <sender>watch_motion_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>update_units_combobox</receiver>
-        <slot>setEnabled(bool)</slot>
-    </connection>
-    <connection>
-        <sender>watch_motion_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>update_label</receiver>
+        <receiver>update_grpbox</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
 </connections>
