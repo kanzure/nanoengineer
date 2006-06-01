@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed May 31 22:33:27 2006
+# Created: Thu Jun 1 10:56:51 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1779,33 +1779,45 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab.changeTab(self.TabPage_4,self.__tr("Lighting"))
         self.file_locations_grp.setTitle(self.__tr("Location of Executables"))
         self.nanohive_path_linedit.setText(QString.null)
+        QToolTip.add(self.nanohive_path_linedit,self.__tr("The full path to the Nano-Hive executable file."))
+        QWhatsThis.add(self.nanohive_path_linedit,self.__tr("The full path to the Nano-Hive executable file."))
         self.nanohive_choose_btn.setText(self.__tr("Choose..."))
+        QToolTip.add(self.nanohive_choose_btn,self.__tr("Choose location of Nano-Hive executable "))
+        QWhatsThis.add(self.nanohive_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the Nano-Hive executable."))
         self.nanohive_lbl.setText(self.__tr("Nano-Hive :"))
         QToolTip.add(self.nanohive_lbl,self.__tr("Enable Nano-Hive."))
-        QWhatsThis.add(self.nanohive_lbl,self.__tr("Enable Nano-Hive."))
+        QWhatsThis.add(self.nanohive_lbl,self.__tr("This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in."))
         self.nanohive_checkbox.setText(QString.null)
         QToolTip.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
-        QWhatsThis.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
+        QWhatsThis.add(self.nanohive_checkbox,self.__tr("This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in."))
         self.gamess_checkbox.setText(QString.null)
         QToolTip.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
-        QWhatsThis.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
+        QWhatsThis.add(self.gamess_checkbox,self.__tr("<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>\n"
+"<p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>\n"
+"<p>For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>"))
         self.gamess_lbl.setText(self.__tr("GAMESS :"))
         QToolTip.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
-        QWhatsThis.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
+        QWhatsThis.add(self.gamess_lbl,self.__tr("<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>\n"
+"<p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>\n"
+"<p>For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>"))
         self.gamess_path_linedit.setText(QString.null)
         QToolTip.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
         QWhatsThis.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
         self.gamess_choose_btn.setText(self.__tr("Choose..."))
+        QToolTip.add(self.gamess_choose_btn,self.__tr("Choose GAMESS executable"))
+        QWhatsThis.add(self.gamess_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the GAMESS or PC-GAMESS executable."))
         self.povray_path_linedit.setText(QString.null)
-        QToolTip.add(self.povray_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
-        QWhatsThis.add(self.povray_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+        QToolTip.add(self.povray_path_linedit,self.__tr("The full path to the POV-Ray executable file."))
+        QWhatsThis.add(self.povray_path_linedit,self.__tr("The full path to the POV-Ray executable file."))
         self.povray_choose_btn.setText(self.__tr("Choose..."))
+        QToolTip.add(self.povray_choose_btn,self.__tr("Choose POV-Ray executable"))
+        QWhatsThis.add(self.povray_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the POV-Ray executable."))
         self.povray_checkbox.setText(QString.null)
-        QToolTip.add(self.povray_checkbox,self.__tr("Enable GAMESS."))
-        QWhatsThis.add(self.povray_checkbox,self.__tr("Enable GAMESS."))
+        QToolTip.add(self.povray_checkbox,self.__tr("Enable POV-Ray"))
+        QWhatsThis.add(self.povray_checkbox,self.__tr("This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in."))
         self.povray_lbl.setText(self.__tr("POV-Ray :"))
-        QToolTip.add(self.povray_lbl,self.__tr("Enable GAMESS."))
-        QWhatsThis.add(self.povray_lbl,self.__tr("Enable GAMESS."))
+        QToolTip.add(self.povray_lbl,self.__tr("Enable POV-Ray"))
+        QWhatsThis.add(self.povray_lbl,self.__tr("This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in."))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
         self.groupBox17.setTitle(self.__tr("History Preferences"))
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))

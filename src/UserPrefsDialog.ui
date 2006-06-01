@@ -3725,6 +3725,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                 <property name="readOnly">
                                     <bool>true</bool>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>The full path to the Nano-Hive executable file.</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>The full path to the Nano-Hive executable file.</string>
+                                </property>
                             </widget>
                             <widget class="QPushButton" row="0" column="3">
                                 <property name="name">
@@ -3738,6 +3744,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                 </property>
                                 <property name="autoDefault">
                                     <bool>false</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Choose location of Nano-Hive executable </string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>This opens up a file chooser dialog so that you can specify the location of the Nano-Hive executable.</string>
                                 </property>
                             </widget>
                             <widget class="QLabel" row="0" column="1">
@@ -3771,7 +3783,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <string>Enable Nano-Hive.</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Enable Nano-Hive.</string>
+                                    <string>This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.</string>
                                 </property>
                             </widget>
                             <widget class="QCheckBox" row="0" column="0">
@@ -3788,7 +3800,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <string>Enable Nano-Hive.</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Enable Nano-Hive.</string>
+                                    <string>This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.</string>
                                 </property>
                             </widget>
                             <widget class="QCheckBox" row="2" column="0">
@@ -3802,7 +3814,9 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <string>Enable GAMESS.</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Enable GAMESS.</string>
+                                    <string>&lt;p&gt;This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. &lt;/p&gt;
+&lt;p&gt;For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.&lt;/p&gt;
+&lt;p&gt;For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.&lt;/p&gt;</string>
                                 </property>
                             </widget>
                             <widget class="QLabel" row="2" column="1">
@@ -3833,7 +3847,9 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <string>Enable GAMESS.</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Enable GAMESS.</string>
+                                    <string>&lt;p&gt;This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. &lt;/p&gt;
+&lt;p&gt;For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.&lt;/p&gt;
+&lt;p&gt;For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.&lt;/p&gt;</string>
                                 </property>
                             </widget>
                             <widget class="QLineEdit" row="2" column="2">
@@ -3884,6 +3900,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                 <property name="autoDefault">
                                     <bool>false</bool>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Choose GAMESS executable</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>This opens up a file chooser dialog so that you can specify the location of the GAMESS or PC-GAMESS executable.</string>
+                                </property>
                             </widget>
                             <widget class="QLineEdit" row="1" column="2">
                                 <property name="name">
@@ -3914,10 +3936,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <bool>true</bool>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                    <string>The full path to the POV-Ray executable file.</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                    <string>The full path to the POV-Ray executable file.</string>
                                 </property>
                             </widget>
                             <widget class="QPushButton" row="1" column="3">
@@ -3933,6 +3955,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                 <property name="autoDefault">
                                     <bool>false</bool>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Choose POV-Ray executable</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>This opens up a file chooser dialog so that you can specify the location of the POV-Ray executable.</string>
+                                </property>
                             </widget>
                             <widget class="QCheckBox" row="1" column="0">
                                 <property name="name">
@@ -3942,10 +3970,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <string></string>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>Enable GAMESS.</string>
+                                    <string>Enable POV-Ray</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Enable GAMESS.</string>
+                                    <string>This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.</string>
                                 </property>
                             </widget>
                             <widget class="QLabel" row="1" column="1">
@@ -3973,10 +4001,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <set>AlignVCenter|AlignRight</set>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>Enable GAMESS.</string>
+                                    <string>Enable POV-Ray</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>Enable GAMESS.</string>
+                                    <string>This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.</string>
                                 </property>
                             </widget>
                         </grid>
