@@ -41,8 +41,6 @@ from qt import *
 from prefs_constants import sponsor_download_permission_prefs_key, sponsor_permanent_permission_prefs_key
 from HistoryWidget import redmsg, orangemsg, greenmsg
 
-DEBUG = True
-
 # One might decide that downloading even just the MD5 hash would
 # constitute a violation of the user's privacy. Should we ask
 # permission before downloading the MD5? If yes, then the user
@@ -348,10 +346,11 @@ _defaultSponsor = Sponsor('Nanorex', fixHtml(_nanorexText), _defsp_imgfile)
 def findSponsor(keyword):
     if type(keyword) in (types.ListType, types.TupleType):
         keyword = random.choice(keyword)
-    if DEBUG: print 'keyword', keyword
     if not _sponsors.has_key(keyword):
         sponsor = _defaultSponsor
     else:
         sponsor = random.choice(_sponsors[keyword])
-    if DEBUG: print 'sponsor', sponsor
+    import platform
+    if platform.atom_debug:
+        print 'keyword', keyword, 'sponsor', sponsor
     return sponsor
