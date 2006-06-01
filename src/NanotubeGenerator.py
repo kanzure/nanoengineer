@@ -154,12 +154,13 @@ class Chirality:
                     except KeyError:
                         pass
 
-cmd = greenmsg("Insert Nanotube: ")
-
 from DnaGenerator import GeneratorBaseClass
 
 # GeneratorBaseClass must come BEFORE the dialog in the list of parents
 class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
+
+    cmd = greenmsg("Insert Nanotube: ")
+    sponsor_keyword = 'Nanotubes'
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
@@ -172,8 +173,6 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.length_linedit.setValidator(self.validator)
         self.cursor_pos = 0
         self.lenstr = str(self.length_linedit.text())
-        self.sponsor = sponsor = findSponsor('Nanotubes')
-        sponsor.configureSponsorButton(self.sponsor_btn)
 
     ###################################################
     # How to build this kind of structure, along with
@@ -188,15 +187,14 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             self.length = string.atof(str(self.length_linedit.text()))
         else:
             self.length = 0.0
-            env.history.message(cmd + redmsg("Please specify a valid length."))
-            return
+            raise Exception("Please specify a valid length.")
 
         # This can take a few seconds. Inform the user.
         # 100 is a guess on my part. Mark 051103.
         if self.length > 100.0:
-            env.history.message(cmd + "Creating nanotube. This may take a moment...")
+            env.history.message(self.cmd + "Creating nanotube. This may take a moment...")
         else: # Nanotubes under 100 Angstroms shouldn't take long.
-            env.history.message(cmd + "Creating nanotube.")
+            env.history.message(self.cmd + "Creating nanotube.")
         self.generate_tube()
 
     def generate_tube(self):
@@ -263,16 +261,40 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
     ###################################################
     # The done message
 
-    def done_history_msg(self):
-        env.history.message(cmd + "Nanotube created.")
+    def done_msg(self):
+        return "Nanotube created."
 
     ###################################################
-    # Any special controls for this kind of structure
+    # Special UI things that still must be implemented
+    def toggle_nt_distortion_grpbox(self):
+        print "nanotube_dialog.toggle_nt_distortion_grpbox(): Not implemented yet"
 
-    def complement_btn_clicked(self):
-        seq = self.get_sequence(complement=True)
-        self.base_textedit.setText(seq)
+    def toggle_nt_parameters_grpbox(self):
+        print "nanotube_dialog.toggle_nt_parameters_grpbox(): Not implemented yet"
 
-    def reverse_btn_clicked(self):
-        seq = self.get_sequence(reverse=True)
-        self.base_textedit.setText(seq)
+    def toggle_mwcnt_grpbox(self):
+        print "nanotube_dialog.toggle_mwcnt_grpbox(): Not implemented yet"
+
+    def enter_WhatsThisMode(self):
+        print "nanotube_dialog.enter_WhatsThisMode(): Not implemented yet"
+
+    def changeLength(self):
+        print "nanotube_dialog.changeLength(): Not implemented yet"
+
+    def nChanged(self,a0):
+        print "nanotube_dialog.nChanged(const QString&): Not implemented yet"
+
+    def mChanged(self,a0):
+        print "nanotube_dialog.mChanged(const QString&): Not implemented yet"
+
+    def bondLengthChanged(self):
+        print "nanotube_dialog.bondLengthChanged(): Not implemented yet"
+
+    def previewClicked(self):
+        print "nanotube_dialog.previewClicked(): Not implemented yet"
+
+    def zDistortChanged(self):
+        print "nanotube_dialog.zDistortChanged(): Not implemented yet"
+
+    def xyDistortChanged(self):
+        print "nanotube_dialog.xyDistortChanged(): Not implemented yet"

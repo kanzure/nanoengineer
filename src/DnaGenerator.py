@@ -176,19 +176,22 @@ class Z_Dna(Dna):
 
 ##################################
 
-cmd = greenmsg("Insert Dna: ")
-
 # There is some logic associated with Preview/OK/Abort that's complicated enough
 # to put it in one place, so that individual generators can focus on what they
 # need to do.
 
 class GeneratorBaseClass:
 
+    sponsor_keyword = None
+
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         self.win = win
         self.group = None
         self.previousParams = None
+        assert self.sponsor_keyword != None
+        self.sponsor = sponsor = findSponsor(self.sponsor_keyword)
+        sponsor.configureSponsorButton(self.sponsor_btn)
 
     def build_struct(self):
         raise Exception("Not implemented in the base class")
@@ -207,7 +210,7 @@ class GeneratorBaseClass:
         try:
             self.build_struct()
         except Exception, e:
-            env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+            env.history.message(self.cmd + redmsg(" - ".join(map(str, e.args))))
             self.remove_struct()
         QApplication.restoreOverrideCursor() # Restore the cursor
         self.win.win_update()
@@ -221,10 +224,10 @@ class GeneratorBaseClass:
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         try:
             self.build_struct()
-            self.done_history_msg()
+            env.history.message(self.cmd + self.done_msg())
             self.group = None
         except Exception, e:
-            env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+            env.history.message(self.cmd + redmsg(" - ".join(map(str, e.args))))
             self.remove_struct()
         QApplication.restoreOverrideCursor() # Restore the cursor
         self.win.win_update()
@@ -262,12 +265,13 @@ class GeneratorBaseClass:
 # GeneratorBaseClass must come BEFORE the dialog in the list of parents
 class DnaGenerator(GeneratorBaseClass, dna_dialog):
 
+    cmd = greenmsg("Insert Dna: ")
+    sponsor_keyword = 'DNA'
+
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         dna_dialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
         GeneratorBaseClass.__init__(self, win)
-        self.sponsor = sponsor = findSponsor('DNA')
-        sponsor.configureSponsorButton(self.sponsor_btn)
 
     ###################################################
     # How to build this kind of structure, along with
@@ -292,9 +296,9 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
                 self.dna = dna  # needed for done msg
                 doubleStrand = (double == 'Double')
                 if len(seq) > 30:
-                    env.history.message(cmd + "Creating DNA. This may take a moment...")
+                    env.history.message(self.cmd + "Creating DNA. This may take a moment...")
                 else:
-                    env.history.message(cmd + "Creating DNA.")
+                    env.history.message(self.cmd + "Creating DNA.")
                 part = self.win.assy.part
                 part.ensure_toplevel_group()
                 self.group = grp = Group(gensym("DNA-"), self.win.assy, part.topnode)
@@ -323,8 +327,8 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
     ###################################################
     # The done message
 
-    def done_history_msg(self):
-        env.history.message(cmd + "Done creating a strand of %s." % self.dna.geometry)
+    def done_msg(self):
+        return "Done creating a strand of %s." % self.dna.geometry
 
     ###################################################
     # Any special controls for this kind of structure
