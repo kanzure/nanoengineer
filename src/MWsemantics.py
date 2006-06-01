@@ -1146,7 +1146,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def insertComment(self):
         '''Insert a new comment into the model tree.
         '''
-        self.commentcntl.show()
+        self.commentcntl.setup()
 
     #### Movie Player Dashboard Slots ############
 

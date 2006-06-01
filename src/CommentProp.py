@@ -31,16 +31,17 @@ class CommentProp(CommentPropDialog):
         self.comment = None
         self.action = None
     
-    def setup(self, comment):
+    def setup(self, comment=None):
         '''Show Comment dialog with currect comment text. 
         <comment> - the comment node object.
         '''
         self.comment = comment
-            
-        self.comment_textedit.setText(self.comment.get_text()) 
-            # Load comment text.
-        self.comment_textedit.moveCursor(QTextEdit.MoveEnd, False)
-            # Sets cursor position to the end of the textedit document.
+        
+        if self.comment:
+            self.comment_textedit.setText(self.comment.get_text())
+                # Load comment text.
+            self.comment_textedit.moveCursor(QTextEdit.MoveEnd, False)
+                # Sets cursor position to the end of the textedit document.
         
         QDialog.exec_loop(self)
 
