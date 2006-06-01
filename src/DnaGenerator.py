@@ -23,6 +23,7 @@ from VQT import A, V, dot, vlen
 from bonds import inferBonds, bond_atoms
 from files_mmp import _readmmp
 from GeneratorBaseClass import GeneratorBaseClass
+from fusechunksMode import fusechunksBase
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
 basepath = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'experimental')
@@ -88,33 +89,13 @@ class Dna:
                 theta -= self.TWIST_PER_BASE
                 z -= self.BASE_SPACING
 
-        # find coincident singlets, remove them, connect their owner atoms
-        singlets = { }
-        removable = { }
-        def dictOnly(n, x):
-            import types
-            return type(x) == types.DictType
-        for m in grp.members:
-            for atm in m.atoms.values():
-                if atm.is_singlet():
-                    singlets[atm.key] = atm
-        from bonds import neighborhoodGenerator
-        sgn = neighborhoodGenerator(singlets.values(), 2.0)
-        for sing1 in singlets.values():
-            key1 = sing1.key
-            pos1 = sing1.posn()
-            for sing2 in sgn(pos1):
-                dist = vlen(pos1 - sing2.posn())
-                key2 = sing2.key
-                if key1 != key2 and dist < 2.0:
-                    removable[key1] = sing1
-                    removable[key2] = sing2
-                    b1, b2 = sing1.bonds[0], sing2.bonds[0]
-                    owner1 = b1.other(sing1)
-                    owner2 = b2.other(sing2)
-                    bond_atoms(owner1, owner2)
-        for atm in removable.values():
-            atm.kill()
+        # use fusechunksMode.make_bonds to glue the bases together
+        chunkList = assy.molecules
+        fcb = fusechunksBase()
+        for i in range(1, len(chunkList)):
+            #fcb.find_bondable_pairs(chunkList[:i], chunkList[i:])
+            fcb.find_bondable_pairs(chunkList, chunkList[i:])
+        fcb.make_bonds(assy)
 
 class A_Dna(Dna):
     """The geometry for A-DNA is very twisty and funky. I'd probably need to

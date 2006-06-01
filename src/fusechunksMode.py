@@ -111,7 +111,175 @@ def fusechunks_lambda_tol_natoms(tol, natoms):
     return "%s => %s overlapping atoms" % (tol_str, natoms_str)
 
 
-class fusechunksMode(modifyMode):
+class fusechunksBase:
+    '''Allows user to move chunks and fuse them to other chunks in the part.
+    Two fuse methods are supported:
+        1. Make Bonds - bondpoints between chunks will form bonds when they are near each other.
+        2. Fuse Atoms - atoms between chunks will be fused when they overlap each other.
+    '''
+    bondable_pairs = [] # List of bondable singlets
+    ways_of_bonding = {} # Number of bonds each singlet found
+    bondable_pairs_atoms = [] # List of atom pairs that can be bonded
+    overlapping_atoms = [] # List of overlapping atoms
+    
+    tol = 1.0 # in Angstroms
+        # For "Make Bonds", tol is the distance between two bondable singlets
+        # For "Fuse Atoms", tol is the distance between two atoms to be considered overlapping
+    
+    recompute_fusables = True
+        # 'recompute_fusables' is used to optimize redraws by skipping the recomputing of fusables
+        # (bondable pairs or overlapping atoms). When set to False, Draw() will not recompute fusables 
+        # before repainting the GLPane. When False, 'recompute_fusables' is reset to True in Draw(), 
+        # so it is the responsibility of the caller to Draw() (i.e. win_update() or gl_update()) to reset it to 
+        # False before each redraw if desired. For more info, see comments in Draw().
+
+    def find_bondable_pairs(self, chunk_list = None, selmols_list = None):
+        '''Checks the bondpoints of the selected chunk to see if they are close enough
+        to bond with any other bondpoints in a list of chunks.  Hidden chunks are skipped.
+        '''
+        self.bondable_pairs = []
+        self.ways_of_bonding = {}
+        
+        if not chunk_list:
+            chunk_list = self.o.assy.molecules
+        if not selmols_list:
+            selmols_list = self.o.assy.selmols
+
+        for chunk in selmols_list:
+            if chunk.hidden or chunk.display == diINVISIBLE: 
+                # Skip selected chunk if hidden or invisible. Fixes bug 970. mark 060404
+                continue
+        
+            # Loop through all the mols in the part to search for bondable pairs of singlets.
+            # for mol in self.o.assy.molecules:
+            for mol in chunk_list:
+                if chunk is mol: continue # Skip itself
+                if mol.hidden or mol.display == diINVISIBLE: continue # Skip hidden and invisible chunks.
+                if mol.picked: continue # Skip selected chunks
+                
+                # Skip this mol if it's bounding box does not overlap the selected chunk's bbox.
+                # Remember: chunk = a selected chunk, mol = a non-selected chunk.
+                if not chunk.overlapping_chunk(mol, self.tol):
+                    # print "Skipping ", mol.name
+                    continue
+                else:
+
+                    # Loop through all the singlets in the selected chunk.
+                    for s1 in chunk.singlets:
+                        # We can skip mol if the singlet lies outside it's bbox.
+                        if not mol.overlapping_atom(s1, self.tol):
+                            continue
+                        # Loop through all the singlets in this chunk.
+                        for s2 in mol.singlets:
+                        
+                            # I substituted the line below in place of mergeable_singlets_Q_and_offset,
+                            # which compares the distance between s1 and s2.  If the distance
+                            # is <= tol, then we have a bondable pair of singlets.  I know this isn't 
+                            # a proper use of tol, but it works for now.   Mark 050327
+                            if vlen (s1.posn() - s2.posn()) <= self.tol:
+                            
+                            # ok, ideal, err = mergeable_singlets_Q_and_offset(s1, s2, offset2 = V(0,0,0), self.tol)
+                            # if ok:
+                            # we can ignore ideal and err, we know s1, s2 can bond at this tol
+                                    
+                                self.bondable_pairs.append( (s1,s2) ) # Add this pair to the list
+            
+                                # Now increment ways_of_bonding for each of the two singlets.
+                                if s1.key in self.ways_of_bonding:
+                                    self.ways_of_bonding[s1.key] += 1
+                                else:
+                                    self.ways_of_bonding[s1.key] = 1
+                                if s2.key in self.ways_of_bonding:
+                                    self.ways_of_bonding[s2.key] += 1
+                                else:
+                                    self.ways_of_bonding[s2.key] = 1
+                                    
+        # Update tolerance label and status bar msgs.
+        nbonds = len(self.bondable_pairs)
+        mbonds, singlets_not_bonded, singlet_pairs = self.multibonds()
+        tol_str = fusechunks_lambda_tol_nbonds(self.tol, nbonds, mbonds, singlet_pairs)
+        return tol_str
+
+    def make_bonds(self, assy=None):
+        "Make bonds between all bondable pairs of singlets"
+        self._make_bonds_1(assy)
+        self._make_bonds_3()
+        
+    def _make_bonds_1(self, assy=None):
+        "Make bonds between all bondable pairs of singlets"
+        if assy == None:
+            assy = self.o.assy
+        self.bondable_pairs_atoms = []
+        self.merged_chunks = []
+        singlet_found_with_multiple_bonds = False # True when there are singlets with multiple bonds.
+        self.total_bonds_made = 0 # The total number of bondpoint pairs that formed bonds.
+        singlets_not_bonded = 0 # Number of bondpoints not bonded.
+        
+#        print self.bondable_pairs
+        
+        # This first section of code bonds each bondable pair of singlets.
+        for s1, s2 in self.bondable_pairs:
+            # Make sure each singlet of the pair has only one way of bonding.
+            # If either singlet has more than one ways to bond, we aren't going to bond them.
+            if self.ways_of_bonding[s1.key] == 1 and self.ways_of_bonding[s2.key] == 1:
+                # Record the real atoms in case I want to undo the bond later (before general Undo exists)
+                # Current, this undo feature is not implemented here. Mark 050325
+                a1 = s1.singlet_neighbor()
+                a2 = s2.singlet_neighbor()
+                self.bondable_pairs_atoms.append( (a1,a2) ) # Add this pair to the list
+                bond_at_singlets(s1, s2, move = False) # Bond the singlets.
+                assy.changed() # The assy has changed.
+            else:
+                singlet_found_with_multiple_bonds = True
+        self.singlet_found_with_multiple_bonds = singlet_found_with_multiple_bonds
+
+    def _make_bonds_3(self):
+        # Print history msgs to inform the user what happened.                         
+        if self.singlet_found_with_multiple_bonds:
+            mbonds, singlets_not_bonded, bp = self.multibonds()
+
+            self.total_bonds_made = len(self.bondable_pairs_atoms)
+            
+            if singlets_not_bonded == 1:
+                msg = "%d bondpoint had more than one option to form bonds with. It was not bonded." % (singlets_not_bonded,)
+            else:
+                msg = "%d bondpoints had more than one option to form bonds with. They were not bonded." % (singlets_not_bonded,)
+            env.history.message(orangemsg(msg))
+            
+        else:  # All bond pairs had only one way to bond.
+            self.total_bonds_made = len(self.bondable_pairs_atoms)
+            
+    def multibonds(self):
+        '''Returns the following information about bondable pairs:
+            - the number of multiple bonds
+            - number of bondpoints (singlets) with multiple bonds
+            - number of bondpoint pairs that will bond
+        '''
+        mbonds = 0 # number of multiple bonds
+        mbond_singlets = [] # list of singlets with multiple bonds (these will not bond)
+        sbond_singlets = 0 # number of singlets with single bonds (these will bond)
+        
+        for s1, s2 in self.bondable_pairs:
+            
+            if self.ways_of_bonding[s1.key] == 1 and self.ways_of_bonding[s2.key] == 1:
+                sbond_singlets += 1
+                continue
+                
+            if self.ways_of_bonding[s1.key] > 1:
+                if s1 not in mbond_singlets:
+                    mbond_singlets.append(s1)
+                    mbonds += self.ways_of_bonding[s1.key] - 1 # The first one doesn't count.
+                
+            if self.ways_of_bonding[s2.key] > 1:
+                if s2 not in mbond_singlets:
+                    mbond_singlets.append(s2)
+                    mbonds += self.ways_of_bonding[s2.key] - 1 # The first one doesn't count.
+
+        return mbonds, len(mbond_singlets), sbond_singlets
+    
+
+
+class fusechunksMode(modifyMode, fusechunksBase):
     '''Allows user to move chunks and fuse them to other chunks in the part.
     Two fuse methods are supported:
         1. Make Bonds - bondpoints between chunks will form bonds when they are near each other.
@@ -346,66 +514,7 @@ class fusechunksMode(modifyMode):
         '''Checks the bondpoints of the selected chunk to see if they are close enough
         to bond with any other bondpoints in a list of chunks.  Hidden chunks are skipped.
         '''
-        self.bondable_pairs = []
-        self.ways_of_bonding = {}
-        
-        if not chunk_list:
-            chunk_list = self.o.assy.molecules
-        
-        for chunk in self.o.assy.selmols:
-            
-            if chunk.hidden or chunk.display == diINVISIBLE: 
-                # Skip selected chunk if hidden or invisible. Fixes bug 970. mark 060404
-                continue
-        
-            # Loop through all the mols in the part to search for bondable pairs of singlets.
-            # for mol in self.o.assy.molecules:
-            for mol in chunk_list:
-                if chunk is mol: continue # Skip itself
-                if mol.hidden or mol.display == diINVISIBLE: continue # Skip hidden and invisible chunks.
-                if mol.picked: continue # Skip selected chunks
-                
-                # Skip this mol if it's bounding box does not overlap the selected chunk's bbox.
-                # Remember: chunk = a selected chunk, mol = a non-selected chunk.
-                if not chunk.overlapping_chunk(mol, self.tol):
-                    # print "Skipping ", mol.name
-                    continue
-                else:
-
-                    # Loop through all the singlets in the selected chunk.
-                    for s1 in chunk.singlets:
-                        # We can skip mol if the singlet lies outside it's bbox.
-                        if not mol.overlapping_atom(s1, self.tol):
-                            continue
-                        # Loop through all the singlets in this chunk.
-                        for s2 in mol.singlets:
-                        
-                            # I substituted the line below in place of mergeable_singlets_Q_and_offset,
-                            # which compares the distance between s1 and s2.  If the distance
-                            # is <= tol, then we have a bondable pair of singlets.  I know this isn't 
-                            # a proper use of tol, but it works for now.   Mark 050327
-                            if vlen (s1.posn() - s2.posn()) <= self.tol:
-                            
-                            # ok, ideal, err = mergeable_singlets_Q_and_offset(s1, s2, offset2 = V(0,0,0), self.tol)
-                            # if ok:
-                            # we can ignore ideal and err, we know s1, s2 can bond at this tol
-                                    
-                                self.bondable_pairs.append( (s1,s2) ) # Add this pair to the list
-            
-                                # Now increment ways_of_bonding for each of the two singlets.
-                                if s1.key in self.ways_of_bonding:
-                                    self.ways_of_bonding[s1.key] += 1
-                                else:
-                                    self.ways_of_bonding[s1.key] = 1
-                                if s2.key in self.ways_of_bonding:
-                                    self.ways_of_bonding[s2.key] += 1
-                                else:
-                                    self.ways_of_bonding[s2.key] = 1
-                                    
-        # Update tolerance label and status bar msgs.
-        nbonds = len(self.bondable_pairs)
-        mbonds, singlets_not_bonded, singlet_pairs = self.multibonds()
-        tol_str = fusechunks_lambda_tol_nbonds(self.tol, nbonds, mbonds, singlet_pairs)
+        tol_str = fusechunksBase.find_bondable_pairs(self, chunk_list, None)
         self.w.toleranceLB.setText(tol_str)
 
     def fuse_something(self):
@@ -418,31 +527,12 @@ class fusechunksMode(modifyMode):
             
     def make_bonds(self):
         "Make bonds between all bondable pairs of singlets"
+        self._make_bonds_1()
+        self._make_bonds_2()
+        self._make_bonds_3()
+        self._make_bonds_4()
         
-        self.bondable_pairs_atoms = []
-        self.merged_chunks = []
-        singlet_found_with_multiple_bonds = False # True when there are singlets with multiple bonds.
-        total_bonds_made = 0 # The total number of bondpoint pairs that formed bonds.
-        singlets_not_bonded = 0 # Number of bondpoints not bonded.
-        
-#        print self.bondable_pairs
-        
-        # This first section of code bonds each bondable pair of singlets.
-        for s1, s2 in self.bondable_pairs:
-            # Make sure each singlet of the pair has only one way of bonding.
-            # If either singlet has more than one ways to bond, we aren't going to bond them.
-            if self.ways_of_bonding[s1.key] == 1 and self.ways_of_bonding[s2.key] == 1:
-                # Record the real atoms in case I want to undo the bond later (before general Undo exists)
-                # Current, this undo feature is not implemented here. Mark 050325
-                a1 = s1.singlet_neighbor()
-                a2 = s2.singlet_neighbor()
-                self.bondable_pairs_atoms.append( (a1,a2) ) # Add this pair to the list
-                bond_at_singlets(s1, s2, move = False) # Bond the singlets.
-                self.o.assy.changed() # The assy has changed.
-            else:
-                singlet_found_with_multiple_bonds = True
-                
-
+    def _make_bonds_2(self):
         # Merge the chunks if the "merge chunks" checkbox is checked
         if self.w.mergeCB.isChecked() and self.bondable_pairs_atoms:
             for a1, a2 in self.bondable_pairs_atoms:
@@ -453,22 +543,8 @@ class fusechunksMode(modifyMode):
                         self.merged_chunks.append(a2.molecule)
                         a1.molecule.merge(a2.molecule)
                         
-        # Print history msgs to inform the user what happened.                         
-        if singlet_found_with_multiple_bonds:
-            mbonds, singlets_not_bonded, bp = self.multibonds()
-
-            total_bonds_made = len(self.bondable_pairs_atoms)
-            
-            if singlets_not_bonded == 1:
-                msg = "%d bondpoint had more than one option to form bonds with. It was not bonded." % (singlets_not_bonded,)
-            else:
-                msg = "%d bondpoints had more than one option to form bonds with. They were not bonded." % (singlets_not_bonded,)
-            env.history.message(orangemsg(msg))
-            
-        else:  # All bond pairs had only one way to bond.
-            total_bonds_made = len(self.bondable_pairs_atoms)
-            
-        msg = fix_plurals( "%d bond(s) made" % total_bonds_made)
+    def _make_bonds_4(self):
+        msg = fix_plurals( "%d bond(s) made" % self.total_bonds_made)
         env.history.message(msg)
 
         # Update the slider tolerance label.  This fixed bug 502-14.  Mark 050407
@@ -482,34 +558,6 @@ class fusechunksMode(modifyMode):
         
         self.w.win_update()
 
-    def multibonds(self):
-        '''Returns the following information about bondable pairs:
-            - the number of multiple bonds
-            - number of bondpoints (singlets) with multiple bonds
-            - number of bondpoint pairs that will bond
-        '''
-        mbonds = 0 # number of multiple bonds
-        mbond_singlets = [] # list of singlets with multiple bonds (these will not bond)
-        sbond_singlets = 0 # number of singlets with single bonds (these will bond)
-        
-        for s1, s2 in self.bondable_pairs:
-            
-            if self.ways_of_bonding[s1.key] == 1 and self.ways_of_bonding[s2.key] == 1:
-                sbond_singlets += 1
-                continue
-                
-            if self.ways_of_bonding[s1.key] > 1:
-                if s1 not in mbond_singlets:
-                    mbond_singlets.append(s1)
-                    mbonds += self.ways_of_bonding[s1.key] - 1 # The first one doesn't count.
-                
-            if self.ways_of_bonding[s2.key] > 1:
-                if s2 not in mbond_singlets:
-                    mbond_singlets.append(s2)
-                    mbonds += self.ways_of_bonding[s2.key] - 1 # The first one doesn't count.
-
-        return mbonds, len(mbond_singlets), sbond_singlets
-    
     ######### Overlapping Atoms methods #############
     
     def find_overlapping_atoms(self):
