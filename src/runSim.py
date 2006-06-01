@@ -1145,7 +1145,7 @@ class SimRunner:
             self.need_process_events = False # might not be needed; precaution in case of recursion
             #e see if user aborted
             if self.abortbutton_controller.aborting():
-                self.abort_sim_run("got real abort at frame %d" % frame_number) # this also sets self.aborting
+                self.abort_sim_run("got real abort at frame %d" % self.__frame_number) # this also sets self.aborting
         return
 
     def tracefile_callback(self, line): #bruce 060109, revised 060112; needs to be fast; should optim by passing step method to .go
