@@ -22,7 +22,7 @@ import string
 from widgets import double_fixup
 from debug import Stopwatch, objectBrowse
 from Utility import Group
-from Sponsors import findSponsor
+from GeneratorBaseClass import GeneratorBaseClass
 
 sqrt3 = 3 ** 0.5
 
@@ -154,13 +154,14 @@ class Chirality:
                     except KeyError:
                         pass
 
-from DnaGenerator import GeneratorBaseClass
-
 # GeneratorBaseClass must come BEFORE the dialog in the list of parents
 class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
 
     cmd = greenmsg("Insert Nanotube: ")
     sponsor_keyword = 'Nanotubes'
+
+    # We now support multiple keywords in a list or tuple
+    # sponsor_keyword = ('Nanotubes', 'Carbon')
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
@@ -178,8 +179,11 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
     # How to build this kind of structure, along with
     # any necessary helper functions
 
-    def build_struct(self):
-        self.remove_struct()
+    def gather_parameters(self):
+        n = self.chirality_n_spinbox.value()
+        m = self.chirality_m_spinbox.value()
+        assert n > 0, 'n cannot be zero'
+        assert n >= m, 'n cannot be smaller than m'
         # Get length from length_linedit and make sure it is not zero.
         # length_linedit's validator makes sure this has a valid number (float).  
         # The only exception is when there is no text.  Mark 051103.
@@ -188,26 +192,22 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         else:
             self.length = 0.0
             raise Exception("Please specify a valid length.")
+        length = self.length
+        return (n, m, length)
 
+    def build_struct(self, params):
+        n, m, length = params
         # This can take a few seconds. Inform the user.
         # 100 is a guess on my part. Mark 051103.
-        if self.length > 100.0:
+        if length > 100.0:
             env.history.message(self.cmd + "Creating nanotube. This may take a moment...")
         else: # Nanotubes under 100 Angstroms shouldn't take long.
             env.history.message(self.cmd + "Creating nanotube.")
-        self.generate_tube()
-
-    def generate_tube(self):
-        n = self.chirality_n_spinbox.value()
-        m = self.chirality_m_spinbox.value()
-        assert n > 0, 'n cannot be zero'
-        assert n >= m, 'n cannot be smaller than m'
         self.chirality = Chirality(n, m)
         PROFILE = False
         if PROFILE:
             sw = Stopwatch()
             sw.start()
-        length = self.length
         xyz = self.chirality.xyz
         mol = molecule(self.win.assy, gensym("Nanotube-"))
         atoms = mol.atoms
@@ -242,13 +242,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             t = sw.now()
             env.history.message(greenmsg("%g seconds to build %d atoms" %
                                          (t, len(atoms.values()))))
-
-        part = self.win.assy.part
-        part.ensure_toplevel_group()
-        part.topnode.addchild(mol)
-        self.win.win_update()
-        self.win.mt.mt_update()
-        self.group = mol
+        return mol
 
     def length_fixup(self):
         '''Slot for the Length linedit widget.
@@ -256,7 +250,6 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         '''
         self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
         self.length_linedit.setText(self.lenstr)
-
 
     ###################################################
     # The done message

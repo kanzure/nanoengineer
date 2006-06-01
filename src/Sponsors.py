@@ -31,6 +31,7 @@ import re
 import socket
 import string
 import time
+import types
 import urllib
 from xml.dom.minidom import parseString
 from wiki_help import WikiHelpBrowser
@@ -39,6 +40,8 @@ from debug import print_compact_stack, print_compact_traceback
 from qt import *
 from prefs_constants import sponsor_download_permission_prefs_key, sponsor_permanent_permission_prefs_key
 from HistoryWidget import redmsg, orangemsg, greenmsg
+
+DEBUG = True
 
 # One might decide that downloading even just the MD5 hash would
 # constitute a violation of the user's privacy. Should we ask
@@ -343,6 +346,12 @@ _defaultSponsor = Sponsor('Nanorex', fixHtml(_nanorexText), _defsp_imgfile)
 ###############################################
 
 def findSponsor(keyword):
+    if type(keyword) in (types.ListType, types.TupleType):
+        keyword = random.choice(keyword)
+    if DEBUG: print 'keyword', keyword
     if not _sponsors.has_key(keyword):
-        return _defaultSponsor
-    return random.choice(_sponsors[keyword])
+        sponsor = _defaultSponsor
+    else:
+        sponsor = random.choice(_sponsors[keyword])
+    if DEBUG: print 'sponsor', sponsor
+    return sponsor
