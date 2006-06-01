@@ -66,7 +66,7 @@ class CommentProp(CommentPropDialog):
         if self.comment:
             part = self.win.assy.part
             part.ensure_toplevel_group()
-            part.topnode.delmember(self.comment)
+            self.comment.kill()
             self.win.mt.mt_update()
             self.comment = None
             
