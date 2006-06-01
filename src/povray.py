@@ -45,18 +45,21 @@ def raytrace_scene_using_povray(assy, pov, width, height, output_type="png"):
         if r:
             return 1, errmsgs[0] # POV-Ray plug-in not enabled.
         
-    povray_exe = env.prefs[povray_path_prefs_key]   
+    povray_exe = env.prefs[povray_path_prefs_key]
     if not povray_exe:
         return 2, errmsgs[1] # POV-Ray plug-in path is empty
             
-    if not os.path.exists(env.prefs[nanohive_path_prefs_key]):
+    if not os.path.exists(env.prefs[povray_path_prefs_key]):
         return 3, errmsgs[2] # POV-Ray plug-in path points to a file that does not exist
             
     #r = verify_povray_program() # Not yet sure how to verify POV-Ray program. Mark 060529.
     #if r:
     #    return 4, errmsgs[3]  # POV-Ray plug-in is not Version 3.6
-    
-    program = "\""+povray_exe+"\"" # POV-Ray (pvengine.exe) or MegaPOV (mpengine.exe)
+
+    if sys.platform == 'win32':
+        program = "\""+povray_exe+"\"" # POV-Ray (pvengine.exe) or MegaPOV (mpengine.exe)
+    else:
+        program = povray_exe  # Are the extra quotes a Windows requirement?
     
     # POV-Ray has a special feature introduced in v3.5 called "I/O Restrictions" which attempts
     # to at least partially protect a machine running POV-Ray from having files read or written 
@@ -117,6 +120,7 @@ def raytrace_scene_using_povray(assy, pov, width, height, output_type="png"):
         
         args = [program] + [input_fn] + [output_fn] + [w] + [h] + [aa] + [filetype]
         print "Launching POV-Ray: \n  povray_exe=", povray_exe,  "\n  args are %r" % (args,)
+        env.history.message('Writing ' + os.path.join(workdir, tmp_out))
         
         arguments = QStringList()
         for arg in args:
@@ -125,7 +129,7 @@ def raytrace_scene_using_povray(assy, pov, width, height, output_type="png"):
     
         p = QProcess()
         p.setArguments(arguments)
-        
+
         wd = QDir(workdir)
         p.setWorkingDirectory(wd) # This gets us around POV-Ray's 'I/O Restrictions' feature.
         
