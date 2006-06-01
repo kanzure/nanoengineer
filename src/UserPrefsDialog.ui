@@ -1546,13 +1546,6 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                                 <verstretch>0</verstretch>
                                             </sizepolicy>
                                         </property>
-                                        <property name="paletteForegroundColor">
-                                            <color>
-                                                <red>0</red>
-                                                <green>0</green>
-                                                <blue>0</blue>
-                                            </color>
-                                        </property>
                                         <property name="text">
                                             <string>Bond Highlighting :</string>
                                         </property>
@@ -2048,13 +2041,6 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                                 <horstretch>0</horstretch>
                                                 <verstretch>0</verstretch>
                                             </sizepolicy>
-                                        </property>
-                                        <property name="paletteForegroundColor">
-                                            <color>
-                                                <red>0</red>
-                                                <green>0</green>
-                                                <blue>0</blue>
-                                            </color>
                                         </property>
                                         <property name="text">
                                             <string>Default Mode :</string>

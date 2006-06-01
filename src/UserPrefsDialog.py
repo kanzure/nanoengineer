@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Sat May 27 10:58:54 2006
+# Created: Wed May 31 22:33:27 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -467,7 +467,6 @@ class UserPrefsDialog(QDialog):
 
         self.textLabel3_2 = QLabel(self.groupBox4,"textLabel3_2")
         self.textLabel3_2.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.textLabel3_2.sizePolicy().hasHeightForWidth()))
-        self.textLabel3_2.setPaletteForegroundColor(QColor(0,0,0))
         self.textLabel3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         layout79_2.addWidget(self.textLabel3_2,0,0)
@@ -611,7 +610,6 @@ class UserPrefsDialog(QDialog):
 
         self.default_mode_lbl = QLabel(self.TabPage_3,"default_mode_lbl")
         self.default_mode_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.default_mode_lbl.sizePolicy().hasHeightForWidth()))
-        self.default_mode_lbl.setPaletteForegroundColor(QColor(0,0,0))
         self.default_mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         layout68.addWidget(self.default_mode_lbl,1,0)
