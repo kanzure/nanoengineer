@@ -13,25 +13,29 @@ History:
 __author__ = "Mark"
 
 from qt import QDialog, QTextEdit
+from Comment import Comment
 from CommentPropDialog import CommentPropDialog
 import time
+import env
+from HistoryWidget import redmsg, orangemsg, greenmsg
+
+cmd = greenmsg("Insert Comment: ")
 
 class CommentProp(CommentPropDialog):
     '''The Comment dialog allows the user to add a comment to the Model Tree, which
     is saved in the MMP file.
     '''
+    def __init__(self, win):
+        CommentPropDialog.__init__(self, win) # win is parent.
+        self.win = win
+        self.comment = None
+        self.action = None
     
     def setup(self, comment):
-        '''Show Comment dialog. 
+        '''Show Comment dialog with currect comment text. 
         <comment> - the comment node object.
         '''
         self.comment = comment
-
-#bruce 060522 removed this (not used, no longer correct)
-##        if self.comment.text:
-##            self.new_comment=False
-##        else:
-##            self.new_comment=True
             
         self.comment_textedit.setText(self.comment.get_text()) 
             # Load comment text.
@@ -42,26 +46,60 @@ class CommentProp(CommentPropDialog):
 
     ###### Private methods ###############################
     
+    def create_comment(self):
+        '''Create comment'''
+        comment_text = self.comment_textedit.text()
+        
+        if not self.comment:
+            self.comment = cmnt = Comment(self.win.assy, None, comment_text)
+            self.action = 'added'
+            part = self.win.assy.part
+            part.ensure_toplevel_group()
+            part.topnode.addchild(cmnt)
+        else: 
+            self.comment.set_text(comment_text)
+            self.action = 'updated'
+            
+    def remove_comment(self):
+        '''Removes comment'''
+        if self.comment:
+            part = self.win.assy.part
+            part.ensure_toplevel_group()
+            part.topnode.delmember(self.comment)
+            self.win.mt.mt_update()
+            self.comment = None
+            
     def insert_date_time_stamp(self):
         ''' Inserts a date/time stamp in the comment at the current position.
         '''
         timestr = "%s " % time.strftime("%m/%d/%Y %I:%M %p")
         self.comment_textedit.insert(timestr)
+        
+    def done_history_msg(self):
+        env.history.message(cmd + "%s %s." % (self.comment.name, self.action))
     
     #################
     # Cancel Button
     #################
     def reject(self):
         QDialog.reject(self)
+        self.comment = None
+        self.comment_textedit.setText('') # Clear text.
 
     #################
     # OK Button
     #################
     def accept(self):
-        ## self.comment.text = self.comment_textedit.text()
-        self.comment.set_text(self.comment_textedit.text())
+        'Slot for the OK button'
+        try:
+            self.create_comment()
+            self.done_history_msg()
+            self.comment = None
+        except Exception, e:
+            env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+            self.remove_comment()
+        self.win.mt.mt_update()
         QDialog.accept(self)
+        self.comment_textedit.setText('') # Clear text.
 
-    pass
-
-# end
+# end of class Comment

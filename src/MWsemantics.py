@@ -374,9 +374,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.nanotubecntl = NanotubeGenerator(self)
         from DnaGenerator import DnaGenerator
         self.dnacntl = DnaGenerator(self)
-        # New PovrayScene. Mark 060530
-        #from PovrayScene import PovrayScene
-        #self.povrayscenecntl = PovrayScene(self)
+#        from PovraySceneProp import PovraySceneProp
+#        self.povrayscenecntl = PovraySceneProp(self)
 
     def _init_after_geometry_is_set(self): #bruce 060104 renamed this from startRun and replaced its docstring.
         """Do whatever initialization of self needs to wait until its geometry has been set.
@@ -1141,21 +1140,13 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def insertDna(self):
         self.dnacntl.show()
         
-    #def insertPovrayScene(self): # Mark 060530.
-    #    self.povrayscenecntl.show()
+#    def insertPovrayScene(self):
+#        self.povrayscenecntl.show()
         
     def insertComment(self):
         '''Insert a new comment into the model tree.
         '''
-        from Comment import Comment
-        comment = Comment(self.assy, None, text='')
-        self.commentcntl.setup(comment)
-        
-        if self.commentcntl.result() == QDialog.Accepted:
-            part = self.assy.part
-            part.ensure_toplevel_group()
-            part.topnode.addchild(comment)
-            self.mt.mt_update()
+        self.commentcntl.show()
 
     #### Movie Player Dashboard Slots ############
 
