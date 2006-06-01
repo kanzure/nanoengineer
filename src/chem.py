@@ -2348,7 +2348,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
         self.make_enough_singlets() ###e might pass old posns to ask this to imitate them if it can
         pass ###e now transmute the elts back to what they were, if you can, based on nearness
-        return # from remake_singlets
+        return # from remake_baggage
 
     def make_enough_singlets(self): #bruce 050510 extending this to use atomtypes; all subrs still need to set singlet valence ####@@@@
         """[Public method, does all needed invalidations:]
@@ -2394,7 +2394,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     
     def make_singlets_when_1_bond(self): # by josh, with some comments and mods by bruce
         "[private method; see docstring for make_singlets_when_2_bonds]"
-        ## print "what the heck is this global variable named a doing here? %r" % (a,)
+        ## print "what the heck is this global variable named 'a' doing here? %r" % (a,)
         ## its value is 0.85065080835203999; where does it come from? it hide bugs. ###@@@
         assert len(self.bonds) == 1
         assert not self.is_singlet()

@@ -481,8 +481,6 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             1)  # Escape (1= Cancel)
           
         if ret==0: # Confirmed
-            if platform.atom_debug: #bruce 060106
-                print "atom_debug: user confirmed abort, self.sim_abort_button_pressed = True"
             self.sim_abort_button_pressed = True
     
     def update_mode_status(self, mode_obj = None):

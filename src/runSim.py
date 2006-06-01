@@ -607,26 +607,8 @@ class SimRunner:
             # probably we'll let the later sim-start code set those itself.
             self._simopts = simopts
             self._simobj = simobj
-        # wware 060406 bug 1471 - don't need a real movie, just need to hold the sim parameters
-        # If the sim parameters change, they need to be updated everywhere a comment says "SIMPARAMS"
-        # Movie.__init__ (movie.py), toward the end
-        # SimSetup.setup (SimSetup.py)
-        # FakeMovie.__init (runSim.py) and ~14 lines earlier
-        class FakeMovie:
-            def __init__(self, realmovie):
-                self.totalFramesRequested = realmovie.totalFramesRequested
-                self.temp = realmovie.temp
-                self.stepsper = realmovie.stepsper
-                self.watch_motion = realmovie.watch_motion
-                self._update_data = realmovie._update_data
-                self.update_cond = realmovie.update_cond # probably not needed
-            def fyi_reusing_your_moviefile(self, moviefile):
-                pass
-            def might_be_playable(self):
-                return False
-        self.assy.stickyParams = FakeMovie(movie)
         # return whatever results are appropriate -- for now, we stored each one in an attribute (above)
-        return
+        return # from setup_sim_args
         
     def sim_loop_using_standalone_executable(self): #bruce 051231 made this from part of spawn_process; compare to sim_loop_using_dylib
         "#doc"
@@ -890,7 +872,7 @@ class SimRunner:
                         #  but as of 060111 there's a bug in which that doesn't happen since all callbacks
                         #  are turned off by Interrupted).
                     if platform.atom_debug:
-                        print "atom_debug: pyrex sim: returned normally" ###@@@ remove this sometime
+                        print "atom_debug: pyrex sim: returned normally"
                 except SimulatorInterrupted:
                     self.pyrexSimInterrupted = True   # wware 060323 bug 1725
                     # This is the pyrex sim's new usual exit from a user abort, as of sometime 060111.
@@ -904,7 +886,7 @@ class SimRunner:
                     # better to wait until it's a new subclass of RuntimeError I can test for [bruce 060111]
                     env.history.statusbar_msg("Aborted")
                     if platform.atom_debug:
-                        print "atom_debug: pyrex sim: aborted" ###@@@ remove this sometime
+                        print "atom_debug: pyrex sim: aborted"
                     if self.PREPARE_TO_CLOSE:
                         # wware 060406 bug 1263 - exiting the program is an acceptable way to leave this loop
                         self.errcode = -1
@@ -1145,7 +1127,7 @@ class SimRunner:
             self.need_process_events = False # might not be needed; precaution in case of recursion
             #e see if user aborted
             if self.abortbutton_controller.aborting():
-                self.abort_sim_run("got real abort at frame %d" % self.__frame_number) # this also sets self.aborting
+                self.abort_sim_run("frame %d" % self.__frame_number) # this also sets self.aborting [bruce 06061 revised text]
         return
 
     def tracefile_callback(self, line): #bruce 060109, revised 060112; needs to be fast; should optim by passing step method to .go
@@ -1554,19 +1536,13 @@ class simSetup_CommandRun(CommandRun):
         ###@@@ we could permit this in movie player mode if we'd now tell that mode to stop any movie it's now playing
         # iff it's the current mode.
 
-        previous_movie = self.assy.current_movie # problem: hides it from apply2movies. [solved below] do we even still need this?
-            # might be None; will be used only for default param values for new Movie
-        ## bruce 050428 don't do this so it's not hidden from apply2movies and since i think it's no longer needed:
-        ## self.assy.current_movie = None # (this is restored on error)
-
-        # wware 060406 bug 1471 - check for sticky parameters from previous sim run
-        if previous_movie is None and hasattr(self.assy, "stickyParams"):
-            previous_movie = self.assy.stickyParams
-
+        previous_movie = self.assy.current_movie
+            # might be None; will be used only to restore self.assy.current_movie if we don't make a valid new one
         self.movie = None
-        r = self.makeSimMovie( previous_movie) # will store self.movie as the one it made, or leave it as None if cancelled
+        r = self.makeSimMovie( ) # will store self.movie as the one it made, or leave it as None if cancelled
         movie = self.movie
-        self.assy.current_movie = movie or previous_movie # (this restores assy.current_movie if there was an error)
+        self.assy.current_movie = movie or previous_movie
+            # (this restores assy.current_movie if there was an error in making new movie, though perhaps nothing changed it anyway)
 
         if not r: # Movie file saved successfully; movie is a newly made Movie object just for the new file
             assert movie
@@ -1605,7 +1581,7 @@ class simSetup_CommandRun(CommandRun):
                 # (happens for any error; more specific message (if any) printed earlier)
         return
 
-    def makeSimMovie(self, previous_movie): ####@@@@ some of this should be a Movie method since it uses attrs of Movie...
+    def makeSimMovie(self): ####@@@@ some of this should be a Movie method since it uses attrs of Movie...
         #bruce 050324 made this from the Part method makeSimMovie.
         # It's called only from self.run() above; not clear it should be a separate method,
         # or if it is, that it's split from the caller at the right boundary.
@@ -1616,9 +1592,9 @@ class simSetup_CommandRun(CommandRun):
             return -1
         ###@@@ else use suffix below!
         
-        self.simcntl = SimSetup(self.part, previous_movie, suffix) # Open SimSetup dialog [and run it until user dismisses it]
-            # [bruce 050325: this now uses previous_movie for params and makes a new self.movie,
-            #  never seeing or touching assy.current_movie]
+        self.simcntl = SimSetup(self.part, suffix = suffix)
+            # this now has its own sticky params, doesn't need previous_movie [bruce 060601, fixing bug 1840]
+            # Open SimSetup dialog [and run it until user dismisses it]
         movie = self.simcntl.movie # always a Movie object, even if user cancelled the dialog
         
         if movie.cancelled:

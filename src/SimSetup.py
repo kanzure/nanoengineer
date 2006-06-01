@@ -25,10 +25,41 @@ from movie import Movie
 from debug import print_compact_traceback
 import env
 
+# class FakeMovie:
+#
+# wware 060406 bug 1471 (sticky dialog params) - don't need a real movie, just need to hold the sim parameters
+# If the sim parameters change, they might need to be updated everywhere a comment says "SIMPARAMS".
+#
+#bruce 060601 moving this here, since it's really an aspect of this dialog
+# (in terms of what params to store, when to store them, etc);
+# also fixing bug 1840 (like 1471 but work even after a sim was not aborted),
+# and making the stickyness survive opening of a new file rather than being stored in the assy.
+
+class FakeMovie:
+    def __init__(self, realmovie):
+        self.totalFramesRequested = realmovie.totalFramesRequested
+        self.temp = realmovie.temp
+        self.stepsper = realmovie.stepsper
+        self.watch_motion = realmovie.watch_motion
+        self._update_data = realmovie._update_data
+        self.update_cond = realmovie.update_cond # probably not needed
+    def fyi_reusing_your_moviefile(self, moviefile):
+        pass
+    def might_be_playable(self):
+        return False
+    pass
+
+_stickyParams = None # sometimes this is a FakeMovie object
+
+
 class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
     "dialog class for setting up a simulator run"
-    def __init__(self, part, previous_movie, suffix = ""):
-        "use previous_movie for default values; on success or failure, make a new Movie and store it as self.movie"
+    def __init__(self, part, previous_movie = None, suffix = ""):
+        """use previous_movie (if passed) for default values,
+        otherwise use the same ones last ok'd by user
+        (whether or not that sim got aborted), or default values if that never happened in this session;
+        on success or failure, make a new Movie and store it as self.movie
+        """
         SimSetupDialog.__init__(self)
         ## self.part = part
             # not yet needed, though in future we might display info
@@ -36,7 +67,8 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
             # if it's not the main Part.
         self.assy = part.assy # used only for assy.filename
         self.suffix = suffix
-        self.previous_movie = previous_movie or Movie(self.assy) # used only for its parameter settings
+        self.previous_movie = previous_movie or _stickyParams or Movie(self.assy) # used only for its parameter settings
+            # note: as of bruce 060601 fixing bug 1840, previous_movie is no longer ever passed by caller.
         self.movie = Movie(self.assy) # public attr used by client code after we return; always a Movie even on failure.
             # (we need it here since no extra method runs on failure, tho that could probably be fixed) 
             # bruce 050325 changes:
@@ -103,11 +135,12 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
                 update_number = self.update_number_spinbox.value() # 1, 2, etc (or perhaps 0??)
                 update_units = str(self.update_units_combobox.currentText()) # 'frames', 'seconds', 'minutes', 'hours'
                 # for sake of propogating them to the next sim run:
-                self._update_data = update_number, update_units, update_as_fast_as_possible_data
-                if env.debug():
-                    print "debug: self.update_btngrp.selectedId() = %r" % (update_as_fast_as_possible_data,)
-                    print "debug: self.update_number_spinbox.value() is %r" % self.update_number_spinbox.value() # e.g. 1
-                    print "debug: combox text is %r" % str(self.update_units_combobox.currentText()) # e.g. 'frames'
+                self.movie._update_data = update_number, update_units, update_as_fast_as_possible_data
+##                if env.debug():
+##                    print "stored _update_data %r into movie %r" % (self.movie._update_data, self.movie)
+##                    print "debug: self.update_btngrp.selectedId() = %r" % (update_as_fast_as_possible_data,)
+##                    print "debug: self.update_number_spinbox.value() is %r" % self.update_number_spinbox.value() # e.g. 1
+##                    print "debug: combox text is %r" % str(self.update_units_combobox.currentText()) # e.g. 'frames'
                 # Now figure out what they mean, as a function for deciding whether to update the 3D view
                 # when a frame is received, given the time since the last update finished, the time that update took,
                 # and the number of frames since then (1 or more). Notes: the Qt progress update will be done independently of this,
@@ -142,6 +175,9 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
             self.movie.filename = self.assy.filename[:-4] + suffix + '.dpb'
         else: 
             self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled%s.dpb" % suffix)
+        #bruce 060601 fix bug 1840, also make params sticky across opening of new files
+        global _stickyParams
+        _stickyParams = FakeMovie(self.movie) # these will be used as default params next time, whether or not this gets aborted
         return
 
     pass # end of class SimSetup

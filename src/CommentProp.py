@@ -64,8 +64,6 @@ class CommentProp(CommentPropDialog):
     def remove_comment(self):
         '''Removes comment'''
         if self.comment:
-            part = self.win.assy.part
-            part.ensure_toplevel_group()
             self.comment.kill()
             self.win.mt.mt_update()
             self.comment = None
