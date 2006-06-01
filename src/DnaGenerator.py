@@ -39,6 +39,7 @@ class Dna:
                         'C': 'guanine',
                         'T': 'adenine',
                         'A': 'thymine'}):
+        baseList = [ ]
         def insertmmp(filename, tfm):
             grouplist  = _readmmp(assy, filename, isInsert=True)
             if not grouplist:
@@ -50,6 +51,7 @@ class Dna:
             del viewdata
             for member in mainpart.members:
                 grp.addchild(member)
+                baseList.append(member)
             shelf.kill()
 
         for ch in sequence:
@@ -89,13 +91,11 @@ class Dna:
                 theta -= self.TWIST_PER_BASE
                 z -= self.BASE_SPACING
 
-        # use fusechunksMode.make_bonds to glue the bases together
-        chunkList = assy.molecules
+        # fuse the bases together into continuous strands
         fcb = fusechunksBase()
-        for i in range(1, len(chunkList)):
-            #fcb.find_bondable_pairs(chunkList[:i], chunkList[i:])
-            fcb.find_bondable_pairs(chunkList, chunkList[i:])
-        fcb.make_bonds(assy)
+        for i in range(len(baseList) - 1):
+            fcb.find_bondable_pairs([baseList[i]], [baseList[i+1]])
+            fcb.make_bonds(assy)
 
 class A_Dna(Dna):
     """The geometry for A-DNA is very twisty and funky. I'd probably need to
