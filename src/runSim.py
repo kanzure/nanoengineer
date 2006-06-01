@@ -1026,7 +1026,7 @@ class SimRunner:
                 # i.e.(??) (when using original code) we always let sim run for 0.05 sec even if our python loop body took longer.
                 # maybe best to let sim run even longer, i.e. max(0.05, python loop body time), but no more than say 1 or 2 sec.
                 try:
-                    self.sim_frame_callback_worker( self.__frame_number) # might call self.abort_sim_run()
+                    self.sim_frame_callback_worker( self.__frame_number) # might call self.abort_sim_run() or set self.need_process_events
                 except:
                     print_compact_traceback("exception in sim_frame_callback_worker, aborting run: ")
                     self.abort_sim_run("exception in sim_frame_callback_worker(%d)" % self.__frame_number ) # sets flag inside sim object
@@ -1057,7 +1057,9 @@ class SimRunner:
                         env.history.statusbar_msg(self.cmdname + ": " + msg)
                 now = self.__last_3dupdate_time
             if now >= self.__last_progress_update_time + 1.0 or update_3dview and now >= self.__last_progress_update_time + 0.2:
-                # wware 060310, bug 1343 [modified by bruce 060530 so it happens at most once per second (important speedup)]
+                # update progressbar [wware 060310, bug 1343]
+                # [optim by bruce 060530 -- at most once per second when not updating 3d view, or 5x/sec when updating it often]
+                self.need_process_events = True
                 self.__last_progress_update_time = now
                 from platform import hhmmss_str
                 if self.mflag:
@@ -1071,6 +1073,8 @@ class SimRunner:
                 if not self.mflag:
                     # wware 060310, bug 1294
                     self.win.status_pbar.setProgress(self.__frame_number)
+            self.sim_frame_callback_updates() # checks/resets self.need_process_events, might call call_qApp_processEvents
+                #bruce 060601 bug 1970
         except:
             #bruce 060530 -- ideally we'd propogate the exception up to our caller the sim,
             # and it would propogate it back to the python calling code in this object,
@@ -1082,25 +1086,23 @@ class SimRunner:
             raise
         return # from sim_frame_callback
 
+    aborting = False #bruce 060601
+    need_process_events = False #bruce 060601
+    
     def sim_frame_callback_worker(self, frame_number): #bruce 060102
         """Do whatever should be done on frame_callbacks that don't return immediately
-           (due to not enough time passing).
+           (due to not enough time passing), EXCEPT for Qt-related progress updates other than gl_update --
+           caller must do those separately in sim_frame_callback_updates, if this method sets self.need_process_events.
            Might raise exceptions -- caller should protect itself from them until the sim does.
            + stuff new frame data into atom positions
              +? fix singlet positions, if not too slow
            + gl_update
-           - update progress bar
-           - tell Qt to process events
-           - see if user aborted, if so, set flag in simulator object so it will 
-             abort too 
-           (but for now, separate code will also terminate the sim run in the usual way, 
-            reading redundantly from xyz file)
         """
         from prefs_constants import watchRealtimeMinimization_prefs_key
-        if 1: ### if not self.pyrex_sim_aborting(): ######@@@@@@ needs to be a method of a separated task-loop, like abortbutton itself has
+        if not self.aborting: #bruce 060601 replaced 'if 1'
             if self.abortbutton_controller.aborting():
                 # extra space to distinguish which line got it -- this one is probably rarer, mainly gets it if nested task aborted(??)
-                self.abort_sim_run("got real  abort at frame %d" % frame_number)######@@@@@@ also set self-aborting flag to be used above
+                self.abort_sim_run("got real  abort at frame %d" % frame_number) # this sets self.aborting flag
             # mflag=1 -> minimize, user preference determines whether we watch it in real time
             # mflag=0 -> dynamics, watch_motion (from movie setup dialog) determines real time
             elif ((not self.mflag and self._movie.watch_motion) or
@@ -1123,16 +1125,27 @@ class SimRunner:
                     self.part.changed() #[bruce 060108 comment: moveAtoms should do this ###@@@]
                     self.part.gl_update()
                 # end of approx dup code
+                self.need_process_events = True #bruce 060601
+        return
 
-            #e update progress bar ####@@@@ later
+    def sim_frame_callback_updates(self): #bruce 060601 split out of sim_frame_callback_worker so it can be called separately
+        """Do Qt-related updates which are needed after something has updated progress bar displays or done gl_update
+        or printed history messages, if anything has set self.need_process_events to indicate it needs this
+        (and reset that flag):
+        - tell Qt to process events
+        - see if user aborted, if so, set flag in simulator object so it will abort too 
+          (but for now, separate code will also terminate the sim run in the usual way, 
+           reading redundantly from xyz file)
+        """
+        if self.need_process_events:
             # tell Qt to process events (for progress bar, its abort button, user moving the dialog or window, changing display mode,
             #  and for gl_update)
-            env.call_qApp_processEvents() 
+            self.need_process_events = False
+            env.call_qApp_processEvents()
+            self.need_process_events = False # might not be needed; precaution in case of recursion
             #e see if user aborted
             if self.abortbutton_controller.aborting():
-                self.abort_sim_run("got real abort at frame %d" % frame_number)
-                    ######@@@@@@ also set self-aborting flag to be used above
-            # that's it!
+                self.abort_sim_run("got real abort at frame %d" % frame_number) # this also sets self.aborting
         return
 
     def tracefile_callback(self, line): #bruce 060109, revised 060112; needs to be fast; should optim by passing step method to .go
@@ -1142,13 +1155,16 @@ class SimRunner:
 
     def abort_sim_run(self, why = "(reason not specified by internal code)" ): #bruce 060102
         "#doc"
+        wasaborting = self.aborting
+        self.aborting = True #bruce 060601
+        self.need_process_events = True #bruce 060601 precaution; might conceivably improve bugs in which abort confirm dialog is not taken down
         self._simopts.Interrupted = True
         if not self.errcode:
             self.errcode = -1
             #######@@@@@@@ temporary kluge in case of bugs in RuntimeError from that or its handler;
             # also needed until we clean up our code to use the new sim.SimulatorInterrupt instead of RuntimeError [bruce 060111]
-        env.history.message( redmsg( "aborting sim run: %s" % why )) ######@@@@@@@ only if we didn't do this already
-            #####@@@@@ current code (kluge) might do it 2 times even if sim behaves perfectly and no nested tasks (not sure)
+        if not wasaborting: #bruce 060601 precaution
+            env.history.message( redmsg( "aborting sim run: %s" % why ))
         return
 
     tracefileProcessor = None
