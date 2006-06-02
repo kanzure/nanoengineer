@@ -76,7 +76,7 @@ $(TARGETHJ): $(W2SRCS:.cpp=.o)
 	$(CXX) $(CXXFLAGS) -o $(TARGETHJ) $(W2SRCS:.cpp=.o)
 
 clean:
-	rm -f *.o *~ core.* $(TARGETSW) $(TARGETMW) $(TARGETHJ)
+	rm -f *.o *.pyc *~ core.* $(TARGETSW) $(TARGETMW) $(TARGETHJ)
 
 deps:
 	makedepend $(SRCS) W1.cpp W15.cpp W2.cpp -f - | \
