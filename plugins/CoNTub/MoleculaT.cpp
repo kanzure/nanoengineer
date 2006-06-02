@@ -767,8 +767,11 @@ std::ostream& MoleculaT::mmp (std::ostream& ost, String inf, int index)
 	for (int j = 1; j <= mmol.miniconec[i][0]; j++) {
 	    int x = mmol.miniconec[i][j];
 	    Atomo *atm2 = susatomos.get(x);
+	    int tip2 = atm2->tipo;
 	    if (x < i) {
-		if (tip1 == 6 && atm2->tipo == 6) {
+		if (tip1 == 6 && tip2 == 6 ||
+		    tip1 == 6 && tip2 == 7 ||	
+		    tip1 == 7 && tip2 == 6) {
 		    // graphitic bond
 		    neighborsG[numneighborsG++] = x + 1;
 		} else {
