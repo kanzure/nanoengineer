@@ -320,22 +320,20 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         self.mt.mt_update()
         
     def viewRaytraceScene(self):
-        '''Slot for "View > Raytrace Scene" action'''
+        'Slot for "View > Raytrace Scene"'
         
         cmd = greenmsg("Raytrace Scene: ")
         
         assy = self.assy
         part = self.assy.part
         glpane = self.glpane
-        from povray import get_raytrace_scene_filename, raytrace_scene_using_povray
-        pov = get_raytrace_scene_filename("nanoENGINEER-1_raytrace_scene")
-        from fileIO import writepovfile
-        writepovfile(part, glpane, pov)
-        r, why = raytrace_scene_using_povray(assy, pov, glpane.width, glpane.height)
         
-        if r:
-            env.history.message( cmd + redmsg(why) )
-            return
-            
+        from PovrayScene import PovrayScene
+        pvs = PovrayScene(assy, params=(None, glpane.width, glpane.height, 'png'))
+        pvs.render_image()
+        part.ensure_toplevel_group()
+        part.topnode.addchild(pvs)
+        self.mt.mt_update()
+        
         msg = "POV-Ray rendering complete."
         env.history.message( cmd + msg ) 

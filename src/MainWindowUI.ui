@@ -140,6 +140,7 @@
     <item text="&amp;Insert" name="Insert">
         <action name="insertNanotubeAction"/>
         <action name="insertDnaAction"/>
+        <action name="insertPovraySceneAction"/>
         <action name="insertCommentAction"/>
     </item>
     <item text="&amp;Jigs" name="jigsMenu">
@@ -460,7 +461,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1087</width>
+                <width>1085</width>
                 <height>29</height>
             </rect>
         </property>
@@ -3928,6 +3929,20 @@
             <string>Raytrace Scene</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>insertPovraySceneAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image143</iconset>
+        </property>
+        <property name="text">
+            <string>POV-Ray Scene</string>
+        </property>
+        <property name="toolTip">
+            <string>Insert POV-Ray Scene file</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4358,6 +4373,9 @@
     </image>
     <image name="image142">
         <data format="PNG" length="1270">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000004bd49444154789cb5d55b6c14551cc7f1efececb47b9dd9ee76ed5e5a4a2d12419494ab02da202251c4800685c883c148022f16880981f0400cc1c468c084070334249a402028098407e4120c05b9831004ca5ababbdd6dbbedb2bbddceec75c607d24a8320c6f87ffe9f4f4ecef99fdf110cc3e0ff28f33f35ecdeb4dba23ad4458228540394cb650ab9c2c1ba6b75b1c5fb16971fb74e78dc8e777cbb634670547065fde8fa6535811a644566402d934e6548c6a3c4e25de7a291e8a1552dab363f15bcff83fda2e97dd396e9d3a7af08d406944cc1c40f97f3ecb9aa124997d0cb06ae0a9d39c141de08a6c8dcbb75b63bdebd74ed86b59d4f848f1e39ba7de6ab3357d91d76ee76ab7cbc793fcec10ec67b0a48a24e7b34c1d94899786001d58146364e4df34c39de11eb8c35afd9b026f2b7f0deeff77db360e1fcd576879d68bc9f9d7b8ff2f6cb8db81417c96c8e0b7191bc962140177b0efcc891c169786ac7b27dbe9544c7efed05add0dcb2be250e601a42b77dbd6d6ed3e489cbed363b5a5623126ae7a337a7e0703808c7a27c76d2c6ba5be3f9fcbc8fad27d3bc37772e93f4cb2432798e5d8fe3aff33f77f8c4e12f86bc61785460d4726f8d57c90e6649f424f07b7d20406f6f2fd74309ce770e5299efc53410e7c2cd76b29ac62b939b404b72bb3382ac280482814f04419047c06eb77b89a96c229bcaa297740072851c0075354e4c778f70ffe241f4db87a9089f44511c88ae201432588a290401a64d9a0e16960cc35bbfdcba5cae92d1f21a39ed01a61b3a86c94076b9b82ffa5933cda0a67d27bed84f2c6d1e8720d9387647c59cb8c194514e4a851256ab8531a3c72c87bf1e88d96436912fe629954b14f5225a3ec7cd5084ea9a5ad69fb633c9d9ccc27745fcd61c92ec66ebf12e6e5cfb8d59de3463ea83c39b71581ce68761344d43b6c968250dddd011cd26825e85af0e5ca64f9fc5d1bbf7e0e659c6d50708273b1007a22c18e765deecd9381c764449a45028a0e6541e864b3ddd3d381d4e74f4e1f1ab72b9a81cdd04b7b288d1d334f9c121f630695c15631b5fa3aaaa0aa7d3895371a2eb3ae9549a642a591a865bd6b5b4b67ed7bacbef0f5069ab006168caa1ad4b82c455a6c9dd7c387f36a25944122524b384cd6ec3ed7153a55411ee0a130afd415faaaf75c4510ca407f67677c79704eb82889219418050bf412293c39b38c5a27766e0b43bb1dbedd86d76a44a09abd58ac3e140d554c29d612e5dbd0439f68e8093e9646bdfc5beb72a6d16c5e3f62055983913355399f8954f9b1b9065054551f0d678b1daac48a204268162a148a433c2f973e769efbcb3cb308ccc0878d3e64d3f373436b4565a2dab9b5e6ac25be3a52d5462516d2fcf8f69c02c99f1783cc8b28c6012300c8362be40e86e88b6336d1cffe578bb9a52370e7923f2b823d4b166c2c40995e9646a55dd0b5329c6922c9e37015555a9aeae465664008af922fdc97ec2f7c29c6e3bcd8953273a123d89398661c487ac47d24d1004d157ebdb5237fef5152f363628cffaac58ac16fc3e3f15960a0a5a81647f92dba1db5cb97a852b37ae9c55f3ea5243339e1c9b4325d9a4191eb767a5dbe55ee6f3f85014e5c1256706e8eaed2296889fcb64d3870ccd78baa07fa44110ac585968c2540da0eb3ae43908c40cc3f8f75fd37fad3f017077125f93a3866a0000000049454e44ae426082</data>
+    </image>
+    <image name="image143">
+        <data format="PNG" length="665">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000026049444154789cd5944f4893611cc73f5b6de6e6e63ba36273e8a2611696657f6eb6215d120933e8d2c10e850461528837c724c4820e75280b8c4028fb87a39321d4eb944428110f793158940c64c53bddf6b0def4ed30941cefe285baf885e7f0fcf97e9e1fdfdfc3039b4da6fc85507748336a0ef7847519ba0a7587b47cc5144d93639aa6a4939a924e6aabbf724396df69806e215bff76c99dc9553a5a3ac16587f817a83e9bdb38510f80dc6842966582c1a0965f7941f0a5bee7b8c51c5afc36daca125a22c1e8d81000133393dcb83f42f0d6cc9f960d705d7032b3c4e5937eea8e9e637a6a9c2383c7000fcd763700a7abdd8c3dae22d035cbc1402d137d0d38cb2a3730cc852aae3bb487e9a971ae3d9907bbc0618f13e91f26d23f0cf6edf8aafc94ef2d63361ad5f5178c22a1a8b8a452c24d3b083635b3ec2a86a537745e69a3355003c0021548d60f241615e3e0783cce817d95340c39197ed8426444a6fdc20b00ee8d2d303af703461ed1d155c757a36035f31335a3507f3142aca895334f63d4ef7610ec7d0fc072f4250057db1aa8d97fd8781442087c7e3f65c7cb41fe8c63f115a95db5b4789601080c8473e62d60b149941497188f229985d71f57217a93bbbdd771482e32d915003453aee7a5920bafc78ba5c8621c2ccf67e1d30c1dcd3b31db242c36890ab7130087ddb97ece526441cdaac6c036ab99d9044899411a4f9d4798b6e1f578714a39a010024017b8a682eff85fa50bb65a571878f696e88376be7d4fafe728844008819a5551b36ac118a040144aca444fa344226dc657e95b6f4e3e646d9e12296315ff0fe97dd2863f7a83bc4da2df6d04f0e5e2c1158d0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5243,6 +5261,12 @@
         <receiver>MainWindow</receiver>
         <slot>viewRaytraceScene()</slot>
     </connection>
+    <connection>
+        <sender>insertPovraySceneAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>insertPovrayScene()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5422,6 +5446,7 @@
     <slot>insertDna()</slot>
     <slot>insertComment()</slot>
     <slot>viewRaytraceScene()</slot>
+    <slot>insertPovrayScene()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

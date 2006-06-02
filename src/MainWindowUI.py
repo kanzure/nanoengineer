@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon May 29 12:43:48 2006
+# Created: Tue May 30 10:11:46 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -5651,6 +5651,63 @@ image142_data = \
     "\xe4\x39\x08\xc4\x0c\xc3\xf8\xf7\x5f\xd3\x7f\xad" \
     "\x3f\x01\x70\x77\x12\x5f\x93\xa3\x86\x6a\x00\x00" \
     "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
+image143_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
+    "\x60\x49\x44\x41\x54\x78\x9c\xd5\x94\x4f\x48\x93" \
+    "\x61\x1c\xc7\x3f\x5b\x6d\xe6\xe6\xe6\x3b\xa3\x62" \
+    "\x73\xe8\xa2\x61\x16\x96\x65\x7f\x6e\xb6\x21\x5d" \
+    "\x12\x09\x33\xe8\xd2\xc1\x0e\x85\x04\x61\x52\x88" \
+    "\x37\xc7\x24\xc4\x82\x0e\x75\x28\x0b\x8c\x40\x28" \
+    "\xfb\x87\xa3\x93\x21\xd4\xeb\x94\x44\x28\x11\x0f" \
+    "\x79\x31\x58\x94\x0c\x64\xc5\x3b\xdd\xf6\xb0\xde" \
+    "\xf4\xed\x30\x94\x1c\xef\xe2\x85\xba\xf8\x85\xe7" \
+    "\xf0\xfc\xf9\x7e\x9e\x1f\xdf\xdf\xc3\x03\x9b\x4d" \
+    "\xa6\xfc\x85\x50\x77\x48\x33\x6a\x0e\xf7\x84\x75" \
+    "\x19\xba\x0a\x75\x87\xb4\x7c\xc5\x14\x4d\x93\x63" \
+    "\x9a\xa6\xa4\x93\x9a\x92\x4e\x6a\xab\xbf\x72\x43" \
+    "\x96\xdf\x69\x80\x6e\x21\x5b\xff\x76\xc9\x9d\xc9" \
+    "\x55\x3a\x5a\x3a\xc1\x65\x87\xf8\x17\xa8\x3e\x9b" \
+    "\xdb\x38\x51\x0f\x80\xdc\x68\x42\x96\x65\x82\xc1" \
+    "\xa0\x96\x5f\x79\x41\xf0\xa5\xbe\xe7\xb8\xc5\x1c" \
+    "\x5a\xfc\x36\xda\xca\x12\x5a\x22\xc1\xe8\xd8\x10" \
+    "\x00\x13\x33\x93\xdc\xb8\x3f\x42\xf0\xd6\xcc\x9f" \
+    "\x96\x0d\x70\x5d\x70\x32\xb3\xc4\xe5\x93\x7e\xea" \
+    "\x8e\x9e\x63\x7a\x6a\x9c\x23\x83\xc7\x00\x0f\xcd" \
+    "\x76\x37\x00\xa7\xab\xdd\x8c\x3d\xae\x22\xd0\x35" \
+    "\xcb\xc1\x40\x2d\x13\x7d\x0d\x38\xcb\x2a\x37\x30" \
+    "\xcc\x85\x2a\xae\x3b\xb4\x87\xe9\xa9\x71\xae\x3d" \
+    "\x99\x07\xbb\xc0\x61\x8f\x13\xe9\x1f\x26\xd2\x3f" \
+    "\x0c\xf6\xed\xf8\xaa\xfc\x94\xef\x2d\x63\x36\x1a" \
+    "\xd5\xf5\x17\x8c\x22\xa1\xa8\xb8\xa4\x52\xc2\x4d" \
+    "\x3b\x08\x36\x35\xb3\xec\x2a\x86\xa5\x37\x74\x5e" \
+    "\x69\xa3\x35\x50\x03\xc0\x02\x15\x48\xd6\x0f\x24" \
+    "\x16\x15\xe3\xe0\x78\x3c\xce\x81\x7d\x95\x34\x0c" \
+    "\x39\x19\x7e\xd8\x42\x64\x44\xa6\xfd\xc2\x0b\x00" \
+    "\xee\x8d\x2d\x30\x3a\xf7\x03\x46\x1e\xd1\xd1\x55" \
+    "\xc7\x57\xa3\x60\x35\xf3\x13\x35\xa3\x50\x7f\x31" \
+    "\x42\xac\xa8\x95\x33\x4f\x63\xd4\xef\x76\x10\xec" \
+    "\x7d\x0f\xc0\x72\xf4\x25\x00\x57\xdb\x1a\xa8\xd9" \
+    "\x7f\xd8\x78\x14\x42\x08\x7c\x7e\x3f\x65\xc7\xcb" \
+    "\x41\xfe\x8c\x63\xf1\x15\xa9\x5d\xb5\xb4\x78\x96" \
+    "\x01\x08\x0c\x84\x73\xe6\x2d\x60\xb1\x49\x94\x14" \
+    "\x97\x18\x8f\x22\x99\x85\xd7\x1f\x57\x21\x7a\x93" \
+    "\xbb\xbd\xd7\x71\x48\x2e\x32\xd9\x15\x00\x34\x53" \
+    "\xae\xe7\xa5\x92\x0b\xaf\xc7\x8b\xa5\xc8\x62\x1c" \
+    "\x2c\xcf\x67\xe1\xd3\x0c\x1d\xcd\x3b\x31\xdb\x24" \
+    "\x2c\x36\x89\x0a\xb7\x13\x00\x87\xdd\xb9\x7e\xce" \
+    "\x52\x64\x41\xcd\xaa\xc6\xc0\x36\xab\x99\xd9\x04" \
+    "\x48\x99\x41\x1a\x4f\x9d\x47\x98\xb6\xe1\xf5\x78" \
+    "\x71\x4a\x39\xa0\x10\x02\x40\x17\xb8\xa6\x82\xef" \
+    "\xf8\x5f\xa5\x0b\xb6\x5a\x57\x18\x78\xf6\x96\xe8" \
+    "\x83\x76\xbe\x7d\x4f\xaf\xe7\x28\x84\x40\x08\x81" \
+    "\x9a\x55\x51\xb3\x6a\xc1\x18\xa0\x40\x14\x4a\xca" \
+    "\x44\x4f\xa3\x44\x22\x6d\xc6\x57\xe9\x5b\x6f\x4e" \
+    "\x3e\x64\x6d\x9e\x12\x29\x63\x15\xff\x0f\xe9\x7d" \
+    "\xd2\x86\x3f\x7a\x83\xbc\x4d\xa2\xdf\x6d\x04\xf0" \
+    "\xe5\xe2\xc1\x15\x8d\x00\x00\x00\x00\x49\x45\x4e" \
+    "\x44\xae\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -5935,6 +5992,8 @@ class MainWindow(QMainWindow):
         self.image141.loadFromData(image141_data,"PNG")
         self.image142 = QPixmap()
         self.image142.loadFromData(image142_data,"PNG")
+        self.image143 = QPixmap()
+        self.image143.loadFromData(image143_data,"PNG")
         self.image0 = QPixmap(image0_data)
         self.image11 = QPixmap(image11_data)
         self.image19 = QPixmap(image19_data)
@@ -6375,6 +6434,8 @@ class MainWindow(QMainWindow):
         self.insertCommentAction.setIconSet(QIconSet(self.image141))
         self.viewRaytraceSceneAction = QAction(self,"viewRaytraceSceneAction")
         self.viewRaytraceSceneAction.setIconSet(QIconSet(self.image142))
+        self.insertPovraySceneAction = QAction(self,"insertPovraySceneAction")
+        self.insertPovraySceneAction.setIconSet(QIconSet(self.image143))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6473,7 +6534,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1087,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1085,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6731,6 +6792,7 @@ class MainWindow(QMainWindow):
         self.Insert = QPopupMenu(self)
         self.insertNanotubeAction.addTo(self.Insert)
         self.insertDnaAction.addTo(self.Insert)
+        self.insertPovraySceneAction.addTo(self.Insert)
         self.insertCommentAction.addTo(self.Insert)
         self.MenuBar.insertItem(QString(""),self.Insert,10)
 
@@ -6932,6 +6994,7 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
         self.connect(self.zoomToolAction,SIGNAL("toggled(bool)"),self.zoomTool)
         self.connect(self.viewRaytraceSceneAction,SIGNAL("activated()"),self.viewRaytraceScene)
+        self.connect(self.insertPovraySceneAction,SIGNAL("activated()"),self.insertPovrayScene)
 
 
     def languageChange(self):
@@ -7386,6 +7449,8 @@ class MainWindow(QMainWindow):
         self.insertCommentAction.setText(self.__tr("Comment"))
         self.insertCommentAction.setWhatsThis(self.__tr("Inserts a comment in the part."))
         self.viewRaytraceSceneAction.setText(self.__tr("Raytrace Scene"))
+        self.insertPovraySceneAction.setText(self.__tr("POV-Ray Scene"))
+        self.insertPovraySceneAction.setToolTip(self.__tr("Insert POV-Ray Scene file"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -7973,6 +8038,9 @@ class MainWindow(QMainWindow):
 
     def viewRaytraceScene(self):
         print "MainWindow.viewRaytraceScene(): Not implemented yet"
+
+    def insertPovrayScene(self):
+        print "MainWindow.insertPovrayScene(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
