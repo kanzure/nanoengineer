@@ -1,17 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ne1_plugin>   <!-- must be recognizable as a nE-1 plugin -->
-    <version>3.1416</version>  <!-- version for this plugin -->
-    <plugin_api_version>1.234</plugin_api_version>
+<ne1_plugin api_version="1.234">   <!-- must be recognizable as a nE-1 plugin -->
+    <name>CoNTub</name>
+    <version>3.1416</version>
     <description>
-        <name></name>
         <short>CoNTub code</short>
         <long>Encyclopedic babble about what CoNTub is all about....</long>
-        <insert_menu_entry>CoNTub generator</insert_menu_entry>
         <author>
-            <cite>"CoNTub: an algorithm for connecting two arbitrary
-	    carbon nanotubes." S. Melchor; J.A. Dobado. Journal of
-	    Chemical Information and Computer Sciences, 44, 1639-1646
-	    (2004)</cite>
+            <cite>"CoNTub: an algorithm for connecting two arbitrary carbon nanotubes."
+S. Melchor; J.A. Dobado. Journal of Chemical Information and Computer
+Sciences, 44, 1639-1646 (2004)</cite>
             <name>S. Melchor, J. A. Dobado</name>
             <url>http://www.ugr.es/~gmdm/java/contub/contub.html</url>
             <email>smelchor@ugr.es</email>
@@ -28,19 +25,19 @@
         <url>http://www.zyvex.com</url>
         <adcopy>Some words of glowing praise for our sponsor...</adcopy>
     </sponsor>
-    <docs>
-        <readme name="README"/>
-        <licese name="LICENSE.GPL"/>
-        <help name="myplugin.hlp"/>
-    </docs>
     <files>
-        <!-- icon name="zdnaGen.png"/ -->
-        <executable name="SW" os="Linux,Mac"/>
-        <executable name="SW.exe" os="Windows"/>
-        <executable name="MW" os="Linux,Mac"/>
-        <executable name="MW.exe" os="Windows"/>
-        <executable name="HJ" os="Linux,Mac"/>
-        <executable name="HJ.exe" os="Windows"/>
+        <icon name="CoNTub.png"/>
+        <doc name="README"/>
+        <doc name="LICENSE.GPL"/>
+        <doc name="myplugin.hlp"/>
+        <executable name="SW" os="linux2,darwin">
+            <!-- Maybe make instructions go in here?? -->
+        </executable>
+        <executable name="SW.exe" os="win32"/>
+        <executable name="MW" os="linux2,darwin"/>
+        <executable name="MW.exe" os="win32"/>
+        <executable name="HJ" os="linux2,darwin"/>
+        <executable name="HJ.exe" os="win32"/>
     </files>
     <!-- other stuff:
          Make instructions? Make dependencies? If this is XML, how about Ant?
