@@ -16,6 +16,7 @@ commits his Parameterized Dialog stuff.
 """
 
 import os
+import sys
 from Plugins import Parameter, ParameterSet, File
 
 name = "CoNTub"
