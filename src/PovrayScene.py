@@ -28,18 +28,19 @@ class PovrayScene(SimpleCopyMixin, Node):
     #copyable_attrs = Node.copyable_attrs + ... # Need to talk with Bruce about this. Mark 060602.
 
     def __init__(self, assy, params):
+        self.assy = assy
         self.set_parameters(params)
         self.const_icon = imagename_to_pixmap("povrayscene.png")
         if not self.name:
             self.name = genViewNum("%s-" % self.sym)
         Node.__init__(self, assy, self.name)
-        self.assy = assy
         return
         
     def set_parameters(self, params):
         '''Sets all parameters in the list <params> for this POV-Ray Scene.
         '''
         self.name, self.width, self.height, self.output_type = params
+        self.assy.changed()
         
     def get_parameters(self):
         '''Returns list of parameters for this POV-Ray Scene.

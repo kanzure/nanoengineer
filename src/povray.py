@@ -53,7 +53,11 @@ def raytrace_scene_using_povray(assy, povray_ini):
     #if r:
     #    return 4, errmsgs[3]  # POV-Ray plug-in is not Version 3.6
     
-    program = "\""+povray_exe+"\"" # POV-Ray (pvengine.exe) or MegaPOV (mpengine.exe)
+    if sys.platform == 'win32':
+        program = "\""+povray_exe+"\"" # Double quotes needed by Windows. Mark 060602.
+            # POV-Ray (pvengine.exe) or MegaPOV (mpengine.exe) both work.
+    else:
+        program = povray_exe # Double quotes not needed for Linux/MacOS.
     
     # Later we'll cd to the POV-Ray's INI file directory and use tmp_ini in the POV-Ray command-line.
     # This helps us get around POV-Ray's I/O Restrictions. Mark 060529.
@@ -75,16 +79,13 @@ def raytrace_scene_using_povray(assy, povray_ini):
         
         wd = QDir(workdir)
         p.setWorkingDirectory(wd) # This gets us around POV-Ray's 'I/O Restrictions' feature.
-        
-        #QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) ) # For later.
+
         p.start()
 
     except:
         from debug import print_compact_traceback
         print_compact_traceback( "exception in raytrace_scene_using_povray(): " )
         return 6, errmsgs[5]
-    
-    # QApplication.restoreOverrideCursor() # Restore the cursor. Later.
             
     return 0, ''
     
@@ -191,7 +192,7 @@ def verify_povray_program():
     Always return 0 for now until I figure out a way to verify POV-Ray. Mark 060527.
     '''
     vstring = "POV-Ray 3.6" # or somthing like this.os
-    #r = verify_program(env.prefs[nanohive_path_prefs_key], '-v', vstring)
+    #r = verify_program(env.prefs[povray_path_prefs_key], '-v', vstring)
     #return r
     return 0
 

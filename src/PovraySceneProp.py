@@ -50,9 +50,11 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         self.pvs = pvs
         
         if self.pvs: 
+            self.new_pvs = False
             self.name, self.width, self.height, self.output_type = self.pvs.get_parameters()
-        else: 
+        else:
             # Default parameters
+            self.new_pvs = True
             self.name = genViewNum("POV-Ray Scene-")
             self.width = int(self.glpane.width)
             self.height = int(self.glpane.height)
@@ -88,18 +90,25 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         output_type = str(self.image_format_combox.currentText()).lower()
         return (name, width, height, output_type)
     
-    def create_pvs(self):
-        '''Create POV-Ray Scene. Caller is responsible for updating the model tree.
+    def create_pvs_or_update_params(self, render_image=True):
+        '''Create POV-Ray Scene or, if a POV-Ray Scene already exists, update its parameters.
+        Renders image of POV-Ray Scene only when <render_image> is True (default).
         '''
         params =  self.gather_parameters_from_widgets()
         
         if not self.pvs:
-            from PovrayScene import PovrayScene
-            self.pvs = pvs = PovrayScene(self.win.assy, params)
-            part = self.win.assy.part
-            part.ensure_toplevel_group()
-            part.topnode.addchild(pvs)
-            self.action = 'added'
+            try:
+                from PovrayScene import PovrayScene
+                self.pvs = pvs = PovrayScene(self.win.assy, params)
+                part = self.win.assy.part
+                part.ensure_toplevel_group()
+                part.topnode.addchild(pvs)
+                self.win.mt.mt_update()
+                self.action = 'added'
+            except Exception, e:
+                env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
+                self.remove_pvs()
+                return
         else:
             if params != self.previousParams:
                 self.pvs.set_parameters(params)
@@ -108,64 +117,73 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
             else:
                 # Nothing changes, so nothing happened.
                 self.action=None
+        
+        if render_image:
+            self.pvs.render_image()
+            
+        self.done_history_msg()
             
     def remove_pvs(self):
-        '''Removes the POV-Ray Scene. Caller is responsible for updating the model tree.
+        '''Removes the POV-Ray Scene if it exists.
         '''
-        if self.pvs != None:
-            part = self.win.assy.part
-            part.ensure_toplevel_group()
+        if self.pvs:
             self.pvs.kill()
+            self.win.mt.mt_update()
             self.pvs = None
     
-    def render_image_from_pvs(self, discard_image_after_render=True):
+    def render_image_from_pvs_OBS(self):
         '''Create a POV-Ray Scene and renders an image.
-        If <discard_image_after_render> is True, the POV-Ray Scene and image are deleted
-        (i.e. when the user clicks the Preview button).
         '''
         try:
-            self.create_pvs()
+            self.create_pvs_or_update_params()
             self.pvs.render_image()
-            if discard_image_after_render:
-                self.remove_pvs()
-            else:
-                self.done_history_msg()
+            self.done_history_msg()
         except Exception, e:
             env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
             self.remove_pvs()
-        self.win.mt.mt_update()
-        
-    def render_and_save_image(self):
-        'Slot for "Render and Save Image" button.'
-        self.render_image_from_pvs(discard_image_after_render=False)
         
 # Property manager widget slots.
 
-    def update_height_when_width_changes(self, width):
+    def render_and_save_image(self):
+        '''Slot for "Render and Save Image" button.
+        Renders image from POV-Ray Scene file and creates an Image node. NIY. Mark 060603.
+        '''
+        self.create_pvs_or_update_params()
+        
+    def change_width(self, width):
         'Slot for Width spinbox'
         self.width = width
+        self.update_height()
+        
+    def update_height(self):
+        'Updates height when width changes'
         if self.maintain_aspect_ratio_checkbox.isChecked():
             if self.aspect_ratio:
                 self.height = int (self.width / self.aspect_ratio)
-            self.disconnect(self.height_spinbox,SIGNAL("valueChanged(int)"),self.update_width_when_height_changes)
+            self.disconnect(self.height_spinbox,SIGNAL("valueChanged(int)"),self.change_height)
             self.height_spinbox.setValue(self.height)
-            self.connect(self.height_spinbox,SIGNAL("valueChanged(int)"),self.update_width_when_height_changes)
+            self.connect(self.height_spinbox,SIGNAL("valueChanged(int)"),self.change_height)
         else:
             self.update_aspect_ratio()
-        
-    def update_width_when_height_changes(self, height):
+    
+    def change_height(self, height):
         'Slot for Height spinbox'
         self.height = height
+        self.update_width()
+        
+    def update_width(self):
+        'Updates width when height changes'
         if self.maintain_aspect_ratio_checkbox.isChecked():
             if self.aspect_ratio:
-                self.width = int (height * self.aspect_ratio)
-            self.disconnect(self.width_spinbox,SIGNAL("valueChanged(int)"),self.update_height_when_width_changes)
+                self.width = int (self.height * self.aspect_ratio)
+            self.disconnect(self.width_spinbox,SIGNAL("valueChanged(int)"),self.change_width)
             self.width_spinbox.setValue(self.width)
-            self.connect(self.width_spinbox,SIGNAL("valueChanged(int)"),self.update_height_when_width_changes)
+            self.connect(self.width_spinbox,SIGNAL("valueChanged(int)"),self.change_width)
         else:
             self.update_aspect_ratio()
             
     def update_aspect_ratio(self):
+        'Updates the aspect ratio value when the width or height changes.'
         self.aspect_ratio = float(self.width) / float(self.height)
         #print "Aspect Ratio float value=", self.aspect_ratio
         self.aspect_ratio_str = "%.3f" % self.aspect_ratio
@@ -183,6 +201,7 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         #print "Aspect Ratio =", ar
         
     def done_history_msg(self):
+        'Prints history message if some action was performed (i.e. action != None).'
         if self.action:
             env.history.message(cmd + "%s %s." % (self.pvs.name, self.action))
         
@@ -194,18 +213,16 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
     
     def ok_btn_clicked(self):
         'Slot for the OK button'
-        try:
-            self.create_pvs()
-            self.done_history_msg()
-            self.pvs = None
-        except Exception, e:
-            env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
-            self.remove_pvs()
-        self.win.mt.mt_update()
+        self.create_pvs_or_update_params(render_image=False)
+        self.pvs = None
         QDialog.accept(self)
 
     def cancel_btn_clicked(self):
-        'Slot for the Cancel button(s)'
+        '''Slot for the Cancel button(s).
+        If this is a new POV-Ray Scene, delete it.
+        '''
+        if self.new_pvs:
+            self.remove_pvs()
         self.pvs=None
         QDialog.reject(self)
         
@@ -215,18 +232,20 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
     
     def preview_btn_clicked(self):
         'Slot for the Preview button'
-        self.render_image_from_pvs()
+        self.create_pvs_or_update_params()
     
     def whatsthis_btn_clicked(self):
-        '''Slot for the What\'s This button'''
+        "Slot for the What's This button"
         QWhatsThis.enterWhatsThisMode()
 
     def toggle_grpbtn_1(self):
+        'Slot for first groupbox toggle button'
         self.toggle_groupbox(self.grpbtn_1, self.line2,
                              self.name_linedit)
 
-    def toggle_grpbtn_3(self):
-        self.toggle_groupbox(self.grpbtn_3, self.line2_3,
+    def toggle_grpbtn_2(self):
+        'Slot for second groupbox toggle button'
+        self.toggle_groupbox(self.grpbtn_2, self.line2_3,
                              self.maintain_aspect_ratio_checkbox,
                              self.image_format_label, self.image_format_combox,
                              self.width_label, self.width_spinbox,
