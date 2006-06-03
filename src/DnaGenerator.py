@@ -233,3 +233,14 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
     def reverse_btn_clicked(self):
         seq = self.get_sequence(reverse=True)
         self.base_textedit.setText(seq)
+
+    def toggle_nt_parameters_grpbox(self):
+        self.toggle_groupbox(self.grpbtn1, self.line2,
+                             self.dna_type_label, self.dna_type_combox,
+                             self.endings_label, self.endings_combox)
+
+    def toggle_mwcnt_grpbox(self):
+        self.toggle_groupbox(self.grpbtn2, self.line2_3,
+                             self.base_textedit,
+                             self.complement_btn,
+                             self.reverse_btn)
