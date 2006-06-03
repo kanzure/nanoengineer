@@ -15,7 +15,7 @@ from math import atan2, sin, cos, pi
 import assembly, chem, bonds, Utility
 from chem import molecule, Atom, gensym
 import env
-from HistoryWidget import redmsg, greenmsg
+from HistoryWidget import redmsg, orangemsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
 from VQT import dot
 import string
@@ -260,34 +260,46 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
     ###################################################
     # Special UI things that still must be implemented
     def toggle_nt_distortion_grpbox(self):
-        print "nanotube_dialog.toggle_nt_distortion_grpbox(): Not implemented yet"
+        self.toggle_groupbox(self.nt_distortion_grpbtn, self.line2_2,
+                             self.z_distortion_label, self.z_distortion_linedit,
+                             self.xy_distortion_label, self.xy_distortion_linedit,
+                             self.twist_label, self.twist_spinbox,
+                             self.bend_label, self.bend_spinbox)
 
     def toggle_nt_parameters_grpbox(self):
-        print "nanotube_dialog.toggle_nt_parameters_grpbox(): Not implemented yet"
+        self.toggle_groupbox(self.nt_parameters_grpbtn, self.line2,
+                             self.chirality_n_label, self.chirality_n_spinbox,
+                             self.chirality_m_label, self.chirality_m_spinbox,
+                             self.length_label, self.length_linedit,
+                             self.members_label, self.members_combox,
+                             self.endings_label, self.endings_combox,
+                             self.bond_length_label, self.bond_length_linedit)
 
     def toggle_mwcnt_grpbox(self):
-        print "nanotube_dialog.toggle_mwcnt_grpbox(): Not implemented yet"
+        self.toggle_groupbox(self.mwcnt_grpbtn, self.line2_3,
+                             self.mwcnt_spacing_label, self.mwcnt_spacing_linedit,
+                             self.mwcnt_count_label, self.mwcnt_count_spinbox)
 
     def enter_WhatsThisMode(self):
-        print "nanotube_dialog.enter_WhatsThisMode(): Not implemented yet"
+        env.history.message(self.cmd + orangemsg("nanotube_dialog.enter_WhatsThisMode(): Not implemented yet"))
 
     def changeLength(self):
-        print "nanotube_dialog.changeLength(): Not implemented yet"
+        env.history.message(self.cmd + orangemsg("nanotube_dialog.changeLength(): Not implemented yet"))
 
     def nChanged(self,a0):
-        print "nanotube_dialog.nChanged(const QString&): Not implemented yet"
+        env.history.message(self.cmd + orangemsg("nanotube_dialog.nChanged(const QString&): Not implemented yet"))
 
     def mChanged(self,a0):
-        print "nanotube_dialog.mChanged(const QString&): Not implemented yet"
+        env.history.message(self.cmd + orangemsg("nanotube_dialog.mChanged(const QString&): Not implemented yet"))
 
     def bondLengthChanged(self):
-        print "nanotube_dialog.bondLengthChanged(): Not implemented yet"
+        env.history.message(self.cmd + orangemsg("nanotube_dialog.bondLengthChanged(): Not implemented yet"))
 
     def previewClicked(self):
-        print "nanotube_dialog.previewClicked(): Not implemented yet"
+        env.history.message(self.cmd + orangemsg("nanotube_dialog.previewClicked(): Not implemented yet"))
 
     def zDistortChanged(self):
-        print "nanotube_dialog.zDistortChanged(): Not implemented yet"
+        env.history.message(self.cmd + orangemsg("nanotube_dialog.zDistortChanged(): Not implemented yet"))
 
     def xyDistortChanged(self):
-        print "nanotube_dialog.xyDistortChanged(): Not implemented yet"
+        env.history.message(self.cmd + orangemsg("nanotube_dialog.xyDistortChanged(): Not implemented yet"))
