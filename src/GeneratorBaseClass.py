@@ -13,7 +13,7 @@ from HistoryWidget import redmsg, orangemsg, greenmsg
 
 __author__ = "Will"
 
-_up_arrow = \
+_up_arrow_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52" \
     "\x00\x00\x00\x10\x00\x00\x00\x10\x08\x02\x00\x00\x00\x90\x91\x68" \
     "\x36\x00\x00\x00\x06\x62\x4b\x47\x44\x00\xff\x00\xff\x00\xff\xa0" \
@@ -38,7 +38,7 @@ _up_arrow = \
     "\xf8\xcb\xb5\x3e\x01\x8d\xb5\x6a\x19\xa6\x37\x6f\xd9\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
-_down_arrow = \
+_down_arrow_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52" \
     "\x00\x00\x00\x10\x00\x00\x00\x10\x08\x02\x00\x00\x00\x90\x91\x68" \
     "\x36\x00\x00\x00\x06\x62\x4b\x47\x44\x00\xff\x00\xff\x00\xff\xa0" \
@@ -61,11 +61,27 @@ _down_arrow = \
     "\x1f\xfe\x72\xad\x6f\xd8\xd4\x50\x37\x09\xb5\x93\x63\x00\x00\x00" \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
+class GroupButtonMixin:
+    _up_arrow = QPixmap()
+    _up_arrow.loadFromData(_up_arrow_data)
+    _down_arrow = QPixmap()
+    _down_arrow.loadFromData(_down_arrow_data)
+
+    def toggle_groupbox(self, button, *things):
+        if things[0].isShown():
+            button.setIconSet(QIconSet(self._down_arrow))
+            for thing in things:
+                thing.hide()
+        else:
+            button.setIconSet(QIconSet(self._up_arrow))
+            for thing in things:
+                thing.show()
+
 class AbstractMethod(Exception):
     def __init__(self):
         Exception.__init__(self, 'Abstract method - must be overloaded')
 
-class GeneratorBaseClass:
+class GeneratorBaseClass(GroupButtonMixin):
     """There is some logic associated with Preview/OK/Abort that's
     complicated enough to put it in one place, so that individual
     generators can focus on what they need to do. As much as possible,
@@ -79,23 +95,9 @@ class GeneratorBaseClass:
         self.win = win
         self.struct = None
         self.previousParams = None
-        self._up_arrow = QPixmap()
-        self._up_arrow.loadFromData(_up_arrow)
-        self._down_arrow = QPixmap()
-        self._down_arrow.loadFromData(_down_arrow)
         assert self.sponsor_keyword != None
         self.sponsor = sponsor = findSponsor(self.sponsor_keyword)
         sponsor.configureSponsorButton(self.sponsor_btn)
-
-    def toggle_groupbox(self, button, *things):
-        if things[0].isShown():
-            button.setIconSet(QIconSet(self._down_arrow))
-            for thing in things:
-                thing.hide()
-        else:
-            button.setIconSet(QIconSet(self._up_arrow))
-            for thing in things:
-                thing.show()
 
     def build_struct(self):
         '''Build the structure in question. This is an abstract method
