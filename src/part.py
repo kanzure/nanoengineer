@@ -643,8 +643,13 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
         if 1 and platform.atom_debug:
             self.assy.checkparts()
 
+    addnode = addmol #bruce 060604; should make addnode the fundamental one, and deprecate addmol, and clean up above comments
+
     def ensure_toplevel_group(self): #bruce 050228, 050309
-        "make sure this Part's toplevel node is a Group, by Grouping it if not."
+        """Make sure this Part's toplevel node is a Group, by Grouping it if not.
+        [Note: operations which create new nodes and want to add them needn't call this directly,
+         since they can call self.addnode or assy.addnode instead.]
+        """
         assert self.topnode
         if not self.topnode.is_group():
             self.create_new_toplevel_group()

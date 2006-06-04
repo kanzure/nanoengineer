@@ -314,9 +314,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
                                 self.glpane.pov, 
                                 self.glpane.zoomFactor, 
                                 self.glpane.quat)
-        part = self.assy.part
-        part.ensure_toplevel_group()
-        part.topnode.addchild(csys)
+        self.assy.addnode(csys)
         self.mt.mt_update()
         
     def viewRaytraceScene(self):
@@ -325,15 +323,17 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         cmd = greenmsg("Raytrace Scene: ")
         
         assy = self.assy
-        part = self.assy.part
         glpane = self.glpane
         
         from PovrayScene import PovrayScene
         pvs = PovrayScene(assy, params=(None, glpane.width, glpane.height, 'png'))
         pvs.render_image()
-        part.ensure_toplevel_group()
-        part.topnode.addchild(pvs)
+        assy.addnode(pvs)
         self.mt.mt_update()
         
         msg = "POV-Ray rendering complete."
         env.history.message( cmd + msg ) 
+
+    pass # end of class viewSlotsMixin
+
+# end

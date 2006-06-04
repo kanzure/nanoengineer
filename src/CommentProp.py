@@ -52,11 +52,9 @@ class CommentProp(CommentPropDialog):
         comment_text = self.comment_textedit.text()
         
         if not self.comment:
-            self.comment = cmnt = Comment(self.win.assy, None, comment_text)
+            self.comment = Comment(self.win.assy, None, comment_text)
+            self.win.assy.addnode(self.comment)
             self.action = 'added'
-            part = self.win.assy.part
-            part.ensure_toplevel_group()
-            part.topnode.addchild(cmnt)
         else: 
             self.comment.set_text(comment_text)
             self.action = 'updated'

@@ -143,12 +143,9 @@ class GeneratorBaseClass(GroupButtonMixin):
         if params != self.previousParams:
             self.remove_struct()
             self.previousParams = params
-        self.struct = struct = self.build_struct(params)
-        part = self.win.assy.part
-        part.ensure_toplevel_group()
-        part.topnode.addchild(struct)
-        self.win.win_update()
-        self.win.mt.mt_update()
+        self.struct = self.build_struct(params)
+        self.win.assy.addnode(self.struct)
+        self.win.win_update() # includes mt_update
 
     def ok_btn_clicked(self):
         'Slot for the OK button'

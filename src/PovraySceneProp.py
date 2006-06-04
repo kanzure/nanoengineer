@@ -99,10 +99,8 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         if not self.pvs:
             try:
                 from PovrayScene import PovrayScene
-                self.pvs = pvs = PovrayScene(self.win.assy, params)
-                part = self.win.assy.part
-                part.ensure_toplevel_group()
-                part.topnode.addchild(pvs)
+                self.pvs = PovrayScene(self.win.assy, params)
+                self.win.assy.addnode(self.pvs)
                 self.win.mt.mt_update()
                 self.action = 'added'
             except Exception, e:

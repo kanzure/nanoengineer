@@ -1168,8 +1168,9 @@ def insertmmp(assy, filename): #bruce 050405 revised to fix one or more assembly
         viewdata, mainpart, shelf = grouplist
         del viewdata
         ## not yet (see below): del shelf
-        assy.part.ensure_toplevel_group()
-        assy.part.topnode.addchild( mainpart )
+        assy.addnode( mainpart) #bruce 060604
+##        assy.part.ensure_toplevel_group()
+##        assy.part.topnode.addchild( mainpart )
         #bruce 050425 to fix bug 563:
         # Inserted mainpart might contain jigs whose atoms were in clipboard of inserted file.
         #   Internally, right now, those atoms exist, in legitimate chunks in assy
