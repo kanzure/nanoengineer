@@ -141,19 +141,21 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
 ##                    print "debug: self.update_btngrp.selectedId() = %r" % (update_as_fast_as_possible_data,)
 ##                    print "debug: self.update_number_spinbox.value() is %r" % self.update_number_spinbox.value() # e.g. 1
 ##                    print "debug: combox text is %r" % str(self.update_units_combobox.currentText()) # e.g. 'frames'
-                # Now figure out what they mean, as a function for deciding whether to update the 3D view
-                # when a frame is received, given the time since the last update finished, the time that update took,
-                # and the number of frames since then (1 or more). Notes: the Qt progress update will be done independently of this,
-                # at most once per second (in runSim.py). The last frame we expect to receive will always be updated
-                # (this func will be called anyway in case it wants to do something else with the info like store it somewhere,
-                #  but its return value will be ignored for the last frame).
-                # The details of these functions (and the UI feeding them) are likely to be changed soon.
+                # Now figure out what these user settings mean our realtime updating algorithm should be,
+                # as a function to be used for deciding whether to update the 3D view when each new frame is received,
+                # which takes as arguments the time since the last update finished (simtime), the time that update took (pytime),
+                # and the number of frames since then (nframes, 1 or more), and returns a boolean for whether to draw this new frame.
+                # Notes:
+                # - The Qt progress update will be done independently of this, at most once per second (in runSim.py).
+                # - The last frame we expect to receive will always be drawn. (This func may be called anyway in case it wants
+                #   to do something else with the info like store it somewhere, or it may not (check runSim.py for details #k),
+                #   but its return value will be ignored if it's called for the last frame.)
+                # The details of these functions (and the UI feeding them) might be revised.
                 if update_as_fast_as_possible:
-                    # This radiobutton is misnamed; it really means "use the old code,
+                    # This radiobutton might be misnamed; it really means "use the old code,
                     # i.e. not worse than 20% slowdown, with threshholds".
                     # It's also ambiguous -- does "fast" mean "fast progress"
                     # or "often" (which are opposites)? It sort of means "often".
-                    # It also probably ought to be a "faster if possible" checkbox instead.
                     update_cond = ( lambda simtime, pytime, nframes:
                                     simtime >= max(0.05, min(pytime * 4, 2.0)) )
                 elif update_units == 'frames':
