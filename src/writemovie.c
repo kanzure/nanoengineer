@@ -553,7 +553,7 @@ writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forc
     for (i=0; i<part->num_atoms; i++) {
         writeSimpleAtomPosition(part, positions, i);
         if (forces != NULL && !part->atoms[i]->isGrounded) {
-          writeSimpleForceVector(positions, i, &forces[i], 0, 10.0);
+          writeSimpleForceVector(positions, i, &forces[i], 0, 1.0);
         }
     }
     fprintf(OutputFile, "f ");

@@ -73,7 +73,7 @@ D = (-3 x1 x2^2 y1 +
 
 // Make a table for interpolating func(x) by doing
 //
-//   k = (int)(x-start)/scale;
+//   k = (int)((x-start)/scale);
 //   y = ((a[k] * x + b[k]) * x  + c[k]) * x + d[k];
 //   y' = (3 * a[k] * x + 2 * b[k]) * x + c[k];
 //
@@ -300,7 +300,7 @@ findExcessiveEnergyLevel(struct interpolationTable *t,
   double r;
   double potential = 0.0;
   
-  k = (int)(r0 - start) / scale;
+  k = (int)((r0 - start) / scale);
   while ((searchLimit-k)*searchIncrement > 0) {
     r = k * scale + start;
     potential = ((a[k] * r + b[k]) * r + c[k]) * r + d[k] - minPotential;
@@ -342,7 +342,7 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
   double scale;
   double rmin;
   double rmax;
-
+  
   rmin = stretch->r0 * 0.5;
   rmax = stretch->inflectionR;
 
@@ -451,6 +451,10 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
   struct atomType *e1;
   struct atomType *e2;
   struct bondStretch *stretch;
+  struct interpolationTable *iTable;
+  double start;
+  double scale;
+  int k;
   double r;
   double interpolated_potential;
   double interpolated_gradient;
@@ -492,10 +496,14 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
          stretch->inflectionR);
 
   printf("# r in pm, potentials in aJ, gradients in pN\n");
-  printf("#        r            interp potential    interp gradient     direct potential    direct gradient   extension potential  extention gradient  d(interp potential)\n");
+  printf("#        r            interp potential    interp gradient     direct potential    direct gradient   extension potential  extention gradient  d(interp potential) k\n");
 
+  iTable = &stretch->LippincottMorse;
+  start = iTable->start;
+  scale = iTable->scale;
   interpolated_potential = stretchPotential(NULL, NULL, stretch, initial);
   for (r=initial; r<limit; r+=increment) {
+    k = (int)((r - start) / scale);
     lip = interpolated_potential;
     interpolated_potential = stretchPotential(NULL, NULL, stretch, r);
     dip = interpolated_potential - lip;
@@ -512,15 +520,16 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
        stretch->potentialExtensionC * 2.0) * r +
       stretch->potentialExtensionB;
     extension_gradient *= 1e6;
-    printf("%19.12e %19.12e %19.12e %19.12e %19.12e %19.12e %19.12e %19.12e\n",
+    printf("%19.12e %19.12e %19.12e %19.12e %19.12e %19.12e %19.12e %19.12e %d\n",
            r,                      // 1
            interpolated_potential, // 2
-           interpolated_gradient, // 3
+           interpolated_gradient,  // 3
            direct_potential,       // 4
-           direct_gradient,       // 5
+           direct_gradient,        // 5
            extension_potential,    // 6
-           extension_gradient,    // 7
-           dip                    // 8
+           extension_gradient,     // 7
+           dip,                    // 8
+           k                       // 9
            );
   }
 }
