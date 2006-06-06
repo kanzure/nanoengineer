@@ -85,11 +85,11 @@ class Chirality:
         z3 = R * cos(x2/R)
         return (x3, y2, z3)
 
-    def populate(self, mol, length):
+    def populate(self, mol, length, bn_members=False):
 
-        def add(element, x, y, z):
+        def add(element, x, y, z, atomtype='sp2'):
             atm = Atom(element, chem.V(x, y, z), mol)
-            atm.set_atomtype_but_dont_revise_singlets("sp2")
+            atm.set_atomtype_but_dont_revise_singlets(atomtype)
             return atm
 
         evenAtomDict = { }
@@ -104,11 +104,17 @@ class Chirality:
             mlast.append(mmax)
             for m in range(mmin, mmax+1):
                 x, y, z = self.xyz(n, m)
-                atm = add("C", x, y, z)
+                if bn_members:
+                    atm = add("B", x, y, z)
+                else:
+                    atm = add("C", x, y, z)
                 evenAtomDict[(n,m)] = atm
                 bondDict[atm] = [(n,m)]
                 x, y, z = self.xyz(n+1./3, m+1./3)
-                atm = add("C", x, y, z)
+                if bn_members:
+                    atm = add("N", x, y, z, 'sp3')
+                else:
+                    atm = add("C", x, y, z)
                 oddAtomDict[(n,m)] = atm
                 bondDict[atm] = [(n+1, m), (n, m+1)]
 
@@ -150,7 +156,10 @@ class Chirality:
                     try:
                         atm2 = dict2[(n2, m2)]
                         if not bonds.bonded(atm, atm2):
-                            bonds.bond_atoms(atm, atm2, bonds.V_GRAPHITE)
+                            if bn_members:
+                                bonds.bond_atoms(atm, atm2, bonds.V_SINGLE)
+                            else:
+                                bonds.bond_atoms(atm, atm2, bonds.V_GRAPHITE)
                     except KeyError:
                         pass
 
@@ -193,10 +202,26 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             self.length = 0.0
             raise Exception("Please specify a valid length.")
         length = self.length
-        return (n, m, length)
+
+        zdist = str(self.z_distortion_linedit.text())
+        zdist = float(zdist.split(' ')[0])
+        xydist = str(self.xy_distortion_linedit.text())
+        xydist = float(xydist.split(' ')[0])
+        twist = (pi * self.twist_spinbox.value()) / 180.0
+        bend = self.bend_spinbox.value()
+        if bend != 0:
+            # When we do implement this, we'll want to change it to a float.
+            raise Exception("Bend is not implemented yet.")
+        members = self.members_combox.currentItem()
+        endings = self.endings_combox.currentItem()
+        if endings == 1:
+            raise Exception("Nanotube endcaps not implemented yet.")
+        if endings == 3:
+            raise Exception("Nanotube nitrogen ends not implemented yet.")
+        return (n, m, length, zdist, xydist, twist, bend, members, endings)
 
     def build_struct(self, params):
-        n, m, length = params
+        n, m, length, zdist, xydist, twist, bend, members, endings = params
         # This can take a few seconds. Inform the user.
         # 100 is a guess on my part. Mark 051103.
         if length > 100.0:
@@ -214,7 +239,35 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         mlimits = self.chirality.mlimits
         # populate the tube with some extra carbons on the ends
         # so that we can trim them later
-        self.chirality.populate(mol, length + 4 * Chirality.MAXLEN)
+        self.chirality.populate(mol, length + 4 * Chirality.MAXLEN, members != 0)
+
+        # Apply twist and distortions. Bends probably would come
+        # after this point because they change the direction for the
+        # length. I'm worried about Z distortion because it will work
+        # OK for stretching, but with compression it can fail. BTW,
+        # "Z distortion" is a misnomer, we're stretching in the Y
+        # direction.
+        for atm in atoms.values():
+            # twist
+            x, y, z = atm.posn()
+            twistRadians = twist * y
+            c, s = cos(twistRadians), sin(twistRadians)
+            x, z = x * c + z * s, -x * s + z * c
+            atm.setposn(chem.V(x, y, z))
+        for atm in atoms.values():
+            # z distortion
+            x, y, z = atm.posn()
+            y *= (zdist + length) / length
+            atm.setposn(chem.V(x, y, z))
+        length += zdist
+        for atm in atoms.values():
+            # xy distortion
+            x, y, z = atm.posn()
+            # radius is approximate
+            radius = 0.7844 * n
+            x *= (xydist + radius) / radius
+            atm.setposn(chem.V(x, y, z))
+
 
         # Judgement call: because we're discarding carbons with funky
         # valences, we will necessarily get slightly more ragged edges
@@ -237,6 +290,14 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         for atm in atoms.values():
             if not atm.is_singlet() and len(atm.realNeighbors()) == 1:
                 atm.kill()
+
+        # if hydrogen endings, hydrogenate
+        if endings == 2:
+            for atm in atoms.values():
+                y = atm.posn()[1]
+                if (y > .5 * (length - LENGTH_TWEAK) or
+                    y < -.5 * (length - LENGTH_TWEAK)):
+                    atm.Hydrogenate()
 
         if PROFILE:
             t = sw.now()
@@ -290,24 +351,3 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
 
     def enter_WhatsThisMode(self):
         env.history.message(self.cmd + orangemsg("nanotube_dialog.enter_WhatsThisMode(): Not implemented yet"))
-
-    def changeLength(self):
-        env.history.message(self.cmd + orangemsg("nanotube_dialog.changeLength(): Not implemented yet"))
-
-    def nChanged(self,a0):
-        env.history.message(self.cmd + orangemsg("nanotube_dialog.nChanged(const QString&): Not implemented yet"))
-
-    def mChanged(self,a0):
-        env.history.message(self.cmd + orangemsg("nanotube_dialog.mChanged(const QString&): Not implemented yet"))
-
-    def bondLengthChanged(self):
-        env.history.message(self.cmd + orangemsg("nanotube_dialog.bondLengthChanged(): Not implemented yet"))
-
-    def previewClicked(self):
-        env.history.message(self.cmd + orangemsg("nanotube_dialog.previewClicked(): Not implemented yet"))
-
-    def zDistortChanged(self):
-        env.history.message(self.cmd + orangemsg("nanotube_dialog.zDistortChanged(): Not implemented yet"))
-
-    def xyDistortChanged(self):
-        env.history.message(self.cmd + orangemsg("nanotube_dialog.xyDistortChanged(): Not implemented yet"))

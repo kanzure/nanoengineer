@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Tue Jun 6 10:38:40 2006
+# Created: Tue Jun 6 12:17:21 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -728,10 +728,10 @@ class nanotube_dialog(QDialog):
         self.z_distortion_label.setText(self.__tr("Z-distortion :"))
         self.xy_distortion_label.setText(self.__tr("XY-distortion :"))
         self.twist_spinbox.setSuffix(self.__tr(" deg/A"))
-        self.z_distortion_linedit.setText(self.__tr("1.0 A"))
+        self.z_distortion_linedit.setText(self.__tr("0.0 A"))
         self.bend_label.setText(self.__tr("Bend :"))
         self.bend_spinbox.setSuffix(self.__tr(" deg"))
-        self.xy_distortion_linedit.setText(self.__tr("1.0 A"))
+        self.xy_distortion_linedit.setText(self.__tr("0.0 A"))
         self.twist_label.setText(self.__tr("Twist :"))
         self.mwcnt_grpbox.setTitle(QString.null)
         self.parameters_grpbox_label_3.setText(self.__tr("Multi-Walled Nanotubes"))
@@ -763,29 +763,11 @@ class nanotube_dialog(QDialog):
     def changeLength(self):
         print "nanotube_dialog.changeLength(): Not implemented yet"
 
-    def nChanged(self,a0):
-        print "nanotube_dialog.nChanged(const QString&): Not implemented yet"
-
-    def mChanged(self,a0):
-        print "nanotube_dialog.mChanged(const QString&): Not implemented yet"
-
-    def bondLengthChanged(self):
-        print "nanotube_dialog.bondLengthChanged(): Not implemented yet"
-
     def doneClicked(self):
         print "nanotube_dialog.doneClicked(): Not implemented yet"
 
     def abortClicked(self):
         print "nanotube_dialog.abortClicked(): Not implemented yet"
-
-    def previewClicked(self):
-        print "nanotube_dialog.previewClicked(): Not implemented yet"
-
-    def zDistortChanged(self):
-        print "nanotube_dialog.zDistortChanged(): Not implemented yet"
-
-    def xyDistortChanged(self):
-        print "nanotube_dialog.xyDistortChanged(): Not implemented yet"
 
     def defaults_btn_clicked(self):
         print "nanotube_dialog.defaults_btn_clicked(): Not implemented yet"

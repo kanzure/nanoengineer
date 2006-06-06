@@ -735,7 +735,7 @@
                                         <cstring>z_distortion_linedit</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>1.0 A</string>
+                                        <string>0.0 A</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel" row="3" column="0">
@@ -768,7 +768,7 @@
                                         <cstring>xy_distortion_linedit</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>1.0 A</string>
+                                        <string>0.0 A</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel" row="2" column="0">
@@ -1134,14 +1134,8 @@
     <slot>toggle_mwcnt_grpbox()</slot>
     <slot>enter_WhatsThisMode()</slot>
     <slot>changeLength()</slot>
-    <slot>nChanged( const QString &amp; )</slot>
-    <slot>mChanged( const QString &amp; )</slot>
-    <slot>bondLengthChanged()</slot>
     <slot>doneClicked()</slot>
     <slot>abortClicked()</slot>
-    <slot>previewClicked()</slot>
-    <slot>zDistortChanged()</slot>
-    <slot>xyDistortChanged()</slot>
     <slot>defaults_btn_clicked()</slot>
     <slot>cancel_btn_clicked()</slot>
     <slot>ok_btn_clicked()</slot>
