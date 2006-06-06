@@ -199,7 +199,9 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
 
         if not self.bond_length_linedit.text():
             raise Exception("Please specify a valid bond length.")
-        self.bond_length = bond_length = string.atof(str(self.bond_length_linedit.text()))
+        bond_length = str(self.bond_length_linedit.text())
+        bond_length = bond_length.split(' ')[0]
+        self.bond_length = bond_length = string.atof(bond_length)
 
         endings = self.endings_combox.currentItem()
         if endings == 2:
@@ -302,20 +304,15 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
 
     ###################################################
     # Special UI things that still must be implemented
-    def toggle_graphene_distortion_grpbox(self):
-        self.toggle_groupbox(self.graphene_distortion_grpbtn, self.line2,
+    def toggle_graphene_parameters_grpbox(self):
+        self.toggle_groupbox(self.graphene_parameters_grpbtn, self.line2,
                              self.length_label, self.length_linedit,
                              self.width_label, self.width_linedit,
                              self.bond_length_label, self.bond_length_linedit,
-                             self.endings_label, self.endings_linedit)
+                             self.endings_label, self.endings_combox)
 
     def defaults_btn_clicked(self):
         self.languageChange()
-##         self.chirality_m_spinbox.setValue(5)
-##         self.chirality_n_spinbox.setValue(5)
-##         self.twist_spinbox.setValue(0)
-##         self.bend_spinbox.setValue(0)
-##         self.mwcnt_count_spinbox.setValue(1)
 
     def enter_WhatsThisMode(self):
         env.history.message(self.cmd + orangemsg("graphene_sheet_dialog.enter_WhatsThisMode(): Not implemented yet"))

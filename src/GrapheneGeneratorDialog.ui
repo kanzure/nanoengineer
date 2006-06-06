@@ -352,7 +352,7 @@
                                 </spacer>
                                 <widget class="QPushButton">
                                     <property name="name">
-                                        <cstring>nt_parameters_grpbtn</cstring>
+                                        <cstring>graphene_parameters_grpbtn</cstring>
                                     </property>
                                     <property name="sizePolicy">
                                         <sizepolicy>
@@ -399,7 +399,7 @@
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
-                                <cstring>nt_parameters_body_layout</cstring>
+                                <cstring>graphene_parameters_body_layout</cstring>
                             </property>
                             <grid>
                                 <property name="name">
@@ -580,7 +580,7 @@
 </images>
 <connections>
     <connection>
-        <sender>nt_parameters_grpbtn</sender>
+        <sender>graphene_parameters_grpbtn</sender>
         <signal>clicked()</signal>
         <receiver>graphene_sheet_dialog</receiver>
         <slot>toggle_graphene_parameters_grpbox()</slot>

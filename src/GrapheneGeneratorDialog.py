@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GrapheneGeneratorDialog.ui'
 #
-# Created: Tue Jun 6 15:31:23 2006
+# Created: Tue Jun 6 15:39:48 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -608,12 +608,12 @@ class graphene_sheet_dialog(QDialog):
         spacer21 = QSpacerItem(67,16,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout42.addItem(spacer21)
 
-        self.nt_parameters_grpbtn = QPushButton(self.parameters_grpbox,"nt_parameters_grpbtn")
-        self.nt_parameters_grpbtn.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.nt_parameters_grpbtn.sizePolicy().hasHeightForWidth()))
-        self.nt_parameters_grpbtn.setMaximumSize(QSize(16,16))
-        self.nt_parameters_grpbtn.setIconSet(QIconSet(self.image6))
-        self.nt_parameters_grpbtn.setFlat(1)
-        layout42.addWidget(self.nt_parameters_grpbtn)
+        self.graphene_parameters_grpbtn = QPushButton(self.parameters_grpbox,"graphene_parameters_grpbtn")
+        self.graphene_parameters_grpbtn.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.graphene_parameters_grpbtn.sizePolicy().hasHeightForWidth()))
+        self.graphene_parameters_grpbtn.setMaximumSize(QSize(16,16))
+        self.graphene_parameters_grpbtn.setIconSet(QIconSet(self.image6))
+        self.graphene_parameters_grpbtn.setFlat(1)
+        layout42.addWidget(self.graphene_parameters_grpbtn)
         parameters_grpboxLayout.addLayout(layout42)
 
         self.line2 = QFrame(self.parameters_grpbox,"line2")
@@ -623,44 +623,44 @@ class graphene_sheet_dialog(QDialog):
         self.line2.setFrameShape(QFrame.HLine)
         parameters_grpboxLayout.addWidget(self.line2)
 
-        nt_parameters_body_layout = QGridLayout(None,1,1,0,6,"nt_parameters_body_layout")
+        graphene_parameters_body_layout = QGridLayout(None,1,1,0,6,"graphene_parameters_body_layout")
 
         self.length_label = QLabel(self.parameters_grpbox,"length_label")
         self.length_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        nt_parameters_body_layout.addWidget(self.length_label,1,0)
+        graphene_parameters_body_layout.addWidget(self.length_label,1,0)
 
         self.length_linedit = QLineEdit(self.parameters_grpbox,"length_linedit")
 
-        nt_parameters_body_layout.addWidget(self.length_linedit,1,1)
+        graphene_parameters_body_layout.addWidget(self.length_linedit,1,1)
 
         self.width_label = QLabel(self.parameters_grpbox,"width_label")
         self.width_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        nt_parameters_body_layout.addWidget(self.width_label,2,0)
+        graphene_parameters_body_layout.addWidget(self.width_label,2,0)
 
         self.width_linedit = QLineEdit(self.parameters_grpbox,"width_linedit")
 
-        nt_parameters_body_layout.addWidget(self.width_linedit,2,1)
+        graphene_parameters_body_layout.addWidget(self.width_linedit,2,1)
 
         self.bond_length_label = QLabel(self.parameters_grpbox,"bond_length_label")
         self.bond_length_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        nt_parameters_body_layout.addWidget(self.bond_length_label,3,0)
+        graphene_parameters_body_layout.addWidget(self.bond_length_label,3,0)
 
         self.bond_length_linedit = QLineEdit(self.parameters_grpbox,"bond_length_linedit")
 
-        nt_parameters_body_layout.addWidget(self.bond_length_linedit,3,1)
+        graphene_parameters_body_layout.addWidget(self.bond_length_linedit,3,1)
 
         self.endings_label = QLabel(self.parameters_grpbox,"endings_label")
         self.endings_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        nt_parameters_body_layout.addWidget(self.endings_label,4,0)
+        graphene_parameters_body_layout.addWidget(self.endings_label,4,0)
 
         self.endings_combox = QComboBox(0,self.parameters_grpbox,"endings_combox")
 
-        nt_parameters_body_layout.addWidget(self.endings_combox,4,1)
-        parameters_grpboxLayout.addLayout(nt_parameters_body_layout)
+        graphene_parameters_body_layout.addWidget(self.endings_combox,4,1)
+        parameters_grpboxLayout.addLayout(graphene_parameters_body_layout)
         body_frameLayout.addWidget(self.parameters_grpbox)
         graphene_sheet_dialogLayout.addWidget(self.body_frame)
         spacer14 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
@@ -683,7 +683,7 @@ class graphene_sheet_dialog(QDialog):
         self.resize(QSize(271,313).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
-        self.connect(self.nt_parameters_grpbtn,SIGNAL("clicked()"),self.toggle_graphene_parameters_grpbox)
+        self.connect(self.graphene_parameters_grpbtn,SIGNAL("clicked()"),self.toggle_graphene_parameters_grpbox)
         self.connect(self.whatsthis_btn,SIGNAL("clicked()"),self.enter_WhatsThisMode)
         self.connect(self.defaults_btn,SIGNAL("clicked()"),self.defaults_btn_clicked)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
@@ -708,7 +708,7 @@ class graphene_sheet_dialog(QDialog):
         QToolTip.add(self.whatsthis_btn,self.__tr("What's This Help"))
         self.parameters_grpbox.setTitle(QString.null)
         self.parameters_grpbox_label.setText(self.__tr("Graphene Sheet Parameters"))
-        self.nt_parameters_grpbtn.setText(QString.null)
+        self.graphene_parameters_grpbtn.setText(QString.null)
         self.length_label.setText(self.__tr("Length (A) :"))
         self.length_linedit.setText(self.__tr("20.0"))
         self.width_label.setText(self.__tr("Width (A) :"))
