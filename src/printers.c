@@ -54,6 +54,7 @@ void traceHeader(struct part *part)
     if (CommandLine != NULL && CommandLine[0] != '\0') {
         write_traceline("# Command Line: %s\n", CommandLine);
     }
+    printGlobals();
     
     // asctime provides '\n' so we needn't add one
     write_traceline("# Date and Time: %s", asctime(ptr));

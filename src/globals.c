@@ -104,7 +104,7 @@ reinit_globals(void)
     TraceFileName = NULL;
     BaseFileName = NULL;
     QualityWarningLevel = 5;
-    SimpleMovieForceScale = 0.1;
+    SimpleMovieForceScale = 1.0;
 
     OutputFile = NULL;
     TraceFile = NULL;
@@ -124,6 +124,25 @@ reinit_globals(void)
 
     reInitializeBondTable();
 }
+
+void
+printGlobals()
+{
+    write_traceline("#\n");
+    write_traceline("# debug_flags: 0x%x\n", debug_flags);
+    write_traceline("# IterPerFrame: %d\n", IterPerFrame);
+    write_traceline("# NumFrames: %d\n", NumFrames);
+    write_traceline("# DumpAsText: %d\n", DumpAsText);
+    write_traceline("# DumpIntermediateText: %d\n", DumpIntermediateText);
+    write_traceline("# PrintFrameNums: %d\n", PrintFrameNums);
+    write_traceline("# OutputFormat: %d\n", OutputFormat);
+    write_traceline("# KeyRecordInterval: %d\n", KeyRecordInterval);
+    write_traceline("# DirectEvaluate: %d\n", DirectEvaluate);
+    write_traceline("# ExcessiveEnergyLevel: %f aJ\n", ExcessiveEnergyLevel);
+    write_traceline("# QualityWarningLevel: %d\n", QualityWarningLevel);
+    write_traceline("#\n");
+}
+
 
 /*
  * Local Variables:

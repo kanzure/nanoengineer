@@ -71,4 +71,6 @@ extern const double G1;
 
 extern void reinit_globals(void);
 
+extern void printGlobals(void);
+
 #endif  /* GLOBALS_H_INCLUDED */
