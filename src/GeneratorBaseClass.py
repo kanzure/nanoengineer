@@ -184,6 +184,8 @@ class GeneratorBaseClass(GroupButtonMixin):
         except:
             return False
 
+    def sponsor_btn_clicked(self):
+        self.sponsor.wikiHelp()
     def open_sponsor_homepage(self):
         self.sponsor.wikiHelp()
 

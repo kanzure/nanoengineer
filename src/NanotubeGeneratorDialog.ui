@@ -999,23 +999,14 @@
                 <property name="margin">
                     <number>4</number>
                 </property>
-                <spacer>
+                <widget class="QPushButton">
                     <property name="name">
-                        <cstring>spacer20</cstring>
+                        <cstring>defaults_btn</cstring>
                     </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
+                    <property name="text">
+                        <string>Defaults</string>
                     </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>59</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
+                </widget>
                 <widget class="QPushButton">
                     <property name="name">
                         <cstring>cancel_btn</cstring>
@@ -1085,6 +1076,12 @@
         <slot>enter_WhatsThisMode()</slot>
     </connection>
     <connection>
+        <sender>defaults_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>nanotube_dialog</receiver>
+        <slot>defaults_btn_clicked()</slot>
+    </connection>
+    <connection>
         <sender>cancel_btn</sender>
         <signal>clicked()</signal>
         <receiver>nanotube_dialog</receiver>
@@ -1145,6 +1142,7 @@
     <slot>previewClicked()</slot>
     <slot>zDistortChanged()</slot>
     <slot>xyDistortChanged()</slot>
+    <slot>defaults_btn_clicked()</slot>
     <slot>cancel_btn_clicked()</slot>
     <slot>ok_btn_clicked()</slot>
     <slot>sponsor_btn_clicked()</slot>

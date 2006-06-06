@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Wed May 31 10:22:19 2006
+# Created: Tue Jun 6 10:38:40 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -659,8 +659,9 @@ class nanotube_dialog(QDialog):
         nanotube_dialogLayout.addItem(spacer14)
 
         layout42_2 = QHBoxLayout(None,4,6,"layout42_2")
-        spacer20 = QSpacerItem(59,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout42_2.addItem(spacer20)
+
+        self.defaults_btn = QPushButton(self,"defaults_btn")
+        layout42_2.addWidget(self.defaults_btn)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
         layout42_2.addWidget(self.cancel_btn)
@@ -678,6 +679,7 @@ class nanotube_dialog(QDialog):
         self.connect(self.nt_parameters_grpbtn,SIGNAL("clicked()"),self.toggle_nt_parameters_grpbox)
         self.connect(self.mwcnt_grpbtn,SIGNAL("clicked()"),self.toggle_mwcnt_grpbox)
         self.connect(self.whatsthis_btn,SIGNAL("clicked()"),self.enter_WhatsThisMode)
+        self.connect(self.defaults_btn,SIGNAL("clicked()"),self.defaults_btn_clicked)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
         self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
@@ -738,6 +740,7 @@ class nanotube_dialog(QDialog):
         self.mwcnt_count_label.setText(self.__tr("Number of Nanotubes :"))
         self.mwcnt_count_spinbox.setSuffix(QString.null)
         self.mwcnt_spacing_linedit.setText(self.__tr("2.46 A"))
+        self.defaults_btn.setText(self.__tr("Defaults"))
         self.cancel_btn.setText(self.__tr("Cancel"))
         self.ok_btn.setText(self.__tr("OK"))
 
@@ -783,6 +786,9 @@ class nanotube_dialog(QDialog):
 
     def xyDistortChanged(self):
         print "nanotube_dialog.xyDistortChanged(): Not implemented yet"
+
+    def defaults_btn_clicked(self):
+        print "nanotube_dialog.defaults_btn_clicked(): Not implemented yet"
 
     def cancel_btn_clicked(self):
         print "nanotube_dialog.cancel_btn_clicked(): Not implemented yet"

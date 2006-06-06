@@ -280,6 +280,14 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
                              self.mwcnt_spacing_label, self.mwcnt_spacing_linedit,
                              self.mwcnt_count_label, self.mwcnt_count_spinbox)
 
+    def defaults_btn_clicked(self):
+        self.languageChange()
+        self.chirality_m_spinbox.setValue(5)
+        self.chirality_n_spinbox.setValue(5)
+        self.twist_spinbox.setValue(0)
+        self.bend_spinbox.setValue(0)
+        self.mwcnt_count_spinbox.setValue(1)
+
     def enter_WhatsThisMode(self):
         env.history.message(self.cmd + orangemsg("nanotube_dialog.enter_WhatsThisMode(): Not implemented yet"))
 
