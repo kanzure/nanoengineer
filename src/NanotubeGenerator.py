@@ -265,7 +265,8 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             x, y, z = atm.posn()
             # radius is approximate
             radius = 0.7844 * n
-            x *= (xydist + radius) / radius
+            x *= (radius + 0.5 * xydist) / radius
+            z *= (radius - 0.5 * xydist) / radius
             atm.setposn(chem.V(x, y, z))
 
 
