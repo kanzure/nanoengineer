@@ -370,6 +370,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
     def afterGettingPermission(self):
         # Create the Nanotube generator dialog.  Fixes bug 1091. Mark 060112.
+        from GrapheneGenerator import GrapheneGenerator
+        self.graphenecntl = GrapheneGenerator(self)
         from NanotubeGenerator import NanotubeGenerator
         self.nanotubecntl = NanotubeGenerator(self)
         from DnaGenerator import DnaGenerator
@@ -1132,6 +1134,9 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     # Insert Menu/Toolbar Slots
     ###################################
         
+    def insertGraphene(self):
+        self.graphenecntl.show()
+
     def insertNanotube(self):
         self.nanotubecntl.show()
 
