@@ -20,11 +20,16 @@ __author__ = "Josh"
 import platform # for atom_debug
 from VQT import *
 
-def selection_polyhedron(basepos):
-    """Given basepos (a Numeric array of 3d positions), compute and return [###doc the format]
+def selection_polyhedron(basepos, borderwidth = 1.8):
+    """Given basepos (a Numeric array of 3d positions), compute and return (as a list of vertices, each pair being an edge to draw)
     a simple bounding polyhedron, convenient for designating the approximate extent of this set of points.
     (This is used on the array of atom and open bond positions in a chunk to designate a selected chunk.)
+       Make every face farther out than it needs to be to enclose all points in basepos, by borderwidth (default 1.8).
+    Negative values of borderwidth might sometimes work, but are likely to fail drastically if the polyhedron is too small.
+       The orientation of the faces matches the coordinate axes used in basepos (in typical calls, these are chunk-relative).
+    [#e Someday we might permit caller-specified orientation axes. The axes of inertia would be interesting to try.]
     """
+    #bruce 060226/060605 made borderwidth an argument (non-default values untested); documented retval format
     #bruce 060119 split this out of shakedown_poly_eval_evec_axis() in chunk.py.
     # Note, it has always had some bad bugs for certain cases, like long diagonal rods.
 
@@ -33,11 +38,14 @@ def selection_polyhedron(basepos):
     
     # find extrema in many directions
     xtab = dot(basepos, polyXmat)
-    mins = minimum.reduce(xtab) - 1.8
-    maxs = maximum.reduce(xtab) + 1.8
+    mins = minimum.reduce(xtab) - borderwidth
+    maxs = maximum.reduce(xtab) + borderwidth
 
     polyhedron = makePolyList(cat(maxs,mins))
-
+        # apparently polyhedron is just a long list of vertices [v0,v1,v2,v3,...] to be passed to GL_LINES
+        # (via drawlinelist), which will divide them into pairs and draw lines v0-v1, v2-v3, etc.
+        # Maybe we should generalize the format, so some callers could also draw faces.
+        # [bruce 060226/060605 comment]
     return polyhedron
 
 # == helper definitions for selection_polyhedron [moved here from drawer.py by bruce 060119]
@@ -45,11 +53,11 @@ def selection_polyhedron(basepos):
 # mat mult by rowvector list and max/min reduce to find extrema
 D = sqrt(2.0)/2.0
 T = sqrt(3.0)/3.0
-#              0  1  2  3   4  5   6  7   8  9  10  11  12
-#             13 14 15 16  17 18  19 20  21 22  23  24  25
-polyXmat = A([[1, 0, 0, D,  D, D,  D,  0,   0, T,  T,  T,  T],
-                       [0, 1, 0, D, -D, 0,   0,  D,  D, T,  T, -T, -T],
-                       [0, 0, 1, 0,  0,  D, -D,  D, -D, T, -T,  T, -T]])
+#              0  1  2  3   4  5   6   7   8  9  10  11  12
+#             13 14 15 16  17 18  19  20  21 22  23  24  25
+polyXmat = A([[1, 0, 0, D,  D, D,  D,  0,  0, T,  T,  T,  T],
+              [0, 1, 0, D, -D, 0,  0,  D,  D, T,  T, -T, -T],
+              [0, 0, 1, 0,  0, D, -D,  D, -D, T, -T,  T, -T]])
 
 del D, T
 
