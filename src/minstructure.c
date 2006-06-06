@@ -104,6 +104,8 @@ static FILE *parameterGuessFile = NULL;
 // linear minimization.
 #define MAX_RADIANS_PER_STEP 0.4
 
+//#define PLOT_LINEAR_MINIMIZATION
+
 // This is the gradient of the potential function which is being minimized.
 static void
 minimizeStructureGradient(struct configuration *p)
@@ -117,17 +119,32 @@ minimizeStructureGradient(struct configuration *p)
     struct xyz *forces;
     struct jig *jig;
 
-    // wware 060109  python exception handling
+#ifdef PLOT_LINEAR_MINIMIZATION
+    double parameter;
+    double potential;
+    struct xyz *position;
+    struct configuration *newLocation;
+    int j;
+    struct stretch *stretch;
+    struct bond *bond;
+    double r;
+    struct xyz rv;
+    double rSquared;
+#endif
+
     updateVanDerWaals(Part, p, (struct xyz *)p->coordinate); BAIL();
     if (DEBUG(D_GRADIENT_FROM_POTENTIAL) || DEBUG(D_GRADIENT_COMPARISON)) { // -D10 || -D18
-	// wware 060109  python exception handling
+        p->functionDefinition->gradient_delta = 1e-12; // pm
 	evaluateGradientFromPotential(p); BAIL();
-        if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
+        for (i=p->functionDefinition->dimension-1; i>=0; i--) {
+            p->gradient[i] *= 1e6; // convert uN to pN
+        }
+        if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE) && DEBUG(D_GRADIENT_COMPARISON)) { // -D4
             struct xyz offset = { 0.0, 10.0, 20.0 };
             
             forces = (struct xyz *)p->gradient;
             for (i=0; i<Part->num_atoms; i++) {
-                writeSimpleForceVectorOffset((struct xyz *)p->coordinate, i, &forces[i], 6, 1e7, offset); // yellow
+                writeSimpleForceVectorOffset((struct xyz *)p->coordinate, i, &forces[i], 6, 1.0, offset); // yellow
             }
         }
     }
@@ -187,6 +204,29 @@ minimizeStructureGradient(struct configuration *p)
     p->functionDefinition->initial_parameter_guess = clamp(1e-20, 1e3,
                                                            0.7 / (max_force + 1000.0) +
                                                            0.1 / (max_force + 20.0));
+
+#ifdef PLOT_LINEAR_MINIMIZATION
+    for (parameter = -p->functionDefinition->initial_parameter_guess;
+         parameter < p->functionDefinition->initial_parameter_guess;
+         parameter += p->functionDefinition->initial_parameter_guess / 500) {
+        newLocation = gradientOffset(p, parameter);
+        potential = evaluate(newLocation);
+        position = (struct xyz *)newLocation->coordinate;
+        printf("%e %e ", parameter, potential);
+        for (j=0; j<Part->num_stretches; j++) {
+            stretch = &Part->stretches[j];
+            bond = stretch->b;
+            vsub2(rv, position[bond->a2->index], position[bond->a1->index]);
+            rSquared = vdot(rv, rv);
+            r = sqrt(rSquared);
+            potential = stretchPotential(Part, stretch, stretch->stretchType, r);
+            printf("%f %f ", r, potential);
+        }
+        printf("\n");
+        SetConfiguration(&newLocation, NULL);
+    }
+    printf("\n\n");
+#endif
     
     writeMinimizeMovieFrame(OutputFile, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++,
 			    "gradient", p->functionDefinition->message);
