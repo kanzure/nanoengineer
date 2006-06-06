@@ -164,7 +164,7 @@ class NanoBuildBase:
 
     def buildSimulator(self):
         """Build the simulators (standalone and pyrex)"""
-        os.chdir(os.path.join(self.atomPath, 'sim/src'))
+        os.chdir(os.path.normpath(os.path.join(self.atomPath, 'sim/src')))
         system('make')
         system('make pyx')
         print "----------Simulators (standalone and pyrex) have been built.\n"
@@ -243,21 +243,37 @@ class NanoBuildWin32(NanoBuildBase):
     def prepareSources(self):
         """Checkout source code from cvs for the release """
         print "\n------------------------------------------------------\nPreparing Sources"
-        ret = os.spawnv(os.P_NOWAIT, 'C:\Huaicai\putty\pageant.exe',
-                        ['C:\Huaicai\putty\pageant.exe', 'C:\Huaicai\Documents\dsa_private.ppk'])
-        if ret <= 0: raise Exception, "start pageant.exe with key file dsa_privaate.ppk failed."
+                
+        pageant = "C:/Program Files/PuTTY/pageant.exe" 
+        pageant_with_quotes = "\"" + pageant + "\"" # This is required for the first arg in args for spawnv().
+        
+        # This should be changed to the fullpath of your CVSdude privatekey. Mark 060606.
+        privatekey = "C:/cvsdude/new_polosims_privatekey.ppk"
+        
+        args = [pageant_with_quotes, privatekey]
+        
+        if not os.path.exists(pageant):
+            print "Error: ", pageant, " executable not found. Please check location and try again."
+            sys.exit(1)
+            
+        if not os.path.exists(privatekey):
+            print "Error: Private key file ", privatekey, " not found. Please check location and try again."
+            sys.exit(1)
+            
+        ret = os.spawnv(os.P_NOWAIT, pageant, args)
+        if ret <= 0: raise Exception, "start " + pageant + " with key file " + privatekey + " failed."
         NanoBuildBase.prepareSources(self)
 
     def copyOtherSources(self):
         print "\n------------------------------------------------------\nCopying other files"
-        copy('wgnuplot.exe', self.binPath)
+        copy('win32/wgnuplot.exe', self.binPath)
         copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), self.binPath)
         copy(os.path.join(self.atomPath, 'sim/src', self.pyrexSimulatorName()), self.binPath)
         copy(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl',
                           self.openglAcceleratorName()), self.binPath)
         copy(self.iconFile, self.buildSourcePath)
-        copy('uninst.ico', self.buildSourcePath)
-        copy('setup.py', os.path.join(self.atomPath,'cad/src'))
+        copy('win32/uninst.ico', self.buildSourcePath)
+        copy('win32/setup.py', os.path.join(self.atomPath,'cad/src'))
         copy(os.path.join(self.atomPath,'cad/src/RELEASENOTES.txt'), self.buildSourcePath)
         copy(os.path.join(self.atomPath,'cad/src/KnownBugs.htm'), self.buildSourcePath)
         copy(os.path.join(self.atomPath,'cad/src/README.txt'), self.rootPath)
@@ -288,8 +304,8 @@ class NanoBuildWin32(NanoBuildBase):
         print "\n------------------------------------------------------\nFreezing Python Executable"
         self.removeGPLFiles()
         try:
-            system('python setup.py py2exe --includes=sip,dbhash --excludes=OpenGL -d' +
-                   os.path.join(self.buildSourcePath, 'program'))
+            system('python setup.py py2exe --includes=sip,dbhash --excludes=OpenGL -d\"' +
+                   os.path.join(self.buildSourcePath, 'program') + '\"' )
         except NonZeroExitStatus:
             # this happens, apparently not a problem
             print "Warning, exit status for 'python setup.py py2exe' was not zero"
@@ -359,9 +375,9 @@ class NanoBuildWin32(NanoBuildBase):
     def _addDLLs(self):
         """Add all the required dlls into <program> (Windows only) """
         print "\n------------------------------------------------------\nAdding DLLs"
-        copy('glut32.dll', os.path.join(self.buildSourcePath, 'program'))
+        copy('win32/glut32.dll', os.path.join(self.buildSourcePath, 'program'))
         print "glut32.dll"
-        copy('msvcr71.dll', os.path.join(self.buildSourcePath, 'program'))
+        copy('win32/msvcr71.dll', os.path.join(self.buildSourcePath, 'program'))
         print "msvcr71.dll"
         print "Done"
 
@@ -373,8 +389,9 @@ class NanoBuildWin32(NanoBuildBase):
         self.createIssFile(issFile, self.appName,
                             self.buildSourcePath, self.status)
         outputFile = PMMT + '-w32'
+        # The Inno Setup directory containing "iscc.exe" must be in your PATH (i.e. C:/Program Files/Inno Setup 5). Mark 060606.
         # Run Inno Setup command to build the install package for Windows (only).
-        commLine = 'iscc  /Q  /O"' + self.rootPath + '" /F"' + outputFile + '"  ' + issFile
+        commLine = 'iscc  /Q  /O"' + self.rootPath + '" /F"' + outputFile + '"  "' + issFile + '"'
         ret = system(commLine)
         if ret == 1:
             errMsg = "The command line parameters are invalid: %s" % commLine
@@ -836,7 +853,7 @@ def main():
     appName = "nanoENGINEER-1"
     rootDir = None
     if sys.platform == 'win32':
-          iconFile = os.path.join(currentDir, 'nanorex_48x.ico')
+          iconFile = os.path.join(currentDir, 'win32/nanorex_48x.ico')
     elif sys.platform == 'darwin':
         iconFile = os.path.join(currentDir, 'nanorex.icns')
     else:
