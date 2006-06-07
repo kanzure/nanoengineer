@@ -39,13 +39,16 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
     def __init__(self, win):
         graphene_sheet_dialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
         GeneratorBaseClass.__init__(self, win)
-        # Validator for the length linedit widget.
+        # Validator for the linedit widgets.
         self.validator = QDoubleValidator(self)
-        # Range of graphene length (0-1000, 2 decimal places)
-        self.validator.setRange(0.0, 1000.0, 2)
+        # Range for linedits: 1 to 1000, 2 decimal places
+        self.validator.setRange(1.0, 1000.0, 2)
         self.height_linedit.setValidator(self.validator)
-        self.cursor_pos = 0
-        self.lenstr = str(self.height_linedit.text())
+        self.width_linedit.setValidator(self.validator)
+        self.bond_length_linedit.setValidator(self.validator)
+        self.hstr = self.height_linedit.text()
+        self.wstr = self.width_linedit.text()
+        self.blstr = self.bond_length_linedit.text()
 
     ###################################################
     # How to build this kind of structure, along with
@@ -93,11 +96,16 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
         return mol
 
     def length_fixup(self):
-        '''Slot for the Length linedit widget.
+        '''Slot for various linedit widgets.
         This gets called each time a user types anything into the widget.
         '''
-        self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
-        self.length_linedit.setText(self.lenstr)
+        hstr = double_fixup(self.validator, self.height_linedit.text(), self.hstr)
+        self.height_linedit.setText(hstr)
+        wstr = double_fixup(self.validator, self.width_linedit.text(), self.wstr)
+        self.width_linedit.setText(wstr)
+        blstr = double_fixup(self.validator, self.bond_length_linedit.text(), self.blstr)
+        self.bond_length_linedit.setText(blstr)
+        self.hstr, self.wstr, self.blstr = hstr, wstr, blstr
 
     def populate(self, mol, height, width, z, bond_length, endings):
 
@@ -107,7 +115,7 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
             return atm
 
         bond_dict = { }
-        j = 0
+        i = j = 0
         y = -0.5 * height - 2 * bond_length
         while y < 0.5 * height + 2 * bond_length:
             i = 0

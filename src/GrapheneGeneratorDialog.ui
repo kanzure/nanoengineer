@@ -448,7 +448,7 @@
                                         <cstring>bond_length_label</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>Bond Length :</string>
+                                        <string>Bond Length (A):</string>
                                     </property>
                                     <property name="alignment">
                                         <set>AlignVCenter|AlignRight</set>
@@ -459,7 +459,7 @@
                                         <cstring>bond_length_linedit</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>1.41 A</string>
+                                        <string>1.40</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel" row="4" column="0">
@@ -633,7 +633,28 @@
         <receiver>graphene_sheet_dialog</receiver>
         <slot>done_btn_clicked()</slot>
     </connection>
+    <connection>
+        <sender>height_linedit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>graphene_sheet_dialog</receiver>
+        <slot>length_fixup()</slot>
+    </connection>
+    <connection>
+        <sender>width_linedit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>graphene_sheet_dialog</receiver>
+        <slot>length_fixup()</slot>
+    </connection>
+    <connection>
+        <sender>bond_length_linedit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>graphene_sheet_dialog</receiver>
+        <slot>length_fixup()</slot>
+    </connection>
 </connections>
+<includes>
+    <include location="local" impldecl="in implementation">GrapheneGeneratorDialog.ui.h</include>
+</includes>
 <slots>
     <slot>open_sponsor_homepage()</slot>
     <slot>toggle_graphene_parameters_grpbox()</slot>
@@ -645,6 +666,7 @@
     <slot>preview_btn_clicked()</slot>
     <slot>abort_btn_clicked()</slot>
     <slot>done_btn_clicked()</slot>
+    <slot>length_fixup()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GrapheneGeneratorDialog.ui'
 #
-# Created: Tue Jun 6 22:12:50 2006
+# Created: Wed Jun 7 10:46:41 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -692,6 +692,9 @@ class graphene_sheet_dialog(QDialog):
         self.connect(self.preview_btn,SIGNAL("clicked()"),self.preview_btn_clicked)
         self.connect(self.abort_btn,SIGNAL("clicked()"),self.abort_btn_clicked)
         self.connect(self.done_btn,SIGNAL("clicked()"),self.done_btn_clicked)
+        self.connect(self.height_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
+        self.connect(self.width_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
+        self.connect(self.bond_length_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
 
 
     def languageChange(self):
@@ -713,8 +716,8 @@ class graphene_sheet_dialog(QDialog):
         self.height_linedit.setText(self.__tr("20.0"))
         self.width_label.setText(self.__tr("Width (A) :"))
         self.width_linedit.setText(self.__tr("20.0"))
-        self.bond_length_label.setText(self.__tr("Bond Length :"))
-        self.bond_length_linedit.setText(self.__tr("1.41 A"))
+        self.bond_length_label.setText(self.__tr("Bond Length (A):"))
+        self.bond_length_linedit.setText(self.__tr("1.40"))
         self.endings_label.setText(self.__tr("Endings :"))
         self.endings_combox.clear()
         self.endings_combox.insertItem(self.__tr("None"))
@@ -754,6 +757,9 @@ class graphene_sheet_dialog(QDialog):
 
     def done_btn_clicked(self):
         print "graphene_sheet_dialog.done_btn_clicked(): Not implemented yet"
+
+    def length_fixup(self):
+        print "graphene_sheet_dialog.length_fixup(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("graphene_sheet_dialog",s,c)
