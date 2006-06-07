@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GrapheneGeneratorDialog.ui'
 #
-# Created: Tue Jun 6 15:39:48 2006
+# Created: Tue Jun 6 22:12:50 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -625,14 +625,14 @@ class graphene_sheet_dialog(QDialog):
 
         graphene_parameters_body_layout = QGridLayout(None,1,1,0,6,"graphene_parameters_body_layout")
 
-        self.length_label = QLabel(self.parameters_grpbox,"length_label")
-        self.length_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        self.height_label = QLabel(self.parameters_grpbox,"height_label")
+        self.height_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        graphene_parameters_body_layout.addWidget(self.length_label,1,0)
+        graphene_parameters_body_layout.addWidget(self.height_label,1,0)
 
-        self.length_linedit = QLineEdit(self.parameters_grpbox,"length_linedit")
+        self.height_linedit = QLineEdit(self.parameters_grpbox,"height_linedit")
 
-        graphene_parameters_body_layout.addWidget(self.length_linedit,1,1)
+        graphene_parameters_body_layout.addWidget(self.height_linedit,1,1)
 
         self.width_label = QLabel(self.parameters_grpbox,"width_label")
         self.width_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
@@ -709,8 +709,8 @@ class graphene_sheet_dialog(QDialog):
         self.parameters_grpbox.setTitle(QString.null)
         self.parameters_grpbox_label.setText(self.__tr("Graphene Sheet Parameters"))
         self.graphene_parameters_grpbtn.setText(QString.null)
-        self.length_label.setText(self.__tr("Length (A) :"))
-        self.length_linedit.setText(self.__tr("20.0"))
+        self.height_label.setText(self.__tr("Height (A) :"))
+        self.height_linedit.setText(self.__tr("20.0"))
         self.width_label.setText(self.__tr("Width (A) :"))
         self.width_linedit.setText(self.__tr("20.0"))
         self.bond_length_label.setText(self.__tr("Bond Length :"))

@@ -407,10 +407,10 @@
                                 </property>
                                 <widget class="QLabel" row="1" column="0">
                                     <property name="name">
-                                        <cstring>length_label</cstring>
+                                        <cstring>height_label</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>Length (A) :</string>
+                                        <string>Height (A) :</string>
                                     </property>
                                     <property name="alignment">
                                         <set>AlignVCenter|AlignRight</set>
@@ -418,7 +418,7 @@
                                 </widget>
                                 <widget class="QLineEdit" row="1" column="1">
                                     <property name="name">
-                                        <cstring>length_linedit</cstring>
+                                        <cstring>height_linedit</cstring>
                                     </property>
                                     <property name="text">
                                         <string>20.0</string>

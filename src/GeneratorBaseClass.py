@@ -13,8 +13,6 @@ from HistoryWidget import redmsg, orangemsg, greenmsg
 
 __author__ = "Will"
 
-DEBUG = False
-
 _up_arrow_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52" \
     "\x00\x00\x00\x10\x00\x00\x00\x10\x08\x02\x00\x00\x00\x90\x91\x68" \
@@ -109,18 +107,18 @@ class GeneratorBaseClass(GroupButtonMixin):
         raise AbstractMethod()
 
     def remove_struct(self):
-        if DEBUG: print 'Should we remove an existing structure?'
+        if platform.atom_debug: print 'Should we remove an existing structure?'
         if self.struct != None:
-            if DEBUG: print 'Yes, remove it'
+            if platform.atom_debug: print 'Yes, remove it'
             self.struct.kill()
             self.struct = None
             self.win.win_update()
             self.win.mt.mt_update()
         else:
-            if DEBUG: print 'No structure to remove'
+            if platform.atom_debug: print 'No structure to remove'
 
     def preview_btn_clicked(self):
-        if DEBUG: print 'preview button clicked'
+        if platform.atom_debug: print 'preview button clicked'
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         try:
             self._build_struct()
@@ -146,10 +144,10 @@ class GeneratorBaseClass(GroupButtonMixin):
         raise AbstractMethod()
 
     def _build_struct(self):
-        if DEBUG: print '_build_struct'
+        if platform.atom_debug: print '_build_struct'
         params = self.gather_parameters()
         if self.struct == None or params != self.previousParams:
-            if DEBUG:
+            if platform.atom_debug:
                 print 'self.struct =', self.struct
                 if params != self.previousParams:
                     print 'parameters changed'
@@ -157,16 +155,16 @@ class GeneratorBaseClass(GroupButtonMixin):
                     print 'parameters have not changed'
             self.remove_struct()
             self.previousParams = params
-            if DEBUG: print 'build a new structure'
+            if platform.atom_debug: print 'build a new structure'
             self.struct = self.build_struct(params)
             self.win.assy.addnode(self.struct)
             self.win.win_update() # includes mt_update
         else:
-            if DEBUG: print 'Existing structre, same params, do not rebuild'
+            if platform.atom_debug: print 'Existing structre, same params, do not rebuild'
 
     def ok_btn_clicked(self):
         'Slot for the OK button'
-        if DEBUG: print 'ok button clicked'
+        if platform.atom_debug: print 'ok button clicked'
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         try:
             self._build_struct()
@@ -181,7 +179,7 @@ class GeneratorBaseClass(GroupButtonMixin):
 
     def done_btn_clicked(self):
         'Slot for the Done button'
-        if DEBUG: print 'done button clicked'
+        if platform.atom_debug: print 'done button clicked'
         self.ok_btn_clicked()
 
     def abort_btn_clicked(self):
@@ -190,7 +188,7 @@ class GeneratorBaseClass(GroupButtonMixin):
 
     def cancel_btn_clicked(self):
         'Slot for the Cancel button'
-        if DEBUG: print 'cancel button clicked'
+        if platform.atom_debug: print 'cancel button clicked'
         self.remove_struct()
         QDialog.accept(self)
 
