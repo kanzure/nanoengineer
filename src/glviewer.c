@@ -534,7 +534,9 @@ int main(int argc, char **argv)
       doPaint();
     }
     FD_ZERO(&readfds);
-    FD_SET(0, &readfds);
+    if (!atEOF) {
+      FD_SET(0, &readfds);
+    }
     FD_SET(xServerFD, &readfds);
     timeout.tv_sec = 5;
     timeout.tv_usec = 0;
