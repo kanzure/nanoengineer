@@ -20,6 +20,7 @@ from widgets import double_fixup
 from debug import Stopwatch, objectBrowse
 from Utility import Group
 from GeneratorBaseClass import GeneratorBaseClass
+from elements import PeriodicTable
 
 sqrt3 = 3 ** 0.5
 quartet = ((0, sqrt3 / 2), (0.5, 0), (1.5, 0), (2, sqrt3 / 2))
@@ -73,8 +74,7 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
         self.bond_length = bond_length = string.atof(bond_length)
 
         endings = self.endings_combox.currentItem()
-        if endings == 2:
-            raise Exception("Graphene nitrogen ends not implemented yet.")
+
         return (height, width, bond_length, endings)
 
     def build_struct(self, params):
@@ -156,28 +156,42 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
             # xdim, ydim = width + 0.5 * bond_length, height + 0.5 * bond_length
             if (x < -0.5 * xdim or x > 0.5 * xdim or y < -0.5 * ydim or y > 0.5 * ydim):
                 atm.kill()
-        # trim all the carbons that only have one carbon neighbor
-        for i in range(2):
-            for atm in atoms.values():
-                if not atm.is_singlet() and len(atm.realNeighbors()) == 1:
-                    atm.kill()
 
-        # if hydrogen endings, hydrogenate
-        if endings == 1:
-            for atm in atoms.values():
-                x, y, z = atm.posn()
-                xdim, ydim = width - 3 * bond_length, height - 3 * bond_length
-                if (x < -0.5 * xdim or x > 0.5 * xdim or y < -0.5 * ydim or y > 0.5 * ydim):
-                    atm.Hydrogenate()
+        def trimCarbons():
+            # trim all the carbons that only have one carbon neighbor
+            for i in range(2):
+                for atm in atoms.values():
+                    if not atm.is_singlet() and len(atm.realNeighbors()) == 1:
+                        atm.kill()
 
         if TOROIDAL:
-            # This is for making electrical inductors.
+            # This is for making electrical inductors. What would be
+            # really good here would be to break the bonds that are
+            # stretched by this and put back the bondpoints.
             angstromsPerTurn = 6.0
             for atm in atoms.values():
                 x, y, z = atm.posn()
-                angle = atan2(y, x)
-                zdisp = (angstromsPerTurn * angle) / (2 * pi)
-                atm.setposn(chem.V(x, y, z + zdisp))
+                r = (x**2 + y**2) ** .5
+                if 0.25 * width <= r <= 0.5 * width:
+                    angle = atan2(y, x)
+                    zdisp = (angstromsPerTurn * angle) / (2 * pi)
+                    atm.setposn(chem.V(x, y, z + zdisp))
+                else:
+                    atm.kill()
+
+        if endings == 1:
+            # hydrogen terminations
+            trimCarbons()
+            for atm in atoms.values():
+                atm.Hydrogenate()
+        elif endings == 2:
+            # nitrogen terminations
+            trimCarbons()
+            dstElem = PeriodicTable.getElement('N')
+            atomtype = dstElem.find_atomtype('sp2')
+            for atm in atoms.values():
+                if len(atm.realNeighbors()) == 2:
+                    atm.Transmute(dstElem, force=True, atomtype=atomtype)
 
     ###################################################
     # The done message

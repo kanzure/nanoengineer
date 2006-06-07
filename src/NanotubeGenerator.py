@@ -23,6 +23,7 @@ from widgets import double_fixup
 from debug import Stopwatch, objectBrowse
 from Utility import Group
 from GeneratorBaseClass import GeneratorBaseClass
+from elements import PeriodicTable
 
 sqrt3 = 3 ** 0.5
 
@@ -216,8 +217,6 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         endings = self.endings_combox.currentItem()
         if endings == 1:
             raise Exception("Nanotube endcaps not implemented yet.")
-        if endings == 3:
-            raise Exception("Nanotube nitrogen ends not implemented yet.")
         return (n, m, length, zdist, xydist, twist, bend, members, endings)
 
     def build_struct(self, params):
@@ -287,18 +286,27 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
                 y < -.5 * (length + LENGTH_TWEAK)):
                 atm.kill()
 
-        # trim all the carbons that only have one carbon neighbor
-        for atm in atoms.values():
-            if not atm.is_singlet() and len(atm.realNeighbors()) == 1:
-                atm.kill()
+        def trimCarbons():
+            # trim all the carbons that only have one carbon neighbor
+            for i in range(2):
+                for atm in atoms.values():
+                    if not atm.is_singlet() and len(atm.realNeighbors()) == 1:
+                        atm.kill()
 
-        # if hydrogen endings, hydrogenate
+        # if we're not picky about endings, we don't need to trim carbons
         if endings == 2:
+            # hydrogen terminations
+            trimCarbons()
             for atm in atoms.values():
-                y = atm.posn()[1]
-                if (y > .5 * (length - LENGTH_TWEAK) or
-                    y < -.5 * (length - LENGTH_TWEAK)):
-                    atm.Hydrogenate()
+                atm.Hydrogenate()
+        elif endings == 3:
+            # nitrogen terminations
+            trimCarbons()
+            dstElem = PeriodicTable.getElement('N')
+            atomtype = dstElem.find_atomtype('sp2')
+            for atm in atoms.values():
+                if len(atm.realNeighbors()) == 2:
+                    atm.Transmute(dstElem, force=True, atomtype=atomtype)
 
         if PROFILE:
             t = sw.now()
