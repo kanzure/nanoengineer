@@ -29,16 +29,10 @@ sqrt3 = 3 ** 0.5
 
 class Chirality:
 
-    # Nanotube bond length according to Dresselhaus, M. S.,
-    # Dresselhaus, G., Eklund, P. C. "Science of Fullerenes and Carbon
-    # Nanotubes" Academic Press: San Diego, CA, 1995; pp. 760.
-    BONDLENGTH = 1.421  # angstroms
-
-    # It's handy to have slightly a bigger version, and its square.
-    MAXLEN = 1.2 * BONDLENGTH
-    MAXLENSQ = MAXLEN ** 2
-
-    def __init__(self, n, m):
+    def __init__(self, n, m, bond_length=1.40):
+        self.bond_length = bond_length
+        self.maxlen = maxlen = 1.2 * bond_length
+        self.maxlensq = maxlen**2
         self.n, self.m = n, m
         x = (n + 0.5 * m) * sqrt3
         y = 1.5 * m
@@ -55,10 +49,9 @@ class Chirality:
         G = 2 * (1 - cos(AoverR * (s - u)))
         H = (v - x)**2
         J = 2 * (1 - cos(AoverR * (u - w)))
-        L = self.BONDLENGTH
         denom = F * J - G * H
-        self.R = (L**2 * (F - H) / denom) ** .5
-        self.B = (L**2 * (J - G) / denom) ** .5
+        self.R = (bond_length**2 * (F - H) / denom) ** .5
+        self.B = (bond_length**2 * (J - G) / denom) ** .5
         self.A = self.R * AoverR
 
     def x1y1(self, n, m):
@@ -135,7 +128,7 @@ class Chirality:
             for m2 in range(mfirst[0], mlast[0] + 1):
                 atm2 = evenAtomDict[(0, m2)]
                 diff = atm.posn() - atm2.posn()
-                if dot(diff, diff) < self.MAXLENSQ:
+                if dot(diff, diff) < self.maxlensq:
                     moffset = m2 - mmid
                     # Given the offset, zipping up the rows is easy.
                     for m in range(mfirst[n], mlast[n]+1):
@@ -180,10 +173,15 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         # Validator for the length linedit widget.
         self.validator = QDoubleValidator(self)
         # Range of nanotube length (0-1000, 2 decimal places)
+        # also used to validate bond length
         self.validator.setRange(0.0, 1000.0, 2)
         self.length_linedit.setValidator(self.validator)
+        self.bond_length_linedit.setValidator(self.validator)
         self.cursor_pos = 0
         self.lenstr = str(self.length_linedit.text())
+        self.blstr = str(self.bond_length_linedit.text())
+        self.zstr = str(self.z_distortion_linedit.text())
+        self.xystr = str(self.xy_distortion_linedit.text())
 
     ###################################################
     # How to build this kind of structure, along with
@@ -197,17 +195,17 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         # Get length from length_linedit and make sure it is not zero.
         # length_linedit's validator makes sure this has a valid number (float).  
         # The only exception is when there is no text.  Mark 051103.
-        if self.length_linedit.text():
-            self.length = string.atof(str(self.length_linedit.text()))
-        else:
-            self.length = 0.0
-            raise Exception("Please specify a valid length.")
-        length = self.length
+        def fetch(name, linedit):
+            x = str(linedit.text())
+            if not x:
+                raise Exception("Please specify a valid " + name)
+            return string.atof(x.split(' ')[0])
 
-        zdist = str(self.z_distortion_linedit.text())
-        zdist = float(zdist.split(' ')[0])
-        xydist = str(self.xy_distortion_linedit.text())
-        xydist = float(xydist.split(' ')[0])
+        self.length = length = fetch('length', self.length_linedit)
+        self.bond_length = bond_length = fetch('bond length', self.bond_length_linedit)
+        self.zdist = zdist = fetch('Z distortion', self.z_distortion_linedit)
+        self.xydist = xydist = fetch('XY distortion', self.xy_distortion_linedit)
+
         twist = (pi * self.twist_spinbox.value()) / 180.0
         bend = self.bend_spinbox.value()
         if bend != 0:
@@ -217,17 +215,17 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         endings = self.endings_combox.currentItem()
         if endings == 1:
             raise Exception("Nanotube endcaps not implemented yet.")
-        return (n, m, length, zdist, xydist, twist, bend, members, endings)
+        return (length, n, m, bond_length, zdist, xydist, twist, bend, members, endings)
 
     def build_struct(self, params):
-        n, m, length, zdist, xydist, twist, bend, members, endings = params
+        length, n, m, bond_length, zdist, xydist, twist, bend, members, endings = params
         # This can take a few seconds. Inform the user.
         # 100 is a guess on my part. Mark 051103.
         if length > 100.0:
             env.history.message(self.cmd + "Creating nanotube. This may take a moment...")
         else: # Nanotubes under 100 Angstroms shouldn't take long.
             env.history.message(self.cmd + "Creating nanotube.")
-        self.chirality = Chirality(n, m)
+        self.chirality = Chirality(n, m, bond_length)
         PROFILE = False
         if PROFILE:
             sw = Stopwatch()
@@ -238,7 +236,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         mlimits = self.chirality.mlimits
         # populate the tube with some extra carbons on the ends
         # so that we can trim them later
-        self.chirality.populate(mol, length + 4 * Chirality.MAXLEN, members != 0)
+        self.chirality.populate(mol, length + 4 * self.chirality.maxlen, members != 0)
 
         # Apply twist and distortions. Bends probably would come
         # after this point because they change the direction for the
@@ -275,8 +273,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         # adjust the length. My thought is that users would prefer a
         # little extra length, because it's fairly easy to trim the
         # ends, but much harder to add new atoms on the end.
-        #LENGTH_TWEAK = 0.5 * Chirality.BONDLENGTH
-        LENGTH_TWEAK = Chirality.BONDLENGTH
+        LENGTH_TWEAK = bond_length
 
         # trim all the carbons that fall outside our desired length
         # by doing this, we are introducing new singlets
@@ -320,6 +317,12 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         '''
         self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
         self.length_linedit.setText(self.lenstr)
+        self.blstr = double_fixup(self.validator, self.bond_length_linedit.text(), self.blstr)
+        self.bond_length_linedit.setText(self.blstr)
+        self.zstr = double_fixup(self.validator, self.z_distortion_linedit.text(), self.zstr)
+        self.z_distortion_linedit.setText(self.zstr)
+        self.xystr = double_fixup(self.validator, self.xy_distortion_linedit.text(), self.xystr)
+        self.xy_distortion_linedit.setText(self.xystr)
 
     ###################################################
     # The done message

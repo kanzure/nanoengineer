@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>244</width>
+            <width>262</width>
             <height>597</height>
         </rect>
     </property>
@@ -497,7 +497,7 @@
                                         <cstring>bond_length_label</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>Bond Length :</string>
+                                        <string>Bond Length (A):</string>
                                     </property>
                                     <property name="alignment">
                                         <set>AlignVCenter|AlignRight</set>
@@ -552,7 +552,7 @@
                                         <cstring>bond_length_linedit</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>1.41 A</string>
+                                        <string>1.40</string>
                                     </property>
                                 </widget>
                             </grid>
@@ -699,7 +699,7 @@
                                         <cstring>z_distortion_label</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>Z-distortion :</string>
+                                        <string>Z-distortion (A):</string>
                                     </property>
                                     <property name="alignment">
                                         <set>AlignVCenter|AlignRight</set>
@@ -710,7 +710,7 @@
                                         <cstring>xy_distortion_label</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>XY-distortion :</string>
+                                        <string>XY-distortion (A):</string>
                                     </property>
                                     <property name="alignment">
                                         <set>AlignVCenter|AlignRight</set>
@@ -735,7 +735,7 @@
                                         <cstring>z_distortion_linedit</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>0.0 A</string>
+                                        <string>0.0</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel" row="3" column="0">
@@ -768,7 +768,7 @@
                                         <cstring>xy_distortion_linedit</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>0.0 A</string>
+                                        <string>0.0</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel" row="2" column="0">
@@ -926,7 +926,7 @@
                                         <cstring>mwcnt_spacing_label</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>Spacing :</string>
+                                        <string>Spacing (A):</string>
                                     </property>
                                     <property name="alignment">
                                         <set>AlignVCenter|AlignRight</set>
@@ -962,7 +962,7 @@
                                         <cstring>mwcnt_spacing_linedit</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>2.46 A</string>
+                                        <string>2.46</string>
                                     </property>
                                 </widget>
                             </grid>
@@ -1123,6 +1123,30 @@
         <receiver>nanotube_dialog</receiver>
         <slot>done_btn_clicked()</slot>
     </connection>
+    <connection>
+        <sender>bond_length_linedit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>nanotube_dialog</receiver>
+        <slot>length_fixup()</slot>
+    </connection>
+    <connection>
+        <sender>z_distortion_linedit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>nanotube_dialog</receiver>
+        <slot>length_fixup()</slot>
+    </connection>
+    <connection>
+        <sender>xy_distortion_linedit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>nanotube_dialog</receiver>
+        <slot>length_fixup()</slot>
+    </connection>
+    <connection>
+        <sender>mwcnt_spacing_linedit</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>nanotube_dialog</receiver>
+        <slot>length_fixup()</slot>
+    </connection>
 </connections>
 <includes>
     <include location="local" impldecl="in implementation">NanotubeGeneratorDialog.ui.h</include>
@@ -1140,10 +1164,10 @@
     <slot>cancel_btn_clicked()</slot>
     <slot>ok_btn_clicked()</slot>
     <slot>sponsor_btn_clicked()</slot>
-    <slot>length_fixup()</slot>
     <slot>preview_btn_clicked()</slot>
     <slot>abort_btn_clicked()</slot>
     <slot>done_btn_clicked()</slot>
+    <slot>length_fixup()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

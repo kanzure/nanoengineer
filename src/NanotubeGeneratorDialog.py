@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Tue Jun 6 12:17:21 2006
+# Created: Wed Jun 7 17:11:07 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -672,7 +672,7 @@ class nanotube_dialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(244,597).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(262,597).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.nt_distortion_grpbtn,SIGNAL("clicked()"),self.toggle_nt_distortion_grpbox)
@@ -687,6 +687,10 @@ class nanotube_dialog(QDialog):
         self.connect(self.preview_btn,SIGNAL("clicked()"),self.preview_btn_clicked)
         self.connect(self.abort_btn,SIGNAL("clicked()"),self.abort_btn_clicked)
         self.connect(self.done_btn,SIGNAL("clicked()"),self.done_btn_clicked)
+        self.connect(self.bond_length_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
+        self.connect(self.z_distortion_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
+        self.connect(self.xy_distortion_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
+        self.connect(self.mwcnt_spacing_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
 
 
     def languageChange(self):
@@ -713,7 +717,7 @@ class nanotube_dialog(QDialog):
         self.members_combox.insertItem(self.__tr("C - C"))
         self.members_combox.insertItem(self.__tr("B - N"))
         self.endings_label.setText(self.__tr("Endings :"))
-        self.bond_length_label.setText(self.__tr("Bond Length :"))
+        self.bond_length_label.setText(self.__tr("Bond Length (A):"))
         self.endings_combox.clear()
         self.endings_combox.insertItem(self.__tr("None"))
         self.endings_combox.insertItem(self.__tr("Capped"))
@@ -721,25 +725,25 @@ class nanotube_dialog(QDialog):
         self.endings_combox.insertItem(self.__tr("Nitrogen"))
         self.length_linedit.setText(self.__tr("20.0"))
         self.members_label.setText(self.__tr("Members :"))
-        self.bond_length_linedit.setText(self.__tr("1.41 A"))
+        self.bond_length_linedit.setText(self.__tr("1.40"))
         self.tube_distortions_grpbox.setTitle(QString.null)
         self.parameters_grpbox_label_2.setText(self.__tr("Nanotube Distortions"))
         self.nt_distortion_grpbtn.setText(QString.null)
-        self.z_distortion_label.setText(self.__tr("Z-distortion :"))
-        self.xy_distortion_label.setText(self.__tr("XY-distortion :"))
+        self.z_distortion_label.setText(self.__tr("Z-distortion (A):"))
+        self.xy_distortion_label.setText(self.__tr("XY-distortion (A):"))
         self.twist_spinbox.setSuffix(self.__tr(" deg/A"))
-        self.z_distortion_linedit.setText(self.__tr("0.0 A"))
+        self.z_distortion_linedit.setText(self.__tr("0.0"))
         self.bend_label.setText(self.__tr("Bend :"))
         self.bend_spinbox.setSuffix(self.__tr(" deg"))
-        self.xy_distortion_linedit.setText(self.__tr("0.0 A"))
+        self.xy_distortion_linedit.setText(self.__tr("0.0"))
         self.twist_label.setText(self.__tr("Twist :"))
         self.mwcnt_grpbox.setTitle(QString.null)
         self.parameters_grpbox_label_3.setText(self.__tr("Multi-Walled Nanotubes"))
         self.mwcnt_grpbtn.setText(QString.null)
-        self.mwcnt_spacing_label.setText(self.__tr("Spacing :"))
+        self.mwcnt_spacing_label.setText(self.__tr("Spacing (A):"))
         self.mwcnt_count_label.setText(self.__tr("Number of Nanotubes :"))
         self.mwcnt_count_spinbox.setSuffix(QString.null)
-        self.mwcnt_spacing_linedit.setText(self.__tr("2.46 A"))
+        self.mwcnt_spacing_linedit.setText(self.__tr("2.46"))
         self.defaults_btn.setText(self.__tr("Defaults"))
         self.cancel_btn.setText(self.__tr("Cancel"))
         self.ok_btn.setText(self.__tr("OK"))
@@ -781,9 +785,6 @@ class nanotube_dialog(QDialog):
     def sponsor_btn_clicked(self):
         print "nanotube_dialog.sponsor_btn_clicked(): Not implemented yet"
 
-    def length_fixup(self):
-        print "nanotube_dialog.length_fixup(): Not implemented yet"
-
     def preview_btn_clicked(self):
         print "nanotube_dialog.preview_btn_clicked(): Not implemented yet"
 
@@ -792,6 +793,9 @@ class nanotube_dialog(QDialog):
 
     def done_btn_clicked(self):
         print "nanotube_dialog.done_btn_clicked(): Not implemented yet"
+
+    def length_fixup(self):
+        print "nanotube_dialog.length_fixup(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("nanotube_dialog",s,c)
