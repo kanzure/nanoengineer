@@ -157,6 +157,8 @@ class Chirality:
                     except KeyError:
                         pass
 
+_RADIUS_PER_N = 0.7844
+
 # GeneratorBaseClass must come BEFORE the dialog in the list of parents
 class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
 
@@ -182,6 +184,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.blstr = str(self.bond_length_linedit.text())
         self.zstr = str(self.z_distortion_linedit.text())
         self.xystr = str(self.xy_distortion_linedit.text())
+        self.spstr = str(self.mwcnt_spacing_linedit.text())
 
     ###################################################
     # How to build this kind of structure, along with
@@ -205,6 +208,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.bond_length = bond_length = fetch('bond length', self.bond_length_linedit)
         self.zdist = zdist = fetch('Z distortion', self.z_distortion_linedit)
         self.xydist = xydist = fetch('XY distortion', self.xy_distortion_linedit)
+        self.spacing = spacing = fetch('spacing', self.mwcnt_spacing_linedit)
 
         twist = (pi * self.twist_spinbox.value()) / 180.0
         bend = self.bend_spinbox.value()
@@ -215,10 +219,14 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         endings = self.endings_combox.currentItem()
         if endings == 1:
             raise Exception("Nanotube endcaps not implemented yet.")
-        return (length, n, m, bond_length, zdist, xydist, twist, bend, members, endings)
 
-    def build_struct(self, params):
-        length, n, m, bond_length, zdist, xydist, twist, bend, members, endings = params
+        numwalls = self.mwcnt_count_spinbox.value()
+        return (length, n, m, bond_length, zdist, xydist,
+                twist, bend, members, endings, numwalls, spacing)
+
+    def build_struct(self, params, mol=None):
+        length, n, m, bond_length, zdist, xydist, \
+                twist, bend, members, endings, numwalls, spacing = params
         # This can take a few seconds. Inform the user.
         # 100 is a guess on my part. Mark 051103.
         if length > 100.0:
@@ -231,7 +239,8 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             sw = Stopwatch()
             sw.start()
         xyz = self.chirality.xyz
-        mol = molecule(self.win.assy, gensym("Nanotube-"))
+        if mol == None:
+            mol = molecule(self.win.assy, gensym("Nanotube-"))
         atoms = mol.atoms
         mlimits = self.chirality.mlimits
         # populate the tube with some extra carbons on the ends
@@ -261,7 +270,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             # xy distortion
             x, y, z = atm.posn()
             # radius is approximate
-            radius = 0.7844 * n
+            radius = _RADIUS_PER_N * n
             x *= (radius + 0.5 * xydist) / radius
             z *= (radius - 0.5 * xydist) / radius
             atm.setposn(chem.V(x, y, z))
@@ -309,6 +318,13 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             t = sw.now()
             env.history.message(greenmsg("%g seconds to build %d atoms" %
                                          (t, len(atoms.values()))))
+
+        if numwalls > 1:
+            n += int(spacing * 3 + 0.5)  # empirical tinkering
+            params = (length, n, m, bond_length, zdist, xydist,
+                      twist, bend, members, endings, numwalls-1, spacing)
+            self.build_struct(params, mol=mol)
+
         return mol
 
     def length_fixup(self):
@@ -323,6 +339,8 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.z_distortion_linedit.setText(self.zstr)
         self.xystr = double_fixup(self.validator, self.xy_distortion_linedit.text(), self.xystr)
         self.xy_distortion_linedit.setText(self.xystr)
+        self.spstr = double_fixup(self.validator, self.mwcnt_spacing_linedit.text(), self.spstr)
+        self.mwcnt_spacing_linedit.setText(self.spstr)
 
     ###################################################
     # The done message
