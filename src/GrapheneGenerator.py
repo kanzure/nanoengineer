@@ -181,7 +181,7 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
     # Special UI things that still must be implemented
     def toggle_graphene_parameters_grpbox(self):
         self.toggle_groupbox(self.graphene_parameters_grpbtn, self.line2,
-                             self.length_label, self.length_linedit,
+                             self.height_label, self.height_linedit,
                              self.width_label, self.width_linedit,
                              self.bond_length_label, self.bond_length_linedit,
                              self.endings_label, self.endings_combox)
