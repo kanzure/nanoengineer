@@ -272,8 +272,18 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         from help import Help
         self.help = Help()
 
+        # Create the Nanotube generator dialog.  Fixes bug 1091. Mark 060112.
+        from GrapheneGenerator import GrapheneGenerator
+        self.graphenecntl = GrapheneGenerator(self)
+        from NanotubeGenerator import NanotubeGenerator
+        self.nanotubecntl = NanotubeGenerator(self)
+        from DnaGenerator import DnaGenerator
+        self.dnacntl = DnaGenerator(self)
+        from PovraySceneProp import PovraySceneProp
+        self.povrayscenecntl = PovraySceneProp(self)
         from CommentProp import CommentProp
         self.commentcntl = CommentProp(self)
+
         self.permdialog = PermissionDialog(self)
 
         # do here to avoid a circular dependency
@@ -369,15 +379,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             self.permdialog.close()
 
     def afterGettingPermission(self):
-        # Create the Nanotube generator dialog.  Fixes bug 1091. Mark 060112.
-        from GrapheneGenerator import GrapheneGenerator
-        self.graphenecntl = GrapheneGenerator(self)
-        from NanotubeGenerator import NanotubeGenerator
-        self.nanotubecntl = NanotubeGenerator(self)
-        from DnaGenerator import DnaGenerator
-        self.dnacntl = DnaGenerator(self)
-        from PovraySceneProp import PovraySceneProp
-        self.povrayscenecntl = PovraySceneProp(self)
+        for x in (self.graphenecntl, self.nanotubecntl,
+                  self.dnacntl, self.povrayscenecntl):
+            if hasattr(x, 'sponsor_keyword'):
+                x.setSponsor(x.sponsor_keyword)
 
     def _init_after_geometry_is_set(self): #bruce 060104 renamed this from startRun and replaced its docstring.
         """Do whatever initialization of self needs to wait until its geometry has been set.

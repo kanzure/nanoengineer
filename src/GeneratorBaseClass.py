@@ -96,6 +96,9 @@ class GeneratorBaseClass(GroupButtonMixin):
         self.struct = None
         self.previousParams = None
         assert self.sponsor_keyword != None
+        self.setSponsor(None)
+
+    def setSponsor(self, keyword=None):
         self.sponsor = sponsor = findSponsor(self.sponsor_keyword)
         sponsor.configureSponsorButton(self.sponsor_btn)
 

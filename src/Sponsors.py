@@ -33,9 +33,9 @@ import string
 import time
 import types
 import urllib
+import platform
 from xml.dom.minidom import parseString
 from wiki_help import WikiHelpBrowser
-from platform import find_or_make_Nanorex_subdir
 from debug import print_compact_stack, print_compact_traceback
 from qt import *
 from prefs_constants import sponsor_download_permission_prefs_key, sponsor_permanent_permission_prefs_key
@@ -48,7 +48,7 @@ from HistoryWidget import redmsg, orangemsg, greenmsg
 # may be irritating.
 NEED_PERMISSION_TO_DOWNLOAD_MD5 = False
 
-_sponsordir = find_or_make_Nanorex_subdir('Sponsors')
+_sponsordir = platform.find_or_make_Nanorex_subdir('Sponsors')
 _nanorex_server = 'http://willware.net/'
 _sponsors_xml = _nanorex_server + 'sponsors.xml'
 _sponsors_md5 = _nanorex_server + 'sponsors.md5'
@@ -207,7 +207,7 @@ class PermissionDialog(QDialog):
                 # already matches, then we don't need to get it.
                 getIt = self.md5Mismatch()
             if getIt:
-                r = getRemoteFile(_sponsors_xml)
+                r = self.getRemoteFile(_sponsors_xml)
                 # If we got this far, we have info to replace the
                 # local copy of sponsors.xml. If we never got this far
                 # but a local copy exists, then we'll just use the
@@ -343,14 +343,13 @@ _defaultSponsor = Sponsor('Nanorex', fixHtml(_nanorexText), _defsp_imgfile)
 
 ###############################################
 
-def findSponsor(keyword):
+def findSponsor(keyword=None):
     if type(keyword) in (types.ListType, types.TupleType):
         keyword = random.choice(keyword)
-    if not _sponsors.has_key(keyword):
+    if keyword == None or not _sponsors.has_key(keyword):
         sponsor = _defaultSponsor
     else:
         sponsor = random.choice(_sponsors[keyword])
-    import platform
     if platform.atom_debug:
         print 'keyword', keyword, 'sponsor', sponsor
     return sponsor
