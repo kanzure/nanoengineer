@@ -106,8 +106,8 @@
         <action name="dispInvisAction"/>
         <action name="dispLinesAction"/>
         <action name="dispTubesAction"/>
+        <action name="dispBallAction"/>
         <action name="dispCPKAction"/>
-        <action name="dispVdWAction"/>
         <separator/>
         <action name="dispObjectColorAction"/>
         <action name="dispResetChunkColorAction"/>
@@ -306,8 +306,8 @@
         <action name="dispInvisAction"/>
         <action name="dispLinesAction"/>
         <action name="dispTubesAction"/>
+        <action name="dispBallAction"/>
         <action name="dispCPKAction"/>
-        <action name="dispVdWAction"/>
     </toolbar>
     <toolbar dock="2">
         <property name="name">
@@ -2053,7 +2053,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>dispCPKAction</cstring>
+            <cstring>dispBallAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image49</iconset>
@@ -2126,7 +2126,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>dispVdWAction</cstring>
+            <cstring>dispCPKAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image54</iconset>
@@ -4410,10 +4410,10 @@
         <slot>dispBGColor()</slot>
     </connection>
     <connection>
-        <sender>dispCPKAction</sender>
+        <sender>dispBallAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>dispCPK()</slot>
+        <slot>dispBall()</slot>
     </connection>
     <connection>
         <sender>dispDefaultAction</sender>
@@ -4476,10 +4476,10 @@
         <slot>dispTubes()</slot>
     </connection>
     <connection>
-        <sender>dispVdWAction</sender>
+        <sender>dispCPKAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>dispVdW()</slot>
+        <slot>dispCPK()</slot>
     </connection>
     <connection>
         <sender>editAutoCheckpointingAction</sender>
@@ -5313,7 +5313,7 @@
     <slot>toolsDone()</slot>
     <slot>toolsCCAddLayer()</slot>
     <slot>toolsCookieCut()</slot>
-    <slot>dispCPK()</slot>
+    <slot>dispBall()</slot>
     <slot>dispObjectColor()</slot>
     <slot>dispDefault()</slot>
     <slot>dispInvis()</slot>
@@ -5321,7 +5321,7 @@
     <slot>setViewOrtho()</slot>
     <slot>setViewPerspec()</slot>
     <slot>dispTubes()</slot>
-    <slot>dispVdW()</slot>
+    <slot>dispCPK()</slot>
     <slot>elemChange()</slot>
     <slot>gridGraphite()</slot>
     <slot>killDo()</slot>

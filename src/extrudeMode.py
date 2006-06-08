@@ -1738,9 +1738,9 @@ class extrudeMode(basicMode):
             None,
             ('Default', self.w.dispDefault),
             ('Lines', self.w.dispLines),
-            ('CPK', self.w.dispCPK),
+            ('Ball & Stick', self.w.dispBall),
             ('Tubes', self.w.dispTubes),
-            ('VdW', self.w.dispVdW),
+            ('CPK', self.w.dispCPK),
             None,
             ('Color', self.w.dispObjectColor) ]
         

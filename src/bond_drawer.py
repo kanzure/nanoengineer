@@ -41,7 +41,8 @@ from ThumbView import MMKitView
 
 import env
 
-CPKSigmaBondRadius = 0.1 #bruce 050719
+diBALL_SigmaBondRadius = 0.1 #bruce 050719
+    #bruce 060607 renamed CPKSigmaBondRadius -> diBALL_SigmaBondRadius
     ###e should make this a named constant in constants.py (or bond_constants.py?),
     # like TubeRadius (i.e. "TubesSigmaBondRadius")
 
@@ -62,13 +63,13 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
 
     # figure out how this display mode draws bonds; return now if it doesn't
     if disp == diLINES:
-        sigmabond_cyl_radius = CPKSigmaBondRadius / 5.0
+        sigmabond_cyl_radius = diBALL_SigmaBondRadius / 5.0
             # used for multiple bond spacing (optimized here for that, by the "/ 5.0")
             # and for pi orbital vanes (for which "/ 1.0" would probably be better)
-    elif disp == diCPK:
-        sigmabond_cyl_radius = CPKSigmaBondRadius * env.prefs[cpkCylinderRadius_prefs_key]
+    elif disp == diBALL:
+        sigmabond_cyl_radius = diBALL_SigmaBondRadius * env.prefs[diBALL_BondCylinderRadius_prefs_key]
             # used for single, double and triple bonds
-            # mark 051003 added " * env.prefs[cpkCylinderRadius_prefs_key]"
+            # mark 051003 added " * env.prefs[diBALL_BondCylinderRadius_prefs_key]"
     elif disp == diTUBES:
         sigmabond_cyl_radius = TubeRadius
     else:
@@ -177,7 +178,7 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
                 if disp == diLINES:
                     scale = 1 # arbitrary, since cylinder thickness is not used when drawing lines
                     offset = 2
-                elif disp == diCPK:
+                elif disp == diBALL:
                     scale = 1
                     offset = 2 # in units of sigmabond_cyl_radius
                 elif disp == diTUBES:
@@ -275,7 +276,7 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
         band_color = ave_colors(0.7, red, white)
     else:
         banding = None # no banding needed on this cylinder
-    if banding and disp not in [diCPK, diTUBES]:
+    if banding and disp not in [diBALL, diTUBES]:
         banding = None
     if banding:
         band_order = float(banding - V_SINGLE)/V_SINGLE # 0.33, 0.5, or for carbomeric, in principle 1.5 but in practice 0.5
@@ -302,9 +303,9 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
             toolong_color = env.prefs.get( bondStretchColor_prefs_key)
                 # toolong_color is never highlighted here, since we're not sure highlighting bonds in LINES mode is good at all
             drawline( toolong_color, c1, c2, width = width)
-    elif disp == diCPK:
+    elif disp == diBALL:
         if bondcolor is None: #bruce 050805
-            bondcolor = env.prefs.get( bondCPKColor_prefs_key) ## bondColor [before bruce 050805]
+            bondcolor = env.prefs.get( diBALL_bondcolor_prefs_key) ## bondColor [before bruce 050805]
         drawcylinder(bondcolor, a1pos, a2pos, sigmabond_cyl_radius)
         if banding:
             drawcylinder(band_color, bandpos1, bandpos2, sigmabond_cyl_radius * 1.2)
@@ -399,7 +400,7 @@ def writepov_bond(self, file, dispdef, col):
                    "," + povpoint(center) + ", <" + str(color1[0]) +"," + str(color1[1]) + ", " + str(color1[2]) + ">)\n")
             file.write("line(" + povpoint(center) +
                    "," + povpoint(a2pos) + ", <" + str(color2[0]) +"," + str(color2[1]) + ", " + str(color2[2]) + ">)\n")
-    if disp == diCPK:
+    if disp == diBALL:
         file.write("bond(" + povpoint(a1pos) +
                    "," + povpoint(a2pos) + ")\n")
     if disp == diTUBES:

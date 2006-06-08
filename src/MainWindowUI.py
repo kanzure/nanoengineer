@@ -6219,8 +6219,8 @@ class MainWindow(QMainWindow):
         self.toggleGridsTbarAction = QAction(self,"toggleGridsTbarAction")
         self.toggleGridsTbarAction.setToggleAction(1)
         self.toggleGridsTbarAction.setOn(1)
-        self.dispCPKAction = QAction(self,"dispCPKAction")
-        self.dispCPKAction.setIconSet(QIconSet(self.image49))
+        self.dispBallAction = QAction(self,"dispBallAction")
+        self.dispBallAction.setIconSet(QIconSet(self.image49))
         self.dispDefaultAction = QAction(self,"dispDefaultAction")
         self.dispDefaultAction.setIconSet(QIconSet(self.image50))
         self.dispInvisAction = QAction(self,"dispInvisAction")
@@ -6230,8 +6230,8 @@ class MainWindow(QMainWindow):
         self.dispTubesAction = QAction(self,"dispTubesAction")
         self.dispTubesAction.setEnabled(1)
         self.dispTubesAction.setIconSet(QIconSet(self.image53))
-        self.dispVdWAction = QAction(self,"dispVdWAction")
-        self.dispVdWAction.setIconSet(QIconSet(self.image54))
+        self.dispCPKAction = QAction(self,"dispCPKAction")
+        self.dispCPKAction.setIconSet(QIconSet(self.image54))
         self.setPerspectiveActionGroup = QActionGroup(self,"setPerspectiveActionGroup")
         self.setPerspectiveActionGroup.setUsesDropDown(0)
         self.setViewOrthoAction = QAction(self.setPerspectiveActionGroup,"setViewOrthoAction")
@@ -6555,8 +6555,8 @@ class MainWindow(QMainWindow):
         self.dispInvisAction.addTo(self.molecularDispToolbar)
         self.dispLinesAction.addTo(self.molecularDispToolbar)
         self.dispTubesAction.addTo(self.molecularDispToolbar)
+        self.dispBallAction.addTo(self.molecularDispToolbar)
         self.dispCPKAction.addTo(self.molecularDispToolbar)
-        self.dispVdWAction.addTo(self.molecularDispToolbar)
         self.selectToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.selectToolbar.setEnabled(1)
@@ -6820,8 +6820,8 @@ class MainWindow(QMainWindow):
         self.dispInvisAction.addTo(self.displayMenu)
         self.dispLinesAction.addTo(self.displayMenu)
         self.dispTubesAction.addTo(self.displayMenu)
+        self.dispBallAction.addTo(self.displayMenu)
         self.dispCPKAction.addTo(self.displayMenu)
-        self.dispVdWAction.addTo(self.displayMenu)
         self.displayMenu.insertSeparator()
         self.dispObjectColorAction.addTo(self.displayMenu)
         self.dispResetChunkColorAction.addTo(self.displayMenu)
@@ -6915,7 +6915,7 @@ class MainWindow(QMainWindow):
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
         self.connect(self.dispBGColorAction,SIGNAL("activated()"),self.dispBGColor)
-        self.connect(self.dispCPKAction,SIGNAL("activated()"),self.dispCPK)
+        self.connect(self.dispBallAction,SIGNAL("activated()"),self.dispBall)
         self.connect(self.dispDefaultAction,SIGNAL("activated()"),self.dispDefault)
         self.connect(self.dispElementColorSettingsAction,SIGNAL("activated()"),self.dispElementColorSettings)
         self.connect(self.dispInvisAction,SIGNAL("activated()"),self.dispInvis)
@@ -6926,7 +6926,7 @@ class MainWindow(QMainWindow):
         self.connect(self.dispResetChunkColorAction,SIGNAL("activated()"),self.dispResetChunkColor)
         self.connect(self.dispShowInvisAtomsAction,SIGNAL("activated()"),self.dispShowInvisAtoms)
         self.connect(self.dispTubesAction,SIGNAL("activated()"),self.dispTubes)
-        self.connect(self.dispVdWAction,SIGNAL("activated()"),self.dispVdW)
+        self.connect(self.dispCPKAction,SIGNAL("activated()"),self.dispCPK)
         self.connect(self.editAutoCheckpointingAction,SIGNAL("toggled(bool)"),self.editAutoCheckpointing)
         self.connect(self.editClearUndoStackAction,SIGNAL("activated()"),self.editClearUndoStack)
         self.connect(self.editCopyAction,SIGNAL("activated()"),self.editCopy)
@@ -7247,8 +7247,8 @@ class MainWindow(QMainWindow):
         self.modifyDehydrogenateAction.setMenuText(self.__tr("&Dehydrogenate"))
         self.toggleGridsTbarAction.setText(self.__tr("Grids"))
         self.toggleGridsTbarAction.setMenuText(self.__tr("Grids"))
-        self.dispCPKAction.setText(self.__tr("Ball and Stick"))
-        self.dispCPKAction.setMenuText(self.__tr("Ball and Stick"))
+        self.dispBallAction.setText(self.__tr("Ball and Stick"))
+        self.dispBallAction.setMenuText(self.__tr("Ball and Stick"))
         self.dispDefaultAction.setText(self.__tr("Default"))
         self.dispDefaultAction.setMenuText(self.__tr("Default"))
         self.dispInvisAction.setText(self.__tr("Invisible"))
@@ -7257,8 +7257,8 @@ class MainWindow(QMainWindow):
         self.dispLinesAction.setMenuText(self.__tr("Lines"))
         self.dispTubesAction.setText(self.__tr("Tubes"))
         self.dispTubesAction.setMenuText(self.__tr("Tubes"))
-        self.dispVdWAction.setText(self.__tr("CPK"))
-        self.dispVdWAction.setMenuText(self.__tr("CPK"))
+        self.dispCPKAction.setText(self.__tr("CPK"))
+        self.dispCPKAction.setMenuText(self.__tr("CPK"))
         self.setPerspectiveActionGroup.setText(self.__tr("ActionGroup"))
         self.setPerspectiveActionGroup.setMenuText(self.__tr("ActionGroup"))
         self.setViewOrthoAction.setText(self.__tr("Orthographic Projection"))
@@ -7637,8 +7637,8 @@ class MainWindow(QMainWindow):
     def toolsCookieCut(self):
         print "MainWindow.toolsCookieCut(): Not implemented yet"
 
-    def dispCPK(self):
-        print "MainWindow.dispCPK(): Not implemented yet"
+    def dispBall(self):
+        print "MainWindow.dispBall(): Not implemented yet"
 
     def dispObjectColor(self):
         print "MainWindow.dispObjectColor(): Not implemented yet"
@@ -7661,8 +7661,8 @@ class MainWindow(QMainWindow):
     def dispTubes(self):
         print "MainWindow.dispTubes(): Not implemented yet"
 
-    def dispVdW(self):
-        print "MainWindow.dispVdW(): Not implemented yet"
+    def dispCPK(self):
+        print "MainWindow.dispCPK(): Not implemented yet"
 
     def elemChange(self):
         print "MainWindow.elemChange(): Not implemented yet"

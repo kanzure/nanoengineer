@@ -1679,7 +1679,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                             </property>
                                             <widget class="QFrame">
                                                 <property name="name">
-                                                    <cstring>bond_cpk_color_frame</cstring>
+                                                    <cstring>ballstick_bondcolor_frame</cstring>
                                                 </property>
                                                 <property name="minimumSize">
                                                     <size>
@@ -1703,7 +1703,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                             </widget>
                                             <widget class="QPushButton">
                                                 <property name="name">
-                                                    <cstring>bond_cpk_color_btn</cstring>
+                                                    <cstring>ballstick_bondcolor_btn</cstring>
                                                 </property>
                                                 <property name="text">
                                                     <string>Choose...</string>
@@ -4575,10 +4575,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>change_atom_hilite_color()</slot>
     </connection>
     <connection>
-        <sender>bond_cpk_color_btn</sender>
+        <sender>ballstick_bondcolor_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_bond_cpk_color()</slot>
+        <slot>change_ballstick_bondcolor()</slot>
     </connection>
     <connection>
         <sender>bond_hilite_color_btn</sender>
@@ -4638,13 +4638,13 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <sender>cpk_atom_rad_spinbox</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_cpk_atom_radius()</slot>
+        <slot>change_ballstick_atom_radius()</slot>
     </connection>
     <connection>
         <sender>cpk_cylinder_rad_spinbox</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_cpk_cylinder_radius()</slot>
+        <slot>change_ballstick_cylinder_radius()</slot>
     </connection>
     <connection>
         <sender>cpk_scale_factor_slider</sender>
@@ -5006,7 +5006,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <tabstop>cpk_scale_factor_slider</tabstop>
     <tabstop>level_of_detail_combox</tabstop>
     <tabstop>bond_hilite_color_btn</tabstop>
-    <tabstop>bond_cpk_color_btn</tabstop>
+    <tabstop>ballstick_bondcolor_btn</tabstop>
     <tabstop>bond_stretch_color_btn</tabstop>
     <tabstop>bond_vane_color_btn</tabstop>
     <tabstop>reset_bond_colors_btn</tabstop>
@@ -5087,7 +5087,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>change_atom_hilite_color()</slot>
     <slot>change_bond_hilite_color()</slot>
     <slot>change_bond_stretch_color()</slot>
-    <slot>change_bond_cpk_color()</slot>
+    <slot>change_ballstick_bondcolor()</slot>
     <slot>change_bond_vane_color()</slot>
     <slot>change_high_order_bond_display()</slot>
     <slot>change_bond_labels(bool)</slot>
@@ -5102,8 +5102,8 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>set_default_projection()</slot>
     <slot>enable_gamess()</slot>
     <slot>enable_nanohive()</slot>
-    <slot>change_cpk_atom_radius()</slot>
-    <slot>change_cpk_cylinder_radius()</slot>
+    <slot>change_ballstick_atom_radius()</slot>
+    <slot>change_ballstick_cylinder_radius()</slot>
     <slot>reset_lighting()</slot>
     <slot>restore_default_lighting()</slot>
     <slot>change_lighting()</slot>

@@ -382,14 +382,11 @@ class UserPrefs(UserPrefsDialog):
         '''
         # Set colors for atom color swatches
 ##        self.atom_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(orange))
-##        self.free_valence_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(red))
 
         #bruce 050805 new way (see comment in _setup_bonds_page):
         connect_colorpref_to_colorframe( atomHighlightColor_prefs_key, self.atom_hilite_color_frame)
         connect_colorpref_to_colorframe( bondpointHighlightColor_prefs_key, self.bondpoint_hilite_color_frame)
         connect_colorpref_to_colorframe( bondpointHotspotColor_prefs_key, self.hotspot_color_frame)
-        ## not implemented:
-        ##   connect_colorpref_to_colorframe( freeValenceColor_prefs_key, self.free_valence_color_frame) #[problematic]
 
         lod = env.prefs[ levelOfDetail_prefs_key ]
         lod = int(lod)
@@ -409,8 +406,8 @@ class UserPrefs(UserPrefsDialog):
             loditem = 2
         self.level_of_detail_combox.setCurrentItem(loditem)
         
-        # Set CPK Atom radius (percentage).  Mark 051003.
-        self.cpk_atom_rad_spinbox.setValue(int (env.prefs[cpkAtomRadius_prefs_key] * 100.0))
+        # Set Ball & Stick Atom radius (percentage).  Mark 051003.
+        self.cpk_atom_rad_spinbox.setValue(int (env.prefs[diBALL_AtomRadius_prefs_key] * 100.0))
         
         cpk_sf = env.prefs[cpkScaleFactor_prefs_key]
         # This slider generate signals whenever its 'setValue()' slot is called (below).
@@ -439,7 +436,7 @@ class UserPrefs(UserPrefsDialog):
 ##        self.bond_hilite_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(blue))
 ##        self.bond_stretch_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(red))
 ##        self.bond_vane_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(violet)) # Purple
-##        self.bond_cpk_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(gray))
+##        self.ballstick_bondcolor_frame.setPaletteBackgroundColor(RGBf_to_QColor(gray))
 
         #bruce 050805 here's the new way: subscribe to the preference value,
         # but make sure to only have one such subs (for one widget's bgcolor) at a time.
@@ -448,7 +445,7 @@ class UserPrefs(UserPrefsDialog):
         connect_colorpref_to_colorframe( bondHighlightColor_prefs_key, self.bond_hilite_color_frame)
         connect_colorpref_to_colorframe( bondStretchColor_prefs_key, self.bond_stretch_color_frame)
         connect_colorpref_to_colorframe( bondVaneColor_prefs_key, self.bond_vane_color_frame)
-        connect_colorpref_to_colorframe( bondCPKColor_prefs_key, self.bond_cpk_color_frame)
+        connect_colorpref_to_colorframe( diBALL_bondcolor_prefs_key, self.ballstick_bondcolor_frame)
 
         # also handle the non-color prefs on this page:
         #  ('pi_bond_style',   ['multicyl','vane','ribbon'],  pibondStyle_prefs_key,   'multicyl' ),
@@ -480,7 +477,7 @@ class UserPrefs(UserPrefsDialog):
         self.bond_line_thickness_spinbox.setValue( env.prefs[linesDisplayModeThickness_prefs_key] )
         
         # Set CPK Cylinder radius (percentage).  Mark 051003.
-        self.cpk_cylinder_rad_spinbox.setValue(int (env.prefs[cpkCylinderRadius_prefs_key] * 100.0))
+        self.cpk_cylinder_rad_spinbox.setValue(int (env.prefs[diBALL_BondCylinderRadius_prefs_key] * 100.0))
         
         return
         
@@ -632,19 +629,12 @@ class UserPrefs(UserPrefsDialog):
         #e fyi, we might rename hotspot to something like "bonding point" someday...
         self.usual_change_color( bondpointHotspotColor_prefs_key)
 
-    def change_free_valence_color(self):
-        '''Change the free valence color.'''
-        ## self.usual_change_color( freeValenceColor_prefs_key) #[problematic]
-        print '''Change the free valence color -- not yet implemented.''' ###@@@
-        # fyi, i recommended implementing this preference in Element Colors Dialog, rather than here. [bruce 050808]
-    
     def reset_atom_colors(self):
         #bruce 050805 let's try it like this:
         env.prefs.restore_defaults([ #e this list should be defined in a more central place.
             atomHighlightColor_prefs_key,
             bondpointHighlightColor_prefs_key,
             bondpointHotspotColor_prefs_key
-            ## freeValenceColor_prefs_key, #[problematic]
         ])
     
     def change_level_of_detail(self, level_of_detail_item): #bruce 060215 revised this
@@ -664,11 +654,12 @@ class UserPrefs(UserPrefsDialog):
         # and chunks will invalidate their display lists as needed to accomodate the change. [bruce 060215]
         return
         
-    def change_cpk_atom_radius(self, val):
+    def change_ballstick_atom_radius(self, val):
         '''Change the CPK (Ball and Stick) atom radius by % value <val>.
         '''
-        env.prefs[cpkAtomRadius_prefs_key] = val * .01
-        self.glpane.gl_update()
+        #bruce 060607 renamed change_cpk_atom_radius -> change_ballstick_atom_radius in this file and the .py/.ui dialog files.
+        env.prefs[diBALL_AtomRadius_prefs_key] = val * .01
+        self.glpane.gl_update() #k this gl_update is probably not needed and sometimes a slowdown [bruce 060607]
     
     def change_cpk_scale_factor(self, val):
         '''Slot called when moving the slider.
@@ -710,9 +701,9 @@ class UserPrefs(UserPrefsDialog):
         '''Change the bond vane color for pi orbitals.'''
         self.usual_change_color( bondVaneColor_prefs_key)
     
-    def change_bond_cpk_color(self):
-        '''Change the bond CPK cylinder color.'''
-        self.usual_change_color( bondCPKColor_prefs_key)        
+    def change_ballstick_bondcolor(self): #bruce 060607 renamed this in this file and .ui/.py dialog files
+        '''Change the bond cylinder color used in Ball & Stick display mode.'''
+        self.usual_change_color( diBALL_bondcolor_prefs_key)        
     
     def reset_bond_colors(self):
         #bruce 050805 let's try it like this:
@@ -720,7 +711,7 @@ class UserPrefs(UserPrefsDialog):
             bondHighlightColor_prefs_key,
             bondStretchColor_prefs_key,
             bondVaneColor_prefs_key,
-            bondCPKColor_prefs_key,
+            diBALL_bondcolor_prefs_key,
         ])
         
     def change_high_order_bond_display(self, val): #bruce 050806 filled this in
@@ -766,11 +757,12 @@ class UserPrefs(UserPrefsDialog):
         else:
             self.bond_line_thickness_spinbox.setSuffix(' pixels')
         
-    def change_cpk_cylinder_radius(self, val):
+    def change_ballstick_cylinder_radius(self, val): 
         '''Change the CPK (Ball and Stick) cylinder radius by % value <val>.
         '''
-        env.prefs[cpkCylinderRadius_prefs_key] = val *.01
-        self.glpane.gl_update()
+        #bruce 060607 renamed change_cpk_cylinder_radius -> change_ballstick_cylinder_radius (in this file and .ui/.py dialog files)
+        env.prefs[diBALL_BondCylinderRadius_prefs_key] = val *.01
+        self.glpane.gl_update() #k gl_update is probably not needed and in some cases is a slowdown [bruce 060607 comment]
     
     ########## End of slot methods for "Bonds" page widgets ###########
     

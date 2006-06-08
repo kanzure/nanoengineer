@@ -1018,7 +1018,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # So I'm removing that now, and doing this optim.
                 ###e (I might need to specialcase it for singlets so their bond-valence number is still drawn...)
                 # [bruce 050513]
-                if atomdisp in (diCPK, diLINES, diTUBES): #e should we move this tuple into bonds module or Bond class?
+                if atomdisp in (diBALL, diLINES, diTUBES): #e should we move this tuple into bonds module or Bond class?
                     for bon in atm.bonds:
                         if bon.key not in drawn:
                             ## if bon.other(atm).molecule != self: could be faster [bruce 050513]:

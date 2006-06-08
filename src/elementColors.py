@@ -8,7 +8,7 @@ bruce 050913 used env.history in some places.
 '''
 from ElementColorsDialog import *
 from elements import PeriodicTable 
-from constants import globalParms, diVDW, diCPK, diTUBES 
+from constants import globalParms, diTrueCPK, diBALL, diTUBES 
 from ThumbView import ElementView
 
 from HistoryWidget import redmsg # Mark 050311
@@ -17,7 +17,7 @@ from widgets import RGBf_to_QColor
 import env
 
 class elementColors(ElementColorsDialog):
-    _displayList = (diTUBES, diCPK, diVDW)
+    _displayList = (diTUBES, diBALL, diTrueCPK)
     
     def __init__(self, win):
         ElementColorsDialog.__init__(self, win, None, 0, Qt.WStyle_Customize | Qt.WStyle_NormalBorder | Qt.WStyle_Title | Qt.WStyle_SysMenu)

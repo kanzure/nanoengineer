@@ -547,13 +547,13 @@ class ElementView(ThumbView):
         if self.mol:
            self.mol.draw(self, None)
 
-    def refreshDisplay(self, elm, dispMode=diVDW):
+    def refreshDisplay(self, elm, dispMode = diTrueCPK):
         """Display the new element or the same element but new display mode"""   
         self.makeCurrent()
         self.mol = self.constructModel(elm, self.pos, dispMode) 
         self.updateGL()
     
-    def updateColorDisplay(self, elm, dispMode=diVDW):
+    def updateColorDisplay(self, elm, dispMode = diTrueCPK):
         """Display the new element or the same element but new display mode"""   
         self.makeCurrent()
         self.mol = self.constructModel(elm, self.pos, dispMode) 
@@ -630,7 +630,7 @@ class MMKitView(ThumbView):
                self.model.draw(self)
 
    
-    def refreshDisplay(self, elm, dispMode=diVDW):
+    def refreshDisplay(self, elm, dispMode = diTrueCPK):
         """Display the new element or the same element but new display mode"""   
         self.makeCurrent()
         self.model = self.constructModel(elm, self.pos, dispMode)

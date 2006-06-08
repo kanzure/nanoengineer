@@ -673,8 +673,8 @@ def createWhatsThis(self):
         
         #### Display Ball and Stick (was CPK) ####
 
-        dispCPKActionText = "<u><b>Display Ball and Stick</b></u><br>"\
-                       "<p><img source=\"dispCPKAction\"><br> "\
+        dispBallActionText = "<u><b>Display Ball and Stick</b></u><br>"\
+                       "<p><img source=\"dispBallAction\"><br> "\
                        "Changes the <i>display setting</i> of selected atoms or chunks to "\
                        "<b>Ball and Stick</b> mode.  Atoms are rendered "\
                        "as spheres and bonds are rendered as narrow cylinders."\
@@ -688,15 +688,15 @@ def createWhatsThis(self):
                        "<b>Atoms</b> and <b>Bonds</b> pages of the <b>Preferences</b> dialog."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispCPKAction",
-                                                       self.dispCPKAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "dispBallAction",
+                                                       self.dispBallAction.iconSet().pixmap() )
 
-        self.dispCPKAction.setWhatsThis(dispCPKActionText ) 
+        self.dispBallAction.setWhatsThis(dispBallActionText ) 
         
         #### Display CPK (was VdW) #### [bruce extended and slightly corrected text, 060307]
 
-        dispVdWActionText = "<u><b>Display CPK</b></u><br>"\
-                       "<p><img source=\"dispVdWAction\"><br> "\
+        dispCPKActionText = "<u><b>Display CPK</b></u><br>"\
+                       "<p><img source=\"dispCPKAction\"><br> "\
                        "Changes the <i>display setting</i> of selected atoms or chunks to "\
                        "<b>CPK</b> mode.  Atoms are rendered as spheres with "\
                        "a size equal to 0.78 of their VdW radius, corresponding "\
@@ -712,10 +712,10 @@ def createWhatsThis(self):
                        "<b>Atoms</b> and <b>Bonds</b> pages of the <b>Preferences</b> dialog."\
                        "</p>"
                       
-        QMimeSourceFactory.defaultFactory().setPixmap( "dispVdWAction",
-                                                       self.dispVdWAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "dispCPKAction",
+                                                       self.dispCPKAction.iconSet().pixmap() )
 
-        self.dispVdWAction.setWhatsThis(dispVdWActionText )         
+        self.dispCPKAction.setWhatsThis(dispCPKActionText )         
         
         ##############################################
         # Select toolbar

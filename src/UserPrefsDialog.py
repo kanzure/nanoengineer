@@ -511,16 +511,16 @@ class UserPrefsDialog(QDialog):
 
         layout37_2_2 = QHBoxLayout(None,0,6,"layout37_2_2")
 
-        self.bond_cpk_color_frame = QFrame(self.groupBox4,"bond_cpk_color_frame")
-        self.bond_cpk_color_frame.setMinimumSize(QSize(25,0))
-        self.bond_cpk_color_frame.setPaletteBackgroundColor(QColor(158,158,158))
-        self.bond_cpk_color_frame.setFrameShape(QFrame.Box)
-        self.bond_cpk_color_frame.setFrameShadow(QFrame.Plain)
-        layout37_2_2.addWidget(self.bond_cpk_color_frame)
+        self.ballstick_bondcolor_frame = QFrame(self.groupBox4,"ballstick_bondcolor_frame")
+        self.ballstick_bondcolor_frame.setMinimumSize(QSize(25,0))
+        self.ballstick_bondcolor_frame.setPaletteBackgroundColor(QColor(158,158,158))
+        self.ballstick_bondcolor_frame.setFrameShape(QFrame.Box)
+        self.ballstick_bondcolor_frame.setFrameShadow(QFrame.Plain)
+        layout37_2_2.addWidget(self.ballstick_bondcolor_frame)
 
-        self.bond_cpk_color_btn = QPushButton(self.groupBox4,"bond_cpk_color_btn")
-        self.bond_cpk_color_btn.setAutoDefault(0)
-        layout37_2_2.addWidget(self.bond_cpk_color_btn)
+        self.ballstick_bondcolor_btn = QPushButton(self.groupBox4,"ballstick_bondcolor_btn")
+        self.ballstick_bondcolor_btn.setAutoDefault(0)
+        layout37_2_2.addWidget(self.ballstick_bondcolor_btn)
 
         layout79_2.addLayout(layout37_2_2,1,1)
 
@@ -1360,7 +1360,7 @@ class UserPrefsDialog(QDialog):
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
         self.connect(self.atom_hilite_color_btn,SIGNAL("clicked()"),self.change_atom_hilite_color)
-        self.connect(self.bond_cpk_color_btn,SIGNAL("clicked()"),self.change_bond_cpk_color)
+        self.connect(self.ballstick_bondcolor_btn,SIGNAL("clicked()"),self.change_ballstick_bondcolor)
         self.connect(self.bond_hilite_color_btn,SIGNAL("clicked()"),self.change_bond_hilite_color)
         self.connect(self.bond_line_thickness_spinbox,SIGNAL("valueChanged(int)"),self.change_bond_line_thickness)
         self.connect(self.bond_stretch_color_btn,SIGNAL("clicked()"),self.change_bond_stretch_color)
@@ -1370,8 +1370,8 @@ class UserPrefsDialog(QDialog):
         self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
         self.connect(self.compass_position_btngrp,SIGNAL("clicked(int)"),self.set_compass_position)
-        self.connect(self.cpk_atom_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_cpk_atom_radius)
-        self.connect(self.cpk_cylinder_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_cpk_cylinder_radius)
+        self.connect(self.cpk_atom_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_ballstick_atom_radius)
+        self.connect(self.cpk_cylinder_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_ballstick_cylinder_radius)
         self.connect(self.cpk_scale_factor_slider,SIGNAL("sliderReleased()"),self.save_cpk_scale_factor)
         self.connect(self.cpk_scale_factor_slider,SIGNAL("valueChanged(int)"),self.change_cpk_scale_factor)
         self.connect(self.default_display_btngrp,SIGNAL("clicked(int)"),self.set_default_display_mode)
@@ -1450,8 +1450,8 @@ class UserPrefsDialog(QDialog):
         self.setTabOrder(self.cpk_scale_factor_linedit,self.cpk_scale_factor_slider)
         self.setTabOrder(self.cpk_scale_factor_slider,self.level_of_detail_combox)
         self.setTabOrder(self.level_of_detail_combox,self.bond_hilite_color_btn)
-        self.setTabOrder(self.bond_hilite_color_btn,self.bond_cpk_color_btn)
-        self.setTabOrder(self.bond_cpk_color_btn,self.bond_stretch_color_btn)
+        self.setTabOrder(self.bond_hilite_color_btn,self.ballstick_bondcolor_btn)
+        self.setTabOrder(self.ballstick_bondcolor_btn,self.bond_stretch_color_btn)
         self.setTabOrder(self.bond_stretch_color_btn,self.bond_vane_color_btn)
         self.setTabOrder(self.bond_vane_color_btn,self.reset_bond_colors_btn)
         self.setTabOrder(self.reset_bond_colors_btn,self.cpk_cylinder_rad_spinbox)
@@ -1642,7 +1642,7 @@ class UserPrefsDialog(QDialog):
         self.bond_stretch_color_btn.setText(self.__tr("Choose..."))
         self.bond_hilite_color_btn.setText(self.__tr("Choose..."))
         self.textLabel3_3.setText(self.__tr("Vane/Ribbon :"))
-        self.bond_cpk_color_btn.setText(self.__tr("Choose..."))
+        self.ballstick_bondcolor_btn.setText(self.__tr("Choose..."))
         self.textLabel3.setText(self.__tr("Ball and Stick Cylinder :"))
         self.textLabel3_2_2.setText(self.__tr("Bond Stretch :"))
         self.bond_vane_color_btn.setText(self.__tr("Choose..."))
@@ -1903,8 +1903,8 @@ class UserPrefsDialog(QDialog):
     def change_bond_stretch_color(self):
         print "UserPrefsDialog.change_bond_stretch_color(): Not implemented yet"
 
-    def change_bond_cpk_color(self):
-        print "UserPrefsDialog.change_bond_cpk_color(): Not implemented yet"
+    def change_ballstick_bondcolor(self):
+        print "UserPrefsDialog.change_ballstick_bondcolor(): Not implemented yet"
 
     def change_bond_vane_color(self):
         print "UserPrefsDialog.change_bond_vane_color(): Not implemented yet"
@@ -1948,11 +1948,11 @@ class UserPrefsDialog(QDialog):
     def enable_nanohive(self):
         print "UserPrefsDialog.enable_nanohive(): Not implemented yet"
 
-    def change_cpk_atom_radius(self):
-        print "UserPrefsDialog.change_cpk_atom_radius(): Not implemented yet"
+    def change_ballstick_atom_radius(self):
+        print "UserPrefsDialog.change_ballstick_atom_radius(): Not implemented yet"
 
-    def change_cpk_cylinder_radius(self):
-        print "UserPrefsDialog.change_cpk_cylinder_radius(): Not implemented yet"
+    def change_ballstick_cylinder_radius(self):
+        print "UserPrefsDialog.change_ballstick_cylinder_radius(): Not implemented yet"
 
     def reset_lighting(self):
         print "UserPrefsDialog.reset_lighting(): Not implemented yet"

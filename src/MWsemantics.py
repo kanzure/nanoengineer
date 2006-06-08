@@ -667,14 +667,14 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def dispInvis(self):
         self.setDisplay(diINVISIBLE)
 
-    def dispVdW(self):
-        self.setDisplay(diVDW)
+    def dispCPK(self): #e this slot method (here and in .ui file) renamed from dispVdW to dispCPK [bruce 060607]
+        self.setDisplay(diTrueCPK)
 
     def dispTubes(self):
         self.setDisplay(diTUBES)
 
-    def dispCPK(self):
-        self.setDisplay(diCPK)
+    def dispBall(self): #e this slot method (here and in .ui file) renamed from dispCPK to dispBall [bruce 060607]
+        self.setDisplay(diBALL)
 
     def dispLines(self):
         self.setDisplay(diLINES)

@@ -68,24 +68,25 @@ atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
 bondpointHighlightColor_prefs_key = 'A7/Bondpoint Highlight Color'
 bondpointHotspotColor_prefs_key = 'A6/Atom Hotspot Color'
 defaultDisplayMode_prefs_key = 'A6/Default Display Mode'
-cpkAtomRadius_prefs_key = 'A7/CPK Atom Radius Percentage' # this is about diCPK which as of 060307 is called Ball and Stick in UI
-cpkScaleFactor_prefs_key = 'A7/CPK Scale Factor' # this is about diVDW which as of 060307 is called CPK in UI
+diBALL_AtomRadius_prefs_key = 'A7/CPK Atom Radius Percentage' # this is about diBALL which as of 060307 is called Ball and Stick in UI
+    #bruce 060607 renamed cpkAtomRadius_prefs_key -> diBALL_AtomRadius_prefs_key ###DOIT
+cpkScaleFactor_prefs_key = 'A7/CPK Scale Factor' # this is about diTrueCPK which as of 060307 is called CPK in UI
 levelOfDetail_prefs_key = 'A7/Level Of Detail'
-
-freeValenceColor_prefs_key = 'A6/Free Valence Color' # Never used. Should it be abandoned? mark 060215.
 
 # Bond prefs
 bondHighlightColor_prefs_key = 'A6/Bond Highlight Color'
 bondStretchColor_prefs_key = 'A6/Bond Stretch Color'
 bondVaneColor_prefs_key = 'A6/Bond Vane Color'
-bondCPKColor_prefs_key = 'A6/Bond CPK Color'
+diBALL_bondcolor_prefs_key = 'A6/Bond CPK Color' # this is about diBALL, not CPK [bruce 060607 comment]
+    #bruce 060607 renamed bondCPKColor_prefs_key -> diBALL_bondcolor_prefs_key ###DOIT
 pibondStyle_prefs_key = 'A6/Pi Bond Style'
 pibondLetters_prefs_key = 'A6/Pi Bond Letters'
 showValenceErrors_prefs_key = 'A6/Show Valence Errors'
 #display lines mode line thickness, mark 050831
 linesDisplayModeThickness_prefs_key = 'A7/Line Thickness for Lines Display Mode'
 #CPK cylinder radius (percentage), mark 051003
-cpkCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage' # about diCPK, called Ball and Stick as of 060307
+diBALL_BondCylinderRadius_prefs_key = 'A7/CPK Cylinder Radius Percentage' # about diBALL, called Ball and Stick as of 060307
+    #bruce 060607 renamed cpkCylinderRadius_prefs_key -> diBALL_BondCylinderRadius_prefs_key ###DOIT
 
 # Modes prefs [added by mark 050910]
 # The background style and color for each mode is initialized in init_prefs()
@@ -217,15 +218,13 @@ prefs_table = (
     ('bondpoint_highlight_color', 'color', bondpointHighlightColor_prefs_key, _default_HICOLOR_bondpoint),
     ('bondpoint_hotspot_color', 'color', bondpointHotspotColor_prefs_key, ave_colors( 0.8, green, black) ), #bruce 050808
     
-##    ('freevalence_color',            'color', freeValenceColor_prefs_key, red ), ###k red; ### use it --
-##        ## freevalence_color is problematic, so not yet implemented -- it's treated internally as an "element color"
     ## ('openbond_highlight_color',  'color', xxx_prefs_key, HICOLOR_singlet ), ## pink [not yet in prefs db]
     
     # Atom preferences - other
     
-    ('cpk_atom_radius', 'float', cpkAtomRadius_prefs_key, 1.0), #mark 051003 [about Ball and Stick]
-    ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 0.775), #mark 060307 [about diVDW, called CPK in UI as of now]
-    ('display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Changed from diVDW to diTUBES. mark 060218.
+    ('', 'float', diBALL_AtomRadius_prefs_key, 1.0), #mark 051003 [about Ball and Stick]
+    ('cpk_scale_factor', 'float', cpkScaleFactor_prefs_key, 0.775), #mark 060307 [about diTrueCPK, called CPK in UI as of now]
+    ('display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Changed from diTrueCPK to diTUBES. mark 060218.
     ('level_of_detail', 'int', levelOfDetail_prefs_key, -1), # -1 = Variable . mark & bruce 060215.
     
     # Bond preferences - colors
@@ -234,7 +233,7 @@ prefs_table = (
     ('bond_stretch_color',           'color', bondStretchColor_prefs_key, _default_toolong_color),
     ## ('bond_stretch_highlight_color', 'color', xxx_prefs_key, _default_toolong_hicolor), ## [not yet in prefs db]
     ('pi_vane_color',                'color', bondVaneColor_prefs_key, _default_bondVaneColor),
-    ('bond_CPK_color',               'color', bondCPKColor_prefs_key, _default_bondColor),
+    ('',               'color', diBALL_bondcolor_prefs_key, _default_bondColor),
 
     # Bond preferences - other
 
@@ -242,7 +241,7 @@ prefs_table = (
     ('pi_bond_letters', 'boolean',                     pibondLetters_prefs_key, False ),
     ('show_valence_errors',        'boolean', showValenceErrors_prefs_key,   True ), #bruce 050806 made this up
     ('', 'int', linesDisplayModeThickness_prefs_key, 1), #mark 050831 made this up
-    ('cpk_cylinder_radius', 'float', cpkCylinderRadius_prefs_key, 1.0), #mark 051003
+    ('', 'float', diBALL_BondCylinderRadius_prefs_key, 1.0), #mark 051003
     
     # Modes preferences [added to this table by mark 050910]
     

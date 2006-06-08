@@ -99,7 +99,9 @@ debug_1779 = False # do not commit with True, but leave the related code in for 
 
 # ==
 
-CPKvdW = 0.25
+remap_atom_dispdefs = {} # some dispdef values should be replaced with others in setDisplay [bruce 060607]
+
+BALL_vs_CPK = 0.25 # ratio of default diBALL radius to default diTrueCPK radius [renamed from CPKvdW by bruce 060607]
 
 Gno = 0
 def gensym(string):
@@ -896,7 +898,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             #  which is what's done (in GLPane.py) as of 050610.)
         ColorSorter.pushName(glname)
         try:
-            if disp in [diVDW, diCPK, diTUBES]:
+            if disp in [diTrueCPK, diBALL, diTUBES]:
                 if self.element is not Singlet or not debug_pref("draw bondpoints as stubs", Choice_boolean_False): #bruce 060307
                     drawsphere(color, pos, drawrad, level)
                     # Note [bruce 060308]: the debug_pref that turns this off is unfinished.
@@ -1072,7 +1074,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             dispdef = self.molecule.get_dispdef()
                 #bruce 050719 question: is it correct to ignore .display of self and its base atom? ###@@@
             disp, drawradjunk = self.howdraw(dispdef) # (this arg is required)
-            if disp in (diCPK, diTUBES):
+            if disp in (diBALL, diTUBES):
                 self.bonds[0].draw_in_abs_coords(glpane, color)
         #bruce 060315 try to fix disappearing hover highlight when mouse goes over one of our wirespheres.
         # We have to do it in the same coordinate system as the original wirespheres were drawn.
@@ -1123,6 +1125,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         return drawrad
         
     def setDisplay(self, disp):
+        disp = remap_atom_dispdefs.get(disp, disp) #bruce 060607; error message, if any, should not be done per-atom, ie not here
+        #e could we make the following conditional on self.display != disp? I don't know. [bruce 060607 comment]
         self.display = disp
         _changed_otherwise_Atoms[self.key] = self #bruce 060322
         self.molecule.changeapp(1)
@@ -1144,12 +1148,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         so this is just FYI).
            Return display mode and radius to use, in a tuple (disp, rad).
         For display modes in which the atom is not drawn, such as diLINES or
-        diINVISIBLE, we return the same radius as in diCPK; it's up to the
+        diINVISIBLE, we return the same radius as in diBALL; it's up to the
         caller to check the disp we return and decide whether/how to use this
         radius (e.g. it might be used for atom selection in diLINES mode, even
         though the atoms are not shown).
         """
-        #bruce 041206 moved rad *= 1.1 (for TUBES) from atom.draw into this method
         if dispdef == diDEFAULT: #bruce 041129 permanent debug code, re bug 21
             if platform.atom_debug and 0: #bruce 050419 disable this since always happens for Element Color Prefs dialog
                 print "bug warning: dispdef == diDEFAULT in atom.howdraw for %r" % self
@@ -1171,24 +1174,22 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         
         # Compute "rad"
         if disp == diTUBES: 
-            rad = TubeRadius * 1.1 #bruce 041206 added "* 1.1"
+            rad = TubeRadius * 1.1
         else:
             #bruce 060307 moved all this into else clause; this might prevent some needless (and rare)
             # gl_updates when all is shown in Tubes but prefs for other dispmodes are changed.
-            rad = self.element.rvdw # correct value for diVDW (formerly, default); modified to produce values for other dispmodes
-            if disp == diVDW: # as of mark 060307 this dispmode is called CPK in the UI
+            rad = self.element.rvdw # correct value for diTrueCPK (formerly, default); modified to produce values for other dispmodes
+            if disp == diTrueCPK:
                 rad = rad * env.prefs[cpkScaleFactor_prefs_key] 
-                # mark 060307 added " * env.prefs[cpkScaleFactor_prefs_key], bruce bugfixed it same day to apply only to diVDW
-            if disp != diVDW:
-                rad = rad * CPKvdW # all other dispmode radii are based on diCPK, which as of mark 060307 is called Ball & Stick in UI
-            if disp == diCPK:
-                rad = rad * env.prefs[cpkAtomRadius_prefs_key] 
-                # mark 051003 added " * env.prefs[cpkAtomRadius_prefs_key]
+            if disp != diTrueCPK:
+                rad = rad * BALL_vs_CPK # all other dispmode radii are based on diBALL radius
+            if disp == diBALL:
+                rad = rad * env.prefs[diBALL_AtomRadius_prefs_key] 
         return (disp, rad)
 
     def selradius_prefs_values(): # staticmethod in Atom #bruce 060317 for bug 1639 (and perhaps an analogue for other prefs)
         "Return a tuple of all prefs values that are ever used in computing any atom's selection radius (by selradius_squared)."
-        return ( env.prefs[cpkScaleFactor_prefs_key] , env.prefs[cpkAtomRadius_prefs_key] ) # both used in howdraw
+        return ( env.prefs[cpkScaleFactor_prefs_key] , env.prefs[diBALL_AtomRadius_prefs_key] ) # both used in howdraw
 
     selradius_prefs_values = staticmethod( selradius_prefs_values)
 
@@ -1309,7 +1310,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     def writepov(self, file, dispdef, col):
         color = col or self.element.color
         disp, rad = self.howdraw(dispdef)
-        if disp in [diVDW, diCPK]:
+        if disp in [diTrueCPK, diBALL]:
             file.write("atom(" + povpoint(self.posn()) +
                        "," + str(rad) + "," +
                        stringVec(color) + ")\n")

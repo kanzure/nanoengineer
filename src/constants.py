@@ -67,16 +67,20 @@ def genKey(start = 1): #bruce 050922 moved this here from chem.py and Utility.py
     pass
 
 # display modes:
-## These are arranged in order of increasing thickness of the bond representation
+## These are arranged in order of increasing thickness of the bond representation. They are indices of dispNames and dispLabel.
 ## Josh 11/2
 diDEFAULT = 0
 diINVISIBLE = 1
-diVDW = 2 # really "CPK". mark 060307.
+diTrueCPK = 2 # CPK [renamed from old name diVDW, bruce 060607; corresponding UI change was by mark 060307]
+    # (This is not yet called diCPK, to avoid confusion, since that name was used for diBALL until today.
+    #  After some time goes by, we can rename this to just diCPK.)
 diLINES = 3
-diCPK = 4 # really "Ball and Stick". mark 060307.
+diBALL = 4 # "Ball and Stick" [renamed from old incorrect name diCPK, bruce 060607; corresponding UI change was by mark 060307]
 diTUBES = 5
 
+# note: the following lists can be extended later at runtime. [as of bruce 060607]
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]
+    # these dispNames can't be easily revised, since they are used in mmp files; cpk and vdw are misleading as of 060307.
 #dispLabel = ["Default", "Invisible", "VdW", "Lines", "CPK", "Tubes"]
 dispLabel = ["Default", "Invisible", "CPK", "Lines", "Ball and Stick", "Tubes"]
 # Changed "CPK" => "Ball and Stick" and "VdW" => "CPK".  mark 060307.

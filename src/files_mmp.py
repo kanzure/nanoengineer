@@ -217,6 +217,17 @@ def getname(str, default):
 
 # == reading mmp files
 
+def register_for_readmmp(clas): #bruce 060607
+    """Register the given class as a helper for reading mmp files,
+    in a way that might depend on what it's a subclass of.
+    (Semiprivate; details not yet documented and subject to change. Experimental.)
+    """
+    # assume it has a staticmethod of the following name, to which we should pass the class itself.
+    smethod = clas._register_for_readmmp
+    smethod(clas)
+    ##e in future, for some classes, we might also add an mmp record name to a table used by this file.
+    return
+
 class _readmmp_state:
     """Hold the state needed by _readmmp between lines;
     and provide some methods to help with reading the lines.
