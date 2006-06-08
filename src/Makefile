@@ -1,13 +1,15 @@
 # Makefile for the simulator
 # $Id$
 
+UNAME := $(shell uname)
 # dotted python version (2.3, 2.4)
 PYDVER := $(shell python -c "import sys; print sys.version[:3]")
 # un-dotted python version (23, 24)
 PYVER := $(shell python -c "import sys; print sys.version[0]+sys.version[2]")
 
 ifeq ($(OS),Windows_NT)
-# I think it's one dollar sign for DOS and two for Cygwin
+#---------------------------------------- Start Windows stuff
+# One dollar sign for DOS and two for Cygwin
 UNAME_A=$(shell ver)
 # UNAME_A=$$(shell ver)   # Cygwin: but in this case use 'uname -a' anyway
 CC = "C:/Dev-Cpp/bin/gcc.exe"
@@ -16,22 +18,37 @@ LDFLAGS=-L"C:/Dev-Cpp/lib"
 PYREXTARGET=sim.dll
 STDC99=
 SIMTARGET=simulator.exe
+PYREXC=python c:/Python$(PYVER)/Scripts/pyrexc.py sim.pyx
+#---------------------------------------- End of Windows stuff
 else
-# non-Windows
-UNAME := $(shell uname)
+#---------------------------------------- Start Unix/Mac stuff
 UNAME_A=$$(uname -a)
 CC=gcc
-#CFLAGS=-g -Wmissing-prototypes -Wall
-CFLAGS=-pthread -fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
-  -Wstrict-prototypes -fPIC -I/usr/include/python$(PYDVER)
-# -pg
-# Note: these CFLAGS are probably not used to build the files for Pyrex, 
-# only for the standalone simulator executable. [bruce 051230 guess]
-LDFLAGS=-L/usr/lib -lm
-# -pg
 PYREXTARGET=sim.so
 STDC99=-std=c99
 SIMTARGET=simulator
+ifeq ($(strip $(UNAME)),Darwin)
+#---------------------------------------- Mac
+PYREXC=/Library/Python/$(PYDVER)/Pyrex-0.9.3.1/bin/pyrexc
+CFLAGS=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
+   -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/
+LDFLAGS=-Wl,-F. -framework Python
+LDSHARED=gcc -bundle
+else
+#---------------------------------------- Unix
+PYREXC=pyrexc
+CFLAGS=-pthread -I/usr/include/python$(PYDVER)
+LDFLAGS=-L/usr/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
+LDSHARED=gcc -shared
+#---------------------------------------- End of Unix
+endif
+LDFLAGS+=-L/usr/lib -lm
+CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
+  -Wstrict-prototypes -fPIC
+# These CFLAGS and LDFLAGS are not used by distutils. If asked to
+# compile or link, Pyrex uses distutils, and will therefore not
+# use these CFLAGS and LDFLAGS.
+#---------------------------------------- End of Unix/Mac stuff
 endif
 
 COMMONOBJS=\
@@ -98,7 +115,7 @@ structcompare.o: structcompare.c simulator.h
 ifeq ($(OS),Windows_NT)
 # We need sim.c rule to build for Windows
 sim.c: simhelp.c sim.pyx
-	python c:/Python$(PYVER)/Scripts/pyrexc.py sim.pyx
+	$(PYREXC) sim.pyx
 
 libpython$(PYVER).a: libpython$(PYVER).a.gz
 	gunzip < libpython$(PYVER).a.gz > libpython$(PYVER).a
@@ -112,10 +129,10 @@ else
 #	python setup.py build_ext --inplace
 
 sim.c: sim.pyx simhelp.c
-	pyrexc sim.pyx
+	$(PYREXC) sim.pyx
 
 sim.so: $(PYREXOBJS)
-	$(CC) -pthread -shared $(PYREXOBJS) -o sim.so
+	$(LDSHARED) $(PYREXOBJS) -o sim.so $(LDFLAGS)
 endif
 
 tables.c: gentab.py
