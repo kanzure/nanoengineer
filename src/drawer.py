@@ -22,6 +22,8 @@ from prefs_constants import material_specular_highlights_prefs_key, \
         material_specular_brightness_prefs_key #mark 051205. names revised
 import debug #bruce 051212, for debug.print_compact_traceback
 
+debug_displaylist_alloc = False # do not commit with True [bruce 060609 -- I suspect not all allocated indices are used]
+
 # ColorSorter control
 allow_color_sorting = allow_color_sorting_default = False #bruce 060323 changed this to False for A7 release
 allow_color_sorting_prefs_key = "allow_color_sorting_rev2" #bruce 060323 changed this to disconnect it from old pref setting
@@ -1147,6 +1149,9 @@ def setup():
     global use_c_renderer_pref
 
     listbase = glGenLists(numSphereSizes + 22)
+    if debug_displaylist_alloc:
+        print "debug_displaylist_alloc fyi: glGenLists(numSphereSizes + 22 == %d) returns listbase %d, last one should be %d" % \
+              (numSphereSizes + 22, listbase, listbase + numSphereSizes + 22 - 1)
 
     for i in range(numSphereSizes):
         sphereList += [listbase+i]
@@ -1334,6 +1339,9 @@ def setup():
         glVertex3fv(v)
     glEnd()
     glEndList()
+
+    if debug_displaylist_alloc:
+        print "debug_displaylist_alloc fyi: last list might be SiCGridList == %d" % SiCGridList
 
     # Debug Preferences
     from debug_prefs import debug_pref, Choice_boolean_True
