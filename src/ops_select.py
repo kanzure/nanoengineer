@@ -337,9 +337,15 @@ class ops_select_Mixin:
         """
         p1, p2 = self.o.mousepoints(event, 0.0)
         z = norm(p1-p2)
-        x = cross(self.o.up,z)
-        y = cross(z,x)
-        matrix = transpose(V(x,y,z))
+        if 1:
+            # This computation of matrix is now doable (roughly) by geometry.matrix_putting_axis_at_z().
+            # Once that's tested, these could probably be replaced by a call to it.
+            # But this is not confirmed -- the question is whether we cared about this use of self.o.up
+            # except as a convenient known perpendicular to z. If it matters, we can't use matrix_putting_axis_at_z here.
+            # [bruce 060608 comment]
+            x = cross(self.o.up,z)
+            y = cross(z,x)
+            matrix = transpose(V(x,y,z))
         point = p2
         cutoffs = dot( A([p1,p2]) - point, matrix)[:,2]
         near_cutoff = cutoffs[0]

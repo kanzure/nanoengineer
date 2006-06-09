@@ -60,6 +60,7 @@ import env
 import drawer #bruce 051126
 from undo_archive import register_class_nickname
 from state_utils import copy_val, same_vals #bruce 060308
+from displaymodes import get_display_mode_handler
 
 _inval_all_bonds_counter = 1 #bruce 050516
 
@@ -222,6 +223,10 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # (e.g. in mol.copy or merge) even when doing so is questionable.)
         #    BTW, we don't presently save the hotspot in the mmp file,
         # which is a reported bug which we hope to fix soon.
+
+        self.memo_dict = {}
+            # for use by anything that wants to store its own memo data on us, using a key it's sure is unique [bruce 060608]
+            # (when we eventually have a real destroy method, it should zap this; maybe this will belong on class Node #e)
         
         return # from molecule.__init__
 
@@ -320,13 +325,20 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         for name in self.hideicon_names:
             self.hideicon.append( imagename_to_pixmap( name))
         return
-
-    def node_icon(self, display_prefs): # bruce 050109 revised this [was seticon]
-        if self.hidden:
-            return self.hideicon[self.display]
-        else:
-            return self.mticon[self.display]
-    
+    def node_icon(self, display_prefs): # bruce 050109 revised this [was seticon]; revised again 060608
+        try:
+            if self.hidden:
+                return self.hideicon[self.display]
+            else:
+                return self.mticon[self.display]
+        except IndexError:
+            # probably one of those new-fangled ChunkDisplayModes [bruce 060608]
+            hd = get_display_mode_handler(self.display)
+            if hd:
+                return hd.get_icon(self.hidden)
+            # hmm, some sort of bug
+            return imagename_to_pixmap("junk.png")
+        pass
     def bond(self, at1, at2):
         """Cause atom at1 to be bonded to atom at2.
         Error if at1 is at2 (causes printed warning and does nothing).
@@ -550,18 +562,19 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # quickly as a group.
     
     def _get_polyhedron(self):
-        return self.poly_eval_evec_axis[0]
+        return self.poly_evals_evecs_axis[0]
 #bruce 060119 commenting these out since they are not used, though if we want them it's fine to add them back.
-##    def _get_eval(self):
-##        return self.poly_eval_evec_axis[1]
-##    def _get_evec(self):
-##        return self.poly_eval_evec_axis[2]
+#bruce 060608 renamed them with plural 's'.
+##    def _get_evals(self):
+##        return self.poly_evals_evecs_axis[1]
+##    def _get_evecs(self):
+##        return self.poly_evals_evecs_axis[2]
     def _get_axis(self):
-        return self.poly_eval_evec_axis[3]
+        return self.poly_evals_evecs_axis[3]
 
-    _inputs_for_poly_eval_evec_axis = ['basepos']
-    def _recompute_poly_eval_evec_axis(self):
-        return shakedown_poly_eval_evec_axis( self.basepos)
+    _inputs_for_poly_evals_evecs_axis = ['basepos']
+    def _recompute_poly_evals_evecs_axis(self):
+        return shakedown_poly_evals_evecs_axis( self.basepos)
 
     def full_inval_and_update(self): # bruce 041112-17
         """Public method (but should not usually be needed):
@@ -807,6 +820,8 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         "This is meant to be called when something whose usage we tracked (while making our display list) next changes."
         self.changeapp(0) # that now tells self.glpane to update, if necessary
         ###@@@ glpane needs to track changes anyway due to external bonds.... [not sure of status of this comment; as of bruce 060404]
+
+    _havelist_inval_counter = 0
     
     def draw(self, glpane, dispdef):
         """draw all the atoms, using the atom's, molecule's,
@@ -869,16 +884,6 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             q = self.quat
             glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
 
-            if self.picked:
-                try:
-                    drawlinelist(PickedColor,self.polyhedron or [])
-                except:
-                    # bruce 041119 debug code;
-                    # also "or []" failsafe (above)
-                    # in case recompute exception makes it None
-                    print_compact_traceback("exception in drawlinelist: ")
-                    print "(self.polyhedron is %r)" % self.polyhedron
-
             disp = self.get_dispdef(glpane) #bruce 041109 split into separate method
             # disp is passed to two methods below... but if we use a cached display
             # list, it's not reflected in that, and we don't check for this here
@@ -887,7 +892,29 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # mode, except that doing that calls changeapp() on the required mols,
             # so it's ok in theory. [comment by bruce 041109/041123]
 
-            # cache molecule display as GL list
+            delegate_selection_wireframe = False
+            delegate_draw_atoms = False
+            delegate_draw_chunk = False
+            hd = None
+            if 1:
+                #bruce 060608 look for a display mode handler for this chunk
+                # (whether it's a whole-chunk mode, or one we'll pass to the atoms as we draw them (nim)).
+                hd = get_display_mode_handler(disp)
+                # see if it's a chunk-only handler. If so, we don't draw atoms or chunk selection wireframe ourselves
+                # (we delegate those tasks to it).
+                if hd:
+                    chunk_only = hd.chunk_only
+                    delegate_selection_wireframe = chunk_only
+                    delegate_draw_atoms = chunk_only
+                    delegate_draw_chunk = chunk_only #e maybe later, we'll let hd tell us each of these, based on the chunk state.
+                pass
+
+            #bruce 060608 moved drawing of selection wireframe from here to after the new increment of _havelist_inval_counter
+            # (and split it into a new submethod), even though it's done outside of the display list.
+            # This was necessary for _drawchunk_selection_frame's use of memoized data to work.
+            ## self._draw_selection_frame(glpane, delegate_selection_wireframe, hd)
+
+            # cache chunk display (other than selection wireframe or hover highlighting) as OpenGL display list
             
             # [bruce 050415 changed value of self.havelist when it's not 0,
             #  from 1 to (disp,),
@@ -905,7 +932,16 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if self.havelist == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
                 glCallList(self.displist)
             else:
-                self.havelist = 0 #bruce 050415; maybe not needed, but seems safer this way #bruce 051209: now it's needed
+                if 1:
+                    #bruce 060608: record info to help per-chunk display modes
+                    # figure out whether they need to invalidate their memo data.
+                    if not self.havelist:
+                        # only count when it was set to 0 externally, not just when it doesn't match and we reset it below.
+                        # (Note: current code will also increment this every frame, when wantlist is false.
+                        #  I'm not sure what to do about that. Could we set it here to False rather than 0, so we can tell?? ##e)
+                        self._havelist_inval_counter += 1
+                    ##e in future we might also record eltprefs, matprefs, drawLevel (since they're stored in .havelist)
+                self.havelist = 0 #bruce 051209: this is now needed
                 try:
                     wantlist = not env.mainwindow().movie_is_playing #bruce 051209
                 except:
@@ -921,11 +957,9 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # of a matching glEndList) in which any subsequent glNewList is an
                 # invalid operation. (Also done in shape.py; not needed in drawer.py.)
                 try:
-                    self.draw_displist(glpane, disp) # also recomputes self.externs [not anymore -- bruce 050513]
+                    self.draw_displist(glpane, disp, (hd, delegate_draw_atoms, delegate_draw_chunk))
                 except:
                     print_compact_traceback("exception in molecule.draw_displist ignored: ")
-                    # it might have left the externs incomplete # bruce 041105 night [not anymore -- bruce 050513]
-                    ## self.invalidate_attr('externs')
 
                 if wantlist:
                     ColorSorter.finish() # grantham 20051205
@@ -941,6 +975,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     #e (in future it might be safer to remake the display list to contain
                     # only a known-safe thing, like a bbox and an indicator of the bug.)
                 pass
+            self._draw_selection_frame(glpane, delegate_selection_wireframe, hd) #bruce 060608 moved this here
             assert `should_not_change` == `( + self.basecenter, + self.quat )`, \
                 "%r != %r, what's up?" % (should_not_change , ( + self.basecenter, + self.quat))
                 # (we use `x` == `y` since x == y doesn't work well for these data types)
@@ -966,8 +1001,56 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         ColorSorter.finish() # grantham 20051205
         return # from molecule.draw()
 
-    def draw_displist(self, glpane, disp0): #bruce 050513 optimizing this somewhat
+    def _draw_selection_frame(self, glpane, delegate_selection_wireframe, hd): #bruce 060608 split this out of self.draw
+        "[private submethod of self.draw]"
+        if self.picked:
+            if not delegate_selection_wireframe:
+                try:
+                    drawlinelist(PickedColor, self.polyhedron or [])
+                except:
+                    # bruce 041119 debug code;
+                    # also "or []" failsafe (above)
+                    # in case recompute exception makes it None
+                    print_compact_traceback("exception in drawlinelist: ")
+                    print "(self.polyhedron is %r)" % self.polyhedron
+            else:
+                hd._drawchunk_selection_frame(glpane, self, PickedColor, highlighted = False)
+            pass
+        return
 
+    def draw_displist(self, glpane, disp0, hd_info): #bruce 050513 optimizing this somewhat; 060608 revising it
+        "[private submethod of self.draw]"
+        hd, delegate_draw_atoms, delegate_draw_chunk = hd_info
+
+        # draw something for the chunk as a whole
+        if delegate_draw_chunk:
+            hd._drawchunk(self.glpane, self)
+        else:
+            self.standard_draw_chunk(glpane, disp0)
+
+        # draw the individual atoms and internal bonds (if desired)
+        if delegate_draw_atoms:
+            pass # nothing for this is implemented, or yet needed [as of bruce 060608]
+        else:
+            self.standard_draw_atoms(glpane, disp0)
+        return
+
+    def standard_draw_chunk(self, glpane, disp0, highlighted = False): #bruce 060608 split this out of draw_displist
+        """[private submethod of self.draw:]
+        Draw the standard representation of this chunk as a whole (except for chunk selection wireframe),
+        as if self's display mode was disp0; this occurs inside our local coordinate system and display-list-making,
+        and it doesn't occur if chunk drawing is delegated to our display mode.
+           Note: as of 060608 nothing is ever drawn for a chunk as a whole, so this method does nothing.
+        That might change, e.g. if we made chunks show their axis, name, bbox, etc.
+        """
+        return
+    
+    def standard_draw_atoms(self, glpane, disp0): #bruce 060608 split this out of draw_displist
+        """[private submethod of self.draw:]
+        Draw all our atoms and all their internal bonds, in the standard way, *including* atom selection wireframes,
+        as if self's display mode was disp0; this occurs inside our local coordinate system and display-list-making,
+        and it doesn't occur if atom drawing is delegated to our display mode.
+        """
         drawLevel = self.assy.drawLevel
         drawn = {}
         ## self.externs = [] # bruce 050513 removing this
@@ -1044,7 +1127,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     pass
                 else:
                     print "Source of current atom:", atom_source
-        return # from molecule.draw_displist()
+        return # from standard_draw_atoms (submethod of draw_displist)
 
     def overdraw_hotspot(self, glpane, disp): # bruce 050131 (atom_debug only); [unknown later date] now always active
         """
@@ -2530,7 +2613,7 @@ register_debug_menu_command("make BorrowerChunk (no addmol)", debug_make_Borrowe
 
 from geometry import selection_polyhedron, inertia_eigenvectors, compute_heuristic_axis
 
-def shakedown_poly_eval_evec_axis(basepos):
+def shakedown_poly_evals_evecs_axis(basepos):
     """Given basepos (an array of atom positions), compute and return (as the
     elements of a tuple) the bounding polyhedron we should draw around these
     atoms to designate that their molecule is selected, the eigenvalues and
@@ -2545,7 +2628,7 @@ def shakedown_poly_eval_evec_axis(basepos):
 
     polyhedron = selection_polyhedron(basepos)
 
-    evals, evec = inertia_eigenvectors(basepos)
+    evals, evecs = inertia_eigenvectors(basepos)
         # These are no longer saved as chunk attrs (since they were not used),
         # but compute_heuristic_axis would compute this anyway,
         # so there's no cost to doing it here and remaining compatible
@@ -2556,7 +2639,7 @@ def shakedown_poly_eval_evec_axis(basepos):
         # (see also the comments about those in compute_heuristic_axis).
 
     axis = compute_heuristic_axis( basepos, 'chunk',
-                                   evals_evec = (evals, evec), aspect_threshhold = 0.95,
+                                   evals_evecs = (evals, evecs), aspect_threshhold = 0.95,
                                    near1 = V(1,0,0), near2 = V(0,1,0), dflt = V(1,0,0) # prefer axes parallel to screen in default view
                                   )
 
@@ -2564,7 +2647,7 @@ def shakedown_poly_eval_evec_axis(basepos):
     axis = A(axis) ##k if this is in fact needed, we should probably do it inside compute_heuristic_axis for sake of other callers
     assert type(axis) is type(V(0.1,0.1,0.1)) # this probably doesn't check element types (that's probably ok)
     
-    return polyhedron, evals, evec, axis # from shakedown_poly_evals_evec_axis
+    return polyhedron, evals, evecs, axis # from shakedown_poly_evals_evecs_axis
 
 # ==
 

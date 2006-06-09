@@ -2200,4 +2200,25 @@ def drawtext(text, color, pt, size, glpane):
     glEnable(GL_LIGHTING)
     return
 
+def drawcylinder_wireframe(color, end1, end2, radius): #bruce 060608
+    "draw a wireframe cylinder (not too pretty, definitely could look nicer, but it works)"
+    # display polys as their edges (see drawer.py's drawwirecube or Jig.draw for related code)
+    # (probably we should instead create a suitable lines display list,
+    #  or even use a wire-frame-like texture so various lengths work well)
+    glPolygonMode(GL_FRONT, GL_LINE)
+    glPolygonMode(GL_BACK, GL_LINE)
+    glDisable(GL_LIGHTING)
+    glDisable(GL_CULL_FACE) # this makes motors look too busy, but without it, they look too weird (which seems worse)
+    try:
+        drawcylinder(color, end1, end2, radius) ##k not sure if this color will end up controlling the edge color; we hope it will
+    except:
+        debug.print_compact_traceback("bug, ignored: ")
+    # the following assumes that we are never called as part of a jig's drawing method,
+    # or it will mess up drawing of the rest of the jig if it's disabled
+    glEnable(GL_CULL_FACE)
+    glEnable(GL_LIGHTING)
+    glPolygonMode(GL_FRONT, GL_FILL)
+    glPolygonMode(GL_BACK, GL_FILL) # could probably use GL_FRONT_AND_BACK
+    return
+
 #end

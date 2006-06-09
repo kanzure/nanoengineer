@@ -30,7 +30,7 @@ def selection_polyhedron(basepos, borderwidth = 1.8):
     [#e Someday we might permit caller-specified orientation axes. The axes of inertia would be interesting to try.]
     """
     #bruce 060226/060605 made borderwidth an argument (non-default values untested); documented retval format
-    #bruce 060119 split this out of shakedown_poly_eval_evec_axis() in chunk.py.
+    #bruce 060119 split this out of shakedown_poly_evals_evecs_axis() in chunk.py.
     # Note, it has always had some bad bugs for certain cases, like long diagonal rods.
 
     if not len(basepos):
@@ -148,7 +148,7 @@ def inertia_eigenvectors(basepos, already_centered = False):
     overlapping or colinear points, etc, though some evals will be 0 in these cases.
        Optional small speedup: if caller knows basepos is centered at the origin, it can say so.
     """
-    #bruce 060119 split this out of shakedown_poly_eval_evec_axis() in chunk.py
+    #bruce 060119 split this out of shakedown_poly_evals_evecs_axis() in chunk.py
     basepos = A(basepos) # make sure it's a Numeric array
     if not already_centered and len(basepos):
         center = add.reduce(basepos)/len(basepos)
@@ -162,9 +162,9 @@ def inertia_eigenvectors(basepos, already_centered = False):
         m[1,1] += rsq
         m[2,2] += rsq
         tensor += m
-    evals, evec = eigenvectors(tensor)
-    assert len(evals) == len(evec) == 3
-    return evals, evec
+    evals, evecs = eigenvectors(tensor)
+    assert len(evals) == len(evecs) == 3
+    return evals, evecs
 
 if 0: # self-test; works fine as of 060119
     def testie(points):
@@ -188,7 +188,7 @@ def unzip(pairs):
     return [pair[0] for pair in pairs], [pair[1] for pair in pairs]
 
 def compute_heuristic_axis( basepos, type,
-                            evals_evec = None, already_centered = False,
+                            evals_evecs = None, already_centered = False,
                             aspect_threshhold = 0.95, numeric_threshhold = 0.0001,
                             near1 = None, near2 = None, nears = (), dflt = None ):
     #bruce 060120 adding nears; will doc this and let it fully replace near1 and near2, but not yet,
@@ -222,19 +222,19 @@ def compute_heuristic_axis( basepos, type,
        should compute their own values as if applied to the same atoms, since the chunk or jig will compute its axis in
        a different way, both in choice of type argument, and in values of near1, near2, and dflt.)
     """
-    #bruce 060119 split this out of shakedown_poly_eval_evec_axis() in chunk.py, added some options.
-    # Could clean it up by requiring caller to pass evals_evec (no longer needing args basepos and already_centered).
+    #bruce 060119 split this out of shakedown_poly_evals_evecs_axis() in chunk.py, added some options.
+    # Could clean it up by requiring caller to pass evals_evecs (no longer needing args basepos and already_centered).
 
     # According to tested behavior of inertia_eigenvectors, we don't need any special cases for
     # len(basepos) in [0,1,2], or points overlapping or colinear, etc!
 
-    if evals_evec is None:
-        evals_evec = inertia_eigenvectors( basepos, already_centered = already_centered)
+    if evals_evecs is None:
+        evals_evecs = inertia_eigenvectors( basepos, already_centered = already_centered)
     del basepos
     
-    evals, evecs = evals_evec
+    evals, evecs = evals_evecs
 
-    # evals[i] tells you moment of inertia when rotating around axis evec[i], which is larger if points are farther from axis.
+    # evals[i] tells you moment of inertia when rotating around axis evecs[i], which is larger if points are farther from axis.
     # So for a slab of dims 1x4x9, for axis '1' we see dims '4' and '9' and eval is the highest in that case.
 
     valvecs = zip(evals, evecs)
@@ -272,7 +272,7 @@ def compute_heuristic_axis( basepos, type,
         if aspect_too_close( evals[0], evals[i], aspect_threshhold ):
             axes.append( evecs[i] )
 
-    del evals,evecs
+    del evals, evecs
 
     #bruce 060120 adding nears; will replace near1, near2, but for now, accept them all, use in that order:
     goodvecs = [near1, near2] + list(nears)
@@ -346,6 +346,34 @@ def best_vector_in_plane( axes, goodvecs, numeric_threshhold ):
             return norm(dx * x + dy * y)
     return None
     
+def arbitrary_perpendicular( vec, nicevecs = [] ): #bruce 060608, probably duplicates other code somewhere (check in VQT?)
+    """Return an arbitrary unit vector perpendicular to vec (a Numeric array, 3 floats),
+    making it from vec and as-early-as-possible nicevecs (if any are passed).
+    """
+    nicevecs = map(norm, nicevecs) + [X_AXIS, Y_AXIS]
+    # we'll look at vec and each nicevec until they span a subspace which includes a perpendicular.
+    # if we're not done, it means our subspace so far is spanned by just vec itself.
+    vec = norm(vec)
+    if not vec:
+        return nicevecs[0] # the best we can do
+    for nice in nicevecs:
+        res = norm( nice - vec * dot(nice, vec) )
+        if res:
+            return res
+    return nicevecs[0] # should never happen
+
+def matrix_putting_axis_at_z(axis): #bruce 060608
+    """Return an orthonormal matrix which can be used (via dot(points, matrix) for a Numeric array of 3d points)
+    to transform points so that axis transforms to the z axis.
+    (Not sure if it has determinant 1 or -1. If you're sure, change it to always be determinant 1.)
+    """
+    # this code was modified from ops_select.py's findAtomUnderMouse, as it prepares to call Chunk.findAtomUnderMouse
+    z = norm(axis)
+    x = arbitrary_perpendicular(axis)
+    y = cross(z,x)
+    matrix = transpose(V(x,y,z))
+    return matrix
+
 
 '''
 notes, 060119, probably can be removed soon:

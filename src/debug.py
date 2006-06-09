@@ -1109,4 +1109,10 @@ import undo
 
 import extensions
 
+#bruce 060608 - same for this one -- I really ought to figure out the *right* place to import miscellaneous startup modules
+# that need to register themselves -- maybe somewhere in startup_funcs.py (either listing them there, or having it scan a directory
+# for special filenames and/or contents -- but in a way that works if only the .pyc file is present?
+# btw it's possible this import is too early, we'll see.
+import CylinderChunks
+
 # end
