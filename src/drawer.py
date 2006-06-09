@@ -111,7 +111,7 @@ def getSphereTriangles(level):
 
 # generate two circles in space as 13-gons,
 # one rotated half a segment with respect to the other
-# these are used as cylinder ends
+# these are used as cylinder ends [not quite true anymore, see comments just below]
 slices=13
 circ1=map((lambda n: n*2.0*pi/slices), range(slices+1))
 circ2=map((lambda a: a+pi/slices), circ1)
@@ -122,6 +122,9 @@ drum1n=map((lambda a: (cos(a), sin(a), 0.0)), circ2)
 # grantham 20051213 I finally decided the look of the oddly twisted
 # cylinder bonds was not pretty enough, so I made a "drum2" which is just
 # drum0 with a 1.0 Z coordinate, a la drum1.
+#bruce 060609: this apparently introduced the bug of the drum1 end-cap of a cylinder being "ragged"
+# (letting empty space show through), which I fixed by using drum2 for that cap rather than drum1.
+# drum1 is no longer used except as an intermediate value in the next few lines.
 drum2=map((lambda a: (cos(a), sin(a), 1.0)), circ1)
 
 # This edge list zips up the "top" vertex and normal and then
@@ -1213,7 +1216,7 @@ def setup():
     glEnd()
     glNormal3fv(cap1n)
     glBegin(GL_POLYGON)
-    for p in drum1:
+    for p in drum2: #bruce 060609 fix "ragged edge" bug in this endcap: drum1 -> drum2
         glVertex3fv(p)
     glEnd()
     glEndList()
