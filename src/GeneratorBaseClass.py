@@ -7,8 +7,9 @@ $Id$
 
 import platform
 import env
-from qt import Qt, QApplication, QCursor, QDialog, QImage, QPixmap, QIconSet
-from Sponsors import findSponsor
+from qt import *
+from chem import gensym
+from Sponsors import SponsorableMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg
 
 __author__ = "Will"
@@ -81,26 +82,20 @@ class AbstractMethod(Exception):
     def __init__(self):
         Exception.__init__(self, 'Abstract method - must be overloaded')
 
-class GeneratorBaseClass(GroupButtonMixin):
+class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     """There is some logic associated with Preview/OK/Abort that's
     complicated enough to put it in one place, so that individual
     generators can focus on what they need to do. As much as possible,
     the individual generator should not need to worry about the GUI.
     """
 
-    sponsor_keyword = None
-
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         self.win = win
         self.struct = None
         self.previousParams = None
-        assert self.sponsor_keyword != None
-        self.setSponsor(None)
-
-    def setSponsor(self, keyword=None):
-        self.sponsor = sponsor = findSponsor(self.sponsor_keyword)
-        sponsor.configureSponsorButton(self.sponsor_btn)
+        self._just_updating = True
+        SponsorableMixin.__init__(self)
 
     def build_struct(self):
         '''Build the structure in question. This is an abstract method
@@ -144,26 +139,61 @@ class GeneratorBaseClass(GroupButtonMixin):
         built. This is an abstract method and must be overloaded in
         the specific generator.
         '''
-        raise AbstractMethod()
+        # This isn't quite right.
+        if self._just_updating:
+            return "%s updated." % self.name
+        else:
+            return "%s created." % self.name
+
+    def _revert_number(self):
+        import chem, Utility
+        if hasattr(self, '_Gno'):
+            chem.Gno = self._Gno
+        if hasattr(self, '_ViewNum'):
+            Utility.ViewNum = self._ViewNum
 
     def _build_struct(self):
-        if platform.atom_debug: print '_build_struct'
+        if platform.atom_debug:
+            print '_build_struct'
         params = self.gather_parameters()
-        if self.struct == None or params != self.previousParams:
+
+        import chem, Utility
+        self._just_updating = True
+        if self.struct == None:
             if platform.atom_debug:
-                print 'self.struct =', self.struct
-                if params != self.previousParams:
-                    print 'parameters changed'
-                else:
-                    print 'parameters have not changed'
-            self.remove_struct()
-            self.previousParams = params
-            if platform.atom_debug: print 'build a new structure'
-            self.struct = self.build_struct(params)
-            self.win.assy.addnode(self.struct)
-            self.win.win_update() # includes mt_update
+                print 'no old structure, we are making a new structure'
+            self._Gno = chem.Gno
+            self._just_updating = False
+        elif params != self.previousParams:
+            if platform.atom_debug:
+                print 'parameters have changed, update existing structure'
+            self._revert_number()
+            # fall through, using old name
         else:
-            if platform.atom_debug: print 'Existing structre, same params, do not rebuild'
+            if platform.atom_debug:
+                print 'old structure, parameters same as previous, do nothing'
+            return
+
+        self._create_new_name()
+        if not self._just_updating:
+            env.history.message(self.cmd + "Creating " + self.name)
+        self.remove_struct()
+        self.previousParams = params
+        if platform.atom_debug: print 'build a new structure'
+        self.struct = self.build_struct(params)
+        self.win.assy.addnode(self.struct)
+        self.win.win_update() # includes mt_update
+
+    def _create_new_name(self):
+        self.name = gensym(self.prefix)
+
+    def enter_WhatsThisMode(self):
+        'Slot for the What\'s This button'
+        QWhatsThis.enterWhatsThisMode()
+
+    def whatsthis_btn_clicked(self):
+        'Slot for the What\'s This button'
+        QWhatsThis.enterWhatsThisMode()
 
     def ok_btn_clicked(self):
         'Slot for the OK button'
@@ -193,6 +223,7 @@ class GeneratorBaseClass(GroupButtonMixin):
         'Slot for the Cancel button'
         if platform.atom_debug: print 'cancel button clicked'
         self.remove_struct()
+        self._revert_number()
         QDialog.accept(self)
 
     def close(self, e=None):
@@ -204,11 +235,3 @@ class GeneratorBaseClass(GroupButtonMixin):
             return True
         except:
             return False
-
-    def sponsor_btn_clicked(self):
-        self.sponsor.wikiHelp()
-    def open_sponsor_homepage(self):
-        self.sponsor.wikiHelp()
-
-    def enter_WhatsThisMode(self):
-        env.history.message(orangemsg('WhatsThis: Not implemented yet'))

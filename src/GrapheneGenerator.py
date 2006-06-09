@@ -10,7 +10,7 @@ __author__ = "Will"
 from GrapheneGeneratorDialog import graphene_sheet_dialog
 from math import atan2, sin, cos, pi
 import assembly, chem, bonds, Utility
-from chem import molecule, Atom, gensym
+from chem import molecule, Atom
 import env
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
@@ -32,6 +32,7 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
 
     cmd = greenmsg("Insert Graphene: ")
     sponsor_keyword = 'Graphene'
+    prefix = 'Graphene-'   # used for gensym
 
     # We now support multiple keywords in a list or tuple
     # sponsor_keyword = ('Graphenes', 'Carbon')
@@ -79,12 +80,11 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
 
     def build_struct(self, params):
         height, width, bond_length, endings = params
-        env.history.message(self.cmd + "Creating graphene.")
         PROFILE = False
         if PROFILE:
             sw = Stopwatch()
             sw.start()
-        mol = molecule(self.win.assy, gensym("Graphene-"))
+        mol = molecule(self.win.assy, self.name)
         atoms = mol.atoms
         z = 0.0
         self.populate(mol, height, width, z, bond_length, endings)
@@ -194,12 +194,6 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
                     atm.Transmute(dstElem, force=True, atomtype=atomtype)
 
     ###################################################
-    # The done message
-
-    def done_msg(self):
-        return "Graphene created."
-
-    ###################################################
     # Special UI things that still must be implemented
     def toggle_graphene_parameters_grpbox(self):
         self.toggle_groupbox(self.graphene_parameters_grpbtn, self.line2,
@@ -210,6 +204,3 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
 
     def defaults_btn_clicked(self):
         self.languageChange()
-
-    def enter_WhatsThisMode(self):
-        env.history.message(self.cmd + orangemsg("graphene_sheet_dialog.enter_WhatsThisMode(): Not implemented yet"))

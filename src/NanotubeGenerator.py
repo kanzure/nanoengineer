@@ -13,7 +13,7 @@ __author__ = "Will"
 from NanotubeGeneratorDialog import nanotube_dialog
 from math import atan2, sin, cos, pi
 import assembly, chem, bonds, Utility
-from chem import molecule, Atom, gensym
+from chem import molecule, Atom
 import env
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
@@ -164,6 +164,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
 
     cmd = greenmsg("Insert Nanotube: ")
     sponsor_keyword = 'Nanotubes'
+    prefix = 'Nanotube-'   # used for gensym
 
     # We now support multiple keywords in a list or tuple
     # sponsor_keyword = ('Nanotubes', 'Carbon')
@@ -240,7 +241,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             sw.start()
         xyz = self.chirality.xyz
         if mol == None:
-            mol = molecule(self.win.assy, gensym("Nanotube-"))
+            mol = molecule(self.win.assy, self.name)
         atoms = mol.atoms
         mlimits = self.chirality.mlimits
         # populate the tube with some extra carbons on the ends
@@ -378,6 +379,3 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.twist_spinbox.setValue(0)
         self.bend_spinbox.setValue(0)
         self.mwcnt_count_spinbox.setValue(1)
-
-    def enter_WhatsThisMode(self):
-        env.history.message(self.cmd + orangemsg("nanotube_dialog.enter_WhatsThisMode(): Not implemented yet"))

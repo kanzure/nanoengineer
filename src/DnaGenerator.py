@@ -16,7 +16,7 @@ import env
 import re
 from math import atan2, sin, cos, pi
 from DnaGeneratorDialog import dna_dialog
-from chem import Atom, gensym
+from chem import Atom
 from Utility import Group
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from VQT import A, V, dot, vlen
@@ -161,6 +161,7 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
 
     cmd = greenmsg("Insert Dna: ")
     sponsor_keyword = 'DNA'
+    prefix = 'DNA-'   # used for gensym
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
@@ -192,7 +193,7 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
             env.history.message(self.cmd + "Creating DNA. This may take a moment...")
         else:
             env.history.message(self.cmd + "Creating DNA.")
-        grp = Group(gensym("DNA-"), self.win.assy,
+        grp = Group(self.name, self.win.assy,
                     self.win.assy.part.topnode)
         dna.make(self.win.assy, grp, seq, doubleStrand)
         return grp

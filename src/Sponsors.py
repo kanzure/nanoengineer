@@ -104,7 +104,6 @@ class PermissionDialog(QDialog):
     def __init__(self, win):
         self.xmlfile = os.path.join(_sponsordir, 'sponsors.xml')
         self.win = win
-        self.after = win.afterGettingPermission
         self.fini = False
         self._gotPermission = False
         if not self.refreshWanted():
@@ -254,7 +253,11 @@ class PermissionDialog(QDialog):
             except:
                 print_compact_traceback("trouble getting sponsor info: ")
                 print_compact_stack("trouble getting sponsor info: ")
-        self.after()
+        for dialog in self.win.sponsoredList():
+            try:
+                dialog.setSponsor()
+            except:
+                pass
         self.fini = True
 
 ###############################################
@@ -343,13 +346,25 @@ _defaultSponsor = Sponsor('Nanorex', fixHtml(_nanorexText), _defsp_imgfile)
 
 ###############################################
 
-def findSponsor(keyword=None):
-    if type(keyword) in (types.ListType, types.TupleType):
-        keyword = random.choice(keyword)
-    if keyword == None or not _sponsors.has_key(keyword):
-        sponsor = _defaultSponsor
-    else:
-        sponsor = random.choice(_sponsors[keyword])
-    if platform.atom_debug:
-        print 'keyword', keyword, 'sponsor', sponsor
-    return sponsor
+class SponsorableMixin:
+
+    sponsor_keyword = None
+
+    def __init__(self):
+        self.setSponsor()
+
+    def setSponsor(self):
+        keyword = self.sponsor_keyword
+        if type(keyword) in (types.ListType, types.TupleType):
+            keyword = random.choice(keyword)
+        try:
+            sponsor = random.choice(_sponsors[keyword])
+        except KeyError:
+            sponsor = _defaultSponsor
+        self.sponsor = sponsor
+        sponsor.configureSponsorButton(self.sponsor_btn)
+
+    def sponsor_btn_clicked(self):
+        self.sponsor.wikiHelp()
+    def open_sponsor_homepage(self):
+        self.sponsor.wikiHelp()

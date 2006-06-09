@@ -378,11 +378,9 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         if not self.permdialog.fini:
             self.permdialog.close()
 
-    def afterGettingPermission(self):
-        for x in (self.graphenecntl, self.nanotubecntl,
-                  self.dnacntl, self.povrayscenecntl):
-            if hasattr(x, 'sponsor_keyword'):
-                x.setSponsor(x.sponsor_keyword)
+    def sponsoredList(self):
+        return (self.graphenecntl, self.nanotubecntl,
+                self.dnacntl, self.povrayscenecntl)
 
     def _init_after_geometry_is_set(self): #bruce 060104 renamed this from startRun and replaced its docstring.
         """Do whatever initialization of self needs to wait until its geometry has been set.
@@ -1149,7 +1147,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.dnacntl.show()
         
     def insertPovrayScene(self):
-        self.povrayscenecntl.setup()
+        self.povrayscenecntl.show()
         
     def insertComment(self):
         '''Insert a new comment into the model tree.

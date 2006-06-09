@@ -17,7 +17,7 @@ from povray import get_raytrace_scene_filenames, write_povray_ini_file, raytrace
 from fileIO import writepovfile
 from qt import Qt, QApplication, QCursor
 from HistoryWidget import greenmsg, redmsg
-import env, os
+import env, os, sys
 
 class PovrayScene(SimpleCopyMixin, Node):
     """A POV-Ray Scene is a .pov file that can be used to render images, accessible from the Model Tree as a node.
@@ -27,12 +27,15 @@ class PovrayScene(SimpleCopyMixin, Node):
 
     #copyable_attrs = Node.copyable_attrs + ... # Need to talk with Bruce about this. Mark 060602.
 
-    def __init__(self, assy, params):
+    def __init__(self, assy, params, name=None):
         self.assy = assy
         self.set_parameters(params)
         self.const_icon = imagename_to_pixmap("povrayscene.png")
         if not self.name:
-            self.name = genViewNum("%s-" % self.sym)
+            if name != None:
+                self.name = name
+            else:
+                self.name = genViewNum("%s-" % self.sym)
         Node.__init__(self, assy, self.name)
         return
         
@@ -108,5 +111,16 @@ class PovrayScene(SimpleCopyMixin, Node):
     def __CM_Render_Image(self):
         '''Method for "Render Image" context menu.'''
         self.render_image(use_existing_pvs=True)
-        
-    pass # end of class Comment
+
+    def __CM_Display_Image(self):
+        '''Method for "Display Image" context menu. Try to display the
+        image by any means available.'''
+        # What if it's not a PNG? It could be a BMP.
+        fn = self.get_pvs_filename().replace('.pov', '.png')
+        if os.system('display ' + fn) == 0:
+            return
+        if os.system('xv ' + fn) == 0:
+            return
+        env.history.message(cmd + redmsg('No image display program available'))
+
+    pass # end of class PovrayScene
