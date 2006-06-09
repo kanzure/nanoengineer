@@ -116,11 +116,12 @@ class PovrayScene(SimpleCopyMixin, Node):
         '''Method for "Display Image" context menu. Try to display the
         image by any means available.'''
         # What if it's not a PNG? It could be a BMP.
-        fn = self.get_pvs_filename().replace('.pov', '.png')
+        fn = '\'' + self.get_pvs_filename().replace('.pov', '.png') + '\''
         if os.system('display ' + fn) == 0:
             return
         if os.system('xv ' + fn) == 0:
             return
+        cmd = greenmsg("Display POV-Ray Scene: ")
         env.history.message(cmd + redmsg('No image display program available'))
 
     pass # end of class PovrayScene
