@@ -227,6 +227,8 @@ def pre_main_show( win):
         print_compact_stack("exception while loading/setting main window pos/size from prefs db: ")
         win.setGeometry(QRect(norm_x, norm_y, norm_w, norm_h))
 
+    _initialize_custom_display_modes()
+    
     return # from pre_main_show
 
 # This is debugging code used to find out the origin and size of the fullscreen window
@@ -236,6 +238,9 @@ def pre_main_show( win):
 #    print "Window origin = ",fooge.left(),",",fooge.top()
 #    print "Window width =",fooge.width(),", Window height =",fooge.height()
 
+def _initialize_custom_display_modes():
+    import CylinderChunks #bruce 060609
+    return
 
 def post_main_show( win): # bruce 050902 added this
     "Do whatever should be done after the main window is shown, but before the Qt event loop is started."
