@@ -108,6 +108,8 @@
         <action name="dispTubesAction"/>
         <action name="dispBallAction"/>
         <action name="dispCPKAction"/>
+        <action name="dispCylinderAction"/>
+        <action name="dispSurfaceAction"/>
         <separator/>
         <action name="dispObjectColorAction"/>
         <action name="dispResetChunkColorAction"/>
@@ -292,7 +294,7 @@
             <rect>
                 <x>738</x>
                 <y>0</y>
-                <width>182</width>
+                <width>238</width>
                 <height>29</height>
             </rect>
         </property>
@@ -308,6 +310,8 @@
         <action name="dispTubesAction"/>
         <action name="dispBallAction"/>
         <action name="dispCPKAction"/>
+        <action name="dispCylinderAction"/>
+        <action name="dispSurfaceAction"/>
     </toolbar>
     <toolbar dock="2">
         <property name="name">
@@ -462,7 +466,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1087</width>
+                <width>1085</width>
                 <height>29</height>
             </rect>
         </property>
@@ -3958,6 +3962,28 @@
             <string>Insert POV-Ray Scene file</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>dispSurfaceAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image145</iconset>
+        </property>
+        <property name="text">
+            <string>Surface</string>
+        </property>
+    </action>
+    <action>
+        <property name="name">
+            <cstring>dispCylinderAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image146</iconset>
+        </property>
+        <property name="text">
+            <string>Cylinder</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4394,6 +4420,12 @@
     </image>
     <image name="image144">
         <data format="PNG" length="665">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000026049444154789cd5944f4893611cc73f5b6de6e6e63ba36273e8a2611696657f6eb6215d120933e8d2c10e850461528837c724c4820e75280b8c4028fb87a39321d4eb944428110f793158940c64c53bddf6b0def4ed30941cefe285baf885e7f0fcf97e9e1fdfdfc3039b4da6fc85507748336a0ef7847519ba0a7587b47cc5144d93639aa6a4939a924e6aabbf724396df69806e215bff76c99dc9553a5a3ac16587f817a83e9bdb38510f80dc6842966582c1a0965f7941f0a5bee7b8c51c5afc36daca125a22c1e8d81000133393dcb83f42f0d6cc9f960d705d7032b3c4e5937eea8e9e637a6a9c2383c7000fcd763700a7abdd8c3dae22d035cbc1402d137d0d38cb2a3730cc852aae3bb487e9a971ae3d9907bbc0618f13e91f26d23f0cf6edf8aafc94ef2d63361ad5f5178c22a1a8b8a452c24d3b083635b3ec2a86a537745e69a3355003c0021548d60f241615e3e0783cce817d95340c39197ed8426444a6fdc20b00ee8d2d303af703461ed1d155c757a36035f31335a3507f3142aca895334f63d4ef7610ec7d0fc072f4250057db1aa8d97fd8781442087c7e3f65c7cb41fe8c63f115a95db5b4789601080c8473e62d60b149941497188f229985d71f57217a93bbbdd771482e32d915003453aee7a5920bafc78ba5c8621c2ccf67e1d30c1dcd3b31db242c36890ab7130087ddb97ece526441cdaac6c036ab99d9044899411a4f9d4798b6e1f578714a39a010024017b8a682eff85fa50bb65a571878f696e88376be7d4fafe728844008819a5551b36ac118a040144aca444fa344226dc657e95b6f4e3e646d9e12296315ff0fe97dd2863f7a83bc4da2df6d04f0e5e2c1158d0000000049454e44ae426082</data>
+    </image>
+    <image name="image145">
+        <data format="PNG" length="320">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000010749444154789cedd4316a86300086e157e90d327808c92a38ba79140fe5a97e375737412741306aba34629a3f516997423f1025d187cf1002fff94a149a9452ea2758d33487f71142abaa2249924bb02c4bf23cb7c6dec2524a5dd7f5ad965996511485331eff044dd3f42d0adf1aff4653079652ead7eb750b0582a80503745de77d71dbb6e3b9ef7b0084100cc3700d9b68edeeb2388e2d1cf0a20e6cc0755dbd1f9c73bb71144528a5d8f7dd8b9dff26d4d8da6e4a2900f67df75e675808e185adc60636775f9665b96cecc066394299e71978b0c64a29b4d647a3bb8d8761b00e200736bbe16a57987921046ddb3aa8034fd3c4388e41f41c1f0aa7f3f8e9d90b78d1bf994fe925a7599cd384210000000049454e44ae426082</data>
+    </image>
+    <image name="image146">
+        <data format="PNG" length="967">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000038e49444154789cb5d44b4863571807f0ff97c7bd9918e7067c90e4ba494307cb40f101092e6b76cdc2a2abe2420a8529b351285dcda68b2e0a95325390b6cbe9426c87166a57d244929d3b893441544462a5496c54f2bce79cdc73ba3161627d0db41f5cb817befb3bff8f7338a494c2ff51ae37fd81885c00862e1f09a0a094aafeabefbe8989e86130189cb16dfbe366b3f9b6c7e37131c69c44f497526ab956abfda4946abe114c44319fcff75cd3b4772391c883582c46c16010676767d8dada52dbdbdb2d22faa5d1683c554ad5ee0513d1b4aeeb2f474747fd333333be818101b4db6d0821c039876ddbd8dfdfc7fafa7a534af963b3d9fc4429c56f853be8e4e464ffdcdc9ce1743ac139871002b66df72c90cfe7914c262d4dd33ea8d7eb1b8efba0b3b3b306802e2a840063ac8b0a21100a85303838e806f01911b9ae8589e87db7dbbdfae8d1237f2c16333a8865595df0ea3711211c0e3b6ddb1e05f0c075050c0c0d0d3debefef7fa2ebba8b31466b6b6bf0f97c181f1f4724124127b994b227b19412baaec3e9743a81d7ce3111bd6518c6af4aa9c7f1789c128904fc7e3f4e4f4fb1b1b181542a85c3c3434c4d4d8188baa96ddbeebe974a25d56eb7eb002429a5404401c3307e0f85428f171717c9344d10517712a514b2d92c565656100c0631313101003d891963c864325c4ab95cabd59e39002010083cf57abdef2c2d2dd1c8c8480f7a390dc6c6c6303f3f8fbdbd3d148b455896d5b399c7c7c78a31f677bd5eff16001c441468341a1f251209a7699a371e3d008846a30887c338383800e71c8c3158968562b188dddddd9652ea3ba5d49f00e000300ce06167bcdbcaebf5627a7a1ae7e7e7ddc4a552093b3b3b7529e52bcef9f34eaf0b007c3e1ff7fbfd77c200609a263c1e0f2ccb42a55291b95cee02c0d79cf3af9452bcd3e70020abd5aa5e2c16ef05e77239b45a2d94cb6599cbe5ce6cdbfec2b2ac2f5f473b7041d7f54226935177dd1b954a059b9b9be8ebeb53f97cbeca39ff4108f18d52cabedaeb504a55a594cbe974ba95cd666f44a59448a552b8b8b8c0c9c949bddd6ebf92527e7e1d0a5cde6e44e4f5fbfddfbbddeed98585056f341a85d7ebed36359b4d249349b5baba4a42082e847829a5fcb47345de08030011f51b86f18273fe61241271c7e371a7699a383a3a423a9d168542a121a5fc9931b669dbf66fb7a13df025ae0d0f0fbfa769da134dd306354d638c315d08b1572e975f70ceffb87323ae83ffcbfa07bdad3a5c605366950000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5291,6 +5323,18 @@
         <receiver>MainWindow</receiver>
         <slot>insertPovrayScene()</slot>
     </connection>
+    <connection>
+        <sender>dispSurfaceAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispSurface()</slot>
+    </connection>
+    <connection>
+        <sender>dispCylinderAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispCylinder()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5472,6 +5516,8 @@
     <slot>insertComment()</slot>
     <slot>viewRaytraceScene()</slot>
     <slot>insertPovrayScene()</slot>
+    <slot>dispSurface()</slot>
+    <slot>dispCylinder()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

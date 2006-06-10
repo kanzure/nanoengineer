@@ -240,6 +240,7 @@ def pre_main_show( win):
 
 def _initialize_custom_display_modes():
     import CylinderChunks #bruce 060609
+    import SurfaceChunks #mark 060610
     return
 
 def post_main_show( win): # bruce 050902 added this

@@ -77,6 +77,8 @@ diTrueCPK = 2 # CPK [renamed from old name diVDW, bruce 060607; corresponding UI
 diLINES = 3
 diBALL = 4 # "Ball and Stick" [renamed from old incorrect name diCPK, bruce 060607; corresponding UI change was by mark 060307]
 diTUBES = 5
+diCYLINDER = 6
+diSURFACE = 7
 
 # note: the following lists can be extended later at runtime. [as of bruce 060607]
 dispNames = ["def", "inv", "vdw", "lin", "cpk", "tub"]

@@ -681,6 +681,12 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
     def dispLines(self):
         self.setDisplay(diLINES)
+    
+    def dispCylinder(self):
+        self.setDisplay(diCYLINDER)
+        
+    def dispSurface(self):
+        self.setDisplay(diSURFACE)
 
     def setDisplay(self, form, default_display=False):
         '''Set the display of the selection to 'form'.  If nothing is selected, then change
