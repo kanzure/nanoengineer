@@ -442,6 +442,13 @@
                                     <property name="value">
                                         <number>1</number>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Specify how often to update the screen during the simulation.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
+&lt;p&gt;Specify how often to update the model during the simulation. This allows the user to monitor simulation results while the simulation is running.&lt;/p&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QComboBox" row="1" column="2">
                                     <item>
@@ -466,6 +473,13 @@
                                     </item>
                                     <property name="name">
                                         <cstring>update_units_combobox</cstring>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Specify how often to update the screen during the simulation.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
+&lt;p&gt;Specify how often to update the model during the simulation. This allows the user to monitor simulation results while the simulation is running.&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                                 <spacer row="1" column="3">
@@ -495,6 +509,13 @@
                                     <property name="buttonGroupId">
                                         <number>1</number>
                                     </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Specify how often to update the screen during the simulation.</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
+&lt;p&gt;Specify how often to update the model during the simulation. This allows the user to monitor simulation results while the simulation is running.&lt;/p&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QRadioButton" row="0" column="0" rowspan="1" colspan="4">
                                     <property name="name">
@@ -508,6 +529,14 @@
                                     </property>
                                     <property name="buttonGroupId">
                                         <number>0</number>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Update every 2 seconds, or faster if it doesn't slow simulation by more than 20%</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;Update as fast as possible&lt;/b&gt;
+&lt;p&gt;
+Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow simulation by more than 20%&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                             </grid>

@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\SimSetupDialog.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\SimSetupDialog.ui'
 #
-# Created: Tue May 30 20:27:34 2006
+# Created: Sun Jun 11 15:18:54 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -243,13 +243,26 @@ class SimSetupDialog(QDialog):
         QToolTip.add(self.watch_motion_checkbox,self.__tr("Enables real time graphical updates during simulation runs"))
         QWhatsThis.add(self.watch_motion_checkbox,self.__tr("<p><b>Watch Motion In Real Time</b></p>Enables real time graphical updates during simulation runs."))
         self.update_btngrp.setTitle(QString.null)
+        QToolTip.add(self.update_number_spinbox,self.__tr("Specify how often to update the screen during the simulation."))
+        QWhatsThis.add(self.update_number_spinbox,self.__tr("<b>Update every <i>n units.</u></b>\n"
+"<p>Specify how often to update the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>"))
         self.update_units_combobox.clear()
         self.update_units_combobox.insertItem(self.__tr("frames"))
         self.update_units_combobox.insertItem(self.__tr("seconds"))
         self.update_units_combobox.insertItem(self.__tr("minutes"))
         self.update_units_combobox.insertItem(self.__tr("hours"))
+        QToolTip.add(self.update_units_combobox,self.__tr("Specify how often to update the screen during the simulation."))
+        QWhatsThis.add(self.update_units_combobox,self.__tr("<b>Update every <i>n units.</u></b>\n"
+"<p>Specify how often to update the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>"))
         self.update_every_rbtn.setText(self.__tr("Update every"))
+        QToolTip.add(self.update_every_rbtn,self.__tr("Specify how often to update the screen during the simulation."))
+        QWhatsThis.add(self.update_every_rbtn,self.__tr("<b>Update every <i>n units.</u></b>\n"
+"<p>Specify how often to update the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>"))
         self.update_asap_rbtn.setText(self.__tr("Update as fast as possible"))
+        QToolTip.add(self.update_asap_rbtn,self.__tr("Update every 2 seconds, or faster if it doesn't slow simulation by more than 20%"))
+        QWhatsThis.add(self.update_asap_rbtn,self.__tr("<b>Update as fast as possible</b>\n"
+"<p>\n"
+"Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow simulation by more than 20%</p>"))
 
 
     def NumFramesValueChanged(self,a0):
