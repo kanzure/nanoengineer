@@ -25,6 +25,9 @@ class SurfaceChunks(ChunkDisplayMode):
     "example chunk display mode, which draws the chunk as a surface, aligned to the chunk's axes, of the chunk's color"
     mmp_code = 'srf' # this must be a unique 3-letter code, distinct from the values in constants.dispNames or in other display modes
     disp_label = 'SurfaceChunks' # label for statusbar fields, menu text, etc
+    icon_name = "displaySurface.png"
+    hide_icon_name = "displaySurface-hide.png"
+    featurename = "Set Display Surface" #mark 060611
     ##e also should define icon as an icon object or filename, either in class or in each instance
     ##e also should define a featurename for wiki help
     def drawchunk(self, glpane, chunk, memo, highlighted):
