@@ -576,9 +576,21 @@ def createWhatsThis(self):
         # Insert toolbar
         ##############################################
         
+        #### Graphene ####
+
+        insertGrapheneActionText = "<u><b>Insert Graphene</b></u><br>"\
+                       "<p><img source=\"insertGrapheneAction\"><br> "\
+                       "Inserts a graphene sheet provided with width, height and bond length parameters. "\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "insertGrapheneAction",
+                                                       self.insertGrapheneAction.iconSet().pixmap() )
+
+        self.insertGrapheneAction.setWhatsThis(insertGrapheneActionText )
+        
         #### Nanotube ####
 
-        insertNanotubeActionText = "<u><b>Nanotube</b></u><br>"\
+        insertNanotubeActionText = "<u><b>Insert Nanotube</b></u><br>"\
                        "<p><img source=\"insertNanotubeAction\"><br> "\
                        "Inserts a nanotube provided with chirality (M, N) and length parameters. "\
                        "</p>"
@@ -587,6 +599,42 @@ def createWhatsThis(self):
                                                        self.insertNanotubeAction.iconSet().pixmap() )
 
         self.insertNanotubeAction.setWhatsThis(insertNanotubeActionText )
+        
+        #### DNA ####
+
+        insertDnaActionText = "<u><b>Insert DNA</b></u><br>"\
+                       "<p><img source=\"insertDnaAction\"><br> "\
+                       "Inserts a single or double strand of A, B or Z-DNA given a nucleotide sequence. "\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "insertDnaAction",
+                                                       self.insertDnaAction.iconSet().pixmap() )
+
+        self.insertDnaAction.setWhatsThis(insertDnaActionText )
+        
+        #### POV-Ray Scene ####
+
+        insertPovraySceneActionText = "<u><b>Insert POV-Ray Scene</b></u><br>"\
+                       "<p><img source=\"insertPovraySceneAction\"><br> "\
+                       "Inserts a POV-Ray Scene file based on the current model and viewpoint. "\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "insertPovraySceneAction",
+                                                       self.insertPovraySceneAction.iconSet().pixmap() )
+
+        self.insertPovraySceneAction.setWhatsThis(insertPovraySceneActionText )
+        
+        #### Comment ####
+
+        insertCommentActionText = "<u><b>Insert Comment</b></u><br>"\
+                       "<p><img source=\"insertCommentAction\"><br> "\
+                       "Inserts a comment in the current part. "\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "insertCommentAction",
+                                                       self.insertCommentAction.iconSet().pixmap() )
+
+        self.insertCommentAction.setWhatsThis(insertCommentActionText )
         
         ##############################################
         # Display toolbar
