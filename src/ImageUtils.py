@@ -29,7 +29,8 @@ class nEImageOps:
         if 1:
             #bruce 060213
             from debug_prefs import debug_pref, Choice
-            self.ideal_wd = self.ideal_ht = debug_pref("image size", Choice([256,128,64,32,512,1024])) # not persistent
+            self.ideal_wd = self.ideal_ht = debug_pref("image size", Choice([256,128,64,32,512,1024]),
+                prefs_key = 'A8 devel/image size' ) #bruce 060612 made this persistent
             # these are not used until client code calls getTextureData;
             # it's ok if client modifies them directly before that,
             # anything from just once to before each call of getTextureData.
