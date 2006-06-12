@@ -10,6 +10,7 @@ LDFLAGS=-Wl,--output-def,quux.def -L. -L"C:/Dev-Cpp/lib"
 TARGETSW=SW.exe
 TARGETMW=MW.exe
 TARGETHJ=HJ.exe
+TDIR=
 #---------------------------------------- End of Windows stuff
 else
 #---------------------------------------- Start Unix/Mac stuff
@@ -33,6 +34,7 @@ CXXFLAGS+=-g -Wall
 TARGETSW=SW
 TARGETMW=MW
 TARGETHJ=HJ
+TDIR=./
 #---------------------------------------- End of Unix/Mac stuff
 endif
 
@@ -76,11 +78,17 @@ $(TARGETHJ): $(W2SRCS:.cpp=.o)
 	$(CXX) $(CXXFLAGS) -o $(TARGETHJ) $(W2SRCS:.cpp=.o)
 
 clean:
-	rm -f *.o *.pyc *~ core.* $(TARGETSW) $(TARGETMW) $(TARGETHJ)
+	rm -f *.o *.pyc *~ core.* $(TARGETSW) $(TARGETMW) $(TARGETHJ) \
+		singlewall.mmp multiwall.mmp heterojunction.mmp
 
 deps:
 	makedepend $(SRCS) W1.cpp W15.cpp W2.cpp -f - | \
 		sed 's# /[^ ]*\.h##g' | egrep -v ':$$' >> Makefile
+
+test: $(TARGETSW) $(TARGETMW) $(TARGETHJ)
+	$(TDIR)$(TARGETSW) 5 5 12.0 1 1 singlewall.mmp
+	$(TDIR)$(TARGETMW) 5 5 12.0 3 3.5 1 2 multiwall.mmp
+	$(TDIR)$(TARGETHJ) 5 5 20.0 20 0 20.0 1 3 heterojunction.mmp
 
 # DO NOT DELETE
 

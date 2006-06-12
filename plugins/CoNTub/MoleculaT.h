@@ -52,6 +52,7 @@ class MoleculaT: public MoleculaB
     double dmedia (anillo ani);
     std::ostream& mmp (std::ostream& ost, int index);
     std::ostream& mmp (std::ostream& ost, String inf, int index);
+    void MoleculaT::mmp (char *filename, int index);
 };
 
 #endif

@@ -1166,9 +1166,9 @@ int main(int argc, char *argv[])
 {
     int i1, j1, i2, j2, terminator, index;
     double lent1, lent2;
-    char *p;
+    char *p, *outputfile;
 
-    if (argc < 9)
+    if (argc < 10)
 	goto bad_input;
     i1 = strtol(argv[1], &p, 10);
     if (*p != '\0') goto bad_input;
@@ -1190,7 +1190,8 @@ int main(int argc, char *argv[])
 	std::cerr << "BAD INPUT\n";
 	return -1;
     }
+    outputfile = argv[9];
     W2 w2 = W2(i1, j1, lent1, i2, j2, lent2, terminator);
-    w2.molecule.mmp(std::cout, index);
+    w2.molecule.mmp(outputfile, index);
     return 0;
 }

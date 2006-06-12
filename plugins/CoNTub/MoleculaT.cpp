@@ -1,3 +1,4 @@
+#include <fstream>
 #include <math.h>
 
 #include "MoleculaT.h"
@@ -722,6 +723,14 @@ double MoleculaT::dmedia (anillo ani)
     return dm;
 
 
+}
+
+void MoleculaT::mmp (char *filename, int index)
+{
+    std::ofstream outfile;
+    outfile.open(filename, std::ofstream::out);
+    mmp(outfile, "", index);
+    outfile.close();
 }
 
 std::ostream& MoleculaT::mmp (std::ostream& ost, int index)

@@ -90,9 +90,9 @@ W15::W15(int a, int b, double c, int nshells, double sshell, int terminator)
 int main(int argc, char *argv[]) {
     int a, b, nshell, terminator, index;
     double c, sshell;
-    char *p;
+    char *p, *outputfile;
 
-    if (argc < 8)
+    if (argc < 9)
 	goto bad_input;
     a = strtol(argv[1], &p, 10);
     if (*p != '\0') goto bad_input;
@@ -112,7 +112,8 @@ int main(int argc, char *argv[]) {
 	std::cerr << "BAD INPUT\n";
 	return -1;
     }
+    outputfile = argv[8];
     W15 w15 = W15(a, b, c, nshell, sshell, terminator);
-    w15.molecule.mmp(std::cout, index);
+    w15.molecule.mmp(outputfile, index);
     return 0;
 }
