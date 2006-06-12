@@ -40,8 +40,7 @@ LDFLAGS=-L/usr/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
-PYREXC=$(shell python -c "import sys; sys.path.insert(0, '../../cad/src'); \
-    import platform; print platform.find_pyrexc()")
+PYREXC=$(shell python -c "import findpyrex; print findpyrex.find_pyrexc()")
 LDFLAGS+=-L/usr/lib -lm
 CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
   -Wstrict-prototypes -fPIC
