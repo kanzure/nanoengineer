@@ -5,8 +5,7 @@ which uses Oleksandr's new code to display a chunk as a surface in the chunk's c
 
 $Id$
 
-This is mainly intended as an example of how to use class ChunkDisplayMode,
-though it might be useful as a fast-rendering display mode too.
+See also CylinderChunks.py for comparison.
 '''
 
 __author__ = 'bruce'
@@ -51,6 +50,11 @@ class SurfaceChunks(ChunkDisplayMode):
         if highlighted:
             color = ave_colors(0.5, color, env.prefs[chunkHighlightColor_prefs_key]) #e should the caller compute this somehow?
 	# THIS IS WHERE OLEKSANDR SHOULD CALL HIS NEW CODE TO RENDER THE SURFACE (NOT CYLINDER).
+	#   But if this requires time-consuming computations which depend on atom positions (etc) but not on point of view,
+	# those should be done in compute_memo, not here, and their results will be passed here in the memo argument.
+	# (This method drawchunk will not be called on every frame, but it will usually be called much more often than compute_memo.)
+	#   For example, memo might contain a Pyrex object pointer to a C object representing some sort of mesh,
+	# which can be rendered quickly by calling a Pyrex method on it.
         drawer.drawcylinder(color, end1, end2, radius, capped = True)
         return
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
@@ -72,7 +76,9 @@ class SurfaceChunks(ChunkDisplayMode):
         alittle = 0.01
         end1 = end1 - alittle * axis
         end2 = end2 + alittle * axis
-        # THIS IS WHERE OLEKSANRD SHOULD RENDER A "SELECTED" SURFACE.
+        # THIS IS WHERE OLEKSANDR SHOULD RENDER A "SELECTED" SURFACE, OR (PREFERABLY) A SELECTION WIREFRAME
+        # around an already-rendered surface.
+        # (For a selected chunk, both this and drawchunk will be called -- not necessarily in that order.)
         drawer.drawcylinder_wireframe(color, end1, end2, radius + alittle)
         return
     def compute_memo(self, chunk):
