@@ -603,11 +603,11 @@ class NanoBuildMacOSX(NanoBuildBase):
         os.chdir(os.path.join(self.atomPath,'cad'))
         copytree('doc', os.path.join(self.buildSourcePath, appname, 'Contents/doc'))
         copytree('images', os.path.join(self.buildSourcePath, appname, 'Contents/images'))
+        copytree('plugins', os.path.join(self.buildSourcePath, appname, 'Contents', 'plugins'))
         # Put the partlib outside the app bundle, where users can see its internal
         # directories and files. Put a symbolic link to it from the normal
         # location inside the bundle.
         copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
-        copytree('plugins', os.path.join(self.buildSourcePath, 'plugins'))
         system('(cd %s; ln -s ../../partlib .)' %
                os.path.join(self.buildSourcePath, appname, 'Contents'))
         #
