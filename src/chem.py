@@ -458,11 +458,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 ##            newmol.atoms[ self.key ] = self
 ##        return
     
-    def __init__(self, sym, where, mol): #bruce 050511 allow sym to be elt symbol (as before), another atom, or an atomtype
-        """Create an atom of element sym (e.g. 'C')
-        (or, same elt/atomtype as atom sym; or, same atomtype as atomtype sym)
+    def __init__(self, sym, where, mol = None): #bruce 060612 let mol be left out
+        """Create an atom of element sym
+        (e.g. 'C' -- sym can be an element, atomtype, or element-symbol, or another atom to copy these from)
         at location 'where' (e.g. V(36, 24, 36))
-        belonging to molecule mol (can be None).
+        belonging to molecule mol (can be None or missing).
         Atom initially has no real or open bonds, and default hybridization type.
         """
         # note: it's not necessary to track changes to self's attrs (in e.g. _changed_parent_Atoms) during __init__. [bruce 060322]

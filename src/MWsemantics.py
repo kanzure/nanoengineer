@@ -68,7 +68,7 @@ eCCBtab2 = {}
 for i,elno in zip(range(len(eCCBtab1)), eCCBtab1):
     eCCBtab2[elno] = i
 
-recentfiles_use_QSettings = True #bruce 050919 debug flag (replacing use of __debug__) #####@@@@@
+recentfiles_use_QSettings = True #bruce 050919 debug flag (replacing use of __debug__) ###@@@
 
 class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, MainWindow):
     "The single Main Window object."
@@ -180,19 +180,20 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # history widget (bottom) [history is new as of 041223]
         vsplitter = QSplitter(Qt.Vertical, hsplitter)
         
-        #& This creates a gplane with a black 1 pixel border around it.  Leave it in in case we want to use this.
-        #& mark 060222.
-        #& glframe = QFrame(vsplitter)
-        #& glframe.setFrameShape ( QFrame.Box ) 
-        #& flayout = QVBoxLayout(glframe,1,1,'flayout')
-        #& self.glpane = GLPane(self.assy, glframe, "glpane", self)
-        #& flayout.addWidget(self.glpane,1)
-        
-        # Create the glpane - where all the action is!
-        self.glpane = GLPane(self.assy, vsplitter, "glpane", self)
-            #bruce 050911 revised GLPane.__init__ -- now it leaves glpane's mode as nullmode;
-            # we change it below, since doing so now would be too early for some modes permitted as startup mode
-            # (e.g. Build mode, which when Entered needs self.Element to exist, as of 050911)
+        if 0: 
+            #& This creates a gplane with a black 1 pixel border around it.  Leave it in in case we want to use this.
+            #& mark 060222. [bruce 060612 committed with 'if 0', in an updated/tested form]
+            glframe = QFrame(vsplitter)
+            glframe.setFrameShape ( QFrame.Box ) 
+            flayout = QVBoxLayout(glframe,1,1,'flayout')
+            self.glpane = GLPane(self.assy, glframe, "glpane", self)
+            flayout.addWidget(self.glpane,1)
+        else:
+            # Create the glpane - where all the action is!
+            self.glpane = GLPane(self.assy, vsplitter, "glpane", self)
+                #bruce 050911 revised GLPane.__init__ -- now it leaves glpane's mode as nullmode;
+                # we change it below, since doing so now would be too early for some modes permitted as startup mode
+                # (e.g. Build mode, which when Entered needs self.Element to exist, as of 050911)
             
         # Create the history area at the bottom
         from HistoryWidget import HistoryWidget
@@ -432,7 +433,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 ##        # Abort Simulation button and menu item (we will dynamically change its text in methods of self.stack_of_extended_ops)
 ##        #e (make this adder a little helper routine, or loop over table?)
 ##        self.simAbortAction = QAction(self,"simAbortAction")
-##        self.simAbortAction.setEnabled(True) # disabled by default -- no, enabled for now, so it's visible... #######@@@@@@@
+##        self.simAbortAction.setEnabled(True) # disabled by default -- no, enabled for now, so it's visible... ###@@@
 ##        if 1:
 ##            from Utility import imagename_to_pixmap
 ##            pixmap = imagename_to_pixmap("stopsign.png")
@@ -448,7 +449,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 ##        ###e also need pause and continue, one hidden and one shown; imitate movie player icons etc
 ##        
 ##        if 1: # this is needed here even if the self.simAbortAction initializing code gets moved into the .ui file
-##          if 0: #######@@@@@@@ DISABLED FOR SAFE COMMIT OF UNFINISHED CODE [bruce 060104]
+##          if 0: ###@@@ DISABLED FOR SAFE COMMIT OF UNFINISHED CODE [bruce 060104]
 ##            from extended_ops import ExtendedOpStack
 ##            self.stack_of_extended_ops = ExtendedOpStack(self, [self.simAbortAction])
 ##                #e in present implem this knows a lot about self.simAbortAction; needs cleanup
