@@ -18,7 +18,7 @@ LDFLAGS=-L"C:/Dev-Cpp/lib"
 PYREXTARGET=sim.dll
 STDC99=
 SIMTARGET=simulator.exe
-PYREXC=python c:/Python$(PYVER)/Scripts/pyrexc.py sim.pyx
+PYREXC=python c:/Python$(PYVER)/Scripts/pyrexc.py
 #---------------------------------------- End of Windows stuff
 else
 #---------------------------------------- Start Unix/Mac stuff
