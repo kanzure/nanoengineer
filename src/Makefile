@@ -29,19 +29,22 @@ STDC99=-std=c99
 SIMTARGET=simulator
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
-PYREXC=/Library/Python/$(PYDVER)/Pyrex-0.9.3.1/bin/pyrexc
+#PYREXC=/Library/Python/$(PYDVER)/Pyrex-0.9.3.1/bin/pyrexc
 CFLAGS=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
    -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/
 LDFLAGS=-Wl,-F. -framework Python
 LDSHARED=gcc -bundle
 else
 #---------------------------------------- Unix
-PYREXC=pyrexc
+#PYREXC=pyrexc
 CFLAGS=-pthread -I/usr/include/python$(PYDVER)
 LDFLAGS=-L/usr/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
+PYREXC_SEQUENCE=import sys; sys.path.insert(0,'../../cad/src'); \
+    import platform; print platform.find_pyrexc()
+PYREXC=$(shell python -c "$(PYREXC_SEQUENCE)")
 LDFLAGS+=-L/usr/lib -lm
 CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
   -Wstrict-prototypes -fPIC
