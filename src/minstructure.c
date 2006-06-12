@@ -140,7 +140,7 @@ minimizeStructureGradient(struct configuration *p)
             p->gradient[i] *= 1e6; // convert uN to pN
         }
         if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE) && DEBUG(D_GRADIENT_COMPARISON)) { // -D4
-            struct xyz offset = { 0.0, 10.0, 20.0 };
+            struct xyz offset = { 10.0, 0.0, 0.0 };
             
             forces = (struct xyz *)p->gradient;
             for (i=0; i<Part->num_atoms; i++) {
@@ -376,6 +376,18 @@ minimizeStructure(struct part *part)
 	initial->coordinate[j++] = part->positions[i].z;
     }
 
+#ifdef TORSION_DEBUG
+    double theta;
+    for (theta=0.0; theta<Pi; theta+=Pi/180.0) {
+        initial->coordinate[j-2] = 50.0 * sin(theta);
+        initial->coordinate[j-1] = 50.0 * cos(theta);
+        evaluateGradient(initial);
+        free(initial->gradient);
+        initial->gradient = NULL;
+    }
+    exit(0);
+#endif
+    
     final = minimize(initial, &iter, NumFrames * 100);
 
     if (final != NULL) {

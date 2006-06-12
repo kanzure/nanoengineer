@@ -169,6 +169,8 @@ renderObject(struct Object *o)
   }
 }
 
+static int previousFrame = -1;
+
 static void
 renderFrame(void)
 {
@@ -182,7 +184,10 @@ renderFrame(void)
       renderObject(o);
       o++;
     }
-    printf("%d: %s\n", currentFrame, o->u.frame.s);
+    if (currentFrame != previousFrame) {
+      printf("%d: %s\n", currentFrame, o->u.frame.s);
+      previousFrame = currentFrame;
+    }
   }
 }
 
@@ -303,7 +308,7 @@ keypress(XEvent *event)
     break;
     
   default:
-    fprintf(stderr, "keypress: 0x%x, 0x%x\n", (unsigned int)key, modifiers);
+    //fprintf(stderr, "keypress: 0x%x, 0x%x\n", (unsigned int)key, modifiers);
     break;
   }
   repaint();
