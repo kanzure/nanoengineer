@@ -150,10 +150,10 @@ class NanoBuildBase:
             system("cp -r %s ." % os.path.join(self.sourceDirectory, "sim"))
         elif not self.cvsTag:
             system('cvs -Q -z9 checkout -l cad/doc')
-            system('cvs -Q -z9 checkout -P cad/src cad/images sim cad/partlib')
+            system('cvs -Q -z9 checkout -P cad/src cad/plugins cad/images sim cad/partlib')
         else:
             system('cvs -Q -z9 checkout -r %s -l cad/doc' % self.cvsTag)
-            system('cvs -Q -z9 checkout -r %s -R cad/src cad/images sim cad/partlib' % self.cvsTag)
+            system('cvs -Q -z9 checkout -r %s -R cad/src cad/plugins cad/images sim cad/partlib' % self.cvsTag)
 
         # Remove all those 'CVS' directories and their entries.
         self.removeCVSFiles('cad')
@@ -170,10 +170,17 @@ class NanoBuildBase:
         print "----------Simulators (standalone and pyrex) have been built.\n"
 
     def buildOpenGLAccelerator(self):
-        """Checkout source code from cvs for the release """
         os.chdir(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl'))
         system('make')
         print "----------Brad G's OpenGL accelerator has been built.\n"
+
+    PLUGINS = ['CoNTub']
+
+    def buildPlugins(self):
+        for p in self.PLUGINS:
+            os.chdir(os.path.join(self.atomPath, os.path.join('cad', 'plugins', p)))
+            system('make')
+        print "---------- Plugins has been built.\n"
 
     def buildTarball(self):
         # only needed for Linux
@@ -184,11 +191,12 @@ class NanoBuildBase:
         and link C code."""
         self.buildSimulator()
         self.buildOpenGLAccelerator()
+        self.buildPlugins()
         os.chdir(os.path.join(self.atomPath,'cad'))
-        # copytree doc, partlib, images
         copytree('doc', os.path.join(self.buildSourcePath, 'doc'))
         copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
         copytree('images', os.path.join(self.buildSourcePath, 'images'))
+        copytree('plugins', os.path.join(self.buildSourcePath, 'plugins'))
 
         self.binPath = binPath = os.path.join(self.buildSourcePath, 'bin')
         os.mkdir(binPath)
@@ -572,6 +580,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         """Pack source together for distribution (all platforms)."""
         self.buildSimulator()
         self.buildOpenGLAccelerator()
+        self.buildPlugins()
         #
         #
         os.chdir(self.currentPath)
@@ -598,6 +607,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         # directories and files. Put a symbolic link to it from the normal
         # location inside the bundle.
         copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
+        copytree('plugins', os.path.join(self.buildSourcePath, 'plugins'))
         system('(cd %s; ln -s ../../partlib .)' %
                os.path.join(self.buildSourcePath, appname, 'Contents'))
         #
