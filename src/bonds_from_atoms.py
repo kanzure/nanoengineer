@@ -22,7 +22,7 @@ History:
 # perhaps plus some extra too-long bonds at the end, if permitted by valence.
 
 from VQT import vlen, pi
-from bonds import bonded, bond_atoms_faster, V_SINGLE
+from bonds import bonded, bond_atoms_faster, V_SINGLE, neighborhoodGenerator
 from chem import atom_angle_radians
 
 # constants; angles are in radians
@@ -32,8 +32,9 @@ degrees = pi / 180
 TET_ANGLE = 109.4 * degrees   #e this will probably need to be generalized for non-sp3 atoms
 MIN_BOND_ANGLE = 40 * degrees # accepts moderately distorted three-membered rings
 ANGLE_ACCEPT_DIST = 0.9       # ignore angle cutoff below this distance (in Angstroms)
-MAX_DIST_RATIO = 2.0          # prohibit bonds more than twice their proper length
-DIST_COST_FACTOR = 5.0        # multipler on square of distance-ratio beyond optimal
+MIN_DIST_RATIO = 0.8          # prohibit bonds too much shorter than their proper length
+MAX_DIST_RATIO = 1.2          # prohibit bonds too much longer than their proper length
+DIST_COST_FACTOR = 5.0        # multiplier on square of distance-ratio beyond optimal
 
 # (utilities used by contributed code, defined differently for nE-1)
 
@@ -79,7 +80,11 @@ def bondable_atm(atom): # coded differently for nE-1 due to open bonds
     #e len(atom.bonds) would be faster but would not ignore open bonds;
     # entire alg could be recoded to avoid ever letting open bonds exist,
     # and then this could be speeded up.
-    return len(atom.realNeighbors()) < max_atom_bonds(atom)
+    #return len(atom.realNeighbors()) < max_atom_bonds(atom)
+
+    # We aren't handling higher-order atomtypes well enough to rule out
+    # bonds in this way. So always say yes, for now.  -wware 060613
+    return True
 
 def bond_angle_cost(angle, accept):
     """Return the cost of the given angle, or None if that cost is infinite.
@@ -186,15 +191,20 @@ def list_potential_bonds(atmlist0):
     """
     atmlist = filter( bondable_atm, atmlist0 )
     lst = []
-    n = len(atmlist) # change from contributed code: use nondestructive scan of atmlist (faster in Python)
-    for i in xrange(n-1):
-        atm1 = atmlist[i]
-        for j in xrange(i+1,n):
-            atm2 = atmlist[j]
-            # i.e. for each pair (atm1, atm2) of bondable atoms
-            cost = bond_cost(atm1, atm2)
-            if cost is not None:
-                lst.append((cost, atm1, atm2))
+    maxBondLength = 2.0
+    neighborhood = neighborhoodGenerator(atmlist, maxBondLength)
+    for atm1 in atmlist:
+        key1 = atm1.key
+        pos1 = atm1.posn()
+        radius1 = atm1.atomtype.rcovalent
+        for atm2 in neighborhood(pos1):
+            bondLen = vlen(pos1 - atm2.posn())
+            idealBondLen = radius1 + atm2.atomtype.rcovalent
+            if atm2.key < key1 and MIN_DIST_RATIO * idealBondLen < bondLen < MAX_DIST_RATIO * idealBondLen:
+                # i.e. for each pair (atm1, atm2) of bondable atoms
+                cost = bond_cost(atm1, atm2)
+                if cost is not None:
+                    lst.append((cost, atm1, atm2))
     lst.sort() # least cost first
     return lst
 
@@ -248,8 +258,7 @@ def make_bonds(atmlist):
 
 # ==
 
-# I'm not sure what Bruce intended here, this looks like the closest existing thing.  -Will 061306
-
+# I'm not sure what Bruce intended here, this looks like the closest existing thing.  -Will 060613
 #import env
 #from env import register_command ###IMPLEM and maybe move
 import debug
