@@ -214,6 +214,7 @@ sphereList = []
 numSphereSizes = 3
 CylList = diamondGridList = CapList = CubeList = solidCubeList = lineCubeList = None
 rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = SiCGridList = None
+surfaceList = None
 
 # grantham 20051118; revised by bruce 051126
 class glprefs:
@@ -577,6 +578,20 @@ def drawcylinder_worker(params):
 
     glPopMatrix()
 
+    return
+
+def drawsurface_worker(params):
+    """Draw a surface.  Receive parameters through a sequence so that this
+    function and its parameters can be passed to another function for
+    deferment.  Right now this is only ColorSorter.schedule (see below)"""
+
+    (pos, radius, detailLevel) = params
+    detailLevel = 2
+    glPushMatrix()
+    glTranslatef(pos[0], pos[1], pos[2])
+    glScale(radius[0],radius[1],radius[2])
+    glCallList(surfaceList)
+    glPopMatrix()
     return
 
 # 20060208 grantham - The following classes, ShapeList_inplace, ShapeList and
@@ -1016,6 +1031,15 @@ class ColorSorter:
 
     schedule_cylinder = staticmethod(schedule_cylinder)
 
+    def schedule_surface(color, pos, radius, detailLevel):
+        """\
+        Schedule a surface for rendering whenever ColorSorter thinks is
+        appropriate.
+        """
+        ColorSorter.schedule(color, drawsurface_worker, (pos, radius, detailLevel))
+
+    schedule_surface = staticmethod(schedule_surface)
+
 
     def start():
         """\
@@ -1150,6 +1174,7 @@ def setup():
     global sphereList, rotSignList, linearLineList, linearArrowList
     global circleList, lonsGridList, lonsEdges, lineCubeList, SiCGridList
     global use_c_renderer_pref
+    global surfaceList
 
     listbase = glGenLists(numSphereSizes + 22)
     if debug_displaylist_alloc:
@@ -1196,7 +1221,21 @@ def setup():
     glEnd()
     glEndList()
     
-    CylList = listbase + numSphereSizes + 1
+    surfaceList = wiresphere1list + 1
+    glNewList(surfaceList, GL_COMPILE)
+    glBegin(GL_TRIANGLES)
+    ocdec = getSphereTriangles(3)
+    for tri in ocdec:
+        glNormal3fv(tri[0])
+        glVertex3fv(tri[0])
+        glNormal3fv(tri[1])
+        glVertex3fv(tri[1])
+        glNormal3fv(tri[2])
+        glVertex3fv(tri[2])
+    glEnd()
+    glEndList()
+
+    CylList = listbase + numSphereSizes + 2
     glNewList(CylList, GL_COMPILE)
     glBegin(GL_TRIANGLE_STRIP)
     for (vtop, ntop, vbot, nbot) in cylinderEdges:
@@ -1556,6 +1595,11 @@ def drawcylinder(color, pos1, pos2, radius, capped=0):
             return
     ColorSorter.schedule_cylinder(color, pos1, pos2, radius, capped)
 
+def drawsurface(color, pos, radius, detailLevel):
+    """Schedule a surface for rendering whenever ColorSorter thinks is
+    appropriate."""
+    ColorSorter.schedule_surface(color, pos, radius, detailLevel)
+    
 def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
     """Draw a line from pos1 to pos2 of the given color.
     If dashEnabled is True, it will be dashed.
@@ -2230,6 +2274,21 @@ def drawcylinder_wireframe(color, end1, end2, radius): #bruce 060608
     glEnable(GL_LIGHTING)
     glPolygonMode(GL_FRONT, GL_FILL)
     glPolygonMode(GL_BACK, GL_FILL) # could probably use GL_FRONT_AND_BACK
+    return
+
+def drawsurface_wireframe(color, pos, radius): 
+    glPolygonMode(GL_FRONT, GL_LINE)
+    glPolygonMode(GL_BACK, GL_LINE)
+    glDisable(GL_LIGHTING)
+    glDisable(GL_CULL_FACE) 
+    try:
+        drawsurface(color, pos, radius, 2) 
+    except:
+        debug.print_compact_traceback("bug, ignored: ")
+    glEnable(GL_CULL_FACE)
+    glEnable(GL_LIGHTING)
+    glPolygonMode(GL_FRONT, GL_FILL)
+    glPolygonMode(GL_BACK, GL_FILL) 
     return
 
 #end
