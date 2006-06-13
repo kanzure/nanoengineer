@@ -14,7 +14,7 @@ bruce 050901 used env.history in some places.
 import os
 from chunk import molecule
 from chem import atom
-from bonds import inferBonds
+from bonds import bond_atoms, inferBonds
 from string import capitalize
 from elements import PeriodicTable, Singlet
 from platform import fix_plurals

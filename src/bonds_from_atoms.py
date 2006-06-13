@@ -120,9 +120,9 @@ def atm_angle_cost(atm1, atm2):
 
 covrad_table = dict( [
     # from webelements.com (via contributed code)
-    ('H'  0.37),
-    ('C'  0.77), ('N' 0.75), ('O' 0.73), ('F'  0.72),
-    ('Si' 1.11), ('P' 1.06), ('S' 1.02), ('Cl' 0.99),
+    ('H',  0.37),
+    ('C',  0.77), ('N', 0.75), ('O', 0.73), ('F',  0.72),
+    ('Si', 1.11), ('P', 1.06), ('S', 1.02), ('Cl', 0.99),
  ])
 
 def covalent_radius(atm):
@@ -239,8 +239,7 @@ def make_bonds(atmlist):
                     curr = next
                 assert curr[1] is next #e remove when works
                 # insert entry after curr, before next
-                curr[1] = entry
-                entry[1] = next
+                curr[1] = [entry, next]
             pass
         pass
     return res
@@ -249,8 +248,12 @@ def make_bonds(atmlist):
 
 # ==
 
-import env
-from env import register_command ###IMPLEM and maybe move
+# I'm not sure what Bruce intended here, this looks like the closest existing thing.  -Will 061306
+
+#import env
+#from env import register_command ###IMPLEM and maybe move
+import debug
+from debug import register_debug_menu_command
 
 def remake_bonds_in_selection( selection ):
     """Remake all bonds between selected atoms (or between atoms in selected chunks),
@@ -298,6 +301,7 @@ def remake_bonds_in_selection( selection ):
     # even if nothing changed at all.
     return
 
-register_command( "Remake bonds", remake_bonds_in_selection ) ###IMPLEM, and have it add in the initial history message
+#register_command( "Remake bonds", remake_bonds_in_selection ) ###IMPLEM, and have it add in the initial history message
+register_debug_menu_command( "Remake bonds", remake_bonds_in_selection ) ###IMPLEM, and have it add in the initial history message
 
 #end
