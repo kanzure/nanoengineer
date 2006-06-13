@@ -63,12 +63,23 @@ _down_arrow_data = \
     "\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class GroupButtonMixin:
+    """Mixin class for providing the method toggle_groupbox,
+    suitable as part of a slot method for toggling the state of a dialog GroupBox.
+    (Current implementation uses open/close icons which are only suitable
+     for the Windows style, on any platform.)
+    """#bruce 060613 added this docstring (and the one below) after skimming Will's code...
+    # Will, can you review it for correctness, fix any errors, and then remove this comment?
+    # BTW, I have code for the Mac style which I will at some point integrate into this.
     _up_arrow = QPixmap()
     _up_arrow.loadFromData(_up_arrow_data)
     _down_arrow = QPixmap()
     _down_arrow.loadFromData(_down_arrow_data)
 
     def toggle_groupbox(self, button, *things):
+        """This is intended to be part of the slot method for clicking on an open/close icon
+        of a dialog GroupBox. The arguments should be the button (whose icon will be altered here)
+        and the child widgets in the groupbox whose visibility should be toggled.
+        """
         if things[0].isShown():
             button.setIconSet(QIconSet(self._down_arrow))
             for thing in things:
@@ -87,21 +98,24 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     complicated enough to put it in one place, so that individual
     generators can focus on what they need to do. As much as possible,
     the individual generator should not need to worry about the GUI.
-    """
+       Note: this superclass sets and maintains some attributes in self,
+    including win, struct, previousParams, _just_updating.
+    """#k bruce 060613 added the note about the attrs it sets in self -- is it correct & complete?
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         self.win = win
         self.struct = None
         self.previousParams = None
-        self._just_updating = True
+        self._just_updating = True #k what does this attribute mean? [bruce 060613 question]
         SponsorableMixin.__init__(self)
 
     def build_struct(self):
         '''Build the structure in question. This is an abstract method
         and must be overloaded in the specific generator. The return
-        value should be the structure, i.e. some flavor of a Node.
-        '''
+        value should be the structure, i.e. some flavor of a Node,
+        which has not yet been added to the model.
+        '''#k bruce 060613 added "which has not yet been added to the model" -- is this correct?
         raise AbstractMethod()
 
     def remove_struct(self):
@@ -110,8 +124,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
             if platform.atom_debug: print 'Yes, remove it'
             self.struct.kill()
             self.struct = None
-            self.win.win_update()
-            self.win.mt.mt_update()
+            self.win.win_update() # includes mt_update
         else:
             if platform.atom_debug: print 'No structure to remove'
 
@@ -126,7 +139,6 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
             if platform.atom_debug: raise
         QApplication.restoreOverrideCursor() # Restore the cursor
         self.win.win_update()
-        self.win.mt.mt_update()
 
     def gather_parameters(self):
         '''Return a tuple of the current parameters. This is an
