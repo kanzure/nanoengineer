@@ -346,6 +346,24 @@ def find_or_make_Nanorex_subdir(subdir):
             print_compact_traceback("exception in creating directory: \"%s\"" % nanorex_subdir)
 
     return nanorex_subdir
+
+def find_or_make_partfiles_subdir(assy): # Mark 060612.
+    """Find or make the "part files" subdirectory next to the current assy (MMP file).
+    Returns the full path of the "part files" directory whether it already exists or was made here.
+    """
+    #&&& Need to worry about the situation when the user hasn't saved the MMP file (i.e. Untitled).
+    #&&& Talk to Bruce about this. Mark 060612.
+    partfiles_name = assy.name + " Files"
+    partfiles_dir  = os.path.join(assy.get_cwd(), partfiles_name)
+    
+    if not os.path.exists(partfiles_dir):
+        from debug import print_compact_traceback
+        try:
+            os.mkdir(partfiles_dir)
+        except:
+            print_compact_traceback("exception in creating directory: \"%s\"" % partfiles_dir)
+
+    return partfiles_dir
     
 def make_history_filename():
     """[private method for history init code]
