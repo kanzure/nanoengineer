@@ -1,0 +1,78 @@
+This is Nanorex's modified version of the CoNTub source code written
+by S. Melchor and J. Dobado at the Universidad de Granada in Spain.
+Citations of this work should be formatted as follows:
+
+  "CoNTub: an algorithm for connecting two arbitrary carbon
+  nanotubes." S. Melchor; J.A. Dobado. Journal of Chemical Information
+  and Computer Sciences, 44, 1639-1646 (2004)
+
+Nanorex's modifications include translation from Java to C++ and
+performance improvement in bond inference.
+
+There are three executables. You can build them by typing "make" in
+this directory. This should work on any of the three platforms.
+
+Where arguments below are specified as floats, they are C/C++ double
+precision floats. Integers are 32-bit signed, though in all cases
+they use a much smaller range of values.
+
+--------------------------------------------
+I. Single-wall nanotubes
+
+The SW executable (SW.exe on Windows) generates single-wall nanotubes.
+It takes the following command line arguments. All six are mandatory.
+
+    SW <n> <m> <L> <T> <I> <filename>
+
+n is an integer, the n number for chirality.
+m is an integer, the m number for chirality.
+L is a float, the tube's length in angstroms.
+T is termination: 0 for no termination
+                  1 for termination with hydrogen
+                  7 for termination with nitrogen
+I is an integer, the index used for the molecule name in the
+   model tree.
+filename is the name for the output file.
+
+--------------------------------------------
+II. Multi-wall nanotubes
+
+The MW executable (MW.exe on Windows) generates multi-wall nanotubes.
+It takes the following command line arguments. All eight are
+mandatory.
+
+    MW <n> <m> <L> <N> <S> <T> <I> <filename>
+
+n is an integer, the n number for chirality.
+m is an integer, the m number for chirality.
+L is a float, the tube's length in angstroms.
+N is an integer, the number of shells or walls.
+S is the separation between shells in angstroms.
+T is termination: 0 for no termination
+                  1 for termination with hydrogen
+                  7 for termination with nitrogen
+I is an integer, the index used for the molecule name in the
+   model tree.
+filename is the name for the output file.
+
+--------------------------------------------
+III. Heterojunctions
+
+The HJ executable (HJ.exe on Windows) generates nanotube
+heterojunctions. It takes the following command line arguments. All
+nine are mandatory.
+
+    HJ <n1> <m1> <L1> <n2> <m2> <L2> <T> <I> <filename>
+
+n1 is an integer, the n number for chirality at one end.
+m1 is an integer, the m number for chirality at one end.
+L1 is a float, the tube's length in angstroms at one end.
+n2 is an integer, the n number for chirality at the other end.
+m2 is an integer, the m number for chirality at the other end.
+L2 is a float, the tube's length in angstroms at the other end.
+T is termination: 0 for no termination
+                  1 for termination with hydrogen
+                  7 for termination with nitrogen
+I is an integer, the index used for the molecule name in the
+   model tree.
+filename is the name for the output file.
