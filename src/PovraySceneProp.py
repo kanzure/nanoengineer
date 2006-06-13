@@ -12,7 +12,7 @@ mark 060602 - Created for NFR: "Insert > POV-Ray Scene". Went to school on Will\
 '''
 __author__ = "Mark"
 
-from qt import QDoubleValidator, SIGNAL
+from qt import QDoubleValidator, SIGNAL, QDialog
 from PovrayScenePropDialog import PovrayScenePropDialog
 from GeneratorBaseClass import GeneratorBaseClass
 from HistoryWidget import greenmsg
@@ -43,22 +43,33 @@ class PovraySceneProp(GeneratorBaseClass, PovrayScenePropDialog):
     def _create_new_name(self):
         pass
 
-    def show(self):
+    def show(self, pvs=None):
+        '''Show the Properties Manager dialog. If <pvs> is supplied, get the parameters from
+        it and load the dialog widgets.
+        '''
         import Utility
-        self.maintain_aspect_ratio_checkbox.setChecked(False)
+        self.maintain_aspect_ratio_checkbox.setChecked(False) # Needed. Mark 060612.
 
-        # HERE is where we create the new name, we need it early so we can
-        # put it in the name_linedit. Nobody else needs something like that.
-        self._ViewNum = Utility.ViewNum
-        self.name = genViewNum(self.prefix)
+        if pvs:
+            self.name, self.width, self.height, self.output_type = pvs.get_parameters()
+            self.struct = pvs
+        else:
+            # HERE is where we create the new name, we need it early so we can
+            # put it in the name_linedit. Nobody else needs something like that.
+            #if not self.name:
+            self._ViewNum = Utility.ViewNum
+            self.name = genViewNum(self.prefix)
+            self.width = int(self.glpane.width)
+            self.height = int(self.glpane.height)
+            self.output_type = 'PNG'
 
         self.name_linedit.setText(self.name)
-        self.width = width = int(self.glpane.width)
-        self.height = height = int(self.glpane.height)
-        self.image_format_combox.setCurrentText('PNG')
-        self.width_spinbox.setValue(width) # Generates signal.
-        self.height_spinbox.setValue(height) # Generates signal.
+        self.image_format_combox.setCurrentText(self.output_type.upper())
+        self.width_spinbox.setValue(self.width) # Generates signal.
+        self.height_spinbox.setValue(self.height) # Generates signal.
+        self.maintain_aspect_ratio_checkbox.setChecked(True)
         self.update_aspect_ratio()
+        self.previousParams = self.gather_parameters()
         PovrayScenePropDialog.show(self)
         
     def gather_parameters(self):
@@ -71,12 +82,31 @@ class PovraySceneProp(GeneratorBaseClass, PovrayScenePropDialog):
         return (name, width, height, output_type)
 
     def build_struct(self, params):
-        name, width, height, output_type = params
+        if self.pvs: self.action = 'added'
+        else: self.action = 'updated'
+        
         from PovrayScene import PovrayScene
-        self.pvs = pvs = PovrayScene(self.win.assy, params, name)
-        self.action = 'added'  # or 'updated'
-        pvs.render_image()
+        self.pvs = pvs = PovrayScene(self.win.assy, params)
         return pvs
+    
+    def preview_btn_clicked(self):
+        '''Overrides GeneratorBaseClass.preview_btn_click().
+        '''
+        self.remove_struct()
+        params = self.gather_parameters()
+        self.struct = self.build_struct(params)
+        self.win.assy.addnode(self.struct)
+        self.win.win_update() # includes mt_update
+        self.struct.render_image()
+        
+    def cancel_btn_clicked(self):
+        '''Overrides GeneratorBaseClass.cancel_btn_clicked().
+        '''
+        if self.struct:
+            self.struct.set_parameters(self.previousParams)
+            QDialog.accept(self)
+        else:
+            GeneratorBaseClass.cancel_btn_clicked(self)
     
 # Property manager widget slots.
 

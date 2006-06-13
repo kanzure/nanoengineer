@@ -116,7 +116,7 @@ def write_povray_ini_file(povray_ini_fname, povray_scene, width, height, output_
     if povray_exe == 'megapov.exe':
         # Needed when program='megapov.exe', but not pvengine.exe or mgengine.exe. 
         # megapov.exe provides a way to render a scene without invoking the POV-Ray GUI on Windows.
-        # megapov.exe may be the way to go on Windows when I figure out how to direct output
+        # megapov.exe may be the way to go on Windows when someone figures out how to direct output
         # to the GLPane or a separate window. Mark 060529.
         povray_libpath  = os.path.normpath(os.path.join(povray_dir, "include"))
     else:
@@ -140,13 +140,11 @@ def write_povray_ini_file(povray_ini_fname, povray_scene, width, height, output_
 def get_raytrace_scene_filenames(assy, basename):
     '''Given <assy> and <basename>, returns a POV-Ray .ini and a .pov pathname.
     The caller can use these to write a POV-Ray INI file and the POV-Ray Scene file.
-    This creates the 'povray' subdirectory in the assy's current working directory.
-    For example, get_raytrace_scene_filename("POV-Ray Scene-") ==> ('./povray/POV-Ray Scene-1.pov').
+    For example, get_raytrace_scene_filename("POV-Ray Scene-1") returns
+    './Partname Files/POV-Ray Files/POV-Ray Scene-1.pov' as the .pov path.
     '''
     if basename:
-        #from platform import find_or_make_Nanorex_subdir
-        #povray_dir = find_or_make_Nanorex_subdir("POV-Ray")
-        povray_dir = find_or_make_povray_subdir(assy, "povray")
+        povray_dir = find_or_make_povray_subdir(assy)
         ini_filename = "nanoENGINEER-1_raytrace_scene.ini"
             # Critically important: The INI filename cannot have any whitespace characters. Mark 060602.
         povray_ini = os.path.normpath(os.path.join(povray_dir, ini_filename))
@@ -155,12 +153,14 @@ def get_raytrace_scene_filenames(assy, basename):
         return povray_ini, povray_scene
     else:
         return None
-        
-def find_or_make_povray_subdir(assy, subdir):
-    """Find or make a subdirectory next to the current assy.
-    Return the full path of the povray subdirectory whether it already exists or was made here.
+
+def find_or_make_povray_subdir(assy):
+    """Find or make the "POV-Ray files" subdirectory under the part files directory.
+    Returns the full path of the "POV-Ray files" directory whether it already exists or was made here.
     """
-    povray_subdir  = os.path.join(assy.get_cwd(), subdir)
+    from platform import find_or_make_partfiles_subdir
+    partfiles_dir = find_or_make_partfiles_subdir(assy)
+    povray_subdir  = os.path.join(partfiles_dir, "POV-Ray Scene Files")
     
     if not os.path.exists(povray_subdir):
         from debug import print_compact_traceback

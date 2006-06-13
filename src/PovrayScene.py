@@ -27,15 +27,13 @@ class PovrayScene(SimpleCopyMixin, Node):
 
     #copyable_attrs = Node.copyable_attrs + ... # Need to talk with Bruce about this. Mark 060602.
 
-    def __init__(self, assy, params, name=None):
+    def __init__(self, assy, params):
         self.assy = assy
         self.set_parameters(params)
         self.const_icon = imagename_to_pixmap("povrayscene.png")
-        if not self.name:
-            if name != None:
-                self.name = name
-            else:
-                self.name = genViewNum("%s-" % self.sym)
+        if not self.name: 
+            # Name is only generated here when called by "View > Raytrace Scene": ops_view.viewRaytraceScene().
+            self.name = genViewNum("%s-" % self.sym)
         Node.__init__(self, assy, self.name)
         return
         
@@ -61,7 +59,7 @@ class PovrayScene(SimpleCopyMixin, Node):
     
     def edit(self):
         "Opens POV-Ray Scene dialog with current parameters."
-        self.assy.w.povrayscenecntl.setup(self)
+        self.assy.w.povrayscenecntl.show(self)
         
     def writemmp(self, mapping):
         mapping.write("povrayscene (" + mapping.encode_name(self.name) + ") %d %d %s\n" % \
@@ -112,16 +110,21 @@ class PovrayScene(SimpleCopyMixin, Node):
         '''Method for "Render Image" context menu.'''
         self.render_image(use_existing_pvs=True)
 
-    def __CM_Display_Image(self):
-        '''Method for "Display Image" context menu. Try to display the
-        image by any means available.'''
-        # What if it's not a PNG? It could be a BMP.
-        fn = '\'' + self.get_pvs_filename().replace('.pov', '.png') + '\''
-        if os.system('display ' + fn) == 0:
-            return
-        if os.system('xv ' + fn) == 0:
-            return
-        cmd = greenmsg("Display POV-Ray Scene: ")
-        env.history.message(cmd + redmsg('No image display program available'))
+    # "Display Image" removed. POV-Ray Scene files can be used to render an image; they are not images 
+    # themselves, nor do they have any association with the image files they create. 
+    # Creating an image from a POV-Ray Scene file will create an "Image" node. 
+    # An Image node will likely have a "Display..." context menu allowing the user to open the image in a separate window.
+    # - Mark 060612.
+    #def __CM_Display_Image(self):
+    #   '''Method for "Display Image" context menu. Try to display the
+    #    image by any means available.'''
+    #    # What if it's not a PNG? It could be a BMP.
+    #    fn = '\'' + self.get_pvs_filename().replace('.pov', '.png') + '\''
+    #    if os.system('display ' + fn) == 0:
+    #        return
+    #    if os.system('xv ' + fn) == 0:
+    #        return
+    #    cmd = greenmsg("Display POV-Ray Scene: ")
+    #    env.history.message(cmd + redmsg('No image display program available'))
 
     pass # end of class PovrayScene
