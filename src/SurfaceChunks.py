@@ -20,6 +20,234 @@ from constants import ave_colors
 from prefs_constants import atomHighlightColor_prefs_key
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
+class Interval: 
+
+    def __init__(self, *args):
+        """interval constructor"""
+        self.min = 0
+        self.max = 0
+        if len(args) == 0:
+            pass
+        if len(args) == 2:
+            self.min, self.max = args
+    def __str__(self):
+        """returns the interval in a textual form"""
+        s = ""
+        s += "%s " % self.min
+        s += "%s " % self.max
+        return s
+        
+    def Empty(self):
+        """clear interval"""
+        self.min = 1000000   
+        self.max = -1000000   
+
+    def Center(self):
+        """calculate center"""
+        return (self.max + self.min) / 2   
+  
+    def Extent(self):
+        """calculate extent"""
+        return (self.max - self.min) / 2   
+
+    def Point(self, u):
+        """calculate point"""
+        return (1 - u) * self.min + u * self.max  
+
+    def Normalize(self, u):
+        """normalization"""
+        return (u - self.min) / (self.max - self.min)  
+
+    def Contains(self, p):
+        """interval contains point"""
+        return p >= self.min and p <= self.max  
+
+    def Enclose(self, p):
+        """adjust interval"""
+        if (p < self.min): 
+            self.min = p;
+        if (p > self.max): 
+            self.max = p;
+
+class Box: 
+
+    def __init__(self, *args):
+        """box constructor"""
+        self.x = Interval()
+        self.y = Interval()       
+        self.z = Interval()      
+        if len(args) == 0:
+            pass
+        if len(args) == 3:
+            self.x, self.y, self.z = args
+ 
+    def __str__(self):
+        """returns the box in a textual form"""
+        s = ""
+        s += "%s " % self.x
+        s += "%s " % self.y
+        s += "%s " % self.z
+        return s
+        
+    def Empty(self):
+        """clear box"""
+        self.x.Empty()   
+        self.y.Empty()  
+        self.z.Empty()          
+
+    def Center(self):
+        """calculate center"""
+        return Triple(self.x.Center(),self.y.Center(),self.z.Center())
+    
+    def Min(self):
+        """calculate min"""
+        return Triple(self.x.min,self.y.min,self.z.min)
+
+    def Max(self):
+        """calculate max"""
+        return Triple(self.x.max,self.y.max,self.z.max)
+
+    def Extent(self):
+        """calculate extent"""
+        return Triple(self.x.Extent(),self.y.Extent(),self.z.Extent())
+
+    def Contains(self, p):
+        """box contains point"""
+        return self.x.Contains(p.x) and self.y.Contains(p.y) and self.z.Contains(p.z)  
+
+    def Enclose(self, p):
+        """adjust box"""
+        self.x.Enclose(p.x)
+        self.y.Enclose(p.y)
+        self.z.Enclose(p.z)
+        
+class Triple:
+
+    def __init__(self, *args):
+        """vector constructor"""
+        self.x = 0
+        self.y = 0
+        self.z = 0
+        if len(args) == 0:
+            pass
+        if len(args) == 1:
+            if isinstance(args[0], types.InstanceType):
+                self.x = args[0].x
+                self.y = args[0].y
+                self.z = args[0].z
+            elif isinstance(args[0], types.ListType):
+                self.x = args[0][0]
+                self.y = args[0][1]
+                self.z = args[0][2]
+            else:    
+                self.x = args[0]
+                self.y = args[0]
+                self.z = args[0]
+        if len(args) == 2:
+            self.x = args[1][0] - args[0][0]
+            self.y = args[1][1] - args[0][1]
+            self.z = args[1][2] - args[0][2]
+        if len(args) == 3:
+            self.x, self.y, self.z = args 
+
+    def __str__(self):
+        """returns the triple in a textual form"""
+        s = ""
+        s += "%s " % self.x
+        s += "%s " % self.y
+        s += "%s " % self.z
+        return s
+        
+    def Len2(self):
+        """square of vector length"""
+        return self.x * self.x + self.y * self.y + self.z * self.z    
+
+    def Len(self):
+        """vector length"""
+        return math.sqrt(self.Len2())
+    
+    def Normalize(self):
+        """normalizes vector to unit length"""
+        length = self.Len();
+        self.x /= length
+        self.y /= length
+        self.z /= length
+        return self    
+
+    def Greatest(self):
+        """calculate greatest value"""
+        if self.x > self.y:
+            if self.x > self.z:
+                return self.x
+            else:
+                return self.z
+        else:    
+            if self.y > self.z:
+                return self.y
+            else:
+                return self.z  
+
+    def __add__( self, rhs ):
+        """operator a + b"""
+        t = Triple(rhs)
+        return Triple(self.x + t.x, self.y + t.y, self.z + t.z)
+    
+    def __radd__( self, lhs ):
+        """operator b + a"""
+        t = Triple(lhs)
+        t.x += self.x
+        t.y += self.y
+        t.z += self.z
+        return t    
+
+    def __sub__( self, rhs ):
+        """operator a - b"""
+        t = Triple(rhs)
+        return Triple(self.x - t.x, self.y - t.y, self.z - t.z)
+    
+    def __rsub__( self, lhs ):
+        """operator b - a"""
+        t = Triple(lhs)
+        t.x -= self.x
+        t.y -= self.y
+        t.z -= self.z
+        return t    
+
+    def __mul__( self, rhs ):
+        """operator a * b"""
+        t = Triple(rhs)
+        return Triple(self.x * t.x, self.y * t.y, self.z * t.z)    
+
+    def __rmul__( self, lhs ):
+        """operator b * a"""
+        t = Triple(lhs)
+        t.x *= self.x
+        t.y *= self.y
+        t.z *= self.z
+        return t    
+
+    def __div__( self, rhs ):
+        """operator a / b"""
+        t = Triple(rhs)
+        return Triple(self.x / t.x, self.y / t.y, self.z / t.z)
+    
+    def __rdiv__( self, lhs ):
+        """operator b / a"""
+        t = Triple(lhs)
+        t.x /= self.x
+        t.y /= self.y
+        t.z /= self.z
+        return t    
+
+    def __mod__( self, rhs ):
+        """operator a % b (scalar product)"""
+        r = self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+        return r    
+
+    def __neg__( self):
+        """operator -a"""
+        return Triple(-self.x, -self.y, -self.z)
+
 class SurfaceChunks(ChunkDisplayMode):
     "example chunk display mode, which draws the chunk as a surface, aligned to the chunk's axes, of the chunk's color"
     mmp_code = 'srf' # this must be a unique 3-letter code, distinct from the values in constants.dispNames or in other display modes
@@ -46,7 +274,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	"""
         if not chunk.atoms:
             return
-        end1, end2, radius, color = memo
+        pos, radius, color = memo
         if highlighted:
             color = ave_colors(0.5, color, env.prefs[chunkHighlightColor_prefs_key]) #e should the caller compute this somehow?
 	# THIS IS WHERE OLEKSANDR SHOULD CALL HIS NEW CODE TO RENDER THE SURFACE (NOT CYLINDER).
@@ -55,7 +283,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	# (This method drawchunk will not be called on every frame, but it will usually be called much more often than compute_memo.)
 	#   For example, memo might contain a Pyrex object pointer to a C object representing some sort of mesh,
 	# which can be rendered quickly by calling a Pyrex method on it.
-        drawer.drawcylinder(color, end1, end2, radius, capped = True)
+        drawer.drawsurface(color, pos, radius, 2)
         return
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
         """Given the same arguments as drawchunk, plus selection_frame_color, draw the chunk's selection frame.
@@ -69,17 +297,14 @@ class SurfaceChunks(ChunkDisplayMode):
         """
         if not chunk.atoms:
             return
-        end1, end2, radius, color = memo
+        pos, radius, color = memo
         color = selection_frame_color
-        # make it a little bigger than the cylinder itself
-        axis = norm(end2 - end1)
+        # make it a little bigger than the sphere itself
         alittle = 0.01
-        end1 = end1 - alittle * axis
-        end2 = end2 + alittle * axis
         # THIS IS WHERE OLEKSANDR SHOULD RENDER A "SELECTED" SURFACE, OR (PREFERABLY) A SELECTION WIREFRAME
         # around an already-rendered surface.
         # (For a selected chunk, both this and drawchunk will be called -- not necessarily in that order.)
-        drawer.drawcylinder_wireframe(color, end1, end2, radius + alittle)
+        drawer.drawsurface_wireframe(color, pos, [radius[0] + alittle, radius[1] + alittle, radius[2] + alittle])
         return
     def compute_memo(self, chunk):
         """If drawing chunk in this display mode can be optimized by precomputing some info from chunk's appearance,
@@ -101,37 +326,24 @@ class SurfaceChunks(ChunkDisplayMode):
         # it's best to just use the axis and center, then recompute a bounding cylinder.
         if not chunk.atoms:
             return None
-        axis = chunk.axis
-        axis = norm(axis) # needed (unless we're sure it's already unit length, which is likely)
         center = chunk.center
-        points = chunk.atpos - center # not sure if basepos points are already centered
-        # compare following Numeric Python code to findAtomUnderMouse and its caller
-        matrix = geometry.matrix_putting_axis_at_z(axis)
-        v = dot( points, matrix)
-        # compute xy distances-squared between axis line and atom centers
-        r_xy_2 = v[:,0]**2 + v[:,1]**2
-        ## r_xy = sqrt(r_xy_2) # not needed
-
-        # to get radius, take maximum -- not sure if max(r_xy_2) would use Numeric code, but this will for sure:
-        i = argmax(r_xy_2)
-        max_xy_2 = r_xy_2[i]
-        radius = sqrt(max_xy_2)
-        # to get limits along axis (since we won't assume center is centered between them), use min/max z:
-        z = v[:,2]
-        min_z = z[argmin(z)]
-        max_z = z[argmax(z)]
+        points = chunk.atpos - center        
         bcenter = chunk.abs_to_base(center)
-        # return, in chunk-relative coords, end1, end2, and radius of the cylinder, and color.
+        #radius = 0.0
+        box = Box()
+        box.Empty()
+        for p in points:
+            pt = Triple(p[0], p[1], p[2])
+            box.Enclose(pt)
+            #r = p[0]**2+p[1]**2+p[2]**2
+            #if r > radius: radius = r
+        #radius = sqrt(radius)
+        margin = 0.2
+        radius = [box.Extent().x + margin, box.Extent().y + margin, box.Extent().z + margin]
         color = chunk.color
         if color is None:
             color = V(0.5,0.5,0.5)
-        # make sure it's longer than zero (in case of a single-atom chunk); in fact, add a small margin all around
-        # (note: this is not sufficient to enclose all atoms entirely; that's intentional)
-        margin = 0.2
-        min_z -= margin
-        max_z += margin
-        radius += margin
-        return (bcenter + min_z * axis, bcenter + max_z * axis, radius, color)
+        return (bcenter, radius, color)
     pass # end of class SurfaceChunks
 
 ChunkDisplayMode.register_display_mode_class(SurfaceChunks)
