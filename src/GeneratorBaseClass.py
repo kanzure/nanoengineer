@@ -65,11 +65,9 @@ _down_arrow_data = \
 class GroupButtonMixin:
     """Mixin class for providing the method toggle_groupbox,
     suitable as part of a slot method for toggling the state of a dialog GroupBox.
-    (Current implementation uses open/close icons which are only suitable
-     for the Windows style, on any platform.)
-    """#bruce 060613 added this docstring (and the one below) after skimming Will's code...
-    # Will, can you review it for correctness, fix any errors, and then remove this comment?
-    # BTW, I have code for the Mac style which I will at some point integrate into this.
+    (Current implementation uses open/close icons which look good on Linux and
+     Windows but don't look good on the Mac.)
+    """
     _up_arrow = QPixmap()
     _up_arrow.loadFromData(_up_arrow_data)
     _down_arrow = QPixmap()
@@ -100,14 +98,20 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     the individual generator should not need to worry about the GUI.
        Note: this superclass sets and maintains some attributes in self,
     including win, struct, previousParams, _just_updating.
-    """#k bruce 060613 added the note about the attrs it sets in self -- is it correct & complete?
+    """
 
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         self.win = win
         self.struct = None
         self.previousParams = None
-        self._just_updating = True #k what does this attribute mean? [bruce 060613 question]
+        # Regarding '_just_updating', Bruce asks: what does this mean?
+        # This is part of my attempt to handle Comment and PovraySceneProp,
+        # where the "Done" message could say that the object was either
+        # created or simply updated. It was a lot of trouble for a "Done"
+        # message, and I probably got it wrong, and it should probably be
+        # scrapped when we get our heads around the distinction.
+        self._just_updating = True
         SponsorableMixin.__init__(self)
 
     def build_struct(self):
@@ -115,7 +119,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         and must be overloaded in the specific generator. The return
         value should be the structure, i.e. some flavor of a Node,
         which has not yet been added to the model.
-        '''#k bruce 060613 added "which has not yet been added to the model" -- is this correct?
+        '''
         raise AbstractMethod()
 
     def remove_struct(self):
