@@ -126,6 +126,7 @@ from jigs_planes import *
 from jigs_motors import *
 from jigs_measurements import *
 from Utility import *
+from PovrayScene import *
 from Comment import Comment
 from povheader import povheader, povpoint # this might no longer be needed [bruce 050414 comment]
 from mdldata import * # this might no longer be needed [bruce 050414 comment]
@@ -172,6 +173,9 @@ gridplane_pat = re.compile("gridplane \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\
 ## esppat = re.compile("espimage \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
 #bruce 060207 generalize pattern so espwindow is also accepted (to help fix bug 1357); safe forever, but can be removed after A7
 esppat = re.compile("[a-z]* \((.+)\) \((\d+), (\d+), (\d+)\) (-?\d+\.\d+) (-?\d+\.\d+) (\d+) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) \((-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+), (-?\d+\.\d+)\) (-?\d+\.\d+) \((\d+), (\d+), (\d+)\) (\d+) (-?\d+\.\d+) (-?\d+\.\d+)")
+
+# POV-Ray Scene record format:
+pvs_pat = re.compile("povrayscene \((.+)\) (\d+) (\d+) (.+)")
 
 # atomset (name) (r, g, b) atom1 atom2 ... atom25 {up to 25}
 atmsetpat = re.compile("atomset \((.+)\) \((\d+), (\d+), (\d+)\)")
@@ -519,6 +523,20 @@ class _readmmp_state:
         as.name = name
         as.color = col
         self.addmember(as)
+        
+    # Read the MMP record for a POV-Ray Scene as:
+    # povrayscene (name) width height output_type
+
+    def _read_povrayscene(self, card):
+        m = pvs_pat.match(card)
+        name = m.group(1)
+        name = self.decode_name(name)
+        width = int(m.group(2)); height = int(m.group(3))
+        output_type = m.group(4)        
+        
+        params = name, width, height, output_type
+        pvs = PovrayScene(self.assy, params)
+        self.addmember(pvs)
     
     prevespimage = None
     def _read_espimage(self, card):
