@@ -151,6 +151,15 @@ def atm_distance_cost(atm1, atm2):
         return 0.01 + DIST_COST_FACTOR * (ratio - 1.0) ** 2 # quadratic penalty for long bonds
     pass
 
+_enegs = ['F', 'Cl', 'O', 'S', 'N', 'P']
+
+def bond_element_cost(atm1, atm2, _enegs=_enegs):
+    "Avoid bonding a pair of electronegative atoms"
+    if atm1.element.symbol in _enegs and atm2.element.symbol in _enegs:
+        return 1.0
+    else:
+        return 0.0
+
 def bond_cost(atm1, atm2):
     "Return total cost of hypothetical new bond between two atoms, or None if bond is not permitted or already there"
     if not (bondable_atm(atm1) and bondable_atm(atm2)): # check valence of existing bonds
@@ -163,7 +172,8 @@ def bond_cost(atm1, atm2):
     ac = atm_angle_cost(atm1, atm2)
     if ac is None:
         return None
-    return ac + dc
+    ec = bond_element_cost(atm1, atm2)
+    return ac + dc + ec
 
 def list_potential_bonds(atmlist0):
     """Given a list of atoms, return a list of triples (cost, atm1, atm2) for all bondable pairs of atoms in the list.

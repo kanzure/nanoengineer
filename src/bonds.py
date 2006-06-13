@@ -332,16 +332,8 @@ def inferBonds(mol):
                 removable[key2] = sing2
     for badGuy in removable.values():
         mol.delatom(badGuy)
-    neighborhood = neighborhoodGenerator(mol.atoms.values(), maxBondLength)
-    for atm1 in mol.atoms.values():
-        key1 = atm1.key
-        pos1 = atm1.posn()
-        radius1 = atm1.atomtype.rcovalent
-        for atm2 in neighborhood(pos1):
-            bondLen = vlen(pos1 - atm2.posn())
-            idealBondLen = radius1 + atm2.atomtype.rcovalent
-            if atm2.key < key1 and 0.8 * idealBondLen < bondLen < 1.2 * idealBondLen:
-                bond_atoms(atm1, atm2)
+    from bonds_from_atoms import make_bonds
+    make_bonds(mol.atoms.values())
 
 # ==
 
