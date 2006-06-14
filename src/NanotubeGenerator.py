@@ -211,11 +211,8 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.xydist = xydist = fetch('XY distortion', self.xy_distortion_linedit)
         self.spacing = spacing = fetch('spacing', self.mwcnt_spacing_linedit)
 
-        twist = (pi * self.twist_spinbox.value()) / 180.0
-        bend = self.bend_spinbox.value()
-        if bend != 0:
-            # When we do implement this, we'll want to change it to a float.
-            raise Exception("Bend is not implemented yet.")
+        twist = pi * self.twist_spinbox.value() / 180.0
+        bend = pi * self.bend_spinbox.value() / 180.0
         members = self.members_combox.currentItem()
         endings = self.endings_combox.currentItem()
         if endings == 1:
@@ -292,6 +289,15 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             if (y > .5 * (length + LENGTH_TWEAK) or
                 y < -.5 * (length + LENGTH_TWEAK)):
                 atm.kill()
+
+        # Apply bend. Equations are anomalous for zero bend.
+        if abs(bend) > pi / 360:
+            R = length / bend
+            for atm in atoms.values():
+                x, y, z = atm.posn()
+                theta = y / R
+                x, y = R - (R - x) * cos(theta), (R - x) * sin(theta)
+                atm.setposn(chem.V(x, y, z))
 
         def trimCarbons():
             # trim all the carbons that only have one carbon neighbor
