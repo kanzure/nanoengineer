@@ -447,7 +447,8 @@ makeOutOfPlane(struct part *p, int index, struct atom *a)
     o->a3 = b->a1 == a ? b->a2 : b->a1;
 
     // A is in aJ/pm^2
-    o->A = 0.0005; // XXX need to get actual value from real parameters
+    o->A = 0.00025380636; // This is for carbon in graphene with deflection less than 0.5 pm.
+    //o->A = 0.0005; // XXX need to get actual value from real parameters
 }
 
 // Creates an outOfPlane for each sp2 atom
