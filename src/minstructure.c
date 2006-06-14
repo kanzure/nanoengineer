@@ -376,6 +376,7 @@ minimizeStructure(struct part *part)
 	initial->coordinate[j++] = part->positions[i].z;
     }
 
+    //#define TORSION_DEBUG
 #ifdef TORSION_DEBUG
     double theta;
     for (theta=0.0; theta<Pi; theta+=Pi/180.0) {
