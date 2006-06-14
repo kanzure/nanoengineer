@@ -24,10 +24,11 @@ from GeneratorBaseClass import GeneratorBaseClass
 
 
 
-def add_insert_menu_item(win, command, name_of_what_to_insert, options = ()): # should be a method of MWsemantics.py
-    menuIndex = 3 ### kluge - right after Nanotube, at the moment (if indices start from 1 -- who knows)
-    menu = win.Insert ###k
-    menutext = "Insert %s" % (name_of_what_to_insert,)
+def add_insert_menu_item(win, command, name_of_what_to_insert, options = ()): ###e this should be a method of MWsemantics.py
+    menuIndex = 2 ### kluge - right after Nanotube, at the moment (since indices start from 0)
+    menu = win.Insert
+    menutext = "%s" % (name_of_what_to_insert,)
+    undo_cmdname = "Insert %s" % (name_of_what_to_insert,) ###e USE THIS -- pass as new option to insert_command_into_menu??
         ###e but need to translate it ourselves, ##qApp.translate("Main Window", "Recent Files", None)
     ## self.connect(self.recentFilePopupMenu, SIGNAL('activated (int)'), self._openRecentFile)
     from widgets import insert_command_into_menu
@@ -79,7 +80,9 @@ class PluginlikeGenerator:
         0
         #e install the necessary commands in the UI (eg in insert menu)
         ### WRONG -- menu text should not contain Insert, but undo cmdname should (so separate option is needed), and needs icon
-        add_insert_menu_item( self.win, self.insert_menu_command, self.what_we_generate) ###e add options for things like tooltip text, whatsthis text, iconset
+        ###e add options for things like tooltip text, whatsthis text, iconset
+        options = [('iconset','junk.png')]
+        add_insert_menu_item( self.win, self.insert_menu_command, self.what_we_generate, options)
         pass
     def insert_menu_command(self):
         """Run an Insert Whatever menu command to let the user generate things using this plugin.
