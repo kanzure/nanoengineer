@@ -527,6 +527,7 @@ class _readmmp_state:
     # Read the MMP record for a POV-Ray Scene as:
     # povrayscene (name) width height output_type
 
+    prevpovrayscene = None
     def _read_povrayscene(self, card):
         m = pvs_pat.match(card)
         name = m.group(1)
@@ -537,6 +538,7 @@ class _readmmp_state:
         params = name, width, height, output_type
         pvs = PovrayScene(self.assy, params)
         self.addmember(pvs)
+        self.prevpovrayscene = pvs # added for interpreting "info povrayscene" records. mark 060613.
     
     prevespimage = None
     def _read_espimage(self, card):
@@ -869,7 +871,8 @@ class _readmmp_state:
             leaf = ([None] + self.groupstack[-1].members)[-1], #bruce 050421
             atom = self.prevatom, #bruce 050511
             gamess = self.prevgamess, #bruce 050701
-            espimage = self.prevespimage #mark 060108
+            espimage = self.prevespimage, #mark 060108
+            povrayscene = self.prevpovrayscene # mark 060613
         )
         interp = mmp_interp(self.ndix, self.markers) #e could optim by using the same object each time [like 'self']
         readmmp_info(card, currents, interp) # has side effect on object referred to by card
