@@ -1154,7 +1154,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.dnacntl.show()
         
     def insertPovrayScene(self):
-        self.povrayscenecntl.show()
+        self.povrayscenecntl.setup()
         
     def insertComment(self):
         '''Insert a new comment into the model tree.

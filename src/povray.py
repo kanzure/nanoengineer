@@ -144,32 +144,43 @@ def get_raytrace_scene_filenames(assy, basename):
     './Partname Files/POV-Ray Files/POV-Ray Scene-1.pov' as the .pov path.
     '''
     if basename:
-        povray_dir = find_or_make_povray_subdir(assy)
+        r, povray_dir = find_or_make_povray_subdir(assy)
+        if r:
+            # There was a problem. povray_dir contains a description the problem.
+            return None, povray_dir
         ini_filename = "nanoENGINEER-1_raytrace_scene.ini"
             # Critically important: The INI filename cannot have any whitespace characters. Mark 060602.
         povray_ini = os.path.normpath(os.path.join(povray_dir, ini_filename))
-        povray_scene = os.path.normpath(os.path.join(povray_dir,str(basename)+".pov"))
-        print "povray_ini=", povray_ini,"\npovray_scene=",povray_scene
+        povray_scene = os.path.normpath(os.path.join(povray_dir,str(basename)))
+        print "get_raytrace_scene_filenames():\n  povray_ini=", povray_ini,"\n  povray_scene=",povray_scene
         return povray_ini, povray_scene
     else:
-        return None
+        return None, "No POV-Ray name supplied."
 
 def find_or_make_povray_subdir(assy):
     """Find or make the "POV-Ray files" subdirectory under the part files directory.
     Returns the full path of the "POV-Ray files" directory whether it already exists or was made here.
     """
     from platform import find_or_make_partfiles_subdir
-    partfiles_dir = find_or_make_partfiles_subdir(assy)
+    r, partfiles_dir = find_or_make_partfiles_subdir(assy)
+    
+    if r: 
+        # There was a problem. Return the errorcode and description of problem.
+        return r, partfiles_dir
+    
     povray_subdir  = os.path.join(partfiles_dir, "POV-Ray Scene Files")
     
-    if not os.path.exists(povray_subdir):
-        from debug import print_compact_traceback
+    if os.path.isdir(povray_subdir):
+        return 0, povray_subdir
+    elif os.path.exists(povray_subdir):
+        return 1, "%s exists, but it is not a directory" % povray_subdir
+    else:
         try:
             os.mkdir(povray_subdir)
         except:
-            print_compact_traceback("exception in creating directory: \"%s\"" % povray_subdir)
+            return 1, "find_or_make_povray_subdir(): Cannot create directory %s" % povray_subdir
 
-    return povray_subdir
+    return 0, povray_subdir
         
 def activate_povray_plugin(win):
     '''Opens a message box informing the user that the POV-Ray plugin

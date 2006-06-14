@@ -30,7 +30,7 @@ class PovraySceneProp(GeneratorBaseClass, PovrayScenePropDialog):
         GeneratorBaseClass.__init__(self, win)
         self.win = win
         self.glpane = self.win.glpane
-        self.pvs = None
+        self.struct = None
         self.previousParams = None
         # Validator for the aspect ratio linedit widget.
         self.validator = QDoubleValidator(self)
@@ -43,7 +43,7 @@ class PovraySceneProp(GeneratorBaseClass, PovrayScenePropDialog):
     def _create_new_name(self):
         pass
 
-    def show(self, pvs=None):
+    def setup(self, pvs=None):
         '''Show the Properties Manager dialog. If <pvs> is supplied, get the parameters from
         it and load the dialog widgets.
         '''
@@ -51,14 +51,14 @@ class PovraySceneProp(GeneratorBaseClass, PovrayScenePropDialog):
         self.maintain_aspect_ratio_checkbox.setChecked(False) # Needed. Mark 060612.
 
         if pvs:
+            self.struct_is_new = False
             self.name, self.width, self.height, self.output_type = pvs.get_parameters()
             self.struct = pvs
+            
         else:
-            # HERE is where we create the new name, we need it early so we can
-            # put it in the name_linedit. Nobody else needs something like that.
-            #if not self.name:
+            self.struct_is_new = True
             self._ViewNum = Utility.ViewNum
-            self.name = genViewNum(self.prefix)
+            self.name = genViewNum(self.prefix) + ".pov"
             self.width = int(self.glpane.width)
             self.height = int(self.glpane.height)
             self.output_type = 'PNG'
@@ -70,7 +70,7 @@ class PovraySceneProp(GeneratorBaseClass, PovrayScenePropDialog):
         self.maintain_aspect_ratio_checkbox.setChecked(True)
         self.update_aspect_ratio()
         self.previousParams = self.gather_parameters()
-        PovrayScenePropDialog.show(self)
+        self.show()
         
     def gather_parameters(self):
         '''Return the current parameter values from the widgets.
@@ -82,31 +82,39 @@ class PovraySceneProp(GeneratorBaseClass, PovrayScenePropDialog):
         return (name, width, height, output_type)
 
     def build_struct(self, params):
-        if self.pvs: self.action = 'added'
-        else: self.action = 'updated'
-        
-        from PovrayScene import PovrayScene
-        self.pvs = pvs = PovrayScene(self.win.assy, params)
-        return pvs
+        if not self.struct: 
+            from PovrayScene import PovrayScene
+            self.struct = PovrayScene(self.win.assy, params)
+        else:
+            self.struct.set_parameters(params) #&&& New
+        self.struct.write_pvs_file()
+        return self.struct
     
     def preview_btn_clicked(self):
         '''Overrides GeneratorBaseClass.preview_btn_click().
         '''
-        self.remove_struct()
+        #self.remove_struct()
         params = self.gather_parameters()
+        
+        addnode = False
+        if not self.struct: addnode = True
+        
         self.struct = self.build_struct(params)
-        self.win.assy.addnode(self.struct)
-        self.win.win_update() # includes mt_update
+        
+        if addnode:
+            self.win.assy.addnode(self.struct)
+            self.win.win_update() # includes mt_update
+        
         self.struct.render_image()
         
     def cancel_btn_clicked(self):
         '''Overrides GeneratorBaseClass.cancel_btn_clicked().
         '''
-        if self.struct:
-            self.struct.set_parameters(self.previousParams)
-            QDialog.accept(self)
-        else:
+        if self.struct_is_new:
             GeneratorBaseClass.cancel_btn_clicked(self)
+        else:
+            self.struct.set_parameters(self.previousParams)
+            QDialog.accept(self)            
     
 # Property manager widget slots.
 

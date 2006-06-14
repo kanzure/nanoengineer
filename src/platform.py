@@ -351,19 +351,23 @@ def find_or_make_partfiles_subdir(assy): # Mark 060612.
     """Find or make the "part files" subdirectory next to the current assy (MMP file).
     Returns the full path of the "part files" directory whether it already exists or was made here.
     """
+    
     #&&& Need to worry about the situation when the user hasn't saved the MMP file (i.e. Untitled).
     #&&& Talk to Bruce about this. Mark 060612.
-    partfiles_name = assy.name + " Files"
-    partfiles_dir  = os.path.join(assy.get_cwd(), partfiles_name)
+    path_wo_ext, ext = os.path.splitext(assy.filename)
+    partfiles_dir = path_wo_ext + " Files"
     
-    if not os.path.exists(partfiles_dir):
-        from debug import print_compact_traceback
+    if os.path.isdir(partfiles_dir):
+        return 0, partfiles_dir
+    elif os.path.exists(partfiles_dir):
+        return 1, "%s exists, but it is not a directory" % partfiles_dir
+    else:
         try:
             os.mkdir(partfiles_dir)
         except:
-            print_compact_traceback("exception in creating directory: \"%s\"" % partfiles_dir)
+            return 1, "find_or_make_partfiles(): Cannot create directory %s" % partfiles_dir
 
-    return partfiles_dir
+    return 0, partfiles_dir
     
 def make_history_filename():
     """[private method for history init code]
