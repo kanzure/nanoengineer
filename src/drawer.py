@@ -22,8 +22,6 @@ from prefs_constants import material_specular_highlights_prefs_key, \
         material_specular_brightness_prefs_key #mark 051205. names revised
 import debug #bruce 051212, for debug.print_compact_traceback
 
-debug_displaylist_alloc = False # do not commit with True [bruce 060609 -- I suspect not all allocated indices are used]
-
 # ColorSorter control
 allow_color_sorting = allow_color_sorting_default = False #bruce 060323 changed this to False for A7 release
 allow_color_sorting_prefs_key = "allow_color_sorting_rev2" #bruce 060323 changed this to disconnect it from old pref setting
@@ -60,11 +58,14 @@ except:
     pass
 
 # the golden ratio
-phi=(1.0+sqrt(5.0))/2.0
-vert=norm(V(phi,0,1))
-a=vert[0]
-b=vert[1]
-c=vert[2]
+phi = (1.0+sqrt(5.0))/2.0
+vert = norm(V(phi,0,1))
+a = vert[0]
+    # I wonder if this is or was creating the global 'a' in chem.py that I once complained about in there...
+    # it's certainly very bad as the name of a global in any module (like a lot of short global names in this module).
+    # [bruce 060613 comment]
+b = vert[1]
+c = vert[2]
 
 # vertices of an icosahedron
 
@@ -89,35 +90,35 @@ icosix = ((9, 2, 6), (1, 11, 5), (11, 1, 8), (0, 11, 4), (3, 1, 7),
 
 def subdivide(tri,deep):
     if deep:
-        a=tri[0]
-        b=tri[1]
-        c=tri[2]
-        a1=norm(A(tri[0]))
-        b1=norm(A(tri[1]))
-        c1=norm(A(tri[2]))
-        d=tuple(norm(a1+b1))
-        e=tuple(norm(b1+c1))
-        f=tuple(norm(c1+a1))
+        a = tri[0]
+        b = tri[1]
+        c = tri[2]
+        a1 = norm(A(tri[0]))
+        b1 = norm(A(tri[1]))
+        c1 = norm(A(tri[2]))
+        d = tuple(norm(a1+b1))
+        e = tuple(norm(b1+c1))
+        f = tuple(norm(c1+a1))
         return subdivide((a,d,f), deep-1) + subdivide((d,e,f), deep-1) +\
                subdivide((d,b,e), deep-1) + subdivide((f,e,c), deep-1)
     else: return [tri]
 
 ## Get the specific detail level of triangles approximation of a sphere 
 def getSphereTriangles(level):
-        ocdec=[]
+        ocdec = []
         for i in icosix:
-            ocdec+=subdivide((icosa[i[0]],icosa[i[1]],icosa[i[2]]),level)
+            ocdec += subdivide((icosa[i[0]],icosa[i[1]],icosa[i[2]]),level)
         return ocdec
 
 # generate two circles in space as 13-gons,
 # one rotated half a segment with respect to the other
 # these are used as cylinder ends [not quite true anymore, see comments just below]
-slices=13
-circ1=map((lambda n: n*2.0*pi/slices), range(slices+1))
-circ2=map((lambda a: a+pi/slices), circ1)
-drum0=map((lambda a: (cos(a), sin(a), 0.0)), circ1)
-drum1=map((lambda a: (cos(a), sin(a), 1.0)), circ2)
-drum1n=map((lambda a: (cos(a), sin(a), 0.0)), circ2)
+slices = 13
+circ1 = map((lambda n: n*2.0*pi/slices), range(slices+1))
+circ2 = map((lambda a: a+pi/slices), circ1)
+drum0 = map((lambda a: (cos(a), sin(a), 0.0)), circ1)
+drum1 = map((lambda a: (cos(a), sin(a), 1.0)), circ2)
+drum1n = map((lambda a: (cos(a), sin(a), 0.0)), circ2)
 
 # grantham 20051213 I finally decided the look of the oddly twisted
 # cylinder bonds was not pretty enough, so I made a "drum2" which is just
@@ -125,7 +126,7 @@ drum1n=map((lambda a: (cos(a), sin(a), 0.0)), circ2)
 #bruce 060609: this apparently introduced the bug of the drum1 end-cap of a cylinder being "ragged"
 # (letting empty space show through), which I fixed by using drum2 for that cap rather than drum1.
 # drum1 is no longer used except as an intermediate value in the next few lines.
-drum2=map((lambda a: (cos(a), sin(a), 1.0)), circ1)
+drum2 = map((lambda a: (cos(a), sin(a), 1.0)), circ1)
 
 # This edge list zips up the "top" vertex and normal and then
 # the "bottom" vertex and normal.
@@ -133,13 +134,13 @@ drum2=map((lambda a: (cos(a), sin(a), 1.0)), circ1)
 # (bruce 051215 simplified the python usage in a way which should create the same list.)
 cylinderEdges = zip(drum0, drum0, drum2, drum0)
 
-circle=zip(drum0[:-1],drum0[1:],drum1[:-1]) +\
-       zip(drum1[:-1],drum0[1:],drum1[1:])
-circlen=zip(drum0[:-1],drum0[1:],drum1n[:-1]) +\
-        zip(drum1n[:-1],drum0[1:],drum1n[1:])
+circle = zip(drum0[:-1],drum0[1:],drum1[:-1]) +\
+         zip(drum1[:-1],drum0[1:],drum1[1:])
+circlen = zip(drum0[:-1],drum0[1:],drum1n[:-1]) +\
+          zip(drum1n[:-1],drum0[1:],drum1n[1:])
 
-cap0n=(0.0, 0.0, -1.0)
-cap1n=(0.0, 0.0, 1.0)
+cap0n = (0.0, 0.0, -1.0)
+cap1n = (0.0, 0.0, 1.0)
 drum0.reverse()
 
 ###data structure to construct the rotation sign for rotary motor
