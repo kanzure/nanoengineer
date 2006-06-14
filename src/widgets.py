@@ -190,13 +190,14 @@ def makemenu_helper( widget, menu_spec):
     menu = QPopupMenu( widget)
     for m in menu_spec:
         try: #bruce 050416 added try/except as debug code and for safety
+            menutext = m and widget.trUtf8(m[0])
             if m and isinstance(m[1], QPopupMenu): #bruce 041010 added this case
                 submenu = m[1]
-                menu.insertItem( widget.trUtf8(m[0]), submenu )
+                menu.insertItem( menutext, submenu )
                     # (similar code might work for QAction case too, not sure)
             elif m and isinstance(m[1], type([])): #bruce 041103 added this case
                 submenu = makemenu_helper( widget, m[1]) # [used to call widget.makemenu]
-                menu.insertItem( widget.trUtf8(m[0]), submenu )
+                menu.insertItem( menutext, submenu )
             elif m:
                 assert callable(m[1]), \
                     "%r[1] needs to be a callable" % (m,) #bruce 041103
@@ -215,72 +216,92 @@ def makemenu_helper( widget, menu_spec):
                     # old code
                     # (this case might not be needed anymore, but it's known to work)
                     act = QAction( widget,m[0]+'Action')
-                    act.setText( widget.trUtf8(m[0]))
-                    act.setMenuText( widget.trUtf8(m[0]))
+                    act.setText( menutext)
+                    act.setMenuText( menutext)
                     act.addTo(menu)
                     widget.connect(act, SIGNAL("activated()"), func)
                 else:
-                    # new code to support some additional menu item options
-                    # (likely to be expanded to support more).
-                    # Only used for len(m) > 2, though it presumably works
-                    # just as well for len 2 (try it sometime). [bruce 050112]
-                    iconset = None
-                    for option in m[2:]:
-                        # some options have to be processed first
-                        # since they are only usable when the menu item is inserted. [bruce 050614]
-                        if type(option) == type((1,2)):
-                            if option[0] == 'iconset':
-                                # support iconset, pixmap, or pixmap filename [bruce 050614 new feature]
-                                iconset = option[1]
-                                if type(iconset) == type("filename"):
-                                    filename = iconset
-                                    from Utility import imagename_to_pixmap
-                                    iconset = imagename_to_pixmap(filename)
-                                if isinstance(iconset, QPixmap):
-                                    # (this is true for imagename_to_pixmap retval)
-                                    iconset = QIconSet(iconset)
-                    if iconset is not None:
-                        mitem_id = menu.insertItem( iconset, widget.trUtf8(m[0]) ) #bruce 050614
-                            # Will this work with checkmark items? Yes, but it replaces the checkmark --
-                            # instead, the icon looks different for the checked item.
-                            # For the test case of gamess.png on Mac, the 'checked' item's icon
-                            # looked like a 3d-depressed button.
-                            # In the future we can tell the iconset what to display in each case
-                            # (see QIconSet and/or QPopupMenu docs, and helper funcs presently in debug_prefs.py.)
-                    else:
-                        mitem_id = menu.insertItem( widget.trUtf8(m[0]) )
-                    menu.connectItem(mitem_id, func) # semi-guess
-                    for option in m[2:]:
-                        if option == 'checked':
-                            menu.setItemChecked(mitem_id, True)
-                        elif option == 'unchecked': #bruce 050614 -- see what this does visually, if anything
-                            menu.setItemChecked(mitem_id, False)
-                        elif option == 'disabled':
-                            menu.setItemEnabled(mitem_id, False)
-                        elif type(option) == type((1,2)):
-                            if option[0] == 'sbar': #bruce 050614 experiment; option is ('sbar', "explan for statusbar") ###k untested
-                                menu.setWhatsThis(mitem_id, option[1])
-                            elif option[0] == 'iconset':
-                                pass # this was processed above
-                            else:
-                                if platform.atom_debug:
-                                    print "atom_debug: fyi: don't understand menu_spec option %r", (option,)
-                            pass
-                        elif option is None:
-                            pass # this is explicitly permitted and has no effect
-                        else:
-                            if platform.atom_debug:
-                                print "atom_debug: fyi: don't understand menu_spec option %r", (option,)
-                        pass
-                        #e and something to use QMenuData.setAccel
-                        #e and something to run whatever func you want on menu and mitem_id
-                    pass
+                    insert_command_into_menu(menu, menutext, func, options = m[2:], raw_command = True)
             else:
                 menu.insertSeparator()
         except:
             print_compact_traceback("exception in makemenu_helper ignored, for %r:\n" % (m,) )
             pass #e could add a fake menu item here as an error message
-    return menu
+    return menu # from makemenu_helper
+
+def insert_command_into_menu(menu, menutext, command, options = (), position = -1, raw_command = False): 
+    """Insert a new item into menu (a QPopupMenu), whose menutext, command, and options are as given,
+    where options is a list or tuple in the same form as used in "menu_spec" lists
+    such as are passed to makemenu_helper (which this function helps implement).
+       The caller should have already translated/localized menutext if desired.
+       If position is given, insert the new item at that position, otherwise at the end.
+    Return the Qt menu item id of the new menu item.
+    (I am not sure whether this remains valid if other items are inserted before it. ###k)
+       If raw_command is False (default), this function will wrap command with standard logic for nE-1 menu commands
+    (presently, wrap_callable_for_undo), and ensure that a python reference to the resulting callable is kept forever.
+       If raw_command is True, this function will pass command unchanged into the menu,
+    and the caller is responsible for retaining a Python reference to command.
+       ###e This might need an argument for the path or function to be used to resolve icon filenames.
+    """
+    #bruce 060613 split this out of makemenu_helper.
+    # Only called for len(options) > 0, though it presumably works
+    # just as well for len 0 (try it sometime).
+    if not raw_command:
+        command = wrap_callable_for_undo(command, cmdname = menutext)
+        import changes
+        changes.keep_forever(command)
+            # see comments on similar code above about why this is bad in theory, but necessary and ok for now
+    iconset = None
+    for option in options:
+        # some options have to be processed first
+        # since they are only usable when the menu item is inserted. [bruce 050614]
+        if type(option) == type(()):
+            if option[0] == 'iconset':
+                # support iconset, pixmap, or pixmap filename [bruce 050614 new feature]
+                iconset = option[1]
+                if type(iconset) == type("filename"):
+                    filename = iconset
+                    from Utility import imagename_to_pixmap
+                    iconset = imagename_to_pixmap(filename)
+                if isinstance(iconset, QPixmap):
+                    # (this is true for imagename_to_pixmap retval)
+                    iconset = QIconSet(iconset)
+    if iconset is not None:
+        mitem_id = menu.insertItem( iconset, menutext, -1, position ) #bruce 050614, revised 060613 (added -1, position)
+            # Will this work with checkmark items? Yes, but it replaces the checkmark --
+            # instead, the icon looks different for the checked item.
+            # For the test case of gamess.png on Mac, the 'checked' item's icon
+            # looked like a 3d-depressed button.
+            # In the future we can tell the iconset what to display in each case
+            # (see QIconSet and/or QPopupMenu docs, and helper funcs presently in debug_prefs.py.)
+    else:
+        mitem_id = menu.insertItem( menutext, -1, position ) #bruce revised 060613 (added -1, position)
+    menu.connectItem(mitem_id, command) # semi-guess
+    for option in options:
+        if option == 'checked':
+            menu.setItemChecked(mitem_id, True)
+        elif option == 'unchecked': #bruce 050614 -- see what this does visually, if anything
+            menu.setItemChecked(mitem_id, False)
+        elif option == 'disabled':
+            menu.setItemEnabled(mitem_id, False)
+        elif type(option) == type((1,2)):
+            if option[0] == 'sbar': #bruce 050614 experiment; option is ('sbar', "explan for statusbar") ###k untested
+                menu.setWhatsThis(mitem_id, option[1])
+            elif option[0] == 'iconset':
+                pass # this was processed above
+            else:
+                if platform.atom_debug:
+                    print "atom_debug: fyi: don't understand menu_spec option %r", (option,)
+            pass
+        elif option is None:
+            pass # this is explicitly permitted and has no effect
+        else:
+            if platform.atom_debug:
+                print "atom_debug: fyi: don't understand menu_spec option %r", (option,)
+        pass
+        #e and something to use QMenuData.setAccel
+        #e and something to run whatever func you want on menu and mitem_id
+    return mitem_id # from insert_command_into_menu
 
 # ==
 
