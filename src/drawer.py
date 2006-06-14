@@ -1116,18 +1116,18 @@ lonsEdges = None
 def _makeLonsCell():
     """Data structure to construct a Lonsdaleite lattice cell"""
     lVp = [# 2 outward vertices
-          [-ux, -2*uy, 0.0], [0.0, uy, 0.0],
-          # Layer 1: 7 vertices
-          [ux, -2*uy, ul],      [-ux, -2*uy, ul],     [0.0, uy, ul], 
-          [ux, 2*uy, ul+dz], [-ux, 2*uy, ul+dz], [0.0, -uy, ul+dz],
-                                     [-ux, 4*uy, ul],
-          # Layer 2: 7 vertices
-          [ux, -2*uy, 2*(ul+dz)], [-ux, -2*uy, 2*(ul+dz)], [0.0, uy, 2*(ul+dz)],
-          [ux, 2*uy, 2*ul+dz],    [-ux, 2*uy, 2*ul+dz],     [0.0, -uy, 2*ul+dz],
-                                           [-ux, 4*uy, 2*(ul+dz)]
-         ]
+              [-ux, -2*uy, 0.0], [0.0, uy, 0.0],
+              # Layer 1: 7 vertices
+              [ux, -2*uy, ul],      [-ux, -2*uy, ul],     [0.0, uy, ul], 
+              [ux, 2*uy, ul+dz], [-ux, 2*uy, ul+dz], [0.0, -uy, ul+dz],
+                                         [-ux, 4*uy, ul],
+              # Layer 2: 7 vertices
+              [ux, -2*uy, 2*(ul+dz)], [-ux, -2*uy, 2*(ul+dz)], [0.0, uy, 2*(ul+dz)],
+              [ux, 2*uy, 2*ul+dz],    [-ux, 2*uy, 2*ul+dz],     [0.0, -uy, 2*ul+dz],
+                                               [-ux, 4*uy, 2*(ul+dz)]
+          ]
 
-    lonsEdges = [ # 2 outward vertical edges for layer 1
+    res = [ # 2 outward vertical edges for layer 1
                       [lVp[0], lVp[3]], [lVp[1], lVp[4]],
                       #  6 xy Edges for layer 1
                       [lVp[2], lVp[7]], [lVp[3], lVp[7]], [lVp[7], lVp[4]],
@@ -1139,28 +1139,8 @@ def _makeLonsCell():
                       [lVp[14], lVp[9]], [lVp[14], lVp[10]], [lVp[14], lVp[11]],
                       [lVp[11], lVp[13]], [lVp[11], lVp[12]],
                       [lVp[13], lVp[15]]
-                    ]
-                     
-    return lonsEdges 
-
-#Some variables for Graphite lattice
-gUx = 1.228; gUy = 0.709; gZLen = 1.674
-gXLen = 2*gUx; gYLen = 4*gUy
-
-def _makeGraphiteCell(zIndex):
-    """Data structure to construct a Graphite lattice cell"""
-    gVp = [[-gUx, -gUy, 0.0],   [0.0, 0.0, 0.0],        [gUx, -gUy, 0.0],
-              [-gUx, 3*gUy, 0.0], [0.0, 2*gUy, 0.0],  [gUx, 3*gUy, 0.0],
-              [gUx, 5*gUy, 0.0]
-         ]
-
-    grpEdges = [ 
-                      [gVp[0], gVp[1]], [gVp[1], lVp[2]],
-                      ##Not finished yet. We need double bond to do this??
-                    ]
-                     
-    return lonsEdges 
-
+           ]
+    return res
 
 ##Some varaible defined for SiC Grid
 sic_sqt3_2 = sqrt(3.0)/2.0; sic_uLen = 1.8; sic_yU = sic_uLen * sic_sqt3_2; sic_hLen = sic_uLen/2.0
@@ -1169,20 +1149,19 @@ sic_vpdat = [[0.0, sic_yU, 0.0], [sic_uLen+sic_hLen, 0.0, 0.0], [sic_uLen, sic_y
              [3*sic_uLen, sic_yU, 0.0], [2*sic_uLen+sic_hLen, 0.0, 0.0]]
     
 
-def setup():
-    global CylList, diamondGridList, CapList, CubeList, solidCubeList, wiresphere1list
-    global sphereList, rotSignList, linearLineList, linearArrowList
-    global circleList, lonsGridList, lonsEdges, lineCubeList, SiCGridList
-    global use_c_renderer_pref
-    global surfaceList
-
-    listbase = glGenLists(numSphereSizes + 22)
-    if debug_displaylist_alloc:
-        print "debug_displaylist_alloc fyi: glGenLists(numSphereSizes + 22 == %d) returns listbase %d, last one should be %d" % \
-              (numSphereSizes + 22, listbase, listbase + numSphereSizes + 22 - 1)
-
+def setup(): #bruce 060613 added docstring, cleaned up display list name allocation
+    """Set up the usual constant display lists in the current OpenGL context.
+    WARNING: THIS IS ONLY CORRECT IF ONLY ONE GL CONTEXT CONTAINS DISPLAY LISTS --
+    or more precisely, only the GL context this has last been called in
+    (or one which shares its display lists) will work properly with the routines in drawer.py,
+    since the allocated display list names are stored in globals set by this function,
+    but in general those names might differ if this was called in different GL contexts.
+    """
+    spherelistbase = glGenLists(numSphereSizes)
+    global sphereList
+    sphereList = []
     for i in range(numSphereSizes):
-        sphereList += [listbase+i]
+        sphereList += [spherelistbase+i]
         glNewList(sphereList[i], GL_COMPILE)
         glBegin(GL_TRIANGLES)
         ocdec = getSphereTriangles(i)
@@ -1196,7 +1175,9 @@ def setup():
         glEnd()
         glEndList()
 
-    wiresphere1list = listbase + numSphereSizes #bruce 060415
+    global wiresphere1list
+    wiresphere1list = glGenLists(1) #bruce 060415
+    glNewList(wiresphere1list, GL_COMPILE)
     didlines = {} # don't draw each triangle edge more than once
     def shoulddoline(v1,v2):
         v1 = tuple(v1) # make sure not list (unhashable) or Numeric array (bug in __eq__)
@@ -1210,7 +1191,6 @@ def setup():
             glVertex3fv(v1)
             glVertex3fv(v2)
         return
-    glNewList(wiresphere1list, GL_COMPILE)
     glBegin(GL_LINES)
     ocdec = getSphereTriangles(1)
     for tri in ocdec:
@@ -1220,8 +1200,9 @@ def setup():
         doline(tri[2], tri[0])
     glEnd()
     glEndList()
-    
-    surfaceList = wiresphere1list + 1
+
+    global surfaceList
+    surfaceList = glGenLists(1)
     glNewList(surfaceList, GL_COMPILE)
     glBegin(GL_TRIANGLES)
     ocdec = getSphereTriangles(3)
@@ -1235,7 +1216,8 @@ def setup():
     glEnd()
     glEndList()
 
-    CylList = listbase + numSphereSizes + 2
+    global CylList
+    CylList = glGenLists(1)
     glNewList(CylList, GL_COMPILE)
     glBegin(GL_TRIANGLE_STRIP)
     for (vtop, ntop, vbot, nbot) in cylinderEdges:
@@ -1246,7 +1228,8 @@ def setup():
     glEnd()
     glEndList()
 
-    CapList = CylList + 1
+    global CapList
+    CapList = glGenLists(1)
     glNewList(CapList, GL_COMPILE)
     glNormal3fv(cap0n)
     glBegin(GL_POLYGON)
@@ -1260,7 +1243,8 @@ def setup():
     glEnd()
     glEndList()
 
-    diamondGridList = CapList + 1
+    global diamondGridList
+    diamondGridList = glGenLists(1)
     glNewList(diamondGridList, GL_COMPILE)
     glBegin(GL_LINES)
     for p in digrid:
@@ -1268,18 +1252,21 @@ def setup():
         glVertex(p[1])
     glEnd()
     glEndList()
-    
-    lonsGridList = diamondGridList + 1
-    lonsEdges = _makeLonsCell()
+
+    global lonsGridList
+    lonsGridList = glGenLists(1)
     glNewList(lonsGridList, GL_COMPILE)
     glBegin(GL_LINES)
+    global lonsEdges
+    lonsEdges = _makeLonsCell()
     for p in lonsEdges:
         glVertex(p[0])
         glVertex(p[1])
     glEnd()
     glEndList()
 
-    CubeList = lonsGridList + 1
+    global CubeList
+    CubeList = glGenLists(1)
     glNewList(CubeList, GL_COMPILE)
     glBegin(GL_QUAD_STRIP)
     # note: CubeList has only 4 faces of the cube; only suitable for use in wireframes;
@@ -1296,8 +1283,9 @@ def setup():
     glVertex(( 1,-1,-1))
     glEnd()
     glEndList()
-    
-    solidCubeList = CubeList + 1
+
+    global solidCubeList
+    solidCubeList = glGenLists(1)
     glNewList(solidCubeList, GL_COMPILE)
     glBegin(GL_QUADS)
     for i in xrange(len(cubeIndices)):
@@ -1315,7 +1303,8 @@ def setup():
     glEnd()
     glEndList()                
 
-    rotSignList = solidCubeList + 1
+    global rotSignList
+    rotSignList = glGenLists(1)
     glNewList(rotSignList, GL_COMPILE)
     glBegin(GL_LINE_STRIP)
     for ii in xrange(len(rotS0n)):
@@ -1331,7 +1320,8 @@ def setup():
     glEnd()
     glEndList()
 
-    linearArrowList = rotSignList + 1
+    global linearArrowList
+    linearArrowList = glGenLists(1)
     glNewList(linearArrowList, GL_COMPILE)
     glBegin(GL_TRIANGLES)
     for v in linearArrowVertices:
@@ -1339,7 +1329,8 @@ def setup():
     glEnd()
     glEndList()
 
-    linearLineList = linearArrowList + 1
+    global linearLineList
+    linearLineList = glGenLists(1)
     glNewList(linearLineList, GL_COMPILE)
     glEnable(GL_LINE_SMOOTH)
     glBegin(GL_LINES)
@@ -1348,8 +1339,9 @@ def setup():
     glEnd()
     glDisable(GL_LINE_SMOOTH)
     glEndList()
-    
-    circleList = linearLineList + 1 #glGenLists(1)
+
+    global circleList
+    circleList = glGenLists(1)
     glNewList(circleList, GL_COMPILE)
     glBegin(GL_LINE_LOOP)
     for ii in range(60):
@@ -1358,32 +1350,29 @@ def setup():
         glVertex3f(x, y, 0.0)
     glEnd()    
     glEndList()
-    
-    cvIndices = [0,1, 2,3, 4,5, 6,7, 0,3, 1,2, 5,6, 4,7, 0,4, 1,5, 2,6, 3,7]
-    lineCubeList = circleList + 1
+
+    global lineCubeList
+    lineCubeList = glGenLists(1)
     glNewList(lineCubeList, GL_COMPILE)
     glBegin(GL_LINES)
+    cvIndices = [0,1, 2,3, 4,5, 6,7, 0,3, 1,2, 5,6, 4,7, 0,4, 1,5, 2,6, 3,7]
     for i in cvIndices:
         glVertex3fv(tuple(cubeVertices[i]))
     glEnd()    
     glEndList()
-    
-    
-    SiCGridList = lineCubeList + 1
+
+    global SiCGridList
+    SiCGridList = glGenLists(1)
     glNewList(SiCGridList, GL_COMPILE)
     glBegin(GL_LINES)
     glVertex3fv(sic_vpdat[0])
     glVertex3fv(sic_vpdat[2])
     glEnd()
-    
     glBegin(GL_LINE_STRIP)
     for v in sic_vpdat[1:]:
         glVertex3fv(v)
     glEnd()
     glEndList()
-
-    if debug_displaylist_alloc:
-        print "debug_displaylist_alloc fyi: last list might be SiCGridList == %d" % SiCGridList
 
     # Debug Preferences
     from debug_prefs import debug_pref, Choice_boolean_True
@@ -1399,6 +1388,7 @@ def setup():
 
     # 20060313 grantham Added use_c_renderer_pref debug pref, can
     # take out when C renderer used by default.
+    global use_c_renderer_pref
     if quux_module_import_succeeded:
         initial_choice = choices[use_c_renderer_default]
         use_c_renderer_pref = debug_pref("Use native C renderer?",
@@ -1407,7 +1397,7 @@ def setup():
             # and changed its prefs_key so developers start over with the default value.
         
     #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
-    return
+    return # from setup
     
 def drawCircle(color, center, radius, normal):
     """Scale, rotate/translate the unit circle properly """
@@ -1651,7 +1641,6 @@ def drawLineCube(color, pos, radius):
     return    
 
 def drawwirecube(color, pos, radius, lineWidth=3.0):
-    global CubeList, lineCubeList
     glPolygonMode(GL_FRONT, GL_LINE)
     glPolygonMode(GL_BACK, GL_LINE)
     glDisable(GL_LIGHTING)
@@ -1674,7 +1663,6 @@ def drawwirecube(color, pos, radius, lineWidth=3.0):
     return
 
 def drawwirebox(color, pos, len):
-    global CubeList
     glPolygonMode(GL_FRONT, GL_LINE)
     glPolygonMode(GL_BACK, GL_LINE)
     glDisable(GL_LIGHTING)
