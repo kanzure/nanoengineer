@@ -267,11 +267,13 @@ minimizeStructureTermination(struct functionDefinition *fd,
     evaluateGradient(current); BAILR(0);
     findRMSandMaxForce(current, &rms_force, &max_force); BAILR(0);
     if (tolerance == fd->coarse_tolerance) {
-        if (rms_force < 50.0 && max_force < 300.0) {
+        if (rms_force < MinimizeThresholdCutoverRMS &&
+            max_force < MinimizeThresholdCutoverMax) {
             return 1;
         }
     } else {
-        if (rms_force < 1.0 && max_force < 10.0) {
+        if (rms_force < MinimizeThresholdEndRMS &&
+            max_force < MinimizeThresholdEndMax) {
             return 1;
         }
     }
@@ -368,7 +370,7 @@ minimizeStructure(struct part *part)
     minimizeStructureFunctions.constraints = minimizeStructureConstraints;
     minimizeStructureFunctions.coarse_tolerance = 1e-8;
     minimizeStructureFunctions.fine_tolerance = 1e-10;
-
+    
     initial = makeConfiguration(&minimizeStructureFunctions);
     for (i=0, j=0; i<part->num_atoms; i++) {
 	initial->coordinate[j++] = part->positions[i].x;

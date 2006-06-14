@@ -45,6 +45,10 @@ char *TraceFileName;
 char *BaseFileName;
 int QualityWarningLevel;
 float SimpleMovieForceScale;
+double MinimizeThresholdCutoverRMS;
+double MinimizeThresholdCutoverMax;
+double MinimizeThresholdEndRMS;
+double MinimizeThresholdEndMax;
 
 FILE *OutputFile;
 FILE *TraceFile;
@@ -106,6 +110,11 @@ reinit_globals(void)
     QualityWarningLevel = 5;
     SimpleMovieForceScale = 1.0;
 
+    MinimizeThresholdCutoverRMS = 50.0; // pN
+    MinimizeThresholdCutoverMax = 300.0;
+    MinimizeThresholdEndRMS = 1.0;
+    MinimizeThresholdEndMax = 10.0;
+    
     OutputFile = NULL;
     TraceFile = NULL;
 
@@ -126,6 +135,21 @@ reinit_globals(void)
 }
 
 void
+constrainGlobals()
+{
+    if (MinimizeThresholdEndRMS > MinimizeThresholdCutoverRMS) {
+        MinimizeThresholdCutoverRMS = MinimizeThresholdEndRMS;
+        MinimizeThresholdCutoverMax = MinimizeThresholdEndMax;
+    }
+    if (MinimizeThresholdCutoverMax < MinimizeThresholdCutoverRMS) {
+        MinimizeThresholdCutoverMax = 5.0 * MinimizeThresholdCutoverRMS;
+    }
+    if (MinimizeThresholdEndMax < MinimizeThresholdEndRMS) {
+        MinimizeThresholdEndMax = 5.0 * MinimizeThresholdEndRMS;
+    }
+}
+
+void
 printGlobals()
 {
     write_traceline("#\n");
@@ -140,6 +164,12 @@ printGlobals()
     write_traceline("# DirectEvaluate: %d\n", DirectEvaluate);
     write_traceline("# ExcessiveEnergyLevel: %f aJ\n", ExcessiveEnergyLevel);
     write_traceline("# QualityWarningLevel: %d\n", QualityWarningLevel);
+    if (ToMinimize) {
+        write_traceline("# MinimizeThresholdCutoverRMS: %f\n", MinimizeThresholdCutoverRMS);
+        write_traceline("# MinimizeThresholdCutoverMax: %f\n", MinimizeThresholdCutoverMax);
+        write_traceline("# MinimizeThresholdEndRMS: %f\n", MinimizeThresholdEndRMS);
+        write_traceline("# MinimizeThresholdEndMax: %f\n", MinimizeThresholdEndMax);
+    }
     write_traceline("#\n");
 }
 

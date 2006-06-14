@@ -38,6 +38,10 @@ cdef extern from "simhelp.c":
     int KeyRecordInterval
     int DirectEvaluate
     int Interrupted
+    double MinimizeThresholdCutoverRMS
+    double MinimizeThresholdCutoverMax
+    double MinimizeThresholdEndRMS
+    double MinimizeThresholdEndMax
     char *IDKey
     char *BaseFileName
     char *InputFileName
@@ -124,6 +128,14 @@ cdef class BaseSimulator:
             return DirectEvaluate
         elif strcmp(key, "Interrupted") == 0:
             return Interrupted
+        elif strcmp(key, "MinimizeThresholdCutoverRMS") == 0:
+            return MinimizeThresholdCutoverRMS
+        elif strcmp(key, "MinimizeThresholdCutoverMax") == 0:
+            return MinimizeThresholdCutoverMax
+        elif strcmp(key, "MinimizeThresholdEndRMS") == 0:
+            return MinimizeThresholdEndRMS
+        elif strcmp(key, "MinimizeThresholdEndMax") == 0:
+            return MinimizeThresholdEndMax
         elif strcmp(key, "IDKey") == 0:
             return IDKey
         elif strcmp(key, "baseFilename") == 0:
@@ -192,6 +204,18 @@ cdef class BaseSimulator:
         elif strcmp(key, "Interrupted") == 0:
             global Interrupted
             Interrupted = value
+        elif strcmp(key, "MinimizeThresholdsCutoverRMS") == 0:
+            global MinimizeThresholdCutoverRMS
+            MinimizeThresholdCutoverRMS = value
+        elif strcmp(key, "MinimizeThresholdsCutoverMax") == 0:
+            global MinimizeThresholdCutoverMax
+            MinimizeThresholdCutoverMax = value
+        elif strcmp(key, "MinimizeThresholdsEndRMS") == 0:
+            global MinimizeThresholdEndRMS
+            MinimizeThresholdEndRMS = value
+        elif strcmp(key, "MinimizeThresholdsEndMax") == 0:
+            global MinimizeThresholdEndMax
+            MinimizeThresholdEndMax = value
         elif strcmp(key, "IDKey") == 0:
             global IDKey
             IDKey = value

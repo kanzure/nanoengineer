@@ -345,6 +345,7 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     // initializeBondTable(); // this had to be done in initsimhelp instead [bruce 060101]
     // end of section moved by bruce 060101
 
+    constrainGlobals();
     traceHeader(part);
 
     if  (ToMinimize) {

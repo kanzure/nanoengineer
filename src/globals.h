@@ -34,6 +34,10 @@ extern char *TraceFileName;
 extern char *BaseFileName;
 extern int QualityWarningLevel;
 extern float SimpleMovieForceScale;
+extern double MinimizeThresholdCutoverRMS;
+extern double MinimizeThresholdCutoverMax;
+extern double MinimizeThresholdEndRMS;
+extern double MinimizeThresholdEndMax;
 
 extern FILE *OutputFile;
 extern FILE *TraceFile;
@@ -70,6 +74,8 @@ extern const double Gamma; // for Langevin thermostats
 extern const double G1;
 
 extern void reinit_globals(void);
+
+extern void constrainGlobals(void);
 
 extern void printGlobals(void);
 
