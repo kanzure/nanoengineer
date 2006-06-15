@@ -10,7 +10,7 @@ Orders 3 and 4 look like this:
 http://www.geocities.com/geodesicsnz/3viy.jpg
 http://www.geocities.com/geodesicsnz/4viy-01.jpg
 
-Radii for different orders:
+Diameters for different orders:
 1 - 3.9 Angstroms
 2 - 8.0 A
 3 - 12.8 A
