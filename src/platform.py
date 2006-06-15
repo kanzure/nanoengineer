@@ -331,21 +331,32 @@ def _find_or_make_nanorex_dir_0():
     #e now we should create or update a README file in there [bruce 050104]
     return tmpFilePath
 
-def find_or_make_Nanorex_subdir(subdir):
-    """Find or make a subdirectory under ~/Nanorex/.
-    Return the full path of the Nanorex subdirectory whether it already exists or was made here.
+def path_of_Nanorex_subdir(subdir): #bruce 060614
+    """Return the full pathname which should be used for the given ~/Nanorex subdirectory,
+    without checking whether it exists.
+       WARNING: as a kluge, the current implem may create ~/Nanorex itself.
+    This might be necessary (rather than a kluge) if the name can only be determined by creating it
+    (as the current code for creating it assumes, but whose true status is unknown).
     """
     nanorex = find_or_make_Nanorex_directory()
-    nanorex_subdir  = os.path.join(nanorex, subdir)
-    
-    if not os.path.exists(nanorex_subdir):
-        from debug import print_compact_traceback
-        try:
-            os.mkdir(nanorex_subdir)
-        except:
-            print_compact_traceback("exception in creating directory: \"%s\"" % nanorex_subdir)
-
+    nanorex_subdir = os.path.join(nanorex, subdir)
     return nanorex_subdir
+    
+def find_or_make_Nanorex_subdir(subdir, make = True): #bruce 060614 added make arg; revised implem (so subdir can be >1 level deep)
+    """Find or make a given subdirectory under ~/Nanorex/. It's allowed to be more than one level deep, using '/' separator.
+    (This assumes '/' is an acceptable file separator on all platforms. I think it is, but haven't fully verified it. [bruce 060614])
+    (If make = False, never make it; return None if it's not there.)
+    Return the full path of the Nanorex subdirectory, whether it already exists or was made here.
+    """
+    subdir = path_of_Nanorex_subdir(subdir)
+
+    errorcode, path_or_errortext = find_or_make_any_directory(subdir, make = make)
+    if errorcode:
+        if make:
+            # this should not normally happen, since ~/Nanorex should be writable, but it's possible in theory
+            print "bug: should not normally happen:", path_or_errortext
+        return None
+    return path_or_errortext
 
 def find_or_make_partfiles_subdir(assy): # Mark 060612.
     """Find or make the "part files" subdirectory next to the current assy (MMP file).
@@ -368,11 +379,57 @@ def find_or_make_partfiles_subdir(assy): # Mark 060612.
             return 1, "find_or_make_partfiles(): Cannot create directory %s" % partfiles_dir
 
     return 0, partfiles_dir
+
+def find_or_make_any_directory(dirname, make = True, make_higher_dirs = True): #bruce 060614
+    """Find or make the given directory, making containing directories as needed unless make_higher_dirs is false.
+    (If make is false, don't make it, only find it.)
+    Make sure it's really a directory.
+    For any error, return (1, errortext); on success return (0, full_path_of_dir).
+    In other words, return (errorcode, path_or_errortext).
+    """
+    ###e once this works, redefine some other functions in terms of it, here and in callers of functions here.
+    dirname = os.path.abspath(os.path.normpath(dirname)) #k might be redundant, in wrong order, etc
+    if os.path.isdir(dirname):
+        return 0, dirname
+    if os.path.exists(dirname):
+        return 1, "[%s] exists but is not a directory" % (dirname,)
+    # not there
+    if not make:
+        return 1, "[%s] does not exist" % (dirname,)
+    # try to make it; first make sure parent is there, only making it if make_higher_dirs is true.
+    parent, basedir = os.path.split(dirname)
+    if not parent or parent == dirname:
+        # be sure to avoid infinite recursion; parent == dirname can happen for "/",
+        # though presumably that never gets here since isdir is true for it, so this might never be reached.
+        return 1, "[%s] does not exist" % (dirname,)
+    assert basedir
+    assert parent
+    errorcode, path = find_or_make_any_directory(parent, make = make_higher_dirs, make_higher_dirs = make_higher_dirs)
+    if errorcode:
+        return errorcode, path # path is the errortext
+    # now try to make the dir in question; this could fail for a variety of reasons
+    # (like the parent not being writable, bad chars in basedir, disk being full...)
+    try:
+        os.mkdir(dirname)
+    except:
+        return 1, "can't create directory [%s]" % (dirname, ) ###e should grab exception text to say why not
+    if not os.path.isdir(dirname):
+        return 1, "bug: [%s] is not a directory, even though mkdir said it made it" % (dirname, ) # should never happen
+    return 0, dirname
+
     
+_histfile = None
+_histfile_timestamp_string = None
+    #bruce 060614 kluge -- record this for use in creating other per-session unique directory names
+    # To clean this up, we should create this filename, and the file itself,
+    # earlier in startup_funcs, and be 100% sure it's unique (include pid, use O_EXCL, or test in some manner).
+
 def make_history_filename():
     """[private method for history init code]
     Return a suitable name for a new history file (not an existing filename).
-    The filename contains the current time, so should be called once per history
+    Note: this does not actually create the file! It's assumed the caller will do that immediately
+    (and we don't provide perfect protection against two callers doing this at the same time).
+       The filename contains the current time, so this should be called once per history
     (probably once per process), not once per window when we have more than one.
     This filename could also someday be used as a "process name", valid forever,
     but relative to the local filesystem.
@@ -380,12 +437,17 @@ def make_history_filename():
     prefsdir = find_or_make_Nanorex_directory()
     tried_already = None
     while 1:
-        histfile = os.path.join( prefsdir, "Histories", "h%s.txt" % time.strftime("%Y%m%d-%H%M%S") )
+        timestamp_string = time.strftime("%Y%m%d-%H%M%S")
+        histfile = os.path.join( prefsdir, "Histories", "h%s.txt" % timestamp_string )
             # e.g. ~/Nanorex/Histories/h20050104-160000.txt
         if not os.path.exists(histfile):
             if histfile == tried_already:
                 # this is ok, but is so unlikely that it might indicate a bug, so report it
                 print "fyi: using history file \"%s\" after all; someone removed it!" % histfile
+            if "kluge":
+                global _histfile, _histfile_timestamp_string
+                _histfile = histfile
+                _histfile_timestamp_string = timestamp_string # this lacks the 'h' and the '.txt'
             return histfile # caller should print this at some point
         # Another process which wants to use the same kind of history filename
         # (in the same Nanorex-specific prefs directory) must have started less
@@ -399,6 +461,59 @@ def make_history_filename():
         time.sleep(0.35)
         continue
     pass
+
+_tempfiles_dir = None # this is assigned if and only if we ever create that dir, so we can move it when we quit. (Not a kluge.)
+_tempfiles_dir_has_moved = False
+
+def tempfiles_dir(make = True): #bruce 060614
+    """Return (and by default, make if necessary) the pathname of the subdir for this process's temporary files.
+    If make is false and this dir is not there, return None rather than its intended name.
+       [All temporary files created by this process should go into the subdir we return,
+    and upon normal exit it should be moved to a different location or name that marks it as "Old",
+    e.g. from ~/Nanorex/TemporaryFiles into ~/Nanorex/OldTempFiles,
+    and subsequent nE-1 startups should consider deleting it if it's both marked as old
+    (meaning nE-1 didn't crash and can't be still running)
+    and is too old in modtime of any file, or recorded quit-time
+    (eg modtime of a logfile that records the quit). But all that is NIM as of 060614.]
+    """
+    #bruce 060614; current implem is a kluge, but should be ok in practice
+    # unless you start more than one nE-1 process in one second, and furthermore they
+    # happen to both think they own the same history file name (unlikely but possible)
+    if _tempfiles_dir_has_moved:
+        print "bug: _tempfiles_dir_has_moved but we're calling tempfiles_dir after that; _tempfiles_dir == %r" % (_tempfiles_dir,)
+    assert _histfile_timestamp_string, "too early to call tempfiles_dir"
+    global _tempfiles_dir
+    if _tempfiles_dir:
+        return _tempfiles_dir
+    _tempfiles_dir = find_or_make_Nanorex_subdir("TemporaryFiles/t%s" % _histfile_timestamp_string, make = make )
+    # that might be None if make is false, but that's ok since it already was None if we got this far
+    # [don't reset _tempfiles_dir_has_moved to mitigate the bug of calling this when it's already set,
+    #  since the newly made dir might have the same name as the moved one so we don't want to try moving it again]
+    return _tempfiles_dir
+
+def move_tempfiles_dir_when_quitting(): #bruce 060614 ###@@@ need to call this when nE-1 quits
+    """If tempfiles_dir actually created a directory during this session,
+    move it to where old ones belong. (Also reset variables so that if some bug makes someone
+    call tempfiles_dir again, it will complain, but then return the moved directory
+    rather than a now-invalid pathname.)
+    """
+    global _tempfiles_dir, _tempfiles_dir_has_moved
+    if _tempfiles_dir_has_moved:
+        print "bug: _tempfiles_dir_has_moved but we're calling move_tempfiles_dir_when_quitting again" #e print_compact_stack
+        return
+    _tempfiles_dir_has_moved = True # even if not _tempfiles_dir
+    if not _tempfiles_dir:
+        return
+    if not os.path.isdir(_tempfiles_dir):
+        print "bug: can't find _tempfiles_dir %r which we supposedly made earlier this session" % (_tempfiles_dir,)
+        return
+    assert _histfile_timestamp_string
+    movetodir = find_or_make_Nanorex_subdir("OldTempFiles")
+    moveto = os.path.join( movetodir, os.path.basename(_tempfiles_dir))
+    assert _tempfiles_dir != moveto
+    os.rename(_tempfiles_dir, moveto)
+    _tempfiles_dir = moveto
+    return
 
 # ===
 
