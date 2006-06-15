@@ -1112,4 +1112,6 @@ import extensions
 
 # don't add custom display mode imports here -- add them to _initialize_custom_display_modes() in startup_funcs.py. [bruce 060609]
 
+import chem_patterns
+
 # end
