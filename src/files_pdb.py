@@ -53,6 +53,13 @@ def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & d
                 # (since a test reveals AssertionError is what happens)
                 env.history.message( redmsg( "Warning: Pdb file: unknown element %s in: %s" % (sym,card) ))
                 ## print 'unknown element "',sym,'" in: ',card
+                #
+                # Note: an advisor tells us:
+                #   PDB files sometimes encode atomtypes,
+                #   using C_R instead of C, for example, to represent sp2 carbons.
+                # I suspect that would trigger this exception, and ought to be handled,
+                # preferably by setting the atomtype here (and perhaps using it when
+                # inferring bonds, if the file doesn't have any). [bruce 060614 comment]
             else:
                 xyz = map(float, [card[30:38],card[38:46],card[46:54]])
                 n = int(card[6:11])
