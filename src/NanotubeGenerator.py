@@ -17,13 +17,17 @@ from chem import molecule, Atom
 import env
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
-from VQT import dot
+from VQT import dot, vlen
+import random
 import string
 from widgets import double_fixup
 from debug import Stopwatch, objectBrowse
 from Utility import Group
 from GeneratorBaseClass import GeneratorBaseClass
 from elements import PeriodicTable
+from bonds import inferBonds, V_GRAPHITE
+from buckyball import BuckyBall
+from OpenGL.quaternion import quaternion
 
 sqrt3 = 3 ** 0.5
 
@@ -157,6 +161,151 @@ class Chirality:
                     except KeyError:
                         pass
 
+####################################################################
+# Endcaps
+
+def anneal(nsteps, E, z, rinit=100.0, dr=0.9, progress=0):
+    poolsize = 100
+    rpool = [ ]
+    for i in range(poolsize):
+        rpool.append(rinit * random.random())
+    def neighbor(x, r):
+        def rgen(z):
+            return r * (2.0 * random.random() - 1.0)
+        return x + chem.A(map(rgen, x.tolist()))
+    while True:
+        try:
+            x = neighbor(z, rinit)
+            e = E(x, False)
+            break
+        except ValueError:
+            pass
+    flag = False
+    for steps in range(nsteps):
+        if progress == 1 and steps % 1000 == 0:
+            sys.stdout.write('.')
+            sys.stdout.flush()
+        r = random.choice(rpool)
+        x1 = neighbor(x, r)
+        try:
+            e1 = E(x1, False)
+            if e1 < e:
+                x = x1
+                e = e1
+                flag = False
+                i = random.randint(0, poolsize - 1)
+                rpool[i] = r
+                if progress == 2:
+                    print steps, e, x, flag
+            e1 = E(x1, True)
+            if e1 < e:
+                x = x1
+                e = e1
+                flag = True
+                i = random.randint(0, poolsize - 1)
+                rpool[i] = r
+                if progress == 2:
+                    print steps, e, x, flag
+        except ValueError:
+            pass
+        i = random.randint(0, poolsize - 1)
+        rpool[i] *= dr
+    if progress == 1:
+        print
+    return e, x, flag
+
+def add_endcap(mol, diameter):
+    def chooseBuckyBall(diameter):
+        D = [3.9, 8.0, 12.75, 17.7, 23.5]
+        bestfit = (1.0e20, None)
+        i = 1
+        for d in D:
+            fit = abs(d - diameter)
+            if fit < bestfit[0]:
+                bestfit = (fit, i)
+            i += 1
+        return BuckyBall(bestfit[1])
+
+    posns = [ ]
+    minheight = -1.0e20  # the min y coord for any capping atom
+    for atm in mol.atoms.values():
+        p = atm.posn()
+        if p[1] > minheight:
+            minheight = p[1]
+        posns.append(p)
+    tube_end = filter(lambda v: v[1] > minheight - 1.4, posns)
+    bball = chooseBuckyBall(diameter)
+
+    def moveBuckyball(vec, bool, b=bball):
+        ytranslation = vec[0]
+        theta = vec[1]
+        def clip(u):
+            if u < -1: return -1
+            if u > 1: return 1
+            return u
+        vx = clip(vec[2])
+        vy = clip(vec[3])
+        vz = (1 - clip(vx**2 + vy**2)) ** .5
+        if bool: vz = -vz
+        # construct the rotation quaternion
+        def qrot(theta, vec):
+            vec = (sin(theta/2) / vlen(vec)) * vec
+            return quaternion(cos(theta/2), vec[0], vec[1], vec[2])
+        q = qrot(theta, chem.V(vx, vy, vz))
+        qinv = quaternion(1, 0, 0, 0) / q
+        lst = [ ]
+        for v in b.carbons():
+            # rotate and translate
+            x = q * quaternion(0, v[0], v[1], v[2]) * qinv
+            x = chem.V(x.b, x.c, x.d)
+            lst.append(x)
+        translation = chem.V(0.0, ytranslation, 0.0)
+        for i in range(len(lst)):
+            lst[i] = lst[i] + translation
+        return lst
+
+    def closest(needle, haystack):
+        assert len(haystack) > 0
+        minDist = 1.0e20
+        for x in haystack:
+            d = vlen(x - needle)
+            if d < minDist:
+                minDist = d
+                which = x
+        return minDist, which
+
+    def fit(vec, bool, b=bball, tube_end=tube_end):
+        ytranslation = vec[0]
+        if ytranslation > minheight:
+            return 1.0e6
+        lst = moveBuckyball(vec, bool)
+        err = 0.0
+        for atm in tube_end:
+            d, which = closest(atm, lst)
+            err += d ** 2
+        return err
+
+    nsteps = 400
+    err, vec, flag = anneal(nsteps, fit, chem.V(0.0, 0.0, 0.0, 0.0),
+                            rinit=5.0, dr=0.93)
+
+    lst = moveBuckyball(vec, flag)
+    def goodAtom(atm, tube_end=tube_end, minsep=0.5*1.402):
+        # does not overlap the tube, and higher than minheight
+        d, which = closest(atm, tube_end)
+        return d > minsep and atm[1] > minheight
+    lst = filter(goodAtom, lst)
+    # now add these atoms to the mol
+    def add(element, x, y, z, atomtype='sp2', mol=mol):
+        atm = Atom(element, chem.V(x, y, z), mol)
+        atm.set_atomtype_but_dont_revise_singlets(atomtype)
+        return atm
+    for x, y, z in lst:
+        add('C', x, y, z)
+    inferBonds(mol, V_GRAPHITE)
+
+#################################################################
+
 _RADIUS_PER_N = 0.7844
 
 # GeneratorBaseClass must come BEFORE the dialog in the list of parents
@@ -215,9 +364,6 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         bend = pi * self.bend_spinbox.value() / 180.0
         members = self.members_combox.currentItem()
         endings = self.endings_combox.currentItem()
-        if endings == 1:
-            raise Exception("Nanotube endcaps not implemented yet.")
-
         numwalls = self.mwcnt_count_spinbox.value()
         return (length, n, m, bond_length, zdist, xydist,
                 twist, bend, members, endings, numwalls, spacing)
@@ -307,6 +453,11 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
                         atm.kill()
 
         # if we're not picky about endings, we don't need to trim carbons
+        if endings == 1:
+            # buckyball endcaps
+            trimCarbons()
+            diameter = 2 * _RADIUS_PER_N * n
+            add_endcap(mol, diameter)
         if endings == 2:
             # hydrogen terminations
             trimCarbons()
