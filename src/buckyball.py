@@ -132,11 +132,12 @@ class BuckyBall:
         def mmpBonds(self):
             dct = { }
             for i in self.dct.keys():
-                for j in self.dct[i]:
-                    if j < i:  # optimize for MMP generation
-                        if not dct.has_key(i):
-                            dct[i] = [ ]
-                        dct[i].append(j+1)
+                for e, j in self.dct[i]:
+                    a1, a2 = e.atoms()
+                    if not dct.has_key(a2):
+                        dct[a2] = [ ]
+                    if a1+1 not in dct[a2]:
+                        dct[a2].append(a1+1)
             return dct
 
     def __init__(self, order=1):
