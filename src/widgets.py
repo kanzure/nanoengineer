@@ -229,8 +229,9 @@ def makemenu_helper( widget, menu_spec):
             pass #e could add a fake menu item here as an error message
     return menu # from makemenu_helper
 
-def insert_command_into_menu(menu, menutext, command, options = (), position = -1, raw_command = False): 
+def insert_command_into_menu(menu, menutext, command, options = (), position = -1, raw_command = False, undo_cmdname = None): 
     """Insert a new item into menu (a QPopupMenu), whose menutext, command, and options are as given,
+    with undo_cmdname defaulting to menutext (used only if raw_command is false), 
     where options is a list or tuple in the same form as used in "menu_spec" lists
     such as are passed to makemenu_helper (which this function helps implement).
        The caller should have already translated/localized menutext if desired.
@@ -247,7 +248,7 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
     # Only called for len(options) > 0, though it presumably works
     # just as well for len 0 (try it sometime).
     if not raw_command:
-        command = wrap_callable_for_undo(command, cmdname = menutext)
+        command = wrap_callable_for_undo(command, cmdname = undo_cmdname or menutext)
         import changes
         changes.keep_forever(command)
             # see comments on similar code above about why this is bad in theory, but necessary and ok for now
