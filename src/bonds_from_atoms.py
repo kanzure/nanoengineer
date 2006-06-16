@@ -29,11 +29,12 @@ from chem import atom_angle_radians
 
 degrees = pi / 180
 
-TET_ANGLE = 109.4 * degrees   #e this will probably need to be generalized for non-sp3 atoms
-MIN_BOND_ANGLE = 40 * degrees # accepts moderately distorted three-membered rings
+#TET_ANGLE = 109.4 * degrees   #e this will probably need to be generalized for non-sp3 atoms
+TET_ANGLE = 114 * degrees     #changed on advice of Eric D
+MIN_BOND_ANGLE = 30 * degrees # accepts moderately distorted three-membered rings
 ANGLE_ACCEPT_DIST = 0.9       # ignore angle cutoff below this distance (in Angstroms)
-#MIN_DIST_RATIO = 0.8          # prohibit bonds too much shorter than their proper length
-MAX_DIST_RATIO = 1.2          # prohibit bonds too much longer than their proper length
+MAX_DIST_RATIO_HUNGRY = 2.0   # prohibit bonds way longer than their proper length
+MAX_DIST_RATIO_NON_HUNGRY = 1.4   # prohibit bonds a little longer than their proper length
 DIST_COST_FACTOR = 5.0        # multiplier on square of distance-ratio beyond optimal
 
 # (utilities used by contributed code, defined differently for nE-1)
@@ -68,7 +69,84 @@ def max_atom_bonds(atom): # coded differently for nE-1
     """Return max number of bonds permitted on this atom, based only on its element
     (for any atomtype, ignoring current atomtype of atom). (Returns 0 for noble gases.)
     """
-    return atom.element.atomtypes[0].numbonds
+    maxbonds = 0
+    for atype in atom.element.atomtypes:
+        if atype.numbonds > maxbonds:
+            maxbonds = atype.numbonds
+    return maxbonds
+
+def min_atom_bonds(atom): # coded differently for nE-1
+    """Return min number of bonds permitted on this atom, based only on its element
+    (for any atomtype, ignoring current atomtype of atom). (Returns 0 for noble gases.)
+    That is, find the atomtype with the smallest number of bonds (e.g. sp for carbon,
+    which can have just two double bonds) and return that number of bonds. This is the
+    smallest number of bonds that could possibly make this element happy.
+    """
+    minbonds = 10000
+    for atype in atom.element.atomtypes:
+        if atype.numbonds < minbonds:
+            minbonds = atype.numbonds
+    return minbonds
+
+"""
+Eric D writes: If the bond-number limit for each atom is based on its
+atom-type, rather than on its element-type, there should be no
+problem. Or, if atom-types are unknown, then we can use the maximum
+valence for that atom that occurs in non-exotic chemistry. Damian
+should cross-check this, but I'd use:
+
+H  1
+B  4
+C  4
+N  4
+O  2
+F  1
+Si 4
+P  5
+S  4
+Cl 1
+
+Many elements can have any one of several atomtypes based on
+hybridization. Our concepts of these appear in the _mendeleev table in
+elements.py. So for each element there is a minimum number of possible
+bonds and a maximum number of possible bonds; for carbon these are
+respectively 2 (two double bonds for sp hybridization) and 4 (sp3).
+
+There are two things that could be the independent variable. Either
+you derive the atomtype from the number of bonds, or you hold the
+atomtype fixed and permit only the number of bonds it allows.
+
+Currently max_atom_bonds() is looking at
+atom.element.atomtypes[0].numbonds to determine how many bonds are OK
+for this atom. That presumes the layout of
+ElementPeriodicTable._mendeleev in elements.py will be consistent, but
+it would be better to take an explicit maximum.
+
+So we DO want the maximum number of bonds for ANY atomtype for this
+element, with the presumption that somebody else will later
+rehybridize the atom to get the right atomtype. We don't need to do
+that here.
+
+The other messy thing is this: If we know we don't have enough bonds
+for the element (i.e. fewer than the smallest number of bonds for any
+of its atomtypes) then we should use MAX_DIST_RATIO = 2.0 because we
+are hungry for more bonds. When we get enough for the minimum, we
+reduce MAX_DIST_RATIO to 1.4 because we're not so hungry any more.
+
+MAX_DIST_RATIO is used in two places. One is in list_potential_bonds,
+where we clearly want this policy. (Complication: there are two
+atoms involved - we will use the smaller value only when BOTH are
+non-hungry.) The other place is atm_distance_cost, another case
+where there are two atoms involved. I think it applies there too.
+"""
+
+def max_dist_ratio(atm1, atm2):
+    def is_hungry(atm):
+        return len(atom.realNeighbors()) < min_atom_bonds(atm)
+    if is_hungry(atm1) or is_hungry(atm2):
+        return MAX_DIST_RATIO_HUNGRY
+    else:
+        return MAX_DIST_RATIO_NON_HUNGRY
 
 def bondable_atm(atom): # coded differently for nE-1 due to open bonds
     """Could this atom accept any more bonds
@@ -80,11 +158,22 @@ def bondable_atm(atom): # coded differently for nE-1 due to open bonds
     #e len(atom.bonds) would be faster but would not ignore open bonds;
     # entire alg could be recoded to avoid ever letting open bonds exist,
     # and then this could be speeded up.
-    if atom.element.symbol == 'P':
-        # SPECIAL CASE for phosphorus in the DNA backbone - wware 060613
-        return len(atom.realNeighbors()) < 4
-    else:
-        return len(atom.realNeighbors()) < max_atom_bonds(atom)
+    try:
+        maxNeighbors = {
+            'H':  1,
+            'B':  4,
+            'C':  4,
+            'N':  4,
+            'O':  2,
+            'F':  1,
+            'Si': 4,
+            'P':  5,
+            'S':  4,
+            'Cl': 1
+            }[atom.element.symbol]
+    except KeyError:
+        maxNeighbors = max_atom_bonds(atom)
+    return len(atom.realNeighbors()) < maxNeighbors
 
 def bond_angle_cost(angle, accept):
     """Return the cost of the given angle, or None if that cost is infinite.
@@ -93,9 +182,18 @@ def bond_angle_cost(angle, accept):
        If accept is true, don't use the minimum-angle cutoff (i.e. no angle
     is too small to be accepted).
     """
-    if not (accept or MIN_BOND_ANGLE < angle):
+    # if bond is too short, bond angle constraint changes
+
+    # CLARIFICATION REQUIRED: where does bond_length_ratio come from?
+    # There are two bonds involved in an angle, and each could be
+    # divided by a "best distance" (as is done in atm_distance_cost)
+    # to get a ratio. But with two different ratios, how do I get one
+    # value for bond_length_ratio?
+    #if not (accept or angle > MIN_BOND_ANGLE * 1.0 + (2.0 * max(0.0, bond_length_ratio - 1.0)**2)):
+
+    if not (accept or angle > MIN_BOND_ANGLE):
         return None
-    diff = angle - TET_ANGLE # for heuristic cost, treat all angles as ideally tetrahedral
+    diff = min(0.0, angle - TET_ANGLE) # for heuristic cost, treat all angles as ideally tetrahedral
     square = diff * diff
     if 0.0 < diff:
         # wide angle
@@ -146,7 +244,7 @@ def atm_distance_cost(atm1, atm2):
     if not best_dist:
         return None # avoid ZeroDivision exception from pondering a He-He bond
     ratio = distance / best_dist # best_dist is always a float, so this is never "integer division"
-    if not (ratio < MAX_DIST_RATIO):
+    if not (ratio < max_dist_ratio(atm1, atm2)):
         return None
     if ratio < 1.0:
         # short bond
@@ -200,8 +298,7 @@ def list_potential_bonds(atmlist0):
         for atm2 in ngen.region(pos1):
             bondLen = vlen(pos1 - atm2.posn())
             idealBondLen = radius1 + atm2.atomtype.rcovalent
-            #if atm2.key < key1 and MIN_DIST_RATIO * idealBondLen < bondLen < MAX_DIST_RATIO * idealBondLen:
-            if atm2.key < key1 and bondLen < MAX_DIST_RATIO * idealBondLen:
+            if atm2.key < key1 and bondLen < max_dist_ratio(atm1, atm2) * idealBondLen:
                 # i.e. for each pair (atm1, atm2) of bondable atoms
                 cost = bond_cost(atm1, atm2)
                 if cost is not None:
