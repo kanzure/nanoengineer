@@ -99,7 +99,10 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
        Note: this superclass sets and maintains some attributes in self,
     including win, struct, previousParams, _just_updating.
     """
-
+    cmd = "" # deprecated but widely used [bruce 060616 comment]
+        # (subclasses often set cmd to greenmsg(self.cmdname + ": "), from which we have to klugily deduce self.cmdname! Ugh.)
+    cmdname = "" # subclasses should set this to their (undecorated) command name for use by Undo and history. [bruce 060616 new feature]
+    
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         self.win = win
@@ -112,6 +115,24 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         # message, and I probably got it wrong, and it should probably be
         # scrapped when we get our heads around the distinction.
         self._just_updating = True
+        #bruce 060616 added the following kluge to make sure both cmdname and cmd are set properly.
+        if not self.cmdname and not self.cmd:
+            self.cmdname = "Generate something"
+        if self.cmd and not self.cmdname:
+            # deprecated but common, as of 060616
+            self.cmdname = self.cmd # fallback
+            try:
+                cmdname = self.cmd.split('>')[1]
+                cmdname = cmdname.split('<')[0]
+                cmdname = cmdname.split(':')[0]
+                self.cmdname = cmdname
+            except:
+                if platform.atom_debug:
+                    print "fyi: %r guessed wrong about format of self.cmd == %r" % (self, self.cmd,)
+                pass
+        elif self.cmdname and not self.cmd:
+            # this is intended to be the usual situation, but isn't yet, as of 060616
+            self.cmd = greenmsg(self.cmdname + ": ")
         SponsorableMixin.__init__(self)
 
     def build_struct(self):
@@ -135,6 +156,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     def preview_btn_clicked(self):
         if platform.atom_debug: print 'preview button clicked'
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616; should we + " (Preview)" ? guess: too ugly.
         try:
             self._build_struct()
         except Exception, e:
@@ -215,6 +237,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         'Slot for the OK button'
         if platform.atom_debug: print 'ok button clicked'
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616
         try:
             self._build_struct()
             env.history.message(self.cmd + self.done_msg())
@@ -238,6 +261,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     def cancel_btn_clicked(self):
         'Slot for the Cancel button'
         if platform.atom_debug: print 'cancel button clicked'
+        self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)") #bruce 060616
         self.remove_struct()
         self._revert_number()
         QDialog.accept(self)
