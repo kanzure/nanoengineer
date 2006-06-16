@@ -287,42 +287,53 @@ def bond_v6(bond):
 # This is an order(N) operation that produces a function which gets a
 # list of potential neighbors in order(1) time. This is handy for
 # inferring bonds for PDB files that lack any bonding information.
-def neighborhoodGenerator(atomlist, maxradius):
-    def quantize(vec, maxradius=maxradius):
+class NeighborhoodGenerator:
+    def __init__(self, atomlist, maxradius):
+        self._buckets = { }
+        self._maxradius = 1.0 * maxradius
+        for atom in atomlist:
+            self.add(atom)
+
+    def _quantize(self, vec):
+        maxradius = self._maxradius
         return (int(vec[0] / maxradius),
                 int(vec[1] / maxradius),
                 int(vec[2] / maxradius))
-    buckets = { }
-    for atom in atomlist:
-        key = quantize(atom.posn())
-        try:
-            buckets[key].append(atom)
-        except KeyError:
-            buckets[key] = [ atom ]
-    def region(center, quantize=quantize, buckets=buckets):
+
+    def add(self, atom):
+        if not atom.is_singlet():
+            key = self._quantize(atom.posn())
+            if not self._buckets.has_key(key):
+                self._buckets[key] = [ ]
+            self._buckets[key].append(atom)
+
+    def region(self, center):
         lst = [ ]
-        x0, y0, z0 = quantize(center)
+        x0, y0, z0 = self._quantize(center)
         for x in range(x0 - 1, x0 + 2):
             for y in range(y0 - 1, y0 + 2):
                 for z in range(z0 - 1, z0 + 2):
                     key = (x, y, z)
                     try:
-                        lst += buckets[key]
+                        lst += self._buckets[key]
                     except KeyError:
                         pass
         return lst
-    return region
+
+    def remove(self, atom):
+        key = self._quantize(atom.posn())
+        self._buckets[key].remove(atom)
 
 def inferBonds(mol):
     maxBondLength = 2.0
     # first remove any coincident singlets
     singlets = filter(lambda a: a.is_singlet(), mol.atoms.values())
     removable = { }
-    singletNeighborhood = neighborhoodGenerator(singlets, maxBondLength)
+    sngen = NeighborhoodGenerator(singlets, maxBondLength)
     for sing1 in singlets:
         key1 = sing1.key
         pos1 = sing1.posn()
-        for sing2 in singletNeighborhood(pos1):
+        for sing2 in sngen.region(pos1):
             key2 = sing2.key
             dist = vlen(pos1 - sing2.posn())
             # not sure how big a margin we should have for

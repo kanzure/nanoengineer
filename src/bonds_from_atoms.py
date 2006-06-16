@@ -22,7 +22,7 @@ History:
 # perhaps plus some extra too-long bonds at the end, if permitted by valence.
 
 from VQT import vlen, pi
-from bonds import bonded, bond_atoms_faster, V_SINGLE, neighborhoodGenerator
+from bonds import bonded, bond_atoms_faster, V_SINGLE, NeighborhoodGenerator
 from chem import atom_angle_radians
 
 # constants; angles are in radians
@@ -192,12 +192,12 @@ def list_potential_bonds(atmlist0):
     atmlist = filter( bondable_atm, atmlist0 )
     lst = []
     maxBondLength = 2.0
-    neighborhood = neighborhoodGenerator(atmlist, maxBondLength)
+    ngen = NeighborhoodGenerator(atmlist, maxBondLength)
     for atm1 in atmlist:
         key1 = atm1.key
         pos1 = atm1.posn()
         radius1 = atm1.atomtype.rcovalent
-        for atm2 in neighborhood(pos1):
+        for atm2 in ngen.region(pos1):
             bondLen = vlen(pos1 - atm2.posn())
             idealBondLen = radius1 + atm2.atomtype.rcovalent
             #if atm2.key < key1 and MIN_DIST_RATIO * idealBondLen < bondLen < MAX_DIST_RATIO * idealBondLen:

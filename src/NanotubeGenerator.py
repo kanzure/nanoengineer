@@ -25,7 +25,7 @@ from debug import Stopwatch, objectBrowse
 from Utility import Group
 from GeneratorBaseClass import GeneratorBaseClass
 from elements import PeriodicTable
-from bonds import bonded, bond_atoms, V_GRAPHITE, neighborhoodGenerator
+from bonds import bonded, bond_atoms, V_GRAPHITE, NeighborhoodGenerator
 from buckyball import BuckyBall
 from OpenGL.quaternion import quaternion
 import platform
@@ -165,6 +165,8 @@ class Chirality:
 ####################################################################
 # Endcaps
 
+from debug import linenum
+
 def add_endcap(mol, length, radius):
     BONDLENGTH = 1.402
     sphere_center = chem.V(0, length / 2, 0)
@@ -180,76 +182,67 @@ def add_endcap(mol, length, radius):
         cpart, spart = norm(dP), norm(dPs)
         theta = 2 * asin(0.5 * D / R)
         return sphere_center + R * (cpart * cos(theta) + spart * sin(theta))
-    def filterAtomDict(dct, test):
-        dct2 = { }
-        for atm in dct.values():
-            if test(atm):
-                dct2[atm.key] = atm
-        return dct2
-    def growing_edge(atoms):
-        lst = [ ]
-        singlets = [ ]
-        for atm in atoms.values():
-            if not atm.is_singlet():
-                for atm2 in atm.neighbors():
-                    if atm2.is_singlet():
-                        lst.append((atm, atm2.posn()))
-        for atm in atoms.values():
-            if atm.is_singlet():
-                atm.kill()
-        return lst
-    def cleanupSinglets(atoms):
-        for atm in atoms.values():
-            for s in atm.singNeighbors():
-                s.kill()
-            atm.make_enough_singlets()
-
-
-    # cap at the +Y end
-    for i in range(3):
-        north_atoms = filterAtomDict(mol.atoms,
-                                     lambda atm: atm.posn()[1] > length/2 - 3.0)
-        edge = growing_edge(north_atoms)
-        for atm, q in edge:
-            p = atm.posn()
-            z = walk_great_circle(p, q, BONDLENGTH)
-            atm2 = Atom('C', z, mol)
-            bond_atoms(atm, atm2, V_GRAPHITE)
-            atm2.set_atomtype('sp2')
-        north_atoms = filterAtomDict(mol.atoms,
-                                     lambda atm: atm.posn()[1] > length/2 - 3.0)
-        dist = 0.8
-        ngen = neighborhoodGenerator(north_atoms.values(), dist)
-        # if a new atom is close to an older atom, merge them: kill the newer
+    def cleanupSinglets(atm):
+        for s in atm.singNeighbors():
+            s.kill()
+        atm.make_enough_singlets()
+    def is_north(atm):
+        return atm.posn()[1] > length / 2 - 3.0
+    def is_south(atm):
+        return atm.posn()[1] < -length / 2 + 3.0
+    def replaceSingletWithNewCarbon(sing):
+        owner = sing.realNeighbors()[0]
+        newpos = walk_great_circle(owner.posn(), sing.posn(), BONDLENGTH)
+        sing.kill()
+        ngen = NeighborhoodGenerator(mol.atoms.values(), 1.1 * BONDLENGTH)
+        # do not include new guy in neighborhood, add him afterwards
+        newguy = Atom('C', newpos, mol)
+        newguy.set_atomtype('sp2')
+        # if the new atom is close to an older atom, merge them: kill the newer
         # atom, give the older one its neighbors, nudge the older one to the midpoint
-        discards = [ ]
-        for new1 in north_atoms.values():
-            for atm in ngen(new1.posn()):
-                if atm.key < new1.key and vlen(new1.posn() - atm.posn()) < dist:
-                    atm.setposn(0.5 * (new1.posn() + atm.posn()))
-                    discards.append(new1)
-        for atm in discards:
-            atm.kill()
-        cleanupSinglets(north_atoms)
+        for oldguy in ngen.region(newpos):
+            if vlen(oldguy.posn() - newpos) < 0.8:
+                newpos = 0.5 * (newguy.posn() + oldguy.posn())
+                newguy.setposn(newpos)
+                ngen.remove(oldguy)
+                oldguy.kill()
+                break
+        # merge newguy with anybody close enough, unless he already has 3 real
+        # neighbors
+        for oldguy in ngen.region(newpos):
+            r = oldguy.posn() - newpos
+            rlen = vlen(r)
+            if (len(newguy.realNeighbors()) < 3 and rlen < 1.1 * BONDLENGTH):
+                if rlen < 0.7 * BONDLENGTH:
+                    # nudge them apart
+                    nudge = ((0.7 * BONDLENGTH - rlen) / rlen) * r
+                    oldguy.setposn(oldguy.posn() + 0.5 * r)
+                    newguy.setposn(newguy.posn() - 0.5 * r)
+                bond_atoms(newguy, oldguy, V_GRAPHITE)
+                cleanupSinglets(newguy)
+                cleanupSinglets(oldguy)
 
-        # if two atoms are close enough to bond, bond them
-        # the distance thresholds here are a judgement call, we'll need more
-        # experience to choose them correctly
-        north_atoms = filterAtomDict(mol.atoms,
-                                     lambda atm: atm.posn()[1] > length/2 - 3.0)
-        dist = 1.4 * BONDLENGTH
-        ngen = neighborhoodGenerator(north_atoms.values(), dist)
-        # the new guys who are close enough should be bonded
-        for new1 in north_atoms.values():
-            for atm in ngen(new1.posn()):
-                if atm is not new1 and vlen(new1.posn() - atm.posn()) < dist \
-                       and not bonded(new1, atm):
-                        bond_atoms(new1, atm, V_GRAPHITE)
-        cleanupSinglets(north_atoms)
+    # grow the cap at the +Y end
+    # great circles now computed for the north end
+    sphere_center = chem.V(0, length / 2, 0)
+    while True:
+        north_singlets = filter(lambda atm: is_north(atm) and atm.is_singlet(),
+                                mol.atoms.values())
+        if not north_singlets:
+            break
+        sing = north_singlets.pop(0)
+        replaceSingletWithNewCarbon(sing)
 
-##     # great circles now computed for the south pole
-##     sphere_center = chem.V(0, -length / 2, 0)
-##     # cap at the -Y end, yada yada yada
+    # grow the cap at the -Y end
+    # great circles now computed for the south end
+    sphere_center = chem.V(0, -length / 2, 0)
+    while True:
+        south_singlets = filter(lambda atm: is_south(atm) and atm.is_singlet(),
+                                mol.atoms.values())
+        if not south_singlets:
+            break
+        sing = south_singlets.pop(0)
+        replaceSingletWithNewCarbon(sing)
 
 #################################################################
 
