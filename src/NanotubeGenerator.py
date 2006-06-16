@@ -11,13 +11,13 @@ for notes about what's going on here.
 __author__ = "Will"
 
 from NanotubeGeneratorDialog import nanotube_dialog
-from math import atan2, sin, cos, pi
+from math import atan2, sin, cos, pi, asin
 import assembly, chem, bonds, Utility
 from chem import molecule, Atom
 import env
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
-from VQT import dot, vlen
+from VQT import dot, vlen, cross, norm
 import random
 import string
 from widgets import double_fixup
@@ -25,7 +25,7 @@ from debug import Stopwatch, objectBrowse
 from Utility import Group
 from GeneratorBaseClass import GeneratorBaseClass
 from elements import PeriodicTable
-from bonds import inferBonds, V_GRAPHITE
+from bonds import bonded, bond_atoms, V_GRAPHITE, neighborhoodGenerator
 from buckyball import BuckyBall
 from OpenGL.quaternion import quaternion
 
@@ -164,149 +164,93 @@ class Chirality:
 ####################################################################
 # Endcaps
 
-def anneal(nsteps, E, z, rinit=100.0, dr=0.9, progress=0):
-    poolsize = 100
-    rpool = [ ]
-    for i in range(poolsize):
-        rpool.append(rinit * random.random())
-    def neighbor(x, r):
-        def rgen(z):
-            return r * (2.0 * random.random() - 1.0)
-        return x + chem.A(map(rgen, x.tolist()))
-    while True:
-        try:
-            x = neighbor(z, rinit)
-            e = E(x, False)
-            break
-        except ValueError:
-            pass
-    flag = False
-    for steps in range(nsteps):
-        if progress == 1 and steps % 1000 == 0:
-            sys.stdout.write('.')
-            sys.stdout.flush()
-        r = random.choice(rpool)
-        x1 = neighbor(x, r)
-        try:
-            e1 = E(x1, False)
-            if e1 < e:
-                x = x1
-                e = e1
-                flag = False
-                i = random.randint(0, poolsize - 1)
-                rpool[i] = r
-                if progress == 2:
-                    print steps, e, x, flag
-            e1 = E(x1, True)
-            if e1 < e:
-                x = x1
-                e = e1
-                flag = True
-                i = random.randint(0, poolsize - 1)
-                rpool[i] = r
-                if progress == 2:
-                    print steps, e, x, flag
-        except ValueError:
-            pass
-        i = random.randint(0, poolsize - 1)
-        rpool[i] *= dr
-    if progress == 1:
-        print
-    return e, x, flag
-
-def add_endcap(mol, diameter):
-    def chooseBuckyBall(diameter):
-        D = [3.9, 8.0, 12.75, 17.7, 23.5]
-        bestfit = (1.0e20, None)
-        i = 1
-        for d in D:
-            fit = abs(d - diameter)
-            if fit < bestfit[0]:
-                bestfit = (fit, i)
-            i += 1
-        return BuckyBall(bestfit[1])
-
-    posns = [ ]
-    minheight = -1.0e20  # the min y coord for any capping atom
-    for atm in mol.atoms.values():
-        p = atm.posn()
-        if p[1] > minheight:
-            minheight = p[1]
-        posns.append(p)
-    tube_end = filter(lambda v: v[1] > minheight - 1.4, posns)
-    bball = chooseBuckyBall(diameter)
-
-    def moveBuckyball(vec, bool, b=bball):
-        ytranslation = vec[0]
-        theta = vec[1]
-        def clip(u):
-            if u < -1: return -1
-            if u > 1: return 1
-            return u
-        vx = clip(vec[2])
-        vy = clip(vec[3])
-        vz = (1 - clip(vx**2 + vy**2)) ** .5
-        if bool: vz = -vz
-        # construct the rotation quaternion
-        def qrot(theta, vec):
-            vec = (sin(theta/2) / vlen(vec)) * vec
-            return quaternion(cos(theta/2), vec[0], vec[1], vec[2])
-        q = qrot(theta, chem.V(vx, vy, vz))
-        qinv = quaternion(1, 0, 0, 0) / q
+def add_endcap(mol, length, radius):
+    BONDLENGTH = 1.402
+    sphere_center = chem.V(0, length / 2, 0)
+    def walk_great_circle(P, Q, D, R=radius):
+        """Given two points P and Q on or near the surface of the
+        sphere, use P and Q to define a great circle. Then walk along
+        that great circle starting at P and going in the direction of
+        Q, and traveling far enough the chord is of length D. P and Q
+        are not required to lie exactly on the sphere's surface.
+        """
+        dP, dQ = P - sphere_center, Q - sphere_center
+        dPs = cross(cross(dP, dQ), dP)
+        cpart, spart = norm(dP), norm(dPs)
+        theta = 2 * asin(0.5 * D / R)
+        return sphere_center + R * (cpart * cos(theta) + spart * sin(theta))
+    def filterAtomDict(dct, test):
+        dct2 = { }
+        for atm in dct.values():
+            if test(atm):
+                dct2[atm.key] = atm
+        return dct2
+    def growing_edge(atoms):
         lst = [ ]
-        for v in b.carbons():
-            # rotate and translate
-            x = q * quaternion(0, v[0], v[1], v[2]) * qinv
-            x = chem.V(x.b, x.c, x.d)
-            lst.append(x)
-        translation = chem.V(0.0, ytranslation, 0.0)
-        for i in range(len(lst)):
-            lst[i] = lst[i] + translation
+        singlets = [ ]
+        for atm in atoms.values():
+            if not atm.is_singlet():
+                for atm2 in atm.neighbors():
+                    if atm2.is_singlet():
+                        lst.append((atm, atm2.posn()))
+        for atm in atoms.values():
+            if atm.is_singlet():
+                atm.kill()
         return lst
+    def cleanupSinglets(atoms):
+        for atm in atoms.values():
+            for s in atm.singNeighbors():
+                s.kill()
+            atm.make_enough_singlets()
 
-    def closest(needle, haystack):
-        assert len(haystack) > 0
-        minDist = 1.0e20
-        for x in haystack:
-            d = vlen(x - needle)
-            if d < minDist:
-                minDist = d
-                which = x
-        return minDist, which
 
-    def fit(vec, bool, b=bball, tube_end=tube_end):
-        ytranslation = vec[0]
-        if ytranslation > minheight:
-            return 1.0e6
-        lst = moveBuckyball(vec, bool)
-        err = 0.0
-        for atm in tube_end:
-            d, which = closest(atm, lst)
-            err += d ** 2
-        return err
+    # cap at the +Y end
+    for i in range(3):
+        north_atoms = filterAtomDict(mol.atoms,
+                                     lambda atm: atm.posn()[1] > length/2 - 3.0)
+        edge = growing_edge(north_atoms)
+        for atm, q in edge:
+            p = atm.posn()
+            z = walk_great_circle(p, q, BONDLENGTH)
+            atm2 = Atom('C', z, mol)
+            bond_atoms(atm, atm2, V_GRAPHITE)
+            atm2.set_atomtype('sp2')
+        north_atoms = filterAtomDict(mol.atoms,
+                                     lambda atm: atm.posn()[1] > length/2 - 3.0)
+        dist = 0.8
+        ngen = neighborhoodGenerator(north_atoms.values(), dist)
+        # if a new atom is close to an older atom, merge them: kill the newer
+        # atom, give the older one its neighbors, nudge the older one to the midpoint
+        discards = [ ]
+        for new1 in north_atoms.values():
+            for atm in ngen(new1.posn()):
+                if atm.key < new1.key and vlen(new1.posn() - atm.posn()) < dist:
+                    atm.setposn(0.5 * (new1.posn() + atm.posn()))
+                    discards.append(new1)
+        for atm in discards:
+            atm.kill()
+        cleanupSinglets(north_atoms)
 
-    nsteps = 400
-    err, vec, flag = anneal(nsteps, fit, chem.V(0.0, 0.0, 0.0, 0.0),
-                            rinit=5.0, dr=0.93)
+        # if two atoms are close enough to bond, bond them
+        # the distance thresholds here are a judgement call, we'll need more
+        # experience to choose them correctly
+        north_atoms = filterAtomDict(mol.atoms,
+                                     lambda atm: atm.posn()[1] > length/2 - 3.0)
+        dist = 1.4 * BONDLENGTH
+        ngen = neighborhoodGenerator(north_atoms.values(), dist)
+        # the new guys who are close enough should be bonded
+        for new1 in north_atoms.values():
+            for atm in ngen(new1.posn()):
+                if atm is not new1 and vlen(new1.posn() - atm.posn()) < dist \
+                       and not bonded(new1, atm):
+                        bond_atoms(new1, atm, V_GRAPHITE)
+        cleanupSinglets(north_atoms)
 
-    lst = moveBuckyball(vec, flag)
-    def goodAtom(atm, tube_end=tube_end, minsep=0.5*1.402):
-        # does not overlap the tube, and higher than minheight
-        d, which = closest(atm, tube_end)
-        return d > minsep and atm[1] > minheight
-    lst = filter(goodAtom, lst)
-    # now add these atoms to the mol
-    def add(element, x, y, z, atomtype='sp2', mol=mol):
-        atm = Atom(element, chem.V(x, y, z), mol)
-        atm.set_atomtype_but_dont_revise_singlets(atomtype)
-        return atm
-    for x, y, z in lst:
-        add('C', x, y, z)
-    inferBonds(mol, V_GRAPHITE)
+##     # great circles now computed for the south pole
+##     sphere_center = chem.V(0, -length / 2, 0)
+##     # cap at the -Y end, yada yada yada
 
 #################################################################
-
-_RADIUS_PER_N = 0.7844
 
 # GeneratorBaseClass must come BEFORE the dialog in the list of parents
 class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
@@ -413,8 +357,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         for atm in atoms.values():
             # xy distortion
             x, y, z = atm.posn()
-            # radius is approximate
-            radius = _RADIUS_PER_N * n
+            radius = self.chirality.R
             x *= (radius + 0.5 * xydist) / radius
             z *= (radius - 0.5 * xydist) / radius
             atm.setposn(chem.V(x, y, z))
@@ -452,20 +395,17 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
                     if not atm.is_singlet() and len(atm.realNeighbors()) == 1:
                         atm.kill()
 
+        trimCarbons()
         # if we're not picky about endings, we don't need to trim carbons
         if endings == 1:
             # buckyball endcaps
-            trimCarbons()
-            diameter = 2 * _RADIUS_PER_N * n
-            add_endcap(mol, diameter)
+            add_endcap(mol, length, self.chirality.R)
         if endings == 2:
             # hydrogen terminations
-            trimCarbons()
             for atm in atoms.values():
                 atm.Hydrogenate()
         elif endings == 3:
             # nitrogen terminations
-            trimCarbons()
             dstElem = PeriodicTable.getElement('N')
             atomtype = dstElem.find_atomtype('sp2')
             for atm in atoms.values():
