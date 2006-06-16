@@ -550,23 +550,26 @@ if atom_debug:
 # this file, but there is not yet a better place for them. [bruce 041018]
 
 def fix_plurals(text, between = 1):
-    """fix plurals in text (a message for the user) by changing:
+    """Fix plurals in text (a message for the user) by changing:
       1 thing(s) -> 1 thing
       2 thing(s) -> 2 things
     permitting at most 'between' extra words in between,
     e.g. by default
       2 green thing(s) -> 2 green things.
+       Also, if the subsequent word is (literally) were/was or was/were, replace it with the correct form.
     #"""
     words = text.split(" ")
     numpos = -1
     count = 0
+    didpos = -1
+    didnum = -1
     for word,i in zip(words,range(len(words))):
         if word and word[-1].isdigit():
             # if word ends with a digit, call it a number (e.g. "(1" )
             numpos = i
-        elif word.endswith("(s)") or word.endswith("(s),"):
-            # (that condition is a kluge, should be generalized [bruce 041217])
-            suflen = ( word.endswith("(s),") and 1) or 0 # klugier and klugier
+        elif word.endswith("(s)") or word.endswith("(s),") or word.endswith("(s)."):
+            # (that condition is a kluge, should be generalized [bruce 041217]) (added "(s).", bruce 060615)
+            suflen = ( (not word.endswith("(s)")) and 1) or 0 # klugier and klugier
             count += 1
             if numpos >= 0 and (i-numpos) <= (between+1): # not too far back
                 # fix word for whether number is 1
@@ -586,10 +589,23 @@ def fix_plurals(text, between = 1):
                     words[i] = words[i][:-3] + suffix
                 else:
                     words[i] = words[i][:-3] + "s" + suffix
+                didpos = i
+                didnum = num
             else:
                 # error, but no change to words[i]
                 print "fyi, cosmetic bug: fix_plurals(%r) found no number close enough to affect %r" % (text,word)
             numpos = -1 # don't permit "2 dog(s) cat(s)" -> "2 dogs cats"
+        elif word == "was/were" or word == "were/was": #bruce 060615 new feature (#e probably should generalize to e.g. is/are)
+            if didpos >= 0 and (i-didpos) <= 1: # not too far back
+                # replace with whichever is correct of "was" or "were"
+                if didnum == "1":
+                    words[i] = "was"
+                else:
+                    words[i] = "were"
+                didpos = -1
+            else:
+                print "fyi, cosmetic bug: fix_plurals(%r) was unable to replace %r" % (text,word)
+        continue
     if not count:
         print """fyi, possible cosmetic bug: fix_plurals(%r) got text with no "(s)", has no effect""" % (text,)
     return " ".join(words)

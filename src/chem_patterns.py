@@ -10,7 +10,7 @@ Todo later:
 - really turn O into 8 and reverse rules as needed
 - might need to also check bondtypes or atomtypes someday... problematic since they might be wrong to start with.
 - might want to also select bad-valence atoms, or have another command for that.
-- support were/was in fix_plurals
+- might need a few more kinds of patterns, like one for just 2 atoms... wait and see what's suggested.
 """
 
 __author__ = "bruce"
@@ -21,7 +21,8 @@ cmdname = "Select Bad Atoms"
 
 def compile_patterns():
     ## bad_patterns = [('O', 'O', 'O')] # this could be any list of triples of element symbols, and could be an argument.
-    bad_patterns_compiled = [(8,8,8)] # corresponding element numbers (easily computed from the above)
+    bad_patterns_compiled = [(8,8,8)] # corresponding element numbers
+        # (easily computed from the above using PeriodicTable.getElement(sym).eltnum)
     # if any are not symmetric, we should compile them in both directions, e.g. if one was OON we'd also put NOO in this table.
     bad_patterns_dict = dict([(p,p) for p in bad_patterns_compiled]) # dict version for fast lookup #e could easily optimize further
     root_eltnums = {}
@@ -30,13 +31,14 @@ def compile_patterns():
         other_eltnums[o1e] = o1e
         root_eltnums[ae] = ae
         other_eltnums[o2e] = o2e
-    root_eltnums = root_eltnums.values() # this might be faster to search since the list is so short (I don't know)
+    root_eltnums = root_eltnums.values() # a list might be faster to search than a dict, since the list is so short (I don't know)
     other_eltnums = other_eltnums.values()
     return bad_patterns_dict, root_eltnums, other_eltnums
 
-def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple {"spelling checker" with hardcoded rules
+def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple "spelling checker" with hardcoded rules
     """Out of the selected atoms or chunks, select the atoms which have "bad spelling"."""
     from HistoryWidget import orangemsg, redmsg, greenmsg
+    from platform import fix_plurals
     greencmd = greenmsg("%s: " % cmdname)
     orangecmd = orangemsg("%s: " % cmdname) # used when bad atoms are found, even though no error occurred in the command itself
     win = env.mainwindow()
@@ -45,6 +47,7 @@ def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple {"spelling checke
     bad_patterns_dict, root_eltnums, other_eltnums = compile_patterns()
     # 2. Find the atoms to search from (all selected atoms, or atoms in selected chunks, are potential root atoms)
     checked_in_what = "selected atoms or chunks"
+    contained = "contained"
     atoms = {}
     for m in assy.selmols:
         atoms.update(m.atoms)
@@ -58,6 +61,7 @@ def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple {"spelling checke
         # if nothing is selected, work on the entire model.
         if not atoms:
             checked_in_what = "model"
+            contained = "contains"
             for m in assy.molecules:
                 atoms.update(m.atoms)
             if not atoms:
@@ -99,14 +103,13 @@ def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple {"spelling checke
     for a in bad_atoms.itervalues():
         a.pick()
         reallypicked += (not not a.picked) # check for selection filter effect
-    env.history.message(orangecmd + platform.fix_plurals(
-                        "%s contained %d bad atom(s), in %d bad pattern(s)." % \
-                        (checked_in_what, len(bad_atoms), len(bad_triples)) ))
+    env.history.message(orangecmd + fix_plurals(
+                        "%s %s %d bad atom(s), in %d bad pattern(s)." % \
+                        (checked_in_what, contained, len(bad_atoms), len(bad_triples)) ))
     if reallypicked < len(bad_atoms):
-        #e need fix_plurals, but for "were/was" as well as "atom(s)":
-        env.history.message( orangemsg("Warning: ") + \
-                             "%d bad atoms were not selected due to the selection filter." % \
-                             (len(bad_atoms) - reallypicked) )
+        env.history.message( orangemsg("Warning: ") + fix_plurals(
+                             "%d bad atom(s) were/was not selected due to the selection filter." % \
+                             (len(bad_atoms) - reallypicked) ))
     win.mt.update_select_mode()
     return
 

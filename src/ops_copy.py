@@ -110,9 +110,8 @@ class ops_copy_Mixin:
                     ## self.sanitize_for_clipboard(ob) ## zapped 050307 since obs
                     self.shelf.addchild(ob) # add new member(s) to the clipboard [incl. Groups, jigs -- won't be pastable]
                 nshelf_after = len(self.shelf.members) #bruce 050201
-                msg = fix_plurals("Cut %d item(s)" % (nshelf_after - nshelf_before)) + "." 
+                msg = fix_plurals("Cut %d item(s)." % (nshelf_after - nshelf_before)) 
                 env.history.message(cmd + msg) #bruce 050201
-                    ###e fix_plurals can't yet handle "(s)." directly. It needs improvement after Alpha.
             else:
                 if not (use_selatoms and self.selatoms):
                     #bruce 050201-bug370: we don't need this if the message for selatoms already went out
