@@ -142,7 +142,7 @@ where there are two atoms involved. I think it applies there too.
 
 def max_dist_ratio(atm1, atm2):
     def is_hungry(atm):
-        return len(atom.realNeighbors()) < min_atom_bonds(atm)
+        return len(atm.realNeighbors()) < min_atom_bonds(atm)
     if is_hungry(atm1) or is_hungry(atm2):
         return MAX_DIST_RATIO_HUNGRY
     else:
