@@ -268,6 +268,8 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
                     # (this is true for imagename_to_pixmap retval)
                     iconset = QIconSet(iconset)
     if iconset is not None:
+        import changes
+        changes.keep_forever(iconset) #e memory leak; ought to make caller pass a place to keep it, or a unique id of what to keep
         mitem_id = menu.insertItem( iconset, menutext, -1, position ) #bruce 050614, revised 060613 (added -1, position)
             # Will this work with checkmark items? Yes, but it replaces the checkmark --
             # instead, the icon looks different for the checked item.
