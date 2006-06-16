@@ -28,6 +28,7 @@ from elements import PeriodicTable
 from bonds import bonded, bond_atoms, V_GRAPHITE, neighborhoodGenerator
 from buckyball import BuckyBall
 from OpenGL.quaternion import quaternion
+import platform
 
 sqrt3 = 3 ** 0.5
 
