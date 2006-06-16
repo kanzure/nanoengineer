@@ -308,6 +308,8 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         bend = pi * self.bend_spinbox.value() / 180.0
         members = self.members_combox.currentItem()
         endings = self.endings_combox.currentItem()
+        if endings == 1 and not platform.atom_debug:
+            raise Exception('Nanotube endcaps not implemented yet.')
         numwalls = self.mwcnt_count_spinbox.value()
         return (length, n, m, bond_length, zdist, xydist,
                 twist, bend, members, endings, numwalls, spacing)
