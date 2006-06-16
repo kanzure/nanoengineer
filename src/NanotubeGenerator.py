@@ -26,6 +26,7 @@ from Utility import Group
 from GeneratorBaseClass import GeneratorBaseClass
 from elements import PeriodicTable
 from bonds import bonded, bond_atoms, V_GRAPHITE, NeighborhoodGenerator
+from bonds_from_atoms import make_bonds
 from buckyball import BuckyBall
 from OpenGL.quaternion import quaternion
 import platform
@@ -186,63 +187,55 @@ def add_endcap(mol, length, radius):
         for s in atm.singNeighbors():
             s.kill()
         atm.make_enough_singlets()
+    def replaceSingletsWithNewCarbons(chopSpace):
+        while True:
+            regional_singlets = filter(lambda atm: chopSpace(atm) and atm.is_singlet(),
+                                       mol.atoms.values())
+            if not regional_singlets:
+                return
+            sing = regional_singlets[0]
+            owner = sing.realNeighbors()[0]
+            newpos = walk_great_circle(owner.posn(), sing.posn(), BONDLENGTH)
+            sing.kill()
+            ngen = NeighborhoodGenerator(mol.atoms.values(), 1.1 * BONDLENGTH)
+            # do not include new guy in neighborhood, add him afterwards
+            newguy = Atom('C', newpos, mol)
+            newguy.set_atomtype('sp2')
+            # if the new atom is close to an older atom, merge them: kill the newer
+            # atom, give the older one its neighbors, nudge the older one to the midpoint
+            for oldguy in ngen.region(newpos):
+                if vlen(oldguy.posn() - newpos) < 0.8:
+                    newpos = 0.5 * (newguy.posn() + oldguy.posn())
+                    newguy.setposn(newpos)
+                    ngen.remove(oldguy)
+                    oldguy.kill()
+                    break
+            # Bond with anybody close enough. I would love to use the
+            # smarter bond inference code here, but it's too slow.
+            # make_bonds(ngen.region(newpos) + [ newguy ])
+            for oldguy in ngen.region(newpos):
+                r = oldguy.posn() - newpos
+                rlen = vlen(r)
+                if (len(newguy.realNeighbors()) < 3 and rlen < 1.1 * BONDLENGTH):
+                    if rlen < 0.7 * BONDLENGTH:
+                        # nudge them apart
+                        nudge = ((0.7 * BONDLENGTH - rlen) / rlen) * r
+                        oldguy.setposn(oldguy.posn() + 0.5 * r)
+                        newguy.setposn(newguy.posn() - 0.5 * r)
+                    bond_atoms(newguy, oldguy, V_GRAPHITE)
+                    cleanupSinglets(newguy)
+                    cleanupSinglets(oldguy)
+
     def is_north(atm):
         return atm.posn()[1] > length / 2 - 3.0
     def is_south(atm):
         return atm.posn()[1] < -length / 2 + 3.0
-    def replaceSingletWithNewCarbon(sing):
-        owner = sing.realNeighbors()[0]
-        newpos = walk_great_circle(owner.posn(), sing.posn(), BONDLENGTH)
-        sing.kill()
-        ngen = NeighborhoodGenerator(mol.atoms.values(), 1.1 * BONDLENGTH)
-        # do not include new guy in neighborhood, add him afterwards
-        newguy = Atom('C', newpos, mol)
-        newguy.set_atomtype('sp2')
-        # if the new atom is close to an older atom, merge them: kill the newer
-        # atom, give the older one its neighbors, nudge the older one to the midpoint
-        for oldguy in ngen.region(newpos):
-            if vlen(oldguy.posn() - newpos) < 0.8:
-                newpos = 0.5 * (newguy.posn() + oldguy.posn())
-                newguy.setposn(newpos)
-                ngen.remove(oldguy)
-                oldguy.kill()
-                break
-        # merge newguy with anybody close enough, unless he already has 3 real
-        # neighbors
-        for oldguy in ngen.region(newpos):
-            r = oldguy.posn() - newpos
-            rlen = vlen(r)
-            if (len(newguy.realNeighbors()) < 3 and rlen < 1.1 * BONDLENGTH):
-                if rlen < 0.7 * BONDLENGTH:
-                    # nudge them apart
-                    nudge = ((0.7 * BONDLENGTH - rlen) / rlen) * r
-                    oldguy.setposn(oldguy.posn() + 0.5 * r)
-                    newguy.setposn(newguy.posn() - 0.5 * r)
-                bond_atoms(newguy, oldguy, V_GRAPHITE)
-                cleanupSinglets(newguy)
-                cleanupSinglets(oldguy)
-
-    # grow the cap at the +Y end
     # great circles now computed for the north end
     sphere_center = chem.V(0, length / 2, 0)
-    while True:
-        north_singlets = filter(lambda atm: is_north(atm) and atm.is_singlet(),
-                                mol.atoms.values())
-        if not north_singlets:
-            break
-        sing = north_singlets.pop(0)
-        replaceSingletWithNewCarbon(sing)
-
-    # grow the cap at the -Y end
+    replaceSingletsWithNewCarbons(is_north)
     # great circles now computed for the south end
     sphere_center = chem.V(0, -length / 2, 0)
-    while True:
-        south_singlets = filter(lambda atm: is_south(atm) and atm.is_singlet(),
-                                mol.atoms.values())
-        if not south_singlets:
-            break
-        sing = south_singlets.pop(0)
-        replaceSingletWithNewCarbon(sing)
+    replaceSingletsWithNewCarbons(is_south)
 
 #################################################################
 
