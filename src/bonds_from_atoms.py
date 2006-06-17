@@ -175,7 +175,7 @@ def bondable_atm(atom): # coded differently for nE-1 due to open bonds
         maxNeighbors = max_atom_bonds(atom)
     return len(atom.realNeighbors()) < maxNeighbors
 
-def bond_angle_cost(angle, accept):
+def bond_angle_cost(angle, accept, bond_length_ratio):
     """Return the cost of the given angle, or None if that cost is infinite.
     Note that the return value can be 0.0, so callers should only
     test it for "is None", not for its boolean value.
@@ -183,15 +183,7 @@ def bond_angle_cost(angle, accept):
     is too small to be accepted).
     """
     # if bond is too short, bond angle constraint changes
-
-    # CLARIFICATION REQUIRED: where does bond_length_ratio come from?
-    # There are two bonds involved in an angle, and each could be
-    # divided by a "best distance" (as is done in atm_distance_cost)
-    # to get a ratio. But with two different ratios, how do I get one
-    # value for bond_length_ratio?
-    #if not (accept or angle > MIN_BOND_ANGLE * 1.0 + (2.0 * max(0.0, bond_length_ratio - 1.0)**2)):
-
-    if not (accept or angle > MIN_BOND_ANGLE):
+    if not (accept or angle > MIN_BOND_ANGLE * 1.0 + (2.0 * max(0.0, bond_length_ratio - 1.0)**2)):
         return None
     diff = min(0.0, angle - TET_ANGLE) # for heuristic cost, treat all angles as ideally tetrahedral
     square = diff * diff
@@ -202,7 +194,7 @@ def bond_angle_cost(angle, accept):
         # tight angle -- larger quadratic penalty
         return 2.0 * square
 
-def atm_angle_cost(atm1, atm2):
+def atm_angle_cost(atm1, atm2, ratio):
     """Return total cost of all bond-angles which include the atm1-atm2 bond
     (where one bond angle is said to include the two bonds whose angle it describes);
     None means infinite cost.
@@ -210,12 +202,13 @@ def atm_angle_cost(atm1, atm2):
     accept = atm_distance(atm1, atm2) < ANGLE_ACCEPT_DIST
     sum = 0.0
     for atm in atm1.realNeighbors():
-        cost = bond_angle_cost( atm_angle(atm, atm1, atm2), accept)
+        cost = bond_angle_cost( atm_angle(atm, atm1, atm2), accept, ratio)
         if cost is None: # cost can be 0.0, so don't use a boolean test here [bruce 050906]
             return None
         sum += cost
     for atm in atm2.realNeighbors():
-        cost = bond_angle_cost( atm_angle(atm, atm2, atm1), accept) # note different order of atm2, atm1
+        # note different order of atm2, atm1
+        cost = bond_angle_cost( atm_angle(atm, atm2, atm1), accept, ratio)
         if cost is None:
             return None
         sum += cost
@@ -237,13 +230,8 @@ def covalent_radius(atm):
         return float( atm.element.atomtypes[0].rcovalent ) # otherwise use nE-1 radius
     pass
 
-def atm_distance_cost(atm1, atm2):
+def atm_distance_cost(ratio):
     "Return cost (due to length alone) of a hypothetical bond between two atoms; None means infinite"
-    distance = atm_distance(atm1, atm2)
-    best_dist = covalent_radius(atm1) + covalent_radius(atm2)
-    if not best_dist:
-        return None # avoid ZeroDivision exception from pondering a He-He bond
-    ratio = distance / best_dist # best_dist is always a float, so this is never "integer division"
     if not (ratio < max_dist_ratio(atm1, atm2)):
         return None
     if ratio < 1.0:
@@ -269,10 +257,15 @@ def bond_cost(atm1, atm2):
         return None
     if bonded(atm1, atm2): # already bonded? (redundant after list-potential-bonds) ###
         return None
-    dc = atm_distance_cost(atm1, atm2)
+    distance = atm_distance(atm1, atm2)
+    best_dist = covalent_radius(atm1) + covalent_radius(atm2)
+    if not best_dist:
+        return None # avoid ZeroDivision exception from pondering a He-He bond
+    ratio = distance / best_dist # best_dist is always a float, so this is never "integer division"
+    dc = atm_distance_cost(ratio)
     if dc is None:
         return None
-    ac = atm_angle_cost(atm1, atm2)
+    ac = atm_angle_cost(atm1, atm2, ratio)
     if ac is None:
         return None
     ec = bond_element_cost(atm1, atm2)
