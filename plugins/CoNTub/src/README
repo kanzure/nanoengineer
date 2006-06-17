@@ -1,0 +1,7 @@
+# $Id$
+
+Source code and a Makefile goes in this src subdirectory. 
+During the build process, some or all built objects may also be generated in this directory,
+but the ones used at runtime will be copied into ../bin.
+
+For more info see ../README.
