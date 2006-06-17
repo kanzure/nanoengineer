@@ -167,137 +167,122 @@ class Chirality:
 # Endcaps
 
 from debug import linenum
+import Numeric
 
 def add_endcap(mol, length, radius):
     BONDLENGTH = 1.402
-    sphere_center = chem.V(0, length / 2, 0)
-    def walk_great_circle(P, Q, D, R=radius):
-        """Given two points P and Q on or near the surface of the
-        sphere, use P and Q to define a great circle. Then walk along
-        that great circle starting at P and going in the direction of
-        Q, and traveling far enough the chord is of length D. P and Q
-        are not required to lie exactly on the sphere's surface.
-        """
-        dP, dQ = P - sphere_center, Q - sphere_center
-        dPs = cross(cross(dP, dQ), dP)
-        cpart, spart = norm(dP), norm(dPs)
-        theta = 2 * asin(0.5 * D / R)
-        return sphere_center + R * (cpart * cos(theta) + spart * sin(theta))
-    def projectOntoSphere(v, R=radius):
-        dv = v - sphere_center
-        dvlen = vlen(dv)
-        return sphere_center + (R / dvlen) * dv
-    def cleanupSinglets(atm):
-        for s in atm.singNeighbors():
-            s.kill()
-        atm.make_enough_singlets()
-    def addCarbons(chopSpace, R=radius):
-        # a buckyball has no more than about 6*r**2 atoms, r in angstroms
-        # each cap is ideally a half-buckyball
-        for i in range(int(3.0 * R**2)):
-            regional_singlets = filter(lambda atm: chopSpace(atm) and atm.is_singlet(),
-                                       mol.atoms.values())
-            for s in regional_singlets:
-                s.setposn(projectOntoSphere(s.posn()))
-            if len(regional_singlets) < 3:
-                # there won't be anything to bond to anyway, let the user
-                # manually adjust the geometry
-                return
-            singlet_pair = None
-            try:
-                for s1 in regional_singlets:
-                    s1p = s1.posn()
-                    for s2 in regional_singlets:
-                        if s2.key > s1.key and \
-                           vlen(s2.posn() - s1p) < BONDLENGTH:
-                            singlet_pair = (s1, s2)
-                            # break out of both for-loops
-                            raise Exception
-            except:
-                pass
-            if singlet_pair is not None:
-                # if there is an existing pair of singlets that's close than one bond
-                # length, use those to make the newguy, so he'll have one open bond left
-                sing1, sing2 = singlet_pair
-                owner1, owner2 = sing1.realNeighbors()[0], sing2.realNeighbors()[0]
-                newpos1 = walk_great_circle(owner1.posn(), sing1.posn(), BONDLENGTH)
-                newpos2 = walk_great_circle(owner2.posn(), sing2.posn(), BONDLENGTH)
-                newpos = 0.5 * (newpos1 + newpos2)
-                regional_singlets.remove(sing1)
-                regional_singlets.remove(sing2)
-            else:
-                # otherwise choose any pre-existing bond and stick the newguy on him
-                # prefer a bond whose real atom already has two real neighbors
-                preferred = filter(lambda atm: len(atm.realNeighbors()[0].realNeighbors()) == 2,
-                                   regional_singlets)
-                if preferred:
-                    sing = preferred[0]
-                else:
-                    sing = regional_singlets[0]
-                owner = sing.realNeighbors()[0]
-                newpos = walk_great_circle(owner.posn(), sing.posn(), BONDLENGTH)
-                regional_singlets.remove(sing)
-            ngen = NeighborhoodGenerator(mol.atoms.values(), 1.1 * BONDLENGTH)
-            # do not include new guy in neighborhood, add him afterwards
-            newguy = Atom('C', newpos, mol)
-            newguy.set_atomtype('sp2')
-            # if the new atom is close to an older atom, merge them: kill the newer
-            # atom, give the older one its neighbors, nudge the older one to the midpoint
-            for oldguy in ngen.region(newpos):
-                if vlen(oldguy.posn() - newpos) < 0.4:
-                    newpos = 0.5 * (newguy.posn() + oldguy.posn())
-                    newguy.setposn(newpos)
-                    ngen.remove(oldguy)
-                    oldguy.kill()
-                    break
-            # Bond with anybody close enough. The newer make_bonds
-            # code doesn't seem to handle this usage very well.
-            for oldguy in ngen.region(newpos):
-                r = oldguy.posn() - newpos
-                rlen = vlen(r)
-                if (len(newguy.realNeighbors()) < 3 and rlen < 1.1 * BONDLENGTH):
-                    if rlen < 0.7 * BONDLENGTH:
-                        # nudge them apart
-                        nudge = ((0.7 * BONDLENGTH - rlen) / rlen) * r
-                        oldguy.setposn(oldguy.posn() + 0.5 * r)
-                        newguy.setposn(newguy.posn() - 0.5 * r)
-                    bond_atoms(newguy, oldguy, V_GRAPHITE)
-                    cleanupSinglets(newguy)
-                    cleanupSinglets(oldguy)
-            if len(newguy.realNeighbors()) > 3:
-                print 'warning: too many bonds on newguy'
-            # Try moving the new guy around to make his bonds closer to BONDLENGTH but
-            # keep him on or near the surface of the sphere. Use Newton's method in
-            # three dimensions.
-            def error(posn):
-                e = (vlen(posn - sphere_center) - radius) ** 2
-                for atm in newguy.realNeighbors():
-                    e += (vlen(atm.posn() - posn) - BONDLENGTH)**2
-                return e
-            p = newguy.posn()
-            for i in range(2):
-                h = 1.0e-4
-                e0 = error(p)
-                gradient = chem.V((error(p + chem.V(h, 0, 0)) - e0) / h,
-                                  (error(p + chem.V(0, h, 0)) - e0) / h,
-                                  (error(p + chem.V(0, 0, h)) - e0) / h)
-                p = p - (e0 / vlen(gradient)**2) * gradient
-            newguy.setposn(p)
-            # we may need to reposition singlets
-            for atm in ngen.region(newguy.posn()):
-                cleanupSinglets(atm)
-            cleanupSinglets(newguy)
-
+    def newtonsMethod(start, errfunc, steps):
+        # Works with vectors of any size
+        dimensions = Numeric.size(start)
+        p = start
+        for i in range(steps):
+            h = 1.0e-4
+            e0 = errfunc(p)
+            gradient = p.copy()  # all components will be replaced
+            for j in range(dimensions):
+                p1 = p.copy()
+                p1[j] += h
+                gradient[j] = (errfunc(p1) - e0) / h
+            if vlen(gradient) < 1.0e-15:
+                return p, e0
+            p = p - (e0 / vlen(gradient)**2) * gradient
+        return p, errfunc(p)
+    # The error function relates to the bonds we want to bond to.
+    # Start with the +Y end of the tube.
     def is_north(atm):
         return atm.posn()[1] > length / 2 - 3.0
     def is_south(atm):
         return atm.posn()[1] < -length / 2 + 3.0
-    # great circles now computed for the north end
-    sphere_center = chem.V(0, length / 2, 0)
-    addCarbons(is_north)
-    # great circles now computed for the south end
-    sphere_center = chem.V(0, -length / 2, 0)
-    addCarbons(is_south)
+    regional_singlets = filter(lambda atm: is_north(atm) and atm.is_singlet(),
+                               mol.atoms.values())
+    desired_bonds = [ ]
+    bond_y_top = -1.0e20
+    bond_y_bottom = 1.0e20
+    for sing in regional_singlets:
+        sp = sing.posn()
+        op = sing.realNeighbors()[0].posn()
+        # extend the bond from the owner until its BONDLENGTH long
+        d = sp - op
+        sp = op + (BONDLENGTH / vlen(d)) * d
+        desired_bonds.append((op, sp))
+        bond_y_top = max(sp[1], op[1], bond_y_top)
+        bond_y_bottom = min(sp[1], op[1], bond_y_top)
+    divider = (bond_y_top + bond_y_bottom) / 2
+
+    # So I want the bonds on the buckyball to approach these as closely as
+    # possible. Given that I know the radius of the buckyball, I can put it
+    # at the y coordinate I want easily.
+    bball = BuckyBall(2)
+    br = bball.radius()
+    if br < radius:
+        ypos = length / 2
+    else:
+        ypos = length / 2 - (br**2 - radius**2)**.5
+    def moveball(theta, phi):
+        lst = [ ]
+        ct, st = cos(theta), sin(theta)
+        cp, sp = cos(phi), sin(phi)
+        for vec in bball.carbons():
+            x, y, z = vec
+            x, y = ct * x + st * y, -st * x + ct * y
+            x, z = cp * x + sp * z, -sp * x + cp * z
+            y += ypos
+            lst.append(chem.V(x, y, z))
+        return lst
+    def errfunc(anglevec):
+        theta, phi = anglevec
+        lst = moveball(theta, phi)
+        above = [ ]
+        below = [ ]
+        bonds = [ ]
+        for i, j in bball.bondlist():
+            ipos, jpos = lst[i], lst[j]
+            if ((ipos[1] < divider and jpos[1] > divider) or
+                (ipos[1] > divider and jpos[1] < divider)):
+                bonds.append((ipos, jpos))
+        # now for each of the desired bonds, find the closest-fitting
+        # buckyball bond
+        totalerr = 0.0
+        for a, b in desired_bonds:
+            bestfit = 1.0e20
+            for c, d in bonds:
+                bestfit = min(bestfit,
+                              vlen(a - c)**2 + vlen(b - d)**2,
+                              vlen(a - d)**2 + vlen(b - c)**2)
+            totalerr += bestfit
+        return totalerr
+    minerror = 1.0e20
+    bestvec = None
+    for i in range(30):
+        theta = pi * (2 * random.random() - 1)
+        phi = pi * (2 * random.random() - 1)
+        z = Numeric.array([theta, phi])
+        z, err = newtonsMethod(z, errfunc, 5)
+        if err < minerror:
+            minerror = err
+            bestvec = z
+    theta, phi = bestvec
+
+    # kill the old atoms above the divider
+    for atm in mol.atoms.values():
+        if atm.posn()[1] >= divider:
+            atm.kill()
+
+    atoms = [ ]
+    positions = filter(lambda vec: vec[1] > divider,
+                       moveball(theta, phi))
+    for newpos in positions:
+        newguy = Atom('C', newpos, mol)
+        atoms.append(newguy)
+        newguy.set_atomtype('sp2')
+
+    maxradius = 1.5 * BONDLENGTH
+
+    make_bonds(mol.atoms.values(), V_GRAPHITE)
+    for atm in mol.atoms.values():
+        for s in atm.singNeighbors():
+            s.kill()
+        atm.make_enough_singlets()
     env.history.message(orangemsg('Nanotube endcap generation is an inexact science. ' +
                                   'Manual touch-up will be required.'))
 
