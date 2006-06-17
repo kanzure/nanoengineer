@@ -1,3 +1,5 @@
+# $Id$
+
 This is Nanorex's modified version of the CoNTub source code written
 by S. Melchor and J. Dobado at the Universidad de Granada in Spain.
 Citations of this work should be formatted as follows:
@@ -6,15 +8,19 @@ Citations of this work should be formatted as follows:
   nanotubes." S. Melchor; J.A. Dobado. Journal of Chemical Information
   and Computer Sciences, 44, 1639-1646 (2004)
 
-Nanorex's modifications include translation from Java to C++ and
-performance improvement in bond inference.
+Nanorex's modifications include translation from Java to C++,
+performance improvement in bond inference, and changing the output file
+format from pdb to mmp.
 
 There are three executables. You can build them by typing "make" in
-this directory. This should work on any of the three platforms.
+the src/ subdirectory. This should work on Windows, Mac, or Linux. 
+For Windows, it may require an appropriate unix-shell-like environment.
+[### we should say specifically what's required for Windows]
 
 Where arguments below are specified as floats, they are C/C++ double
 precision floats. Integers are 32-bit signed, though in all cases
-they use a much smaller range of values.
+only a smaller range of values is actually valid.
+[### we should say what happens when the values are not valid]
 
 --------------------------------------------
 I. Single-wall nanotubes
