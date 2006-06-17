@@ -299,7 +299,7 @@ def list_potential_bonds(atmlist0):
     lst.sort() # least cost first
     return lst
 
-def make_bonds(atmlist):
+def make_bonds(atmlist, bondtyp=V_SINGLE):
     """Make some bonds between the given atoms. At any moment make the cheapest permitted unmade bond;
     stop only when no more bonds are permitted (i.e. all potential bonds have infinite cost).
        Assume that newly made bonds can never decrease the cost of potential bonds.
@@ -326,7 +326,7 @@ def make_bonds(atmlist):
         if cost is not None:
             if (bondlst is None) or bondlst[0][0] >= cost:
                 # if there's no next-best bond, or its cost is no better than this one's, make this bond
-                bond_atoms_faster(atm1, atm2, V_SINGLE) # optimized bond_atoms, and doesn't make any open bonds
+                bond_atoms_faster(atm1, atm2, bondtyp) # optimized bond_atoms, and doesn't make any open bonds
                 res += 1
             else:
                 # cost has increased beyond next bond in list -- update entry and move it down list
