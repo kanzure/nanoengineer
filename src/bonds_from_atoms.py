@@ -230,7 +230,7 @@ def covalent_radius(atm):
         return float( atm.element.atomtypes[0].rcovalent ) # otherwise use nE-1 radius
     pass
 
-def atm_distance_cost(ratio):
+def atm_distance_cost(atm1, atm2, ratio):
     "Return cost (due to length alone) of a hypothetical bond between two atoms; None means infinite"
     if not (ratio < max_dist_ratio(atm1, atm2)):
         return None
@@ -262,7 +262,7 @@ def bond_cost(atm1, atm2):
     if not best_dist:
         return None # avoid ZeroDivision exception from pondering a He-He bond
     ratio = distance / best_dist # best_dist is always a float, so this is never "integer division"
-    dc = atm_distance_cost(ratio)
+    dc = atm_distance_cost(atm1, atm2, ratio)
     if dc is None:
         return None
     ac = atm_angle_cost(atm1, atm2, ratio)
