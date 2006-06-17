@@ -92,6 +92,8 @@ class BuckyBall:
         def ji(self):  # descending order
             return (self.j, self.i)
         def add_atom(self, a):
+            # a is an int, an index into the list returned by
+            # BuckyBall.carbons()
             if self.atom1 == None:
                 self.atom1 = a
             elif self.atom2 == None:
@@ -102,6 +104,8 @@ class BuckyBall:
             a1, a2 = self.atom1, self.atom2
             assert a1 != None and a2 != None
             if a1 > a2: a1, a2 = a2, a1
+            # a1 and a2 are ints, indices into the list returned by
+            # BuckyBall.carbons()
             return (a1, a2)
 
     class EdgeList:
@@ -131,15 +135,21 @@ class BuckyBall:
             return self.lst.__iter__()
         def anyOldBond(self):
             return self.lst[0].atoms()
-        def mmpBonds(self):
-            dct = { }
+        def bondlist(self):
+            lst = [ ]
             for i in self.dct.keys():
                 for e, j in self.dct[i]:
-                    a1, a2 = e.atoms()
-                    if not dct.has_key(a2):
-                        dct[a2] = [ ]
-                    if a1+1 not in dct[a2]:
-                        dct[a2].append(a1+1)
+                    if j > i:
+                        lst.append((i, j))
+            return lst
+        def mmpBonds(self):
+            dct = { }
+            for e, j in self.dct.values():
+                a1, a2 = e.atoms()
+                if not dct.has_key(a2):
+                    dct[a2] = [ ]
+                if a1+1 not in dct[a2]:
+                    dct[a2].append(a1+1)
             return dct
 
     def __init__(self, order=1):
@@ -165,6 +175,7 @@ class BuckyBall:
         self._triangles = None
         self._carbons = None
         self._bonds = None
+        self._bondlist = None
 
     def edges(self):
         if self._edges == None:
@@ -239,11 +250,28 @@ class BuckyBall:
             self._bonds = None
         return self._carbons
 
-    def bonds(self):
+    def radius(self):
+        carbons = self.carbons()
+        assert len(carbons) > 0
+        totaldist = 0.0
+        n = 0
+        # just averge the first ten (or fewer)
+        for c in carbons[:10]:
+            totaldist += vlen(c)
+            n += 1
+        return totaldist / n
+
+    def mmpBonds(self):
         if self._bonds == None:
-            # bonds are different from edges
+            # bonds are perpendicular to edges
             self._bonds = self.edges().mmpBonds()
         return self._bonds
+
+    def bondlist(self):
+        if self._bondlist == None:
+            # bonds are perpendicular to edges
+            self._bondlist = self.edges().bondlist()
+        return self._bondlist
 
     def _subtriangulate(self, n):
         # don't put new quaternions right on top of old ones
@@ -330,14 +358,14 @@ end molecular machine part gp
         outf = open(filename, 'w')
         outf.write(mmp_header)
         carbons = bball.carbons()
-        bonds = bball.bonds()
+        mmpbonds = bball.mmpBonds()
         for i in range(len(carbons)):
             x, y, z = carbons[i]
             outf.write('atom %d (6) (%d, %d, %d) def\n' %
                        (i + 1, int(1000 * x), int(1000 * y), int(1000 * z)))
             outf.write('info atom atomtype = sp2\n')
-            if bonds.has_key(i) and len(bonds[i]) > 0:
-                outf.write('bondg ' + ', '.join(map(str, bonds[i])) + '\n')
+            if mmpbonds.has_key(i) and len(mmpbonds[i]) > 0:
+                outf.write('bondg ' + ', '.join(map(str, mmpbonds[i])) + '\n')
         outf.write(mmp_footer)
         outf.close()
 
