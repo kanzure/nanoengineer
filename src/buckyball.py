@@ -42,6 +42,8 @@ from VQT import V, vlen
 
 GRAPHITIC_BONDLENGTH = 1.402
 
+# This is different from the one in bonds.py because it knows about
+# quaternions.
 def neighborhoodGenerator(vlist, maxradius=1.1*GRAPHITIC_BONDLENGTH):
     quats = isinstance(vlist[0], quaternion)
     def quatToVec(q):
@@ -278,6 +280,28 @@ class BuckyBall:
                     q = q21 * (1. * j / n) + q10 * (1. * i / n) + q0
                     add_if_ok(q / abs(q))
         self.order *= n
+
+    def add_to_mol(self, mol):
+        from bonds import NeighborhoodGenerator, bond_atoms, V_GRAPHITE
+        from chem import Atom
+        maxradius = 1.1 * GRAPHITIC_BONDLENGTH
+        positions = self.carbons()
+        atoms = [ ]
+        for newpos in positions:
+            newguy = Atom('C', newpos, mol)
+            atoms.append(newguy)
+            newguy.set_atomtype('sp2')
+        ngen = NeighborhoodGenerator(atoms, maxradius)
+        for atm1 in atoms:
+            p1 = atm1.posn()
+            for atm2 in ngen.region(p1):
+                if atm2.key < atm1.key and vlen(atm2.posn() - p1) < maxradius:
+                    bond_atoms(atm1, atm2, V_GRAPHITE)
+        # clean up singlets
+        for atm in atoms:
+            for s in atm.singNeighbors():
+                s.kill()
+            atm.make_enough_singlets()
 
 #############################
 
