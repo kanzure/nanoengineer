@@ -183,20 +183,60 @@ def add_endcap(mol, length, radius):
         cpart, spart = norm(dP), norm(dPs)
         theta = 2 * asin(0.5 * D / R)
         return sphere_center + R * (cpart * cos(theta) + spart * sin(theta))
+    def projectOntoSphere(v, R=radius):
+        dv = v - sphere_center
+        dvlen = vlen(dv)
+        return sphere_center + (R / dvlen) * dv
     def cleanupSinglets(atm):
         for s in atm.singNeighbors():
             s.kill()
         atm.make_enough_singlets()
-    def replaceSingletsWithNewCarbons(chopSpace):
-        while True:
+    def addCarbons(chopSpace, R=radius):
+        # a buckyball has no more than about 6*r**2 atoms, r in angstroms
+        # each cap is ideally a half-buckyball
+        for i in range(int(3.0 * R**2)):
             regional_singlets = filter(lambda atm: chopSpace(atm) and atm.is_singlet(),
                                        mol.atoms.values())
-            if not regional_singlets:
+            for s in regional_singlets:
+                s.setposn(projectOntoSphere(s.posn()))
+            if len(regional_singlets) < 3:
+                # there won't be anything to bond to anyway, let the user
+                # manually adjust the geometry
                 return
-            sing = regional_singlets[0]
-            owner = sing.realNeighbors()[0]
-            newpos = walk_great_circle(owner.posn(), sing.posn(), BONDLENGTH)
-            sing.kill()
+            singlet_pair = None
+            try:
+                for s1 in regional_singlets:
+                    s1p = s1.posn()
+                    for s2 in regional_singlets:
+                        if s2.key > s1.key and \
+                           vlen(s2.posn() - s1p) < BONDLENGTH:
+                            singlet_pair = (s1, s2)
+                            # break out of both for-loops
+                            raise Exception
+            except:
+                pass
+            if singlet_pair is not None:
+                # if there is an existing pair of singlets that's close than one bond
+                # length, use those to make the newguy, so he'll have one open bond left
+                sing1, sing2 = singlet_pair
+                owner1, owner2 = sing1.realNeighbors()[0], sing2.realNeighbors()[0]
+                newpos1 = walk_great_circle(owner1.posn(), sing1.posn(), BONDLENGTH)
+                newpos2 = walk_great_circle(owner2.posn(), sing2.posn(), BONDLENGTH)
+                newpos = 0.5 * (newpos1 + newpos2)
+                regional_singlets.remove(sing1)
+                regional_singlets.remove(sing2)
+            else:
+                # otherwise choose any pre-existing bond and stick the newguy on him
+                # prefer a bond whose real atom already has two real neighbors
+                preferred = filter(lambda atm: len(atm.realNeighbors()[0].realNeighbors()) == 2,
+                                   regional_singlets)
+                if preferred:
+                    sing = preferred[0]
+                else:
+                    sing = regional_singlets[0]
+                owner = sing.realNeighbors()[0]
+                newpos = walk_great_circle(owner.posn(), sing.posn(), BONDLENGTH)
+                regional_singlets.remove(sing)
             ngen = NeighborhoodGenerator(mol.atoms.values(), 1.1 * BONDLENGTH)
             # do not include new guy in neighborhood, add him afterwards
             newguy = Atom('C', newpos, mol)
@@ -204,15 +244,14 @@ def add_endcap(mol, length, radius):
             # if the new atom is close to an older atom, merge them: kill the newer
             # atom, give the older one its neighbors, nudge the older one to the midpoint
             for oldguy in ngen.region(newpos):
-                if vlen(oldguy.posn() - newpos) < 0.8:
+                if vlen(oldguy.posn() - newpos) < 0.4:
                     newpos = 0.5 * (newguy.posn() + oldguy.posn())
                     newguy.setposn(newpos)
                     ngen.remove(oldguy)
                     oldguy.kill()
                     break
-            # Bond with anybody close enough. I would love to use the
-            # smarter bond inference code here, but it's too slow.
-            # make_bonds(ngen.region(newpos) + [ newguy ])
+            # Bond with anybody close enough. The newer make_bonds
+            # code doesn't seem to handle this usage very well.
             for oldguy in ngen.region(newpos):
                 r = oldguy.posn() - newpos
                 rlen = vlen(r)
@@ -225,6 +264,29 @@ def add_endcap(mol, length, radius):
                     bond_atoms(newguy, oldguy, V_GRAPHITE)
                     cleanupSinglets(newguy)
                     cleanupSinglets(oldguy)
+            if len(newguy.realNeighbors()) > 3:
+                print 'warning: too many bonds on newguy'
+            # Try moving the new guy around to make his bonds closer to BONDLENGTH but
+            # keep him on or near the surface of the sphere. Use Newton's method in
+            # three dimensions.
+            def error(posn):
+                e = (vlen(posn - sphere_center) - radius) ** 2
+                for atm in newguy.realNeighbors():
+                    e += (vlen(atm.posn() - posn) - BONDLENGTH)**2
+                return e
+            p = newguy.posn()
+            for i in range(2):
+                h = 1.0e-4
+                e0 = error(p)
+                gradient = chem.V((error(p + chem.V(h, 0, 0)) - e0) / h,
+                                  (error(p + chem.V(0, h, 0)) - e0) / h,
+                                  (error(p + chem.V(0, 0, h)) - e0) / h)
+                p = p - (e0 / vlen(gradient)**2) * gradient
+            newguy.setposn(p)
+            # we may need to reposition singlets
+            for atm in ngen.region(newguy.posn()):
+                cleanupSinglets(atm)
+            cleanupSinglets(newguy)
 
     def is_north(atm):
         return atm.posn()[1] > length / 2 - 3.0
@@ -232,10 +294,12 @@ def add_endcap(mol, length, radius):
         return atm.posn()[1] < -length / 2 + 3.0
     # great circles now computed for the north end
     sphere_center = chem.V(0, length / 2, 0)
-    replaceSingletsWithNewCarbons(is_north)
+    addCarbons(is_north)
     # great circles now computed for the south end
     sphere_center = chem.V(0, -length / 2, 0)
-    replaceSingletsWithNewCarbons(is_south)
+    addCarbons(is_south)
+    env.history.message(orangemsg('Nanotube endcap generation is an inexact science. ' +
+                                  'Manual touch-up will be required.'))
 
 #################################################################
 
