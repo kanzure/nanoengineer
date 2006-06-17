@@ -284,7 +284,7 @@ class BuckyBall:
     def add_to_mol(self, mol):
         from bonds import NeighborhoodGenerator, bond_atoms, V_GRAPHITE
         from chem import Atom
-        maxradius = 1.1 * GRAPHITIC_BONDLENGTH
+        maxradius = 1.5 * GRAPHITIC_BONDLENGTH
         positions = self.carbons()
         atoms = [ ]
         for newpos in positions:
