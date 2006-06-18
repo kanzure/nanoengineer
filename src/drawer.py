@@ -215,7 +215,7 @@ sphereList = []
 numSphereSizes = 3
 CylList = diamondGridList = CapList = CubeList = solidCubeList = lineCubeList = None
 rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = SiCGridList = None
-surfaceList = None
+surfaceTriangles = None
 
 # grantham 20051118; revised by bruce 051126
 class glprefs:
@@ -587,11 +587,10 @@ def drawsurface_worker(params):
     deferment.  Right now this is only ColorSorter.schedule (see below)"""
 
     (pos, radius, detailLevel) = params
-    detailLevel = 2
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
     glScale(radius[0],radius[1],radius[2])
-    glCallList(surfaceList)
+    renderSurface()
     glPopMatrix()
     return
 
@@ -1201,22 +1200,7 @@ def setup(): #bruce 060613 added docstring, cleaned up display list name allocat
         doline(tri[2], tri[0])
     glEnd()
     glEndList()
-
-    global surfaceList
-    surfaceList = glGenLists(1)
-    glNewList(surfaceList, GL_COMPILE)
-    glBegin(GL_TRIANGLES)
-    ocdec = getSphereTriangles(3)
-    for tri in ocdec:
-        glNormal3fv(tri[0])
-        glVertex3fv(tri[0])
-        glNormal3fv(tri[1])
-        glVertex3fv(tri[1])
-        glNormal3fv(tri[2])
-        glVertex3fv(tri[2])
-    glEnd()
-    glEndList()
-
+    
     global CylList
     CylList = glGenLists(1)
     glNewList(CylList, GL_COMPILE)
@@ -1399,7 +1383,7 @@ def setup(): #bruce 060613 added docstring, cleaned up display list name allocat
         
     #initTexture('C:\\Huaicai\\atom\\temp\\newSample.png', 128,128)
     return # from setup
-    
+
 def drawCircle(color, center, radius, normal):
     """Scale, rotate/translate the unit circle properly """
     glMatrixMode(GL_MODELVIEW)
@@ -2279,5 +2263,22 @@ def drawsurface_wireframe(color, pos, radius):
     glPolygonMode(GL_FRONT, GL_FILL)
     glPolygonMode(GL_BACK, GL_FILL) 
     return
+
+def createSurface(ocdec):
+    global surfaceTriangles
+    surfaceTriangles = ocdec
+    renderSurface()
+
+def renderSurface():
+    glBegin(GL_TRIANGLES)
+    for tri in surfaceTriangles:
+        glNormal3fv(tri[0])
+        glVertex3fv(tri[0])
+        glNormal3fv(tri[1])
+        glVertex3fv(tri[1])
+        glNormal3fv(tri[2])
+        glVertex3fv(tri[2])
+    glEnd()
+
 
 #end
