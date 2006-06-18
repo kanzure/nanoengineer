@@ -248,6 +248,64 @@ class Triple:
         """operator -a"""
         return Triple(-self.x, -self.y, -self.z)
 
+class Surface: 
+
+    def __init__(self):
+        """surface constructor"""
+       
+        self.spheres = []
+	self.radiuses = []
+        
+        self.box = Box()
+        self.box.Empty()
+                    
+    def Predicate(self, p):
+        """calculate omega function:
+           positive inside molecula,
+           equal to zero on the boundary,
+           negative outside"""
+        om = 0.0
+        #  calculate omega for all moleculas 
+        for i in range(len(self.spheres)):
+            t = p - (self.spheres[i] - self.box.Center())/self.greatest
+            r = self.radiuses[i]
+            s = (r * r - t.x * t.x - t.y * t.y - t.z * t.z) / (r + r)
+            if i == 0:
+                om = s
+            else:
+                if om < s: 
+                    om = s
+        return om     
+    
+    def getMoleculaTriangles(self, trias):
+        nt = len(trias)
+        #  greatest value 
+        self.greatest = self.box.Extent().Greatest()
+        #  temporary: for radius of sphere
+        for j in range(nt):
+            t = trias[j]
+            t0 = (t[0][0]*1.21,t[0][1]*1.21,t[0][2]*1.21)
+            t1 = (t[1][0]*1.21,t[1][1]*1.21,t[1][2]*1.21)
+            t2 = (t[2][0]*1.21,t[2][1]*1.21,t[2][2]*1.21)
+            trias[j] = (t0, t1, t2);
+        n = 2   #  number of iterations
+        for i in range(n):
+            for j in range(nt):
+                pn = []
+                t = trias[j]
+                for k in range(3):
+                    p = Triple(t[k][0],t[k][1],t[k][2])
+                    n = Triple(-2 * p.x, -2 * p.y, -2 * p.z)
+                    n.Normalize()
+                    om = self.Predicate(p)
+                    if om < -1.0 : om = -1.0
+                    pn.append(p - 0.5 * om * n)
+                t0 = (pn[0].x, pn[0].y, pn[0].z)    
+                t1 = (pn[1].x, pn[1].y, pn[1].z)    
+                t2 = (pn[2].x, pn[2].y, pn[2].z)    
+                trias[j] = (t0, t1, t2) 
+        return trias        
+
 class SurfaceChunks(ChunkDisplayMode):
     "example chunk display mode, which draws the chunk as a surface, aligned to the chunk's axes, of the chunk's color"
     mmp_code = 'srf' # this must be a unique 3-letter code, distinct from the values in constants.dispNames or in other display modes
@@ -305,7 +363,7 @@ class SurfaceChunks(ChunkDisplayMode):
         # around an already-rendered surface.
         # (For a selected chunk, both this and drawchunk will be called -- not necessarily in that order.)
         drawer.drawsurface_wireframe(color, pos, [radius[0] + alittle, radius[1] + alittle, radius[2] + alittle])
-        return
+	return
     def compute_memo(self, chunk):
         """If drawing chunk in this display mode can be optimized by precomputing some info from chunk's appearance,
         compute that info and return it.
@@ -329,21 +387,33 @@ class SurfaceChunks(ChunkDisplayMode):
         center = chunk.center
         points = chunk.atpos - center        
         bcenter = chunk.abs_to_base(center)
-        #radius = 0.0
-        box = Box()
-        box.Empty()
+        rad = 0.0
+	s = Surface()
+	as = chunk.atoms
+	for a in chunk.atoms.values():
+	    ra = 0.5 #a.howdraw(diTrueCPK)
+	    s.radiuses.append(ra)
         for p in points:
             pt = Triple(p[0], p[1], p[2])
-            box.Enclose(pt)
-            #r = p[0]**2+p[1]**2+p[2]**2
-            #if r > radius: radius = r
-        #radius = sqrt(radius)
+	    s.spheres.append(pt)
+	    s.box.Enclose(pt)
+            r = p[0]**2+p[1]**2+p[2]**2
+            if r > rad: rad = r
+        rad = sqrt(rad)
         margin = 0.2
-        radius = [box.Extent().x + margin, box.Extent().y + margin, box.Extent().z + margin]
+        radius = [rad + margin, rad + margin, rad + margin]
         color = chunk.color
         if color is None:
             color = V(0.5,0.5,0.5)
+	
+	
+	ts =drawer.getSphereTriangles(3)
+	tm = s.getMoleculaTriangles(ts)
+	drawer.createSurface(tm)
+	
+	
         return (bcenter, radius, color)
+    
     pass # end of class SurfaceChunks
 
 ChunkDisplayMode.register_display_mode_class(SurfaceChunks)
