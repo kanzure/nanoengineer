@@ -50,6 +50,8 @@ from Utility import *
 from ChunkProp import * # Renamed MoleculeProp to ChunkProp.  Mark 050929
 from mdldata import marks, links, filler
 
+import struct
+from math import floor
 from debug import print_compact_stack, compact_stack, print_compact_traceback
 
 import platform # for atom_debug; note that uses of atom_debug should all grab it
@@ -288,43 +290,76 @@ def bond_v6(bond):
 # list of potential neighbors in order(1) time. This is handy for
 # inferring bonds for PDB files that lack any bonding information.
 class NeighborhoodGenerator:
+    """Given a list of atoms and a radius, be able to quickly take a
+    point and generate a neighborhood, which is a list of the atoms
+    within that radius of the point.
+
+    Reading in the list of atoms is done in O(n) time, where n is the
+    number of atoms in the list. Generating a neighborhood around a
+    point is done in O(1) time. So this is a pretty efficient method
+    for finding neighborhoods, especially if the same generator can
+    be used many times.
+    """
     def __init__(self, atomlist, maxradius):
         self._buckets = { }
+        self._oldkeys = { }
         self._maxradius = 1.0 * maxradius
         for atom in atomlist:
             self.add(atom)
 
-    def _quantize(self, vec):
+    def _make_key(self, x, y, z, pack=struct.pack):
+        return pack('lll', x, y, z)
+
+    def _quantize(self, vec, make_key=self._make_key):
         maxradius = self._maxradius
-        return (int(vec[0] / maxradius),
-                int(vec[1] / maxradius),
-                int(vec[2] / maxradius))
+        return make_key(int(floor(vec[0] / maxradius)),
+                        int(floor(vec[1] / maxradius)),
+                        int(floor(vec[2] / maxradius)))
 
-    def add(self, atom):
+    def add(self, atom, quantize=self._quantize,
+            buckets=self._buckets, oldkeys=self._oldkeys):
         if not atom.is_singlet():
-            key = self._quantize(atom.posn())
-            if not self._buckets.has_key(key):
-                self._buckets[key] = [ ]
-            self._buckets[key].append(atom)
+            key = quantize(atom.posn())
+            if not buckets.has_key(key):
+                buckets[key] = [ ]
+            buckets[key].append(atom)
+            self._oldkeys[atom.key] = key
 
-    def region(self, center):
+    def atom_moved(self, atom,
+                   quantize=self._quantize, oldkeys=self._oldkeys, buckets=self._buckets):
+        """If an atom has been added to a neighborhood generator and
+        is later moved, this method must be called to refresh the
+        generator's position information. This only needs to be done
+        during the useful lifecycle of the generator.
+        """
+        if not oldkeys.has_key(atom.key):
+            raise Exception('this atom is not in this neighborhood generator')
+        oldkey = oldkeys[atom.key]
+        newkey = quantize(atom.posn())
+        buckets[oldkey].remove(atom)
+        buckets[newkey].append(atom)
+
+    def region(self, center,
+               quantize=self._quantize, buckets=self._buckets, make_key=self._make_key):
+        def closeEnough(atm, radius=self._maxradius):
+            return vlen(atm.posn() - center) < radius
         lst = [ ]
-        x0, y0, z0 = self._quantize(center)
+        x0, y0, z0 = quantize(center)
         for x in range(x0 - 1, x0 + 2):
             for y in range(y0 - 1, y0 + 2):
                 for z in range(z0 - 1, z0 + 2):
-                    key = (x, y, z)
-                    try:
-                        lst += self._buckets[key]
-                    except KeyError:
-                        pass
+                    key = make_key(x, y, z)
+                    if buckets.has_key(key):
+                        lst += filter(closeEnough, buckets[key])
         return lst
 
-    def remove(self, atom):
-        key = self._quantize(atom.posn())
-        self._buckets[key].remove(atom)
+    def remove(self, atom,
+               quantize=self._quantize, buckets=self._buckets):
+        key = quantize(atom.posn())
+        buckets[key].remove(atom)
 
 def inferBonds(mol):
+    # not sure how big a margin we should have for "coincident"
     maxBondLength = 2.0
     # first remove any coincident singlets
     singlets = filter(lambda a: a.is_singlet(), mol.atoms.values())
@@ -336,9 +371,7 @@ def inferBonds(mol):
         for sing2 in sngen.region(pos1):
             key2 = sing2.key
             dist = vlen(pos1 - sing2.posn())
-            # not sure how big a margin we should have for
-            # "coincident"
-            if key1 != key2 and dist < 2.0:
+            if key1 != key2:
                 removable[key1] = sing1
                 removable[key2] = sing2
     for badGuy in removable.values():

@@ -323,7 +323,7 @@ class BuckyBall:
         for atm1 in atoms:
             p1 = atm1.posn()
             for atm2 in ngen.region(p1):
-                if atm2.key < atm1.key and vlen(atm2.posn() - p1) < maxradius:
+                if atm2.key < atm1.key:
                     bond_atoms(atm1, atm2, V_GRAPHITE)
         # clean up singlets
         for atm in atoms:
