@@ -307,56 +307,59 @@ class NeighborhoodGenerator:
         for atom in atomlist:
             self.add(atom)
 
-    def _make_key(self, x, y, z, pack=struct.pack):
-        return pack('lll', x, y, z)
+    # I conjecture that strings would make more efficient keys than
+    # 3-tuples. My reason for thinking this is that to do __eq__ on
+    # a 3-tuple, you need to call tuple.__eq__ and then make three
+    # calls to int.__eq__. With strings we'd make one call to
+    # string.__eq__.
+    #
+    #def _make_key(self, x, y, z, pack=struct.pack):
+    #    return pack('lll', x, y, z)
+    #
+    # This would be called on the 3-tuple returned from quantize.
+    # The only problem is that we need the three integers to do the
+    # nested loops in the region() method...
 
-    def _quantize(self, vec, make_key=self._make_key):
+    def _quantize(self, vec):
         maxradius = self._maxradius
-        return make_key(int(floor(vec[0] / maxradius)),
-                        int(floor(vec[1] / maxradius)),
-                        int(floor(vec[2] / maxradius)))
+        return (int(floor(vec[0] / maxradius)),
+                int(floor(vec[1] / maxradius)),
+                int(floor(vec[2] / maxradius)))
 
-    def add(self, atom, quantize=self._quantize,
-            buckets=self._buckets, oldkeys=self._oldkeys):
+    def add(self, atom):
+        buckets = self._buckets
         if not atom.is_singlet():
-            key = quantize(atom.posn())
-            if not buckets.has_key(key):
-                buckets[key] = [ ]
-            buckets[key].append(atom)
+            key = self._quantize(atom.posn())
+            buckets.setdefault(key, []).append(atom)
             self._oldkeys[atom.key] = key
 
-    def atom_moved(self, atom,
-                   quantize=self._quantize, oldkeys=self._oldkeys, buckets=self._buckets):
+    def atom_moved(self, atom):
         """If an atom has been added to a neighborhood generator and
         is later moved, this method must be called to refresh the
         generator's position information. This only needs to be done
         during the useful lifecycle of the generator.
         """
-        if not oldkeys.has_key(atom.key):
-            raise Exception('this atom is not in this neighborhood generator')
-        oldkey = oldkeys[atom.key]
-        newkey = quantize(atom.posn())
-        buckets[oldkey].remove(atom)
-        buckets[newkey].append(atom)
+        oldkey = self._oldkeys[atom.key]
+        self._buckets[oldkey].remove(atom)
+        self.add(atom)
 
-    def region(self, center,
-               quantize=self._quantize, buckets=self._buckets, make_key=self._make_key):
+    def region(self, center):
+        buckets = self._buckets
         def closeEnough(atm, radius=self._maxradius):
             return vlen(atm.posn() - center) < radius
         lst = [ ]
-        x0, y0, z0 = quantize(center)
+        x0, y0, z0 = self._quantize(center)
         for x in range(x0 - 1, x0 + 2):
             for y in range(y0 - 1, y0 + 2):
                 for z in range(z0 - 1, z0 + 2):
-                    key = make_key(x, y, z)
+                    key = (x, y, z)
                     if buckets.has_key(key):
                         lst += filter(closeEnough, buckets[key])
         return lst
 
-    def remove(self, atom,
-               quantize=self._quantize, buckets=self._buckets):
-        key = quantize(atom.posn())
-        buckets[key].remove(atom)
+    def remove(self, atom):
+        key = self._quantize(atom.posn())
+        self._buckets[key].remove(atom)
 
 def inferBonds(mol):
     # not sure how big a margin we should have for "coincident"
