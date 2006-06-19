@@ -342,7 +342,7 @@ def inferBonds(mol):
                 removable[key1] = sing1
                 removable[key2] = sing2
     for badGuy in removable.values():
-        mol.delatom(badGuy)
+        badGuy.kill()
     from bonds_from_atoms import make_bonds
     make_bonds(mol.atoms.values())
 
