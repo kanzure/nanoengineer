@@ -307,29 +307,25 @@ class NeighborhoodGenerator:
         for atom in atomlist:
             self.add(atom)
 
-    # I conjecture that strings would make more efficient keys than
-    # 3-tuples. My reason for thinking this is that to do __eq__ on
-    # a 3-tuple, you need to call tuple.__eq__ and then make three
-    # calls to int.__eq__. With strings we'd make one call to
-    # string.__eq__.
-    #
-    #def _make_key(self, x, y, z, pack=struct.pack):
-    #    return pack('lll', x, y, z)
-    #
-    # This would be called on the 3-tuple returned from quantize.
-    # The only problem is that we need the three integers to do the
-    # nested loops in the region() method...
-
     def _quantize(self, vec):
+        """Given a point in space, partition space into little cubes
+        so that when the time comes, it will be quick to locate and
+        search the cubes right around a point.
+        """
         maxradius = self._maxradius
         return (int(floor(vec[0] / maxradius)),
                 int(floor(vec[1] / maxradius)),
                 int(floor(vec[2] / maxradius)))
 
-    def add(self, atom):
+    def add(self, atom, _pack=struct.pack):
         buckets = self._buckets
         if not atom.is_singlet():
-            key = self._quantize(atom.posn())
+            # The keys of the _buckets dictionary are 12-byte strings.
+            # Comparing them when doing lookups should be quicker than
+            # comparisons between tuples of integers, so dictionary
+            # lookups will go faster.
+            i, j, k = self._quantize(atom.posn())
+            key = _pack('lll', i, j, k)
             buckets.setdefault(key, []).append(atom)
             self._oldkeys[atom.key] = key
 
@@ -343,7 +339,10 @@ class NeighborhoodGenerator:
         self._buckets[oldkey].remove(atom)
         self.add(atom)
 
-    def region(self, center):
+    def region(self, center, _pack=struct.pack):
+        """Given a position in space, return the list of atoms that
+        are within the neighborhood radius of that position.
+        """
         buckets = self._buckets
         def closeEnough(atm, radius=self._maxradius):
             return vlen(atm.posn() - center) < radius
@@ -352,7 +351,8 @@ class NeighborhoodGenerator:
         for x in range(x0 - 1, x0 + 2):
             for y in range(y0 - 1, y0 + 2):
                 for z in range(z0 - 1, z0 + 2):
-                    key = (x, y, z)
+                    # keys are 12-byte strings, see rationale above
+                    key = _pack('lll', x, y, z)
                     if buckets.has_key(key):
                         lst += filter(closeEnough, buckets[key])
         return lst
