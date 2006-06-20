@@ -277,7 +277,7 @@ class Surface:
                     om = s
         return om     
     
-    def getMoleculaTriangles(self, trias):
+    def SurfaceTriangles(self, trias):
         nt = len(trias)
         #  greatest value 
         self.greatest = self.box.Extent().Greatest()
@@ -306,6 +306,16 @@ class Surface:
                 trias[j] = (t0, t1, t2) 
         return trias        
 
+    def SurfaceNormals(self, trias):
+	normals = []
+	for t in trias:
+            v0 = V(t[1][0] - t[0][0], t[1][1] - t[0][1], t[1][2] - t[0][2])
+            v1 = V(t[2][0] - t[0][0], t[2][1] - t[0][1], t[2][2] - t[0][2])
+	    n = cross(v0, v1)
+	    nt = (n[0], n[1], n[2]) 
+	    normals.append((nt, nt, nt))
+	return normals    
+	
 class SurfaceChunks(ChunkDisplayMode):
     "example chunk display mode, which draws the chunk as a surface, aligned to the chunk's axes, of the chunk's color"
     mmp_code = 'srf' # this must be a unique 3-letter code, distinct from the values in constants.dispNames or in other display modes
@@ -391,7 +401,10 @@ class SurfaceChunks(ChunkDisplayMode):
 	s = Surface()
 	as = chunk.atoms
 	for a in chunk.atoms.values():
-	    ra = 0.5 #a.howdraw(diTrueCPK)
+	    if 0:
+		ra = 0.5 
+	    else :
+		dispjunk, ra = a.howdraw(diTrueCPK)
 	    s.radiuses.append(ra)
         for p in points:
             pt = Triple(p[0], p[1], p[2])
@@ -405,12 +418,11 @@ class SurfaceChunks(ChunkDisplayMode):
         color = chunk.color
         if color is None:
             color = V(0.5,0.5,0.5)
-	
-	
+	#  create surface    
 	ts =drawer.getSphereTriangles(3)
-	tm = s.getMoleculaTriangles(ts)
-	drawer.createSurface(tm)
-	
+	tm = s.SurfaceTriangles(ts)
+	nm = s.SurfaceNormals(tm)
+	drawer.passSurface(tm, nm)
 	
         return (bcenter, radius, color)
     

@@ -215,7 +215,7 @@ sphereList = []
 numSphereSizes = 3
 CylList = diamondGridList = CapList = CubeList = solidCubeList = lineCubeList = None
 rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = SiCGridList = None
-surfaceTriangles = None
+surfaceTriangles = surfaceNormals = None
 
 # grantham 20051118; revised by bruce 051126
 class glprefs:
@@ -2264,20 +2264,25 @@ def drawsurface_wireframe(color, pos, radius):
     glPolygonMode(GL_BACK, GL_FILL) 
     return
 
-def createSurface(ocdec):
+def passSurface(p,n):
     global surfaceTriangles
-    surfaceTriangles = ocdec
+    global surfaceNormals
+    surfaceTriangles = p
+    surfaceNormals = n
     renderSurface()
 
 def renderSurface():
     glBegin(GL_TRIANGLES)
+    i = 0
     for tri in surfaceTriangles:
-        glNormal3fv(tri[0])
+	nor = surfaceNormals[i]
+        glNormal3fv(nor[0])
         glVertex3fv(tri[0])
-        glNormal3fv(tri[1])
+        glNormal3fv(nor[1])
         glVertex3fv(tri[1])
-        glNormal3fv(tri[2])
+        glNormal3fv(nor[2])
         glVertex3fv(tri[2])
+	i += 1
     glEnd()
 
 
