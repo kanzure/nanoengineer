@@ -602,6 +602,26 @@ class UserPrefs(UserPrefsDialog):
         env.prefs[animateMaximumTime_prefs_key] = \
             self.animation_speed_slider.value() / -100.0
         
+    def change_endrms(self, text):
+        '''Slot for EndRMS.
+        '''
+        print "EndRMS=", text
+        
+    def change_endmax(self, text):
+        '''Slot for EndMax.
+        '''
+        print "EndMax=", text
+        
+    def change_cutoverrms(self, text):
+        '''Slot for CutoverRMS.
+        '''
+        print "CutoverRMS=", text
+        
+    def change_cutovermax(self, text):
+        '''Slot for CutoverMax.
+        '''
+        print "CutoverMax=", text
+        
     ########## End of slot methods for "General" page widgets ###########
     
     ########## Slot methods for "Atoms" page widgets ################
