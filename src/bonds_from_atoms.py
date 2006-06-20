@@ -24,13 +24,13 @@ History:
 from VQT import vlen, pi
 from bonds import bonded, bond_atoms_faster, V_SINGLE, NeighborhoodGenerator
 from chem import atom_angle_radians
+from sim import getEquilibriumDistanceForBond
 
 # constants; angles are in radians
 
 degrees = pi / 180
 
-#TET_ANGLE = 109.4 * degrees   #e this will probably need to be generalized for non-sp3 atoms
-TET_ANGLE = 114 * degrees     #changed on advice of Eric D
+TARGET_ANGLE = 114 * degrees  #e this will probably need to be generalized for non-sp3 atoms
 MIN_BOND_ANGLE = 30 * degrees # accepts moderately distorted three-membered rings
 ANGLE_ACCEPT_DIST = 0.9       # ignore angle cutoff below this distance (in Angstroms)
 MAX_DIST_RATIO_HUNGRY = 2.0   # prohibit bonds way longer than their proper length
@@ -65,15 +65,29 @@ def linked_list( lis1, func = None ):
 
 #e unlink_list?
 
-def max_atom_bonds(atom): # coded differently for nE-1
+def max_atom_bonds(atom, special_cases={'H':  1,
+                                        'B':  4,
+                                        'C':  4,
+                                        'N':  4,
+                                        'O':  2,
+                                        'F':  1,
+                                        'Si': 4,
+                                        'P':  5,
+                                        'S':  4,
+                                        'Cl': 1}):   # coded differently for nE-1
     """Return max number of bonds permitted on this atom, based only on its element
     (for any atomtype, ignoring current atomtype of atom). (Returns 0 for noble gases.)
     """
-    maxbonds = 0
-    for atype in atom.element.atomtypes:
-        if atype.numbonds > maxbonds:
-            maxbonds = atype.numbonds
-    return maxbonds
+    elt = atom.element
+    sym = elt.symbol
+    if special_cases.has_key(sym):
+        return special_cases[sym]
+    else:
+        maxbonds = 0
+        for atype in elt.atomtypes:
+            if atype.numbonds > maxbonds:
+                maxbonds = atype.numbonds
+        return maxbonds
 
 def min_atom_bonds(atom): # coded differently for nE-1
     """Return min number of bonds permitted on this atom, based only on its element
@@ -158,22 +172,7 @@ def bondable_atm(atom): # coded differently for nE-1 due to open bonds
     #e len(atom.bonds) would be faster but would not ignore open bonds;
     # entire alg could be recoded to avoid ever letting open bonds exist,
     # and then this could be speeded up.
-    try:
-        maxNeighbors = {
-            'H':  1,
-            'B':  4,
-            'C':  4,
-            'N':  4,
-            'O':  2,
-            'F':  1,
-            'Si': 4,
-            'P':  5,
-            'S':  4,
-            'Cl': 1
-            }[atom.element.symbol]
-    except KeyError:
-        maxNeighbors = max_atom_bonds(atom)
-    return len(atom.realNeighbors()) < maxNeighbors
+    return len(atom.realNeighbors()) < max_atom_bonds(atom)
 
 def bond_angle_cost(angle, accept, bond_length_ratio):
     """Return the cost of the given angle, or None if that cost is infinite.
@@ -185,7 +184,7 @@ def bond_angle_cost(angle, accept, bond_length_ratio):
     # if bond is too short, bond angle constraint changes
     if not (accept or angle > MIN_BOND_ANGLE * 1.0 + (2.0 * max(0.0, bond_length_ratio - 1.0)**2)):
         return None
-    diff = min(0.0, angle - TET_ANGLE) # for heuristic cost, treat all angles as ideally tetrahedral
+    diff = min(0.0, angle - TARGET_ANGLE) # for heuristic cost, treat all angles as approximately tetrahedral
     square = diff * diff
     if 0.0 < diff:
         # wide angle
@@ -258,7 +257,11 @@ def bond_cost(atm1, atm2):
     if bonded(atm1, atm2): # already bonded? (redundant after list-potential-bonds) ###
         return None
     distance = atm_distance(atm1, atm2)
-    best_dist = covalent_radius(atm1) + covalent_radius(atm2)
+    # note the assumption that we are talking about SINGLE bonds, which runs throughout this code
+    # some day we should consider the possibility of higher-order bonds; a stab in this direction
+    # is the bondtyp argument in make_bonds(), but that's really a kludge
+    best_dist = getEquilibriumDistanceForBond(atm1.atomtype.element.eltnum, atm2.atomtype.element.eltnum, '1')
+    # previously: best_dist = covalent_radius(atm1) + covalent_radius(atm2)
     if not best_dist:
         return None # avoid ZeroDivision exception from pondering a He-He bond
     ratio = distance / best_dist # best_dist is always a float, so this is never "integer division"
@@ -287,10 +290,10 @@ def list_potential_bonds(atmlist0):
     for atm1 in atmlist:
         key1 = atm1.key
         pos1 = atm1.posn()
-        radius1 = atm1.atomtype.rcovalent
         for atm2 in ngen.region(pos1):
             bondLen = vlen(pos1 - atm2.posn())
-            idealBondLen = radius1 + atm2.atomtype.rcovalent
+            idealBondLen = getEquilibriumDistanceForBond(atm1.atomtype.element.eltnum,
+                                                         atm2.atomtype.element.eltnum, '1')
             if atm2.key < key1 and bondLen < max_dist_ratio(atm1, atm2) * idealBondLen:
                 # i.e. for each pair (atm1, atm2) of bondable atoms
                 cost = bond_cost(atm1, atm2)
