@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>554</width>
-            <height>413</height>
+            <width>595</width>
+            <height>424</height>
         </rect>
     </property>
     <property name="caption">
@@ -74,7 +74,7 @@
                     </property>
                     <widget class="QLayoutWidget">
                         <property name="name">
-                            <cstring>layout78</cstring>
+                            <cstring>layout71</cstring>
                         </property>
                         <hbox>
                             <property name="name">
@@ -85,7 +85,54 @@
                                     <cstring>groupBox7_2</cstring>
                                 </property>
                                 <property name="title">
-                                    <string>Compass and Axes</string>
+                                    <string>Axes</string>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>display_origin_axis_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Display Origin Axis</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Show/Hide Origin Axis</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>&lt;p&gt;&lt;b&gt;Display Origin Axis&lt;/b&gt;&lt;/p&gt;Shows/Hides the Origin Axis</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>display_pov_axis_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Display Point of View Axis</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Show/Hide Point of View Axis</string>
+                                        </property>
+                                        <property name="whatsThis" stdset="0">
+                                            <string>&lt;p&gt;&lt;b&gt;Display Point of View Axis&lt;/b&gt;&lt;/p&gt;Shows/Hides the Point of View Axis</string>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QGroupBox">
+                                <property name="name">
+                                    <cstring>groupBox17_2</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Compass</string>
                                 </property>
                                 <vbox>
                                     <property name="name">
@@ -125,206 +172,105 @@
                                             <string>&lt;p&gt;&lt;b&gt;Display Compass&lt;/b&gt;&lt;/p&gt;Shows/Hides the Display Compass</string>
                                         </property>
                                     </widget>
-                                    <widget class="QCheckBox">
+                                    <widget class="QLayoutWidget">
                                         <property name="name">
-                                            <cstring>display_origin_axis_checkbox</cstring>
+                                            <cstring>layout70</cstring>
                                         </property>
-                                        <property name="text">
-                                            <string>Display Origin Axis</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Show/Hide Origin Axis</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Display Origin Axis&lt;/b&gt;&lt;/p&gt;Shows/Hides the Origin Axis</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QCheckBox">
-                                        <property name="name">
-                                            <cstring>display_pov_axis_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Display Point of View Axis</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Show/Hide Point of View Axis</string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Display Point of View Axis&lt;/b&gt;&lt;/p&gt;Shows/Hides the Point of View Axis</string>
-                                        </property>
+                                        <hbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>textLabel1_4</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Location :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                            <widget class="QComboBox">
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Upper Right</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Upper Left</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Lower Left</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Lower Right</string>
+                                                    </property>
+                                                </item>
+                                                <property name="name">
+                                                    <cstring>compass_position_combox</cstring>
+                                                </property>
+                                            </widget>
+                                        </hbox>
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QGroupBox">
+                            <widget class="QButtonGroup">
                                 <property name="name">
-                                    <cstring>groupBox15</cstring>
+                                    <cstring>default_projection_btngrp</cstring>
                                 </property>
                                 <property name="title">
-                                    <string>Compass Position</string>
+                                    <string>Default Projection</string>
+                                </property>
+                                <property name="exclusive">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string></string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string></string>
                                 </property>
                                 <grid>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QButtonGroup" row="0" column="0">
+                                    <widget class="QRadioButton" row="0" column="0">
                                         <property name="name">
-                                            <cstring>compass_position_btngrp</cstring>
+                                            <cstring>radioButton12</cstring>
                                         </property>
-                                        <property name="paletteBackgroundColor">
-                                            <color>
-                                                <red>178</red>
-                                                <green>231</green>
-                                                <blue>229</blue>
-                                            </color>
+                                        <property name="text">
+                                            <string>Perspective</string>
                                         </property>
-                                        <property name="frameShape">
-                                            <enum>Box</enum>
-                                        </property>
-                                        <property name="frameShadow">
-                                            <enum>Plain</enum>
-                                        </property>
-                                        <property name="lineWidth">
-                                            <number>1</number>
-                                        </property>
-                                        <property name="title">
-                                            <string></string>
-                                        </property>
-                                        <property name="exclusive">
+                                        <property name="checked">
                                             <bool>true</bool>
                                         </property>
-                                        <property name="radioButtonExclusive">
-                                            <bool>true</bool>
+                                    </widget>
+                                    <widget class="QRadioButton" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>radioButton13</cstring>
                                         </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Compass Position</string>
+                                        <property name="text">
+                                            <string>Orthographic</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Compass Position&lt;/b&gt;&lt;/p&gt;Sets the position of the compass.  Uncheck the &lt;b&gt;Display Compass&lt;/b&gt; checkbox to hide it.</string>
-                                        </property>
-                                        <grid>
-                                            <property name="name">
-                                                <cstring>unnamed</cstring>
-                                            </property>
-                                            <widget class="QRadioButton" row="0" column="0">
-                                                <property name="name">
-                                                    <cstring>upper_left_btn</cstring>
-                                                </property>
-                                                <property name="text">
-                                                    <string></string>
-                                                </property>
-                                                <property name="buttonGroupId">
-                                                    <number>1</number>
-                                                </property>
-                                                <property name="toolTip" stdset="0">
-                                                    <string>Upper left</string>
-                                                </property>
-                                            </widget>
-                                            <spacer row="1" column="0">
-                                                <property name="name">
-                                                    <cstring>spacer53</cstring>
-                                                </property>
-                                                <property name="orientation">
-                                                    <enum>Vertical</enum>
-                                                </property>
-                                                <property name="sizeType">
-                                                    <enum>Expanding</enum>
-                                                </property>
-                                                <property name="sizeHint">
-                                                    <size>
-                                                        <width>20</width>
-                                                        <height>20</height>
-                                                    </size>
-                                                </property>
-                                            </spacer>
-                                            <widget class="QRadioButton" row="2" column="0">
-                                                <property name="name">
-                                                    <cstring>lower_left_btn</cstring>
-                                                </property>
-                                                <property name="text">
-                                                    <string></string>
-                                                </property>
-                                                <property name="buttonGroupId">
-                                                    <number>2</number>
-                                                </property>
-                                                <property name="toolTip" stdset="0">
-                                                    <string>Lower left</string>
-                                                </property>
-                                            </widget>
-                                            <spacer row="1" column="1">
-                                                <property name="name">
-                                                    <cstring>spacer55</cstring>
-                                                </property>
-                                                <property name="orientation">
-                                                    <enum>Horizontal</enum>
-                                                </property>
-                                                <property name="sizeType">
-                                                    <enum>Expanding</enum>
-                                                </property>
-                                                <property name="sizeHint">
-                                                    <size>
-                                                        <width>30</width>
-                                                        <height>20</height>
-                                                    </size>
-                                                </property>
-                                            </spacer>
-                                            <widget class="QRadioButton" row="0" column="2">
-                                                <property name="name">
-                                                    <cstring>upper_right_btn</cstring>
-                                                </property>
-                                                <property name="text">
-                                                    <string></string>
-                                                </property>
-                                                <property name="checked">
-                                                    <bool>true</bool>
-                                                </property>
-                                                <property name="buttonGroupId">
-                                                    <number>0</number>
-                                                </property>
-                                                <property name="toolTip" stdset="0">
-                                                    <string>Upper right</string>
-                                                </property>
-                                            </widget>
-                                            <spacer row="1" column="2">
-                                                <property name="name">
-                                                    <cstring>spacer54_2</cstring>
-                                                </property>
-                                                <property name="orientation">
-                                                    <enum>Vertical</enum>
-                                                </property>
-                                                <property name="sizeType">
-                                                    <enum>Expanding</enum>
-                                                </property>
-                                                <property name="sizeHint">
-                                                    <size>
-                                                        <width>20</width>
-                                                        <height>20</height>
-                                                    </size>
-                                                </property>
-                                            </spacer>
-                                            <widget class="QRadioButton" row="2" column="2">
-                                                <property name="name">
-                                                    <cstring>lower_right_btn</cstring>
-                                                </property>
-                                                <property name="text">
-                                                    <string></string>
-                                                </property>
-                                                <property name="buttonGroupId">
-                                                    <number>3</number>
-                                                </property>
-                                                <property name="toolTip" stdset="0">
-                                                    <string>Lower right</string>
-                                                </property>
-                                            </widget>
-                                        </grid>
                                     </widget>
                                 </grid>
                             </widget>
+                        </hbox>
+                    </widget>
+                    <widget class="QLayoutWidget">
+                        <property name="name">
+                            <cstring>layout86</cstring>
+                        </property>
+                        <hbox>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
                             <widget class="QGroupBox">
                                 <property name="name">
                                     <cstring>groupBox14</cstring>
@@ -347,239 +293,322 @@
                                             <cstring>watch_min_in_realtime_checkbox</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Watch In Real Time</string>
+                                            <string>Watch minimization in real time</string>
                                         </property>
                                         <property name="toolTip" stdset="0">
                                             <string>Enable/disable real time graphical updates during minimizations</string>
                                         </property>
                                         <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Watch In Real Time&lt;/b&gt;&lt;/p&gt;Enables/disables real time graphical updates during minimizations</string>
+                                            <string>&lt;p&gt;&lt;b&gt;Watch In Real Time&lt;/b&gt;&lt;/p&gt;Enables/disables real time graphical updates during minimizations.</string>
                                         </property>
                                     </widget>
-                                    <widget class="QLayoutWidget">
-                                        <property name="name">
-                                            <cstring>layout69</cstring>
-                                        </property>
-                                        <hbox>
-                                            <property name="name">
-                                                <cstring>unnamed</cstring>
-                                            </property>
-                                            <property name="margin">
-                                                <number>0</number>
-                                            </property>
-                                            <property name="spacing">
-                                                <number>0</number>
-                                            </property>
-                                            <widget class="QLayoutWidget">
-                                                <property name="name">
-                                                    <cstring>layout68</cstring>
-                                                </property>
-                                                <vbox>
-                                                    <property name="name">
-                                                        <cstring>unnamed</cstring>
-                                                    </property>
-                                                    <widget class="QLabel">
-                                                        <property name="name">
-                                                            <cstring>endrms_lbl</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>EndRMS :</string>
-                                                        </property>
-                                                        <property name="alignment">
-                                                            <set>AlignVCenter|AlignRight</set>
-                                                        </property>
-                                                    </widget>
-                                                    <widget class="QLabel">
-                                                        <property name="name">
-                                                            <cstring>endmax_lbl</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>EndMax :</string>
-                                                        </property>
-                                                        <property name="alignment">
-                                                            <set>AlignVCenter|AlignRight</set>
-                                                        </property>
-                                                    </widget>
-                                                    <widget class="QLabel">
-                                                        <property name="name">
-                                                            <cstring>cutoverrms_lbl</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>CutoverRMS :</string>
-                                                        </property>
-                                                        <property name="alignment">
-                                                            <set>AlignVCenter|AlignRight</set>
-                                                        </property>
-                                                    </widget>
-                                                    <widget class="QLabel">
-                                                        <property name="name">
-                                                            <cstring>cutovermax_lbl</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>CutoverMax :</string>
-                                                        </property>
-                                                        <property name="alignment">
-                                                            <set>AlignVCenter|AlignRight</set>
-                                                        </property>
-                                                    </widget>
-                                                </vbox>
-                                            </widget>
-                                            <widget class="QLayoutWidget">
-                                                <property name="name">
-                                                    <cstring>layout67</cstring>
-                                                </property>
-                                                <vbox>
-                                                    <property name="name">
-                                                        <cstring>unnamed</cstring>
-                                                    </property>
-                                                    <widget class="QLineEdit">
-                                                        <property name="name">
-                                                            <cstring>endrms_linedit</cstring>
-                                                        </property>
-                                                        <property name="frameShape">
-                                                            <enum>LineEditPanel</enum>
-                                                        </property>
-                                                        <property name="frameShadow">
-                                                            <enum>Sunken</enum>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>1.0</string>
-                                                        </property>
-                                                        <property name="toolTip" stdset="0">
-                                                            <string>Target RMS force (pN)</string>
-                                                        </property>
-                                                        <property name="whatsThis" stdset="0">
-                                                            <string>&lt;b&gt;EndRMS&lt;/b&gt;
-&lt;p&gt;Continue until this RMS force is reached.&lt;/p&gt;</string>
-                                                        </property>
-                                                    </widget>
-                                                    <widget class="QLineEdit">
-                                                        <property name="name">
-                                                            <cstring>endmax_linedit</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>10.0</string>
-                                                        </property>
-                                                        <property name="toolTip" stdset="0">
-                                                            <string>Target max force (pN)</string>
-                                                        </property>
-                                                        <property name="whatsThis" stdset="0">
-                                                            <string>&lt;b&gt;EndMax&lt;/b&gt;
-&lt;p&gt;Continue until no interaction exceeds this force.&lt;/p&gt;</string>
-                                                        </property>
-                                                    </widget>
-                                                    <widget class="QLineEdit">
-                                                        <property name="name">
-                                                            <cstring>cutoverrms_linedit</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>50.0</string>
-                                                        </property>
-                                                        <property name="toolTip" stdset="0">
-                                                            <string>Cutover RMS foce (pN)</string>
-                                                        </property>
-                                                        <property name="whatsThis" stdset="0">
-                                                            <string>&lt;b&gt;CutoverRMS&lt;/b&gt;
-&lt;p&gt;Use steepest descent until this RMS force is reached.&lt;/p&gt;</string>
-                                                        </property>
-                                                    </widget>
-                                                    <widget class="QLineEdit">
-                                                        <property name="name">
-                                                            <cstring>cutovermax_linedit</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>300.0</string>
-                                                        </property>
-                                                        <property name="toolTip" stdset="0">
-                                                            <string>Cutover max force (pN)</string>
-                                                        </property>
-                                                        <property name="whatsThis" stdset="0">
-                                                            <string>&lt;b&gt;CutoverMax&lt;/b&gt;
-&lt;p&gt;Use steepest descent until no interaction exceeds this force.&lt;/p&gt;</string>
-                                                        </property>
-                                                    </widget>
-                                                </vbox>
-                                            </widget>
-                                        </hbox>
-                                    </widget>
-                                </vbox>
-                            </widget>
-                        </hbox>
-                    </widget>
-                    <widget class="QLayoutWidget">
-                        <property name="name">
-                            <cstring>layout79</cstring>
-                        </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QLayoutWidget">
-                                <property name="name">
-                                    <cstring>layout67</cstring>
-                                </property>
-                                <vbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
                                     <widget class="QButtonGroup">
                                         <property name="name">
-                                            <cstring>default_projection_btngrp</cstring>
+                                            <cstring>update_btngrp</cstring>
+                                        </property>
+                                        <property name="frameShape">
+                                            <enum>StyledPanel</enum>
+                                        </property>
+                                        <property name="frameShadow">
+                                            <enum>Sunken</enum>
                                         </property>
                                         <property name="title">
-                                            <string>Default Projection</string>
-                                        </property>
-                                        <property name="exclusive">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string></string>
-                                        </property>
-                                        <property name="whatsThis" stdset="0">
                                             <string></string>
                                         </property>
                                         <grid>
                                             <property name="name">
                                                 <cstring>unnamed</cstring>
                                             </property>
-                                            <widget class="QRadioButton" row="0" column="0">
+                                            <widget class="QSpinBox" row="1" column="1">
                                                 <property name="name">
-                                                    <cstring>radioButton12</cstring>
+                                                    <cstring>update_number_spinbox</cstring>
                                                 </property>
-                                                <property name="text">
-                                                    <string>Perspective</string>
+                                                <property name="maxValue">
+                                                    <number>9999</number>
                                                 </property>
-                                                <property name="checked">
-                                                    <bool>true</bool>
+                                                <property name="minValue">
+                                                    <number>1</number>
+                                                </property>
+                                                <property name="value">
+                                                    <number>1</number>
+                                                </property>
+                                                <property name="toolTip" stdset="0">
+                                                    <string>Specify how often to update the screen during the minimization</string>
+                                                </property>
+                                                <property name="whatsThis" stdset="0">
+                                                    <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
+&lt;p&gt;Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimizer is running.&lt;/p&gt;</string>
+                                                </property>
+                                            </widget>
+                                            <widget class="QComboBox" row="1" column="2">
+                                                <item>
+                                                    <property name="text">
+                                                        <string>frames</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>seconds</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>minutes</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>hours</string>
+                                                    </property>
+                                                </item>
+                                                <property name="name">
+                                                    <cstring>update_units_combobox</cstring>
+                                                </property>
+                                                <property name="toolTip" stdset="0">
+                                                    <string>Specify how often to update the screen during the minimization.</string>
+                                                </property>
+                                                <property name="whatsThis" stdset="0">
+                                                    <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
+&lt;p&gt;Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimizer is running.&lt;/p&gt;</string>
                                                 </property>
                                             </widget>
                                             <widget class="QRadioButton" row="1" column="0">
                                                 <property name="name">
-                                                    <cstring>radioButton13</cstring>
+                                                    <cstring>update_every_rbtn</cstring>
                                                 </property>
                                                 <property name="text">
-                                                    <string>Orthographic</string>
+                                                    <string>Update every</string>
+                                                </property>
+                                                <property name="buttonGroupId">
+                                                    <number>1</number>
+                                                </property>
+                                                <property name="toolTip" stdset="0">
+                                                    <string>Specify how often to update the screen during the minimization</string>
+                                                </property>
+                                                <property name="whatsThis" stdset="0">
+                                                    <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
+&lt;p&gt;Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimizer is running.&lt;/p&gt;</string>
+                                                </property>
+                                            </widget>
+                                            <spacer row="1" column="3">
+                                                <property name="name">
+                                                    <cstring>spacer2</cstring>
+                                                </property>
+                                                <property name="orientation">
+                                                    <enum>Horizontal</enum>
+                                                </property>
+                                                <property name="sizeType">
+                                                    <enum>Expanding</enum>
+                                                </property>
+                                                <property name="sizeHint">
+                                                    <size>
+                                                        <width>12</width>
+                                                        <height>20</height>
+                                                    </size>
+                                                </property>
+                                            </spacer>
+                                            <widget class="QRadioButton" row="0" column="0" rowspan="1" colspan="3">
+                                                <property name="name">
+                                                    <cstring>update_asap_rbtn</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Update as fast as possible</string>
+                                                </property>
+                                                <property name="checked">
+                                                    <bool>true</bool>
+                                                </property>
+                                                <property name="buttonGroupId">
+                                                    <number>0</number>
+                                                </property>
+                                                <property name="toolTip" stdset="0">
+                                                    <string>Update every 2 seconds, or faster if it doesn't slow simulation by more than 20%</string>
+                                                </property>
+                                                <property name="whatsThis" stdset="0">
+                                                    <string>&lt;b&gt;Update as fast as possible&lt;/b&gt;
+&lt;p&gt;
+Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimization by more than 20%&lt;/p&gt;</string>
                                                 </property>
                                             </widget>
                                         </grid>
                                     </widget>
-                                    <spacer>
+                                    <widget class="QGroupBox">
                                         <property name="name">
-                                            <cstring>spacer53_2</cstring>
+                                            <cstring>groupBox20</cstring>
                                         </property>
-                                        <property name="orientation">
-                                            <enum>Vertical</enum>
+                                        <property name="frameShape">
+                                            <enum>StyledPanel</enum>
                                         </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
+                                        <property name="title">
+                                            <string></string>
                                         </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>20</width>
-                                                <height>40</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
+                                        <vbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <property name="margin">
+                                                <number>4</number>
+                                            </property>
+                                            <property name="spacing">
+                                                <number>1</number>
+                                            </property>
+                                            <widget class="QLayoutWidget">
+                                                <property name="name">
+                                                    <cstring>layout79</cstring>
+                                                </property>
+                                                <hbox>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QLayoutWidget">
+                                                        <property name="name">
+                                                            <cstring>layout73</cstring>
+                                                        </property>
+                                                        <grid>
+                                                            <property name="name">
+                                                                <cstring>unnamed</cstring>
+                                                            </property>
+                                                            <widget class="QLabel" row="0" column="0">
+                                                                <property name="name">
+                                                                    <cstring>endrms_lbl</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>EndRMS :</string>
+                                                                </property>
+                                                                <property name="alignment">
+                                                                    <set>AlignVCenter|AlignRight</set>
+                                                                </property>
+                                                            </widget>
+                                                            <widget class="QLabel" row="1" column="0">
+                                                                <property name="name">
+                                                                    <cstring>endmax_lbl</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>EndMax :</string>
+                                                                </property>
+                                                                <property name="alignment">
+                                                                    <set>AlignVCenter|AlignRight</set>
+                                                                </property>
+                                                            </widget>
+                                                            <widget class="QLineEdit" row="1" column="1">
+                                                                <property name="name">
+                                                                    <cstring>endmax_linedit</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>10.0</string>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Target max force (pN)</string>
+                                                                </property>
+                                                                <property name="whatsThis" stdset="0">
+                                                                    <string>&lt;b&gt;EndMax&lt;/b&gt;
+&lt;p&gt;Continue until no interaction exceeds this force.&lt;/p&gt;</string>
+                                                                </property>
+                                                            </widget>
+                                                            <widget class="QLineEdit" row="0" column="1">
+                                                                <property name="name">
+                                                                    <cstring>endrms_linedit</cstring>
+                                                                </property>
+                                                                <property name="frameShape">
+                                                                    <enum>LineEditPanel</enum>
+                                                                </property>
+                                                                <property name="frameShadow">
+                                                                    <enum>Sunken</enum>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>1.0</string>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Target RMS force (pN)</string>
+                                                                </property>
+                                                                <property name="whatsThis" stdset="0">
+                                                                    <string>&lt;b&gt;EndRMS&lt;/b&gt;
+&lt;p&gt;Continue until this RMS force is reached.&lt;/p&gt;</string>
+                                                                </property>
+                                                            </widget>
+                                                        </grid>
+                                                    </widget>
+                                                    <widget class="QLayoutWidget">
+                                                        <property name="name">
+                                                            <cstring>layout72</cstring>
+                                                        </property>
+                                                        <grid>
+                                                            <property name="name">
+                                                                <cstring>unnamed</cstring>
+                                                            </property>
+                                                            <widget class="QLabel" row="1" column="0">
+                                                                <property name="name">
+                                                                    <cstring>cutovermax_lbl</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>CutoverMax :</string>
+                                                                </property>
+                                                                <property name="alignment">
+                                                                    <set>AlignVCenter|AlignRight</set>
+                                                                </property>
+                                                            </widget>
+                                                            <widget class="QLineEdit" row="1" column="1">
+                                                                <property name="name">
+                                                                    <cstring>cutovermax_linedit</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>300.0</string>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Cutover max force (pN)</string>
+                                                                </property>
+                                                                <property name="whatsThis" stdset="0">
+                                                                    <string>&lt;b&gt;CutoverMax&lt;/b&gt;
+&lt;p&gt;Use steepest descent until no interaction exceeds this force.&lt;/p&gt;</string>
+                                                                </property>
+                                                            </widget>
+                                                            <widget class="QLineEdit" row="0" column="1">
+                                                                <property name="name">
+                                                                    <cstring>cutoverrms_linedit</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>50.0</string>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Cutover RMS foce (pN)</string>
+                                                                </property>
+                                                                <property name="whatsThis" stdset="0">
+                                                                    <string>&lt;b&gt;CutoverRMS&lt;/b&gt;
+&lt;p&gt;Use steepest descent until this RMS force is reached.&lt;/p&gt;</string>
+                                                                </property>
+                                                            </widget>
+                                                            <widget class="QLabel" row="0" column="0">
+                                                                <property name="name">
+                                                                    <cstring>cutoverrms_lbl</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>CutoverRMS :</string>
+                                                                </property>
+                                                                <property name="alignment">
+                                                                    <set>AlignVCenter|AlignRight</set>
+                                                                </property>
+                                                            </widget>
+                                                        </grid>
+                                                    </widget>
+                                                </hbox>
+                                            </widget>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>minimize_warning_lbl</cstring>
+                                                </property>
+                                                <property name="sizePolicy">
+                                                    <sizepolicy>
+                                                        <hsizetype>5</hsizetype>
+                                                        <vsizetype>7</vsizetype>
+                                                        <horstretch>0</horstretch>
+                                                        <verstretch>0</verstretch>
+                                                    </sizepolicy>
+                                                </property>
+                                                <property name="text">
+                                                    <string></string>
+                                                </property>
+                                            </widget>
+                                        </vbox>
+                                    </widget>
                                 </vbox>
                             </widget>
                             <widget class="QGroupBox">
@@ -589,11 +618,11 @@
                                 <property name="title">
                                     <string>View Animation</string>
                                 </property>
-                                <grid>
+                                <vbox>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QCheckBox" row="1" column="0">
+                                    <widget class="QCheckBox">
                                         <property name="name">
                                             <cstring>animate_views_checkbox</cstring>
                                         </property>
@@ -610,7 +639,7 @@
                                             <string>&lt;p&gt;&lt;b&gt;Animate Between Views&lt;/b&gt;&lt;/p&gt;Enables/disables animation when switching between the current view and a new view.</string>
                                         </property>
                                     </widget>
-                                    <widget class="QLayoutWidget" row="2" column="0">
+                                    <widget class="QLayoutWidget">
                                         <property name="name">
                                             <cstring>layout128</cstring>
                                         </property>
@@ -742,7 +771,7 @@
                                             </widget>
                                         </hbox>
                                     </widget>
-                                    <widget class="QCheckBox" row="0" column="0">
+                                    <widget class="QCheckBox">
                                         <property name="name">
                                             <cstring>high_quality_graphics_checkbox</cstring>
                                         </property>
@@ -753,7 +782,7 @@
                                             <bool>true</bool>
                                         </property>
                                     </widget>
-                                </grid>
+                                </vbox>
                             </widget>
                             <spacer>
                                 <property name="name">
@@ -767,7 +796,7 @@
                                 </property>
                                 <property name="sizeHint">
                                     <size>
-                                        <width>40</width>
+                                        <width>16</width>
                                         <height>20</height>
                                     </size>
                                 </property>
@@ -4720,12 +4749,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <slot>change_bg1_color()</slot>
     </connection>
     <connection>
-        <sender>compass_position_btngrp</sender>
-        <signal>clicked(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>set_compass_position()</slot>
-    </connection>
-    <connection>
         <sender>cpk_atom_rad_spinbox</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -5097,6 +5120,18 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <receiver>UserPrefsDialog</receiver>
         <slot>change_cutovermax()</slot>
     </connection>
+    <connection>
+        <sender>compass_position_combox</sender>
+        <signal>activated(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_compass_position()</slot>
+    </connection>
+    <connection>
+        <sender>watch_min_in_realtime_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>update_btngrp</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -5104,7 +5139,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <tabstop>display_compass_labels_checkbox</tabstop>
     <tabstop>display_origin_axis_checkbox</tabstop>
     <tabstop>display_pov_axis_checkbox</tabstop>
-    <tabstop>upper_right_btn</tabstop>
     <tabstop>watch_min_in_realtime_checkbox</tabstop>
     <tabstop>endrms_linedit</tabstop>
     <tabstop>endmax_linedit</tabstop>

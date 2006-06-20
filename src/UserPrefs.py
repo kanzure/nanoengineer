@@ -207,7 +207,7 @@ class UserPrefs(UserPrefsDialog):
         connect_checkbox_with_boolean_pref( self.display_compass_labels_checkbox, displayCompassLabels_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_origin_axis_checkbox, displayOriginAxis_prefs_key )
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
-        self.compass_position_btngrp.setButton(self.glpane.compassPosition)
+        self.compass_position_combox.setCurrentItem(self.glpane.compassPosition)
         self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
         connect_checkbox_with_boolean_pref( self.high_quality_graphics_checkbox, animateHighQualityGraphics_prefs_key )
         connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
