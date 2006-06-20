@@ -58,7 +58,8 @@ class PovraySceneProp(PovrayScenePropDialog):
 
         if pvs:
             self.struct_is_new = False
-            self.name, self.width, self.height, self.output_type = pvs.get_parameters()
+            self.name = pvs.name
+            self.width, self.height, self.output_type = pvs.get_parameters()
             self.struct = pvs
             
         else:
@@ -100,12 +101,27 @@ class PovraySceneProp(PovrayScenePropDialog):
     def build_struct(self, params):
         'Create or update PVS.'
         if not self.struct: 
+            name = params[0]
+            pvs_params = params[1:]
             from PovrayScene import PovrayScene
-            self.struct = PovrayScene(self.win.assy, params)
+            self.struct = PovrayScene(self.win.assy, name, pvs_params) #bruce 060620 revised this
         else:
-            self.struct.set_parameters(params)
+            self.set_params( self.struct, params)
         self.struct.write_pvs_file()
         return self.struct
+
+    def set_params(self, struct, params): #bruce 060620, since pvs params don't include name, but our params do
+        # struct should be a PovrayScene node
+        name = params[0]
+        pvs_params = params[1:]
+        struct.name = name # this ought to be checked for being a legal name; maybe we should use try_rename ###e
+        struct.set_parameters(pvs_params)
+            # Warning: code in this class assumes a specific order and set of params must be used here
+            # (e.g. in gather_parameters), so it might be clearer if set_parameters was just spelled out here
+            # as three assignments to attrs of struct. On the other hand, these three parameters (in that order)
+            # are also known to the node itself, for use in its mmp record format. Probably that's irrelevant
+            # and we should still make this change during the next cleanup of these files. ###@@@ [bruce 060620 comment]
+        return
     
     def remove_struct(self):
         'Delete PVS and remove it from the model tree.'
@@ -145,7 +161,7 @@ class PovraySceneProp(PovrayScenePropDialog):
             self.remove_struct()
             self._revert_number()
         else:
-            self.struct.set_parameters(self.previousParams)
+            self.set_params(self.struct, self.previousParams)
         QDialog.accept(self)   
     
     def restore_defaults_btn_clicked(self):

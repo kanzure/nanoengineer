@@ -326,7 +326,11 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         glpane = self.glpane
         
         from PovrayScene import PovrayScene
-        pvs = PovrayScene(assy, params=(None, glpane.width, glpane.height, 'png'))
+        pvs = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
+        #bruce 060620 comment: I doubt it's correct to render the image before adding the node,
+        # in case rendering it takes a long time. Also, if the rendering is aborted, the node
+        # should perhaps not be added (or should be removed if it was already added,
+        # or should be changed to indicate that the rendering was aborted).
         pvs.render_image()
         assy.addnode(pvs)
         self.mt.mt_update()

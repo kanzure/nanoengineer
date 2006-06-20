@@ -535,8 +535,8 @@ class _readmmp_state:
         width = int(m.group(2)); height = int(m.group(3))
         output_type = m.group(4)        
         
-        params = name, width, height, output_type
-        pvs = PovrayScene(self.assy, params)
+        params = width, height, output_type
+        pvs = PovrayScene(self.assy, name, params) #bruce 060620 revised this
         self.addmember(pvs)
         self.prevpovrayscene = pvs # added for interpreting "info povrayscene" records. mark 060613.
     
