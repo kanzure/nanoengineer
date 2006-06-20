@@ -19,6 +19,13 @@ from qt import Qt, QApplication, QCursor
 from HistoryWidget import greenmsg, redmsg
 import env, os, sys
 
+PVSNum = 0
+def genPVSNum(string):
+    """return string appended with a unique POV-Ray Scene number"""
+    global PVSNum
+    PVSNum += 1
+    return string + str(PVSNum)
+
 class PovrayScene(SimpleCopyMixin, Node):
     """A POV-Ray Scene is a .pov file that can be used to render images, accessible from the Model Tree as a node.
     """
@@ -36,7 +43,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         self.const_icon = imagename_to_pixmap("povrayscene.png")
         if not self.name: 
             # Name is only generated here when called by "View > Raytrace Scene": ops_view.viewRaytraceScene().
-            self.name = genViewNum("%s-" % self.sym)
+            self.name = genPVSNum("%s-" % self.sym)
         Node.__init__(self, assy, self.name)
         return
         
