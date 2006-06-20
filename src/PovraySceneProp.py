@@ -6,28 +6,27 @@ $Id$
 
 History:
 
-mark 060602 - Created for NFR: "Insert > POV-Ray Scene". Went to school on Will\'s DNAGenerator 
-    and GeneratorBaseClass code.
-
+mark 060602 - Created for NFR: "Insert > POV-Ray Scene".
 '''
 __author__ = "Mark"
 
 from qt import QDoubleValidator, SIGNAL, QDialog
 from PovrayScenePropDialog import PovrayScenePropDialog
-from GeneratorBaseClass import GeneratorBaseClass
 from HistoryWidget import greenmsg
 from widgets import double_fixup
-from Utility import genViewNum
+from PovrayScene import genPVSNum
+import env
+from HistoryWidget import redmsg, orangemsg, greenmsg
 
-class PovraySceneProp(GeneratorBaseClass, PovrayScenePropDialog):
+class PovraySceneProp(PovrayScenePropDialog):
 
-    cmd = greenmsg("Insert POV-Ray Scene: ")
+    cmdname = greenmsg("Insert POV-Ray Scene: ")
     sponsor_keyword = 'DNA'
-    prefix = 'POV-Ray Scene-'   # used for genViewNum
+    prefix = 'POV-Ray Scene-'
+    extension = ".pov"
 
     def __init__(self, win):
         PovrayScenePropDialog.__init__(self, win)  # win is parent.
-        GeneratorBaseClass.__init__(self, win)
         self.win = win
         self.glpane = self.win.glpane
         self.struct = None
@@ -41,14 +40,21 @@ class PovraySceneProp(GeneratorBaseClass, PovrayScenePropDialog):
         self.aspect_ratio_linedit.setReadOnly(True) # Read-only for now, maybe forever. Mark 060602.
 
     def _create_new_name(self):
-        pass
+        'Create new name for new PVS.'
+        import PovrayScene
+        self._PVSNum = PovrayScene.PVSNum
+        self.name = genPVSNum(self.prefix) + self.extension
+    
+    def _revert_number(self):
+        'Revert the PVS number'
+        import PovrayScene
+        if hasattr(self, '_PVSNum'):
+            PovrayScene.PVSNum = self._PVSNum
 
     def setup(self, pvs=None):
         '''Show the Properties Manager dialog. If <pvs> is supplied, get the parameters from
         it and load the dialog widgets.
-        '''
-        import Utility
-        self.maintain_aspect_ratio_checkbox.setChecked(False) # Needed. Mark 060612.
+        '''      
 
         if pvs:
             self.struct_is_new = False
@@ -57,64 +63,118 @@ class PovraySceneProp(GeneratorBaseClass, PovrayScenePropDialog):
             
         else:
             self.struct_is_new = True
-            self._ViewNum = Utility.ViewNum
-            self.name = genViewNum(self.prefix) + ".pov"
+            self._create_new_name()
             self.width = int(self.glpane.width)
             self.height = int(self.glpane.height)
             self.output_type = 'PNG'
 
+        self.update_widgets()
+        self.previousParams = params = self.gather_parameters()
+        self.show()
+           
+    def gather_parameters(self):
+        'Return the current parameter values from the widgets.'
+        name = str(self.name_linedit.text())
+        width = self.width_spinbox.value()
+        height = self.height_spinbox.value()
+        output_type = str(self.image_format_combox.currentText()).lower()
+        return (name, width, height, output_type)
+    
+    def update_widgets(self):
+        'Update the widgets using the current attr values.'
+        self.maintain_aspect_ratio_checkbox.setChecked(False) # Needed. Mark 060612.
         self.name_linedit.setText(self.name)
         self.image_format_combox.setCurrentText(self.output_type.upper())
         self.width_spinbox.setValue(self.width) # Generates signal.
         self.height_spinbox.setValue(self.height) # Generates signal.
         self.maintain_aspect_ratio_checkbox.setChecked(True)
         self.update_aspect_ratio()
-        self.previousParams = self.gather_parameters()
-        self.show()
-        
-    def gather_parameters(self):
-        '''Return the current parameter values from the widgets.
-        '''
-        name = str(self.name_linedit.text())
-        width = self.width_spinbox.value()
-        height = self.height_spinbox.value()
-        output_type = str(self.image_format_combox.currentText()).lower()
-        return (name, width, height, output_type)
+    
+    def done_msg(self):
+        'Tell what message to print when the PVS has been built.'
+        if self.struct_is_new:
+            return "%s created." % self.name
+        else:
+            return "%s updated." % self.name
 
     def build_struct(self, params):
+        'Create or update PVS.'
         if not self.struct: 
             from PovrayScene import PovrayScene
             self.struct = PovrayScene(self.win.assy, params)
         else:
-            self.struct.set_parameters(params) #&&& New
+            self.struct.set_parameters(params)
         self.struct.write_pvs_file()
         return self.struct
     
-    def preview_btn_clicked(self):
-        '''Overrides GeneratorBaseClass.preview_btn_click().
-        '''
-        #self.remove_struct()
+    def remove_struct(self):
+        'Delete PVS and remove it from the model tree.'
+        if self.struct != None:
+            self.struct.kill()
+            self.struct = None
+            self.win.win_update() # includes mt_update
+
+# Property manager standard button slots.
+
+    def ok_btn_clicked(self):
+        'Slot for the OK button'
+        self.win.assy.current_command_info(cmdname = self.cmdname)
+        
+        # Need to do this now, before calling build_struct() below.
+        if not self.struct:
+            addnode = True
+        else:
+            addnode = False
+        
         params = self.gather_parameters()
-        
-        addnode = False
-        if not self.struct: addnode = True
-        
         self.struct = self.build_struct(params)
         
         if addnode:
             self.win.assy.addnode(self.struct)
-            self.win.win_update() # includes mt_update
+            
+        self.win.win_update() # Update model tree regardless whether it is a new node or not.
+            
+        env.history.message(self.cmdname + self.done_msg())
+        self.struct = None
+        QDialog.accept(self)
+        
+    def cancel_btn_clicked(self):
+        'Slot for Cancel button.'
+        self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)")
+        if self.struct_is_new:
+            self.remove_struct()
+            self._revert_number()
+        else:
+            self.struct.set_parameters(self.previousParams)
+        QDialog.accept(self)   
+    
+    def restore_defaults_btn_clicked(self):
+        'Slot for Restore Defaults button.'
+        self.name, self.width, self.height, self.output_type = self.previousParams
+        self.update_widgets()
+        
+    def preview_btn_clicked(self):
+        'Slot for Preview button.'
+        
+        # Need to do this now, before calling build_struct() below.
+        if not self.struct:
+            addnode = True
+        else:
+            addnode = False
+        
+        params = self.gather_parameters()
+        self.struct = self.build_struct(params)
+        
+        if addnode:
+            self.win.assy.addnode(self.struct)
+        
+        self.win.win_update() # Update model tree regardless whether it is a new node or not.
         
         self.struct.render_image()
         
-    def cancel_btn_clicked(self):
-        '''Overrides GeneratorBaseClass.cancel_btn_clicked().
-        '''
-        if self.struct_is_new:
-            GeneratorBaseClass.cancel_btn_clicked(self)
-        else:
-            self.struct.set_parameters(self.previousParams)
-            QDialog.accept(self)            
+    def whatsthis_btn_clicked(self):
+        'Slot for the What\'s This button'
+        QWhatsThis.enterWhatsThisMode()
     
 # Property manager widget slots.
 
@@ -168,7 +228,7 @@ class PovraySceneProp(GeneratorBaseClass, PovrayScenePropDialog):
         #ar = float(str(self.aspect_ratio_str))
         #print "Aspect Ratio =", ar
         
-# Property Manager button slots
+# Property Manager groupbox button slots
 
     def toggle_grpbtn_1(self):
         'Slot for first groupbox toggle button'
