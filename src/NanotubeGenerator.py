@@ -68,13 +68,13 @@ class Chirality:
         y1 = -x * s + y * c
         return (x1, y1)
 
-    def mlimits(self, y3min, y3max, n):
-        if y3max < y3min:
-            y3min, y3max = y3max, y3min
+    def mlimits(self, z3min, z3max, n):
+        if z3max < z3min:
+            z3min, z3max = z3max, z3min
         B, c, s = self.B, self.__cos, self.__sin
         P = sqrt3 * B * s
         Q = 1.5 * B * (c - s / sqrt3)
-        m1, m2 = (y3min + P * n) / Q, (y3max + P * n) / Q
+        m1, m2 = (z3min + P * n) / Q, (z3max + P * n) / Q
         return int(m1-1.5), int(m2+1.5)
 
     def xyz(self, n, m):
@@ -82,8 +82,9 @@ class Chirality:
         x2, y2 = self.A * x1, self.B * y1
         R = self.R
         x3 = R * sin(x2/R)
-        z3 = R * cos(x2/R)
-        return (x3, y2, z3)
+        y3 = R * cos(x2/R)
+        z3 = y2
+        return (x3, y3, z3)
 
     def populate(self, mol, length, bn_members=False):
 
@@ -397,14 +398,14 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         for atm in atoms.values():
             # twist
             x, y, z = atm.posn()
-            twistRadians = twist * y
+            twistRadians = twist * z
             c, s = cos(twistRadians), sin(twistRadians)
-            x, z = x * c + z * s, -x * s + z * c
+            x, y = x * c + y * s, -x * s + y * c
             atm.setposn(chem.V(x, y, z))
         for atm in atoms.values():
             # z distortion
             x, y, z = atm.posn()
-            y *= (zdist + length) / length
+            z *= (zdist + length) / length
             atm.setposn(chem.V(x, y, z))
         length += zdist
         for atm in atoms.values():
@@ -412,7 +413,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             x, y, z = atm.posn()
             radius = self.chirality.R
             x *= (radius + 0.5 * xydist) / radius
-            z *= (radius - 0.5 * xydist) / radius
+            y *= (radius - 0.5 * xydist) / radius
             atm.setposn(chem.V(x, y, z))
 
 
@@ -427,9 +428,9 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         # trim all the carbons that fall outside our desired length
         # by doing this, we are introducing new singlets
         for atm in atoms.values():
-            y = atm.posn()[1]
-            if (y > .5 * (length + LENGTH_TWEAK) or
-                y < -.5 * (length + LENGTH_TWEAK)):
+            x, y, z = atm.posn()
+            if (z > .5 * (length + LENGTH_TWEAK) or
+                z < -.5 * (length + LENGTH_TWEAK)):
                 atm.kill()
 
         # Apply bend. Equations are anomalous for zero bend.
@@ -437,8 +438,8 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             R = length / bend
             for atm in atoms.values():
                 x, y, z = atm.posn()
-                theta = y / R
-                x, y = R - (R - x) * cos(theta), (R - x) * sin(theta)
+                theta = z / R
+                x, z = R - (R - x) * cos(theta), (R - x) * sin(theta)
                 atm.setposn(chem.V(x, y, z))
 
         def trimCarbons():
