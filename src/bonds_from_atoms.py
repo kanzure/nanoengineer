@@ -24,7 +24,7 @@ History:
 from VQT import vlen, pi
 from bonds import bonded, bond_atoms_faster, V_SINGLE, NeighborhoodGenerator
 from chem import atom_angle_radians
-from sim import getEquilibriumDistanceForBond
+from bond_constants import bond_params # 
 
 # constants; angles are in radians
 
@@ -64,6 +64,15 @@ def linked_list( lis1, func = None ):
     return res
 
 #e unlink_list?
+
+def idealBondLength(atm1, atm2):
+    """Return the ideal length of a single bond between atm1 and atm2,
+    assuming they have their current elements but their default atomtypes
+    (ignoring their current atomtypes).
+    """
+    # don't use getEquilibriumDistanceForBond directly, in case pyrex sim is not available [bruce 060620]
+    r1, r2 = bond_params(atm1.element.atomtypes[0], atm2.element.atomtypes[0], V_SINGLE)
+    return r1 + r2
 
 def max_atom_bonds(atom, special_cases={'H':  1,
                                         'B':  4,
@@ -260,7 +269,7 @@ def bond_cost(atm1, atm2):
     # note the assumption that we are talking about SINGLE bonds, which runs throughout this code
     # some day we should consider the possibility of higher-order bonds; a stab in this direction
     # is the bondtyp argument in make_bonds(), but that's really a kludge
-    best_dist = getEquilibriumDistanceForBond(atm1.atomtype.element.eltnum, atm2.atomtype.element.eltnum, '1')
+    best_dist = idealBondLength(atm1, atm2)
     # previously: best_dist = covalent_radius(atm1) + covalent_radius(atm2)
     if not best_dist:
         return None # avoid ZeroDivision exception from pondering a He-He bond
@@ -292,8 +301,7 @@ def list_potential_bonds(atmlist0):
         pos1 = atm1.posn()
         for atm2 in ngen.region(pos1):
             bondLen = vlen(pos1 - atm2.posn())
-            idealBondLen = getEquilibriumDistanceForBond(atm1.atomtype.element.eltnum,
-                                                         atm2.atomtype.element.eltnum, '1')
+            idealBondLen = idealBondLength(atm1, atm2)
             if atm2.key < key1 and bondLen < max_dist_ratio(atm1, atm2) * idealBondLen:
                 # i.e. for each pair (atm1, atm2) of bondable atoms
                 cost = bond_cost(atm1, atm2)
