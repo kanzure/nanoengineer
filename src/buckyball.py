@@ -140,7 +140,7 @@ class BuckyBall:
             for i in self.dct.keys():
                 for e, j in self.dct[i]:
                     if j > i:
-                        lst.append((i, j))
+                        lst.append(e.atoms())
             return lst
         def mmpBonds(self):
             dct = { }
