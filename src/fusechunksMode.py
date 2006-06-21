@@ -11,7 +11,7 @@ __author__ = "Mark"
 
 from modifyMode import *
 from extrudeMode import mergeable_singlets_Q_and_offset
-from chunk import bond_at_singlets
+from bonds import bond_at_singlets
 from HistoryWidget import redmsg, orangemsg
 from platform import fix_plurals
 import env

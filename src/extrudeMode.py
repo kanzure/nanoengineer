@@ -20,7 +20,7 @@ from modes import *
 from handles import *
 from debug import print_compact_traceback
 import math #k needed?
-from chunk import bond_at_singlets #k needed?
+from bonds import bond_at_singlets #k needed?
 import platform
 from widgets import FloatSpinBox, TogglePrefCheckBox
 
@@ -1912,7 +1912,7 @@ def mergeable_singlets_Q_and_offset(s1, s2, offset2 = None, tol = 1.0):
     the error_offset2 (by multiplying the standard value), both for returning
     it and for deciding whether to return (False,...) or (True,...).
     Larger tol values make it more likely that s1,s2 are considered bondable.
-       To perform actual bonding, see chunk.bond_at_singlets. But note that
+       To perform actual bonding, see bonds.bond_at_singlets. But note that
     it is quite possible for the same s1 to be considered bondable to more
     than one s2 (or vice versa), even for tol = 1.0 and especially for larger
     tol values.

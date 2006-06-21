@@ -2651,8 +2651,6 @@ def shakedown_poly_evals_evecs_axis(basepos):
 
 # ==
 
-from bonds import bond_at_singlets # only for the sake of code that tries to import this from here; should be removed ASAP ###@@@
-
 # [bruce 050502 moved bond_at_singlets from here into bonds.py]
 
 def mol_copy_name(name): # bruce 041124
