@@ -358,8 +358,8 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         twist = pi * self.twist_spinbox.value() / 180.0
         bend = pi * self.bend_spinbox.value() / 180.0
         members = self.members_combox.currentItem()
-        endings = self.endings_combox.currentItem()
-        if endings == 1 and not platform.atom_debug:
+        endings = self.endings_combox.currentText()
+        if endings == "Capped" and not platform.atom_debug:
             raise Exception('Nanotube endcaps not implemented yet.')
         numwalls = self.mwcnt_count_spinbox.value()
         return (length, n, m, bond_length, zdist, xydist,
@@ -450,14 +450,14 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
 
         trimCarbons()
         # if we're not picky about endings, we don't need to trim carbons
-        if endings == 1:
+        if endings == "Capped":
             # buckyball endcaps
             add_endcap(mol, length, self.chirality.R)
-        if endings == 2:
+        if endings == "Hydrogen":
             # hydrogen terminations
             for atm in atoms.values():
                 atm.Hydrogenate()
-        elif endings == 3:
+        elif endings == "Nitrogen":
             # nitrogen terminations
             dstElem = PeriodicTable.getElement('N')
             atomtype = dstElem.find_atomtype('sp2')
@@ -513,7 +513,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
                              self.chirality_n_label, self.chirality_n_spinbox,
                              self.chirality_m_label, self.chirality_m_spinbox,
                              self.length_label, self.length_linedit,
-                             self.members_label, self.members_combox,
+                             self.type_label, self.members_combox,
                              self.endings_label, self.endings_combox,
                              self.bond_length_label, self.bond_length_linedit)
 

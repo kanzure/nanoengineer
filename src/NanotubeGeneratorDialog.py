@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\NanotubeGeneratorDialog.ui'
 #
-# Created: Wed Jun 7 17:11:07 2006
+# Created: Tue Jun 20 20:48:01 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,7 +14,7 @@ image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
     "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x00" \
-    "\x95\x49\x44\x41\x54\x38\x8d\xed\x94\x3d\x12\x82" \
+    "\x95\x49\x44\x41\x54\x78\x9c\xed\x94\x3d\x12\x82" \
     "\x30\x10\x85\xbf\x28\x45\x8c\x57\x08\x87\xc4\x52" \
     "\x2c\x74\xb4\xe5\x24\x5c\x80\xa1\xa5\xf1\x3a\xb6" \
     "\x5a\x3c\xab\x30\x68\x47\x58\x0a\x67\x7c\xe5\xb7" \
@@ -26,14 +26,14 @@ image0_data = \
     "\x16\x33\x18\x48\x9f\xa6\xdf\x3b\xce\x60\x48\xb2" \
     "\x8f\x8d\xfd\x95\x57\xfb\x14\xab\xd8\x14\x29\x9c" \
     "\x87\xfa\x04\x40\xb9\xdf\x91\xcb\x60\x85\xd6\x73" \
-    "\xfa\xcf\xc3\xa5\x7a\x03\xaf\xec\xb2\x69\x7f\xf9" \
-    "\x68\x24\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
+    "\xfa\xcf\xc3\xa5\x7a\x03\xaf\xec\xb2\x69\xbc\xc5" \
+    "\x46\x1c\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
     "\x60\x82"
 image1_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
-    "\x83\x49\x44\x41\x54\x38\x8d\xed\x94\x31\x0e\x80" \
+    "\x83\x49\x44\x41\x54\x78\x9c\xed\x94\x31\x0e\x80" \
     "\x20\x0c\x45\x7f\x8d\x03\xc2\x15\xe0\xae\x78\x56" \
     "\xcf\x60\x1c\xbf\x8b\x98\x86\xb8\x60\xda\xc1\xc4" \
     "\x2e\x25\x8f\xe6\x43\xe8\x2f\x42\x12\x1e\x31\xb9" \
@@ -44,13 +44,13 @@ image1_data = \
     "\xcb\xf0\x74\x9a\x05\x73\xb3\x9b\xef\x53\xb8\x37" \
     "\xcf\xd2\x6e\x73\x67\xf2\x5a\xd2\xa2\x27\x71\x98" \
     "\xb5\x10\x92\x2e\x23\x2d\xfc\x3f\xfa\xcf\x0a\x9f" \
-    "\x4d\xff\x95\x1c\x3d\x0e\xf0\x87\x00\x00\x00\x00" \
+    "\x4d\xff\x95\x1c\x27\xfa\xbd\x8e\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
 image2_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x03" \
-    "\x01\x49\x44\x41\x54\x38\x8d\x9d\xd3\x5d\x88\x94" \
+    "\x01\x49\x44\x41\x54\x78\x9c\x9d\xd3\x5d\x88\x94" \
     "\x65\x14\xc0\xf1\xff\xf3\xf5\xce\xb3\x33\xeb\x8c" \
     "\xc9\xe4\xae\x88\xad\x29\xa5\x2d\xbb\x21\x06\x6d" \
     "\x42\xb5\x64\x48\x10\x0b\x45\x97\xc2\x5e\x77\x15" \
@@ -114,13 +114,13 @@ image2_data = \
     "\x70\x74\x40\xd2\x3b\xd2\x02\x7c\x0c\x04\xcb\x81" \
     "\xd5\xad\x56\xa6\x94\x1a\x4e\x3f\x90\xde\x5e\xfb" \
     "\xb5\x56\x8e\xe7\xe2\x93\x22\x72\xa6\xe3\x35\x00" \
-    "\xff\x00\x03\x11\x91\x02\xf5\x72\xea\x39\x00\x00" \
+    "\xff\x00\x03\x11\x91\x02\x90\xac\x08\x8c\x00\x00" \
     "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 image3_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x03" \
-    "\x15\x49\x44\x41\x54\x38\x8d\xb5\xd4\x5f\x68\x95" \
+    "\x15\x49\x44\x41\x54\x78\x9c\xb5\xd4\x5f\x68\x95" \
     "\x75\x1c\xc7\xf1\xf7\xf7\xf9\x3d\xe7\x39\xcf\x4e" \
     "\x4c\x0b\xc2\x46\x61\x8a\xb9\x10\xaf\xc2\x2e\x86" \
     "\xa8\xb0\x41\x37\x25\x48\x85\xd9\x45\x5e\xb4\x90" \
@@ -186,13 +186,74 @@ image3_data = \
     "\x0b\x2e\xee\x0d\x81\xb8\xec\x5b\x6a\x72\x23\xd0" \
     "\x0d\x5c\x05\x4e\x01\xdb\x16\x83\xd6\x8a\x6a\x97" \
     "\xd0\x4a\x60\xb2\xda\x8d\x75\x3f\xe3\x5f\xbf\xdc" \
-    "\x0a\xd6\x12\xa9\x67\xde\x00\x00\x00\x00\x49\x45" \
+    "\x0a\xd6\x89\xe2\x2b\xac\x00\x00\x00\x00\x49\x45" \
     "\x4e\x44\xae\x42\x60\x82"
 image4_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
-    "\xcf\x49\x44\x41\x54\x38\x8d\xed\x94\x4d\x68\x13" \
+    "\x8d\x49\x44\x41\x54\x78\x9c\xbd\x95\x4f\x48\x14" \
+    "\x51\x1c\xc7\xbf\x6f\xde\x7b\xb3\x3b\xbb\x9b\xda" \
+    "\xa6\xe6\xb2\xfe\x09\x64\xc5\x02\xbb\x94\x15\x41" \
+    "\x75\x13\xea\x60\x90\x7f\x0e\x9d\x12\x0f\x0b\x9d" \
+    "\xb4\x82\x0e\x5d\x0a\xbc\xd4\xa1\x43\x41\x41\x97" \
+    "\x8d\x0e\x45\x83\x74\xe9\x64\x54\x44\x5e\x0a\xc3" \
+    "\x43\xa0\x60\x61\xb8\x66\x52\x89\xb2\x3b\xb3\xff" \
+    "\x9c\x37\xb3\xd3\xc1\xd9\x75\xdc\xd5\xb0\xd6\xfa" \
+    "\xc2\x0f\xe6\xf7\xde\xf0\x99\x2f\xdf\xf7\xde\x3c" \
+    "\x62\xdb\x36\xfe\x85\xa4\xcd\x06\xc7\x87\x4e\x1e" \
+    "\xfc\x31\x74\xf8\xe8\x8e\x82\x6f\x44\xbb\xdb\x5b" \
+    "\x77\xdb\xb7\x9e\xcd\x2c\xbf\xab\x04\x4c\xdc\x51" \
+    "\x5c\x89\x76\xd7\x9e\x0e\x26\xef\x9d\xd8\x63\xf7" \
+    "\xcd\xc5\x75\x58\x19\x71\x73\xbf\x2d\xcd\x20\x63" \
+    "\x00\x09\x01\x24\x72\x6b\xa5\x0b\xe8\x8b\x3a\x74" \
+    "\x00\x3a\x80\x1c\x00\x0d\x10\x23\x2d\x2d\x8b\x63" \
+    "\x73\x73\xaf\x01\x80\x15\xa0\xfd\xfd\xfd\xb4\xa7" \
+    "\x2d\x79\xed\xd0\x5e\xa3\x4f\x36\x65\xb4\x85\x7c" \
+    "\x40\xc2\xb8\x8a\xa4\x01\xd8\x04\xe0\x12\xc0\x29" \
+    "\x20\x33\x80\x99\x60\x5c\x02\x13\xf9\x22\x80\x03" \
+    "\x7a\x38\x1e\x8f\x96\x45\xd1\xd9\xf4\xf3\x5c\x47" \
+    "\x68\x65\xa8\xa6\xda\x81\x00\x0e\x4c\x5a\xef\x65" \
+    "\xba\xfe\x01\xc7\x15\x77\xbb\x73\x49\x02\x80\x48" \
+    "\x24\x72\xec\xd5\xa4\xa6\xce\x27\x08\x2c\xc9\x04" \
+    "\x58\x1e\x60\x5b\xc0\x9d\x31\xe6\xf4\xcc\x55\xd4" \
+    "\x05\x66\x00\x10\x0e\x87\x23\x79\x2e\x67\xee\xbe" \
+    "\x35\x7d\xf3\xed\xab\x38\xdf\x2e\x10\xe0\x1c\x36" \
+    "\x97\xf0\x71\x29\x8b\x5c\x5a\x00\x29\x13\x24\x6b" \
+    "\xc1\xc8\x98\x90\x57\xf3\xa0\x8c\x43\x81\x89\x1a" \
+    "\x97\x73\x94\x82\xeb\xeb\xeb\x9f\xa6\xd3\x69\x46" \
+    "\x88\x7c\xfd\xf9\xac\xd2\x9c\xb2\x08\xfa\x42\x1a" \
+    "\x1a\x65\x69\xf5\xfe\xe7\xec\xc2\x87\x15\x34\x28" \
+    "\x8a\x02\x0f\x93\x89\xc7\x0f\xe4\x15\x1b\x4a\x1d" \
+    "\x27\x97\x67\x67\x95\xda\xe5\x44\x11\x56\xe6\x58" \
+    "\x55\x55\x03\x40\xac\xb7\xb7\x77\x5a\x08\x71\xfb" \
+    "\xe5\x17\x71\x3c\x8d\x46\x5c\x68\x58\x4a\x9d\x3d" \
+    "\x50\x37\x31\xf6\x66\xe9\x85\xcf\x22\xf0\x7b\x65" \
+    "\xf8\x7c\x3e\xf8\xfd\x7e\x54\x71\xda\x91\x9b\x9e" \
+    "\x1a\xde\x2a\xe7\x0d\xfd\xe8\xe8\xe8\xfb\x81\x81" \
+    "\x81\x1e\x4d\xd3\x46\x26\xe6\x53\x83\x59\xda\x5a" \
+    "\x13\xaa\xd2\x52\x9d\x9d\xfb\x1e\xa9\xaa\x6a\xb9" \
+    "\xdf\x3d\xd3\xd5\x75\xca\x10\x62\xb8\x00\x2d\xcd" \
+    "\xb8\xec\x80\xc4\x62\xb1\xef\x94\xd2\x8b\xc1\x60" \
+    "\x30\x3a\x3e\x39\xf5\x78\xc1\xdb\x74\xa9\x14\x5a" \
+    "\x74\xc5\x36\x2e\x60\x59\x14\xa5\x72\xa2\x79\xe0" \
+    "\xd4\xd6\xa2\x64\x6d\x77\x88\x7c\xd9\xd4\xa6\xff" \
+    "\x8a\xed\xc8\xa6\x34\x03\x46\xd7\x0e\x0a\xca\x77" \
+    "\xc5\x5f\x83\x0b\xe2\x9c\x16\x17\xef\xb7\x19\xff" \
+    "\x91\x18\x59\x7f\xc4\x36\x32\xde\xb6\x3c\x0c\xa0" \
+    "\x12\xbc\xc2\x82\xc8\x98\x1b\xa6\x2a\x8e\x02\x5c" \
+    "\x2a\xc6\xe1\x86\x55\xe4\x38\x2e\x7b\x3f\x3d\xb4" \
+    "\x6c\x85\x06\x3c\x30\x03\xdc\x5a\x6e\x6e\x39\x02" \
+    "\xe0\x49\xc5\xe0\x3b\x39\xb2\x18\xd8\x55\xdd\x40" \
+    "\x14\x42\x18\xe7\x46\xf2\xdb\x57\xa3\x30\x47\xfe" \
+    "\xeb\x9d\xb7\x13\xfa\x05\x94\x85\xda\xeb\xf9\xf5" \
+    "\x69\x3d\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
+    "\x60\x82"
+image5_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
+    "\xcf\x49\x44\x41\x54\x78\x9c\xed\x94\x4d\x68\x13" \
     "\x51\x10\xc7\xe7\xbd\x7d\xd9\xec\x26\xeb\x26\x6d" \
     "\x92\x4d\x25\xa5\xb5\x55\x14\x2b\xf6\x54\xb4\x45" \
     "\xbc\x68\x05\xa9\x1f\x07\xc5\x83\x20\xa2\x20\xa5" \
@@ -252,13 +313,13 @@ image4_data = \
     "\x3b\xf7\xbc\xf7\xcf\x93\x09\x21\x94\x19\x4b\x56" \
     "\x81\xe0\x8d\x40\x5d\x09\x80\xa4\xb8\xdf\x7b\x09" \
     "\x07\x9e\x4c\x5a\x90\xfc\x0f\xfa\x7f\x17\xfc\x13" \
-    "\xc9\x2f\x4f\xb7\x05\xee\x2c\xf0\x00\x00\x00\x00" \
+    "\xc9\x2f\x4f\xb7\x6f\xfb\xe3\xe6\x00\x00\x00\x00" \
     "\x49\x45\x4e\x44\xae\x42\x60\x82"
-image5_data = \
+image6_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x02" \
-    "\x9d\x49\x44\x41\x54\x38\x8d\xb5\x94\xcf\x4b\x54" \
+    "\x9d\x49\x44\x41\x54\x78\x9c\xb5\x94\xcf\x4b\x54" \
     "\x51\x14\xc7\x3f\xf7\xcd\xd3\x37\xe9\xcc\xbc\x71" \
     "\x1c\x67\x74\x98\x07\x86\xab\xd2\x7d\x86\xa1\x08" \
     "\x11\x45\x85\x4a\xb4\x70\x27\x4a\x8b\x76\x2d\xfc" \
@@ -314,19 +375,19 @@ image5_data = \
     "\x05\xf8\xaf\xa2\x9a\x8e\x53\x1a\xda\xe6\x14\x53" \
     "\xee\xdf\x9d\x68\xfb\x40\xd9\xc1\x41\xf5\xc3\xab" \
     "\xe7\xec\xef\x8e\x44\x24\x53\x49\xf3\x0b\xdf\x5b" \
-    "\xae\x1e\x18\x8b\x7a\x54\x00\x00\x00\x00\x49\x45" \
+    "\xae\x1e\x85\x69\x65\x97\x00\x00\x00\x00\x49\x45" \
     "\x4e\x44\xae\x42\x60\x82"
-image6_data = \
+image7_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x10\x00\x00\x00\x08" \
     "\x08\x06\x00\x00\x00\xf0\x76\x7f\x97\x00\x00\x00" \
-    "\x42\x49\x44\x41\x54\x28\x91\x8d\xd0\xb1\x15\x00" \
+    "\x42\x49\x44\x41\x54\x78\x9c\x8d\xd0\xb1\x15\x00" \
     "\x20\x08\x03\xd1\xd3\xc9\x18\x9d\xcd\xb4\x55\x5f" \
     "\x08\xa6\xd5\xfb\x05\xd0\x6f\xb9\xc7\xd9\xc5\x99" \
     "\x69\x91\xf1\x11\x03\x10\x11\xf2\x7f\x05\x5c\xb1" \
     "\x43\x14\x20\xe3\x0a\x79\x01\x1b\x2b\xe4\x04\xec" \
-    "\xb5\x8b\xb9\x1b\xfe\x6d\x03\xe1\x83\x16\x45\xa6" \
-    "\xee\x58\x99\x00\x00\x00\x00\x49\x45\x4e\x44\xae" \
+    "\xb5\x8b\xb9\x1b\xfe\x6d\x03\xe1\x83\x16\x45\x1c" \
+    "\x74\x1a\x7d\x00\x00\x00\x00\x49\x45\x4e\x44\xae" \
     "\x42\x60\x82"
 
 class nanotube_dialog(QDialog):
@@ -347,6 +408,8 @@ class nanotube_dialog(QDialog):
         self.image5.loadFromData(image5_data,"PNG")
         self.image6 = QPixmap()
         self.image6.loadFromData(image6_data,"PNG")
+        self.image7 = QPixmap()
+        self.image7.loadFromData(image7_data,"PNG")
         if not name:
             self.setName("nanotube_dialog")
 
@@ -395,28 +458,32 @@ class nanotube_dialog(QDialog):
         self.body_frame.setFrameShadow(QFrame.Raised)
         body_frameLayout = QVBoxLayout(self.body_frame,3,3,"body_frameLayout")
 
-        layout59 = QHBoxLayout(None,0,6,"layout59")
+        layout92 = QHBoxLayout(None,0,6,"layout92")
         left_spacer = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout59.addItem(left_spacer)
+        layout92.addItem(left_spacer)
 
         self.done_btn = QToolButton(self.body_frame,"done_btn")
         self.done_btn.setIconSet(QIconSet(self.image2))
-        layout59.addWidget(self.done_btn)
+        layout92.addWidget(self.done_btn)
 
         self.abort_btn = QToolButton(self.body_frame,"abort_btn")
         self.abort_btn.setIconSet(QIconSet(self.image3))
-        layout59.addWidget(self.abort_btn)
+        layout92.addWidget(self.abort_btn)
+
+        self.restore_defaults_btn = QToolButton(self.body_frame,"restore_defaults_btn")
+        self.restore_defaults_btn.setIconSet(QIconSet(self.image4))
+        layout92.addWidget(self.restore_defaults_btn)
 
         self.preview_btn = QToolButton(self.body_frame,"preview_btn")
-        self.preview_btn.setIconSet(QIconSet(self.image4))
-        layout59.addWidget(self.preview_btn)
+        self.preview_btn.setIconSet(QIconSet(self.image5))
+        layout92.addWidget(self.preview_btn)
 
         self.whatsthis_btn = QToolButton(self.body_frame,"whatsthis_btn")
-        self.whatsthis_btn.setIconSet(QIconSet(self.image5))
-        layout59.addWidget(self.whatsthis_btn)
-        right_spacer = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout59.addItem(right_spacer)
-        body_frameLayout.addLayout(layout59)
+        self.whatsthis_btn.setIconSet(QIconSet(self.image6))
+        layout92.addWidget(self.whatsthis_btn)
+        right_spacer = QSpacerItem(30,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout92.addItem(right_spacer)
+        body_frameLayout.addLayout(layout92)
 
         self.parameters_grpbox = QGroupBox(self.body_frame,"parameters_grpbox")
         self.parameters_grpbox.setFrameShape(QGroupBox.StyledPanel)
@@ -441,7 +508,8 @@ class nanotube_dialog(QDialog):
         self.nt_parameters_grpbtn = QPushButton(self.parameters_grpbox,"nt_parameters_grpbtn")
         self.nt_parameters_grpbtn.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.nt_parameters_grpbtn.sizePolicy().hasHeightForWidth()))
         self.nt_parameters_grpbtn.setMaximumSize(QSize(16,16))
-        self.nt_parameters_grpbtn.setIconSet(QIconSet(self.image6))
+        self.nt_parameters_grpbtn.setAutoDefault(0)
+        self.nt_parameters_grpbtn.setIconSet(QIconSet(self.image7))
         self.nt_parameters_grpbtn.setFlat(1)
         layout42.addWidget(self.nt_parameters_grpbtn)
         parameters_grpboxLayout.addLayout(layout42)
@@ -504,10 +572,10 @@ class nanotube_dialog(QDialog):
 
         nt_parameters_body_layout.addWidget(self.length_linedit,1,1)
 
-        self.members_label = QLabel(self.parameters_grpbox,"members_label")
-        self.members_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        self.type_label = QLabel(self.parameters_grpbox,"type_label")
+        self.type_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        nt_parameters_body_layout.addWidget(self.members_label,0,0)
+        nt_parameters_body_layout.addWidget(self.type_label,0,0)
 
         self.bond_length_linedit = QLineEdit(self.parameters_grpbox,"bond_length_linedit")
 
@@ -539,7 +607,8 @@ class nanotube_dialog(QDialog):
         self.nt_distortion_grpbtn = QPushButton(self.tube_distortions_grpbox,"nt_distortion_grpbtn")
         self.nt_distortion_grpbtn.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.nt_distortion_grpbtn.sizePolicy().hasHeightForWidth()))
         self.nt_distortion_grpbtn.setMaximumSize(QSize(16,16))
-        self.nt_distortion_grpbtn.setIconSet(QIconSet(self.image6))
+        self.nt_distortion_grpbtn.setAutoDefault(0)
+        self.nt_distortion_grpbtn.setIconSet(QIconSet(self.image7))
         self.nt_distortion_grpbtn.setFlat(1)
         layout43.addWidget(self.nt_distortion_grpbtn)
         tube_distortions_grpboxLayout.addLayout(layout43)
@@ -579,6 +648,7 @@ class nanotube_dialog(QDialog):
         nt_distortions_body_layout.addWidget(self.bend_label,3,0)
 
         self.bend_spinbox = QSpinBox(self.tube_distortions_grpbox,"bend_spinbox")
+        self.bend_spinbox.setMaxValue(360)
         self.bend_spinbox.setMinValue(0)
         self.bend_spinbox.setValue(0)
 
@@ -619,7 +689,8 @@ class nanotube_dialog(QDialog):
         self.mwcnt_grpbtn = QPushButton(self.mwcnt_grpbox,"mwcnt_grpbtn")
         self.mwcnt_grpbtn.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.mwcnt_grpbtn.sizePolicy().hasHeightForWidth()))
         self.mwcnt_grpbtn.setMaximumSize(QSize(16,16))
-        self.mwcnt_grpbtn.setIconSet(QIconSet(self.image6))
+        self.mwcnt_grpbtn.setAutoDefault(0)
+        self.mwcnt_grpbtn.setIconSet(QIconSet(self.image7))
         self.mwcnt_grpbtn.setFlat(1)
         layout44.addWidget(self.mwcnt_grpbtn)
         mwcnt_grpboxLayout.addLayout(layout44)
@@ -658,28 +729,28 @@ class nanotube_dialog(QDialog):
         spacer14 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
         nanotube_dialogLayout.addItem(spacer14)
 
-        layout42_2 = QHBoxLayout(None,4,6,"layout42_2")
-
-        self.defaults_btn = QPushButton(self,"defaults_btn")
-        layout42_2.addWidget(self.defaults_btn)
+        layout93 = QHBoxLayout(None,0,6,"layout93")
+        spacer67 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout93.addItem(spacer67)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
-        layout42_2.addWidget(self.cancel_btn)
+        self.cancel_btn.setAutoDefault(0)
+        layout93.addWidget(self.cancel_btn)
 
         self.ok_btn = QPushButton(self,"ok_btn")
-        layout42_2.addWidget(self.ok_btn)
-        nanotube_dialogLayout.addLayout(layout42_2)
+        self.ok_btn.setAutoDefault(0)
+        layout93.addWidget(self.ok_btn)
+        nanotube_dialogLayout.addLayout(layout93)
 
         self.languageChange()
 
-        self.resize(QSize(262,597).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(212,544).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.nt_distortion_grpbtn,SIGNAL("clicked()"),self.toggle_nt_distortion_grpbox)
         self.connect(self.nt_parameters_grpbtn,SIGNAL("clicked()"),self.toggle_nt_parameters_grpbox)
         self.connect(self.mwcnt_grpbtn,SIGNAL("clicked()"),self.toggle_mwcnt_grpbox)
         self.connect(self.whatsthis_btn,SIGNAL("clicked()"),self.enter_WhatsThisMode)
-        self.connect(self.defaults_btn,SIGNAL("clicked()"),self.defaults_btn_clicked)
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
         self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
@@ -691,6 +762,7 @@ class nanotube_dialog(QDialog):
         self.connect(self.z_distortion_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
         self.connect(self.xy_distortion_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
         self.connect(self.mwcnt_spacing_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
+        self.connect(self.restore_defaults_btn,SIGNAL("clicked()"),self.defaults_btn_clicked)
 
 
     def languageChange(self):
@@ -698,9 +770,11 @@ class nanotube_dialog(QDialog):
         self.heading_label.setText(self.__tr("Nanotube"))
         self.sponsor_btn.setText(QString.null)
         self.done_btn.setText(QString.null)
-        QToolTip.add(self.done_btn,self.__tr("Done"))
+        QToolTip.add(self.done_btn,self.__tr("OK"))
         self.abort_btn.setText(QString.null)
         QToolTip.add(self.abort_btn,self.__tr("Cancel"))
+        self.restore_defaults_btn.setText(QString.null)
+        QToolTip.add(self.restore_defaults_btn,self.__tr("Restore Defaults"))
         self.preview_btn.setText(QString.null)
         QToolTip.add(self.preview_btn,self.__tr("Preview"))
         self.whatsthis_btn.setText(QString.null)
@@ -710,32 +784,69 @@ class nanotube_dialog(QDialog):
         self.nt_parameters_grpbtn.setText(QString.null)
         self.chirality_n_label.setText(self.__tr("Chirality (n) :"))
         self.chirality_m_spinbox.setSuffix(QString.null)
+        QToolTip.add(self.chirality_m_spinbox,self.__tr("Chirality (m)"))
+        QWhatsThis.add(self.chirality_m_spinbox,self.__tr("<b>Chirality (m)</b>\n"
+"<p>Specifies <i>m</i> of the chiral vector (n, m), where n and m are integers of the vector equation R = na1 + ma2 .</p>"))
         self.chirality_m_label.setText(self.__tr("Chirality (m) :"))
+        QToolTip.add(self.chirality_m_label,self.__tr("Chirality (m)"))
+        QWhatsThis.add(self.chirality_m_label,self.__tr("Chirality (m)"))
         self.length_label.setText(self.__tr("Length (A) :"))
         self.chirality_n_spinbox.setSuffix(QString.null)
+        QToolTip.add(self.chirality_n_spinbox,self.__tr("Chirality (n)"))
+        QWhatsThis.add(self.chirality_n_spinbox,self.__tr("<b>Chirality (n)</b>\n"
+"<p>Specifies <i>n</i> of the chiral vector (n, m), where n and m are integers of the vector equation R = na1 + ma2 .</p>"))
         self.members_combox.clear()
-        self.members_combox.insertItem(self.__tr("C - C"))
-        self.members_combox.insertItem(self.__tr("B - N"))
+        self.members_combox.insertItem(self.__tr("Carbon"))
+        self.members_combox.insertItem(self.__tr("Boron Nitride"))
+        QToolTip.add(self.members_combox,self.__tr("Members"))
+        QWhatsThis.add(self.members_combox,self.__tr("<b>Type</b>\n"
+"<p>Specifies the type of nanotube to generate.</p>\n"
+"<p>Selecting <b>Carbon</b> creates a carbon nanotube (CNT) made entirely of carbon atoms.\n"
+"<p>Selecting <b>Boron nitride</b> creates a boron nitride (BN) nanotube made of boron and nitrogen atoms.</p>"))
         self.endings_label.setText(self.__tr("Endings :"))
         self.bond_length_label.setText(self.__tr("Bond Length (A):"))
+        QToolTip.add(self.bond_length_label,self.__tr("Bond length in angstroms"))
         self.endings_combox.clear()
         self.endings_combox.insertItem(self.__tr("None"))
-        self.endings_combox.insertItem(self.__tr("Capped"))
         self.endings_combox.insertItem(self.__tr("Hydrogen"))
         self.endings_combox.insertItem(self.__tr("Nitrogen"))
+        QToolTip.add(self.endings_combox,self.__tr("Endings"))
+        QWhatsThis.add(self.endings_combox,self.__tr("<b>Endings</b>\n"
+"<p>Specify how to deal with bondpoints on the two ends of the nanotube.</p>\n"
+"<p>Selecting <b>None</b> does nothing, leaving bondpoints on the ends.</p>\n"
+"<p>Selecting <b>Hydrogen </b>terminates the bondpoints using hydrogen atoms.</p>\n"
+"<p>Selecting <b>Nitrogen </b>transmutes atoms with bondpoints into nitrogen atoms.</p>"))
         self.length_linedit.setText(self.__tr("20.0"))
-        self.members_label.setText(self.__tr("Members :"))
+        QToolTip.add(self.length_linedit,self.__tr("Length of nanotube in angstroms"))
+        QWhatsThis.add(self.length_linedit,self.__tr("<b>Length</b>\n"
+"<p>Specify the length of the nanotube in angstroms.</p>"))
+        self.type_label.setText(self.__tr("Type :"))
         self.bond_length_linedit.setText(self.__tr("1.40"))
+        QToolTip.add(self.bond_length_linedit,self.__tr("Bond length in angstroms"))
+        QWhatsThis.add(self.bond_length_linedit,self.__tr("<b>Bond Length</b>\n"
+"<p>Specify the bond length between carbon atoms in angstroms.</p>"))
         self.tube_distortions_grpbox.setTitle(QString.null)
         self.parameters_grpbox_label_2.setText(self.__tr("Nanotube Distortions"))
         self.nt_distortion_grpbtn.setText(QString.null)
         self.z_distortion_label.setText(self.__tr("Z-distortion (A):"))
         self.xy_distortion_label.setText(self.__tr("XY-distortion (A):"))
         self.twist_spinbox.setSuffix(self.__tr(" deg/A"))
+        QToolTip.add(self.twist_spinbox,self.__tr("Twist in degrees/angstrom"))
+        QWhatsThis.add(self.twist_spinbox,self.__tr("<b>Twist</b>\n"
+"<p>Introduces a twist along the length of the nanotube specified in degrees/angstrom.</p>"))
         self.z_distortion_linedit.setText(self.__tr("0.0"))
+        QToolTip.add(self.z_distortion_linedit,self.__tr("Z-distortion in angstroms"))
+        QWhatsThis.add(self.z_distortion_linedit,self.__tr("<b>Z-distortion</b>\n"
+"<p>Distorts the bond length between atoms along the length of the nanotube by this amount in angstroms.</p>"))
         self.bend_label.setText(self.__tr("Bend :"))
         self.bend_spinbox.setSuffix(self.__tr(" deg"))
+        QToolTip.add(self.bend_spinbox,self.__tr("Bend in degrees"))
+        QWhatsThis.add(self.bend_spinbox,self.__tr("<b>Bend</b>\n"
+"<p>Bend the nanotube by the specified number of degrees.</p>"))
         self.xy_distortion_linedit.setText(self.__tr("0.0"))
+        QToolTip.add(self.xy_distortion_linedit,self.__tr("XY-distortion"))
+        QWhatsThis.add(self.xy_distortion_linedit,self.__tr("<b>XY-distortion</b>\n"
+"<p>Distorts the bond length between atoms along the length of the nanotube by this amount in angstroms.</p>"))
         self.twist_label.setText(self.__tr("Twist :"))
         self.mwcnt_grpbox.setTitle(QString.null)
         self.parameters_grpbox_label_3.setText(self.__tr("Multi-Walled Nanotubes"))
@@ -743,10 +854,17 @@ class nanotube_dialog(QDialog):
         self.mwcnt_spacing_label.setText(self.__tr("Spacing (A):"))
         self.mwcnt_count_label.setText(self.__tr("Number of Nanotubes :"))
         self.mwcnt_count_spinbox.setSuffix(QString.null)
+        QToolTip.add(self.mwcnt_count_spinbox,self.__tr("Number of nanotubes"))
+        QWhatsThis.add(self.mwcnt_count_spinbox,self.__tr("<b>Number of Nanotubes</b>\n"
+"<p>Specifies the number or Multi-Walled Nanotubes. Multi-Walled nanotubes (MWNT) consist of many concentric tubes wrapped one inside another.</p>"))
         self.mwcnt_spacing_linedit.setText(self.__tr("2.46"))
-        self.defaults_btn.setText(self.__tr("Defaults"))
+        QToolTip.add(self.mwcnt_spacing_linedit,self.__tr("Spacing between nanotubes"))
+        QWhatsThis.add(self.mwcnt_spacing_linedit,self.__tr("<b>Spacing</b>\n"
+"<p>Specify the spacing between nanotubes in angstroms.</p>"))
         self.cancel_btn.setText(self.__tr("Cancel"))
+        QToolTip.add(self.cancel_btn,self.__tr("Cancel"))
         self.ok_btn.setText(self.__tr("OK"))
+        QToolTip.add(self.ok_btn,self.__tr("OK"))
 
 
     def toggle_nt_distortion_grpbox(self):
