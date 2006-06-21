@@ -2269,7 +2269,6 @@ def passSurface(p,n):
     global surfaceNormals
     surfaceTriangles = p
     surfaceNormals = n
-    renderSurface()
 
 def renderSurface():
     glBegin(GL_TRIANGLES)

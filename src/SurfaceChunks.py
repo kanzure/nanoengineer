@@ -17,6 +17,7 @@ from debug import print_compact_traceback
 from displaymodes import ChunkDisplayMode
 import env
 from constants import ave_colors
+from constants import diTrueCPK
 from prefs_constants import atomHighlightColor_prefs_key
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
@@ -267,8 +268,8 @@ class Surface:
         om = 0.0
         #  calculate omega for all moleculas 
         for i in range(len(self.spheres)):
-            t = p - (self.spheres[i] - self.box.Center())/self.greatest
-            r = self.radiuses[i]
+            t = p - self.spheres[i] / self.greatest
+            r = self.radiuses[i] / self.greatest
             s = (r * r - t.x * t.x - t.y * t.y - t.z * t.z) / (r + r)
             if i == 0:
                 om = s
@@ -279,15 +280,6 @@ class Surface:
     
     def SurfaceTriangles(self, trias):
         nt = len(trias)
-        #  greatest value 
-        self.greatest = self.box.Extent().Greatest()
-        #  temporary: for radius of sphere
-        for j in range(nt):
-            t = trias[j]
-            t0 = (t[0][0]*1.21,t[0][1]*1.21,t[0][2]*1.21)
-            t1 = (t[1][0]*1.21,t[1][1]*1.21,t[1][2]*1.21)
-            t2 = (t[2][0]*1.21,t[2][1]*1.21,t[2][2]*1.21)
-            trias[j] = (t0, t1, t2);
         n = 2   #  number of iterations
         for i in range(n):
             for j in range(nt):
@@ -399,27 +391,26 @@ class SurfaceChunks(ChunkDisplayMode):
         bcenter = chunk.abs_to_base(center)
         rad = 0.0
 	s = Surface()
-	as = chunk.atoms
+	margin = 0
 	for a in chunk.atoms.values():
-	    if 0:
-		ra = 0.5 
-	    else :
-		dispjunk, ra = a.howdraw(diTrueCPK)
+	    dispjunk, ra = a.howdraw(diTrueCPK)
+	    if ra > margin : margin = ra
 	    s.radiuses.append(ra)
         for p in points:
             pt = Triple(p[0], p[1], p[2])
 	    s.spheres.append(pt)
-	    s.box.Enclose(pt)
             r = p[0]**2+p[1]**2+p[2]**2
             if r > rad: rad = r
         rad = sqrt(rad)
-        margin = 0.2
+	s.greatest = rad + margin
         radius = [rad + margin, rad + margin, rad + margin]
         color = chunk.color
         if color is None:
             color = V(0.5,0.5,0.5)
-	#  create surface    
-	ts =drawer.getSphereTriangles(3)
+	#  create surface 
+	level = 3
+	if rad > 6 : level = 4
+	ts =drawer.getSphereTriangles(level)
 	tm = s.SurfaceTriangles(ts)
 	nm = s.SurfaceNormals(tm)
 	drawer.passSurface(tm, nm)
