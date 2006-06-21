@@ -18,9 +18,9 @@ Diameters for different orders:
 5 - 23.5 A
 
 The geometry for a buckyball works like this. Each carbon lies in the
-center of a triangle. Quaternions of unit length are used to represent
+center of a triangle. Vectors of unit length are used to represent
 the vertices of the triangles. Edges are the connections between
-adjacent quaternions; three contiguous edges define a triangle. The
+adjacent vectors; three contiguous edges define a triangle. The
 positions of carbon atoms are taken by getting a vector for the center
 of the triangle, and scaling it to make the bond lengths work. Once
 you have vectors for all the carbons, you can get bonds. Each bond
@@ -37,46 +37,11 @@ $Id$
 __author__ = "Will"
 
 from math import sin, cos, pi, floor
-from OpenGL.quaternion import quaternion
 from VQT import V, vlen
+from bonds import NeighborhoodGenerator, bond_atoms, V_GRAPHITE
+from chem import Atom
 
 GRAPHITIC_BONDLENGTH = 1.402
-
-# This is different from the one in bonds.py because it knows about
-# quaternions.
-def neighborhoodGenerator(vlist, maxradius=1.1*GRAPHITIC_BONDLENGTH):
-    quats = isinstance(vlist[0], quaternion)
-    def quatToVec(q):
-        return V(q.b, q.c, q.d)
-    def quantize(vec):
-        return (int(floor(vec[0] / maxradius)),
-                int(floor(vec[1] / maxradius)),
-                int(floor(vec[2] / maxradius)))
-    buckets = { }
-    if quats:
-        vlist = map(quatToVec, vlist)
-    for i in range(len(vlist)):
-        v = vlist[i]
-        key = quantize(v)
-        if not buckets.has_key(key):
-            buckets[key] = [ ]
-        buckets[key].append(i)
-    def region(center, quat=False,
-               quatToVec=quatToVec, maxradius=maxradius,
-               quantize=quantize, buckets=buckets):
-        lst = [ ]
-        if quat: center = quatToVec(quat)
-        x0, y0, z0 = quantize(center)
-        for x in range(x0 - 1, x0 + 2):
-            for y in range(y0 - 1, y0 + 2):
-                for z in range(z0 - 1, z0 + 2):
-                    key = (x, y, z)
-                    try:
-                        lst += buckets[key]
-                    except KeyError:
-                        pass
-        return lst
-    return region
 
 class BuckyBall:
 
@@ -113,7 +78,8 @@ class BuckyBall:
             self.lst = [ ]
             self.dct = { }
         def append(self, edge):
-            dct, (i, j) = self.dct, edge.ij()
+            dct = self.dct
+            i, j = edge.ij()
             self.lst.append(edge)
             if not dct.has_key(i):
                 dct[i] = [ ]
@@ -144,12 +110,14 @@ class BuckyBall:
             return lst
         def mmpBonds(self):
             dct = { }
-            for e, j in self.dct.values():
-                a1, a2 = e.atoms()
-                if not dct.has_key(a2):
-                    dct[a2] = [ ]
-                if a1+1 not in dct[a2]:
-                    dct[a2].append(a1+1)
+            for i in self.dct.keys():
+                for e, j in self.dct[i]:
+                    if j > i:
+                        a1, a2 = e.atoms()
+                        if not dct.has_key(a2):
+                            dct[a2] = [ ]
+                        if a1+1 not in dct[a2]:
+                            dct[a2].append(a1+1)
             return dct
 
     def __init__(self, order=1):
@@ -157,12 +125,12 @@ class BuckyBall:
         lst = [ ]
         a = 0.8 ** 0.5
         b = 0.2 ** 0.5
-        lst.append(quaternion(0.0, 0.0, 0.0, 1.0))
-        lst.append(quaternion(0.0, 0.0, 0.0, -1.0))
+        lst.append(V(0.0, 0.0, 1.0))
+        lst.append(V(0.0, 0.0, -1.0))
         for i in range(10):
             t = i * pi * 36 / 180
             bb = (i & 1) and -b or b
-            lst.append(quaternion(0.0, a * cos(t), a * sin(t), bb))
+            lst.append(V(a * cos(t), a * sin(t), bb))
         self.lst = lst
         self.order = 1
         self._invalidate_all()
@@ -180,19 +148,18 @@ class BuckyBall:
     def edges(self):
         if self._edges == None:
             minLength = 1.0e20
-            ngen = neighborhoodGenerator(self.lst, maxradius=1.0/self.order)
             for i in range(len(self.lst)):
                 u = self.lst[i]
-                for j in ngen(u):
-                    if j > i:
-                        d = abs(self.lst[j] - u)
-                        minLength = min(d, minLength)
+                for j in range(i+1, len(self.lst)):
+                    d = vlen(self.lst[j] - u)
+                    if d < minLength:
+                        minLength = d
             maxLength = 1.5 * minLength
             _edges = self.EdgeList()
             for i in range(len(self.lst)):
                 u = self.lst[i]
                 for j in range(i+1, len(self.lst)):
-                    d = abs(self.lst[j] - u)
+                    d = vlen(self.lst[j] - u)
                     if d < maxLength:
                         _edges.append(self.Edge(i, j))
             self._edges = _edges
@@ -234,9 +201,9 @@ class BuckyBall:
                 ac.add_atom(carbonIndex)
                 bc = edges.edgeFor(b, c)
                 bc.add_atom(carbonIndex)
-                q0, q1, q2 = self.lst[a], self.lst[b], self.lst[c]
-                q = (q0 + q1 + q2) / 3.0
-                lst.append(V(q.b, q.c, q.d))
+                v0, v1, v2 = self.lst[a], self.lst[b], self.lst[c]
+                v = (v0 + v1 + v2) / 3.0
+                lst.append(v)
                 carbonIndex += 1
             # get a bond length
             a1, a2 = edges.anyOldBond()
@@ -274,16 +241,16 @@ class BuckyBall:
         return self._bondlist
 
     def _subtriangulate(self, n):
-        # don't put new quaternions right on top of old ones
+        # don't put new vectors right on top of old ones
         # this is similar to the neighborhood generator
         gap = 0.001
         occupied = { }
-        def quantize(q):
-            return (int(floor(q.b / gap)),
-                    int(floor(q.c / gap)),
-                    int(floor(q.d / gap)))
-        def overlap(q):
-            x0, y0, z0 = quantize(q)
+        def quantize(v):
+            return (int(floor(v[0] / gap)),
+                    int(floor(v[1] / gap)),
+                    int(floor(v[2] / gap)))
+        def overlap(v):
+            x0, y0, z0 = quantize(v)
             for x in range(x0 - 1, x0 + 2):
                 for y in range(y0 - 1, y0 + 2):
                     for z in range(z0 - 1, z0 + 2):
@@ -291,27 +258,25 @@ class BuckyBall:
                         if occupied.has_key(key):
                             return True
             return False
-        def occupy(q):
-            key = quantize(q)
+        def occupy(v):
+            key = quantize(v)
             occupied[key] = 1
-        def add_if_ok(q):
-            if not overlap(q):
-                occupy(q)
-                self.lst.append(q)
-        for q in self.lst:
-            occupy(q)
+        def add_if_ok(v):
+            if not overlap(v):
+                occupy(v)
+                self.lst.append(v)
+        for v in self.lst:
+            occupy(v)
         for tri in self.triangles():
-            q0, q1, q2 = self.lst[tri[0]], self.lst[tri[1]], self.lst[tri[2]]
-            q10, q21 = q1 - q0, q2 - q1
+            v0, v1, v2 = self.lst[tri[0]], self.lst[tri[1]], self.lst[tri[2]]
+            v10, v21 = v1 - v0, v2 - v1
             for i in range(n + 1):
                 for j in range(i + 1):
-                    q = q21 * (1. * j / n) + q10 * (1. * i / n) + q0
-                    add_if_ok(q / abs(q))
+                    v = v21 * (1. * j / n) + v10 * (1. * i / n) + v0
+                    add_if_ok(v / vlen(v))
         self.order *= n
 
     def add_to_mol(self, mol):
-        from bonds import NeighborhoodGenerator, bond_atoms, V_GRAPHITE
-        from chem import Atom
         maxradius = 1.5 * GRAPHITIC_BONDLENGTH
         positions = self.carbons()
         atoms = [ ]
