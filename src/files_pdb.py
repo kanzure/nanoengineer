@@ -97,6 +97,7 @@ def _readpdb(assy, filename, isInsert = False): #bruce 050322 revised method & d
         return None
     if numconects == 0:
         env.history.message(orangemsg("PDB file has no bond info; inferring bonds"))
+        env.history.h_update() # let user see message right away (bond inference can take significant time) [bruce 060620]
         inferBonds(mol)
     return mol
     
