@@ -32,6 +32,7 @@ import sys, os, time, types
 from constants import debugButtons, noop
 from prefs_constants import QToolButton_MacOSX_Tiger_workaround_prefs_key, mainwindow_geometry_prefs_key_prefix
 import env
+import platform
 
 from debug_prefs import debug_prefs_menuspec # bruce 050614
 
@@ -131,6 +132,46 @@ def linenum():
         tb = sys.exc_info()[2]
         f = tb.tb_frame.f_back
         print f.f_code.co_filename, f.f_code.co_name, f.f_lineno
+
+# ==
+# Enter/leave functions which give performance information
+
+_timing_stack = [ ]
+
+def enter():
+    if platform.atom_debug:
+        try:
+            raise Exception
+        except:
+            tb = sys.exc_info()[2]
+            f = tb.tb_frame.f_back
+            fname = f.f_code.co_name
+        _timing_stack.append((fname, time.time()))
+        print 'ENTER', fname
+
+def leave():
+    if platform.atom_debug:
+        try:
+            raise Exception
+        except:
+            tb = sys.exc_info()[2]
+            f = tb.tb_frame.f_back
+            fname = f.f_code.co_name
+        fname1, start = _timing_stack.pop()
+        assert fname == fname1, 'enter/leave mismatch, got ' + fname1 + ', expected ' + fname
+        print 'LEAVE', fname, time.time() - start
+
+def middle():
+    if platform.atom_debug:
+        try:
+            raise Exception
+        except:
+            tb = sys.exc_info()[2]
+            f = tb.tb_frame.f_back
+            fname, line = f.f_code.co_name, f.f_lineno
+        fname1, start = _timing_stack[-1]
+        assert fname == fname1, 'enter/middle mismatch, got ' + fname1 + ', expected ' + fname
+        print 'MIDDLE', fname, line, time.time() - start
 
 # ==
 def standardExclude(attr, obj):
