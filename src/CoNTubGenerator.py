@@ -12,17 +12,25 @@ as much as possible be isolated into small parts of this, with most of it
 knowing nothing about CoNTub's specific functionality or parameters.
 """
 
-###@@@ where i am -- see all the IMPLEMS far below [060615 eve]
+###@@@ where i am -- see below for IMPLEMS, modal dialog issues, maybe more [060615 eve]
+
+# how to test this: execute "import CoNTubGenerator" or (afterwards) "reload(CoNTubGenerator)" in a debugger.
+# Each time you do that, Insert menu gets a new command "Heterojunction". The first one is always the latest one.
 
 __author__ = "bruce"
 
 #k not all imports needed?
-## from GeneratorDialogs import ParameterDialog ###IMPLEM file and class
+## from GeneratorDialogs import ParameterDialog ###IMPLEM file and class...
+###@@@ might make it include the generator controller? can it be a pane if it takes a flag?
+# want it to be an object which owns a widget, not a widget itself?
+# just put in the current code now, clean it up later...
+
 import env
 from HistoryWidget import redmsg, orangemsg, greenmsg
 ##from widgets import double_fixup
 ##from Utility import Group
-from GeneratorBaseClass import GeneratorBaseClass
+from ParameterDialog import ParameterDialog
+from GeneratorController import GeneratorController
 from debug import print_compact_traceback
 import os, sys
 from platform import find_or_make_Nanorex_subdir, find_or_make_any_directory, tempfiles_dir
@@ -239,7 +247,9 @@ class PluginlikeGenerator:
             pass
         if not self.dialog:
             if env.debug(): print "making dialog from", self.parameter_set_filename
-            self.dialog = ParameterDialog( self.param_desc_path )### IMPLEM
+            self.dialog = ParameterDialog( self.win, self.param_desc_path )
+                # this parses the description file and makes the dialog,
+                # but does not show it and does not connect a controller to it.
             #e set its geometry if that was saved (from above code or maybe in prefs db)
         return
     
@@ -257,8 +267,9 @@ class PluginlikeGenerator:
         dialog = self.dialog
         ###e Not yet properly handled: retaining default values from last time it was used. (Should pass dict of them to the maker.)
         dialog.set_defaults({}) ### IMPLEM 
-        controller = PluginlikeGenerator_DialogController(self)### IMPLEM
-        dialog.set_controller( controller )### IMPLEM; this should refdecr the prior controller and that should destroy it...
+        controller = GeneratorController(self.win, dialog, self)
+            # Note: this needs both self and the dialog, to be inited.
+            # So it takes care of telling the dialog to control it (and not some prior controller).
         dialog.show()
         # now it's able to take commands and run its callbacks; that does not happen inside this method, though, does it?
         # hmm, good question... if it's modal, this makes things easier (re preview and bug protection)...
@@ -267,17 +278,36 @@ class PluginlikeGenerator:
         # 2. find out from code, how.
         
         pass###e
-        
-##    def commandline_args(self, params):
-##        "Return the arguments for the HJ commandline, not including the output filename..." ###
-##        return "stub"###e
-##    def run_command(self, args):
-##        ""
-##        # get executable
-##        # make filename
-##        # run it
-##        # look at exitcode
-##        # etc
+
+    def build_struct(self, params, name):
+        "Same API as in GeneratorBaseClass, except for the suggested name also being passed."
+        if 1: ######@@@@@@@
+            # example: build some methanes
+            print "build_struct stub",params
+            assy = self.win.assy
+            from VQT import V
+            from chunk import molecule
+            from chem import atom
+            mol = molecule(assy, 'bug') # name is reset below!
+
+            n = int(params[0])
+            n = max(1,n)
+            for x in range(n):
+                ## build methane, from oneUnbonded
+                pos = V(x,0,0)
+                atm = atom('C', pos, mol)
+                atm.make_singlets_when_no_bonds() # notices atomtype
+            mol.name = name
+            ## assy.addmol(mol)
+            return mol
+        ###@@@ where i am:
+        # get executable, append exe, ensure it exists
+        # make command line args from params
+        # make output filename, add it to args
+        # run executable using the way we run the sim
+        # look at exitcode?
+        # look for outfile, insert it, rename the object in it, return that (see dna generator)
+        return thing
 
     pass # end of class PluginlikeGenerator
 
@@ -292,14 +322,16 @@ class HeterojunctionGenerator(PluginlikeGenerator):
     """
     topic = 'Nanotubes' # for sponsor_keyword for GeneratorBaseClass's SponsorableMixin superclass (and for submenu?)
     what_we_generate = "Heterojunction"
-        # used for insert menu item text, undo cmdname, history messages; not sure about wikihelp featurename
+        # used for insert menu item text, undo cmdname, history messages, new node names; not sure about wikihelp featurename
     menu_item_icon = "blablabla"
     plugin_name = "CoNTub"
         # used as directory name, looked for in ~/Nanorex/Plugins someday, and in cad/plugins now and someday...
-    parameter_set_filename = "HJ_param.desc"
+    parameter_set_filename = "HJ-params.desc"
     executable = "HJ" # no .exe, we'll add that if necessary on Windows ## this might not be required of every class
     outputfiles_pattern = "$out1.mmp"
-    executable_args_pattern = "$p1 $p2 $out1.mmp"
+    executable_args_pattern = "$n1 $m1 $L1 $n2 $m2 $L2 $T 1 $out1.mmp"
+    # these might be computed from the above, in real life, but to get it working just hardcode them:
+    paramnames = "n1 m1 L1 n2 m2 L2 T".split()
     
     pass # end of class HeterojunctionGenerator
 

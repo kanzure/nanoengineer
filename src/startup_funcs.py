@@ -245,7 +245,13 @@ def _initialize_custom_display_modes():
 
 def post_main_show( win): # bruce 050902 added this
     "Do whatever should be done after the main window is shown, but before the Qt event loop is started."
+    ####e rebuild pyx modules if necessary and safe -- but only for developers, not end-users
+    _initialize_plugin_generators()
+    return
 
-    pass ####e rebuild pyx modules if necessary and safe -- but only for developers, not end-users
+def _initialize_plugin_generators(): #bruce 060621
+    import CoNTubGenerator
+        # note: this adds the Insert -> Heterojunction menu item.
+        # kluge (sorry): as of 060621, it adds it at a hardcoded menu index.
 
 # end

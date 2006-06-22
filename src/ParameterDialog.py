@@ -56,7 +56,7 @@ class parameter_dialog(QDialog): # was nanotube_dialog
         self.image2 = QPixmap(image2_data) # should be: sponsor_pixmap ####
 
         if not name:
-            self.setName("nanotube_dialog") ###
+            self.setName("parameter_dialog") ###
 
         self.setIcon(self.image0) # should be: border_icon ####
 
@@ -354,16 +354,111 @@ class parameter_dialog(QDialog): # was nanotube_dialog
 
         self.cancel_btn.setText(self.__tr("Cancel"))
         self.ok_btn.setText(self.__tr("OK"))
-
-##    def toggle_nt_parameters_grpbtn(self): # was renamed, was for other groupbox
-##        print "nanotube_dialog.toggle_nt_parameters_grpbtn(): Not implemented yet"
-
+        return
+    
     def __tr(self,s,c = None):
         return qApp.translate("nanotube_dialog",s,c)
 
     _tr = __tr # for access from other objects
 
-    pass # end of class parameter_dialog
+    pass # end of class parameter_dialog -- maybe it should be renamed
+
+# ==
+
+class ParameterDialog(parameter_dialog):
+    "#doc"
+    controller = None
+    def __init__(self, parent, description):
+        """If description is a string, it should be a filename.
+        Or (someday) it could be a ThingData, or (someday) maybe a menu_spec_like python list.
+           This initializes the dialog, a Qt widget (not sure if it will be a widget when we have a "pane" option --
+         most likely we'll use some other class for that, not this one with an option).
+        But it doesn't show it or connect it to a controller.
+        """
+        desc = get_description(description) # might raise exceptions on e.g. syntax errors in description file
+        parameter_dialog.__init__(self, parent, desc) # sets self.desc (buttons might want to use it)
+    def set_controller(self, controller):
+        if self.controller:
+            self.controller.forget_dialog(self)
+        self.controller = controller
+        if self.controller:
+            self.controller.meet_dialog(self)
+        return
+    def set_defaults(self, dict1):
+        if 1:
+            print "set_defaults is nim" ####k is it even sensible w/o a controller being involved??
+    # bindings for the buttons -- delegate them to controller if we have one.
+    def do_sponsor_btn(self):
+        print "do_sponsor_btn: nim (how is GBC supposed to be told about this??)"
+        
+    def do_done_btn(self):
+        print "do_done_btn: delegating"
+        if self.controller:
+            self.controller.done_btn_clicked()
+    def do_abort_btn(self):
+        print "do_abort_btn: delegating"
+        if self.controller:
+            self.controller.abort_btn_clicked()
+    def do_preview_btn(self):
+        print "do_preview_btn: delegating"
+        if self.controller:
+            self.controller.preview_btn_clicked()
+    def do_whatsthis_btn(self):
+        print "do_whatsthis_btn: delegating"
+        if self.controller:
+            self.controller.whatsthis_btn_clicked()
+    def do_cancel_btn(self):
+        print "do_cancel_btn: delegating"
+        if self.controller:
+            self.controller.cancel_btn_clicked()
+    def do_ok_btn(self):
+        print "do_ok_btn: printing then delegating"
+        if 1:
+            print "printing param values"
+            getters = self.param_getters.items()
+            getters.sort()
+            for paramname, getter in getters:
+                try:
+                   print "param %s = %r" % (paramname, getter())
+                except:
+                    print_compact_traceback("exception trying to get param %s: " % (paramname,))
+        if self.controller:
+            self.controller.ok_btn_clicked()
+    pass
+
+# ==
+
+debug_parse = True #####@@@@@
+
+def get_description(filename):
+    """For now, only the filename option is supported.
+    Someday, support the other ones mentioned in ParameterDialog.__init__.__doc__.
+    """
+    assert type(filename) == type(""), "get_description only supports filenames for now (and not even unicode filenames, btw)"
+    
+    file = open(filename, 'rU')
+
+    from parse_utils import generate_tokens, parse_top, Whole
+
+    gentok = generate_tokens(file.readline)
+
+    res, newrest = parse_top(Whole, list(gentok))
+    if debug_parse:
+        print len(` res `), 'chars in res' #3924
+##        print res # might be an error message
+    if newrest and debug_parse: # boolean test, since normal value is []
+        print "res is", res # assume it is an error message
+        print "newrest is", newrest
+        print "res[0].pprint() :"
+        print res[0].pprint() #k
+
+    if debug_parse:
+        print "parse done"
+
+    desc = res[0] #k class ThingData in parse_utils - move to another file? it stays with the toplevel grammar...
+    
+    return desc # from get_description
+
 
 # == TEST CODE, though some might become real
 
@@ -371,10 +466,7 @@ import time, sys, os
 
 from debug import print_compact_traceback
 
-IS_COLLAPSED = 1 #k needed??
-IS_EXPANDED = 0 #k needed??
-
-class NTdialog(parameter_dialog):
+class NTdialog(parameter_dialog): # in real life this will be something which delegates to controller methods
     def __init__(self, parent = None, desc = None):
         parameter_dialog.__init__(self, parent, desc) # sets self.desc (buttons might want to use it)
     def do_sponsor_btn(self):
@@ -401,34 +493,16 @@ class NTdialog(parameter_dialog):
         print
     pass
 
-if __name__ == '__main__':
+if __name__ == '__main__': # this has the parsing calls
     
     a = QApplication(sys.argv)
-
-    from parse_utils import * # including generate_tokens, parse_top, Whole
-    
-##    from pprint import pprint
-    
+        
     ## filename = "testui.txt"
-    filename = "../plugins/CoNTub/HJ_param.desc"
-    
-    file = open(filename, 'rU')
+    filename = "../plugins/CoNTub/HJ-params.desc"
 
-    gentok = generate_tokens(file.readline)
-
-    res, newrest = parse_top(Whole, list(gentok))
-    print len(` res `), 'chars in res' #3924
-##    print res # might be an error message
-    if newrest: # boolean test, since normal value is []
-        print "res is", res # assume it is an error message
-        print "newrest is", newrest
-        print "res[0].pprint() :"
-        print res[0].pprint() #k
-
-    print "parse done"
+    desc = get_description(filename)
 
     parent = None # should be win or app?
-    desc = res[0] #k class ThingData in parse_utils - move to another file? it stays with the toplevel grammar...
     
     w = NTdialog(parent, desc) ### also, env to supply prefs, state to control
     w.show()

@@ -342,7 +342,7 @@ if __name__ == '__main__':
     from pprint import pprint
     
     ## filename = "testui.txt"
-    filename = "../plugins/CoNTub/HJ_param.desc"
+    filename = "../plugins/CoNTub/HJ-params.desc"
 
     file = open(filename, 'rU')
 
