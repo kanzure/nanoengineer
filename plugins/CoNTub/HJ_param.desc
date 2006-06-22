@@ -21,7 +21,7 @@ generator:
     
     group: "Nanotube 1"
 
-        parameter: nt_length_1
+        parameter: L1
             label: "Length"
             type: float
             widget: lineedit
@@ -31,7 +31,7 @@ generator:
             suffix: " A"
             tooltip: "Nanotube length in Angstroms"
 
-        parameter: chirality_n_1
+        parameter: n1
             label: "Chirality (n)"
             type: int
             widget: spinbox
@@ -40,7 +40,7 @@ generator:
             default: 5
             tooltip: "Nanotube chirality parameter N"
 
-        parameter: chirality_m_1
+        parameter: m1
             label: "Chirality (m)"
             type: int
             widget: spinbox
@@ -51,7 +51,7 @@ generator:
     
     group: "Nanotube 2"
 
-        parameter: nt_length_2
+        parameter: L2
             label: "Length"
             type: float
             widget: lineedit
@@ -61,7 +61,7 @@ generator:
             suffix: " A"
             tooltip: "Nanotube length in Angstroms"
 
-        parameter: chirality_n_2
+        parameter: n2
             label: "Chirality (n)"
             type: int
             widget: spinbox
@@ -70,7 +70,7 @@ generator:
             default: 5
             tooltip: "Nanotube chirality parameter N"
 
-        parameter: chirality_m_2
+        parameter: m2
             label: "Chirality (m)"
             type: int
             widget: spinbox
@@ -80,7 +80,7 @@ generator:
             tooltip: "Nanotube chirality parameter M"
 
     group: "Both tubes"
-        parameter: nt_endings
+        parameter: T
             label: "Endings"
             type: str
             widget: combobox
