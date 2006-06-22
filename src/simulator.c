@@ -45,13 +45,13 @@ usage(void)
                     expect this many atoms (ignored)\n\
    -m, --minimize\n\
                     minimize the structure\n\
-   --minimize-threshold-cutover-rms=<float>\n\
+   --min-threshold-cutover-rms=<float>\n\
                     rms force value in pN at which to switch from steepest descent to conjugate gradients.\n\
-   --minimize-threshold-cutover-max=<float>\n\
+   --min-threshold-cutover-max=<float>\n\
                     maximum force in pN must be less than this before switching to C-G.\n\
-   --minimize-threshold-end-rms=<float>\n\
+   --min-threshold-end-rms=<float>\n\
                     terminate minimization when rms force falls below this level and...\n\
-   --minimize-threshold-end-max=<float>\n\
+   --min-threshold-end-max=<float>\n\
                     ...when max force is below this level.\n\
    -E, --print-energy\n\
                     print structure potential energy\n\
@@ -147,10 +147,10 @@ static const struct option option_vec[] = {
     { "direct-evaluate", no_argument, NULL, OPT_DIRECT_EVALUATE},
     { "interpolate", no_argument, NULL, OPT_INTERPOLATE},
     { "simple-movie-force-scale", required_argument, NULL, OPT_SIMPLE_MOVIE_FORCE_SCALE},
-    { "minimize-threshold-cutover-rms", required_argument, NULL, OPT_MIN_THRESH_CUT_RMS},
-    { "minimize-threshold-cutover-max", required_argument, NULL, OPT_MIN_THRESH_CUT_MAX},
-    { "minimize-threshold-end-rms", required_argument, NULL, OPT_MIN_THRESH_END_RMS},
-    { "minimize-threshold-end-max", required_argument, NULL, OPT_MIN_THRESH_END_MAX},
+    { "min-threshold-cutover-rms", required_argument, NULL, OPT_MIN_THRESH_CUT_RMS},
+    { "min-threshold-cutover-max", required_argument, NULL, OPT_MIN_THRESH_CUT_MAX},
+    { "min-threshold-end-rms", required_argument, NULL, OPT_MIN_THRESH_END_RMS},
+    { "min-threshold-end-max", required_argument, NULL, OPT_MIN_THRESH_END_MAX},
     { "num-atoms", required_argument, NULL, 'n' },
     { "minimize", no_argument, NULL, 'm' },
     { "print-energy", no_argument, NULL, 'E' },
