@@ -19,6 +19,9 @@ import env
 from constants import ave_colors
 from constants import diTrueCPK
 from prefs_constants import atomHighlightColor_prefs_key
+from qt import QApplication, Qt, QCursor
+from HistoryWidget import redmsg, orangemsg, greenmsg
+
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
 class Interval: 
@@ -315,6 +318,7 @@ class SurfaceChunks(ChunkDisplayMode):
     icon_name = "displaySurface.png"
     hide_icon_name = "displaySurface-hide.png"
     featurename = "Set Display Surface" #mark 060611
+    cmdname = greenmsg("Set Display Surface: ") # Mark 060621.
     ##e also should define icon as an icon object or filename, either in class or in each instance
     ##e also should define a featurename for wiki help
     def drawchunk(self, glpane, chunk, memo, highlighted):
@@ -386,6 +390,11 @@ class SurfaceChunks(ChunkDisplayMode):
         # it's best to just use the axis and center, then recompute a bounding cylinder.
         if not chunk.atoms:
             return None
+	
+	# Put up hourglass cursor to indicate we are busy. Restore the cursor below. Mark 060621.
+	QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+	env.history.message(self.cmdname + "Computing surface. Please wait...") # Mark 060621.
+	
         center = chunk.center
         points = chunk.atpos - center        
         bcenter = chunk.abs_to_base(center)
@@ -414,6 +423,9 @@ class SurfaceChunks(ChunkDisplayMode):
 	tm = s.SurfaceTriangles(ts)
 	nm = s.SurfaceNormals(tm)
 	drawer.passSurface(tm, nm)
+	
+	QApplication.restoreOverrideCursor() # Restore the cursor. Mark 060621.
+	env.history.message(self.cmdname + "Done.") # Mark 060621.
 	
         return (bcenter, radius, color)
     
