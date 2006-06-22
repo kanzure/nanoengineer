@@ -97,7 +97,16 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     generators can focus on what they need to do. As much as possible,
     the individual generator should not need to worry about the GUI.
        Note: this superclass sets and maintains some attributes in self,
-    including win, struct, previousParams, _just_updating.
+    including win, struct, previousParams, _just_updating, and name.
+       Here are the things a subclass needs to do, to be usable with this superclass [as of 060621]:
+    - have self.sponsor_btn, a Qt button of a suitable class.
+    - bind or delegate button clicks from a generator dialog's standard buttons
+      to all our xxx_btn_clicked methods (not sure about sponsor_btn). ###@@@
+    - implement the abstract methods (see their docstrings herein for what they need to do):
+      - gather_parameters
+      - build_struct
+    - have self.prefix, apparently used to construct node names (or, override self._create_new_name())
+    - either inherit from QDialog, or provide methods accept and reject which have the same effect on the actual dialog.
     """
     cmd = "" # deprecated but widely used [bruce 060616 comment]
         # (subclasses often set cmd to greenmsg(self.cmdname + ": "), from which we have to klugily deduce self.cmdname! Ugh.)
@@ -135,11 +144,17 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
             self.cmd = greenmsg(self.cmdname + ": ")
         SponsorableMixin.__init__(self)
 
-    def build_struct(self):
-        '''Build the structure in question. This is an abstract method
-        and must be overloaded in the specific generator. The return
-        value should be the structure, i.e. some flavor of a Node,
-        which has not yet been added to the model.
+    def build_struct(self, params):
+        '''Build the structure (model object) in question. This is an abstract method
+        and must be overloaded in the specific generator.
+           The argument will be the parameter tuple returned from self.gather_parameters().
+        The return value should be the new structure, i.e. some flavor of a Node,
+        which has not yet been added to the model. Its structure should depend only on
+        the values of the passed params, since if the user asks to build twice, this may
+        not be called if the params have not changed.
+           By convention (and to fit with history messages emitted from this class),
+        the new node's name should be set to self.name,
+        which the caller will have set to self.prefix appended with a serial number.
         '''
         raise AbstractMethod()
 
@@ -232,7 +247,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     def whatsthis_btn_clicked(self):
         'Slot for the What\'s This button'
         QWhatsThis.enterWhatsThisMode()
-
+    
     def ok_btn_clicked(self):
         'Slot for the OK button'
         if platform.atom_debug: print 'ok button clicked'
@@ -247,7 +262,9 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
             self.remove_struct()
             if platform.atom_debug: raise
         QApplication.restoreOverrideCursor() # Restore the cursor
-        QDialog.accept(self)
+        ## QDialog.accept(self)
+        self.accept() #bruce 060621
+        return
 
     def done_btn_clicked(self):
         'Slot for the Done button'
@@ -264,7 +281,9 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)") #bruce 060616
         self.remove_struct()
         self._revert_number()
-        QDialog.accept(self)
+        ## QDialog.accept(self)
+        self.reject() #bruce 060621
+        return
 
     def close(self, e=None):
         """When the user closes the dialog by clicking the 'X' button
