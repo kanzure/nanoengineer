@@ -780,6 +780,11 @@ class Bond( StateMixin):
         return self.geom_from_posns(a1pos, a2pos)
 
     def geom_from_posns(self, a1pos, a2pos): #bruce 050727 split this out
+        """Return a geometry tuple from the given atom positions
+        (ignoring our actual atom positions but using our actual atomtypes/bondtype).
+        Correct for either absolute or mol-relative positions
+        (return value will be in same coordinate system as arg positions).
+        """
         vec = a2pos - a1pos
         leng = 0.98 * vlen(vec) # 0.98 makes it a bit less common that we set toolong below [bruce 050516 comment]
         vec = norm(vec)

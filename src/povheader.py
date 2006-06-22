@@ -88,6 +88,8 @@ povheader = """
     }
 #end
 
+// macros with hardcoded radii. (since 060622 these might no longer be used)
+
 #macro tube1(pos1, col1, cc1, cc2, pos2, col2)
 
   cylinder {pos1, cc1, 0.3
@@ -136,6 +138,58 @@ povheader = """
     finish {Atomic}
     }
 #end
+
+// macros with radius arguments. tube3r is equivalent to drawcylinder. (new as of 060622)
+
+#macro tube1r(rad, pos1, col1, cc1, cc2, pos2, col2)
+
+  cylinder {pos1, cc1, rad
+    pigment { rgb col1 }
+    finish {Atomic}
+    }
+
+  cylinder {cc1, cc2, rad
+    pigment { Red }
+    finish {Atomic}
+    }
+
+  cylinder {cc2, pos2, rad
+    pigment { rgb col2 }
+    finish {Atomic}
+    }
+    
+#end
+
+#macro tube2r(rad, pos1, col1, cc1, pos2, col2)
+
+  cylinder {pos1, cc1, rad
+    pigment { rgb col1 }
+    finish {Atomic}
+    }
+
+  cylinder {cc1, pos2, rad
+    pigment { rgb col2 }
+    finish {Atomic}
+    }
+    
+#end
+
+#macro tube3r(rad, pos1, pos2, col)
+
+  cylinder {pos1, pos2, rad
+    pigment { rgb col }
+    finish {Atomic}
+    }
+
+#end
+
+#macro bondr(rad, pos1, pos2) 
+  cylinder {pos1, pos2, rad
+    pigment { Gray75 }
+    finish {Atomic}
+    }
+#end
+
 
 #macro line(pos1, pos2, col) 
   cylinder {pos1, pos2, 0.05

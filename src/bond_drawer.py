@@ -47,6 +47,77 @@ diBALL_SigmaBondRadius = 0.1 #bruce 050719
     # like TubeRadius (i.e. "TubesSigmaBondRadius")
 
 
+
+# ==
+
+# To modularize drawing, I'll pass in a drawing place which has methods like drawcylinder,
+# which can be either the drawer module itself (or an object made here to encapsulate it)
+# or a writepov-to-specific-file object. This is experimental code, so for now it's only here
+# in bond_drawer.py.
+#
+# In the future, it should be created once per writepov event, and write the povheader, and
+# then it should be passed in to individual writepov routines. Farther ahead, it should be able
+# to write new macros which embody env.prefs values as needed, so individual atom/bond drawing calls
+# don't need to each incorporate the effects of prefs values, but so that single macros can be revised
+# manually in the output file to effectively change prefs values (a longstanding NFR from the SAB).
+#
+# [bruce 060622]
+
+class writepov_to_file:
+    def __init__(self, file):
+        self.file = file # a file object, not just its name
+        # does not currently write the povheader -- assumes it was already written
+        return
+    # for now, the following methods have the same names and arg orders as the
+    # macro calls that were used directly in writepov_bond.
+    def line(self, a1pos, a2pos, color):
+        self.file.write("line(" + povpoint(a1pos) +
+           "," + povpoint(a2pos) + ", <" + str(color[0]) +"," + str(color[1]) + ", " + str(color[2]) + ">)\n")
+    def writeradmacro(self, rad, radmacro, noradmacro):
+        if rad is not None:
+            self.file.write("%s(" % radmacro + str(rad) + ", " )
+        else:
+            self.file.write("%s(" % noradmacro )
+    def bond(self, a1pos, a2pos, rad = None):
+        self.writeradmacro(rad, "bondr", "bond")
+        self.file.write( povpoint(a1pos) +
+                   "," + povpoint(a2pos) + ")\n")
+    def tube3(self, a1pos, a2pos, col, rad = None):
+        self.writeradmacro(rad, "tube3r", "tube3")
+        self.file.write( povpoint(a1pos) + ", " + povpoint(a2pos) + ", " + stringVec(col) + ")\n")
+    def tube2(self, a1pos, color1, center, a2pos, color2, rad = None):
+        if 1:
+            #e Possible optim: if color1 == color2, this could reduce to tube3.
+            # That might speed up povray in tubes mode by a factor of 2 or so
+            # (for bonds that are not toolong), or maybe by 5/4 if half of the bonds are toolong.
+            # It seems to work (from manual inspection of the output) so I'll leave it in.
+            # [bruce 060622]
+            if color1 == color2:
+                self.tube3(a1pos, a2pos, color1, rad)
+                return
+        self.writeradmacro(rad, "tube2r", "tube2")
+        self.file.write( povpoint(a1pos) +
+           "," + stringVec(color1) +
+           "," + povpoint(center) + "," +
+           povpoint(a2pos) + "," +
+           stringVec(color2) + ")\n")
+    def tube1(self, a1pos, color1, c1, c2, a2pos, color2, rad = None):
+        self.writeradmacro(rad, "tube1r", "tube1")
+        self.file.write( povpoint(a1pos) +
+           "," + stringVec(color1) +
+           "," + povpoint(c1) + "," +
+           povpoint(c2) + "," + 
+           povpoint(a2pos) + "," +
+           stringVec(color2) + ")\n")
+    def drawcylinder(self, color, pos1, pos2, radius): # arg order compatible with drawer.drawcylinder
+        self.tube3(pos1, pos2, color, radius)
+    def drawsphere(self, color, pos, radius): # arg order compatible with drawer.drawsphere, except no detailLevel; not yet called or tested [060622]
+        ###k not compared with other calls of atom macro, or tested; kluge that it uses atom macro, since not all spheres are atoms
+        self.file.write( "atom(" + str(pos) + ", " + str(rad) + ", " + stringVec(col) + ")\n")
+    pass
+
+# ==
+
 def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
     #bruce 050702 adding shorten_tubes option; 050727 that's now implied by new highlighted option
     """Draw the bond 'self'. This function is only meant to be called as the implementation of Bond.draw.
@@ -61,19 +132,8 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
     if disp == diDEFAULT:
         disp = dispdef
 
-    # figure out how this display mode draws bonds; return now if it doesn't
-    if disp == diLINES:
-        sigmabond_cyl_radius = diBALL_SigmaBondRadius / 5.0
-            # used for multiple bond spacing (optimized here for that, by the "/ 5.0")
-            # and for pi orbital vanes (for which "/ 1.0" would probably be better)
-    elif disp == diBALL:
-        sigmabond_cyl_radius = diBALL_SigmaBondRadius * env.prefs[diBALL_BondCylinderRadius_prefs_key]
-            # used for single, double and triple bonds
-            # mark 051003 added " * env.prefs[diBALL_BondCylinderRadius_prefs_key]"
-    elif disp == diTUBES:
-        sigmabond_cyl_radius = TubeRadius
-    else:
-        return # bonds need not be drawn at all in the other display modes
+    if disp not in (diLINES, diBALL, diTUBES):
+        return
 
     # set proper glname, for highlighting (must be done whether or not highlighted is true)
     if atom1.element is Singlet:
@@ -99,7 +159,7 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
         # as long as we live.
 
     try: #bruce 050610 to ensure calling glPopName        
-        draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_radius)
+        draw_bond_main( self, glpane, disp, col, level, highlighted)
     except:
         glPopName()
         print_compact_traceback("ignoring exception when drawing bond %r: " % self) #bruce 060622 moved this before ColorSorter.popName
@@ -110,7 +170,23 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
     
     return # from draw_bond, implem of Bond.draw
 
-def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_radius):
+def draw_bond_main( self, glpane, disp, col, level, highlighted, povfile = None):
+    "[private helper function for this module only.] self is a bond. For other doc, see the calls."
+    
+    # figure out how this display mode draws bonds; return now if it doesn't [moved inside this function, bruce 060622]
+    if disp == diLINES:
+        sigmabond_cyl_radius = diBALL_SigmaBondRadius / 5.0
+            # used for multiple bond spacing (optimized here for that, by the "/ 5.0")
+            # and for pi orbital vanes (for which "/ 1.0" would probably be better)
+    elif disp == diBALL:
+        sigmabond_cyl_radius = diBALL_SigmaBondRadius * env.prefs[diBALL_BondCylinderRadius_prefs_key]
+            # used for single, double and triple bonds
+            # mark 051003 added " * env.prefs[diBALL_BondCylinderRadius_prefs_key]"
+    elif disp == diTUBES:
+        sigmabond_cyl_radius = TubeRadius
+    else:
+        return # bonds need not be drawn at all in the other display modes. (note: some callers already checked this.)
+
     # figure out preferences (should do this less often somehow -- once per user event,
     #  or at least, once per separate use of begin_tracking_usage/end_tracking_usage)
     if self.v6 != V_SINGLE:
@@ -118,15 +194,16 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
             #bruce 050716 debug code (permanent, since this would always indicate a bug)
             if not self.legal_for_atomtypes():
                 print_compact_stack("atom_debug: drawing bond %r which is illegal for its atomtypes: " % self)
-        ## from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False #bruce 050717, might be temporary
-        ## draw_bond_letters = debug_pref("bond letters", Choice_boolean_False)
-        draw_bond_letters = not highlighted and env.prefs[ pibondLetters_prefs_key]
-        ## draw_vanes = debug_pref("double-bond vanes", Choice_boolean_False) #bruce 050802 made this False for A5.9
-        ## draw_cyls = debug_pref("double-bond cylinders", Choice_boolean_True) #bruce 050802 made this True for A5.9
+        if povfile is not None:
+            draw_bond_letters = False # not yet supported, and i worry about side effects of env usage tracking
+        else:
+            draw_bond_letters = not highlighted and env.prefs[ pibondLetters_prefs_key]
         pi_bond_style = env.prefs[ pibondStyle_prefs_key] # one of ['multicyl','vane','ribbon']
         draw_cyls = (pi_bond_style == 'multicyl')
         draw_vanes = not draw_cyls # this is true for either vanes or ribbons
         draw_sigma_cyl = not draw_cyls
+        if povfile is not None:
+            draw_vanes = False # not yet supported
     else:
         # single bond -- no need to check prefs or set variables for vanes, etc
         draw_cyls = False
@@ -139,11 +216,6 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
     
     shorten_tubes = highlighted
     
-##    if highlighted:
-##        toolong_color = ave_colors( 0.8, magenta, black) ##e should improve this color, and maybe let it mix in col
-##    else:
-##        toolong_color = ave_colors( 0.8, red, black) #bruce 050727 changed this from pure red
-
     # do calcs common to all bond-cylinders for multi-cylinder bonds
 
     atom1 = self.atom1
@@ -157,6 +229,14 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
     v2 = atom2.display != diINVISIBLE
         ###e bruce 041104 suspects v1, v2 wrong for external bonds, needs
         # to look at each mol's .hidden (but this is purely a guess)
+
+    # compute geometry (almost always needed eventually, below)
+    fix_geom = (povfile is not None) and (atom1.molecule is atom2.molecule)
+    if fix_geom:
+        # in this case, bond.geom is wrong, needs to be absolute but isn't 
+        selfgeom = self._recompute_geom(abs_coords = True)
+    else:
+        selfgeom = self.geom #e perhaps could be optimized to only compute a1pos, a2pos
     
     howmany = 1 # modified below
     if draw_cyls:
@@ -167,7 +247,10 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
 
         if howmany > 1:
             # figure out where to draw them, and cyl thickness to use; this might depend on disp and/or on sigmabond_cyl_radius
-            pi_info = self.get_pi_info()
+            if fix_geom:
+                pi_info = self.get_pi_info(abs_coords = True)
+            else:
+                pi_info = self.get_pi_info() #k this could probably be the same call as above, with abs_coords = fix_geom
             if pi_info is None:
                 howmany = 1 # should never happen; if it does, work around the bug this way
             else:
@@ -187,22 +270,22 @@ def draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_r
                 else:
                     assert 0
                 # now modify geom for these other cyls
-                a1pos, c1, center, c2, a2pos, toolong = self.geom #e could be optimized to only compute a1pos, a2pos
+                a1pos, c1, center, c2, a2pos, toolong = selfgeom
                 del c1, center, c2, toolong
                 cylrad = scale * sigmabond_cyl_radius
                 offset *= sigmabond_cyl_radius # use this offset in the loop
                 for pvec1, pvec2 in zip( pvecs1, pvecs2 ):
                     a1posm = a1pos + offset * pvec1
                     a2posm = a2pos + offset * pvec2
-                    geom = self.geom_from_posns(a1posm, a2posm)
+                    geom = self.geom_from_posns(a1posm, a2posm) # correct in either abs or rel coords
                     draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
-                                   cylrad, shorten_tubes, geom, v6_for_bands )
+                                   cylrad, shorten_tubes, geom, v6_for_bands, povfile )
     if draw_sigma_cyl or howmany == 1:
         # draw one central cyl, regardless of bond type
-        geom = self.geom #e could be optimized to compute less for CPK case
+        geom = selfgeom #e could be optimized to compute less for CPK case
         cylrad = sigmabond_cyl_radius
         draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
-                       cylrad, shorten_tubes, geom, v6_for_bands )
+                       cylrad, shorten_tubes, geom, v6_for_bands, povfile )
 
     if self.v6 != V_SINGLE:
         if draw_vanes:
@@ -254,7 +337,7 @@ def multicyl_pvecs( howmany, a2py, a2pz):
     pass
 
 def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highlighted, level, \
-                   sigmabond_cyl_radius, shorten_tubes, geom, v6 ):
+                   sigmabond_cyl_radius, shorten_tubes, geom, v6, povfile ):
     """Draw one cylinder, which might be for a sigma bond, or one of 2 or 3 cyls for double or triple bonds.
     [private function for a single caller, which is the only reason such a long arglist is tolerable]
     """
@@ -288,6 +371,23 @@ def draw_bond_cyl( atom1, atom2, disp, v1, v2, color1, color2, bondcolor, highli
             band_color = ave_colors(0.5, band_color, blue)
         band_color = ave_colors(0.8, band_color, black)
     # end of figuring out banding, though to use it, the code below must be modified.
+
+    if povfile is not None:
+        # Ideal situation, worth doing when we have time:
+        # if povfile had the equivalent of drawcylinder and drawsphere (and took radius prefs into account in tube macros),
+        # we could just run the non-povfile code below on it, and get identical pov and non-pov rendering
+        # (for bonds, incl multicyl and banded, tho not for vanes/ribbons or bond letters or half-invisible bonds
+        #  (with spheres -- not so great a feature anyway)
+        #  until other code is modified and povfile has a few more primitives needed for those).
+        #
+        # Current situation: for povfiles, we just replace the rest of this routine with the old povfile bond code,
+        # modified to use macros that take a radius, plus a separate call for banding.
+        # This should cover: multiple cyls, banding, radius prefs; but won't cover: color prefs, other fancy things listed above.
+        # [bruce 060622]
+        old_writepov_bondcyl(atom1, atom2, disp, a1pos, c1, center, c2, a2pos, toolong, color1, color2, povfile, sigmabond_cyl_radius)
+        if banding and disp in (diBALL, diTUBES):
+            povfile.drawcylinder(band_color, bandpos1, bandpos2, sigmabond_cyl_radius * 1.2)
+        return
     
     if disp == diLINES:
         width = env.prefs[linesDisplayModeThickness_prefs_key] #bruce 050831
@@ -366,86 +466,98 @@ def writepov_bond(self, file, dispdef, col):
     # we can change this code to use that routine.
     disp = max(self.atom1.display, self.atom2.display)
     if disp == diDEFAULT: disp = dispdef
-    color1 = col or self.atom1.element.color
-    color2 = col or self.atom2.element.color
-
-    ### some of the following math is now redundant, should be removed for speed (more info below) [bruce 060622]
-    a1pos = self.atom1.posn()
-    a2pos = self.atom2.posn()
-    
-    vec = a2pos - a1pos
-    leng = 0.98 * vlen(vec)
-    vec = norm(vec)
-    # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
-    #  etc, so the entire bond is drawn as if "too long".)
-    rcov1 = self.atom1.atomtype.rcovalent
-    rcov2 = self.atom2.atomtype.rcovalent
-    c1 = a1pos + vec*rcov1
-    c2 = a2pos - vec*rcov2
-    toolong = (leng > rcov1 + rcov2)
-    center = (c1 + c2) / 2.0 # before 041112 this was None when self.toolong
-
-    # this is no longer a valid test, since the above computation is out of date (re pyrex sim's better toolong info). [bruce 060622]
-##    if platform.atom_debug: #bruce 050516; explained above ####@@@@
-##        if self._recompute_geom(abs_coords = True) != (a1pos, c1, center, c2, a2pos, toolong):
-##            print "atom_debug: _recompute_geom wrong in writepov!" #e and say why, if this ever happens
-##        # if this works, we can always use _recompute_geom for external bonds,
-##        # and optim by using self.geom for internals.
+    if disp < 0: disp = dispdef
+    if disp not in (diLINES, diBALL, diTUBES):
+        return #bruce 060622
 
     if 1:
-        # This new code (inside 'if 1') is for Mark to test (and to revert to 'if 0' if it's wrong).
-        # I think it will fix the erroneous "toolong" indicators in pov-ray bonds.
-        #    If it works, it can be sped up for external bonds (not very important),
-        # and the above redundant computations pared down (important);
-        # or FAR BETTER, this entire routine can be made obsolete, replaced with a "writepov" option to draw_bond_main above,
-        # so that pov-ray output can use the same cylinders for all fancier-than-single bonds as well as for single bonds,
-        # use the same prefs values, etc.
-        #    BTW I don't know if the DELTA/rcovalent code below is fully correct, and I suspect it's rarely or never needed,
-        # since it should only be needed for bonds to noble gases, which should never occur.
-        # [bruce 060622]
-        (a1pos, c1, center, c2, a2pos, toolong) = self._recompute_geom(abs_coords = True)
-        pass
-        
-    if disp < 0: disp = dispdef
+        # yet newer code: (note: self is a bond.)
+        povfile = writepov_to_file(file)
+        level = 2 #k value probably has no effect
+        glpane = None #k value probably has no effect
+        highlighted = False
+
+        draw_bond_main( self, glpane, disp, col, level, highlighted, povfile)
+        return
+
+##    # == the rest of this function is obsolete, if above revisions work properly
+##    
+##    color1 = col or self.atom1.element.color
+##    color2 = col or self.atom2.element.color
+##
+##    ### some of the following math is now redundant, should be removed for speed (more info below) [bruce 060622]
+####    a1pos = self.atom1.posn()
+####    a2pos = self.atom2.posn()
+####    
+####    vec = a2pos - a1pos
+####    leng = 0.98 * vlen(vec)
+####    vec = norm(vec)
+####    # (note: as of 041217 rcovalent is always a number; it's 0.0 for Helium,
+####    #  etc, so the entire bond is drawn as if "too long".)
+####    rcov1 = self.atom1.atomtype.rcovalent
+####    rcov2 = self.atom2.atomtype.rcovalent
+####    c1 = a1pos + vec*rcov1
+####    c2 = a2pos - vec*rcov2
+####    toolong = (leng > rcov1 + rcov2)
+####    center = (c1 + c2) / 2.0 # before 041112 this was None when self.toolong
+##
+##    # this is no longer a valid test, since the above computation is out of date (re pyrex sim's better toolong info). [bruce 060622]
+####    if platform.atom_debug: #bruce 050516; explained above ##@@
+####        if self._recompute_geom(abs_coords = True) != (a1pos, c1, center, c2, a2pos, toolong):
+####            print "atom_debug: _recompute_geom wrong in writepov!" #e and say why, if this ever happens
+####        # if this works, we can always use _recompute_geom for external bonds,
+####        # and optim by using self.geom for internals.
+##
+##    if 1:       
+##        # This new code (inside 'if 1') is for Mark to test (and to revert to 'if 0' if it's wrong).
+##        # I think it will fix the erroneous "toolong" indicators in pov-ray bonds.
+##        #    If it works, it can be sped up for external bonds (not very important),
+##        # and the above redundant computations pared down (important);
+##        # or FAR BETTER, this entire routine can be made obsolete, replaced with a "writepov" option to draw_bond_main above,
+##        # so that pov-ray output can use the same cylinders for all fancier-than-single bonds as well as for single bonds,
+##        # use the same prefs values, etc.
+##        #    BTW I don't know if the DELTA/rcovalent code below is fully correct. I guess its main use is for bondpoints,
+##        # and it's probably correct for that case. A rare use would be to render bonds to noble gases (which should of course
+##        # never occur), and I am not sure it's correct for that case.
+##        # [bruce 060622]
+##        (a1pos, c1, center, c2, a2pos, toolong) = self._recompute_geom(abs_coords = True)
+##        # and some newer code:
+##        povfile = writepov_to_file(file)
+##
+##    old_writepov_bondcyl(self.atom1, self.atom2, disp, a1pos, c1, center, c2, a2pos, toolong, color1, color2, povfile)
+##        # this call has been tested, but has been slightly modified since then
+##    return # from writepov_bond
+
+def old_writepov_bondcyl(atom1, atom2, disp, a1pos, c1, center, c2, a2pos, toolong, color1, color2, povfile, rad = None):
+    """[private function for this module, still used by new multicyl code 060622, once per cyl]
+    Write one bond cylinder. atom args are only for checking rcovs vs DELTA. 
+    """
     if disp == diLINES:
         if not toolong:
-            file.write("line(" + povpoint(a1pos) +
-                   "," + povpoint(a2pos) + ", <" + str(color1[0]) +"," + str(color1[1]) + ", " + str(color1[2]) + ">)\n")
+            povfile.line(a1pos, a2pos, color1)
         else:
-            file.write("line(" + povpoint(a1pos) +
-                   "," + povpoint(center) + ", <" + str(color1[0]) +"," + str(color1[1]) + ", " + str(color1[2]) + ">)\n")
-            file.write("line(" + povpoint(center) +
-                   "," + povpoint(a2pos) + ", <" + str(color2[0]) +"," + str(color2[1]) + ", " + str(color2[2]) + ">)\n")
+            povfile.line(a1pos, center, color1)
+            povfile.line(center, a2pos, color2)
     if disp == diBALL:
-        file.write("bond(" + povpoint(a1pos) +
-                   "," + povpoint(a2pos) + ")\n")
+        povfile.bond(a1pos, a2pos, rad)
     if disp == diTUBES:
     ##Huaicai: If rcovalent is close to 0, like singlets, avoid 0 length 
     ##             cylinder written to a pov file    
         DELTA = 1.0E-5
         isSingleCylinder = False
-        if  self.atom1.atomtype.rcovalent < DELTA:
+        if atom1.atomtype.rcovalent < DELTA:
                 col = color2
                 isSingleCylinder = True
-        if  self.atom2.atomtype.rcovalent < DELTA:
+        if atom2.atomtype.rcovalent < DELTA:
                 col = color1
                 isSingleCylinder = True
         if isSingleCylinder:
-            file.write("tube3(" + povpoint(a1pos) + ", " + povpoint(a2pos) + ", " + stringVec(col) + ")\n")
+            povfile.tube3(a1pos, a2pos, col, rad)
         else:
-            if not toolong: #bruce 050516 changed this from self.toolong to toolong
-                file.write("tube2(" + povpoint(a1pos) +
-                   "," + stringVec(color1) +
-                   "," + povpoint(center) + "," +
-                   povpoint(a2pos) + "," +
-                   stringVec(color2) + ")\n")
+            if not toolong:
+                povfile.tube2(a1pos, color1, center, a2pos, color2, rad)
             else:
-                file.write("tube1(" + povpoint(a1pos) +
-                   "," + stringVec(color1) +
-                   "," + povpoint(c1) + "," +
-                   povpoint(c2) + "," + 
-                   povpoint(a2pos) + "," +
-                   stringVec(color2) + ")\n")
-    return # from writepov_bond
+                povfile.tube1(a1pos, color1, c1, c2, a2pos, color2, rad)
+    return # from old_writepov_bondcyl
 
 # end
