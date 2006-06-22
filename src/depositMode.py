@@ -24,7 +24,7 @@ from elements import PeriodicTable
 from Utility import imagename_to_pixmap
 from HistoryWidget import orangemsg, redmsg
 
-from bonds import bond_atoms
+from bonds import bond_atoms, bond_at_singlets
 from bond_constants import V_SINGLE
 
 import env
@@ -1559,6 +1559,7 @@ class depositMode(selectAtomsMode):
             print_error_details = 1
         flag, status = bond_at_singlets(s1, s2, move = False, \
                          print_error_details = print_error_details, increase_bond_order = True)
+
         # we ignore flag, which says whether it's ok, warning, or error
         env.history.message("%s: %s" % (self.msg_modename, status))
         return
