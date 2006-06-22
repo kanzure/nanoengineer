@@ -102,8 +102,8 @@ def draw_bond(self, glpane, dispdef, col, level, highlighted = False):
         draw_bond_main( self, glpane, disp, col, level, highlighted, sigmabond_cyl_radius)
     except:
         glPopName()
+        print_compact_traceback("ignoring exception when drawing bond %r: " % self) #bruce 060622 moved this before ColorSorter.popName
         ColorSorter.popName() #bruce 051206
-        print_compact_traceback("ignoring exception when drawing bond %r: " % self)
     else:
         glPopName()
         ColorSorter.popName() #bruce 051206
@@ -368,7 +368,8 @@ def writepov_bond(self, file, dispdef, col):
     if disp == diDEFAULT: disp = dispdef
     color1 = col or self.atom1.element.color
     color2 = col or self.atom2.element.color
-    
+
+    ### some of the following math is now redundant, should be removed for speed (more info below) [bruce 060622]
     a1pos = self.atom1.posn()
     a2pos = self.atom2.posn()
     
@@ -384,12 +385,27 @@ def writepov_bond(self, file, dispdef, col):
     toolong = (leng > rcov1 + rcov2)
     center = (c1 + c2) / 2.0 # before 041112 this was None when self.toolong
 
-    if platform.atom_debug: #bruce 050516; explained above ####@@@@
-        if self._recompute_geom(abs_coords = True) != (a1pos, c1, center, c2, a2pos, toolong):
-            print "atom_debug: _recompute_geom wrong in writepov!" #e and say why, if this ever happens
-        # if this works, we can always use _recompute_geom for external bonds,
-        # and optim by using self.geom for internals.
-    
+    # this is no longer a valid test, since the above computation is out of date (re pyrex sim's better toolong info). [bruce 060622]
+##    if platform.atom_debug: #bruce 050516; explained above ####@@@@
+##        if self._recompute_geom(abs_coords = True) != (a1pos, c1, center, c2, a2pos, toolong):
+##            print "atom_debug: _recompute_geom wrong in writepov!" #e and say why, if this ever happens
+##        # if this works, we can always use _recompute_geom for external bonds,
+##        # and optim by using self.geom for internals.
+
+    if 1:
+        # This new code (inside 'if 1') is for Mark to test (and to revert to 'if 0' if it's wrong).
+        # I think it will fix the erroneous "toolong" indicators in pov-ray bonds.
+        #    If it works, it can be sped up for external bonds (not very important),
+        # and the above redundant computations pared down (important);
+        # or FAR BETTER, this entire routine can be made obsolete, replaced with a "writepov" option to draw_bond_main above,
+        # so that pov-ray output can use the same cylinders for all fancier-than-single bonds as well as for single bonds,
+        # use the same prefs values, etc.
+        #    BTW I don't know if the DELTA/rcovalent code below is fully correct, and I suspect it's rarely or never needed,
+        # since it should only be needed for bonds to noble gases, which should never occur.
+        # [bruce 060622]
+        (a1pos, c1, center, c2, a2pos, toolong) = self._recompute_geom(abs_coords = True)
+        pass
+        
     if disp < 0: disp = dispdef
     if disp == diLINES:
         if not toolong:
