@@ -25,9 +25,11 @@ from generator_button_images import image0_data,  image1_data,  image2_data,  im
 
 from widget_controllers import CollapsibleGroupController_Qt, FloatLineeditController_Qt #e might be gotten from env instead...
 
+from debug import print_compact_traceback
+
 
 # image uses -- we should rename them ####@@@@
-##self.heading_pixmap.setPixmap(self.image1)
+##self.heading_pixmap.setPixmap(self.image1) # should be: title_icon ####
 ##self.sponsor_btn.setPixmap(self.image2)
 ##self.done_btn.setIconSet(QIconSet(self.image3))
 ##self.abort_btn.setIconSet(QIconSet(self.image4))
@@ -36,7 +38,11 @@ from widget_controllers import CollapsibleGroupController_Qt, FloatLineeditContr
 ##self.nt_parameters_grpbtn.setIconSet(QIconSet(self.image7))
         
 class parameter_dialog(QDialog): # was nanotube_dialog
-    def __init__(self, parent = None, desc = None, name = None, modal = 0, fl = 0):
+    def __init__(self, parent = None, desc = None, name = None, modal = 0, fl = 0, env = None):
+
+        if env is None:
+            import env # this is a little weird... probably it'll be ok, and logically it seems correct.
+        
         self.desc = desc
         QDialog.__init__(self,parent,name,modal,fl)
 
@@ -54,6 +60,22 @@ class parameter_dialog(QDialog): # was nanotube_dialog
         self.image7.loadFromData(image7_data,"PNG")
         self.image0 = QPixmap(image0_data) # should be: border_icon ####
         self.image2 = QPixmap(image2_data) # should be: sponsor_pixmap ####
+
+        try:
+            ####@@@@
+            title_icon_name = self.desc.options.get('title_icon')
+            border_icon_name = self.desc.options.get('border_icon')
+            if title_icon_name:
+                self.image1 = env.imagename_to_pixmap(title_icon_name) ###@@@ pass icon_path
+                    ###@@@ import imagename_to_pixmap or use env function
+                    # or let that func itself be an arg, or have an env arg for it
+                    ###e rename it icon_name_to_pixmap, or find_icon? (the latter only if it's ok if it returns an iconset)
+                    ###e use iconset instead?
+            if border_icon_name:
+                self.image0 = env.imagename_to_pixmap(border_icon_name)
+        except:
+            print_compact_traceback("bug in icon-setting code, using fallback icons: ")
+            pass
 
         if not name:
             self.setName("parameter_dialog") ###
@@ -368,7 +390,7 @@ class parameter_dialog(QDialog): # was nanotube_dialog
 class ParameterDialog(parameter_dialog):
     "#doc"
     controller = None
-    def __init__(self, parent, description):
+    def __init__(self, parent, description, env = None):
         """If description is a string, it should be a filename.
         Or (someday) it could be a ThingData, or (someday) maybe a menu_spec_like python list.
            This initializes the dialog, a Qt widget (not sure if it will be a widget when we have a "pane" option --
@@ -376,7 +398,7 @@ class ParameterDialog(parameter_dialog):
         But it doesn't show it or connect it to a controller.
         """
         desc = get_description(description) # might raise exceptions on e.g. syntax errors in description file
-        parameter_dialog.__init__(self, parent, desc) # sets self.desc (buttons might want to use it)
+        parameter_dialog.__init__(self, parent, desc, env = env) # sets self.desc (buttons might want to use it)
     def set_controller(self, controller):
         if self.controller:
             self.controller.forget_dialog(self)
@@ -389,8 +411,10 @@ class ParameterDialog(parameter_dialog):
             print "set_defaults is nim" ####k is it even sensible w/o a controller being involved??
     # bindings for the buttons -- delegate them to controller if we have one.
     def do_sponsor_btn(self):
-        print "do_sponsor_btn: nim (how is GBC supposed to be told about this??)"
-        
+        print "do_sponsor_btn: delegating"
+        # does SponsorableMixin have something like sponsor_btn_clicked? yes, under that name and open_sponsor_homepage.
+        if self.controller:
+            self.controller.sponsor_btn_clicked()
     def do_done_btn(self):
         print "do_done_btn: delegating"
         if self.controller:
@@ -463,8 +487,6 @@ def get_description(filename):
 # == TEST CODE, though some might become real
 
 import time, sys, os
-
-from debug import print_compact_traceback
 
 class NTdialog(parameter_dialog): # in real life this will be something which delegates to controller methods
     def __init__(self, parent = None, desc = None):

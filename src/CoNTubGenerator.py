@@ -269,11 +269,24 @@ class PluginlikeGenerator:
         #e install the necessary commands in the UI (eg in insert menu)
         ### WRONG -- menu text should not contain Insert, but undo cmdname should (so separate option is needed), and needs icon
         ###e add options for things like tooltip text, whatsthis text, iconset
-        options = [('iconset','junk.png')]
+        icon_path = self.find_title_icon()
+        options = [('iconset', icon_path)]
         self.menu_item_id = add_insert_menu_item( self.win, self.command_for_insert_menu, self.what_we_generate, options)
         ###e make that a menu item controller, and give it a method to disable the menu item, and do that on error(??) ###@@@
         pass
 
+    def find_title_icon(self):
+        icon_path = os.path.join(self.plugin_dir, "images/HJ_icon.png") #######@@@@@@@ KLUGE - hardcode this relpath for now
+        ###@@@ need to get icon name from one of the desc files (not positive which one, probably params but if there is one
+        # for the overall "single generator command" then from that one), interpret it using an icon path, and then feed it
+        # not only to this menu item, but to the generated dialog as well. this code to find it will be in setup_from_plugin_dir
+        # I think. or maybe (also) called again each time we make the dialog?
+        if not os.path.isfile(icon_path):
+            print "didn't find [%s], using junk.png" % icon_path
+            icon_path = "junk.png"
+        # icon_path will be found later by imagename_to_pixmap I think; does it work with an abspath too?? #####@@@@@
+        return icon_path
+    
     # runtime methods
     
     def create_working_directory_if_needed(self):
@@ -318,11 +331,27 @@ class PluginlikeGenerator:
             pass
         if not self.dialog:
             if debug_run(): print "making dialog from", self.parameter_set_filename
-            self.dialog = ParameterDialog( self.win, self.param_desc_path )
+            dialog_env = self
+                # KLUGE... it needs to be something with an imagename_to_pixmap function that knows our icon_path.
+                # the easiest way to make one is self... in future we want our own env, and to modify it by inserting that path...
+            self.dialog = ParameterDialog( self.win, self.param_desc_path, env = dialog_env )
                 # this parses the description file and makes the dialog,
                 # but does not show it and does not connect a controller to it.
             #e set its geometry if that was saved (from above code or maybe in prefs db)
         return
+
+    def imagename_to_pixmap(self, imagename): # KLUGE, see comment where dialog_env is set to self ###@@@ might work but untested ###@@@
+        from Utility import imagename_to_pixmap
+        path = None
+        for trydir in [self.plugin_dir, os.path.join(self.plugin_dir, "images")]:
+            trypath = os.path.join( trydir, imagename )
+            if os.path.isfile(trypath):
+                # assume it's the one we want
+                path = trypath
+                break
+        if not path:
+            path = imagename # use relative name
+        return imagename_to_pixmap(path)
     
     def command_for_insert_menu(self):
         """Run an Insert Whatever menu command to let the user generate things using this plugin.
