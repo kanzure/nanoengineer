@@ -11,9 +11,16 @@
 
 generator:
     caption: "Heterojunction"
-    border_icon: "nanotube_border_icon.png" ### replace this
+    border_icon: "HJ_border_icon.png" 
+        # border_icon is used in dialog window border (on some platforms) (maybe nim).
+        # All these icons can be found in ./, ./images, or NE-1 builtin images (maybe nim).
+        # Future: if we let the plugin author specify that path, that default value might look like
+        # icon_path = "$plugin", "$plugin/images", "$images" 
+        # (where $images refers to a built-in pathname of things plugins are allowed to look at).
     title: "Heterojunction"
-    title_icon: "nanotube_title_icon.png" ### replace this
+    title_icon: "HJ_icon.png" 
+        # title_icon is used for title area in dialog, and maybe for insert menu command (maybe nim).
+        # Or we might decide that the insert menu item icon has to be specified elsewhere. 
     help_url: "http://www.nanoengineer-1.net/..."  ### replace this
     
     ## the following 'category' is nim in the parser, hardcoded in the plugin code:
