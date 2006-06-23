@@ -101,10 +101,10 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
     def build_struct(self, params):
         'Create or update PVS.'
         if not self.struct: 
-            name = params[0]
+            self.name = params[0]
             pvs_params = params[1:]
             from PovrayScene import PovrayScene
-            self.struct = PovrayScene(self.win.assy, name, pvs_params) #bruce 060620 revised this
+            self.struct = PovrayScene(self.win.assy, self.name, pvs_params) #bruce 060620 revised this
         else:
             self.set_params( self.struct, params)
         self.struct.write_pvs_file()
