@@ -271,8 +271,8 @@ class Surface:
         om = 0.0
         #  calculate omega for all moleculas 
         for i in range(len(self.spheres)):
-            t = p - self.spheres[i] / self.greatest
-            r = self.radiuses[i] / self.greatest
+            t = p - self.spheres[i] 
+            r = self.radiuses[i] 
             s = (r * r - t.x * t.x - t.y * t.y - t.z * t.z) / (r + r)
             if i == 0:
                 om = s
@@ -413,7 +413,9 @@ class SurfaceChunks(ChunkDisplayMode):
             if r > rad: rad = r
         rad = sqrt(rad)
         radius = rad + margin
-	s.greatest = radius
+	for i in range(len(points)):
+	    s.spheres[i] /= radius
+	    s.radiuses[i] /= radius
 	color = chunk.color
         if color is None:
             color = V(0.5,0.5,0.5)
