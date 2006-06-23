@@ -35,7 +35,7 @@ class GeneratorController(GeneratorBaseClass):
             #  Maybe this can be cleaned up somehow, perhaps only by modifying GeneratorBaseClass.)
         GeneratorBaseClass.__init__(self, win)
         # set some attrs our own methods need
-        self.paramnames = gen.paramnames
+        self.paramnames = gen.paramnames_order
         return
     
     def meet_dialog(self, dialog):

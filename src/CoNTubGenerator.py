@@ -12,9 +12,11 @@ as much as possible be isolated into small parts of this, with most of it
 knowing nothing about CoNTub's specific functionality or parameters.
 """
 
-###@@@ where i am -- see below for IMPLEMS, modal dialog issues, maybe more [060615 eve]
-
-# how to test this: execute "import CoNTubGenerator" or (afterwards) "reload(CoNTubGenerator)" in a debugger.
+# how to test this: execute this in a debugger:
+'''
+import CoNTubGenerator
+reload(CoNTubGenerator)
+'''
 # Each time you do that, Insert menu gets a new command "Heterojunction". The first one is always the latest one.
 
 __author__ = "bruce"
@@ -26,16 +28,23 @@ __author__ = "bruce"
 # just put in the current code now, clean it up later...
 
 import env
-from HistoryWidget import redmsg, orangemsg, greenmsg
+from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 ##from widgets import double_fixup
 ##from Utility import Group
 from ParameterDialog import ParameterDialog
 from GeneratorController import GeneratorController
 from debug import print_compact_traceback
-import os, sys
+import os, sys, time
 from platform import find_or_make_Nanorex_subdir, find_or_make_any_directory, tempfiles_dir
 
-### current bug: menu icon is nondeterministic. guess: need to keep a reference to the iconset that we make for it. #####@@@@@
+debug_install = env.debug() ###@@@
+def debug_run():
+    return True
+    # change to env.debug() or a debug pref, someday;
+    # also some debug prints we cause in other files don't check this, but they should
+
+### one current bug: menu icon is nondeterministic. guess: need to keep a reference to the iconset that we make for it.
+# that seemed to help at first, but it's not enough, bug still happens sometimes when we reload this a lot! ####@@@@
 
 # ==
 
@@ -91,6 +100,40 @@ def find_plugin_dir(plugin_name):
 
 # ==
 
+try:
+    output_counter
+except:
+    output_counter = 0
+
+def parse_arg_pattern(argpat):
+    """Turn argpat into a list of strings, each a nonempty constant or $param;
+    allowed argpat formats are just these three: word, $param.word, $param
+    [Someday we might extend this, perhaps even allowing expressions like $dict[$key].]
+    """
+    # just break it at each '$' or '.'
+    assert not '@' in argpat # use this as a marker for splitpoints
+        #e (could be \00 in case '@' gets used in a real command line)
+    argpat = argpat.replace('$','@$')
+    argpat = argpat.replace('.','@.')
+    argpat = argpat.split('@')
+    if not argpat[0]:
+        argpat = argpat[1:]
+    assert argpat
+    assert argpat == filter(None, argpat), \
+           "argpat %r should equal filtered one %r" % (argpat, filter(None, argpat))
+            # no other empty strings are legal
+    return argpat
+
+def arg_str(arg):
+    "like str(arg) but suitable for use on a command line"
+    try:
+        ###@@@ horrible temporary kluge for $T item -> value mapping
+        res = {"None":0, "Hydrogen": 1, "Nitrogen": 7}[arg]
+        arg = res
+    except KeyError:
+        pass
+    return str(arg) ###e stub, probably good enough for contub
+
 class PluginlikeGenerator:
     """Superclass for generators whose code is organized similar to that of a (future) plugin.
     Subclasses contain data and methods which approximate the functionality
@@ -109,9 +152,9 @@ class PluginlikeGenerator:
             instance = subclass(win)
             if instance.ok_to_install_in_UI:
                 instance.install_in_UI()
-                if env.debug(): print "debug: registered", instance
+                if debug_install: print "debug: registered", instance
             else:
-                if env.debug(): print "debug: didn't register", instance
+                if debug_install: print "debug: didn't register", instance
         except:
             print_compact_traceback("bug in instantiating %r or installing its instance: " % subclass)
         return
@@ -137,7 +180,7 @@ class PluginlikeGenerator:
         self.errorcode = errorcode
         msg = "plugin %r fatal error: %s" % (self.plugin_name, errortext,)
         print msg
-        env.history.message(redmsg(msg)) # it might be too early for this to be seen
+        env.history.message(redmsg(quote_html(msg))) # it might be too early for this to be seen
         return errorcode
 
     def __init__(self, win):
@@ -163,7 +206,7 @@ class PluginlikeGenerator:
         #  since they might be created in a session-specific place)
         self.working_directory = None
 
-        if env.debug(): print "plugin init is permitting ok_to_install_in_UI = True" ###@@@
+        if debug_install: print "plugin init is permitting ok_to_install_in_UI = True"
         self.ok_to_install_in_UI = True
         return
 
@@ -180,11 +223,39 @@ class PluginlikeGenerator:
     
     def setup_from_plugin_dir(self):
         "Using self.plugin_dir, setup dialogs, commands, etc. Report errors to self.fatal as usual."
+        
+        # The following will someday read metainfo from the plugin.desc file,
+        # but for now we just grab that info from constants set by the subclass
+        # (the subclass which won't exist when this is a real public plugin API).
+        
+        # param desc file (must exist)
         param_desc_path = os.path.join(self.plugin_dir, self.parameter_set_filename)
         self.param_desc_path = param_desc_path
         if not os.path.isfile(param_desc_path):
             return self.fatal("can't find param description file [%s]" % (param_desc_path,))
-        ###e get the param set, create the dialog, check the executable exists, etc
+        # executable (find its path, make sure it exists)
+        self.executable # should be provided by subclass
+        if sys.platform == 'win32':
+            executable_names = [self.executable + ".exe", self.executable] # Windows: try both, in this order
+        else:
+            executable_names = [self.executable] # Linux or Mac: only try plain name
+        self.executable_path = None
+        for tryname in executable_names:
+            executable_path = os.path.join(self.plugin_dir, "bin", tryname)
+            if os.path.exists(executable_path):
+                # assume if it exists at all, it's the command we want
+                # (it might be a file or a symlink, and I'm not sure if isfile works across symlinks;
+                #  if it does, we'd want to use isfile here, and warn if exists but not isfile #k)
+                self.executable_path = executable_path
+                if debug_install: print "plugin exec path = %r" % (executable_path,)
+                break
+            continue
+        if not self.executable_path:
+            return self.fatal("can't find executable; looked for %s" % (executable_names,))
+
+        self.setup_commandline_info() # this is far below, just before the code that uses what it computes
+        
+        ###e maybe get the param set, create the dialog, etc
         # (even run a self test if it defines one? or wait 'til first used?)
         return
 
@@ -246,7 +317,7 @@ class PluginlikeGenerator:
                 self.dialog = None
             pass
         if not self.dialog:
-            if env.debug(): print "making dialog from", self.parameter_set_filename
+            if debug_run(): print "making dialog from", self.parameter_set_filename
             self.dialog = ParameterDialog( self.win, self.param_desc_path )
                 # this parses the description file and makes the dialog,
                 # but does not show it and does not connect a controller to it.
@@ -262,7 +333,7 @@ class PluginlikeGenerator:
             return
         self.create_working_directory_if_needed()
         assert not self.errorcode
-        print 'ought to insert a', self.what_we_generate ###@@@
+        if debug_run(): print 'ought to insert a', self.what_we_generate
         self.make_dialog_if_needed()
         dialog = self.dialog
         ###e Not yet properly handled: retaining default values from last time it was used. (Should pass dict of them to the maker.)
@@ -280,35 +351,226 @@ class PluginlikeGenerator:
         pass###e
 
     def build_struct(self, params, name):
-        "Same API as in GeneratorBaseClass, except for the suggested name also being passed."
-        if 1: ######@@@@@@@
-            # example: build some methanes
-            print "build_struct stub",params
-            assy = self.win.assy
-            from VQT import V
-            from chunk import molecule
-            from chem import atom
-            mol = molecule(assy, 'bug') # name is reset below!
-
-            n = int(params[0])
-            n = max(1,n)
-            for x in range(n):
-                ## build methane, from oneUnbonded
-                pos = V(x,0,0)
-                atm = atom('C', pos, mol)
-                atm.make_singlets_when_no_bonds() # notices atomtype
-            mol.name = name
-            ## assy.addmol(mol)
-            return mol
+        "Same API as in GeneratorBaseClass, except for the suggested name also being passed. On error, raise an exception."
         ###@@@ where i am:
         # get executable, append exe, ensure it exists
+        program = self.executable_path
         # make command line args from params
-        # make output filename, add it to args
+        args, outfiles = self.command_line_args_and_outfiles(params, name)
+            # makes param args and outputfile args;
+            # args is a list of strings (including outfile names);
+            # outfiles is a list of full pathnames of files this command might create
         # run executable using the way we run the sim
-        # look at exitcode?
-        # look for outfile, insert it, rename the object in it, return that (see dna generator)
+        exitcode = self.run_command(program, args) ###IMPLEM
+        #e look at exitcode?
+        if exitcode and debug_run():
+            print "generator exitcode: %r" % (exitcode,)
+        # look for outfiles
+        # (if there are more than one specified, for now just assume all of them need to be there)
+        for outfile in outfiles:
+            if not os.path.exists(outfile):
+                ### a defect of the GBC API is that we have to raise arbitrary exceptions to report errors.
+                # there should be a more controlled way to do it, either a return value or a custom exception class, 
+                # so it could treat arbitrary exceptions as bugs and report them as such.
+                assert 0, "generator output file should exist but doesn't: [%s]" % (outfile,)
+        # insert file contents, rename the object in it, return that (see dna generator)
+        thing = self.insert_output(outfiles, params, name)
+            # some params might affect insertion (or postprocessing)
+            # other than by affecting the command output
+        self.remove_outfiles(outfiles)
         return thing
 
+
+    def setup_commandline_info(self):
+        """#doc
+        [This is run at setup time, but we put this method here
+        since the arg data it compiles (into a nonobvious internal format)
+        is used to make the command lines at runtime, in the methods just below.]
+        """
+        # command-line, output file info
+        # examples:
+        ## outputfiles_pattern = "$out1.mmp"
+        ## executable_args_pattern = "$n1 $m1 $L1 $n2 $m2 $L2 $T 1 $out1.mmp"
+        
+        self.outputfiles_pattern # make sure subclass defines these
+        self.executable_args_pattern
+
+        self.outfile_pats = map( parse_arg_pattern, self.outputfiles_pattern.split())
+        self.cmdline_pats = map( parse_arg_pattern, self.executable_args_pattern.split())
+        
+        if debug_install: print "got these parsed argpats: %r\nand outfiles: %r" % (self.cmdline_pats, self.outfile_pats)
+        
+        self.paramnames_dict = {} # for now, maps pn -> $pn
+        self.outfile_paramname_extension_pairs = []
+            # one or more pairs of ($paramname_for_filebasename, extension), e.g. [('$out1', '.mmp')]
+        self.paramnames_order = []
+            # needed for defining order of tuples from gather_parameters; leave out outfile params;
+            # this attr will be used directly by our GeneratorController
+        
+        for pat in self.outfile_pats:
+            assert len(pat) <= 2 # ok if no extension, at least for now
+            try:
+                baseparam, ext = pat
+            except:
+                baseparam, ext = pat, ''
+            assert baseparam.startswith('$')
+            assert not ext or ext.startswith('.')
+            self.outfile_paramname_extension_pairs.append(( baseparam, ext )) ### leave in '$' -- useful to look up val
+
+        self.outfile_paramnames = [pn[1:] for (pn, ext) in self.outfile_paramname_extension_pairs]
+
+        for pat in self.cmdline_pats:
+            for word in pat:
+                if word.startswith('$'):
+                    name = word[1:]
+                    if name not in self.paramnames_dict:
+                        self.paramnames_dict[name] = word # so it maps x -> $x
+                        if name not in self.outfile_paramnames:
+                            self.paramnames_order.append(name)
+                    pass
+                continue
+            continue
+
+        assert self.paramnames_dict
+        assert self.paramnames_order
+        assert self.outfile_paramname_extension_pairs
+
+        if debug_install:
+            print "outfile_paramname_extension_pairs:", self.outfile_paramname_extension_pairs
+            print "paramnames_dict", self.paramnames_dict
+            print "outfile_paramnames", self.outfile_paramnames
+            print "paramnames_order", self.paramnames_order
+        
+        # see command_line_args_and_outfiles() for how all this is used
+        return
+
+    def command_line_args_and_outfiles(self, params, name):
+        """Given the parameter-value tuple (same order as self.paramnames_order),
+        and the desired name of the generated structure in the MT (optional to use it here
+         since insert code will also impose it),
+        return a list of command line args, and a list of output files, for use in one command run.
+        """
+        workdir = self.working_directory
+        outfiles = []
+        args = []
+        paramvals = {} # $pn -> value for subst
+        for pn, val in zip(self.paramnames_order, params):
+            paramvals['$' + pn] = val
+        for (pn, ext) in self.outfile_paramname_extension_pairs:
+            # pn is like $out1, ext is empty or like .mmp, and only some exts are supported but that's up to insert method
+            global output_counter
+            output_counter += 1
+            basename = 'output%d' % output_counter #e improve? make it be the same if we preview?? (how? GBC AP doesn't tell us!)
+            path = os.path.join( workdir, basename + ext)
+            outfiles.append( path)
+            assert pn not in paramvals
+            paramvals[pn] = os.path.join( workdir, basename) # leave ext off of this, since cmdline pattern adds it back
+        for argpat in self.cmdline_pats:
+            arg = ""
+            for word in argpat:
+                if word.startswith('$'):
+                    arg += arg_str(paramvals[word])
+                else:
+                    arg += word
+            assert arg
+            args.append(arg)
+        return args, outfiles
+
+    def run_command(self, program, args):
+        if debug_run(): print "will run this command:",program,args
+        from qt import QStringList, QProcess, QObject, SIGNAL, QDir
+        # modified from runSim.py
+        arguments = QStringList()
+        if sys.platform == 'win32':
+            program = "\"%s\"" % program # Double quotes needed by Windows. ###@@@ test this
+        ### try it with blanks in output file name and in program name, once it works ###@@@
+        for arg in [program] + args:
+            if arg:
+                arguments.append(arg)
+        self.simProcess = simProcess = QProcess()
+        simProcess.setArguments(arguments)
+        simProcess.setWorkingDirectory(QDir(self.working_directory)) # in case it writes random files
+        if 1:
+            # report stdout/stderr
+            def blabout():
+                print "stdout:", simProcess.readStdout()
+            def blaberr():
+                text = str(simProcess.readStderr()) # str since it's QString (i hope it can't be unicode)
+                print "stderr:", text
+                env.history.message(redmsg("%s stderr: " % self.plugin_name + quote_html(text)))
+                # examples from CoNTub/bin/HJ:
+                # stderr: BAD INPUT
+                # stderr: Error: Indices of both tubes coincide
+            QObject.connect(simProcess, SIGNAL("readyReadStdout()"), blabout)
+            QObject.connect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
+        started = simProcess.start() ###k what is this code? i forget if true means ok or error
+        if debug_run(): print "qprocess started:",started
+        while 1:
+            ###e need to make it abortable! from which abort button? ideally, one on the dialog; maybe cancel button??
+            # on exception: simProcess.kill()
+            if simProcess.isRunning():
+                if debug_run():
+                    print "still running"
+                    time.sleep(1)
+                else:
+                    time.sleep(0.1)
+            else:
+                break
+        if debug_run(): print "process done i guess: normalExit = %r, (if normal) exitStatus = %r" % (simProcess.normalExit(), simProcess.exitStatus())
+        if 1:
+            QObject.disconnect(simProcess, SIGNAL("readyReadStdout()"), blabout)
+            QObject.disconnect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
+        if simProcess.normalExit():
+            return simProcess.exitStatus()
+        else:
+            return -1
+    
+    def insert_output(self, outfiles, params, name):
+        ## return self.create_methane_test(params, name)
+        if debug_run(): print "inserting output from",outfiles ###@@@
+        # modified from dna generator's local function insertmmp(filename, tfm)
+        assert len(outfiles) == 1 # for now
+        filename = outfiles[0]
+        assert filename.endswith('.mmp') # for now; in future, also permit .pdb or anything else we know how to read
+        from files_mmp import _readmmp
+        assy = self.win.assy #k
+        grouplist  = _readmmp(assy, filename, isInsert=True)
+        if not grouplist:
+            raise Exception("Trouble with output file: " + filename)###@@@ predict NameError: Exception (good enough for now)
+        viewdata, mainpart, shelf = grouplist
+        if len(mainpart.members) == 1:
+            thing = mainpart.members[0]
+        else:
+            thing = mainpart # won't happen for now
+        del viewdata #k or kill?
+        thing.name = name
+        shelf.kill()
+        # problem: for some kinds of errors, the only indication is that we're inserting a 0-atom mol, not a many-atom mol. hmm.
+        ####@@@@
+        return thing # doesn't actually insert it, GBC does that
+
+    def remove_outfiles(self, outfiles):
+        print "removing these files is nim:",outfiles ###@@@
+
+    def create_methane_test(self, params, name):
+        # example: build some methanes
+        print "create_methane_test"
+        assy = self.win.assy
+        from VQT import V
+        from chunk import molecule
+        from chem import atom
+        mol = molecule(assy, 'bug') # name is reset below!
+        n = max(params[0],1)
+        for x in range(n):
+          for y in range(2):
+            ## build methane, from oneUnbonded
+            pos = V(x,y,0)
+            atm = atom('C', pos, mol)
+            atm.make_singlets_when_no_bonds() # notices atomtype
+        mol.name = name
+        ## assy.addmol(mol)
+        return mol
+    
     pass # end of class PluginlikeGenerator
 
 class HeterojunctionGenerator(PluginlikeGenerator):
@@ -330,8 +592,6 @@ class HeterojunctionGenerator(PluginlikeGenerator):
     executable = "HJ" # no .exe, we'll add that if necessary on Windows ## this might not be required of every class
     outputfiles_pattern = "$out1.mmp"
     executable_args_pattern = "$n1 $m1 $L1 $n2 $m2 $L2 $T 1 $out1.mmp"
-    # these might be computed from the above, in real life, but to get it working just hardcode them:
-    paramnames = "n1 m1 L1 n2 m2 L2 T".split()
     
     pass # end of class HeterojunctionGenerator
 
