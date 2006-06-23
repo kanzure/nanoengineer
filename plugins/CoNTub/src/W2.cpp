@@ -75,10 +75,10 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 
 
     // Check validity conditions on parameters
-    if (i2 == i1 && j2 == j1) {
-	std::cerr << "Error: Indices of both tubes coincide";
-	return;
-    }
+//    if (i2 == i1 && j2 == j1) {
+//	std::cerr << "Error: Indices of both tubes coincide";
+//	return;
+//    }
     if (i2 < 2 && j2 < 2) {
 	std::cerr << "Stop: 2nd tube too narrow";
 	return;
