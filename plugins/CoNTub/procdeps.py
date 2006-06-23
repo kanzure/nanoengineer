@@ -33,6 +33,7 @@ for obj in objs:
     obj = re.sub(objdir + '/', '$(OBJDIR)/', obj)
     # Print a dependency line.
     print obj + ': ' + src
+    print '\t$(CXX) $(CXXFLAGS) -c -o %s %s' % (obj, src)
 
 for L in sys.stdin.readlines():
     L = L.rstrip()
