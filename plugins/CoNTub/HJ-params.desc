@@ -76,7 +76,7 @@ generator:
             widget: spinbox
             min: 1
             max: 20
-            default: 5
+            default: 4 # error if both tubes are the same! (or at least, msg to stderr)
             tooltip: "Nanotube chirality parameter M"
 
     group: "Both tubes"
