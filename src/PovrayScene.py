@@ -133,11 +133,11 @@ class PovrayScene(SimpleCopyMixin, Node):
     def write_pvs_file(self):
         '''Writes a POV-Ray Scene file of the current scene in the GLPane.
         '''
-        povray_ini, povray_scene = get_raytrace_scene_filenames(self.assy, self.name)
+        r, povray_ini, povray_scene = get_raytrace_scene_filenames(self.assy, self.name)
         
-        if not povray_ini:
-            # There was a problem. povray_scene contains a description the problem.
-            env.history.message( cmd + redmsg(povray_scene) )
+        if r:
+            # There was a problem. <povray_ini> contains a description the problem.
+            env.history.message( cmd + redmsg(povray_ini) )
             return
         
         writepovfile(self.assy.part, self.assy.o, povray_scene)
@@ -152,11 +152,11 @@ class PovrayScene(SimpleCopyMixin, Node):
         
         cmd = greenmsg("Render POV-Ray Scene: ")
         
-        povray_ini, povray_scene = get_raytrace_scene_filenames(self.assy, self.name)
+        r, povray_ini, povray_scene = get_raytrace_scene_filenames(self.assy, self.name)
         
-        if not povray_ini:
-            # There was a problem. povray_scene contains a description the problem.
-            env.history.message( cmd + redmsg(povray_scene) )
+        if r:
+            # There was a problem. <povray_ini> contains a description the problem.
+            env.history.message( cmd + redmsg(povray_ini) )
             return
         
         if use_existing_pvs and not os.path.exists(povray_scene):
