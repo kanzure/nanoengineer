@@ -215,7 +215,6 @@ sphereList = []
 numSphereSizes = 3
 CylList = diamondGridList = CapList = CubeList = solidCubeList = lineCubeList = None
 rotSignList = linearLineList = linearArrowList = circleList = lonsGridList = SiCGridList = None
-surfaceTriangles = surfaceNormals = None
 
 # grantham 20051118; revised by bruce 051126
 class glprefs:
@@ -586,11 +585,11 @@ def drawsurface_worker(params):
     function and its parameters can be passed to another function for
     deferment.  Right now this is only ColorSorter.schedule (see below)"""
 
-    (pos, radius, detailLevel) = params
+    (pos, radius, tm, nm) = params
     glPushMatrix()
     glTranslatef(pos[0], pos[1], pos[2])
-    glScale(radius[0],radius[1],radius[2])
-    renderSurface()
+    glScale(radius,radius,radius)
+    renderSurface(tm, nm)
     glPopMatrix()
     return
 
@@ -1031,12 +1030,12 @@ class ColorSorter:
 
     schedule_cylinder = staticmethod(schedule_cylinder)
 
-    def schedule_surface(color, pos, radius, detailLevel):
+    def schedule_surface(color, pos, radius, tm, nm):
         """\
         Schedule a surface for rendering whenever ColorSorter thinks is
         appropriate.
         """
-        ColorSorter.schedule(color, drawsurface_worker, (pos, radius, detailLevel))
+        ColorSorter.schedule(color, drawsurface_worker, (pos, radius, tm, nm))
 
     schedule_surface = staticmethod(schedule_surface)
 
@@ -1570,10 +1569,10 @@ def drawcylinder(color, pos1, pos2, radius, capped=0):
             return
     ColorSorter.schedule_cylinder(color, pos1, pos2, radius, capped)
 
-def drawsurface(color, pos, radius, detailLevel):
+def drawsurface(color, pos, radius, tm, nm):
     """Schedule a surface for rendering whenever ColorSorter thinks is
     appropriate."""
-    ColorSorter.schedule_surface(color, pos, radius, detailLevel)
+    ColorSorter.schedule_surface(color, pos, radius, tm, nm)
     
 def drawline(color, pos1, pos2, dashEnabled = False, width = 1):
     """Draw a line from pos1 to pos2 of the given color.
@@ -2249,13 +2248,13 @@ def drawcylinder_wireframe(color, end1, end2, radius): #bruce 060608
     glPolygonMode(GL_BACK, GL_FILL) # could probably use GL_FRONT_AND_BACK
     return
 
-def drawsurface_wireframe(color, pos, radius): 
+def drawsurface_wireframe(color, pos, radius, tm, nm): 
     glPolygonMode(GL_FRONT, GL_LINE)
     glPolygonMode(GL_BACK, GL_LINE)
     glDisable(GL_LIGHTING)
     glDisable(GL_CULL_FACE) 
     try:
-        drawsurface(color, pos, radius, 2) 
+        drawsurface(color, pos, radius, tm, nm) 
     except:
         debug.print_compact_traceback("bug, ignored: ")
     glEnable(GL_CULL_FACE)
@@ -2264,13 +2263,7 @@ def drawsurface_wireframe(color, pos, radius):
     glPolygonMode(GL_BACK, GL_FILL) 
     return
 
-def passSurface(p,n):
-    global surfaceTriangles
-    global surfaceNormals
-    surfaceTriangles = p
-    surfaceNormals = n
-
-def renderSurface():
+def renderSurface(surfaceTriangles, surfaceNormals):
     glBegin(GL_TRIANGLES)
     i = 0
     for tri in surfaceTriangles:

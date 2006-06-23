@@ -338,7 +338,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	"""
         if not chunk.atoms:
             return
-        pos, radius, color = memo
+        pos, radius, color, tm, nm = memo
         if highlighted:
             color = ave_colors(0.5, color, env.prefs[chunkHighlightColor_prefs_key]) #e should the caller compute this somehow?
 	# THIS IS WHERE OLEKSANDR SHOULD CALL HIS NEW CODE TO RENDER THE SURFACE (NOT CYLINDER).
@@ -347,7 +347,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	# (This method drawchunk will not be called on every frame, but it will usually be called much more often than compute_memo.)
 	#   For example, memo might contain a Pyrex object pointer to a C object representing some sort of mesh,
 	# which can be rendered quickly by calling a Pyrex method on it.
-        drawer.drawsurface(color, pos, radius, 2)
+        drawer.drawsurface(color, pos, radius, tm, nm)
         return
     def drawchunk_selection_frame(self, glpane, chunk, selection_frame_color, memo, highlighted):
         """Given the same arguments as drawchunk, plus selection_frame_color, draw the chunk's selection frame.
@@ -361,14 +361,14 @@ class SurfaceChunks(ChunkDisplayMode):
         """
         if not chunk.atoms:
             return
-        pos, radius, color = memo
+        pos, radius, color, tm, nm = memo
         color = selection_frame_color
         # make it a little bigger than the sphere itself
         alittle = 0.01
         # THIS IS WHERE OLEKSANDR SHOULD RENDER A "SELECTED" SURFACE, OR (PREFERABLY) A SELECTION WIREFRAME
         # around an already-rendered surface.
         # (For a selected chunk, both this and drawchunk will be called -- not necessarily in that order.)
-        drawer.drawsurface_wireframe(color, pos, [radius[0] + alittle, radius[1] + alittle, radius[2] + alittle])
+        drawer.drawsurface_wireframe(color, pos, radius + alittle, tm, nm)
 	return
     def compute_memo(self, chunk):
         """If drawing chunk in this display mode can be optimized by precomputing some info from chunk's appearance,
@@ -411,9 +411,9 @@ class SurfaceChunks(ChunkDisplayMode):
             r = p[0]**2+p[1]**2+p[2]**2
             if r > rad: rad = r
         rad = sqrt(rad)
-	s.greatest = rad + margin
-        radius = [rad + margin, rad + margin, rad + margin]
-        color = chunk.color
+        radius = rad + margin
+	s.greatest = radius
+	color = chunk.color
         if color is None:
             color = V(0.5,0.5,0.5)
 	#  create surface 
@@ -422,12 +422,11 @@ class SurfaceChunks(ChunkDisplayMode):
 	ts =drawer.getSphereTriangles(level)
 	tm = s.SurfaceTriangles(ts)
 	nm = s.SurfaceNormals(tm)
-	drawer.passSurface(tm, nm)
 	
 	QApplication.restoreOverrideCursor() # Restore the cursor. Mark 060621.
 	env.history.message(self.cmdname + "Done.") # Mark 060621.
 	
-        return (bcenter, radius, color)
+        return (bcenter, radius, color, tm, nm)
     
     pass # end of class SurfaceChunks
 
