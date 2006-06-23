@@ -12,107 +12,183 @@ import types
 import Numeric
 from inval import InvalMixin
 
-DEBUG = 0
-
 cdef extern from "atombasehelp.c":
 
     cdef struct key_thing:
         int key
         void *self
 
-    cdef struct link:
-        link *next
-        key_thing *other
+    cdef struct pointerlist:
+        int size
+        void **lst
+
+    cdef struct xyz:
+        double x, y, z
 
     cdef struct atomstruct:
+        int key
+        void *self
         int _eltnum, _atomtype
-        double x, y, z
-        link *sets
+        xyz _posn
+        pointerlist *sets
 
     cdef struct bondstruct:
+        int key
+        void *self
         int v6
-        link *sets
+        pointerlist *sets
 
-    cdef struct atomsetstruct:
-        link *atoms
+    cdef struct setstruct:
+        int key
+        void *self
+        pointerlist *members
 
-    cdef struct bondsetstruct:
-        link *atoms
+    pointerlist *new_pointerlist()
+    pointerlist *has_key(pointerlist *n, unsigned int key)
+    add_to_pointerlist(pointerlist *head, key_thing *other)
+    remove_from_pointerlist(pointerlist *head, key_thing *other)
+    extract_list(pointerlist *root, int values)
+    pointerlist_lookup(pointerlist *root, unsigned int key)
 
-    link *has_link(link *n, unsigned int key)
-    add_to_linked_list(link **head, key_thing *other)
-    remove_from_linked_list(link **head, key_thing *other)
-    extract_list(link *root, int values)
-    linked_list_lookup(link *root, unsigned int key)
+cdef extern from "Numeric/arrayobject.h":
+    struct PyArray_Descr:
+        int type_um, elsize
+        char type
+    ctypedef class Numeric.ArrayType [object PyArrayObject]:
+        cdef char *data
+        cdef int nd
+        cdef int *dimensions, *strides
+        cdef object base
+        cdef PyArray_Descr *descr
+        cdef int flags
 
-cdef class _BaseClass:
-    cdef key_thing data0
+cdef extern from "string.h":
+    int strcmp(char *s1, char *s2)
+
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+
+cdef class _BaseItem:
+    # this is polymorphic to _AtomBase and _BondBase
+    cdef key_thing data
+
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+
+cdef class _BaseSetClass:
+    cdef setstruct data
+
+    # Define __setitem__ and __delitem__ for the kind of item in the set
+
     def __init__(self):
-        self.data0.self = <void*> self
+        self.data.key = 0
+        self.data.self = <void*> self
+        self.data.members = new_pointerlist()
+    def __setattr__(self, name, value):
+        if name == "key":
+            self.data.key = value
+        else:
+            self.__dict__[name] = value
+    def __getattr__(self, name):
+        if name == "key":
+            return self.data.key
+        else:
+            raise AttributeError, name
+    def __getitem__(self, key):
+        return pointerlist_lookup(self.data.members, key)
+    def __len__(self):
+        return len(self.values())
+    def keys(self):
+        return extract_list(self.data.members, 0)
+    def add(self, guy):
+        assert guy.key != 0
+        self[guy.key] = guy
+    def remove(self, guy):
+        del self[guy.key]
+    def update(self, other):
+        for k in other.keys():
+            self[k] = other[k]
+    def values(self):
+        return extract_list(self.data.members, 1)
+    def items(self):
+        lst = [ ]
+        for k in self.keys():
+            lst.append((k, self[k]))
+        return lst
 
 ##############################################################
 ##############################################################
 ##############################################################
 ##############################################################
 
-cdef class _AtomBase(_BaseClass):
+cdef class _AtomBase:
 
     cdef atomstruct data
 
     def __init__(self):
-        _BaseClass.__init__(self)
-        self.data0.key = 0
+        self.data.key = 0
+        self.data.self = <void*> self
         self.data._eltnum = 0
+        self.data._posn.x = 0.0
+        self.data._posn.y = 0.0
+        self.data._posn.z = 0.0
         self.data._atomtype = 0
-        self.data.x = 0.0
-        self.data.y = 0.0
-        self.data.z = 0.0
-        self.data.sets = NULL
+        self.data.sets = new_pointerlist()
 
     def diffableAttributes(self):
         return ("_eltnum", "_atomtype",
-                "x", "y", "z", "sets")
+                "_posn", "sets")
 
-    def __getattr__(self, name):
-        if name == "key":
-            return self.data0.key
-        elif name == "_eltnum":
+    def __getattr__(self, char *name):
+        if strcmp(name, "key") == 0:
+            return self.data.key
+        elif strcmp(name, "_eltnum") == 0:
             return self.data._eltnum
-        elif name == "_atomtype":
+        elif strcmp(name, "_atomtype") == 0:
             return self.data._atomtype
-        elif name == "x":
-            return self.data.x
-        elif name == "y":
-            return self.data.y
-        elif name == "z":
-            return self.data.z
-        elif name == "sets":
+        elif strcmp(name, "_posn") == 0:
+            return Numeric.array((self.data._posn.x,
+                                  self.data._posn.y,
+                                  self.data._posn.z))
+        elif strcmp(name, "x") == 0:
+            return self.data._posn.x
+        elif strcmp(name, "y") == 0:
+            return self.data._posn.y
+        elif strcmp(name, "z") == 0:
+            return self.data._posn.z
+        elif strcmp(name, "sets") == 0:
             return extract_list(self.data.sets, 0)
         else:
             raise AttributeError, name
 
-    def __setattr__(self, name, value):
-        if name == "key":
-            if DEBUG > 0: print "SET KEY", value
-            self.data0.key = value
-        elif name == "_eltnum":
+    def _setposn(self, ArrayType ary):
+        if chr(ary.descr.type) != "d" or ary.nd != 1 or ary.dimensions[0] != 3:
+            raise TypeError("Array of three doubles required")
+        self.data._posn.x = (<double *> ary.data)[0]
+        self.data._posn.y = (<double *> ary.data)[1]
+        self.data._posn.z = (<double *> ary.data)[2]
+
+    def __setattr__(self, char *name, value):
+        if strcmp(name, "key") == 0:
+            self.data.key = value
+        elif strcmp(name, "_eltnum") == 0:
             self.data._eltnum = value
-        elif name == "_atomtype":
+        elif strcmp(name, "_atomtype") == 0:
             self.data._atomtype = value
-        elif name == "x":
-            self.data.x = value
-        elif name == "y":
-            self.data.y = value
-        elif name == "z":
-            self.data.z = value
+        elif strcmp(name, "_posn") == 0:
+            self._setposn(value)
         else:
             self.__dict__[name] = value
 
-    def addSet(self, _BaseClass other):
-        add_to_linked_list(&self.data.sets, &other.data0)
+    def addSet(self, _BaseSetClass other):
+        add_to_pointerlist(self.data.sets, <key_thing*> &other.data)
 
-    def removeSet(self, _BaseClass other):
-        remove_from_linked_list(&self.data.sets, &other.data0)
+    def removeSet(self, _BaseSetClass other):
+        remove_from_pointerlist(self.data.sets, <key_thing*> &other.data)
 
 class AtomBase(_AtomBase):
     pass
@@ -122,124 +198,19 @@ class AtomBase(_AtomBase):
 ##############################################################
 ##############################################################
 
-cdef class _AtomSetBaseRefImpl(_BaseClass):
+cdef class _AtomSetBase(_BaseSetClass):
 
-    cdef atomsetstruct data
-
-    def __init__(self, atoms=[ ]):
-        _BaseClass.__init__(self)
-        self._dct = { }
-        for a in atoms:
-            self.add(a)
-    def __setattr__(self, name, value):
-        if name == "key":
-            self.data0.key = value
-        else:
-            self.__dict__[name] = value
-    def __getattr__(self, name):
-        if name == "key":
-            return self.data0.key
-        elif name in ("_dct"):
-            return self.__dict__[name]
-        else:
-            raise AttributeError, name
-    def __setitem__(self, key, atom):
-        if key != atom.key:
-            raise KeyError
-        self._dct[key] = atom
-        atom.addSet(self)
-    def __getitem__(self, key):
-        return self._dct[key]
-
-    def __delitem__(self, key):
-        self._dct[key].removeSet(self)
-        del self._dct[key]
-    def __len__(self):
-        return len(self._dct.keys())
-    def keys(self):
-        return self._dct.keys()
-    def add(self, atom):
-        self[atom.key] = atom
-    def remove(self, atom):
-        del self[atom.key]
-    def update(self, other):
-        for k in other.keys():
-            self[k] = other[k]
-    def values(self):
-        lst = [ ]
-        for k in self.keys():
-            lst.append(self[k])
-        return lst
-    def items(self):
-        lst = [ ]
-        for k in self.keys():
-            lst.append((k, self[k]))
-        return lst
-    def atomInfo(self):
-        ar = Numeric.zeros((len(self.keys()), 5), 'd')
-        i = 0
-        for k in self.keys():
-            atm = self[k]
-            ar[i][0] = atm._eltnum
-            ar[i][1] = atm._atomtype
-            ar[i][2] = atm.x
-            ar[i][3] = atm.y
-            ar[i][4] = atm.z
-            i = i + 1
-        return ar
-
-cdef class _AtomSetBase(_BaseClass):
-
-    cdef atomsetstruct data
-
-    def __init__(self, atomlst=[ ]):
-        _BaseClass.__init__(self)
-        self.data.atoms = NULL
-        for a in atomlst:
-            self.add(a)
-    def __setattr__(self, name, value):
-        if name == "key":
-            self.data0.key = value
-        else:
-            self.__dict__[name] = value
-    def __getattr__(self, name):
-        if name == "key":
-            return self.data0.key
-        else:
-            raise AttributeError, name
     def __setitem__(self, key, _AtomBase atom):
         if key != atom.key:
             raise KeyError
-        add_to_linked_list(&self.data.atoms, &atom.data0)
-        add_to_linked_list(&atom.data.sets, &self.data0)
-    def __getitem__(self, key):
-        return linked_list_lookup(self.data.atoms, key)
+        add_to_pointerlist(self.data.members, <key_thing *>&atom.data)
+        add_to_pointerlist(atom.data.sets, <key_thing *>&self.data)
     def __delitem__(self, key):
-        cdef key_thing adata0
         cdef atomstruct adata
         x = self[key]
-        adata0 = (<_AtomBase> x).data0
         adata = (<_AtomBase> x).data
-        remove_from_linked_list(&self.data.atoms, &adata0)
-        remove_from_linked_list(&adata.sets, &self.data0)
-    def __len__(self):
-        return len(self.values())
-    def keys(self):
-        return extract_list(self.data.atoms, 0)
-    def add(self, atom):
-        self[atom.key] = atom
-    def remove(self, atom):
-        del self[atom.key]
-    def update(self, other):
-        for k in other.keys():
-            self[k] = other[k]
-    def values(self):
-        return extract_list(self.data.atoms, 1)
-    def items(self):
-        lst = [ ]
-        for k in self.keys():
-            lst.append((k, self[k]))
-        return lst
+        remove_from_pointerlist(self.data.members, <key_thing*> &adata)
+        remove_from_pointerlist(adata.sets, <key_thing*> &self.data)
     def atomInfo(self):
         ar = Numeric.zeros((len(self), 5), 'd')
         i = 0
@@ -253,32 +224,30 @@ cdef class _AtomSetBase(_BaseClass):
             i = i + 1
         return ar
 
-class AtomSetBase(_AtomSetBaseRefImpl):
+class AtomSetBase(_AtomSetBase):
     pass
-#class AtomSetBase(_AtomSetBase):
-#    pass
 
 ##############################################################
 ##############################################################
 ##############################################################
 ##############################################################
 
-cdef class _BondBase(_BaseClass):
+cdef class _BondBase:
 
     cdef bondstruct data
 
     def __init__(self):
-        _BaseClass.__init__(self)
-        self.data0.key = 0
+        self.data.key = 0
+        self.data.self = <void*> self
         self.data.v6 = 0
-        self.data.sets = NULL
+        self.data.sets = new_pointerlist()
 
     def diffableAttributes(self):
         return ("v6",)
 
     def __getattr__(self, name):
         if name == "key":
-            return self.data0.key
+            return self.data.key
         elif name == "v6":
             return self.data.v6
         elif name == "sets":
@@ -288,18 +257,17 @@ cdef class _BondBase(_BaseClass):
 
     def __setattr__(self, name, value):
         if name == "key":
-            if DEBUG > 0: print "SET KEY", value
-            self.data0.key = value
+            self.data.key = value
         elif name == "v6":
             self.data.v6 = value
         else:
             self.__dict__[name] = value
 
-    def addSet(self, _BaseClass other):
-        add_to_linked_list(&self.data.sets, &other.data0)
+    def addSet(self, _BaseSetClass other):
+        add_to_pointerlist(self.data.sets, <key_thing*> &other.data)
 
-    def removeSet(self, _BaseClass other):
-        remove_from_linked_list(&self.data.sets, &other.data0)
+    def removeSet(self, _BaseSetClass other):
+        remove_from_pointerlist(self.data.sets, <key_thing*> &other.data)
 
 class BondBase(_BondBase):
     pass
@@ -309,59 +277,19 @@ class BondBase(_BondBase):
 ##############################################################
 ##############################################################
 
-cdef class _BondSetBase(_BaseClass):
+cdef class _BondSetBase(_BaseSetClass):
 
-    cdef bondsetstruct data
-
-    def __init__(self, bonds=[ ]):
-        _BaseClass.__init__(self)
-        self._dct = { }
-        for a in bonds:
-            self.add(a)
-    def __setattr__(self, name, value):
-        if name == "key":
-            self.data0.key = value
-        else:
-            self.__dict__[name] = value
-    def __getattr__(self, name):
-        if name == "key":
-            return self.data0.key
-        elif name in ("_dct"):
-            return self.__dict__[name]
-        else:
-            raise AttributeError, name
-    def __setitem__(self, key, bond):
+    def __setitem__(self, key, _BondBase bond):
         if key != bond.key:
             raise KeyError
-        self._dct[key] = bond
-        bond.addSet(self)
-    def __getitem__(self, key):
-        return self._dct[key]
-
+        add_to_pointerlist(self.data.members, <key_thing *>&bond.data)
+        add_to_pointerlist(bond.data.sets, <key_thing *>&self.data)
     def __delitem__(self, key):
-        self._dct[key].removeSet(self)
-        del self._dct[key]
-    def __len__(self):
-        return len(self._dct.keys())
-    def keys(self):
-        return self._dct.keys()
-    def add(self, bond):
-        self[bond.key] = bond
-    def remove(self, bond):
-        del self[bond.key]
-    def update(self, other):
-        for k in other.keys():
-            self[k] = other[k]
-    def values(self):
-        lst = [ ]
-        for k in self.keys():
-            lst.append(self[k])
-        return lst
-    def items(self):
-        lst = [ ]
-        for k in self.keys():
-            lst.append((k, self[k]))
-        return lst
+        cdef bondstruct adata
+        x = self[key]
+        adata = (<_BondBase> x).data
+        remove_from_pointerlist(self.data.members, <key_thing*> &adata)
+        remove_from_pointerlist(adata.sets, <key_thing*> &self.data)
     def bondInfo(self):
         ary = Numeric.zeros((len(self.keys()), 3), 'i')
         i = 0

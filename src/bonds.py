@@ -59,7 +59,7 @@ import platform # for atom_debug; note that uses of atom_debug should all grab i
 
 from elements import *
 
-from chem import singlet_atom, stringVec, atom
+from chem import singlet_atom, stringVec, atom, ENABLE_PYREX_ATOMS_AND_BONDS
     # I don't know if class atom is needed here, it's just a precaution [bruce 050502]
 
 from bond_constants import *
@@ -68,6 +68,24 @@ from elements import Singlet
 import env
 from state_utils import StateMixin #bruce 060223
 from changes import register_changedict, register_class_changedicts
+from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
+
+try:
+    if not ENABLE_PYREX_ATOMS_AND_BONDS:
+        raise ImportError
+    from atombase import BondSetBase, BondBase
+    class BondSet(BondSetBase):
+        def __init__(self):
+            BondSetBase.__init__(self)
+            self.key = atKey.next()
+except ImportError:
+    def BondSet():
+        return { }
+    class BondBase:
+        def __init__(self):
+            pass
+        def __getattr__(self, attr):
+            raise AttributeError, attr
 
 # ==
 
@@ -409,7 +427,7 @@ _Bond_global_dicts = [_changed_Bonds]
 # as of now there is only one use, in bond_atoms (used by molecule.bond).
 # I also rewrote lots of the code in class Bond.
 
-class Bond( StateMixin):
+class Bond(BondBase, StateMixin):
     """A Bond is essentially a record pointing to two atoms
     (either one of which might be a real atom or a "singlet"),
     representing a bond between them if it also occurs in atom.bonds
@@ -478,6 +496,7 @@ class Bond( StateMixin):
         we will do all necessary invalidations, in case the new bond is indeed
         added to those atoms (as I think it always will be in the current code).
         """
+        BondBase.__init__(self)
         self.atom1 = at1 ###k are these public attributes? For now I'll assume yes. [bruce 050502]
         self.atom2 = at2
         self.v6 = v6 # bond-valence times 6, as exact int; a public attribute
@@ -810,6 +829,10 @@ class Bond( StateMixin):
         are not stored or if the stored ones are no longer valid.
            For all other attr names, raise an AttributeError (quickly, for __xxx__ names).
         """
+        try:
+            return BondBase.__getattr__(self, attr)
+        except AttributeError:
+            pass
         if attr[0] == '_':
             raise AttributeError, attr # be fast since probably common for __xxx__
         # after this, attr is either an updated_attr or a bug, so it's ok to assume we need to recompute if invalid...

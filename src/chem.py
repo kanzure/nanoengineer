@@ -62,9 +62,19 @@ from povheader import povpoint #bruce 050413
 from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
 from changes import register_changedict, register_class_changedicts
 
+ENABLE_PYREX_ATOMS_AND_BONDS = False
+
 try:
-    from atombase import AtomBase
+    if not ENABLE_PYREX_ATOMS_AND_BONDS:
+        raise ImportError
+    from atombase import AtomSetBase, AtomBase
+    class AtomSet(AtomSetBase):
+        def __init__(self):
+            AtomSetBase.__init__(self)
+            self.key = atKey.next()
 except ImportError:
+    def AtomSet():
+        return { }
     class AtomBase:
         def __init__(self):
             pass
@@ -395,8 +405,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
     _s_attr_atomtype = S_DATA
 
     # these are needed for repeated destroy [bruce 060322]
-    glname = 0 
-    key = 0
+    glname = 0
+    if not ENABLE_PYREX_ATOMS_AND_BONDS:
+        key = 0   # BAD FOR PYREX ATOMS - class variable vs. instance variable
 
     _will_kill = 0 #bruce 060327
 

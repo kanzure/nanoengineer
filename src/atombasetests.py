@@ -24,35 +24,52 @@ def resetgenkey():
     global __key
     __key = 1
 
+
+class Atom(AtomBase):
+    def __init__(self):
+        AtomBase.__init__(self)
+        self.key = genkey()
+
+class Bond(BondBase):
+    def __init__(self):
+        BondBase.__init__(self)
+        self.key = genkey()
+
+class AtomSet(AtomSetBase):
+    def __init__(self):
+        AtomSetBase.__init__(self)
+        self.key = genkey()
+
+class BondSet(BondSetBase):
+    def __init__(self):
+        BondSetBase.__init__(self)
+        self.key = genkey()
+
 class Structure:
     def __init__(self):
-        self.atomset = AtomSetBase()
-        self.bondset = BondSetBase()
+        self.atomset = AtomSet()
+        self.bondset = BondSet()
     def __len__(self):
         return len(self.atomset.keys())
 
 def water(x=0.0, y=0.0, z=0.0):
     w = Structure()
-    w.atomset.key = genkey()
-    w.bondset.key = genkey()
     posns = (
-        ((x - 0.983, y - 0.008, z + 0.000),  # hydrogen
-         (x + 0.017, y - 0.008, z + 0.000),   # oxygen
-         (x + 0.276, y - 0.974, z + 0.000)))  # hydrogen
+        (Numeric.array((x - 0.983, y - 0.008, z + 0.000)),  # hydrogen
+         Numeric.array((x + 0.017, y - 0.008, z + 0.000)),   # oxygen
+         Numeric.array((x + 0.276, y - 0.974, z + 0.000))))  # hydrogen
     elts = (1, 8, 1)
     atoms = [ ]
     for i in range(len(posns)):
-        a = AtomBase()
-        a.key = genkey()
-        a.x, a.y, a.z = posns[i]
+        a = Atom()
+        a._posn = posns[i]
         a._eltnum = elts[i]
         a._atomtype = 1
         w.atomset.add(a)
         atoms.append(a)
     for k1, k2 in ((atoms[0].key, atoms[1].key),
                    (atoms[1].key, atoms[2].key)):
-        b = BondBase()
-        b.key = genkey()
+        b = Bond()
         b.atomkey1 = k1
         b.atomkey2 = k2
         b.v6 = 1
@@ -80,19 +97,19 @@ class TestCase(unittest.TestCase):
     def setUp(self):
         resetgenkey()
 
-class AtomBaseTests(TestCase):
+class AtomTests(TestCase):
 
     def test_eltnum_atombase(self):
-        ab = AtomBase()
+        ab = Atom()
         assert ab._eltnum == 0
         assert ab._atomtype == 0
         ab._atomtype = 2
         assert ab._atomtype == 2
 
-class BondBaseTests(TestCase):
+class BondTests(TestCase):
 
     def test_basic_bondbase(self):
-        bb = BondBase()
+        bb = Bond()
         assert bb.v6 == 0
         bb.v6 = 2
         assert bb.v6 == 2
@@ -103,19 +120,13 @@ class BondBaseTests(TestCase):
         bondset.values() # sorted by key
         bondset.items() # sorted by key
         """
-        bondset = BondSetBase()
-        bondset.key = genkey()
+        bondset = BondSet()
         # create them forwards
-        bond1 = BondBase()
-        bond1.key = genkey()
-        bond2 = BondBase()
-        bond2.key = genkey()
-        bond3 = BondBase()
-        bond3.key = genkey()
-        bond4 = BondBase()
-        bond4.key = genkey()
-        bond5 = BondBase()
-        bond5.key = genkey()
+        bond1 = Bond()
+        bond2 = Bond()
+        bond3 = Bond()
+        bond4 = Bond()
+        bond5 = Bond()
         # add them backwards
         bondset.add(bond5)
         bondset.add(bond4)
@@ -136,14 +147,10 @@ class BondBaseTests(TestCase):
         """\
         del bondset[bond.key]
         """
-        bond1 = BondBase()
-        bond1.key = genkey()
-        bond2 = BondBase()
-        bond2.key = genkey()
-        bond3 = BondBase()
-        bond3.key = genkey()
-        bondset = BondSetBase()
-        bondset.key = genkey()
+        bond1 = Bond()
+        bond2 = Bond()
+        bond3 = Bond()
+        bondset = BondSet()
         bondset.add(bond1)
         bondset.add(bond2)
         bondset.add(bond3)
@@ -165,15 +172,13 @@ class BondBaseTests(TestCase):
         """
         alst = [ ]
         for i in range(5):
-            a = BondBase()
-            a.key = genkey()
+            a = Bond()
             alst.append(a)
-        bondset = BondSetBase()
-        bondset.key = genkey()
+        bondset = BondSet()
         for a in alst:
             bondset.add(a)
         assert bondset.keys() == [ 1, 2, 3, 4, 5 ]
-        bondset2 = BondSetBase()
+        bondset2 = BondSet()
         bondset2.update(bondset)
         assert bondset2.keys() == [ 1, 2, 3, 4, 5 ]
 
@@ -183,19 +188,15 @@ class BondBaseTests(TestCase):
         """
         adct = { }
         for i in range(5):
-            a = BondBase()
-            a.key = genkey()
+            a = Bond()
             adct[a.key] = a
-        bondset = BondSetBase()
-        bondset.key = genkey()
+        bondset = BondSet()
         bondset.update(adct)
         assert bondset.keys() == [ 1, 2, 3, 4, 5 ]
 
     def test_bondset_removeFromEmpty(self):
-        bondset = BondSetBase()
-        bondset.key = genkey()
-        a = BondBase()
-        a.key = genkey()
+        bondset = BondSet()
+        a = Bond()
         try:
             bondset.remove(a)
             self.fail("shouldn't be able to remove from an empty bondset")
@@ -204,22 +205,22 @@ class BondBaseTests(TestCase):
 
     def test_bondset_filter(self):
         w = water()
-        bondset = BondSetBase(filter(selectSingle, w.bondset.values()))
+        bondset = BondSet()
+        for bond in filter(selectSingle, w.bondset.values()):
+            bondset.add(bond)
         bondinfo = bondset.bondInfo()
         assert type(bondinfo) == Numeric.arraytype
         assert bondinfo.tolist() == [[3, 4, 1], [4, 5, 1]]
 
 
-class AtomSetBaseTests(TestCase):
+class AtomSetTests(TestCase):
 
     def test_atomset_basic(self):
         """\
         atomset[atom.key] = atom
         """
-        atom1 = AtomBase()
-        atom1.key = genkey()
-        atomset = AtomSetBase()
-        atomset.key = genkey()
+        atom1 = Atom()
+        atomset = AtomSet()
         atomset[atom1.key] = atom1
         try:
             atomset[atom1.key+1] = atom1  # this should fail
@@ -227,25 +228,36 @@ class AtomSetBaseTests(TestCase):
         except KeyError:
             pass
 
+##     def test_atomset_keysIn(self):
+##         """\
+##         atomset.add(atm1)
+##         atm1.key in atomset --> True
+##         atm2.key in atomset --> False
+##         """
+##         atomset = AtomSet()
+##         # create them forwards
+##         atom1 = Atom()
+##         atom2 = Atom()
+##         atomset.add(atom1)
+##         assert atomset.has_key(atom1.key)
+##         assert not atomset.has_key(atom2.key)
+##         print atom1.key
+##         assert atom1.key in atomset   # stuck here at the moment
+##         assert atom2.key not in atomset
+
     def test_atomset_keysSorted(self):
         """\
         atomset.keys() # sorted
         atomset.values() # sorted by key
         atomset.items() # sorted by key
         """
-        atomset = AtomSetBase()
-        atomset.key = genkey()
+        atomset = AtomSet()
         # create them forwards
-        atom1 = AtomBase()
-        atom1.key = genkey()
-        atom2 = AtomBase()
-        atom2.key = genkey()
-        atom3 = AtomBase()
-        atom3.key = genkey()
-        atom4 = AtomBase()
-        atom4.key = genkey()
-        atom5 = AtomBase()
-        atom5.key = genkey()
+        atom1 = Atom()
+        atom2 = Atom()
+        atom3 = Atom()
+        atom4 = Atom()
+        atom5 = Atom()
         # add them backwards
         atomset.add(atom5)
         atomset.add(atom4)
@@ -266,14 +278,10 @@ class AtomSetBaseTests(TestCase):
         """\
         del atomset[atom.key]
         """
-        atom1 = AtomBase()
-        atom1.key = genkey()
-        atom2 = AtomBase()
-        atom2.key = genkey()
-        atom3 = AtomBase()
-        atom3.key = genkey()
-        atomset = AtomSetBase()
-        atomset.key = genkey()
+        atom1 = Atom()
+        atom2 = Atom()
+        atom3 = Atom()
+        atomset = AtomSet()
         atomset.add(atom1)
         atomset.add(atom2)
         atomset.add(atom3)
@@ -295,15 +303,13 @@ class AtomSetBaseTests(TestCase):
         """
         alst = [ ]
         for i in range(5):
-            a = AtomBase()
-            a.key = genkey()
+            a = Atom()
             alst.append(a)
-        atomset = AtomSetBase()
-        atomset.key = genkey()
+        atomset = AtomSet()
         for a in alst:
             atomset.add(a)
         assert atomset.keys() == [ 1, 2, 3, 4, 5 ]
-        atomset2 = AtomSetBase()
+        atomset2 = AtomSet()
         atomset2.update(atomset)
         assert atomset2.keys() == [ 1, 2, 3, 4, 5 ]
 
@@ -313,19 +319,15 @@ class AtomSetBaseTests(TestCase):
         """
         adct = { }
         for i in range(5):
-            a = AtomBase()
-            a.key = genkey()
+            a = Atom()
             adct[a.key] = a
-        atomset = AtomSetBase()
-        atomset.key = genkey()
+        atomset = AtomSet()
         atomset.update(adct)
         assert atomset.keys() == [ 1, 2, 3, 4, 5 ]
 
     def test_atomset_removeFromEmpty(self):
-        atomset = AtomSetBase()
-        atomset.key = genkey()
-        a = AtomBase()
-        a.key = genkey()
+        atomset = AtomSet()
+        a = Atom()
         try:
             atomset.remove(a)
             self.fail("shouldn't be able to remove from an empty atomset")
@@ -334,7 +336,9 @@ class AtomSetBaseTests(TestCase):
 
     def test_atomset_filter(self):
         w = water()
-        atomset = AtomSetBase(filter(selectH, w.atomset.values()))
+        atomset = AtomSet()
+        for atm in filter(selectH, w.atomset.values()):
+            atomset.add(atm)
         atominfo = atomset.atomInfo()
         assert type(atominfo) == Numeric.arraytype
         assert atominfo.tolist() == [
@@ -382,9 +386,10 @@ class DiffTests(TestCase):
         assert news == [7, 7]
 
         for atom in w.atomset.values():
-            atom.z = atom.z + 1
+            p = atom._posn
+            atom._posn = Numeric.array((p[0], p[1], p[2] + 1))
         diffobj = db.snapshot()
-        keys, olds, news = unpack(diffobj.z)
+        keys, olds, news = unpack(diffobj._posn)
         assert keys == [3, 4, 5]
         assert olds == [0., 0., 0.]
         assert news == [1., 1., 1.]
@@ -394,8 +399,7 @@ class DiffTests(TestCase):
         w = water()
         db = DiffFactoryBase(w.atomset.values())
 
-        as = AtomSetBase()
-        as.key = genkey()
+        as = AtomSet()
         for x in w.atomset.values():
             as.add(x)
         diffobj = db.snapshot()
@@ -410,40 +414,41 @@ class DiffTests(TestCase):
         db = DiffFactoryBase(w.atomset.values())
 
         # Create a new atom and add it to the atomset
-        a = AtomBase()
-        a.key = genkey()
+        a = Atom()
         db.addObject(a)
         # When we add the new atom, we update the existing snapshot
         # with the new atom's data
 
         # Position it, and add it to the old structure - these changes
         # will appear in the next diff
-        a.x, a.y, a.z = 3.1416, 2.71828, 1.4707
+        a._posn = Numeric.array((3.1416, 2.71828, 1.4707))
         a._eltnum = 7   # nitrogen
         a._atomtype = 1
         w.atomset.add(a)
 
         # What x coords changed? The new atom, when we positioned it
         diffobj = db.snapshot()
-        keys, olds, news = unpack(diffobj.x)
+        keys, olds, news = unpack(diffobj._posn)
         assert keys == [8]
-        assert olds == [0.0]
-        assert news == [3.1416]
+        assert olds[0][0] == 0.0
+        assert news[0][0] == 3.1416
 
         # Move the whole structure, the diff includes all the x changes
         for atm in w.atomset.values():
-            atm.x += 2.0
+            p = atm._posn
+            atm._posn = Numeric.array((p[0] + 2, p[1], p[2]))
         diffobj = db.snapshot()
-        keys, olds, news = unpack(diffobj.x)
+        keys, olds, news = unpack(diffobj._posn)
         assert keys == [3, 4, 5, 8]
-        assert olds == [-0.983, 0.017, 0.276, 3.1416]
-        assert news == [1.017, 2.017, 2.276, 5.1416]
+        assert map(lambda x: x[0], olds) == [-0.983, 0.017, 0.276, 3.1416]
+        assert map(lambda x: x[0], news) == [1.017, 2.017, 2.276, 5.1416]
 
-class Tests(AtomBaseTests, BondBaseTests, AtomSetBaseTests, DiffTests):
+class Tests(AtomTests, BondTests, AtomSetTests, DiffTests):
     pass
 
 def test():
     suite = unittest.makeSuite(Tests, 'test')
+    #suite = unittest.makeSuite(Tests, 'test_atomset_keysSorted')
     #suite = unittest.makeSuite(Tests, 'test_atomset_gracefulRemoves')
     runner = unittest.TextTestRunner()
     runner.run(suite)

@@ -8,11 +8,11 @@
 
 #ifdef DEBUG
 #define XX(z)   z
-#define MARK()  fprintf(stderr, "%s:%d\n", __FUNCTION__, __LINE__)
-#define HEX(x)  fprintf(stderr, "%s:%d %s=%p\n", __FUNCTION__, __LINE__, #x, x)
-#define INT(x)  fprintf(stderr, "%s:%d %s=%u\n", __FUNCTION__, __LINE__, #x, x)
-#define DBL(x)  fprintf(stderr, "%s:%d %s=%le\n", __FUNCTION__, __LINE__, #x, x)
-#define STR(x)  fprintf(stderr, "%s:%d %s\n", __FUNCTION__, __LINE__, x)
+#define MARK()  printf("%s:%d\n", __FUNCTION__, __LINE__)
+#define HEX(x)  printf("%s:%d %s=%p\n", __FUNCTION__, __LINE__, #x, x)
+#define INT(x)  printf("%s:%d %s=%u\n", __FUNCTION__, __LINE__, #x, x)
+#define DBL(x)  printf("%s:%d %s=%le\n", __FUNCTION__, __LINE__, #x, x)
+#define STR(x)  printf("%s:%d %s\n", __FUNCTION__, __LINE__, x)
 #else
 #define XX(z)
 #define MARK()
@@ -21,15 +21,6 @@
 #define DBL(x)
 #define STR(x)
 #endif
-
-/*
- * Linked lists are used for bonds, and also to track which
- * sets this atom is a member of.
- */
-struct link {
-    struct link *next;  // 4 bytes
-    struct key_thing *other;  // 4 bytes
-};
 
 /*
  * There is a kind of polymorphism available with structs, as long as the
@@ -42,132 +33,178 @@ struct key_thing {
     PyObject *self;
 };
 
-struct atomstruct {
-    int _eltnum, _atomtype;
+/*
+ * Linked lists are used for bonds, and also to track which
+ * sets this atom is a member of.
+ */
+struct pointerlist {
+    int size;
+    struct key_thing **lst;
+};
+
+struct xyz {
     double x, y, z;
-    struct link *sets;
+};
+
+struct atomstruct {
+    int key;
+    PyObject *self;
+    int _eltnum, _atomtype;
+    struct xyz _posn;
+    struct pointerlist *sets;
+
+    /* This stuff comes from sim/src/part.h. There are redundancies. The
+     * information in _eltnum and _atomtype is probably equivalent to the
+     * information in type and hybridization, but EricM has one record-keeping
+     * scheme and Bruce has another.
+     */
+    /* struct atomType * */ void *type;
+    /* enum hybridization */ int hybridization;
+  
+    struct atom **vdwBucket;
+    struct atom *vdwPrev;
+    struct atom *vdwNext;
+    double inverseMass;
+    
+    // non-zero if this atom is in any ground jigs
+    int isGrounded;
+    
+    int index;
+    int atomID;
+    int num_bonds;
+    /* struct bond ** */ void *bonds;
 };
 
 struct bondstruct {
+    int key;
+    PyObject *self;
     unsigned int atomkey1, atomkey2;
     int v6;
-    struct link *sets;
+    struct pointerlist *sets;
 };
 
-struct atomsetstruct {
-    struct link *atoms;
+struct setstruct {
+    int key;
+    PyObject *self;
+    struct pointerlist *members;
 };
 
-struct bondsetstruct {
-    struct link *bonds;
-};
-
-static void print_linked_list(struct link *L)
+static void print_pointerlist(struct pointerlist *L)
 {
-    int i, indent;
-    indent = 1;
-    fprintf(stderr, "LINKED LIST <<\n");
-    while (L != NULL) {
-	for (i = 0; i < indent; i++)
-	    fprintf(stderr, "    ");
-#if 0
-	PyObject_Print((PyObject*) L->other->self, stderr, 0);
-	fprintf(stderr, "\n");
-#else
-	fprintf(stderr, "L = %p, L->other = %p, L->other->key = %d, L->next = %p\n",
-		L, L->other, L->other->key, L->next);
-#endif
-	L = L->next;
-	indent++;
-    }
-    fprintf(stderr, ">> LINKED LIST\n");
+    int i;
+    printf("POINTERLIST <<\n");
+    for (i = 0; i < L->size; i++)
+	if (L->lst[i] == NULL) {
+	    printf("Entry %d, entry is NULL\n", i);
+	} else {
+	    printf("Entry %d, entry = %p, key = %d\n",
+		   i, L->lst[i], L->lst[i]->key);
+	}
+    printf(">> POINTERLIST\n");
 }
 
-static struct link *has_link(struct link *n, unsigned int key)
+static struct pointerlist *new_pointerlist(void)
 {
-    while (1) {
-	if (n == NULL) return NULL;
-	if (n->other->key == key) return n;
-	n = n->next;
-    }
+    struct pointerlist *p = (struct pointerlist *) malloc(sizeof(struct pointerlist));
+    p->size = 0;
+    p->lst = NULL;
+    return p;
 }
 
-static PyObject *add_to_linked_list(struct link **head, struct key_thing *other)
+static struct key_thing *has_key(struct pointerlist *n, unsigned int key)
 {
-    struct link *n;
-    XX(fprintf(stderr, "\n"));
+    int i;
+    for (i = 0; i < n->size; i++) {
+	if (n->lst[i]->key == key)
+	    return n->lst[i];
+    }
+    return NULL;
+}
+
+PyObject * add_to_pointerlist(struct pointerlist *n, struct key_thing *other)
+{
     HEX(other);
     INT(other->key);
-    XX(print_linked_list(*head));
-    if (has_link(*head, other->key) != NULL) {
+    HEX(other->self);
+    XX(print_pointerlist(n));
+    if (other == NULL) {
 	PyErr_SetString(PyExc_RuntimeError,
-			"add_to_linked_list: already have this entry");
+			"add_to_pointerlist: second arg is NULL");
 	return NULL;
     }
-    n = (struct link *) malloc(sizeof(struct link));
-    n->next = *head;
-    HEX(n->next);
-    *head = n;
-    Py_INCREF(other->self);
-    n->other = other;
+    if (other->key == 0) {
+
+	printf("BADNESS: ");
+	PyObject_Print(other->self, stdout, 0);
+	printf("\n");
+
+	PyErr_SetString(PyExc_RuntimeError,
+			"add_to_pointerlist: key is zero");
+	return NULL;
+    }
+    if (has_key(n, other->key) == NULL) {
+	n->size++;
+	n->lst = (struct key_thing **) realloc(n->lst, n->size * sizeof(struct key_thing *));
+	n->lst[n->size-1] = other;
+	Py_INCREF(other->self);
+    }
+    XX(print_pointerlist(n));
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyObject *remove_from_linked_list(struct link **head, struct key_thing *other)
+static PyObject *remove_from_pointerlist(struct pointerlist *head, struct key_thing *other)
 {
-    struct link *prev, *here;
-    XX(fprintf(stderr, "\n"));
+    int i, j;
+    struct key_thing **tmp, **tmp2;
+    XX(printf("\n"));
     HEX(other);
     INT(other->key);
-    XX(print_linked_list(*head));
-    if (*head == NULL) {
+    XX(print_pointerlist(head));
+    if (head == NULL) {
 	PyErr_SetString(PyExc_RuntimeError,
-			"remove_from_linked_list: empty list");
+			"remove_from_pointerlist: empty list");
 	return NULL;
     }
-    if (has_link(*head, other->key) == NULL) {
+    if (has_key(head, other->key) == NULL) {
 	PyErr_SetString(PyExc_RuntimeError,
-			"remove_from_linked_list: no such entry");
+			"remove_from_pointerlist: no such entry");
 	return NULL;
     }
-    here = *head;
-    if (here->other->key == other->key) {
-#if 0
+    tmp = (struct key_thing **) malloc((head->size - 1) * sizeof(void*));
+    i = j = 0;
+    while (i < head->size) {
+	if (other->key != head->lst[i]->key) {
+	    tmp[j++] = head->lst[i++];
+	} else {
+	    i++;
+	}
+    }
+    if (j != i - 1) {
 	PyErr_SetString(PyExc_RuntimeError,
-			"remove_from_linked_list: Segfault happens here");
+			"remove size mismatch");
 	return NULL;
-#endif
-	//Py_DECREF(here->other->self);
-	*head = here->next;
-	free(here);
-	goto fini;
     }
-    while (here->other->key != other->key) {
-	prev = here;
-	here = here->next;
-    }
-    prev->next = here->next;
-    HEX(prev->next);
-    //Py_DECREF(here->other->self);
-    free(here);
- fini:
+    tmp2 = head->lst;
+    head->lst = tmp;
+    head->size--;
+    free(tmp2);
     MARK();
-    XX(print_linked_list(*head));
+    XX(print_pointerlist(head));
     Py_INCREF(Py_None);
     return Py_None;
 }
 
-static PyObject *linked_list_lookup(struct link *root, unsigned int key)
+static PyObject *pointerlist_lookup(struct pointerlist *root, unsigned int key)
 {
-    root = has_link(root, key);
-    if (root == NULL) {
+    struct key_thing *r = has_key(root, key);
+    if (r == NULL) {
 	PyErr_SetString(PyExc_KeyError,
-			"linked_list_lookup: no such key");
+			"pointerlist_lookup: no such key");
 	return NULL;
     }
-    Py_INCREF(root->other->self);
-    return root->other->self;
+    Py_INCREF(r->self);
+    return r->self;
 }
 
 /* -------------------------------------------------------------------- */
@@ -224,49 +261,33 @@ static void idiotsort(struct key_thing **x, unsigned int first, unsigned int las
 }
 #endif
 
-static PyObject *extract_list(struct link *root, int values)
+static PyObject *extract_list(struct pointerlist *root, int values)
 {
-    struct link *n;
     PyObject *retval;
-    unsigned int i, size=0;
-    struct key_thing **data;
+    int i;
     unsigned int *kdata;
     import_array();
     MARK();
-    XX(print_linked_list(root));
-    for (size = 0, n = root; n != NULL; n = n->next) {
-	size++;
-    }
-    data = (struct key_thing **)
-	malloc(size * sizeof(struct key_thing *));
-    if (data == NULL) {
-	PyErr_SetString(PyExc_MemoryError,
-			"extract_list");
-	return NULL;
-    }
-    for (i = 0, n = root; i < size; i++, n = n->next) {
-	data[i] = n->other;
-    }
-    if (size > 0) {
-	quicksort(data, 0, size-1);
+    XX(print_pointerlist(root));
+    if (root->size > 0) {
+	quicksort(root->lst, 0, root->size-1);
     }
     if (values) {
 	retval = PyList_New(0);
-	for (i = 0; i < size; i++) {
-	    PyList_Append(retval, data[i]->self);
-	    //PyObject_Print(n->other->self, stderr, 0);
-	    //fprintf(stderr, "\n");
+	for (i = 0; i < root->size; i++) {
+	    PyList_Append(retval, root->lst[i]->self);
+	    //PyObject_Print(root->lst[i]->self, stdout, 0);
+	    //printf("\n");
 	}
 	return retval;
     }
-    retval = PyArray_FromDims(1, (int*)&size, PyArray_INT);
+    retval = PyArray_FromDims(1, (int*)&(root->size), PyArray_INT);
     kdata = (unsigned int *) ((PyArrayObject*) retval)->data;
-    for (i = 0; i < size; i++) {
-	kdata[i] = data[i]->key;
+    for (i = 0; i < root->size; i++) {
+	kdata[i] = root->lst[i]->key;
     }
     return PyArray_Return((PyArrayObject*) retval);
 }
-
 
 
 /*
