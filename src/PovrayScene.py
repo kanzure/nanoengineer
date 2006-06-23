@@ -31,6 +31,7 @@ class PovrayScene(SimpleCopyMixin, Node):
     """
 
     sym = "POV-Ray Scene"
+    extension = ".pov"
     povrayscene_file = '' #&&& This is the absolute path to the povray scene file. This needs to be the relative path.
 
     width = height = output_type = None #bruce 060620, might not be needed
@@ -50,7 +51,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         if not name: 
             # Name is only generated here when called by "View > Raytrace Scene": ops_view.viewRaytraceScene().
             # [Note: this code might be superceded by code in Node.__init__ once nodename suffix numbers are revised.]
-            name = genPVSNum("%s-" % self.sym)
+            name = genPVSNum("%s-" % self.sym) + self.extension
 ##        self.assy = assy -- this is done by Node.__init__, no need to do it here
         Node.__init__(self, assy, name)
         if params:
@@ -72,7 +73,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         return (self.width, self.height, self.output_type)
 
     def edit(self):
-        "Opens POV-Ray Scene dialog with current parameters."
+        "Opens POV-Ray Scene properties dialog with current parameters."
         self.assy.w.povrayscenecntl.setup(self)
         
     def writemmp(self, mapping):
