@@ -2,7 +2,7 @@
 # Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 
 """
-atom.py is the startup script for nanoENGINEER-1.
+atom.py is the startup script for NanoEngineer-1.
 
 $Id$
 
@@ -79,8 +79,8 @@ if sys.platform == 'darwin':
                # (if we don't want to let the user even try to run the app -- but we do).
     else:
     	# Note: this code needs to work for either developers running it from cad/src/atom.py,
-    	# or (its main purpose) for end-users running it from either Contents/Resources/nanoENGINEER-1.py
-    	# or Contents/Resources/Python/nanoENGINEER-1.py, since release building can end up putting it
+    	# or (its main purpose) for end-users running it from either Contents/Resources/NanoEngineer-1.py
+    	# or Contents/Resources/Python/NanoEngineer-1.py, since release building can end up putting it
     	# in either of those two locations for reasons we don't yet understand. In the end-user case,
     	# it's execfile'd from __boot__.py. Its purpose is to test whether all required import statements
     	# will work, so if not, we can put up a useful dialog rather than just failing to start for no
@@ -104,8 +104,8 @@ if sys.platform == 'darwin':
     	# (or Contents/Resources/Python), and site-packages.zip. We only want the Contents/Resources version.
     	# Some variables that might help us tell where we are:
     	if debug_1724:
-    	    print __file__ # .../cad/src/atom.py or .../nanoENGINEER-1.app/Contents/Resources/__boot__.py 
-    	    print sys.argv[0] # .../cad/src/atom.py or .../nanoENGINEER-1.app/Contents/Resources/__boot__.py
+    	    print __file__ # .../cad/src/atom.py or .../NanoEngineer-1.app/Contents/Resources/__boot__.py 
+    	    print sys.argv[0] # .../cad/src/atom.py or .../NanoEngineer-1.app/Contents/Resources/__boot__.py
     	    print sys.executable
  		# For a developer, this depends on how your start the app. A possible value which probably
  		# means you're subject to bug 1724 is (note this is in /Library, not /System/Library):
@@ -115,7 +115,7 @@ if sys.platform == 'darwin':
     		#   /System/Library/Frameworks/Python.framework/Versions/2.3/bin/python
     	    print os.environ.get('RESOURCEPATH')
     	 	# for a developer, this probably prints None
-    	 	# for an end-user, it should print .../nanoENGINEER-1.app/Contents/Resources
+    	 	# for an end-user, it should print .../NanoEngineer-1.app/Contents/Resources
     	# Since we want to run all_mac_imports.py in any case, let's just look for it in the locations
     	# it might be in:
     	possible_dirs = []
@@ -177,7 +177,7 @@ if sys.platform == 'darwin':
                         # (We do this by raising an exception, and a py2app startup file turns its text into a dialog.)
                         assert 0, \
                                "Internal error linking to self-contained qt dylib; "\
-                               "this might be caused by a bug in the nanoENGINEER-1 installer, "\
+                               "this might be caused by a bug in the NanoEngineer-1 installer, "\
                                "or by this version of nE-1 not working properly on Intel Macs.\n"\
                                "\n"\
                                "Please contact support@nanorex.com for help and more information."
@@ -195,9 +195,9 @@ if sys.platform == 'darwin':
 ##                            # from the fallback assertion in our except clause),
 ##                            # since it fails by exiting rather than by raising an exception we can catch.
 ##                            assert 0 # explained above
-##                            qt.QMessageBox.critical( None, "nanoENGINEER-1",
+##                            qt.QMessageBox.critical( None, "NanoEngineer-1",
 ##                                    "Internal error in some imports; "\
-##                                    "nanoENGINEER-1 may be unable to run on this machine as it's currently configured. "\
+##                                    "NanoEngineer-1 may be unable to run on this machine as it's currently configured. "\
 ##                                    "It will try to start anyway, but will probably fail.\n\n"\
 ##                                    "Please contact support@nanorex.com for help." ###test
 ##                                    );
@@ -206,7 +206,7 @@ if sys.platform == 'darwin':
                         # The only known cause of this is bug 1724; there may also be unknown causes.
                             assert 0, \
                                 "Internal error during startup; "\
-                                "nanoENGINEER-1 can't run on this machine as it's currently configured.\n"\
+                                "NanoEngineer-1 can't run on this machine as it's currently configured.\n"\
                                 "\n"\
                                 "(The known causes of this problem have a simple solution, "\
                                 "but one which the nE-1 installer can't perform automatically.)\n"\

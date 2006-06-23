@@ -31,7 +31,7 @@ class AssistantWindow(QWidget):
         if not self.assistant.isOpen(): self.assistant.openAssistant()
             
     def showAssistantErrors(self, errors):
-        print "Error opening nanoENGINEER-1 Assistant :\n", errors
+        print "Error opening NanoEngineer-1 Assistant :\n", errors
         
 import os
 

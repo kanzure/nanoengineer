@@ -4,7 +4,7 @@ Sponsors.py
 
 $Id$
 
-We want to recoup some of the costs of developing nanoENGINEER-1 in a
+We want to recoup some of the costs of developing NanoEngineer-1 in a
 way consistent with its GPL licensing. One way to do that is to have
 sponsors, and to offer the sponsors advertising space in a way that
 doesn't bother the user. Some UI dialogs will have buttons with
@@ -336,7 +336,7 @@ ZB4c8k4fONAAAAAASUVORK5CYII='''
 # link in the text here. We can put a dead one that he can cut and
 # paste into his browser.
 _nanorexText = """\
-Nanorex created nanoENGINEER-1, the program you're using right now.
+Nanorex created NanoEngineer-1, the program you're using right now.
 Please see http://www.nanoengineer-1.com for more information."""
 
 _defsp_png = base64.decodestring(_nanorexLogo)

@@ -4,7 +4,7 @@ README
 VERSION/INFO
 =============
 
-This is nanoENGINEER-1 v0.7 (Alpha 7) as of April 24, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for nanoENGINEER-1 to support@nanorex.com.
+This is NanoEngineer-1 v0.7 (Alpha 7) as of April 24, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for NanoEngineer-1 to support@nanorex.com.
 
 You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Readme_A7
 
@@ -40,28 +40,28 @@ Recommended for all platforms:
     Default desktop font size: 12 ('normal' on Windows XP)
  
 ===============================
-INSTALLATION of nanoENGINEER-1
+INSTALLATION of NanoEngineer-1
 ===============================
 
 INSTALLATION on Windows and MAC OS
 
-Simply run the package installer for your system type to install this version of nanoENGINEER-1. 
+Simply run the package installer for your system type to install this version of NanoEngineer-1. 
 
-Note to the Windows XP users who already have a previous version of nanoENGINEER-1 installed: If you have a previous version of nanoENGINEER-1 currently installed (e.g. Alpha 6) and attempt to install Alpha 7, the installer will state: "Set up will create the program shortcuts in the following start menu folder. To continue, click Next. If you would like to select a different folder, click browse" 
+Note to the Windows XP users who already have a previous version of NanoEngineer-1 installed: If you have a previous version of NanoEngineer-1 currently installed (e.g. Alpha 6) and attempt to install Alpha 7, the installer will state: "Set up will create the program shortcuts in the following start menu folder. To continue, click Next. If you would like to select a different folder, click browse" 
 
-The default name it gives is (for example):"nanoENGINEER-1 v0.0.6 (Alpha6)".This is a bug in the Windows installer. For now, manually type in "nanoENGINEER-1 v0.7 (Alpha7)"
+The default name it gives is (for example):"NanoEngineer-1 v0.0.6 (Alpha6)".This is a bug in the Windows installer. For now, manually type in "NanoEngineer-1 v0.7 (Alpha7)"
 
 INSTALLATION on Mandrake Linux 10.1
 
-The RPM can be installed through the Mandrake Linux Control Center. It will be installed into /usr/local/nanoENGINEER-1-0.7/ on your local machine. There is a package dependency for GLUT, so it will ask you for the appropriate CD.
-Note that the RPM does not add a menu item to the Start menu, nor does it add a desktop icon for ne-1.  This is easy to do yourself by creating a desktop icon that points directly to the ne-1 executable, located at “/usr/local/nanoENGINEER-1-0.7/program/nanoENGINEER-1”
+The RPM can be installed through the Mandrake Linux Control Center. It will be installed into /usr/local/NanoEngineer-1-0.7/ on your local machine. There is a package dependency for GLUT, so it will ask you for the appropriate CD.
+Note that the RPM does not add a menu item to the Start menu, nor does it add a desktop icon for ne-1.  This is easy to do yourself by creating a desktop icon that points directly to the ne-1 executable, located at “/usr/local/NanoEngineer-1-0.7/program/NanoEngineer-1”
 
-If you create a symlink to the executable in /usr/local/bin, as an experienced Linux user might, it will not work. This is because nanoENGINEER-1 looks for its files relative to its executable.
+If you create a symlink to the executable in /usr/local/bin, as an experienced Linux user might, it will not work. This is because NanoEngineer-1 looks for its files relative to its executable.
 
 ======================
 UNSUPPORTED PLATFORMS
 ======================
-nanoENGINEER-1 Alpha7 is tested and supported only on : 
+NanoEngineer-1 Alpha7 is tested and supported only on : 
  - Windows XP, 
  - MAC OS X 10.3.X, 10.4 (PowerPC G4)
  - Mandrake Linux 10.0, 10.1
@@ -74,7 +74,7 @@ OTHER INSTALLATIONS (OPTIONAL)
       
 [A] GNUPlot 4.0
 ----------------
-This software is needed if you want to use nanoENGINEER-1's Plot Tool.
+This software is needed if you want to use NanoEngineer-1's Plot Tool.
 
 - Windows and MacOSX: GNUplot 4.0 is included with the package installer. No extra software is required.
 
@@ -84,16 +84,16 @@ Note for the Linux users: It is OK if you choose not to install GNUplot. Without
 
 [B] GAMESS or PCGAMESS
 -----------------------
-This is needed if you want to use the GAMESS plug-in option available in nanoENGINEER-1.
+This is needed if you want to use the GAMESS plug-in option available in NanoEngineer-1.
 
 - For Windows XP, a copy of 'PCGAMESS' must be installed. Visit: http://quantum-2.chem.msu.ru/gran/gamess/index.old.html for more information on obtaining PCGAMESS for Windows platform
 - For Linux and MAC OS, a copy of 'GAMESS' should be installed. Visit: http://www.msg.ameslab.gov/GAMESS/GAMESS.html for more information on obtaining Linux or MAC OS specific 'GAMESS'
 
 [C] Nano-Hive Simulator
 ------------------------
-This is needed if you want to use the Nano-Hive plugin option available in nanoENGINEER-1. For more information on downloading and installing the Nano-Hive Simulator, visit: http://www.nano-hive.org/download.shtml
+This is needed if you want to use the Nano-Hive plugin option available in NanoEngineer-1. For more information on downloading and installing the Nano-Hive Simulator, visit: http://www.nano-hive.org/download.shtml
 	
-Note: ESP Image jig is not fully supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided    that a correct version of Nano-Hive (Nano-Hive-1.2.0-Beta-1) is installed. In general, ESP image has many known bugs. These issues will be fixed in an upcoming release of nanoENGINEER-1. 
+Note: ESP Image jig is not fully supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided    that a correct version of Nano-Hive (Nano-Hive-1.2.0-Beta-1) is installed. In general, ESP image has many known bugs. These issues will be fixed in an upcoming release of NanoEngineer-1. 
 
 =============
 NEW FEATURES
@@ -118,4 +118,4 @@ Nanorex, Inc. disclaims all warranties with regard to this software, including a
 
 In no event shall Nanorex be liable for any special, indirect or consequential damages or any damages whatsoever resulting from loss of use, data or profits, whether in an action of contract, negligence or other tortious action, arising out of or in connection with the use or performance of this software.
 
-Please see the file LICENSE (distributed in the same directory as this file) for the license covering nanoENGINEER-1, since this depends on the platform and how the entire program was distributed. If no file named LICENSE was distributed in this file's directory, then all rights for use or distribution of nanoENGINEER-1 are reserved by Nanorex, Inc.
+Please see the file LICENSE (distributed in the same directory as this file) for the license covering NanoEngineer-1, since this depends on the platform and how the entire program was distributed. If no file named LICENSE was distributed in this file's directory, then all rights for use or distribution of NanoEngineer-1 are reserved by Nanorex, Inc.

@@ -1977,8 +1977,8 @@ class AboutDialog(QDialog):
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("About nanoENGINEER-1"))
-        self.textLabel1.setText(self.__tr("nanoENGINEER-1 Version 1.0 (Alpha)"))
+        self.setCaption(self.__tr("About NanoEngineer-1"))
+        self.textLabel1.setText(self.__tr("NanoEngineer-1 Version 1.0 (Alpha)"))
         self.textLabel2.setText(self.__tr("Copyright (C) 2004-2006, Nanorex, Inc."))
         self.textLabel2_2.setText(self.__tr("www.nanorex.com"))
         self.okPushButton.setText(self.__tr("OK"))

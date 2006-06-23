@@ -13,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>nanoENGINEER-1 Help</string>
+        <string>NanoEngineer-1 Help</string>
     </property>
     <property name="icon">
         <pixmap>image0</pixmap>

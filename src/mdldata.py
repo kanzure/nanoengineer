@@ -71,11 +71,11 @@ Version=2
 """
 
 mdlfooter = """[FileInfo]
-CreatedBy=nanoENGINEER-1
+CreatedBy=NanoEngineer-1
 Organization=Nanorex
 Url=www.nanorex.com
 Email=info@nanorex.com
-LastModifiedBy=nanoENGINEER-1
+LastModifiedBy=NanoEngineer-1
 [EndFileInfo]
 [ENDMODEL]
 [ENDOBJECTS]
@@ -84,11 +84,11 @@ LastModifiedBy=nanoENGINEER-1
 [CHOREOGRAPHIES]
 [ENDCHOREOGRAPHIES]
 [FileInfo]
-CreatedBy=nanoENGINEER-1
+CreatedBy=NanoEngineer-1
 Organization=Nanorex
 Url=www.nanorex.com
 Email=info@nanorex.com
-LastModifiedBy=nanoENGINEER-1
+LastModifiedBy=NanoEngineer-1
 [EndFileInfo]
 [ENDMODELFILE]
 """

@@ -1,4 +1,4 @@
-"""Version information for nanoENGINEER-1,
+"""Version information for NanoEngineer-1,
 including author list, program name, release info, etc.
 """
 
@@ -29,7 +29,7 @@ class Version:
         # "teensy": 0,   # you can have both, or just tiny, or neither
         "releaseType": "Alpha",
         "releaseDate": "April 24, 2006",
-        "product": "nanoENGINEER-1",
+        "product": "NanoEngineer-1",
         "copyright": __copyright__,
         "authors": __author__
         }

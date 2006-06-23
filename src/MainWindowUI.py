@@ -7160,7 +7160,7 @@ class MainWindow(QMainWindow):
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("nanoENGINEER-1"))
+        self.setCaption(self.__tr("NanoEngineer-1"))
         self.fileOpenAction.setText(self.__tr("Open"))
         self.fileOpenAction.setMenuText(self.__tr("&Open..."))
         self.fileOpenAction.setAccel(self.__tr("Ctrl+O"))
@@ -7196,8 +7196,8 @@ class MainWindow(QMainWindow):
         self.helpContentsAction.setText(self.__tr("Contents"))
         self.helpContentsAction.setMenuText(self.__tr("&Contents..."))
         self.helpContentsAction.setAccel(QString.null)
-        self.helpAboutAction.setText(self.__tr("About nanoENGINEER-1"))
-        self.helpAboutAction.setMenuText(self.__tr("&About nanoENGINEER-1"))
+        self.helpAboutAction.setText(self.__tr("About NanoEngineer-1"))
+        self.helpAboutAction.setMenuText(self.__tr("&About NanoEngineer-1"))
         self.helpAboutAction.setAccel(QString.null)
         self.setViewFitToWindowAction.setText(self.__tr("Fit to Window"))
         self.setViewFitToWindowAction.setMenuText(self.__tr("&Fit to Window"))

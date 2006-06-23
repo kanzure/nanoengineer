@@ -147,8 +147,8 @@
                         <bool>true</bool>
                     </property>
                     <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;nanoENGINEER-1 Sponsor&lt;/b&gt;
-&lt;p&gt;Click on the logo to learn more about this nanoENGINEER-1 sponsor.&lt;/p&gt;</string>
+                        <string>&lt;b&gt;NanoEngineer-1 Sponsor&lt;/b&gt;
+&lt;p&gt;Click on the logo to learn more about this NanoEngineer-1 sponsor.&lt;/p&gt;</string>
                     </property>
                 </widget>
                 <widget class="QLayoutWidget">

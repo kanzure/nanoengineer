@@ -153,7 +153,7 @@ class JobManagerDialog(QDialog):
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("nanoENGINEER-1 Job Manager"))
+        self.setCaption(self.__tr("NanoEngineer-1 Job Manager"))
         self.groupBox1.setTitle(self.__tr("Jobs"))
         self.job_table.horizontalHeader().setLabel(0,self.__tr("Name"))
         self.job_table.horizontalHeader().setLabel(1,self.__tr("Engine"))

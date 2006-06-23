@@ -1049,7 +1049,7 @@ def createWhatsThis(self):
                        "<p><img source=\" toolsDepositAtomAction\"><br> "\
                        "<b>Build Mode</b> allows you to build structures by depositing objects "\
                        "from the Molecular Modeling Kit, including atoms, clipboard objects and parts "\
-                       "from the nanoENGINEER-1 Library.</p>"\
+                       "from the NanoEngineer-1 Library.</p>"\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsDepositAtomAction",

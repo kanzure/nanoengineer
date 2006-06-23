@@ -331,7 +331,7 @@ def writegms_inpfile(filename, gamessJig):
     f = open(filename,'w') # Open GAMESS input file.
         
     # Write header
-    f.write ('!\n! INP file created by nanoENGINEER-1 on ')
+    f.write ('!\n! INP file created by NanoEngineer-1 on ')
     timestr = "%s\n!\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
     f.write(timestr)
     gmstr = "! " + get_gms_name() + " parameter summary: " + gamessJig.gms_parms_info() + "\n!\n"
@@ -372,7 +372,7 @@ def writegms_batfile(filename, gamessJob):
     rem = gamessJob.get_comment_character()
     
     # Write Header
-    f.write (rem + '\n' + rem + 'File created by nanoENGINEER-1 on ')
+    f.write (rem + '\n' + rem + 'File created by NanoEngineer-1 on ')
     timestr = "%s\n" % time.strftime("%Y-%m-%d at %H:%M:%S")
     f.write(timestr)
     f.write (rem + '\n')

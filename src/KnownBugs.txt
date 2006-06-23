@@ -1,7 +1,7 @@
 # Copyright (c) 2006 Nanorex, Inc. All rights reserved.
-nanoENGINEER-1 v0.7 (Alpha 7). Release Date: April 24, 2006
+NanoEngineer-1 v0.7 (Alpha 7). Release Date: April 24, 2006
 
-This file documents some bug fixes, unsupported features and some of the commonly encountered bugs in nanoENGINEER-1 Alpha7. 
+This file documents some bug fixes, unsupported features and some of the commonly encountered bugs in NanoEngineer-1 Alpha7. 
 
 Some of the Bug Fixes In Alpha 7
 
@@ -25,7 +25,7 @@ UNSUPPORTED FEATURES:
  This version of ne-1 treats all bond types as single bonds while reading from or writing to a PDB file. Also, it doesn't save the hybridization type into the PDB file. For example, (sp2) hybridized Carbon in a structure will be saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond Therefore, save your models ONLY in MMP file format to avoid major loss of work (569, 763)
 
 SIMULATOR / MINIMIZE
-# Simulator/Minimize: will support bonding between elements specified in the element selector of nanoENGINEER-1. 
+# Simulator/Minimize: will support bonding between elements specified in the element selector of NanoEngineer-1. 
 # Simulator/Minimize: Multiple bonding between certain elements is generally supported, but some parameters, notably for double bonds involving nitrogen, are estimated.  
 # Simulator/Minimize: The simulator doesn't take into account the effect of torsion. This will make systems with double or aromatic/graphitic bonds act less stiff than they really would.   
 # Simulator: Electrostatic interactions are not supported; in particular, the hydrogen and dative bonds are not handled. 
@@ -38,7 +38,7 @@ GAMESS Jig
 -- Also, certain GAMESS run may create large output files. So make sure that your system has enough disk space to handle such runs. ALL GAMESS jobs are save inside the 'Job Manager' directory. (User's home directory/ Nanorex/Job Manager) (742)
  
 ESP IMAGE / NANO-HIVE
-# ESP Image jig is not fully supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided that a correct version of NanoHive is installed. In general ESP image is partially supported and has many known bugs. These issues will be fixed in an upcoming release of nanoENGINEER-1.
+# ESP Image jig is not fully supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided that a correct version of NanoHive is installed. In general ESP image is partially supported and has many known bugs. These issues will be fixed in an upcoming release of NanoEngineer-1.
 
 # Bond Inference not supported but a limited valence error check supported. 
 
@@ -49,7 +49,7 @@ Note that there are some kinds of chemical errors this (the Valence Error Checke
 MISCELLANEOUS
  
 # Unicode characters are not supported for naming the items in the model tree. (474)
-# nanoENGINEER-1 Alpha7 is tested and supported only on Windows XP, MAC OS X 10.3.X, 10.4 and Mandrake Linux 10.0, 10.1. It is not supported on Intel based MACs (e.g. Macbook pro).  There are some known issues on other operating systems such as Fedora Core 4, Gentoo Linux (e.g. the program hangs or some display issues etc).  (1049, 1058, 1201, 1724)
+# NanoEngineer-1 Alpha7 is tested and supported only on Windows XP, MAC OS X 10.3.X, 10.4 and Mandrake Linux 10.0, 10.1. It is not supported on Intel based MACs (e.g. Macbook pro).  There are some known issues on other operating systems such as Fedora Core 4, Gentoo Linux (e.g. the program hangs or some display issues etc).  (1049, 1058, 1201, 1724)
  
  
 KNOWN BUGS (ALL PLATFORMS)
@@ -93,7 +93,7 @@ SELECTION
 
  
 BUILD MODE
-# Highlighting in Build mode is problematic in some cases. Examples: 1) When more than one nanoENGINEER-1 applications are running. 2) If vertical splitter of the Model Tree is dragged to adjust Model Tree's width 3) If Main nE-1 window is maximized etc. (1241, 1243, 1637)
+# Highlighting in Build mode is problematic in some cases. Examples: 1) When more than one NanoEngineer-1 applications are running. 2) If vertical splitter of the Model Tree is dragged to adjust Model Tree's width 3) If Main nE-1 window is maximized etc. (1241, 1243, 1637)
 
 # Zoom/Pan/Rotate Tools in Build mode: If you click on Zoom, Pan or Rotate tools while in Build, the MMKit and other Build features will become temporarily unavailable while you use these tools. (1518)
 # Build: In lines display , the atom center doesn't get highlighted (if the atom is not selected). Thus, you can not perform operations such as change hybridization , move the atom while in lines mode  Simple workaround is to change the display representation to Tubes or CPK or Ball&Stick.(1837)  
@@ -116,7 +116,7 @@ MOVE MODE
  
 EXTRUDE MODE
  
-#  The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of nanoENGINEER-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps:  
+#  The 'extrude a ring' feature has some bugs. These will be fixed for the Beta release of NanoEngineer-1. To use extrude's 'Ring Mode' effectively, make sure you follow these steps:  
 -- Get everything adjusted first in the 'rod mode'.  For example, select the proper bond offset sphere or arrange the copy units such that you can see their bondpoints highlighted in a way you would like to bond them. (In general, while in the ring mode, adjustments made from graphics area don't work)
 -- Then, you may switch to "Ring Mode" by selecting ring from the rod pull-down menu on the dashboard. While viewing the ring, you may increase the number of copies. 
 -- If you need to do any further adjustments, switch back to "Rod Mode", make changes and switch back to the "Ring Mode".  
@@ -174,9 +174,9 @@ POVRAY RENDERING
 
 MISCELLANEOUS
  
-# User can not save exclusive features of nanoENGINEER-1 into the PDB file format. Some examples of such 'MMP file only' features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  ne-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)  
-# Only open one main window. Opening more than one nanoENGINEER-1 application window will have unexpected results. (362)  
-# Any file currently opened by nanoENGINEER-1 can be manually deleted from the computer without any warning message. (215) 
+# User can not save exclusive features of NanoEngineer-1 into the PDB file format. Some examples of such 'MMP file only' features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  ne-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)  
+# Only open one main window. Opening more than one NanoEngineer-1 application window will have unexpected results. (362)  
+# Any file currently opened by NanoEngineer-1 can be manually deleted from the computer without any warning message. (215) 
 
  
 WINDOWS ONLY BUGS
@@ -198,7 +198,7 @@ MACINTOSH ONLY BUGS
 LINUX ONLY BUGS
 
 # System crashes while accessing wiki help via the URL provided in What's this text of that mode. Workaround is to use the Mode specific Wiki Help dialog that pops up when you hit F1 key (1447)
-# nanoENGINEER-1 sometimes crashes while operating on a bigger file and extensively using features such as clipboard, copy, extrude, select, undo etc. (1885)
+# NanoEngineer-1 sometimes crashes while operating on a bigger file and extensively using features such as clipboard, copy, extrude, select, undo etc. (1885)
 # Minimize progress messages in the status bar is truncated for lower resolution and larger font size (1794)  
 # Status bar text on bottom right corner can get obscured during minimize or simulation and thus affects the display of (for example) the minimize progress.  (1282)
 #Opening a plot file from the plot tool dialogs needs 'kwrite' editor which is available with only with KDE desktop (434)  

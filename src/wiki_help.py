@@ -99,7 +99,7 @@ def open_wiki_help_dialog( featurename, actually_open = True ):
         html = """Click one of the following links to launch your web browser
                   to a Nanorex wiki page containing help on the appropriate topic:<br>
                   * your current mode or selected jig: %s<br>
-                  * nanoENGINEER-1 Wiki main page: %s
+                  * NanoEngineer-1 Wiki main page: %s
                """ % (HTML_link(url, featurename), HTML_link(wiki_prefix() + "Main_Page", "main page"))
                     #e in real life it'll be various aspects of your current context
         def clicked_func(url):

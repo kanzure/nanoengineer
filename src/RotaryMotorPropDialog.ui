@@ -273,7 +273,7 @@
                                 <string>If checked, dampers are enabled in the simulator.</string>
                             </property>
                             <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Dampers&lt;/b&gt;&lt;p&gt;If checked, the dampers are enabled for this motor during a simulation. See the Rotary Motor web page on the nanoENGINEER-1 Wiki for more information.&lt;/p&gt;</string>
+                                <string>&lt;b&gt;Dampers&lt;/b&gt;&lt;p&gt;If checked, the dampers are enabled for this motor during a simulation. See the Rotary Motor web page on the NanoEngineer-1 Wiki for more information.&lt;/p&gt;</string>
                             </property>
                         </widget>
                         <widget class="QLabel">
@@ -314,7 +314,7 @@
                                 <string>If checked, dampers are enabled in the simulator.</string>
                             </property>
                             <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Dampers&lt;/b&gt;&lt;p&gt;If checked, the dampers are enabled for this motor during a simulation. See the Rotary Motor web page on the nanoENGINEER-1 Wiki for more information.&lt;/p&gt;</string>
+                                <string>&lt;b&gt;Dampers&lt;/b&gt;&lt;p&gt;If checked, the dampers are enabled for this motor during a simulation. See the Rotary Motor web page on the NanoEngineer-1 Wiki for more information.&lt;/p&gt;</string>
                             </property>
                         </widget>
                         <widget class="QCheckBox">

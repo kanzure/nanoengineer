@@ -351,7 +351,7 @@ def saveElementColors(fileName, elemTable):
         print "Exception occurred to open file %s to write: " % fileName
         return None
    
-    f.write("# nanoENGINEER-1.com Element Color File, Version 050311\n")
+    f.write("# NanoEngineer-1.com Element Color File, Version 050311\n")
     f.write("# File format: ElementNumber r(0-255) g(0-255) b(0-255) \n")
     
     for eleNum, elm in elemTable.items():

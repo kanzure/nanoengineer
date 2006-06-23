@@ -285,7 +285,7 @@ class DirView(QListView):
             # The only time you'll see bug 1613 is when your partlib path is very long.
             # The column width is set by the width of the partlib path.  
             # If you have a short path (i.e. /atom/cad/partlib), you wouldn't notice this bug.  
-            # A fresh Windows install has its partlib in C:\Program Files\nanoENGINEER-1 vx.x.x Alpha\partlib.  
+            # A fresh Windows install has its partlib in C:\Program Files\NanoEngineer-1 vx.x.x Alpha\partlib.  
             # This was causing the MMKit to be very wide on Windows by default on startup.
         
         #self.connect(self, SIGNAL("selectionChanged(QListViewItem *)"), self.partChanged)

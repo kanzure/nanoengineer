@@ -140,7 +140,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
         windowList += [self]
         if name == None:
-            self.setName("nanoENGINEER-1") # Mark 11-05-2004
+            self.setName("NanoEngineer-1") # Mark 11-05-2004
 
         # start with empty window 
         self.assy = assembly(self, "Untitled", own_window_UI = True) # own_window_UI is required for this assy to support Undo
@@ -1018,7 +1018,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 #        msgbox.show()
               
     def helpAbout(self):
-        """Displays information about this version of nanoENGINEER-1
+        """Displays information about this version of NanoEngineer-1
         """
         from version import Version
         v = Version()
@@ -1044,7 +1044,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
                        + "\n" \
                        + wiki
                       
-        QMessageBox.about ( self, "About nanoENGINEER-1", aboutstr)
+        QMessageBox.about ( self, "About NanoEngineer-1", aboutstr)
              
     def helpWhatsThis(self):
         from qt import QWhatsThis ##bruce 050408
@@ -1520,7 +1520,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
 
     def update_mainwindow_caption(self, Changed=False): #by mark; bruce 050810 revised this in several ways, fixed bug 785
         '''Update the caption at the top of the of the main window. 
-        Example:  "nanoENGINEER-1 - [partname.mmp]"
+        Example:  "NanoEngineer-1 - [partname.mmp]"
         Changed=True will add the prefix and suffix to the caption denoting the part has been changed.
         '''
         caption_prefix = env.prefs[captionPrefix_prefs_key]

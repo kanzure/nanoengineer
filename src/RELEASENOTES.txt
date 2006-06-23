@@ -1,11 +1,11 @@
 # Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 
-Release Notes for nanoENGINEER-1 v0.7 (Alpha 7)
+Release Notes for NanoEngineer-1 v0.7 (Alpha 7)
 
-What's new in nanoENGINEER-1 v0.7 (4/24/2006):
+What's new in NanoEngineer-1 v0.7 (4/24/2006):
 
 1. Undo/Redo:
-  - nanoENGINEER-1 now includes rich Undo/Redo functionality
+  - NanoEngineer-1 now includes rich Undo/Redo functionality
   - Automatic checkpointing can be enabled/disabled by selecting 
     'Edit > Automatic Checkpointing'
   - 'Edit > Clear Undo Stack' clears all Undo checkpoints to free system memory
@@ -23,7 +23,7 @@ What's new in nanoENGINEER-1 v0.7 (4/24/2006):
     types when performing atom selection operations
   - Transmute atoms
   - New Library tab in the MMKit allows 3D preview and insertion of parts from
-    the nanoENGINEER-1 library
+    the NanoEngineer-1 library
   - 'Water' selection filter can be enabled/disabled from the dashboard
     (disabled by default)
   - Build mode is the new default startup mode
@@ -135,7 +135,7 @@ What's new in nanoENGINEER-1 v0.7 (4/24/2006):
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-What was new in nanoENGINEER-1 v0.0.6 (8/17/2005):
+What was new in NanoEngineer-1 v0.0.6 (8/17/2005):
 
 1. Atomic hybridization and higher order bond types:
   - Support for the following atomic hybrid orbitals:
@@ -260,7 +260,7 @@ fix for Alpha 7.
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 
-What was new in nanoENGINEER-1 v0.0.5 (5/2/2005):
+What was new in NanoEngineer-1 v0.0.5 (5/2/2005):
 
 1. Minimize Selection: Will minimize the current selection only.
 2. Cookie Cutter:

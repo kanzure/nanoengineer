@@ -221,7 +221,7 @@ class SimSetupDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("nanoDynamics-1 Setup"))
-        QWhatsThis.add(self,self.__tr("<b>nanoDynamics-1 Setup</b><p>nanoENGINEER-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click <b>Run Simulation</b>.</p>"))
+        QWhatsThis.add(self,self.__tr("<b>nanoDynamics-1 Setup</b><p>NanoEngineer-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click <b>Run Simulation</b>.</p>"))
         self.cancel_btn.setText(self.__tr("Cancel"))
         self.run_sim_btn.setText(self.__tr("Run Simulation"))
         self.parms_grpbox.setTitle(QString.null)

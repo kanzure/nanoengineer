@@ -20,7 +20,7 @@
         </color>
     </property>
     <property name="caption">
-        <string>About nanoENGINEER-1</string>
+        <string>About NanoEngineer-1</string>
     </property>
     <property name="icon">
         <pixmap>image0</pixmap>
@@ -45,7 +45,7 @@
                 <cstring>textLabel1</cstring>
             </property>
             <property name="text">
-                <string>nanoENGINEER-1 Version 1.0 (Alpha)</string>
+                <string>NanoEngineer-1 Version 1.0 (Alpha)</string>
             </property>
             <property name="alignment">
                 <set>AlignCenter</set>

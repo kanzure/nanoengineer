@@ -1546,8 +1546,8 @@ class PovrayScenePropDialog(QDialog):
         self.heading_pixmap.setText(QString.null)
         self.heading_label.setText(self.__tr("POV-Ray Scene"))
         self.sponsor_btn.setText(QString.null)
-        QWhatsThis.add(self.sponsor_btn,self.__tr("<b>nanoENGINEER-1 Sponsor</b>\n"
-"<p>Click on the logo to learn more about this nanoENGINEER-1 sponsor.</p>"))
+        QWhatsThis.add(self.sponsor_btn,self.__tr("<b>NanoEngineer-1 Sponsor</b>\n"
+"<p>Click on the logo to learn more about this NanoEngineer-1 sponsor.</p>"))
         self.done_btn.setText(QString.null)
         QToolTip.add(self.done_btn,self.__tr("OK"))
         self.abort_btn.setText(QString.null)

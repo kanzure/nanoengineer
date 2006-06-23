@@ -277,7 +277,7 @@ class drag_and_drop_handler(drag_handler): #e this class could be made 1/2 or 1/
 ##  .name() = 'vContentsWindow'
 ##target or a parent: <MWsemantics.MWsemantics object at 0x4c45a0>
 ##  .className() = 'MWsemantics'
-##  .name() = 'nanoENGINEER-1'
+##  .name() = 'NanoEngineer-1'
 ##  has no parent!
 ##'''
 ##            except:

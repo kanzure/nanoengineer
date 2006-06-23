@@ -22,7 +22,7 @@
         <bool>true</bool>
     </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;nanoDynamics-1 Setup&lt;/b&gt;&lt;p&gt;nanoENGINEER-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click &lt;b&gt;Run Simulation&lt;/b&gt;.&lt;/p&gt;</string>
+        <string>&lt;b&gt;nanoDynamics-1 Setup&lt;/b&gt;&lt;p&gt;NanoEngineer-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click &lt;b&gt;Run Simulation&lt;/b&gt;.&lt;/p&gt;</string>
     </property>
     <grid>
         <property name="name">

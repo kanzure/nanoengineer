@@ -16,7 +16,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>nanoENGINEER-1</string>
+        <string>NanoEngineer-1</string>
     </property>
     <property name="icon">
         <pixmap>image0</pixmap>
@@ -1144,10 +1144,10 @@
             <cstring>helpAboutAction</cstring>
         </property>
         <property name="text">
-            <string>About nanoENGINEER-1</string>
+            <string>About NanoEngineer-1</string>
         </property>
         <property name="menuText">
-            <string>&amp;About nanoENGINEER-1</string>
+            <string>&amp;About NanoEngineer-1</string>
         </property>
         <property name="accel">
             <string></string>

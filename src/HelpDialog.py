@@ -131,7 +131,7 @@ class HelpDialog(QDialog):
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("nanoENGINEER-1 Help"))
+        self.setCaption(self.__tr("NanoEngineer-1 Help"))
         self.help_tab.changeTab(self.tab,self.__tr("Mouse Controls"))
         self.help_tab.changeTab(self.tab_2,self.__tr("Keyboard Shortcuts"))
         self.close_btn.setText(self.__tr("Close"))
