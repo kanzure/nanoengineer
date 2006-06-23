@@ -1,4 +1,5 @@
 #!/usr/bin/python
+# $Id$
 # This is used only for "make deps"
 
 import sys, re
