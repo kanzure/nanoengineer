@@ -394,6 +394,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	# Put up hourglass cursor to indicate we are busy. Restore the cursor below. Mark 060621.
 	QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
 	env.history.message(self.cmdname + "Computing surface. Please wait...") # Mark 060621.
+	env.history.h_update() # Update history widget with last message. # Mark 060623.
 	
         center = chunk.center
         points = chunk.atpos - center        
