@@ -358,28 +358,6 @@ def find_or_make_Nanorex_subdir(subdir, make = True): #bruce 060614 added make a
         return None
     return path_or_errortext
 
-def find_or_make_partfiles_subdir(assy): # Mark 060612.
-    """Find or make the "part files" subdirectory next to the current assy (MMP file).
-    Returns the full path of the "part files" directory whether it already exists or was made here.
-    """
-    
-    #&&& Need to worry about the situation when the user hasn't saved the MMP file (i.e. Untitled).
-    #&&& Talk to Bruce about this. Mark 060612.
-    path_wo_ext, ext = os.path.splitext(assy.filename)
-    partfiles_dir = path_wo_ext + " Files"
-    
-    if os.path.isdir(partfiles_dir):
-        return 0, partfiles_dir
-    elif os.path.exists(partfiles_dir):
-        return 1, "%s exists, but it is not a directory" % partfiles_dir
-    else:
-        try:
-            os.mkdir(partfiles_dir)
-        except:
-            return 1, "find_or_make_partfiles(): Cannot create directory %s" % partfiles_dir
-
-    return 0, partfiles_dir
-
 def find_or_make_any_directory(dirname, make = True, make_higher_dirs = True): #bruce 060614
     """Find or make the given directory, making containing directories as needed unless make_higher_dirs is false.
     (If make is false, don't make it, only find it.)
