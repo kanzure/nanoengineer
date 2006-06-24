@@ -2264,17 +2264,15 @@ def drawsurface_wireframe(color, pos, radius, tm, nm):
     return
 
 def renderSurface(surfaceTriangles, surfaceNormals):
+    (triangleIndex, surfacePoints) = surfaceTriangles
     glBegin(GL_TRIANGLES)
-    i = 0
-    for tri in surfaceTriangles:
-	nor = surfaceNormals[i]
-        glNormal3fv(nor[0])
-        glVertex3fv(tri[0])
-        glNormal3fv(nor[1])
-        glVertex3fv(tri[1])
-        glNormal3fv(nor[2])
-        glVertex3fv(tri[2])
-	i += 1
+    for tri in triangleIndex:
+        glNormal3fv(surfaceNormals[tri[0]])
+        glVertex3fv(surfacePoints[tri[0]])
+        glNormal3fv(surfaceNormals[tri[1]])
+        glVertex3fv(surfacePoints[tri[1]])
+        glNormal3fv(surfaceNormals[tri[2]])
+        glVertex3fv(surfacePoints[tri[2]])
     glEnd()
 
 
