@@ -72,7 +72,6 @@ try:
             self.key = atKey.next()
     print 'Use Pyrex atoms'
 except ImportError:
-    print 'Do not use Pyrex atoms'
     def AtomSet():
         return { }
     class AtomBase:
