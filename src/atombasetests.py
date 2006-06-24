@@ -143,6 +143,35 @@ class BondTests(TestCase):
             (5, bond4), (6, bond5)
             ]
 
+    def test_bondset_contains(self):
+        """\
+        (bond.key in bondset) should be equivalent to, but
+        much faster than, (bond.key in bondset.keys())
+        """
+        bondset = BondSet()
+        # create them forwards
+        bond1 = Bond()
+        bond2 = Bond()
+        bond3 = Bond()
+        bond4 = Bond()
+        bond5 = Bond()
+        # add some, not others
+        bondset.add(bond1)
+        bondset.add(bond2)
+        bondset.add(bond3)
+        # check if they're in keys() correctly
+        assert bond1.key in bondset.keys()
+        assert bond2.key in bondset.keys()
+        assert bond3.key in bondset.keys()
+        assert bond4.key not in bondset.keys()
+        assert bond5.key not in bondset.keys()
+        # test the __contains__/sq_contains method
+        assert bond1.key in bondset
+        assert bond2.key in bondset
+        assert bond3.key in bondset
+        assert bond4.key not in bondset
+        assert bond5.key not in bondset
+
     def test_bondset_gracefulRemoves(self):
         """\
         del bondset[bond.key]
@@ -273,6 +302,35 @@ class AtomSetTests(TestCase):
             (2, atom1), (3, atom2), (4, atom3),
             (5, atom4), (6, atom5)
             ]
+
+    def test_atomset_contains(self):
+        """\
+        (atm.key in atomset) should be equivalent to, but
+        much faster than, (atm.key in atomset.keys())
+        """
+        atomset = AtomSet()
+        # create them forwards
+        atom1 = Atom()
+        atom2 = Atom()
+        atom3 = Atom()
+        atom4 = Atom()
+        atom5 = Atom()
+        # add some, not others
+        atomset.add(atom1)
+        atomset.add(atom2)
+        atomset.add(atom3)
+        # check if they're in keys() correctly
+        assert atom1.key in atomset.keys()
+        assert atom2.key in atomset.keys()
+        assert atom3.key in atomset.keys()
+        assert atom4.key not in atomset.keys()
+        assert atom5.key not in atomset.keys()
+        # test the __contains__/sq_contains method
+        assert atom1.key in atomset
+        assert atom2.key in atomset
+        assert atom3.key in atomset
+        assert atom4.key not in atomset
+        assert atom5.key not in atomset
 
     def test_atomset_gracefulRemoves(self):
         """\
