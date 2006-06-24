@@ -93,8 +93,8 @@ cdef class _BaseSetClass:
             self.data.key = value
         else:
             self.__dict__[name] = value
-    def __getattr__(self, name):
-        if name == "key":
+    def __getattr__(self, char *name):
+        if strcmp(name, "key") == 0:
             return self.data.key
         else:
             raise AttributeError, name
@@ -245,12 +245,16 @@ cdef class _BondBase:
     def diffableAttributes(self):
         return ("v6",)
 
-    def __getattr__(self, name):
-        if name == "key":
+    def __getattr__(self, char *name):
+        # ord('_') => 95. If the first char of the attribute name is
+        # an underscore, give up immediately.
+        if name[0] == 95:
+            raise AttributeError, name
+        if strcmp(name, "key") == 0:
             return self.data.key
-        elif name == "v6":
+        elif strcmp(name, "v6") == 0:
             return self.data.v6
-        elif name == "sets":
+        elif strcmp(name, "sets") == 0:
             return extract_list(self.data.sets, 0)
         else:
             raise AttributeError, name
