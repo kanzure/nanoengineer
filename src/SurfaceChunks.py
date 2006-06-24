@@ -259,9 +259,6 @@ class Surface:
        
         self.spheres = []
 	self.radiuses = []
-        
-        self.box = Box()
-        self.box.Empty()
                     
     def Predicate(self, p):
         """calculate omega function:
@@ -271,8 +268,8 @@ class Surface:
         om = 0.0
         #  calculate omega for all moleculas 
         for i in range(len(self.spheres)):
-            t = p - self.spheres[i] 
-            r = self.radiuses[i] 
+            t = p - self.spheres[i]
+            r = self.radiuses[i]
             s = (r * r - t.x * t.x - t.y * t.y - t.z * t.z) / (r + r)
             if i == 0:
                 om = s
@@ -282,34 +279,111 @@ class Surface:
         return om     
     
     def SurfaceTriangles(self, trias):
-        nt = len(trias)
+	self.points = []
+	self.trias = []
+	self.Duplicate(trias)
+	np = len(self.points)
         n = 2   #  number of iterations
         for i in range(n):
-            for j in range(nt):
-                pn = []
-                t = trias[j]
-                for k in range(3):
-                    p = Triple(t[k][0],t[k][1],t[k][2])
-                    n = Triple(-2 * p.x, -2 * p.y, -2 * p.z)
-                    n.Normalize()
-                    om = self.Predicate(p)
-                    if om < -1.0 : om = -1.0
-                    pn.append(p - 0.5 * om * n)
-                t0 = (pn[0].x, pn[0].y, pn[0].z)    
-                t1 = (pn[1].x, pn[1].y, pn[1].z)    
-                t2 = (pn[2].x, pn[2].y, pn[2].z)    
-                trias[j] = (t0, t1, t2) 
-        return trias        
+            for j in range(np):
+		p = self.points[j]
+                pt = Triple(p[0],p[1],p[2])
+                n = Triple(-2 * pt.x, -2 * pt.y, -2 * pt.z)
+                n.Normalize()
+                om = self.Predicate(pt)
+                if om < -1.0 : om = -1.0
+                pn = pt - 0.5 * om * n
+                self.points[j] = (pn.x, pn.y, pn.z) 
+        return (self.trias, self.points)        
 
-    def SurfaceNormals(self, trias):
+    def Duplicate(self, trias):
+	eps = 0.0000001
+	n = len(trias)
+	n3 = 3 * n
+	ia = []
+	for i in range(n3):
+	    ia.append(i + 1)
+	   
+	#find and mark duplicate points
+	points = []
+	for i in range(n):
+	    t = trias[i]
+	    points.append(Triple(t[0][0],t[0][1],t[0][2]))
+	    points.append(Triple(t[1][0],t[1][1],t[1][2]))
+	    points.append(Triple(t[2][0],t[2][1],t[2][2]))
+	nb = 16    
+	bucket = Bucket(nb,points)    
+	for i in range(n3):
+	    p = points[i]
+	    v = bucket.Array(p)
+	    for jv in range(len(v)):
+		j = v[jv]
+		if i == j : continue
+		if ia[j] > 0 :
+		    pj = points[j]
+		    if (p - pj).Len2() < eps :
+			ia[j] = - ia[i]
+        #change array for points & normals
+        #change index
+	for i in range(n3):
+	    if ia[i] > 0 :
+		self.points.append((points[i].x,points[i].y,points[i].z))
+		ia[i] = len(self.points)
+	    else:
+		ir = ia[i]
+		if ir < 0 : ir = -ir
+		ia[i] = ia[ir - 1]
+	for i in range(n):
+	    self.trias.append((ia[3*i]-1,ia[3*i+1]-1,ia[3*i+2]-1))
+	
+    def SurfaceNormals(self):
 	normals = []
-	for t in trias:
-            v0 = V(t[1][0] - t[0][0], t[1][1] - t[0][1], t[1][2] - t[0][2])
-            v1 = V(t[2][0] - t[0][0], t[2][1] - t[0][1], t[2][2] - t[0][2])
+	for i in range(len(self.points)):
+	    normals.append(V(0.0,0.0,0.0))
+	for i in range(len(self.trias)):
+	    t = self.trias[i]
+	    p0 = self.points[t[0]]
+	    p1 = self.points[t[1]]
+	    p2 = self.points[t[2]]
+            v0 = V(p1[0] - p0[0], p1[1] - p0[1], p1[2] - p0[2])
+            v1 = V(p2[0] - p0[0], p2[1] - p0[1], p2[2] - p0[2])
 	    n = cross(v0, v1)
-	    nt = (n[0], n[1], n[2]) 
-	    normals.append((nt, nt, nt))
-	return normals    
+	    normals[t[0]] += n
+	    normals[t[1]] += n
+	    normals[t[2]] += n
+	    normals[t[2]] += n
+	result = []
+	for n in normals:
+	    result.append((n[0],n[1],n[2]))
+	return result    
+
+class Bucket: 
+
+    def __init__(self, n, points):
+        """bucket constructor"""
+	self.n = n
+	self.nn = n * n
+	self.nnn = self.nn * n
+	self.a = []
+	for i in range(self.nnn):
+	    self.a.append([])
+	count = 0    
+	for p in points:
+	    self.a[self.Index(p)].append(count)
+	    count += 1
+    
+    def Index(self, p):
+	i = (int)(self.n * (p.x + 1) / 2)
+	if i >= self.n : i = self.n - 1
+	j = (int)(self.n * (p.y + 1) / 2)
+	if j >= self.n : j = self.n - 1
+	k = (int)(self.n * (p.z + 1) / 2)
+	if k >= self.n : k = self.n - 1
+	return i * self.nn + j * self.n + k
+    
+    def Array(self, p):
+	return self.a[self.Index(p)]
+	
 	
 class SurfaceChunks(ChunkDisplayMode):
     "example chunk display mode, which draws the chunk as a surface, aligned to the chunk's axes, of the chunk's color"
@@ -424,7 +498,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	if rad > 6 : level = 4
 	ts =drawer.getSphereTriangles(level)
 	tm = s.SurfaceTriangles(ts)
-	nm = s.SurfaceNormals(tm)
+	nm = s.SurfaceNormals()
 	
 	QApplication.restoreOverrideCursor() # Restore the cursor. Mark 060621.
 	env.history.message(self.cmdname + "Done.") # Mark 060621.
