@@ -1,6 +1,6 @@
 # Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
-autoBuild.py -- Creates the nanoENGINEER-1 install package for Windows, Mac and Linux.
+autoBuild.py -- Creates the NanoEngineer-1 install package for Windows, Mac and Linux.
 
 $Id$
 
@@ -77,7 +77,7 @@ class NanoBuildBase:
     def  __init__(self, appname, iconfile, rootDir, version, relNo, stat, tag):
         self.currentPath = os.getcwd() # Current working directory
         self.rootPath = rootDir # sub-directory where the executable and temporary files are stored
-        self.appName = appname # Application name, e.g., 'nanoENGINEER-1'
+        self.appName = appname # Application name, e.g., 'NanoEngineer-1'
         self.iconFile = iconfile # The icon file name
         self.version = version # version number, e.g. '0.7'
         self.releaseNo = relNo # release number, e.g. '1' (can be missing; presumably actual value is then '')
@@ -473,16 +473,16 @@ class NanoBuildLinux(NanoBuildBase):
 Group: Applications/CAD
 Source: project.tgz
 URL: http://nanoengineer-1.net/mediawiki/index.php
-Distribution: nanoENGINEER-1
+Distribution: NanoEngineer-1
 Vendor: Nanorex, Inc.
 Packager: Nanorex, Inc.
 #Requires: libMesaglut3
 
 %description
-nanoENGINEER-1 includes a molecular design module that combines
+NanoEngineer-1 includes a molecular design module that combines
 capabilities found in traditional chemistry modeling software
 with features found in popular 3-D mechanical CAD systems. With
-nanoENGINEER-1, users can design atomically precise assemblies
+NanoEngineer-1, users can design atomically precise assemblies
 from a variety of stiff covalent structures, including diamond
 lattice frameworks. A parts library of molecular components is
 also included containing tubes, shafts, bearings, gears, joints,
@@ -504,7 +504,7 @@ existing assembly.
 %post
 #!/bin/sh
 # Set up a desktop icon.
-# I checked a nanoENGINEER-1.desktop file into cad/src, but I don't
+# I checked a NanoEngineer-1.desktop file into cad/src, but I don't
 # see how to get it through the RPM process and into the end user's
 # $HOME directory.
 
@@ -615,7 +615,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         self.binPath = binPath = os.path.join(self.buildSourcePath, appname, 'Contents/bin')
         os.mkdir(binPath)
         #bruce 060420 zapping this, since redundant with new chmod code done later for all files (and 755 should be 775 anyway):
-        ##        ne1files = listResults("find " + self.buildSourcePath + " -name nanoENGINEER-1.py")
+        ##        ne1files = listResults("find " + self.buildSourcePath + " -name NanoEngineer-1.py")
         ##        for f in ne1files:
         ##            os.chmod(f, 0755)
         self.copyOtherSources()
@@ -691,11 +691,11 @@ class NanoBuildMacOSX(NanoBuildBase):
     # http://developer1.apple.com/documentation/DeveloperTools/Conceptual/SoftwareDistribution/Concepts/sd_pre_post_processing.html
 ##    def _writePostFlightFile(self, pfFile):
 ##        """Write the postflight file Mac Package Installer """
-##        instPath = os.path.basename(self.buildSourcePath)   # "nanoENGINEER-1-0.0.6"
+##        instPath = os.path.basename(self.buildSourcePath)   # "NanoEngineer-1-0.0.6"
 ##        appname = self.appName + '.app'
 ##        cf = os.path.join(instPath, appname, 'Contents/Frameworks')
-##        # $2/instPath --> /Applications/nanoENGINEER-1-0.0.6
-##        # $2/cf --> /Applications/nanoENGINEER-1-0.0.6/nanoENGINEER-1.app/Contents/Frameworks
+##        # $2/instPath --> /Applications/NanoEngineer-1-0.0.6
+##        # $2/cf --> /Applications/NanoEngineer-1-0.0.6/NanoEngineer-1.app/Contents/Frameworks
 ##        pf  = open(pfFile, 'w')
 ##        pf.write("""#!/bin/bash
 ##mv "$2/%s/libaquaterm.1.0.0.dylib" "$2/%s"
@@ -829,7 +829,7 @@ def usage():
                 
     options:
     -h prints this usage (help) text
-    -o output directory.  Default is $CWD/nanoENGINEER-1.maj.min.tiny/nanoENGINEER-1
+    -o output directory.  Default is $CWD/NanoEngineer-1.maj.min.tiny/NanoEngineer-1
     -i icon file. This is currently ignored on Linux
     -t cvs tag
     -s source directory. This bypasses cvs checkout and uses the source in this directory.
@@ -860,7 +860,7 @@ def main():
         sys.exit(2)
 
     currentDir = os.getcwd()
-    appName = "nanoENGINEER-1"
+    appName = "NanoEngineer-1"
     rootDir = None
     if sys.platform == 'win32':
           iconFile = os.path.join(currentDir, 'win32/nanorex_48x.ico')

@@ -7,5 +7,5 @@ from distutils.core import setup
 import py2app
 setup(
     
-    app = ['nanoENGINEER-1.py'],
+    app = ['NanoEngineer-1.py'],
 )
