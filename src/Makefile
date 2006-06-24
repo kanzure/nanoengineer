@@ -87,7 +87,7 @@ libpython$(PYVER).a: libpython$(PYVER).a.gz
 	gunzip < libpython$(PYVER).a.gz > libpython$(PYVER).a
 
 # On Windows, use "make atombase.dll"
-atombase.dll: atombase.c $(PYREXOBJS) libpython$(PYVER).a version.h
+atombase.dll: atombase.c $(PYREXOBJS) libpython$(PYVER).a
 	gcc -shared -I"C:/Python$(PYVER)/include" -o atombase.dll $(PYREXOBJS) \
 		-Wl,--output-def,atombase.def -L. -lpython$(PYVER)
 
