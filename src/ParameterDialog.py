@@ -37,15 +37,20 @@ from debug import print_compact_traceback
 ##self.whatsthis_btn.setIconSet(QIconSet(self.image6))
 ##self.nt_parameters_grpbtn.setIconSet(QIconSet(self.image7))
         
-class parameter_dialog(QDialog): # was nanotube_dialog
-    def __init__(self, parent = None, desc = None, name = None, modal = 0, fl = 0, env = None):
-
+## class parameter_dialog(QDialog): # was nanotube_dialog
+class parameter_dialog_or_frame:
+    "use as a pre-mixin before QDialog or QFrame" ####@@@@
+    def __init__(self, parent = None, desc = None, name = None, modal = 0, fl = 0, env = None, is_dialog = True):
         if env is None:
             import env # this is a little weird... probably it'll be ok, and logically it seems correct.
         
         self.desc = desc
-        QDialog.__init__(self,parent,name,modal,fl)
 
+        if is_dialog:
+            QDialog.__init__(self,parent,name,modal,fl)
+        else:
+            QFrame.__init__(self,parent,name)
+        
         self.image1 = QPixmap()
         self.image1.loadFromData(image1_data,"PNG") # should be: title_icon ####
         self.image3 = QPixmap()
@@ -78,8 +83,9 @@ class parameter_dialog(QDialog): # was nanotube_dialog
             pass
 
         if not name:
-            self.setName("parameter_dialog") ###
+            self.setName("parameter_dialog_or_frame") ###
 
+        #k guess this will need: if is_dialog
         self.setIcon(self.image0) # should be: border_icon ####
 
         nanotube_dialogLayout = QVBoxLayout(self,0,0,"nanotube_dialogLayout")
@@ -383,11 +389,11 @@ class parameter_dialog(QDialog): # was nanotube_dialog
 
     _tr = __tr # for access from other objects
 
-    pass # end of class parameter_dialog -- maybe it should be renamed
+    pass # end of class parameter_dialog_or_frame -- maybe it should be renamed
 
 # ==
 
-class ParameterDialog(parameter_dialog):
+class ParameterDialogBase(parameter_dialog_or_frame):
     "#doc"
     controller = None
     def __init__(self, parent, description, env = None):
@@ -398,7 +404,8 @@ class ParameterDialog(parameter_dialog):
         But it doesn't show it or connect it to a controller.
         """
         desc = get_description(description) # might raise exceptions on e.g. syntax errors in description file
-        parameter_dialog.__init__(self, parent, desc, env = env) # sets self.desc (buttons might want to use it)
+        parameter_dialog_or_frame.__init__(self, parent, desc, env = env, is_dialog = self.is_dialog)
+            # sets self.desc (buttons might want to use it)
     def set_controller(self, controller):
         if self.controller:
             self.controller.forget_dialog(self)
@@ -448,6 +455,17 @@ class ParameterDialog(parameter_dialog):
                     print_compact_traceback("exception trying to get param %s: " % (paramname,))
         if self.controller:
             self.controller.ok_btn_clicked()
+    #e might need to intercept accept, reject and depend on is_dialog -- or, do in subclass
+    pass
+
+class ParameterDialog( ParameterDialogBase, QDialog):
+    is_dialog = True
+    pass
+
+class ParameterPane(   ParameterDialogBase, QFrame):
+    is_dialog = False
+    def accept(self): pass
+    def reject(self): pass
     pass
 
 # ==
@@ -488,9 +506,9 @@ def get_description(filename):
 
 import time, sys, os
 
-class NTdialog(parameter_dialog): # in real life this will be something which delegates to controller methods
+class NTdialog(parameter_dialog_or_frame, QDialog): # in real life this will be something which delegates to controller methods
     def __init__(self, parent = None, desc = None):
-        parameter_dialog.__init__(self, parent, desc) # sets self.desc (buttons might want to use it)
+        parameter_dialog_or_frame.__init__(self, parent, desc, is_dialog = True) # sets self.desc (buttons might want to use it)
     def do_sponsor_btn(self):
         print "do_sponsor_btn: nim"
     def do_done_btn(self):

@@ -156,14 +156,15 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # and history widget (right)
         hsplitter = QSplitter(Qt.Horizontal, self, "ContentsWindow")
 
-        mtree_in_a_vsplitter = False #bruce 060402 experiment; works (except for initial width), but DO NOT COMMIT WITH True
+        from debug_prefs import this_session_permit_property_pane
+        mtree_in_a_vsplitter = this_session_permit_property_pane() or False
+            #bruce 060402 experiment; works (except for initial width), but DO NOT COMMIT WITH True
         # only bug known so far is mtree (vsplitter2) width
         if mtree_in_a_vsplitter:
             vsplitter2 = QSplitter(Qt.Vertical, hsplitter)
-            self.vsplitter2 = vsplitter2
+            self.vsplitter2 = vsplitter2 # use this for property pane parent? doesn't work, don't know why. [060623]
             ## vsplitter2.setBaseSize(QSize(225,150)) #k experiment, guess, height is wrong; has no effect
             mtree_parent = vsplitter2
-            mtree_view_in_hsplitter = vsplitter2
         else:
             mtree_parent = hsplitter
         

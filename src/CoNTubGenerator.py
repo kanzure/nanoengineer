@@ -22,16 +22,11 @@ reload(CoNTubGenerator)
 __author__ = "bruce"
 
 #k not all imports needed?
-## from GeneratorDialogs import ParameterDialog ###IMPLEM file and class...
-###@@@ might make it include the generator controller? can it be a pane if it takes a flag?
-# want it to be an object which owns a widget, not a widget itself?
-# just put in the current code now, clean it up later...
-
 import env
 from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 ##from widgets import double_fixup
 ##from Utility import Group
-from ParameterDialog import ParameterDialog
+from ParameterDialog import ParameterDialog, ParameterPane
 from GeneratorController import GeneratorController
 from debug import print_compact_traceback
 import os, sys, time
@@ -45,6 +40,8 @@ def debug_run():
 
 ### one current bug: menu icon is nondeterministic. guess: need to keep a reference to the iconset that we make for it.
 # that seemed to help at first, but it's not enough, bug still happens sometimes when we reload this a lot! ####@@@@
+
+from debug_prefs import use_property_pane
 
 # ==
 
@@ -334,7 +331,15 @@ class PluginlikeGenerator:
             dialog_env = self
                 # KLUGE... it needs to be something with an imagename_to_pixmap function that knows our icon_path.
                 # the easiest way to make one is self... in future we want our own env, and to modify it by inserting that path...
-            self.dialog = ParameterDialog( self.win, self.param_desc_path, env = dialog_env )
+            if use_property_pane():
+                # experimental, doesn't yet work [060623]
+                parent = self.win.vsplitter2 ###@@@ could this parent be wrong? it acted like parent was self.win or so.
+                clas = ParameterPane ###@@@ worked internally, buttons printed debug msgs, but didn't have any effects in GBC.
+            else:
+                # usual case
+                parent = self.win
+                clas = ParameterDialog
+            self.dialog = clas( self.win, self.param_desc_path, env = dialog_env )
                 # this parses the description file and makes the dialog,
                 # but does not show it and does not connect a controller to it.
             #e set its geometry if that was saved (from above code or maybe in prefs db)

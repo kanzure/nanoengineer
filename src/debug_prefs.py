@@ -482,6 +482,40 @@ def debug_prefs_menuspec( atom_debug):
             return []
     pass
 
+# ==
+
+# specific debug_pref exerciser/access functions can go here,
+# if they need to be imported early during startup or by several source files
+
+def _permit_property_pane():
+    "should we set up this session to look a bit worse, but permit experimental property pane code to be used?"
+    return debug_pref("property pane debug pref offered? (next session)",
+                      Choice_boolean_False,
+                      non_debug = True,
+                      prefs_key = "A8 devel/permit property pane")
+
+_this_session_permit_property_pane = 'unknown' # too early to evaluate _permit_property_pane() during this import
+
+def this_session_permit_property_pane():
+    "this has to give the same answer throughout one session"
+    global _this_session_permit_property_pane
+    if _this_session_permit_property_pane == 'unknown':
+        _this_session_permit_property_pane = _permit_property_pane()
+        if _this_session_permit_property_pane:
+            _use_property_pane() # get it into the menu right away, otherwise we can't change it until it's too late
+    return _this_session_permit_property_pane
+
+def _use_property_pane():
+    return debug_pref("property pane (for HJ dialog)?", Choice_boolean_False, non_debug = True,
+                      prefs_key = "A8 devel/use property pane")
+    
+def use_property_pane():
+    """should we actually use a property pane?
+    (only works if set before the first time a participating dialog is used)
+    (only offered in debug menu if a property pane is permitted this session)
+    """
+    return this_session_permit_property_pane() and _use_property_pane()
+
 # == test code
 
 if __name__ == '__main__':
