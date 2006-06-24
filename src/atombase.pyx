@@ -205,12 +205,18 @@ cdef class _AtomSetBase(_BaseSetClass):
             raise KeyError
         add_to_pointerlist(self.data.members, <key_thing *>&atom.data)
         add_to_pointerlist(atom.data.sets, <key_thing *>&self.data)
-    def __delitem__(self, key):
+    def __delitem__(self, unsigned int key):
         cdef atomstruct adata
         x = self[key]
         adata = (<_AtomBase> x).data
         remove_from_pointerlist(self.data.members, <key_thing*> &adata)
         remove_from_pointerlist(adata.sets, <key_thing*> &self.data)
+    def __contains__(self, unsigned int key):
+        try:
+            pointerlist_lookup(self.data.members, key)
+            return 1
+        except KeyError:
+            return 0
     def atomInfo(self):
         ar = Numeric.zeros((len(self), 5), 'd')
         i = 0
@@ -294,6 +300,12 @@ cdef class _BondSetBase(_BaseSetClass):
         adata = (<_BondBase> x).data
         remove_from_pointerlist(self.data.members, <key_thing*> &adata)
         remove_from_pointerlist(adata.sets, <key_thing*> &self.data)
+    def __contains__(self, unsigned int key):
+        try:
+            pointerlist_lookup(self.data.members, key)
+            return 1
+        except KeyError:
+            return 0
     def bondInfo(self):
         ary = Numeric.zeros((len(self.keys()), 3), 'i')
         i = 0

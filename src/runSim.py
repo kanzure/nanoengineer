@@ -1987,14 +1987,14 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
             for atm2 in movatm.realNeighbors():
                 # (not covering singlets is just an optim, since they're already in moving_atoms)
                 # (in fact, it's probably slower than excluding them here! I'll leave it in, for clarity.)
-                if atm2.key not in self.moving_atoms.keys():
+                if atm2.key not in self.moving_atoms:
                     self.boundary1_atoms[atm2.key] = atm2 # might already be there, that's ok
         # now find the boundary2 of the boundary1_atoms;
         # treat singlets of boundary1 as ordinary boundary2 atoms (unlike when we found boundary1);
         # no need to re-explore moving atoms since we already covered their real and singlet neighbors
         for b1atm in self.boundary1_atoms.values():
             for atm2 in b1atm.neighbors():
-                if (atm2.key not in self.moving_atoms.keys()) and (atm2.key not in self.boundary1_atoms.keys()):
+                if (atm2.key not in self.moving_atoms) and (atm2.key not in self.boundary1_atoms):
                     self.boundary2_atoms[atm2.key] = atm2 # might be added more than once, that's ok
         # no need to explore further -- not even for singlets on boundary2 atoms.
 
