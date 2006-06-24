@@ -62,17 +62,17 @@ from povheader import povpoint #bruce 050413
 from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
 from changes import register_changedict, register_class_changedicts
 
-ENABLE_PYREX_ATOMS_AND_BONDS = False
-
 try:
-    if not ENABLE_PYREX_ATOMS_AND_BONDS:
+    if not debug_pref('Enable pyrex atoms next time', Choice_boolean_False, prefs_key=True):
         raise ImportError
     from atombase import AtomSetBase, AtomBase
     class AtomSet(AtomSetBase):
         def __init__(self):
             AtomSetBase.__init__(self)
             self.key = atKey.next()
+    print 'Use Pyrex atoms'
 except ImportError:
+    print 'Do not use Pyrex atoms'
     def AtomSet():
         return { }
     class AtomBase:
@@ -406,7 +406,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
 
     # these are needed for repeated destroy [bruce 060322]
     glname = 0
-    if not ENABLE_PYREX_ATOMS_AND_BONDS:
+    if not debug_pref('Enable pyrex atoms next time', Choice_boolean_False, prefs_key=True):
         key = 0   # BAD FOR PYREX ATOMS - class variable vs. instance variable
 
     _will_kill = 0 #bruce 060327

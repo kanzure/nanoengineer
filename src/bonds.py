@@ -59,7 +59,7 @@ import platform # for atom_debug; note that uses of atom_debug should all grab i
 
 from elements import *
 
-from chem import singlet_atom, stringVec, atom, ENABLE_PYREX_ATOMS_AND_BONDS
+from chem import singlet_atom, stringVec, atom
     # I don't know if class atom is needed here, it's just a precaution [bruce 050502]
 
 from bond_constants import *
@@ -71,7 +71,7 @@ from changes import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
 
 try:
-    if not ENABLE_PYREX_ATOMS_AND_BONDS:
+    if not debug_pref('Enable pyrex atoms next time', Choice_boolean_False, prefs_key=True):
         raise ImportError
     from atombase import BondSetBase, BondBase
     class BondSet(BondSetBase):
