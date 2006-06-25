@@ -13,9 +13,7 @@ performance improvement in bond inference, and changing the output file
 format from pdb to mmp.
 
 There are three executables. You can build them by typing "make" in
-the src/ subdirectory. This should work on Windows, Mac, or Linux. 
-For Windows, it may require an appropriate unix-shell-like environment.
-[### we should say specifically what's required for Windows]
+the this directory. This should work on Windows, Mac, or Linux. 
 
 Where arguments below are specified as floats, they are C/C++ double
 precision floats. Integers are 32-bit signed, though in all cases
