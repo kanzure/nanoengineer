@@ -1,0 +1,94 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (7.448755) (0.000000, 0.000000, 0.000000) (1.000000)
+egroup (View Data)
+group (adenine-inner)
+info opengroup open = True
+mol (adenine) def
+atom 1 (8) (-6961, -3444, 2275) def
+atom 2 (15) (-5770, -4496, 2074) def
+bond1 1
+atom 3 (8) (-4942, -4514, 3265) def
+info atom atomtype = sp2
+bond1 2
+atom 4 (8) (-6411, -5738, 1595) def
+info atom atomtype = sp2
+bond1 2
+atom 5 (8) (-4920, -3846, 885) def
+bond1 2
+atom 6 (6) (-4429, -4652, -175) def
+bond1 5
+atom 7 (6) (-3019, -4198, -504) def
+bond1 6
+atom 8 (8) (-3069, -2829, -974) def
+bond1 7
+atom 9 (6) (-2035, -4203, 695) def
+bond1 7
+atom 10 (6) (-1892, -2755, 1105) def
+bond1 9
+atom 11 (6) (-2099, -2048, -265) def
+bond1 8 10
+atom 12 (7) (-2664, -676, -164) def
+bond1 11
+atom 13 (6) (-3873, -382, -277) def
+info atom atomtype = sp2
+bond1 12
+atom 14 (7) (-4050, 933, -131) def
+info atom atomtype = sp2
+bond2 13
+atom 15 (6) (-2827, 1426, 48) def
+info atom atomtype = sp2
+bond1 14
+atom 16 (6) (-2378, 2794, 121) def
+info atom atomtype = sp2
+bond1 15
+atom 17 (7) (-3081, 3886, 60) def
+bond1 16
+atom 18 (7) (-1032, 2889, 278) def
+info atom atomtype = sp2
+bond2 16
+atom 19 (6) (-169, 1770, 355) def
+info atom atomtype = sp2
+bond1 18
+atom 20 (7) (-547, 528, 227) def
+info atom atomtype = sp2
+bond2 19
+atom 21 (6) (-1883, 397, 64) def
+info atom atomtype = sp2
+bond1 12 20
+bond2 15
+atom 22 (1) (-4417, -5707, 135) def
+bond1 6
+atom 23 (1) (-5074, -4536, -1059) def
+bond1 6
+atom 24 (1) (-2621, -4853, -1294) def
+bond1 7
+atom 25 (1) (-1143, -2012, -809) def
+bond1 11
+atom 26 (1) (-2661, -2460, 1833) def
+bond1 10
+atom 27 (1) (-894, -2547, 1521) def
+bond1 10
+atom 28 (1) (-2428, -4806, 1525) def
+bond1 9
+atom 29 (1) (882, 1959, 533) def
+bond1 19
+atom 30 (1) (-4103, 3835, -59) def
+bond1 17
+atom 31 (1) (-2617, 4803, 129) def
+bond1 17
+atom 32 (1) (-4671, -1098, -466) def
+bond1 13
+atom 33 (0) (-6815, -2828, 2525) def
+bond1 1
+atom 34 (0) (-1375, -4477, 468) def
+bond1 9
+egroup (adenine-inner)
+end1
+group (Clipboard)
+info opengroup open = False
+egroup (Clipboard)
+end molecular machine part adenine-inner
