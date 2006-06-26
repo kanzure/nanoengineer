@@ -59,7 +59,7 @@ import platform # for atom_debug; note that uses of atom_debug should all grab i
 
 from elements import *
 
-from chem import singlet_atom, stringVec, atom
+from chem import singlet_atom, stringVec, atom, atKey
     # I don't know if class atom is needed here, it's just a precaution [bruce 050502]
 
 from bond_constants import *
