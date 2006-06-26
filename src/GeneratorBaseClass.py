@@ -256,7 +256,9 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         if platform.atom_debug: print 'build a new structure'
         self.struct = self.build_struct(name, params, -self.win.glpane.pov)
         self.win.assy.addnode(self.struct)
-        self.win.glpane.setViewFitToWindow(fast=True)
+	# Do this if you want it centered on the previous center.
+        # self.win.glpane.setViewFitToWindow(fast=True)
+	# Do this if you want it centered on the origin.
         self.win.glpane.setViewRecenter(fast=True)
         self.win.win_update() # includes mt_update
 
