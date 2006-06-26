@@ -67,7 +67,10 @@ OBJS=$(subst $(SRCDIR)/,$(OBJDIR)/,$(SRCS:.cpp=.o))
 
 ################
 
-all: $(TARGETSW) $(TARGETMW) $(TARGETHJ)
+# all: $(TARGETSW) $(TARGETMW) $(TARGETHJ)
+
+# We are only using the HJ executable now.
+all: $(TARGETHJ)
 
 $(TARGETSW): $(OBJS) $(OBJDIR)/W1.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
