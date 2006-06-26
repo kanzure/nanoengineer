@@ -11,6 +11,7 @@ from qt import *
 from chem import gensym
 from Sponsors import SponsorableMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg
+import exceptions
 
 __author__ = "Will"
 
@@ -111,6 +112,18 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     cmd = "" # deprecated but widely used [bruce 060616 comment]
         # (subclasses often set cmd to greenmsg(self.cmdname + ": "), from which we have to klugily deduce self.cmdname! Ugh.)
     cmdname = "" # subclasses should set this to their (undecorated) command name for use by Undo and history. [bruce 060616 new feature]
+
+    class Exception(exceptions.Exception):
+        """GeneratorBaseClass.Exception is useful for distinguishing
+        between an exception from subclass code which is a bug in the
+        cad, a report of an error in the plugin, or a report of a user
+        error.
+        """
+        def __init__(self, arg=None):
+            if arg is not None:
+                exceptions.Exception.__init__(self, arg)
+            else:
+                exceptions.Exception.__init__(self)
     
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
@@ -167,12 +180,34 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616; should we + " (Preview)" ? guess: too ugly.
         try:
             self._build_struct()
-        except Exception, e:
+        except self.Exception, e:
+            env.history.message(redmsg("GBC.Exception: " + " - ".join(map(str, e.args))))
+            self.remove_struct()
+        except exceptions.Exception, e:
             env.history.message(self.cmd + redmsg(" - ".join(map(str, e.args))))
             self.remove_struct()
-            if platform.atom_debug: raise
         QApplication.restoreOverrideCursor() # Restore the cursor
         self.win.win_update()
+
+    def ok_btn_clicked(self):
+        'Slot for the OK button'
+        if platform.atom_debug: print 'ok button clicked'
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616
+        try:
+            self._build_struct()
+            env.history.message(self.cmd + self.done_msg())
+            self.struct = None
+        except self.Exception, e:
+            env.history.message(redmsg("GBC.Exception: " + " - ".join(map(str, e.args))))
+            self.remove_struct()
+        except exceptions.Exception, e:
+            env.history.message(self.cmd + redmsg(" - ".join(map(str, e.args))))
+            self.remove_struct()
+        QApplication.restoreOverrideCursor() # Restore the cursor
+        ## QDialog.accept(self)
+        self.accept() #bruce 060621
+        return
 
     def gather_parameters(self):
         '''Return a tuple of the current parameters. This is an
@@ -231,24 +266,6 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         'Slot for the What\'s This button'
         QWhatsThis.enterWhatsThisMode()
     
-    def ok_btn_clicked(self):
-        'Slot for the OK button'
-        if platform.atom_debug: print 'ok button clicked'
-        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-        self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616
-        try:
-            self._build_struct()
-            env.history.message(self.cmd + self.done_msg())
-            self.struct = None
-        except Exception, e:
-            env.history.message(self.cmd + redmsg(" - ".join(map(str, e.args))))
-            self.remove_struct()
-            if platform.atom_debug: raise
-        QApplication.restoreOverrideCursor() # Restore the cursor
-        ## QDialog.accept(self)
-        self.accept() #bruce 060621
-        return
-
     def done_btn_clicked(self):
         'Slot for the Done button'
         if platform.atom_debug: print 'done button clicked'
