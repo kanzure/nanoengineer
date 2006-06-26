@@ -1173,11 +1173,13 @@ int main(int argc, char *argv[])
 	if (*p != '\0') throw "Bad i1 parameter";
 	j1 = strtol(argv[2], &p, 10);
 	if (*p != '\0') throw "Bad j1 parameter";
+	if (j1 > i1) throw "j1 can not be greater than i1";
 	lent1 = strtod(argv[3], &p);
 	if (*p != '\0') throw "Bad lent1 parameter";
 	i2 = strtol(argv[4], &p, 10);
 	if (*p != '\0') throw "Bad i2 parameter";
 	j2 = strtol(argv[5], &p, 10);
+	if (j2 > i2) throw "j2 can not be greater than i2";
 	if (*p != '\0') throw "Bad j2 parameter";
 	lent2 = strtod(argv[6], &p);
 	if (*p != '\0') throw "Bad lent2 parameter";
