@@ -395,6 +395,47 @@ def find_or_make_any_directory(dirname, make = True, make_higher_dirs = True): #
         return 1, "bug: [%s] is not a directory, even though mkdir said it made it" % (dirname, ) # should never happen
     return 0, dirname
 
+# ==
+
+def builtin_plugins_dir(): # modified from sim_bin_dir_path in runSim.py; should move both that and this to platform.py ###e
+    """Return pathname of built-in plugins directory. Should work for either developers or end-users on all platforms.
+    (Doesn't check whether it exists.)
+    """
+    # filePath = the current directory NE-1 is running from.
+    filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+    return os.path.normpath(filePath + '/../plugins')
+
+def user_plugins_dir():
+    """Return pathname of user custom plugins directory, or None if it doesn't exist."""
+    return find_or_make_Nanorex_subdir( 'Plugins', make = False)
+
+def find_plugin_dir(plugin_name):
+    "Return (True, dirname) or (False, errortext), with errortext wording chosen as if the requested plugin ought to exist."
+    from debug import print_compact_traceback
+    try:
+        userdir = user_plugins_dir()
+        if userdir and os.path.isdir(userdir):
+            path = os.path.join(userdir, plugin_name)
+            if os.path.isdir(path):
+                return True, path
+    except:
+        print_compact_traceback("bug in looking for user-customized plugin %r; trying builtin plugins: ")
+        pass
+    try:
+        appdir = builtin_plugins_dir()
+        assert appdir
+        if not os.path.isdir(appdir):
+            return False, "error: can't find built-in plugins directory [%s] (or it's not a directory)" % (appdir,)
+        path = os.path.join(appdir, plugin_name)
+        if os.path.isdir(path):
+            return True, path
+        return False, "can't find plugin %r" % (plugin_name,)
+    except:
+        print_compact_traceback("bug in looking for built-in plugin %r: " % (plugin_name,))
+        return False, "can't find plugin %r" % (plugin_name,)
+    pass
+
+# ==
     
 _histfile = None
 _histfile_timestamp_string = None

@@ -24,9 +24,13 @@ from bonds import inferBonds, bond_atoms
 from files_mmp import _readmmp
 from GeneratorBaseClass import GeneratorBaseClass
 from fusechunksMode import fusechunksBase
+from platform import find_plugin_dir
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
-basepath = os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'experimental')
+ok, basepath = find_plugin_dir("DNA")
+assert ok
+
+DEBUG = False
 
 class Dna:
 
@@ -71,6 +75,7 @@ class Dna:
                       self.strandAinfo(basenameA[sequence[i]], i)
             def tfm(v, theta=theta+thetaOffset, z1=z+zoffset):
                 return rotateTranslate(v, theta, z1)
+            if DEBUG: print basefile
             insertmmp(basefile, tfm)
             theta -= self.TWIST_PER_BASE
             z -= self.BASE_SPACING
@@ -87,6 +92,7 @@ class Dna:
                     # Cheesy hack: flip theta by reversing the sign of y,
                     # since theta = atan2(y,x)
                     return rotateTranslate(V(v[0], -v[1], -v[2]), theta, z1)
+                if DEBUG: print basefile
                 insertmmp(basefile, tfm)
                 theta -= self.TWIST_PER_BASE
                 z -= self.BASE_SPACING
