@@ -51,7 +51,7 @@ generator:
             label: "Chirality (m)"
             type: int
             widget: spinbox
-            min: 1
+            min: 0
             max: 20
             default: 5
             tooltip: "Nanotube chirality parameter M"
@@ -81,7 +81,7 @@ generator:
             label: "Chirality (m)"
             type: int
             widget: spinbox
-            min: 1
+            min: 0
             max: 20
             default: 4 # error if both tubes are the same! (or at least, msg to stderr)
             tooltip: "Nanotube chirality parameter M"
