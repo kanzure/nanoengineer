@@ -36,12 +36,10 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 
 
     if (i1 == 0 && j1 == 0) {
-	std::cerr << "1st tube's indices are incorrect";
-	return;
+	throw "1st tube's indices are incorrect";
     }
     if (i2 == 0 && j2 == 0) {
-	std::cerr << "2nd tube's indices are incorrect";
-	return;
+	throw "2nd tube's indices are incorrect";
     }
 
 
@@ -80,12 +78,10 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 //	return;
 //    }
     if (i2 < 2 && j2 < 2) {
-	std::cerr << "Stop: 2nd tube too narrow";
-	return;
+	throw "Stop: 2nd tube too narrow";
     }
     if (i1 < 2 && j1 < 2) {
-	std::cerr << "Stop: 1st tube too narrow";
-	return;
+	throw "Stop: 1st tube too narrow";
     }
 
 
@@ -677,8 +673,9 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 	    directo = false;
 	    n = nai;
 	    m = mai;
-	} else
+	} else {
 	    std::cerr << "Unexpected geometry!!\n";
+	}
 
 	pto2D pC1 = pto2D (A * (n + m * 0.5), A * r3 / 2 * m);
 
@@ -1170,30 +1167,30 @@ int main(int argc, char *argv[])
     double lent1, lent2;
     char *p, *outputfile;
 
-    if (argc < 10)
-	goto bad_input;
-    i1 = strtol(argv[1], &p, 10);
-    if (*p != '\0') goto bad_input;
-    j1 = strtol(argv[2], &p, 10);
-    if (*p != '\0') goto bad_input;
-    lent1 = strtod(argv[3], &p);
-    if (*p != '\0') goto bad_input;
-    i2 = strtol(argv[4], &p, 10);
-    if (*p != '\0') goto bad_input;
-    j2 = strtol(argv[5], &p, 10);
-    if (*p != '\0') goto bad_input;
-    lent2 = strtod(argv[6], &p);
-    if (*p != '\0') goto bad_input;
-    terminator = strtol(argv[7], &p, 10);
-    if (*p != '\0') goto bad_input;
-    index = strtol(argv[8], &p, 10);
-    if (*p != '\0') {
-    bad_input:
-	std::cerr << "BAD INPUT\n";
+    try {
+	if (argc < 10) throw "Not enough command line parameters";
+	i1 = strtol(argv[1], &p, 10);
+	if (*p != '\0') throw "Bad i1 parameter";
+	j1 = strtol(argv[2], &p, 10);
+	if (*p != '\0') throw "Bad j1 parameter";
+	lent1 = strtod(argv[3], &p);
+	if (*p != '\0') throw "Bad lent1 parameter";
+	i2 = strtol(argv[4], &p, 10);
+	if (*p != '\0') throw "Bad i2 parameter";
+	j2 = strtol(argv[5], &p, 10);
+	if (*p != '\0') throw "Bad j2 parameter";
+	lent2 = strtod(argv[6], &p);
+	if (*p != '\0') throw "Bad lent2 parameter";
+	terminator = strtol(argv[7], &p, 10);
+	if (*p != '\0') throw "Bad terminator parameter";
+	index = strtol(argv[8], &p, 10);
+	if (*p != '\0') throw "Bad index parameter";
+	outputfile = argv[9];
+	W2 w2 = W2(i1, j1, lent1, i2, j2, lent2, terminator);
+	w2.molecule.mmp(outputfile, index);
+	return 0;
+    } catch (char const *str) {
+	std::cerr << str << std::endl;
 	return -1;
     }
-    outputfile = argv[9];
-    W2 w2 = W2(i1, j1, lent1, i2, j2, lent2, terminator);
-    w2.molecule.mmp(outputfile, index);
-    return 0;
 }
