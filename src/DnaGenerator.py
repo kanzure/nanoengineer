@@ -22,7 +22,7 @@ from HistoryWidget import redmsg, orangemsg, greenmsg
 from VQT import A, V, dot, vlen
 from bonds import inferBonds, bond_atoms
 from files_mmp import _readmmp
-from GeneratorBaseClass import GeneratorBaseClass
+from GeneratorBaseClass import GeneratorBaseClass, PluginBug
 from fusechunksMode import fusechunksBase
 from platform import find_plugin_dir
 
@@ -45,9 +45,12 @@ class Dna:
                         'A': 'thymine'}):
         baseList = [ ]
         def insertmmp(filename, tfm, position=position):
-            grouplist  = _readmmp(assy, filename, isInsert=True)
+            try:
+                grouplist  = _readmmp(assy, filename, isInsert=True)
+            except IOError:
+                raise PluginBug("Cannot read file: " + filename)
             if not grouplist:
-                raise Exception("Trouble with DNA base: " + filename)
+                raise Exception("No atoms in DNA base? " + filename)
             viewdata, mainpart, shelf = grouplist
             for member in mainpart.members:
                 for atm in member.atoms.values():
