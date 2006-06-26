@@ -1142,6 +1142,43 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         self.shelf.apply2all(func)
         return res
     
+    def find_or_make_part_files_directory(self, make=True):
+        """Return the Part Files directory for this assembly. 
+        The Part Files directory exists next to the current MMP file and has the same name as
+        the MMP file (without the .mmp extension) but with the ' Files' suffix. 
+        The Part Files directory contains all the associated subdirectories and files for this assembly, 
+        such as movie files (*.dpb), POV-Ray Scene files (*.pov), GAMESS files (*.gms), etc.
+        Returns <errcode>, <partfiles_directory> where <errcode> is 0 if everything worked OK. 
+        If there was an error creating or finding the Part Files directory, then <errcode> = 1 and <partfiles_directory>
+        contains a description of the error.
+        """
+        if self.filename:
+            path_wo_ext, ext = os.path.splitext(self.filename)
+            from platform import find_or_make_any_directory
+            errorcode, partfiles_dir = find_or_make_any_directory(path_wo_ext + " Files")
+            if errorcode:
+                return 1, "Can't make directory %s." % partfiles_dir
+            else:
+                return 0, partfiles_dir
+        else:
+            return 1, "I cannot do this until this part is saved."
+        
+    def find_or_make_pov_files_directory(self, make=True):
+        """Return the POV-Ray Scene Files directory for this assembly. 
+        The POV-Ray Scene Files directory is a subdirectory under the current MMP file's Part Files directory
+        and contains all the associated POV-Ray files for this assembly.
+        Returns <errcode>, <povfiles_dir> where <errcode> is 0 if everything worked OK. 
+        If there was an error creating or finding the POV-Ray Files directory, then <errcode> = 1 and <povfiles_dir>
+        contains a description of the error.
+        """
+        errorcode, dir_or_errortext = self.find_or_make_part_files_directory()
+        if errorcode:
+            return errorcode, dir_or_errortext
+        
+        povfiles_dir  = os.path.join(dir_or_errortext, "POV-Ray Scene Files")
+        from platform import find_or_make_any_directory
+        return find_or_make_any_directory(povfiles_dir)
+    
     pass # end of class assembly
 
 Assembly = assembly #bruce 060224 thinks this should become the preferred name for the class (and the only one, when practical)
