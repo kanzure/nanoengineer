@@ -97,7 +97,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     generators can focus on what they need to do. As much as possible,
     the individual generator should not need to worry about the GUI.
        Note: this superclass sets and maintains some attributes in self,
-    including win, struct, previousParams, _just_updating, and name.
+    including win, struct, previousParams, and name.
        Here are the things a subclass needs to do, to be usable with this superclass [as of 060621]:
     - have self.sponsor_btn, a Qt button of a suitable class.
     - bind or delegate button clicks from a generator dialog's standard buttons
@@ -117,13 +117,6 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         self.win = win
         self.struct = None
         self.previousParams = None
-        # Regarding '_just_updating', Bruce asks: what does this mean?
-        # This is part of my attempt to handle Comment and PovraySceneProp,
-        # where the "Done" message could say that the object was either
-        # created or simply updated. It was a lot of trouble for a "Done"
-        # message, and I probably got it wrong, and it should probably be
-        # scrapped when we get our heads around the distinction.
-        self._just_updating = True
         #bruce 060616 added the following kluge to make sure both cmdname and cmd are set properly.
         if not self.cmdname and not self.cmd:
             self.cmdname = "Generate something"
@@ -144,8 +137,8 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
             self.cmd = greenmsg(self.cmdname + ": ")
         SponsorableMixin.__init__(self)
 
-    def build_struct(self, params):
-        '''Build the structure (model object) in question. This is an abstract method
+    def build_struct(self, name, params, position):
+        """Build the structure (model object) in question. This is an abstract method
         and must be overloaded in the specific generator.
            The argument will be the parameter tuple returned from self.gather_parameters().
         The return value should be the new structure, i.e. some flavor of a Node,
@@ -155,7 +148,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
            By convention (and to fit with history messages emitted from this class),
         the new node's name should be set to self.name,
         which the caller will have set to self.prefix appended with a serial number.
-        '''
+        """
         raise AbstractMethod()
 
     def remove_struct(self):
@@ -189,14 +182,9 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
 
     def done_msg(self):
         '''Tell what message to print when the structure has been
-        built. This is an abstract method and must be overloaded in
-        the specific generator.
+        built. This may be overloaded in the specific generator.
         '''
-        # This isn't quite right.
-        if self._just_updating:
-            return "%s updated." % self.name
-        else:
-            return "%s created." % self.name
+        return "%s created." % self.name
 
     def _revert_number(self):
         import chem, Utility
@@ -211,12 +199,10 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         params = self.gather_parameters()
 
         import chem, Utility
-        self._just_updating = True
         if self.struct == None:
             if platform.atom_debug:
                 print 'no old structure, we are making a new structure'
             self._Gno = chem.Gno
-            self._just_updating = False
         elif params != self.previousParams:
             if platform.atom_debug:
                 print 'parameters have changed, update existing structure'
@@ -227,18 +213,15 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
                 print 'old structure, parameters same as previous, do nothing'
             return
 
-        self._create_new_name()
-        if not self._just_updating:
-            env.history.message(self.cmd + "Creating " + self.name)
+        self.name = name = gensym(self.prefix)
+        # self.name needed for done message
+        env.history.message(self.cmd + "Creating " + name)
         self.remove_struct()
         self.previousParams = params
         if platform.atom_debug: print 'build a new structure'
-        self.struct = self.build_struct(params)
+        self.struct = self.build_struct(name, params, -self.win.glpane.pov)
         self.win.assy.addnode(self.struct)
         self.win.win_update() # includes mt_update
-
-    def _create_new_name(self):
-        self.name = gensym(self.prefix)
 
     def enter_WhatsThisMode(self):
         'Slot for the What\'s This button'

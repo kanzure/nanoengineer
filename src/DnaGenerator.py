@@ -34,7 +34,7 @@ DEBUG = False
 
 class Dna:
 
-    def make(self, assy, grp, sequence, doubleStrand,
+    def make(self, assy, grp, sequence, doubleStrand, position,
              basenameA={'C': 'cytosine',
                         'G': 'guanine',
                         'A': 'adenine',
@@ -44,14 +44,14 @@ class Dna:
                         'T': 'adenine',
                         'A': 'thymine'}):
         baseList = [ ]
-        def insertmmp(filename, tfm):
+        def insertmmp(filename, tfm, position=position):
             grouplist  = _readmmp(assy, filename, isInsert=True)
             if not grouplist:
                 raise Exception("Trouble with DNA base: " + filename)
             viewdata, mainpart, shelf = grouplist
             for member in mainpart.members:
                 for atm in member.atoms.values():
-                    atm._posn = tfm(atm._posn)
+                    atm._posn = tfm(atm._posn) + position
             del viewdata
             for member in mainpart.members:
                 grp.addchild(member)
@@ -184,7 +184,7 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
         double = str(self.endings_combox.currentText())
         return (seq, dnatype, double)
 
-    def build_struct(self, params):
+    def build_struct(self, name, params, position):
         seq, dnatype, double = params
         assert len(seq) > 0, 'Please enter a valid sequence'
         if dnatype == 'A-DNA':
@@ -201,7 +201,7 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
             env.history.message(self.cmd + "Creating DNA.")
         grp = Group(self.name, self.win.assy,
                     self.win.assy.part.topnode)
-        dna.make(self.win.assy, grp, seq, doubleStrand)
+        dna.make(self.win.assy, grp, seq, doubleStrand, position)
         return grp
 
     def get_sequence(self, reverse=False, complement=False,

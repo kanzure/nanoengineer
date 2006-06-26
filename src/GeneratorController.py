@@ -84,9 +84,9 @@ class GeneratorController(GeneratorBaseClass):
             res.append(val)
         return tuple(res)
 
-    def build_struct(self, params):
-        name = self.name # set by the superclass (though it would make more sense if it passed it to us)
-        return self.gen.build_struct(params, name)
+    def build_struct(self, name, params, position):
+        # name = self.name # set by the superclass (though it would make more sense if it passed it to us)
+        return self.gen.build_struct(name, params, position)
 
     # needed by GeneratorBaseClass since we're not inheriting QDialog but delegating to one;
     # this is also the only way we can find out when the dialog gets dismissed

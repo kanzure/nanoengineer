@@ -345,7 +345,7 @@ class PluginlikeGenerator:
         
         pass###e
 
-    def build_struct(self, params, name):
+    def build_struct(self, name, params, position):
         "Same API as in GeneratorBaseClass, except for the suggested name also being passed. On error, raise an exception."
         ###@@@ where i am:
         # get executable, append exe, ensure it exists
@@ -370,6 +370,8 @@ class PluginlikeGenerator:
                 assert 0, "generator output file should exist but doesn't: [%s]" % (outfile,)
         # insert file contents, rename the object in it, return that (see dna generator)
         thing = self.insert_output(outfiles, params, name)
+        for atom in thing.atoms.values():
+            atom.setposn(atom.posn() + position)
             # some params might affect insertion (or postprocessing)
             # other than by affecting the command output
         self.remove_outfiles(outfiles)

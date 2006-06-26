@@ -365,7 +365,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         return (length, n, m, bond_length, zdist, xydist,
                 twist, bend, members, endings, numwalls, spacing)
 
-    def build_struct(self, params, mol=None):
+    def build_struct(self, name, params, position, mol=None):
         length, n, m, bond_length, zdist, xydist, \
                 twist, bend, members, endings, numwalls, spacing = params
         # This can take a few seconds. Inform the user.
@@ -381,7 +381,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             sw.start()
         xyz = self.chirality.xyz
         if mol == None:
-            mol = molecule(self.win.assy, self.name)
+            mol = molecule(self.win.assy, name)
         atoms = mol.atoms
         mlimits = self.chirality.mlimits
         # populate the tube with some extra carbons on the ends
@@ -465,6 +465,11 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
                 if len(atm.realNeighbors()) == 2:
                     atm.Transmute(dstElem, force=True, atomtype=atomtype)
 
+        # Translate structure to desired position
+        for atm in atoms.values():
+            v = atm.posn()
+            atm.setposn(v + position)
+
         if PROFILE:
             t = sw.now()
             env.history.message(greenmsg("%g seconds to build %d atoms" %
@@ -474,7 +479,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             n += int(spacing * 3 + 0.5)  # empirical tinkering
             params = (length, n, m, bond_length, zdist, xydist,
                       twist, bend, members, endings, numwalls-1, spacing)
-            self.build_struct(params, mol=mol)
+            self.build_struct(name, params, position, mol=mol)
 
         return mol
 

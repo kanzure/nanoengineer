@@ -78,7 +78,7 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
 
         return (height, width, bond_length, endings)
 
-    def build_struct(self, params):
+    def build_struct(self, name, params, position):
         height, width, bond_length, endings = params
         PROFILE = False
         if PROFILE:
@@ -87,7 +87,7 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
         mol = molecule(self.win.assy, self.name)
         atoms = mol.atoms
         z = 0.0
-        self.populate(mol, height, width, z, bond_length, endings)
+        self.populate(mol, height, width, z, bond_length, endings, position)
 
         if PROFILE:
             t = sw.now()
@@ -107,7 +107,7 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
         self.bond_length_linedit.setText(blstr)
         self.hstr, self.wstr, self.blstr = hstr, wstr, blstr
 
-    def populate(self, mol, height, width, z, bond_length, endings):
+    def populate(self, mol, height, width, z, bond_length, endings, position):
 
         def add(element, x, y, atomtype='sp2'):
             atm = Atom(element, chem.V(x, y, z), mol)
@@ -192,6 +192,9 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
             for atm in atoms.values():
                 if len(atm.realNeighbors()) == 2:
                     atm.Transmute(dstElem, force=True, atomtype=atomtype)
+
+        for atm in atoms.values():
+            atm.setposn(atm.posn() + position)
 
     ###################################################
     # Special UI things that still must be implemented
