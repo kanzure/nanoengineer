@@ -9,16 +9,17 @@ Citations of this work should be formatted as follows:
   and Computer Sciences, 44, 1639-1646 (2004)
 
 Nanorex's modifications include translation from Java to C++,
-performance improvement in bond inference, and changing the output file
-format from pdb to mmp.
+performance improvement in bond inference, changing the output file
+format from pdb to mmp, and revising the stderr messages and exit code.
 
-There are three executables. You can build them by typing "make" in
-the this directory. This should work on Windows, Mac, or Linux. 
+There are three executables. You can build them by typing "make" in this
+directory. This should work on Windows (DOS or cygwin), Mac, or Linux.
 
 Where arguments below are specified as floats, they are C/C++ double
 precision floats. Integers are 32-bit signed, though in all cases
-only a smaller range of values is actually valid.
-[### we should say what happens when the values are not valid]
+only a smaller range of values is actually valid. When the arguments
+are not valid, the code prints an error message to stderr and exits
+with a nonzero exitcode.
 
 --------------------------------------------
 I. Single-wall nanotubes
