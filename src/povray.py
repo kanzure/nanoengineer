@@ -117,6 +117,8 @@ def write_povray_ini_file(povray_ini_fname, povrayscene_file, width, height, out
     povray_dir, bin = os.path.split(povray_bin)
     if sys.platform == 'win32':
         megapov_exe = 'megapov.exe'
+    elif sys.platform == 'darwin':
+        megapov_exe = 'megapov.app'
     else:
         megapov_exe = 'megapov'
     if povray_exe == megapov_exe:
