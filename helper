@@ -9,10 +9,10 @@ case $1 in
 esac
 
 echo If there is already an RPM installed, uninstall it
-sudo rpm -e nanoENGINEER-1 || echo "didn't find an old RPM"
+sudo rpm -e NanoEngineer-1 || echo "didn't find an old RPM"
 
 echo Remove any detritus from previous build attempts
-sudo find /usr/src/RPM -name nanoENGINEER* -exec rm -rf {} \;
+sudo find /usr/src/RPM -name NanoEngineer* -exec rm -rf {} \;
 rm -rf /tmp/quux
 
 echo Fetch sources
@@ -25,4 +25,4 @@ $CMD
 rm -rf assistant OpenGL
 
 echo Install the new RPM
-sudo rpm -i /usr/src/RPM/RPMS/i586/nanoENGINEER-1-0.0-6.i586.rpm
+sudo rpm -i /usr/src/RPM/RPMS/i586/NanoEngineer-1-0.0-6.i586.rpm
