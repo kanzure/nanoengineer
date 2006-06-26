@@ -11,7 +11,6 @@ from qt import *
 from chem import gensym
 from Sponsors import SponsorableMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg
-import exceptions
 
 __author__ = "Will"
 
@@ -92,6 +91,39 @@ class AbstractMethod(Exception):
     def __init__(self):
         Exception.__init__(self, 'Abstract method - must be overloaded')
 
+class CadBug(Exception):
+    """Useful for distinguishing between an exception from subclass
+    code which is a bug in the cad, a report of an error in the
+    plugin, or a report of a user error.
+    """
+    def __init__(self, arg=None):
+        if arg is not None:
+            Exception.__init__(self, arg)
+        else:
+            Exception.__init__(self)
+
+class PluginBug(Exception):
+    """Useful for distinguishing between an exception from subclass
+    code which is a bug in the cad, a report of an error in the
+    plugin, or a report of a user error.
+    """
+    def __init__(self, arg=None):
+        if arg is not None:
+            Exception.__init__(self, arg)
+        else:
+            Exception.__init__(self)
+
+class UserError(Exception):
+    """Useful for distinguishing between an exception from subclass
+    code which is a bug in the cad, a report of an error in the
+    plugin, or a report of a user error.
+    """
+    def __init__(self, arg=None):
+        if arg is not None:
+            Exception.__init__(self, arg)
+        else:
+            Exception.__init__(self)
+
 class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     """There is some logic associated with Preview/OK/Abort that's
     complicated enough to put it in one place, so that individual
@@ -113,18 +145,6 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         # (subclasses often set cmd to greenmsg(self.cmdname + ": "), from which we have to klugily deduce self.cmdname! Ugh.)
     cmdname = "" # subclasses should set this to their (undecorated) command name for use by Undo and history. [bruce 060616 new feature]
 
-    class Exception(exceptions.Exception):
-        """GeneratorBaseClass.Exception is useful for distinguishing
-        between an exception from subclass code which is a bug in the
-        cad, a report of an error in the plugin, or a report of a user
-        error.
-        """
-        def __init__(self, arg=None):
-            if arg is not None:
-                exceptions.Exception.__init__(self, arg)
-            else:
-                exceptions.Exception.__init__(self)
-    
     # pass window arg to constructor rather than use a global, wware 051103
     def __init__(self, win):
         self.win = win
@@ -176,38 +196,37 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
 
     def preview_btn_clicked(self):
         if platform.atom_debug: print 'preview button clicked'
-        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-        self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616; should we + " (Preview)" ? guess: too ugly.
-        try:
-            self._build_struct()
-        except self.Exception, e:
-            env.history.message(redmsg("GBC.Exception: " + " - ".join(map(str, e.args))))
-            self.remove_struct()
-        except exceptions.Exception, e:
-            env.history.message(self.cmd + redmsg(" - ".join(map(str, e.args))))
-            self.remove_struct()
-        QApplication.restoreOverrideCursor() # Restore the cursor
-        self.win.win_update()
+        self._ok_or_preview()
 
     def ok_btn_clicked(self):
         'Slot for the OK button'
         if platform.atom_debug: print 'ok button clicked'
+        self._ok_or_preview(doneMsg=True)
+        self.accept() #bruce 060621
+        return
+
+    def _ok_or_preview(self, doneMsg=False):
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616
         try:
             self._build_struct()
-            env.history.message(self.cmd + self.done_msg())
+            if doneMsg:
+                env.history.message(self.cmd + self.done_msg())
             self.struct = None
-        except self.Exception, e:
-            env.history.message(redmsg("GBC.Exception: " + " - ".join(map(str, e.args))))
+        except CadBug, e:
+            env.history.message(redmsg("Bug in the CAD system: " + " - ".join(map(str, e.args))))
             self.remove_struct()
-        except exceptions.Exception, e:
+        except PluginBug, e:
+            env.history.message(redmsg("Bug in the plug-in: " + " - ".join(map(str, e.args))))
+            self.remove_struct()
+        except UserError, e:
+            env.history.message(redmsg("User error: " + " - ".join(map(str, e.args))))
+            self.remove_struct()
+        except Exception, e:
             env.history.message(self.cmd + redmsg(" - ".join(map(str, e.args))))
             self.remove_struct()
         QApplication.restoreOverrideCursor() # Restore the cursor
-        ## QDialog.accept(self)
-        self.accept() #bruce 060621
-        return
+        self.win.win_update()
 
     def gather_parameters(self):
         '''Return a tuple of the current parameters. This is an
