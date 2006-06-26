@@ -30,36 +30,40 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         PovrayScenePropDialog.__init__(self, win)  # win is parent.
         self.win = win
         self.glpane = self.win.glpane
-        self.struct = None
+        self.node = None
         self.previousParams = None
 
-    def _create_new_name(self):
-        'Create new name for new PVS.'
+    def _create_new_node_name(self):
+        'Create node name for new POV-Ray Scene node.'
         import PovrayScene
         self._PVSNum = PovrayScene.PVSNum
         self.name = genPVSNum(self.prefix) + self.extension
     
-    def _revert_number(self):
-        'Revert the PVS number'
+    def _revert_node_number(self):
+        'Revert the PVS node number'
         import PovrayScene
         if hasattr(self, '_PVSNum'):
             PovrayScene.PVSNum = self._PVSNum
 
-    def setup(self, pvs=None):
-        '''Show the Properties Manager dialog. If <pvs> is supplied, get the parameters from
-        it and load the dialog widgets.
-        '''      
+    def setup(self, pov=None):
+        '''Show the Properties Manager dialog. If <pov> is supplied, 
+        get the parameters from it and load the dialog widgets.
+        '''
+        
+        if not self.win.assy.filename:
+            env.history.message( self.cmdname + redmsg("Can't insert POV-Ray Scene until the current part has been saved.") )
+            return
 
-        if pvs:
-            self.struct_is_new = False
-            self.name = pvs.name
-            self.filename = pvs.povrayscene_file
-            self.width, self.height, self.output_type = pvs.get_parameters()
-            self.struct = pvs
+        if pov:
+            self.node_is_new = False
+            self.name = pov.name
+            self.filename = pov.povrayscene_file
+            self.width, self.height, self.output_type = pov.get_parameters()
+            self.node = pov
             
         else:
-            self.struct_is_new = True
-            self._create_new_name()
+            self.node_is_new = True
+            self._create_new_node_name()
             self.filename = ''
             self.width = int(self.glpane.width)
             self.height = int(self.glpane.height)
@@ -92,30 +96,39 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         self.height_spinbox.setValue(self.height) # Generates signal.
     
     def done_msg(self):
-        'Tell what message to print when the PVS has been built.'
-        if self.struct_is_new:
+        'Tell what message to print when the POV-Ray Scene node has been created or updated.'
+        if self.node_is_new:
             return "%s created." % self.name
         else:
             return "%s updated." % self.name
 
-    def build_struct(self, params):
-        'Create or update PVS.'
-        if not self.struct: 
+    def create_or_update_node(self, params):
+        'Create or update the POV-Ray Scene node.'
+        if not self.node: 
             self.name = params[0]
-            pvs_params = params[1:]
+            pov_params = params[1:]
             from PovrayScene import PovrayScene
-            self.struct = PovrayScene(self.win.assy, self.name, pvs_params) #bruce 060620 revised this
+            self.node = PovrayScene(self.win.assy, self.name, pov_params) #bruce 060620 revised this
         else:
-            self.set_params( self.struct, params)
-        self.struct.write_pvs_file()
-        return self.struct
+            self.set_params( self.node, params)
+        
+        # Only write the POV-Ray Scene file if this is a new node. If we are editing the properties of an existing
+        # POV-Ray Scene node, only change the node's parameters. Do not overwrite the <povrayscene_file>!
+        if self.node_is_new: 
+            errorcode, filename_or_errortext = self.node.write_povrayscene_file()
+            if errorcode:
+                # The Pov-Ray Scene file could not be written, so remove the node.
+                self.remove_node()
+                env.history.message( self.cmdname + redmsg(filename_or_errortext) )
+        
+        return self.node
 
-    def set_params(self, struct, params): #bruce 060620, since pvs params don't include name, but our params do
+    def set_params(self, struct, params): #bruce 060620, since pov params don't include name, but our params do
         # struct should be a PovrayScene node
         name = params[0]
-        pvs_params = params[1:]
+        pov_params = params[1:]
         struct.name = name # this ought to be checked for being a legal name; maybe we should use try_rename ###e
-        struct.set_parameters(pvs_params)
+        struct.set_parameters(pov_params)
             # Warning: code in this class assumes a specific order and set of params must be used here
             # (e.g. in gather_parameters), so it might be clearer if set_parameters was just spelled out here
             # as three assignments to attrs of struct. On the other hand, these three parameters (in that order)
@@ -123,70 +136,76 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
             # and we should still make this change during the next cleanup of these files. ###@@@ [bruce 060620 comment]
         return
     
-    def remove_struct(self):
-        'Delete PVS and remove it from the model tree.'
-        if self.struct != None:
-            self.struct.kill()
-            self.struct = None
-            self.win.win_update() # includes mt_update
+    def remove_node(self):
+        'Delete this POV-Ray Scene node.'
+        if self.node != None:
+            self.node.kill()
+            self.node = None
+            self.win.mt.mt_update()
 
 # Property manager standard button slots.
 
     def ok_btn_clicked(self):
         'Slot for the OK button'
+        
         self.win.assy.current_command_info(cmdname = self.cmdname)
         
-        # Need to do this now, before calling build_struct() below.
-        if not self.struct:
-            addnode = True
-        else:
+        # Need to do this now, before calling create_or_update_node() below.
+        if self.node:
             addnode = False
+        else:
+            addnode = True
         
         params = self.gather_parameters()
-        self.struct = self.build_struct(params)
+        self.node = self.create_or_update_node(params)
         
         if addnode:
-            self.win.assy.addnode(self.struct)
+            self.win.assy.addnode(self.node)
             
-        self.win.win_update() # Update model tree regardless whether it is a new node or not.
-            
-        env.history.message(self.cmdname + self.done_msg())
-        self.struct = None
+        self.win.mt.mt_update()
+            # Update model tree regardless whether it is a new node or not, 
+            # since the user may have changed the name of an existing POV-Ray Scene node.
+        
+        if self.node:
+            env.history.message(self.cmdname + self.done_msg())
+        self.node = None
         QDialog.accept(self)
         
     def cancel_btn_clicked(self):
         'Slot for Cancel button.'
         self.win.assy.current_command_info(cmdname = self.cmdname + " (Cancel)")
-        if self.struct_is_new:
-            self.remove_struct()
-            self._revert_number()
+        if self.node_is_new:
+            self.remove_node()
+            self._revert_node_number()
         else:
-            self.set_params(self.struct, self.previousParams)
+            self.set_params(self.node, self.previousParams)
         QDialog.accept(self)   
     
     def restore_defaults_btn_clicked(self):
         'Slot for Restore Defaults button.'
         self.name, self.width, self.height, self.output_type = self.previousParams
         self.update_widgets()
-        
+            
     def preview_btn_clicked(self):
         'Slot for Preview button.'
         
-        # Need to do this now, before calling build_struct() below.
-        if not self.struct:
+        # Need to do this now, before calling create_or_update_node() below.
+        if not self.node:
             addnode = True
         else:
             addnode = False
         
         params = self.gather_parameters()
-        self.struct = self.build_struct(params)
+        self.node = self.create_or_update_node(params)
         
         if addnode:
-            self.win.assy.addnode(self.struct)
+            self.win.assy.addnode(self.node)
         
         self.win.win_update() # Update model tree regardless whether it is a new node or not.
         
-        self.struct.render_image()
+        errorcode, errortext = self.node.render_scene()
+        if errorcode:
+            env.history.message( self.cmdname + redmsg(errortext) )
         
     def whatsthis_btn_clicked(self):
         'Slot for the What\'s This button'

@@ -13,11 +13,12 @@ mark 060601 - Created.
 __author__ = "Mark"
 
 from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
-from povray import get_raytrace_scene_filenames, write_povray_ini_file, raytrace_scene_using_povray
+from povray import write_povray_ini_file, launch_povray
 from fileIO import writepovfile
 from qt import Qt, QApplication, QCursor
 from HistoryWidget import greenmsg, redmsg
 import env, os, sys
+from platform import find_or_make_any_directory, find_or_make_Nanorex_subdir
 
 PVSNum = 0
 def genPVSNum(string):
@@ -79,8 +80,18 @@ class PovrayScene(SimpleCopyMixin, Node):
     def writemmp(self, mapping):
         mapping.write("povrayscene (" + mapping.encode_name(self.name) + ") %d %d %s\n" % \
             (self.width, self.height, self.output_type))
-        mapping.write("info povrayscene povrayscene_file = %s\n" % self.povrayscene_file)
-            #&&& povrayscene_file is an abolute path. Needs to be a relative path. Mark 060613.
+        
+        # Write absolute path of POV-Ray Scene file into info record.
+        # Get the basename from the povrayscene_file since there is no guarantee that the name and the basename are
+        # still the same, since the user could have renamed the node and this does not change the povrayscene filename.
+        dir, basename = os.path.split(self.povrayscene_file)
+        mapping.write("info povrayscene povrayscene_file = POV-Ray Scene Files/%s\n" % basename) # Relative path.
+        # This is still flimsy since it assumes <basename> exists in the POV-Ray Scene Files directory.
+        # This is OK for now since it will be true a majority of the time, except for the frequent situation mentioned below.
+        #&&& Problem: Users will assume when they rename an existing MMP file, all the POV-Ray Scene files will still be associated 
+        #&&& with the MMP file when in fact they will not be. Bruce and I discussed the idea of copying the Part Files directory and
+        #&&& its contents when renaming an MMP file. This is an important issue to resolve since it will happen frequently. Mark 060625.
+        
         self.writemmp_info_leaf(mapping)
         return
     
@@ -98,9 +109,13 @@ class PovrayScene(SimpleCopyMixin, Node):
             return
         if key[0] == 'povrayscene_file':
             if val:
-                self.povrayscene_file = val
-                    #&&& This is an absolute path. Needs to be written a relative path in writemmp(). Mark 060613.
-                    # Some fixup might also be needed in other methods which use this, like the following (split out by bruce 060620).
+                if val[0] == '/' or val[0] == '\\':
+                    # val is an absolute path.
+                    self.povrayscene_file = val 
+                else:
+                     # val is a relative path. Build the absolute path.
+                    errorcode, dir = self.assy.find_or_make_part_files_directory()
+                    self.povrayscene_file = os.path.normpath(os.path.join(dir, val))
                 self.update_icon( print_missing_file = True)
             pass
         return
@@ -130,71 +145,81 @@ class PovrayScene(SimpleCopyMixin, Node):
     def __str__(self):
         return "<povrayscene " + self.name + ">"
     
-    def write_pvs_file(self):
-        '''Writes a POV-Ray Scene file of the current scene in the GLPane.
+    def write_povrayscene_file(self):
+        '''Writes a POV-Ray Scene file of the current scene in the GLPane to the POV-Ray Scene Files directory.
+        If successful, returns errorcode=0 and the absolute path of povrayscene file.
+        Otherwise, returns errorcode=1 with text describing the problem writing the file.
         '''
-        r, povray_ini, povray_scene = get_raytrace_scene_filenames(self.assy, self.name)
-        
-        if r:
-            # There was a problem. <povray_ini> contains a description the problem.
-            env.history.message( cmd + redmsg(povray_ini) )
-            return
-        
-        writepovfile(self.assy.part, self.assy.o, povray_scene)
-        
-        self.povrayscene_file = povray_scene
-        
-    def render_image(self, use_existing_pvs=False, create_image_node=False):
-        '''Renders image from a new or existing POV-Ray Scene file.
-        If <use_existing_pvs> is True, use the existing POV-Ray Scene file (if it exists).
-        Creates an Image node in the model tree if <create_image_node> is True. NIY - Mark 060602.
-        '''
-        
-        cmd = greenmsg("Render POV-Ray Scene: ")
-        
-        r, povray_ini, povray_scene = get_raytrace_scene_filenames(self.assy, self.name)
-        
-        if r:
-            # There was a problem. <povray_ini> contains a description the problem.
-            env.history.message( cmd + redmsg(povray_ini) )
-            return
-        
-        if use_existing_pvs and not os.path.exists(povray_scene):
-            env.history.message( cmd + redmsg("POV-Ray Scene file does not exist.") )
-            self.const_icon = imagename_to_pixmap("povrayscene-notfound.png")
-                #&&& Need to update the model tree. Should the caller do this? I think so. Need to decide the best way.
-                # There probably needs to be a more general and persistent way to periodically update file
-                # nodes icons when their associated file goes AWOL and "not found" icons should be displayed.
-                # Talk to Bruce about this. Mark 060613.
-                # bruce 060620 replies: the above change of icon should probably be done in self.update_icon, not here,
-                # but that needs cleanup re using wrong filename in history message;
-                # and then that method should call mt_update if it changes the icon. ###@@@
-            return
-        
-        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-        
-        try:
-            if not use_existing_pvs or not os.path.exists(povray_scene):
-                # If <use_existing_pvs> is False or if the pvs file does not exist, write the pvs (.pov) file.
-                writepovfile(self.assy.part, self.assy.o, povray_scene)
-                #env.history.message( "POV-Ray Scene written to " + povray_scene )
-            write_povray_ini_file(povray_ini, povray_scene, self.width, self.height, self.output_type)
-            r, why = raytrace_scene_using_povray(self.assy, povray_ini)
-            if r:
-                env.history.message( cmd + redmsg(why) )
-                return
-        
-        except Exception, e:
-                env.history.message(cmd + redmsg(" - ".join(map(str, e.args))))
-                
-        QApplication.restoreOverrideCursor() # Restore the cursor
-        
-        return
+        ini, pov = self.get_povfile_pair() # pov includes the POV-Ray Scene Files directory in its path.
+        if not ini:
+            return 1, "Can't get POV-Ray Scene filename"
+        #print "write_povrayscene_file(): povrayscene_file=", pov
+        writepovfile(self.assy.part, self.assy.o, pov)
+        return 0, pov
     
+    def get_povfile_pair(self, tmpfile = False):
+        """Returns the POV-Ray INI filename and its POV-Ray Scene filename pair. 
+        If there was any problem, returns None.
+        """
+    
+        # The ini and pov files must exist in the same directory due to POV-Ray's I/O Restriction feature. Mark 060625.
+    
+        ini_filename = "povray.ini"
+        # Critically important: POV-Ray uses the INI filename as an argument; it cannot have any whitespaces.
+        # This is a POV-Ray bug on Windows only. For more information about this problem, see:
+        # http://news.povray.org/povray.windows/thread/%3C3e28a17f%40news.povray.org%3E/?ttop=227783&toff=150
+        # Mark 060624.
+    
+        if tmpfile:
+            pov_filename = "povrayscene.pov"
+            from platform import find_or_make_Nanorex_subdir
+            dir = find_or_make_Nanorex_subdir("POV-Ray")
+            if not dir:
+                return None, None
+        else:
+            pov_filename = self.name
+            errorcode, dir = self.assy.find_or_make_pov_files_directory()
+            if errorcode:
+                return None, None
+    
+        povrayini_file = os.path.normpath(os.path.join(dir, ini_filename))
+        povrayscene_file = os.path.normpath(os.path.join(dir, pov_filename))
+    
+        #print "get_povfile_pair():\n  povrayini_file=", povrayini_file, "\n  povrayscene_file=", povrayscene_file
+        return povrayini_file, povrayscene_file
+    
+    def render_scene(self, tmpscene=False):
+        """Render scene. 
+        If tmpscene is False, the INI and pov files are written to the 'POV-Ray Scene Files' directory.
+        If tmpscene is True, the INI and pov files are written to a temporary directory (~/Nanorex/POV-Ray).
+        Callers should set <tmpscene> = True when they want to render the scene but don't need to 
+        save the files and create a POV-Ray Scene node (i.e. 'View > Raytrace Scene').
+        The caller is responsible for adding the POV-Ray Scene node to the model tree.
+        Returns errorcode and errortext.
+        """
+        ini, pov = self.get_povfile_pair(tmpscene)
+        
+        if ini:
+            if not self.povrayscene_file:
+                self.povrayscene_file = pov
+                writepovfile(self.assy.part, self.assy.o, self.povrayscene_file)
+            write_povray_ini_file(ini, self.povrayscene_file, self.width, self.height, self.output_type)
+        else:
+            return 1, "Problem getting POV-Ray INI filename."
+        
+        # Launch POV-Ray      
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        errorcode, errortext = launch_povray(self.assy.w, ini) # Launch POV-Ray
+        QApplication.restoreOverrideCursor() # Restore the cursor
+            
+        return errorcode, errortext # errorcode = 0 if successful.
+      
     # Context menu item methods #######################################
     
-    def __CM_Render_Image(self):
-        '''Method for "Render Image" context menu.'''
-        self.render_image(use_existing_pvs=True)
+    def __CM_Render_Scene(self):
+        '''Method for "Render Scene" context menu.'''
+        errorcode, errortext = self.render_scene()
+        if errorcode:
+            env.history.message( "Render Scene: " + redmsg(errortext) )
 
     pass # end of class PovrayScene

@@ -316,9 +316,14 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
                                 self.glpane.quat)
         self.assy.addnode(csys)
         self.mt.mt_update()
-        
+    
     def viewRaytraceScene(self):
-        'Slot for "View > Raytrace Scene"'
+        """Slot for 'View > Raytrace Scene'.
+        Raytraces the current scene. This version does not add a POV-Ray Scene node to the model tree.
+        This is preferred since it allows the user to preview POV-Ray renderings without having to save
+        the current part and/or delete unwanted nodes from the model tree. If the user wants to add the 
+        node to the model tree, the user must use 'Insert > POV-Ray Scene'.
+        """
         
         cmd = greenmsg("Raytrace Scene: ")
         
@@ -326,13 +331,36 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         glpane = self.glpane
         
         from PovrayScene import PovrayScene
-        pvs = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
+        pov = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
+        errorcode, errortext = pov.render_scene(tmpscene=True)
+        if errorcode:
+            env.history.message( cmd + redmsg(errortext) )
+            return
+        
+        msg = "POV-Ray rendering complete."
+        env.history.message( cmd + msg ) 
+        
+    def viewRaytraceScene_ORIG(self):
+        """Slot for 'View > Raytrace Scene'.
+        Raytraces the current scene. This version adds a POV-Ray Scene node to the model tree.
+        """
+        
+        cmd = greenmsg("Raytrace Scene: ")
+        
+        assy = self.assy
+        glpane = self.glpane
+        
+        from PovrayScene import PovrayScene
+        pov = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
         #bruce 060620 comment: I doubt it's correct to render the image before adding the node,
         # in case rendering it takes a long time. Also, if the rendering is aborted, the node
         # should perhaps not be added (or should be removed if it was already added,
         # or should be changed to indicate that the rendering was aborted).
-        pvs.render_image()
-        assy.addnode(pvs)
+        errorcode, errortext = pov.render_scene()
+        if errorcode:
+            env.history.message( cmd + redmsg(errortext) )
+            return
+        assy.addnode(pov)
         self.mt.mt_update()
         
         msg = "POV-Ray rendering complete."

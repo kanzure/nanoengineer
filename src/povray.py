@@ -16,8 +16,9 @@ import preferences, env
 import os, sys
 from qt import QApplication, QCursor, Qt, QStringList, QProcess, QDir
 
-def raytrace_scene_using_povray(assy, povray_ini):
-    '''Render the POV-Ray scene file <pov_scene> using the <povray_ini> file.
+def launch_povray(win, povray_ini):
+    '''Launch POV-Ray.
+    <povray_ini> is a text file containing settings for what used to be called POV-Ray command-line options.
     
     Return values:
         0 = successful
@@ -38,7 +39,7 @@ def raytrace_scene_using_povray(assy, povray_ini):
     
     # Validate that the POV-Ray plug-in is enabled.
     if not env.prefs[povray_enabled_prefs_key]:
-        r = activate_povray_plugin(assy.w)
+        r = activate_povray_plugin(win)
         if r:
             return 1, errmsgs[0] # POV-Ray plug-in not enabled.
         
@@ -84,13 +85,14 @@ def raytrace_scene_using_povray(assy, povray_ini):
 
     except:
         from debug import print_compact_traceback
-        print_compact_traceback( "exception in raytrace_scene_using_povray(): " )
+        print_compact_traceback( "exception in launch_povray(): " )
         return 6, errmsgs[5]
             
     return 0, ''
-    
-def write_povray_ini_file(povray_ini_fname, povray_scene, width, height, output_type='png'):
-    '''Write <povray_ini> file. The output image is placed next to the <povray_scene> file
+
+# Should write_povray_ini_file() become a method of PovrayScene. I think so, but ask Bruce. Mark 060626. 
+def write_povray_ini_file(povray_ini_fname, povrayscene_file, width, height, output_type='png'):
+    '''Write <povray_ini> file. The output image is placed next to the <povrayscene_file> file
     with the extension based on <output_type>.
     <width>, <height> are the width and height of the rendered image. (int)
     <output_type> is the extension of the output image (currently only 'png' and 'bmp' are supported).
@@ -122,7 +124,7 @@ def write_povray_ini_file(povray_ini_fname, povray_scene, width, height, output_
     else:
         povray_libpath = None
     
-    workdir, tmp_pov = os.path.split(povray_scene)
+    workdir, tmp_pov = os.path.split(povrayscene_file)
     base, ext = os.path.splitext(tmp_pov)
     tmp_out = base + output_ext
 
@@ -136,33 +138,6 @@ def write_povray_ini_file(povray_ini_fname, povray_scene, width, height, output_
     f.write ('; End\n')
     
     f.close()
-    
-def get_raytrace_scene_filenames(assy, basename):
-    '''Given <assy> and <basename>, returns a POV-Ray .ini and a .pov pathname.
-    The caller can use these to write a POV-Ray INI file and the POV-Ray Scene file.
-    For example, get_raytrace_scene_filename("POV-Ray Scene-1") returns
-    'Partname Files/POV-Ray Files/POV-Ray Scene-1.pov' as the .pov path.
-    Returns <errcode>, <povray_ini>, <povray_scene>. 
-    If errcode != 0, <povray_ini> contains the errortext of the problem.
-    '''
-    if basename:
-        # Create POV-Ray Scene Files directory (i.e. "Partname Files/POV-Ray Scene Files")
-        path_wo_ext, ext = os.path.splitext(assy.filename)
-        partfiles_dir = path_wo_ext + " Files"
-        povray_dir  = os.path.join(partfiles_dir, "POV-Ray Scene Files")
-        from platform import find_or_make_any_directory
-        r, info = find_or_make_any_directory(povray_dir)
-        if r:
-            return 1, info, None # <info> contains a description the problem.
-        ini_filename = "NanoEngineer-1_raytrace_scene.ini"
-            # Critically important: POV-Ray uses the INI filename as an argument; it cannot have any whitespaces.
-            # Mark 060602.
-        povray_ini = os.path.normpath(os.path.join(povray_dir, ini_filename))
-        povray_scene = os.path.normpath(os.path.join(povray_dir,str(basename)))
-        print "get_raytrace_scene_filenames():\n  povray_ini=", povray_ini,"\n  povray_scene=",povray_scene
-        return 0, povray_ini, povray_scene
-    else:
-        return 1, "No POV-Ray name supplied.", None
         
 def activate_povray_plugin(win):
     '''Opens a message box informing the user that the POV-Ray plugin
