@@ -28,7 +28,7 @@ class Version:
         "tiny": 1,     # tiny and teeny are optional
         # "teensy": 0,   # you can have both, or just tiny, or neither
         "releaseType": "Alpha",
-        "releaseDate": "June 23, 2006",
+        "releaseDate": "June 26, 2006",
         "product": "NanoEngineer-1",
         "copyright": __copyright__,
         "authors": __author__
