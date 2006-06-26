@@ -1,0 +1,219 @@
+mmpformat 050920 required; 060421 preferred
+kelvin 300
+group (View Data)
+info opengroup open = True
+csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (17.950451) (-11.607081, 0.133415, 0.000000) (1.000000)
+egroup (View Data)
+group (nanoChef-C43H42O2)
+info opengroup open = True
+mol (nanoChef-Head) def
+atom 1 (6) (87, 5581, -239) def
+atom 2 (1) (116, 5812, -1297) def
+bond1 1
+atom 3 (8) (1294, 6116, 401) def
+bond1 1
+atom 4 (8) (-1043, 6277, 379) def
+bond1 1
+atom 5 (6) (908, 7484, 756) def
+info atom atomtype = sp2
+bond1 3
+atom 6 (6) (-487, 7546, 827) def
+info atom atomtype = sp2
+bond1 4
+bondg 5
+atom 7 (6) (-1170, 8773, 855) def
+info atom atomtype = sp2
+bondg 6
+atom 8 (1) (-2271, 8847, 776) def
+bond1 7
+atom 9 (6) (-395, 9934, 956) def
+info atom atomtype = sp2
+bondg 7
+atom 10 (1) (-870, 10771, 1212) def
+bond1 9
+atom 11 (6) (1702, 8630, 982) def
+info atom atomtype = sp2
+bondg 5
+atom 12 (1) (2797, 8494, 905) def
+bond1 11
+atom 13 (6) (1005, 9880, 1239) def
+info atom atomtype = sp2
+bondg 9 11
+atom 14 (1) (1524, 10819, 1347) def
+bond1 13
+mol (Body) def
+atom 15 (6) (1228, 3355, 126) def
+info atom atomtype = sp2
+atom 16 (6) (1225, 1948, -156) def
+info atom atomtype = sp2
+bonda 15
+atom 17 (6) (-23, 1254, -269) def
+info atom atomtype = sp2
+bonda 16
+atom 18 (6) (-1259, 1982, -264) def
+info atom atomtype = sp2
+bonda 17
+atom 19 (6) (-1259, 3404, -92) def
+info atom atomtype = sp2
+bonda 18
+atom 20 (6) (4, 4081, -37) def
+info atom atomtype = sp2
+bond1 1
+bonda 15 19
+atom 21 (1) (2063, 3810, 653) def
+bond1 15
+atom 22 (1) (-2205, 1457, -339) def
+bond1 18
+atom 23 (6) (2567, 1184, -206) def
+info atom atomtype = sp
+bond1 16
+atom 24 (6) (3616, 586, -240) def
+info atom atomtype = sp
+bond3 23
+atom 25 (6) (4971, -172, -281) def
+bond1 24
+atom 26 (6) (-2597, 4176, -22) def
+info atom atomtype = sp
+bond1 19
+atom 27 (6) (-3632, 4796, 15) def
+info atom atomtype = sp
+bond3 26
+atom 28 (6) (-4947, 5621, 42) def
+bond1 27
+atom 29 (6) (-54, -287, -399) def
+info atom atomtype = sp
+bond1 17
+atom 30 (6) (-90, -1490, -502) def
+info atom atomtype = sp
+bond3 29
+atom 31 (6) (1085, -3775, -733) def
+info atom atomtype = sp2
+atom 32 (6) (1052, -5205, -809) def
+info atom atomtype = sp2
+bonda 31
+atom 33 (6) (-204, -5891, -908) def
+info atom atomtype = sp2
+bonda 32
+atom 34 (6) (-1431, -5144, -866) def
+info atom atomtype = sp2
+bonda 33
+atom 35 (6) (-1395, -3712, -736) def
+info atom atomtype = sp2
+bonda 34
+atom 36 (6) (-138, -3032, -637) def
+info atom atomtype = sp2
+bond1 30
+bonda 31 35
+atom 37 (1) (2024, -3247, -890) def
+bond1 31
+atom 38 (1) (-229, -6975, -1010) def
+bond1 33
+atom 39 (1) (-2326, -3146, -718) def
+bond1 35
+atom 40 (6) (2379, -6006, -856) def
+info atom atomtype = sp
+bond1 32
+atom 41 (6) (3420, -6620, -892) def
+info atom atomtype = sp
+bond3 40
+atom 42 (6) (4757, -7403, -939) def
+bond1 41
+atom 43 (6) (-2789, -5886, -962) def
+info atom atomtype = sp
+bond1 34
+atom 44 (6) (-3844, -6469, -1037) def
+info atom atomtype = sp
+bond3 43
+atom 45 (6) (-5196, -7223, -1133) def
+bond1 44
+atom 46 (1) (5362, -7118, -80) def
+bond1 42
+atom 47 (1) (5307, -7108, -1831) def
+bond1 42
+atom 48 (1) (-5726, -6883, -2021) def
+bond1 45
+atom 49 (1) (-5809, -6959, -274) def
+bond1 45
+atom 50 (6) (-5000, -8768, -1191) def
+bond1 45
+atom 51 (1) (-4379, -9022, -2050) def
+bond1 50
+atom 52 (1) (-4459, -9098, -305) def
+bond1 50
+atom 53 (6) (4532, -8946, -941) def
+bond1 42
+atom 54 (1) (3971, -9232, -52) def
+bond1 53
+atom 55 (1) (3920, -9221, -1799) def
+bond1 53
+atom 56 (6) (-4589, 7132, 223) def
+bond1 28
+atom 57 (1) (-4043, 7292, 1150) def
+bond1 56
+atom 58 (1) (-5487, 7746, 250) def
+bond1 56
+atom 59 (1) (-3965, 7484, -595) def
+bond1 56
+atom 60 (6) (-5831, 5132, 1236) def
+bond1 28
+atom 61 (1) (-6074, 4075, 1133) def
+bond1 60
+atom 62 (1) (-6765, 5689, 1283) def
+bond1 60
+atom 63 (1) (-5312, 5265, 2184) def
+bond1 60
+atom 64 (6) (-5705, 5408, -1307) def
+bond1 28
+atom 65 (1) (-5096, 5731, -2149) def
+bond1 64
+atom 66 (1) (-6634, 5974, -1327) def
+bond1 64
+atom 67 (1) (-5948, 4357, -1454) def
+bond1 64
+atom 68 (6) (5481, -382, 1181) def
+bond1 25
+atom 69 (1) (5666, 572, 1668) def
+bond1 68
+atom 70 (1) (6408, -952, 1192) def
+bond1 68
+atom 71 (1) (4746, -923, 1774) def
+bond1 68
+atom 72 (6) (4762, -1557, -975) def
+bond1 25
+atom 73 (1) (4173, -2220, -345) def
+bond1 72
+atom 74 (1) (5715, -2044, -1172) def
+bond1 72
+atom 75 (1) (4240, -1442, -1923) def
+bond1 72
+atom 76 (6) (6004, 677, -1090) def
+bond1 25
+atom 77 (1) (5675, 810, -2119) def
+bond1 76
+atom 78 (1) (6979, 194, -1110) def
+bond1 76
+atom 79 (1) (6127, 1664, -648) def
+bond1 76
+atom 80 (6) (5869, -9747, -985) def
+bond1 53
+atom 81 (1) (6435, -9507, -1883) def
+bond1 80
+atom 82 (1) (5675, -10819, -986) def
+bond1 80
+atom 83 (1) (6488, -9516, -120) def
+bond1 80
+atom 84 (6) (-6350, -9542, -1287) def
+bond1 50
+atom 85 (1) (-6979, -9332, -424) def
+bond1 84
+atom 86 (1) (-6176, -10616, -1325) def
+bond1 84
+atom 87 (1) (-6898, -9257, -2184) def
+bond1 84
+egroup (nanoChef-C43H42O2)
+end1
+group (Clipboard)
+info opengroup open = True
+egroup (Clipboard)
+end molecular machine part nanoChef-C43H42O2
