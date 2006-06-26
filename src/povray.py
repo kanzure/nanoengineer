@@ -115,11 +115,15 @@ def write_povray_ini_file(povray_ini_fname, povrayscene_file, width, height, out
     # This is needed if the POV-Ray plug-in is 'megapov.exe'. Mark 060609.
     povray_bin, povray_exe = os.path.split(env.prefs[povray_path_prefs_key])
     povray_dir, bin = os.path.split(povray_bin)
-    if povray_exe == 'megapov.exe':
-        # Needed when program='megapov.exe', but not pvengine.exe or mgengine.exe. 
-        # megapov.exe provides a way to render a scene without invoking the POV-Ray GUI on Windows.
-        # megapov.exe may be the way to go on Windows when someone figures out how to direct output
-        # to the GLPane or a separate window. Mark 060529.
+    if sys.platform == 'win32':
+        megapov_exe = 'megapov.exe'
+    else:
+        megapov_exe = 'megapov'
+    if povray_exe == megapov_exe:
+        # If the user has specified MegaPOV as the POV-Ray plugin, we must specify the POV-Ray
+        # include directory that contains the file "transforms.inc" via the "Library_Path" option in the INI file.
+        # MegaPOV provides a way to render a scene without invoking the POV-Ray GUI on Windows,
+        # and it is available on MacOS and Linux, too. Mark 060626.
         povray_libpath  = os.path.normpath(os.path.join(povray_dir, "include"))
     else:
         povray_libpath = None
