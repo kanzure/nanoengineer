@@ -422,7 +422,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         "Change view to our model's home view (for glpane's current part)."
         self.animateToCsys( self.part.homeCsys)
         
-    def setViewFitToWindow(self):
+    def setViewFitToWindow(self, fast=False):
         "Change view so that the entire model fits in the glpane."
         #Recalculate center and bounding box for the current part
         part = self.part
@@ -435,15 +435,18 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # (defined in terms of glpane height) so part bbox fits in width
             # [bruce 050616 comment]
             scale /= aspect
-        pov = V(-part.center[0], -part.center[1], -part.center[2]) 
-        self.animateToView(self.quat, scale, pov, 1.0)
+        pov = V(-part.center[0], -part.center[1], -part.center[2])
+        if fast:
+            self.snapToView(self.quat, scale, pov, 1.0)
+        else:
+            self.animateToView(self.quat, scale, pov, 1.0)
 
     def setViewHomeToCurrent(self):
         "Set the Home view to the current view."
         self.saveViewInCsys( self.part.homeCsys)
         self.part.changed() # Mark [041215]
         
-    def setViewRecenter(self):
+    def setViewRecenter(self, fast=False):
         "Recenter the current view around the origin of modeling space."
         part = self.part
         part.computeBoundingBox()
@@ -451,8 +454,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         aspect = float(self.width) / self.height
         if aspect < 1.0:
             scale /= aspect
-        pov = V(0,0,0)
-        self.animateToView(self.quat, scale, pov, 1.0)
+        pov = V(0,0,0) 
+        if fast:
+            self.snapToView(self.quat, scale, pov, 1.0)
+        else:
+            self.animateToView(self.quat, scale, pov, 1.0)
         
     def setViewProjection(self, projection): # Added by Mark 050918.
         '''Set projection, where 0 = Perspective and 1 = Orthographic.  It does not set the 
