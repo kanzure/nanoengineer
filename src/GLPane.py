@@ -140,7 +140,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     mode_classes = [selectMolsMode, selectAtomsMode, modifyMode, depositMode,
                     cookieMode, extrudeMode, revolveMode, fusechunksMode,
                     movieMode, zoomMode, panMode, rotateMode]
-    
+
+    always_draw_hotspot = False #bruce 060627; not really needed, added for compatibility with ThumbView.py
+
     def __init__(self, assy, master=None, name=None, win=None):
         
         self.win = win

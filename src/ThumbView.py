@@ -23,6 +23,7 @@ class ThumbView(QGLWidget):
     Remember makeCurrent() will be called implicitly before any ininializeGL, resizeGL, paintGL virtual functions call. Ideally, this class should coordinate with class GLPane in some ways.
     """
     shareWidget = None #bruce 051212
+    always_draw_hotspot = False #bruce 060627
     def __init__(self, parent, name, shareWidget):
         """  """
         if shareWidget:
@@ -518,9 +519,16 @@ class ThumbView(QGLWidget):
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
 
-        
+    def saveLastView(self): #bruce 060627 for compatibility with GLPane (for sake of assy.update_parts)
+        pass
+
+    def forget_part(self, part): #bruce 060627 for compatibility with GLPane (for sake of chunk.kill)
+        pass
+
+    pass # end of class ThumbView
     
-##==--        
+# ==
+
 from chem import atom, Singlet
 from chunk import molecule
 
@@ -594,12 +602,17 @@ class ElementView(ThumbView):
         if isinstance(obj, atom) and (obj.element is Singlet):
             obj.draw_in_abs_coords(self, env.prefs[bondpointHighlightColor_prefs_key])
 
+    pass # end of class ElementView
 
 class MMKitView(ThumbView):
     '''Currently used as the GLWidget for the graphical display and manipulation for element/clipboard/part.
        Initial attempt was to subclass this for each of above type models, but find trouble to dynamically
        change the GLWidget when changing tab page. '''
-    
+
+    always_draw_hotspot = True
+        #bruce 060627 to help with bug 2028
+        # (replaces a horribe kluge in old code which broke a fix to that bug)
+
     def __init__(self, parent, name, shareWidget = None):
         ThumbView.__init__(self, parent, name, shareWidget)
         self.scale = 2.0
@@ -750,7 +763,8 @@ class MMKitView(ThumbView):
            self.scale /= aspect
         center = bbox.center()
         self.pov = V(-center[0], -center[1], -center[2])
-        
+
+    pass # end of class MMKitView
     
 class ChunkView(ThumbView):
     """Chunk display.""" # Currently this is not used. [still true 060328 due to setup code in MMKit -- bruce comment]
@@ -785,3 +799,7 @@ class ChunkView(ThumbView):
         '''Override the parent version. Specific drawing code for the object. '''
         if isinstance(obj, atom) and (obj.element is Singlet):
             obj.draw_in_abs_coords(self, env.prefs[bondpointHighlightColor_prefs_key])
+
+    pass # end of class ChunkView
+
+# end

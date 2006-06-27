@@ -915,9 +915,10 @@ class depositMode(selectAtomsMode):
         bond = bond_atoms(a1,a2,vnew,s1,s2) # tell it the singlets to replace or reduce; let this do everything now, incl updates
         return
     
-    def _depositLibraryPart(self, newPart, hotspotAtom, atom_or_pos): # probably by Huaicai; revised by bruce 051227
+    def _depositLibraryPart(self, newPart, hotspotAtom, atom_or_pos): # probably by Huaicai; revised by bruce 051227, 060627
         '''This method serves as an overloaded method, <atom_or_pos> is 
-           the Singlet atom or the empty position that the new part <newPart> will be attached to or placed at.
+           the Singlet atom or the empty position that the new part <newPart> [an assy?] will be attached to or placed at.
+           [If <atom_or_pos> is a singlet, <hotspotAtom> should be an atom in some chunk in <newPart>.]
            Currently, it doesn't consider group or jigs in the <newPart>. Not so sure if my attempt to copy a part into
            another assembly is all right. [It wasn't, so bruce 051227 revised it.]
            Copies all molecules in the <newPart>, change their assy attribute to current assembly, move them into <pos>.
@@ -934,7 +935,7 @@ class depositMode(selectAtomsMode):
                 newMol.setAssy(self.o.assy) #bruce 051227 revised this
                 hs = newMol.hotspot
                 ha = hs.singlet_neighbor() # hotspot neighbor atom
-                attch2Atom = attch2Singlet.singlet_neighbor() # atttch to atom
+                attch2Atom = attch2Singlet.singlet_neighbor() # attach to atom
 
                 rotCenter = newMol.center
                 rotOffset = Q(ha.posn()-hs.posn(), attch2Singlet.posn()-attch2Atom.posn())
@@ -947,6 +948,8 @@ class depositMode(selectAtomsMode):
                 
                 self.o.assy.addmol(newMol)
                 stuff.append(newMol)
+
+                #e if there are other chunks in <newPart>, they are apparently copied below. [bruce 060627 comment]
                 
             else: ## something is wrong, do nothing
                 return stuff, "internal error"
@@ -958,7 +961,7 @@ class depositMode(selectAtomsMode):
                 moveOffset = placedPos - hotspotAtomPos
             else:
                 if newPart.molecules:
-                    moveOffset = placedPos - newPart.molecules[0].center
+                    moveOffset = placedPos - newPart.molecules[0].center #e not the best choice of center [bruce 060627 comment]
         
         if attach2Bond: # Connect part to a bondpoint of an existing chunk
             for m in newPart.molecules:
@@ -977,14 +980,34 @@ class depositMode(selectAtomsMode):
                 self.o.assy.addmol(newMol)
                 stuff.append(newMol)
         else: # Behaves like dropping a part anywhere you specify, independent of existing chunks.
-            for m in newPart.molecules:
-                newMol = m.copy(None)
-                newMol.setAssy(self.o.assy) #bruce 051227 revised this
-                
+            nodes = newPart.molecules
+            #bruce 060627 new code: fix bug 2028 (non-hotspot case only) about interchunk bonds being broken
+            import ops_copy as hmm
+            import debug
+            debug.reload_once_per_event(hmm) # only reloads if atom_debug is set, and tolerates failure (I think)
+            from ops_copy import copied_nodes_for_DND
+            newnodes = copied_nodes_for_DND(nodes)
+            if newnodes is None:
+                print "bug: newnodes should not be None; nodes was %r (saved in debug._bugnodes)" % (nodes,)
+                debug._bugnodes = nodes
+                newnodes = [] # kluge
+            for newMol in newnodes:
+                # some of the following probably only work for Chunks,
+                # though coding them for other nodes would not be hard
+                newMol.setAssy(self.o.assy)
                 newMol.move(moveOffset)
-                
                 self.o.assy.addmol(newMol)
                 stuff.append(newMol)
+##            # old code, breaks interchunk bonds since it copies chunks one at a time (bug 2028)
+##            for m in nodes:
+##                newMol = m.copy(None)
+##                newMol.setAssy(self.o.assy) #bruce 051227 revised this
+##                
+##                newMol.move(moveOffset)
+##                
+##                self.o.assy.addmol(newMol)
+##                stuff.append(newMol)
+##            pass
         self.o.assy.update_parts() #bruce 051227 see if this fixes the atom_debug exception in checkparts
         return stuff, "deposited library part" ####@@@@ should revise this message (stub is by bruce 051227)
 

@@ -9,6 +9,9 @@ History:
 Created by Huaicai.
 
 bruce 050913 used env.history in some places.
+
+bruce has fixed some bugs in it.
+
 '''
 
 from MMKitDialog import *
@@ -24,6 +27,7 @@ from files_mmp import readmmp
 from part import Part
 import os, sys
 import env
+import platform
 
 # PageId constants for mmkit_tab
 AtomsPage=0
@@ -390,17 +394,36 @@ class MMKit(MMKitDialog):
         self.newModel = assembly(self.w, "assembly 1")
         self.newModel.o = self.elemGLPane ## Make it looks "assembly" used by glpane.
         readmmp(self.newModel, mmpfile)
+
+        # The following is absolute nonsense, and is part of what's breaking the fix of bug 2028,
+        # so it needs to be revised, to give this assy a standard structure.
+        # We'll have to find some other way to draw the hotspot singlet
+        # (e.g. a reasonable, straightforward way). So we did -- MMKitView.always_draw_hotspot is True.
+        # [bruce 060627]
         
-        # Move all stuff under assembly.tree into assy.shelf. This is needed to draw hotspot singlet
-        def addChild(child):
-            self.newModel.shelf.addchild(child)
-        
-        # Remove existing clipboard items from the libary part before adopting childern from 'tree'.
-        self.newModel.shelf.members = []
-        self.newModel.tree.apply2all(addChild)
-        
-        self.newModel.shelf.prior_part = None
-        self.newModel.part = Part(self.newModel, self.newModel.shelf)
+##        # Move all stuff under assembly.tree into assy.shelf. This is needed to draw hotspot singlet
+##        def addChild(child):
+##            self.newModel.shelf.addchild(child)
+##        
+##        # Remove existing clipboard items from the libary part before adopting childern from 'tree'.
+##        self.newModel.shelf.members = []
+##        self.newModel.tree.apply2all(addChild)
+##        
+##        self.newModel.shelf.prior_part = None
+##        self.newModel.part = Part(self.newModel, self.newModel.shelf)
+
+        if 1: #bruce 060627
+            self.newModel.update_parts() #k not sure if needed after readmmp)
+            self.newModel.checkparts()
+            if self.newModel.shelf.members:
+                if platform.atom_debug:
+                    print "debug warning: library part %r contains clipboard items" % mmpfile # we'll see if this is common
+                    # happens for e.g. nanokids/nanoKid-C39H42O2.mmp
+                for m in self.newModel.shelf.members[:]:
+                    m.kill() #k guess about a correct way to handle them
+                self.newModel.update_parts() #k probably not needed
+                self.newModel.checkparts() #k probably not needed
+            pass
             
         self.elemGLPane.updateModel(self.newModel)
                 

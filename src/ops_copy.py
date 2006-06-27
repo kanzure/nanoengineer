@@ -350,6 +350,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         atom_chunk_atoms = self.atom_chunk_atoms = {} # id(chunk) -> list of its atoms to copy (if it's not fullcopied) (arb order)
         atom_jigs = self.atom_jigs = {}
         sel = self.sel
+        if platform.atom_debug and not sel.topnodes:
+            print "debug warning: prep_for_copy_to_shelf sees no sel.topnodes" #bruce 060627; may not always be a bug; never yet seen
         for node in sel.topnodes: # no need to scan selmols too, it's redundant (and in general a subset)
             # chunks, jigs, Groups -- for efficiency and in case it's a feature,
             # don't scan jigs of a chunk's atoms like we do for individual atoms;
@@ -398,7 +400,10 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         # except perhaps the ones inside fullcopied groups, for which we don't need to know in advance.)
         self.verytopnode = sel.part.topnode
         for d in (fullcopy, atom_chunks, atom_chunk_atoms, atom_jigs):  # wware 20051128, bug 1118
-            self.objectsCopied += len(d.keys())
+            self.objectsCopied += len(d)
+            # [note: I am not sure there are not overlaps in these dicts, so this number might be wrong,
+            #  but whether it's 0 is right, which is all that matters. But I have not reviewed
+            #  whether the code related to how it's used is fully correct. bruce 060627 comment]
         return # from prep_for_copy_to_shelf
     
     # the following methods should be called only after some operation has been prepped for

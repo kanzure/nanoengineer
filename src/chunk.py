@@ -1150,7 +1150,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
 # will removing this assert fix bug 703 and not cause trouble? bruce 050614 guess -- seems to work.
 # All selatom code still needs review and cleanup, though, now that it comes from selobj. ####@@@@
 ##            assert hs is not glpane.selatom
-            assert self in self.assy.shelf.members
+            assert (self in self.assy.shelf.members) or glpane.always_draw_hotspot #bruce 060627 added always_draw_hotspot re bug 2028
         except:
             pass
         else:
