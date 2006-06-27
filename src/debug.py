@@ -566,44 +566,6 @@ def debug_runpycode_from_a_dialog( source = "some debug menu??"):
         print "run py code: cancelled"
     return
 
-def debug_hackNanotubes_from_a_dialog( source = "some debug menu??", nanotubeIndex=[ 1 ]):
-    title = "debug: SW/MW/HJ nanotubes"
-    label = "put in parameters, e.g. 'SW 20 0 30 1' or\n'HJ 20 10 20 5 0 20 1' or\n'MW 20 5 15 3 5 1'"
-    from qt import QInputDialog
-    text, ok = QInputDialog.getText(title, label)
-    # text contains both the command name (might need to end with .exe on Windows) and the arguments
-    if ok:
-        from platform import find_or_make_Nanorex_subdir
-        from HistoryWidget import redmsg
-        contubPath = find_or_make_Nanorex_subdir('CoNTub')
-        ntmmp = os.path.join(contubPath, "nt.mmp")
-        # fyi: type(text) == <class '__main__.qt.QString'>
-        command = os.path.join(contubPath, str(text))
-            # kluge: spaces in text are treated here as part of a file basename, but won't be quoted
-        command += (' %d > ' % nanotubeIndex[0]) + ntmmp #guess: this means last argument is used to help form a nodename in nt.mmp
-	print "System command: [", command, "]"
-        if os.system(command) == 0: #k Windows?
-            from files_mmp import insertmmp
-            nanotubeIndex[0] += 1
-            w = env.mainwindow()
-            assy = w.assy
-            glpane = w.glpane
-            try:
-                insertmmp(assy, ntmmp)
-                glpane.scale = assy.bbox.scale()
-                w.win_update()
-            except:
-                print_compact_traceback( "Error inserting MMP file [%s]: " % ntmmp )
-                env.history.message( redmsg( "Error while inserting MMP file: " + ntmmp) )
-            else:
-                assy.changed() #k needed?
-                env.history.message( "MMP file inserted: " + ntmmp )
-        else:
-            env.history.message(redmsg("Command failed: \"" + command + "\""))
-    else:
-        print "hack graphene structures: cancelled"
-    return
-
 # ==
 
 def debug_timing_test_pycode_from_a_dialog( ): #bruce 051117
@@ -822,7 +784,7 @@ class DebugMenuMixin:
             #bruce 041217 made this item conditional on whether it will work
             res.extend( [
                 ('run py code', self._debug_runpycode),
-                ('SW/MW/HJ nanotubes', self._debug_hackNanotubes),
+                ('force sponsor download', self._debug_force_sponsor_download),
                 ('speed-test py code', self._debug_timepycode), #bruce 051117; include this even if not platform.atom_debug
             ] )
         #bruce 050416: use a "checkmark item" now that we're remaking this menu dynamically:
@@ -1034,10 +996,9 @@ class DebugMenuMixin:
             # e.g. "GLPane debug menu"
         return
 
-    def _debug_hackNanotubes(self):
-        from debug import debug_hackNanotubes_from_a_dialog
-        debug_hackNanotubes_from_a_dialog( source = self.debug_menu_source_name() )
-            # e.g. "GLPane debug menu"
+    def _debug_force_sponsor_download(self):
+        from Sponsors import _force_download
+        _force_download()
         return
 
     def _debug_timepycode(self): #bruce 051117

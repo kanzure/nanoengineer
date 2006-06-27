@@ -50,6 +50,7 @@ NEED_PERMISSION_TO_DOWNLOAD_MD5 = False
 
 _sponsordir = platform.find_or_make_Nanorex_subdir('Sponsors')
 _nanorex_server = 'http://willware.net/'
+# _nanorex_server = 'file:///home/wware/polosims/cad/src/'
 _sponsors_xml = _nanorex_server + 'sponsors.xml'
 _sponsors_md5 = _nanorex_server + 'sponsors.md5'
 _sponsors = { }
@@ -59,6 +60,7 @@ def fixHtml(rc):
     middleUrl=re.compile(' ')
     finishUrl=re.compile('\]')
     rc = string.replace(rc, '[P]', '<p>')
+    rc = string.replace(rc, '[p]', '<p>')
     while True:
         m = startUrl.search(rc)
         if m == None:
@@ -88,6 +90,81 @@ class Sponsor:
     def wikiHelp(self):
         w = WikiHelpBrowser(self.text, caption=self.name)
         w.show()
+
+
+def _get_remote_file(url):
+    # This may raise OSError if the URL can't be opened. Don't waste
+    # more than five seconds trying to get a network connection.
+    socket.setdefaulttimeout(5)
+    f = urllib.urlopen(url)
+    r = f.read()
+    f.close()
+    return r
+
+def _download_xml_file(xmlfile):
+    r = _get_remote_file(_sponsors_xml)
+    # If we got this far, we have info to replace the local copy of
+    # sponsors.xml. If we never got this far but a local copy exists,
+    # then we'll just use the existing local copy.
+    if os.path.exists(xmlfile):
+        os.remove(xmlfile)
+    f = open(xmlfile, 'w')
+    f.write(r)
+    f.close()
+
+def _load_sponsor_info(xmlfile, win):
+    def getXmlText(doc, tag):
+        parent = doc.getElementsByTagName(tag)[0]
+        rc = ""
+        for node in parent.childNodes:
+            if node.nodeType == node.TEXT_NODE:
+                rc = rc + node.data
+        return rc
+    if os.path.exists(xmlfile):
+        try:
+            f = open(xmlfile)
+            r = f.read()
+            f.close()
+            info = parseString(r)
+            for sp_info in info.getElementsByTagName('sponsor'):
+                sp_name = getXmlText(sp_info, 'name')
+                sp_imgfile = os.path.join(_sponsordir, 'logo_%s.png' % sp_name)
+                sp_keywords = getXmlText(sp_info, 'keywords')
+                sp_keywords = map(lambda x: x.strip(),
+                                  sp_keywords.split(','))
+                sp_text = fixHtml(getXmlText(sp_info, 'text'))
+                if not os.path.exists(sp_imgfile) or \
+                   os.path.getctime(sp_imgfile) < os.path.getctime(xmlfile):
+                    sp_png = base64.decodestring(getXmlText(sp_info, 'logo'))
+                    open(sp_imgfile, 'wb').write(sp_png)
+                sp = Sponsor(sp_name, sp_text, sp_imgfile)
+                for keyword in sp_keywords:
+                    if not _sponsors.has_key(keyword):
+                        _sponsors[keyword] = [ ]
+                    _sponsors[keyword].append(sp)
+        except:
+            print_compact_traceback("trouble getting sponsor info: ")
+            print_compact_stack("trouble getting sponsor info: ")
+    for dialog in win.sponsoredList():
+        try:
+            dialog.setSponsor()
+        except:
+            pass
+
+def _force_download():
+    # Don't check if the MD5 matches. Don't check if the XML file is
+    # older than two days old. Just download it unconditionally.
+    env.history.message(orangemsg("FOR DEBUG ONLY! _force_download() " +
+                                  "does not respect user privacy preferences."))
+    xmlfile = os.path.join(_sponsordir, 'sponsors.xml')
+    win = env.mainwindow()
+    _download_xml_file(xmlfile)
+    if not os.path.exists(xmlfile):
+        raise Exception('_force_download failed')
+    _load_sponsor_info(xmlfile, win)
+    env.history.message(greenmsg("_force_download() is finished"))
+
+############################################
 
 class PermissionDialog(QDialog):
 
@@ -162,16 +239,6 @@ class PermissionDialog(QDialog):
         self.finish()
         self.close()
 
-    def getRemoteFile(self, url):
-        # This may raise OSError if the URL can't be opened.
-        # Don't waste more than five seconds trying to get a network
-        # connection.
-        socket.setdefaulttimeout(5)
-        f = urllib.urlopen(url)
-        r = f.read()
-        f.close()
-        return r
-
     def refreshWanted(self):
         if not os.path.exists(self.xmlfile):
             return True
@@ -189,7 +256,7 @@ class PermissionDialog(QDialog):
         # Check the MD5 hash - if it hasn't changed, then there is
         # no reason to download sponsors.xml.
         try:
-            r = self.getRemoteFile(_sponsors_md5)
+            r = _get_remote_file(_sponsors_md5)
             m = md5.new()
             m.update(open(self.xmlfile).read())
             digest = base64.encodestring(m.digest())
@@ -206,58 +273,13 @@ class PermissionDialog(QDialog):
                 # already matches, then we don't need to get it.
                 getIt = self.md5Mismatch()
             if getIt:
-                r = self.getRemoteFile(_sponsors_xml)
-                # If we got this far, we have info to replace the
-                # local copy of sponsors.xml. If we never got this far
-                # but a local copy exists, then we'll just use the
-                # existing local copy.
-                if os.path.exists(self.xmlfile):
-                    os.remove(self.xmlfile)
-                f = open(self.xmlfile, 'w')
-                f.write(r)
-                f.close()
+                _download_xml_file(self.xmlfile)
         except:
             pass
         self.finish()
 
     def finish(self):
-        def getXmlText(doc, tag):
-            parent = doc.getElementsByTagName(tag)[0]
-            rc = ""
-            for node in parent.childNodes:
-                if node.nodeType == node.TEXT_NODE:
-                    rc = rc + node.data
-            return rc
-        if os.path.exists(self.xmlfile):
-            try:
-                f = open(self.xmlfile)
-                r = f.read()
-                f.close()
-                info = parseString(r)
-                for sp_info in info.getElementsByTagName('sponsor'):
-                    sp_name = getXmlText(sp_info, 'name')
-                    sp_imgfile = os.path.join(_sponsordir, 'logo_%s.png' % sp_name)
-                    sp_keywords = getXmlText(sp_info, 'keywords')
-                    sp_keywords = map(lambda x: x.strip(),
-                                      sp_keywords.split(','))
-                    sp_text = fixHtml(getXmlText(sp_info, 'text'))
-                    if not os.path.exists(sp_imgfile) or \
-                       os.path.getctime(sp_imgfile) < os.path.getctime(self.xmlfile):
-                        sp_png = base64.decodestring(getXmlText(sp_info, 'logo'))
-                        open(sp_imgfile, 'wb').write(sp_png)
-                    sp = Sponsor(sp_name, sp_text, sp_imgfile)
-                    for keyword in sp_keywords:
-                        if not _sponsors.has_key(keyword):
-                            _sponsors[keyword] = [ ]
-                        _sponsors[keyword].append(sp)
-            except:
-                print_compact_traceback("trouble getting sponsor info: ")
-                print_compact_stack("trouble getting sponsor info: ")
-        for dialog in self.win.sponsoredList():
-            try:
-                dialog.setSponsor()
-            except:
-                pass
+        _load_sponsor_info(self.xmlfile, self.win)
         self.fini = True
 
 ###############################################
