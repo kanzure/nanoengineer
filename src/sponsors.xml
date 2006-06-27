@@ -50,11 +50,8 @@ print """    <text>Text, including a URL</text>
 <sponsors>
   <!--
   <sponsor>
-    <!-- Names become parts of filenames, and should not have spaces-->
-    <!-- in them. -->
     <name>Zyvex</name>
     <keywords>Nanotubes</keywords>
-    <!-- Base64 encoded PNG file -->
     <logo>iVBORw0KGgoAAAANSUhEUgAAAGsAAAA3CAIAAACEkSPXAAAABmJLR0QA/wD/AP+gvaeTAAAACXBI
     WXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH1gUZFhMqT72VcQAAADF0RVh0Q29tbWVudABOYW5vdGVj
     aG5vbG9neSBhdCBaeXZleCAtIE1vemlsbGEgRmlyZWZveEPDc7EAAAk6SURBVHja7VpfTBvJGR9D
