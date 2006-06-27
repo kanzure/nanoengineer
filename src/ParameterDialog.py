@@ -46,6 +46,7 @@ class parameter_dialog_or_frame:
         
         self.desc = desc
 
+        self.typ = type
         if type == "QDialog":
             QDialog.__init__(self,parent,name,modal,fl)
         elif type == "QTextEdit":
@@ -420,6 +421,19 @@ class ParameterDialogBase(parameter_dialog_or_frame):
     def set_defaults(self, dict1):
         if 1:
             print "set_defaults is nim" ####k is it even sensible w/o a controller being involved??
+
+    def show(self):
+        if self.controller:
+            self.controller.setSponsor()
+        if self.typ == "QDialog":
+            QDialog.show(self)
+        elif self.typ == "QTextEdit":
+            QTextEdit.show(self)
+        elif self.typ == "QFrame":
+            QFrame.show(self)
+        else:
+            print "don't know about self.typ == %r" % (self.typ,)
+
     # bindings for the buttons -- delegate them to controller if we have one.
     def do_sponsor_btn(self):
         print "do_sponsor_btn: delegating"

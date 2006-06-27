@@ -504,6 +504,10 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
     def done_msg(self):
         return "Nanotube created."
 
+    def show(self):
+        self.setSponsor()
+        nanotube_dialog.show(self)
+
     ###################################################
     # Special UI things that still must be implemented
     def toggle_nt_distortion_grpbox(self):

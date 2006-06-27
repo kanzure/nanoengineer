@@ -231,6 +231,10 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
             seq = ''.join(seq)
         return seq
 
+    def show(self):
+        self.setSponsor()
+        dna_dialog.show(self)
+
     ###################################################
     # The done message
 

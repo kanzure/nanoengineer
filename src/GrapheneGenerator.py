@@ -196,6 +196,10 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
         for atm in atoms.values():
             atm.setposn(atm.posn() + position)
 
+    def show(self):
+        self.setSponsor()
+        graphene_sheet_dialog.show(self)
+
     ###################################################
     # Special UI things that still must be implemented
     def toggle_graphene_parameters_grpbox(self):

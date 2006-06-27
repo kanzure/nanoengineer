@@ -168,7 +168,6 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         elif self.cmdname and not self.cmd:
             # this is intended to be the usual situation, but isn't yet, as of 060616
             self.cmd = greenmsg(self.cmdname + ": ")
-        SponsorableMixin.__init__(self)
 
     def build_struct(self, name, params, position):
         """Build the structure (model object) in question. This is an abstract method
