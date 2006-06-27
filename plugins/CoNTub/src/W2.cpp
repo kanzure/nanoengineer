@@ -1168,21 +1168,26 @@ int main(int argc, char *argv[])
     char *p, *outputfile;
 
     try {
+	/* Outside this source file, the (i, j) pairs are thought of
+	 * as (n, m) pairs. Therefore problems with "i1" and "j1" are
+	 * reported as problems with "n1" and "m1", etc. Similarly,
+	 * "lent1" is not as meaningful as "length1".
+	 */
 	if (argc < 10) throw "Not enough command line parameters";
 	i1 = strtol(argv[1], &p, 10);
-	if (*p != '\0') throw "Bad i1 parameter";
+	if (*p != '\0') throw "Bad n1 parameter";
 	j1 = strtol(argv[2], &p, 10);
-	if (*p != '\0') throw "Bad j1 parameter";
-	if (j1 > i1) throw "j1 can not be greater than i1";
+	if (*p != '\0') throw "Bad m1 parameter";
+	if (j1 > i1) throw "m1 can not be greater than n1";
 	lent1 = strtod(argv[3], &p);
-	if (*p != '\0') throw "Bad lent1 parameter";
+	if (*p != '\0') throw "Bad length1 parameter";
 	i2 = strtol(argv[4], &p, 10);
-	if (*p != '\0') throw "Bad i2 parameter";
+	if (*p != '\0') throw "Bad n2 parameter";
 	j2 = strtol(argv[5], &p, 10);
-	if (j2 > i2) throw "j2 can not be greater than i2";
-	if (*p != '\0') throw "Bad j2 parameter";
+	if (*p != '\0') throw "Bad m2 parameter";
+	if (j2 > i2) throw "m2 can not be greater than n2";
 	lent2 = strtod(argv[6], &p);
-	if (*p != '\0') throw "Bad lent2 parameter";
+	if (*p != '\0') throw "Bad length2 parameter";
 	terminator = strtol(argv[7], &p, 10);
 	if (*p != '\0') throw "Bad terminator parameter";
 	index = strtol(argv[8], &p, 10);
