@@ -27,8 +27,10 @@ from fusechunksMode import fusechunksBase
 from platform import find_plugin_dir
 
 atompat = re.compile("atom (\d+) \((\d+)\) \((-?\d+), (-?\d+), (-?\d+)\)")
-ok, basepath = find_plugin_dir("DNA")
-assert ok
+basepath_ok, basepath = find_plugin_dir("DNA")
+if not basepath_ok:
+    # env.history.message(orangemsg("The DNA generator is not available."))
+    env.history.message(orangemsg("The cad/plugins/DNA directory is missing."))
 
 DEBUG = False
 
@@ -189,6 +191,8 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
 
     def build_struct(self, name, params, position):
         seq, dnatype, double = params
+        if not basepath_ok:
+            raise PluginBug("The cad/plugins/DNA directory is missing.")
         assert len(seq) > 0, 'Please enter a valid sequence'
         if dnatype == 'A-DNA':
             dna = A_Dna()
