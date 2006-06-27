@@ -579,7 +579,7 @@ class HeterojunctionGenerator(PluginlikeGenerator):
        (The present example is clearly simple enough to be the contents of a metadata file,
     but not all of the other built-in generators are that simple.)
     """
-    topic = 'Nanotubes' # for sponsor_keyword for GeneratorBaseClass's SponsorableMixin superclass (and for submenu?)
+    topic = 'CoNTub' # for sponsor_keyword for GeneratorBaseClass's SponsorableMixin superclass (and for submenu?)
     what_we_generate = "Heterojunction"
         # used for insert menu item text, undo cmdname, history messages, new node names; not sure about wikihelp featurename
     menu_item_icon = "blablabla"
