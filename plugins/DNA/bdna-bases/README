@@ -1,0 +1,40 @@
+$Id$
+
+What are all these files? Four of them are used by DnaGenerator.py
+to create DNA structures in the CAD program:
+
+	adenine.mmp
+	cytosine.mmp
+	guanine.mmp
+	thymine.mmp
+
+-----
+
+The other files are what I used to prepare these. I started with the
+bdna.pdb file. I don't remember where I found it originally, but I
+found another copy in these places, along with adna.pdb and zdna.pdb:
+
+http://www.wellesley.edu/Chemistry/Flick/molecules/
+http://chemistry.gsu.edu/glactone/PDB/DNA_RNA/
+
+My hope is that bdna.pdb is an authoritative representation for what
+DNA should really look like. I proceeded with that assumption.
+
+-----
+
+The first thing I did was load bdna.pdb and separate the two strands.
+That gave me strand1.mmp and strand2.mmp.
+
+Then I hand-edited the drawing styles for the atoms in strand1.mmp to
+create strund1.mmp. The base pairs alternate between wireframe drawing
+mode ("lin" in the MMP file) and default drawing mode ("def" in the
+MMP file).
+
+The prepare.py script parses strund1.mmp to extract the four base
+pairs as MMP files. It tries to get bond orders and hybridizations
+right, and it rotates and translates them to a standardized
+orientation. The output of prepare.py is those first four files.
+
+While working on Z-DNA, I used a slightly modified version of
+prepare.py. It needed modification because Z-DNA's structure does a
+zigzag on each pair of bonds.
