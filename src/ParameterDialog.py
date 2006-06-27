@@ -40,16 +40,20 @@ from debug import print_compact_traceback
 ## class parameter_dialog(QDialog): # was nanotube_dialog
 class parameter_dialog_or_frame:
     "use as a pre-mixin before QDialog or QFrame" ####@@@@
-    def __init__(self, parent = None, desc = None, name = None, modal = 0, fl = 0, env = None, is_dialog = True):
+    def __init__(self, parent = None, desc = None, name = None, modal = 0, fl = 0, env = None, type = "QDialog"):
         if env is None:
             import env # this is a little weird... probably it'll be ok, and logically it seems correct.
         
         self.desc = desc
 
-        if is_dialog:
+        if type == "QDialog":
             QDialog.__init__(self,parent,name,modal,fl)
-        else:
+        elif type == "QTextEdit":
+            QTextEdit.__init__(self, parent, name)
+        elif type == "QFrame":
             QFrame.__init__(self,parent,name)
+        else:
+            print "don't know about type == %r" % (type,)
         
         self.image1 = QPixmap()
         self.image1.loadFromData(image1_data,"PNG") # should be: title_icon ####
@@ -85,7 +89,7 @@ class parameter_dialog_or_frame:
         if not name:
             self.setName("parameter_dialog_or_frame") ###
 
-        #k guess this will need: if is_dialog
+        ###k guess this will need: if type == 'QDialog'
         self.setIcon(self.image0) # should be: border_icon ####
 
         nanotube_dialogLayout = QVBoxLayout(self,0,0,"nanotube_dialogLayout")
@@ -404,7 +408,7 @@ class ParameterDialogBase(parameter_dialog_or_frame):
         But it doesn't show it or connect it to a controller.
         """
         desc = get_description(description) # might raise exceptions on e.g. syntax errors in description file
-        parameter_dialog_or_frame.__init__(self, parent, desc, env = env, is_dialog = self.is_dialog)
+        parameter_dialog_or_frame.__init__(self, parent, desc, env = env, type = self.type) # self.type is a subclass-constant
             # sets self.desc (buttons might want to use it)
     def set_controller(self, controller):
         if self.controller:
@@ -455,15 +459,21 @@ class ParameterDialogBase(parameter_dialog_or_frame):
                     print_compact_traceback("exception trying to get param %s: " % (paramname,))
         if self.controller:
             self.controller.ok_btn_clicked()
-    #e might need to intercept accept, reject and depend on is_dialog -- or, do in subclass
+    #e might need to intercept accept, reject and depend on type == 'QDialog' -- or, do in subclass
     pass
 
 class ParameterDialog( ParameterDialogBase, QDialog):
-    is_dialog = True
+    type = 'QDialog'
     pass
 
 class ParameterPane(   ParameterDialogBase, QFrame):
-    is_dialog = False
+    type = 'QFrame'
+    def accept(self): pass
+    def reject(self): pass
+    pass
+
+class ParameterPaneTextEditTest( ParameterDialogBase, QTextEdit): ##k see if this works any better
+    type = 'QTextEdit'
     def accept(self): pass
     def reject(self): pass
     pass
@@ -508,7 +518,7 @@ import time, sys, os
 
 class NTdialog(parameter_dialog_or_frame, QDialog): # in real life this will be something which delegates to controller methods
     def __init__(self, parent = None, desc = None):
-        parameter_dialog_or_frame.__init__(self, parent, desc, is_dialog = True) # sets self.desc (buttons might want to use it)
+        parameter_dialog_or_frame.__init__(self, parent, desc) # sets self.desc (buttons might want to use it)
     def do_sponsor_btn(self):
         print "do_sponsor_btn: nim"
     def do_done_btn(self):
