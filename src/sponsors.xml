@@ -13,7 +13,7 @@ It would be good to come up with a script that automatically uploads these
 to the server. In the case of Will's server, that script would look like
 this.
 
---------- begin -----------
+========= begin ===========
 #!/usr/bin/python
 import md5, os, base64
 m = md5.new()
@@ -22,7 +22,7 @@ digest = base64.encodestring(m.digest())
 open('sponsors.md5', 'w').write(digest)
 os.system('scp sponsors.xml willware.net:/var/www/html')
 os.system('scp sponsors.md5 willware.net:/var/www/html')
------------ end -----------
+=========== end ===========
 
 Here's how to add new logos to this file. Run the following script,
 supplying the logo as a PNG as standard input. The XML entry for this
@@ -30,7 +30,7 @@ sponsor will be produced as standard output. The phrases "Sponsor
 name" and "KeyWord" will obviously need to be changed, as well as the
 text.
 
-------- begin ----------
+======= begin ==========
 import base64, sys
 R = base64.encodestring(sys.stdin.read())
 lines = filter(lambda x: x, R.split('\n'))
@@ -44,7 +44,7 @@ for L in lines:
     print L
 print """    <text>Text, including a URL</text>
   </sponsor>"""
--------- end -----------
+======== end ==========
 -->
 
 <sponsors>
