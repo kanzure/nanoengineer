@@ -28,13 +28,15 @@ from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 ##from Utility import Group
 from ParameterDialog import ParameterDialog, ParameterPane
 from GeneratorController import GeneratorController
+from GeneratorBaseClass import UserError, PluginBug, CadBug
 from debug import print_compact_traceback
 import os, sys, time
-from platform import find_or_make_Nanorex_subdir, find_or_make_any_directory, tempfiles_dir, find_plugin_dir
+from platform import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
 
-debug_install = env.debug() ###@@@
+debug_install = False
+
 def debug_run():
-    return True
+    return False
     # change to env.debug() or a debug pref, someday;
     # also some debug prints we cause in other files don't check this, but they should
 
@@ -346,8 +348,7 @@ class PluginlikeGenerator:
         pass###e
 
     def build_struct(self, name, params, position):
-        "Same API as in GeneratorBaseClass, except for the suggested name also being passed. On error, raise an exception."
-        ###@@@ where i am:
+        "Same API as in GeneratorBaseClass (though we are not its subclass). On error, raise an exception."
         # get executable, append exe, ensure it exists
         program = self.executable_path
         # make command line args from params
@@ -356,27 +357,32 @@ class PluginlikeGenerator:
             # args is a list of strings (including outfile names);
             # outfiles is a list of full pathnames of files this command might create
         # run executable using the way we run the sim
-        exitcode = self.run_command(program, args) ###IMPLEM
+        exitcode = self.run_command(program, args)
         #e look at exitcode?
         if exitcode and debug_run():
             print "generator exitcode: %r" % (exitcode,)
+        if exitcode:
+            # treat this as a fatal error for this run [to test, use an invalid chirality with m > n]
+            msg = "Plugin %r exitcode: %r" % (self.plugin_name, exitcode)
+            ## not needed, GBC UserError will do it, more or less: env.history.message(redmsg(msg))
+            ###e should: self.remove_outfiles(outfiles, complain_if_missing = False)
+            raise UserError(msg) # this prints a redmsg; maybe we'd rather do that ourselves, and raise SilentUserError (nim)??
         # look for outfiles
         # (if there are more than one specified, for now just assume all of them need to be there)
         for outfile in outfiles:
             if not os.path.exists(outfile):
-                ### a defect of the GBC API is that we have to raise arbitrary exceptions to report errors.
-                # there should be a more controlled way to do it, either a return value or a custom exception class, 
-                # so it could treat arbitrary exceptions as bugs and report them as such.
-                assert 0, "generator output file should exist but doesn't: [%s]" % (outfile,)
+                raise PluginBug( "generator output file should exist but doesn't: [%s]" % (outfile,) )
         # insert file contents, rename the object in it, return that (see dna generator)
         thing = self.insert_output(outfiles, params, name)
+            # we pass params, since some params might affect insertion (or postprocessing)
+            # other than by affecting the command output
+        ###@@@ WARNING: the following repositioning code is not correct for all kinds of "things",
+        # only for single-chunk things like for CoNTub
+        # (and also it probably belongs inside insert_output, not here):
         for atom in thing.atoms.values():
             atom.setposn(atom.posn() + position)
-            # some params might affect insertion (or postprocessing)
-            # other than by affecting the command output
         self.remove_outfiles(outfiles)
         return thing
-
 
     def setup_commandline_info(self):
         """#doc
@@ -491,6 +497,7 @@ class PluginlikeGenerator:
             # report stdout/stderr
             def blabout():
                 print "stdout:", simProcess.readStdout()
+                ##e should also mention its existence in history, but don't copy it all there in case a lot
             def blaberr():
                 text = str(simProcess.readStderr()) # str since it's QString (i hope it can't be unicode)
                 print "stderr:", text
@@ -513,7 +520,9 @@ class PluginlikeGenerator:
                     time.sleep(0.1)
             else:
                 break
-        if debug_run(): print "process done i guess: normalExit = %r, (if normal) exitStatus = %r" % (simProcess.normalExit(), simProcess.exitStatus())
+        if debug_run():
+            print "process done i guess: normalExit = %r, (if normal) exitStatus = %r" % \
+                  (simProcess.normalExit(), simProcess.exitStatus())
         if 1:
             QObject.disconnect(simProcess, SIGNAL("readyReadStdout()"), blabout)
             QObject.disconnect(simProcess, SIGNAL("readyReadStderr()"), blaberr)
