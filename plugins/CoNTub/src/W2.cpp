@@ -36,10 +36,10 @@ W2::W2(int i1, int j1, double lent1, int i2, int j2, double lent2, int terminato
 
 
     if (i1 == 0 && j1 == 0) {
-	throw "1st tube's indices are incorrect";
+	throw "1st tube's indices can't both be zero";
     }
     if (i2 == 0 && j2 == 0) {
-	throw "2nd tube's indices are incorrect";
+	throw "2nd tube's indices can't both be zero";
     }
 
 
