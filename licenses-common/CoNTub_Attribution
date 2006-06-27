@@ -1,0 +1,12 @@
+Nanorex has modified the CoNTub source code, originally written by S. Melchor
+and J. Dobado at the Universidad de Granada in Spain. Citations of this work,
+including journal publication of structures generated with the CoNTub
+algorithm, should be formatted as follows:
+
+  "CoNTub: an algorithm for connecting two arbitrary carbon
+  nanotubes." S. Melchor; J.A. Dobado. Journal of Chemical Information
+  and Computer Sciences, 44, 1639-1646 (2004)
+
+Nanorex's modifications include translation from Java to C++, performance
+improvement in bond inference, changing the output file format from pdb to mmp,
+and revising the stderr messages and exit code.
