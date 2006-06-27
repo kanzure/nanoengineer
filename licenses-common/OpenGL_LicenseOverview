@@ -1,0 +1,23 @@
+$Id$
+
+SGI Free Software License B
+URL: http://oss.sgi.com/projects/FreeB
+
+This is SGI's Free Software License "B", version 1.1, used by several of SGI's
+projects. The license is available in both PostScript and Microsoft Word
+formats. Unfortunately, Microsoft Word's HTML converter introduced errors in
+the section numbering, so we've had to remove the HTML version.
+
+History
+
+Version 1.0 of the FreeB license included one term regarding compliance with
+defined APIs which posed a problem for some open source developers. We revised
+the license in response to those concerns, and instead issued a joint statement
+with developers outside SGI satisfying both SGI's needs and those of the
+outside developers working with code covered by the FreeB license. The original
+1.0 license is available for reference.
+
+The version 1.0 license underwent one minor change in section 8 (defining
+"Modifications") on the morning that we went public with it, due to internal
+miscommunication. For reference so you can see the change, the originally
+posted version of the license is here. 
