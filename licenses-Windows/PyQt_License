@@ -1,0 +1,8 @@
+The PyQt website says (regarding PyQt v. 3):
+
+"PyQt is available under the GNU GPL and a commercial license, very similar to
+the way in which Trolltech licenses Qt."
+
+That's all it says. I can't actually find the license text on the website. I
+presume that to get the actual license text, you need to contact Phil at
+riverbankcomputing.co.uk.
