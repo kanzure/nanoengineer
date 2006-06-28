@@ -1029,6 +1029,13 @@ class SimRunner:
                 msg = "sim took %0.3f, hit frame %03d, py took %0.3f" % \
                       (simtime, self.__frame_number, pytime)
                 env.history.statusbar_msg(msg)
+            now = self.__last_3dupdate_time
+        if now >= self.__last_progress_update_time + 1.0 or update_3dview and now >= self.__last_progress_update_time + 0.2:
+            # update progressbar [wware 060310, bug 1343]
+            # [optim by bruce 060530 -- at most once per second when not updating 3d view, or 5x/sec when updating it often]
+            self.need_process_events = True
+            self.__last_progress_update_time = now
+            from platform import hhmmss_str
             msg = None
             # wware 060309, bug 1343, 060628, bug 1898
             tp = self.tracefileProcessor
@@ -1038,13 +1045,6 @@ class SimRunner:
                     msg = self.cmdname + ": " + pt
             if msg is not None:
                 env.history.statusbar_msg(msg)
-            now = self.__last_3dupdate_time
-        if now >= self.__last_progress_update_time + 1.0 or update_3dview and now >= self.__last_progress_update_time + 0.2:
-            # update progressbar [wware 060310, bug 1343]
-            # [optim by bruce 060530 -- at most once per second when not updating 3d view, or 5x/sec when updating it often]
-            self.need_process_events = True
-            self.__last_progress_update_time = now
-            from platform import hhmmss_str
             if self.mflag:
                 # Minimization, give "Elapsed Time" message
                 msg = "Elapsed time: " + hhmmss_str(int(time.time() - self.startTime))
