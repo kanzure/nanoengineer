@@ -1035,6 +1035,7 @@ class Bond(BondBase, StateMixin):
     # which means, I could probably take them out... ok, I'll try that soon, but not exactly now. #######@@@@@@@
     
     def __eq__(self, ob):
+        if not isinstance(ob, Bond): return False
         if (self is not ob) and ob.key == self.key:
             # This seems to never happen, so let's find out if anyone ever sees it (by printing stack even when not atom_debug).
             # It could happen in two ways: a true bug (keys same but atoms different),
