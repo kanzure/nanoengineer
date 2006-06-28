@@ -21,6 +21,7 @@ from constants import *
 from debug import print_compact_traceback
 import env
 from widgets import RGBf_to_QColor #bruce 050805 moved RGBf_to_QColor from here to widgets.py
+from widgets import double_fixup
 from prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 import platform
 
@@ -117,6 +118,14 @@ def validate_gamess_path(parent, gmspath):
             
         else: # No
             return gmspath
+        
+def get_pref_or_optval(key, val, optval):
+    """Return <key>'s value. If <val> is equal to <key>'s value, return <optval> instead.
+    """
+    if env.prefs[key] == val:
+        return optval
+    else:
+        return env.prefs[key]
 
 class UserPrefs(UserPrefsDialog):
     '''The User Preferences dialog used for accessing and changing user preferences
@@ -127,6 +136,25 @@ class UserPrefs(UserPrefsDialog):
         self.glpane = assy.o
         self.w = assy.w
         self.assy = assy
+        
+        #mark 060627
+        # Validator for the linedit widgets.
+        self.endrms_validator = QDoubleValidator(self)
+        self.endrms_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0.0 to 100, 2 decimal places
+        self.endrms_linedit.setValidator(self.endrms_validator)
+        
+        self.endmax_validator = QDoubleValidator(self)
+        self.endmax_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0 to 100, 2 decimal places
+        self.endmax_linedit.setValidator(self.endmax_validator)
+        
+        self.cutoverrms_validator = QDoubleValidator(self)
+        self.cutoverrms_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0 to 100, 2 decimal places
+        self.cutoverrms_linedit.setValidator(self.cutoverrms_validator)
+        
+        self.cutovermax_validator = QDoubleValidator(self)
+        self.cutovermax_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0 to 100, 2 decimal places
+        self.cutovermax_linedit.setValidator(self.cutovermax_validator)
+        
         #bruce 050811 added these:
         self._setup_window_page() # make sure the LineEdits are initialized before we hear their signals
         self._setup_caption_signals()
@@ -214,7 +242,19 @@ class UserPrefs(UserPrefsDialog):
         connect_checkbox_with_boolean_pref( self.watch_min_in_realtime_checkbox, watchRealtimeMinimization_prefs_key )
         
         speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
-        self.animation_speed_slider.setValue(speed) 
+        self.animation_speed_slider.setValue(speed)
+        
+        self.endrms = get_pref_or_optval(endRMS_prefs_key, -1.0, '')
+        self.endrms_linedit.setText(self.endrms)
+        
+        self.endmax = get_pref_or_optval(endMax_prefs_key, -1.0, '')
+        self.endmax_linedit.setText(self.endmax)
+        
+        self.cutoverrms = get_pref_or_optval(cutoverRMS_prefs_key, -1.0, '')
+        self.cutoverrms_linedit.setText(self.cutoverrms)
+        
+        self.cutovermax = get_pref_or_optval(cutoverMax_prefs_key, -1.0, '')
+        self.cutovermax_linedit.setText(self.cutovermax)
 
     def _setup_plugins_page(self):
         ''' Setup widgets to initial (default or defined) values on the Plug-ins page.
@@ -604,23 +644,51 @@ class UserPrefs(UserPrefsDialog):
         
     def change_endrms(self, text):
         '''Slot for EndRMS.
+        This gets called each time a user types anything into the widget.
         '''
-        print "EndRMS=", text
+        endrms_str = double_fixup(self.endrms_validator, self.endrms_linedit.text(), self.endrms)
+        self.endrms_linedit.setText(endrms_str)
+        if endrms_str:
+            env.prefs[endRMS_prefs_key] = float(str(endrms_str))
+        else:
+            env.prefs[endRMS_prefs_key] = -1.0
+        self.endrms = endrms_str
         
     def change_endmax(self, text):
         '''Slot for EndMax.
+        This gets called each time a user types anything into the widget.
         '''
-        print "EndMax=", text
+        endmax_str = double_fixup(self.endmax_validator, self.endmax_linedit.text(), self.endmax)
+        self.endmax_linedit.setText(endmax_str)
+        if endmax_str:
+            env.prefs[endMax_prefs_key] = float(str(endmax_str))
+        else:
+            env.prefs[endMax_prefs_key] = -1.0
+        self.endmax = endmax_str
         
     def change_cutoverrms(self, text):
-        '''Slot for CutoverRMS.
+        '''Slot for Cutover RMS.
+        This gets called each time a user types anything into the widget.
         '''
-        print "CutoverRMS=", text
+        cutoverrms_str = double_fixup(self.cutoverrms_validator, self.cutoverrms_linedit.text(), self.cutoverrms)
+        self.cutoverrms_linedit.setText(cutoverrms_str)
+        if cutoverrms_str:
+            env.prefs[cutoverRMS_prefs_key] = float(str(cutoverrms_str))
+        else:
+            env.prefs[cutoverRMS_prefs_key] = -1.0
+        self.cutoverrms = cutoverrms_str
         
     def change_cutovermax(self, text):
-        '''Slot for CutoverMax.
+        '''Slot for Cutover Max.
+        This gets called each time a user types anything into the widget.
         '''
-        print "CutoverMax=", text
+        cutovermax_str = double_fixup(self.cutovermax_validator, self.cutovermax_linedit.text(), self.cutovermax)
+        self.cutovermax_linedit.setText(cutovermax_str)
+        if cutovermax_str:
+            env.prefs[cutoverMax_prefs_key] = float(str(cutovermax_str))
+        else:
+            env.prefs[cutoverMax_prefs_key] = -1.0
+        self.cutovermax = cutovermax_str
         
     ########## End of slot methods for "General" page widgets ###########
     
