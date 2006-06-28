@@ -202,6 +202,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         if platform.atom_debug: print 'ok button clicked'
         self._ok_or_preview(doneMsg=True)
         self.accept() #bruce 060621
+        self.struct = None
         return
 
     def _ok_or_preview(self, doneMsg=False):
@@ -211,7 +212,6 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
             self._build_struct()
             if doneMsg:
                 env.history.message(self.cmd + self.done_msg())
-            self.struct = None
         except CadBug, e:
             env.history.message(redmsg("Bug in the CAD system: " + " - ".join(map(str, e.args))))
             self.remove_struct()
