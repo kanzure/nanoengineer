@@ -646,50 +646,62 @@ class UserPrefs(UserPrefsDialog):
         '''Slot for EndRMS.
         This gets called each time a user types anything into the widget.
         '''
-        endrms_str = double_fixup(self.endrms_validator, self.endrms_linedit.text(), self.endrms)
-        self.endrms_linedit.setText(endrms_str)
-        if endrms_str:
-            env.prefs[endRMS_prefs_key] = float(str(endrms_str))
-        else:
-            env.prefs[endRMS_prefs_key] = -1.0
-        self.endrms = endrms_str
+        try:
+            endrms_str = double_fixup(self.endrms_validator, self.endrms_linedit.text(), self.endrms)
+            self.endrms_linedit.setText(endrms_str)
+            if endrms_str:
+                env.prefs[endRMS_prefs_key] = float(str(endrms_str))
+            else:
+                env.prefs[endRMS_prefs_key] = -1.0
+            self.endrms = endrms_str
+        except:
+            print_compact_traceback("bug in change_endrms ignored: ") #bruce 060627
         
     def change_endmax(self, text):
         '''Slot for EndMax.
         This gets called each time a user types anything into the widget.
         '''
-        endmax_str = double_fixup(self.endmax_validator, self.endmax_linedit.text(), self.endmax)
-        self.endmax_linedit.setText(endmax_str)
-        if endmax_str:
-            env.prefs[endMax_prefs_key] = float(str(endmax_str))
-        else:
-            env.prefs[endMax_prefs_key] = -1.0
-        self.endmax = endmax_str
-        
+        try:
+            endmax_str = double_fixup(self.endmax_validator, self.endmax_linedit.text(), self.endmax)
+            self.endmax_linedit.setText(endmax_str)
+            if endmax_str:
+                env.prefs[endMax_prefs_key] = float(str(endmax_str))
+            else:
+                env.prefs[endMax_prefs_key] = -1.0
+            self.endmax = endmax_str
+        except:
+            print_compact_traceback("bug in change_endmax ignored: ") #bruce 060627
+            
     def change_cutoverrms(self, text):
         '''Slot for Cutover RMS.
         This gets called each time a user types anything into the widget.
         '''
-        cutoverrms_str = double_fixup(self.cutoverrms_validator, self.cutoverrms_linedit.text(), self.cutoverrms)
-        self.cutoverrms_linedit.setText(cutoverrms_str)
-        if cutoverrms_str:
-            env.prefs[cutoverRMS_prefs_key] = float(str(cutoverrms_str))
-        else:
-            env.prefs[cutoverRMS_prefs_key] = -1.0
-        self.cutoverrms = cutoverrms_str
-        
+        try:
+            cutoverrms_str = double_fixup(self.cutoverrms_validator, self.cutoverrms_linedit.text(), self.cutoverrms)
+            self.cutoverrms_linedit.setText(cutoverrms_str)
+            if cutoverrms_str:
+                env.prefs[cutoverRMS_prefs_key] = float(str(cutoverrms_str))
+            else:
+                env.prefs[cutoverRMS_prefs_key] = -1.0
+            self.cutoverrms = cutoverrms_str
+        except:
+            print_compact_traceback("bug in change_cutoverrms ignored: ") #bruce 060627
+            
     def change_cutovermax(self, text):
         '''Slot for Cutover Max.
         This gets called each time a user types anything into the widget.
         '''
-        cutovermax_str = double_fixup(self.cutovermax_validator, self.cutovermax_linedit.text(), self.cutovermax)
-        self.cutovermax_linedit.setText(cutovermax_str)
-        if cutovermax_str:
-            env.prefs[cutoverMax_prefs_key] = float(str(cutovermax_str))
-        else:
-            env.prefs[cutoverMax_prefs_key] = -1.0
-        self.cutovermax = cutovermax_str
-        
+        try:
+            cutovermax_str = double_fixup(self.cutovermax_validator, self.cutovermax_linedit.text(), self.cutovermax)
+            self.cutovermax_linedit.setText(cutovermax_str)
+            if cutovermax_str:
+                env.prefs[cutoverMax_prefs_key] = float(str(cutovermax_str))
+            else:
+                env.prefs[cutoverMax_prefs_key] = -1.0
+            self.cutovermax = cutovermax_str
+        except:
+            print_compact_traceback("bug in change_cutovermax ignored: ") #bruce 060627
+            
     ########## End of slot methods for "General" page widgets ###########
     
     ########## Slot methods for "Atoms" page widgets ################
@@ -809,7 +821,7 @@ class UserPrefs(UserPrefsDialog):
             symbol = {0:'multicyl', 1:'vane', 2:'ribbon'}[val]
             # note: this decoding must use the same (arbitrary) int->symbol mapping as the button group does.
             # It's just a coincidence that the order is the same as in the prefs-type listed above.
-        except:
+        except KeyError: #bruce 060627 added specific exception class (untested)
             print "bug in change_high_order_bond_display: unknown val ignored:", val
         else:
             env.prefs[ pibondStyle_prefs_key ] = symbol
@@ -1316,28 +1328,31 @@ class UserPrefs(UserPrefsDialog):
         # (which was: lack of showing general page could reset gamess path to ""):
         # always call self._setup_general_page regardless of argument,
         # as well as the page named in the argument.
-        if pagename != 'General':
-            self._setup_general_page()
-        # end of bruce 050817 fix
-        
-        if pagename == 'General':
-            self._setup_general_page()
-        elif pagename == 'Atoms':
-            self._setup_atoms_page()
-        elif pagename == 'Bonds':
-            self._setup_bonds_page()
-        elif pagename == 'Modes':
-            self._setup_modes_page()
-        elif pagename == 'Lighting':
-            self._setup_lighting_page()
-        elif pagename == 'Plug-ins':
-            self._setup_plugins_page()
-        elif pagename == 'Undo':
-            self._setup_undo_page()
-        elif pagename == 'Window':
-            self._setup_window_page()
-        else:
-            print 'Error: Preferences page unknown: ', pagename
+        try:
+            if pagename != 'General':
+                self._setup_general_page()
+            # end of bruce 050817 fix
+            
+            if pagename == 'General':
+                self._setup_general_page()
+            elif pagename == 'Atoms':
+                self._setup_atoms_page()
+            elif pagename == 'Bonds':
+                self._setup_bonds_page()
+            elif pagename == 'Modes':
+                self._setup_modes_page()
+            elif pagename == 'Lighting':
+                self._setup_lighting_page()
+            elif pagename == 'Plug-ins':
+                self._setup_plugins_page()
+            elif pagename == 'Undo':
+                self._setup_undo_page()
+            elif pagename == 'Window':
+                self._setup_window_page()
+            else:
+                print 'Error: Preferences page unknown: ', pagename
+        except:
+            print_compact_traceback("bug in setup_current_page ignored: ") #bruce 060627
             
     def accept(self):
         '''The slot method for the 'OK' button.'''
