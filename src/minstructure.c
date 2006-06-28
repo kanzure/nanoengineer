@@ -346,6 +346,7 @@ minimizeStructure(struct part *part)
     int coordinateCount;
     double rms_force;
     double max_force;
+    double model_energy;
     struct jig *jig;
 
     NULLPTR(part);
@@ -411,13 +412,15 @@ minimizeStructure(struct part *part)
 	}
     }
 
+    model_energy = evaluate(final);
     SetConfiguration(&initial, NULL);
     SetConfiguration(&final, NULL);
-    done("Minimize evals: %d, %d; final forces: rms %f pN, high %f pN",
+    done("Minimize evals: %d, %d; final forces: rms %f pN, high %f pN, model energy: %.2f aJ",
          minimizeStructureFunctions.gradientEvaluationCount,
          minimizeStructureFunctions.functionEvaluationCount,
          rms_force,
-         max_force);
+         max_force,
+         model_energy);
 }
 
 /*
