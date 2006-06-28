@@ -465,10 +465,25 @@ class NanoBuildLinux(NanoBuildBase):
                   "design and simulate nano-components and nano-machines.\n")
         spf.write("Name: %s\n" % appName)
         spf.write("Version: %s\n" % version)
-        if releaseNo:
-            spf.write("Release: %s\n" % releaseNo)
+        #if releaseNo:
+        #    spf.write("Release: %s\n" % releaseNo)
+        #else:
+        #    spf.write("Release: 0\n")
+        requirements = [ ]
+        pyver = sys.version[:3]
+        if pyver == '2.4':
+            spf.write("Release: python24\n")
+            requirements.append('python >= 2.4, python < 2.5')
+        elif pyver == '2.3':
+            spf.write("Release: python23\n")
+            requirements.append('python >= 2.3, python < 2.4')
+            'python = ' + sys.version()[:3]
         else:
-            spf.write("Release: 0\n")
+            raise Exception("Must use Python 2.3 or 2.4")
+        if requirements:
+            requirements = "Requires: " + " ".join(requirements)
+        else:
+            requirements = ""
         otherStuff = """License: GPL
 Group: Applications/CAD
 Source: project.tgz
@@ -476,9 +491,9 @@ URL: http://nanoengineer-1.net/mediawiki/index.php
 Distribution: NanoEngineer-1
 Vendor: Nanorex, Inc.
 Packager: Nanorex, Inc.
-#Requires: libMesaglut3
+%(requirements)s
 
-%description
+%%description
 NanoEngineer-1 includes a molecular design module that combines
 capabilities found in traditional chemistry modeling software
 with features found in popular 3-D mechanical CAD systems. With
@@ -489,19 +504,19 @@ also included containing tubes, shafts, bearings, gears, joints,
 and springs that can be easily inserted and integrated with an
 existing assembly.
 
-%prep
+%%prep
 
-%setup
+%%setup
 
-%build
+%%build
 
-%install
+%%install
 # This stuff DOES NOT RUN on the end user's machine!
 # If it did, we could set up a desktop icon here.
 # And we could set the BROWSER environment variable here.
 # But alas, these things must be release-noted. An RPM can't do them.
 
-%post
+%%post
 #!/bin/sh
 # Set up a desktop icon.
 # I checked a NanoEngineer-1.desktop file into cad/src, but I don't
@@ -517,13 +532,20 @@ fi
 # Unfortunately this won't help the user until he starts
 # another Bash session.
 
-%files
-%defattr(755, root, root, 755)
-"""
+%%files
+%%defattr(755, root, root, 755)
+""" % { "requirements": requirements }
         spf.write(otherStuff)
         spf.write(sourceDir + "\n")
         spf.close()
         print "----RPM building specification file has been written."
+
+    def _hey_wake_up(self):
+        # We'll need a root password, awaken the release engineer.
+        try:
+            os.system("mpg123 wake_up.mp3")
+        except:
+            pass
 
     def makePlatformPackage(self):  # linux
         specFile = os.path.join(self.rootPath, 'setup.spec')
@@ -536,6 +558,7 @@ fi
         self.buildSourcePath: the name of the temporary building path
         """
         specDir = '/usr/src/RPM/SPECS'
+        self._hey_wake_up()
         system("sudo cp %s %s" % (specFile, specDir))
         system("sudo rm -rf /usr/local/" + PMMT)
         system("sudo mv %s /usr/local" % self.buildSourcePath)
