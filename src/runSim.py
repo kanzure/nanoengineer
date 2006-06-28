@@ -1029,14 +1029,15 @@ class SimRunner:
                 msg = "sim took %0.3f, hit frame %03d, py took %0.3f" % \
                       (simtime, self.__frame_number, pytime)
                 env.history.statusbar_msg(msg)
-            else:
-                # wware 060309, bug 1343
-                msg = ""
-                tp = self.tracefileProcessor
-                if tp:
-                    msg = tp.progress_text()
-                if msg:
-                    env.history.statusbar_msg(self.cmdname + ": " + msg)
+            msg = None
+            # wware 060309, bug 1343, 060628, bug 1898
+            tp = self.tracefileProcessor
+            if tp:
+                pt = tp.progress_text()
+                if pt:
+                    msg = self.cmdname + ": " + pt
+            if msg is not None:
+                env.history.statusbar_msg(msg)
             now = self.__last_3dupdate_time
         if now >= self.__last_progress_update_time + 1.0 or update_3dview and now >= self.__last_progress_update_time + 0.2:
             # update progressbar [wware 060310, bug 1343]
