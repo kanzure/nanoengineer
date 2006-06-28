@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>595</width>
-            <height>424</height>
+            <width>627</width>
+            <height>450</height>
         </rect>
     </property>
     <property name="caption">
@@ -4678,7 +4678,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="166">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000006d49444154789cedd4410e80200c44d1af17f62c9e58b78674686142628c5d9747d316e07371c235736e5f8176610795b08b026c2e7a0406243dae842a24bcad4d56553df3da9cb062058de4c95654f161d8c5d3e1cde2f656fcf05ab8f7fc4b13cffe8f6873ec56b80fe93d71032fef1420183fe3e20000000049454e44ae426082</data>
+        <data format="PNG" length="166">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000006d49444154388dedd4410e80200c44d1af17f62c9e58b78674686142628c5d9747d316e07371c235736e5f8176610795b08b026c2e7a0406243dae842a24bcad4d56553df3da9cb062058de4c95654f161d8c5d3e1cde2f656fcf05ab8f7fc4b13cffe8f6873ec56b80fe93d71032fef14203d50a03f0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5132,6 +5132,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <receiver>update_btngrp</receiver>
         <slot>setEnabled(bool)</slot>
     </connection>
+    <connection>
+        <sender>update_number_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>update_number_spinbox_valueChanged(int)</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -5228,6 +5234,9 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <tabstop>povray_choose_btn</tabstop>
     <tabstop>povray_checkbox</tabstop>
 </tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">UserPrefsDialog.ui.h</include>
+</includes>
 <slots>
     <slot>display_compass()</slot>
     <slot>set_compass_position()</slot>
@@ -5239,14 +5248,14 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>restore_default_bgcolor()</slot>
     <slot>set_default_display_mode()</slot>
     <slot>set_caption_fullpath()</slot>
-    <slot>set_history_height(int)</slot>
+    <slot>set_history_height( int )</slot>
     <slot>change_atom_hilite_color()</slot>
     <slot>change_bond_hilite_color()</slot>
     <slot>change_bond_stretch_color()</slot>
     <slot>change_ballstick_bondcolor()</slot>
     <slot>change_bond_vane_color()</slot>
     <slot>change_high_order_bond_display()</slot>
-    <slot>change_bond_labels(bool)</slot>
+    <slot>change_bond_labels( bool )</slot>
     <slot>reset_bond_colors()</slot>
     <slot>reset_atom_colors()</slot>
     <slot>change_hotspot_color()</slot>
@@ -5298,6 +5307,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>change_endmax()</slot>
     <slot>change_cutoverrms()</slot>
     <slot>change_cutovermax()</slot>
+    <slot>update_number_spinbox_valueChanged( int )</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

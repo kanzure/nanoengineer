@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Tue Jun 20 19:03:40 2006
+# Created: Wed Jun 28 12:29:52 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,7 +14,7 @@ image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
-    "\x6d\x49\x44\x41\x54\x78\x9c\xed\xd4\x41\x0e\x80" \
+    "\x6d\x49\x44\x41\x54\x38\x8d\xed\xd4\x41\x0e\x80" \
     "\x20\x0c\x44\xd1\xaf\x17\xf6\x2c\x9e\x58\xb7\x86" \
     "\x74\x68\x61\x42\x62\x8c\x5d\x97\x47\xd3\x16\xe0" \
     "\x73\x71\xc2\x35\x73\x6e\x5f\x81\x76\x61\x07\x95" \
@@ -23,7 +23,7 @@ image0_data = \
     "\x62\x05\x8d\xe4\xc9\x56\x54\xf1\x61\xd8\xc5\xd3" \
     "\xe1\xcd\xe2\xf6\x56\xfc\xf0\x5a\xb8\xf7\xfc\x4b" \
     "\x13\xcf\xfe\x8f\x68\x73\xec\x56\xb8\x0f\xe9\x3d" \
-    "\x71\x03\x2f\xef\x14\x20\x18\x3f\xe3\xe2\x00\x00" \
+    "\x71\x03\x2f\xef\x14\x20\x3d\x50\xa0\x3f\x00\x00" \
     "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class UserPrefsDialog(QDialog):
@@ -1398,7 +1398,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(595,424).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(627,450).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -1476,6 +1476,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.cutovermax_linedit,SIGNAL("textChanged(const QString&)"),self.change_cutovermax)
         self.connect(self.compass_position_combox,SIGNAL("activated(int)"),self.set_compass_position)
         self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("toggled(bool)"),self.update_btngrp.setEnabled)
+        self.connect(self.update_number_spinbox,SIGNAL("valueChanged(int)"),self.update_number_spinbox_valueChanged)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_compass_labels_checkbox)
@@ -2159,6 +2160,9 @@ class UserPrefsDialog(QDialog):
 
     def change_cutovermax(self):
         print "UserPrefsDialog.change_cutovermax(): Not implemented yet"
+
+    def update_number_spinbox_valueChanged(self,a0):
+        print "UserPrefsDialog.update_number_spinbox_valueChanged(int): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)
