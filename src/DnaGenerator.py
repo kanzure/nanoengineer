@@ -22,7 +22,7 @@ from HistoryWidget import redmsg, orangemsg, greenmsg
 from VQT import A, V, dot, vlen
 from bonds import inferBonds, bond_atoms
 from files_mmp import _readmmp
-from GeneratorBaseClass import GeneratorBaseClass, PluginBug
+from GeneratorBaseClass import GeneratorBaseClass, PluginBug, UserError
 from fusechunksMode import fusechunksBase
 from platform import find_plugin_dir
 
@@ -52,7 +52,7 @@ class Dna:
             except IOError:
                 raise PluginBug("Cannot read file: " + filename)
             if not grouplist:
-                raise Exception("No atoms in DNA base? " + filename)
+                raise PluginBug("No atoms in DNA base? " + filename)
             viewdata, mainpart, shelf = grouplist
             for member in mainpart.members:
                 for atm in member.atoms.values():
@@ -65,7 +65,7 @@ class Dna:
 
         for ch in sequence:
             if ch not in 'GACT':
-                raise Exception('Unknown DNA base (not G, A, C, or T): ' + ch)
+                raise UserError('Unknown DNA base (not G, A, C, or T): ' + ch)
 
         def rotateTranslate(v, theta, z):
             c, s = cos(theta), sin(theta)
@@ -117,9 +117,9 @@ class A_Dna(Dna):
     TWIST_PER_BASE = 0  # WRONG
     BASE_SPACING = 0    # WRONG
     def strandAinfo(self, sequence, i):
-        raise Exception("A-DNA is not yet implemented -- please try B- or Z-DNA");
+        raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
     def strandBinfo(self, sequence, i):
-        raise Exception("A-DNA is not yet implemented -- please try B- or Z-DNA");
+        raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
 
 class B_Dna(Dna):
     geometry = "B-DNA"
@@ -208,8 +208,12 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
             env.history.message(self.cmd + "Creating DNA.")
         grp = Group(self.name, self.win.assy,
                     self.win.assy.part.topnode)
-        dna.make(self.win.assy, grp, seq, doubleStrand, position)
-        return grp
+        try:
+            dna.make(self.win.assy, grp, seq, doubleStrand, position)
+            return grp
+        except (PluginBug, UserError):
+            grp.kill()
+            raise
 
     def get_sequence(self, reverse=False, complement=False,
                      cdict={'C':'G', 'G':'C', 'A':'T', 'T':'A'}):
