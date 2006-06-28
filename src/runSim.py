@@ -1829,6 +1829,15 @@ class Minimize_CommandRun(CommandRun):
             # Probably it means that this class, SimRun, and this way of using Movie should all be the same,
             # or at least have more links than they do now. ###@@@
 
+        # Set update_cond for this movie, based on Edit->Preferences general prefs page.
+        uprefs = env.mainwindow().uprefs
+        if uprefs.update_asap_rbtn.isChecked():
+            update_cond = lambda simtime, pytime, nframes: simtime >= max(0.05, min(pytime * 4, 2.0))
+        else:
+            update_cond = (lambda simtime, pytime, nframes, _nframes=uprefs.update_number_spinbox.value():
+                           nframes >= _nframes)
+        movie.update_cond = update_cond
+
         # semi-obs comment, might still be useful [as of 050406]:
         # Minimize Selection [bruce 050330] (ought to be a distinct command subclass...)
         # this will use the spawning code in writemovie but has its own way of writing the mmp file.
