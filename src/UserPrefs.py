@@ -245,16 +245,16 @@ class UserPrefs(UserPrefsDialog):
         self.animation_speed_slider.setValue(speed)
         
         self.endrms = get_pref_or_optval(endRMS_prefs_key, -1.0, '')
-        self.endrms_linedit.setText(self.endrms)
+        self.endrms_linedit.setText(str(self.endrms))
         
         self.endmax = get_pref_or_optval(endMax_prefs_key, -1.0, '')
-        self.endmax_linedit.setText(self.endmax)
+        self.endmax_linedit.setText(str(self.endmax))
         
         self.cutoverrms = get_pref_or_optval(cutoverRMS_prefs_key, -1.0, '')
-        self.cutoverrms_linedit.setText(self.cutoverrms)
+        self.cutoverrms_linedit.setText(str(self.cutoverrms))
         
         self.cutovermax = get_pref_or_optval(cutoverMax_prefs_key, -1.0, '')
-        self.cutovermax_linedit.setText(self.cutovermax)
+        self.cutovermax_linedit.setText(str(self.cutovermax))
 
     def _setup_plugins_page(self):
         ''' Setup widgets to initial (default or defined) values on the Plug-ins page.
