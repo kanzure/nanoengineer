@@ -1310,6 +1310,10 @@ class UserPrefs(UserPrefsDialog):
         # and there is now a Formula in MWsemantics which makes the following no longer needed:
         ## self.win.update_mainwindow_caption(self.win.assy.has_changed())
         pass
+
+    def update_number_spinbox_valueChanged(self,a0):
+        # some day we'll use this to set a user preferences, for now it's a no-op
+        pass
         
     ########## End of slot methods for "Window" page widgets ###########
     
