@@ -1830,6 +1830,7 @@ class Minimize_CommandRun(CommandRun):
             # or at least have more links than they do now. ###@@@
 
         # Set update_cond for this movie, based on Edit->Preferences general prefs page.
+        # This code for setting update_cond is duplicated (inexactly) in SimSetup.createMoviePressed() in SimSetup.py.
         uprefs = env.mainwindow().uprefs
         if uprefs.update_asap_rbtn.isChecked():
             update_cond = lambda simtime, pytime, nframes: simtime >= max(0.05, min(pytime * 4, 2.0))

@@ -151,6 +151,8 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
                 #   to do something else with the info like store it somewhere, or it may not (check runSim.py for details #k),
                 #   but its return value will be ignored if it's called for the last frame.)
                 # The details of these functions (and the UI feeding them) might be revised.
+
+                # This code for setting update_cond is duplicated (inexactly) in Minimize_CommandRun.doMinimize() in runSim.py
                 if update_as_fast_as_possible:
                     # This radiobutton might be misnamed; it really means "use the old code,
                     # i.e. not worse than 20% slowdown, with threshholds".
