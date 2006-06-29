@@ -13,7 +13,7 @@ mark 060601 - Created.
 __author__ = "Mark"
 
 from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
-from povray import write_povray_ini_file, launch_povray
+from povray import write_povray_ini_file, launch_povray_or_megapov
 from fileIO import writepovfile
 from qt import Qt, QApplication, QCursor
 from HistoryWidget import greenmsg, redmsg
@@ -207,10 +207,8 @@ class PovrayScene(SimpleCopyMixin, Node):
         else:
             return 1, "Problem getting POV-Ray INI filename."
         
-        # Launch POV-Ray      
-        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-        errorcode, errortext = launch_povray(self.assy.w, ini) # Launch POV-Ray
-        QApplication.restoreOverrideCursor() # Restore the cursor
+        # Launch POV-Ray or MegaPOV
+        errorcode, errortext = launch_povray_or_megapov(self.assy.w, ini) # Launch MegaPOV
             
         return errorcode, errortext # errorcode = 0 if successful.
       

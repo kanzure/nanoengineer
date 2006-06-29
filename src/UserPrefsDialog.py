@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Jun 28 12:29:52 2006
+# Created: Wed Jun 28 22:27:19 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,7 +14,7 @@ image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
-    "\x6d\x49\x44\x41\x54\x38\x8d\xed\xd4\x41\x0e\x80" \
+    "\x6d\x49\x44\x41\x54\x78\x9c\xed\xd4\x41\x0e\x80" \
     "\x20\x0c\x44\xd1\xaf\x17\xf6\x2c\x9e\x58\xb7\x86" \
     "\x74\x68\x61\x42\x62\x8c\x5d\x97\x47\xd3\x16\xe0" \
     "\x73\x71\xc2\x35\x73\x6e\x5f\x81\x76\x61\x07\x95" \
@@ -23,7 +23,7 @@ image0_data = \
     "\x62\x05\x8d\xe4\xc9\x56\x54\xf1\x61\xd8\xc5\xd3" \
     "\xe1\xcd\xe2\xf6\x56\xfc\xf0\x5a\xb8\xf7\xfc\x4b" \
     "\x13\xcf\xfe\x8f\x68\x73\xec\x56\xb8\x0f\xe9\x3d" \
-    "\x71\x03\x2f\xef\x14\x20\x3d\x50\xa0\x3f\x00\x00" \
+    "\x71\x03\x2f\xef\x14\x20\x18\x3f\xe3\xe2\x00\x00" \
     "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class UserPrefsDialog(QDialog):
@@ -1127,7 +1127,9 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
 
         self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
-        TabPageLayout_5 = QVBoxLayout(self.TabPage_5,11,6,"TabPageLayout_5")
+        TabPageLayout_5 = QGridLayout(self.TabPage_5,1,1,11,6,"TabPageLayout_5")
+        spacer24 = QSpacerItem(20,120,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_5.addItem(spacer24,1,0)
 
         self.file_locations_grp = QGroupBox(self.TabPage_5,"file_locations_grp")
         self.file_locations_grp.setColumnLayout(0,Qt.Vertical)
@@ -1163,17 +1165,6 @@ class UserPrefsDialog(QDialog):
 
         file_locations_grpLayout.addWidget(self.nanohive_checkbox,0,0)
 
-        self.gamess_checkbox = QCheckBox(self.file_locations_grp,"gamess_checkbox")
-
-        file_locations_grpLayout.addWidget(self.gamess_checkbox,2,0)
-
-        self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
-        self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
-        self.gamess_lbl.setMinimumSize(QSize(60,0))
-        self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        file_locations_grpLayout.addWidget(self.gamess_lbl,2,1)
-
         self.gamess_path_linedit = QLineEdit(self.file_locations_grp,"gamess_path_linedit")
         self.gamess_path_linedit.setEnabled(0)
         self.gamess_path_linedit.setMaximumSize(QSize(32767,32767))
@@ -1182,13 +1173,35 @@ class UserPrefsDialog(QDialog):
         self.gamess_path_linedit.setMaxLength(32767)
         self.gamess_path_linedit.setReadOnly(1)
 
-        file_locations_grpLayout.addWidget(self.gamess_path_linedit,2,2)
+        file_locations_grpLayout.addWidget(self.gamess_path_linedit,3,2)
+
+        self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
+        self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
+        self.gamess_lbl.setMinimumSize(QSize(60,0))
+        self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        file_locations_grpLayout.addWidget(self.gamess_lbl,3,1)
 
         self.gamess_choose_btn = QPushButton(self.file_locations_grp,"gamess_choose_btn")
         self.gamess_choose_btn.setEnabled(0)
         self.gamess_choose_btn.setAutoDefault(0)
 
-        file_locations_grpLayout.addWidget(self.gamess_choose_btn,2,3)
+        file_locations_grpLayout.addWidget(self.gamess_choose_btn,3,3)
+
+        self.gamess_checkbox = QCheckBox(self.file_locations_grp,"gamess_checkbox")
+
+        file_locations_grpLayout.addWidget(self.gamess_checkbox,3,0)
+
+        self.povray_checkbox = QCheckBox(self.file_locations_grp,"povray_checkbox")
+
+        file_locations_grpLayout.addWidget(self.povray_checkbox,1,0)
+
+        self.povray_lbl = QLabel(self.file_locations_grp,"povray_lbl")
+        self.povray_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.povray_lbl.sizePolicy().hasHeightForWidth()))
+        self.povray_lbl.setMinimumSize(QSize(60,0))
+        self.povray_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        file_locations_grpLayout.addWidget(self.povray_lbl,1,1)
 
         self.povray_path_linedit = QLineEdit(self.file_locations_grp,"povray_path_linedit")
         self.povray_path_linedit.setEnabled(0)
@@ -1206,19 +1219,34 @@ class UserPrefsDialog(QDialog):
 
         file_locations_grpLayout.addWidget(self.povray_choose_btn,1,3)
 
-        self.povray_checkbox = QCheckBox(self.file_locations_grp,"povray_checkbox")
+        self.megapov_checkbox = QCheckBox(self.file_locations_grp,"megapov_checkbox")
 
-        file_locations_grpLayout.addWidget(self.povray_checkbox,1,0)
+        file_locations_grpLayout.addWidget(self.megapov_checkbox,2,0)
 
-        self.povray_lbl = QLabel(self.file_locations_grp,"povray_lbl")
-        self.povray_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.povray_lbl.sizePolicy().hasHeightForWidth()))
-        self.povray_lbl.setMinimumSize(QSize(60,0))
-        self.povray_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        self.megapov_lbl = QLabel(self.file_locations_grp,"megapov_lbl")
+        self.megapov_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.megapov_lbl.sizePolicy().hasHeightForWidth()))
+        self.megapov_lbl.setMinimumSize(QSize(60,0))
+        self.megapov_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
-        file_locations_grpLayout.addWidget(self.povray_lbl,1,1)
-        TabPageLayout_5.addWidget(self.file_locations_grp)
-        spacer24 = QSpacerItem(20,120,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_5.addItem(spacer24)
+        file_locations_grpLayout.addWidget(self.megapov_lbl,2,1)
+
+        self.megapov_path_linedit = QLineEdit(self.file_locations_grp,"megapov_path_linedit")
+        self.megapov_path_linedit.setEnabled(0)
+        self.megapov_path_linedit.setMaximumSize(QSize(32767,32767))
+        self.megapov_path_linedit.setFrameShape(QLineEdit.LineEditPanel)
+        self.megapov_path_linedit.setFrameShadow(QLineEdit.Sunken)
+        self.megapov_path_linedit.setMaxLength(32767)
+        self.megapov_path_linedit.setReadOnly(1)
+
+        file_locations_grpLayout.addWidget(self.megapov_path_linedit,2,2)
+
+        self.megapov_choose_btn = QPushButton(self.file_locations_grp,"megapov_choose_btn")
+        self.megapov_choose_btn.setEnabled(0)
+        self.megapov_choose_btn.setAutoDefault(0)
+
+        file_locations_grpLayout.addWidget(self.megapov_choose_btn,2,3)
+
+        TabPageLayout_5.addWidget(self.file_locations_grp,0,0)
         self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
 
         self.TabPage_6 = QWidget(self.prefs_tab,"TabPage_6")
@@ -1398,7 +1426,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(627,450).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(595,428).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -1477,6 +1505,8 @@ class UserPrefsDialog(QDialog):
         self.connect(self.compass_position_combox,SIGNAL("activated(int)"),self.set_compass_position)
         self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("toggled(bool)"),self.update_btngrp.setEnabled)
         self.connect(self.update_number_spinbox,SIGNAL("valueChanged(int)"),self.update_number_spinbox_valueChanged)
+        self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.enable_megapov)
+        self.connect(self.megapov_choose_btn,SIGNAL("clicked()"),self.set_megapov_path)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_compass_labels_checkbox)
@@ -1883,34 +1913,46 @@ class UserPrefsDialog(QDialog):
         self.nanohive_checkbox.setText(QString.null)
         QToolTip.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
         QWhatsThis.add(self.nanohive_checkbox,self.__tr("This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in."))
-        self.gamess_checkbox.setText(QString.null)
-        QToolTip.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
-        QWhatsThis.add(self.gamess_checkbox,self.__tr("<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>\n"
-"<p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>\n"
-"<p>For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>"))
+        self.gamess_path_linedit.setText(QString.null)
+        QToolTip.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
+        QWhatsThis.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
         self.gamess_lbl.setText(self.__tr("GAMESS :"))
         QToolTip.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
         QWhatsThis.add(self.gamess_lbl,self.__tr("<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>\n"
 "<p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>\n"
 "<p>For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>"))
-        self.gamess_path_linedit.setText(QString.null)
-        QToolTip.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
-        QWhatsThis.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
         self.gamess_choose_btn.setText(self.__tr("Choose..."))
         QToolTip.add(self.gamess_choose_btn,self.__tr("Choose GAMESS executable"))
         QWhatsThis.add(self.gamess_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the GAMESS or PC-GAMESS executable."))
-        self.povray_path_linedit.setText(QString.null)
-        QToolTip.add(self.povray_path_linedit,self.__tr("The full path to the POV-Ray executable file."))
-        QWhatsThis.add(self.povray_path_linedit,self.__tr("The full path to the POV-Ray executable file."))
-        self.povray_choose_btn.setText(self.__tr("Choose..."))
-        QToolTip.add(self.povray_choose_btn,self.__tr("Choose POV-Ray executable"))
-        QWhatsThis.add(self.povray_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the POV-Ray executable."))
+        self.gamess_checkbox.setText(QString.null)
+        QToolTip.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
+        QWhatsThis.add(self.gamess_checkbox,self.__tr("<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>\n"
+"<p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>\n"
+"<p>For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>"))
         self.povray_checkbox.setText(QString.null)
         QToolTip.add(self.povray_checkbox,self.__tr("Enable POV-Ray"))
         QWhatsThis.add(self.povray_checkbox,self.__tr("This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in."))
         self.povray_lbl.setText(self.__tr("POV-Ray :"))
         QToolTip.add(self.povray_lbl,self.__tr("Enable POV-Ray"))
         QWhatsThis.add(self.povray_lbl,self.__tr("This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in."))
+        self.povray_path_linedit.setText(QString.null)
+        QToolTip.add(self.povray_path_linedit,self.__tr("The full path to the POV-Ray executable file."))
+        QWhatsThis.add(self.povray_path_linedit,self.__tr("The full path to the POV-Ray executable file."))
+        self.povray_choose_btn.setText(self.__tr("Choose..."))
+        QToolTip.add(self.povray_choose_btn,self.__tr("Choose POV-Ray executable"))
+        QWhatsThis.add(self.povray_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the POV-Ray executable."))
+        self.megapov_checkbox.setText(QString.null)
+        QToolTip.add(self.megapov_checkbox,self.__tr("Enable POV-Ray"))
+        QWhatsThis.add(self.megapov_checkbox,self.__tr("This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in."))
+        self.megapov_lbl.setText(self.__tr("MegaPOV :"))
+        QToolTip.add(self.megapov_lbl,self.__tr("Enable POV-Ray"))
+        QWhatsThis.add(self.megapov_lbl,self.__tr("This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in."))
+        self.megapov_path_linedit.setText(QString.null)
+        QToolTip.add(self.megapov_path_linedit,self.__tr("The full path to the POV-Ray executable file."))
+        QWhatsThis.add(self.megapov_path_linedit,self.__tr("The full path to the POV-Ray executable file."))
+        self.megapov_choose_btn.setText(self.__tr("Choose..."))
+        QToolTip.add(self.megapov_choose_btn,self.__tr("Choose POV-Ray executable"))
+        QWhatsThis.add(self.megapov_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the POV-Ray executable."))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
         self.groupBox17.setTitle(self.__tr("History Preferences"))
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
@@ -2163,6 +2205,12 @@ class UserPrefsDialog(QDialog):
 
     def update_number_spinbox_valueChanged(self,a0):
         print "UserPrefsDialog.update_number_spinbox_valueChanged(int): Not implemented yet"
+
+    def enable_megapov(self):
+        print "UserPrefsDialog.enable_megapov(): Not implemented yet"
+
+    def set_megapov_path(self):
+        print "UserPrefsDialog.set_megapov_path(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

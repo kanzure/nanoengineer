@@ -123,6 +123,8 @@ nanohive_path_prefs_key = 'A7/Nano-Hive Executable Path'
 nanohive_enabled_prefs_key = 'A7/Nano-Hive Enabled'
 povray_path_prefs_key = 'A8/POV-Ray Executable Path'
 povray_enabled_prefs_key = 'A8/POV-Ray Enabled'
+megapov_path_prefs_key = 'A8/MegaPOV Executable Path'
+megapov_enabled_prefs_key = 'A8/MegaPOV Enabled'
 gmspath_prefs_key = 'A6/GAMESS Path'
 gamess_enabled_prefs_key = 'A7/GAMESS Enabled'
 
@@ -282,6 +284,8 @@ prefs_table = (
     ('nanohive_enabled', 'boolean', nanohive_enabled_prefs_key, False ),
     ('povray_exe_path', 'string', povray_path_prefs_key, "" ),
     ('povray_enabled', 'boolean', povray_enabled_prefs_key, False ),
+    ('megapov_exe_path', 'string', megapov_path_prefs_key, "" ),
+    ('megapov_enabled', 'boolean', megapov_enabled_prefs_key, False ),
     ('gamess_exe_path', 'string', gmspath_prefs_key, "" ),
     ('gamess_enabled', 'boolean', gamess_enabled_prefs_key, False ),
     

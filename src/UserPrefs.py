@@ -24,6 +24,7 @@ from widgets import RGBf_to_QColor #bruce 050805 moved RGBf_to_QColor from here 
 from widgets import double_fixup
 from prefs_widgets import connect_colorpref_to_colorframe, connect_checkbox_with_boolean_pref
 import platform
+from povray import get_default_plugin_path
 
 debug_sliders = False # Do not commit as True
 
@@ -273,6 +274,10 @@ class UserPrefs(UserPrefsDialog):
         # POV-Ray executable path.
         self.povray_checkbox.setChecked(env.prefs[povray_enabled_prefs_key])
         self.povray_path_linedit.setText(env.prefs[povray_path_prefs_key])
+        
+        # MegaPOV executable path.
+        self.megapov_checkbox.setChecked(env.prefs[megapov_enabled_prefs_key])
+        self.megapov_path_linedit.setText(env.prefs[megapov_path_prefs_key])
         
         # GAMESS executable path.
         self.gamess_checkbox.setChecked(env.prefs[gamess_enabled_prefs_key])
@@ -1200,8 +1205,11 @@ class UserPrefs(UserPrefsDialog):
             
             # Sets the Nano-Hive (executable) path to the standard location, if it exists.
             if not env.prefs[nanohive_path_prefs_key]:
-                from NanoHiveUtils import get_default_nh_path
-                env.prefs[nanohive_path_prefs_key] = get_default_nh_path()
+                env.prefs[nanohive_path_prefs_key] = get_default_plugin_path(
+                    "C:\\Program Files\\Nano-Hive\\bin\\win32-x86\\NanoHive.exe", \
+                    "/usr/local/bin/NanoHive", \
+                    "/usr/local/bin/NanoHive")
+
             
             env.prefs[nanohive_enabled_prefs_key] = True
             self.nanohive_path_linedit.setText(env.prefs[nanohive_path_prefs_key])
@@ -1240,8 +1248,10 @@ class UserPrefs(UserPrefsDialog):
             
             # Sets the POV-Ray (executable) path to the standard location, if it exists.
             if not env.prefs[povray_path_prefs_key]:
-                from povray import get_default_povray_path
-                env.prefs[povray_path_prefs_key] = get_default_povray_path()
+                env.prefs[povray_path_prefs_key] = get_default_plugin_path( \
+                    "C:\\Program Files\\POV-Ray for Windows v3.6\\bin\\pvengine.exe", \
+                    "/usr/local/bin/pvengine", \
+                    "/usr/local/bin/pvengine")
             
             self.povray_path_linedit.setText(env.prefs[povray_path_prefs_key])
             
@@ -1251,6 +1261,39 @@ class UserPrefs(UserPrefsDialog):
             self.povray_path_linedit.setText("")
             env.prefs[povray_path_prefs_key] = ''
             env.prefs[povray_enabled_prefs_key] = False
+            
+    def set_megapov_path(self):
+        '''Slot for MegaPOV path "Choose" button.
+        '''
+        megapov_exe = get_filename_and_save_in_prefs(self, megapov_path_prefs_key, 'Choose MegaPOV Executable')
+         
+        if megapov_exe:
+            self.megapov_path_linedit.setText(megapov_exe)
+            
+    def enable_megapov(self, enable=True):
+        '''MegaPOV is enabled when enable=True.
+        MegaPOV is disabled when enable=False.
+        '''
+        if enable:
+            self.megapov_path_linedit.setEnabled(1)
+            self.megapov_choose_btn.setEnabled(1)
+            env.prefs[megapov_enabled_prefs_key] = True
+            
+            # Sets the MegaPOV (executable) path to the standard location, if it exists.
+            if not env.prefs[megapov_path_prefs_key]:
+                env.prefs[megapov_path_prefs_key] = get_default_plugin_path( \
+                    "C:\\Program Files\\POV-Ray for Windows v3.6\\bin\\megapov.exe", \
+                    "/usr/local/bin/megapov", \
+                    "/usr/local/bin/megapov")
+            
+            self.megapov_path_linedit.setText(env.prefs[megapov_path_prefs_key])
+            
+        else:
+            self.megapov_path_linedit.setEnabled(0)
+            self.megapov_choose_btn.setEnabled(0)
+            self.megapov_path_linedit.setText("")
+            env.prefs[megapov_path_prefs_key] = ''
+            env.prefs[megapov_enabled_prefs_key] = False
                             
     ########## End of slot methods for "Plug-ins" page widgets ###########
     
