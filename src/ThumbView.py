@@ -707,9 +707,31 @@ class MMKitView(ThumbView):
         if isinstance(obj, atom) and (obj.element is Singlet):
             mol = obj.molecule
             if not mol is self.lastHotspotChunk:
-                if self.lastHotspotChunk: # Unset previous hotspot
-                    self.lastHotspotChunk.set_hotspot(None)
-                self.lastHotspotChunk = mol 
+                if self.lastHotspotChunk: # Unset previous hotspot [bruce 060629 fix bug 1974 -- only if in same part]
+                    if mol.part is self.lastHotspotChunk.part and mol.part is not None:
+                        # Old and new hotspot chunks are in same part. Unset old hotspot,
+                        # so as to encourage there to be only one per Part.
+                        #   This should happen when you try to make more than one hotspot in one
+                        # library part or clipboard item, using the MMKit to make both.
+                        #   It might make more sense for more general code in Part to prevent
+                        # more than one hotspot per part... but we have never decided whether
+                        # that would be a good feature. (I have long suspected that hotspots
+                        # should be replaced by some sort of jig, to give more control....)
+                        #   I don't know if this case can ever happen as of now, since multichunk
+                        # clipboard items aren't shown in MMKit -- whether it can happen now
+                        # depends on whether any multichunk library parts have bondpoints on
+                        # more than one chunk. [bruce 060629]
+                        if env.debug() and self.lastHotspotChunk.hotspot: #bruce 060629 re bug 1974
+                            print "debug: unsetting hotspot of %r (was %r)" % \
+                                  (self.lastHotspotChunk, self.lastHotspotChunk.hotspot)
+                        self.lastHotspotChunk.set_hotspot(None)
+                    else:
+                        # Don't unset hotspot in this case (doing so was causing bug 1974).
+                        if env.debug() and self.lastHotspotChunk.hotspot:
+                            print "debug: NOT unsetting hotspot of %r" % (self.lastHotspotChunk, )
+                        pass
+                self.lastHotspotChunk = mol
+                    # [as of 060629, the only purpose of this is to permit the above code to unset it in some cases]
                        
             mol.set_hotspot(obj)
 
