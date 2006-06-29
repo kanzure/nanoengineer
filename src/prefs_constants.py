@@ -62,10 +62,10 @@ animateHighQualityGraphics_prefs_key = 'A7/Animate with High Quality Graphics' #
 animateStandardViews_prefs_key = 'A7/Animate Standard Views'
 animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
 watchRealtimeMinimization_prefs_key = 'A7/Watch Realtime Minimization'
-endRMS_prefs_key = 'A8 devel/End RMS'
-endMax_prefs_key = 'A8 devel/End Max'
-cutoverRMS_prefs_key = 'A8 devel/Cutover RMS'
-cutoverMax_prefs_key = 'A8 devel/Cutover Max'
+endRMS_prefs_key = 'A8 devel2/End RMS' #mark 060627 [all 4 keys and defaults revised by bruce 060628]
+endMax_prefs_key = 'A8 devel2/End Max'
+cutoverRMS_prefs_key = 'A8 devel2/Cutover RMS'
+cutoverMax_prefs_key = 'A8 devel2/Cutover Max'
 
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
@@ -215,10 +215,10 @@ prefs_table = (
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
     ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
     ('watch_realtime_min', 'boolean', watchRealtimeMinimization_prefs_key, True), # Mark 060217.
-    ('end_rms', 'float', endRMS_prefs_key, 1.0), #mark 060627
-    ('end_max', 'float', endMax_prefs_key, 1.0), #mark 060627
-    ('cutover_rms', 'float', cutoverRMS_prefs_key, 1.0), #mark 060627
-    ('cutover_max', 'float', cutoverMax_prefs_key, 1.0), #mark 060627
+    ('end_rms', 'float', endRMS_prefs_key, -1.0), #mark 060627 [all 4 keys and defaults revised by bruce 060628]
+    ('end_max', 'float', endMax_prefs_key, -1.0), #mark 060627
+    ('cutover_rms', 'float', cutoverRMS_prefs_key, -1.0), #mark 060627
+    ('cutover_max', 'float', cutoverMax_prefs_key, -1.0), #mark 060627
     
     # Atom preferences - colors (other than element colors, handled separately)
 

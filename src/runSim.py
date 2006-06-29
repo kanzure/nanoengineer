@@ -35,7 +35,7 @@ from math import sqrt
 from SimSetup import SimSetup
 from qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject, SIGNAL
 from movie import Movie
-from HistoryWidget import redmsg, greenmsg, orangemsg
+from HistoryWidget import redmsg, greenmsg, orangemsg, quote_html
 import env
 from env import seen_before
 from VQT import A, V
@@ -604,13 +604,72 @@ class SimRunner:
                 simopts.Temperature = movie.temp
                 simopts.IterPerFrame = movie.stepsper
                 simopts.PrintFrameNums = 0
+            if mflag:
+                self.set_minimize_threshhold_prefs(simopts)
             #e we might need other options to make it use Python callbacks (nim, since not needed just to launch it differently);
             # probably we'll let the later sim-start code set those itself.
             self._simopts = simopts
             self._simobj = simobj
         # return whatever results are appropriate -- for now, we stored each one in an attribute (above)
         return # from setup_sim_args
-        
+
+    def set_minimize_threshhold_prefs(self, simopts): #bruce 060628
+        try:
+            if env.debug():
+                print "debug: running set_minimize_threshhold_prefs"
+            from prefs_constants import endRMS_prefs_key, endMax_prefs_key
+            from prefs_constants import cutoverRMS_prefs_key, cutoverMax_prefs_key
+            endRMS = env.prefs[endRMS_prefs_key]
+            endMax = env.prefs[endMax_prefs_key]
+            cutoverRMS = env.prefs[cutoverRMS_prefs_key]
+            cutoverMax = env.prefs[cutoverMax_prefs_key]
+            # -1 means left blank, use default; any 0 or negative value entered explicitly will have the same effect.
+            # For an explanation of the logic of these formulas, see email from bruce to nanorex-all of 060619,
+            # "test UI for minimizer threshholds". These are mainly for testing -- for final release (A8 or maybe A8.1)
+            # we are likely to hide all but the first from the UI by default, with the others always being -1.
+            def warn(msg):
+                env.history.message(orangemsg("Warning: ") + quote_html(msg))
+            if endRMS <= 0:
+                endRMS = 1.0
+            if endMax <= 0:
+                endMax = 10.0 * endRMS
+            elif endMax < endRMS:
+                warn("endMax < endRMS is not allowed, using endMax = endRMS")
+                endMax = endRMS # sim C code would use 5.0 * endRMS if we didn't fix this here
+            if cutoverRMS <= 0:
+                cutoverRMS = 50.0
+            if cutoverMax <= 0:
+                cutoverMax = 300.0
+            if cutoverRMS < endRMS:
+                warn("cutoverRMS < endRMS is not allowed, using cutoverRMS,Max = endRMS,Max")
+                cutoverRMS = endRMS
+                cutoverMax = endMax
+            elif cutoverMax < endMax:
+                warn("cutoverMax < endMax is not allowed, using cutoverRMS,Max = endRMS,Max")
+                cutoverRMS = endRMS
+                cutoverMax = endMax
+            if cutoverMax < cutoverRMS:
+                if orig_cutoverMax <= 0:
+                    warn("cutoverMax < cutoverRMS is not allowed, using cutoverMax = 6.0 * cutoverRMS")
+                    cutoverMax = 6.0 * cutoverRMS # sim C code would use 5.0 * cutoverRMS if we didn't fix this here
+                else:
+                    warn("cutoverMax < cutoverRMS is not allowed, using cutoverMax = cutoverRMS")
+                    cutoverMax = cutoverRMS # sim C code would use 5.0 * cutoverRMS if we didn't fix this here
+            if (endRMS, endMax, cutoverRMS, cutoverMax) != (1.0, 10.0, 50.0, 300.0) or env.debug():
+                msg = "minimize threshholds: endRMS = %0.2f, endMax = %0.2f, cutoverRMS = %0.2f, cutoverMax = %0.2f" % \
+                      (endRMS, endMax, cutoverRMS, cutoverMax)
+                if (endRMS, endMax, cutoverRMS, cutoverMax) == (1.0, 10.0, 50.0, 300.0):
+                    msg += " (default values -- only printed since ATOM_DEBUG is set)"
+                env.history.message(msg)
+            simopts.MinimizeThresholdEndRMS = endRMS
+            simopts.MinimizeThresholdEndMax = endMax
+            simopts.MinimizeThresholdCutoverRMS = cutoverRMS
+            simopts.MinimizeThresholdCutoverMax = cutoverMax
+        except:
+            print_compact_traceback("error in set_minimize_threshhold_prefs, ignored: ")
+            pass
+        return
+            
     def sim_loop_using_standalone_executable(self): #bruce 051231 made this from part of spawn_process; compare to sim_loop_using_dylib
         "#doc"
         movie = self._movie
