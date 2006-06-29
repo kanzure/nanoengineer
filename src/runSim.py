@@ -622,7 +622,7 @@ class SimRunner:
             endRMS = env.prefs[endRMS_prefs_key]
             endMax = env.prefs[endMax_prefs_key]
             cutoverRMS = env.prefs[cutoverRMS_prefs_key]
-            cutoverMax = env.prefs[cutoverMax_prefs_key]
+            cutoverMax = orig_cutoverMax = env.prefs[cutoverMax_prefs_key]
             # -1 means left blank, use default; any 0 or negative value entered explicitly will have the same effect.
             # For an explanation of the logic of these formulas, see email from bruce to nanorex-all of 060619,
             # "test UI for minimizer threshholds". These are mainly for testing -- for final release (A8 or maybe A8.1)
@@ -666,7 +666,7 @@ class SimRunner:
             simopts.MinimizeThresholdCutoverRMS = cutoverRMS
             simopts.MinimizeThresholdCutoverMax = cutoverMax
         except:
-            print_compact_traceback("error in set_minimize_threshhold_prefs, ignored: ")
+            print_compact_traceback("error in set_minimize_threshhold_prefs (the ones from the last run might be used): ")
             pass
         return
             
