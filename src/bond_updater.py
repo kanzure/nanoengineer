@@ -132,13 +132,18 @@ most_permissible_v6_first = ( V_SINGLE, V_DOUBLE, V_AROMATIC, V_GRAPHITE, V_TRIP
 
 def best_corrected_v6(bond):
     """This bond has an illegal v6 according to its bonded atomtypes
-    (and I guess the atomtypes are what has just changed?? ###k).
-    Say how we want to fix it (or perhaps fix the atomtypes?? #e).
+    (and I guess the atomtypes are what has just changed?? ###k -- [update 060629:] NOT ALWAYS --
+     it might be the bond order (and then the atomtypes), changed automatically by increase_valence_noupdate
+     when the user bonds two bondpoints to increase order of existing bond, as in bug 1951).
+    Say how we want to fix it (or perhaps fix the atomtypes?? #e [i doubt it, they might have just changed -- 060629]).
     """
     # Given that the set of permissible bond types (for each atomtype, ignoring S=S prohibition and special graphite rules)
     # is some prefix of [single, double, aromatic/graphite, triple, carbomeric],
     # I think it's ok to always take the last permissible element of that list (using relaxed rules for graphite)...
     # no, it depends on prior bond (presumably one the user likes, or at least consented to),
+    # [note 060629 -- in bug 1951 the prior bond is carbomeric, but the user never wanted it, they just wanted to increase aromatic
+    #  by 1, which numerically gets to carbomeric, but in that bug's example it's not a legal type and they really want double.
+    #  So I will change the weird ordering of corrected_v6_list[V_CARBOMERIC] to a decreasing one, to fix that bug.]
     # but clearly we move to the left in that list. Like this: c -> a, 3 -> max in list? or 2? or depends on other bonds/valences?
     pass # stub... might return a list of legal btypes in order of preference, for inference code (see paper notes)
     v6 = bond.v6
@@ -160,8 +165,13 @@ corrected_v6_list = {
     V_DOUBLE: (V_SINGLE,),
     V_TRIPLE: (V_DOUBLE, V_SINGLE),
     V_AROMATIC: (V_SINGLE,),
-    V_GRAPHITE: (V_AROMATIC, V_SINGLE),
-    V_CARBOMERIC: (V_AROMATIC, V_DOUBLE, V_SINGLE),
+    V_GRAPHITE: (V_AROMATIC, V_SINGLE), # note: this temporarily goes up, then down.
+    ## V_CARBOMERIC: (V_AROMATIC, V_DOUBLE, V_SINGLE), # there was a reason for this, but it caused bug 1951, so revising it [bruce 060629]
+    V_CARBOMERIC: (V_DOUBLE, V_AROMATIC, V_SINGLE),
+        # This monotonic decreasing order ought to fix bug 1951, though ideally we might depend on the last bond type
+        # specifically chosen by the user... but at least, fractional bond orders never show up unless the user has one
+        # somewhere on some other bond, so always including V_AROMATIC in this list might be ok,
+        # even if the user never explicitly chose V_CARBOMERIC. [bruce 060629]
  }
 
 # ==

@@ -36,6 +36,7 @@ V_TRIPLE = 6 * 3
 V_UNKNOWN = 6 * 7/6 # not in most tables here, and not yet used; someday might be used internally by bond-type inference code
 
 BOND_VALENCES = [V_SINGLE, V_GRAPHITE, V_AROMATIC, V_DOUBLE, V_CARBOMERIC, V_TRIPLE]
+    # when convenient (e.g. after A8), V_GRAPHITE should be renamed to V_GRAPHITIC [bruce 060629]
 BOND_MMPRECORDS = ['bond1', 'bondg', 'bonda', 'bond2', 'bondc', 'bond3']
     # (Some code might assume these all start with "bond".)
     # (These mmp record names are also hardcoded into mmp-reading code in files_mmp.py.)

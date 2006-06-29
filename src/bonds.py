@@ -33,6 +33,8 @@ __author__ = "Josh"
 # and everything from it is imported into some other modules.
 # [bruce comment 050502] ###@@@
 
+debug_1951 = False # DO NOT COMMIT with True
+
 from VQT import *
 from LinearAlgebra import *
 import string
@@ -631,6 +633,9 @@ class Bond(BondBase, StateMixin):
         # now set valence to v_want
         if v_want != v_have:
             self.v6 = v_want
+            if debug_1951:
+                print "debug_1951: increase_valence_noupdate changes %r.v6 from %r to %r, returns %r" % \
+                      (self, v_have, v_want, v_want - v_have)
             self.changed_valence()
         return v_want - v_have # return actual increase (warning: order of subtraction differs in sister method)
 
@@ -1406,6 +1411,11 @@ class bonder_at_singlets:
             # later when the current state (including positions of old singlets) is gone.
         a2.update_valence()
         return (0, "increased bond order between atoms %r and %r" % (a1,a2)) #e say existing and new order?
+            # Note, bruce 060629: the new bond order would be hard to say, since later code in bond_updater is likely
+            # to decrease the value, but in a way it might be hard to predict at this point (it depends on what happens
+            # to the atomtypes which that code will also fix, and that depends on the other bonds we modify here;
+            # in theory we have enough info here, but the code is not well structured for this -- unless we save up this
+            # message here and somehow emit it later after that stuff has been resolved). Not an ideal situation....
     def merge_open_bonds(self): #bruce 050702 new feature; implem is a guess and might be partly obs when written
         "Merge the bond-valence of s1 into that of s2"
         s1, a1 = self.s1, self.a1
