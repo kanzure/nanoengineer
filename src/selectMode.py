@@ -651,7 +651,8 @@ class selectMode(basicMode):
         old = V(0,0,0)
         new = V(0,0,0)
             # old and new are used to compute the delta quat for the average 
-            # non-baggage bond and apply it to <a>'s baggage
+            # non-baggage bond [in a not-very-principled way, which doesn't work well -- bruce 060629]
+            # and apply it to <a>'s baggage
         
         for at in n:
             # Since adjBaggage() doesn't change at.posn(), I switched the order for readability.
@@ -663,9 +664,18 @@ class selectMode(basicMode):
         
         # Handle baggage differently if <a> has nonbaggage atoms.
         if n: # If <a> has nonbaggage atoms, move and rotate its baggage atoms.
-            q=Q(old,new)
-            for at in self.baggage:
-                at.setposn(q.rot(at.posn()-apo)+px)
+            # slight safety tweaks to old code, though we're about to add new code to second-guess it [bruce 060629]
+            old = norm(old) #k not sure if these norms make any difference
+            new = norm(new)
+            if old and new:
+                q = Q(old,new)
+                for at in self.baggage:
+                    at.setposn(q.rot(at.posn()-apo)+px) # similar to adjBaggage, but also has a translation
+            else:
+                for at in self.baggage:
+                    at.setposn(at.posn()+delta)
+            #bruce 060629 for "bondpoint problem": treat that as an initial guess --
+            # now fix them better (below, after we've also moved <a> itself.)
         else: # If <a> has no nonbaggage atoms, just move each baggage atom (no rotation).
             for at in self.baggage:
                 at.setposn(at.posn()+delta)
@@ -674,6 +684,10 @@ class selectMode(basicMode):
         # This a.setposn(px) can't be done before the at.adjBaggage(a, px)
         # in the loop before it, or adjBaggage (which compares a.posn() to
         # px) would think atom <a> was not moving.
+
+        if n:
+            #bruce 060629 for bondpoint problem
+            a.reposition_baggage(self.baggage)
         return
 
     #bruce 060414 move selatoms optimization (won't be enabled by default in A7)

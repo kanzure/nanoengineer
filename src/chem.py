@@ -853,6 +853,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # use old singlet posns purely as hints, recomputing new ones
         # from scratch (hints are useful to disambiguate this). ###@@@
         baggage, other = self.baggage_and_other_neighbors()
+        if atom in baggage: #bruce 060629 for safety (don't know if ever needed)
+            baggage.remove(atom)
+            other.append(atom)
         n = other
         ## n = self.realNeighbors()
         old = V(0,0,0)
@@ -862,10 +865,17 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             if at is atom: new += nupos-apo
             else: new += at.posn()-apo
         if n:
-            q=Q(old,new)
-            for at in baggage: ## was self.singNeighbors()
-                at.setposn(q.rot(at.posn()-apo)+apo)
-
+            # slight safety tweaks to old code, though we're about to add new code to second-guess it [bruce 060629]
+            old = norm(old) #k not sure if these norms make any difference
+            new = norm(new)
+            if old and new:
+                q = Q(old,new)
+                for at in baggage: ## was self.singNeighbors()
+                    at.setposn(q.rot(at.posn()-apo)+apo) # similar to code in drag_selected_atom, but not identical
+            #bruce 060629 for bondpoint problem
+            self.reposition_baggage(baggage, (atom,nupos))
+        return
+    
     def __repr__(self):
         return self.element.symbol + str(self.key)
 
@@ -909,12 +919,21 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ColorSorter.pushName(glname)
         try:
             if disp in [diTrueCPK, diBALL, diTUBES]:
-                if self.element is not Singlet or not debug_pref("draw bondpoints as stubs", Choice_boolean_False): #bruce 060307
+                if self.element is Singlet and debug_pref("draw bondpoints as stubs in Atom", Choice_boolean_False):
+                    #bruce 060629 experiment -- works, except for highlighting (still spheres)
+                    # and not fixing the bondpoint-buried-in-big-atom bugs (but perhaps worsening them).
+                    otherpos = self.singlet_neighbor().baseposn()
+                    out = norm(pos - otherpos)
+                    inpos = pos - 0.015 * out
+                    outpos = pos + 0.015 * out ###e or bigger, if needed to be visible outside a big other atom
+                    drawcylinder(color, inpos, outpos, drawrad + 0.03, 1) #e see related code in Bond.draw
+                elif self.element is not Singlet or not debug_pref("draw bondpoints as stubs in Bond", Choice_boolean_False):
+                    #bruce 060307 experiment -- not as good (also has code in Bond.draw)
                     drawsphere(color, pos, drawrad, level)
                     # Note [bruce 060308]: the debug_pref that turns this off is unfinished.
                     # To complete it, when not drawing this sphere,
                     # either draw endcaps on the bond to this atom (in Bond.draw),
-                    # or draw a short (almost flat) cylinder in the bondpoint color (in Bond.draw).
+                    # or draw a short (almost flat) cylinder in the bondpoint color (in Bond.draw). [probably done now]
                     # Note 2: if the other stuff drawn here (selection or bad valence wireframe) was ever drawn,
                     # we might want to change the pos for it when not drawing this sphere. But it's not.
             self.draw_wirespheres(glpane, disp, pos, pickedrad)
@@ -2344,6 +2363,47 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         self.make_enough_singlets()
         return # from direct_Transmute
 
+    def reposition_baggage(self, baggage = None, planned_atom_nupos = None): #bruce 060629 for bondpoint problem
+        """Your baggage atoms (or the given subset of them) might no longer be sensibly located,
+        since you and/or some neighbor atoms have moved (or are about to move, re planned_atom_nupos as explained below),
+        so fix up their positions based on your other neighbors' positions, using old baggage positions only as hints.
+           BUT one of your other neighbors (but not self) might be about to move (rather than already having moved) --
+        if so, planned_atom_nupos = (that neighbor, its planned posn),
+        and use that posn instead of its actual posn to decide what to do.
+           WARNING: we assume baggage is a subset of self.baggageNeighbors(), but don't check this except when ATOM_DEBUG is set.
+        """
+        if platform.atom_debug: # remove this entire if-statement (incl body) when devel is done
+            try:
+                import reposition_baggage_hack
+            except:
+                # most people: use the best code we have so far, below.
+                pass
+            else:
+                # developers who are working on improving this (i.e. bruce): use the experimental version instead.
+                debug.reload_once_per_event(reposition_baggage_hack)
+                return reposition_baggage_hack.reposition_baggage(self, baggage, planned_atom_nupos)            
+        if baggage is None:
+            baggage = self.baggageNeighbors()
+        elif platform.atom_debug:
+            _bn = map(id,self.baggageNeighbors())
+            for at in baggage:
+                assert id(at) in _bn
+            del _bn, at
+        if len(baggage) not in (1,2):
+            if platform.atom_debug and 0: ###@@@
+                print "debug: %r.reposition_baggage(%r) is nim except for 1 or 2 baggage atoms" % (self, baggage)
+            return
+        len_other = len(self.bonds) - len(baggage)
+        if not len_other:
+            # should never happen, as we are called as of 060629, i think
+            if platform.atom_debug: ###@@@
+                print "debug: %r.reposition_baggage(%r) is nim unless there are non-baggage atoms" % (self, baggage)
+            return #e can something be done in this case?? maybe, but it's not the critical problem we're trying to fix now.
+        ###@@@
+        if platform.atom_debug and 0:
+            print "debug: %r.reposition_baggage(%r) is nim, though in this case it ought to work, maybe" % (self, baggage)
+        return
+    
     def remake_singlets(self): #bruce 050511
         for atm in self.singNeighbors():
             atm.kill() # (since atm is a singlet, this kill doesn't replace it with a singlet)
