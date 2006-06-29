@@ -221,24 +221,6 @@ def run_nh_simulation(assy, sim_id, sim_parms, sims_to_run, results_to_save):
     
     return 0
 
-# This should probably be moved to somewhere else like
-# prefs_constants.py (to set the default value of nanohive_path_prefs_key)
-# or platform.py.
-# Talk to Bruce about pros/cons of this.  Mark 2006-01-05.
-def get_default_nh_path():
-    '''Returns the Nano-Hive (executable) path to the standard location for each platform, 
-    if it exists. Otherwise, return an empty string.
-    '''
-    if sys.platform == "win32": # Windows
-        nh_path = "C:\Program Files\Nano-Hive\\bin\win32-x86\NanoHive.exe"
-    elif sys.platform == "darwin": # MacOS
-        nh_path = "/usr/local/bin/NanoHive"
-    else: # Linux
-        nh_path = "/usr/local/bin/NanoHive"
-    if not os.path.exists(nh_path):
-        return ""
-    return nh_path
-
 def activate_nh_plugin(win):
     '''Opens a message box informing the user that the Nano-Hive plugin
     needs to be enabled and asking if they wish to do so.
