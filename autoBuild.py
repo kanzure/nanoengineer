@@ -23,6 +23,14 @@ from shutil import *
 PYLIBPATH = os.path.split(getopt.__file__)[0]
 prematureExit = False
 
+def linenum():
+    try:
+        raise Exception
+    except:
+        tb = sys.exc_info()[2]
+        f = tb.tb_frame.f_back
+        print f.f_code.co_filename, f.f_code.co_name, f.f_lineno
+
 class NonZeroExitStatus(Exception):
     pass
 
@@ -37,6 +45,34 @@ def listResults(cmd):
     def strip(x):
         return x.rstrip()
     return map(strip, os.popen(cmd).readlines())
+
+def copytree(src, dst, symlinks=False):
+    """shutil.copytree() is annoying because it insists on creating
+    the directory. If the directory already exists, issue a warning
+    to standard error, but continue working.
+    """
+    names = os.listdir(src)
+    if os.path.isdir(dst):
+        print >>sys.stderr, "copytree - directory exists already: " + dst
+    else:
+        os.mkdir(dst)
+    errors = []
+    for name in names:
+        srcname = os.path.join(src, name)
+        dstname = os.path.join(dst, name)
+        try:
+            if symlinks and os.path.islink(srcname):
+                linkto = os.readlink(srcname)
+                os.symlink(linkto, dstname)
+            elif os.path.isdir(srcname):
+                copytree(srcname, dstname, symlinks)
+            else:
+                copy2(srcname, dstname)
+            # XXX What about devices, sockets etc.?
+        except (IOError, os.error), why:
+            errors.append((srcname, dstname, why))
+    if errors:
+        raise IOError, errors
 
 def clean(rootPath, cleanAll=False):
     """Clean everything created temporarily"""
@@ -142,6 +178,15 @@ class NanoBuildBase:
     def prepareSources(self):
         """Checkout source code from cvs for the release """
         os.chdir(self.atomPath)
+        dirlist = ' '.join(('cad/src',
+                            'cad/plugins',
+                            'cad/images',
+                            'sim',
+                            'cad/partlib',
+                            'cad/licenses-common',
+                            'cad/licenses-Linux',
+                            'cad/licenses-Windows',
+                            'cad/licenses-Mac'))
         if self.sourceDirectory:
             # we would only do this when experimenting anyway, so we don't
             # need the restriction on cad/doc here
@@ -150,12 +195,13 @@ class NanoBuildBase:
             system("cp -r %s ." % os.path.join(self.sourceDirectory, "sim"))
         elif not self.cvsTag:
             system('cvs -Q -z9 checkout -l cad/doc')
-            system('cvs -Q -z9 checkout -P cad/src cad/plugins cad/images sim cad/partlib')
+            system('cvs -Q -z9 checkout -P ' + dirlist)
         else:
             system('cvs -Q -z9 checkout -r %s -l cad/doc' % self.cvsTag)
-            system('cvs -Q -z9 checkout -r %s -R cad/src cad/plugins cad/images sim cad/partlib' % self.cvsTag)
+            system('cvs -Q -z9 checkout -r %s -R %s' % (self.cvsTag, dirlist))
 
         # Remove all those 'CVS' directories and their entries.
+        # Maybe could have used 'cvs export' instead of 'cvs checkout'.
         self.removeCVSFiles('cad')
         self.removeCVSFiles('sim')
 
@@ -186,6 +232,9 @@ class NanoBuildBase:
         # only needed for Linux
         pass
 
+    def copyLicenses(self):
+        copytree('licenses-common', os.path.join(self.buildSourcePath, 'licenses'))
+
     def buildSourceForDistribution(self):
         """Freeze Python code into an executable. Where necessary, compile
         and link C code."""
@@ -197,6 +246,7 @@ class NanoBuildBase:
         copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
         copytree('images', os.path.join(self.buildSourcePath, 'images'))
         copytree('plugins', os.path.join(self.buildSourcePath, 'plugins'))
+        self.copyLicenses()
 
         self.binPath = binPath = os.path.join(self.buildSourcePath, 'bin')
         os.mkdir(binPath)
@@ -247,6 +297,10 @@ class NanoBuildWin32(NanoBuildBase):
 
     def get_md5(self, file):
         return ""
+
+    def copyLicenses(self):
+        NanoBuildBase.copyLicenses(self)
+        copytree('licenses-Windows', os.path.join(self.buildSourcePath, 'licenses'))
 
     def prepareSources(self):
         """Checkout source code from cvs for the release """
@@ -424,6 +478,10 @@ class NanoBuildLinux(NanoBuildBase):
         system('tar -czvf %s *' % tarName)
         print "\nThe tar file: %s has been successfully created.\n" % tarName
 
+    def copyLicenses(self):
+        NanoBuildBase.copyLicenses(self)
+        copytree('licenses-Linux', os.path.join(self.buildSourcePath, 'licenses'))
+
     def copyOtherSources(self):
         copy('/usr/bin/gnuplot', self.binPath)
         copy(os.path.join(self.atomPath, 'sim/src', self.standaloneSimulatorName()), self.binPath)
@@ -599,6 +657,10 @@ class NanoBuildMacOSX(NanoBuildBase):
         os.mkdir(self.diskImagePath)
         os.mkdir(self.resourcePath)
 
+    def copyLicenses(self):
+        NanoBuildBase.copyLicenses(self)
+        copytree('licenses-Mac', os.path.join(self.buildSourcePath, 'licenses'))
+
     def buildSourceForDistribution(self):
         """Pack source together for distribution (all platforms)."""
         self.buildSimulator()
@@ -633,6 +695,7 @@ class NanoBuildMacOSX(NanoBuildBase):
         copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
         system('(cd %s; ln -s ../../partlib .)' %
                os.path.join(self.buildSourcePath, appname, 'Contents'))
+        self.copyLicenses()
         #
         #
         self.binPath = binPath = os.path.join(self.buildSourcePath, appname, 'Contents/bin')
