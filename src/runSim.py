@@ -614,6 +614,8 @@ class SimRunner:
         return # from setup_sim_args
 
     def set_minimize_threshhold_prefs(self, simopts): #bruce 060628
+        def warn(msg):
+            env.history.message(orangemsg("Warning: ") + quote_html(msg))
         try:
             if env.debug():
                 print "debug: running set_minimize_threshhold_prefs"
@@ -627,8 +629,6 @@ class SimRunner:
             # For an explanation of the logic of these formulas, see email from bruce to nanorex-all of 060619,
             # "test UI for minimizer threshholds". These are mainly for testing -- for final release (A8 or maybe A8.1)
             # we are likely to hide all but the first from the UI by default, with the others always being -1.
-            def warn(msg):
-                env.history.message(orangemsg("Warning: ") + quote_html(msg))
             if endRMS <= 0:
                 endRMS = 1.0
             if endMax <= 0:
@@ -667,6 +667,7 @@ class SimRunner:
             simopts.MinimizeThresholdCutoverMax = cutoverMax
         except:
             print_compact_traceback("error in set_minimize_threshhold_prefs (the ones from the last run might be used): ")
+            warn("internal error setting Minimize threshholds; the wrong ones might be used.")
             pass
         return
             
