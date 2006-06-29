@@ -204,16 +204,16 @@ cdef class BaseSimulator:
         elif strcmp(key, "Interrupted") == 0:
             global Interrupted
             Interrupted = value
-        elif strcmp(key, "MinimizeThresholdsCutoverRMS") == 0:
+        elif strcmp(key, "MinimizeThresholdCutoverRMS") == 0:
             global MinimizeThresholdCutoverRMS
             MinimizeThresholdCutoverRMS = value
-        elif strcmp(key, "MinimizeThresholdsCutoverMax") == 0:
+        elif strcmp(key, "MinimizeThresholdCutoverMax") == 0:
             global MinimizeThresholdCutoverMax
             MinimizeThresholdCutoverMax = value
-        elif strcmp(key, "MinimizeThresholdsEndRMS") == 0:
+        elif strcmp(key, "MinimizeThresholdEndRMS") == 0:
             global MinimizeThresholdEndRMS
             MinimizeThresholdEndRMS = value
-        elif strcmp(key, "MinimizeThresholdsEndMax") == 0:
+        elif strcmp(key, "MinimizeThresholdEndMax") == 0:
             global MinimizeThresholdEndMax
             MinimizeThresholdEndMax = value
         elif strcmp(key, "IDKey") == 0:
