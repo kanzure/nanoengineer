@@ -1,3 +1,5 @@
+$Id$
+
 We are using version 3 of Qt. When running on Windows, it has a
 proprietary license. If you're a developer, you need to buy a license
 from Trolltech to distribute your Qt-enabled software. If you're an
