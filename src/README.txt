@@ -4,7 +4,7 @@ README
 VERSION/INFO
 =============
 
-This is NanoEngineer-1 v0.7 (Alpha 7) as of April 24, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for NanoEngineer-1 to support@nanorex.com.
+This is NanoEngineer-1 v0.8 (Alpha 8) as of July 4, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for NanoEngineer-1 to support@nanorex.com.
 
 You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Readme_A7
 
@@ -47,21 +47,21 @@ INSTALLATION on Windows and MAC OS
 
 Simply run the package installer for your system type to install this version of NanoEngineer-1. 
 
-Note to the Windows XP users who already have a previous version of NanoEngineer-1 installed: If you have a previous version of NanoEngineer-1 currently installed (e.g. Alpha 6) and attempt to install Alpha 7, the installer will state: "Set up will create the program shortcuts in the following start menu folder. To continue, click Next. If you would like to select a different folder, click browse" 
+Note to the Windows XP users who already have a previous version of NanoEngineer-1 installed: If you have a previous version of NanoEngineer-1 currently installed (e.g. Alpha 7) and attempt to install Alpha 8, the installer will state: "Set up will create the program shortcuts in the following start menu folder. To continue, click Next. If you would like to select a different folder, click browse" 
 
-The default name it gives is (for example):"NanoEngineer-1 v0.0.6 (Alpha6)".This is a bug in the Windows installer. For now, manually type in "NanoEngineer-1 v0.7 (Alpha7)"
+The default name it gives is (for example):"NanoEngineer-1 v0.7 (Alpha7)".This is a bug in the Windows installer. For now, manually type in "NanoEngineer-1 v0.8 (Alpha8)"
 
 INSTALLATION on Mandrake Linux 10.1
 
-The RPM can be installed through the Mandrake Linux Control Center. It will be installed into /usr/local/NanoEngineer-1-0.7/ on your local machine. There is a package dependency for GLUT, so it will ask you for the appropriate CD.
-Note that the RPM does not add a menu item to the Start menu, nor does it add a desktop icon for ne-1.  This is easy to do yourself by creating a desktop icon that points directly to the ne-1 executable, located at “/usr/local/NanoEngineer-1-0.7/program/NanoEngineer-1”
+The RPM can be installed through the Mandrake Linux Control Center. It will be installed into /usr/local/NanoEngineer-1-0.8/ on your local machine. There is a package dependency for GLUT, so it will ask you for the appropriate CD.
+Note that the RPM does not add a menu item to the Start menu, nor does it add a desktop icon for ne-1.  This is easy to do yourself by creating a desktop icon that points directly to the ne-1 executable, located at “/usr/local/NanoEngineer-1-0.8/program/NanoEngineer-1”
 
 If you create a symlink to the executable in /usr/local/bin, as an experienced Linux user might, it will not work. This is because NanoEngineer-1 looks for its files relative to its executable.
 
 ======================
 UNSUPPORTED PLATFORMS
 ======================
-NanoEngineer-1 Alpha7 is tested and supported only on : 
+NanoEngineer-1 Alpha8 is tested and supported only on : 
  - Windows XP, 
  - MAC OS X 10.3.X, 10.4 (PowerPC G4)
  - Mandrake Linux 10.0, 10.1
@@ -94,6 +94,15 @@ This is needed if you want to use the GAMESS plug-in option available in NanoEng
 This is needed if you want to use the Nano-Hive plugin option available in NanoEngineer-1. For more information on downloading and installing the Nano-Hive Simulator, visit: http://www.nano-hive.org/download.shtml
 	
 Note: ESP Image jig is not fully supported on Linux and MAC platforms. On Windows, you can perform ESP calculations for some standard cases provided    that a correct version of Nano-Hive (Nano-Hive-1.2.0-Beta-1) is installed. In general, ESP image has many known bugs. These issues will be fixed in an upcoming release of NanoEngineer-1. 
+
+[D] POV-Ray
+------------
+This is required if you use Ray Trace Scene and Insert > POV Ray Scene features.
+For more information on downloading and installing POV-Ray, visit: www.povray.org
+
+[E] MegaPOV 
+------------
+MAC users can install this to use Ray Trace Scene and Insert > POV Ray Scene features.  For more information on downloading and installing MegaPOV visit: http://megapov.inetart.net 
 
 =============
 NEW FEATURES
