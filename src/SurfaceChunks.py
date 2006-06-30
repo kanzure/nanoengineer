@@ -351,11 +351,46 @@ class Surface:
 	    normals[t[0]] += n
 	    normals[t[1]] += n
 	    normals[t[2]] += n
-	    normals[t[2]] += n
 	result = []
 	for n in normals:
 	    result.append((n[0],n[1],n[2]))
 	return result    
+
+    def CalculateTorus(self, a, b, u, v):
+	pi2 = 2 * 3.1415926535897932 
+	#transformation function - torus
+	cf = cos(pi2*u)
+	sf = sin(pi2*u)
+	ct = cos(pi2*v)
+	st = sin(pi2*v)
+	#point on torus
+	return Triple((a+b*ct)*cf, (a+b*ct)*sf, b*st)
+
+    def TorusTriangles(self, a, b, n):
+	n6 = int(6*a*n)
+	if (n6 == 0): n6 = 6
+	n2 = int(6*b*n)
+	if (n2 == 0): n2 = 6
+	trias = []
+	for i in range(n6):
+	    u0 = i / float(n6)
+	    u1 = (i +1) / float(n6)
+	    for j in range(n2):
+		v0 = j / float(n2);
+		v1 = (j + 1) / float(n2)
+		
+		p0 = self.CalculateTorus(a,b,u0,v0)
+		p1 = self.CalculateTorus(a,b,u1,v0)
+		p2 = self.CalculateTorus(a,b,u1,v1)
+		p3 = self.CalculateTorus(a,b,u0,v1)
+		
+		t1 = ((p0.x,p0.y,p0.z),(p1.x,p1.y,p1.z),(p2.x,p2.y,p2.z))
+		t2 = ((p0.x,p0.y,p0.z),(p2.x,p2.y,p2.z),(p3.x,p3.y,p3.z))
+		
+		trias.append(t1)
+		trias.append(t2)
+	return trias	
+
 
 class Bucket: 
 
@@ -471,7 +506,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	env.history.h_update() # Update history widget with last message. # Mark 060623.
 	
         center = chunk.center
-        points = chunk.atpos - center        
+        #points = chunk.atpos - center        
         bcenter = chunk.abs_to_base(center)
         rad = 0.0
 	s = Surface()
@@ -480,14 +515,13 @@ class SurfaceChunks(ChunkDisplayMode):
 	    dispjunk, ra = a.howdraw(diTrueCPK)
 	    if ra > margin : margin = ra
 	    s.radiuses.append(ra)
-        for p in points:
-            pt = Triple(p[0], p[1], p[2])
-	    s.spheres.append(pt)
+	    p = a.posn() - center
+	    s.spheres.append(Triple(p[0], p[1], p[2]))
             r = p[0]**2+p[1]**2+p[2]**2
             if r > rad: rad = r
         rad = sqrt(rad)
         radius = rad + margin
-	for i in range(len(points)):
+	for i in range(len(s.spheres)):
 	    s.spheres[i] /= radius
 	    s.radiuses[i] /= radius
 	color = chunk.color
