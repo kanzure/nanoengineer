@@ -1,17 +1,10 @@
 # Copyright (c) 2006 Nanorex, Inc. All rights reserved.
-NanoEngineer-1 v0.7 (Alpha 7). Release Date: April 24, 2006
+NanoEngineer-1 v0.8 (Alpha 8). Release Date: July 4, 2006
 
 This file documents some bug fixes, unsupported features and some of the commonly encountered bugs in NanoEngineer-1 Alpha7. 
 
-Some of the Bug Fixes In Alpha 7
+Some of the Bug Fixes In Alpha 8
 
-1. Miscellaneous bug fixes and the user interface enhancements in Build mode
-2. Some bugs where MMKit's clipboard view doesn't get updated when you do modifications in the 3D workspace (876, 1570, and 1573)
-3. Rendered povray image doesn’t render user defined lighting and background fill color (447-mitigated, 888)
-4. Selection/Display/Jigs: If more than 1 jigs (other than motors) are attached to the same atom, only first jig in the order (in the model tree) gets highlighted (756) 
-5. Simulator doesn't work for an opened file where the user doesn't have permission to write. (Now nE-1 prints a red history message when it can’t write the file)(396)
-6. Improved force field. Formal bend parameters have replaced guessed values for all single bond combinations
-7. Naming a File (plot tool bug): If a file is named as Bob's molecule, the plot tool will not plot the results because of the apostrophe S present in the file's name (712)  
 
   
 UNSUPPORTED FEATURES:
@@ -90,6 +83,8 @@ SELECTION
 #Selection wireframes won't be displayed or will act weirdly on some platforms. This could be due to the old version graphics driver on your machine. Example: Some Windows XP users with Intel Integrated 855 graphics reported this problem which went away after installing an updated version of that driver (Intel 855 chipset driver 6.14.10.4497.). It is highly recommended that you use up-to-date drivers to avoid this issue (1720)
 
 # Contract Selection doesn't work correctly in some cases. Also the What's this text doesn't clearly explain this feature. (1358)
+
+# It is tough to select chunks with Surface Chunks display (2004)
 
  
 BUILD MODE

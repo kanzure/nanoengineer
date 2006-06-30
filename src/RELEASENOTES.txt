@@ -1,8 +1,10 @@
 # Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 
-Release Notes for NanoEngineer-1 v0.7 (Alpha 7)
+Release Notes for NanoEngineer-1 v0.8 (Alpha 8)
 
-What's new in NanoEngineer-1 v0.7 (4/24/2006):
+
+
+What was new in NanoEngineer-1 v0.7 (4/24/2006):
 
 1. Undo/Redo:
   - NanoEngineer-1 now includes rich Undo/Redo functionality
