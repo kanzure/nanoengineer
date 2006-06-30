@@ -208,7 +208,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         return
 
     def _ok_or_preview(self, doneMsg=False):
-        self._previous_changed = self.win.assy.changed()
+        self._previous_changed = self.win.assy.has_changed()
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616
         try:
