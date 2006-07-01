@@ -919,23 +919,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ColorSorter.pushName(glname)
         try:
             if disp in [diTrueCPK, diBALL, diTUBES]:
-                if self.element is Singlet and debug_pref("draw bondpoints as stubs in Atom", Choice_boolean_False):
-                    #bruce 060629 experiment -- works, except for highlighting (still spheres)
-                    # and not fixing the bondpoint-buried-in-big-atom bugs (but perhaps worsening them).
-                    otherpos = self.singlet_neighbor().baseposn()
-                    out = norm(pos - otherpos)
-                    inpos = pos - 0.015 * out
-                    outpos = pos + 0.015 * out ###e or bigger, if needed to be visible outside a big other atom
-                    drawcylinder(color, inpos, outpos, drawrad + 0.03, 1) #e see related code in Bond.draw
-                elif self.element is not Singlet or not debug_pref("draw bondpoints as stubs in Bond", Choice_boolean_False):
-                    #bruce 060307 experiment -- not as good (also has code in Bond.draw)
-                    drawsphere(color, pos, drawrad, level)
-                    # Note [bruce 060308]: the debug_pref that turns this off is unfinished.
-                    # To complete it, when not drawing this sphere,
-                    # either draw endcaps on the bond to this atom (in Bond.draw),
-                    # or draw a short (almost flat) cylinder in the bondpoint color (in Bond.draw). [probably done now]
-                    # Note 2: if the other stuff drawn here (selection or bad valence wireframe) was ever drawn,
-                    # we might want to change the pos for it when not drawing this sphere. But it's not.
+                self.draw_atom_sphere(color, pos, drawrad, level, dispdef)
             self.draw_wirespheres(glpane, disp, pos, pickedrad)
         except:
             ColorSorter.popName()
@@ -947,6 +931,32 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         
         return disp # from Atom.draw. [bruce 050513 added retval to help with an optim]
 
+    def draw_atom_sphere(self, color, pos, drawrad, level, dispdef, abs_coords = False):
+        "#doc [dispdef can be None if not known to caller]"
+        #bruce 060630 split this out for sharing with draw_in_abs_coords
+        if self.element is Singlet and self.bonds and debug_pref("draw bondpoints as stubs", Choice_boolean_False, prefs_key = True):
+            #bruce 060629/30 experiment -- works, incl for highlighting,
+            # and even fixes the bondpoint-buried-in-big-atom bugs,
+            # but sometimes the bond cyls project out beyond the bp cyls
+            # after repositioning bondpoints, or for N(sp2(graphitic)),
+            # and it looks bad for double bonds,
+            # and sometimes the highlighting cylfaces mix with the non-highlighted ones,
+            # as if same depth value. ###@@@
+            other = self.singlet_neighbor()
+            if abs_coords:
+                otherpos = other.posn()
+            else:
+                otherpos = other.baseposn()
+            rad = other.selatom_radius(dispdef) # ok to pass None
+            out = norm(pos - otherpos)
+            buried = max(0, rad - vlen(pos - otherpos))
+            inpos = pos - 0.015 * out
+            outpos = pos + (buried + 0.015) * out # be sure we're visible outside a big other atom
+            drawcylinder(color, inpos, outpos, drawrad, 1) #e see related code in Bond.draw; drawrad is slightly more than the bond rad
+        else:
+            drawsphere(color, pos, drawrad, level)
+        return
+    
     def draw_wirespheres(self, glpane, disp, pos, pickedrad):
         #bruce 060315 split this out of self.draw so I can add it to draw_in_abs_coords
         if self.picked: # (do this even if disp == diINVISIBLE or diLINES [bruce comment 050825])
@@ -1093,7 +1103,9 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         pos = self.posn()
         ###@@@ remaining code might or might not be correct (issues: larger radius, display-mode independence)
         drawrad = self.selatom_radius() # slightly larger than normal drawing radius
-        drawsphere(color, pos, drawrad, level) # always draw, regardless of display mode
+        ## drawsphere(color, pos, drawrad, level)
+        self.draw_atom_sphere(color, pos, drawrad, level, None, abs_coords = True)
+            # always draw, regardless of display mode
             #bruce 050825 comment: it's probably incorrect to do this even for invisible atoms.
             # This probably caused the "highlighting part" of bug 870, but bug 870 has been fixed
             # by other changes today, but this still might cause other bugs of highlighting
@@ -1102,6 +1114,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         if len(self.bonds) == 1 and self.element is Singlet: #bruce 050708 new feature
             dispdef = self.molecule.get_dispdef()
                 #bruce 050719 question: is it correct to ignore .display of self and its base atom? ###@@@
+                #bruce 060630 guess answer: yes, since howdraw covers it.
             disp, drawradjunk = self.howdraw(dispdef) # (this arg is required)
             if disp in (diBALL, diTUBES):
                 self.bonds[0].draw_in_abs_coords(glpane, color)
