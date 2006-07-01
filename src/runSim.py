@@ -1892,11 +1892,21 @@ class Minimize_CommandRun(CommandRun):
         # Set update_cond for this movie, based on Edit->Preferences general prefs page.
         # This code for setting update_cond is duplicated (inexactly) in SimSetup.createMoviePressed() in SimSetup.py.
         uprefs = env.mainwindow().uprefs
+        update_units = uprefs.update_units_combobox.currentText()
+        update_number = uprefs.update_number_spinbox.value()
         if uprefs.update_asap_rbtn.isChecked():
-            update_cond = lambda simtime, pytime, nframes: simtime >= max(0.05, min(pytime * 4, 2.0))
+            update_cond = ( lambda simtime, pytime, nframes:
+                            simtime >= max(0.05, min(pytime * 4, 2.0)) )
+        elif update_units == 'frames':
+            update_cond = ( lambda simtime, pytime, nframes, _nframes = update_number:  nframes >= _nframes )
+        elif update_units == 'seconds':
+            update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number:  simtime + pytime >= _timelimit )
+        elif update_units == 'minutes':
+            update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 60:  simtime + pytime >= _timelimit )
+        elif update_units == 'hours':
+            update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 3600:  simtime + pytime >= _timelimit )
         else:
-            update_cond = (lambda simtime, pytime, nframes, _nframes=uprefs.update_number_spinbox.value():
-                           nframes >= _nframes)
+            print "don't know how to set update_cond from (%r, %r)" % (update_number, update_units)
         movie.update_cond = update_cond
 
         # semi-obs comment, might still be useful [as of 050406]:
