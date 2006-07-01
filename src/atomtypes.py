@@ -67,7 +67,7 @@ class AtomType:
         self.openbond = (elem.eltnum == 0)
         if name.startswith("sp3") or name == "?":
             spX = 3
-        elif name.startswith("sp2"):
+        elif name.startswith("sp2"): # including sp2 and sp2(graphitic)
             spX = 2
         elif name.startswith("sp") and (name == "sp" or not name[2].isdigit()):
             spX = 1

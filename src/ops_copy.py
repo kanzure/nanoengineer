@@ -351,7 +351,8 @@ class Copier: #bruce 050523-050526; might need revision for merging with DND cop
         atom_jigs = self.atom_jigs = {}
         sel = self.sel
         if platform.atom_debug and not sel.topnodes:
-            print "debug warning: prep_for_copy_to_shelf sees no sel.topnodes" #bruce 060627; may not always be a bug; never yet seen
+            print "debug warning: prep_for_copy_to_shelf sees no sel.topnodes"
+                #bruce 060627; not always a bug (e.g. happens for copying atoms)
         for node in sel.topnodes: # no need to scan selmols too, it's redundant (and in general a subset)
             # chunks, jigs, Groups -- for efficiency and in case it's a feature,
             # don't scan jigs of a chunk's atoms like we do for individual atoms;
