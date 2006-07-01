@@ -227,7 +227,7 @@ def pre_main_show( win):
         print_compact_stack("exception while loading/setting main window pos/size from prefs db: ")
         win.setGeometry(QRect(norm_x, norm_y, norm_w, norm_h))
 
-    _initialize_custom_display_modes()
+    _initialize_custom_display_modes(win)
     
     return # from pre_main_show
 
@@ -238,9 +238,14 @@ def pre_main_show( win):
 #    print "Window origin = ",fooge.left(),",",fooge.top()
 #    print "Window width =",fooge.width(),", Window height =",fooge.height()
 
-def _initialize_custom_display_modes():
+def _initialize_custom_display_modes(win):
     import CylinderChunks #bruce 060609
     import SurfaceChunks #mark 060610
+    from debug_prefs import debug_pref, Choice_boolean_False
+    enable_SurfaceChunks = debug_pref("enable SurfaceChunks next session?", Choice_boolean_False, non_debug = True, prefs_key = True)
+    win.dispSurfaceAction.setText("Surface (experimental, may be slow)")
+    win.dispSurfaceAction.setEnabled(enable_SurfaceChunks)
+    win.dispSurfaceAction.setVisible(enable_SurfaceChunks)
     return
 
 def post_main_show( win): # bruce 050902 added this
