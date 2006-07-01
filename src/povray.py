@@ -18,6 +18,8 @@ from qt import QApplication, QCursor, Qt, QStringList, QProcess, QDir
 
 def launch_povray_or_megapov(win, povray_ini):
     '''Launch POV-Ray or MegaPOV. POV-Ray must be installed to launch MegaPOV.
+    POV-Ray does not run silently in the background on Windows, so we provide MegaPOV as
+    an option since it does run silently in the background on Windows.
     <povray_ini> is a text file containing settings for what used to be called POV-Ray 'command-line options'.
     
     Return values:
@@ -67,6 +69,7 @@ def launch_povray_or_megapov(win, povray_ini):
     #    if r:
     #        return 5, errmsgs[4] # MegaPOV plug-in not enabled.
     
+    megapov_exe = ''
     if env.prefs[megapov_enabled_prefs_key]:
         megapov_exe = env.prefs[megapov_path_prefs_key]   
         if not megapov_exe:
@@ -77,8 +80,11 @@ def launch_povray_or_megapov(win, povray_ini):
         
         raytracer = megapov_exe
     
+    exit = ''
     if sys.platform == 'win32':
         program = "\""+raytracer+"\"" # Double quotes needed by Windows. Mark 060602.
+	if raytracer == povray_exe:
+	    exit = "/EXIT"
     else:
         program = raytracer # Double quotes not needed for Linux/MacOS.
     
@@ -89,7 +95,7 @@ def launch_povray_or_megapov(win, povray_ini):
     # Render scene.
     try:
         
-        args = [program] + [tmp_ini]
+        args = [program] + [tmp_ini] + [exit]
         print "Launching POV-Ray: \n  working directory=",workdir,"\n  povray_exe=", povray_exe,  "\n  args are %r" % (args,)
         
         arguments = QStringList()
@@ -108,6 +114,8 @@ def launch_povray_or_megapov(win, povray_ini):
 	        
         # Put up hourglass cursor to indicate we are busy. Restore the cursor below. Mark 060621.
 	QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+	
+	win.glpane.is_animating = True # This disables selection while rendering the image.
         
         import time
         msg = "Rendering image"
@@ -117,25 +125,31 @@ def launch_povray_or_megapov(win, povray_ini):
 	    # This would require the output file to be written in PPM or BMP format, but not PNG format, since
 	    # I don't believe a PNG's final filesize cannot be predicted. 
 	    # Check out monitor_progress_by_file_growth() in runSim.py, which does this.
-            time.sleep(0.1)
+            time.sleep(0.25)
             env.history.statusbar_msg(msg)
             env.call_qApp_processEvents()
-            if len(msg) > 80:
-                msg = "Rendering image"
-            else:
-                msg = msg + "."
+	    if 1:
+		# Update the statusbar message while rendering.
+		if len(msg) > 100:
+		    msg = "Rendering image"
+		else:
+		    #msg = msg + "."
+		    msg += "."
         
         QApplication.restoreOverrideCursor() # Restore the cursor. Mark 060621.
         env.history.statusbar_msg("Rendering finished!")
+	win.glpane.is_animating = False
         
         # Display image in separate window here.
 
     except:
+	QApplication.restoreOverrideCursor()
+	win.glpane.is_animating = False
         from debug import print_compact_traceback
         print_compact_traceback( "exception in launch_povray_or_megapov(): " )
         return 8, errmsgs[7]
             
-    return 0, ''
+    return 0, "Rendering finished"
 
 # Should write_povray_ini_file() become a method of PovrayScene. I think so, but ask Bruce. Mark 060626. 
 def write_povray_ini_file(povray_ini_fname, povrayscene_file, width, height, output_type='png'):

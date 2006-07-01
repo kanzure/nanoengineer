@@ -33,16 +33,11 @@ class PovrayScene(SimpleCopyMixin, Node):
 
     sym = "POV-Ray Scene"
     extension = ".pov"
-    povrayscene_file = '' #&&& This is the absolute path to the povray scene file. This needs to be the relative path.
+    povrayscene_file = ''
 
     width = height = output_type = None #bruce 060620, might not be needed
     
     copyable_attrs = Node.copyable_attrs + ('width', 'height', 'output_type', 'povrayscene_file')
-        #&&& This doesn't work. Does it have something to do with <povrayscene_file> missing from set_parameters?
-        #&&& Ask Bruce. Mark 060613.
-        # No, it's because _um_initargs (inherited from Node) is not compatible with the args to our __init__ method.
-        # I'll fix the __init__ method instead of overriding _um_initargs, since that way it's compatible with
-        # the __init__ methods of other nodes, which makes client code clearer. [bruce 060620]
 
     def __init__(self, assy, name, params = None):
         #bruce 060620 removed name from params list, made that optional, made name a separate argument,
@@ -57,6 +52,9 @@ class PovrayScene(SimpleCopyMixin, Node):
         Node.__init__(self, assy, name)
         if params:
             self.set_parameters(params)
+        else:
+            def_params = (assy.o.width, assy.o.height, 'png')
+            self.set_parameters(def_params)
         self.const_icon = imagename_to_pixmap("povrayscene.png")
             # note: this might be changed later; this value is not always correct; that may be a bug when this node is copied.
             # [bruce 060620 comment]
@@ -157,6 +155,23 @@ class PovrayScene(SimpleCopyMixin, Node):
         writepovfile(self.assy.part, self.assy.o, pov)
         return 0, pov
     
+    def get_output_image_filename(self):
+        """Returns the fullpath of the output image filename based on the <povrayscene_file> and <output_type> attrs.
+        """
+        
+        if not self.povrayscene_file:
+            return ""
+        
+        if self.output_type == 'bmp':
+            output_ext = '.bmp'
+        else: # default
+            output_ext = '.png'
+        
+        dir, tmp_pov = os.path.split(self.povrayscene_file)
+        base, ext = os.path.splitext(tmp_pov)
+        outfile = base + output_ext
+        return os.path.normpath(os.path.join(dir, outfile))
+    
     def get_povfile_pair(self, tmpfile = False):
         """Returns the POV-Ray INI filename and its POV-Ray Scene filename pair. 
         If there was any problem, returns None.
@@ -171,7 +186,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         # Mark 060624.
     
         if tmpfile:
-            pov_filename = "povrayscene.pov"
+            pov_filename = "raytracescene.pov"
             from platform import find_or_make_Nanorex_subdir
             dir = find_or_make_Nanorex_subdir("POV-Ray")
             if not dir:
@@ -188,7 +203,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         #print "get_povfile_pair():\n  povrayini_file=", povrayini_file, "\n  povrayscene_file=", povrayscene_file
         return povrayini_file, povrayscene_file
     
-    def render_scene(self, tmpscene=False):
+    def raytrace_scene(self, tmpscene=False):
         """Render scene. 
         If tmpscene is False, the INI and pov files are written to the 'POV-Ray Scene Files' directory.
         If tmpscene is True, the INI and pov files are written to a temporary directory (~/Nanorex/POV-Ray).
@@ -207,17 +222,58 @@ class PovrayScene(SimpleCopyMixin, Node):
         else:
             return 1, "Problem getting POV-Ray INI filename."
         
-        # Launch POV-Ray or MegaPOV
-        errorcode, errortext = launch_povray_or_megapov(self.assy.w, ini) # Launch MegaPOV
-            
-        return errorcode, errortext # errorcode = 0 if successful.
-      
+        cmd = greenmsg("Raytrace Scene: ")
+        if tmpscene:
+            msg = "Rendering scene"
+        else:
+            msg = "Rendering raytrace image from POV-Ray Scene file. Please wait...."
+        env.history.message(cmd + msg)
+        
+        # Launch raytrace program (POV-Ray or MegaPOV)
+        errorcode, errortext = launch_povray_or_megapov(self.assy.w, ini)
+        
+        if errorcode:
+            env.history.message(cmd + orangemsg(errortext))
+        else:
+            env.history.message(cmd + "Rendered image: " + self.get_output_image_filename())
+        
+        #&&& Should we print history message in this method or return the errorcode and errortext so the caller
+        #&&& can decide what to do? I think it would be better to display the history msg here. Mark 060701.
+        #&&&if errorcode:
+        #&&&    return errorcode, errortext # errorcode = 0 if successful.
+        #&&&else:
+        #&&&    return 0, "Rendering complete. Rendered image located in file " + self.get_output_image_filename()
+    
+    def kill(self, require_confirmation=True):
+        """Delete the POV-Ray Scene node and its associated .pov file if it exists.
+        If <require_confirmation> is True, make the user confirm first. Otherwise, delete the file without user confirmation.
+        """
+        if os.path.exists(self.povrayscene_file):
+            if 0: # Don't require confirmation for A8. Mark 060701.
+            # if require_confirmation: 
+                msg = "Please confirm that you want to delete " + self.name
+                from widgets import PleaseConfirmMsgBox
+                confirmed = PleaseConfirmMsgBox( msg)
+                if not confirmed:
+                    return
+            # do it
+            os.remove(self.povrayscene_file)
+        Node.kill(self)
+        
     # Context menu item methods #######################################
     
-    def __CM_Render_Scene(self):
+    def __CM_Raytrace_Scene(self):
+        '''Method for "Raytrace Scene" context menu.'''
+        self.raytrace_scene()
+        
+    def CM_Render_Scene_OBSOLETE(self): # Keeping just in case Bruce wants me to keep this version. Mark 060701.
         '''Method for "Render Scene" context menu.'''
-        errorcode, errortext = self.render_scene()
+        cmd = greenmsg("Render Scene: ")
+        env.history.message(cmd + "Rendering POV-Ray Scene image from file. Please wait....")
+        errorcode, errortext = self.raytrace_scene()
         if errorcode:
-            env.history.message( "Render Scene: " + redmsg(errortext) )
+            env.history.message(cmd + orangemsg(errortext))
+        else:
+            env.history.message(cmd + errortext)
 
     pass # end of class PovrayScene

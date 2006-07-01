@@ -325,20 +325,13 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         node to the model tree, the user must use 'Insert > POV-Ray Scene'.
         """
         
-        cmd = greenmsg("Raytrace Scene: ")
-        
         assy = self.assy
         glpane = self.glpane
         
         from PovrayScene import PovrayScene
-        pov = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
-        errorcode, errortext = pov.render_scene(tmpscene=True)
-        if errorcode:
-            env.history.message( cmd + redmsg(errortext) )
-            return
-        
-        msg = "POV-Ray rendering complete."
-        env.history.message( cmd + msg ) 
+        #pov = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
+        pov = PovrayScene(assy, None)
+        pov.raytrace_scene(tmpscene=True)
         
     def viewRaytraceScene_ORIG(self):
         """Slot for 'View > Raytrace Scene'.
@@ -356,7 +349,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         # in case rendering it takes a long time. Also, if the rendering is aborted, the node
         # should perhaps not be added (or should be removed if it was already added,
         # or should be changed to indicate that the rendering was aborted).
-        errorcode, errortext = pov.render_scene()
+        errorcode, errortext = pov.raytrace_scene()
         if errorcode:
             env.history.message( cmd + redmsg(errortext) )
             return

@@ -15,7 +15,7 @@ from PovrayScenePropDialog import PovrayScenePropDialog
 from HistoryWidget import greenmsg
 from widgets import double_fixup
 from PovrayScene import genPVSNum
-import env
+import env, os
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from GeneratorBaseClass import GroupButtonMixin
 
@@ -32,18 +32,30 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         self.glpane = self.win.glpane
         self.node = None
         self.previousParams = None
-
-    def _create_new_node_name(self):
-        'Create node name for new POV-Ray Scene node.'
-        import PovrayScene
-        self._PVSNum = PovrayScene.PVSNum
-        self.name = genPVSNum(self.prefix) + self.extension
-    
-    def _revert_node_number(self):
-        'Revert the PVS node number'
-        import PovrayScene
-        if hasattr(self, '_PVSNum'):
-            PovrayScene.PVSNum = self._PVSNum
+        
+    def setup_NEW(self, pov=None):
+        '''Show the Properties Manager dialog. If <pov> is supplied, 
+        get the parameters from it and load the dialog widgets.
+        '''
+        
+        if not self.win.assy.filename:
+            env.history.message( self.cmdname + redmsg("Can't insert POV-Ray Scene until the current part has been saved.") )
+            return
+        
+        if not pov:
+            self.node_is_new = True
+            from PovrayScene import PovrayScene
+            self.node = PovrayScene(self.win.assy, None)
+        else:
+            self.node_is_new = False
+            self.node = pov
+        
+        self.name = self.node.name
+        self.width, self.height, self.output_type = self.node.get_parameters()
+            
+        self.update_widgets()
+        self.previousParams = params = self.gather_parameters()
+        self.show()
 
     def setup(self, pov=None):
         '''Show the Properties Manager dialog. If <pov> is supplied, 
@@ -53,18 +65,16 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         if not self.win.assy.filename:
             env.history.message( self.cmdname + redmsg("Can't insert POV-Ray Scene until the current part has been saved.") )
             return
-
+        
         if pov:
             self.node_is_new = False
             self.name = pov.name
-            self.filename = pov.povrayscene_file
             self.width, self.height, self.output_type = pov.get_parameters()
             self.node = pov
             
         else:
             self.node_is_new = True
-            self._create_new_node_name()
-            self.filename = ''
+            self.name = self._generate_name()
             self.width = int(self.glpane.width)
             self.height = int(self.glpane.height)
             self.output_type = 'PNG'
@@ -84,7 +94,6 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
     def update_widgets(self):
         'Update the widgets using the current attr values.'
         self.name_linedit.setText(self.name)
-        self.filename_linedit.setText(self.filename)
         self.output_type_combox.setCurrentText(self.output_type.upper())
         
         # This must be called before setting the values of the width and height spinboxes. Mark 060621.
@@ -94,7 +103,42 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         
         self.width_spinbox.setValue(self.width) # Generates signal.
         self.height_spinbox.setValue(self.height) # Generates signal.
+        
+    def get_filename_derived_from_nodename(self, nodename):
+        """Returns the full path of the POV-Ray Scene filename derived from <nodename>.
+        """
+        # I put the method here instead of the PovrayScene class since we often need to get 
+        # the filename before the POV-Ray Scene object is created. Maybe I should create one in setup()?
+        # That seems like a good idea, but would require additional rework here that I haven't the time for.
+        # I started investigating this and I like were it is going. See setup_NEW(). 
+        # May or may not have time to implement for A8. Mark 060701.
+        errorcode, dir = self.win.assy.find_or_make_pov_files_directory()
+        if errorcode:
+            return "filename_does_not_exist" 
+        povrayscene_file = os.path.normpath(os.path.join(dir, nodename))
+        #print "get_filename_derived_from_nodename(): povrayscene_file=", povrayscene_file
+        return povrayscene_file
+          
+    def _generate_name(self): # Method for generating a name should be in PorvaryScene. Mark 060701.
+        """Returns a unique name for use by a new POV-Ray Scene node.
+        Make sure the filename to be derived from the new name does not already exist.
+        """
+        name = ''
+        import PovrayScene
+        self._PVSNum = PovrayScene.PVSNum
+        name_exists = True
+        while name_exists:
+            name = genPVSNum(self.prefix) + self.extension
+            if not os.path.exists(self.get_filename_derived_from_nodename(name)):
+                name_exists = False
+                return name
     
+    def _revert_node_number(self):
+        'Revert the PVS node number'
+        import PovrayScene
+        if hasattr(self, '_PVSNum'):
+            PovrayScene.PVSNum = self._PVSNum
+            
     def done_msg(self):
         'Tell what message to print when the POV-Ray Scene node has been created or updated.'
         if self.node_is_new:
@@ -112,15 +156,24 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         else:
             self.set_params( self.node, params)
         
-        # Only write the POV-Ray Scene file if this is a new node. If we are editing the properties of an existing
-        # POV-Ray Scene node, only change the node's parameters. Do not overwrite the <povrayscene_file>!
-        if self.node_is_new: 
+        # Write the POV-Ray Scene file if this is a new node or if the node's file doesn't already exist. 
+        # If we are editing the properties of an existing POV-Ray Scene node, only change the node's parameters. 
+        # Do not overwrite the povrayscene file, but recreate it if it is missing for any reason .
+        # Possible ways this could happen includes:
+        #   1. the user renamed the node, or 
+        #   2. the POV-Ray Scene node was deleted (which deletes the file) and then Undo was pressed.
+        #   3. the POV-Ray Scene file was deleted by the user somehow.
+        # In the future, the POV-Ray Scene should save the view quat in the MMP (info) record. Then it
+        # would always be possible to regenerate the POV-Ray Scene file from the MMP record, even if  
+        # the node's .pov file didn't exist on disk anymore. Mark 060701.
+        if self.node_is_new or not os.path.exists(self.get_filename_derived_from_nodename(self.node.name)):
             errorcode, filename_or_errortext = self.node.write_povrayscene_file()
             if errorcode:
                 # The Pov-Ray Scene file could not be written, so remove the node.
                 self.remove_node()
                 env.history.message( self.cmdname + redmsg(filename_or_errortext) )
         
+        self.node.update_icon() # In case we rewrote a lost POV-Ray Scene file.
         return self.node
 
     def set_params(self, struct, params): #bruce 060620, since pov params don't include name, but our params do
@@ -139,6 +192,7 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
     def remove_node(self):
         'Delete this POV-Ray Scene node.'
         if self.node != None:
+            #&&&self.node.kill(require_confirmation=False)
             self.node.kill()
             self.node = None
             self.win.mt.mt_update()
@@ -203,9 +257,15 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         
         self.win.win_update() # Update model tree regardless whether it is a new node or not.
         
-        errorcode, errortext = self.node.render_scene()
-        if errorcode:
-            env.history.message( self.cmdname + redmsg(errortext) )
+        self.node.raytrace_scene()
+        
+        #&&& Should we print history message in this method or return the errorcode and text so the caller
+        #&&& can decide what to do? I think it would be better to display the history msg in raytrace_scene. Mark 060701.
+        #&&&errorcode, errortext = self.node.raytrace_scene()
+        #&&&if errorcode:
+        #&&&    env.history.message( self.cmdname + redmsg(errortext) )
+        #&&&else:
+        #&&&    env.history.message( self.cmdname + errortext ) # "Rendering finished" message.
         
     def whatsthis_btn_clicked(self):
         'Slot for the What\'s This button'
@@ -242,8 +302,7 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
     def toggle_grpbtn_1(self):
         'Slot for first groupbox toggle button'
         self.toggle_groupbox(self.grpbtn_1, self.line2,
-                            self.name_label, self.name_linedit, 
-                            self.filename_label, self.filename_linedit, self.filename_btn)
+                            self.name_linedit)
 
     def toggle_grpbtn_2(self):
         'Slot for second groupbox toggle button'

@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\PovrayScenePropDialog.ui'
 #
-# Created: Wed Jun 21 04:08:32 2006
+# Created: Thu Jun 29 22:46:11 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1401,26 +1401,8 @@ class PovrayScenePropDialog(QDialog):
         self.line2.setFrameShape(QFrame.HLine)
         name_grpboxLayout.addWidget(self.line2)
 
-        self.name_label = QLabel(self.name_grpbox,"name_label")
-        self.name_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-        name_grpboxLayout.addWidget(self.name_label)
-
         self.name_linedit = QLineEdit(self.name_grpbox,"name_linedit")
         name_grpboxLayout.addWidget(self.name_linedit)
-
-        self.filename_label = QLabel(self.name_grpbox,"filename_label")
-        self.filename_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignLeft)
-        name_grpboxLayout.addWidget(self.filename_label)
-
-        layout11 = QHBoxLayout(None,0,6,"layout11")
-
-        self.filename_linedit = QLineEdit(self.name_grpbox,"filename_linedit")
-        layout11.addWidget(self.filename_linedit)
-
-        self.filename_btn = QToolButton(self.name_grpbox,"filename_btn")
-        self.filename_btn.setMinimumSize(QSize(22,22))
-        layout11.addWidget(self.filename_btn)
-        name_grpboxLayout.addLayout(layout11)
         body_frameLayout.addWidget(self.name_grpbox)
 
         self.output_image_grpbox = QGroupBox(self.body_frame,"output_image_grpbox")
@@ -1523,7 +1505,7 @@ class PovrayScenePropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(207,413).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(207,368).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
@@ -1538,7 +1520,6 @@ class PovrayScenePropDialog(QDialog):
         self.connect(self.abort_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
         self.connect(self.grpbtn_1,SIGNAL("clicked()"),self.toggle_grpbtn_1)
         self.connect(self.grpbtn_2,SIGNAL("clicked()"),self.toggle_grpbtn_2)
-        self.connect(self.filename_btn,SIGNAL("clicked()"),self.filename_btn_clicked)
 
 
     def languageChange(self):
@@ -1559,19 +1540,12 @@ class PovrayScenePropDialog(QDialog):
         self.whatsthis_btn.setText(QString.null)
         QToolTip.add(self.whatsthis_btn,self.__tr("What's This Help"))
         self.name_grpbox.setTitle(QString.null)
-        self.name_grpbox_label.setText(self.__tr("POV-Ray Scene File"))
+        self.name_grpbox_label.setText(self.__tr("POV-Ray Scene Name"))
         self.grpbtn_1.setText(QString.null)
-        self.name_label.setText(self.__tr("Node Name :"))
         self.name_linedit.setText(self.__tr("POV-Ray Scene-1.pov"))
         QToolTip.add(self.name_linedit,self.__tr("Name of POV-Ray Scene node in Model Tree"))
         QWhatsThis.add(self.name_linedit,self.__tr("<b>Node Name</b>\n"
 "<p>The POV-Ray Scene file node name as it appears in the Model Tree.</p>"))
-        self.filename_label.setText(self.__tr("File Name :"))
-        self.filename_linedit.setText(self.__tr("POV-Ray Scene-1.pov"))
-        QToolTip.add(self.filename_linedit,self.__tr("File name of POV-Ray Scene file."))
-        QWhatsThis.add(self.filename_linedit,self.__tr("<b>File Name</b>\n"
-"<p>The file name of the POV-Ray Scene file.</p>"))
-        self.filename_btn.setText(self.__tr("..."))
         self.output_image_grpbox.setTitle(QString.null)
         self.image_size_grpbox_label.setText(self.__tr("Render Image Parameters"))
         self.grpbtn_2.setText(QString.null)

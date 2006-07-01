@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>207</width>
-            <height>413</height>
+            <height>368</height>
         </rect>
     </property>
     <property name="caption">
@@ -319,7 +319,7 @@
                                         </color>
                                     </property>
                                     <property name="text">
-                                        <string>POV-Ray Scene File</string>
+                                        <string>POV-Ray Scene Name</string>
                                     </property>
                                     <property name="alignment">
                                         <set>AlignVCenter</set>
@@ -392,17 +392,6 @@
                                 <enum>Horizontal</enum>
                             </property>
                         </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>name_label</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Node Name :</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignLeft</set>
-                            </property>
-                        </widget>
                         <widget class="QLineEdit">
                             <property name="name">
                                 <cstring>name_linedit</cstring>
@@ -417,56 +406,6 @@
                                 <string>&lt;b&gt;Node Name&lt;/b&gt;
 &lt;p&gt;The POV-Ray Scene file node name as it appears in the Model Tree.&lt;/p&gt;</string>
                             </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>filename_label</cstring>
-                            </property>
-                            <property name="text">
-                                <string>File Name :</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignLeft</set>
-                            </property>
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout11</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLineEdit">
-                                    <property name="name">
-                                        <cstring>filename_linedit</cstring>
-                                    </property>
-                                    <property name="text">
-                                        <string>POV-Ray Scene-1.pov</string>
-                                    </property>
-                                    <property name="toolTip" stdset="0">
-                                        <string>File name of POV-Ray Scene file.</string>
-                                    </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;File Name&lt;/b&gt;
-&lt;p&gt;The file name of the POV-Ray Scene file.&lt;/p&gt;</string>
-                                    </property>
-                                </widget>
-                                <widget class="QToolButton">
-                                    <property name="name">
-                                        <cstring>filename_btn</cstring>
-                                    </property>
-                                    <property name="minimumSize">
-                                        <size>
-                                            <width>22</width>
-                                            <height>22</height>
-                                        </size>
-                                    </property>
-                                    <property name="text">
-                                        <string>...</string>
-                                    </property>
-                                </widget>
-                            </hbox>
                         </widget>
                     </vbox>
                 </widget>
@@ -928,12 +867,6 @@
         <signal>clicked()</signal>
         <receiver>PovrayScenePropDialog</receiver>
         <slot>toggle_grpbtn_2()</slot>
-    </connection>
-    <connection>
-        <sender>filename_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>PovrayScenePropDialog</receiver>
-        <slot>filename_btn_clicked()</slot>
     </connection>
 </connections>
 <slots>
