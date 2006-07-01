@@ -2372,36 +2372,15 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         and use that posn instead of its actual posn to decide what to do.
            WARNING: we assume baggage is a subset of self.baggageNeighbors(), but don't check this except when ATOM_DEBUG is set.
         """
-        if platform.atom_debug: # remove this entire if-statement (incl body) when devel is done
-            try:
-                import reposition_baggage_hack
-            except:
-                # most people: use the best code we have so far, below.
-                pass
-            else:
-                # developers who are working on improving this (i.e. bruce): use the experimental version instead.
-                debug.reload_once_per_event(reposition_baggage_hack)
-                return reposition_baggage_hack.reposition_baggage(self, baggage, planned_atom_nupos)            
-        if baggage is None:
-            baggage = self.baggageNeighbors()
-        elif platform.atom_debug:
-            _bn = map(id,self.baggageNeighbors())
-            for at in baggage:
-                assert id(at) in _bn
-            del _bn, at
-        if len(baggage) not in (1,2):
-            if platform.atom_debug and 0: ###@@@
-                print "debug: %r.reposition_baggage(%r) is nim except for 1 or 2 baggage atoms" % (self, baggage)
-            return
-        len_other = len(self.bonds) - len(baggage)
-        if not len_other:
-            # should never happen, as we are called as of 060629, i think
-            if platform.atom_debug: ###@@@
-                print "debug: %r.reposition_baggage(%r) is nim unless there are non-baggage atoms" % (self, baggage)
-            return #e can something be done in this case?? maybe, but it's not the critical problem we're trying to fix now.
-        ###@@@
-        if platform.atom_debug and 0:
-            print "debug: %r.reposition_baggage(%r) is nim, though in this case it ought to work, maybe" % (self, baggage)
+        try:
+            import reposition_baggage
+            debug.reload_once_per_event(reposition_baggage) # this can be removed when devel is done, but doesn't need to be
+            reposition_baggage.reposition_baggage_0(self, baggage, planned_atom_nupos)
+        except:
+            # this is always needed, since some of the code for special alignment cases
+            # is so rarely exercised that we can't effectively test it
+            print_compact_traceback("bug in reposition_baggage; skipping it: ")
+            pass
         return
     
     def remake_singlets(self): #bruce 050511
