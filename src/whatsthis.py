@@ -90,11 +90,11 @@ class MyWhatsThis(QWhatsThis): #bruce 060120 revised this as part of fixing bug 
 
 def createWhatsThis(self):
         
-        ##############################################
+        #
         # File Toolbar
-        ##############################################
+        #
         
-        #### Open File ####
+        # Open File
         
         fileOpenText = "<u><b>Open File</b></u>    (Ctrl + O)<br> "\
                         "<p><img source=\"fileopen\"><br> "\
@@ -106,7 +106,7 @@ def createWhatsThis(self):
 
         self.fileOpenAction.setWhatsThis( fileOpenText )
         
-        #### Save File ####
+        # Save File
         
         fileSaveText = "<u><b>Save File</b></u>     (Ctrl + S)<br> "\
                        "<p><img source=\"filesave\"><br> "\
@@ -118,11 +118,11 @@ def createWhatsThis(self):
 
         self.fileSaveAction.setWhatsThis( fileSaveText )
         
-        ##############################################
+        #
         # Edit Toolbar
-        ##############################################
+        #
         
-        #### Make Checkpoint ###
+        # Make Checkpoint ###
         
         editMakeCheckpointText =  "<u><b>Make Checkpoint</b></u>"\
                        "<p><img source=\"editMakeCheckpoint\"><br> "\
@@ -134,7 +134,7 @@ def createWhatsThis(self):
 
         self.editMakeCheckpointAction.setWhatsThis( editMakeCheckpointText )
         
-        #### Automatic Checkpointing ### [minor changes, bruce 060319]
+        # Automatic Checkpointing ### [minor changes, bruce 060319]
         
         editAutoCheckpointingText =  "<u><b>Automatic Checkpointing</b></u>"\
                        "<p>Enables/Disables <b>Automatic Checkpointing</b>. When enabled, the program "\
@@ -149,7 +149,7 @@ def createWhatsThis(self):
 
         self.editAutoCheckpointingAction.setWhatsThis( editAutoCheckpointingText )
         
-        #### Clear Undo Stack ### [minor changes, bruce 060319]
+        # Clear Undo Stack ### [minor changes, bruce 060319]
         
         editClearUndoStackText =  "<u><b>Clear Undo Stack</b></u>"\
                        "<p>Clears all checkpoints on the Undo and Redo stacks, freeing up memory."\
@@ -157,7 +157,7 @@ def createWhatsThis(self):
 
         self.editClearUndoStackAction.setWhatsThis( editClearUndoStackText )
         
-        #### Undo ####
+        # Undo
         
         editUndoText =  "<u><b>Undo</b></u>     (Ctrl + Z)<br> "\
                        "<p><img source=\"editUndo\"><br> "\
@@ -176,7 +176,7 @@ def createWhatsThis(self):
 
         self.editUndoText = editUndoText #bruce 060317 to help fix bug 1421 in Undo whatsthis wiki help link
         
-        #### Redo ####
+        # Redo
 
         import platform
         if platform.is_macintosh():
@@ -203,7 +203,7 @@ def createWhatsThis(self):
 
         self.editRedoText = editRedoText #bruce 060317 to help fix bug 1421 in Redo whatsthis wiki help link
         
-        #### Cut ####
+        # Cut
         
         editCutText =  "<u><b>Cut</b></u>     (Ctrl + X)<br> "\
                        "<p><img source=\"editCut\"><br> "\
@@ -216,7 +216,7 @@ def createWhatsThis(self):
 
         self.editCutAction.setWhatsThis( editCutText )
         
-        #### Copy ####
+        # Copy
         
         editCopyText =  "<u><b>Copy</b></u>     (Ctrl + C)<br> "\
                        "<p><img source=\"editCopy\"><br> "\
@@ -229,7 +229,7 @@ def createWhatsThis(self):
 
         self.editCopyAction.setWhatsThis( editCopyText )
         
-        #### Paste ####
+        # Paste
         
         editPasteText = "<u><b>Paste</b></u>     (Ctrl + V)<br> "\
                        "<p><img source=\"editPaste\"><br> "\
@@ -249,7 +249,7 @@ def createWhatsThis(self):
 
         self.editPasteAction.setWhatsThis( editPasteText )
    
-        #### Delete ####
+        # Delete
                                  
         editDeleteText =  "<u><b>Delete</b></u>     (DEL)<br> "\
                        "<p><img source=\"editDelete\"><br> "\
@@ -262,11 +262,11 @@ def createWhatsThis(self):
 
         self.editDeleteAction.setWhatsThis( editDeleteText )
         
-        ##############################################
+        #
         # View Toolbar
-        ##############################################
+        #
         
-        #### Home View ####
+        # Home View
         
         setViewHomeActionText = "<u><b>Home</b></u>     (Home)<br>"\
                        "<p><img source=\"setViewHome\"><br> "\
@@ -277,7 +277,7 @@ def createWhatsThis(self):
 
         self.setViewHomeAction.setWhatsThis( setViewHomeActionText )
 
-        #### Fit to Window ####
+        # Fit to Window
         
         setViewFitToWindowActionText = "<u><b>Fit To Window</b></u><br>"\
                        "<p><img source=\"setViewFitToWindow\"><br> "\
@@ -289,7 +289,7 @@ def createWhatsThis(self):
 
         self.setViewFitToWindowAction.setWhatsThis( setViewFitToWindowActionText )   
 
-        #### Recenter ####
+        # Recenter
         
         setViewRecenterActionText = "<u><b>Recenter</b></u><br>"\
                        "<p><img source=\"setViewRecenter\"><br> "\
@@ -302,7 +302,7 @@ def createWhatsThis(self):
 
         self.setViewRecenterAction.setWhatsThis( setViewRecenterActionText )       
         
-        #### Zoom Tool ####
+        # Zoom Tool
         
         setzoomToolActionText = "<u><b>Zoom Tool</b></u><br>"\
                        "<p><img source=\"setzoomTool\"><br> "\
@@ -317,7 +317,7 @@ def createWhatsThis(self):
         self.zoomToolAction.setWhatsThis( setzoomToolActionText )      
 
         
-        #### Pan Tool ####
+        # Pan Tool
         
         setpanToolActionText = "<u><b>Pan Tool</b></u><br>"\
                        "<p><img source=\"setpanTool\"><br> "\
@@ -331,7 +331,7 @@ def createWhatsThis(self):
         self.panToolAction.setWhatsThis( setpanToolActionText )
 
         
-        #### Rotate Tool ####
+        # Rotate Tool
         
         setrotateToolActionText = "<u><b>Rotate Tool</b></u><br>"\
                        "<p><img source=\"setrotateTool\"><br> "\
@@ -344,7 +344,7 @@ def createWhatsThis(self):
 
         self.rotateToolAction.setWhatsThis( setrotateToolActionText )
         
-        #### Orthographic Projection ####
+        # Orthographic Projection
         
         setViewOrthoActionText = "<u><b>Orthographic Projection</b></u><br>"\
                        "<p>Sets nonperspective (or parallel) projection, with no foreshortening."\
@@ -355,7 +355,7 @@ def createWhatsThis(self):
 
         self.setViewOrthoAction.setWhatsThis( setViewOrthoActionText )
 
-        #### Perspective Projection ####
+        # Perspective Projection
         
         setViewPerspecActionText = "<u><b>Perspective Projection</b></u><br>"\
                        "<p>Set perspective projection, drawing objects slightly larger "\
@@ -367,7 +367,7 @@ def createWhatsThis(self):
 
         self.setViewPerspecAction.setWhatsThis( setViewPerspecActionText )        
 
-        #### Normal To ####
+        # Normal To
         
         setViewNormalToActionText = "<u><b>Set View Normal To</b></u><br>"\
                        "<p><img source=\"setViewNormalTo\"><br> "\
@@ -380,7 +380,7 @@ def createWhatsThis(self):
 
         self.setViewNormalToAction.setWhatsThis( setViewNormalToActionText )
         
-        #### Parallel To ####
+        # Parallel To
         
         setViewParallelToActionText = "<u><b>Set View Parallel To</b></u><br>"\
                        "<p><img source=\"setViewParallelTo\"><br> "\
@@ -392,7 +392,7 @@ def createWhatsThis(self):
 
         self.setViewParallelToAction.setWhatsThis( setViewParallelToActionText ) 
         
-        #### Save Named View ####
+        # Save Named View
         
         saveNamedViewActionText = "<u><b>Save Named View</b></u><br>"\
                        "<p><img source=\"saveNamedView\"><br> "\
@@ -406,7 +406,7 @@ def createWhatsThis(self):
         self.saveNamedViewAction.setWhatsThis( saveNamedViewActionText ) 
         
         
-        #### Front View ####
+        # Front View
         
         setViewFrontActionText = "<u><b>Front View</b></u><br>"\
                        "<p><img source=\"setViewFront\"><br> "\
@@ -418,7 +418,7 @@ def createWhatsThis(self):
 
         self.setViewFrontAction.setWhatsThis( setViewFrontActionText )  
 
-        #### Back View ####
+        # Back View
         
         setViewBackActionText = "<u><b>Back View</b></u><br>"\
                        "<p><img source=\"setViewBack\"><br> "\
@@ -430,7 +430,7 @@ def createWhatsThis(self):
 
         self.setViewBackAction.setWhatsThis( setViewBackActionText )     
         
-        #### Top View ####
+        # Top View
         
         setViewTopActionText = "<u><b>Top View</b></u><br>"\
                        "<p><img source=\"setViewTop\"><br> "\
@@ -442,7 +442,7 @@ def createWhatsThis(self):
 
         self.setViewTopAction.setWhatsThis( setViewTopActionText )      
         
-        #### Bottom View ####
+        # Bottom View
         
         setViewBottomActionText = "<u><b>Bottom View</b></u><br>"\
                        "<p><img source=\"setViewBottom\"><br> "\
@@ -454,7 +454,7 @@ def createWhatsThis(self):
 
         self.setViewBottomAction.setWhatsThis( setViewBottomActionText )  
         
-        #### Left View ####
+        # Left View
         
         setViewLeftActionText = "<u><b>Left View</b></u><br>"\
                        "<p><img source=\"setViewLeft\"><br> "\
@@ -466,7 +466,7 @@ def createWhatsThis(self):
 
         self.setViewLeftAction.setWhatsThis( setViewLeftActionText )
         
-        #### Right View ####
+        # Right View
         
         setViewRightActionText = "<u><b>Right View</b></u><br>"\
                        "<p><img source=\"setViewRight\"><br> "\
@@ -478,7 +478,7 @@ def createWhatsThis(self):
 
         self.setViewRightAction.setWhatsThis( setViewRightActionText )
         
-        #### Rotate View 180 ####
+        # Rotate View 180
         
         setViewOppositeActionText = "<u><b>Rotate View 180</b></u><br>"\
                        "<p><img source=\"setViewOpposite\"><br> "\
@@ -490,7 +490,7 @@ def createWhatsThis(self):
 
         self.setViewOppositeAction.setWhatsThis( setViewOppositeActionText )
         
-        #### Rotate View +90 ####
+        # Rotate View +90
         
         setViewPlus90ActionText = "<u><b>Rotate View +90</b></u><br>"\
                        "<p><img source=\"setViewPlus90\"><br> "\
@@ -502,7 +502,7 @@ def createWhatsThis(self):
 
         self.setViewPlus90Action.setWhatsThis( setViewPlus90ActionText )
         
-        #### Rotate View -90 ####
+        # Rotate View -90
         
         setViewMinus90ActionText = "<u><b>Rotate View -90</b></u><br>"\
                        "<p><img source=\"setViewMinus90\"><br> "\
@@ -514,7 +514,7 @@ def createWhatsThis(self):
 
         self.setViewMinus90Action.setWhatsThis( setViewMinus90ActionText )
         
-        #### Raytrace Scene ####
+        # Raytrace Scene
         
         viewRaytraceSceneActionText = "<u><b>Raytrace Scene</b></u><br>"\
                        "<p><img source=\"viewRaytraceSceneAction\"><br> "\
@@ -529,11 +529,11 @@ def createWhatsThis(self):
 
         self.viewRaytraceSceneAction.setWhatsThis( viewRaytraceSceneActionText )
         
-        ##############################################
+        #
         # Grids Toolbar
-        ##############################################
+        #
         
-        #### Surface 100 ####
+        # Surface 100
         
         orient100ActionText = "<u><b>Surface 100</b></u><br>"\
                        "<p><img source=\"orient100Action\"><br> "\
@@ -546,7 +546,7 @@ def createWhatsThis(self):
 
         self.orient100Action.setWhatsThis(orient100ActionText )
         
-        #### Surface 110 ####
+        # Surface 110
         
         orient110ActionText = "<u><b>Surface 110</b></u><br>"\
                        "<p><img source=\"orient110Action\"><br> "\
@@ -559,7 +559,7 @@ def createWhatsThis(self):
 
         self.orient110Action.setWhatsThis(orient110ActionText )
         
-        #### Surface 111 ####
+        # Surface 111
 
         orient111ActionText = "<u><b>Surface 111</b></u><br>"\
                        "<p><img source=\"orient111Action\"><br> "\
@@ -572,11 +572,11 @@ def createWhatsThis(self):
 
         self.orient111Action.setWhatsThis(orient111ActionText )
         
-        ##############################################
+        #
         # Insert toolbar
-        ##############################################
+        #
         
-        #### Graphene ####
+        # Graphene
 
         insertGrapheneActionText = "<u><b>Insert Graphene</b></u><br>"\
                        "<p><img source=\"insertGrapheneAction\"><br> "\
@@ -588,7 +588,7 @@ def createWhatsThis(self):
 
         self.insertGrapheneAction.setWhatsThis(insertGrapheneActionText )
         
-        #### Nanotube ####
+        # Nanotube
 
         insertNanotubeActionText = "<u><b>Insert Nanotube</b></u><br>"\
                        "<p><img source=\"insertNanotubeAction\"><br> "\
@@ -600,7 +600,7 @@ def createWhatsThis(self):
 
         self.insertNanotubeAction.setWhatsThis(insertNanotubeActionText )
         
-        #### DNA ####
+        # DNA
 
         insertDnaActionText = "<u><b>Insert DNA</b></u><br>"\
                        "<p><img source=\"insertDnaAction\"><br> "\
@@ -612,7 +612,7 @@ def createWhatsThis(self):
 
         self.insertDnaAction.setWhatsThis(insertDnaActionText )
         
-        #### POV-Ray Scene ####
+        # POV-Ray Scene
 
         insertPovraySceneActionText = "<u><b>Insert POV-Ray Scene</b></u><br>"\
                        "<p><img source=\"insertPovraySceneAction\"><br> "\
@@ -624,7 +624,7 @@ def createWhatsThis(self):
 
         self.insertPovraySceneAction.setWhatsThis(insertPovraySceneActionText )
         
-        #### Comment ####
+        # Comment
 
         insertCommentActionText = "<u><b>Insert Comment</b></u><br>"\
                        "<p><img source=\"insertCommentAction\"><br> "\
@@ -636,11 +636,11 @@ def createWhatsThis(self):
 
         self.insertCommentAction.setWhatsThis(insertCommentActionText )
         
-        ##############################################
+        #
         # Display toolbar
-        ##############################################
+        #
         
-        #### Display Default  ####
+        # Display Default 
 
         dispDefaultActionText = "<u><b>Display Default</b></u><br>"\
                        "<p><img source=\"dispDefaultAction\"><br> "\
@@ -664,7 +664,7 @@ def createWhatsThis(self):
 
         self.dispDefaultAction.setWhatsThis(dispDefaultActionText )
  
-        #### Display Invisible ####
+        # Display Invisible
 
         dispInvisActionText = "<u><b>Display Invisible</b></u><br>"\
                        "<p><img source=\"dispInvisAction\"><br> "\
@@ -682,7 +682,7 @@ def createWhatsThis(self):
 
         self.dispInvisAction.setWhatsThis(dispInvisActionText )       
 
-        #### Display Lines ####
+        # Display Lines
 
         dispLinesActionText = "<u><b>Display Lines</b></u><br>"\
                        "<p><img source=\"dispLinesAction\"><br> "\
@@ -700,7 +700,7 @@ def createWhatsThis(self):
 
         self.dispLinesAction.setWhatsThis(dispLinesActionText )  
         
-        #### Display Tubes ####
+        # Display Tubes
 
         dispTubesActionText = "<u><b>Display Tubes</b></u><br>"\
                        "<p><img source=\"dispTubesAction\"><br> "\
@@ -719,7 +719,7 @@ def createWhatsThis(self):
 
         self.dispTubesAction.setWhatsThis(dispTubesActionText )  
         
-        #### Display Ball and Stick (was CPK) ####
+        # Display Ball and Stick
 
         dispBallActionText = "<u><b>Display Ball and Stick</b></u><br>"\
                        "<p><img source=\"dispBallAction\"><br> "\
@@ -741,7 +741,7 @@ def createWhatsThis(self):
 
         self.dispBallAction.setWhatsThis(dispBallActionText ) 
         
-        #### Display CPK (was VdW) #### [bruce extended and slightly corrected text, 060307]
+        # Display CPK # [bruce extended and slightly corrected text, 060307]
 
         dispCPKActionText = "<u><b>Display CPK</b></u><br>"\
                        "<p><img source=\"dispCPKAction\"><br> "\
@@ -763,13 +763,49 @@ def createWhatsThis(self):
         QMimeSourceFactory.defaultFactory().setPixmap( "dispCPKAction",
                                                        self.dispCPKAction.iconSet().pixmap() )
 
-        self.dispCPKAction.setWhatsThis(dispCPKActionText )         
+        self.dispCPKAction.setWhatsThis(dispCPKActionText )
         
-        ##############################################
+        # Display Cylinder
+
+        dispCylinderActionText = "<u><b>Display Cylinder</b></u><br>"\
+                       "<p><img source=\"dispCylinderAction\"><br> "\
+                       "Changes the <i>display setting</i> of selected chunks to "\
+                       "<b>Cylinder</b> mode.  Chunks are rendered as cylinders."\
+                       "</p>"\
+                       "<p>If no chunks are selected, then this action will change the "\
+                       "<b>Current Display Mode</b> of the 3D workspace to <b>Cylinder</b>. " \
+                       "All chunks with their display setting set to <b>Default</b> will inherit "\
+                       "this display property."\
+                       "</p>"
+                      
+        QMimeSourceFactory.defaultFactory().setPixmap( "dispCylinderAction",
+                                                       self.dispCylinderAction.iconSet().pixmap() )
+
+        self.dispCylinderAction.setWhatsThis(dispCylinderActionText )
+        
+        # Display Surface
+
+        dispSurfaceActionText = "<u><b>Display Surface</b></u><br>"\
+                       "<p><img source=\"dispSurfaceAction\"><br> "\
+                       "Changes the <i>display setting</i> of selected chunks to "\
+                       "<b>Surface</b> mode.  Chunks are rendered as a smooth surface."\
+                       "</p>"\
+                       "<p>If no chunks are selected, then this action will change the "\
+                       "<b>Current Display Mode</b> of the 3D workspace to <b>Surface</b>. " \
+                       "All chunks with their display setting set to <b>Default</b> will inherit "\
+                       "this display property."\
+                       "</p>"
+                      
+        QMimeSourceFactory.defaultFactory().setPixmap( "dispSurfaceAction",
+                                                       self.dispSurfaceAction.iconSet().pixmap() )
+
+        self.dispSurfaceAction.setWhatsThis(dispSurfaceActionText )
+        
+        #
         # Select toolbar
-        ##############################################
+        #
         
-        #### Select All ####
+        # Select All
 
         selectAllActionText = "<u><b>Select All</b></u> (Ctrl + A)<br>"\
                        "<p><img source=\"selectAllAction\"><br> "\
@@ -782,7 +818,7 @@ def createWhatsThis(self):
 
         self.selectAllAction.setWhatsThis(selectAllActionText )
         
-        #### Select None ####
+        # Select None
 
         selectNoneActionText = "<u><b>Select None</b></u></p><br>"\
                        "<p><img source=\"selectNoneAction\"><br> "\
@@ -793,7 +829,7 @@ def createWhatsThis(self):
 
         self.selectNoneAction.setWhatsThis(selectNoneActionText )
  
-        #### Invert Selection ####
+        # Invert Selection
 
         selectInvertActionText = "<u><b>Invert Selection</b></u> (Ctrl + Shift + I)<br>"\
                        "<p><img source=\"selectInvertAction\"><br> "\
@@ -804,7 +840,7 @@ def createWhatsThis(self):
 
         self.selectInvertAction.setWhatsThis(selectInvertActionText )
         
-        #### Select Connected ####
+        # Select Connected
 
         selectConnectedActionText = "<u><b>Select Connected</b></u> (Ctrl + Shift + C)<br>"\
             "<p><img source=\"selectConnectedAction\"><br> "\
@@ -818,7 +854,7 @@ def createWhatsThis(self):
 
         self.selectConnectedAction.setWhatsThis(selectConnectedActionText )
         
-        #### Select Doubly ####
+        # Select Doubly
 
         selectDoublyActionText = "<u><b>Select Doubly</b></u><br>"\
                        "<p><img source=\"selectDoublyAction\"><br> "\
@@ -833,7 +869,7 @@ def createWhatsThis(self):
 
         self.selectDoublyAction.setWhatsThis(selectDoublyActionText )
         
-        #### Expand Selection ####
+        # Expand Selection
 
         selectExpandActionText = "<u><b>Expand Selection</b></u>    (Ctrl + D)<br>"\
                        "<p><img source=\"selectExpandAction\"><br> "\
@@ -845,7 +881,7 @@ def createWhatsThis(self):
 
         self.selectExpandAction.setWhatsThis(selectExpandActionText )
         
-        #### Contract Selection ####
+        # Contract Selection
 
         selectContractActionText = "<u><b>Contract Selection</b></u>    (Ctrl + Shift + D)<br>"\
                        "<p><img source=\"selectContractAction\"><br> "\
@@ -857,11 +893,11 @@ def createWhatsThis(self):
 
         self.selectContractAction.setWhatsThis(selectContractActionText )
         
-        ##############################################
+        #
         # Modify Toolbar
-        ##############################################
+        #
         
-        #### Minimize Selection ####
+        # Minimize Selection
 
         modifyMinimizeSelActionText = "<u><b>Minimize Selection</b></u>    (Ctrl + M)<br>"\
                        "<p><img source=\"modifyMinimizeSelAction\"><br> "\
@@ -874,7 +910,7 @@ def createWhatsThis(self):
 
         self.modifyMinimizeSelAction.setWhatsThis(modifyMinimizeSelActionText )
         
-        #### Minimize All ####
+        # Minimize All
 
         modifyMinimizeAllActionText = "<u><b>Minimize All</b></u></p><br>"\
                        "<p><img source=\"modifyMinimizeAllAction\"><br> "\
@@ -887,7 +923,7 @@ def createWhatsThis(self):
 
         self.modifyMinimizeAllAction.setWhatsThis(modifyMinimizeAllActionText )
         
-        #### Hydrogenate ####
+        # Hydrogenate
 
         modifyHydrogenateActionText = "<u><b>Hydrogenate</b></u> <br>"\
                        "<p><img source=\"modifyHydrogenateAction\"><br> "\
@@ -898,7 +934,7 @@ def createWhatsThis(self):
 
         self.modifyHydrogenateAction.setWhatsThis(modifyHydrogenateActionText )
 
-        #### Dehydrogenate ####
+        # Dehydrogenate
 
         modifyDehydrogenateActionText = "<u><b>Dehydrogenate</b></u><br>"\
                        "<p><img source=\"modifyDehydrogenateAction\"><br> "\
@@ -909,7 +945,7 @@ def createWhatsThis(self):
 
         self.modifyDehydrogenateAction.setWhatsThis(modifyDehydrogenateActionText )     
         
-        #### Passivate ####
+        # Passivate
 
         modifyPassivateActionText = "<u><b>Passivate</b></u>    (Ctrl + P)<br>"\
                        "<p><img source=\"modifyPassivateAction\"><br> "\
@@ -922,7 +958,7 @@ def createWhatsThis(self):
 
         self.modifyPassivateAction.setWhatsThis(modifyPassivateActionText )
         
-        #### Stretch ####
+        # Stretch
 
         modifyStretchActionText = "<u><b>Stretch</b></u><br>"\
                        "<p><img source=\"modifyStretchAction\"><br> "\
@@ -933,7 +969,7 @@ def createWhatsThis(self):
 
         self.modifyStretchAction.setWhatsThis(modifyStretchActionText )
 
-        #### Delete Bonds ####
+        # Delete Bonds
 
         modifyDeleteBondsActionText = "<u><b>Delete Bonds</b></u><br>"\
                        "<p><img source=\"modifyDeleteBondsAction\"><br> "\
@@ -944,7 +980,7 @@ def createWhatsThis(self):
 
         self.modifyDeleteBondsAction.setWhatsThis(modifyDeleteBondsActionText )  
         
-        #### Separate ####
+        # Separate
 
         modifySeparateActionText = "<u><b>Separate</b></u><br>"\
                        "<p><img source=\"modifySeparateAction\"><br> "\
@@ -955,7 +991,7 @@ def createWhatsThis(self):
 
         self.modifySeparateAction.setWhatsThis(modifySeparateActionText )  
         
-        #### Merge Chunks ####
+        # Merge Chunks
 
         modifyMergeActionText = "<u><b>Merge Chunks</b></u><br>"\
                        "<p><img source=\"modifyMergeAction\"><br> "\
@@ -966,7 +1002,7 @@ def createWhatsThis(self):
        
         self.modifyMergeAction.setWhatsThis(modifyMergeActionText )  
                 
-        #### Invert Chunks ####
+        # Invert Chunks
 
         modifyInvertActionText = "<u><b>Invert</b></u><br>"\
                        "<p><img source=\"modifyInvertAction\"><br> "\
@@ -977,7 +1013,7 @@ def createWhatsThis(self):
        
         self.modifyInvertAction.setWhatsThis(modifyInvertActionText )  
 
-        #### Align to Common Axis ####
+        # Align to Common Axis
 
         modifyAlignCommonAxisActionText = "<u><b>Align To Common Axis</b></u><br>"\
                        "<p><img source=\"modifyAlignCommonAxis\"><br> "\
@@ -990,11 +1026,11 @@ def createWhatsThis(self):
        
         self. modifyAlignCommonAxisAction.setWhatsThis( modifyAlignCommonAxisActionText )
                 
-        ##############################################
+        #
         # Tools Toolbar
-        ##############################################
+        #
         
-        #### Select Chunks ####
+        # Select Chunks
 
         toolsSelectMoleculesActionText = "<u><b>Select Chunks</b></u><!-- [[Feature:Select Chunks Mode]] --><br>"\
                        "<p><img source=\" toolsSelectMoleculesAction\"><br> "\
@@ -1010,7 +1046,7 @@ def createWhatsThis(self):
        
         self. toolsSelectMoleculesAction.setWhatsThis( toolsSelectMoleculesActionText )  
 
-        #### Select Atoms ####
+        # Select Atoms
 
         toolsSelectAtomsActionText = "<u><b>Select Atoms</b></u><!-- [[Feature:Select Atoms Mode]] --><br>"\
                        "<p><img source=\" toolsSelectAtomsAction\"><br> "\
@@ -1026,7 +1062,7 @@ def createWhatsThis(self):
        
         self. toolsSelectAtomsAction.setWhatsThis( toolsSelectAtomsActionText ) 
         
-        #### Move Chunks ####
+        # Move Chunks
 
         toolsMoveMoleculeActionText = "<u><b>Move Chunks</b></u><!-- [[Feature:Move Chunks Mode]] --><br>"\
                        "<p><img source=\" toolsMoveMoleculeAction\"><br> "\
@@ -1043,7 +1079,7 @@ def createWhatsThis(self):
        
         self. toolsMoveMoleculeAction.setWhatsThis( toolsMoveMoleculeActionText ) 
         
-        #### Build Mode ####
+        # Build Mode
 
         toolsDepositAtomActionText = "<u><b>Build Mode</b></u><!-- [[Feature:Build Mode]] --><br>"\
                        "<p><img source=\" toolsDepositAtomAction\"><br> "\
@@ -1057,7 +1093,7 @@ def createWhatsThis(self):
        
         self. toolsDepositAtomAction.setWhatsThis( toolsDepositAtomActionText ) 
         
-        #### Cookie Cutter Mode ####
+        # Cookie Cutter Mode
                                         
         toolsCookieCutActionText = "<u><b>Cookie Cutter Mode</b></u><!-- [[Feature:Cookie Cutter Mode]] --><br>"\
                        "<p><><img source=\" toolsCookieCutAction\"><br> "\
@@ -1069,7 +1105,7 @@ def createWhatsThis(self):
        
         self. toolsCookieCutAction.setWhatsThis( toolsCookieCutActionText )
        
-        #### Extrude Mode ####
+        # Extrude Mode
 
         toolsExtrudeActionText = "<u><b>Extrude Mode</b></u><!-- [[Feature:Extrude Mode]] --><br>"\
                        "<p><img source=\" toolsExtrudeAction\"><br> "\
@@ -1081,7 +1117,7 @@ def createWhatsThis(self):
        
         self. toolsExtrudeAction.setWhatsThis( toolsExtrudeActionText )  
         
-        #### Fuse Chunks Mode ####
+        # Fuse Chunks Mode
 
         toolsFuseChunksActionText = "<u><b>Fuse Chunks Mode</b></u><!-- [[Feature:Fuse Chunks Mode]] --><br>"\
                        "<p><img source=\" toolsFuseChunksAction\"><br> "\
@@ -1105,7 +1141,7 @@ def createWhatsThis(self):
        
         self.toolsFuseChunksAction.setWhatsThis( toolsFuseChunksActionText )
 
-        #### Movie Player ####
+        # Movie Player
 
         simMoviePlayerActionText = "<u><b>Movie Player</b></u><br>"\
                        "<p><img source=\" simMoviePlayerAction\"><br> "\
@@ -1116,7 +1152,7 @@ def createWhatsThis(self):
        
         self. simMoviePlayerAction.setWhatsThis( simMoviePlayerActionText )  
         
-        #### Simulator ####
+        # Simulator
 
         simSetupActionText = "<u><b>Simulator</b></u><br>"\
                        "<p><img source=\" simSetupAction\"><br> "\
@@ -1129,7 +1165,7 @@ def createWhatsThis(self):
        
         self. simSetupAction.setWhatsThis( simSetupActionText )
 
-        #### Plot Tool ####
+        # Plot Tool
 
         simPlotToolActionText = "<u><b>Plot Tool</b></u><br>"\
                        "<p><img source=\" simPlotToolAction\"><br> "\
@@ -1151,11 +1187,11 @@ def createWhatsThis(self):
        
         self. simPlotToolAction.setWhatsThis( simPlotToolActionText )
                 
-        ##############################################
+        #
         # Dashboard Buttons
-        ##############################################
+        #
         
-        #### Done ####
+        # Done
 
         toolsDoneActionText = "<u><b>Done</b></u><br>"\
                        "<p><img source=\" toolsDoneAction\"><br> "\
@@ -1167,7 +1203,7 @@ def createWhatsThis(self):
        
         self. toolsDoneAction.setWhatsThis( toolsDoneActionText )  
 
-        #### Cancel ####
+        # Cancel
 
         toolsCancelActionText = "<u><b>Cancel</b></u><br>"\
                        "<p><img source=\" toolsCancelAction\"><br> "\
@@ -1179,7 +1215,7 @@ def createWhatsThis(self):
        
         self. toolsCancelAction.setWhatsThis( toolsCancelActionText ) 
         
-        #### Back up ####
+        # Back up
 
         toolsBackUpActionText = "<u><b>Back Up</b></u><br>"\
                        "<p><img source=\" toolsBackUpAction\"><br> "\
@@ -1191,7 +1227,7 @@ def createWhatsThis(self):
        
         self. toolsBackUpAction.setWhatsThis( toolsBackUpActionText ) 
    
-        #### Start Over ####
+        # Start Over
                         
         toolsStartOverActionText = "<u><b>Start Over</b></u><br>"\
                        "<p><img source=\"toolsStartOverAction\"><br> "\
@@ -1203,7 +1239,7 @@ def createWhatsThis(self):
        
         self.toolsStartOverAction.setWhatsThis(toolsStartOverActionText ) 
         
-        #### Add Layers ####
+        # Add Layers
                         
         ccAddLayerActionText = "<u><b>Add Layer</b></u><br>"\
                        "<p><img source=\"ccAddLayerAction\"><br> "\
@@ -1215,11 +1251,11 @@ def createWhatsThis(self):
        
         self.ccAddLayerAction.setWhatsThis(ccAddLayerActionText ) 
         
-        ##############################################
+        #
         # Jigs
-        ##############################################
+        #
         
-        #### Anchor ####
+        # Anchor
 
         jigsAnchorActionText = "<u><b>Anchor</b></u><br>"\
                        "<p><img source=\"jigsAnchorAction\"><br> "\
@@ -1236,7 +1272,7 @@ def createWhatsThis(self):
        
         self.jigsAnchorAction.setWhatsThis(jigsAnchorActionText )  
         
-        #### Rotary Motor ####
+        # Rotary Motor
 
         jigsMotorActionText = "<u><b>Rotary Motor</b></u><br>"\
                        "<p><img source=\"jigsMotorAction\"><br> "\
@@ -1253,7 +1289,7 @@ def createWhatsThis(self):
        
         self.jigsMotorAction.setWhatsThis(jigsMotorActionText )  
         
-        #### Linear Motor ####
+        # Linear Motor
 
         jigsLinearMotorActionText = "<u><b>Linear Motor</b></u><br>"\
                        "<p><img source=\"jigsLinearMotorAction\"><br> "\
@@ -1270,7 +1306,7 @@ def createWhatsThis(self):
        
         self.jigsLinearMotorAction.setWhatsThis(jigsLinearMotorActionText )  
         
-        #### Thermostat ####
+        # Thermostat
 
         jigsStatActionText = "<u><b>Thermostat</b></u><br>"\
                        "<p><img source=\"jigsStatAction\"><br> "\
@@ -1291,7 +1327,7 @@ def createWhatsThis(self):
        
         self.jigsStatAction.setWhatsThis(jigsStatActionText ) 
 
-        #### Thermometer ####
+        # Thermometer
 
         jigsThermoActionText = "<u><b>Thermometer</b></u><br>"\
                        "<p><img source=\"jigsThermoAction\"><br> "\
@@ -1310,7 +1346,7 @@ def createWhatsThis(self):
        
         self.jigsThermoAction.setWhatsThis(jigsThermoActionText )
         
-        #### ESP Image ####
+        # ESP Image
         
         jigsESPImageActionText = "<u><b>ESP Image</b></u><br>"\
                        "<p><img source=\"jigsESPImageAction\"><br> "\
@@ -1328,7 +1364,7 @@ def createWhatsThis(self):
        
         self.jigsESPImageAction.setWhatsThis(jigsESPImageActionText )
         
-        #### Atom Set ####
+        # Atom Set
         
         jigsAtomSetActionText = "<u><b>Atom Set</b></u><br>"\
                        "<p><img source=\"jigsAtomSetAction\"><br> "\
@@ -1349,7 +1385,7 @@ def createWhatsThis(self):
        
         self.jigsAtomSetAction.setWhatsThis(jigsAtomSetActionText )
         
-        #### Measure Distance ####
+        # Measure Distance
         
         jigsDistanceActionText = "<u><b>Measure Distance Jig</b></u><br>"\
                        "<p><img source=\"jigsDistanceAction\"><br> "\
@@ -1372,7 +1408,7 @@ def createWhatsThis(self):
        
         self.jigsDistanceAction.setWhatsThis(jigsDistanceActionText )
         
-        #### Measure Angle ####
+        # Measure Angle
         
         jigsAngleActionText = "<u><b>Measure Angle Jig</b></u><br>"\
                        "<p><img source=\"jigsAngleAction\"><br> "\
@@ -1392,7 +1428,7 @@ def createWhatsThis(self):
        
         self.jigsAngleAction.setWhatsThis(jigsAngleActionText )
         
-        #### Measure Dihedral ####
+        # Measure Dihedral
         
         jigsDihedralActionText = "<u><b>Measure Dihedral Jig</b></u><br>"\
                        "<p><img source=\"jigsDihedralAction\"><br> "\
@@ -1412,7 +1448,7 @@ def createWhatsThis(self):
        
         self.jigsDihedralAction.setWhatsThis(jigsDihedralActionText )
         
-        #### GAMESS Jig ####
+        # GAMESS Jig
         
         jigsGamessActionText = "<u><b>GAMESS Jig</b></u><br>"\
                        "<p><img source=\"jigsGamessAction\"><br> "\
@@ -1429,7 +1465,7 @@ def createWhatsThis(self):
        
         self.jigsGamessAction.setWhatsThis(jigsGamessActionText )
         
-        #### Grid Plane Jig ####
+        # Grid Plane Jig
         
         jigsGridPlaneActionText = "<u><b>Grid Plane</b></u><br>"\
                        "<p><img source=\"jigsGridPlaneAction\"><br> "\
@@ -1449,11 +1485,11 @@ def createWhatsThis(self):
        
         self.jigsGridPlaneAction.setWhatsThis(jigsGridPlaneActionText )
         
-        ##############################################
+        #
         # Display
-        ##############################################
+        #
         
-        #### Display Object Color ####
+        # Display Object Color
 
         dispObjectColorActionText = "<u><b>Object Color</b></u><br>"\
                        "<p><img source=\"dispObjectColorAction\"><br> "\
@@ -1464,7 +1500,7 @@ def createWhatsThis(self):
        
         self.dispObjectColorAction.setWhatsThis(dispObjectColorActionText ) 
         
-        #### Display Background Color ####
+        # Display Background Color
 
         dispBGColorActionText = "<u><b>Background Color</b></u><br>"\
                        "<p><img source=\"dispBGColorAction\"><br> "\
@@ -1475,11 +1511,11 @@ def createWhatsThis(self):
        
         self.dispBGColorAction.setWhatsThis(dispBGColorActionText ) 
        
-        ##############################################
+        #
         # Help Toolbar
-        ##############################################
+        #
         
-        #### What's This ####
+        # What's This
         
         helpWhatsThisText = "<u><b>What's This</b></u><br>"\
                         "<p><img source=\"helpWhatsThis\"><br> "\
@@ -1561,7 +1597,7 @@ def create_whats_this_descriptions_for_selectAtomsMode(w):
 def create_whats_this_descriptions_for_depositMode(w):
     "Create What's This descriptions for the deposit (Build) mode dashboard widgets."
     
-    #### Modeling Kit ####
+    # Modeling Kit
 
     mmkitText = "<u><b>Modeling Kit</b></u><br>"\
                        "<p><img source=\"mmkiticon\"><br> "\
@@ -1778,7 +1814,7 @@ def create_whats_this_descriptions_for_depositMode(w):
 def create_whats_this_descriptions_for_UserPrefs_dialog(w):
     "Create What's This descriptions for the User Prefs dialog widgets."
 
-    #### Bond Line Thickness ####
+    # Bond Line Thickness
 
     bondThicknessText = "<u><b>Bond Thickness</b></u><br>"\
                        "Sets the <i>Bond Thickness</i> (in pixels) for Lines Display Mode."\
@@ -1791,7 +1827,7 @@ def create_whats_this_descriptions_for_UserPrefs_dialog(w):
 def create_whats_this_descriptions_for_NanoHive_dialog(w):
     "Create What's This descriptions for the Nano-Hive dialog widgets."
     
-    #### MPQC Electrostatics Potential Plane ####
+    # MPQC Electrostatics Potential Plane
 
     MPQCESPText = "<u><b>MPQC Electrostatics Potential Plane</b></u><br>"\
                        "Enables the <i>MPQC Electrostatics Potential Plane</i> plugin. "\
