@@ -20,12 +20,31 @@ from HistoryWidget import greenmsg, redmsg
 import env, os, sys
 from platform import find_or_make_any_directory, find_or_make_Nanorex_subdir
 
-PVSNum = 0
-def genPVSNum(string):
-    """return string appended with a unique POV-Ray Scene number"""
-    global PVSNum
-    PVSNum += 1
-    return string + str(PVSNum)
+POVNum = 0
+
+def generate_povrayscene_name(assy, prefix, ext):
+    """Returns a name for the POV-Ray Scene object.
+    Make sure the filename that is derived from the new name does not already exist.
+    """
+    global POVNum
+    name = ''
+    name_exists = True
+    while name_exists:
+        POVNum += 1
+        name = prefix + "-" + str(POVNum) + ext  # (i.e. "POV-Ray Scene-1.pov")
+        if not os.path.exists(get_povrayscene_filename_derived_from_name(assy, name)):
+            name_exists = False
+            return name
+
+def get_povrayscene_filename_derived_from_name(assy, name):
+    """Returns the full path of the POV-Ray Scene filename for <assy> derived from <name>.
+    """
+    errorcode, dir = assy.find_or_make_pov_files_directory()
+    if errorcode:
+        return "filename_does_not_exist" 
+    povrayscene_file = os.path.normpath(os.path.join(dir, name))
+    #print "get_povrayscene_filename_derived_from_name(): povrayscene_file=", povrayscene_file
+    return povrayscene_file
 
 class PovrayScene(SimpleCopyMixin, Node):
     """A POV-Ray Scene is a .pov file that can be used to render images, accessible from the Model Tree as a node.
@@ -45,10 +64,8 @@ class PovrayScene(SimpleCopyMixin, Node):
         # also revised this routine in other ways, e.g. to avoid redundant sets of self.assy and self.name
         # (which are set by Node.__init__).
         if not name: 
-            # Name is only generated here when called by "View > Raytrace Scene": ops_view.viewRaytraceScene().
             # [Note: this code might be superceded by code in Node.__init__ once nodename suffix numbers are revised.]
-            name = genPVSNum("%s-" % self.sym) + self.extension
-##        self.assy = assy -- this is done by Node.__init__, no need to do it here
+            name = generate_povrayscene_name(assy, self.sym, self.extension)
         Node.__init__(self, assy, name)
         if params:
             self.set_parameters(params)
@@ -59,7 +76,7 @@ class PovrayScene(SimpleCopyMixin, Node):
             # note: this might be changed later; this value is not always correct; that may be a bug when this node is copied.
             # [bruce 060620 comment]
         return
-        
+            
     def set_parameters(self, params): #bruce 060620 removed name from params list
         '''Sets all parameters in the list <params> for this POV-Ray Scene.
         '''
@@ -236,13 +253,6 @@ class PovrayScene(SimpleCopyMixin, Node):
             env.history.message(cmd + orangemsg(errortext))
         else:
             env.history.message(cmd + "Rendered image: " + self.get_output_image_filename())
-        
-        #&&& Should we print history message in this method or return the errorcode and errortext so the caller
-        #&&& can decide what to do? I think it would be better to display the history msg here. Mark 060701.
-        #&&&if errorcode:
-        #&&&    return errorcode, errortext # errorcode = 0 if successful.
-        #&&&else:
-        #&&&    return 0, "Rendering complete. Rendered image located in file " + self.get_output_image_filename()
     
     def kill(self, require_confirmation=True):
         """Delete the POV-Ray Scene node and its associated .pov file if it exists.
@@ -265,15 +275,5 @@ class PovrayScene(SimpleCopyMixin, Node):
     def __CM_Raytrace_Scene(self):
         '''Method for "Raytrace Scene" context menu.'''
         self.raytrace_scene()
-        
-    def CM_Render_Scene_OBSOLETE(self): # Keeping just in case Bruce wants me to keep this version. Mark 060701.
-        '''Method for "Render Scene" context menu.'''
-        cmd = greenmsg("Render Scene: ")
-        env.history.message(cmd + "Rendering POV-Ray Scene image from file. Please wait....")
-        errorcode, errortext = self.raytrace_scene()
-        if errorcode:
-            env.history.message(cmd + orangemsg(errortext))
-        else:
-            env.history.message(cmd + errortext)
 
     pass # end of class PovrayScene
