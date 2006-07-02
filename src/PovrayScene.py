@@ -37,7 +37,7 @@ def generate_povrayscene_name(assy, prefix, ext):
             return name
 
 def get_povrayscene_filename_derived_from_name(assy, name):
-    """Returns the full path of the POV-Ray Scene filename for <assy> derived from <name>.
+    """Returns the full (absolute) path of the POV-Ray Scene filename for <assy> derived from <name>.
     """
     errorcode, dir = assy.find_or_make_pov_files_directory()
     if errorcode:
@@ -65,6 +65,8 @@ class PovrayScene(SimpleCopyMixin, Node):
         # (which are set by Node.__init__).
         if not name: 
             # [Note: this code might be superceded by code in Node.__init__ once nodename suffix numbers are revised.]
+            # If this code is superceded, Node.__init__ must provide a way to verify that the filename (derived from the name)
+            # doesn't exist, since this would be an invalid name. Mark 060702.
             name = generate_povrayscene_name(assy, self.sym, self.extension)
         Node.__init__(self, assy, name)
         if params:
@@ -81,6 +83,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         '''Sets all parameters in the list <params> for this POV-Ray Scene.
         '''
         self.width, self.height, self.output_type = params
+        self.povrayscene_file = get_povrayscene_filename_derived_from_name(self.assy, self.name) # Mark 060702.
         self.assy.changed()
         
     def get_parameters(self): #bruce 060620 removed name from params list
@@ -163,39 +166,19 @@ class PovrayScene(SimpleCopyMixin, Node):
         If successful, returns errorcode=0 and the absolute path of povrayscene file.
         Otherwise, returns errorcode=1 with text describing the problem writing the file.
         '''
-        ini, pov = self.get_povfile_pair() # pov includes the POV-Ray Scene Files directory in its path.
+        ini, pov, out = self.get_povfile_trio() # pov includes the POV-Ray Scene Files directory in its path.
         if not ini:
             return 1, "Can't get POV-Ray Scene filename"
         #print "write_povrayscene_file(): povrayscene_file=", pov
         writepovfile(self.assy.part, self.assy.o, pov)
         return 0, pov
     
-    def get_output_image_filename(self):
-        """Returns the fullpath of the output image filename based on the <povrayscene_file> and <output_type> attrs.
-        """
-        
-        if not self.povrayscene_file:
-            return ""
-        
-        if self.output_type == 'bmp':
-            output_ext = '.bmp'
-        else: # default
-            output_ext = '.png'
-        
-        dir, tmp_pov = os.path.split(self.povrayscene_file)
-        base, ext = os.path.splitext(tmp_pov)
-        outfile = base + output_ext
-        
-        output_image_filename = os.path.normpath(os.path.join(dir, outfile))
-        print "get_output_image_filename(): output_image_filename = ", output_image_filename
-        return output_image_filename
-    
-    def get_povfile_pair(self, tmpfile = False):
-        """Returns the POV-Ray INI filename and its POV-Ray Scene filename pair. 
+    def get_povfile_trio(self, tmpfile = False):
+        """Returns the trio of POV-Ray filenames: POV-Ray INI, POV-Ray Scene and output image. 
         If there was any problem, returns None.
         """
     
-        # The ini and pov files must exist in the same directory due to POV-Ray's I/O Restriction feature. Mark 060625.
+        # The ini, pov and out files must exist in the same directory due to POV-Ray's I/O Restriction feature. Mark 060625.
     
         ini_filename = "povray.ini"
         # Critically important: POV-Ray uses the INI filename as an argument; it cannot have any whitespaces.
@@ -208,18 +191,27 @@ class PovrayScene(SimpleCopyMixin, Node):
             from platform import find_or_make_Nanorex_subdir
             dir = find_or_make_Nanorex_subdir("POV-Ray")
             if not dir:
-                return None, None
+                return None, None, None
         else:
             pov_filename = self.name
             errorcode, dir = self.assy.find_or_make_pov_files_directory()
             if errorcode:
-                return None, None
+                return None, None, None
+        
+        # Build image output filename <out_filename>.
+        if self.output_type == 'bmp':
+            output_ext = '.bmp'
+        else: # default
+            output_ext = '.png'
+        base, ext = os.path.splitext(pov_filename)
+        out_filename = base + output_ext
     
-        povrayini_file = os.path.normpath(os.path.join(dir, ini_filename))
-        povrayscene_file = os.path.normpath(os.path.join(dir, pov_filename))
+        ini = os.path.normpath(os.path.join(dir, ini_filename))
+        pov = os.path.normpath(os.path.join(dir, pov_filename))
+        out = os.path.normpath(os.path.join(dir, out_filename))
     
-        #print "get_povfile_pair():\n  povrayini_file=", povrayini_file, "\n  povrayscene_file=", povrayscene_file
-        return povrayini_file, povrayscene_file
+        #print "get_povfile_trio():\n  ini=", ini, "\n  pov=", pov, "\n  out=", out
+        return ini, pov, out
     
     def raytrace_scene(self, tmpscene=False):
         """Render scene. 
@@ -230,15 +222,15 @@ class PovrayScene(SimpleCopyMixin, Node):
         The caller is responsible for adding the POV-Ray Scene node to the model tree.
         Returns errorcode and errortext.
         """
-        ini, pov = self.get_povfile_pair(tmpscene)
+        ini, pov, out = self.get_povfile_trio(tmpscene)
         
         if ini:
-            if not self.povrayscene_file:
+            if tmpscene or not os.path.isfile(self.povrayscene_file):
                 self.povrayscene_file = pov
                 writepovfile(self.assy.part, self.assy.o, self.povrayscene_file)
             write_povray_ini_file(ini, self.povrayscene_file, self.width, self.height, self.output_type)
         else:
-            return 1, "Problem getting POV-Ray INI filename."
+            return 1, "Problem getting POV-Ray filename trio."
         
         cmd = greenmsg("Raytrace Scene: ")
         if tmpscene:
@@ -254,10 +246,10 @@ class PovrayScene(SimpleCopyMixin, Node):
             env.history.message(cmd + orangemsg(errortext))
             return
         
-        env.history.message(cmd + "Rendered image: " + self.get_output_image_filename())
+        env.history.message(cmd + "Rendered image: " + out)
         
         # Display image in a window.
-        imageviewer = ImageViewer(self.get_output_image_filename(), env.mainwindow())
+        imageviewer = ImageViewer(out, env.mainwindow())
         imageviewer.display()
     
     def kill(self, require_confirmation=True):

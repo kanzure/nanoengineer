@@ -48,8 +48,9 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         else:
             self.node_is_new = False
             self.node = pov
-        
-        self.name = self.node.name
+            
+        self.name = self.originalName = self.node.name
+        ini, self.originalPov, out = self.node.get_povfile_trio()
         self.width, self.height, self.output_type = self.node.get_parameters()
             
         self.update_widgets()
@@ -58,7 +59,9 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
            
     def gather_parameters(self):
         'Returns a tuple with the current parameter values from the widgets.'
-        name = str(self.name_linedit.text())
+        self.node.try_rename(self.name_linedit.text()) # Next three lines fix bug 2026. Mark 060702.
+        self.name_linedit.setText(self.node.name) # In case the name was illegal and "Preview" was pressed.
+        name = self.node.name
         width = self.width_spinbox.value()
         height = self.height_spinbox.value()
         output_type = str(self.output_type_combox.currentText()).lower()
@@ -77,21 +80,35 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         self.width_spinbox.setValue(self.width) # Generates signal.
         self.height_spinbox.setValue(self.height) # Generates signal.
 
-    def update_node(self):
+    def update_node(self, ok_pressed=False):
         'Update the POV-Ray Scene node.'
         self.set_params( self.node, self.gather_parameters())
         
+        ini, pov, out = self.node.get_povfile_trio()
+        
+        # If the node was renamed, rename the POV-Ray Scene file name, too.
+        # Don't do this if the "Preview" button was pressed since the user could later
+        # hit "Cancel". In that case we'd loose the original .pov file, which would not be good. 
+        # Mark 060702.
+        if ok_pressed and self.originalName != self.node.name:
+            if os.path.isfile(self.originalPov):
+                if os.path.isfile(pov):
+                    # Normally, I'd never allow the user to delete an existing POV-Ray Scene file without asking. 
+                    # For A8 I'll allow it since I've run out of time.
+                    # This will be fixed when Bruce implements the new File class in A9 (or later). Mark 060702.
+                    os.remove(pov)
+                os.rename(self.originalPov, pov)
+                
         # Write the POV-Ray Scene (.pov) file if this is a new node or if the node's ".pov" file doesn't exist. 
-        # Possible ways the ".pov" file could could be missing from an existing node:
-        #   1. the user renamed the node, or 
+        # Possible ways the ".pov" file could be missing from an existing node:
+        #   1. the user renamed the node in the Model Tree, or 
         #   2. the POV-Ray Scene node was deleted, which deletes the file in self.kill(), and then Undo was pressed, or
         #   3. the ".pov" file was deleted by the user another way (via OS).
         # In the future, the POV-Ray Scene should save the view quat in the MMP (info) record. Then it
         # would always be possible to regenerate the POV-Ray Scene file from the MMP record, even if  
         # the node's .pov file didn't exist on disk anymore. Mark 060701.
-        from PovrayScene import get_povrayscene_filename_derived_from_name
-        if self.node_is_new \
-           or not os.path.exists(get_povrayscene_filename_derived_from_name(self.win.assy, self.node.name)):
+        
+        if self.node_is_new or not os.path.exists(pov):
             errorcode, filename_or_errortext = self.node.write_povrayscene_file()
             if errorcode:
                 # The Pov-Ray Scene file could not be written, so remove the node.
@@ -128,7 +145,7 @@ class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
         
         self.win.assy.current_command_info(cmdname = self.cmdname)
         
-        self.update_node()
+        self.update_node(ok_pressed=True)
         
         if self.node_is_new:
             self.win.assy.addnode(self.node)
