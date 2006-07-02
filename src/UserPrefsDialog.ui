@@ -4152,10 +4152,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <string></string>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>Enable POV-Ray</string>
+                                    <string>Enable MegaPOV</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.</string>
+                                    <string>This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).</string>
                                 </property>
                             </widget>
                             <widget class="QLabel" row="2" column="1">
@@ -4183,10 +4183,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <set>AlignVCenter|AlignRight</set>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>Enable POV-Ray</string>
+                                    <string>Enable MegaPOV</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.</string>
+                                    <string>This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).</string>
                                 </property>
                             </widget>
                             <widget class="QLineEdit" row="2" column="2">
@@ -4218,10 +4218,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <bool>true</bool>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>The full path to the POV-Ray executable file.</string>
+                                    <string>The full path to the MegaPOV executable file (megapov.exe).</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>The full path to the POV-Ray executable file.</string>
+                                    <string>The full path to the MegaPOV executable file (megapov.exe).</string>
                                 </property>
                             </widget>
                             <widget class="QPushButton" row="2" column="3">
@@ -4238,10 +4238,10 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <bool>false</bool>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string>Choose POV-Ray executable</string>
+                                    <string>Choose MegaPOV executable (megapov.exe)</string>
                                 </property>
                                 <property name="whatsThis" stdset="0">
-                                    <string>This opens up a file chooser dialog so that you can specify the location of the POV-Ray executable.</string>
+                                    <string>This opens up a file chooser dialog so that you can specify the location of the MegaPOV executable (megapov.exe).</string>
                                 </property>
                             </widget>
                         </grid>

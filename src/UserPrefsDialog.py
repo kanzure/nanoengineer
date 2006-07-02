@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Jun 28 22:27:19 2006
+# Created: Sun Jul 2 00:57:36 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1942,17 +1942,17 @@ class UserPrefsDialog(QDialog):
         QToolTip.add(self.povray_choose_btn,self.__tr("Choose POV-Ray executable"))
         QWhatsThis.add(self.povray_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the POV-Ray executable."))
         self.megapov_checkbox.setText(QString.null)
-        QToolTip.add(self.megapov_checkbox,self.__tr("Enable POV-Ray"))
-        QWhatsThis.add(self.megapov_checkbox,self.__tr("This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in."))
+        QToolTip.add(self.megapov_checkbox,self.__tr("Enable MegaPOV"))
+        QWhatsThis.add(self.megapov_checkbox,self.__tr("This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering)."))
         self.megapov_lbl.setText(self.__tr("MegaPOV :"))
-        QToolTip.add(self.megapov_lbl,self.__tr("Enable POV-Ray"))
-        QWhatsThis.add(self.megapov_lbl,self.__tr("This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in."))
+        QToolTip.add(self.megapov_lbl,self.__tr("Enable MegaPOV"))
+        QWhatsThis.add(self.megapov_lbl,self.__tr("This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering)."))
         self.megapov_path_linedit.setText(QString.null)
-        QToolTip.add(self.megapov_path_linedit,self.__tr("The full path to the POV-Ray executable file."))
-        QWhatsThis.add(self.megapov_path_linedit,self.__tr("The full path to the POV-Ray executable file."))
+        QToolTip.add(self.megapov_path_linedit,self.__tr("The full path to the MegaPOV executable file (megapov.exe)."))
+        QWhatsThis.add(self.megapov_path_linedit,self.__tr("The full path to the MegaPOV executable file (megapov.exe)."))
         self.megapov_choose_btn.setText(self.__tr("Choose..."))
-        QToolTip.add(self.megapov_choose_btn,self.__tr("Choose POV-Ray executable"))
-        QWhatsThis.add(self.megapov_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the POV-Ray executable."))
+        QToolTip.add(self.megapov_choose_btn,self.__tr("Choose MegaPOV executable (megapov.exe)"))
+        QWhatsThis.add(self.megapov_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the MegaPOV executable (megapov.exe)."))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
         self.groupBox17.setTitle(self.__tr("History Preferences"))
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
