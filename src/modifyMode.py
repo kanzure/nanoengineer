@@ -570,7 +570,8 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         from shape import BBox
         bbox = BBox()
         for m in movables:
-              bbox.merge(m.bbox)
+            if hasattr(m, "bbox"): # Fixes bug 1990. Mark 060702.
+                bbox.merge(m.bbox)
         pt1 = bbox.center() # pt1 = center point for bbox of selected chunk(s).
        
         pt2 = get_move_xyz(self.w) # pt2 = X, Y, Z values from dashboard.
