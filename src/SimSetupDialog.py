@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\SimSetupDialog.ui'
 #
-# Created: Sun Jun 11 15:18:54 2006
+# Created: Sun Jul 2 15:27:26 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -220,8 +220,9 @@ class SimSetupDialog(QDialog):
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("nanoDynamics-1 Setup"))
-        QWhatsThis.add(self,self.__tr("<b>nanoDynamics-1 Setup</b><p>NanoEngineer-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click <b>Run Simulation</b>.</p>"))
+        self.setCaption(self.__tr("NanoDynamics-1"))
+        QToolTip.add(self,self.__tr("NanoDynamics-1 Simulator Setup Dialog"))
+        QWhatsThis.add(self,self.__tr("<b>NanoDynamics-1 Setup</b><p>NanoEngineer-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click <b>Run Simulation</b>.</p>"))
         self.cancel_btn.setText(self.__tr("Cancel"))
         self.run_sim_btn.setText(self.__tr("Run Simulation"))
         self.parms_grpbox.setTitle(QString.null)

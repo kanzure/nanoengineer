@@ -13,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>nanoDynamics-1 Setup</string>
+        <string>NanoDynamics-1</string>
     </property>
     <property name="icon">
         <pixmap>image0</pixmap>
@@ -21,8 +21,11 @@
     <property name="modal">
         <bool>true</bool>
     </property>
+    <property name="toolTip" stdset="0">
+        <string>NanoDynamics-1 Simulator Setup Dialog</string>
+    </property>
     <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;nanoDynamics-1 Setup&lt;/b&gt;&lt;p&gt;NanoEngineer-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click &lt;b&gt;Run Simulation&lt;/b&gt;.&lt;/p&gt;</string>
+        <string>&lt;b&gt;NanoDynamics-1 Setup&lt;/b&gt;&lt;p&gt;NanoEngineer-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click &lt;b&gt;Run Simulation&lt;/b&gt;.&lt;/p&gt;</string>
     </property>
     <grid>
         <property name="name">

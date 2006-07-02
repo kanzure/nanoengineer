@@ -466,7 +466,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1084</width>
+                <width>1087</width>
                 <height>29</height>
             </rect>
         </property>
@@ -3130,10 +3130,10 @@
             <iconset>image99</iconset>
         </property>
         <property name="text">
-            <string>Dynamics Setup</string>
+            <string>NanoDynamics-1</string>
         </property>
         <property name="menuText">
-            <string>Dynamics Setup...</string>
+            <string>NanoDynamics-1...</string>
         </property>
     </action>
     <action>

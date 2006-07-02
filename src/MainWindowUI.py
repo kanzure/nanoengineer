@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Jun 11 14:14:54 2006
+# Created: Sun Jul 2 15:24:31 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6690,7 +6690,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1084,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1087,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -7495,8 +7495,8 @@ class MainWindow(QMainWindow):
         self.modifyDeleteBondsAction.setMenuText(self.__tr("Delete &Bonds"))
         self.dispElementColorSettingsAction.setText(self.__tr("Element Color Settings..."))
         self.dispElementColorSettingsAction.setMenuText(self.__tr("Element Color Settings..."))
-        self.simSetupAction.setText(self.__tr("Dynamics Setup"))
-        self.simSetupAction.setMenuText(self.__tr("Dynamics Setup..."))
+        self.simSetupAction.setText(self.__tr("NanoDynamics-1"))
+        self.simSetupAction.setMenuText(self.__tr("NanoDynamics-1..."))
         self.simPlotToolAction.setText(self.__tr("Plot Tool"))
         self.simPlotToolAction.setMenuText(self.__tr("Plot Tool..."))
         self.dispLightingAction.setText(self.__tr("Lighting"))
