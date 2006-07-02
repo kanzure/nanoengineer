@@ -15,7 +15,7 @@ __author__ = "Mark"
 from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
 from povray import write_povray_ini_file, launch_povray_or_megapov
 from fileIO import writepovfile
-from qt import Qt, QApplication, QCursor
+from qt import *
 from HistoryWidget import greenmsg, redmsg
 import env, os, sys
 from platform import find_or_make_any_directory, find_or_make_Nanorex_subdir
@@ -96,13 +96,11 @@ class PovrayScene(SimpleCopyMixin, Node):
         mapping.write("povrayscene (" + mapping.encode_name(self.name) + ") %d %d %s\n" % \
             (self.width, self.height, self.output_type))
         
-        # Write absolute path of POV-Ray Scene file into info record.
-        # Get the basename from the povrayscene_file since there is no guarantee that the name and the basename are
-        # still the same, since the user could have renamed the node and this does not change the povrayscene filename.
-        dir, basename = os.path.split(self.povrayscene_file)
-        mapping.write("info povrayscene povrayscene_file = POV-Ray Scene Files/%s\n" % basename) # Relative path.
-        # This is still flimsy since it assumes <basename> exists in the POV-Ray Scene Files directory.
-        # This is OK for now since it will be true a majority of the time, except for the frequent situation mentioned below.
+        # Write relative path of POV-Ray Scene file into info record.
+        # For Alpha 8, the name and the basename are usually the same.
+        # The only way I'm aware of that the name and the basename would be 
+        # different is if the user renamed the node in the Model Tree.
+        mapping.write("info povrayscene povrayscene_file = POV-Ray Scene Files/%s\n" % self.name) # Relative path.
         #&&& Problem: Users will assume when they rename an existing MMP file, all the POV-Ray Scene files will still be associated 
         #&&& with the MMP file when in fact they will not be. Bruce and I discussed the idea of copying the Part Files directory and
         #&&& its contents when renaming an MMP file. This is an important issue to resolve since it will happen frequently. Mark 060625.
@@ -187,7 +185,10 @@ class PovrayScene(SimpleCopyMixin, Node):
         dir, tmp_pov = os.path.split(self.povrayscene_file)
         base, ext = os.path.splitext(tmp_pov)
         outfile = base + output_ext
-        return os.path.normpath(os.path.join(dir, outfile))
+        
+        output_image_filename = os.path.normpath(os.path.join(dir, outfile))
+        print "get_output_image_filename(): output_image_filename = ", output_image_filename
+        return output_image_filename
     
     def get_povfile_pair(self, tmpfile = False):
         """Returns the POV-Ray INI filename and its POV-Ray Scene filename pair. 
@@ -241,9 +242,9 @@ class PovrayScene(SimpleCopyMixin, Node):
         
         cmd = greenmsg("Raytrace Scene: ")
         if tmpscene:
-            msg = "Rendering scene"
+            msg = "Rendering scene. Please wait..."
         else:
-            msg = "Rendering raytrace image from POV-Ray Scene file. Please wait...."
+            msg = "Rendering raytrace image from POV-Ray Scene file. Please wait..."
         env.history.message(cmd + msg)
         
         # Launch raytrace program (POV-Ray or MegaPOV)
@@ -251,14 +252,19 @@ class PovrayScene(SimpleCopyMixin, Node):
         
         if errorcode:
             env.history.message(cmd + orangemsg(errortext))
-        else:
-            env.history.message(cmd + "Rendered image: " + self.get_output_image_filename())
+            return
+        
+        env.history.message(cmd + "Rendered image: " + self.get_output_image_filename())
+        
+        # Display image in a window.
+        imageviewer = ImageViewer(self.get_output_image_filename(), env.mainwindow())
+        imageviewer.display()
     
     def kill(self, require_confirmation=True):
         """Delete the POV-Ray Scene node and its associated .pov file if it exists.
         If <require_confirmation> is True, make the user confirm first. Otherwise, delete the file without user confirmation.
         """
-        if os.path.exists(self.povrayscene_file):
+        if os.path.isfile(self.povrayscene_file):
             if 0: # Don't require confirmation for A8. Mark 060701.
             # if require_confirmation: 
                 msg = "Please confirm that you want to delete " + self.name
@@ -277,3 +283,38 @@ class PovrayScene(SimpleCopyMixin, Node):
         self.raytrace_scene()
 
     pass # end of class PovrayScene
+
+# ImageViewer class for displaying the image after it is rendered. Mark 060701.
+class ImageViewer(QDialog):
+    """ImageViewer displays the POV-Ray image <image_filename> after it has been rendered.
+    """
+    def __init__(self,image_filename,parent = None,name = None,modal = 0,fl = 0):
+        QDialog.__init__(self,parent,name,modal,fl)
+
+        self.image = QPixmap(image_filename)
+        width = self.image.width()
+        height = self.image.height()
+        caption = image_filename + " (" + str(width) + " x " + str(height) + ")"
+        self.setCaption(caption)
+
+        if not name:
+            self.setName("ImageViewer")
+
+        self.pixmapLabel = QLabel(self,"pixmapLabel")
+        self.pixmapLabel.setGeometry(QRect(0, 0, width, height))
+        self.pixmapLabel.setPixmap(self.image)
+        self.pixmapLabel.setScaledContents(1)
+
+        self.resize(QSize(width, height).expandedTo(self.minimumSizeHint()))
+        self.clearWState(Qt.WState_Polished)
+    
+    def display(self):
+        """Display the image in the ImageViewer, making sure it isn't larger than the desktop size.
+        """
+        if QApplication.desktop().width() > self.image.width() + 10 and \
+           QApplication.desktop().height() > self.image.height() + 30:
+            self.show()
+        else:
+            self.showMaximized() 
+            # No scrollbars provided with showMaximized. The image is clipped if it is larger than the screen.
+            # Probably need to use a QScrollView for large images. Mark 060701.
