@@ -421,6 +421,10 @@
                                     <property name="name">
                                         <cstring>dna_type_combox</cstring>
                                     </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;DNA Type&lt;/b&gt;
+&lt;p&gt;There are three DNA geometries, A-DNA, B-DNA, and Z-DNA. Currrently we have not yet implemented A-DNA.&lt;/p&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QLabel" row="5" column="0">
                                     <property name="name">
@@ -446,6 +450,10 @@
                                     </item>
                                     <property name="name">
                                         <cstring>endings_combox</cstring>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;Strand Type&lt;/b&gt;
+&lt;p&gt;DNA strands can be single or double.&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel" row="0" column="0">
@@ -594,6 +602,10 @@
                             <property name="name">
                                 <cstring>base_textedit</cstring>
                             </property>
+                            <property name="whatsThis" stdset="0">
+                                <string>&lt;b&gt;Base sequence&lt;/b&gt;
+&lt;p&gt;The sequence of DNA bases in the strand. The bases are adenine, cytosine, guanine, and thymine.&lt;/p&gt;</string>
+                            </property>
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
@@ -610,6 +622,10 @@
                                     <property name="text">
                                         <string>Complement</string>
                                     </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;Complement&lt;/b&gt;
+&lt;p&gt;Swap all the bases with their matching bases. Adenine becomes thymine, thymine becomes adenine, cytosine becomes guanine, guanine becomes cytosine.&lt;/p&gt;</string>
+                                    </property>
                                 </widget>
                                 <widget class="QPushButton">
                                     <property name="name">
@@ -617,6 +633,10 @@
                                     </property>
                                     <property name="text">
                                         <string>Reverse</string>
+                                    </property>
+                                    <property name="whatsThis" stdset="0">
+                                        <string>&lt;b&gt;Reverse&lt;/b&gt;
+&lt;p&gt;Reverse the order of bases on the DNA strand, so GATTACA becomes ACATTAG. If it's a double strand, both are reversed.&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                             </hbox>
@@ -784,9 +804,6 @@
         <slot>cancel_btn_clicked()</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">DnaGeneratorDialog.ui.h</include>
-</includes>
 <slots>
     <slot>toggle_nt_distortion_grpbox()</slot>
     <slot>open_sponsor_homepage()</slot>
