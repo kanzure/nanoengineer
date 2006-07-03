@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>595</width>
-            <height>428</height>
+            <height>442</height>
         </rect>
     </property>
     <property name="caption">
@@ -276,7 +276,7 @@
                                     <cstring>groupBox14</cstring>
                                 </property>
                                 <property name="title">
-                                    <string>Minimization</string>
+                                    <string>Adjustment Settings</string>
                                 </property>
                                 <vbox>
                                     <property name="name">
@@ -293,10 +293,10 @@
                                             <cstring>watch_min_in_realtime_checkbox</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Watch minimization in real time</string>
+                                            <string>Watch adjustments in real time</string>
                                         </property>
                                         <property name="toolTip" stdset="0">
-                                            <string>Enable/disable real time graphical updates during minimizations</string>
+                                            <string>Enable/disable real time graphical updates during adjustments</string>
                                         </property>
                                         <property name="whatsThis" stdset="0">
                                             <string>&lt;p&gt;&lt;b&gt;Watch In Real Time&lt;/b&gt;&lt;/p&gt;Enables/disables real time graphical updates during minimizations.</string>
@@ -333,11 +333,11 @@
                                                     <number>1</number>
                                                 </property>
                                                 <property name="toolTip" stdset="0">
-                                                    <string>Specify how often to update the screen during the minimization</string>
+                                                    <string>Specify how often to update the screen during adjustments</string>
                                                 </property>
                                                 <property name="whatsThis" stdset="0">
                                                     <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimizer is running.&lt;/p&gt;</string>
+&lt;p&gt;Specify how often to update the model during the adjustment. This allows the user to monitor results during adjustments.&lt;/p&gt;</string>
                                                 </property>
                                             </widget>
                                             <widget class="QComboBox" row="1" column="2">
@@ -365,11 +365,11 @@
                                                     <cstring>update_units_combobox</cstring>
                                                 </property>
                                                 <property name="toolTip" stdset="0">
-                                                    <string>Specify how often to update the screen during the minimization.</string>
+                                                    <string>Specify how often to update the screen during adjustments</string>
                                                 </property>
                                                 <property name="whatsThis" stdset="0">
                                                     <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimizer is running.&lt;/p&gt;</string>
+&lt;p&gt;Specify how often to update the model during the adjustment. This allows the user to monitor results during adjustments.&lt;/p&gt;</string>
                                                 </property>
                                             </widget>
                                             <widget class="QRadioButton" row="1" column="0">
@@ -383,11 +383,11 @@
                                                     <number>1</number>
                                                 </property>
                                                 <property name="toolTip" stdset="0">
-                                                    <string>Specify how often to update the screen during the minimization</string>
+                                                    <string>Specify how often to update the screen during adjustments</string>
                                                 </property>
                                                 <property name="whatsThis" stdset="0">
                                                     <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimizer is running.&lt;/p&gt;</string>
+&lt;p&gt;Specify how often to update the model during the adjustment. This allows the user to monitor results during adjustments.&lt;/p&gt;</string>
                                                 </property>
                                             </widget>
                                             <spacer row="1" column="3">
@@ -421,12 +421,12 @@
                                                     <number>0</number>
                                                 </property>
                                                 <property name="toolTip" stdset="0">
-                                                    <string>Update every 2 seconds, or faster if it doesn't slow simulation by more than 20%</string>
+                                                    <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
                                                 </property>
                                                 <property name="whatsThis" stdset="0">
                                                     <string>&lt;b&gt;Update as fast as possible&lt;/b&gt;
 &lt;p&gt;
-Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimization by more than 20%&lt;/p&gt;</string>
+Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments by more than 20%&lt;/p&gt;</string>
                                                 </property>
                                             </widget>
                                         </grid>
@@ -435,11 +435,8 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                                         <property name="name">
                                             <cstring>groupBox20</cstring>
                                         </property>
-                                        <property name="frameShape">
-                                            <enum>StyledPanel</enum>
-                                        </property>
                                         <property name="title">
-                                            <string></string>
+                                            <string>Convergence Criteria</string>
                                         </property>
                                         <vbox>
                                             <property name="name">

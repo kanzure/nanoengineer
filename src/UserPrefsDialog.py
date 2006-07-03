@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
 #
-# Created: Sun Jul 2 00:57:36 2006
+# Created: Mon Jul 3 13:56:10 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -163,7 +163,6 @@ class UserPrefsDialog(QDialog):
         groupBox14Layout.addWidget(self.update_btngrp)
 
         self.groupBox20 = QGroupBox(self.groupBox14,"groupBox20")
-        self.groupBox20.setFrameShape(QGroupBox.StyledPanel)
         self.groupBox20.setColumnLayout(0,Qt.Vertical)
         self.groupBox20.layout().setSpacing(1)
         self.groupBox20.layout().setMargin(4)
@@ -1426,7 +1425,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(595,428).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(595,442).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -1630,32 +1629,32 @@ class UserPrefsDialog(QDialog):
         QWhatsThis.add(self.default_projection_btngrp,QString.null)
         self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
-        self.groupBox14.setTitle(self.__tr("Minimization"))
-        self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch minimization in real time"))
-        QToolTip.add(self.watch_min_in_realtime_checkbox,self.__tr("Enable/disable real time graphical updates during minimizations"))
+        self.groupBox14.setTitle(self.__tr("Adjustment Settings"))
+        self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch adjustments in real time"))
+        QToolTip.add(self.watch_min_in_realtime_checkbox,self.__tr("Enable/disable real time graphical updates during adjustments"))
         QWhatsThis.add(self.watch_min_in_realtime_checkbox,self.__tr("<p><b>Watch In Real Time</b></p>Enables/disables real time graphical updates during minimizations."))
         self.update_btngrp.setTitle(QString.null)
-        QToolTip.add(self.update_number_spinbox,self.__tr("Specify how often to update the screen during the minimization"))
+        QToolTip.add(self.update_number_spinbox,self.__tr("Specify how often to update the screen during adjustments"))
         QWhatsThis.add(self.update_number_spinbox,self.__tr("<b>Update every <i>n units.</u></b>\n"
-"<p>Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimizer is running.</p>"))
+"<p>Specify how often to update the model during the adjustment. This allows the user to monitor results during adjustments.</p>"))
         self.update_units_combobox.clear()
         self.update_units_combobox.insertItem(self.__tr("frames"))
         self.update_units_combobox.insertItem(self.__tr("seconds"))
         self.update_units_combobox.insertItem(self.__tr("minutes"))
         self.update_units_combobox.insertItem(self.__tr("hours"))
-        QToolTip.add(self.update_units_combobox,self.__tr("Specify how often to update the screen during the minimization."))
+        QToolTip.add(self.update_units_combobox,self.__tr("Specify how often to update the screen during adjustments"))
         QWhatsThis.add(self.update_units_combobox,self.__tr("<b>Update every <i>n units.</u></b>\n"
-"<p>Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimizer is running.</p>"))
+"<p>Specify how often to update the model during the adjustment. This allows the user to monitor results during adjustments.</p>"))
         self.update_every_rbtn.setText(self.__tr("Update every"))
-        QToolTip.add(self.update_every_rbtn,self.__tr("Specify how often to update the screen during the minimization"))
+        QToolTip.add(self.update_every_rbtn,self.__tr("Specify how often to update the screen during adjustments"))
         QWhatsThis.add(self.update_every_rbtn,self.__tr("<b>Update every <i>n units.</u></b>\n"
-"<p>Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimizer is running.</p>"))
+"<p>Specify how often to update the model during the adjustment. This allows the user to monitor results during adjustments.</p>"))
         self.update_asap_rbtn.setText(self.__tr("Update as fast as possible"))
-        QToolTip.add(self.update_asap_rbtn,self.__tr("Update every 2 seconds, or faster if it doesn't slow simulation by more than 20%"))
+        QToolTip.add(self.update_asap_rbtn,self.__tr("Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%"))
         QWhatsThis.add(self.update_asap_rbtn,self.__tr("<b>Update as fast as possible</b>\n"
 "<p>\n"
-"Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimization by more than 20%</p>"))
-        self.groupBox20.setTitle(QString.null)
+"Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments by more than 20%</p>"))
+        self.groupBox20.setTitle(self.__tr("Convergence Criteria"))
         self.endrms_lbl.setText(self.__tr("EndRMS :"))
         self.endmax_lbl.setText(self.__tr("EndMax :"))
         self.endmax_linedit.setText(self.__tr("10.0"))
