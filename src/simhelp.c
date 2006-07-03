@@ -154,15 +154,12 @@ static void
 do_python_callback(PyObject *callbackFunc, PyObject* args)
 {
     PyObject *pValue = NULL;
-    // int previousInterrupted = Interrupted;
-    if (callbackFunc == NULL)
-	goto fini;
     if (PyErr_Occurred()) {
 	// there was already a Python error when we got here
 	callback_exception = 1;
 	goto fini;
     }
-    if (!PyCallable_Check(callbackFunc)) {
+    if (callbackFunc == NULL || !PyCallable_Check(callbackFunc)) {
 	callback_exception = 1;
 	PyErr_SetString(PyExc_RuntimeError, "callback not callable");
 	goto fini;
@@ -170,14 +167,25 @@ do_python_callback(PyObject *callbackFunc, PyObject* args)
     pValue = PyObject_CallObject(callbackFunc, args);
     if (PyErr_Occurred()) {
 	callback_exception = 1;
-	// Interrupted = 1;  // is this right??
+        Interrupted = 1;
+	goto fini;
+    }
+    if (pValue == NULL) {
+	/* If we didn't get PyErr_Occurred(), did we get PyErr_SetString??
+	 * Looking at Python/errors.c, I don't think that should happen,
+	 * but let's be paranoid.
+	 */
+	PyErr_SetString(PyExc_RuntimeError,
+			"callback returned NULL, PyErr_Occurred() not set");
+	callback_exception = 1;
+        Interrupted = 1;
     }
     /*
      * Theoretically we could compare the value of Interrupted at this
-     * point with previousInterrupted (its value before the callback
-     * was called), and then raise a SimulatorInterrupted exception if
-     * it had been set during the callback. We don't do that, because
-     * the SimulatorInterrupted exception is raised in
+     * point with its value before the callback was called, and then
+     * raise a SimulatorInterrupted exception if it had been set
+     * during the callback. We don't do that, because the
+     * SimulatorInterrupted exception is raised in
      * finish_python_call(), and any pathway to get us to this point
      * will return to Python through that routine.
      */
