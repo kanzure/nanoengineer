@@ -18,7 +18,7 @@ bruce 050913 used env.history in some places.
 
 from qt import QFileDialog, QMessageBox, QString, qApp, QSettings
 from assembly import assembly
-import os
+import os, shutil
 import platform
 
 from constants import * # needed for at least globalParms
@@ -481,6 +481,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             errorcode, errortext = self.copy_part_files_dir(oldPartFilesDir) # Mark 060703.
             if errorcode:
                 env.history.message( orangemsg("Problem copying part files. Error: " + errortext ))
+            else:
+                #&&& Debug statement. Comment out after QA. Mark 060703.
+                env.history.message( greenmsg("Success. " + errortext )) 
 
             env.history.message( "MMP file saved: " + self.assy.filename )
                 #bruce 050907 moved this after mt_update (which is now in saved_main_file)
@@ -495,16 +498,27 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         errorcode, newPartFilesDir = self.assy.get_part_files_directory()
         if errorcode:
             return 1, "Problem getting parts file directory. Error: " + newPartFilesDir
-                
+            
+        if oldPartFilesDir == newPartFilesDir:
+            return 0, "Nothing copied since the part files directory is the same."
+        
         if os.path.exists(newPartFilesDir): 
-            # destination arg must not exist. copytree() will create it.
-            return 1, "The Part Files directory " + newPartFilesDir +  " already exists!  Part files from " + oldPartFilesDir + " were not copied."
-        
-        import shutil
+            # Destination directory must not exist. copytree() will create it.
+            # Assume the user was prompted and confirmed overwriting the MMP file, 
+            # and thus its part files directory, so remove oldPartFilesDir.
+            if os.path.isdir(newPartFilesDir):
+                try:
+                    shutil.rmtree(newPartFilesDir)
+                except:
+                    return 1, "Problem removing an existing parts file directory " + newPartFilesDir
+
         print "Copying from " + oldPartFilesDir + " to " + newPartFilesDir
-        shutil.copytree(oldPartFilesDir, newPartFilesDir)
+        try:
+            shutil.copytree(oldPartFilesDir, newPartFilesDir)
+        except:
+            return 1, "Problem copying files to the new parts file directory " + newPartFilesDir
         
-        return 0, ""
+        return 0, 'Part files copied from "' + oldPartFilesDir + '" to "' + newPartFilesDir + '"'
 
     def saved_main_file(self, safile, fil): #bruce 050907 split this out of mmp and pdb saving code
         """Record the fact that self.assy itself is now saved into (the same or a new) main file
