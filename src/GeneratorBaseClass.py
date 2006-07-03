@@ -189,8 +189,6 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
             if platform.atom_debug: print 'Yes, remove it'
             self.struct.kill()
             self.struct = None
-            # Return the assembly to its previous changed() state.
-            self.win.assy._modified = self._previous_changed
             self.win.win_update() # includes mt_update
         else:
             if platform.atom_debug: print 'No structure to remove'
@@ -208,7 +206,6 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         return
 
     def _ok_or_preview(self, doneMsg=False):
-        self._previous_changed = self.win.assy.has_changed()
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616
         try:
