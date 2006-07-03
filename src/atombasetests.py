@@ -35,20 +35,20 @@ class Bond(BondBase):
         BondBase.__init__(self)
         self.key = genkey()
 
-class AtomSet(AtomSetBase):
+class AtomDict(AtomDictBase):
     def __init__(self):
-        AtomSetBase.__init__(self)
+        AtomDictBase.__init__(self)
         self.key = genkey()
 
-class BondSet(BondSetBase):
+class BondDict(BondDictBase):
     def __init__(self):
-        BondSetBase.__init__(self)
+        BondDictBase.__init__(self)
         self.key = genkey()
 
 class Structure:
     def __init__(self):
-        self.atomset = AtomSet()
-        self.bondset = BondSet()
+        self.atomset = AtomDict()
+        self.bondset = BondDict()
     def __len__(self):
         return len(self.atomset.keys())
 
@@ -120,7 +120,7 @@ class BondTests(TestCase):
         bondset.values() # sorted by key
         bondset.items() # sorted by key
         """
-        bondset = BondSet()
+        bondset = BondDict()
         # create them forwards
         bond1 = Bond()
         bond2 = Bond()
@@ -148,7 +148,7 @@ class BondTests(TestCase):
         (bond.key in bondset) should be equivalent to, but
         much faster than, (bond.key in bondset.keys())
         """
-        bondset = BondSet()
+        bondset = BondDict()
         # create them forwards
         bond1 = Bond()
         bond2 = Bond()
@@ -179,7 +179,7 @@ class BondTests(TestCase):
         bond1 = Bond()
         bond2 = Bond()
         bond3 = Bond()
-        bondset = BondSet()
+        bondset = BondDict()
         bondset.add(bond1)
         bondset.add(bond2)
         bondset.add(bond3)
@@ -203,11 +203,11 @@ class BondTests(TestCase):
         for i in range(5):
             a = Bond()
             alst.append(a)
-        bondset = BondSet()
+        bondset = BondDict()
         for a in alst:
             bondset.add(a)
         assert bondset.keys() == [ 1, 2, 3, 4, 5 ]
-        bondset2 = BondSet()
+        bondset2 = BondDict()
         bondset2.update(bondset)
         assert bondset2.keys() == [ 1, 2, 3, 4, 5 ]
 
@@ -219,12 +219,12 @@ class BondTests(TestCase):
         for i in range(5):
             a = Bond()
             adct[a.key] = a
-        bondset = BondSet()
+        bondset = BondDict()
         bondset.update(adct)
         assert bondset.keys() == [ 1, 2, 3, 4, 5 ]
 
     def test_bondset_removeFromEmpty(self):
-        bondset = BondSet()
+        bondset = BondDict()
         a = Bond()
         try:
             bondset.remove(a)
@@ -234,7 +234,7 @@ class BondTests(TestCase):
 
     def test_bondset_filter(self):
         w = water()
-        bondset = BondSet()
+        bondset = BondDict()
         for bond in filter(selectSingle, w.bondset.values()):
             bondset.add(bond)
         bondinfo = bondset.bondInfo()
@@ -242,14 +242,14 @@ class BondTests(TestCase):
         assert bondinfo.tolist() == [[3, 4, 1], [4, 5, 1]]
 
 
-class AtomSetTests(TestCase):
+class AtomDictTests(TestCase):
 
     def test_atomset_basic(self):
         """\
         atomset[atom.key] = atom
         """
         atom1 = Atom()
-        atomset = AtomSet()
+        atomset = AtomDict()
         atomset[atom1.key] = atom1
         try:
             atomset[atom1.key+1] = atom1  # this should fail
@@ -263,7 +263,7 @@ class AtomSetTests(TestCase):
 ##         atm1.key in atomset --> True
 ##         atm2.key in atomset --> False
 ##         """
-##         atomset = AtomSet()
+##         atomset = AtomDict()
 ##         # create them forwards
 ##         atom1 = Atom()
 ##         atom2 = Atom()
@@ -280,7 +280,7 @@ class AtomSetTests(TestCase):
         atomset.values() # sorted by key
         atomset.items() # sorted by key
         """
-        atomset = AtomSet()
+        atomset = AtomDict()
         # create them forwards
         atom1 = Atom()
         atom2 = Atom()
@@ -308,7 +308,7 @@ class AtomSetTests(TestCase):
         (atm.key in atomset) should be equivalent to, but
         much faster than, (atm.key in atomset.keys())
         """
-        atomset = AtomSet()
+        atomset = AtomDict()
         # create them forwards
         atom1 = Atom()
         atom2 = Atom()
@@ -339,7 +339,7 @@ class AtomSetTests(TestCase):
         atom1 = Atom()
         atom2 = Atom()
         atom3 = Atom()
-        atomset = AtomSet()
+        atomset = AtomDict()
         atomset.add(atom1)
         atomset.add(atom2)
         atomset.add(atom3)
@@ -363,11 +363,11 @@ class AtomSetTests(TestCase):
         for i in range(5):
             a = Atom()
             alst.append(a)
-        atomset = AtomSet()
+        atomset = AtomDict()
         for a in alst:
             atomset.add(a)
         assert atomset.keys() == [ 1, 2, 3, 4, 5 ]
-        atomset2 = AtomSet()
+        atomset2 = AtomDict()
         atomset2.update(atomset)
         assert atomset2.keys() == [ 1, 2, 3, 4, 5 ]
 
@@ -379,12 +379,12 @@ class AtomSetTests(TestCase):
         for i in range(5):
             a = Atom()
             adct[a.key] = a
-        atomset = AtomSet()
+        atomset = AtomDict()
         atomset.update(adct)
         assert atomset.keys() == [ 1, 2, 3, 4, 5 ]
 
     def test_atomset_removeFromEmpty(self):
-        atomset = AtomSet()
+        atomset = AtomDict()
         a = Atom()
         try:
             atomset.remove(a)
@@ -394,7 +394,7 @@ class AtomSetTests(TestCase):
 
     def test_atomset_filter(self):
         w = water()
-        atomset = AtomSet()
+        atomset = AtomDict()
         for atm in filter(selectH, w.atomset.values()):
             atomset.add(atm)
         atominfo = atomset.atomInfo()
@@ -452,12 +452,12 @@ class DiffTests(TestCase):
         assert olds == [0., 0., 0.]
         assert news == [1., 1., 1.]
 
-    def test_diffSets(self):
+    def test_diffDicts(self):
 
         w = water()
         db = DiffFactoryBase(w.atomset.values())
 
-        as = AtomSet()
+        as = AtomDict()
         for x in w.atomset.values():
             as.add(x)
         diffobj = db.snapshot()
@@ -501,7 +501,7 @@ class DiffTests(TestCase):
         assert map(lambda x: x[0], olds) == [-0.983, 0.017, 0.276, 3.1416]
         assert map(lambda x: x[0], news) == [1.017, 2.017, 2.276, 5.1416]
 
-class Tests(AtomTests, BondTests, AtomSetTests, DiffTests):
+class Tests(AtomTests, BondTests, AtomDictTests, DiffTests):
     pass
 
 def test():

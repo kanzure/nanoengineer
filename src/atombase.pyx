@@ -79,7 +79,7 @@ cdef class _BaseItem:
 ##############################################################
 ##############################################################
 
-cdef class _BaseSetClass:
+cdef class _BaseDictClass:
     cdef setstruct data
 
     # Define __setitem__ and __delitem__ for the kind of item in the set
@@ -184,10 +184,10 @@ cdef class _AtomBase:
         else:
             self.__dict__[name] = value
 
-    def addSet(self, _BaseSetClass other):
+    def addDict(self, _BaseDictClass other):
         add_to_pointerlist(self.data.sets, <key_thing*> &other.data)
 
-    def removeSet(self, _BaseSetClass other):
+    def removeDict(self, _BaseDictClass other):
         remove_from_pointerlist(self.data.sets, <key_thing*> &other.data)
 
 class AtomBase(_AtomBase):
@@ -198,7 +198,7 @@ class AtomBase(_AtomBase):
 ##############################################################
 ##############################################################
 
-cdef class _AtomSetBase(_BaseSetClass):
+cdef class _AtomDictBase(_BaseDictClass):
 
     def __setitem__(self, key, _AtomBase atom):
         if key != atom.key:
@@ -230,7 +230,7 @@ cdef class _AtomSetBase(_BaseSetClass):
             i = i + 1
         return ar
 
-class AtomSetBase(_AtomSetBase):
+class AtomDictBase(_AtomDictBase):
     pass
 
 ##############################################################
@@ -273,10 +273,10 @@ cdef class _BondBase:
         else:
             self.__dict__[name] = value
 
-    def addSet(self, _BaseSetClass other):
+    def addDict(self, _BaseDictClass other):
         add_to_pointerlist(self.data.sets, <key_thing*> &other.data)
 
-    def removeSet(self, _BaseSetClass other):
+    def removeDict(self, _BaseDictClass other):
         remove_from_pointerlist(self.data.sets, <key_thing*> &other.data)
 
 class BondBase(_BondBase):
@@ -287,7 +287,7 @@ class BondBase(_BondBase):
 ##############################################################
 ##############################################################
 
-cdef class _BondSetBase(_BaseSetClass):
+cdef class _BondDictBase(_BaseDictClass):
 
     def __setitem__(self, key, _BondBase bond):
         if key != bond.key:
@@ -317,7 +317,7 @@ cdef class _BondSetBase(_BaseSetClass):
             i = i + 1
         return ary
 
-class BondSetBase(_BondSetBase):
+class BondDictBase(_BondDictBase):
     pass
 
 ##############################################################

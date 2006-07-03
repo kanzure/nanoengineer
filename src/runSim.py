@@ -40,7 +40,7 @@ import env
 from env import seen_before
 from VQT import A, V
 import re
-from chem import AtomSet
+from chem import AtomDict
 
 # more imports lower down
 
@@ -2037,9 +2037,9 @@ class sim_aspect: # as of 051115 this is used for Min Sel and Min All but not Ru
             print "making sim_aspect for %d atoms (maybe this only counts real atoms??)" % len(atoms) ###@@@ only counts real atoms??
         self.part = part
         self.cmdname_for_messages = cmdname_for_messages
-        self.moving_atoms = AtomSet()
-        self.boundary1_atoms = AtomSet()
-        self.boundary2_atoms = AtomSet()
+        self.moving_atoms = AtomDict()
+        self.boundary1_atoms = AtomDict()
+        self.boundary2_atoms = AtomDict()
         assert atoms, "no atoms in sim_aspect"
         for atm in atoms:
             assert atm.molecule.part == part

@@ -65,14 +65,14 @@ from changes import register_changedict, register_class_changedicts
 try:
     if not debug_pref('Enable pyrex atoms next time', Choice_boolean_False, prefs_key=True):
         raise ImportError
-    from atombase import AtomSetBase, AtomBase
-    class AtomSet(AtomSetBase):
+    from atombase import AtomDictBase, AtomBase
+    class AtomDict(AtomDictBase):
         def __init__(self):
-            AtomSetBase.__init__(self)
+            AtomDictBase.__init__(self)
             self.key = atKey.next()
     print 'Use Pyrex atoms'
 except ImportError:
-    def AtomSet():
+    def AtomDict():
         return { }
     class AtomBase:
         def __init__(self):
