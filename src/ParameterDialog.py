@@ -128,6 +128,7 @@ class parameter_dialog_or_frame:
         sponsor_frameLayout = QHBoxLayout(self.sponsor_frame,0,0,"sponsor_frameLayout")
 
         self.sponsor_btn = QPushButton(self.sponsor_frame,"sponsor_btn")
+        self.sponsor_btn.setAutoDefault(0) #bruce 060703 bugfix
         self.sponsor_btn.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.sponsor_btn.sizePolicy().hasHeightForWidth()))
         self.sponsor_btn.setPaletteBackgroundColor(QColor(255,255,255))
         self.sponsor_btn.setPixmap(self.image2) # should be: sponsor_pixmap #### [also we'll need to support >1 sponsor]
@@ -324,9 +325,11 @@ class parameter_dialog_or_frame:
         layout42.addItem(btm_spacer)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
+        self.cancel_btn.setAutoDefault(0) #bruce 060703 bugfix
         layout42.addWidget(self.cancel_btn)
 
         self.ok_btn = QPushButton(self,"ok_btn")
+        self.ok_btn.setAutoDefault(0) #bruce 060703 bugfix
         layout42.addWidget(self.ok_btn)
         nanotube_dialogLayout.addLayout(layout42)
 
