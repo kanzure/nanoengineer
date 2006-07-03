@@ -16,7 +16,7 @@ import assembly, chem, bonds, Utility
 from chem import molecule, Atom
 import env
 from HistoryWidget import redmsg, orangemsg, greenmsg
-from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
+from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QIntValidator, QValidator
 from VQT import dot, vlen, cross, norm
 import random
 import string
@@ -324,7 +324,14 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.validator.setRange(0.0, 1000.0, 2)
         self.length_linedit.setValidator(self.validator)
         self.bond_length_linedit.setValidator(self.validator)
+        self.n_validator = QIntValidator(self)
+        self.n_validator.setRange(3, 1000)
+        self.m_validator = QIntValidator(self)
+        self.m_validator.setRange(0, 1000)
+
         self.cursor_pos = 0
+        self.nstr = str(self.chirality_n_spinbox.value())
+        self.mstr = str(self.chirality_m_spinbox.value())
         self.lenstr = str(self.length_linedit.text())
         self.blstr = str(self.bond_length_linedit.text())
         self.zstr = str(self.z_distortion_linedit.text())
@@ -338,8 +345,6 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
     def gather_parameters(self):
         n = self.chirality_n_spinbox.value()
         m = self.chirality_m_spinbox.value()
-        assert n >= 3, 'n must be at least 3'
-        assert n >= m, 'n cannot be smaller than m'
         # Get length from length_linedit and make sure it is not zero.
         # length_linedit's validator makes sure this has a valid number (float).  
         # The only exception is when there is no text.  Mark 051103.
@@ -484,9 +489,15 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         return mol
 
     def length_fixup(self):
-        '''Slot for the Length linedit widget.
-        This gets called each time a user types anything into the widget.
+        '''Slot for several validators for different parameters.
+        This gets called each time a user types anything into a widget or changes a spinbox.
         '''
+        self.nstr = double_fixup(self.n_validator, str(self.chirality_n_spinbox.value()), self.nstr)
+        n = int(self.nstr)
+        self.chirality_n_spinbox.setValue(n)
+        self.m_validator.setRange(0, n)
+        self.mstr = double_fixup(self.m_validator, str(self.chirality_m_spinbox.value()), self.mstr)
+        self.chirality_m_spinbox.setValue(int(self.mstr))
         self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
         self.length_linedit.setText(self.lenstr)
         self.blstr = double_fixup(self.validator, self.bond_length_linedit.text(), self.blstr)
