@@ -1142,6 +1142,16 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         self.shelf.apply2all(func)
         return res
     
+    def get_part_files_directory(self): # Mark 060703.
+        """Returns the Part Files directory for this assembly, even if it doesn't exist.
+        """
+        # Maybe find_or_make_part_files_directory() should call this to centralize name creation. Mark 060703.
+        if self.filename:
+            path_wo_ext, ext = os.path.splitext(self.filename)
+            return 0, path_wo_ext + " Files"
+        else:
+            return 1, "I cannot do this until this part is saved."
+        
     def find_or_make_part_files_directory(self, make=True):
         """Return the Part Files directory for this assembly. 
         The Part Files directory exists next to the current MMP file and has the same name as
