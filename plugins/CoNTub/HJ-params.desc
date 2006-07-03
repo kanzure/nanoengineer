@@ -34,7 +34,8 @@ generator:
             label: "Length"
             type: float
             widget: lineedit
-            min: 1.0
+            min: 15.0
+                # Note: Inforcement of min value does not appear to be implemented yet. Mark 060702.
             max: 9999.0
             default: 20.0
             suffix: " A"
@@ -69,7 +70,7 @@ generator:
             label: "Length"
             type: float
             widget: lineedit
-            min: 1.0
+            min: 15.0
             max: 9999.0
             default: 20.0
             suffix: " A"
@@ -81,7 +82,7 @@ generator:
             widget: spinbox
             min: 1   
             max: 99
-            default: 5
+            default: 10
             tooltip: "Nanotube chirality parameter N"
 
         parameter: m2
@@ -90,7 +91,7 @@ generator:
             widget: spinbox
             min: 0
             max: 99
-            default: 5
+            default: 10
             tooltip: "Nanotube chirality parameter M"
 
     group: "Both tubes"
