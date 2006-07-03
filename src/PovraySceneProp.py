@@ -17,8 +17,9 @@ from widgets import double_fixup
 import env, os
 from HistoryWidget import redmsg, orangemsg, greenmsg
 from GeneratorBaseClass import GroupButtonMixin
+from Sponsors import SponsorableMixin
 
-class PovraySceneProp(PovrayScenePropDialog, GroupButtonMixin):
+class PovraySceneProp(SponsorableMixin, GroupButtonMixin, PovrayScenePropDialog):
 
     cmdname = greenmsg("Insert POV-Ray Scene: ")
     sponsor_keyword = 'DNA'
