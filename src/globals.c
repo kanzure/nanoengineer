@@ -49,6 +49,7 @@ double MinimizeThresholdCutoverRMS;
 double MinimizeThresholdCutoverMax;
 double MinimizeThresholdEndRMS;
 double MinimizeThresholdEndMax;
+int MinimizeTerminated;
 
 FILE *OutputFile;
 FILE *TraceFile;
@@ -114,6 +115,7 @@ reinit_globals(void)
     MinimizeThresholdCutoverMax = 300.0;
     MinimizeThresholdEndRMS = 1.0;
     MinimizeThresholdEndMax = 10.0;
+    MinimizeTerminated = 0;
     
     OutputFile = NULL;
     TraceFile = NULL;

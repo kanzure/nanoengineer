@@ -756,6 +756,7 @@ minimize_one_tolerance(struct configuration *initial_p,
     if (fd->termination == NULL) {
         fd->termination = defaultTermination;
     }
+    MinimizeTerminated = 0;
     SetConfiguration(&p, initial_p);
     fp = evaluate(p);
     BAILR(initial_p);
@@ -768,6 +769,7 @@ minimize_one_tolerance(struct configuration *initial_p,
         // at this point is p.  Beyond this point, we can bail with q.
 	BAILR(q == NULL ? p : q);
         if ((fd->termination)(fd, p, q, tolerance)) {
+	    MinimizeTerminated = 1;
 	    SetConfiguration(&p, NULL);
 	    Leave(minimize_one_tolerance, (q == initial_p) ? 0 :1);
 	    return q;
