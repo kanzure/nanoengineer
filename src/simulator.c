@@ -91,7 +91,7 @@ usage(void)
 
 // wware 060101  callback for pyrex, no-op in standalone simulator
 void
-callback_writeFrame(struct part *part, struct xyz *pos)
+callback_writeFrame(struct part *part, struct xyz *pos, int last_frame)
 {
 }
 // wware 060102  callback for trace file

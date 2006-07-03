@@ -283,7 +283,7 @@ dynamicsMovie(struct part *part)
 	    if (PrintFrameNums) printf("\n");
 	oneDynamicsFrame(part, IterPerFrame,
 			 averagePositions, &oldPositions, &newPositions, &positions, force);
-	writeDynamicsMovieFrame(OutputFile, i, part, averagePositions);
+	writeDynamicsMovieFrame(OutputFile, i, part, averagePositions, i == NumFrames-1);
         if (DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) {
             writeSimpleMovieFrame(part, newPositions, force, "");
         }

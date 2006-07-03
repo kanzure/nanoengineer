@@ -566,12 +566,12 @@ writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forc
 
 /**
  */
-void writeDynamicsMovieFrame(FILE *outf, int n, struct part *part, struct xyz *pos)
+void writeDynamicsMovieFrame(FILE *outf, int n, struct part *part, struct xyz *pos, int last_frame)
 {
     if (DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) { // -D15
         return;
     }
-    callback_writeFrame(part, pos);  // wware 060101  callback for pyrex
+    callback_writeFrame(part, pos, last_frame);
     if (outf != NULL) {
 	switch (OutputFormat) {
 	case 0:
@@ -600,10 +600,11 @@ int writeMinimizeMovieFrame(FILE *outf,
                             double rms,
                             double max_force,
                             int frameNumber,
+			    int last_frame,
                             char *callLocation,
                             char *message)
 {
-    callback_writeFrame(part, pos);  // wware 060101  callback for pyrex
+    callback_writeFrame(part, pos, last_frame);
     switch (OutputFormat) {
     case 0:
         if (final || DumpIntermediateText) {

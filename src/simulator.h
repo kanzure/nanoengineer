@@ -153,7 +153,7 @@
  * simulator.  wware 060101
  */
 
-extern void callback_writeFrame(struct part *part, struct xyz *pos);
+extern void callback_writeFrame(struct part *part, struct xyz *pos, int last_frame);
 
 // wware 060102  callback for trace file
 extern void write_traceline(const char *format, ...);

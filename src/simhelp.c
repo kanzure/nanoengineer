@@ -153,23 +153,24 @@ setFrameCallbackFunc(PyObject *f)
 static void
 do_python_callback(PyObject *callbackFunc, PyObject* args)
 {
-    PyObject *pValue;
+    PyObject *pValue = NULL;
     // int previousInterrupted = Interrupted;
     if (callbackFunc == NULL)
-	return;
+	goto fini;
     if (PyErr_Occurred()) {
 	// there was already a Python error when we got here
 	callback_exception = 1;
-	return;
+	goto fini;
     }
     if (!PyCallable_Check(callbackFunc)) {
 	callback_exception = 1;
 	PyErr_SetString(PyExc_RuntimeError, "callback not callable");
+	goto fini;
     }
     pValue = PyObject_CallObject(callbackFunc, args);
     if (PyErr_Occurred()) {
 	callback_exception = 1;
-	Interrupted = 1;
+	// Interrupted = 1;  // is this right??
     }
     /*
      * Theoretically we could compare the value of Interrupted at this
@@ -180,7 +181,8 @@ do_python_callback(PyObject *callbackFunc, PyObject* args)
      * finish_python_call(), and any pathway to get us to this point
      * will return to Python through that routine.
      */
-    Py_DECREF(args);
+ fini: ;
+    Py_XDECREF(args);
     Py_XDECREF(pValue);
 }
 
@@ -203,7 +205,7 @@ write_traceline(const char *format, ...)
 
 // wware 060101   callback for getting frame info in pyrex
 void
-callback_writeFrame(struct part *part1, struct xyz *pos1)
+callback_writeFrame(struct part *part1, struct xyz *pos1, int lastFrame)
 {
     if (part != part1) {
 	// assert part is <previous value for part>
@@ -214,7 +216,7 @@ callback_writeFrame(struct part *part1, struct xyz *pos1)
     }
     pos = pos1;
     if (frameCallbackFunc != NULL)
-	do_python_callback(frameCallbackFunc, PyTuple_New(0));
+	do_python_callback(frameCallbackFunc, Py_BuildValue("(i)", lastFrame));
 }
 
 // wware 060101   make frame info available in pyrex
