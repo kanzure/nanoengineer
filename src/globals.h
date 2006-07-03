@@ -38,7 +38,6 @@ extern double MinimizeThresholdCutoverRMS;
 extern double MinimizeThresholdCutoverMax;
 extern double MinimizeThresholdEndRMS;
 extern double MinimizeThresholdEndMax;
-extern int MinimizeTerminated;
 
 extern FILE *OutputFile;
 extern FILE *TraceFile;
