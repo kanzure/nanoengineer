@@ -471,11 +471,40 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 # (#e In principle we could try just moving it first, and only if that fails, try removing and then moving.)
 
             os.rename( tmpname, safile) # Move tmp file to saved filename.
+            
+            errorcode, oldPartFilesDir = self.assy.find_or_make_part_files_directory(make = False) # Mark 060703.
+            if errorcode:
+                oldPartFilesDir = None # Make sure.
 
             self.saved_main_file(safile, fil)
+            
+            errorcode, errortext = self.copy_part_files_dir(oldPartFilesDir) # Mark 060703.
+            if errorcode:
+                env.history.message( orangemsg("Problem copying part files. Error: " + errortext ))
+
             env.history.message( "MMP file saved: " + self.assy.filename )
                 #bruce 050907 moved this after mt_update (which is now in saved_main_file)
         return
+    
+    def copy_part_files_dir(self, oldPartFilesDir): # Mark 060703. NFR bug 2042.
+        """Recursively copy the entire directory tree rooted at oldPartFilesDir to the assy's (new) Part Files directory.
+        """
+        if not oldPartFilesDir:
+            return 0, "No part files directory to copy."
+        
+        errorcode, newPartFilesDir = self.assy.get_part_files_directory()
+        if errorcode:
+            return 1, "Problem getting parts file directory. Error: " + newPartFilesDir
+                
+        if os.path.exists(newPartFilesDir): 
+            # destination arg must not exist. copytree() will create it.
+            return 1, "The Part Files directory " + newPartFilesDir +  " already exists!  Part files from " + oldPartFilesDir + " were not copied."
+        
+        import shutil
+        print "Copying from " + oldPartFilesDir + " to " + newPartFilesDir
+        shutil.copytree(oldPartFilesDir, newPartFilesDir)
+        
+        return 0, ""
 
     def saved_main_file(self, safile, fil): #bruce 050907 split this out of mmp and pdb saving code
         """Record the fact that self.assy itself is now saved into (the same or a new) main file
