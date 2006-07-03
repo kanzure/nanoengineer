@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Mon Jul 3 14:45:18 2006
+# Created: Mon Jul 3 15:03:03 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -848,7 +848,7 @@ class nanotube_dialog(QDialog):
         self.xy_distortion_linedit.setText(self.__tr("0.0"))
         QToolTip.add(self.xy_distortion_linedit,self.__tr("XY-distortion"))
         QWhatsThis.add(self.xy_distortion_linedit,self.__tr("<b>XY-distortion</b>\n"
-"<p>Distorts the bond length between atoms along the length of the nanotube by this amount in angstroms.</p>"))
+"<p>Distorts the tube's cross-section so that the width in the X direction is this many angstroms greater than the width in the Y direction. Some distortion  of bond lengths results.</p>"))
         self.twist_label.setText(self.__tr("Twist :"))
         self.mwcnt_grpbox.setTitle(QString.null)
         self.parameters_grpbox_label_3.setText(self.__tr("Multi-Walled Nanotubes"))
@@ -858,7 +858,9 @@ class nanotube_dialog(QDialog):
         self.mwcnt_count_spinbox.setSuffix(QString.null)
         QToolTip.add(self.mwcnt_count_spinbox,self.__tr("Number of nanotubes"))
         QWhatsThis.add(self.mwcnt_count_spinbox,self.__tr("<b>Number of Nanotubes</b>\n"
-"<p>Specifies the number or Multi-Walled Nanotubes. Multi-Walled nanotubes (MWNT) consist of many concentric tubes wrapped one inside another.</p>"))
+"<p>Specifies the number or Multi-Walled Nanotubes. Multi-Walled nanotubes (MWNT) consist of many concentric tubes wrapped one inside another.</p>\n"
+"<p>The specified chirality applies only to the innermost nanotube. The others, being larger, will have larger chiralities.\n"
+"</p>"))
         self.mwcnt_spacing_linedit.setText(self.__tr("2.46"))
         QToolTip.add(self.mwcnt_spacing_linedit,self.__tr("Spacing between nanotubes"))
         QWhatsThis.add(self.mwcnt_spacing_linedit,self.__tr("<b>Spacing</b>\n"

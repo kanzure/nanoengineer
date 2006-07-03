@@ -870,7 +870,7 @@
                                     </property>
                                     <property name="whatsThis" stdset="0">
                                         <string>&lt;b&gt;XY-distortion&lt;/b&gt;
-&lt;p&gt;Distorts the bond length between atoms along the length of the nanotube by this amount in angstroms.&lt;/p&gt;</string>
+&lt;p&gt;Distorts the tube's cross-section so that the width in the X direction is this many angstroms greater than the width in the Y direction. Some distortion  of bond lengths results.&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                                 <widget class="QLabel" row="2" column="0">
@@ -1066,7 +1066,9 @@
                                     </property>
                                     <property name="whatsThis" stdset="0">
                                         <string>&lt;b&gt;Number of Nanotubes&lt;/b&gt;
-&lt;p&gt;Specifies the number or Multi-Walled Nanotubes. Multi-Walled nanotubes (MWNT) consist of many concentric tubes wrapped one inside another.&lt;/p&gt;</string>
+&lt;p&gt;Specifies the number or Multi-Walled Nanotubes. Multi-Walled nanotubes (MWNT) consist of many concentric tubes wrapped one inside another.&lt;/p&gt;
+&lt;p&gt;The specified chirality applies only to the innermost nanotube. The others, being larger, will have larger chiralities.
+&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                                 <widget class="QLineEdit" row="1" column="1">
@@ -1300,9 +1302,6 @@
         <slot>length_fixup()</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">NanotubeGeneratorDialog.ui.h</include>
-</includes>
 <slots>
     <slot>toggle_nt_distortion_grpbox()</slot>
     <slot>open_sponsor_homepage()</slot>
