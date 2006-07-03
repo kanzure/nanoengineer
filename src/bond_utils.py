@@ -19,10 +19,15 @@ from VQT import Q
 from constants import noop
 from bond_constants import *
 import env
-from HistoryWidget import orangemsg
+from HistoryWidget import greenmsg, redmsg, orangemsg
+from debug import print_compact_stack
+
 
 def intersect_sequences(s1, s2):
     return filter( lambda s: s in s2, s1)
+
+def complement_sequences(big, little):
+    return filter( lambda s: s not in little, big)
 
 def possible_bond_types(bond):
     """Return a list of names of possible bond types for the given bond,
@@ -161,15 +166,15 @@ def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec
 #   (possible implem of that: maybe remove it, set_atomtype, then add it back, then remake singlets?)
 # - then it's safe to let bond cmenu have more entries (since they might be open bonds)
 
-def apply_btype_to_bond(btype, bond):
+def apply_btype_to_bond(btype, bond, allow_remake_bondpoints = True): #bruce 060703 added allow_remake_bondpoints for bug 833-1
     """Apply the given bond-type name (e.g. 'single') to the given bond, iff this is permitted by its atomtypes
     (or, new feature 060523, if it's permitted by its real atoms' possible atomtypes and their number of real bonds),
     and do whatever inferences are presently allowed [none are implemented as of 050727].
     Emit an appropriate history message. Do appropriate invals/updates.
     [#e should the inference policy and/or some controlling object be another argument? Maybe even a new first arg 'self'?]
     """
-    # Note: this can be called either from a bond's context menu, or by using the Build mode dashboard tool to click on bonds
-    # and immediately change their types.
+    # Note: this can be called either from a bond's context menu, or by using a Build mode dashboard tool to click on bonds
+    # (or bondpoints as of 060702) and immediately change their types.
     v6 = v6_from_btype(btype)
     from HistoryWidget import quote_html #e need to clean up from where to import this, orangemsg, etc
     oldname = quote_html( str(bond) )
@@ -185,8 +190,10 @@ def apply_btype_to_bond(btype, bond):
                         msg = "changed %r from %s to %s" % (atom, atom.atomtype.name, atype.name )
                         env.history.message(msg)
                         atom.set_atomtype(atype)
-                        ###### note: if we're an open bond, we have to prevent this process from removing us!!!!!
-                        # (this is nim, so we're not yet safe to offer on open bonds.)
+                        ### note[ probably 060523]:
+                        # if we're an open bond, we have to prevent this process from removing us!
+                        # (this is nim, so we're not yet safe to offer on open bonds.
+                        #  Thus in fix for 833-1 [060703], atomtype changes are not allowed.)
                         pass
                     return # from changeatomtype
                 changeatomtype(bond.atom1, atype1)
@@ -197,23 +204,77 @@ def apply_btype_to_bond(btype, bond):
             env.history.message( "changed bond type of %s to %s" % (oldname, btype))
             ###k not sure if it does gl_update when needed... how does menu use of this do that?? ###@@@
         return # from changeit
-    poss = possible_bond_types(bond)
-    if btype in poss:
+    poss = poss1 = possible_bond_types(bond) # only includes the ones which don't change the atomtypes -- try these first
+    if btype in poss1:
         changeit()
         return
     # otherwise figure out if we can change the atomtypes to make this work.
-    # (The following code is predicted to work for either real or open bonds.)
-    permitted1 = bond.atom1.permitted_btypes_for_bond(bond) # dict from v6 to permitting atomtypes
-    permitted2 = bond.atom2.permitted_btypes_for_bond(bond)
-    poss_v6 = intersect_sequences(permitted1.keys(), permitted2.keys()) # purpose of having whole sequence is just the error message
-    poss_v6.sort() # smallest bond order first
-    poss = map( btype_from_v6, poss_v6)
-    if btype in poss:
-        atype1 = best_atype(bond.atom1, permitted1[v6])
-        atype2 = best_atype(bond.atom2, permitted2[v6])
-        changeit((atype1, atype2))
-        return
-    env.history.message( orangemsg( "can't change bond type of %s to %s -- permitted types are %s" % (oldname, btype, poss)))
+    # (The following code is predicted to work for either real or open bonds,
+    #  but it is not safe to offer on open bonds for other reasons (commented above in changeatomtype).
+    #  But we'll still figure out the situation, so the history message can be more useful.)
+    if 1:
+        # this is needed for allow_remake_bondpoints,
+        # or for history advice about what that could have permitted:
+        permitted1 = bond.atom1.permitted_btypes_for_bond(bond) # dict from v6 to permitting atomtypes
+        permitted2 = bond.atom2.permitted_btypes_for_bond(bond)
+        poss_v6 = intersect_sequences(permitted1.keys(), permitted2.keys()) # purpose of having whole sequence is just the error message
+        poss_v6.sort() # smallest bond order first
+        poss2 = map( btype_from_v6, poss_v6)
+        if btype in poss2:
+            atype1 = best_atype(bond.atom1, permitted1[v6])
+            atype2 = best_atype(bond.atom2, permitted2[v6])
+    if allow_remake_bondpoints:
+        poss = poss2 # poss is whichever of poss1 or poss2 was actually allowed
+        if btype in poss2:
+            changeit((atype1, atype2))
+            return
+    # It failed, but a variety of situations should be handled in the error message.
+    # For error messages, sort them all the same way.
+    poss1.sort()
+    poss2.sort()
+    poss.sort() #k not really needed, it's same mutable list, but keep this in case someone changes that
+    if poss2 == poss: # note, this happens if poss2 == poss1, or if they differ but allow_remake_bondpoints is true
+        # permitting changing of atomtypes wouldn't make any difference
+        msg = "can't change bond type of %s to %s" % (oldname, btype)
+        msg2 = " -- permitted types are %s" % (poss)
+            #e improve message -- %s of list looks like repr (for strings too)
+        env.history.message( orangemsg( msg) + msg2 )
+    elif btype in poss2:
+        if allow_remake_bondpoints:
+            print_compact_stack( "bug: allow_remake_bondpoints should not be true here: " )
+        # the only reason we refused is that the UI won't allow remaking of bondpoints;
+        # explain what the user would have to do to make it work (using the things computed above as if it had been permitted)
+        # (as of 060703 this happens only when you click a bond type changing tool on a bondpoint,
+        #  but following code will try to cover this for a real bond as well)
+        unless = ""
+        for atom, atype in [(bond.atom1, atype1), (bond.atom2, atype2)]: ##e ideally, in same order as printed in bond name
+            if atype != atom.atomtype:
+                if atom.is_singlet():
+                    # should never happen
+                    if env.debug:
+                        print "debug: bug: %r is bondpoint but user is advised to change its atomtype" % atom
+                if not unless:
+                    unless = "change atomtype of %s to %s" % (atom, atype.name)
+                else:
+                    # this is not expected to ever happen, when called from UI as of 060703; it's untested ##@@
+                    unless += ", and of %s to %s" % (atom, atype.name)
+        msg = "can't change bond type of %s to %s, " % (oldname, btype,)
+        if unless:
+            unless_msg = greenmsg( "unless you %s" % (unless,) )
+        else:
+            unless_msg = redmsg( "due to a bug")
+        env.history.message( orangemsg( msg) + ( unless_msg) )
+    else:
+        # changing atomtypes makes a difference, but either way you're not allowed to change to this bond type
+        if allow_remake_bondpoints:
+            print_compact_stack( "bug: allow_remake_bondpoints should not be true here: " )
+        extra = complement_sequences(poss2, poss1)
+        if not extra:
+            print_compact_stack( "bug: extra should not be empty here: " )
+        msg = "can't change bond type of %s to %s" % (oldname, btype)
+        msg2 = " -- permitted types are %s, or %s if you change atomtypes" % (poss1, extra)
+            #e improve message -- %s of list looks like repr (for strings too)
+        env.history.message( orangemsg( msg) + msg2 )
     return # from apply_btype_to_bond
 
 def best_atype(atom, atomtypes = None): #bruce 060523

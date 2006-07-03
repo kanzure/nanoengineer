@@ -1718,6 +1718,10 @@ class selectAtomsMode(selectMode):
             if not obj.is_singlet():
                 return obj
         return None
+
+    def bond_type_changer_is_active(self): #bruce 060702
+        "[subclasses can override this; see depositMode implem for docstring]"
+        return False
         
     def selobj_highlight_color(self, selobj): #bruce 050612 added this to mode API
         """[mode API method]
@@ -1734,7 +1738,14 @@ class selectAtomsMode(selectMode):
         if isinstance(selobj, Atom):
             if selobj.is_singlet():
                 if self.highlight_singlets: # added highlight_singlets to fix bug 1540. mark 060220.
-                    return env.prefs[bondpointHighlightColor_prefs_key]
+                    likebond = self.bond_type_changer_is_active() #bruce 060702 part of fixing bug 833 item 1
+                    if likebond:
+                        # clicks in this tool-state modify the bond, not the bondpoint, so let the color hint at that
+                        return env.prefs[bondHighlightColor_prefs_key]
+                    else:
+                        return env.prefs[bondpointHighlightColor_prefs_key]
+                else:
+                    return None
             else:
                 if self.only_highlight_singlets: # True only when dragging a bondpoint (in Build mode).
                     # Highlight this atom if it has bondpoints.

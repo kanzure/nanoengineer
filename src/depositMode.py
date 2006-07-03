@@ -438,6 +438,7 @@ class depositMode(selectAtomsMode):
         self.w.depositAtomDashboard.bond3Btn.setOn( self.bondclick_v6 == V_TRIPLE)
         self.w.depositAtomDashboard.bondaBtn.setOn( self.bondclick_v6 == V_AROMATIC)
         self.w.depositAtomDashboard.bondgBtn.setOn( self.bondclick_v6 == V_GRAPHITE)
+        #####@@@@@ else set the Atom Tool on?? [bruce 060702 comment]
         return
     
     def update_gui(self): #bruce 050121 heavily revised this [called by basicMode.UpdateDashboard]
@@ -1106,7 +1107,20 @@ class depositMode(selectAtomsMode):
         env.history.message(info)
         self.w.win_update()
 
-    def bondLeftUp(self, b, event): # was bondClicked(). mark 060220.
+    def bond_type_changer_is_active(self): #bruce 060702 (modified from condition used in bondLeftUp)
+        """Based on the present Build dashboard state (of bond type changing tools vs Atom tool),
+        should clicks on bonds change their bond type? (used for click effect and highlight color)
+        [overrides superclass method]
+        """
+        # Note: the intent of self.bondclick_v6 was to be true only when this should return true,
+        # but the Atom tool does not yet conform to that,
+        # and the existing code as of 060702 appears to use this condition,
+        # so for now [bruce 060702] it's deemed the official condition.
+        # But I can't tell for sure whether the other conditions (modkeys, or commented out access to another button)
+        # belong here, so I didn't copy them here but left the code in bondLeftUp unchanged (at least for A8).
+        return not self.w.depositAtomDashboard.buildBtn.isOn()
+        
+    def bondLeftUp(self, b, event): # was bondClicked(). mark 060220. [WARNING: docstring appears to be out of date -- bruce 060702]
         '''Bond <b> was clicked, so select or unselect its atoms or delete bond <b> 
         based on the current modkey.
         - If no modkey is pressed, clear the selection and pick <b>'s two atoms.
@@ -1117,27 +1131,28 @@ class depositMode(selectAtomsMode):
         '''
 
         if self.o.modkeys is None:
-            if not self.w.depositAtomDashboard.buildBtn.isOn():
+            if not self.w.depositAtomDashboard.buildBtn.isOn(): ### see also self.bond_type_changer_is_active()
             #&if not self.w.depositAtomDashboard.buildBtn.isOn() and not self.w.depositAtomDashboard.atomBtn.isOn():
             #& Reinstate in A8.  mark 060301.
-                self.bond_change_type(b)
+                self.bond_change_type(b, allow_remake_bondpoints = True)
                 self.o.gl_update()
                 return
         
         selectAtomsMode.bondLeftUp(self, b, event)
             
-    def bond_change_type(self, b): #bruce 050727
+    def bond_change_type(self, b, allow_remake_bondpoints = True): #bruce 050727; revised 060703
         '''Change bondtype of bond <b> to new bondtype determined by the dashboard (if allowed).
         '''
         # renamed from clicked_on_bond() mark 060204.
         v6 = self.bondclick_v6
         if v6 is not None:
+            self.set_cmdname('Change Bond')
             btype = btype_from_v6( v6)
             from bond_utils import apply_btype_to_bond
-            apply_btype_to_bond( btype, b)
-            self.set_cmdname('Change Bond')
+            apply_btype_to_bond( btype, b, allow_remake_bondpoints = allow_remake_bondpoints)
                 # checks whether btype is ok, and if so, new; emits history message; does [#e or should do] needed invals/updates
-            ###k not sure if that subr does gl_update when needed... this method does it, but not sure how #######@@@@@@@
+            ###k not sure if that subr does gl_update when needed... this method does it, but not sure how
+            # [or maybe only its caller does?]
         return
 
 # == Deposit methods
@@ -1524,6 +1539,7 @@ class depositMode(selectAtomsMode):
     def singletLeftUp(self, s1, event):
         '''Finish operation on singlet <s1> based on where the cursor is when the LMB was released:
         - If the cursor is still on <s1>, deposit an object from the MMKit on it
+          [or as of 060702, use a bond type changing tool if one is active, to fix bug 833 item 1 ###implem unfinished?]
         - If the cursor is over a different singlet, bond <s1> to it.
         - If the cursor is over empty space, do nothing.
         <event> is a LMB release event.
@@ -1536,12 +1552,18 @@ class depositMode(selectAtomsMode):
 
         if s2:
             if s2 is s1: # If the same singlet is highlighted...
-                # ...deposit an object (atom, chunk or library part) from MMKit on the singlet <s1>.
-                if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT): # Fixes bug 1448. mark 060301.
-                    deposited_obj = self.deposit_from_MMKit(s1)
-                        # does its own win_update().
-                    if deposited_obj:
-                        self.set_cmdname('Deposit ' + deposited_obj)
+                if self.bond_type_changer_is_active():
+                    #bruce 060702 fix bug 833 item 1 (see also bondLeftUp)
+                    b = s1.bonds[0]
+                    self.bond_change_type(b, allow_remake_bondpoints = False) # does set_cmdname
+                    self.o.gl_update() # (probably good for highlighting, even if bond_change_type refused)
+                else:
+                    # ...deposit an object (atom, chunk or library part) from MMKit on the singlet <s1>.
+                    if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT): # Fixes bug 1448. mark 060301.
+                        deposited_obj = self.deposit_from_MMKit(s1)
+                            # does its own win_update().
+                        if deposited_obj:
+                            self.set_cmdname('Deposit ' + deposited_obj)
             else: # A different singlet is highlighted...
                 # ... so bond the highlighted singlet <s2> to the first singlet <s1>
                 self.bond_singlets(s1, s2)
@@ -1792,6 +1814,9 @@ class depositMode(selectAtomsMode):
                 env.history.statusbar_msg("click bonds to make them %s" % name) # name is 'single' etc
             else:
                 # this never happens (as explained above)
+                #####@@@@@ see also setAtom, which runs when Atom Tool is clicked (ideally this might run as well, but it doesn't)
+                # (I'm guessing that self.bondclick_v6 is not relied on for action effects -- maybe the button states are??)
+                # [bruce 060702 comment]
                 env.history.statusbar_msg(" ") # clicking bonds now does nothing
                 ## print "turned it off"
         else:
