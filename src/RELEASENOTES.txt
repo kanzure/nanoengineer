@@ -2,6 +2,40 @@
 
 Release Notes for NanoEngineer-1 v0.8 (Alpha 8)
 
+What is new in NanoEngineer-1 v0.7 (4/24/2006):
+
+# Adjust atom positions and Minimize UI
+  - Former ‘Minimize feature has been renamed to Adjust. 
+
+#Graphene
+  - Graphene sheets can be added to the model by selecting 'Insert > Graphene' and specifying the height, width and endings.
+
+
+#Single and Multi Walled Carbon Nanotubes
+  - Single or Multi Walled Carbon Nanotubes can be inserted using the Insert >Nanotubes option and then specifying the chirality and number of nanotubes
+
+#DNA
+  - Insert >DNA allows insertion of B or Z DNAs of the specified sequence
+
+#Heterojunction
+  - Heterojunctions can be inserted into the model by selecting Insert > Heterojunction option and specifying length, chirality and endings of the nanotubes. 
+
+#POV-Ray Scene and Ray Trace scene
+- These provide a convenient way to preview the results of a POV-Ray scene rendering in NanoEngineer-1.
+
+# Support for adding text node to the model
+  - Text nodes with useful information about the model can be created by selecting Insert> Comments. 
+
+#New Chunk display
+- Chunks can be rendered in a new Cylinder display mode
+
+#New Preferences
+-Watch motion in real time during Minimization
+  - Options to specify how often to update the screen during the minimization 
+  - Specify End & Cutover RMS and MAX values of high forces that minimize returns (this is an experimental feature and has known bugs)
+
+#Simulator dialog
+  - Options to specify how often to update the screen during the minimization.
 
 
 What was new in NanoEngineer-1 v0.7 (4/24/2006):
