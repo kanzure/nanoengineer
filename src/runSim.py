@@ -656,7 +656,7 @@ class SimRunner:
                     warn("cutoverMax < cutoverRMS is not allowed, using cutoverMax = cutoverRMS")
                     cutoverMax = cutoverRMS # sim C code would use 5.0 * cutoverRMS if we didn't fix this here
             if (endRMS, endMax, cutoverRMS, cutoverMax) != (1.0, 10.0, 50.0, 300.0) or env.debug():
-                msg = "minimize thresholds: endRMS = %0.2f, endMax = %0.2f, cutoverRMS = %0.2f, cutoverMax = %0.2f" % \
+                msg = "convergence criteria: endRMS = %0.2f, endMax = %0.2f, cutoverRMS = %0.2f, cutoverMax = %0.2f" % \
                       (endRMS, endMax, cutoverRMS, cutoverMax)
                 if (endRMS, endMax, cutoverRMS, cutoverMax) == (1.0, 10.0, 50.0, 300.0):
                     msg += " (default values -- only printed since ATOM_DEBUG is set)"
@@ -1832,7 +1832,7 @@ class Minimize_CommandRun(CommandRun):
             # but the bug254 X->H fix is done (though different code sets the mapping flag that makes it happen).
             nsinglets_H = simaspect.nsinglets_H()
             if nsinglets_H: #bruce 051209 this message code is approximately duplicated elsewhere in this file
-                info = fix_plurals( "(Treating %d bondpoint(s) as Hydrogens, during minimization)" % nsinglets_H )
+                info = fix_plurals( "(Treating %d bondpoint(s) as Hydrogens, during adjustment)" % nsinglets_H )
                 env.history.message( info)
             nsinglets_leftout = simaspect.nsinglets_leftout()
             assert nsinglets_leftout == 0 # for now
