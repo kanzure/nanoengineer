@@ -1148,7 +1148,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         # Maybe find_or_make_part_files_directory() should call this to centralize name creation. Mark 060703.
         if self.filename:
             path_wo_ext, ext = os.path.splitext(self.filename)
-            return 0, path_wo_ext + " Files"
+            return 0, os.path.abspath(os.path.normpath(path_wo_ext + " Files"))
         else:
             return 1, "I cannot do this until this part is saved."
         
