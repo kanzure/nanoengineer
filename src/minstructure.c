@@ -416,16 +416,12 @@ minimizeStructure(struct part *part)
     SetConfiguration(&initial, NULL);
     SetConfiguration(&final, NULL);
     if (model_energy > 0.25) {
-	done("Minimize evals: %d, %d; final forces: rms %f pN, high %f pN, model energy: %.3f aJ",
-	     minimizeStructureFunctions.gradientEvaluationCount,
-	     minimizeStructureFunctions.functionEvaluationCount,
+	done("Final forces: rms %f pN, high %f pN, model energy: %.3f aJ",
 	     rms_force,
 	     max_force,
 	     model_energy);
     } else {
-	done("Minimize evals: %d, %d; final forces: rms %f pN, high %f pN, model energy: %.3e aJ",
-	     minimizeStructureFunctions.gradientEvaluationCount,
-	     minimizeStructureFunctions.functionEvaluationCount,
+	done("Final forces: rms %f pN, high %f pN, model energy: %.3e aJ",
 	     rms_force,
 	     max_force,
 	     model_energy);
