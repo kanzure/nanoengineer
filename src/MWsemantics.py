@@ -685,9 +685,17 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.setDisplay(diLINES)
     
     def dispCylinder(self):
+        cmd = greenmsg("Set Display Cylinder: ")
+        if self.assy and self.assy.selatoms:
+            # Fixes bug 2005. Mark 060702.
+            env.history.message(cmd + "Selected atoms cannot have their display mode set to Cylinder.")
         self.setDisplay(diCYLINDER)
         
     def dispSurface(self):
+        cmd = greenmsg("Set Display Surface: ")
+        if self.assy and self.assy.selatoms:
+            # Fixes bug 2005. Mark 060702.
+            env.history.message(cmd + "Selected atoms cannot have their display mode set to Surface.")
         self.setDisplay(diSURFACE)
 
     def setDisplay(self, form, default_display=False):
