@@ -1027,7 +1027,7 @@ class SimRunner:
                 res = True
         return res
         
-    def sim_frame_callback(self): #bruce 060102
+    def sim_frame_callback(self, last_frame): #bruce 060102
         "Per-frame callback function for simulator object."
         # Note: this was called 3550 times for minimizing a small C3 sp3 hydrocarbon... better check the elapsed time quickly.
         #e Maybe we should make this into a lambda, or even code it in C, to optimize it.
@@ -1055,7 +1055,7 @@ class SimRunner:
         nframes = self.__frame_number - self.__last_3dupdate_frame
         update_3dview = self.sim_frame_callback_update_check( simtime, pytime, nframes ) # call this even if later code overrides it
         # always show the last frame - wware 060314
-        if self.__frame_number == self.totalFramesRequested or debug_all_frames:
+        if last_frame or debug_all_frames:
             update_3dview = True
         # now we know whether we want to update the 3d view (and save new values for the __last variables).
         if update_3dview:
