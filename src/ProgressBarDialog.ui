@@ -13,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>Minimize</string>
+        <string>Adjust</string>
     </property>
     <property name="icon">
         <pixmap>image0</pixmap>

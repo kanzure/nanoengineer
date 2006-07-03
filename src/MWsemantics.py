@@ -902,8 +902,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     # Modify Toolbar Slots
     ###################################
         
-    def modifyMinimizeSel(self):
-        """Minimize the current selection"""
+    def modifyAdjustSel(self):
+        """Adjust the current selection"""
         if platform.atom_debug:
             print "atom_debug: reloading runSim on each use, for development"
             import runSim
@@ -913,8 +913,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         cmdrun.run()
         return
 
-    def modifyMinimizeAll(self):
-        """Minimize the entire (current) Part"""
+    def modifyAdjustAll(self):
+        """Adjust the entire (current) Part"""
         if platform.atom_debug:
             print "atom_debug: reloading runSim on each use, for development"
             import runSim
@@ -1496,8 +1496,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         '''Disables action items in the main window for movieMode.
         '''
         disable = not disableFlag
-        self.modifyMinimizeSelAction.setEnabled(disable) # "Minimize Selection"
-        self.modifyMinimizeAllAction.setEnabled(disable) # "Minimize All"
+        self.modifyAdjustSelAction.setEnabled(disable) # "Adjust Selection"
+        self.modifyAdjustAllAction.setEnabled(disable) # "Adjust All"
         self.simSetupAction.setEnabled(disable) # "Simulator"
         self.fileSaveAction.setEnabled(disable) # "File Save"
         self.fileSaveAsAction.setEnabled(disable) # "File Save As"

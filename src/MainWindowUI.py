@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\MainWindowUI.ui'
 #
-# Created: Sun Jul 2 17:15:37 2006
+# Created: Sun Jul 2 20:01:53 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6216,9 +6216,9 @@ class MainWindow(QMainWindow):
         self.modifyPassivateAction.setIconSet(QIconSet(self.image21))
         self.jigsMotorAction = QAction(self,"jigsMotorAction")
         self.jigsMotorAction.setIconSet(QIconSet(self.image22))
-        self.modifyMinimizeSelAction = QAction(self,"modifyMinimizeSelAction")
-        self.modifyMinimizeSelAction.setEnabled(1)
-        self.modifyMinimizeSelAction.setIconSet(QIconSet(self.image23))
+        self.modifyAdjustSelAction = QAction(self,"modifyAdjustSelAction")
+        self.modifyAdjustSelAction.setEnabled(1)
+        self.modifyAdjustSelAction.setIconSet(QIconSet(self.image23))
         self.toggleFileTbarAction = QAction(self,"toggleFileTbarAction")
         self.toggleFileTbarAction.setToggleAction(1)
         self.toggleFileTbarAction.setOn(1)
@@ -6508,8 +6508,8 @@ class MainWindow(QMainWindow):
         self.moveDeltaPlusAction.setIconSet(QIconSet(self.image110))
         self.moveAbsoluteAction = QAction(self,"moveAbsoluteAction")
         self.moveAbsoluteAction.setIconSet(QIconSet(self.image111))
-        self.modifyMinimizeAllAction = QAction(self,"modifyMinimizeAllAction")
-        self.modifyMinimizeAllAction.setIconSet(QIconSet(self.image112))
+        self.modifyAdjustAllAction = QAction(self,"modifyAdjustAllAction")
+        self.modifyAdjustAllAction.setIconSet(QIconSet(self.image112))
         self.moveDeltaMinusAction = QAction(self,"moveDeltaMinusAction")
         self.moveDeltaMinusAction.setIconSet(QIconSet(self.image113))
         self.modifyInvertAction = QAction(self,"modifyInvertAction")
@@ -6692,7 +6692,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1087,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1085,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6810,8 +6810,8 @@ class MainWindow(QMainWindow):
         self.modifyToolbar.setEnabled(1)
         self.modifyToolbar.setGeometry(QRect(0,257,30,311))
         self.modifyToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
-        self.modifyMinimizeSelAction.addTo(self.modifyToolbar)
-        self.modifyMinimizeAllAction.addTo(self.modifyToolbar)
+        self.modifyAdjustSelAction.addTo(self.modifyToolbar)
+        self.modifyAdjustAllAction.addTo(self.modifyToolbar)
         self.modifyHydrogenateAction.addTo(self.modifyToolbar)
         self.modifyDehydrogenateAction.addTo(self.modifyToolbar)
         self.modifyPassivateAction.addTo(self.modifyToolbar)
@@ -6973,8 +6973,8 @@ class MainWindow(QMainWindow):
         self.MenuBar.insertItem(QString(""),self.jigsMenu,11)
 
         self.Modify = QPopupMenu(self)
-        self.modifyMinimizeSelAction.addTo(self.Modify)
-        self.modifyMinimizeAllAction.addTo(self.Modify)
+        self.modifyAdjustSelAction.addTo(self.Modify)
+        self.modifyAdjustAllAction.addTo(self.Modify)
         self.modifyPassivateAction.addTo(self.Modify)
         self.modifyHydrogenateAction.addTo(self.Modify)
         self.modifyDehydrogenateAction.addTo(self.Modify)
@@ -7081,8 +7081,8 @@ class MainWindow(QMainWindow):
         self.connect(self.modifyHydrogenateAction,SIGNAL("activated()"),self.modifyHydrogenate)
         self.connect(self.modifyInvertAction,SIGNAL("activated()"),self.modifyInvert)
         self.connect(self.modifyMergeAction,SIGNAL("activated()"),self.modifyMerge)
-        self.connect(self.modifyMinimizeAllAction,SIGNAL("activated()"),self.modifyMinimizeAll)
-        self.connect(self.modifyMinimizeSelAction,SIGNAL("activated()"),self.modifyMinimizeSel)
+        self.connect(self.modifyAdjustAllAction,SIGNAL("activated()"),self.modifyAdjustAll)
+        self.connect(self.modifyAdjustSelAction,SIGNAL("activated()"),self.modifyAdjustSel)
         self.connect(self.modifyMMKitAction,SIGNAL("activated()"),self.modifyMMKit)
         self.connect(self.modifyPassivateAction,SIGNAL("activated()"),self.modifyPassivate)
         self.connect(self.modifySeparateAction,SIGNAL("activated()"),self.modifySeparate)
@@ -7249,10 +7249,9 @@ class MainWindow(QMainWindow):
         self.modifyPassivateAction.setAccel(self.__tr("Ctrl+P"))
         self.jigsMotorAction.setText(self.__tr("Rotary Motor"))
         self.jigsMotorAction.setMenuText(self.__tr("&Rotary Motor"))
-        self.modifyMinimizeSelAction.setText(self.__tr("Minimize Selection"))
-        self.modifyMinimizeSelAction.setMenuText(self.__tr("&Minimize Selection"))
-        self.modifyMinimizeSelAction.setToolTip(self.__tr("Minimize Selection (Ctrl+M)"))
-        self.modifyMinimizeSelAction.setAccel(self.__tr("Ctrl+M"))
+        self.modifyAdjustSelAction.setText(self.__tr("Adjust Selection"))
+        self.modifyAdjustSelAction.setMenuText(self.__tr("Adjust Selection"))
+        self.modifyAdjustSelAction.setToolTip(self.__tr("Adjust Selection"))
         self.toggleFileTbarAction.setText(self.__tr("File"))
         self.toggleFileTbarAction.setMenuText(self.__tr("File"))
         self.toggleEditTbarAction.setText(self.__tr("Edit"))
@@ -7540,8 +7539,8 @@ class MainWindow(QMainWindow):
         self.moveDeltaPlusAction.setMenuText(self.__tr("Move Delta (+)"))
         self.moveAbsoluteAction.setText(self.__tr("Move Absolute"))
         self.moveAbsoluteAction.setMenuText(self.__tr("Move Absolute"))
-        self.modifyMinimizeAllAction.setText(self.__tr("Minimize All"))
-        self.modifyMinimizeAllAction.setMenuText(self.__tr("Minimize All"))
+        self.modifyAdjustAllAction.setText(self.__tr("Adjust All"))
+        self.modifyAdjustAllAction.setMenuText(self.__tr("Adjust All"))
         self.moveDeltaMinusAction.setText(self.__tr("Move Delta (-)"))
         self.moveDeltaMinusAction.setMenuText(self.__tr("Move Delta (-)"))
         self.modifyInvertAction.setText(self.__tr("Invert"))
@@ -7850,8 +7849,8 @@ class MainWindow(QMainWindow):
     def fileSetWorkDir(self):
         print "MainWindow.fileSetWorkDir(): Not implemented yet"
 
-    def modifyMinimizeSel(self):
-        print "MainWindow.modifyMinimizeSel(): Not implemented yet"
+    def modifyAdjustSel(self):
+        print "MainWindow.modifyAdjustSel(): Not implemented yet"
 
     def orientView(self,a0):
         print "MainWindow.orientView(string): Not implemented yet"
@@ -8105,8 +8104,8 @@ class MainWindow(QMainWindow):
     def cookieSelect(self):
         print "MainWindow.cookieSelect(): Not implemented yet"
 
-    def modifyMinimizeAll(self):
-        print "MainWindow.modifyMinimizeAll(): Not implemented yet"
+    def modifyAdjustAll(self):
+        print "MainWindow.modifyAdjustAll(): Not implemented yet"
 
     def modifyInvert(self):
         print "MainWindow.modifyInvert(): Not implemented yet"

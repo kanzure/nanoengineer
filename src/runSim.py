@@ -627,7 +627,7 @@ class SimRunner:
             cutoverMax = orig_cutoverMax = env.prefs[cutoverMax_prefs_key]
             # -1 means left blank, use default; any 0 or negative value entered explicitly will have the same effect.
             # For an explanation of the logic of these formulas, see email from bruce to nanorex-all of 060619,
-            # "test UI for minimizer threshholds". These are mainly for testing -- for final release (A8 or maybe A8.1)
+            # "test UI for minimizer thresholds". These are mainly for testing -- for final release (A8 or maybe A8.1)
             # we are likely to hide all but the first from the UI by default, with the others always being -1.
             if endRMS <= 0:
                 endRMS = 1.0
@@ -656,7 +656,7 @@ class SimRunner:
                     warn("cutoverMax < cutoverRMS is not allowed, using cutoverMax = cutoverRMS")
                     cutoverMax = cutoverRMS # sim C code would use 5.0 * cutoverRMS if we didn't fix this here
             if (endRMS, endMax, cutoverRMS, cutoverMax) != (1.0, 10.0, 50.0, 300.0) or env.debug():
-                msg = "minimize threshholds: endRMS = %0.2f, endMax = %0.2f, cutoverRMS = %0.2f, cutoverMax = %0.2f" % \
+                msg = "minimize thresholds: endRMS = %0.2f, endMax = %0.2f, cutoverRMS = %0.2f, cutoverMax = %0.2f" % \
                       (endRMS, endMax, cutoverRMS, cutoverMax)
                 if (endRMS, endMax, cutoverRMS, cutoverMax) == (1.0, 10.0, 50.0, 300.0):
                     msg += " (default values -- only printed since ATOM_DEBUG is set)"
@@ -667,7 +667,7 @@ class SimRunner:
             simopts.MinimizeThresholdCutoverMax = cutoverMax
         except:
             print_compact_traceback("error in set_minimize_threshhold_prefs (the ones from the last run might be used): ")
-            warn("internal error setting Minimize threshholds; the wrong ones might be used.")
+            warn("internal error setting Minimize thresholds; the wrong ones might be used.")
             pass
         return
             
@@ -811,11 +811,11 @@ class SimRunner:
             # Single shot minimize.
             if mflag: # Assuming mflag = 2. If mflag = 1, filesize could be wrong.  Shouldn't happen, tho.
                 filesize = natoms * 16 # single-frame xyz filesize (estimate)
-                pbarCaption = "Minimize" # might be changed below
+                pbarCaption = "Adjust" # might be changed below
                     #bruce 050415: this string used to be tested in ProgressBar.py, so it couldn't have "All" or "Selection".
                     # Now it can have them (as long as it starts with Minimize, for now) --
                     # so we change it below (to caption from caller), or use this value if caller didn't provide one.
-                pbarMsg = "Minimizing..."
+                pbarMsg = "Adjusting..."
             # Write XYZ trajectory file.
             else:
                 filesize = movie.totalFramesRequested * ((natoms * 28) + 25) # multi-frame xyz filesize (estimate)
@@ -825,7 +825,7 @@ class SimRunner:
             # Multiframe minimize
             if mflag:
                 filesize = (max(100, int(sqrt(natoms))) * natoms * 3) + 4
-                pbarCaption = "Minimize" # might be changed below
+                pbarCaption = "Adjust" # might be changed below
                 pbarMsg = None #bruce 050401 added this
             # Simulate
             else:
@@ -1702,16 +1702,16 @@ class Minimize_CommandRun(CommandRun):
             # Probably that would be a bad idea. [bruce 051129 revised this comment]
         if cmd_subclass_code == 'All':
             cmdtype = MIN_ALL
-            cmdname = "Minimize All"
+            cmdname = "Adjust All"
         elif cmd_subclass_code == 'Atoms':
             #bruce 051129 added this case for Local Minimize (extending a kluge -- needs rewrite to use command-specific subclass)
             cmdtype = LOCAL_MIN
-            cmdname = "Local Minimize"
+            cmdname = "Local Adjustment"
             # self.args is parsed later
         else:
             assert cmd_subclass_code == 'Sel'
             cmdtype = MIN_SEL
-            cmdname = "Minimize Selection"
+            cmdname = "Adjust Selection"
         self.cmdname = cmdname #e in principle this should come from a subclass for the specific command [bruce 051129 comment]
         startmsg = cmdname + ": ..."
         del cmd_subclass_code
@@ -1719,13 +1719,13 @@ class Minimize_CommandRun(CommandRun):
         # Make sure some chunks are in the part.
         # (Valid for all cmdtypes -- Minimize only moves atoms, even if affected by jigs.)
         if not self.part.molecules: # Nothing in the part to minimize.
-            env.history.message(greenmsg(cmdname + ": ") + redmsg("Nothing to minimize."))
+            env.history.message(greenmsg(cmdname + ": ") + redmsg("Nothing to adjust."))
             return
 
         if cmdtype == MIN_SEL:
             selection = self.part.selection_from_glpane() # compact rep of the currently selected subset of the Part's stuff
             if not selection.nonempty():
-                msg = greenmsg(cmdname + ": ") + redmsg("Nothing selected. (Use Minimize All to minimize entire Part.)")
+                msg = greenmsg(cmdname + ": ") + redmsg("Nothing selected. (Use Adjust All to adjust the entire Part.)")
                 env.history.message( msg) #bruce 051129 changed this from redmsg( msg) to msg since msg already includes colors above
                 return
         elif cmdtype == LOCAL_MIN:
@@ -1839,7 +1839,7 @@ class Minimize_CommandRun(CommandRun):
             # history message about how much we're working on; these atomcounts include singlets since they're written as H
             nmoving = simaspect.natoms_moving()
             nfixed  = simaspect.natoms_fixed()
-            info = fix_plurals( "(Minimizing %d atom(s)" % nmoving)
+            info = fix_plurals( "(Adjusting %d atom(s)" % nmoving)
             if nfixed:
                 them_or_it = (nmoving == 1) and "it" or "them"
                 info += fix_plurals(", holding %d atom(s) fixed around %s" % (nfixed, them_or_it) )

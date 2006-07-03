@@ -897,31 +897,31 @@ def createWhatsThis(self):
         # Modify Toolbar
         #
         
-        # Minimize Selection
+        # Adjust Selection
 
-        modifyMinimizeSelActionText = "<u><b>Minimize Selection</b></u>    (Ctrl + M)<br>"\
-                       "<p><img source=\"modifyMinimizeSelAction\"><br> "\
-                       "Arranges the atoms (<i>of the current selection</i>) to their chemically stable point of "\
-                       "equilibrium in reference to the other atoms in the structure."\
+        modifyAdjustSelActionText = "<u><b>Adjust Selection</b></u><br>"\
+                       "<p><img source=\"modifyAdjustSelAction\"><br> "\
+                       "Adjusts the atom and bond positions (<i>of the selection</i>) to make the geometry more realistic. "\
+                       "The operations used to move the atoms and bonds approximate molecular mechanics methods."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyMinimizeSelAction",
-                                                       self.modifyMinimizeSelAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifyAdjustSelAction",
+                                                       self.modifyAdjustSelAction.iconSet().pixmap() )
 
-        self.modifyMinimizeSelAction.setWhatsThis(modifyMinimizeSelActionText )
+        self.modifyAdjustSelAction.setWhatsThis(modifyAdjustSelActionText )
         
-        # Minimize All
+        # Adjust All
 
-        modifyMinimizeAllActionText = "<u><b>Minimize All</b></u></p><br>"\
-                       "<p><img source=\"modifyMinimizeAllAction\"><br> "\
-                       "Arranges the atoms (<i>of the entire part</i>) to their chemically stable point of "\
-                       "equilibrium in reference to the other atoms in the structure."\
+        modifyAdjustAllActionText = "<u><b>Adjust All</b></u><br>"\
+                       "<p><img source=\"modifyAdjustAllAction\"><br> "\
+                       "Adjusts the atom and bond positions (<i>of the entire part</i>) to make the geometry of the part more realistic. "\
+                       "The operations used to move the atoms and bonds approximate molecular mechanics methods."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "modifyMinimizeAllAction",
-                                                       self.modifyMinimizeAllAction.iconSet().pixmap() )
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifyAdjustAllAction",
+                                                       self.modifyAdjustAllAction.iconSet().pixmap() )
 
-        self.modifyMinimizeAllAction.setWhatsThis(modifyMinimizeAllActionText )
+        self.modifyAdjustAllAction.setWhatsThis(modifyAdjustAllActionText )
         
         # Hydrogenate
 

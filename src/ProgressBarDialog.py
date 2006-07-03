@@ -418,7 +418,7 @@ class ProgressBarDialog(QDialog):
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("Minimize"))
+        self.setCaption(self.__tr("Adjust"))
         self.msgLabel.setText(self.__tr("Calculating.  Please wait..."))
         self.msgLabel2.setText(QString.null)
         self.abortPB.setText(self.__tr("Abort"))

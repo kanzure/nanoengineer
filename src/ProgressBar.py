@@ -67,7 +67,7 @@ class ProgressBar( ProgressBarDialog ):
         #  is to remove the progressbar from the dialog during Minimize.
         #  Note that this is hiding or showing self.progressbar, not self as in
         #  the code below. ###e should change this to use a new optional flag]
-        if caption.startswith("Minimize"): #bruce 050415 changed == to startswith
+        if caption.startswith("Adjust"): #bruce 050415 changed == to startswith
             self.progress.hide()
         else:
             self.progress.show()

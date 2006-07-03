@@ -2110,12 +2110,12 @@ class depositMode(selectAtomsMode):
         # local minimize - experimental, nim [bruce 051011, 051207]
         if selatom is not None and not selatom.is_singlet() and self.w.simSetupAction.isEnabled():
             # if simSetupAction is not enabled, a sim process is running.  Fixes bug 1283. mark 060314.
-            ## self.Menu_spec.append(( 'Minimize atom %s' % selatom, selatom.minimize_1_atom )) # older pseudocode
+            ## self.Menu_spec.append(( 'Adjust atom %s' % selatom, selatom.minimize_1_atom )) # older pseudocode
             # experimental. if we leave in these options, some of them might want a submenu.
             # or maybe the layer depth is a dashboard control? or have buttons instead of menu items?
-            self.Menu_spec.append(( 'Minimize atom %s' % selatom, lambda e1=None,a=selatom: self.localmin(a,0) ))
-            self.Menu_spec.append(( 'Minimize 1 layer', lambda e1=None,a=selatom: self.localmin(a,1) ))
-            self.Menu_spec.append(( 'Minimize 2 layers', lambda e1=None,a=selatom: self.localmin(a,2) ))
+            self.Menu_spec.append(( 'Adjust atom %s' % selatom, lambda e1=None,a=selatom: self.localmin(a,0) ))
+            self.Menu_spec.append(( 'Adjust 1 layer', lambda e1=None,a=selatom: self.localmin(a,1) ))
+            self.Menu_spec.append(( 'Adjust 2 layers', lambda e1=None,a=selatom: self.localmin(a,2) ))
         
         # offer to clean up singlet positions (not sure if this item should be so prominent)
         if selatom is not None and not selatom.is_singlet():

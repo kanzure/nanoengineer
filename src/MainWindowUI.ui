@@ -161,8 +161,8 @@
         <action name="jigsDihedralAction"/>
     </item>
     <item text="M&amp;odify" name="Modify">
-        <action name="modifyMinimizeSelAction"/>
-        <action name="modifyMinimizeAllAction"/>
+        <action name="modifyAdjustSelAction"/>
+        <action name="modifyAdjustAllAction"/>
         <action name="modifyPassivateAction"/>
         <action name="modifyHydrogenateAction"/>
         <action name="modifyDehydrogenateAction"/>
@@ -466,7 +466,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1087</width>
+                <width>1085</width>
                 <height>29</height>
             </rect>
         </property>
@@ -863,8 +863,8 @@
         <property name="label">
             <string>Modify</string>
         </property>
-        <action name="modifyMinimizeSelAction"/>
-        <action name="modifyMinimizeAllAction"/>
+        <action name="modifyAdjustSelAction"/>
+        <action name="modifyAdjustAllAction"/>
         <action name="modifyHydrogenateAction"/>
         <action name="modifyDehydrogenateAction"/>
         <action name="modifyPassivateAction"/>
@@ -1424,7 +1424,7 @@
     </action>
     <action>
         <property name="name">
-            <cstring>modifyMinimizeSelAction</cstring>
+            <cstring>modifyAdjustSelAction</cstring>
         </property>
         <property name="enabled">
             <bool>true</bool>
@@ -1433,16 +1433,13 @@
             <iconset>image23</iconset>
         </property>
         <property name="text">
-            <string>Minimize Selection</string>
+            <string>Adjust Selection</string>
         </property>
         <property name="menuText">
-            <string>&amp;Minimize Selection</string>
+            <string>Adjust Selection</string>
         </property>
         <property name="toolTip">
-            <string>Minimize Selection (Ctrl+M)</string>
-        </property>
-        <property name="accel">
-            <string>Ctrl+M</string>
+            <string>Adjust Selection</string>
         </property>
     </action>
     <action>
@@ -3413,16 +3410,16 @@
     </action>
     <action>
         <property name="name">
-            <cstring>modifyMinimizeAllAction</cstring>
+            <cstring>modifyAdjustAllAction</cstring>
         </property>
         <property name="iconSet">
             <iconset>image112</iconset>
         </property>
         <property name="text">
-            <string>Minimize All</string>
+            <string>Adjust All</string>
         </property>
         <property name="menuText">
-            <string>Minimize All</string>
+            <string>Adjust All</string>
         </property>
     </action>
     <action>
@@ -4868,16 +4865,16 @@
         <slot>modifyMerge()</slot>
     </connection>
     <connection>
-        <sender>modifyMinimizeAllAction</sender>
+        <sender>modifyAdjustAllAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>modifyMinimizeAll()</slot>
+        <slot>modifyAdjustAll()</slot>
     </connection>
     <connection>
-        <sender>modifyMinimizeSelAction</sender>
+        <sender>modifyAdjustSelAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>modifyMinimizeSel()</slot>
+        <slot>modifyAdjustSel()</slot>
     </connection>
     <connection>
         <sender>modifyMMKitAction</sender>
@@ -5395,7 +5392,7 @@
     <slot>fileClose()</slot>
     <slot>fileClear()</slot>
     <slot>fileSetWorkDir()</slot>
-    <slot>modifyMinimizeSel()</slot>
+    <slot>modifyAdjustSel()</slot>
     <slot>orientView( string )</slot>
     <slot>setViewFitToWindow()</slot>
     <slot>modifyCopyBond()</slot>
@@ -5480,7 +5477,7 @@
     <slot>showCCGridLine( bool )</slot>
     <slot>setCCFreeView( bool )</slot>
     <slot>cookieSelect()</slot>
-    <slot>modifyMinimizeAll()</slot>
+    <slot>modifyAdjustAll()</slot>
     <slot>modifyInvert()</slot>
     <slot>makeGamess()</slot>
     <slot>JobManager()</slot>
