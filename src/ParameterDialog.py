@@ -211,20 +211,24 @@ class parameter_dialog_or_frame:
                 # so we redundantly test for this here.
                 getter = None
                 paramname = None
+                # set these for use by uniform code at the end (e.g. for tooltips)
+                editfield = None
+                label = None
                 if param.isa('parameter'):
-                    self.members_label = QLabel(self.parameters_grpbox,"members_label")
-                    self.members_label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-                    nt_parameters_body_layout.addWidget(self.members_label,nextrow,0)
-                    hidethese.append(self.members_label)
+                    label = QLabel(self.parameters_grpbox,"members_label")
+                    label.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+                    nt_parameters_body_layout.addWidget(label,nextrow,0)
+                    hidethese.append(label)
                     thisrow = nextrow
                     nextrow += 1
                     #e following should be known in a place that knows the input language, not here
                     paramname = param.options.get('name') or (param.args and param.args[0]) or "?"
                     paramlabel = param.options.get('label') or paramname ##e wrong, label "" or none ought to be possible
-                    self.members_label.setText(self.__tr(paramlabel))
+                    label.setText(self.__tr(paramlabel))
                     
                 if param.isa('parameter', widget = 'combobox', type = ('str',None)):
                     self.members_combox = QComboBox(0,self.parameters_grpbox,"members_combox") ###k  what's 0?
+                    editfield = self.members_combox
                     #### it probably needs a handler class, and then that could do this setup
                     self.members_combox.clear()
                     default = param.options.get('default', None) # None is not equal to any string
@@ -245,6 +249,7 @@ class parameter_dialog_or_frame:
                     # this covers explicit str|lineedit, and 3 default cases str, lineedit, neither.
                     # (i.e. if you say parameter and nothing else, it's str lineedit by default.)
                     self.length_linedit = QLineEdit(self.parameters_grpbox,"length_linedit")
+                    editfield = self.length_linedit
                     nt_parameters_body_layout.addWidget(self.length_linedit,thisrow,1)
                     hidethese.append(self.length_linedit)
                     default = str(param.options.get('default', ""))
@@ -253,6 +258,7 @@ class parameter_dialog_or_frame:
                     
                 elif param.isa('parameter', widget = ('lineedit', None), type = 'float'):
                     self.length_linedit = QLineEdit(self.parameters_grpbox,"length_linedit")
+                    editfield = self.length_linedit
                     nt_parameters_body_layout.addWidget(self.length_linedit,thisrow,1)
                     hidethese.append(self.length_linedit)
                     controller = FloatLineeditController_Qt(self, param, self.length_linedit)
@@ -262,6 +268,7 @@ class parameter_dialog_or_frame:
                 elif param.isa('parameter', widget = ('spinbox', None), type = 'int') or \
                      param.isa('parameter', widget = ('spinbox'), type = None):
                     self.chirality_N_spinbox = QSpinBox(self.parameters_grpbox,"chirality_N_spinbox") # was chirality_m_spinbox, now chirality_N_spinbox
+                    editfield = self.chirality_N_spinbox
                     ### seems like Qt defaults for min and max are 0,100 -- way too small a range!
                     if param.options.has_key('min') or 1:
                         self.chirality_N_spinbox.setMinValue(param.options.get('min', -999999999)) # was 0
@@ -269,13 +276,6 @@ class parameter_dialog_or_frame:
                         self.chirality_N_spinbox.setMaxValue(param.options.get('max', +999999999)) # wasn't in egcode, but needed
                     self.chirality_N_spinbox.setValue(param.options.get('default', 0)) # was 5
                         ##e note: i suspect this default 0 should come from something that knows this desc grammar.
-                    # set tooltip (same one for editfield and label)
-                    tooltip = param.options.get('tooltip', '')
-                    ###e do it for more kinds of params; share the code somehow; do it in controller, or setup-aid?
-                    ###k QToolTip appropriateness; tooltip option might be entirely untested
-                    if tooltip:
-                        QToolTip.add(self.chirality_N_spinbox,self.__tr(tooltip))
-                        QToolTip.add(self.members_label,self.__tr(tooltip)) ##k ok?? review once not all params have same-row labels.
                     suffix = param.options.get('suffix', '')
                     if suffix:
                         self.chirality_N_spinbox.setSuffix(self.__tr(suffix))
@@ -287,6 +287,18 @@ class parameter_dialog_or_frame:
                     
                 else:
                     print "didn't match:",param ###e improve this
+
+                # things done the same way for all kinds of param-editing widgets
+                if 1: #bruce 060703 moved this down here, as bugfix
+                    # set tooltip (same one for editfield and label)
+                    tooltip = param.options.get('tooltip', '')
+                    ###e do it for more kinds of params; share the code somehow; do it in controller, or setup-aid?
+                    ###k QToolTip appropriateness; tooltip option might be entirely untested
+                    if tooltip and label:
+                        QToolTip.add(label, self.__tr(tooltip))
+                    if tooltip and editfield:
+                        QToolTip.add(editfield, self.__tr(tooltip)) ##k ok?? review once not all params have same-row labels.
+                
                 if getter and paramname and paramname != '?':
                     self.param_getters[paramname] = getter
                 ### also bind these params to actions...

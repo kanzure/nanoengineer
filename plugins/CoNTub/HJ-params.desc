@@ -108,5 +108,6 @@ generator:
                 item: "Nitrogen"
                     value: 7
             default: "None" 
+            tooltip: "type of termination to use on both ends"
 
 # end
