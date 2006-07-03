@@ -338,7 +338,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
     def gather_parameters(self):
         n = self.chirality_n_spinbox.value()
         m = self.chirality_m_spinbox.value()
-        assert n > 0, 'n cannot be zero'
+        assert n >= 3, 'n must be at least 3'
         assert n >= m, 'n cannot be smaller than m'
         # Get length from length_linedit and make sure it is not zero.
         # length_linedit's validator makes sure this has a valid number (float).  
