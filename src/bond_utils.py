@@ -24,6 +24,7 @@ from debug import print_compact_stack
 
 
 def intersect_sequences(s1, s2):
+    "Return the intersection of two sequences. If they are sorted in a compatible way, so will be the result."
     return filter( lambda s: s in s2, s1)
 
 def complement_sequences(big, little):
@@ -31,23 +32,34 @@ def complement_sequences(big, little):
 
 def possible_bond_types(bond):
     """Return a list of names of possible bond types for the given bond,
+    in order of increasing bond order,
     based on its atoms' current elements and atomtypes.
-       This list is never empty since single bonds are always possible
+       This list is never empty since single bonds are always deemed possible
     (even if they always induce valence errors, e.g. for H bonded to O(sp2) or in O2).
        For warnings about some choices of bond type (e.g. S=S), see the function bond_type_warning.
-       [###e we might extend this to optionally also permit bonds requiring other atomtypes
-    if those are reachable by altering only open bonds on this bond's actual atoms.]
+       [If you want to permit bonds requiring other atomtypes, when those are reachable
+    by altering only open bonds on this bond's actual atoms, see possible_bond_types_for_elements
+    (related to that goal, but might not do exactly that).]
        Warning: this ignores geometric issues, so it permits double bonds even if they
     would be excessively twisted, and it ignores bond length, bond arrangement in space
     around each atom, etc.
     """
-    s1 = bond.atom1.atomtype.permitted_v6_list
+    s1 = bond.atom1.atomtype.permitted_v6_list # in order of v6
     s2 = bond.atom2.atomtype.permitted_v6_list
-    s12 = intersect_sequences( s1, s2 )
+    s12 = intersect_sequences( s1, s2 ) # order comes from s1; we depend on its coming from one of them or the other
         #e could be faster (since these lists are prefixes of a standard order), but doesn't need to be
     return map( btype_from_v6, s12)
-    
-#obs, partly:
+
+def possible_bond_types_for_elements(bond):
+    "#doc, incl details of what's permitted"
+    permitted1 = bond.atom1.permitted_btypes_for_bond(bond) # dict from v6 to atomtypes which permit it
+    permitted2 = bond.atom2.permitted_btypes_for_bond(bond)
+    poss_v6 = intersect_sequences(permitted1.keys(), permitted2.keys()) # arbitrary order
+    poss_v6.sort() # smallest bond order first
+    poss2 = map( btype_from_v6, poss_v6)
+    return poss2, permitted1, permitted2
+
+#partly-obs comment:
 #e should we put element rules into the above possible_bond_types, or do them separately?
 # and should bonds they disallow be shown disabled, or not even included in the list?
 # and should "unknown" be explicitly in the list?
@@ -94,24 +106,29 @@ def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec
     (If the current bond type is not permitted, it's still present and checked, but disabled,
      and it might have a warning saying it's illegal.)
     """
-    v6 = bond.v6
-    btype_now = btype_from_v6(v6)
-    poss = possible_bond_types(bond) # a list of strings which are bond-type names
+    btype_now = btype_from_v6(bond.v6)
+    poss1 = possible_bond_types(bond) # a list of strings which are bond-type names, in order of increasing bond order
+    poss, permitted1, permitted2 = possible_bond_types_for_elements(bond) # new feature 060703
     ##e could put weird ones (graphitic, carbomeric) last and/or in parens, in subtext below
     types = list(poss)
-    if btype_now not in poss:
+    for btype in poss1:
+        if btype not in types:
+            print "should never happen: %r not in %r" % (btype, poss) # intentional: "not in types" above, "not in poss" here
+            types.append(btype)
+    if btype_now not in types:
         types.append(btype_now) # put this one last, since it's illegal; warning for it is computed later
     assert len(types) > 0
     # types is the list of bond types for which to make menu items, in order;
     # now make them, and figure out which ones are checked and/or disabled;
     # we disable even legal ones iff there is only one bond type in types
-    # (which means, if current type is illegal, the sole legal type is enabled).
+    # (which means, if current type is illegal, it is disabled and the sole legal type is enabled).
     disable_legal_types = (len(types) == 1)
     res = []
     for btype in types: # include current value even if it's illegal
         subtext = "%s bond" % btype # this string might be extended below
         checked = (btype == btype_now)
         command = ( lambda arg1=None, arg2=None, btype=btype, bond=bond: apply_btype_to_bond(btype, bond) )
+        warning = warning2 = ""
         if btype not in poss:
             # illegal btype (note: it will be the current one, and thus be the only checked one)
             warning = "illegal"
@@ -119,14 +136,28 @@ def bond_type_menu_section(bond): #bruce 050716; replaces bond_type_submenu_spec
         else:
             # legal btype
             warning = bond_type_warning(bond, btype) # might be "" (or None??) for no warning
+            if btype not in poss1:
+                # new feature 060703
+                # try1: too long and boring (when in most menu entries):
+                ## warning2 = "would change atomtypes"
+                # try2: say which atomtypes we'd change to, in same order of atoms as the bond name
+                v6 = v6_from_btype(btype)
+                atype1 = best_atype(bond.atom1, permitted1[v6])
+                atype2 = best_atype(bond.atom2, permitted2[v6])
+                in_order = [atype1, atype2] ##e stub; see code in Bond.__str__
+                warning2 = "%s<->%s" % tuple([atype.name for atype in in_order])
             disabled = disable_legal_types
-                # might change this if some neighbor bonds are locked, or if we want to show non-possible choices
+                # might change this if some neighbor bonds are locked (nim), or if we want to show non-possible choices
+        if warning2:
+            subtext += " (%s)" % warning2
         if warning:
             subtext += " (%s)" % warning
         res.append(( subtext, command,
                          disabled and 'disabled' or None,
                          checked and 'checked' or None ))
-    ##e if >1 legal value, maybe we should add a toggleable checkmark item to permit "locking" the bond to its current bond type
+    ##e if >1 legal value, maybe we should add a toggleable checkmark item to permit "locking" the bond to its current bond type;
+    # this won't be needed until we have better bond inference (except maybe for bondpoints),
+    # since right now [still true 060703] we never alter real bond types except when the user does an action on that specific bond.
     return res
 
 ##def bond_type_submenu_spec(bond): #bruce 050705 (#e add options??); probably not used in Alpha6
@@ -215,11 +246,9 @@ def apply_btype_to_bond(btype, bond, allow_remake_bondpoints = True): #bruce 060
     if 1:
         # this is needed for allow_remake_bondpoints,
         # or for history advice about what that could have permitted:
-        permitted1 = bond.atom1.permitted_btypes_for_bond(bond) # dict from v6 to permitting atomtypes
-        permitted2 = bond.atom2.permitted_btypes_for_bond(bond)
-        poss_v6 = intersect_sequences(permitted1.keys(), permitted2.keys()) # purpose of having whole sequence is just the error message
-        poss_v6.sort() # smallest bond order first
-        poss2 = map( btype_from_v6, poss_v6)
+        poss2, permitted1, permitted2 = possible_bond_types_for_elements(bond)
+            # the only purpose of having the whole sequence poss2
+            # (not just one element of it, equal to btype) is the error message
         if btype in poss2:
             atype1 = best_atype(bond.atom1, permitted1[v6])
             atype2 = best_atype(bond.atom2, permitted2[v6])
