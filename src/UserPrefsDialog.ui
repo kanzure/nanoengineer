@@ -9,7 +9,7 @@
             <x>0</x>
             <y>0</y>
             <width>595</width>
-            <height>442</height>
+            <height>481</height>
         </rect>
     </property>
     <property name="caption">
@@ -282,18 +282,12 @@
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <property name="margin">
-                                        <number>4</number>
-                                    </property>
-                                    <property name="spacing">
-                                        <number>1</number>
-                                    </property>
                                     <widget class="QCheckBox">
                                         <property name="name">
                                             <cstring>watch_min_in_realtime_checkbox</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Watch adjustments in real time</string>
+                                            <string>Watch in real time</string>
                                         </property>
                                         <property name="toolTip" stdset="0">
                                             <string>Enable/disable real time graphical updates during adjustments</string>
@@ -441,12 +435,6 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                         <vbox>
                                             <property name="name">
                                                 <cstring>unnamed</cstring>
-                                            </property>
-                                            <property name="margin">
-                                                <number>4</number>
-                                            </property>
-                                            <property name="spacing">
-                                                <number>1</number>
                                             </property>
                                             <widget class="QLayoutWidget">
                                                 <property name="name">

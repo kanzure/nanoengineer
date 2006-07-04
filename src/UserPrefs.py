@@ -222,6 +222,8 @@ class UserPrefs(UserPrefsDialog):
         else:
             print 'Error: Preferences page unknown: ', pagename
 
+        self.mmkit_was_hidden = self.w.hide_MMKit_during_open_or_save_on_MacOS() # Mark 060704
+        
         self.exec_loop()
         # bruce comment 050811: using exec_loop rather than show forces this dialog to be modal.
         # For now, it's probably still only correct if it's modal, so I won't change this for A6.
@@ -1404,6 +1406,7 @@ class UserPrefs(UserPrefsDialog):
     def accept(self):
         '''The slot method for the 'OK' button.'''
         # self._update_prefs() # Mark 050919
+        if self.mmkit_was_hidden: self.glpane.mode.MMKit.show() # Mark 060704.
         QDialog.accept(self)
         
     def reject(self):
@@ -1416,6 +1419,7 @@ class UserPrefs(UserPrefsDialog):
         # This will need to be removed when we implement a true cancel function.
         # Mark 050629.
         # self._update_prefs() # Removed by Mark 050919.
+        if self.mmkit_was_hidden: self.glpane.mode.MMKit.show() # Mark 060704.
         QDialog.reject(self)
 
     pass # end of class UserPrefs

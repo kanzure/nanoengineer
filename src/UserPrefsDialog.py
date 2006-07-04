@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
 #
-# Created: Mon Jul 3 13:56:10 2006
+# Created: Tue Jul 4 14:55:06 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -120,8 +120,8 @@ class UserPrefsDialog(QDialog):
 
         self.groupBox14 = QGroupBox(self.tab,"groupBox14")
         self.groupBox14.setColumnLayout(0,Qt.Vertical)
-        self.groupBox14.layout().setSpacing(1)
-        self.groupBox14.layout().setMargin(4)
+        self.groupBox14.layout().setSpacing(6)
+        self.groupBox14.layout().setMargin(11)
         groupBox14Layout = QVBoxLayout(self.groupBox14.layout())
         groupBox14Layout.setAlignment(Qt.AlignTop)
 
@@ -164,8 +164,8 @@ class UserPrefsDialog(QDialog):
 
         self.groupBox20 = QGroupBox(self.groupBox14,"groupBox20")
         self.groupBox20.setColumnLayout(0,Qt.Vertical)
-        self.groupBox20.layout().setSpacing(1)
-        self.groupBox20.layout().setMargin(4)
+        self.groupBox20.layout().setSpacing(6)
+        self.groupBox20.layout().setMargin(11)
         groupBox20Layout = QVBoxLayout(self.groupBox20.layout())
         groupBox20Layout.setAlignment(Qt.AlignTop)
 
@@ -1425,7 +1425,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(595,442).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(595,481).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -1630,7 +1630,7 @@ class UserPrefsDialog(QDialog):
         self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
         self.groupBox14.setTitle(self.__tr("Adjustment Settings"))
-        self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch adjustments in real time"))
+        self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch in real time"))
         QToolTip.add(self.watch_min_in_realtime_checkbox,self.__tr("Enable/disable real time graphical updates during adjustments"))
         QWhatsThis.add(self.watch_min_in_realtime_checkbox,self.__tr("<p><b>Watch In Real Time</b></p>Enables/disables real time graphical updates during minimizations."))
         self.update_btngrp.setTitle(QString.null)
