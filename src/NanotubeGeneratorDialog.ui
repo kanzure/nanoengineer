@@ -1302,14 +1302,14 @@
         <slot>parameter_fixup()</slot>
     </connection>
     <connection>
-        <sender>members_combox</sender>
+        <sender>endings_combox</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>nanotube_dialog</receiver>
         <slot>parameter_fixup()</slot>
     </connection>
     <connection>
-        <sender>endings_combox</sender>
-        <signal>textChanged(const QString&amp;)</signal>
+        <sender>members_combox</sender>
+        <signal>activated(const QString&amp;)</signal>
         <receiver>nanotube_dialog</receiver>
         <slot>parameter_fixup()</slot>
     </connection>
