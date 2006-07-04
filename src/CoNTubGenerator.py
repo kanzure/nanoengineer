@@ -29,7 +29,7 @@ from HistoryWidget import redmsg, orangemsg, greenmsg, quote_html
 from ParameterDialog import ParameterDialog, ParameterPane
 from GeneratorController import GeneratorController
 from GeneratorBaseClass import UserError, PluginBug, CadBug
-from debug import print_compact_traceback
+from debug import print_compact_traceback, objectBrowse
 import os, sys, time
 from platform import find_or_make_any_directory, tempfiles_dir, find_plugin_dir
 
@@ -551,6 +551,18 @@ class PluginlikeGenerator:
         del viewdata #k or kill?
         thing.name = name
         shelf.kill()
+        # wware 060704 - fix valence problems on the ends
+        while True:
+            found_one = False
+            for atm in thing.atoms.values():
+                if len(atm.realNeighbors()) == 1:
+                    atm.kill()
+                    found_one = True
+            if not found_one:
+                break
+        for atm in thing.atoms.values():
+            if len(atm.realNeighbors()) == 2:
+                atm.set_atomtype('sp2', always_remake_singlets=True)
         # problem: for some kinds of errors, the only indication is that we're inserting a 0-atom mol, not a many-atom mol. hmm.
         ####@@@@
         return thing # doesn't actually insert it, GBC does that
