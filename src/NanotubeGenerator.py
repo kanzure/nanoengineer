@@ -324,10 +324,8 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.validator.setRange(0.0, 1000.0, 2)
         self.length_linedit.setValidator(self.validator)
         self.bond_length_linedit.setValidator(self.validator)
-        self.n_validator = QIntValidator(self)
-        self.n_validator.setRange(3, 1000)
-        self.m_validator = QIntValidator(self)
-        self.m_validator.setRange(0, 1000)
+        self.m = 5
+        self.n = 5
 
         self.cursor_pos = 0
         self.nstr = str(self.chirality_n_spinbox.value())
@@ -492,12 +490,27 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         '''Slot for several validators for different parameters.
         This gets called each time a user types anything into a widget or changes a spinbox.
         '''
-        self.nstr = double_fixup(self.n_validator, str(self.chirality_n_spinbox.value()), self.nstr)
-        n = int(self.nstr)
+        n_previous = int(self.n)
+        m_previous = int(self.m)
+        n = self.chirality_n_spinbox.value()
+        m = self.chirality_m_spinbox.value()
+        # Two restrictions to maintain
+        # n >= 2
+        # 0 <= m <= n
+        if n < 2:
+            n = 2
+        if m != self.m:
+            # The user changed m. If m became larger than n, make n bigger.
+            if m > n:
+                n = m
+        elif n != self.n:
+            # The user changed m. If m became larger than n, make m smaller.
+            if m > n:
+                m = n
         self.chirality_n_spinbox.setValue(n)
-        self.m_validator.setRange(0, n)
-        self.mstr = double_fixup(self.m_validator, str(self.chirality_m_spinbox.value()), self.mstr)
-        self.chirality_m_spinbox.setValue(int(self.mstr))
+        self.chirality_m_spinbox.setValue(m)
+        self.m, self.n = m, n
+
         self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
         self.length_linedit.setText(self.lenstr)
         self.blstr = double_fixup(self.validator, self.bond_length_linedit.text(), self.blstr)
