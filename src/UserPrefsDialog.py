@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
 #
-# Created: Tue Jul 4 14:55:06 2006
+# Created: Tue Jul 4 16:58:12 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1630,7 +1630,7 @@ class UserPrefsDialog(QDialog):
         self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
         self.groupBox14.setTitle(self.__tr("Adjustment Settings"))
-        self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch in real time"))
+        self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch motion in real time"))
         QToolTip.add(self.watch_min_in_realtime_checkbox,self.__tr("Enable/disable real time graphical updates during adjustments"))
         QWhatsThis.add(self.watch_min_in_realtime_checkbox,self.__tr("<p><b>Watch In Real Time</b></p>Enables/disables real time graphical updates during minimizations."))
         self.update_btngrp.setTitle(QString.null)
