@@ -1030,7 +1030,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ok = (minv <= want_valence <= maxv)
         if not ok:
             if len(self.element.atomtypes) > 1:
-                ordiff = " or different atomtypes"
+                ordiff = " or different atomtype"
             else:
                 ordiff = ""
             if maxv < want_valence:
