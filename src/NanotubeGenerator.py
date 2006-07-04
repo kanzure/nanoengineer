@@ -32,9 +32,14 @@ import platform
 
 sqrt3 = 3 ** 0.5
 
+# Linus Pauling
+# http://www.pubmedcentral.gov/articlerender.fcgi?artid=220148
+CC_BONDLENGTH = 1.421   # page 1647
+BN_BONDLENGTH = 1.446   # page 1650
+
 class Chirality:
 
-    def __init__(self, n, m, bond_length=1.40):
+    def __init__(self, n, m, bond_length):
         self.bond_length = bond_length
         self.maxlen = maxlen = 1.2 * bond_length
         self.maxlensq = maxlen**2
@@ -168,8 +173,7 @@ class Chirality:
 
 from debug import linenum
 
-def add_endcap(mol, length, radius):
-    BONDLENGTH = 1.402
+def add_endcap(mol, length, radius, bondlength):
     sphere_center = chem.V(0, length / 2, 0)
     def walk_great_circle(P, Q, D, R=radius):
         """Given two points P and Q on or near the surface of the
@@ -209,7 +213,7 @@ def add_endcap(mol, length, radius):
                     s1p = s1.posn()
                     for s2 in regional_singlets:
                         if s2.key > s1.key and \
-                           vlen(s2.posn() - s1p) < BONDLENGTH:
+                           vlen(s2.posn() - s1p) < bondlength:
                             singlet_pair = (s1, s2)
                             # break out of both for-loops
                             raise Exception
@@ -220,8 +224,8 @@ def add_endcap(mol, length, radius):
                 # length, use those to make the newguy, so he'll have one open bond left
                 sing1, sing2 = singlet_pair
                 owner1, owner2 = sing1.realNeighbors()[0], sing2.realNeighbors()[0]
-                newpos1 = walk_great_circle(owner1.posn(), sing1.posn(), BONDLENGTH)
-                newpos2 = walk_great_circle(owner2.posn(), sing2.posn(), BONDLENGTH)
+                newpos1 = walk_great_circle(owner1.posn(), sing1.posn(), bondlength)
+                newpos2 = walk_great_circle(owner2.posn(), sing2.posn(), bondlength)
                 newpos = 0.5 * (newpos1 + newpos2)
                 regional_singlets.remove(sing1)
                 regional_singlets.remove(sing2)
@@ -235,9 +239,9 @@ def add_endcap(mol, length, radius):
                 else:
                     sing = regional_singlets[0]
                 owner = sing.realNeighbors()[0]
-                newpos = walk_great_circle(owner.posn(), sing.posn(), BONDLENGTH)
+                newpos = walk_great_circle(owner.posn(), sing.posn(), bondlength)
                 regional_singlets.remove(sing)
-            ngen = NeighborhoodGenerator(mol.atoms.values(), 1.1 * BONDLENGTH)
+            ngen = NeighborhoodGenerator(mol.atoms.values(), 1.1 * bondlength)
             # do not include new guy in neighborhood, add him afterwards
             newguy = Atom('C', newpos, mol)
             newguy.set_atomtype('sp2')
@@ -255,10 +259,10 @@ def add_endcap(mol, length, radius):
             for oldguy in ngen.region(newpos):
                 r = oldguy.posn() - newpos
                 rlen = vlen(r)
-                if (len(newguy.realNeighbors()) < 3 and rlen < 1.1 * BONDLENGTH):
-                    if rlen < 0.7 * BONDLENGTH:
+                if (len(newguy.realNeighbors()) < 3 and rlen < 1.1 * bondlength):
+                    if rlen < 0.7 * bondlength:
                         # nudge them apart
-                        nudge = ((0.7 * BONDLENGTH - rlen) / rlen) * r
+                        nudge = ((0.7 * bondlength - rlen) / rlen) * r
                         oldguy.setposn(oldguy.posn() + 0.5 * r)
                         newguy.setposn(newguy.posn() - 0.5 * r)
                     bond_atoms(newguy, oldguy, V_GRAPHITE)
@@ -266,13 +270,13 @@ def add_endcap(mol, length, radius):
                     cleanupSinglets(oldguy)
             if len(newguy.realNeighbors()) > 3:
                 print 'warning: too many bonds on newguy'
-            # Try moving the new guy around to make his bonds closer to BONDLENGTH but
+            # Try moving the new guy around to make his bonds closer to bondlength but
             # keep him on or near the surface of the sphere. Use Newton's method in
             # three dimensions.
             def error(posn):
                 e = (vlen(posn - sphere_center) - radius) ** 2
                 for atm in newguy.realNeighbors():
-                    e += (vlen(atm.posn() - posn) - BONDLENGTH)**2
+                    e += (vlen(atm.posn() - posn) - bondlength)**2
                 return e
             p = newguy.posn()
             for i in range(2):
@@ -319,9 +323,9 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         GeneratorBaseClass.__init__(self, win)
         # Validator for the length linedit widget.
         self.validator = QDoubleValidator(self)
-        # Range of nanotube length (0-1000, 2 decimal places)
+        # Range of nanotube length (0-1000, 3 decimal places)
         # also used to validate bond length
-        self.validator.setRange(0.0, 1000.0, 2)
+        self.validator.setRange(0.0, 1000.0, 3)
         self.length_linedit.setValidator(self.validator)
         self.bond_length_linedit.setValidator(self.validator)
         self.m = 5
@@ -335,6 +339,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.zstr = str(self.z_distortion_linedit.text())
         self.xystr = str(self.xy_distortion_linedit.text())
         self.spstr = str(self.mwcnt_spacing_linedit.text())
+        self.members = self.members_combox.currentItem()
 
     ###################################################
     # How to build this kind of structure, along with
@@ -486,10 +491,11 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
 
         return mol
 
-    def length_fixup(self):
+    def parameter_fixup(self):
         '''Slot for several validators for different parameters.
         This gets called each time a user types anything into a widget or changes a spinbox.
         '''
+        print 'ROCK MY WORLD'
         n_previous = int(self.n)
         m_previous = int(self.m)
         n = self.chirality_n_spinbox.value()
@@ -511,10 +517,21 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.chirality_m_spinbox.setValue(m)
         self.m, self.n = m, n
 
-        self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
-        self.length_linedit.setText(self.lenstr)
+        members = self.members_combox.currentItem()
+        if members != self.members:
+            # The user has switched between C-C and B-N, change the default bond length
+            if members != 0:
+                print BN_BONDLENGTH
+                self.bond_length_linedit.setText(str(BN_BONDLENGTH))
+            else:
+                print CC_BONDLENGTH
+                self.bond_length_linedit.setText(str(CC_BONDLENGTH))
+            self.members = members
+
         self.blstr = double_fixup(self.validator, self.bond_length_linedit.text(), self.blstr)
         self.bond_length_linedit.setText(self.blstr)
+        self.lenstr = double_fixup(self.validator, self.length_linedit.text(), self.lenstr)
+        self.length_linedit.setText(self.lenstr)
         self.zstr = double_fixup(self.validator, self.z_distortion_linedit.text(), self.zstr)
         self.z_distortion_linedit.setText(self.zstr)
         self.xystr = double_fixup(self.validator, self.xy_distortion_linedit.text(), self.xystr)
