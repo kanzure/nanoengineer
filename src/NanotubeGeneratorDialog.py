@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Mon Jul 3 15:03:03 2006
+# Created: Tue Jul 4 17:54:51 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -754,17 +754,19 @@ class nanotube_dialog(QDialog):
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
         self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
-        self.connect(self.length_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
+        self.connect(self.length_linedit,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
         self.connect(self.preview_btn,SIGNAL("clicked()"),self.preview_btn_clicked)
         self.connect(self.abort_btn,SIGNAL("clicked()"),self.abort_btn_clicked)
         self.connect(self.done_btn,SIGNAL("clicked()"),self.done_btn_clicked)
-        self.connect(self.bond_length_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
-        self.connect(self.z_distortion_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
-        self.connect(self.xy_distortion_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
-        self.connect(self.mwcnt_spacing_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
+        self.connect(self.bond_length_linedit,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
+        self.connect(self.z_distortion_linedit,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
+        self.connect(self.xy_distortion_linedit,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
+        self.connect(self.mwcnt_spacing_linedit,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
         self.connect(self.restore_defaults_btn,SIGNAL("clicked()"),self.defaults_btn_clicked)
-        self.connect(self.chirality_n_spinbox,SIGNAL("valueChanged(int)"),self.length_fixup)
-        self.connect(self.chirality_m_spinbox,SIGNAL("valueChanged(int)"),self.length_fixup)
+        self.connect(self.chirality_n_spinbox,SIGNAL("valueChanged(int)"),self.parameter_fixup)
+        self.connect(self.chirality_m_spinbox,SIGNAL("valueChanged(int)"),self.parameter_fixup)
+        self.connect(self.members_combox,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
+        self.connect(self.endings_combox,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
 
 
     def languageChange(self):
@@ -916,8 +918,8 @@ class nanotube_dialog(QDialog):
     def done_btn_clicked(self):
         print "nanotube_dialog.done_btn_clicked(): Not implemented yet"
 
-    def length_fixup(self):
-        print "nanotube_dialog.length_fixup(): Not implemented yet"
+    def parameter_fixup(self):
+        print "nanotube_dialog.parameter_fixup(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("nanotube_dialog",s,c)

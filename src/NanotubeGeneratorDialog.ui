@@ -1239,7 +1239,7 @@
         <sender>length_linedit</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>nanotube_dialog</receiver>
-        <slot>length_fixup()</slot>
+        <slot>parameter_fixup()</slot>
     </connection>
     <connection>
         <sender>preview_btn</sender>
@@ -1263,25 +1263,25 @@
         <sender>bond_length_linedit</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>nanotube_dialog</receiver>
-        <slot>length_fixup()</slot>
+        <slot>parameter_fixup()</slot>
     </connection>
     <connection>
         <sender>z_distortion_linedit</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>nanotube_dialog</receiver>
-        <slot>length_fixup()</slot>
+        <slot>parameter_fixup()</slot>
     </connection>
     <connection>
         <sender>xy_distortion_linedit</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>nanotube_dialog</receiver>
-        <slot>length_fixup()</slot>
+        <slot>parameter_fixup()</slot>
     </connection>
     <connection>
         <sender>mwcnt_spacing_linedit</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>nanotube_dialog</receiver>
-        <slot>length_fixup()</slot>
+        <slot>parameter_fixup()</slot>
     </connection>
     <connection>
         <sender>restore_defaults_btn</sender>
@@ -1293,15 +1293,30 @@
         <sender>chirality_n_spinbox</sender>
         <signal>valueChanged(int)</signal>
         <receiver>nanotube_dialog</receiver>
-        <slot>length_fixup()</slot>
+        <slot>parameter_fixup()</slot>
     </connection>
     <connection>
         <sender>chirality_m_spinbox</sender>
         <signal>valueChanged(int)</signal>
         <receiver>nanotube_dialog</receiver>
-        <slot>length_fixup()</slot>
+        <slot>parameter_fixup()</slot>
+    </connection>
+    <connection>
+        <sender>members_combox</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>nanotube_dialog</receiver>
+        <slot>parameter_fixup()</slot>
+    </connection>
+    <connection>
+        <sender>endings_combox</sender>
+        <signal>textChanged(const QString&amp;)</signal>
+        <receiver>nanotube_dialog</receiver>
+        <slot>parameter_fixup()</slot>
     </connection>
 </connections>
+<includes>
+    <include location="local" impldecl="in implementation">NanotubeGeneratorDialog.ui.h</include>
+</includes>
 <slots>
     <slot>toggle_nt_distortion_grpbox()</slot>
     <slot>open_sponsor_homepage()</slot>
@@ -1318,7 +1333,7 @@
     <slot>preview_btn_clicked()</slot>
     <slot>abort_btn_clicked()</slot>
     <slot>done_btn_clicked()</slot>
-    <slot>length_fixup()</slot>
+    <slot>parameter_fixup()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
