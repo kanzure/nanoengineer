@@ -1012,7 +1012,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ok = (minv <= want_valence <= maxv)
         return not ok
 
-    def bad_valence_explanation(self): #bruce 050806 ####@@@@ use more widely
+    def bad_valence_explanation(self): #bruce 050806; revised 060703 ####@@@@ use more widely
         """Return the reason self's valence is bad (as a short text string), or '' if it's not bad.
         [#e Some callers might want an even shorter string; if so, we'll add an option to ask for that,
          and perhaps implement it by stripping off " -- " and whatever follows that.]
@@ -1029,10 +1029,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         want_valence = self.atomtype.valence
         ok = (minv <= want_valence <= maxv)
         if not ok:
+            if len(self.element.atomtypes) > 1:
+                ordiff = " or different atomtypes"
+            else:
+                ordiff = ""
             if maxv < want_valence:
-                return "valence too small -- need higher order for some bonds" #e improve this text
+                return "valence too small -- need higher bond orders" + ordiff
             elif minv > want_valence:
-                return "valence too large -- need lower order for some bonds"
+                return "valence too large -- need lower bond orders" + ordiff
             else:
                 return "internal error in valence-checking code"
         else:
