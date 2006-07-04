@@ -495,7 +495,6 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         '''Slot for several validators for different parameters.
         This gets called each time a user types anything into a widget or changes a spinbox.
         '''
-        print 'ROCK MY WORLD'
         n_previous = int(self.n)
         m_previous = int(self.m)
         n = self.chirality_n_spinbox.value()
@@ -521,10 +520,8 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         if members != self.members:
             # The user has switched between C-C and B-N, change the default bond length
             if members != 0:
-                print BN_BONDLENGTH
                 self.bond_length_linedit.setText(str(BN_BONDLENGTH))
             else:
-                print CC_BONDLENGTH
                 self.bond_length_linedit.setText(str(CC_BONDLENGTH))
             self.members = members
 
