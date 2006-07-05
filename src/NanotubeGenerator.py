@@ -492,6 +492,8 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         '''Slot for several validators for different parameters.
         This gets called each time a user types anything into a widget or changes a spinbox.
         '''
+        if not hasattr(self, 'n'):
+            return
         n_previous = int(self.n)
         m_previous = int(self.m)
         n = self.chirality_n_spinbox.value()
