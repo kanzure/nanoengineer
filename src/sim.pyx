@@ -328,7 +328,7 @@ frameFreq = 1
 
 callbackCounter = 0
 
-def myCallback():
+def myCallback(last_frame):
     global frameNumber
     frameNumber = frameNumber + 1
     if (frameNumber % frameFreq) == 0:
