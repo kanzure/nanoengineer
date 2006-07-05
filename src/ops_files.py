@@ -34,6 +34,17 @@ from HistoryWidget import greenmsg, redmsg, orangemsg, _graymsg
 import preferences
 import env
 
+def set_waitcursor(on_or_off):
+    """For on_or_off True, set the main window waitcursor.
+    For on_or_off False, revert to the prior cursor.
+    [It might be necessary to always call it in matched pairs, I don't know [bruce 050401]. #k]
+    """
+    if on_or_off:
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+    else:
+        QApplication.restoreOverrideCursor() # Restore the cursor
+    return
+
 debug_part_files = True #&&& Debug prints to history. Change to False after QA. Mark 060703 [revised by bruce 060704]
 
 def fileparse(name): #bruce 050413 comment: see also filesplit and its comments.
@@ -509,14 +520,18 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         Return errorcode, message (message might be for error or for success, but is not needed for success except for debugging).
         Might also print history messages (and in future, maintain progress indicators) about progress.
         """
+        set_waitcursor(True)
         if not oldPartFilesDir:
+            set_waitcursor(False)
             return 0, "No part files directory to copy."
         
         errorcode, newPartFilesDir = self.assy.get_part_files_directory() # misnamed -- actually just gets its name
         if errorcode:
+            set_waitcursor(False)
             return 1, "Problem getting part files directory name: " + newPartFilesDir
             
         if oldPartFilesDir == newPartFilesDir:
+            set_waitcursor(False)
             return 0, "Nothing copied since the part files directory is the same."
         
         if os.path.exists(newPartFilesDir): 
@@ -554,6 +569,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 try:
                     shutil.rmtree(newPartFilesDir)
                 except:
+                    set_waitcursor(False)
                     return 1, "Problem removing an existing part files directory [%s]" % newPartFilesDir
         
         # time to start copying; tell the user what's happening
@@ -566,8 +582,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         try:
             shutil.copytree(oldPartFilesDir, newPartFilesDir)
         except:
-            return 1, "Problem copying files to the new part files directory " + newPartFilesDir
+            set_waitcursor(False)
+            return 1, "Problem copying files to the new parts file directory " + newPartFilesDir
 
+        set_waitcursor(False)
         env.history.message( "Done.")
         return 0, 'Part files copied from "' + oldPartFilesDir + '" to "' + newPartFilesDir + '"'
 
