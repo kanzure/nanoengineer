@@ -1,6 +1,6 @@
 # Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 '''
-MinimizeEnergyProp.py - the MinimizeEnergyPorp class, including all methods needed by the Minimize Energy dialog.
+MinimizeEnergyProp.py - the MinimizeEnergyProp class, including all methods needed by the Minimize Energy dialog.
 
 $Id$
 
@@ -48,6 +48,7 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         
     def cancel_btn_clicked(self):
         'Slot for Cancel button.'
+        QDialog.reject(self)
         
     def restore_defaults_btn_clicked(self):
         'Slot for Restore Defaults button.'
