@@ -29,13 +29,16 @@ from files_gms import readgms, insertgms
 from files_mmp import readmmp, insertmmp, fix_assy_and_glpane_views_after_readmmp
 from debug import print_compact_traceback
 
-from HistoryWidget import greenmsg, redmsg, orangemsg
+from HistoryWidget import greenmsg, redmsg, orangemsg, _graymsg
 
 import preferences
 import env
 
-    
+debug_part_files = True #&&& Debug prints to history. Change to False after QA. Mark 060703 [revised by bruce 060704]
+
 def fileparse(name): #bruce 050413 comment: see also filesplit and its comments.
+    # This has known bugs (e.g. for basename containing two dots);
+    # should be revised to use os.path.split and splitext. ###@@@
     """breaks name into directory, main name, and extension in a tuple.
     fileparse('~/foo/bar/gorp.xam') ==> ('~/foo/bar/', 'gorp', '.xam')
     """
@@ -474,30 +477,44 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             
             errorcode, oldPartFilesDir = self.assy.find_or_make_part_files_directory(make = False) # Mark 060703.
             if errorcode:
-                oldPartFilesDir = None # Make sure.
+                # This code is guessing that the "error" is only that the old part_files_dir is not there.
+                # If there is some other error, we need to print a history warning about it,
+                # and then we can proceed as if the dir was not there. Printing that message is not implemented yet. ####@@@@
+                # [bruce 060704 comment]
+                oldPartFilesDir = None # Make sure we don't try to copy it.
 
             self.saved_main_file(safile, fil)
-            
-            errorcode, errortext = self.copy_part_files_dir(oldPartFilesDir) # Mark 060703.
-            if errorcode:
-                env.history.message( orangemsg("Problem copying part files. Error: " + errortext ))
-            else:
-                #&&& Debug statement. Comment out after QA. Mark 060703.
-                env.history.message( greenmsg("Success. " + errortext )) 
 
             env.history.message( "MMP file saved: " + self.assy.filename )
-                #bruce 050907 moved this after mt_update (which is now in saved_main_file)
+                #bruce 060704 moved this before copying part files,
+                # which will now ask for permission before removing files,
+                # and will start and end with a history message if it does anything.
+
+            if oldPartFilesDir: #bruce 060704 revised this code
+                errorcode, errortext = self.copy_part_files_dir(oldPartFilesDir) # Mark 060703. [only copies them if they exist]
+                    #bruce 060704 will modify that function, e.g. to make it print a history message when it starts copying.
+                if errorcode:
+                    env.history.message( orangemsg("Problem copying part files: " + errortext ))
+                else:
+                    if debug_part_files:
+                        env.history.message( _graymsg("debug: Success copying part files: " + errortext ))
+            else:
+                if debug_part_files:
+                    env.history.message( _graymsg("debug: No part files to copy." ))
+            
         return
     
-    def copy_part_files_dir(self, oldPartFilesDir): # Mark 060703. NFR bug 2042.
+    def copy_part_files_dir(self, oldPartFilesDir): # Mark 060703. NFR bug 2042. Revised by bruce 060704 for user safety, history.
         """Recursively copy the entire directory tree rooted at oldPartFilesDir to the assy's (new) Part Files directory.
+        Return errorcode, message (message might be for error or for success, but is not needed for success except for debugging).
+        Might also print history messages (and in future, maintain progress indicators) about progress.
         """
         if not oldPartFilesDir:
             return 0, "No part files directory to copy."
         
-        errorcode, newPartFilesDir = self.assy.get_part_files_directory()
+        errorcode, newPartFilesDir = self.assy.get_part_files_directory() # misnamed -- actually just gets its name
         if errorcode:
-            return 1, "Problem getting parts file directory. Error: " + newPartFilesDir
+            return 1, "Problem getting part files directory name: " + newPartFilesDir
             
         if oldPartFilesDir == newPartFilesDir:
             return 0, "Nothing copied since the part files directory is the same."
@@ -505,19 +522,53 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if os.path.exists(newPartFilesDir): 
             # Destination directory must not exist. copytree() will create it.
             # Assume the user was prompted and confirmed overwriting the MMP file, 
-            # and thus its part files directory, so remove oldPartFilesDir.
+            # and thus its part files directory, so remove newPartFilesDir.
+            
+            #bruce 060704 revision -- it's far too dangerous to do this without explicit permission.
+            # Best fix would be to integrate this permission with the one for overwriting the main mmp file
+            # (which may or may not have been given at this point, in the current code --
+            #  it might be that the newPartFilesDir exists even if the new mmp file doesn't).
+            # For now, if no time for better code for A8, just get permission here. ###@@@
             if os.path.isdir(newPartFilesDir):
+                if "need permission":
+                    # ... confirm overwrite of the existing file. [code copied from another method above]
+                    ret = QMessageBox.warning( self, self.name(), ###k what is self.name()?
+                        "The Part Files directory for the copied mmp file,\n[" + newPartFilesDir + "], already exists.\n"\
+                        "Do you want to overwrite this directory, or skip copying the Part Files from the old mmp file?\n"\
+                        "(If you skip copying them now, you can rename this directory and copy them using your OS;\n"\
+                        "if you don't rename it, the copied mmp file will use it as its own Part Files directory.)",
+                        "&Overwrite", "&Skip", None,
+                        0,      # Enter == button 0
+                        1 )     # Escape == button 1
+
+                    if ret==1: # The user wants to skip copying the part files
+                        msg = "Not copying Part Files; preexisting Part Files directory at new name [%s] will be used unless renamed." % newPartFilesDir
+                        env.history.message( orangemsg( msg ) )
+                        return 0, "Nothing copied since user skipped overwriting existing part files directory"
+                    else:
+                        # even this could take a long time; and the user needs to have a record that we're doing it
+                        # (in case they later realize it was a mistake).
+                        msg = "Removing existing part files directory [%s]" % newPartFilesDir
+                        env.history.message( orangemsg( msg ) )
+                        env.history.h_update() # needed, since following op doesn't processEvents and might take a long time
                 try:
                     shutil.rmtree(newPartFilesDir)
                 except:
-                    return 1, "Problem removing an existing parts file directory " + newPartFilesDir
-
-        print "Copying from " + oldPartFilesDir + " to " + newPartFilesDir
+                    return 1, "Problem removing an existing part files directory [%s]" % newPartFilesDir
+        
+        # time to start copying; tell the user what's happening
+        # [in future, ASAP, this needs to be abortable, and maybe have a progress indicator]
+        ###e this ought to have a wait cursor; should grab code from e.g. SurfaceChunks
+        msg = "Copying part files from [%s] to [%s]" % ( oldPartFilesDir, newPartFilesDir )
+        env.history.message( msg )
+        env.history.h_update() # needed
+        
         try:
             shutil.copytree(oldPartFilesDir, newPartFilesDir)
         except:
-            return 1, "Problem copying files to the new parts file directory " + newPartFilesDir
-        
+            return 1, "Problem copying files to the new part files directory " + newPartFilesDir
+
+        env.history.message( "Done.")
         return 0, 'Part files copied from "' + oldPartFilesDir + '" to "' + newPartFilesDir + '"'
 
     def saved_main_file(self, safile, fil): #bruce 050907 split this out of mmp and pdb saving code
