@@ -520,6 +520,17 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         Return errorcode, message (message might be for error or for success, but is not needed for success except for debugging).
         Might also print history messages (and in future, maintain progress indicators) about progress.
         """
+        class ExceptionInfoCollector:
+            def __init__(self):
+                self.str = ''
+            def write(self, x):
+                self.str += x
+            def handle_exception(self):
+                import sys, traceback
+                traceback.print_tb(sys.exc_traceback, file=self)
+                for s in self.str.split("\n")[:-1]:
+                    env.history.message(redmsg(s))
+        eic = ExceptionInfoCollector()
         set_waitcursor(True)
         if not oldPartFilesDir:
             set_waitcursor(False)
@@ -569,6 +580,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 try:
                     shutil.rmtree(newPartFilesDir)
                 except:
+                    eic.handle_exception()
                     set_waitcursor(False)
                     return 1, "Problem removing an existing part files directory [%s]" % newPartFilesDir
         
@@ -581,7 +593,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         try:
             shutil.copytree(oldPartFilesDir, newPartFilesDir)
+            raise Exception("ouch")
         except:
+            eic.handle_exception()
             set_waitcursor(False)
             return 1, "Problem copying files to the new parts file directory " + newPartFilesDir
 
