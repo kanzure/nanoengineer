@@ -620,7 +620,7 @@
                                     </property>
                                     <property name="whatsThis" stdset="0">
                                         <string>&lt;b&gt;Bond Length&lt;/b&gt;
-&lt;p&gt;Specify the bond length between carbon atoms in angstroms.&lt;/p&gt;</string>
+&lt;p&gt;Specify the bond length between atoms in angstroms.&lt;/p&gt;</string>
                                     </property>
                                 </widget>
                             </grid>

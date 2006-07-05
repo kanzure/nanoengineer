@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Tue Jul 4 18:05:15 2006
+# Created: Wed Jul 5 00:50:16 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -828,7 +828,7 @@ class nanotube_dialog(QDialog):
         self.bond_length_linedit.setText(self.__tr("1.40"))
         QToolTip.add(self.bond_length_linedit,self.__tr("Bond length in angstroms"))
         QWhatsThis.add(self.bond_length_linedit,self.__tr("<b>Bond Length</b>\n"
-"<p>Specify the bond length between carbon atoms in angstroms.</p>"))
+"<p>Specify the bond length between atoms in angstroms.</p>"))
         self.tube_distortions_grpbox.setTitle(QString.null)
         self.parameters_grpbox_label_2.setText(self.__tr("Nanotube Distortions"))
         self.nt_distortion_grpbtn.setText(QString.null)
