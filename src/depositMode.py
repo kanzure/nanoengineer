@@ -2131,8 +2131,8 @@ class depositMode(selectAtomsMode):
                 pass
             pass
 
-        # This is duplicated in selectMode.makeMenus(). mark 060314.
-        # local minimize - experimental, nim [bruce 051011, 051207]
+        # Local minimize [now called Adjust Atoms in history/Undo, Adjust <what> here and in selectMode -- mark & bruce 060705]
+        # WARNING: This code is duplicated in selectMode.makeMenus(). mark 060314.
         if selatom is not None and not selatom.is_singlet() and self.w.simSetupAction.isEnabled():
             # if simSetupAction is not enabled, a sim process is running.  Fixes bug 1283. mark 060314.
             ## self.Menu_spec.append(( 'Adjust atom %s' % selatom, selatom.minimize_1_atom )) # older pseudocode

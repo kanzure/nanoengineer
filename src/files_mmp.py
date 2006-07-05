@@ -907,7 +907,7 @@ class _readmmp_state:
                 #  even file comment, from old files -- sorry; maybe we should add an mmp record for
                 #  the command that made the file! Will it be bad that file contents are nondet (eg for md5)?
                 #  Probably not, since they were until recently anyway, due to dict item arb order.)
-                msg = "mmp file probably written by Minimize or Simulate -- " \
+                msg = "mmp file probably written by Adjust or Minimize or Simulate -- " \
                       "lacks original file's chunk/group structure and display modes; " \
                       "unreadable by pre-Alpha5 versions unless resaved." #e revise version name
             elif type == 'no_shelf':
@@ -1316,7 +1316,7 @@ class writemmp_mapping: #bruce 050322, to help with minimize selection and other
         self.fp.write("mmpformat %s\n" % assy.mmpformat)
         
         if self.min:
-            self.fp.write("# mmp file written by Minimize; can't be read before Alpha5\n")
+            self.fp.write("# mmp file written by Adjust or Minimize; can't be read before Alpha5\n")
         elif self.sim:
             self.fp.write("# mmp file written by Simulate; can't be read before Alpha5\n")
         

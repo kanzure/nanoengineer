@@ -1375,16 +1375,13 @@ class selectMode(basicMode):
         
         self.Menu_spec = []
         
-        # This is duplicated in depositMode.makeMenus(). mark 060314.
-        # local minimize - experimental, nim [bruce 051011, 051207]
+        # Local minimize [now called Adjust Atoms in history/Undo, Adjust <what> here and in selectMode -- mark & bruce 060705]
+        # WARNING: This code is duplicated in depositMode.makeMenus(). mark 060314.
         if selatom is not None and not selatom.is_singlet() and self.w.simSetupAction.isEnabled():
-            # if simSetupAction is not enabled, a sim process is running.  Fixes bug 1283. mark 060314.
-            ## self.Menu_spec.append(( 'Minimize atom %s' % selatom, selatom.minimize_1_atom )) # older pseudocode
-            # experimental. if we leave in these options, some of them might want a submenu.
-            # or maybe the layer depth is a dashboard control? or have buttons instead of menu items?
-            self.Menu_spec.append(( 'Minimize atom %s' % selatom, lambda e1=None,a=selatom: self.localmin(a,0) ))
-            self.Menu_spec.append(( 'Minimize 1 layer', lambda e1=None,a=selatom: self.localmin(a,1) ))
-            self.Menu_spec.append(( 'Minimize 2 layers', lambda e1=None,a=selatom: self.localmin(a,2) ))
+            # see comments in depositMode version
+            self.Menu_spec.append(( 'Adjust atom %s' % selatom, lambda e1=None,a=selatom: self.localmin(a,0) ))
+            self.Menu_spec.append(( 'Adjust 1 layer', lambda e1=None,a=selatom: self.localmin(a,1) ))
+            self.Menu_spec.append(( 'Adjust 2 layers', lambda e1=None,a=selatom: self.localmin(a,2) ))
             
         # selobj-specific menu items. [revised by bruce 060405; for more info see the same code in depositMode]
         if selobj is not None and hasattr(selobj, 'make_selobj_cmenu_items'):
@@ -1416,11 +1413,12 @@ class selectMode(basicMode):
         self.o.jigSelectionEnabled = not self.o.jigSelectionEnabled
     
     # localmin moved here from depositMode. mark 060314.
+    # Local minimize [now called Adjust Atoms in history/Undo, Adjust <what> in menu commands -- mark & bruce 060705]
     def localmin(self, atom, nlayers): #bruce 051207 #e might generalize to take a list or pair of atoms, other options
         if platform.atom_debug:
-            print "atom_debug: reloading runSim on each use, for development [localmin %s, %d]" % (atom, nlayers)
-            import runSim
-            reload(runSim)
+            print "debug: reloading runSim on each use, for development [localmin %s, %d]" % (atom, nlayers)
+            import runSim, debug
+            debug.reload_once_per_event(runSim) #bruce 060705 revised this
         from runSim import LocalMinimize_function
         LocalMinimize_function( [atom], nlayers )
         return

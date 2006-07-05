@@ -35,7 +35,7 @@ from math import sqrt
 from SimSetup import SimSetup
 from qt import QApplication, QCursor, Qt, QStringList, QProcess, QObject, SIGNAL
 from movie import Movie
-from HistoryWidget import redmsg, greenmsg, orangemsg, quote_html
+from HistoryWidget import redmsg, greenmsg, orangemsg, quote_html, _graymsg
 import env
 from env import seen_before
 from VQT import A, V
@@ -619,8 +619,11 @@ class SimRunner:
         try:
             if env.debug():
                 print "debug: running set_minimize_threshhold_prefs"
+            #####@@@@@ we'll probably use different prefs keys depending on an arg that tells us which command-class to use,
+            # Adjust, Minimize, or Adjust Atoms; maybe some function in prefs_constants will return the prefs_key,
+            # so all the UI code can call it too. [bruce 060705]
             from prefs_constants import endRMS_prefs_key, endMax_prefs_key
-            from prefs_constants import cutoverRMS_prefs_key, cutoverMax_prefs_key
+            from prefs_constants import cutoverRMS_prefs_key, cutoverMax_prefs_key #####@@@@@ DEPENDS ON COMMAND
             endRMS = env.prefs[endRMS_prefs_key]
             endMax = env.prefs[endMax_prefs_key]
             cutoverRMS = env.prefs[cutoverRMS_prefs_key]
@@ -629,17 +632,18 @@ class SimRunner:
             # For an explanation of the logic of these formulas, see email from bruce to nanorex-all of 060619,
             # "test UI for minimizer thresholds". These are mainly for testing -- for final release (A8 or maybe A8.1)
             # we are likely to hide all but the first from the UI by default, with the others always being -1.
+            #   Revising formulas for A8 release, bruce 060705.
             if endRMS <= 0:
-                endRMS = 1.0
+                endRMS = 1.0 #####@@@@@ DEPENDS ON COMMAND
             if endMax <= 0:
-                endMax = 10.0 * endRMS
+                endMax = 5.0 * endRMS # revised 060705 (factor was 10, now 5)
             elif endMax < endRMS:
                 warn("endMax < endRMS is not allowed, using endMax = endRMS")
                 endMax = endRMS # sim C code would use 5.0 * endRMS if we didn't fix this here
             if cutoverRMS <= 0:
-                cutoverRMS = 50.0
+                cutoverRMS = max( 50.0, endRMS ) # revised 060705
             if cutoverMax <= 0:
-                cutoverMax = 300.0
+                cutoverMax = 5.0 * cutoverRMS # revised 060705, was 300.0
             if cutoverRMS < endRMS:
                 warn("cutoverRMS < endRMS is not allowed, using cutoverRMS,Max = endRMS,Max")
                 cutoverRMS = endRMS
@@ -650,24 +654,27 @@ class SimRunner:
                 cutoverMax = endMax
             if cutoverMax < cutoverRMS:
                 if orig_cutoverMax <= 0:
-                    warn("cutoverMax < cutoverRMS is not allowed, using cutoverMax = 6.0 * cutoverRMS")
-                    cutoverMax = 6.0 * cutoverRMS # sim C code would use 5.0 * cutoverRMS if we didn't fix this here
+                    warn("cutoverMax < cutoverRMS is not allowed, using cutoverMax = 5.0 * cutoverRMS")
+                        # revised 060705 (factor was 6, now 5)
+                    cutoverMax = 5.0 * cutoverRMS # sim C code would use 5.0 * cutoverRMS if we didn't fix this here
                 else:
                     warn("cutoverMax < cutoverRMS is not allowed, using cutoverMax = cutoverRMS")
                     cutoverMax = cutoverRMS # sim C code would use 5.0 * cutoverRMS if we didn't fix this here
-            if (endRMS, endMax, cutoverRMS, cutoverMax) != (1.0, 10.0, 50.0, 300.0) or env.debug():
+            defaults = (1.0, 5.0, 50.0, 250.0) # revised 060705, was (1.0, 10.0, 50.0, 300.0) #####@@@@@ DEPENDS ON COMMAND
+            if (endRMS, endMax, cutoverRMS, cutoverMax) != defaults or env.debug():
                 msg = "convergence criteria: endRMS = %0.2f, endMax = %0.2f, cutoverRMS = %0.2f, cutoverMax = %0.2f" % \
                       (endRMS, endMax, cutoverRMS, cutoverMax)
-                if (endRMS, endMax, cutoverRMS, cutoverMax) == (1.0, 10.0, 50.0, 300.0):
+                if (endRMS, endMax, cutoverRMS, cutoverMax) == defaults:
                     msg += " (default values -- only printed since ATOM_DEBUG is set)"
-                env.history.message(msg)
+                    msg = _graymsg( msg)
+                env.history.message( msg)
             simopts.MinimizeThresholdEndRMS = endRMS
             simopts.MinimizeThresholdEndMax = endMax
             simopts.MinimizeThresholdCutoverRMS = cutoverRMS
             simopts.MinimizeThresholdCutoverMax = cutoverMax
         except:
             print_compact_traceback("error in set_minimize_threshhold_prefs (the ones from the last run might be used): ")
-            warn("internal error setting Minimize thresholds; the wrong ones might be used.")
+            warn("internal error setting convergence criteria; the wrong ones might be used.")
             pass
         return
             
@@ -1730,10 +1737,11 @@ class Minimize_CommandRun(CommandRun):
         elif cmd_subclass_code == 'Atoms':
             #bruce 051129 added this case for Local Minimize (extending a kluge -- needs rewrite to use command-specific subclass)
             cmdtype = LOCAL_MIN
-            cmdname = "Local Minimize" #####@@@@@ might be changed to "Local Adjust", not yet decided; affects depositMode.py too
-            self.word_minimize = "minimize"
-            self.word_minimization = "minimization"
-            self.word_minimizing = "minimizing"
+            cmdname = "Adjust Atoms" #bruce 060705
+            # keep the following for use very soon in Minimize Energy
+##            self.word_minimize = "minimize"
+##            self.word_minimization = "minimization"
+##            self.word_minimizing = "minimizing"
             # self.args is parsed later
         
         else:
@@ -1906,7 +1914,7 @@ class Minimize_CommandRun(CommandRun):
         #bruce 050324 made this from the Part method makeMinMovie.
         suffix = self.part.movie_suffix()
         if suffix is None: #bruce 050316 temporary kluge; as of circa 050326 this is not used anymore
-            env.history.message( redmsg( "Minimize is not yet implemented for clipboard items."))
+            env.history.message( redmsg( "%s is not yet implemented for clipboard items." % self.word_Minimize))
             return
         #e use suffix below? maybe no need since it's ok if the same filename is reused for this.
 
