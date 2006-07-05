@@ -604,7 +604,7 @@ def createWhatsThis(self):
 
         insertDnaActionText = "<u><b>Insert DNA</b></u><br>"\
                        "<p><img source=\"insertDnaAction\"><br> "\
-                       "Inserts a single or double strand of A, B or Z-DNA given a nucleotide sequence. "\
+                       "Inserts a single or double strand of B or Z-DNA given a nucleotide sequence. "\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "insertDnaAction",
