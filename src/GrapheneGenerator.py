@@ -21,6 +21,7 @@ from debug import Stopwatch, objectBrowse
 from Utility import Group
 from GeneratorBaseClass import GeneratorBaseClass
 from elements import PeriodicTable
+from bonds import CC_GRAPHITIC_BONDLENGTH
 
 sqrt3 = 3 ** 0.5
 quartet = ((0, sqrt3 / 2), (0.5, 0), (1.5, 0), (2, sqrt3 / 2))
@@ -43,14 +44,15 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
         GeneratorBaseClass.__init__(self, win)
         # Validator for the linedit widgets.
         self.validator = QDoubleValidator(self)
-        # Range for linedits: 1 to 1000, 2 decimal places
-        self.validator.setRange(1.0, 1000.0, 2)
+        # Range for linedits: 1 to 1000, 3 decimal places
+        self.validator.setRange(1.0, 1000.0, 3)
         self.height_linedit.setValidator(self.validator)
         self.width_linedit.setValidator(self.validator)
         self.bond_length_linedit.setValidator(self.validator)
         self.hstr = self.height_linedit.text()
         self.wstr = self.width_linedit.text()
         self.blstr = self.bond_length_linedit.text()
+        self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
 
     ###################################################
     # How to build this kind of structure, along with

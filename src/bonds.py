@@ -72,6 +72,11 @@ from state_utils import StateMixin #bruce 060223
 from changes import register_changedict, register_class_changedicts
 from debug_prefs import debug_pref, Choice_boolean_False #bruce 060307
 
+# Linus Pauling
+# http://www.pubmedcentral.gov/articlerender.fcgi?artid=220148
+CC_GRAPHITIC_BONDLENGTH = 1.421   # page 1647
+BN_GRAPHITIC_BONDLENGTH = 1.446   # page 1650
+
 try:
     if not debug_pref('Enable pyrex atoms next time', Choice_boolean_False, prefs_key=True):
         raise ImportError

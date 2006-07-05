@@ -26,16 +26,12 @@ from Utility import Group
 from GeneratorBaseClass import GeneratorBaseClass
 from elements import PeriodicTable
 from bonds import bonded, bond_atoms, V_GRAPHITE, NeighborhoodGenerator
+from bonds import CC_GRAPHITIC_BONDLENGTH, BN_GRAPHITIC_BONDLENGTH
 from bonds_from_atoms import make_bonds
 from buckyball import BuckyBall
 import platform
 
 sqrt3 = 3 ** 0.5
-
-# Linus Pauling
-# http://www.pubmedcentral.gov/articlerender.fcgi?artid=220148
-CC_BONDLENGTH = 1.421   # page 1647
-BN_BONDLENGTH = 1.446   # page 1650
 
 class Chirality:
 
@@ -520,9 +516,9 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         if members != self.members:
             # The user has switched between C-C and B-N, change the default bond length
             if members != 0:
-                self.bond_length_linedit.setText(str(BN_BONDLENGTH))
+                self.bond_length_linedit.setText(str(BN_GRAPHITIC_BONDLENGTH))
             else:
-                self.bond_length_linedit.setText(str(CC_BONDLENGTH))
+                self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
             self.members = members
 
         self.blstr = double_fixup(self.validator, self.bond_length_linedit.text(), self.blstr)
