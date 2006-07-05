@@ -509,7 +509,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             if m > n:
                 n = m
         elif n != self.n:
-            # The user changed m. If m became larger than n, make m smaller.
+            # The user changed n. If n became smaller than m, make m smaller.
             if m > n:
                 m = n
         self.chirality_n_spinbox.setValue(n)
