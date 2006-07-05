@@ -538,7 +538,7 @@ class SimRunner:
         self._simopts = self._simobj = self._arguments = None # appropriate subset of these is set below
 
         use_timestep_arg = False
-        if 1: #######@@@@@@@ bruce 060503: add debug_pref to let user vary simulator timestep
+        if 1: ##@@ bruce 060503: add debug_pref to let user vary simulator timestep
             # (we also read the value on import, in separate code above, to make sure it gets into the debug menu right away)
             use_timestep_arg, timestep = timestep_flag_and_arg(mflag)
             # boolean and float (timestep in seconds)
@@ -890,7 +890,7 @@ class SimRunner:
                 env.history.message(orangemsg("(option to not create movie file is not yet implemented)")) # for pyrex sim
                 # NFR/bug 1286; other comments describe how to implement it; it would need a warning
                 # (esp if both checkboxes unchecked, since no frame output in that case, tho maybe tracef warnings alone are useful)
-            editwarning = "Warning: editing structure during sim causes tracebacks; cancelling an abort skips some real time display time"
+            editwarning = "Warning: editing structure while watching motion causes tracebacks; cancelling an abort skips some real time display time"
             if not seen_before(editwarning): #bruce 060317 added this condition
                 env.history.message(orangemsg( editwarning ))
             env.call_qApp_processEvents() # so user can see that history message
@@ -940,7 +940,7 @@ class SimRunner:
                     # Before that it was RuntimeError, but that could overlap with exceptions raised by Python callbacks
                     # (in fact, it briefly had a bug where all such exceptions turned into RuntimeErrors).
                     #
-                    # I didn't yet fully clean up this code for the new exception. [bruce 060112] ######@@@@@@
+                    # I didn't yet fully clean up this code for the new exception. [bruce 060112] ####@@@@
                     if debug_sim_exceptions: #bruce 060111
                         print_compact_traceback("fyi: sim.go aborted with this: ")
                     # following code is wrong unless this was a user abort, but I'm too lazy to test for that from the exception text,
@@ -960,7 +960,7 @@ class SimRunner:
                     ## bug: this fails to cause an abort to be reported by history. might relate to bug 1303.
                     # or might only occur due to current bugs in the pyrex sim, since I think user abort used to work. [bruce 060111]
                     # Initial attempt to fix that -- need to improve errcode after reviewing them all
-                    # (check for errorcode spelling error too? or rename it?) #######@@@@@@@
+                    # (check for errorcode spelling error too? or rename it?) ####@@@@
                     if not self.errcode:
                         print "self.errcode was not set, using -1"
                         self.errcode = -1 # simulator failure [wrong errorcode for user abort, fix this]
@@ -1205,7 +1205,7 @@ class SimRunner:
         self._simopts.Interrupted = True
         if not self.errcode:
             self.errcode = -1
-            #######@@@@@@@ temporary kluge in case of bugs in RuntimeError from that or its handler;
+            ####@@@@ temporary kluge in case of bugs in RuntimeError from that or its handler;
             # also needed until we clean up our code to use the new sim.SimulatorInterrupt instead of RuntimeError [bruce 060111]
         if not wasaborting: #bruce 060601 precaution
             env.history.message( redmsg( "aborting sim run: %s" % why ))
@@ -1461,7 +1461,7 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
         # after the bright red error message.
         try:
             simrun.print_sim_warnings()
-                #bruce 051230 comment: this runs even if sim executable was not found; why?? #####@@@@@
+                #bruce 051230 comment: this runs even if sim executable was not found; why?? ####@@@@
                 # guess: need to check error code from run_using_old_movie_obj_to_hold_sim_params;
                 # that's done by checking simrun.errcode, but I wonder if for some values (like user aborted sim)
                 # we should still print the warnings? So I'll refrain from not trying to print them on errcode, for now.
@@ -1704,39 +1704,67 @@ class Minimize_CommandRun(CommandRun):
         cmd_subclass_code = self.args[0]
         
         assert cmd_subclass_code in ['All','Sel','Atoms'] #e and len(args) matches that?
+
+        # These words and phrases are used in history messages and other UI text;
+        # they should be changed by specific commands as needed.
+        # See also some computed words and phrases, e.g. self.word_Minimize,
+        # below the per-command if stamements. [bruce 060705]
+        self.word_minimize = "adjust"
+        self.word_minimization = "adjustment"
+        self.word_minimizing = "adjusting"
         
         entire_part = (cmd_subclass_code == 'All')
             # (a self attr for entire_part is not yet needed)
             #e someday, entire_part might also be set later if selection happens to include everything, to permit optims,
             # but only for internal use, not for messages to user distinguishing the two commands.
             # Probably that would be a bad idea. [bruce 051129 revised this comment]
+        
         if cmd_subclass_code == 'All':
             cmdtype = MIN_ALL
             cmdname = "Adjust All"
+        
+        elif cmd_subclass_code == 'Sel':
+            cmdtype = MIN_SEL
+            cmdname = "Adjust Selection"
+        
         elif cmd_subclass_code == 'Atoms':
             #bruce 051129 added this case for Local Minimize (extending a kluge -- needs rewrite to use command-specific subclass)
             cmdtype = LOCAL_MIN
-            cmdname = "Local Adjustment"
+            cmdname = "Local Minimize" #####@@@@@ might be changed to "Local Adjust", not yet decided; affects depositMode.py too
+            self.word_minimize = "minimize"
+            self.word_minimization = "minimization"
+            self.word_minimizing = "minimizing"
             # self.args is parsed later
+        
         else:
-            assert cmd_subclass_code == 'Sel'
-            cmdtype = MIN_SEL
-            cmdname = "Adjust Selection"
+            assert 0, "unknown cmd_subclass_code %r" % (cmd_subclass_code,)
         self.cmdname = cmdname #e in principle this should come from a subclass for the specific command [bruce 051129 comment]
         startmsg = cmdname + ": ..."
         del cmd_subclass_code
 
+        def capitalize_first_word(words): #e refile?
+            res = words[0].upper() + words[1:]
+            if res == words:
+                if env.debug():
+                    print "debug warning: %r did not change in capitalize_first_word" % (words,)
+            return res
+        
+        self.word_Minimize = capitalize_first_word( self.word_minimize)
+        self.word_Minimizing = capitalize_first_word( self.word_minimizing)
+
         # Make sure some chunks are in the part.
         # (Valid for all cmdtypes -- Minimize only moves atoms, even if affected by jigs.)
         if not self.part.molecules: # Nothing in the part to minimize.
-            env.history.message(greenmsg(cmdname + ": ") + redmsg("Nothing to adjust."))
+            env.history.message(greenmsg(cmdname + ": ") + redmsg("Nothing to %s." % self.word_minimize))
             return
 
         if cmdtype == MIN_SEL:
             selection = self.part.selection_from_glpane() # compact rep of the currently selected subset of the Part's stuff
             if not selection.nonempty():
-                msg = greenmsg(cmdname + ": ") + redmsg("Nothing selected. (Use Adjust All to adjust the entire Part.)")
-                env.history.message( msg) #bruce 051129 changed this from redmsg( msg) to msg since msg already includes colors above
+                msg = greenmsg(cmdname + ": ") + redmsg("Nothing selected.") + \
+                      " (Use %s All to %s the entire Part.)" % (self.word_Minimize, self.word_minimize)
+                      #e might need further changes for Minimize Energy, if it's confusing that Sel/All is a dialog setting then
+                env.history.message( msg)
                 return
         elif cmdtype == LOCAL_MIN:
             from ops_select import selection_from_atomlist
@@ -1842,14 +1870,14 @@ class Minimize_CommandRun(CommandRun):
             # but the bug254 X->H fix is done (though different code sets the mapping flag that makes it happen).
             nsinglets_H = simaspect.nsinglets_H()
             if nsinglets_H: #bruce 051209 this message code is approximately duplicated elsewhere in this file
-                info = fix_plurals( "(Treating %d bondpoint(s) as Hydrogens, during adjustment)" % nsinglets_H )
+                info = fix_plurals( "(Treating %d bondpoint(s) as Hydrogens, during %s)" % (nsinglets_H, self.word_minimization) )
                 env.history.message( info)
             nsinglets_leftout = simaspect.nsinglets_leftout()
             assert nsinglets_leftout == 0 # for now
             # history message about how much we're working on; these atomcounts include singlets since they're written as H
             nmoving = simaspect.natoms_moving()
             nfixed  = simaspect.natoms_fixed()
-            info = fix_plurals( "(Adjusting %d atom(s)" % nmoving)
+            info = fix_plurals( "(%s %d atom(s)" % (self.word_Minimizing, nmoving))
             if nfixed:
                 them_or_it = (nmoving == 1) and "it" or "them"
                 info += fix_plurals(", holding %d atom(s) fixed around %s" % (nfixed, them_or_it) )

@@ -67,7 +67,7 @@ class ProgressBar( ProgressBarDialog ):
         #  is to remove the progressbar from the dialog during Minimize.
         #  Note that this is hiding or showing self.progressbar, not self as in
         #  the code below. ###e should change this to use a new optional flag]
-        if caption.startswith("Adjust"): #bruce 050415 changed == to startswith
+        if caption.startswith("Adjust") or caption.startswith("Minimiz"): # KLUGE. match Adjust or Minimize or Minimizing [bruce 060705]
             self.progress.hide()
         else:
             self.progress.show()
