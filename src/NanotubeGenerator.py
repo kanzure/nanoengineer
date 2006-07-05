@@ -324,6 +324,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.validator.setRange(0.0, 1000.0, 3)
         self.length_linedit.setValidator(self.validator)
         self.bond_length_linedit.setValidator(self.validator)
+        self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
         self.m = 5
         self.n = 5
 
@@ -572,3 +573,4 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.twist_spinbox.setValue(0)
         self.bend_spinbox.setValue(0)
         self.mwcnt_count_spinbox.setValue(1)
+        self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))

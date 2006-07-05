@@ -213,3 +213,4 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
 
     def defaults_btn_clicked(self):
         self.languageChange()
+        self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
