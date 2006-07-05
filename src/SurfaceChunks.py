@@ -279,24 +279,26 @@ class Surface:
         return om     
     
     def SurfaceTriangles(self, trias):
+        """make projection all points onto molecula"""
 	self.points = []
 	self.trias = []
 	self.Duplicate(trias)
+	self.SurfaceNormals()
 	np = len(self.points)
-        n = 2   #  number of iterations
-        for i in range(n):
-            for j in range(np):
-		p = self.points[j]
-                pt = Triple(p[0],p[1],p[2])
-                n = Triple(-2 * pt.x, -2 * pt.y, -2 * pt.z)
-                n.Normalize()
-                om = self.Predicate(pt)
-                if om < -1.0 : om = -1.0
-                pn = pt - 0.5 * om * n
-                self.points[j] = (pn.x, pn.y, pn.z) 
+        for j in range(np):
+	    p = self.points[j]
+            pt = Triple(p[0],p[1],p[2])
+	    n = self.normals[j]
+	    nt = -Triple(n[0],n[1],n[2])
+	    nt.Normalize()
+            om = self.Predicate(pt)
+            if om < -2.0 : om = -2.0
+            pn = pt - 0.5 * om * nt
+            self.points[j] = (pn.x, pn.y, pn.z) 
         return (self.trias, self.points)        
 
     def Duplicate(self, trias):
+        """delete duplicate points"""
 	eps = 0.0000001
 	n = len(trias)
 	n3 = 3 * n
@@ -311,7 +313,8 @@ class Surface:
 	    points.append(Triple(t[0][0],t[0][1],t[0][2]))
 	    points.append(Triple(t[1][0],t[1][1],t[1][2]))
 	    points.append(Triple(t[2][0],t[2][1],t[2][2]))
-	nb = 16    
+	nb = 17 
+	#use bucket for increase speed
 	bucket = Bucket(nb,points)    
 	for i in range(n3):
 	    p = points[i]
@@ -337,6 +340,7 @@ class Surface:
 	    self.trias.append((ia[3*i]-1,ia[3*i+1]-1,ia[3*i+2]-1))
 	
     def SurfaceNormals(self):
+        """calculate surface normals for all points"""
 	normals = []
 	for i in range(len(self.points)):
 	    normals.append(V(0.0,0.0,0.0))
@@ -351,12 +355,13 @@ class Surface:
 	    normals[t[0]] += n
 	    normals[t[1]] += n
 	    normals[t[2]] += n
-	result = []
+	self.normals = []
 	for n in normals:
-	    result.append((n[0],n[1],n[2]))
-	return result    
+	    self.normals.append((n[0],n[1],n[2]))
+	return self.normals    
 
     def CalculateTorus(self, a, b, u, v):
+        """calculate point on torus"""
 	pi2 = 2 * 3.1415926535897932 
 	#transformation function - torus
 	cf = cos(pi2*u)
@@ -367,6 +372,7 @@ class Surface:
 	return Triple((a+b*ct)*cf, (a+b*ct)*sf, b*st)
 
     def TorusTriangles(self, a, b, n):
+        """generate triangles on torus"""
 	n6 = int(6*a*n)
 	if (n6 == 0): n6 = 6
 	n2 = int(6*b*n)
@@ -408,6 +414,7 @@ class Bucket:
 	    count += 1
     
     def Index(self, p):
+        """calculate index in bucket for point p"""
 	i = (int)(self.n * (p.x + 1) / 2)
 	if i >= self.n : i = self.n - 1
 	j = (int)(self.n * (p.y + 1) / 2)
@@ -417,6 +424,7 @@ class Bucket:
 	return i * self.nn + j * self.n + k
     
     def Array(self, p):
+        """get array from bucket for point p"""
 	return self.a[self.Index(p)]
 	
 	
@@ -506,7 +514,6 @@ class SurfaceChunks(ChunkDisplayMode):
 	env.history.h_update() # Update history widget with last message. # Mark 060623.
 	
         center = chunk.center
-        #points = chunk.atpos - center        
         bcenter = chunk.abs_to_base(center)
         rad = 0.0
 	s = Surface()
@@ -530,7 +537,8 @@ class SurfaceChunks(ChunkDisplayMode):
 	#  create surface 
 	level = 3
 	if rad > 6 : level = 4
-	ts =drawer.getSphereTriangles(level)
+	ts = drawer.getSphereTriangles(level)
+	#ts = s.TorusTriangles(0.7, 0.3, 20)
 	tm = s.SurfaceTriangles(ts)
 	nm = s.SurfaceNormals()
 	
