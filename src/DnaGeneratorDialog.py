@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'DnaGeneratorDialog.ui'
 #
-# Created: Mon Jul 3 15:25:23 2006
+# Created: Wed Jul 5 11:17:40 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1470,10 +1470,9 @@ class dna_dialog(QDialog):
         self.grpbtn1.setText(QString.null)
         self.dna_type_combox.clear()
         self.dna_type_combox.insertItem(self.__tr("B-DNA"))
-        self.dna_type_combox.insertItem(self.__tr("A-DNA"))
         self.dna_type_combox.insertItem(self.__tr("Z-DNA"))
         QWhatsThis.add(self.dna_type_combox,self.__tr("<b>DNA Type</b>\n"
-"<p>There are three DNA geometries, A-DNA, B-DNA, and Z-DNA. Currrently we have not yet implemented A-DNA.</p>"))
+"<p>There are three DNA geometries, A-DNA, B-DNA, and Z-DNA. Currently we have not yet implemented A-DNA.</p>"))
         self.endings_label.setText(self.__tr("Strand Type :"))
         self.endings_combox.clear()
         self.endings_combox.insertItem(self.__tr("Double"))
