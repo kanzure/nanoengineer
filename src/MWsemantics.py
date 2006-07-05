@@ -287,6 +287,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.commentcntl = CommentProp(self)
 
         self.permdialog = PermissionDialog(self)
+        
+        # Minimize Energy dialog. Mark 060705.
+        from MinimizeEnergyProp import MinimizeEnergyProp
+        self.minimize_energy = MinimizeEnergyProp(self)
 
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
@@ -1096,7 +1100,12 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     ###################################
     # Simulator Toolbar Slots
     ###################################
-            
+    
+    def simMinimizeEnergy(self):
+        """Opens the Minimize Energy dialog.
+        """
+        self.minimize_energy.setup()
+        
     def simSetup(self):
         """Creates a movie of a molecular dynamics simulation.
         """
