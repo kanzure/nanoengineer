@@ -123,15 +123,20 @@ setCallbackFunc(PyObject *f, PyObject **cb)
 	*cb = NULL;
 	Py_INCREF(Py_None);
 	return Py_None;
-    } else if (f != NULL && PyCallable_Check(f)) {
+    } else if (f == NULL) {
+	*cb = NULL;
+	PyErr_SetString(PyExc_RuntimeError, "null callback");
+	return NULL;
+    } else if (PyCallable_Check(f)) {
 	Py_INCREF(f);
 	*cb = f;
 	Py_INCREF(Py_None);
 	return Py_None;
+    } else {
+	*cb = NULL;
+	PyErr_SetString(PyExc_RuntimeError, "callback is not callable");
+	return NULL;
     }
-    *cb = NULL;
-    PyErr_SetString(PyExc_RuntimeError, "bad callback");
-    return NULL;
 }
 
 static PyObject *
@@ -167,7 +172,6 @@ do_python_callback(PyObject *callbackFunc, PyObject* args)
     pValue = PyObject_CallObject(callbackFunc, args);
     if (PyErr_Occurred()) {
 	callback_exception = 1;
-        Interrupted = 1;
 	goto fini;
     }
     if (pValue == NULL) {
@@ -178,7 +182,6 @@ do_python_callback(PyObject *callbackFunc, PyObject* args)
 	PyErr_SetString(PyExc_RuntimeError,
 			"callback returned NULL, PyErr_Occurred() not set");
 	callback_exception = 1;
-        Interrupted = 1;
     }
     /*
      * Theoretically we could compare the value of Interrupted at this

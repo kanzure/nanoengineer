@@ -255,13 +255,11 @@ cdef class BaseSimulator:
         setFrameCallbackFunc(frame_callback)
         setWriteTraceCallbackFunc(trace_callback)
         srand(0)
-        try:
-            everythingElse()
-        finally:
-            # I don't want to bother saving/restoring an old frame_callback, 
-            # since I think having a permanent one should be deprecated [bruce 060102]
-            # framebacks are cleared in everythingDone
-            everythingDone()
+        everythingElse()
+        # I don't want to bother saving/restoring an old frame_callback, 
+        # since I think having a permanent one should be deprecated [bruce 060102]
+        # framebacks are cleared in everythingDone
+        everythingDone()
         return
 
     def structCompare(self):
@@ -452,7 +450,7 @@ class Tests(unittest.TestCase):
             d.go(trace_callback=42)
             assert False, "This test should have failed"
         except RuntimeError, e:
-            assert e.args[0] == "bad callback"
+            assert e.args[0] == "callback is not callable"
 
     def test_callWrongSimulatorObject(self):
         try:
