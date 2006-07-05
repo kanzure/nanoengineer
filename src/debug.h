@@ -22,6 +22,7 @@ extern int debug_flags;
 #define DPRINT3(flag, fmt,a,b,c) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c) : (void) 0)
 #define DPRINT4(flag, fmt,a,b,c,d) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c,d) : (void) 0)
 #define DPRINT5(flag, fmt,a,b,c,d,e) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c,d,e) : (void) 0)
+#define DPRINT6(flag, fmt,a,b,c,d,e,f) (DEBUG(flag) ? fprintf(stderr, fmt,a,b,c,d,e,f) : (void) 0)
 
 #define D_TABLE_BOUNDS    (1<<0)
 #define D_READER          (1<<1)

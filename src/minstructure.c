@@ -229,7 +229,7 @@ minimizeStructureGradient(struct configuration *p)
 #endif
     
     writeMinimizeMovieFrame(OutputFile, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++, 0,
-			    "gradient", p->functionDefinition->message);
+			    "gradient", p->functionDefinition->message, evaluate(p));
     if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
 	writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient, "gradient %e %e", rms_force, max_force);
     }
@@ -400,7 +400,7 @@ minimizeStructure(struct part *part)
 	findRMSandMaxForce(final, &rms_force, &max_force); BAIL();
 
 	writeMinimizeMovieFrame(OutputFile, part, 1, (struct xyz *)final->coordinate, rms_force, max_force,
-				Iteration, 1, "final structure", minimizeStructureFunctions.message);
+				Iteration, 1, "final structure", minimizeStructureFunctions.message, evaluate(final));
 
 	if (DEBUG(D_MINIMIZE_FINAL_PRINT)) { // -D 11
 	    for (i=0, j=0; i<part->num_atoms; i++) {

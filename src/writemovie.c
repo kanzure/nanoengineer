@@ -602,7 +602,8 @@ int writeMinimizeMovieFrame(FILE *outf,
                             int frameNumber,
 			    int last_frame,
                             char *callLocation,
-                            char *message)
+                            char *message,
+                            double potential)
 {
     callback_writeFrame(part, pos, last_frame);
     switch (OutputFormat) {
@@ -628,8 +629,8 @@ int writeMinimizeMovieFrame(FILE *outf,
     }
     // wware 060102  callback for trace file
     // cad code depends on first 4 fields when callLocation=="gradient"
-    write_traceline("%4d %20f %20f %s %s\n", frameNumber, rms, max_force, callLocation, message);
-    DPRINT5(D_MINIMIZE, "%4d %20e %20e %s %s\n", frameNumber, rms, max_force, callLocation, message);
+    write_traceline("%4d %20f %20f %s %20.10f %s\n", frameNumber, rms, max_force, callLocation, potential, message);
+    DPRINT6(D_MINIMIZE, "%4d %20e %20e %s %20e %s\n", frameNumber, rms, max_force, callLocation, potential, message);
     if (message[0] != '\0') {
       message[0] = '\0';
     }
