@@ -1419,6 +1419,9 @@ class selectMode(basicMode):
             print "debug: reloading runSim on each use, for development [localmin %s, %d]" % (atom, nlayers)
             import runSim, debug
             debug.reload_once_per_event(runSim) #bruce 060705 revised this
+        if 1:
+            # this does not work, I don't know why, should fix sometime: [bruce 060705]
+            self.set_cmdname("Adjust Atoms") # for Undo (should we be more specific, like the menu text was? why didn't that get used?)
         from runSim import LocalMinimize_function
         LocalMinimize_function( [atom], nlayers )
         return

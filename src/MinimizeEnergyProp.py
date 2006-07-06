@@ -16,7 +16,6 @@ from MinimizeEnergyPropDialog import MinimizeEnergyPropDialog
 from GeneratorBaseClass import GroupButtonMixin
 from Sponsors import SponsorableMixin
 
-#bruce:
 from prefs_constants import Minimize_watchRealtimeMinimization_prefs_key as watchRealtimeMinimization_prefs_key ###e not yet used
 from prefs_constants import Minimize_endRMS_prefs_key as endRMS_prefs_key
 from prefs_constants import Minimize_endMax_prefs_key as endMax_prefs_key
@@ -31,38 +30,36 @@ import preferences
 
 class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropDialog):
 
-    cmdname = greenmsg("Minimize Energy: ")
+    cmdname = greenmsg("Minimize Energy: ") # WARNING: might be used by one of the superclasses
+    plain_cmdname = "Minimize Energy"
     sponsor_keyword = None
 
     def __init__(self, win):
         MinimizeEnergyPropDialog.__init__(self, win)  # win is parent.
         self.win = win
         self.previousParams = None
-        #bruce additions:
         self.setup_validators()
         self.seltype = 'All'
         self.update_widgets() # to make sure self attrs are set
         
     def setup(self):
-        '''Show the Minimize Energy dialog.
-        '''
+        """Setup and show the Minimize Energy dialog."""
         # Get widget parameters, update widgets, save previous parameters (for Restore Defaults) and show dialog.
 
-        #bruce:
         # use selection to decide if default is Sel or All
         selection = self.win.assy.selection_from_glpane() # compact rep of the currently selected subset of the Part's stuff
         if selection.nonempty():
             self.seltype = 'Sel'
         else:
             self.seltype = 'All'
-        # mark:
         self.update_widgets()
-        self.previousParams = self.gather_parameters()
+        self.previousParams = self.gather_parameters() # only used in case Cancel wants to restore them
         self.show()
            
     def gather_parameters(self):
-        'Returns a tuple with the current parameter values from the widgets.'
-        # bruce added this:
+        """Returns a tuple with the current parameter values from the widgets. Also sets those in env.prefs.
+        Doesn't do anything about self.seltype, since that is a choice of command, not a parameter for a command.
+        """
         self.change_endrms('notused')
         self.change_endmax('notused')
         self.change_cutoverrms('notused')
@@ -71,8 +68,7 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         return tuple([env.prefs[key] for key in (endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key)])
     
     def update_widgets(self, update_seltype = True):
-        'Update the widgets using the current env.prefs values and self attrs.'
-        #bruce:
+        """Update the widgets using the current env.prefs values and self attrs."""
         if update_seltype:
             if self.seltype == 'All':
                 self.minimize_all_rbtn.setChecked(1)
@@ -110,8 +106,11 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         # do this in gather?
         if self.minimize_all_rbtn.isChecked():
             self.seltype = 'All'
+            seltype_name = "All"
         else:
-             self.seltype = 'Sel'
+            self.seltype = 'Sel'
+            seltype_name = "Selection"
+        self.win.assy.current_command_info(cmdname = self.plain_cmdname + " (%s)" % seltype_name) # cmdname for Undo
         cmdrun = Minimize_CommandRun( self.win, self.seltype, type = 'Minimize')
         cmdrun.run()
         return
@@ -136,7 +135,7 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         'Slot for the What\'s This button'
         QWhatsThis.enterWhatsThisMode()
         
-# Property Manager groupbox button slots
+    # Property Manager groupbox button slots
 
     def toggle_grpbtn_1(self):
         'Slot for first groupbox toggle button'
@@ -180,9 +179,6 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         self.cutovermax_linedit.setValidator(self.cutovermax_validator)
 
     def change_endrms(self, text):
-        '''Slot for EndRMS.
-        This gets called each time a user types anything into the widget.
-        '''
         try:
             endrms_str = double_fixup(self.endrms_validator, self.endrms_linedit.text(), self.endrms)
             self.endrms_linedit.setText(endrms_str)
@@ -192,12 +188,9 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
                 env.prefs[endRMS_prefs_key] = -1.0
             self.endrms = endrms_str
         except:
-            print_compact_traceback("bug in change_endrms ignored: ") #bruce 060627
+            print_compact_traceback("bug in change_endrms ignored: ") 
         
     def change_endmax(self, text):
-        '''Slot for EndMax.
-        This gets called each time a user types anything into the widget.
-        '''
         try:
             endmax_str = double_fixup(self.endmax_validator, self.endmax_linedit.text(), self.endmax)
             self.endmax_linedit.setText(endmax_str)
@@ -207,12 +200,9 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
                 env.prefs[endMax_prefs_key] = -1.0
             self.endmax = endmax_str
         except:
-            print_compact_traceback("bug in change_endmax ignored: ") #bruce 060627
+            print_compact_traceback("bug in change_endmax ignored: ") 
             
     def change_cutoverrms(self, text):
-        '''Slot for Cutover RMS.
-        This gets called each time a user types anything into the widget.
-        '''
         try:
             cutoverrms_str = double_fixup(self.cutoverrms_validator, self.cutoverrms_linedit.text(), self.cutoverrms)
             self.cutoverrms_linedit.setText(cutoverrms_str)
@@ -222,12 +212,9 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
                 env.prefs[cutoverRMS_prefs_key] = -1.0
             self.cutoverrms = cutoverrms_str
         except:
-            print_compact_traceback("bug in change_cutoverrms ignored: ") #bruce 060627
+            print_compact_traceback("bug in change_cutoverrms ignored: ") 
             
     def change_cutovermax(self, text):
-        '''Slot for Cutover Max.
-        This gets called each time a user types anything into the widget.
-        '''
         try:
             cutovermax_str = double_fixup(self.cutovermax_validator, self.cutovermax_linedit.text(), self.cutovermax)
             self.cutovermax_linedit.setText(cutovermax_str)
@@ -237,7 +224,7 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
                 env.prefs[cutoverMax_prefs_key] = -1.0
             self.cutovermax = cutovermax_str
         except:
-            print_compact_traceback("bug in change_cutovermax ignored: ") #bruce 060627
+            print_compact_traceback("bug in change_cutovermax ignored: ") 
 
     pass # end of class MinimizeEnergyProp
 
