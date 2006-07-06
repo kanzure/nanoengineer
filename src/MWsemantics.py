@@ -917,22 +917,22 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def modifyAdjustSel(self):
         """Adjust the current selection"""
         if platform.atom_debug:
-            print "atom_debug: reloading runSim on each use, for development"
-            import runSim
-            reload(runSim)
+            print "debug: reloading runSim on each use, for development"
+            import runSim, debug
+            debug.reload_once_per_event(runSim)
         from runSim import Minimize_CommandRun
-        cmdrun = Minimize_CommandRun( self, 'Sel')
+        cmdrun = Minimize_CommandRun( self, 'Sel', type = 'Adjust')
         cmdrun.run()
         return
 
     def modifyAdjustAll(self):
         """Adjust the entire (current) Part"""
         if platform.atom_debug:
-            print "atom_debug: reloading runSim on each use, for development"
-            import runSim
-            reload(runSim)
+            print "debug: reloading runSim on each use, for development"
+            import runSim, debug
+            debug.reload_once_per_event(runSim)
         from runSim import Minimize_CommandRun
-        cmdrun = Minimize_CommandRun( self, 'All')
+        cmdrun = Minimize_CommandRun( self, 'All', type = 'Adjust')
         cmdrun.run()
         return
   

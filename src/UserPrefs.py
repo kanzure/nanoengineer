@@ -139,7 +139,7 @@ class UserPrefs(UserPrefsDialog):
         self.assy = assy
         
         #mark 060627
-        # Validator for the linedit widgets.
+        # Validator for the linedit widgets. [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]
         self.endrms_validator = QDoubleValidator(self)
         self.endrms_validator.setRange(0.0, 100.0, 2) # Range for linedits: 0.0 to 100, 2 decimal places
         self.endrms_linedit.setValidator(self.endrms_validator)
@@ -246,7 +246,8 @@ class UserPrefs(UserPrefsDialog):
         
         speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
         self.animation_speed_slider.setValue(speed)
-        
+
+        # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]        
         self.endrms = get_pref_or_optval(endRMS_prefs_key, -1.0, '')
         self.endrms_linedit.setText(str(self.endrms))
         
@@ -648,7 +649,8 @@ class UserPrefs(UserPrefsDialog):
         # change minValue to -400.  mark 060124.
         env.prefs[animateMaximumTime_prefs_key] = \
             self.animation_speed_slider.value() / -100.0
-        
+
+    # [WARNING: bruce 060705 copied some of the following methods into MinimizeEnergyProp.py]
     def change_endrms(self, text):
         '''Slot for EndRMS.
         This gets called each time a user types anything into the widget.

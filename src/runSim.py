@@ -1576,9 +1576,10 @@ class CommandRun: # bruce 050324; mainly a stub for future use when we have a CL
     don't yet have objects to represent them in a first-class way,
     but can be coded and invoked as subclasses of CommandRun.
     """
-    def __init__(self, win, *args):
+    def __init__(self, win, *args, **kws):
         self.win = win
         self.args = args # often not needed; might affect type of command (e.g. for Minimize)
+        self.kws = kws # ditto; as of 060705, this contains 'type' for Minimize_CommandRun, for basic command name in the UI
         self.assy = win.assy
         self.part = win.assy.part
             # current Part (when the command is invoked), on which most commands will operate
@@ -1683,6 +1684,14 @@ class simSetup_CommandRun(CommandRun):
     pass # end of class simSetup_CommandRun
 
 
+
+def capitalize_first_word(words): #bruce 060705 ##e refile sometime
+    res = words[0].upper() + words[1:]
+    if res == words:
+        if env.debug():
+            print "debug warning: %r did not change in capitalize_first_word" % (words,)
+    return res
+
 MIN_ALL, LOCAL_MIN, MIN_SEL = range(3) # internal codes for minimize command subtypes (bruce 051129)
     # this is a kluge compared to using command-specific subclasses, but better than testing something else like cmdname
     
@@ -1709,6 +1718,8 @@ class Minimize_CommandRun(CommandRun):
         #bruce 051129 revising this to clarify it, though command-specific subclasses would be better
         assert len(self.args) >= 1
         cmd_subclass_code = self.args[0]
+        cmd_type = self.kws.get('type','Minimize')
+            # one of 'Minimize' or 'Adjust' or 'Adjust Atoms'; determines conv criteria, name [bruce 060705]
         
         assert cmd_subclass_code in ['All','Sel','Atoms'] #e and len(args) matches that?
 
@@ -1716,9 +1727,18 @@ class Minimize_CommandRun(CommandRun):
         # they should be changed by specific commands as needed.
         # See also some computed words and phrases, e.g. self.word_Minimize,
         # below the per-command if stamements. [bruce 060705]
-        self.word_minimize = "adjust"
-        self.word_minimization = "adjustment"
-        self.word_minimizing = "adjusting"
+        if cmd_type.startswith('Adjust'):            
+            self.word_minimize = "adjust"
+            self.word_minimization = "adjustment"
+            self.word_minimizing = "adjusting"
+        else:
+            assert cmd_type.startswith('Minimize') #####@@@@@ remove when works
+            self.word_minimize = "minimize"
+            self.word_minimization = "minimization"
+            self.word_minimizing = "minimizing"
+            
+        self.word_Minimize = capitalize_first_word( self.word_minimize)
+        self.word_Minimizing = capitalize_first_word( self.word_minimizing)
         
         entire_part = (cmd_subclass_code == 'All')
             # (a self attr for entire_part is not yet needed)
@@ -1728,20 +1748,16 @@ class Minimize_CommandRun(CommandRun):
         
         if cmd_subclass_code == 'All':
             cmdtype = MIN_ALL
-            cmdname = "Adjust All"
+            cmdname = "%s All" % self.word_Minimize
         
         elif cmd_subclass_code == 'Sel':
             cmdtype = MIN_SEL
-            cmdname = "Adjust Selection"
+            cmdname = "%s Selection" % self.word_Minimize
         
         elif cmd_subclass_code == 'Atoms':
             #bruce 051129 added this case for Local Minimize (extending a kluge -- needs rewrite to use command-specific subclass)
             cmdtype = LOCAL_MIN
-            cmdname = "Adjust Atoms" #bruce 060705
-            # keep the following for use very soon in Minimize Energy
-##            self.word_minimize = "minimize"
-##            self.word_minimization = "minimization"
-##            self.word_minimizing = "minimizing"
+            cmdname = "%s Atoms"  % self.word_Minimize #bruce 060705; some code may assume this is always Adjust Atoms, as it is
             # self.args is parsed later
         
         else:
@@ -1750,13 +1766,7 @@ class Minimize_CommandRun(CommandRun):
         startmsg = cmdname + ": ..."
         del cmd_subclass_code
 
-        def capitalize_first_word(words): #e refile?
-            res = words[0].upper() + words[1:]
-            if res == words:
-                if env.debug():
-                    print "debug warning: %r did not change in capitalize_first_word" % (words,)
-            return res
-        
+        # redundant, in case these got changed in the if-statements:
         self.word_Minimize = capitalize_first_word( self.word_minimize)
         self.word_Minimizing = capitalize_first_word( self.word_minimizing)
 
@@ -2010,7 +2020,7 @@ def LocalMinimize_function( atomlist, nlayers ): #bruce 051207
     #e should probably add in monovalent real atom neighbors -- but before finding neighbors layers, or after?
     # (note that local min will always include singlets... we're just telling it to also treat attached H the same way.
     #  that would suggest doing it after, as an option to Minimize. Hmm, should even Min Sel do it? Discuss.)
-    cmdrun = Minimize_CommandRun( win, 'Atoms', atomlist, nlayers)
+    cmdrun = Minimize_CommandRun( win, 'Atoms', atomlist, nlayers, type = 'Adjust Atoms')
     cmdrun.run()
     return
 
