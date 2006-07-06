@@ -520,17 +520,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         Return errorcode, message (message might be for error or for success, but is not needed for success except for debugging).
         Might also print history messages (and in future, maintain progress indicators) about progress.
         """
-        class ExceptionInfoCollector:
-            def __init__(self):
-                self.str = ''
-            def write(self, x):
-                self.str += x
-            def handle_exception(self):
-                import sys, traceback
-                traceback.print_tb(sys.exc_traceback, file=self)
-                for s in self.str.split("\n")[:-1]:
-                    env.history.message(redmsg(s))
-        eic = ExceptionInfoCollector()
         set_waitcursor(True)
         if not oldPartFilesDir:
             set_waitcursor(False)
@@ -579,10 +568,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                         env.history.h_update() # needed, since following op doesn't processEvents and might take a long time
                 try:
                     shutil.rmtree(newPartFilesDir)
-                except:
-                    eic.handle_exception()
+                except Exception, e:
                     set_waitcursor(False)
-                    return 1, "Problem removing an existing part files directory [%s]" % newPartFilesDir
+                    return 1, ("Problem removing an existing part files directory [%s]" % newPartFilesDir
+                               + " - ".join(map(str, e.args)))
         
         # time to start copying; tell the user what's happening
         # [in future, ASAP, this needs to be abortable, and maybe have a progress indicator]
@@ -593,11 +582,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         try:
             shutil.copytree(oldPartFilesDir, newPartFilesDir)
-            raise Exception("ouch")
-        except:
+        except Exception, e:
             eic.handle_exception()
             set_waitcursor(False)
-            return 1, "Problem copying files to the new parts file directory " + newPartFilesDir
+            return 1, ("Problem copying files to the new parts file directory " + newPartFilesDir
+                       + " - ".join(map(str, e.args)))
 
         set_waitcursor(False)
         env.history.message( "Done.")
