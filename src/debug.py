@@ -552,6 +552,116 @@ def debug_run_command(command, source = "user debug input"): #bruce 040913-16 in
         return 1
     pass
 
+
+
+##########################################################
+
+BOOLEAN = "boolean"
+INT = "int"
+FLOAT = "float"
+STRING = "string"
+
+_sim_param_table = [
+    ("debug_flags", BOOLEAN),
+    ("IterPerFrame", INT),
+    ("NumFrames", INT),
+    ("DumpAsText", BOOLEAN),
+    ("DumpIntermediateText", BOOLEAN),
+    ("PrintFrameNums", BOOLEAN),
+    ("OutputFormat", INT),
+    ("KeyRecordInterval", INT),
+    ("DirectEvaluate", BOOLEAN),
+    ("IDKey", STRING),
+    ("Dt", FLOAT),
+    ("Dx", FLOAT),
+    ("Dmass", FLOAT),
+    ("Temperature", FLOAT),
+    ]
+
+_sim_param_values = {
+    "debug_flags": False,
+    "IterPerFrame": 10,
+    "NumFrames": 100,
+    "DumpAsText": False,
+    "DumpIntermediateText": False,
+    "PrintFrameNums": True,
+    "OutputFormat": 1,
+    "KeyRecordInterval": 32,
+    "DirectEvaluate": False,
+    "IDKey": "",
+    "Dt": 1.0e-16,
+    "Dx": 1.0e-12,
+    "Dmass": 1.0e-27,
+    "Temperature": 300.0,
+    }
+
+from qt import QDialog, QGridLayout, QLabel, QPushButton, QLineEdit, SIGNAL
+class SimParameterDialog(QDialog):
+
+    def __init__(self, win=None):
+        import string
+        QDialog.__init__(self, win)
+        self.setCaption('Manually edit sim parameters')
+        layout = QGridLayout(self,len(_sim_param_table)+1,4,1,-1,"SimParameterDialog")
+        for i in range(len(_sim_param_table)):
+            attr, paramtype = _sim_param_table[i]
+            current = _sim_param_values[attr]
+            currentStr = str(current)
+            label = QLabel(attr + ' (' + paramtype + ')', self)
+            layout.addWidget(label, i, 0)
+            if paramtype == BOOLEAN:
+                label = QLabel(currentStr, self)
+                layout.addWidget(label, i, 1)
+                def falseFunc(attr=attr, label=label):
+                    _sim_param_values[attr] = False
+                    label.setText('False')
+                def trueFunc(attr=attr, label=label):
+                    _sim_param_values[attr] = True
+                    label.setText('True')
+                btn = QPushButton(self)
+                btn.setText('True')
+                layout.addWidget(btn, i, 2)
+                self.connect(btn,SIGNAL("clicked()"), trueFunc)
+                btn = QPushButton(self)
+                btn.setText('False')
+                layout.addWidget(btn, i, 3)
+                self.connect(btn,SIGNAL("clicked()"), falseFunc)
+            else:
+                label = QLabel(self)
+                label.setText(currentStr)
+                layout.addWidget(label, i, 1)
+                linedit = QLineEdit(self)
+                linedit.setText(currentStr)
+                layout.addWidget(linedit, i, 2)
+                def change(attr=attr, linedit=linedit,
+                           paramtype=paramtype, label=label):
+                    txt = str(linedit.text())
+                    label.setText(txt)
+                    if paramtype == STRING:
+                        _sim_param_values[attr] = txt
+                    elif paramtype == INT:
+                        _sim_param_values[attr] = string.atoi(txt)
+                    elif paramtype == FLOAT:
+                        _sim_param_values[attr] = string.atof(txt)
+                btn = QPushButton(self)
+                btn.setText('OK')
+                layout.addWidget(btn, i, 3)
+                self.connect(btn, SIGNAL("clicked()"), change)
+        btn = QPushButton(self)
+        btn.setText('Done')
+        layout.addMultiCellWidget(btn, len(_sim_param_table),
+                                  len(_sim_param_table), 0, 3)
+        def done(self=self):
+            import pprint
+            pprint.pprint(_sim_param_values)
+            self.close()
+        self.connect(btn, SIGNAL("clicked()"), done)
+
+###################################################
+
+
+
+
 def debug_runpycode_from_a_dialog( source = "some debug menu??"):
     title = "debug: run py code"
     label = "one line of python to exec in debug.py's globals()\n(or use @@@ to fake \\n for more lines)\n(or use execfile)"
@@ -784,6 +894,7 @@ class DebugMenuMixin:
             #bruce 041217 made this item conditional on whether it will work
             res.extend( [
                 ('run py code', self._debug_runpycode),
+                ('sim param dialog', self._debug_sim_param_dialog),
                 ('force sponsor download', self._debug_force_sponsor_download),
                 ('speed-test py code', self._debug_timepycode), #bruce 051117; include this even if not platform.atom_debug
             ] )
@@ -994,6 +1105,11 @@ class DebugMenuMixin:
         from debug import debug_runpycode_from_a_dialog
         debug_runpycode_from_a_dialog( source = self.debug_menu_source_name() )
             # e.g. "GLPane debug menu"
+        return
+
+    def _debug_sim_param_dialog(self):
+        spd = SimParameterDialog()
+        spd.show()
         return
 
     def _debug_force_sponsor_download(self):
