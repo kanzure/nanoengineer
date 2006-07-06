@@ -561,6 +561,8 @@ INT = "int"
 FLOAT = "float"
 STRING = "string"
 
+_sim_params_set = False
+
 _sim_param_table = [
     ("debug_flags", BOOLEAN),
     ("IterPerFrame", INT),
@@ -653,6 +655,8 @@ class SimParameterDialog(QDialog):
                                   len(_sim_param_table), 0, 3)
         def done(self=self):
             import pprint
+            global _sim_params_set
+            _sim_params_set = True
             pprint.pprint(_sim_param_values)
             self.close()
         self.connect(btn, SIGNAL("clicked()"), done)
