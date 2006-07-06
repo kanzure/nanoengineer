@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MinimizeEnergyPropDialog.ui'
 #
-# Created: Thu Jul 6 11:46:04 2006
+# Created: Thu Jul 6 11:51:23 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1478,8 +1478,8 @@ class MinimizeEnergyPropDialog(QDialog):
         self.watch_min_options_label.setText(self.__tr("Watch Minimization Options"))
         self.grpbtn_2.setText(QString.null)
         self.watch_minimization_checkbox.setText(self.__tr("Watch minimization in real time"))
-        QToolTip.add(self.watch_minimization_checkbox,self.__tr("Enables real time graphical updates during simulation runs"))
-        QWhatsThis.add(self.watch_minimization_checkbox,self.__tr("<p><b>Watch Motion In Real Time</b></p>Enables real time graphical updates during simulation runs."))
+        QToolTip.add(self.watch_minimization_checkbox,self.__tr("Enables real time graphical updates during minimization runs"))
+        QWhatsThis.add(self.watch_minimization_checkbox,self.__tr("<p><b>Watch Motion In Real Time</b></p>Enables real time graphical updates during minimization runs."))
         self.update_btngrp.setTitle(QString.null)
         self.watch_min_options_label_2.setText(self.__tr("Update Options"))
         self.update_asap_rbtn.setText(self.__tr("As fast as possible"))

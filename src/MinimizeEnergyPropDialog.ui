@@ -524,10 +524,10 @@
                                 <bool>true</bool>
                             </property>
                             <property name="toolTip" stdset="0">
-                                <string>Enables real time graphical updates during simulation runs</string>
+                                <string>Enables real time graphical updates during minimization runs</string>
                             </property>
                             <property name="whatsThis" stdset="0">
-                                <string>&lt;p&gt;&lt;b&gt;Watch Motion In Real Time&lt;/b&gt;&lt;/p&gt;Enables real time graphical updates during simulation runs.</string>
+                                <string>&lt;p&gt;&lt;b&gt;Watch Motion In Real Time&lt;/b&gt;&lt;/p&gt;Enables real time graphical updates during minimization runs.</string>
                             </property>
                         </widget>
                         <widget class="QButtonGroup">
