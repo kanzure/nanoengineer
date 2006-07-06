@@ -278,9 +278,6 @@
                                 <property name="title">
                                     <string>Settings for Adjust</string>
                                 </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Settings for &lt;b&gt;Adjust All&lt;/b&gt; and &lt;b&gt;Adjust Selection&lt;/b&gt;</string>
-                                </property>
                                 <property name="whatsThis" stdset="0">
                                     <string>&lt;b&gt;Settings for Adjust&lt;/b&gt;
 &lt;p&gt;This group of settings affect the behavior of &lt;b&gt;Adjust All&lt;/b&gt; and &lt;b&gt;Adjust Selection&lt;/b&gt;.&lt;/p&gt;</string>

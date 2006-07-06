@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Jul 6 13:45:34 2006
+# Created: Thu Jul 6 14:40:06 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1630,7 +1630,6 @@ class UserPrefsDialog(QDialog):
         self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
         self.groupBox14.setTitle(self.__tr("Settings for Adjust"))
-        QToolTip.add(self.groupBox14,self.__tr("Settings for <b>Adjust All</b> and <b>Adjust Selection</b>"))
         QWhatsThis.add(self.groupBox14,self.__tr("<b>Settings for Adjust</b>\n"
 "<p>This group of settings affect the behavior of <b>Adjust All</b> and <b>Adjust Selection</b>.</p>"))
         self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch motion in real time"))
