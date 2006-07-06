@@ -1140,18 +1140,34 @@ def createWhatsThis(self):
                                                        self. toolsFuseChunksAction.iconSet().pixmap() )
        
         self.toolsFuseChunksAction.setWhatsThis( toolsFuseChunksActionText )
-
-        # Movie Player
-
-        simMoviePlayerActionText = "<u><b>Movie Player</b></u><br>"\
-                       "<p><img source=\" simMoviePlayerAction\"><br> "\
-                       "Plays the most recent trajectory (movie) file created by the <b>Simulator</b>.</p>"
-
-        QMimeSourceFactory.defaultFactory().setPixmap( " simMoviePlayerAction",
-                                                       self. simMoviePlayerAction.iconSet().pixmap() )
-       
-        self. simMoviePlayerAction.setWhatsThis( simMoviePlayerActionText )  
         
+        #
+        # Simulator Toolbar
+        #
+        
+        # Minimize Energy
+
+        simMinimizeEnergyActionText = "<u><b>Minimize Energy</b></u><br>"\
+                       "<p><img source=\" simMinimizeEnergyAction\"><br> "\
+                       "The potential energy of a chemical structure is a function of the relative positions of its atoms. " \
+                        "To obtain this energy with complete accuracy involves a lot of computer time spent on quantum " \
+                        "mechanical calculations, which cannot be practically done on a desktop computer. "\
+                        "To get an approximate potential energy without all that, we represent the energy as a series of " \
+                        "terms involving geometric properties of the structure: lengths of chemical bonds, angles between " \
+                        "pairs and triples of chemical bonds, etc. </p>" \
+                        "<p>" \
+                        "As is generally the case with physical systems, the gradient of the potential energy represents " \
+                        "the forces acting on various particles. The atoms want to move in the direction that most reduces " \
+                        "the potential energy. Energy minimization is a process of adjusting the atom positions to try to find " \
+                        "a global minimum of the potential energy. Each atom contributes three variables (its x, y, and z " \
+                        "coordinates) so the search space is multi-dimensional. The global minimum is the configuration " \
+                        "that the atoms will settle into if lowered to zero Kelvin. </p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( " simMinimizeEnergyAction",
+                                                       self. simMinimizeEnergyAction.iconSet().pixmap() )
+       
+        self. simMinimizeEnergyAction.setWhatsThis( simMinimizeEnergyActionText )
+
         # Simulator
 
         simSetupActionText = "<u><b>Simulator</b></u><br>"\
@@ -1164,6 +1180,17 @@ def createWhatsThis(self):
                                                        self. simSetupAction.iconSet().pixmap() )
        
         self. simSetupAction.setWhatsThis( simSetupActionText )
+        
+        # Movie Player
+
+        simMoviePlayerActionText = "<u><b>Movie Player</b></u><br>"\
+                       "<p><img source=\" simMoviePlayerAction\"><br> "\
+                       "Plays the most recent trajectory (movie) file created by the <b>Simulator</b>.</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( " simMoviePlayerAction",
+                                                       self. simMoviePlayerAction.iconSet().pixmap() )
+       
+        self. simMoviePlayerAction.setWhatsThis( simMoviePlayerActionText )  
 
         # Plot Tool
 
