@@ -38,10 +38,8 @@ __author__ = "Will"
 
 from math import sin, cos, pi, floor
 from VQT import V, vlen
-from bonds import NeighborhoodGenerator, bond_atoms, V_GRAPHITE
+from bonds import NeighborhoodGenerator, bond_atoms, V_GRAPHITE, CC_GRAPHITIC_BONDLENGTH
 from chem import Atom
-
-GRAPHITIC_BONDLENGTH = 1.402
 
 class BuckyBall:
 
@@ -120,7 +118,7 @@ class BuckyBall:
                             dct[a2].append(a1+1)
             return dct
 
-    def __init__(self, order=1):
+    def __init__(self, bondlength=CC_GRAPHITIC_BONDLENGTH, order=1):
         assert order <= 5, 'edges algorithm fails for order > 5'
         lst = [ ]
         a = 0.8 ** 0.5
@@ -137,6 +135,7 @@ class BuckyBall:
         if order > 1:
             self._subtriangulate(order)
             self._invalidate_all()
+        self.bondlength = bondlength
 
     def _invalidate_all(self):
         self._edges = None
@@ -209,7 +208,7 @@ class BuckyBall:
             a1, a2 = edges.anyOldBond()
             bondlen = vlen(lst[a1] - lst[a2])
             # scale to get the correct bond length
-            factor = GRAPHITIC_BONDLENGTH / bondlen
+            factor = self.bondlength / bondlen
             for i in range(len(lst)):
                 lst[i] = factor * lst[i]
             self._carbons = lst
@@ -277,7 +276,7 @@ class BuckyBall:
         self.order *= n
 
     def add_to_mol(self, mol):
-        maxradius = 1.5 * GRAPHITIC_BONDLENGTH
+        maxradius = 1.5 * self.bondlength
         positions = self.carbons()
         atoms = [ ]
         for newpos in positions:
