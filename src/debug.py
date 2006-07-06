@@ -642,7 +642,11 @@ class SimParameterDialog(QDialog):
                     if paramtype == STRING:
                         _sim_param_values[attr] = txt
                     elif paramtype == INT:
-                        _sim_param_values[attr] = string.atoi(txt)
+                        if txt.startswith('0x') or txt.startswith('0X'):
+                            n = string.atoi(txt[2:], 16)
+                        else:
+                            n = string.atoi(txt)
+                        _sim_param_values[attr] = n
                     elif paramtype == FLOAT:
                         _sim_param_values[attr] = string.atof(txt)
                 btn = QPushButton(self)
