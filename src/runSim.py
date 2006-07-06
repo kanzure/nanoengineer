@@ -938,8 +938,19 @@ class SimRunner:
         
         try:
             self.remove_old_moviefile(movie.filename) # can raise exceptions #bruce 051230 split this out
-            self.remove_old_tracefile(self.traceFileName)
+        except:
+            #bruce 060705 do this here -- try not to prevent the upcoming sim
+            print_compact_traceback("problem removing old moviefile, continuing anyway: ")
+            env.history.message(orangemsg("problem removing old moviefile, continuing anyway"))
 
+        try:
+            self.remove_old_tracefile(self.traceFileName)
+        except:
+            #bruce 060705 do this here -- try not to prevent the upcoming sim
+            print_compact_traceback("problem removing old tracefile, continuing anyway: ")
+            env.history.message(orangemsg("problem removing old tracefile, continuing anyway"))
+
+        try:
             if not self._movie.create_movie_file:
                 env.history.message(orangemsg("(option to not create movie file is not yet implemented)")) # for pyrex sim
                 # NFR/bug 1286; other comments describe how to implement it; it would need a warning
