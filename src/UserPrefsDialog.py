@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Jul 6 13:27:11 2006
+# Created: Thu Jul 6 13:45:34 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1630,9 +1630,12 @@ class UserPrefsDialog(QDialog):
         self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
         self.groupBox14.setTitle(self.__tr("Settings for Adjust"))
+        QToolTip.add(self.groupBox14,self.__tr("Settings for <b>Adjust All</b> and <b>Adjust Selection</b>"))
+        QWhatsThis.add(self.groupBox14,self.__tr("<b>Settings for Adjust</b>\n"
+"<p>This group of settings affect the behavior of <b>Adjust All</b> and <b>Adjust Selection</b>.</p>"))
         self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch motion in real time"))
-        QToolTip.add(self.watch_min_in_realtime_checkbox,self.__tr("Enable/disable real time graphical updates during adjustments"))
-        QWhatsThis.add(self.watch_min_in_realtime_checkbox,self.__tr("<p><b>Watch In Real Time</b></p>Enables/disables real time graphical updates during adjust operations."))
+        QToolTip.add(self.watch_min_in_realtime_checkbox,self.__tr("Enable/disable real time graphical updates for <b>Adjust All</b> or <b>Adjust Selection</b>"))
+        QWhatsThis.add(self.watch_min_in_realtime_checkbox,self.__tr("<p><b>Watch motion in real time</b></p>Enables/disables real time graphical updates during adjust operations when using <b>Adjust All</b> or <b>Adjust Selection</b>"))
         self.update_btngrp.setTitle(QString.null)
         QToolTip.add(self.update_number_spinbox,self.__tr("Specify how often to update the screen during adjustments"))
         QWhatsThis.add(self.update_number_spinbox,self.__tr("<b>Update every <i>n units.</u></b>\n"
@@ -1680,11 +1683,11 @@ class UserPrefsDialog(QDialog):
         QWhatsThis.add(self.cutovermax_linedit,self.__tr("<b>CutoverMax</b>\n"
 "<p>Use steepest descent until no interaction exceeds this force.</p>"))
         self.cutoverrms_linedit.setText(self.__tr("50.0"))
-        QToolTip.add(self.cutoverrms_linedit,self.__tr("Cutover RMS foce (pN)"))
+        QToolTip.add(self.cutoverrms_linedit,self.__tr("Cutover RMS force (pN)"))
         QWhatsThis.add(self.cutoverrms_linedit,self.__tr("<b>CutoverRMS</b>\n"
 "<p>Use steepest descent until this RMS force is reached.</p>"))
         self.cutoverrms_lbl.setText(self.__tr("CutoverRMS :"))
-        QToolTip.add(self.cutoverrms_lbl,self.__tr("Cutover RMS foce (pN)"))
+        QToolTip.add(self.cutoverrms_lbl,self.__tr("Cutover RMS force (pN)"))
         QWhatsThis.add(self.cutoverrms_lbl,self.__tr("<b>CutoverRMS</b>\n"
 "<p>Use steepest descent until this RMS force is reached.</p>"))
         self.minimize_warning_lbl.setText(QString.null)

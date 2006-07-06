@@ -278,6 +278,13 @@
                                 <property name="title">
                                     <string>Settings for Adjust</string>
                                 </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Settings for &lt;b&gt;Adjust All&lt;/b&gt; and &lt;b&gt;Adjust Selection&lt;/b&gt;</string>
+                                </property>
+                                <property name="whatsThis" stdset="0">
+                                    <string>&lt;b&gt;Settings for Adjust&lt;/b&gt;
+&lt;p&gt;This group of settings affect the behavior of &lt;b&gt;Adjust All&lt;/b&gt; and &lt;b&gt;Adjust Selection&lt;/b&gt;.&lt;/p&gt;</string>
+                                </property>
                                 <vbox>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
@@ -290,10 +297,10 @@
                                             <string>Watch motion in real time</string>
                                         </property>
                                         <property name="toolTip" stdset="0">
-                                            <string>Enable/disable real time graphical updates during adjustments</string>
+                                            <string>Enable/disable real time graphical updates for &lt;b&gt;Adjust All&lt;/b&gt; or &lt;b&gt;Adjust Selection&lt;/b&gt;</string>
                                         </property>
                                         <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Watch In Real Time&lt;/b&gt;&lt;/p&gt;Enables/disables real time graphical updates during adjust operations.</string>
+                                            <string>&lt;p&gt;&lt;b&gt;Watch motion in real time&lt;/b&gt;&lt;/p&gt;Enables/disables real time graphical updates during adjust operations when using &lt;b&gt;Adjust All&lt;/b&gt; or &lt;b&gt;Adjust Selection&lt;/b&gt;</string>
                                         </property>
                                     </widget>
                                     <widget class="QButtonGroup">
@@ -575,7 +582,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                     <string>50.0</string>
                                                                 </property>
                                                                 <property name="toolTip" stdset="0">
-                                                                    <string>Cutover RMS foce (pN)</string>
+                                                                    <string>Cutover RMS force (pN)</string>
                                                                 </property>
                                                                 <property name="whatsThis" stdset="0">
                                                                     <string>&lt;b&gt;CutoverRMS&lt;/b&gt;
@@ -593,7 +600,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                     <set>AlignVCenter|AlignRight</set>
                                                                 </property>
                                                                 <property name="toolTip" stdset="0">
-                                                                    <string>Cutover RMS foce (pN)</string>
+                                                                    <string>Cutover RMS force (pN)</string>
                                                                 </property>
                                                                 <property name="whatsThis" stdset="0">
                                                                     <string>&lt;b&gt;CutoverRMS&lt;/b&gt;
