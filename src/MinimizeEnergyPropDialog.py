@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MinimizeEnergyPropDialog.ui'
 #
-# Created: Thu Jul 6 11:11:38 2006
+# Created: Thu Jul 6 11:32:31 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1448,6 +1448,9 @@ class MinimizeEnergyPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Minimize Energy"))
+        QWhatsThis.add(self,self.__tr("<u><b>Minimize Energy dialog</b></u>\n"
+"<p>The potential energy of a chemical structure is a function of the relative positions of its atoms. To obtain this energy with complete accuracy involves a lot of computer time spent on quantum mechanical calculations, which cannot be practically done on a desktop computer. We represent the energy as a series of terms involving geometric properties of the structure (lengths of chemical bonds, angles between chemical bonds, etc) to get a good approximation of the accurate energy.</p>\n"
+"<p>As is generally the case with physical systems, the gradient of the potential energy represents the forces acting on various particles. The atoms want to move in the direction that most reduces the potential energy. Energy minimization is a process of adjusting the atom positions to try to find a global minimum of the potential energy. Each atom contributes three variables (its x, y, and z coordinates) so the search space is multi-dimensional. The global minimum is the configuration that the atoms will settle into if lowered to zero Kelvin.</p>"))
         self.heading_pixmap.setText(QString.null)
         self.heading_label.setText(self.__tr("Minimize Energy"))
         self.sponsor_btn.setText(QString.null)

@@ -18,6 +18,11 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
+    <property name="whatsThis" stdset="0">
+        <string>&lt;u&gt;&lt;b&gt;Minimize Energy dialog&lt;/b&gt;&lt;/u&gt;
+&lt;p&gt;The potential energy of a chemical structure is a function of the relative positions of its atoms. To obtain this energy with complete accuracy involves a lot of computer time spent on quantum mechanical calculations, which cannot be practically done on a desktop computer. We represent the energy as a series of terms involving geometric properties of the structure (lengths of chemical bonds, angles between chemical bonds, etc) to get a good approximation of the accurate energy.&lt;/p&gt;
+&lt;p&gt;As is generally the case with physical systems, the gradient of the potential energy represents the forces acting on various particles. The atoms want to move in the direction that most reduces the potential energy. Energy minimization is a process of adjusting the atom positions to try to find a global minimum of the potential energy. Each atom contributes three variables (its x, y, and z coordinates) so the search space is multi-dimensional. The global minimum is the configuration that the atoms will settle into if lowered to zero Kelvin.&lt;/p&gt;</string>
+    </property>
     <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
