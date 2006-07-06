@@ -16,7 +16,7 @@ from MinimizeEnergyPropDialog import MinimizeEnergyPropDialog
 from GeneratorBaseClass import GroupButtonMixin
 from Sponsors import SponsorableMixin
 
-from prefs_constants import Minimize_watchRealtimeMinimization_prefs_key as watchRealtimeMinimization_prefs_key ###e not yet used
+from prefs_constants import Minimize_watchRealtimeMinimization_prefs_key
 from prefs_constants import Minimize_endRMS_prefs_key as endRMS_prefs_key
 from prefs_constants import Minimize_endMax_prefs_key as endMax_prefs_key
 from prefs_constants import Minimize_cutoverRMS_prefs_key as cutoverRMS_prefs_key
@@ -27,10 +27,11 @@ import env, platform
 from UserPrefs import get_pref_or_optval
 from widgets import double_fixup
 import preferences
+## from prefs_widgets import connect_checkbox_with_boolean_pref
 
 class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropDialog):
 
-    cmdname = greenmsg("Minimize Energy: ") # WARNING: might be used by one of the superclasses
+    cmdname = greenmsg("Minimize Energy: ") # WARNING: self.cmdname might be used by one of the superclasses
     plain_cmdname = "Minimize Energy"
     sponsor_keyword = None
 
@@ -38,10 +39,25 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         MinimizeEnergyPropDialog.__init__(self, win)  # win is parent.
         self.win = win
         self.previousParams = None
+        self.setup_ruc()
         self.setup_validators()
         self.seltype = 'All'
         self.update_widgets() # to make sure self attrs are set
-        
+##        connect_checkbox_with_boolean_pref( self.watch_minimization_checkbox, Minimize_watchRealtimeMinimization_prefs_key )
+
+    def setup_ruc(self):
+        "#doc"
+        #bruce 060705 use new common code, if it works
+        from widget_controllers import realtime_update_controller
+        self.ruc = realtime_update_controller( 
+            ( self.update_btngrp, self.update_number_spinbox, self.update_units_combobox ),#k all names
+            self.watch_minimization_checkbox,
+            Minimize_watchRealtimeMinimization_prefs_key
+        )
+        ## can't do this yet: self.ruc.set_widgets_from_update_data( self.previous_movie._update_data ) # includes checkbox
+        # for A8, only the checkbox will be persistent; the others will be sticky only because the dialog is not remade at runtime
+        return
+
     def setup(self):
         """Setup and show the Minimize Energy dialog."""
         # Get widget parameters, update widgets, save previous parameters (for Restore Defaults) and show dialog.
@@ -52,11 +68,11 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
             self.seltype = 'Sel'
         else:
             self.seltype = 'All'
-        self.update_widgets()
-        self.previousParams = self.gather_parameters() # only used in case Cancel wants to restore them
+        self.update_widgets() # only the convergence criteria, for A8, plus All/Sel command from self.seltype
+        self.previousParams = self.gather_parameters() # only used in case Cancel wants to restore them; only conv crit for A8
         self.show()
            
-    def gather_parameters(self):
+    def gather_parameters(self): ###e should perhaps include update_data from ruc (not sure it's good) -- but no time for A8
         """Returns a tuple with the current parameter values from the widgets. Also sets those in env.prefs.
         Doesn't do anything about self.seltype, since that is a choice of command, not a parameter for a command.
         """
@@ -64,7 +80,6 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         self.change_endmax('notused')
         self.change_cutoverrms('notused')
         self.change_cutovermax('notused')
-        ###e also watch in realtime, if restore defaults should affect them -- not sure it ought to
         return tuple([env.prefs[key] for key in (endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key)])
     
     def update_widgets(self, update_seltype = True):
@@ -88,7 +103,7 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         self.cutovermax = get_pref_or_optval(cutoverMax_prefs_key, -1.0, '')
         self.cutovermax_linedit.setText(str(self.cutovermax))
 
-        ###e also watch in realtime prefs for this
+        ###e also watch in realtime prefs for this -- no, thats in another method for now
         return
         
     def ok_btn_clicked(self):
@@ -111,7 +126,9 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
             self.seltype = 'Sel'
             seltype_name = "Selection"
         self.win.assy.current_command_info(cmdname = self.plain_cmdname + " (%s)" % seltype_name) # cmdname for Undo
-        cmdrun = Minimize_CommandRun( self.win, self.seltype, type = 'Minimize')
+
+        update_cond = self.ruc.get_update_cond_from_widgets()
+        cmdrun = Minimize_CommandRun( self.win, self.seltype, type = 'Minimize', update_cond = update_cond)
         cmdrun.run()
         return
         
@@ -127,7 +144,7 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         
     def restore_defaults_btn_clicked(self):
         'Slot for Restore Defaults button.'
-        # restore factory defaults
+        # restore factory defaults # for A8, only for conv crit, not for watch motion settings
         env.prefs.restore_defaults([endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key])
         self.update_widgets(update_seltype = False)
         
