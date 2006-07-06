@@ -564,7 +564,7 @@ STRING = "string"
 _sim_params_set = False
 
 _sim_param_table = [
-    ("debug_flags", BOOLEAN),
+    ("debug_flags", INT),
     ("IterPerFrame", INT),
     ("NumFrames", INT),
     ("DumpAsText", BOOLEAN),
@@ -581,7 +581,7 @@ _sim_param_table = [
     ]
 
 _sim_param_values = {
-    "debug_flags": False,
+    "debug_flags": 0,
     "IterPerFrame": 10,
     "NumFrames": 100,
     "DumpAsText": False,
