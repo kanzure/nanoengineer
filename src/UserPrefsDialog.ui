@@ -276,7 +276,7 @@
                                     <cstring>groupBox14</cstring>
                                 </property>
                                 <property name="title">
-                                    <string>Adjustment Settings</string>
+                                    <string>Settings for Adjust</string>
                                 </property>
                                 <vbox>
                                     <property name="name">
@@ -293,7 +293,7 @@
                                             <string>Enable/disable real time graphical updates during adjustments</string>
                                         </property>
                                         <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Watch In Real Time&lt;/b&gt;&lt;/p&gt;Enables/disables real time graphical updates during minimizations.</string>
+                                            <string>&lt;p&gt;&lt;b&gt;Watch In Real Time&lt;/b&gt;&lt;/p&gt;Enables/disables real time graphical updates during adjust operations.</string>
                                         </property>
                                     </widget>
                                     <widget class="QButtonGroup">
@@ -462,6 +462,13 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 <property name="alignment">
                                                                     <set>AlignVCenter|AlignRight</set>
                                                                 </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Target RMS force (pN)</string>
+                                                                </property>
+                                                                <property name="whatsThis" stdset="0">
+                                                                    <string>&lt;b&gt;EndRMS&lt;/b&gt;
+&lt;p&gt;Continue until this RMS force is reached.&lt;/p&gt;</string>
+                                                                </property>
                                                             </widget>
                                                             <widget class="QLabel" row="1" column="0">
                                                                 <property name="name">
@@ -472,6 +479,13 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 </property>
                                                                 <property name="alignment">
                                                                     <set>AlignVCenter|AlignRight</set>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Target max force (pN)</string>
+                                                                </property>
+                                                                <property name="whatsThis" stdset="0">
+                                                                    <string>&lt;b&gt;EndMax&lt;/b&gt;
+&lt;p&gt;Continue until no interaction exceeds this force.&lt;/p&gt;</string>
                                                                 </property>
                                                             </widget>
                                                             <widget class="QLineEdit" row="1" column="1">
@@ -530,6 +544,13 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 <property name="alignment">
                                                                     <set>AlignVCenter|AlignRight</set>
                                                                 </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Cutover max force (pN)</string>
+                                                                </property>
+                                                                <property name="whatsThis" stdset="0">
+                                                                    <string>&lt;b&gt;CutoverMax&lt;/b&gt;
+&lt;p&gt;Use steepest descent until no interaction exceeds this force.&lt;/p&gt;</string>
+                                                                </property>
                                                             </widget>
                                                             <widget class="QLineEdit" row="1" column="1">
                                                                 <property name="name">
@@ -570,6 +591,13 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 </property>
                                                                 <property name="alignment">
                                                                     <set>AlignVCenter|AlignRight</set>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Cutover RMS foce (pN)</string>
+                                                                </property>
+                                                                <property name="whatsThis" stdset="0">
+                                                                    <string>&lt;b&gt;CutoverRMS&lt;/b&gt;
+&lt;p&gt;Use steepest descent until this RMS force is reached.&lt;/p&gt;</string>
                                                                 </property>
                                                             </widget>
                                                         </grid>

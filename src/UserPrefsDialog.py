@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
 #
-# Created: Tue Jul 4 16:58:12 2006
+# Created: Thu Jul 6 13:27:11 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1629,10 +1629,10 @@ class UserPrefsDialog(QDialog):
         QWhatsThis.add(self.default_projection_btngrp,QString.null)
         self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
-        self.groupBox14.setTitle(self.__tr("Adjustment Settings"))
+        self.groupBox14.setTitle(self.__tr("Settings for Adjust"))
         self.watch_min_in_realtime_checkbox.setText(self.__tr("Watch motion in real time"))
         QToolTip.add(self.watch_min_in_realtime_checkbox,self.__tr("Enable/disable real time graphical updates during adjustments"))
-        QWhatsThis.add(self.watch_min_in_realtime_checkbox,self.__tr("<p><b>Watch In Real Time</b></p>Enables/disables real time graphical updates during minimizations."))
+        QWhatsThis.add(self.watch_min_in_realtime_checkbox,self.__tr("<p><b>Watch In Real Time</b></p>Enables/disables real time graphical updates during adjust operations."))
         self.update_btngrp.setTitle(QString.null)
         QToolTip.add(self.update_number_spinbox,self.__tr("Specify how often to update the screen during adjustments"))
         QWhatsThis.add(self.update_number_spinbox,self.__tr("<b>Update every <i>n units.</u></b>\n"
@@ -1656,7 +1656,13 @@ class UserPrefsDialog(QDialog):
 "Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments by more than 20%</p>"))
         self.groupBox20.setTitle(self.__tr("Convergence Criteria"))
         self.endrms_lbl.setText(self.__tr("EndRMS :"))
+        QToolTip.add(self.endrms_lbl,self.__tr("Target RMS force (pN)"))
+        QWhatsThis.add(self.endrms_lbl,self.__tr("<b>EndRMS</b>\n"
+"<p>Continue until this RMS force is reached.</p>"))
         self.endmax_lbl.setText(self.__tr("EndMax :"))
+        QToolTip.add(self.endmax_lbl,self.__tr("Target max force (pN)"))
+        QWhatsThis.add(self.endmax_lbl,self.__tr("<b>EndMax</b>\n"
+"<p>Continue until no interaction exceeds this force.</p>"))
         self.endmax_linedit.setText(self.__tr("10.0"))
         QToolTip.add(self.endmax_linedit,self.__tr("Target max force (pN)"))
         QWhatsThis.add(self.endmax_linedit,self.__tr("<b>EndMax</b>\n"
@@ -1666,6 +1672,9 @@ class UserPrefsDialog(QDialog):
         QWhatsThis.add(self.endrms_linedit,self.__tr("<b>EndRMS</b>\n"
 "<p>Continue until this RMS force is reached.</p>"))
         self.cutovermax_lbl.setText(self.__tr("CutoverMax :"))
+        QToolTip.add(self.cutovermax_lbl,self.__tr("Cutover max force (pN)"))
+        QWhatsThis.add(self.cutovermax_lbl,self.__tr("<b>CutoverMax</b>\n"
+"<p>Use steepest descent until no interaction exceeds this force.</p>"))
         self.cutovermax_linedit.setText(self.__tr("300.0"))
         QToolTip.add(self.cutovermax_linedit,self.__tr("Cutover max force (pN)"))
         QWhatsThis.add(self.cutovermax_linedit,self.__tr("<b>CutoverMax</b>\n"
@@ -1675,6 +1684,9 @@ class UserPrefsDialog(QDialog):
         QWhatsThis.add(self.cutoverrms_linedit,self.__tr("<b>CutoverRMS</b>\n"
 "<p>Use steepest descent until this RMS force is reached.</p>"))
         self.cutoverrms_lbl.setText(self.__tr("CutoverRMS :"))
+        QToolTip.add(self.cutoverrms_lbl,self.__tr("Cutover RMS foce (pN)"))
+        QWhatsThis.add(self.cutoverrms_lbl,self.__tr("<b>CutoverRMS</b>\n"
+"<p>Use steepest descent until this RMS force is reached.</p>"))
         self.minimize_warning_lbl.setText(QString.null)
         self.groupBox8.setTitle(self.__tr("View Animation"))
         self.animate_views_checkbox.setText(self.__tr("Animate between views"))
