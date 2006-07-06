@@ -374,6 +374,9 @@
                             <property name="checked">
                                 <bool>true</bool>
                             </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Perform energy minimization on all the atoms in the workspace</string>
+                            </property>
                             <property name="whatsThis" stdset="0">
                                 <string>&lt;b&gt;Minimize All&lt;/b&gt;&lt;p&gt;Perform energy minimization on all the atoms in the workspace.&lt;/p&gt;</string>
                             </property>
@@ -384,6 +387,9 @@
                             </property>
                             <property name="text">
                                 <string>Minimize Selection</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Perform energy minimization on only the atoms that have been selected</string>
                             </property>
                             <property name="whatsThis" stdset="0">
                                 <string>&lt;b&gt;Minimize Selection&lt;/b&gt;&lt;p&gt;Perform energy minimization on the atoms that are currently selected.&lt;/p&gt;</string>

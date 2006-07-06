@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MinimizeEnergyPropDialog.ui'
 #
-# Created: Thu Jul 6 11:06:15 2006
+# Created: Thu Jul 6 11:11:38 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1465,8 +1465,10 @@ class MinimizeEnergyPropDialog(QDialog):
         self.min_options_label.setText(self.__tr("Minimize Options"))
         self.grpbtn_1.setText(QString.null)
         self.minimize_all_rbtn.setText(self.__tr("Minimize All"))
+        QToolTip.add(self.minimize_all_rbtn,self.__tr("Perform energy minimization on all the atoms in the workspace"))
         QWhatsThis.add(self.minimize_all_rbtn,self.__tr("<b>Minimize All</b><p>Perform energy minimization on all the atoms in the workspace.</p>"))
         self.minimize_sel_rbtn.setText(self.__tr("Minimize Selection"))
+        QToolTip.add(self.minimize_sel_rbtn,self.__tr("Perform energy minimization on only the atoms that have been selected"))
         QWhatsThis.add(self.minimize_sel_rbtn,self.__tr("<b>Minimize Selection</b><p>Perform energy minimization on the atoms that are currently selected.</p>"))
         self.groupBox2.setTitle(QString.null)
         self.watch_min_options_label.setText(self.__tr("Watch Minimization Options"))
