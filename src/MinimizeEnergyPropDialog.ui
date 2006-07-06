@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>226</width>
+            <width>227</width>
             <height>514</height>
         </rect>
     </property>
@@ -932,6 +932,12 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                                             <property name="name">
                                                 <cstring>cutovermax_linedit</cstring>
                                             </property>
+                                            <property name="frameShape">
+                                                <enum>LineEditPanel</enum>
+                                            </property>
+                                            <property name="frameShadow">
+                                                <enum>Sunken</enum>
+                                            </property>
                                             <property name="text">
                                                 <string></string>
                                             </property>
@@ -958,7 +964,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                                     <property name="sizeHint">
                                         <size>
                                             <width>40</width>
-                                            <height>20</height>
+                                            <height>1</height>
                                         </size>
                                     </property>
                                 </spacer>

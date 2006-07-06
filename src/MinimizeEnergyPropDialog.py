@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\MinimizeEnergyPropDialog.ui'
 #
-# Created: Wed Jul 5 17:57:33 2006
+# Created: Wed Jul 5 21:44:48 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1403,9 +1403,11 @@ class MinimizeEnergyPropDialog(QDialog):
         layout78.addWidget(self.cutoverrms_linedit)
 
         self.cutovermax_linedit = QLineEdit(self.parms_grpbox,"cutovermax_linedit")
+        self.cutovermax_linedit.setFrameShape(QLineEdit.LineEditPanel)
+        self.cutovermax_linedit.setFrameShadow(QLineEdit.Sunken)
         layout78.addWidget(self.cutovermax_linedit)
         layout79.addLayout(layout78)
-        spacer_3 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        spacer_3 = QSpacerItem(40,1,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout79.addItem(spacer_3)
         parms_grpboxLayout.addLayout(layout79)
         body_frameLayout.addWidget(self.parms_grpbox)
@@ -1428,7 +1430,7 @@ class MinimizeEnergyPropDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(226,514).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(227,514).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
