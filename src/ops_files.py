@@ -45,7 +45,7 @@ def set_waitcursor(on_or_off):
         QApplication.restoreOverrideCursor() # Restore the cursor
     return
 
-debug_part_files = True #&&& Debug prints to history. Change to False after QA. Mark 060703 [revised by bruce 060704]
+debug_part_files = False #&&& Debug prints to history. Change to False after QA. Mark 060703 [revised by bruce 060704]
 
 def fileparse(name): #bruce 050413 comment: see also filesplit and its comments.
     # This has known bugs (e.g. for basename containing two dots);
