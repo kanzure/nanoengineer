@@ -563,38 +563,42 @@ STRING = "string"
 
 _sim_params_set = False
 
+# We get mysterious core dumps if we turn all these other guys on. We
+# didn't have time before the A8 release to investigate the matter in
+# depth, so we just switched off the ones we didn't need immediately.
+
 _sim_param_table = [
     ("debug_flags", INT),
-    ("IterPerFrame", INT),
-    ("NumFrames", INT),
-    ("DumpAsText", BOOLEAN),
-    ("DumpIntermediateText", BOOLEAN),
-    ("PrintFrameNums", BOOLEAN),
-    ("OutputFormat", INT),
-    ("KeyRecordInterval", INT),
-    ("DirectEvaluate", BOOLEAN),
-    ("IDKey", STRING),
-    ("Dt", FLOAT),
-    ("Dx", FLOAT),
-    ("Dmass", FLOAT),
-    ("Temperature", FLOAT),
+    # ("IterPerFrame", INT),
+    # ("NumFrames", INT),
+    # ("DumpAsText", BOOLEAN),
+    # ("DumpIntermediateText", BOOLEAN),
+    # ("PrintFrameNums", BOOLEAN),
+    # ("OutputFormat", INT),
+    # ("KeyRecordInterval", INT),
+    # ("DirectEvaluate", BOOLEAN),
+    # ("IDKey", STRING),
+    # ("Dt", FLOAT),
+    # ("Dx", FLOAT),
+    # ("Dmass", FLOAT),
+    # ("Temperature", FLOAT),
     ]
 
 _sim_param_values = {
     "debug_flags": 0,
-    "IterPerFrame": 10,
-    "NumFrames": 100,
-    "DumpAsText": False,
-    "DumpIntermediateText": False,
-    "PrintFrameNums": True,
-    "OutputFormat": 1,
-    "KeyRecordInterval": 32,
-    "DirectEvaluate": False,
-    "IDKey": "",
-    "Dt": 1.0e-16,
-    "Dx": 1.0e-12,
-    "Dmass": 1.0e-27,
-    "Temperature": 300.0,
+    # "IterPerFrame": 10,
+    # "NumFrames": 100,
+    # "DumpAsText": False,
+    # "DumpIntermediateText": False,
+    # "PrintFrameNums": True,
+    # "OutputFormat": 1,
+    # "KeyRecordInterval": 32,
+    # "DirectEvaluate": False,
+    # "IDKey": "",
+    # "Dt": 1.0e-16,
+    # "Dx": 1.0e-12,
+    # "Dmass": 1.0e-27,
+    # "Temperature": 300.0,
     }
 
 from qt import QDialog, QGridLayout, QLabel, QPushButton, QLineEdit, SIGNAL
@@ -664,6 +668,8 @@ class SimParameterDialog(QDialog):
             pprint.pprint(_sim_param_values)
             self.close()
         self.connect(btn, SIGNAL("clicked()"), done)
+
+_sim_parameter_dialog = None
 
 ###################################################
 
@@ -1116,8 +1122,10 @@ class DebugMenuMixin:
         return
 
     def _debug_sim_param_dialog(self):
-        spd = SimParameterDialog()
-        spd.show()
+        global _sim_parameter_dialog
+        if _sim_parameter_dialog is None:
+            _sim_parameter_dialog = SimParameterDialog()
+        _sim_parameter_dialog.show()
         return
 
     def _debug_force_sponsor_download(self):
