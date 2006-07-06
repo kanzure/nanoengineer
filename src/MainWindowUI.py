@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Thu Jul 6 12:19:09 2006
+# Created: Thu Jul 6 12:25:16 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -7585,7 +7585,7 @@ class MainWindow(QMainWindow):
         self.dispSurfaceAction.setText(self.__tr("Surface"))
         self.dispCylinderAction.setText(self.__tr("Cylinder"))
         self.simMinimizeEnergyAction.setText(self.__tr("Minimize Energy"))
-        self.simMinimizeEnergyAction.setWhatsThis(self.__tr("<u><b>Minimize Energy dialog</b></u>\n"
+        self.simMinimizeEnergyAction.setWhatsThis(self.__tr("<u><b>Minimize Energy</b></u>\n"
 "<p>The potential energy of a chemical structure is a function of the relative positions of its atoms. To obtain this energy with complete accuracy involves a lot of computer time spent on quantum mechanical calculations, which cannot be practically done on a desktop computer. To get an approximate potential energy without all that, we represent the energy as a series of terms involving geometric properties of the structure: lengths of chemical bonds, angles between pairs and triples of chemical bonds, etc.\n"
 "</p><p>As is generally the case with physical systems, the gradient of the potential energy represents the forces acting on various particles. The atoms want to move in the direction that most reduces the potential energy. Energy minimization is a process of adjusting the atom positions to try to find a global minimum of the potential energy. Each atom contributes three variables (its x, y, and z coordinates) so the search space is multi-dimensional. The global minimum is the configuration that the atoms will settle into if lowered to zero Kelvin.\n"
 "</p>"))
