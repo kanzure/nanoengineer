@@ -285,13 +285,12 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.povrayscenecntl = PovraySceneProp(self)
         from CommentProp import CommentProp
         self.commentcntl = CommentProp(self)
-
-        self.permdialog = PermissionDialog(self)
-        
         # Minimize Energy dialog. Mark 060705.
         from MinimizeEnergyProp import MinimizeEnergyProp
         self.minimize_energy = MinimizeEnergyProp(self)
 
+        self.permdialog = PermissionDialog(self)
+        
         # do here to avoid a circular dependency
         self.assy.o = self.glpane
         self.assy.mt = self.mt
@@ -385,8 +384,11 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             self.permdialog.close()
 
     def sponsoredList(self):
-        return (self.graphenecntl, self.nanotubecntl,
-                self.dnacntl, self.povrayscenecntl)
+        return (self.graphenecntl,
+                self.nanotubecntl,
+                self.dnacntl,
+                self.povrayscenecntl,
+                self.minimize_energy)
 
     def _init_after_geometry_is_set(self): #bruce 060104 renamed this from startRun and replaced its docstring.
         """Do whatever initialization of self needs to wait until its geometry has been set.
