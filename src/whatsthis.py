@@ -3,6 +3,29 @@
 whatsthis.py
 
 $Id$
+
+===
+wware 20060706:
+
+Bruce and I have been discussing whats-this text and we realized that
+it can come from two unrelated sources.
+
+One source of whats-this text is the UI file, for instance in
+MainWindowUI.ui where you see things like this:
+   <property name="whatsThis">
+       <string>&lt;u&gt;&lt;b&gt;Minimize Energy&lt;/b&gt;&lt;/u&gt;.....
+       </string>
+   </property>
+
+The other source is the createWhatsThis() function in whatsthis.py,
+where you see things like this:
+   fileOpenText = "<u><b>Open File</b></u>    (Ctrl + O)<br> " .....
+   self.fileOpenAction.setWhatsThis(fileOpenText)
+
+Having two different sources for whatsthis text could become a source
+of confusion for developers. It might make sense at some point after
+A8 to find all the whats-this text specified in UI files, and move it
+into whatsthis.py (or maybe in some cases other Python source files).
 """
 
 from qt import *
