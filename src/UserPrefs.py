@@ -246,6 +246,8 @@ class UserPrefs(UserPrefsDialog):
         
         speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
         self.animation_speed_slider.setValue(speed)
+        
+        self.update_btngrp.setEnabled(env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
 
         # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]        
         self.endrms = get_pref_or_optval(Adjust_endRMS_prefs_key, -1.0, '')
