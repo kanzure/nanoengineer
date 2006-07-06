@@ -16,6 +16,7 @@ __author__ = "bruce"
 # (can that just be the program env as a whole?)
 
 from qt import QIconSet, SIGNAL
+import env
 
 def env_imagename_to_QIconSet(imagename, _cache = {}): ### to be replaced with env.imagename_to_QIconSet for global env or an arg env
     try:
@@ -144,6 +145,76 @@ class FloatLineeditController_Qt:
             return self.default
         pass
     pass
+
+class realtime_update_controller: #bruce 060705, consolidate code from runSim.py, SimSetup.py, and soon MinimizeEnergyProp.py
+    "#doc"
+    def __init__(self, widgets, checkbox = None, checkbox_prefs_key = None):
+        """Set the data widgets, and if given, the checkbox widget and its prefs key, both optional.
+        If checkbox and its prefs_key are both there, connect them. If neither is provided, always update.
+        """
+        self.update_btngrp, self.update_number_spinbox, self.update_units_combobox = widgets
+        self.checkbox = checkbox
+        self.checkbox_prefs_key = checkbox_prefs_key
+        if checkbox and checkbox_prefs_key:
+            from prefs_widgets import connect_checkbox_with_boolean_pref
+            connect_checkbox_with_boolean_pref(checkbox , checkbox_prefs_key)
+    def set_widgets_from_update_data(self, update_data):
+        if update_data:
+            update_number, update_units, update_as_fast_as_possible_data, enable = update_data
+            if self.checkbox:
+                self.checkbox.setChecked(enable)
+            if self.checkbox_prefs_key: #k could be elif, if we connected them above
+                env.prefs[self.checkbox_prefs_key] = enable
+            self.update_btngrp.setButton( update_as_fast_as_possible_data)
+            self.update_number_spinbox.setValue( update_number)
+            self.update_units_combobox.setCurrentText( update_units)
+        else:
+            pass # rely on whatever is already in them (better than guessing here)
+        return
+    def get_update_data_from_widgets(self):
+        update_as_fast_as_possible_data = self.update_btngrp.selectedId() # 0 means yes, 1 means no (for now)
+            # ( or -1 means neither, but that's prevented by how the button group is set up, at least when it's enabled)
+        update_number = self.update_number_spinbox.value() # 1, 2, etc (or perhaps 0??)
+        update_units = str(self.update_units_combobox.currentText()) # 'frames', 'seconds', 'minutes', 'hours'
+        if self.checkbox:
+            enable = self.checkbox.isChecked()
+        elif self.checkbox_prefs_key:
+            enable = env.prefs[self.checkbox_prefs_key]
+        else:
+            enable = True
+        return update_number, update_units, update_as_fast_as_possible_data, enable
+    def update_cond_from_update_data(self, update_data): #e could be a static method
+        update_number, update_units, update_as_fast_as_possible_data, enable = update_data
+        if not enable:
+            return False #e someday we might do this at the end, if the subsequent code is extended to save some prefs
+        update_as_fast_as_possible = (update_as_fast_as_possible_data != 1)
+        if env.debug():
+            print "debug: using update_as_fast_as_possible = %r,  update_number, update_units = %r, %r" % \
+                  ( update_as_fast_as_possible,  update_number, update_units )
+            pass
+        if update_as_fast_as_possible:
+            # This radiobutton might be misnamed; it really means "use the old code,
+            # i.e. not worse than 20% slowdown, with threshholds".
+            # It's also ambiguous -- does "fast" mean "fast progress"
+            # or "often" (which are opposites)? It sort of means "often".
+            update_cond = ( lambda simtime, pytime, nframes:
+                            simtime >= max(0.05, min(pytime * 4, 2.0)) )
+        elif update_units == 'frames':
+            update_cond = ( lambda simtime, pytime, nframes, _nframes = update_number:  nframes >= _nframes )
+        elif update_units == 'seconds':
+            update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number:  simtime + pytime >= _timelimit )
+        elif update_units == 'minutes':
+            update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 60:  simtime + pytime >= _timelimit )
+        elif update_units == 'hours':
+            update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 3600:  simtime + pytime >= _timelimit )
+        else:
+            print "don't know how to set update_cond from (%r, %r)" % (update_number, update_units)
+            update_cond = None # some callers can tolerate this, though it's always a reportable error
+        return update_cond
+    def get_update_cond_from_widgets(self):
+        update_data = self.get_update_data_from_widgets()
+        return self.update_cond_from_update_data(update_data)
+    pass # end of class realtime_update_controller
 
 # end
 

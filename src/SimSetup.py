@@ -40,7 +40,7 @@ class FakeMovie:
         self.totalFramesRequested = realmovie.totalFramesRequested
         self.temp = realmovie.temp
         self.stepsper = realmovie.stepsper
-        self.watch_motion = realmovie.watch_motion
+        self.watch_motion = realmovie.watch_motion # note 060705: might use __getattr__ in real movie, but ordinary attr in self
         self._update_data = realmovie._update_data
         self.update_cond = realmovie.update_cond # probably not needed
     def fyi_reusing_your_moviefile(self, moviefile):
@@ -95,16 +95,33 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         self.stepsperSB.setValue( self.previous_movie.stepsper )
 #        self.timestepSB.setValue( self.previous_movie.timestep ) # Not supported in Alpha
         # new checkboxes for Alpha7, circa 060108
-        self.watch_motion_checkbox.setChecked( self.previous_movie.watch_motion ) # whether to move atoms in realtime
         #self.create_movie_file_checkbox.setChecked( self.previous_movie.create_movie_file ) 
             # whether to store movie file (see NFR/bug 1286). [bruce & mark 060108]
             # create_movie_file_checkbox removed for A7 (bug 1729). mark 060321
-        if self.previous_movie._update_data:
-            update_number, update_units, update_as_fast_as_possible_data = self.previous_movie._update_data
-            self.update_btngrp.setButton( update_as_fast_as_possible_data)
-            self.update_number_spinbox.setValue( update_number)
-            self.update_units_combobox.setCurrentText( update_units)
-                #k let's hope this changes the current choice, not the popup menu item text for the current choice!
+
+        ##e the following really belongs in the realtime_update_controller,
+        # and the update_cond is not the best thing to set this from;
+        # but we can leave it here, then let the realtime_update_controller override it if it knows how. [now it does]
+        self.watch_motion_checkbox.setChecked( self.previous_movie.watch_motion ) # whether to move atoms in realtime
+
+        try:
+            #bruce 060705 use new common code, if it works
+            from widget_controllers import realtime_update_controller
+            self.ruc = realtime_update_controller(
+                ( self.update_btngrp, self.update_number_spinbox, self.update_units_combobox ),
+                self.watch_motion_checkbox
+                # no prefs key for checkbox
+            )
+            self.ruc.set_widgets_from_update_data( self.previous_movie._update_data ) # includes checkbox
+        except:
+            print_compact_traceback( "bug; reverting to older code in simsetep setup: ")
+            if self.previous_movie._update_data:
+                update_number, update_units, update_as_fast_as_possible_data, watchjunk = self.previous_movie._update_data
+                self.watch_motion_checkbox.setChecked(watchjunk) ###060705
+                self.update_btngrp.setButton( update_as_fast_as_possible_data)
+                self.update_number_spinbox.setValue( update_number)
+                self.update_units_combobox.setCurrentText( update_units)
+                    #k let's hope this changes the current choice, not the popup menu item text for the current choice!
         return
     
     def createMoviePressed(self):
@@ -120,59 +137,79 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         self.movie.temp = self.tempSB.value()
         self.movie.stepsper = self.stepsperSB.value()
 #        self.movie.timestep = self.timestepSB.value() # Not supported in Alpha
-        self.movie.watch_motion = self.watch_motion_checkbox.isChecked()
         #self.movie.create_movie_file = self.create_movie_file_checkbox.isChecked() 
             # removed for A7 (bug 1729). mark 060321
         self.movie.create_movie_file = True
 
+        # compute update_data and update_cond, using new or old code
         try:
-            if self.movie.watch_motion:
-                #bruce 060530 use new watch_motion rate parameters
-                # first grab them from the UI
-                update_as_fast_as_possible_data = self.update_btngrp.selectedId() # 0 means yes, 1 means no (for now)
-                    # ( or -1 means neither, but that's prevented by how the button group is set up, at least when it's enabled)
-                update_as_fast_as_possible = (update_as_fast_as_possible_data != 1)
-                update_number = self.update_number_spinbox.value() # 1, 2, etc (or perhaps 0??)
-                update_units = str(self.update_units_combobox.currentText()) # 'frames', 'seconds', 'minutes', 'hours'
-                # for sake of propogating them to the next sim run:
-                self.movie._update_data = update_number, update_units, update_as_fast_as_possible_data
+            # try new common code for this, bruce 060705            
+            ruc = self.ruc
+            update_cond = ruc.get_update_cond_from_widgets()
+            assert update_cond or (update_cond is False) ###@@@ remove when works, and all the others like this
+            # note, if those widgets are connected to env.prefs, that's not handled here or in ruc;
+            # I'm not sure if they are. Ideally we'd tell ruc the prefs_keys and have it handle that too,
+            # perhaps making it a long-lived object (though that might not be necessary).
+            update_data = ruc.get_update_data_from_widgets() # redundant, but we can remove it when ruc handles prefs
+        except:
+            print_compact_traceback("bug using realtime_update_controller in SimSetup, will use older code instead: ")
+                # this older code can be removed after A8 if we don't see that message
+            #bruce 060530 use new watch_motion rate parameters
+            self.movie.watch_motion = self.watch_motion_checkbox.isChecked() # [deprecated for setattr as of 060705]
+            if env.debug():
+                print "debug fyi: sim setup watch_motion = %r" % (self.movie.watch_motion,)
+            # This code works, but I'll try to replace it with calls to common code (above). [bruce 060705]
+            # first grab them from the UI
+            update_as_fast_as_possible_data = self.update_btngrp.selectedId() # 0 means yes, 1 means no (for now)
+                # ( or -1 means neither, but that's prevented by how the button group is set up, at least when it's enabled)
+            update_as_fast_as_possible = (update_as_fast_as_possible_data != 1)
+            update_number = self.update_number_spinbox.value() # 1, 2, etc (or perhaps 0??)
+            update_units = str(self.update_units_combobox.currentText()) # 'frames', 'seconds', 'minutes', 'hours'
+            # for sake of propogating them to the next sim run:
+            update_data = update_number, update_units, update_as_fast_as_possible_data, self.movie.watch_motion
 ##                if env.debug():
 ##                    print "stored _update_data %r into movie %r" % (self.movie._update_data, self.movie)
 ##                    print "debug: self.update_btngrp.selectedId() = %r" % (update_as_fast_as_possible_data,)
 ##                    print "debug: self.update_number_spinbox.value() is %r" % self.update_number_spinbox.value() # e.g. 1
 ##                    print "debug: combox text is %r" % str(self.update_units_combobox.currentText()) # e.g. 'frames'
-                # Now figure out what these user settings mean our realtime updating algorithm should be,
-                # as a function to be used for deciding whether to update the 3D view when each new frame is received,
-                # which takes as arguments the time since the last update finished (simtime), the time that update took (pytime),
-                # and the number of frames since then (nframes, 1 or more), and returns a boolean for whether to draw this new frame.
-                # Notes:
-                # - The Qt progress update will be done independently of this, at most once per second (in runSim.py).
-                # - The last frame we expect to receive will always be drawn. (This func may be called anyway in case it wants
-                #   to do something else with the info like store it somewhere, or it may not (check runSim.py for details #k),
-                #   but its return value will be ignored if it's called for the last frame.)
-                # The details of these functions (and the UI feeding them) might be revised.
+            # Now figure out what these user settings mean our realtime updating algorithm should be,
+            # as a function to be used for deciding whether to update the 3D view when each new frame is received,
+            # which takes as arguments the time since the last update finished (simtime), the time that update took (pytime),
+            # and the number of frames since then (nframes, 1 or more), and returns a boolean for whether to draw this new frame.
+            # Notes:
+            # - The Qt progress update will be done independently of this, at most once per second (in runSim.py).
+            # - The last frame we expect to receive will always be drawn. (This func may be called anyway in case it wants
+            #   to do something else with the info like store it somewhere, or it may not (check runSim.py for details #k),
+            #   but its return value will be ignored if it's called for the last frame.)
+            # The details of these functions (and the UI feeding them) might be revised.
 
-                # This code for setting update_cond is duplicated (inexactly) in Minimize_CommandRun.doMinimize() in runSim.py
-                if update_as_fast_as_possible:
-                    # This radiobutton might be misnamed; it really means "use the old code,
-                    # i.e. not worse than 20% slowdown, with threshholds".
-                    # It's also ambiguous -- does "fast" mean "fast progress"
-                    # or "often" (which are opposites)? It sort of means "often".
-                    update_cond = ( lambda simtime, pytime, nframes:
-                                    simtime >= max(0.05, min(pytime * 4, 2.0)) )
-                elif update_units == 'frames':
-                    update_cond = ( lambda simtime, pytime, nframes, _nframes = update_number:  nframes >= _nframes )
-                elif update_units == 'seconds':
-                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number:  simtime + pytime >= _timelimit )
-                elif update_units == 'minutes':
-                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 60:  simtime + pytime >= _timelimit )
-                elif update_units == 'hours':
-                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 3600:  simtime + pytime >= _timelimit )
-                else:
-                    print "don't know how to set update_cond from (%r, %r)" % (update_number, update_units)
-                self.movie.update_cond = update_cond
-        except:
-            print_compact_traceback("exception trying to set update_cond: ")
+            # This code for setting update_cond is duplicated (inexactly) in Minimize_CommandRun.doMinimize() in runSim.py
+            if update_as_fast_as_possible:
+                # This radiobutton might be misnamed; it really means "use the old code,
+                # i.e. not worse than 20% slowdown, with threshholds".
+                # It's also ambiguous -- does "fast" mean "fast progress"
+                # or "often" (which are opposites)? It sort of means "often".
+                update_cond = ( lambda simtime, pytime, nframes:
+                                simtime >= max(0.05, min(pytime * 4, 2.0)) )
+            elif update_units == 'frames':
+                update_cond = ( lambda simtime, pytime, nframes, _nframes = update_number:  nframes >= _nframes )
+            elif update_units == 'seconds':
+                update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number:  simtime + pytime >= _timelimit )
+            elif update_units == 'minutes':
+                update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 60:  simtime + pytime >= _timelimit )
+            elif update_units == 'hours':
+                update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 3600:  simtime + pytime >= _timelimit )
+            else:
+                print "don't know how to set update_cond from (%r, %r)" % (update_number, update_units)
+                update_cond = None
+            # revision in this old code, 060705:
+            if not self.movie.watch_motion:
+                update_cond = False
+            del self.movie.watch_motion # let getattr do it
+        # now do this, however we got update_data and update_cond:
+        self.movie._update_data = update_data # for propogating them to the next sim run
+        self.movie.update_cond = update_cond # used this time
+        # end of 060705 changes
 
         suffix = self.suffix
         if self.assy.filename: # Could be an MMP or PDB file.

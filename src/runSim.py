@@ -945,8 +945,9 @@ class SimRunner:
                 # NFR/bug 1286; other comments describe how to implement it; it would need a warning
                 # (esp if both checkboxes unchecked, since no frame output in that case, tho maybe tracef warnings alone are useful)
             editwarning = "Warning: editing structure while watching motion causes tracebacks; cancelling an abort skips some real time display time"
-            if not seen_before(editwarning): #bruce 060317 added this condition
-                env.history.message(orangemsg( editwarning ))
+            if self._movie.watch_motion: #bruce 060705 added this condition
+                if not seen_before(editwarning): #bruce 060317 added this condition
+                    env.history.message(orangemsg( editwarning ))
             env.call_qApp_processEvents() # so user can see that history message
 
             ###@@@ SIM CLEANUP desired: [bruce 060102]
@@ -1067,18 +1068,21 @@ class SimRunner:
 
     def sim_frame_callback_update_check(self, simtime, pytime, nframes):
         "[#doc is in SimSetup.py and in caller]"
-        res = True
-        revert = False
-        if self.update_cond:
+        #bruce 060705 revised this, so self.update_cond of None is not an error, so it can be the usual way to say "never update"
+        res = True # whether to update this time
+        use_default_cond = False
+        if self.update_cond == '__default__':
+            use_default_cond = True
+        elif self.update_cond:
             try:
-                res = self.update_cond(simtime, pytime, nframes) # should be a boolean value
+                res = self.update_cond(simtime, pytime, nframes) # res should be a boolean value
             except:
-                self.update_cond = None
+                self.update_cond = '__default__' # was None
                 print_compact_traceback("exception in self.update_cond ignored, reverting to default cond: ")
-                revert = True
+                use_default_cond = True
         else:
-            revert = True
-        if revert:
+            res = False # was: use_default_cond = True
+        if use_default_cond:
             try:
                 res = (simtime >= max(0.05, min(pytime * 4, 2.0)))
             except:
@@ -1201,15 +1205,15 @@ class SimRunner:
              +? fix singlet positions, if not too slow
            + gl_update
         """
-        from prefs_constants import Adjust_watchRealtimeMinimization_prefs_key #####@@@@@ should depend on command, or be in movie...
         if not self.aborting: #bruce 060601 replaced 'if 1'
             if self.abortbutton_controller.aborting():
                 # extra space to distinguish which line got it -- this one is probably rarer, mainly gets it if nested task aborted(??)
                 self.abort_sim_run("got real  abort at frame %d" % frame_number) # this sets self.aborting flag
             # mflag=1 -> minimize, user preference determines whether we watch it in real time
             # mflag=0 -> dynamics, watch_motion (from movie setup dialog) determines real time
-            elif ((not self.mflag and self._movie.watch_motion) or
-                  (self.mflag and env.prefs[Adjust_watchRealtimeMinimization_prefs_key])):
+##            elif ((not self.mflag and self._movie.watch_motion) or
+##                  (self.mflag and env.prefs[Adjust_watchRealtimeMinimization_prefs_key])):
+            elif self._movie.watch_motion:
                 from sim import getFrame
                 frame = getFrame()
                 # stick the atom posns in, and adjust the singlet posns
@@ -1807,7 +1811,7 @@ class Minimize_CommandRun(CommandRun):
             self.word_minimization = "adjustment"
             self.word_minimizing = "adjusting"
         else:
-            assert cmd_type.startswith('Minimize') #####@@@@@ remove when works
+            assert cmd_type.startswith('Minimize') ####@@@@ remove when works
             self.word_minimize = "minimize"
             self.word_minimization = "minimization"
             self.word_minimizing = "minimizing"
@@ -2020,26 +2024,79 @@ class Minimize_CommandRun(CommandRun):
             # Probably it means that this class, SimRun, and this way of using Movie should all be the same,
             # or at least have more links than they do now. ###@@@
 
-        # Set update_cond for this movie, based on Edit->Preferences general prefs page.
-        # This code for setting update_cond is duplicated (inexactly) in SimSetup.createMoviePressed() in SimSetup.py.
-        uprefs = env.mainwindow().uprefs
-        update_units = uprefs.update_units_combobox.currentText()
-        update_number = uprefs.update_number_spinbox.value()
-        if uprefs.update_asap_rbtn.isChecked():
-            update_cond = ( lambda simtime, pytime, nframes:
-                            simtime >= max(0.05, min(pytime * 4, 2.0)) )
-        elif update_units == 'frames':
-            update_cond = ( lambda simtime, pytime, nframes, _nframes = update_number:  nframes >= _nframes )
-        elif update_units == 'seconds':
-            update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number:  simtime + pytime >= _timelimit )
-        elif update_units == 'minutes':
-            update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 60:  simtime + pytime >= _timelimit )
-        elif update_units == 'hours':
-            update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 3600:  simtime + pytime >= _timelimit )
-        else:
-            print "don't know how to set update_cond from (%r, %r)" % (update_number, update_units)
+        # Set update_cond for controlling realtime update settings for watching this "movie" (an ongoing sim).
+        # There are three possible ways (soon after A8 only the first one will be used) [bruce 060705]:
+        # - caller specified it.
+        # - if it didn't, use new common code to get it from General Prefs page.
+        # - if that fails, use older code for that.
+        #
+        # WARNING: it turns out this happens whether or not the checkbox pref says it should --
+        # that is checked separately elsewhere! And that's a bug, since we need to use a different checkbox
+        # depending on the command.
+        # let's see if we can consolidate the "enabling flag" into update_cond itself? so it is None or False if we won't update.
+        # this is now attempted...
+        if env.debug():
+            print "debug fyi: runSim watch_motion update_cond computed here (even if not watching motion)" #bruce 060705
+        try:
+            # Only the client code knows where to find the correct realtime update settings widgets
+            # (or someday, knows whether these values come from widgets at all, vs from a script).
+            # It should figure out the update_cond (False if we should not watch motion), and tell us in self.kws['update_cond'].
+            update_cond = self.kws['update_cond']
+            assert update_cond or (update_cond is False) # a callable or False [remove when works]
+        except:
+            ## print_compact_traceback("bug ...: ")
+            if env.debug():
+                print "debug: fyi: runSim grabbing uprefs data"
+            # For A8, this is normal, since only (at most) Minimize Energy sets self.kws['update_cond'] itself.
+            # This will be used routinely in A8 by Adjust All and Adjust Selection, and maybe Adjust Atoms (not sure).
+            #
+            # Just get the values from the General Prefs page.
+            # But at least try to do that using new common code.
+            try:
+                from widget_controllers import realtime_update_controller
+                uprefs = env.mainwindow().uprefs
+                from prefs_constants import Adjust_watchRealtimeMinimization_prefs_key ###@@@ should depend on command, or be in movie...
+                ruc = realtime_update_controller(
+                    ( uprefs.update_btngrp, ###k name
+                      uprefs.update_number_spinbox, uprefs.update_units_combobox ),
+                    None, # checkbox ###@@@ maybe not needed, since UserPrefs sets up the connection #k
+                    Adjust_watchRealtimeMinimization_prefs_key )
+                update_cond = ruc.get_update_cond_from_widgets()
+                # note, if those widgets are connected to env.prefs, that's not handled here or in ruc;
+                # I'm not sure if they are. Ideally we'd tell ruc the prefs_keys and have it handle that too,
+                # perhaps making it a long-lived object (though that might not be necessary).
+                assert update_cond or (update_cond is False) # a callable or False
+            except:
+                # even that didn't work. Complain, then fall back to otherwise-obsolete old code.
+                print_compact_traceback("bug using realtime_update_controller in runSim, will use older code instead: ")
+                # This code works (except for always using the widgets from the General Prefs page,
+                # even for Minimize Energy), but I'll try to replace it with calls to common code.
+                # [bruce 060705]
+                # This code for setting update_cond is duplicated (inexactly) in SimSetup.createMoviePressed() in SimSetup.py.
+                uprefs = env.mainwindow().uprefs
+                update_units = uprefs.update_units_combobox.currentText()
+                update_number = uprefs.update_number_spinbox.value()
+                if uprefs.update_asap_rbtn.isChecked():
+                    update_cond = ( lambda simtime, pytime, nframes:
+                                    simtime >= max(0.05, min(pytime * 4, 2.0)) )
+                elif update_units == 'frames':
+                    update_cond = ( lambda simtime, pytime, nframes, _nframes = update_number:  nframes >= _nframes )
+                elif update_units == 'seconds':
+                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number:  simtime + pytime >= _timelimit )
+                elif update_units == 'minutes':
+                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 60:  simtime + pytime >= _timelimit )
+                elif update_units == 'hours':
+                    update_cond = ( lambda simtime, pytime, nframes, _timelimit = update_number * 3600:  simtime + pytime >= _timelimit )
+                else:
+                    print "don't know how to set update_cond from (%r, %r)" % (update_number, update_units)
+                    update_cond = None
+                # new as of 060705, in this old code
+                if not env.prefs[Adjust_watchRealtimeMinimization_prefs_key]:
+                    update_cond = False
+            pass
+        # now do this with update_cond, however it was computed
         movie.update_cond = update_cond
-
+        
         # semi-obs comment, might still be useful [as of 050406]:
         # Minimize Selection [bruce 050330] (ought to be a distinct command subclass...)
         # this will use the spawning code in writemovie but has its own way of writing the mmp file.

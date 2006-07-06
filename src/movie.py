@@ -197,12 +197,12 @@ class Movie:
             # bruce 050325 added totalFramesRequested, changed some uses of totalFrames to this
         self.temp = 300
         self.stepsper = 10
-        self.watch_motion = False # whether to show atom motion in realtime [changed by Mark, 060424]
-            # (note: this default value affects Dynamics, but not Minimize, which uses its own user pref for this,
-            #  but never changes this value to match that [as of 060424; note added by Bruce])
+##        self.watch_motion = False # whether to show atom motion in realtime [changed by Mark, 060424]
+##            # (note: this default value affects Dynamics, but not Minimize, which uses its own user pref for this,
+##            #  but never changes this value to match that [as of 060424; note added by Bruce])
         self._update_data = None
 
-        self.update_cond = None
+        self.update_cond = None # as of 060705 this is also used to derive self.watch_motion, in __getattr__
         self.timestep = 10
             # Note [bruce 050325]: varying the timestep is not yet supported,
             # and this attribute is not presently used in the cad code.
@@ -263,8 +263,15 @@ class Movie:
     def __getattr__(self, attr): # in class Movie
         if attr == 'history':
             #bruce 050913 revised this; I suspect it's not needed and could be removed
-            print_compact_traceback("deprecated code warning: something accessed Movie.history attribute: ")
+            print_compact_stack("deprecated code warning: something accessed Movie.history attribute: ") #bruce 060705 -> _stack
             return env.history
+        elif attr == 'watch_motion': #bruce 060705
+##            if env.debug():
+##                print ("debug: fyi: Movie.watch_motion attribute computed from update_cond: ")
+            try:
+                return not not self.update_cond
+            except:
+                return False
         raise AttributeError, attr
 
     def destroy(self): #bruce 050325
