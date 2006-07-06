@@ -98,14 +98,17 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
     def ok_btn_clicked(self):
         'Slot for OK button.'
         QDialog.accept(self)
-        print 'ok',self.gather_parameters()### kluge: has side effect on env.prefs (should we pass them?)
+        if env.debug(): print 'ok'
+        self.gather_parameters()
+            ### kluge: has side effect on env.prefs
+            # (should we pass these as arg to Minimize_CommandRun rather than thru env.prefs??)
         if platform.atom_debug:
             print "debug: reloading runSim on each use, for development"
             import runSim, debug
             debug.reload_once_per_event(runSim)
         from runSim import Minimize_CommandRun
         # do this in gather?
-        if self.minimize_all_rbtn.isChecked(): ###k
+        if self.minimize_all_rbtn.isChecked():
             self.seltype = 'All'
         else:
              self.seltype = 'Sel'
@@ -115,15 +118,18 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         
     def cancel_btn_clicked(self):
         'Slot for Cancel button.'
+        if env.debug(): print 'cancel'
+        # restore values we grabbed on entry.
+        for key,val in zip((endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key), self.previousParams):
+            env.prefs[key] = val
+        self.update_widgets(update_seltype = False) #k might not matter since we're about to hide it, but can't hurt
         QDialog.reject(self)
-        #### should this gather_parameters or restore_defaults?
-        print 'cancel'###
+        return
         
     def restore_defaults_btn_clicked(self):
         'Slot for Restore Defaults button.'
-        # p1, p2, p3, ... pn = self.previousParams
-        for key,val in zip((endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key), self.previousParams):
-            env.prefs[key] = val
+        # restore factory defaults
+        env.prefs.restore_defaults([endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key])
         self.update_widgets(update_seltype = False)
         
     def whatsthis_btn_clicked(self):
@@ -149,7 +155,7 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
                             self.endmax_lbl, self.endmax_linedit,
                             self.cutoverrms_lbl, self.cutoverrms_linedit,
                             self.cutovermax_lbl, self.cutovermax_linedit,
-                            ##self.spacer_3
+                            ##self.spacer_3 - had to be set to 1 pixel in ui file, since it's a local var, not a self attr
                             )
 
     # WARNING: some of the following code is mostly duplicated by UserPrefs code;
@@ -232,3 +238,7 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
             self.cutovermax = cutovermax_str
         except:
             print_compact_traceback("bug in change_cutovermax ignored: ") #bruce 060627
+
+    pass # end of class MinimizeEnergyProp
+
+# end
