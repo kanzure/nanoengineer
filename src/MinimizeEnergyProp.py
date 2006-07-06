@@ -17,7 +17,12 @@ from GeneratorBaseClass import GroupButtonMixin
 from Sponsors import SponsorableMixin
 
 #bruce:
-from prefs_constants import endRMS_prefs_key, endMax_prefs_key, cutoverRMS_prefs_key, cutoverMax_prefs_key ### same as Adjust for now
+from prefs_constants import Minimize_watchRealtimeMinimization_prefs_key as watchRealtimeMinimization_prefs_key ###e not yet used
+from prefs_constants import Minimize_endRMS_prefs_key as endRMS_prefs_key
+from prefs_constants import Minimize_endMax_prefs_key as endMax_prefs_key
+from prefs_constants import Minimize_cutoverRMS_prefs_key as cutoverRMS_prefs_key
+from prefs_constants import Minimize_cutoverMax_prefs_key as cutoverMax_prefs_key
+
 from debug import print_compact_traceback
 import env, platform
 from UserPrefs import get_pref_or_optval

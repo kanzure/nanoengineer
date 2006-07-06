@@ -96,7 +96,7 @@ class SimRunner:
     # because ops_files.py can set this without a reference to the currently active SimRunner instance.
     PREPARE_TO_CLOSE = False
     
-    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator"):
+    def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator", cmd_type = 'Minimize'):
             # [bruce 051230 added use_dylib_sim; revised 060102; 060106 added cmdname]
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
         from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
@@ -118,6 +118,7 @@ class SimRunner:
         self.use_dylib_sim = use_dylib_sim #bruce 051230
             
         self.cmdname = cmdname
+        self.cmd_type = cmd_type #060705
         if not use_dylib_sim:
             env.history.message(greenmsg("Using the standalone simulator (not the pyrex simulator)"))
         return
@@ -460,7 +461,7 @@ class SimRunner:
         ###@@@ why does that trash a movie param? who needs that param? it's now redundant with movie.alist
         return
     
-    def set_waitcursor(self, on_or_off):
+    def set_waitcursor(self, on_or_off): # [WARNING: this code is now duplicated in at least one other place, as of 060705]
         """For on_or_off True, set the main window waitcursor.
         For on_or_off False, revert to the prior cursor.
         [It might be necessary to always call it in matched pairs, I don't know [bruce 050401]. #k]
@@ -616,17 +617,47 @@ class SimRunner:
         # return whatever results are appropriate -- for now, we stored each one in an attribute (above)
         return # from setup_sim_args
         
-    def set_minimize_threshhold_prefs(self, simopts): #bruce 060628
+    def set_minimize_threshhold_prefs(self, simopts): #bruce 060628, revised 060705
         def warn(msg):
             env.history.message(orangemsg("Warning: ") + quote_html(msg))
         try:
             if env.debug():
                 print "debug: running set_minimize_threshhold_prefs"
-            #####@@@@@ we'll probably use different prefs keys depending on an arg that tells us which command-class to use,
+            ###obs design scratch:
+            # we'll probably use different prefs keys depending on an arg that tells us which command-class to use,
             # Adjust, Minimize, or Adjust Atoms; maybe some function in prefs_constants will return the prefs_key,
             # so all the UI code can call it too. [bruce 060705]
-            from prefs_constants import endRMS_prefs_key, endMax_prefs_key
-            from prefs_constants import cutoverRMS_prefs_key, cutoverMax_prefs_key #####@@@@@ DEPENDS ON COMMAND
+            from prefs_constants import Adjust_endRMS_prefs_key, Adjust_endMax_prefs_key
+            from prefs_constants import Adjust_cutoverRMS_prefs_key, Adjust_cutoverMax_prefs_key
+            from prefs_constants import Minimize_endRMS_prefs_key, Minimize_endMax_prefs_key
+            from prefs_constants import Minimize_cutoverRMS_prefs_key, Minimize_cutoverMax_prefs_key
+
+            # kluge for A8 -- ideally these prefs keys or their prefs values
+            # would be set as movie object attrs like all other sim params
+            cmd_type = self.cmd_type
+            if cmd_type == 'Adjust' or cmd_type == 'Adjust Atoms':
+                endRMS_prefs_key = Adjust_endRMS_prefs_key
+                endMax_prefs_key = Adjust_endMax_prefs_key
+                cutoverRMS_prefs_key = Adjust_cutoverRMS_prefs_key
+                cutoverMax_prefs_key = Adjust_cutoverMax_prefs_key
+            elif cmd_type == 'Minimize':
+                endRMS_prefs_key = Minimize_endRMS_prefs_key
+                endMax_prefs_key = Minimize_endMax_prefs_key
+                cutoverRMS_prefs_key = Minimize_cutoverRMS_prefs_key
+                cutoverMax_prefs_key = Minimize_cutoverMax_prefs_key
+            else:
+                assert 0, "don't know cmd_type == %r" % (cmd_type,)
+
+            # The following are partly redundant with the formulas,
+            # which is intentional, for error checking of the formulas.
+            # Only the first (endRMS) values are independent.
+            if cmd_type == 'Adjust':
+                defaults = (100.0, 500.0, 100.0, 500.0) # also hardcoded in prefs_constants.py
+            elif cmd_type == 'Adjust Atoms':
+                defaults = (50.0, 250.0, 50.0, 250.0)
+            elif cmd_type == 'Minimize':
+                defaults = (1.0, 5.0, 50.0, 250.0) # revised 060705, was (1.0, 10.0, 50.0, 300.0); also hardcoded in prefs_constants.py
+            
             endRMS = env.prefs[endRMS_prefs_key]
             endMax = env.prefs[endMax_prefs_key]
             cutoverRMS = env.prefs[cutoverRMS_prefs_key]
@@ -636,8 +667,17 @@ class SimRunner:
             # "test UI for minimizer thresholds". These are mainly for testing -- for final release (A8 or maybe A8.1)
             # we are likely to hide all but the first from the UI by default, with the others always being -1.
             #   Revising formulas for A8 release, bruce 060705.
+
+            if cmd_type == 'Adjust Atoms':
+                # kluge, because it doesn't have its own prefs values, and has its own defaults, but needs to be adjustable:
+                # use fixed values, but if Adjust prefs are made stricter, let those limit these fixed values too
+                endRMS = min( endRMS, defaults[0] )
+                endMax = min( endMax, defaults[1] )
+                cutoverRMS = min( cutoverRMS, defaults[2] )
+                cutoverMax = min( cutoverMax, defaults[3] )
+                
             if endRMS <= 0:
-                endRMS = 1.0 #####@@@@@ DEPENDS ON COMMAND
+                endRMS = defaults[0] # e.g. 1.0; note, no other defaults[i] needs to appear in these formulas
             if endMax <= 0:
                 endMax = 5.0 * endRMS # revised 060705 (factor was 10, now 5)
             elif endMax < endRMS:
@@ -663,7 +703,6 @@ class SimRunner:
                 else:
                     warn("cutoverMax < cutoverRMS is not allowed, using cutoverMax = cutoverRMS")
                     cutoverMax = cutoverRMS # sim C code would use 5.0 * cutoverRMS if we didn't fix this here
-            defaults = (1.0, 5.0, 50.0, 250.0) # revised 060705, was (1.0, 10.0, 50.0, 300.0) #####@@@@@ DEPENDS ON COMMAND
             if (endRMS, endMax, cutoverRMS, cutoverMax) != defaults or env.debug():
                 msg = "convergence criteria: endRMS = %0.2f, endMax = %0.2f, cutoverRMS = %0.2f, cutoverMax = %0.2f" % \
                       (endRMS, endMax, cutoverRMS, cutoverMax)
@@ -671,10 +710,15 @@ class SimRunner:
                     msg += " (default values -- only printed since ATOM_DEBUG is set)"
                     msg = _graymsg( msg)
                 env.history.message( msg)
-            simopts.MinimizeThresholdEndRMS = endRMS
-            simopts.MinimizeThresholdEndMax = endMax
+            simopts.MinimizeThresholdEndRMS = endRMS # for sim.so, but also grabbed from here later by other code in this file
+            simopts.MinimizeThresholdEndMax = endMax # ditto
             simopts.MinimizeThresholdCutoverRMS = cutoverRMS
             simopts.MinimizeThresholdCutoverMax = cutoverMax
+##            # only some of the following are needed elsewhere; maybe they could be grabbed from simopts but I'm not sure
+##            self.endRMS = endRMS
+##            self.endMax = endMax
+##            self.cutoverRMS = cutoverRMS
+##            self.cutoverMax = cutoverMax
         except:
             print_compact_traceback("error in set_minimize_threshhold_prefs (the ones from the last run might be used): ")
             warn("internal error setting convergence criteria; the wrong ones might be used.")
@@ -926,7 +970,7 @@ class SimRunner:
                 minflag = movie.minimize_flag
                     ###@@@ should we merge this logic with how we choose the simobj class? [bruce 060112]
                 
-                self.tracefileProcessor = TracefileProcessor(self, minimize = minflag)
+                self.tracefileProcessor = TracefileProcessor(self, minimize = minflag, simopts = simopts)
                     # so self.tracefile_callback does something [bruce 060109]
 
                 from sim import SimulatorInterrupted #bruce 060112 - not sure this will work here vs outside 'def' ###k
@@ -1157,7 +1201,7 @@ class SimRunner:
              +? fix singlet positions, if not too slow
            + gl_update
         """
-        from prefs_constants import watchRealtimeMinimization_prefs_key
+        from prefs_constants import Adjust_watchRealtimeMinimization_prefs_key #####@@@@@ should depend on command, or be in movie...
         if not self.aborting: #bruce 060601 replaced 'if 1'
             if self.abortbutton_controller.aborting():
                 # extra space to distinguish which line got it -- this one is probably rarer, mainly gets it if nested task aborted(??)
@@ -1165,7 +1209,7 @@ class SimRunner:
             # mflag=1 -> minimize, user preference determines whether we watch it in real time
             # mflag=0 -> dynamics, watch_motion (from movie setup dialog) determines real time
             elif ((not self.mflag and self._movie.watch_motion) or
-                  (self.mflag and env.prefs[watchRealtimeMinimization_prefs_key])):
+                  (self.mflag and env.prefs[Adjust_watchRealtimeMinimization_prefs_key])):
                 from sim import getFrame
                 frame = getFrame()
                 # stick the atom posns in, and adjust the singlet posns
@@ -1238,7 +1282,13 @@ class SimRunner:
         # Meanwhile, possible bug -- not sure revisions of 060109 (or prior state) is fully safe when called after errors.
         if not self.tracefileProcessor:
             # we weren't printing tracefile warnings continuously -- print them now
-            self.tracefileProcessor = TracefileProcessor(self)
+            try:
+                simopts = self._simopts
+            except:
+                # I don't know if this can happen, no time to find out, not safe for A8 to assume it can't [bruce 060705]
+                print "no _simopts"
+                simopts = None
+            self.tracefileProcessor = TracefileProcessor(self, simopts = simopts)
                 # this might change self.said_we_are_done and/or use self.traceFileName, now and/or later
             try:
                 tfile = self.traceFileName
@@ -1299,9 +1349,10 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
     findRmsForce = re.compile("rms ([0-9.]+) pN")
     findHighForce = re.compile("high ([0-9.]+) pN")
     "Helper object to filter tracefile lines and print history messages as they come and at the end"
-    def __init__(self, owner, minimize = False):
+    def __init__(self, owner, minimize = False, simopts = None):
         "store owner so we can later set owner.said_we_are_done = True; also start"
         self.owner = owner
+        self.simopts = simopts #bruce 060705 for A8
         self.minimize = minimize # whether to check for line syntax specific to Minimize
         self.__last_plain_line_words = None # or words returned from string.split(None, 4)
         self.start() # too easy for client code to forget to do this
@@ -1345,12 +1396,27 @@ class TracefileProcessor: #bruce 060109 split this out of SimRunner to support c
                 else:
                     # "Done:" line - emitted iff it has a message on it; doesn't trigger mention of tracefile name
                     # if we see high forces, color the Done message orange, bug 1238, wware 060323
+                    if 1:
+                        #bruce 060705
+                        simopts = self.simopts
+                        try:
+                            endRMS = simopts.MinimizeThresholdEndRMS
+                        except AttributeError:
+                            print "simopts %r had no MinimizeThresholdEndRMS"
+                            endRMS = 1.0 # was 2.0
+                        try:
+                            endMax = simopts.MinimizeThresholdEndMax
+                        except AttributeError:
+                            print "simopts %r had no MinimizeThresholdEndMax"
+                            endMax = 5.0 # was 2.0
+                        epsilon = 0.000001 # guess; goal is to avoid orangemsg due to roundoff when printing/reading values
+                        pass
                     foundRms = self.findRmsForce.search(line)
                     if foundRms: foundRms = float(foundRms.group(1))
                     foundHigh = self.findHighForce.search(line)
                     if foundHigh: foundHigh = float(foundHigh.group(1))
-                    highForces = ((foundRms != None and foundRms > 2.0) or
-                                  (foundHigh != None and foundHigh > 2.0))
+                    highForces = ((foundRms != None and foundRms > endRMS + epsilon) or
+                                  (foundHigh != None and foundHigh > endMax + epsilon))
                     self.donecount += 1
                     text = line[len(start):].strip()
                     if text:
@@ -1428,7 +1494,7 @@ else:
 #  to accept the movie to use as an argument; and, perhaps, mainly called by a Movie method.
 #  For now, I renamed assy.m -> assy.current_movie, and never grab it here at all
 #  but let it be passed in instead.] ###@@@
-def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = False, cmdname = "Simulator"):
+def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = False, cmdname = "Simulator", cmd_type = 'Minimize'):
         #bruce 060106 added cmdname
     """Write an input file for the simulator, then run the simulator,
     in order to create a moviefile (.dpb file), or an .xyz file containing all
@@ -1453,7 +1519,7 @@ def writemovie(part, movie, mflag = 0, simaspect = None, print_sim_warnings = Fa
     """
     #bruce 050325 Q: why are mflags 0 and 2 different, and how? this needs cleanup.
 
-    simrun = SimRunner( part, mflag, simaspect = simaspect, cmdname = cmdname)
+    simrun = SimRunner( part, mflag, simaspect = simaspect, cmdname = cmdname, cmd_type = cmd_type)
         #e in future mflag should choose subclass (or caller should)
     movie._simrun = simrun #bruce 050415 kluge... see also the related movie._cmdname kluge
     movie.currentFrame = 0 #bruce 060108 moved this here, was in some caller's success cases
@@ -1728,6 +1794,7 @@ class Minimize_CommandRun(CommandRun):
         cmd_subclass_code = self.args[0]
         cmd_type = self.kws.get('type','Minimize')
             # one of 'Minimize' or 'Adjust' or 'Adjust Atoms'; determines conv criteria, name [bruce 060705]
+        self.cmd_type = cmd_type # kluge, see comment where used
         
         assert cmd_subclass_code in ['All','Sel','Atoms'] #e and len(args) matches that?
 
@@ -1986,7 +2053,8 @@ class Minimize_CommandRun(CommandRun):
             # classes Movie should be split into, i.e. one for the way we're using it here, to know how to run the sim,
             # which is perhaps really self (a SimRunner), once the code is fully cleaned up.
 
-        r = writemovie(self.part, movie, mtype, simaspect = simaspect, print_sim_warnings = True, cmdname = self.cmdname) # write input for sim, and run sim
+        r = writemovie(self.part, movie, mtype, simaspect = simaspect, print_sim_warnings = True,
+                       cmdname = self.cmdname, cmd_type = self.cmd_type) # write input for sim, and run sim
             # this also sets movie.alist from simaspect
         if r:
             # We had a problem writing the minimize file.

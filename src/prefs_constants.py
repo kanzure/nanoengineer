@@ -61,11 +61,23 @@ defaultProjection_prefs_key = 'A7/Default Projection'
 animateHighQualityGraphics_prefs_key = 'A7/Animate with High Quality Graphics' #mark 060315. NIY.
 animateStandardViews_prefs_key = 'A7/Animate Standard Views'
 animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
-watchRealtimeMinimization_prefs_key = 'A7/Watch Realtime Minimization'
-endRMS_prefs_key = 'A8 devel2/End RMS' #mark 060627 [all 4 keys and defaults revised by bruce 060628]
-endMax_prefs_key = 'A8 devel2/End Max'
-cutoverRMS_prefs_key = 'A8 devel2/Cutover RMS'
-cutoverMax_prefs_key = 'A8 devel2/Cutover Max'
+
+# Minimize prefs for Adjust All and Adjust Selection (presently on General prefs pane)
+# (note, Adjust Atoms does not yet have its own prefs -- its values are derived from these
+#  but differently than for Adjust All/Sel)
+#mark 060627, revised by bruce 060628, 060705 for A8
+Adjust_watchRealtimeMinimization_prefs_key = 'A7/Watch Realtime Minimization' # same key as in A7
+Adjust_endRMS_prefs_key = 'A8/End RMS Adjust'
+Adjust_endMax_prefs_key = 'A8/End Max Adjust'
+Adjust_cutoverRMS_prefs_key = 'A8/Cutover RMS Adjust'
+Adjust_cutoverMax_prefs_key = 'A8/Cutover Max Adjust'
+
+# Minimize prefs for Minimize Energy dialog (independent settings, different defaults) [bruce 060705]
+Minimize_watchRealtimeMinimization_prefs_key = 'A8/Watch Realtime Minimization Minimize'
+Minimize_endRMS_prefs_key = 'A8/End RMS Minimize' 
+Minimize_endMax_prefs_key = 'A8/End Max Minimize'
+Minimize_cutoverRMS_prefs_key = 'A8/Cutover RMS Minimize'
+Minimize_cutoverMax_prefs_key = 'A8/Cutover Max Minimize'
 
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
@@ -161,6 +173,9 @@ sponsor_permanent_permission_prefs_key = 'A8/Sponsor download permission is perm
 # (and if so, exactly which released versions);
 # also, each line should be signed with a name and date of the abandonment of that key.
 
+###@@@ THIS IS NOT COMPLETE since I didn't have time to add the ones I removed from cvs rev 1.62 just before A8.
+# I also forgot to remove some recently when I renamed them from A8 devel to A8 devel2. -- bruce 060705
+
 _abandoned_prefs_keys = [
     'A7/Specular Highlights', # never released, superceded by 'A7/Material Specular Highlights' [mark 051205]
     'A7/Whiteness', # never released, superceded by 'A7/Material Specular Finish' [mark 051205]
@@ -205,7 +220,7 @@ prefs_table = (
     # entries are: (attribute name, prefs type-and-db-format code, prefs key, optional default value)
     ##e add categories or tags?
     
-    # General preferences [added to this table by mark 050919]
+    # General preferences [added to this table by mark 050919] 
 
     ('display_compass', 'boolean', displayCompass_prefs_key, True),
     ('display_compass_labels', 'boolean', displayCompassLabels_prefs_key, True),
@@ -216,11 +231,22 @@ prefs_table = (
     ('animate_high_quality', 'boolean', animateHighQualityGraphics_prefs_key, True), # Mark 060315. NIY.
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
     ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
-    ('watch_realtime_min', 'boolean', watchRealtimeMinimization_prefs_key, True), # Mark 060217.
-    ('end_rms', 'float', endRMS_prefs_key, -1.0), #mark 060627 [all 4 keys and defaults revised by bruce 060628]
-    ('end_max', 'float', endMax_prefs_key, -1.0), #mark 060627
-    ('cutover_rms', 'float', cutoverRMS_prefs_key, -1.0), #mark 060627
-    ('cutover_max', 'float', cutoverMax_prefs_key, -1.0), #mark 060627
+
+    # Minimize prefs (some are in General prefs pane, some are in dialogs)
+    # [mark 060627, revised & extended by bruce 060628, 060705 for A8]
+    # (none yet are specific to Adjust Atoms aka Local Minimize)
+    
+    ('', 'boolean', Adjust_watchRealtimeMinimization_prefs_key, True),
+    ('', 'float', Adjust_endRMS_prefs_key, 100.0), # WARNING: this value may also be hardcoded in runSim.py
+    ('', 'float', Adjust_endMax_prefs_key, -1.0), # -1.0 means blank lineedit widget, and actual value is computed from other prefs
+    ('', 'float', Adjust_cutoverRMS_prefs_key, -1.0),
+    ('', 'float', Adjust_cutoverMax_prefs_key, -1.0),
+    
+    ('', 'boolean', Minimize_watchRealtimeMinimization_prefs_key, True), 
+    ('', 'float', Minimize_endRMS_prefs_key, +1.0), # WARNING: this value may also be hardcoded in runSim.py
+    ('', 'float', Minimize_endMax_prefs_key, -1.0), 
+    ('', 'float', Minimize_cutoverRMS_prefs_key, -1.0), 
+    ('', 'float', Minimize_cutoverMax_prefs_key, -1.0), 
     
     # Atom preferences - colors (other than element colors, handled separately)
 

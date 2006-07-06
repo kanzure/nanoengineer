@@ -242,22 +242,22 @@ class UserPrefs(UserPrefsDialog):
         self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
         connect_checkbox_with_boolean_pref( self.high_quality_graphics_checkbox, animateHighQualityGraphics_prefs_key )
         connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
-        connect_checkbox_with_boolean_pref( self.watch_min_in_realtime_checkbox, watchRealtimeMinimization_prefs_key )
+        connect_checkbox_with_boolean_pref( self.watch_min_in_realtime_checkbox, Adjust_watchRealtimeMinimization_prefs_key )
         
         speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
         self.animation_speed_slider.setValue(speed)
 
         # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]        
-        self.endrms = get_pref_or_optval(endRMS_prefs_key, -1.0, '')
+        self.endrms = get_pref_or_optval(Adjust_endRMS_prefs_key, -1.0, '')
         self.endrms_linedit.setText(str(self.endrms))
         
-        self.endmax = get_pref_or_optval(endMax_prefs_key, -1.0, '')
+        self.endmax = get_pref_or_optval(Adjust_endMax_prefs_key, -1.0, '')
         self.endmax_linedit.setText(str(self.endmax))
         
-        self.cutoverrms = get_pref_or_optval(cutoverRMS_prefs_key, -1.0, '')
+        self.cutoverrms = get_pref_or_optval(Adjust_cutoverRMS_prefs_key, -1.0, '')
         self.cutoverrms_linedit.setText(str(self.cutoverrms))
         
-        self.cutovermax = get_pref_or_optval(cutoverMax_prefs_key, -1.0, '')
+        self.cutovermax = get_pref_or_optval(Adjust_cutoverMax_prefs_key, -1.0, '')
         self.cutovermax_linedit.setText(str(self.cutovermax))
 
     def _setup_plugins_page(self):
@@ -659,9 +659,9 @@ class UserPrefs(UserPrefsDialog):
             endrms_str = double_fixup(self.endrms_validator, self.endrms_linedit.text(), self.endrms)
             self.endrms_linedit.setText(endrms_str)
             if endrms_str:
-                env.prefs[endRMS_prefs_key] = float(str(endrms_str))
+                env.prefs[Adjust_endRMS_prefs_key] = float(str(endrms_str))
             else:
-                env.prefs[endRMS_prefs_key] = -1.0
+                env.prefs[Adjust_endRMS_prefs_key] = -1.0
             self.endrms = endrms_str
         except:
             print_compact_traceback("bug in change_endrms ignored: ") #bruce 060627
@@ -674,9 +674,9 @@ class UserPrefs(UserPrefsDialog):
             endmax_str = double_fixup(self.endmax_validator, self.endmax_linedit.text(), self.endmax)
             self.endmax_linedit.setText(endmax_str)
             if endmax_str:
-                env.prefs[endMax_prefs_key] = float(str(endmax_str))
+                env.prefs[Adjust_endMax_prefs_key] = float(str(endmax_str))
             else:
-                env.prefs[endMax_prefs_key] = -1.0
+                env.prefs[Adjust_endMax_prefs_key] = -1.0
             self.endmax = endmax_str
         except:
             print_compact_traceback("bug in change_endmax ignored: ") #bruce 060627
@@ -689,9 +689,9 @@ class UserPrefs(UserPrefsDialog):
             cutoverrms_str = double_fixup(self.cutoverrms_validator, self.cutoverrms_linedit.text(), self.cutoverrms)
             self.cutoverrms_linedit.setText(cutoverrms_str)
             if cutoverrms_str:
-                env.prefs[cutoverRMS_prefs_key] = float(str(cutoverrms_str))
+                env.prefs[Adjust_cutoverRMS_prefs_key] = float(str(cutoverrms_str))
             else:
-                env.prefs[cutoverRMS_prefs_key] = -1.0
+                env.prefs[Adjust_cutoverRMS_prefs_key] = -1.0
             self.cutoverrms = cutoverrms_str
         except:
             print_compact_traceback("bug in change_cutoverrms ignored: ") #bruce 060627
@@ -704,9 +704,9 @@ class UserPrefs(UserPrefsDialog):
             cutovermax_str = double_fixup(self.cutovermax_validator, self.cutovermax_linedit.text(), self.cutovermax)
             self.cutovermax_linedit.setText(cutovermax_str)
             if cutovermax_str:
-                env.prefs[cutoverMax_prefs_key] = float(str(cutovermax_str))
+                env.prefs[Adjust_cutoverMax_prefs_key] = float(str(cutovermax_str))
             else:
-                env.prefs[cutoverMax_prefs_key] = -1.0
+                env.prefs[Adjust_cutoverMax_prefs_key] = -1.0
             self.cutovermax = cutovermax_str
         except:
             print_compact_traceback("bug in change_cutovermax ignored: ") #bruce 060627
