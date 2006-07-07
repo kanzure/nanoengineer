@@ -16,7 +16,7 @@ from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
 from povray import write_povray_ini_file, launch_povray_or_megapov
 from fileIO import writepovfile
 from qt import *
-from HistoryWidget import greenmsg, redmsg
+from HistoryWidget import redmsg, orangemsg, greenmsg
 import env, os, sys
 from platform import find_or_make_any_directory, find_or_make_Nanorex_subdir
 
