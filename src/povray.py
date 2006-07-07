@@ -172,15 +172,26 @@ def write_povray_ini_file(povray_ini_fname, povrayscene_file, width, height, out
     try:
         # If MegaPOV is enabled, the Library_Path option must be added and set to the POV-Ray/include
         # directory in the INI. This is so MegaPOV can find the include file "transform.inc". Mark 060628.
-        # Povray also needs transforms.inc - wware 060707
+        # : Povray also needs transforms.inc - wware 060707
+        # : : [but when this is povray, it might know where it is on its own (its own include dir)? not sure. bruce 060707]
         if sys.platform == 'win32':  # Windows
             povray_bin, povray_exe = os.path.split(env.prefs[povray_path_prefs_key])
             povray_dir, bin = os.path.split(povray_bin)
             povray_libpath = os.path.normpath(os.path.join(povray_dir, "include"))
         elif sys.platform == 'darwin':  # Mac
-            raise Exception("Povray for the Mac is confusing because it doesn't appear to have a " +
-                            "command-line interface as it does on Windows and Linux")
-            # We should be figuring out povray_libpath here, if possible.
+            #bruce 060707 use same code as Windows did. This correctly finds 'include' directory,
+            # and doesn't print a redmsg, so it's an improvement;
+            # but rendering still fails (with no error message) and doesn't produce an image file,
+            # though the history says it does produce one. It also produces an incredibly tiny separate window,
+            # about 3 x 30 pixels by eye, which I can drag like an ordinary window if I'm careful.
+            # The launch args were ['/Applications/POV-Ray 3.6/POV-Ray Mac 3.6 Folder/POV-Ray Mac 3.6', 'povray.ini', '']
+            # in which that last arg of '' is suspicious. The various paths, including inside povray.ini, include blanks.
+            povray_bin, povray_exe = os.path.split(env.prefs[povray_path_prefs_key])
+            povray_dir, bin = os.path.split(povray_bin)
+            povray_libpath = os.path.normpath(os.path.join(povray_dir, "include"))            
+##            raise Exception("Povray for the Mac is confusing because it doesn't appear to have a " +
+##                            "command-line interface as it does on Windows and Linux")
+##            # We should be figuring out povray_libpath here, if possible.
         else:  # Linux
             povray_bin = env.prefs[povray_path_prefs_key]
             if povray_bin == "":
@@ -195,6 +206,7 @@ def write_povray_ini_file(povray_ini_fname, povrayscene_file, width, height, out
     except Exception, e:
         povray_libpath = ''
         env.history.message(redmsg(e.args[0]))
+        env.history.h_update() #bruce 060707
         
     workdir, tmp_pov = os.path.split(povrayscene_file)
     base, ext = os.path.splitext(tmp_pov)
