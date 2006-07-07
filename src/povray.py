@@ -170,9 +170,17 @@ def write_povray_ini_file(povray_ini_fname, povrayscene_file, width, height, out
     
     # If MegaPOV is enabled, the Library_Path option must be added and set to the POV-Ray/include
     # directory in the INI. This is so MegaPOV can find the include file "transform.inc". Mark 060628.
-    povray_bin, povray_exe = os.path.split(env.prefs[povray_path_prefs_key])
-    povray_dir, bin = os.path.split(povray_bin)
-    povray_libpath  = os.path.normpath(os.path.join(povray_dir, "include"))
+    if sys.platform == 'win32':  # Windows
+        povray_bin, povray_exe = os.path.split(env.prefs[povray_path_prefs_key])
+        povray_dir, bin = os.path.split(povray_bin)
+        povray_libpath = os.path.normpath(os.path.join(povray_dir, "include"))
+    else:  # Linux and Mac
+        povray_bin = env.prefs[povray_path_prefs_key].split(os.path.sep)
+        if povray_bin[-2] == 'bin' and povray_bin[-1] == 'povray':
+            povray_libpath = os.path.sep.join(povray_bin[:-2] + ['share', 'povray-3.6', 'include'])
+        else:
+            raise Exception("don't know how to figure out povray_libpath on Linux/Mac" +
+                            " if povray bin doesn't end with 'bin/povray'")
     
     workdir, tmp_pov = os.path.split(povrayscene_file)
     base, ext = os.path.splitext(tmp_pov)
