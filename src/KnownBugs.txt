@@ -5,8 +5,13 @@ This file documents some bug fixes, unsupported features and some of the commonl
 
 Some of the Bug Fixes In Alpha 8
 
+1. Simulator/Minimize: The simulator doesn't take into account the effect of torsion. This will make systems with double or aromatic/graphitic bonds act less stiff than they really would. (Although torsion and out of plane terms are included, please note that this still has some known bugs. For example, minimize returning high values for some structures or taking long time to finish)
+2. Bond type changing tools in Build mode don’t work on bondpoints (833-1)
+3. Povray rendering doesn't show different bond types (it will be supported feature for this version) (830)  
+4. Can not copy named view to the clipboard (1369)
+5. Movie playing gets slower because of the progress bar (1898)
+6. Can not 'Move Absolute' the selection to (x,y,z) if a motor is present (1990)
 
-  
 UNSUPPORTED FEATURES:
 
 #UNDO/REDO 
@@ -19,10 +24,9 @@ UNSUPPORTED FEATURES:
 
 SIMULATOR / MINIMIZE
 # Simulator/Minimize: will support bonding between elements specified in the element selector of NanoEngineer-1. 
-# Simulator/Minimize: Multiple bonding between certain elements is generally supported, but some parameters, notably for double bonds involving nitrogen, are estimated.  
-# Simulator/Minimize: The simulator doesn't take into account the effect of torsion. This will make systems with double or aromatic/graphitic bonds act less stiff than they really would.   
+# Simulator/Minimize: Multiple bonding between certain elements is generally supported, but some parameters are estimated. The history message during a simulation run notifies user if it is using an estimated/reduced quality parameter. 
 # Simulator: Electrostatic interactions are not supported; in particular, the hydrogen and dative bonds are not handled. 
-# Enable motor in minimize feature is experimental. Enabling a motor in minimization may result in high values of rms force. Also, minimize will take long time to finish
+# Enable motor in minimize feature is experimental. Enabling a motor in minimization may result in high values of rms force. Also, minimize will take long time to finish.
 # Nanotubes: The simulator doesn't take into account the effect of torsion. The simulation/minimization of nanotubes and similar structures is not supported. 
 
 GAMESS Jig
@@ -68,13 +72,13 @@ MINIMIZE/SIMULATOR
 
 # For some structures it needs multiple executions of 'minimize' to boil down the high force to a lower value. Sometimes, even after repeated minimize operations, it gives high rms and high force values(1892) 
 # Quite often, the rms & high force inconsistently increase during each execution of 'minimize'. Thus minimizing a structure could result in a new structure with a higher RMS force value than the input structure.  It should be the case that the new structure will always have a lower potential energy than the input structure, even if the RMS force value may sometimes be higher. This will be fixed in a future release of the product. (1377)
-# Minimize operation for some elements with higher order bond types doesn't work. See 'Unsupported Features' section for more info. (805) 
 # Simulator: In some cases, hydrogen atoms or other elements 'fly away' while running a simulation movie. This happens when atom centers are very close and therefore the repulsive force becomes very high (528, 558) 
 # Rotary motor doesn't rotate if a thermostat is attached to the chunk. Workaround is not to attach a thermostat jig when a rotary motor is present (1889)
 # Linear motor doesn't move the atoms if a thermostat jig is attached (1893)
 # Linear Motor: Even when there are two parts far enough apart that they shouldn't interact too much, the presence or absence of one part strongly affects the linear motor behavior. In such cases, the linear motor doesn’t move the attached atoms (1895)
 # Enable motor in minimize feature is experimental and has some bugs. Examples- the final rms and high force values after minimize are large, it takes long time to finish minimize operation. (1835, 1836)
-
+# For some structures with multiple bonds, minimize takes very long time. This is true even for the smaller structures. (1957)
+#During a simulation run, temperature of some structures especially with aromatic or graphitic bonds increases. This is undesirable and will be fixed in an upcoming release (2029)
 
 SELECTION 
 
@@ -84,7 +88,7 @@ SELECTION
 
 # Contract Selection doesn't work correctly in some cases. Also the What's this text doesn't clearly explain this feature. (1358)
 
-# It is tough to select chunks with Surface Chunks display (2004)
+# It is tough to select chunks with Cylinder display (2004)
 
  
 BUILD MODE
@@ -158,20 +162,20 @@ DIALOGS AND DASHBOARD
 # Users operating ne-1 with a low screen resolution and large font size report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don't operate correctly, some property forms such as Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)  
  
 POVRAY RENDERING
- 
-# Povray rendering doesn't show different bond types (it will be supported feature for this version) (830)  
+  
 # Povray rendering of lines display is shown as black lines (226)
 # Motor arrows are not rendered (527)  
 # If a motor is attached to only a single atom, povray image can not be rendered (719)
 # Povray image rendered incorrectly in some orientations of the linear motor (1755)
 # Measurement jigs, ESP Image Volume(outline) and Grid lines in a grid plane jig are not rendered in the generated povray file.  (1084, 1196, 1198)
-
+# Chunks with Cylinder display are not rendered. (2003)
 
 MISCELLANEOUS
  
 # User can not save exclusive features of NanoEngineer-1 into the PDB file format. Some examples of such 'MMP file only' features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  ne-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)  
 # Only open one main window. Opening more than one NanoEngineer-1 application window will have unexpected results. (362)  
 # Any file currently opened by NanoEngineer-1 can be manually deleted from the computer without any warning message. (215) 
+# View > NormalTo doesn’t work when multiple chunks are selected. (1748)
 
  
 WINDOWS ONLY BUGS
@@ -182,18 +186,21 @@ WINDOWS ONLY BUGS
 # On very rear occasions, the File>Open, Save, Save dialogs don't pop up because of some python.exe application problems. It might happen if you are working with a huge file with lots of GAMESS jigs in it. Again, it is very unlikely to happen. Saving your work often while working on large file is recommended. (774) 
  
 MACINTOSH ONLY BUGS
- 
+
+# POV-Ray and RayTrace scene are not rendered on MAC even when POVRay or MegaPOV plugins are provided (2068, 2080 )
 # Sometimes a cursor's bitmask will suddenly not work, leaving a white square around the cursor. (772)
 # On iMac the 'material specular highlighting' doesn't show up (1866). 
 # Icon toolbar redrawing of the icon images will show up overlapped, zig-zagged, cracked, etc. in certain situations. In worst cases, the right-side icon bars will go invisible until the invisible bar is clicked on, which redraws the bar but changes your button. This usually only happens when resizing the main window by dragging its "resize handle" on the lower right of the window frame. The workaround is to resize it to be a bit smaller than you want, and then make it a bit bigger again so that it's the desired size. Some users report that the toolbars always draw wrongly after that initial down-sizing, but then they always draw properly again after that final small up-sizing. (861) 
 # Occasionally, bouncing between programs will lead to the menu (screen top) disappearing, only to re-appear with mouseover (or mouseover+click).  
 # On Mac OS X Tiger, the tool buttons don't look 'pressed'. On other platforms this is not a problem. ne-1 provides a workaround for this. In the 3D Workspace (i.e. Graphics area), press Shift and Option keys and do Command click to bring up the debug menu. Now select the "Mac OS 10.4 QToolbutton Workaround" command from this debug menu. This will resolve the issue. (878) 
 # On some MACs , some cursors and icons in MMKit and dashboard are not displayed (1824, 1838)
+
  
 LINUX ONLY BUGS
 
 # System crashes while accessing wiki help via the URL provided in What's this text of that mode. Workaround is to use the Mode specific Wiki Help dialog that pops up when you hit F1 key (1447)
 # NanoEngineer-1 sometimes crashes while operating on a bigger file and extensively using features such as clipboard, copy, extrude, select, undo etc. (1885)
+# POV-Ray and RayTrace scene are not rendered on MAC even when POVRay or MegaPOV plugins are provided (2070)
 # Minimize progress messages in the status bar is truncated for lower resolution and larger font size (1794)  
 # Status bar text on bottom right corner can get obscured during minimize or simulation and thus affects the display of (for example) the minimize progress.  (1282)
 #Opening a plot file from the plot tool dialogs needs 'kwrite' editor which is available with only with KDE desktop (434)  
