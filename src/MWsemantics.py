@@ -749,26 +749,39 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.glpane.gl_update()
         
     def dispResetAtomsDisplay(self):
-        "Resets the display setting for each atom in the selected chunks to Default display mode"
-        if not self.assy.selmols: 
-            env.history.message(redmsg("Reset Atoms Display: No chunks selected."))
-            return
-            
-        self.assy.resetAtomsDisplay()
-        env.history.message(greenmsg("Reset Atoms Display:"))
-        msg = "Display setting for all atoms in selected chunk(s) reset to Default."
-        env.history.message(msg)
-
+        "Resets the display setting for each atom in the selected chunks or atoms to Default display mode"
+        
+        cmd = greenmsg("Reset Atoms Display: ")
+        
+        if self.assy.selmols: 
+            self.assy.resetAtomsDisplay()
+            msg = "Display setting for all atoms in selected chunk(s) reset to Default (i.e. their parent chunk's display mode)."
+        
+        if self.assy.selatoms:
+            for a in self.assy.selatoms.values():
+                if a.display != diDEFAULT:
+                    a.setDisplay(diDEFAULT)
+                    
+            msg = "Display setting for all selected atom(s) reset to Default (i.e. their parent chunk's display mode)."
+        
+        env.history.message(cmd + msg)
         
     def dispShowInvisAtoms(self):
-        "Resets the display setting for each invisible atom in the selected chunks to Default display mode"
-        if not self.assy.selmols: 
-            env.history.message(redmsg("Show Invisible Atoms: No chunks selected."))
-            return
-            
-        nia = self.assy.showInvisibleAtoms() # nia = Number of Invisible Atoms
-        env.history.message(greenmsg("Show Invisible Atoms:"))
-        msg = str(nia) + " invisible atoms found."
+        "Resets the display setting for each invisible atom in the selected chunks or atoms to Default display mode"
+        
+        cmd = greenmsg("Show Invisible Atoms: ")
+        nia = 0 # nia = Number of Invisible Atoms
+        
+        if self.assy.selmols:
+            nia = self.assy.showInvisibleAtoms()
+        
+        if self.assy.selatoms:
+            for a in self.assy.selatoms.values():
+                if a.display == diINVISIBLE: 
+                    a.setDisplay(diDEFAULT)
+                    nia += 1
+        
+        msg = cmd + str(nia) + " invisible atoms found."
         env.history.message(msg)
                     
     def dispBGColor(self):
