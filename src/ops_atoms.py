@@ -18,7 +18,6 @@ from HistoryWidget import greenmsg, redmsg
 from assembly import SELWHAT_CHUNKS, SELWHAT_ATOMS
 from platform import fix_plurals
 from elements import Singlet
-from bonds import NeighborhoodGenerator, bond_atoms
 import env
 
 class ops_atoms_Mixin:
@@ -135,40 +134,6 @@ class ops_atoms_Mixin:
         cmd = greenmsg("Hydrogenate: ")
         
         fixmols = {} # helps count modified mols for statusbar
-
-        # Singlets within bondableDistance of one another are replaced by bonds
-        # instead of being converted to hydrogens.
-        bondableDistance = 1.0  # angstroms
-        selectedSinglets = [ ]
-        for mol in self.selmols:
-            selectedSinglets += filter(lambda atm: atm.is_singlet(), mol.atoms.values())
-        for atm in self.selatoms.values():
-            for atm2 in atm.singNeighbors():
-                if atm2 not in selectedSinglets:
-                    selectedSinglets.append(atm2)
-        ng = NeighborhoodGenerator(selectedSinglets, bondableDistance, include_singlets=True)
-        killed = [ ]
-        for sing1 in selectedSinglets:
-            if sing1 not in killed:
-                overlaps = filter(lambda sing2: sing2 is not sing1,
-                                  ng.region(sing1.posn()))
-                if len(overlaps) == 0:
-                    pass
-                elif len(overlaps) >= 2:
-                    raise Exception("more than two singlets overlapping")
-                else:
-                    sing2 = overlaps[0]
-                    if sing2 not in killed:
-                        owner1 = sing1.bonds[0].other(sing1)
-                        owner2 = sing2.bonds[0].other(sing2)
-                        killed.append(sing1)
-                        killed.append(sing2)
-                        sing1.kill()
-                        sing2.kill()
-                        bond_atoms(owner1, owner2)
-                        ng.remove(sing1)
-                        ng.remove(sing2)
-
         if self.selmols:
             counta = countm = 0
             for m in self.selmols:
