@@ -111,9 +111,9 @@ reinit_globals(void)
     SimpleMovieForceScale = 1.0;
 
     MinimizeThresholdCutoverRMS = 50.0; // pN
-    MinimizeThresholdCutoverMax = 300.0;
+    MinimizeThresholdCutoverMax = 250.0;
     MinimizeThresholdEndRMS = 1.0;
-    MinimizeThresholdEndMax = 10.0;
+    MinimizeThresholdEndMax = 5.0;
     
     OutputFile = NULL;
     TraceFile = NULL;
