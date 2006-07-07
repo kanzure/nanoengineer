@@ -14,16 +14,19 @@ __author__ = "Mark"
 from constants import *
 import preferences, env
 import os, sys
-from HistoryWidget import redmsg
+from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
 from qt import QApplication, QCursor, Qt, QStringList, QProcess, QDir
+from debug import print_compact_traceback
 
-def launch_povray_or_megapov(win, povray_ini):
-    '''Launch POV-Ray or MegaPOV. POV-Ray must be installed to launch MegaPOV.
+def launch_povray_or_megapov(win, povray_ini): #bruce 060707 revised docstring, added comments, made commented code changes
+    '''Try to launch POV-Ray or MegaPOV.
+    (Specifically, if MegaPOV plugin is enabled, launch MegaPOV or fail; otherwise launch POV-Ray or fail.)
+    POV-Ray (as well as MegaPOV) must be installed to launch MegaPOV.
     POV-Ray does not run silently in the background on Windows, so we provide MegaPOV as
     an option since it does run silently in the background on Windows.
-    <povray_ini> is a text file containing settings for what used to be called POV-Ray 'command-line options'.
+    <povray_ini> should be a text file containing settings for what used to be called POV-Ray 'command-line options'.
     
-    Return values:
+    Returns (errorcode, errortext), where errorcode is one of the following:
         0 = successful
         1 = POV-Ray plug-in not enabled
         2 = POV-Ray plug-in path is empty
@@ -32,18 +35,22 @@ def launch_povray_or_megapov(win, povray_ini):
         5 = MegaPOV plug-in not enabled
         6 = MegaPOV plug-in path is empty
         7 = MegaPOV plug-in path points to a file that does not exist
-        8 = POV-Ray failed for some reason.
+        8 = POV-Ray [or MegaPOV?] failed for an unknown reason.
     '''
+    #bruce 060707 comment: on Mac, as of 3:34pm PT, this function returns 0 even though the launch fails.
+    #
+    # Note: all error return statements look like  return n+1, errmsgs[n]  for some n >= 0 (except one I added today).
     
-    errmsgs = ["Error: POV-Ray plug-in not enabled.",
-                        "Error: POV-Ray Plug-in path is empty.",
-                        "Error: POV-Ray plug-in path points to a file that does not exist.",
-                        "Error: POV-Ray plug-in is not version 3.6",
-                        "Error: MegaPOV plug-in not enabled.",
-                        "Error: MegaPOV Plug-in path is empty.",
-                        "Error: MegaPOV plug-in path points to a file that does not exist.",
-                        "Error: Unsupported output image format: ",
-                        "Error: POV-Ray failed."]
+    errmsgs = [ "Error: POV-Ray plug-in not enabled.", # 0
+                "Error: POV-Ray Plug-in path is empty.", # 1
+                "Error: POV-Ray plug-in path points to a file that does not exist.", # 2
+                "Error: POV-Ray plug-in is not version 3.6", # 3
+                "Error: MegaPOV plug-in not enabled.", # 4
+                "Error: MegaPOV Plug-in path is empty.", # 5
+                "Error: MegaPOV plug-in path points to a file that does not exist.", # 6
+                ## "Error: Unsupported output image format: ", was 7, but was not matching the code or the docstring [bruce 060707]
+                "Error: POV-Ray failed.", # 7 [was 8 and never used, now 7 and sometimes used; bruce 060707 after Windows A8 only]
+               ]
     
     # Validate that the POV-Ray plug-in is enabled.
     if not env.prefs[povray_enabled_prefs_key]:
@@ -69,10 +76,13 @@ def launch_povray_or_megapov(win, povray_ini):
     #    r = activate_plugin(win, "MegaPOV")
     #    if r:
     #        return 5, errmsgs[4] # MegaPOV plug-in not enabled.
-    
+
+    #bruce 060707 comment: if MegaPOV is enabled, use it, otherwise use POV-Ray. 
     megapov_exe = ''
     if env.prefs[megapov_enabled_prefs_key]:
-        megapov_exe = env.prefs[megapov_path_prefs_key]   
+        megapov_exe = env.prefs[megapov_path_prefs_key]
+        #bruce 060707 comment: for these errors, it might be better to revert to POV-Ray rather than bailing,
+        # or at least to point out that option to the user in the error message.
         if not megapov_exe:
             return 6, errmsgs[5] # MegaPOV plug-in path is empty
             
@@ -97,6 +107,7 @@ def launch_povray_or_megapov(win, povray_ini):
     try:
         
         args = [program] + [tmp_ini] + [exit]
+        #e the following debug message is misleading, since it can include '' though that is removed from the actual arg list.
         print "Launching POV-Ray: \n  working directory=",workdir,"\n  povray_exe=", povray_exe,  "\n  args are %r" % (args,)
         
         arguments = QStringList()
@@ -106,6 +117,10 @@ def launch_povray_or_megapov(win, povray_ini):
     
         from Process import Process
         p = Process()
+            #bruce 060707: this doesn't take advantage of anything not in QProcess,
+            # unless it matters that it reads and discards stdout/stderr
+            # (eg so large output would not block -- unlikely that this matters).
+            # It doesn't echo stdout/stderr. See also blabout/blaberr in other files.
         p.setArguments(arguments)
         
         wd = QDir(workdir)
@@ -124,7 +139,7 @@ def launch_povray_or_megapov(win, povray_ini):
             # Display a message on the status bar that POV-Ray/MegaPOV is rendering.
             # I'd much rather display a progressbar and stop button by monitoring the size of the output file.
 	    # This would require the output file to be written in PPM or BMP format, but not PNG format, since
-	    # I don't believe a PNG's final filesize cannot be predicted. 
+	    # I don't believe a PNG's final filesize can be predicted. 
 	    # Check out monitor_progress_by_file_growth() in runSim.py, which does this.
             time.sleep(0.25)
             env.history.statusbar_msg(msg)
@@ -136,19 +151,45 @@ def launch_povray_or_megapov(win, povray_ini):
 		else:
 		    #msg = msg + "."
 		    msg += "."
-        
-        QApplication.restoreOverrideCursor() # Restore the cursor. Mark 060621.
-        env.history.statusbar_msg("Rendering finished!")
-	win.glpane.is_animating = False
-        
-        # Display image in separate window here.
 
     except:
+        #bruce 060707 moved print_compact_traceback earlier, and its import to toplevel (after Windows A8, before Linux/Mac A8)
+        print_compact_traceback( "exception in launch_povray_or_megapov(): " )
 	QApplication.restoreOverrideCursor()
 	win.glpane.is_animating = False
-        from debug import print_compact_traceback
-        print_compact_traceback( "exception in launch_povray_or_megapov(): " )
         return 8, errmsgs[7]
+
+    #bruce 060707 moved the following outside the above try clause, and revised it (after Windows A8, before Linux/Mac A8)
+    QApplication.restoreOverrideCursor() # Restore the cursor. Mark 060621.
+    ## env.history.statusbar_msg("Rendering finished!") # this is wrong if it was not a normal exit. [bruce 060707 removed it]
+    win.glpane.is_animating = False
+
+    if 1:
+        #bruce 060707 added this (after Windows A8, before Linux/Mac A8):
+        # set an appropriate exitcode and msg
+        if p.normalExit():
+            exitcode = p.exitStatus()
+            if not exitcode:
+                msg = "Rendering finished!"
+            else:
+                msg = "Rendering program had exitcode %r" % exitcode
+                    # e.g. 126 for Mac failure; same as shell exitcode, which says "cannot execute binary file";
+                    # but /usr/bin/open helps, so we'll try that above (but not in this commit, which is just to
+                    # improve error reporting). ###@@@
+                    # [bruce 060707]
+        else:
+            exitcode = -1
+            msg = "Abnormal exit (or failure to launch)"
+        if exitcode or env.debug():
+            print msg
+        env.history.statusbar_msg(msg)
+##        if env.debug():
+##            env.history.message(_graymsg(msg)) # not needed, caller prints it
+        if exitcode:
+            return 8, "Error: " + msg # this breaks the convention of the other error returns
+        pass
+    
+    # Display image in separate window here. [Actually I think this is done in the caller -- bruce 060707 comment]
             
     return 0, "Rendering finished"
 
@@ -179,7 +220,8 @@ def write_povray_ini_file(povray_ini_fname, povrayscene_file, width, height, out
             povray_dir, bin = os.path.split(povray_bin)
             povray_libpath = os.path.normpath(os.path.join(povray_dir, "include"))
         elif sys.platform == 'darwin':  # Mac
-            #bruce 060707 use same code as Windows did. This correctly finds 'include' directory,
+            #bruce 060707 (after Windows A8, before Linux/Mac A8)
+            # use same code as Windows did. This correctly finds 'include' directory,
             # and doesn't print a redmsg, so it's an improvement;
             # but rendering still fails (with no error message) and doesn't produce an image file,
             # though the history says it does produce one. It also produces an incredibly tiny separate window,
@@ -205,8 +247,8 @@ def write_povray_ini_file(povray_ini_fname, povrayscene_file, width, height, out
                                 " if povray executable path doesn't end with 'bin/povray'")
     except Exception, e:
         povray_libpath = ''
-        env.history.message(redmsg(e.args[0]))
-        env.history.h_update() #bruce 060707
+        env.history.message(redmsg("Error: " + e.args[0])) #bruce 060707 added "Error: " (after Windows A8, before Linux/Mac A8)
+        env.history.h_update() #bruce 060707 (after Windows A8, before Linux/Mac A8)
         
     workdir, tmp_pov = os.path.split(povrayscene_file)
     base, ext = os.path.splitext(tmp_pov)

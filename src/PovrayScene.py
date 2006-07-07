@@ -16,7 +16,7 @@ from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
 from povray import write_povray_ini_file, launch_povray_or_megapov
 from fileIO import writepovfile
 from qt import *
-from HistoryWidget import redmsg, orangemsg, greenmsg
+from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
 import env, os, sys
 from platform import find_or_make_any_directory, find_or_make_Nanorex_subdir
 
@@ -103,10 +103,13 @@ class PovrayScene(SimpleCopyMixin, Node):
         # For Alpha 8, the name and the basename are usually the same.
         # The only way I'm aware of that the name and the basename would be 
         # different is if the user renamed the node in the Model Tree.
+        # [Or they might move the file in the OS, and edit the node's mmp record,
+        #  in ways which ought to be legal according to the documentation. bruce 060707 comment]
+        
         mapping.write("info povrayscene povrayscene_file = POV-Ray Scene Files/%s\n" % self.name) # Relative path.
-        #&&& Problem: Users will assume when they rename an existing MMP file, all the POV-Ray Scene files will still be associated 
-        #&&& with the MMP file when in fact they will not be. Bruce and I discussed the idea of copying the Part Files directory and
-        #&&& its contents when renaming an MMP file. This is an important issue to resolve since it will happen frequently. Mark 060625.
+        
+        # Note: Users will assume when they rename an existing MMP file, all the POV-Ray Scene files will still be associated 
+        # with the MMP file. This is handled by separate code in Save As which copies those files, or warns when it can't.
         
         self.writemmp_info_leaf(mapping)
         return
@@ -222,6 +225,13 @@ class PovrayScene(SimpleCopyMixin, Node):
         The caller is responsible for adding the POV-Ray Scene node to the model tree.
         Returns errorcode and errortext.
         """
+        if env.debug():
+            #bruce 060707 (after Windows A8, before Linux/Mac A8)
+            # compromise with what's best, so it can be ok for A8 even if only on some platforms
+            env.history.message(_graymsg("Raytrace Scene: "))
+            env.history.h_update()
+            env.history.widget.update() ###@@@ will this help? is it safe? should h_update do it?
+        
         ini, pov, out = self.get_povfile_trio(tmpscene)
         
         if ini:
@@ -238,6 +248,9 @@ class PovrayScene(SimpleCopyMixin, Node):
         else:
             msg = "Rendering raytrace image from POV-Ray Scene file. Please wait..."
         env.history.message(cmd + msg)
+        env.history.h_update() #bruce 060707 (after Windows A8, before Linux/Mac A8): try to make this message visible sooner
+            # (doesn't work well enough, at least on Mac -- do we need to emit it before write_povray_ini_file?)
+        env.history.widget.update() ###@@@ will this help? is it safe? should h_update do it?
         
         # Launch raytrace program (POV-Ray or MegaPOV)
         errorcode, errortext = launch_povray_or_megapov(self.assy.w, ini)
@@ -245,11 +258,19 @@ class PovrayScene(SimpleCopyMixin, Node):
         if errorcode:
             env.history.message(cmd + orangemsg(errortext))
             return
+
+        #bruce 060707 (after Windows A8, before Linux/Mac A8): make sure the image file exists.
+        # (On Mac, at the moment, we get this far (no error return, or maybe another bug hid one), but the file is not there.)
+        if not os.path.exists(out):
+            env.history.message(cmd + redmsg("Error: Apparently ran program, but can't find image file: " + out))
+            return
         
         env.history.message(cmd + "Rendered image: " + out)
         
         # Display image in a window.
         imageviewer = ImageViewer(out, env.mainwindow())
+            #bruce 060707 comment: if out doesn't exist, on Mac,
+            # this produces a visible and draggable tiny window, about 3 pixels wide and maybe 30 pixels high.
         imageviewer.display()
     
     def kill(self, require_confirmation=True):
