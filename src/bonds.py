@@ -325,10 +325,11 @@ class NeighborhoodGenerator:
     for finding neighborhoods, especially if the same generator can
     be used many times.
     """
-    def __init__(self, atomlist, maxradius):
+    def __init__(self, atomlist, maxradius, include_singlets=False):
         self._buckets = { }
         self._oldkeys = { }
         self._maxradius = 1.0 * maxradius
+        self.include_singlets = include_singlets
         for atom in atomlist:
             self.add(atom)
 
@@ -344,7 +345,7 @@ class NeighborhoodGenerator:
 
     def add(self, atom, _pack=struct.pack):
         buckets = self._buckets
-        if not atom.is_singlet():
+        if self.include_singlets or not atom.is_singlet():
             # The keys of the _buckets dictionary are 12-byte strings.
             # Comparing them when doing lookups should be quicker than
             # comparisons between tuples of integers, so dictionary
@@ -384,7 +385,8 @@ class NeighborhoodGenerator:
 
     def remove(self, atom):
         key = self._quantize(atom.posn())
-        self._buckets[key].remove(atom)
+        if self._buckets.has_key(key):
+            self._buckets[key].remove(atom)
 
 def inferBonds(mol):
     # not sure how big a margin we should have for "coincident"
