@@ -2168,11 +2168,22 @@ class depositMode(selectAtomsMode):
                 selobj.make_selobj_cmenu_items(self.Menu_spec)
             except:
                 print_compact_traceback("bug: exception (ignored) in make_selobj_cmenu_items for %r: " % selobj)
-            
+        
+        # "Show Invisible Atoms of Selected Atoms" or "Reset Atoms Display of Selected Atoms"
+        # when atoms are selected but nothing is highlighted. Mark 060707.
+        if not selobj and self.o.assy.selatoms:
+            if self.w.disp_invis_in_selected_atoms():
+                # Add "Show Invisible Atoms of Selected Atoms" only if there are invisible atoms in the selection.
+                self.Menu_spec.extend( [('Show Invisible Atoms of Selected Atoms', self.w.dispShowInvisAtoms)])
+            if self.w.disp_not_default_in_selected_atoms(): 
+                # Add "Reset Atoms Display of Selected Atoms" only if there are atoms in the selection that have
+                # their display mode set to anything other than diDEFAULT.
+                self.Menu_spec.extend( [('Reset Atoms Display of Selected Atoms', self.w.dispResetAtomsDisplay)])
+
         # separator and other mode menu items.
         if self.Menu_spec:
             self.Menu_spec.append(None)
-        
+            
         # Enable/Disable Jig Selection.  
         # This is duplicated in selectMode.makeMenus() and selectMolsMode.makeMenus().
         if self.o.jigSelectionEnabled:
