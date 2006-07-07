@@ -1,9 +1,10 @@
 $Id$
 
-We are using version 3 of Qt. When running on Windows, it has a
-proprietary license. If you're a developer, you need to buy a license
-from Trolltech to distribute your Qt-enabled software. If you're an
-end-user, you don't need to worry about it.
+We are using version 3 of Qt, under a proprietary license for Windows
+purchased from Trolltech. If you're a developer, you need to buy a license
+from Trolltech to distribute your Qt-enabled software for Windows. If you're
+an end-user, you don't need to worry about it, except for complying with the
+Nanorex proprietary license under which you received this software.
 
 See http://www.trolltech.com/products/qt/licenses/licensing for more
 information about how licensing works for Qt.
