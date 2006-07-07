@@ -4,9 +4,9 @@ README
 VERSION/INFO
 =============
 
-This is NanoEngineer-1 v0.8 (Alpha 8) as of July 4, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for NanoEngineer-1 to support@nanorex.com.
+This is NanoEngineer-1 v0.8 (Alpha8) as of July 7, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for NanoEngineer-1 to support@nanorex.com.
 
-You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Readme_A7
+You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Readme_A8
 
 ============================
 MINIMUM SYSTEM REQUIREMENTS
@@ -47,7 +47,7 @@ INSTALLATION on Windows and MAC OS
 
 Simply run the package installer for your system type to install this version of NanoEngineer-1. 
 
-Note to the Windows XP users who already have a previous version of NanoEngineer-1 installed: If you have a previous version of NanoEngineer-1 currently installed (e.g. Alpha 7) and attempt to install Alpha 8, the installer will state: "Set up will create the program shortcuts in the following start menu folder. To continue, click Next. If you would like to select a different folder, click browse" 
+Note to the Windows XP users who already have a previous version of NanoEngineer-1 installed: If you have a previous version of NanoEngineer-1 currently installed (e.g. Alpha7) and attempt to install Alpha8, the installer will state: "Set up will create the program shortcuts in the following start menu folder. To continue, click Next. If you would like to select a different folder, click browse" 
 
 The default name it gives is (for example):"NanoEngineer-1 v0.7 (Alpha7)".This is a bug in the Windows installer. For now, manually type in "NanoEngineer-1 v0.8 (Alpha8)"
 
@@ -61,7 +61,7 @@ If you create a symlink to the executable in /usr/local/bin, as an experienced L
 ======================
 UNSUPPORTED PLATFORMS
 ======================
-NanoEngineer-1 Alpha8 is tested and supported only on : 
+NanoEngineer-1 Alpha8 is tested and supported only on: 
  - Windows XP, 
  - MAC OS X 10.3.X, 10.4 (PowerPC G4)
  - Mandrake Linux 10.0, 10.1
@@ -97,24 +97,21 @@ Note: ESP Image jig is not fully supported on Linux and MAC platforms. On Window
 
 [D] POV-Ray
 ------------
-This is required if you use Ray Trace Scene and Insert > POV Ray Scene features.
-For more information on downloading and installing POV-Ray, visit: www.povray.org
+This is needed if you want to use Ray Trace Scene and Insert > POV Ray Scene features. For more information on downloading and installing POV-Ray, visit: www.povray.org
 
 [E] MegaPOV 
 ------------
-MAC users can install this to use Ray Trace Scene and Insert > POV Ray Scene features.  For more information on downloading and installing MegaPOV visit: http://megapov.inetart.net 
+This can be installed to use Ray Trace Scene and Insert > POV Ray Scene features. Alternatively, use POV-Ray Plugin for these features. For more information on downloading and installing MegaPOV visit: http://megapov.inetart.net 
 
 =============
 NEW FEATURES
 =============
-See RELEASENOTES.txt for the latest info, including new features. You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Release_Notes_A7
-
+See RELEASENOTES.txt for the latest info, including new features. You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Release_Notes_A8
 
 ====================================
 KNOWN BUGS AND UNSUPPORTED FEATURES
 ====================================
-See KnownBugs.htm for the latest info regarding new bug, fixed bugs and unsupported features.  You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Known_Bugs_A7
-
+See KnownBugs.htm for the latest info regarding new bug, fixed bugs and unsupported features.  You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Known_Bugs_A8
 
 
 ==========
