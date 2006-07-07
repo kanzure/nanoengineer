@@ -28,6 +28,7 @@ SIMULATOR / MINIMIZE
 # Simulator: Electrostatic interactions are not supported; in particular, the hydrogen and dative bonds are not handled. 
 # Enable motor in minimize feature is experimental. Enabling a motor in minimization may result in high values of rms force. Also, minimize will take long time to finish.
 # Nanotubes: The simulator doesn't take into account the effect of torsion. The simulation/minimization of nanotubes and similar structures is not supported. 
+# Various DNA structures can be modeled in NanoEngineer-1 but minimization/simulations of the generated structures is not supported. 
 
 GAMESS Jig
 #GAMESS jig can be added by select some atoms first in 'Select Atoms' mode and then attaching this jig by using Menu item: Jigs>Gamess. This jig can be attached to a maximum of 200 atoms. 
@@ -79,6 +80,7 @@ MINIMIZE/SIMULATOR
 # Enable motor in minimize feature is experimental and has some bugs. Examples- the final rms and high force values after minimize are large, it takes long time to finish minimize operation. (1835, 1836)
 # For some structures with multiple bonds, minimize takes very long time. This is true even for the smaller structures. (1957)
 #During a simulation run, temperature of some structures especially with aromatic or graphitic bonds increases. This is undesirable and will be fixed in an upcoming release (2029)
+# Minimize doesn’t always honor the specified value of EndRMS in the Energy Dialog. For example, if EndRMS value is specified as 1pN, for some structures, minimize may terminate early and return a final RMS value greater than 1pN (2038)
 
 SELECTION 
 
@@ -160,6 +162,7 @@ CURSOR AND DISPLAY RELATED BUGS
 DIALOGS AND DASHBOARD
  
 # Users operating ne-1 with a low screen resolution and large font size report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don't operate correctly, some property forms such as Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)  
+# There are some bugs in the Nanotube, DNA, Heterojunction and Graphene dialogs. For example dialog doesn’t go away after doing certain operations involving ‘preview’, file getting modified even after cancelling the dialog, bugs in history messages etc. (2045, 2054, 2057)
  
 POVRAY RENDERING
   
@@ -176,7 +179,7 @@ MISCELLANEOUS
 # Only open one main window. Opening more than one NanoEngineer-1 application window will have unexpected results. (362)  
 # Any file currently opened by NanoEngineer-1 can be manually deleted from the computer without any warning message. (215) 
 # View > NormalTo doesn’t work when multiple chunks are selected. (1748)
-
+# Insert > Heterojunction and Insert > DNA has some known bugs. 
  
 WINDOWS ONLY BUGS
  
