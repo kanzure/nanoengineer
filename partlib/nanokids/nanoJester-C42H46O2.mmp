@@ -3,212 +3,212 @@ kelvin 300
 group (View Data)
 info opengroup open = True
 csys (HomeView) (1.000000, 0.000000, 0.000000, 0.000000) (10.000000) (0.000000, 0.000000, 0.000000) (1.000000)
-csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (33.776941) (-11.607081, 0.133415, 0.000000) (1.000000)
+csys (LastView) (1.000000, 0.000000, 0.000000, 0.000000) (11.816407) (0.000000, 0.000000, 0.000000) (1.000000)
 egroup (View Data)
 group (nanoJester-C42H46O2)
 info opengroup open = True
 mol (nanoJester-Head) def
-atom 1 (6) (100, 5693, -720) def
-atom 2 (1) (185, 5638, -1803) def
+atom 1 (6) (-152, 5832, -716) def
+atom 2 (1) (-592, 6232, -1628) def
 bond1 1
-atom 3 (8) (-1078, 6486, -391) def
+atom 3 (8) (-933, 6319, 415) def
 bond1 1
-atom 4 (8) (1256, 6421, -205) def
+atom 4 (8) (1185, 6398, -577) def
 bond1 1
-atom 5 (6) (846, 7692, 378) def
+atom 5 (6) (1248, 7299, 568) def
 bond1 4
-atom 6 (1) (1184, 7696, 1406) def
+atom 6 (1) (2025, 6922, 1233) def
 bond1 5
-atom 7 (6) (-694, 7738, 251) def
+atom 7 (6) (-159, 7266, 1208) def
 bond1 3 5
-atom 8 (1) (-1194, 7772, 1210) def
+atom 8 (1) (-151, 6898, 2233) def
 bond1 7
-atom 9 (6) (-1073, 8928, -675) def
+atom 9 (6) (-790, 8682, 1074) def
 bond1 7
-atom 10 (1) (-1651, 8586, -1522) def
+atom 10 (1) (-1726, 8637, 517) def
 bond1 9
-atom 11 (1) (-1684, 9642, -138) def
+atom 11 (1) (-1021, 9087, 2059) def
 bond1 9
-atom 12 (6) (1441, 8859, -460) def
+atom 12 (6) (1524, 8746, 68) def
 bond1 5
-atom 13 (1) (1988, 9539, 177) def
+atom 13 (1) (2377, 9171, 596) def
 bond1 12
-atom 14 (1) (2138, 8484, -1200) def
+atom 14 (1) (1768, 8748, -993) def
 bond1 12
-atom 15 (6) (252, 9596, -1150) def
+atom 15 (6) (241, 9590, 338) def
 bond1 9 12
-atom 16 (1) (259, 10647, -894) def
+atom 16 (1) (481, 10463, 945) def
 bond1 15
-atom 17 (1) (342, 9530, -2226) def
+atom 17 (1) (-176, 9955, -598) def
 bond1 15
 mol (Body) def
-atom 18 (6) (1212, 3539, 165) def
+atom 18 (6) (1122, 3576, -679) def
 info atom atomtype = sp2
-atom 19 (6) (1219, 2134, -113) def
+atom 19 (6) (1146, 2173, -654) def
 info atom atomtype = sp2
 bonda 18
-atom 20 (6) (-23, 1430, -228) def
+atom 20 (6) (-55, 1451, -636) def
 info atom atomtype = sp2
 bonda 19
-atom 21 (6) (-1254, 2165, -222) def
+atom 21 (6) (-1277, 2136, -643) def
 info atom atomtype = sp2
 bonda 20
-atom 22 (6) (-1242, 3592, -51) def
+atom 22 (6) (-1300, 3538, -668) def
 info atom atomtype = sp2
 bonda 21
-atom 23 (6) (8, 4304, -29) def
+atom 23 (6) (-100, 4270, -686) def
 info atom atomtype = sp2
 bond1 1
 bonda 18 22
-atom 24 (1) (2055, 3986, 690) def
+atom 24 (1) (2062, 4123, -694) def
 bond1 18
-atom 25 (1) (-2202, 1635, -298) def
+atom 25 (1) (-2212, 1579, -629) def
 bond1 21
-atom 26 (6) (2565, 1360, -164) def
+atom 26 (6) (2511, 1436, -648) def
 info atom atomtype = sp
 bond1 19
-atom 27 (6) (3614, 760, -199) def
+atom 27 (6) (3588, 888, -643) def
 info atom atomtype = sp
 bond3 26
-atom 28 (6) (4971, 0, -241) def
+atom 28 (6) (4988, 210, -638) def
 bond1 27
-atom 29 (6) (-2592, 4351, 21) def
+atom 29 (6) (-2666, 4273, -674) def
 info atom atomtype = sp
 bond1 22
-atom 30 (6) (-3631, 4967, 57) def
+atom 30 (6) (-3715, 4874, -661) def
 info atom atomtype = sp
 bond3 29
-atom 31 (6) (-4947, 5793, 84) def
+atom 31 (6) (-5045, 5678, -625) def
 bond1 30
-atom 32 (6) (-54, -115, -358) def
+atom 32 (6) (-49, -100, -610) def
 info atom atomtype = sp
 bond1 20
-atom 33 (6) (-92, -1317, -461) def
+atom 33 (6) (-70, -1308, -602) def
 info atom atomtype = sp
 bond3 32
-atom 34 (6) (1083, -3604, -693) def
+atom 34 (6) (1072, -3598, -578) def
 info atom atomtype = sp2
-atom 35 (6) (1050, -5035, -770) def
+atom 35 (6) (1029, -5000, -581) def
 info atom atomtype = sp2
 bonda 34
-atom 36 (6) (-206, -5718, -867) def
+atom 36 (6) (-205, -5663, -608) def
 info atom atomtype = sp2
 bonda 35
-atom 37 (6) (-1430, -4973, -825) def
+atom 37 (6) (-1397, -4924, -633) def
 info atom atomtype = sp2
 bonda 36
-atom 38 (6) (-1396, -3542, -696) def
+atom 38 (6) (-1353, -3522, -630) def
 info atom atomtype = sp2
 bonda 37
-atom 39 (6) (-138, -2862, -597) def
+atom 39 (6) (-118, -2858, -603) def
 info atom atomtype = sp2
 bond1 33
 bonda 34 38
-atom 40 (1) (2021, -3077, -848) def
+atom 40 (1) (2030, -3084, -557) def
 bond1 34
-atom 41 (1) (-230, -6801, -970) def
+atom 41 (1) (-239, -6751, -610) def
 bond1 36
-atom 42 (1) (-2325, -2975, -676) def
+atom 42 (1) (-2278, -2949, -650) def
 bond1 38
-atom 43 (6) (2378, -5834, -815) def
+atom 43 (6) (2348, -5816, -553) def
 info atom atomtype = sp
 bond1 35
-atom 44 (6) (3418, -6448, -852) def
+atom 44 (6) (3376, -6452, -535) def
 info atom atomtype = sp
 bond3 43
-atom 45 (6) (4757, -7231, -899) def
+atom 45 (6) (4693, -7270, -514) def
 bond1 44
-atom 46 (6) (-2789, -5714, -922) def
+atom 46 (6) (-2764, -5658, -663) def
 info atom atomtype = sp
 bond1 37
-atom 47 (6) (-3845, -6297, -996) def
+atom 47 (6) (-3827, -6231, -689) def
 info atom atomtype = sp
 bond3 46
-atom 48 (6) (-5197, -7051, -1093) def
+atom 48 (6) (-5190, -6969, -726) def
 bond1 47
-atom 49 (1) (5362, -6947, -39) def
+atom 49 (1) (5186, -7121, 444) def
 bond1 45
-atom 50 (1) (5306, -6936, -1790) def
+atom 50 (1) (5362, -6881, -1280) def
 bond1 45
-atom 51 (1) (-5728, -6712, -1981) def
+atom 51 (1) (-5813, -6524, -1500) def
 bond1 48
-atom 52 (1) (-5810, -6787, -234) def
+atom 52 (1) (-5701, -6816, 222) def
 bond1 48
-atom 53 (6) (-5002, -8597, -1151) def
+atom 53 (6) (-5021, -8496, -996) def
 bond1 48
-atom 54 (1) (-4380, -8851, -2009) def
+atom 54 (1) (-4491, -8640, -1937) def
 bond1 53
-atom 55 (1) (-4460, -8926, -265) def
+atom 55 (1) (-4399, -8934, -216) def
 bond1 53
-atom 56 (6) (4532, -8775, -901) def
+atom 56 (6) (4442, -8790, -751) def
 bond1 45
-atom 57 (1) (3970, -9060, -12) def
+atom 57 (1) (3775, -9171, 21) def
 bond1 56
-atom 58 (1) (3920, -9050, -1759) def
+atom 58 (1) (3927, -8928, -1702) def
 bond1 56
-atom 59 (6) (-4590, 7305, 265) def
+atom 59 (6) (-4714, 7186, -375) def
 bond1 31
-atom 60 (1) (-4041, 7467, 1192) def
+atom 60 (1) (-4206, 7319, 578) def
 bond1 59
-atom 61 (1) (-5488, 7919, 292) def
+atom 61 (1) (-5621, 7788, -360) def
 bond1 59
-atom 62 (1) (-3966, 7657, -553) def
+atom 62 (1) (-4064, 7576, -1155) def
 bond1 59
-atom 63 (6) (-5832, 5305, 1278) def
+atom 63 (6) (-5941, 5127, 531) def
 bond1 31
-atom 64 (1) (-6075, 4249, 1175) def
+atom 64 (1) (-6173, 4075, 376) def
 bond1 63
-atom 65 (1) (-6766, 5862, 1325) def
+atom 65 (1) (-6881, 5673, 591) def
 bond1 63
-atom 66 (1) (-5313, 5437, 2226) def
+atom 66 (1) (-5437, 5220, 1491) def
 bond1 63
-atom 67 (6) (-5706, 5580, -1266) def
+atom 67 (6) (-5778, 5510, -1997) def
 bond1 31
-atom 68 (1) (-5097, 5903, -2108) def
+atom 68 (1) (-5163, 5882, -2814) def
 bond1 67
-atom 69 (1) (-6635, 6147, -1286) def
+atom 69 (1) (-6718, 6059, -2007) def
 bond1 67
-atom 70 (1) (-5949, 4530, -1414) def
+atom 70 (1) (-5997, 4463, -2195) def
 bond1 67
-atom 71 (6) (5481, -210, 1222) def
+atom 71 (6) (5505, 120, 834) def
 bond1 28
-atom 72 (1) (5665, 744, 1711) def
+atom 72 (1) (5609, 1112, 1270) def
 bond1 71
-atom 73 (1) (6407, -780, 1234) def
+atom 73 (1) (6475, -370, 879) def
 bond1 71
-atom 74 (1) (4746, -751, 1816) def
+atom 74 (1) (4813, -445, 1455) def
 bond1 71
-atom 75 (6) (4762, -1385, -933) def
+atom 75 (6) (4864, -1224, -1249) def
 bond1 28
-atom 76 (1) (4173, -2048, -305) def
+atom 76 (1) (4239, -1858, -624) def
 bond1 75
-atom 77 (1) (5715, -1872, -1132) def
+atom 77 (1) (5840, -1698, -1336) def
 bond1 75
-atom 78 (1) (4240, -1271, -1883) def
+atom 78 (1) (4417, -1187, -2241) def
 bond1 75
-atom 79 (6) (6004, 849, -1050) def
+atom 79 (6) (5970, 1072, -1497) def
 bond1 28
-atom 80 (1) (5675, 982, -2079) def
+atom 80 (1) (5632, 1133, -2530) def
 bond1 79
-atom 81 (1) (6979, 366, -1069) def
+atom 81 (1) (6971, 644, -1496) def
 bond1 79
-atom 82 (1) (6128, 1836, -607) def
+atom 82 (1) (6039, 2086, -1108) def
 bond1 79
-atom 83 (6) (5870, -9576, -945) def
+atom 83 (6) (5758, -9625, -753) def
 bond1 56
-atom 84 (1) (6436, -9335, -1843) def
+atom 84 (1) (6426, -9292, -1546) def
 bond1 83
-atom 85 (1) (5676, -10647, -945) def
+atom 85 (1) (5544, -10680, -913) def
 bond1 83
-atom 86 (1) (6488, -9345, -80) def
+atom 86 (1) (6281, -9526, 195) def
 bond1 83
-atom 87 (6) (-6352, -9371, -1247) def
+atom 87 (6) (-6384, -9251, -1053) def
 bond1 53
-atom 88 (1) (-6980, -9160, -383) def
+atom 88 (1) (-6924, -9147, -114) def
 bond1 87
-atom 89 (1) (-6177, -10444, -1285) def
+atom 89 (1) (-6227, -10313, -1237) def
 bond1 87
-atom 90 (1) (-6899, -9085, -2143) def
+atom 90 (1) (-7011, -8860, -1853) def
 bond1 87
 egroup (nanoJester-C42H46O2)
 end1
