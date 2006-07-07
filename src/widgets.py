@@ -184,6 +184,7 @@ def makemenu_helper( widget, menu_spec):
     which is using this function to put up a menu.
     """
     from debug import print_compact_traceback
+    import types
     # bruce 040909-16 moved this method from basicMode to GLPane,
     # leaving a delegator for it in basicMode.
     # (bruce was not the original author, but modified it)
@@ -195,7 +196,7 @@ def makemenu_helper( widget, menu_spec):
                 submenu = m[1]
                 menu.insertItem( menutext, submenu )
                     # (similar code might work for QAction case too, not sure)
-            elif m and isinstance(m[1], type([])): #bruce 041103 added this case
+            elif m and isinstance(m[1], types.ListType): #bruce 041103 added this case
                 submenu = makemenu_helper( widget, m[1]) # [used to call widget.makemenu]
                 menu.insertItem( menutext, submenu )
             elif m:
@@ -247,6 +248,8 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
     #bruce 060613 split this out of makemenu_helper.
     # Only called for len(options) > 0, though it presumably works
     # just as well for len 0 (try it sometime).
+    import types
+    from whatsthis import turn_featurenames_into_links, enable_whatsthis_links
     if not raw_command:
         command = wrap_callable_for_undo(command, cmdname = undo_cmdname or menutext)
         import changes
@@ -256,11 +259,11 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
     for option in options:
         # some options have to be processed first
         # since they are only usable when the menu item is inserted. [bruce 050614]
-        if type(option) == type(()):
+        if type(option) is types.TupleType:
             if option[0] == 'iconset':
                 # support iconset, pixmap, or pixmap filename [bruce 050614 new feature]
                 iconset = option[1]
-                if type(iconset) == type("filename"):
+                if type(iconset) is types.StringType:
                     filename = iconset
                     from Utility import imagename_to_pixmap
                     iconset = imagename_to_pixmap(filename)
@@ -287,9 +290,12 @@ def insert_command_into_menu(menu, menutext, command, options = (), position = -
             menu.setItemChecked(mitem_id, False)
         elif option == 'disabled':
             menu.setItemEnabled(mitem_id, False)
-        elif type(option) == type((1,2)):
-            if option[0] == 'sbar': #bruce 050614 experiment; option is ('sbar', "explan for statusbar") ###k untested
-                menu.setWhatsThis(mitem_id, option[1])
+        elif type(option) is types.TupleType:
+            if option[0] == 'whatsThis':
+                txt = option[1]
+                if enable_whatsthis_links:
+                    txt = turn_featurenames_into_links(txt)
+                menu.setWhatsThis(mitem_id, txt)
             elif option[0] == 'iconset':
                 pass # this was processed above
             else:

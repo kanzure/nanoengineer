@@ -219,6 +219,22 @@ class PluginlikeGenerator:
         # (even run a self test if it defines one? or wait 'til first used?)
         return
 
+    whatsThisText = '''<u><b>Insert Heterojunction</b></u>
+    <p>A heterojunction is a joint connecting two carbon nanotubes which may differ in radius
+    and chirality. The joint is made of sp<sup>2</sup>-hybridized carbon atoms, arranged in
+    hexagons and pentagons (the pentagons allow for curvature of the surface) to join the two
+    nanotubes with the same material they are composed of.</p>
+    <p>This is Nanorex\'s modified version of the CoNTub source code written
+    by S. Melchor and J. Dobado at the Universidad de Granada in Spain.
+    Citations of this work should be formatted as follows:<p>
+    <blockquote>"CoNTub: an algorithm for connecting two arbitrary carbon
+    nanotubes." S. Melchor; J.A. Dobado. Journal of Chemical Information
+    and Computer Sciences, 44, 1639-1646 (2004)</blockquote>
+    <p>Nanorex\'s modifications include translation from Java to C++,
+    performance improvement in bond inference, changing the output file
+    format from pdb to mmp, and revising the stderr messages and exit code.
+    </p>'''
+
     def install_in_UI(self):
         """Create a menu command, or whatever other UI elements should invoke the plugin's generator.
         Report errors to self.fatal as usual.
@@ -230,7 +246,7 @@ class PluginlikeGenerator:
         ### WRONG -- menu text should not contain Insert, but undo cmdname should (so separate option is needed), and needs icon
         ###e add options for things like tooltip text, whatsthis text, iconset
         icon_path = self.find_title_icon()
-        options = [('iconset', icon_path)]
+        options = [('iconset', icon_path), ('whatsThis', self.whatsThisText)]
         self.menu_item_id = add_insert_menu_item( self.win, self.command_for_insert_menu, self.what_we_generate, options)
         ###e make that a menu item controller, and give it a method to disable the menu item, and do that on error(??) ###@@@
         pass
