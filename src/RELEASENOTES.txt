@@ -27,7 +27,7 @@ What is new in NanoEngineer-1 v0.8 (7/7/2006):
 3. Support for adding comments to the model
 
 4. New Chunk display
-  - Chunks can be rendered in a new Cylinder display mode
+  - Chunks can be rendered in a new Cylinder display mode. (Experimental feature)
 
 5. Simulator dialog
   - Options to specify how often to update the screen during the simulation.
@@ -39,13 +39,14 @@ What is new in NanoEngineer-1 v0.8 (7/7/2006):
   - New dialog for providing fine grain control of structure minimizations.
 
 8. Simulator:
-  - Torsion and out-of-plane terms in the simulator.
+  - Torsion and out-of-plane terms in the simulator. (Although these terms are included, please note that this still has some known bugs and need more work. For example, minimize returning high values for some structures or taking long time to finish)
 
 9. Infer bonds, when reading PDB files that don't have any bonds
 
-10. Improvements to Build Mode user interaction with bonds
-
-
+10. Build Mode improvements: 
+   - Bond types can be changed using context menu or bond tools, even when this requires changing atom types or removing bondpoints. 
+   - The bond order of a bondpoint can be changed using bond tools. 
+   - Automatic repositioning of bondpoints when dragging connected atoms has been improved
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 What was new in NanoEngineer-1 v0.7 (4/24/2006):
