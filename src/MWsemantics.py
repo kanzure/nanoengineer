@@ -759,7 +759,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             msg = "Display setting for all atoms in selected chunk(s) reset to Default (i.e. their parent chunk's display mode)."
         
         if self.disp_not_default_in_selected_atoms():
-            for a in self.assy.selatoms.values():
+            for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
                 if a.display != diDEFAULT:
                     a.setDisplay(diDEFAULT)
                     
@@ -783,7 +783,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             nia = self.assy.showInvisibleAtoms()
         
         if self.disp_invis_in_selected_atoms():
-            for a in self.assy.selatoms.values():
+            for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
                 if a.display == diINVISIBLE: 
                     a.setDisplay(diDEFAULT)
                     nia += 1
@@ -794,14 +794,14 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     # The next two methods should be moved somewhere else (i.e. ops_select.py). Discuss with Bruce.
     def disp_not_default_in_selected_atoms(self): # Mark 060707.
         'Returns True if there is one or more selected atoms with its display mode not set to diDEFAULT.'
-        for a in self.assy.selatoms.values():
+        for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
                 if a.display != diDEFAULT: 
                     return True
         return False
     
     def disp_invis_in_selected_atoms(self): # Mark 060707.
         'Returns True if there is one or more selected atoms with its display mode set to diINVISIBLE.'
-        for a in self.assy.selatoms.values():
+        for a in self.assy.selatoms.itervalues(): #bruce 060707 itervalues
                 if a.display == diINVISIBLE: 
                     return True
         return False
