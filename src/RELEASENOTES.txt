@@ -21,22 +21,30 @@ What is new in NanoEngineer-1 v0.8 (7/7/2006):
 1.4 Graphene Generator 
     - Creates a sheet of graphene given width and height dimensions.
 
-#POV-Ray Scene and Ray Trace scene
-  - These provide a convenient way to preview the results of a POV-Ray scene rendering in NanoEngineer-1.
+2. POV-Ray Scene and Ray Trace scene
+  - These provide a convenient way to preview the results of a POV-Ray scene rendering in NanoEngineer-1. To use this feature, you should install POV-Ray or MegaPOV and enable it as a plug-in.
 
-# Support for adding comments to the model
+3. Support for adding comments to the model
 
-# New Chunk display
+4. New Chunk display
   - Chunks can be rendered in a new Cylinder display mode
 
-# Simulator dialog
+5. Simulator dialog
   - Options to specify how often to update the screen during the simulation.
 
-# Adjust All and Adjust Selection 
+6. Adjust All and Adjust Selection 
   - Quickly adjusts positions of atoms and bonds to make geometry of structures more realistic. 
 
-# Minimize Energy 
+7. Minimize Energy 
   - New dialog for providing fine grain control of structure minimizations.
+
+8. Simulator:
+  - Torsion and out-of-plane terms in the simulator.
+
+9. Infer bonds, when reading PDB files that don't have any bonds
+
+10. Improvements to Build Mode user interaction with bonds
+
 
 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
