@@ -385,8 +385,10 @@ class NeighborhoodGenerator:
 
     def remove(self, atom):
         key = self._quantize(atom.posn())
-        if self._buckets.has_key(key):
+        try:
             self._buckets[key].remove(atom)
+        except:
+            pass
 
 def inferBonds(mol):
     # not sure how big a margin we should have for "coincident"
