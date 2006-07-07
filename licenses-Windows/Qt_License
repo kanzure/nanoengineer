@@ -5,8 +5,5 @@ proprietary license. If you're a developer, you need to buy a license
 from Trolltech to distribute your Qt-enabled software. If you're an
 end-user, you don't need to worry about it.
 
-At some time in the future, Nanorex will switch to Qt version 4, and
-we will then distribute Qt with a GPL license on Windows.
-
 See http://www.trolltech.com/products/qt/licenses/licensing for more
 information about how licensing works for Qt.
