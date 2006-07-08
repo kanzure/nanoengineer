@@ -104,6 +104,7 @@ class Dna:
 
         # fuse the bases together into continuous strands
         fcb = fusechunksBase()
+        fcb.tol = 1.5
         for i in range(len(baseList) - 1):
             fcb.find_bondable_pairs([baseList[i]], [baseList[i+1]])
             fcb.make_bonds(assy)
