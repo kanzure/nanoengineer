@@ -535,7 +535,6 @@ class NanoBuildLinux(NanoBuildBase):
         elif pyver == '2.3':
             spf.write("Release: python23\n")
             requirements.append('python >= 2.3, python < 2.4')
-            'python = ' + sys.version()[:3]
         else:
             raise Exception("Must use Python 2.3 or 2.4")
         if requirements:
