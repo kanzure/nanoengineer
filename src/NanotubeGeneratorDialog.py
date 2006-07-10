@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Mon Jul 10 10:45:26 2006
+# Created: Mon Jul 10 16:49:44 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -765,8 +765,8 @@ class nanotube_dialog(QDialog):
         self.connect(self.restore_defaults_btn,SIGNAL("clicked()"),self.defaults_btn_clicked)
         self.connect(self.chirality_n_spinbox,SIGNAL("valueChanged(int)"),self.parameter_fixup)
         self.connect(self.chirality_m_spinbox,SIGNAL("valueChanged(int)"),self.parameter_fixup)
-        self.connect(self.endings_combox,SIGNAL("returnPressed()"),self.parameter_fixup)
-        self.connect(self.members_combox,SIGNAL("activated(const QString&)"),self.parameter_fixup)
+        self.connect(self.endings_combox,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
+        self.connect(self.members_combox,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
 
 
     def languageChange(self):
