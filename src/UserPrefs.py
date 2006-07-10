@@ -72,13 +72,47 @@ def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
     prefs_key is the key to save the filename in the prefs db
     caption is the string for the dialog caption.
     '''
+    # see also get_dirname_and_save_in_prefs, which has similar code
     from platform import get_rootdir
+    from debug_prefs import debug_pref, Choice_boolean_False
+
+    if debug_pref("parentless open file dialogs?", Choice_boolean_False): #bruce 060710, might exist in other places or files
+        # see if this fixes the Mac-specific bugs in draggability of this dialog, and CPU usage while it's up
+        parent = None
     
     filename = str(QFileDialog.getOpenFileName(
-                    get_rootdir(), # Def
-                    None,
+                    get_rootdir(), # '/' on Mac or Linux, something else on Windows
+                    None, # filter (kinds of files to permit choosing)
                     parent,
-                    None,
+                    None, # name
+                    caption ))
+                
+    if not filename: # Cancelled.
+        return None
+    
+    # Save filename in prefs db.    
+    prefs = preferences.prefs_context()
+    prefs[prefs_key] = str(filename)
+        
+    return filename
+
+def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 for Mac A8
+    '''Present user with the Qt file chooser to select an existing directory.
+    If they do that, and if prefs_key is not null, save its full pathname in env.prefs[prefs_key].
+    <caption> is the string for the dialog caption.
+    '''
+    # see also get_filename_and_save_in_prefs, which has similar code
+    from platform import get_rootdir
+    from debug_prefs import debug_pref, Choice_boolean_False
+
+    if debug_pref("parentless open file dialogs?", Choice_boolean_False): #bruce 060710, might exist in other places or files
+        # see comment where this is used above
+        parent = None
+    
+    filename = str(QFileDialog.getExistingDirectory(
+                    get_rootdir(), # '/' on Mac or Linux -- maybe not the best choice if they've chosen one before?
+                    parent, ### if this was None, it might fix the Mac bug where you can't drag the dialog around [bruce 060710]
+                    None, # name
                     caption ))
                 
     if not filename: # Cancelled.
@@ -284,6 +318,15 @@ class UserPrefs(UserPrefsDialog):
         self.megapov_checkbox.setChecked(env.prefs[megapov_enabled_prefs_key])
         self.megapov_path_linedit.setText(env.prefs[megapov_path_prefs_key])
         
+        # POV include dir (directory for POV-Ray or MegaPOV include files, or "" to get the default choice)
+        # Added by Will & Bruce 060710 for Mac A8 release, not present in Windows A8,
+        # since needed to support use of Unix compiles of those programs on the Mac,
+        # which is the only way to get a command-line version which NE1 can call. [bruce 060710]
+        self.povdir_checkbox.setChecked(env.prefs[povdir_enabled_prefs_key])
+        self.povdir_linedit.setText(env.prefs[povdir_path_prefs_key])
+
+        self._update_povdir_enables() #bruce 060710
+
         # GAMESS executable path.
         self.gamess_checkbox.setChecked(env.prefs[gamess_enabled_prefs_key])
         self.gamess_path_linedit.setText(env.prefs[gmspath_prefs_key])
@@ -1267,6 +1310,7 @@ class UserPrefs(UserPrefsDialog):
             self.povray_path_linedit.setText("")
             env.prefs[povray_path_prefs_key] = ''
             env.prefs[povray_enabled_prefs_key] = False
+        self._update_povdir_enables() #bruce 060710
             
     def set_megapov_path(self):
         '''Slot for MegaPOV path "Choose" button.
@@ -1300,7 +1344,49 @@ class UserPrefs(UserPrefsDialog):
             self.megapov_path_linedit.setText("")
             env.prefs[megapov_path_prefs_key] = ''
             env.prefs[megapov_enabled_prefs_key] = False
-                            
+        self._update_povdir_enables() #bruce 060710
+            
+    def set_povdir(self): #bruce 060710
+        '''Slot for Pov include dir "Choose" button.
+        '''
+        povdir_path = get_dirname_and_save_in_prefs(self, povdir_path_prefs_key, 'Choose Custom POV-Ray Include directory')
+        # note: return value can't be ""; if user cancels, value is None;
+        # to set "" you have to edit the lineedit text directly, but this doesn't work since
+        # no signal is caught to save that into the prefs db!
+        # ####@@@@ we ought to catch that signal... is it returnPressed?? would that be sent if they were editing it, then hit ok?
+        # or if they clicked elsewhere? (currently that fails to remove focus from the lineedits, on Mac, a minor bug IMHO)
+        # (or uncheck the checkbox for the same effect). (#e do we want a "clear" button, for A8.1?)
+        
+        if povdir_path:
+            self.povdir_linedit.setText(povdir_path)
+            # the function above already saved it in prefs, under the same condition
+        return
+            
+    def enable_povdir(self, enable=True): #bruce 060710
+        '''povdir is enabled when enable=True.
+        povdir is disabled when enable=False.
+        '''
+        env.prefs[povdir_enabled_prefs_key] = not not enable
+        self._update_povdir_enables()
+##        self.povdir_linedit.setText(env.prefs[povdir_path_prefs_key])
+        return
+
+    def _update_povdir_enables(self): #bruce 060710
+        """[private method]
+        Call this whenever anything changes regarding when to enable the povdir checkbox, line edit, or choose button.
+        We enable the checkbox when either of the POV-Ray or MegaPOV plugins is enabled.
+        We enable the line edit and choose button when that condition holds and when the checkbox is checked.
+        We update this when any relevant checkbox changes, or when showing this page.
+        This will work by reading prefs values, so only call it from slot methods after they have updated prefs values.
+        """
+        enable_checkbox = env.prefs[povray_enabled_prefs_key] or env.prefs[megapov_enabled_prefs_key]
+        self.povdir_checkbox.setEnabled(enable_checkbox)
+        enable_edits = enable_checkbox and env.prefs[povdir_enabled_prefs_key]
+            # note: that prefs value should and presumably does agree with self.povdir_checkbox.isChecked()
+        self.povdir_linedit.setEnabled(enable_edits)
+        self.povdir_choose_btn.setEnabled(enable_edits)
+        return
+        
     ########## End of slot methods for "Plug-ins" page widgets ###########
     
     ########## Slot methods for "Window" (former name "Caption") page widgets ################

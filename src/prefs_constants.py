@@ -137,6 +137,8 @@ povray_path_prefs_key = 'A8/POV-Ray Executable Path'
 povray_enabled_prefs_key = 'A8/POV-Ray Enabled'
 megapov_path_prefs_key = 'A8/MegaPOV Executable Path'
 megapov_enabled_prefs_key = 'A8/MegaPOV Enabled'
+povdir_path_prefs_key = 'A8/POV Include Directory' # only in Mac A8, for Windows will be in A8.1 (Linux??) [bruce 060710]
+povdir_enabled_prefs_key = 'A8/POV Include Directory Enabled' # ditto, and might not end up being used [bruce 060710]
 gmspath_prefs_key = 'A6/GAMESS Path'
 gamess_enabled_prefs_key = 'A7/GAMESS Enabled'
 
@@ -312,6 +314,8 @@ prefs_table = (
     ('povray_enabled', 'boolean', povray_enabled_prefs_key, False ),
     ('megapov_exe_path', 'string', megapov_path_prefs_key, "" ),
     ('megapov_enabled', 'boolean', megapov_enabled_prefs_key, False ),
+    ('povdir_path', 'string', povdir_path_prefs_key, "" ), #bruce 060710
+    ('povdir_enabled', 'boolean', povdir_enabled_prefs_key, False ), #bruce 060710
     ('gamess_exe_path', 'string', gmspath_prefs_key, "" ),
     ('gamess_enabled', 'boolean', gamess_enabled_prefs_key, False ),
     
