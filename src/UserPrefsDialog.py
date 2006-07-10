@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'UserPrefsDialog.ui'
 #
-# Created: Mon Jul 10 18:29:47 2006
+# Created: Mon Jul 10 19:37:35 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1166,12 +1166,6 @@ class UserPrefsDialog(QDialog):
         self.nanohive_path_linedit.setFrameShadow(QLineEdit.Sunken)
         self.nanohive_path_linedit.setReadOnly(1)
 
-        self.megapov_lbl = QLabel(self.file_locations_grp,"megapov_lbl")
-        self.megapov_lbl.setGeometry(QRect(30,95,77,30))
-        self.megapov_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.megapov_lbl.sizePolicy().hasHeightForWidth()))
-        self.megapov_lbl.setMinimumSize(QSize(60,0))
-        self.megapov_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
         self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
         self.gamess_lbl.setGeometry(QRect(30,167,77,30))
         self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
@@ -1206,10 +1200,6 @@ class UserPrefsDialog(QDialog):
         self.povdir_linedit.setEnabled(0)
         self.povdir_linedit.setGeometry(QRect(169,134,294,24))
 
-        self.povdir_checkbox = QCheckBox(self.file_locations_grp,"povdir_checkbox")
-        self.povdir_checkbox.setGeometry(QRect(30,139,130,22))
-        self.povdir_checkbox.setPaletteForegroundColor(QColor(0,0,0))
-
         self.nanohive_choose_btn = QPushButton(self.file_locations_grp,"nanohive_choose_btn")
         self.nanohive_choose_btn.setEnabled(0)
         self.nanohive_choose_btn.setGeometry(QRect(475,23,95,30))
@@ -1234,6 +1224,21 @@ class UserPrefsDialog(QDialog):
         self.gamess_choose_btn.setEnabled(0)
         self.gamess_choose_btn.setGeometry(QRect(475,167,95,30))
         self.gamess_choose_btn.setAutoDefault(0)
+
+        self.megapov_lbl = QLabel(self.file_locations_grp,"megapov_lbl")
+        self.megapov_lbl.setGeometry(QRect(30,95,77,30))
+        self.megapov_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.megapov_lbl.sizePolicy().hasHeightForWidth()))
+        self.megapov_lbl.setMinimumSize(QSize(60,0))
+        self.megapov_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+
+        self.povdir_checkbox = QCheckBox(self.file_locations_grp,"povdir_checkbox")
+        self.povdir_checkbox.setEnabled(1)
+        self.povdir_checkbox.setGeometry(QRect(30,139,16,16))
+        self.povdir_checkbox.setPaletteForegroundColor(QColor(0,0,0))
+
+        self.povdir_lbl = QLabel(self.file_locations_grp,"povdir_lbl")
+        self.povdir_lbl.setGeometry(QRect(54,134,110,30))
+        self.povdir_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
 
         self.TabPage_6 = QWidget(self.prefs_tab,"TabPage_6")
@@ -1922,9 +1927,6 @@ class UserPrefsDialog(QDialog):
         self.nanohive_path_linedit.setText(QString.null)
         QToolTip.add(self.nanohive_path_linedit,self.__tr("The full path to the Nano-Hive executable file."))
         QWhatsThis.add(self.nanohive_path_linedit,self.__tr("The full path to the Nano-Hive executable file."))
-        self.megapov_lbl.setText(self.__tr("MegaPOV :"))
-        QToolTip.add(self.megapov_lbl,self.__tr("Enable MegaPOV"))
-        QWhatsThis.add(self.megapov_lbl,self.__tr("This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering)."))
         self.gamess_lbl.setText(self.__tr("GAMESS :"))
         QToolTip.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
         QWhatsThis.add(self.gamess_lbl,self.__tr("<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>\n"
@@ -1946,9 +1948,6 @@ class UserPrefsDialog(QDialog):
 "<p>For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>"))
         QToolTip.add(self.povdir_linedit,self.__tr("Select custom POV include directory"))
         QWhatsThis.add(self.povdir_linedit,self.__tr("Specify a directory for where to find POV-Ray or MegaPOV include files such as transforms.inc."))
-        self.povdir_checkbox.setText(self.__tr("POV include dir :"))
-        QToolTip.add(self.povdir_checkbox,self.__tr("User-custom directory for POV libraries"))
-        QWhatsThis.add(self.povdir_checkbox,self.__tr("Select a user-customized directory for POV-Ray and MegaPOV include files, such as transforms.inc."))
         self.nanohive_choose_btn.setText(self.__tr("Choose..."))
         QToolTip.add(self.nanohive_choose_btn,self.__tr("Choose location of Nano-Hive executable "))
         QWhatsThis.add(self.nanohive_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the Nano-Hive executable."))
@@ -1962,6 +1961,13 @@ class UserPrefsDialog(QDialog):
         self.gamess_choose_btn.setText(self.__tr("Choose..."))
         QToolTip.add(self.gamess_choose_btn,self.__tr("Choose GAMESS executable"))
         QWhatsThis.add(self.gamess_choose_btn,self.__tr("This opens up a file chooser dialog so that you can specify the location of the GAMESS or PC-GAMESS executable."))
+        self.megapov_lbl.setText(self.__tr("MegaPOV :"))
+        QToolTip.add(self.megapov_lbl,self.__tr("Enable MegaPOV"))
+        QWhatsThis.add(self.megapov_lbl,self.__tr("This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering)."))
+        self.povdir_checkbox.setText(QString.null)
+        QToolTip.add(self.povdir_checkbox,self.__tr("User-custom directory for POV libraries"))
+        QWhatsThis.add(self.povdir_checkbox,self.__tr("Select a user-customized directory for POV-Ray and MegaPOV include files, such as transforms.inc."))
+        self.povdir_lbl.setText(self.__tr("POV include dir :"))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
         self.groupBox17.setTitle(self.__tr("History Preferences"))
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))

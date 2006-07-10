@@ -4075,45 +4075,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                     </widget>
                     <widget class="QLabel">
                         <property name="name">
-                            <cstring>megapov_lbl</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
-                                <y>95</y>
-                                <width>77</width>
-                                <height>30</height>
-                            </rect>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>1</hsizetype>
-                                <vsizetype>5</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                            <size>
-                                <width>60</width>
-                                <height>0</height>
-                            </size>
-                        </property>
-                        <property name="text">
-                            <string>MegaPOV :</string>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignVCenter|AlignRight</set>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Enable MegaPOV</string>
-                        </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).</string>
-                        </property>
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
                             <cstring>gamess_lbl</cstring>
                         </property>
                         <property name="geometry">
@@ -4307,35 +4268,6 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             <string>Specify a directory for where to find POV-Ray or MegaPOV include files such as transforms.inc.</string>
                         </property>
                     </widget>
-                    <widget class="QCheckBox">
-                        <property name="name">
-                            <cstring>povdir_checkbox</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
-                                <y>139</y>
-                                <width>130</width>
-                                <height>22</height>
-                            </rect>
-                        </property>
-                        <property name="paletteForegroundColor">
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                        </property>
-                        <property name="text">
-                            <string>POV include dir :</string>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>User-custom directory for POV libraries</string>
-                        </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>Select a user-customized directory for POV-Ray and MegaPOV include files, such as transforms.inc.</string>
-                        </property>
-                    </widget>
                     <widget class="QPushButton">
                         <property name="name">
                             <cstring>nanohive_choose_btn</cstring>
@@ -4468,6 +4400,96 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         </property>
                         <property name="whatsThis" stdset="0">
                             <string>This opens up a file chooser dialog so that you can specify the location of the GAMESS or PC-GAMESS executable.</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>megapov_lbl</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>30</x>
+                                <y>95</y>
+                                <width>77</width>
+                                <height>30</height>
+                            </rect>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>5</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                            <size>
+                                <width>60</width>
+                                <height>0</height>
+                            </size>
+                        </property>
+                        <property name="text">
+                            <string>MegaPOV :</string>
+                        </property>
+                        <property name="alignment">
+                            <set>AlignVCenter|AlignRight</set>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Enable MegaPOV</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).</string>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>povdir_checkbox</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>30</x>
+                                <y>139</y>
+                                <width>16</width>
+                                <height>16</height>
+                            </rect>
+                        </property>
+                        <property name="paletteForegroundColor">
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>User-custom directory for POV libraries</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Select a user-customized directory for POV-Ray and MegaPOV include files, such as transforms.inc.</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>povdir_lbl</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>54</x>
+                                <y>134</y>
+                                <width>110</width>
+                                <height>30</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string>POV include dir :</string>
+                        </property>
+                        <property name="alignment">
+                            <set>AlignVCenter|AlignRight</set>
                         </property>
                     </widget>
                 </widget>
