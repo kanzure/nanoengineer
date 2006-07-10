@@ -46,7 +46,7 @@ class Dna:
                         'T': 'adenine',
                         'A': 'thymine'}):
         baseList = [ ]
-        def insertmmp(filename, tfm, position=position):
+        def insertmmp(filename, subgroup, tfm, position=position):
             try:
                 grouplist  = _readmmp(assy, filename, isInsert=True)
             except IOError:
@@ -59,7 +59,7 @@ class Dna:
                     atm._posn = tfm(atm._posn) + position
             del viewdata
             for member in mainpart.members:
-                grp.addchild(member)
+                subgroup.addchild(member)
                 baseList.append(member)
             shelf.kill()
 
@@ -73,6 +73,12 @@ class Dna:
             y = -s * v[0] + c * v[1]
             return V(x, y, v[2] + z)
 
+        if doubleStrand:
+            subgroup = Group("3' strand", grp.assy, None)
+            grp.addchild(subgroup)
+        else:
+            subgroup = grp
+
         theta = 0.0
         z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
         for i in range(len(sequence)):
@@ -81,11 +87,13 @@ class Dna:
             def tfm(v, theta=theta+thetaOffset, z1=z+zoffset):
                 return rotateTranslate(v, theta, z1)
             if DEBUG: print basefile
-            insertmmp(basefile, tfm)
+            insertmmp(basefile, subgroup, tfm)
             theta -= self.TWIST_PER_BASE
             z -= self.BASE_SPACING
 
         if doubleStrand:
+            subgroup = Group("5' strand", grp.assy, None)
+            grp.addchild(subgroup)
             theta = 0.0
             z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
             for i in range(len(sequence)):
@@ -98,7 +106,7 @@ class Dna:
                     # since theta = atan2(y,x)
                     return rotateTranslate(V(v[0], -v[1], -v[2]), theta, z1)
                 if DEBUG: print basefile
-                insertmmp(basefile, tfm)
+                insertmmp(basefile, subgroup, tfm)
                 theta -= self.TWIST_PER_BASE
                 z -= self.BASE_SPACING
 
