@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'DnaGeneratorDialog.ui'
 #
-# Created: Wed Jul 5 11:17:40 2006
+# Created: Mon Jul 10 11:02:24 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1536,15 +1536,6 @@ class dna_dialog(QDialog):
 
     def cancel_btn_clicked(self):
         print "dna_dialog.cancel_btn_clicked(): Not implemented yet"
-
-    def dna_type_combox_textChanged(self,a0):
-        print "dna_dialog.dna_type_combox_textChanged(const QString&): Not implemented yet"
-
-    def endings_combox_textChanged(self,a0):
-        print "dna_dialog.endings_combox_textChanged(const QString&): Not implemented yet"
-
-    def base_textedit_textChanged(self):
-        print "dna_dialog.base_textedit_textChanged(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("dna_dialog",s,c)

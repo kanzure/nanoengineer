@@ -814,9 +814,6 @@
     <slot>complement_btn_clicked()</slot>
     <slot>reverse_btn_clicked()</slot>
     <slot>cancel_btn_clicked()</slot>
-    <slot>dna_type_combox_textChanged( const QString &amp; )</slot>
-    <slot>endings_combox_textChanged( const QString &amp; )</slot>
-    <slot>base_textedit_textChanged()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
