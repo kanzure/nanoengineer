@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>595</width>
-            <height>481</height>
+            <width>627</width>
+            <height>513</height>
         </rect>
     </property>
     <property name="caption">
@@ -3828,442 +3828,646 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                 <attribute name="title">
                     <string>Plug-ins</string>
                 </attribute>
-                <grid>
+                <spacer>
                     <property name="name">
-                        <cstring>unnamed</cstring>
+                        <cstring>spacer50_2</cstring>
                     </property>
-                    <spacer row="1" column="0">
+                    <property name="orientation">
+                        <enum>Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>31</width>
+                            <height>190</height>
+                        </size>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>270</x>
+                            <y>230</y>
+                            <width>31</width>
+                            <height>190</height>
+                        </rect>
+                    </property>
+                </spacer>
+                <widget class="QGroupBox">
+                    <property name="name">
+                        <cstring>file_locations_grp</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>11</x>
+                            <y>11</y>
+                            <width>581</width>
+                            <height>210</height>
+                        </rect>
+                    </property>
+                    <property name="title">
+                        <string>Location of Executables</string>
+                    </property>
+                    <widget class="QLabel">
                         <property name="name">
-                            <cstring>spacer24</cstring>
+                            <cstring>gamess_lbl</cstring>
                         </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
+                        <property name="geometry">
+                            <rect>
+                                <x>30</x>
+                                <y>131</y>
+                                <width>77</width>
+                                <height>30</height>
+                            </rect>
                         </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>5</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
                         </property>
-                        <property name="sizeHint">
+                        <property name="minimumSize">
                             <size>
-                                <width>20</width>
-                                <height>120</height>
+                                <width>60</width>
+                                <height>0</height>
                             </size>
                         </property>
-                    </spacer>
-                    <widget class="QGroupBox" row="0" column="0">
-                        <property name="name">
-                            <cstring>file_locations_grp</cstring>
+                        <property name="text">
+                            <string>GAMESS :</string>
                         </property>
-                        <property name="title">
-                            <string>Location of Executables</string>
+                        <property name="alignment">
+                            <set>AlignVCenter|AlignRight</set>
                         </property>
-                        <grid>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QLineEdit" row="0" column="2">
-                                <property name="name">
-                                    <cstring>nanohive_path_linedit</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="frameShape">
-                                    <enum>LineEditPanel</enum>
-                                </property>
-                                <property name="frameShadow">
-                                    <enum>Sunken</enum>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="readOnly">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>The full path to the Nano-Hive executable file.</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>The full path to the Nano-Hive executable file.</string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton" row="0" column="3">
-                                <property name="name">
-                                    <cstring>nanohive_choose_btn</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="text">
-                                    <string>Choose...</string>
-                                </property>
-                                <property name="autoDefault">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Choose location of Nano-Hive executable </string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>This opens up a file chooser dialog so that you can specify the location of the Nano-Hive executable.</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="0" column="1">
-                                <property name="name">
-                                    <cstring>nanohive_lbl</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>1</hsizetype>
-                                        <vsizetype>5</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>60</width>
-                                        <height>0</height>
-                                    </size>
-                                </property>
-                                <property name="text">
-                                    <string>Nano-Hive :</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>AlignVCenter|AlignRight</set>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Enable Nano-Hive.</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.</string>
-                                </property>
-                            </widget>
-                            <widget class="QCheckBox" row="0" column="0">
-                                <property name="name">
-                                    <cstring>nanohive_checkbox</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Enable Nano-Hive.</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.</string>
-                                </property>
-                            </widget>
-                            <widget class="QLineEdit" row="3" column="2">
-                                <property name="name">
-                                    <cstring>gamess_path_linedit</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>32767</width>
-                                        <height>32767</height>
-                                    </size>
-                                </property>
-                                <property name="frameShape">
-                                    <enum>LineEditPanel</enum>
-                                </property>
-                                <property name="frameShadow">
-                                    <enum>Sunken</enum>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="maxLength">
-                                    <number>32767</number>
-                                </property>
-                                <property name="readOnly">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="3" column="1">
-                                <property name="name">
-                                    <cstring>gamess_lbl</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>1</hsizetype>
-                                        <vsizetype>5</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>60</width>
-                                        <height>0</height>
-                                    </size>
-                                </property>
-                                <property name="text">
-                                    <string>GAMESS :</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>AlignVCenter|AlignRight</set>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Enable GAMESS.</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>&lt;p&gt;This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. &lt;/p&gt;
+                        <property name="toolTip" stdset="0">
+                            <string>Enable GAMESS.</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>&lt;p&gt;This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. &lt;/p&gt;
 &lt;p&gt;For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.&lt;/p&gt;
 &lt;p&gt;For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.&lt;/p&gt;</string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton" row="3" column="3">
-                                <property name="name">
-                                    <cstring>gamess_choose_btn</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="text">
-                                    <string>Choose...</string>
-                                </property>
-                                <property name="autoDefault">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Choose GAMESS executable</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>This opens up a file chooser dialog so that you can specify the location of the GAMESS or PC-GAMESS executable.</string>
-                                </property>
-                            </widget>
-                            <widget class="QCheckBox" row="3" column="0">
-                                <property name="name">
-                                    <cstring>gamess_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Enable GAMESS.</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>&lt;p&gt;This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. &lt;/p&gt;
-&lt;p&gt;For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.&lt;/p&gt;
-&lt;p&gt;For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.&lt;/p&gt;</string>
-                                </property>
-                            </widget>
-                            <widget class="QCheckBox" row="1" column="0">
-                                <property name="name">
-                                    <cstring>povray_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Enable POV-Ray</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="1" column="1">
-                                <property name="name">
-                                    <cstring>povray_lbl</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>1</hsizetype>
-                                        <vsizetype>5</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>60</width>
-                                        <height>0</height>
-                                    </size>
-                                </property>
-                                <property name="text">
-                                    <string>POV-Ray :</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>AlignVCenter|AlignRight</set>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Enable POV-Ray</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.</string>
-                                </property>
-                            </widget>
-                            <widget class="QLineEdit" row="1" column="2">
-                                <property name="name">
-                                    <cstring>povray_path_linedit</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>32767</width>
-                                        <height>32767</height>
-                                    </size>
-                                </property>
-                                <property name="frameShape">
-                                    <enum>LineEditPanel</enum>
-                                </property>
-                                <property name="frameShadow">
-                                    <enum>Sunken</enum>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="maxLength">
-                                    <number>32767</number>
-                                </property>
-                                <property name="readOnly">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>The full path to the POV-Ray executable file.</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>The full path to the POV-Ray executable file.</string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton" row="1" column="3">
-                                <property name="name">
-                                    <cstring>povray_choose_btn</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="text">
-                                    <string>Choose...</string>
-                                </property>
-                                <property name="autoDefault">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Choose POV-Ray executable</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>This opens up a file chooser dialog so that you can specify the location of the POV-Ray executable.</string>
-                                </property>
-                            </widget>
-                            <widget class="QCheckBox" row="2" column="0">
-                                <property name="name">
-                                    <cstring>megapov_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Enable MegaPOV</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="2" column="1">
-                                <property name="name">
-                                    <cstring>megapov_lbl</cstring>
-                                </property>
-                                <property name="sizePolicy">
-                                    <sizepolicy>
-                                        <hsizetype>1</hsizetype>
-                                        <vsizetype>5</vsizetype>
-                                        <horstretch>0</horstretch>
-                                        <verstretch>0</verstretch>
-                                    </sizepolicy>
-                                </property>
-                                <property name="minimumSize">
-                                    <size>
-                                        <width>60</width>
-                                        <height>0</height>
-                                    </size>
-                                </property>
-                                <property name="text">
-                                    <string>MegaPOV :</string>
-                                </property>
-                                <property name="alignment">
-                                    <set>AlignVCenter|AlignRight</set>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Enable MegaPOV</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).</string>
-                                </property>
-                            </widget>
-                            <widget class="QLineEdit" row="2" column="2">
-                                <property name="name">
-                                    <cstring>megapov_path_linedit</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="maximumSize">
-                                    <size>
-                                        <width>32767</width>
-                                        <height>32767</height>
-                                    </size>
-                                </property>
-                                <property name="frameShape">
-                                    <enum>LineEditPanel</enum>
-                                </property>
-                                <property name="frameShadow">
-                                    <enum>Sunken</enum>
-                                </property>
-                                <property name="text">
-                                    <string></string>
-                                </property>
-                                <property name="maxLength">
-                                    <number>32767</number>
-                                </property>
-                                <property name="readOnly">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>The full path to the MegaPOV executable file (megapov.exe).</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>The full path to the MegaPOV executable file (megapov.exe).</string>
-                                </property>
-                            </widget>
-                            <widget class="QPushButton" row="2" column="3">
-                                <property name="name">
-                                    <cstring>megapov_choose_btn</cstring>
-                                </property>
-                                <property name="enabled">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="text">
-                                    <string>Choose...</string>
-                                </property>
-                                <property name="autoDefault">
-                                    <bool>false</bool>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Choose MegaPOV executable (megapov.exe)</string>
-                                </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>This opens up a file chooser dialog so that you can specify the location of the MegaPOV executable (megapov.exe).</string>
-                                </property>
-                            </widget>
-                        </grid>
+                        </property>
                     </widget>
-                </grid>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>gamess_checkbox</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>11</x>
+                                <y>139</y>
+                                <width>16</width>
+                                <height>16</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Enable GAMESS.</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>&lt;p&gt;This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. &lt;/p&gt;
+&lt;p&gt;For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.&lt;/p&gt;
+&lt;p&gt;For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.&lt;/p&gt;</string>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>povray_checkbox</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>11</x>
+                                <y>67</y>
+                                <width>16</width>
+                                <height>16</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Enable POV-Ray</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>povray_lbl</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>30</x>
+                                <y>59</y>
+                                <width>77</width>
+                                <height>30</height>
+                            </rect>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>5</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                            <size>
+                                <width>60</width>
+                                <height>0</height>
+                            </size>
+                        </property>
+                        <property name="text">
+                            <string>POV-Ray :</string>
+                        </property>
+                        <property name="alignment">
+                            <set>AlignVCenter|AlignRight</set>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Enable POV-Ray</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.</string>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit">
+                        <property name="name">
+                            <cstring>povray_path_linedit</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>113</x>
+                                <y>62</y>
+                                <width>372</width>
+                                <height>24</height>
+                            </rect>
+                        </property>
+                        <property name="maximumSize">
+                            <size>
+                                <width>32767</width>
+                                <height>32767</height>
+                            </size>
+                        </property>
+                        <property name="frameShape">
+                            <enum>LineEditPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                            <enum>Sunken</enum>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="maxLength">
+                            <number>32767</number>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>The full path to the POV-Ray executable file.</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>The full path to the POV-Ray executable file.</string>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>povray_choose_btn</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>491</x>
+                                <y>59</y>
+                                <width>79</width>
+                                <height>30</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string>Choose...</string>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Choose POV-Ray executable</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This opens up a file chooser dialog so that you can specify the location of the POV-Ray executable.</string>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>megapov_checkbox</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>11</x>
+                                <y>103</y>
+                                <width>16</width>
+                                <height>16</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Enable MegaPOV</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).</string>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit">
+                        <property name="name">
+                            <cstring>gamess_path_linedit</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>113</x>
+                                <y>134</y>
+                                <width>372</width>
+                                <height>24</height>
+                            </rect>
+                        </property>
+                        <property name="maximumSize">
+                            <size>
+                                <width>32767</width>
+                                <height>32767</height>
+                            </size>
+                        </property>
+                        <property name="frameShape">
+                            <enum>LineEditPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                            <enum>Sunken</enum>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="maxLength">
+                            <number>32767</number>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>megapov_choose_btn</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>491</x>
+                                <y>95</y>
+                                <width>79</width>
+                                <height>30</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string>Choose...</string>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Choose MegaPOV executable (megapov.exe)</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This opens up a file chooser dialog so that you can specify the location of the MegaPOV executable (megapov.exe).</string>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit">
+                        <property name="name">
+                            <cstring>megapov_path_linedit</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>113</x>
+                                <y>98</y>
+                                <width>372</width>
+                                <height>24</height>
+                            </rect>
+                        </property>
+                        <property name="maximumSize">
+                            <size>
+                                <width>32767</width>
+                                <height>32767</height>
+                            </size>
+                        </property>
+                        <property name="frameShape">
+                            <enum>LineEditPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                            <enum>Sunken</enum>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="maxLength">
+                            <number>32767</number>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>The full path to the MegaPOV executable file (megapov.exe).</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>The full path to the MegaPOV executable file (megapov.exe).</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>megapov_lbl</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>30</x>
+                                <y>95</y>
+                                <width>77</width>
+                                <height>30</height>
+                            </rect>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>5</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                            <size>
+                                <width>60</width>
+                                <height>0</height>
+                            </size>
+                        </property>
+                        <property name="text">
+                            <string>MegaPOV :</string>
+                        </property>
+                        <property name="alignment">
+                            <set>AlignVCenter|AlignRight</set>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Enable MegaPOV</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).</string>
+                        </property>
+                    </widget>
+                    <widget class="QLabel">
+                        <property name="name">
+                            <cstring>nanohive_lbl</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>30</x>
+                                <y>23</y>
+                                <width>77</width>
+                                <height>30</height>
+                            </rect>
+                        </property>
+                        <property name="sizePolicy">
+                            <sizepolicy>
+                                <hsizetype>1</hsizetype>
+                                <vsizetype>5</vsizetype>
+                                <horstretch>0</horstretch>
+                                <verstretch>0</verstretch>
+                            </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                            <size>
+                                <width>60</width>
+                                <height>0</height>
+                            </size>
+                        </property>
+                        <property name="text">
+                            <string>Nano-Hive :</string>
+                        </property>
+                        <property name="alignment">
+                            <set>AlignVCenter|AlignRight</set>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Enable Nano-Hive.</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.</string>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit">
+                        <property name="name">
+                            <cstring>povdir_linedit</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>169</x>
+                                <y>169</y>
+                                <width>314</width>
+                                <height>30</height>
+                            </rect>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Select custom POV include directory</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Specify a directory for where to find POV-Ray or MegaPOV include files such as transforms.inc.</string>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>nanohive_choose_btn</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>491</x>
+                                <y>23</y>
+                                <width>79</width>
+                                <height>30</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string>Choose...</string>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Choose location of Nano-Hive executable </string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This opens up a file chooser dialog so that you can specify the location of the Nano-Hive executable.</string>
+                        </property>
+                    </widget>
+                    <widget class="QLineEdit">
+                        <property name="name">
+                            <cstring>nanohive_path_linedit</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>113</x>
+                                <y>26</y>
+                                <width>372</width>
+                                <height>24</height>
+                            </rect>
+                        </property>
+                        <property name="frameShape">
+                            <enum>LineEditPanel</enum>
+                        </property>
+                        <property name="frameShadow">
+                            <enum>Sunken</enum>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="readOnly">
+                            <bool>true</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>The full path to the Nano-Hive executable file.</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>The full path to the Nano-Hive executable file.</string>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>nanohive_checkbox</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>true</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>10</x>
+                                <y>30</y>
+                                <width>16</width>
+                                <height>16</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string></string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Enable Nano-Hive.</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.</string>
+                        </property>
+                    </widget>
+                    <widget class="QCheckBox">
+                        <property name="name">
+                            <cstring>povdir_checkbox</cstring>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>30</x>
+                                <y>175</y>
+                                <width>130</width>
+                                <height>22</height>
+                            </rect>
+                        </property>
+                        <property name="paletteForegroundColor">
+                            <color>
+                                <red>0</red>
+                                <green>0</green>
+                                <blue>0</blue>
+                            </color>
+                        </property>
+                        <property name="text">
+                            <string>POV include dir :</string>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>User-custom directory for POV libraries</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>Select a user-customized directory for POV-Ray and MegaPOV include files, such as transforms.inc.</string>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>gamess_choose_btn</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>491</x>
+                                <y>131</y>
+                                <width>79</width>
+                                <height>30</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string>Choose...</string>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string>Choose GAMESS executable</string>
+                        </property>
+                        <property name="whatsThis" stdset="0">
+                            <string>This opens up a file chooser dialog so that you can specify the location of the GAMESS or PC-GAMESS executable.</string>
+                        </property>
+                    </widget>
+                    <widget class="QPushButton">
+                        <property name="name">
+                            <cstring>povdir_choose_btn</cstring>
+                        </property>
+                        <property name="enabled">
+                            <bool>false</bool>
+                        </property>
+                        <property name="geometry">
+                            <rect>
+                                <x>490</x>
+                                <y>170</y>
+                                <width>80</width>
+                                <height>31</height>
+                            </rect>
+                        </property>
+                        <property name="text">
+                            <string>Choose...</string>
+                        </property>
+                        <property name="autoDefault">
+                            <bool>false</bool>
+                        </property>
+                    </widget>
+                </widget>
             </widget>
             <widget class="QWidget">
                 <property name="name">
@@ -4795,7 +4999,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="166">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000006d49444154789cedd4410e80200c44d1af17f62c9e58b78674686142628c5d9747d316e07371c235736e5f8176610795b08b026c2e7a0406243dae842a24bcad4d56553df3da9cb062058de4c95654f161d8c5d3e1cde2f656fcf05ab8f7fc4b13cffe8f6873ec56b80fe93d71032fef1420183fe3e20000000049454e44ae426082</data>
+        <data format="PNG" length="166">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000006d49444154388dedd4410e80200c44d1af17f62c9e58b78674686142628c5d9747d316e07371c235736e5f8176610795b08b026c2e7a0406243dae842a24bcad4d56553df3da9cb062058de4c95654f161d8c5d3e1cde2f656fcf05ab8f7fc4b13cffe8f6873ec56b80fe93d71032fef14203d50a03f0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5267,6 +5471,18 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
         <receiver>UserPrefsDialog</receiver>
         <slot>set_megapov_path()</slot>
     </connection>
+    <connection>
+        <sender>povdir_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>enable_povdir()</slot>
+    </connection>
+    <connection>
+        <sender>povdir_choose_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>set_povdir()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -5363,6 +5579,9 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <tabstop>povray_choose_btn</tabstop>
     <tabstop>povray_checkbox</tabstop>
 </tabstops>
+<includes>
+    <include location="local" impldecl="in implementation">UserPrefsDialog.ui.h</include>
+</includes>
 <slots>
     <slot>display_compass()</slot>
     <slot>set_compass_position()</slot>
@@ -5436,6 +5655,8 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>update_number_spinbox_valueChanged( int )</slot>
     <slot>enable_megapov()</slot>
     <slot>set_megapov_path()</slot>
+    <slot>enable_povdir()</slot>
+    <slot>set_povdir()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
