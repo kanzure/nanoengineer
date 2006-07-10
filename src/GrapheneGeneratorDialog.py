@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GrapheneGeneratorDialog.ui'
 #
-# Created: Mon Jul 3 15:10:49 2006
+# Created: Mon Jul 10 10:45:20 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -673,9 +673,9 @@ class graphene_sheet_dialog(QDialog):
         self.connect(self.preview_btn,SIGNAL("clicked()"),self.preview_btn_clicked)
         self.connect(self.abort_btn,SIGNAL("clicked()"),self.abort_btn_clicked)
         self.connect(self.done_btn,SIGNAL("clicked()"),self.done_btn_clicked)
-        self.connect(self.height_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
-        self.connect(self.width_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
-        self.connect(self.bond_length_linedit,SIGNAL("textChanged(const QString&)"),self.length_fixup)
+        self.connect(self.height_linedit,SIGNAL("returnPressed()"),self.length_fixup)
+        self.connect(self.width_linedit,SIGNAL("returnPressed()"),self.length_fixup)
+        self.connect(self.bond_length_linedit,SIGNAL("returnPressed()"),self.length_fixup)
         self.connect(self.restore_defaults_btn,SIGNAL("clicked()"),self.defaults_btn_clicked)
 
 

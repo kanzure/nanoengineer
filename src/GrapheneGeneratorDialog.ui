@@ -680,19 +680,19 @@
     </connection>
     <connection>
         <sender>height_linedit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
+        <signal>returnPressed()</signal>
         <receiver>graphene_sheet_dialog</receiver>
         <slot>length_fixup()</slot>
     </connection>
     <connection>
         <sender>width_linedit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
+        <signal>returnPressed()</signal>
         <receiver>graphene_sheet_dialog</receiver>
         <slot>length_fixup()</slot>
     </connection>
     <connection>
         <sender>bond_length_linedit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
+        <signal>returnPressed()</signal>
         <receiver>graphene_sheet_dialog</receiver>
         <slot>length_fixup()</slot>
     </connection>

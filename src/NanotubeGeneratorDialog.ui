@@ -1237,7 +1237,7 @@
     </connection>
     <connection>
         <sender>length_linedit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
+        <signal>returnPressed()</signal>
         <receiver>nanotube_dialog</receiver>
         <slot>parameter_fixup()</slot>
     </connection>
@@ -1261,25 +1261,25 @@
     </connection>
     <connection>
         <sender>bond_length_linedit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
+        <signal>returnPressed()</signal>
         <receiver>nanotube_dialog</receiver>
         <slot>parameter_fixup()</slot>
     </connection>
     <connection>
         <sender>z_distortion_linedit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
+        <signal>returnPressed()</signal>
         <receiver>nanotube_dialog</receiver>
         <slot>parameter_fixup()</slot>
     </connection>
     <connection>
         <sender>xy_distortion_linedit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
+        <signal>returnPressed()</signal>
         <receiver>nanotube_dialog</receiver>
         <slot>parameter_fixup()</slot>
     </connection>
     <connection>
         <sender>mwcnt_spacing_linedit</sender>
-        <signal>textChanged(const QString&amp;)</signal>
+        <signal>returnPressed()</signal>
         <receiver>nanotube_dialog</receiver>
         <slot>parameter_fixup()</slot>
     </connection>
@@ -1303,7 +1303,7 @@
     </connection>
     <connection>
         <sender>endings_combox</sender>
-        <signal>textChanged(const QString&amp;)</signal>
+        <signal>returnPressed()</signal>
         <receiver>nanotube_dialog</receiver>
         <slot>parameter_fixup()</slot>
     </connection>

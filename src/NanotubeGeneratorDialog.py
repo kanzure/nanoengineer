@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Wed Jul 5 00:50:16 2006
+# Created: Mon Jul 10 10:45:26 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -754,18 +754,18 @@ class nanotube_dialog(QDialog):
         self.connect(self.cancel_btn,SIGNAL("clicked()"),self.cancel_btn_clicked)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.ok_btn_clicked)
         self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.sponsor_btn_clicked)
-        self.connect(self.length_linedit,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
+        self.connect(self.length_linedit,SIGNAL("returnPressed()"),self.parameter_fixup)
         self.connect(self.preview_btn,SIGNAL("clicked()"),self.preview_btn_clicked)
         self.connect(self.abort_btn,SIGNAL("clicked()"),self.abort_btn_clicked)
         self.connect(self.done_btn,SIGNAL("clicked()"),self.done_btn_clicked)
-        self.connect(self.bond_length_linedit,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
-        self.connect(self.z_distortion_linedit,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
-        self.connect(self.xy_distortion_linedit,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
-        self.connect(self.mwcnt_spacing_linedit,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
+        self.connect(self.bond_length_linedit,SIGNAL("returnPressed()"),self.parameter_fixup)
+        self.connect(self.z_distortion_linedit,SIGNAL("returnPressed()"),self.parameter_fixup)
+        self.connect(self.xy_distortion_linedit,SIGNAL("returnPressed()"),self.parameter_fixup)
+        self.connect(self.mwcnt_spacing_linedit,SIGNAL("returnPressed()"),self.parameter_fixup)
         self.connect(self.restore_defaults_btn,SIGNAL("clicked()"),self.defaults_btn_clicked)
         self.connect(self.chirality_n_spinbox,SIGNAL("valueChanged(int)"),self.parameter_fixup)
         self.connect(self.chirality_m_spinbox,SIGNAL("valueChanged(int)"),self.parameter_fixup)
-        self.connect(self.endings_combox,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
+        self.connect(self.endings_combox,SIGNAL("returnPressed()"),self.parameter_fixup)
         self.connect(self.members_combox,SIGNAL("activated(const QString&)"),self.parameter_fixup)
 
 
