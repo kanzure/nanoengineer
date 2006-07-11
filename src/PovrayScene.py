@@ -216,15 +216,17 @@ class PovrayScene(SimpleCopyMixin, Node):
         #print "get_povfile_trio():\n  ini=", ini, "\n  pov=", pov, "\n  out=", out
         return ini, pov, out
     
-    def raytrace_scene(self, tmpscene=False):
+    def raytrace_scene(self, tmpscene = False):
         """Render scene. 
         If tmpscene is False, the INI and pov files are written to the 'POV-Ray Scene Files' directory.
         If tmpscene is True, the INI and pov files are written to a temporary directory (~/Nanorex/POV-Ray).
         Callers should set <tmpscene> = True when they want to render the scene but don't need to 
         save the files and create a POV-Ray Scene node (i.e. 'View > Raytrace Scene').
-        The caller is responsible for adding the POV-Ray Scene node to the model tree.
-        Returns errorcode and errortext.
+        The caller is responsible for adding the POV-Ray Scene node (self) to the model tree, if desired.
+        Prints any necessary error messages to history; returns nothing.
         """
+        #bruce 060710 corrected inaccuracies in docstring
+        cmd = greenmsg("Raytrace Scene: ")
         if env.debug():
             #bruce 060707 (after Windows A8, before Linux/Mac A8)
             # compromise with what's best, so it can be ok for A8 even if only on some platforms
@@ -240,9 +242,11 @@ class PovrayScene(SimpleCopyMixin, Node):
                 writepovfile(self.assy.part, self.assy.o, self.povrayscene_file)
             write_povray_ini_file(ini, self.povrayscene_file, self.width, self.height, self.output_type)
         else:
-            return 1, "Problem getting POV-Ray filename trio."
+            ## return 1, "Problem getting POV-Ray filename trio."
+            # [bruce 060710 replaced the above with the following, since it no longer matches the other return statements, or any calls]
+            env.history.message(cmd + redmsg("Problem getting POV-Ray filename trio.")) ###@@@ fix this to improve the message
+            return
         
-        cmd = greenmsg("Raytrace Scene: ")
         if tmpscene:
             msg = "Rendering scene. Please wait..."
         else:
@@ -257,8 +261,9 @@ class PovrayScene(SimpleCopyMixin, Node):
         
         if errorcode:
             env.history.message(cmd + orangemsg(errortext))
+            ###e should be redmsg, but I won't fix this for Mac A8 since it's also wrong in Windows A8 [bruce 060710]
             return
-
+        
         #bruce 060707 (after Windows A8, before Linux/Mac A8): make sure the image file exists.
         # (On Mac, at the moment, we get this far (no error return, or maybe another bug hid one), but the file is not there.)
         if not os.path.exists(out):
@@ -272,6 +277,8 @@ class PovrayScene(SimpleCopyMixin, Node):
             #bruce 060707 comment: if out doesn't exist, on Mac,
             # this produces a visible and draggable tiny window, about 3 pixels wide and maybe 30 pixels high.
         imageviewer.display()
+        
+        return
     
     def kill(self, require_confirmation=True):
         """Delete the POV-Ray Scene node and its associated .pov file if it exists.
