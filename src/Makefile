@@ -35,8 +35,9 @@ LDFLAGS=-Wl,-F. -framework Python
 LDSHARED=gcc -bundle
 else
 #---------------------------------------- Unix
-CFLAGS=-pthread -I/usr/include/python$(PYDVER)
-LDFLAGS=-L/usr/lib/python$(PYDVER)/config -L/usr/local/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
+PYBASE:=$(shell which python | sed "s%/bin/python%%")
+CFLAGS=-pthread -I$(PYBASE)/include/python$(PYDVER)
+LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
