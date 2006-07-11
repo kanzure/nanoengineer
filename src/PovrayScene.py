@@ -13,7 +13,7 @@ mark 060601 - Created.
 __author__ = "Mark"
 
 from Utility import SimpleCopyMixin, Node, imagename_to_pixmap
-from povray import write_povray_ini_file, launch_povray_or_megapov
+from povray import decode_povray_prefs, write_povray_ini_file, launch_povray_or_megapov
 from fileIO import writepovfile
 from qt import *
 from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
@@ -177,11 +177,14 @@ class PovrayScene(SimpleCopyMixin, Node):
         return 0, pov
     
     def get_povfile_trio(self, tmpfile = False):
-        """Returns the trio of POV-Ray filenames: POV-Ray INI, POV-Ray Scene and output image. 
-        If there was any problem, returns None.
+        """Makes up and returns the trio of POV-Ray filenames (as absolute paths):
+        POV-Ray INI file, POV-Ray Scene file, and output image filename. 
+        If there was any problem, returns None, None, None.
+        <tmpfile> flag controls how we choose their directory.
+        [WARNING: current code may call it more than once during the same operation,
+         so it needs to be sure to return the same names each time! [bruce guess 060711]]
         """
-    
-        # The ini, pov and out files must exist in the same directory due to POV-Ray's I/O Restriction feature. Mark 060625.
+        # The ini, pov and out files must be in the same directory due to POV-Ray's I/O Restriction feature. Mark 060625.
     
         ini_filename = "povray.ini"
         # Critically important: POV-Ray uses the INI filename as an argument; it cannot have any whitespaces.
@@ -199,9 +202,11 @@ class PovrayScene(SimpleCopyMixin, Node):
             pov_filename = self.name
             errorcode, dir = self.assy.find_or_make_pov_files_directory()
             if errorcode:
-                return None, None, None
+                return None, None, None ###e ought to return something containing dir (errortext) instead
         
         # Build image output filename <out_filename>.
+        # WARNING and BUG: this code is roughly duplicated in povray.py, and they need to match;
+        # and .bmp is probably not properly supported for Mac in povray.py. [bruce 060711 comment]
         if self.output_type == 'bmp':
             output_ext = '.bmp'
         else: # default
@@ -221,7 +226,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         If tmpscene is False, the INI and pov files are written to the 'POV-Ray Scene Files' directory.
         If tmpscene is True, the INI and pov files are written to a temporary directory (~/Nanorex/POV-Ray).
         Callers should set <tmpscene> = True when they want to render the scene but don't need to 
-        save the files and create a POV-Ray Scene node (i.e. 'View > Raytrace Scene').
+        save the files and create a POV-Ray Scene node in the MT (i.e. 'View > Raytrace Scene').
         The caller is responsible for adding the POV-Ray Scene node (self) to the model tree, if desired.
         Prints any necessary error messages to history; returns nothing.
         """
@@ -236,16 +241,49 @@ class PovrayScene(SimpleCopyMixin, Node):
         
         ini, pov, out = self.get_povfile_trio(tmpscene)
         
-        if ini:
-            if tmpscene or not os.path.isfile(self.povrayscene_file):
-                self.povrayscene_file = pov
-                writepovfile(self.assy.part, self.assy.o, self.povrayscene_file)
-            write_povray_ini_file(ini, self.povrayscene_file, self.width, self.height, self.output_type)
-        else:
+        if not ini:
             ## return 1, "Problem getting POV-Ray filename trio."
             # [bruce 060710 replaced the above with the following, since it no longer matches the other return statements, or any calls]
-            env.history.message(cmd + redmsg("Problem getting POV-Ray filename trio.")) ###@@@ fix this to improve the message
+            env.history.message(cmd + redmsg("Problem getting POV-Ray filename trio."))
+                ###e should fix this to improve the message, by including errortext from get_povfile_trio retval (which is nim)
             return
+
+        if tmpscene or not os.path.isfile(self.povrayscene_file):
+            # write a new .pov file and save its name in self
+            #
+            #bruce 060711 comment (about a bug, not yet reported): ###@@@
+            #   If an existing pov file has unexpectedly gone missing,
+            # this code (I think) rerenders the current model, without even informing the user of the apparent error.
+            #   That is extremely bad behavior, IMHO. What it ought to do is put up a dialog to inform the
+            # user that the file is missing, and allow one of three actions: cancel, rerender current model,
+            # or browse for the file to try to find it. If that browse is cancelled, it should offer the other
+            # options, or if that finds the file but it's external, it should offer to copy it or make an
+            # external link (or cancel), and then to continue or do no more. All this is desirable for any kind
+            # of file node, not just PovrayScene. As it is, this won't be fixed for Mac A8; don't know about 8.1.
+            self.povrayscene_file = pov
+            writepovfile(self.assy.part, self.assy.o, self.povrayscene_file)
+                # bruce 060711 question (possible bug): what sets self.width, self.height,  self.output_type in this case,
+                # if the ones used by writepovfile differ from last time they were set in this node?
+                # Guess: nothing does (bug, not yet reported). ###@@@
+
+        # figure out renderer to use (POV-Ray or MegaPOV), its path, and its include_dir
+        # (note: this contains most of the error checks that used to be inside launch_povray_or_megapov)
+        # [bruce 060711 for Mac A8]
+        win = self.assy.w
+        ask_for_help = True # give user the chance to fix problems in the prefs dialog
+        errorcode, errortext_or_info = decode_povray_prefs(win, ask_for_help, greencmd = cmd)
+        if errorcode:
+            errortext = errortext_or_info
+            env.history.message(cmd + redmsg(errortext)) # redmsg in Mac A8, orangemsg in Windows A8 [bruce 060711]
+            return
+        info = errortext_or_info
+        # fyi: (program_nickname, program_path, include_dir) = info
+
+        pov = self.povrayscene_file ###k btw, is this already true?
+
+        #k is out equal to whatever in self might store it, if anything? maybe it's not stored in self.
+
+        write_povray_ini_file(ini, pov, out, info, self.width, self.height, self.output_type)
         
         if tmpscene:
             msg = "Rendering scene. Please wait..."
@@ -257,15 +295,15 @@ class PovrayScene(SimpleCopyMixin, Node):
         env.history.widget.update() ###@@@ will this help? is it safe? should h_update do it?
         
         # Launch raytrace program (POV-Ray or MegaPOV)
-        errorcode, errortext = launch_povray_or_megapov(self.assy.w, ini)
+        errorcode, errortext = launch_povray_or_megapov(win, info, ini)
         
         if errorcode:
-            env.history.message(cmd + orangemsg(errortext))
-            ###e should be redmsg, but I won't fix this for Mac A8 since it's also wrong in Windows A8 [bruce 060710]
+            env.history.message(cmd + redmsg(errortext)) # redmsg in Mac A8, orangemsg in Windows A8 [bruce 060711]
             return
         
         #bruce 060707 (after Windows A8, before Linux/Mac A8): make sure the image file exists.
-        # (On Mac, at the moment, we get this far (no error return, or maybe another bug hid one), but the file is not there.)
+        # (On Mac, on that date [not anymore, 060710], we get this far (no error return, or maybe another bug hid one),
+        # but the file is not there.)
         if not os.path.exists(out):
             env.history.message(cmd + redmsg("Error: Apparently ran program, but can't find image file: " + out))
             return
@@ -273,27 +311,49 @@ class PovrayScene(SimpleCopyMixin, Node):
         env.history.message(cmd + "Rendered image: " + out)
         
         # Display image in a window.
-        imageviewer = ImageViewer(out, env.mainwindow())
-            #bruce 060707 comment: if out doesn't exist, on Mac,
+        imageviewer = ImageViewer(out, win)
+            #bruce 060707 comment: if the file named <out> doesn't exist, on Mac,
             # this produces a visible and draggable tiny window, about 3 pixels wide and maybe 30 pixels high.
         imageviewer.display()
         
-        return
+        return # from raytrace_scene out
     
-    def kill(self, require_confirmation=True):
+    def kill(self, require_confirmation = True):
         """Delete the POV-Ray Scene node and its associated .pov file if it exists.
-        If <require_confirmation> is True, make the user confirm first. Otherwise, delete the file without user confirmation.
+        If <require_confirmation> is True, make the user confirm first [for deleting the file and the node both, as one op].
+        [WARNING: user confirmation is not yet implemented.]
+        Otherwise, delete the file without user confirmation.
         """
         if os.path.isfile(self.povrayscene_file):
-            if 0: # Don't require confirmation for A8. Mark 060701.
+            if 0: # Don't require confirmation for A8. Mark 060701. [but see comment below about why this is a bad bug]
             # if require_confirmation: 
                 msg = "Please confirm that you want to delete " + self.name
                 from widgets import PleaseConfirmMsgBox
                 confirmed = PleaseConfirmMsgBox( msg)
                 if not confirmed:
                     return
+            # warn the user that you are about to remove what might be an irreplaceable rendering of a prior version
+            # of the main file, without asking, or even checking if other nodes in this assy still point to it
+            # [this warning added by bruce 060711 for Mac A8, not present in Windows A8]
+            env.history.message(orangemsg("Warning: deleting file [%s]" % self.povrayscene_file))
             # do it
             os.remove(self.povrayscene_file)
+            #bruce 060711 comment -- the above policy is a horrible bug, since you can copy a node (not changing the name)
+            # and then delete one of the copies. This should not silently delete the file!
+            # (Besides, even if you don't delete the file, .kill() should still delete the node.)
+            #   This behavior is so dangerous that I'm tempted to fix it for Mac A8 even though it's too late
+            # to fix it for Windows A8. Certainly it ought to be reported and releasenoted. But I think I will refrain
+            # from the temptation to fix it for Mac A8, since doing it well is not entirely trivial, and any big bug-difference
+            # in A8 on different platforms might cause confusion. But at least I will add a history message, so the user knows
+            # right away if it caused a problem. And it needs to be fixed decently well for A8.1. ###@@@
+            #   As for a better behavior, it would be good (and not too hard) to find out if other nodes
+            # in the same assy point to the same file, and not even ask (just don't delete the file) if they do.
+            # If not, ask, but always delete the node itself.
+            #   But this is not trivial, since during a recursive kill of a Group, I'm not sure we can legally scan the tree.
+            # (And if we did, it would then be quadratic time to delete a very large series of POV-Ray nodes.)
+            # So we need a dictionary from filenames to lists or dicts of nodes that might refer to that filename.
+            #   Of course there should also (for any filenode) be CM commands to delete or rename the file,
+            # or (if other nodes also point to it) to copy it so this node owns a unique one.
         Node.kill(self)
         
     # Context menu item methods #######################################
