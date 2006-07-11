@@ -27,16 +27,19 @@ CC=gcc
 PYREXTARGET=sim.so
 STDC99=-std=c99
 SIMTARGET=simulator
+CFLAGS:=$(shell python distutils_compile_options.py compiler_so)
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
-CFLAGS=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
-   -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/
+CINCLUDES=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
+    -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/
+CFLAGS+=$(CINCLUDES)
 LDFLAGS=-Wl,-F. -framework Python
 LDSHARED=gcc -bundle
 else
 #---------------------------------------- Unix
 PYBASE:=$(shell which python | sed "s%/bin/python%%")
-CFLAGS=-pthread -I$(PYBASE)/include/python$(PYDVER)
+CINCLUDES=-I$(PYBASE)/include/python$(PYDVER)
+CFLAGS+=$(CINCLUDES)
 LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
@@ -91,6 +94,9 @@ endif
 # It's important not to change these two targets.
 all: $(SIMTARGET)
 
+help:
+	echo $(DISTU)
+
 # It's important not to change these two targets.
 pyx: $(PYREXTARGET)
 
@@ -143,6 +149,9 @@ bonds.gen: stretch.py stretch.parms
 
 bends.gen: bend.py bending.parms
 	python bend.py bending.parms > bends.gen
+
+newtables.o: newtables.c
+	$(CC) -o newtables.o -c -g -O $(CINCLUDES) newtables.c
 
 version.h:
 	python makehelp.py "$(CFLAGS)" "$(LDFLAGS)" "$(UNAME_A)" \
