@@ -28,6 +28,8 @@ from povray import get_default_plugin_path
 
 debug_sliders = False # Do not commit as True
 
+def debug_povdir_signals():
+    return 0 and env.debug()
 
 # This list of mode names correspond to the names listed in the modes combo box.
 modes = ['SELECTMOLS', 'MODIFY', 'DEPOSIT', 'COOKIE', 'EXTRUDE', 'FUSECHUNKS', 'MOVIE']
@@ -67,6 +69,14 @@ def startup_modename(): #bruce 060403
     """
     return fix_modename_pref( env.prefs[ startupMode_prefs_key ], startup_modes, startup_modes[0] )
 
+def parentless_open_dialog_pref(): #bruce 060710 for Mac A8
+    # see if setting this True fixes the Mac-specific bugs in draggability of this dialog, and CPU usage while it's up
+    from debug_prefs import debug_pref, Choice_boolean_False
+    return debug_pref("parentless open file dialogs?", Choice_boolean_False,
+                      prefs_key = "A8.1 devel/parentless open file dialogs")
+
+parentless_open_dialog_pref()
+
 def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
     '''Present user with the Qt file chooser to select a file.
     prefs_key is the key to save the filename in the prefs db
@@ -74,10 +84,8 @@ def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
     '''
     # see also get_dirname_and_save_in_prefs, which has similar code
     from platform import get_rootdir
-    from debug_prefs import debug_pref, Choice_boolean_False
-
-    if debug_pref("parentless open file dialogs?", Choice_boolean_False): #bruce 060710, might exist in other places or files
-        # see if this fixes the Mac-specific bugs in draggability of this dialog, and CPU usage while it's up
+    
+    if parentless_open_dialog_pref():
         parent = None
     
     filename = str(QFileDialog.getOpenFileName(
@@ -103,10 +111,8 @@ def get_dirname_and_save_in_prefs(parent, prefs_key, caption=''): #bruce 060710 
     '''
     # see also get_filename_and_save_in_prefs, which has similar code
     from platform import get_rootdir
-    from debug_prefs import debug_pref, Choice_boolean_False
-
-    if debug_pref("parentless open file dialogs?", Choice_boolean_False): #bruce 060710, might exist in other places or files
-        # see comment where this is used above
+    
+    if parentless_open_dialog_pref():
         parent = None
     
     filename = str(QFileDialog.getExistingDirectory(
@@ -193,6 +199,7 @@ class UserPrefs(UserPrefsDialog):
         #bruce 050811 added these:
         self._setup_window_page() # make sure the LineEdits are initialized before we hear their signals
         self._setup_caption_signals()
+        self._setup_plugin_signals() #bruce 060710
         
         # This is where What's This descriptions should go for UserPrefs.
         # Mark 050831.
@@ -222,6 +229,7 @@ class UserPrefs(UserPrefsDialog):
     def caption_prefix_linedit_returnPressed(self):
         ## print "caption_prefix_linedit_returnPressed"
             # This works, but the Return press also closes the dialog!
+            # [later, bruce 060710 -- probably due to a Qt Designer property on the button, fixable by .setAutoDefault(0) ###@@@]
             # (Both for the lineedit whose signal we're catching, and the one whose signal catching is initially nim.)
             # Certainly that makes it a good idea to catch it, though it'd be better to somehow "capture" it
             # so it would not close the dialog.
@@ -230,6 +238,12 @@ class UserPrefs(UserPrefsDialog):
     # caption_suffix slot methods can be equivalent to the ones for caption_prefix
     caption_suffix_linedit_textChanged = caption_prefix_linedit_textChanged
     caption_suffix_linedit_returnPressed = caption_prefix_linedit_returnPressed
+
+    def _setup_plugin_signals(self): #bruce 060710
+        self.connect( self.povdir_linedit, SIGNAL("textChanged ( const QString & ) "), \
+                      self.povdir_linedit_textChanged )
+        self.connect( self.povdir_linedit, SIGNAL("returnPressed()"), \
+                      self.povdir_linedit_returnPressed )
     
     def showDialog(self, pagename='General'):
         '''Display the Preferences dialog with page 'pagename'. '''
@@ -1345,6 +1359,35 @@ class UserPrefs(UserPrefsDialog):
             env.prefs[megapov_path_prefs_key] = ''
             env.prefs[megapov_enabled_prefs_key] = False
         self._update_povdir_enables() #bruce 060710
+
+    # pov include directory [bruce 060710 for Mac A8; will be A8.1 in Windows, not sure about Linux]
+    
+    def _update_povdir_enables(self): #bruce 060710
+        """[private method]
+        Call this whenever anything changes regarding when to enable the povdir checkbox, line edit, or choose button.
+        We enable the checkbox when either of the POV-Ray or MegaPOV plugins is enabled.
+        We enable the line edit and choose button when that condition holds and when the checkbox is checked.
+        We update this when any relevant checkbox changes, or when showing this page.
+        This will work by reading prefs values, so only call it from slot methods after they have updated prefs values.
+        """
+        enable_checkbox = env.prefs[povray_enabled_prefs_key] or env.prefs[megapov_enabled_prefs_key]
+        self.povdir_checkbox.setEnabled(enable_checkbox)
+        self.povdir_lbl.setEnabled(enable_checkbox)
+        enable_edits = enable_checkbox and env.prefs[povdir_enabled_prefs_key]
+            # note: that prefs value should and presumably does agree with self.povdir_checkbox.isChecked()
+        self.povdir_linedit.setEnabled(enable_edits)
+        self.povdir_choose_btn.setEnabled(enable_edits)
+        return
+    
+    def enable_povdir(self, enable=True): #bruce 060710
+        '''slot method for povdir checkbox.
+        povdir is enabled when enable=True.
+        povdir is disabled when enable=False.
+        '''
+        env.prefs[povdir_enabled_prefs_key] = not not enable
+        self._update_povdir_enables()
+##        self.povdir_linedit.setText(env.prefs[povdir_path_prefs_key])
+        return
             
     def set_povdir(self): #bruce 060710
         '''Slot for Pov include dir "Choose" button.
@@ -1361,32 +1404,31 @@ class UserPrefs(UserPrefsDialog):
             self.povdir_linedit.setText(povdir_path)
             # the function above already saved it in prefs, under the same condition
         return
-            
-    def enable_povdir(self, enable=True): #bruce 060710
-        '''povdir is enabled when enable=True.
-        povdir is disabled when enable=False.
-        '''
-        env.prefs[povdir_enabled_prefs_key] = not not enable
-        self._update_povdir_enables()
-##        self.povdir_linedit.setText(env.prefs[povdir_path_prefs_key])
+    
+    def povdir_linedit_textChanged(self, *args): #bruce 060710
+        if debug_povdir_signals():
+            print "povdir_linedit_textChanged",args
+            # this happens on programmatic changes, such as when the page is shown or the choose button slot sets the text
+        try:
+            # note: Ideally we'd only do this when return was pressed, mouse was clicked elsewhere (with that also removing keyfocus),
+            # other keyfocus removals, including dialog ok or cancel. That is mostly nim,
+            # so we have to do it all the time for now -- this is the only way for the user to set the text to "".
+            # (This even runs on programmatic sets of the text. Hope that's ok.)
+            env.prefs[povdir_path_prefs_key] = path = str( self.povdir_linedit.text() ).strip()
+            if debug_povdir_signals():
+                print "debug fyi: set pov include dir to [%s]" % (path,)
+        except:
+            if env.debug():
+                print_compact_traceback("bug, ignored: ")
         return
+    
+    def povdir_linedit_returnPressed(self, *args): #bruce 060710
+        if debug_povdir_signals():
+            print "povdir_linedit_returnPressed",args
+            # this happens when return is pressed in the widget, but NOT when user clicks outside it
+            # or presses OK on the dialog -- which means it's useless when taken alone,
+            # in case user edits text and then presses ok without ever pressing return.
 
-    def _update_povdir_enables(self): #bruce 060710
-        """[private method]
-        Call this whenever anything changes regarding when to enable the povdir checkbox, line edit, or choose button.
-        We enable the checkbox when either of the POV-Ray or MegaPOV plugins is enabled.
-        We enable the line edit and choose button when that condition holds and when the checkbox is checked.
-        We update this when any relevant checkbox changes, or when showing this page.
-        This will work by reading prefs values, so only call it from slot methods after they have updated prefs values.
-        """
-        enable_checkbox = env.prefs[povray_enabled_prefs_key] or env.prefs[megapov_enabled_prefs_key]
-        self.povdir_checkbox.setEnabled(enable_checkbox)
-        enable_edits = enable_checkbox and env.prefs[povdir_enabled_prefs_key]
-            # note: that prefs value should and presumably does agree with self.povdir_checkbox.isChecked()
-        self.povdir_linedit.setEnabled(enable_edits)
-        self.povdir_choose_btn.setEnabled(enable_edits)
-        return
-        
     ########## End of slot methods for "Plug-ins" page widgets ###########
     
     ########## Slot methods for "Window" (former name "Caption") page widgets ################
