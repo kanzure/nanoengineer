@@ -116,6 +116,7 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
             atm.set_atomtype_but_dont_revise_singlets(atomtype)
             return atm
 
+        num_atoms = len(mol.atoms)
         bond_dict = { }
         i = j = 0
         y = -0.5 * height - 2 * bond_length
@@ -197,6 +198,9 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
 
         for atm in atoms.values():
             atm.setposn(atm.posn() + position)
+
+        if num_atoms == len(mol.atoms):
+            raise Exception("Graphene sheet too small - no atoms added")
 
     def show(self):
         self.setSponsor()
