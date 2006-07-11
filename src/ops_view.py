@@ -331,33 +331,33 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         from PovrayScene import PovrayScene
         #pov = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
         pov = PovrayScene(assy, None)
-        pov.raytrace_scene(tmpscene=True)
+        pov.raytrace_scene(tmpscene=True) # this emits whatever history messages are needed [bruce 060710 comment]
         
-    def viewRaytraceScene_ORIG(self):
-        """Slot for 'View > Raytrace Scene'.
-        Raytraces the current scene. This version adds a POV-Ray Scene node to the model tree.
-        """
-        
-        cmd = greenmsg("Raytrace Scene: ")
-        
-        assy = self.assy
-        glpane = self.glpane
-        
-        from PovrayScene import PovrayScene
-        pov = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
-        #bruce 060620 comment: I doubt it's correct to render the image before adding the node,
-        # in case rendering it takes a long time. Also, if the rendering is aborted, the node
-        # should perhaps not be added (or should be removed if it was already added,
-        # or should be changed to indicate that the rendering was aborted).
-        errorcode, errortext = pov.raytrace_scene()
-        if errorcode:
-            env.history.message( cmd + redmsg(errortext) )
-            return
-        assy.addnode(pov)
-        self.mt.mt_update()
-        
-        msg = "POV-Ray rendering complete."
-        env.history.message( cmd + msg ) 
+##    def viewRaytraceScene_ORIG(self):
+##        """Slot for 'View > Raytrace Scene'.
+##        Raytraces the current scene. This version adds a POV-Ray Scene node to the model tree.
+##        """
+##        
+##        cmd = greenmsg("Raytrace Scene: ")
+##        
+##        assy = self.assy
+##        glpane = self.glpane
+##        
+##        from PovrayScene import PovrayScene
+##        pov = PovrayScene(assy, None, params = (glpane.width, glpane.height, 'png')) #bruce 060620 revised this
+##        #bruce 060620 comment: I doubt it's correct to render the image before adding the node,
+##        # in case rendering it takes a long time. Also, if the rendering is aborted, the node
+##        # should perhaps not be added (or should be removed if it was already added,
+##        # or should be changed to indicate that the rendering was aborted).
+##        errorcode, errortext = pov.raytrace_scene() # [note: as of long before 060710 the return value no longer fits this pattern] 
+##        if errorcode:
+##            env.history.message( cmd + redmsg(errortext) )
+##            return
+##        assy.addnode(pov)
+##        self.mt.mt_update()
+##        
+##        msg = "POV-Ray rendering complete."
+##        env.history.message( cmd + msg ) 
 
     pass # end of class viewSlotsMixin
 
