@@ -36,7 +36,7 @@ LDSHARED=gcc -bundle
 else
 #---------------------------------------- Unix
 CFLAGS=-pthread -I/usr/include/python$(PYDVER)
-LDFLAGS=-L/usr/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
+LDFLAGS=-L/usr/lib/python$(PYDVER)/config -L/usr/local/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
