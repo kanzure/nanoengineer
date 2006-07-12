@@ -1,7 +1,7 @@
 # Copyright (c) 2006 Nanorex, Inc. All rights reserved.
-NanoEngineer-1 v0.8 (Alpha 8). Release Date: July 4, 2006
+NanoEngineer-1 v0.8 (Alpha 8). Release Date: July 12, 2006 (For Mac and Linux)
 
-This file documents some bug fixes, unsupported features and some of the commonly encountered bugs in NanoEngineer-1 Alpha7. 
+This file documents some bug fixes, unsupported features and some of the commonly encountered bugs in NanoEngineer-1 Alpha8. 
 
 Some of the Bug Fixes In Alpha 8
 
@@ -20,19 +20,18 @@ UNSUPPORTED FEATURES:
 - On large models, undo and other operation might become slower. Further performance improvements will be implemented in a future release of the software
 
 #PDBs With Multiple Bond Information Not Supported 
- This version of ne-1 treats all bond types as single bonds while reading from or writing to a PDB file. Also, it doesn't save the hybridization type into the PDB file. For example, (sp2) hybridized Carbon in a structure will be saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond Therefore, save your models ONLY in MMP file format to avoid major loss of work (569, 763)
+ This version of NE1 treats all bond types as single bonds while reading from or writing to a PDB file. Also, it doesn't save the hybridization type into the PDB file. For example, (sp2) hybridized Carbon in a structure will be saved as a sp3 hybridized Carbon with wrong bond valence. (3 bonds instead of 4). Also, the double bond of this (sp2) Carbon is saved as a single bond Therefore, save your models ONLY in MMP file format to avoid major loss of work (569, 763)
 
 SIMULATOR / MINIMIZE
 # Simulator/Minimize: will support bonding between elements specified in the element selector of NanoEngineer-1. 
 # Simulator/Minimize: Multiple bonding between certain elements is generally supported, but some parameters are estimated. The history message during a simulation run notifies user if it is using an estimated/reduced quality parameter. 
 # Simulator: Electrostatic interactions are not supported; in particular, the hydrogen and dative bonds are not handled. 
 # Enable motor in minimize feature is experimental. Enabling a motor in minimization may result in high values of rms force. Also, minimize will take long time to finish.
-# Nanotubes: The simulator doesn't take into account the effect of torsion. The simulation/minimization of nanotubes and similar structures is not supported. 
 # Various DNA structures can be modeled in NanoEngineer-1 but minimization/simulations of the generated structures is not supported. 
 
 GAMESS Jig
 #GAMESS jig can be added by select some atoms first in 'Select Atoms' mode and then attaching this jig by using Menu item: Jigs>Gamess. This jig can be attached to a maximum of 200 atoms. 
--- Certain GAMESS optimization runs or Energy calculation can take very long time (hours/days). While a GAMESS job is being performed, user is not allowed to do any other operation in that session of ne-1. User must wait till the GAMESS job is finished or opt to terminate it by hitting 'Cancel' button in the progress bar. 
+-- Certain GAMESS optimization runs or Energy calculation can take very long time (hours/days). While a GAMESS job is being performed, user is not allowed to do any other operation in that session of NE1. User must wait till the GAMESS job is finished or opt to terminate it by hitting 'Cancel' button in the progress bar. 
 -- Also, certain GAMESS run may create large output files. So make sure that your system has enough disk space to handle such runs. ALL GAMESS jobs are save inside the 'Job Manager' directory. (User's home directory/ Nanorex/Job Manager) (742)
  
 ESP IMAGE / NANO-HIVE
@@ -40,7 +39,7 @@ ESP IMAGE / NANO-HIVE
 
 # Bond Inference not supported but a limited valence error check supported. 
 
-By the term 'bond inference' we mean automatically deciding what type of bond will be formed between the participating elements. It is not supported for this version of ne-1. When an element is deposited, by default, all the bonds are single bonds. User must manually change the bond type between the elements in 'Build mode'. However, if the structure is not chemically correct (bad valences etc), ne-1 shows a 'pink wire frame' around each atom indicating valence errors.  This 'valence error' display, by default, is enabled. It can be changed from the 'Bonds' tab in the Preferences dialog. (Edit>Preference…).  
+By the term 'bond inference' we mean automatically deciding what type of bond will be formed between the participating elements. It is not supported for this version of NE1. When an element is deposited, by default, all the bonds are single bonds. User must manually change the bond type between the elements in 'Build mode'. However, if the structure is not chemically correct (bad valences etc), NE1 shows a 'pink wire frame' around each atom indicating valence errors.  This 'valence error' display, by default, is enabled. It can be changed from the 'Bonds' tab in the Preferences dialog. (Edit>Preference…).  
 Note that there are some kinds of chemical errors this (the Valence Error Checker) doesn't detect. For example, it can't tell whether rings should be aromatic or not. All it checks is that the bonds on each atom could possibly add up to the right number of valence electrons. The Valence Error Checker doesn't treat graphitic and aromatic bonds differently.
       
 
@@ -55,7 +54,7 @@ KNOWN BUGS (ALL PLATFORMS)
 MEMORY AND PERFORMANCE PROBLEMS
 # Memory consumed by the application increases due to repeated execution of certain operations such as opening and closing a file (often termed as ‘memory leaks’. This affects the overall performance of the software and could result in a crash. This version doesn’t prevent such memory leaks. 
 
-# nE-1 has some known performance problems while using some features. As a result, some operations take considerably longer times. This is particularly true when you are handling a large file. 
+# NE1 has some known performance problems while using some features. As a result, some operations take considerably longer times. This is particularly true when you are handling a large file. 
 Examples: Opening a large file, Operations performed in Fuse mode, moving selected atoms, Selecting and deselecting some atoms from a large chunk, deleting some atoms, Undoing or redoing these operations, playing a movie on a large model etc. may take longer time when the file size is large. (991, 1473, 1674, 1704, 1750, 1778)
 
 #Movie playing is lot slower for large models on some low system configuration machines. Also, other normal operations such as opening a file become slower for such machines (1757)
@@ -94,7 +93,7 @@ SELECTION
 
  
 BUILD MODE
-# Highlighting in Build mode is problematic in some cases. Examples: 1) When more than one NanoEngineer-1 applications are running. 2) If vertical splitter of the Model Tree is dragged to adjust Model Tree's width 3) If Main nE-1 window is maximized etc. (1241, 1243, 1637)
+# Highlighting in Build mode is problematic in some cases. Examples: 1) When more than one NanoEngineer-1 applications are running. 2) If vertical splitter of the Model Tree is dragged to adjust Model Tree's width 3) If Main NE1 window is maximized etc. (1241, 1243, 1637)
 
 # Zoom/Pan/Rotate Tools in Build mode: If you click on Zoom, Pan or Rotate tools while in Build, the MMKit and other Build features will become temporarily unavailable while you use these tools. (1518)
 # Build: In lines display , the atom center doesn't get highlighted (if the atom is not selected). Thus, you can not perform operations such as change hybridization , move the atom while in lines mode  Simple workaround is to change the display representation to Tubes or CPK or Ball&Stick.(1837)  
@@ -104,7 +103,7 @@ MOLECULAR MODELING KIT IN BUILD MODE
  
 This feature has some known bugs. Also refer to Linux Only Bugs and 'Dialogs and Dashboards' bug sections for some related issues. 
  
-# MMKit: Sometimes this dialog box doesn't close even after main window of ne-1 is closed. It goes away after a few seconds though. (852)  
+# MMKit: Sometimes this dialog box doesn't close even after main window of NE1 is closed. It goes away after a few seconds though. (852)  
 # If an MMP file in the MMKit’s library has jigs those won’t be pasted along with the part. Also, group records won’t be available when you paste a part from the library (1164, 1080)
 # MMKit: MMKit’s 3-D thumbnail view doesn’t get updated in some cases.(1848)
 # Library tab: If the library tab is showing a large model in the thumbnail view , you switch to some other tab and then return to the library tab, it might take long time to open that tab. (939)
@@ -131,7 +130,7 @@ COOKIE CUTTER
 
 # Cookie Cutter: Large selections can cause response latency. (8)  
 # Cookie Cutter: Right click while rotating the grid using middle mouse drag operation, changes the grid orientation (59)  
-# Cookie Cutter/Display bug: the 3D workspace (graphics area) turns into a black display if you resize the ne-1 window while drawing an auto shape e.g. a circle or a hexagon etc. The original display can be regained by hitting any key. (687) 
+# Cookie Cutter/Display bug: the 3D workspace (graphics area) turns into a black display if you resize the NE1 window while drawing an auto shape e.g. a circle or a hexagon etc. The original display can be regained by hitting any key. (687) 
  
 FUSE CHUNKS MODE
 
@@ -144,8 +143,8 @@ MOVIE PLAYER
 
 # Movie playing is lot slower for large models on some low system configuration machines (1757)
 # Extrude Tool/Movie: Simulation movie becomes invalid if it is created while in extrude mode, after adjusting the chunks (to be extruded) as 'bondable' with their copy units. (495)  
-# Movie/Clipboard: While playing a simulation movie, if you click on a different clipboard item (rather a clipboard 'Part'), then the movie can not be 'viewed'. But it continues to run. ne-1 doesn't print a warning message to instruct user to click on the appropriate 'Part', for which the movie is created for,  to view the movie. (578-5) 
-#  Movie: If you run a simulation and then modify the model further (e.g. delete some atoms etc), the movie becomes invalid.  ne-1 generally identifies such situations. But in certain cases, it doesn't.  Some Examples: After creating a simulation movie, if you 'Hydrogenate' some chunks or change the bond types or 'transmute' some elements to a different one. To avoid this, always rerun a simulation after doing such modifications for the correct results. (901)
+# Movie/Clipboard: While playing a simulation movie, if you click on a different clipboard item (rather a clipboard 'Part'), then the movie can not be 'viewed'. But it continues to run. NE1 doesn't print a warning message to instruct user to click on the appropriate 'Part', for which the movie is created for,  to view the movie. (578-5) 
+#  Movie: If you run a simulation and then modify the model further (e.g. delete some atoms etc), the movie becomes invalid.  NE1 generally identifies such situations. But in certain cases, it doesn't.  Some Examples: After creating a simulation movie, if you 'Hydrogenate' some chunks or change the bond types or 'transmute' some elements to a different one. To avoid this, always rerun a simulation after doing such modifications for the correct results. (901)
  
 NAMING
  
@@ -161,7 +160,7 @@ CURSOR AND DISPLAY RELATED BUGS
 
 DIALOGS AND DASHBOARD
  
-# Users operating ne-1 with a low screen resolution and large font size report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don't operate correctly, some property forms such as Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)  
+# Users operating NE1 with a low screen resolution and large font size report bugs in the dialog boxes and dashboards. In such cases, the dashboard items of some modes are not visible, tolerance slider bars don't operate correctly, some property forms such as Modeling Kit occupy most of the space in model tree etc. (513, 581, 844)  
 # There are some bugs in the Nanotube, DNA, Heterojunction and Graphene dialogs. For example dialog doesn’t go away after doing certain operations involving ‘preview’, file getting modified even after cancelling the dialog, bugs in history messages etc. (2045, 2054, 2057)
  
 POVRAY RENDERING
@@ -175,7 +174,7 @@ POVRAY RENDERING
 
 MISCELLANEOUS
  
-# User can not save exclusive features of NanoEngineer-1 into the PDB file format. Some examples of such 'MMP file only' features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  ne-1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)  
+# User can not save exclusive features of NanoEngineer-1 into the PDB file format. Some examples of such 'MMP file only' features include jigs, groups, hidden states of chunks, multiple chunks, entire clipboard feature etc.  NE1 doesn't give enough warning messages for users trying to save such features into a PDB file. (252)  
 # Only open one main window. Opening more than one NanoEngineer-1 application window will have unexpected results. (362)  
 # Any file currently opened by NanoEngineer-1 can be manually deleted from the computer without any warning message. (215) 
 # View > NormalTo doesn’t work when multiple chunks are selected. (1748)
@@ -190,23 +189,21 @@ WINDOWS ONLY BUGS
  
 MACINTOSH ONLY BUGS
 
-# POV-Ray and RayTrace scene are not rendered on MAC even when POVRay or MegaPOV plugins are provided (2068, 2080 )
 # Sometimes a cursor's bitmask will suddenly not work, leaving a white square around the cursor. (772)
 # On iMac the 'material specular highlighting' doesn't show up (1866). 
 # Icon toolbar redrawing of the icon images will show up overlapped, zig-zagged, cracked, etc. in certain situations. In worst cases, the right-side icon bars will go invisible until the invisible bar is clicked on, which redraws the bar but changes your button. This usually only happens when resizing the main window by dragging its "resize handle" on the lower right of the window frame. The workaround is to resize it to be a bit smaller than you want, and then make it a bit bigger again so that it's the desired size. Some users report that the toolbars always draw wrongly after that initial down-sizing, but then they always draw properly again after that final small up-sizing. (861) 
 # Occasionally, bouncing between programs will lead to the menu (screen top) disappearing, only to re-appear with mouseover (or mouseover+click).  
-# On Mac OS X Tiger, the tool buttons don't look 'pressed'. On other platforms this is not a problem. ne-1 provides a workaround for this. In the 3D Workspace (i.e. Graphics area), press Shift and Option keys and do Command click to bring up the debug menu. Now select the "Mac OS 10.4 QToolbutton Workaround" command from this debug menu. This will resolve the issue. (878) 
+# On Mac OS X Tiger, the tool buttons don't look 'pressed'. On other platforms this is not a problem. NE1 provides a workaround for this. In the 3D Workspace (i.e. Graphics area), press Shift and Option keys and do Command click to bring up the debug menu. Now select the "Mac OS 10.4 QToolbutton Workaround" command from this debug menu. This will resolve the issue. (878) 
 # On some MACs , some cursors and icons in MMKit and dashboard are not displayed (1824, 1838)
-
+# Image with a bmp extension is not rendered in Povray Scene feature (although a .bmp file is created in the PovRay Files directory of that model. (2110)
  
 LINUX ONLY BUGS
 
 # System crashes while accessing wiki help via the URL provided in What's this text of that mode. Workaround is to use the Mode specific Wiki Help dialog that pops up when you hit F1 key (1447)
 # NanoEngineer-1 sometimes crashes while operating on a bigger file and extensively using features such as clipboard, copy, extrude, select, undo etc. (1885)
-# POV-Ray and RayTrace scene are not rendered on MAC even when POVRay or MegaPOV plugins are provided (2070)
 # Minimize progress messages in the status bar is truncated for lower resolution and larger font size (1794)  
 # Status bar text on bottom right corner can get obscured during minimize or simulation and thus affects the display of (for example) the minimize progress.  (1282)
 #Opening a plot file from the plot tool dialogs needs 'kwrite' editor which is available with only with KDE desktop (434)  
-# Modeling Kit in Build Mode: When you enter build mode, this dialog first appears in the middle of the 3D workspace (graphics area) for a fraction of second and then it is moved to the left hand side of the ne-1 main window. The amount of time this dialog stays inside the 3D workspace depends on the model size. (844) 
+# Modeling Kit in Build Mode: When you enter build mode, this dialog first appears in the middle of the 3D workspace (graphics area) for a fraction of second and then it is moved to the left hand side of the NE1 main window. The amount of time this dialog stays inside the 3D workspace depends on the model size. (844) 
 # When you start the program in a consol window, some warning messages will be printed. E.g. Warning: import bsddb failed; using some other db format for preferences file giving it a different name in case that uses an incompatible binary format; this means, when you upgrade to bsddb, you'll lose your preferences. This is a known issue and will be fixed in a future release. (1896)
 
