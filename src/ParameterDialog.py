@@ -478,7 +478,7 @@ class ParameterDialogBase(parameter_dialog_or_frame):
     def close(self, e=None):
         print "close: delegating"
         if self.controller:
-            self.controller.cancel_btn_clicked()
+            self.controller.close()
     def do_ok_btn(self):
         print "do_ok_btn: printing then delegating"
         if 1:
