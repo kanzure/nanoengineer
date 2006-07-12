@@ -8,6 +8,9 @@ History:
 
 mark 060529 - Created file to support "View > Raytrace Scene".
 
+bruce 060711 major code clean up / bugfixing, in order to support
+direct include_dir prefs setting for Mac A8
+
 '''
 __author__ = "Mark"
 
@@ -20,11 +23,11 @@ from debug import print_compact_traceback
 
 def _dialog_to_offer_prefs_fixup(win, caption, text, macwarning_ok): #bruce 060710
     "Offer the user a chance to fix a problem. Return 0 if they accept (after letting them try), 1 if they decline."
-    # modified from activate_plugin() which has similar code
+    # modified from (now-removed) activate_plugin() which had similar code
     macwarning = ""
     if sys.platform == 'darwin' and macwarning_ok:
         macwarning = "\n"\
-        "Warning: Mac GUI versions of POV-Ray or MegaPOV won't work,\n"\
+        "  Warning: Mac GUI versions of POV-Ray or MegaPOV won't work,\n"\
         "but the Unix command-line versions can be compiled on the Mac\n"\
         "and should work. Contact support@nanorex.com for more info."
     ret = QMessageBox.warning( win, caption, text + macwarning, 
@@ -40,8 +43,8 @@ def _dialog_to_offer_prefs_fixup(win, caption, text, macwarning_ok): #bruce 0607
 def fix_plugin_problem(win, name, errortext, macwarning_ok):
     caption = "%s Problem" % name
     text = "Error: %s.\n" % (errortext,) + \
-        "Select OK to fix this now in the Plugins page\n" \
-        "of the Preferences dialog, or Cancel."
+        "  Select OK to fix this now in the Plugins page of\n" \
+        "the Preferences dialog and retry rendering, or Cancel."
         # original code had <b>OK</b> but this was displayed directly (not interpreted), so I removed it [bruce 060711]
     return _dialog_to_offer_prefs_fixup( win, caption, text, macwarning_ok)
 
@@ -127,6 +130,9 @@ def decode_povray_prefs_0(win, greencmd): #bruce 060710
 
 # ==
 
+def this_platform_can_guess_include_dir_from_povray_path():
+    return sys.platform != 'darwin'
+
 def default_include_dir(): #bruce 060710 split out and revised Mark's & Will's code for this in write_povray_ini_file
     """The user did not specify an include dir, so guess one from the POV-Ray path (after verifying it's set).
     Return 0, include_dir or errorcode, errortext.
@@ -140,9 +146,13 @@ def default_include_dir(): #bruce 060710 split out and revised Mark's & Will's c
     # : : [it looks like it would not know that in the Mac GUI version (which NE1 has no way of supporting,
     #       since external programs can't pass it arguments); I don't know about Unix/Linux or Windows. bruce 060710]
 
+    if not this_platform_can_guess_include_dir_from_povray_path():
+        # this runs on Mac
+        return 1, "Can't guess include dir from POV-Ray executable\npath on this platform; please set it explicitly"
+    
     povray_path = env.prefs[povray_path_prefs_key]
     if not povray_path:
-        return 1, "POV-Ray include directory must be set, or guessed\nfrom POV-Ray executable path (even for MegaPOV)"
+        return 1, "Either the POV include directory or the POV-Ray\nexecutable path must be set (even when using MegaPOV)"
         #e in future, maybe we could use one from POV-Ray, even if it was not enabled, so don't preclude this here
     
     try:
@@ -159,19 +169,20 @@ def default_include_dir(): #bruce 060710 split out and revised Mark's & Will's c
             include_dir = os.path.sep.join(povray_bin[:-2] + ['share', 'povray-3.6', 'include'])
         return 0, include_dir
     except:
-        if env.debug() and sys.platform != 'darwin':
+        if env.debug() and this_platform_can_guess_include_dir_from_povray_path():
             print_compact_traceback("debug fyi: this is the exception inside default_include_dir: ") 
-        msg = "Unable to guess POV-Ray include directory from\nPOV-Ray executable path; please set it explicitly"
+        msg = "Unable to guess POV include directory from\nPOV-Ray executable path; please set it explicitly"
         return 1, msg
     pass
 
 def include_dir_ok(include_dir):
+    "Is this include_dir acceptable (or maybe acceptable)? Return (0, "") or (errorcode, errortext)."
     if env.debug():
         print "debug: include_dir_ok(include_dir = %r)" % (include_dir,)
     if os.path.isdir(include_dir):
         # ok, but warn if transforms.inc is not inside it
         if not os.path.exists(os.path.join(include_dir, "transforms.inc")):
-            msg = "Warning: transforms.inc not present in POV-Ray include directory [%s]; rendering might not work" % (include_dir,)
+            msg = "Warning: transforms.inc not present in POV include directory [%s]; rendering might not work" % (include_dir,)
             env.history.message(orangemsg(msg))
         if env.debug():
             print "debug: include_dir_ok returns 0 (ok)"
@@ -179,7 +190,7 @@ def include_dir_ok(include_dir):
     else:
         if env.debug():
             print "debug: include_dir_ok returns 1 (Not found or not a directory)"
-        return 1, "POV-Ray include directory: Not found or not a directory" #e pathname might be too long for a dialog
+        return 1, "POV include directory: Not found or not a directory" #e pathname might be too long for a dialog
     pass
 
 # ==

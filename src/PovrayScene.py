@@ -277,7 +277,7 @@ class PovrayScene(SimpleCopyMixin, Node):
             env.history.message(cmd + redmsg(errortext)) # redmsg in Mac A8, orangemsg in Windows A8 [bruce 060711]
             return
         info = errortext_or_info
-        # fyi: (program_nickname, program_path, include_dir) = info
+        (program_nickname, program_path, include_dir) = info
 
         pov = self.povrayscene_file ###k btw, is this already true?
 
@@ -293,6 +293,12 @@ class PovrayScene(SimpleCopyMixin, Node):
         env.history.h_update() #bruce 060707 (after Windows A8, before Linux/Mac A8): try to make this message visible sooner
             # (doesn't work well enough, at least on Mac -- do we need to emit it before write_povray_ini_file?)
         env.history.widget.update() ###@@@ will this help? is it safe? should h_update do it?
+
+        if os.path.exists(out): #bruce 060711 in Mac A8 not Windows A8
+            msg = "Warning: image file we are about to produce already exists; will overwrite it [%s]" % out
+            env.history.message(cmd + orangemsg(msg))
+            ###e it would make sense to try to remove it first, but I won't do that for Mac A8;
+            # better yet, avoid this situation when choosing the filename. [bruce 060711]
         
         # Launch raytrace program (POV-Ray or MegaPOV)
         errorcode, errortext = launch_povray_or_megapov(win, info, ini)
@@ -305,7 +311,8 @@ class PovrayScene(SimpleCopyMixin, Node):
         # (On Mac, on that date [not anymore, 060710], we get this far (no error return, or maybe another bug hid one),
         # but the file is not there.)
         if not os.path.exists(out):
-            env.history.message(cmd + redmsg("Error: Apparently ran program, but can't find image file: " + out))
+            msg = "Error: %s program succeeded, but didn't produce expected image file [%s]" % (program_nickname, out)
+            env.history.message(cmd + redmsg(msg))
             return
         
         env.history.message(cmd + "Rendered image: " + out)
@@ -338,9 +345,9 @@ class PovrayScene(SimpleCopyMixin, Node):
             env.history.message(orangemsg("Warning: deleting file [%s]" % self.povrayscene_file))
             # do it
             os.remove(self.povrayscene_file)
-            #bruce 060711 comment -- the above policy is a horrible bug, since you can copy a node (not changing the name)
+            #bruce 060711 comment -- the above policy is a dangerous bug, since you can copy a node (not changing the filename)
             # and then delete one of the copies. This should not silently delete the file!
-            # (Besides, even if you don't delete the file, .kill() should still delete the node.)
+            # (Besides, even if you decide not to delete the file, .kill() should still delete the node.)
             #   This behavior is so dangerous that I'm tempted to fix it for Mac A8 even though it's too late
             # to fix it for Windows A8. Certainly it ought to be reported and releasenoted. But I think I will refrain
             # from the temptation to fix it for Mac A8, since doing it well is not entirely trivial, and any big bug-difference
