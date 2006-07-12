@@ -140,6 +140,9 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
       - build_struct
     - have self.prefix, apparently used to construct node names (or, override self._create_new_name())
     - either inherit from QDialog, or provide methods accept and reject which have the same effect on the actual dialog.
+    There are some other methods here that merit mentioning: 
+    enter_WhatsThisMode, whatsthis_btn_clicked, done_btn_clicked,
+    abort_btn_clicked, cancel_btn_clicked, close
     """
     cmd = "" # deprecated but widely used [bruce 060616 comment]
         # (subclasses often set cmd to greenmsg(self.cmdname + ": "), from which we have to klugily deduce self.cmdname! Ugh.)
