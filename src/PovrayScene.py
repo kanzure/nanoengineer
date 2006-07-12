@@ -327,7 +327,7 @@ class PovrayScene(SimpleCopyMixin, Node):
         # (On Mac, on that date [not anymore, 060710], we get this far (no error return, or maybe another bug hid one),
         # but the file is not there.)
         if not os.path.exists(out):
-            msg = "Error: %s program succeeded, but didn't produce expected image file [%s]" % (program_nickname, out)
+            msg = "Error: %s program finished, but failed to produce expected image file [%s]" % (program_nickname, out)
             env.history.message(cmd + redmsg(msg))
             return
         
