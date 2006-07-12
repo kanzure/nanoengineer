@@ -1,5 +1,5 @@
 # Copyright (c) 2006 Nanorex, Inc. All rights reserved.
-NanoEngineer-1 v0.8 (Alpha 8). Release Date: July 12, 2006 (For Mac and Linux)
+NanoEngineer-1 v0.8 (Alpha 8). Release Date: July 13, 2006 (For Mac and Linux)
 
 This file documents some bug fixes, unsupported features and some of the commonly encountered bugs in NanoEngineer-1 Alpha8. 
 

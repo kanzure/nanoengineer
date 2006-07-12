@@ -4,7 +4,7 @@ README
 VERSION/INFO
 =============
 
-This is NanoEngineer-1 v0.8 (Alpha8) for Mac and Linux as of July 12, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for NanoEngineer-1 to support@nanorex.com.
+This is NanoEngineer-1 v0.8 (Alpha8) for Mac and Linux as of July 13, 2006. See the COPYRIGHT section for distribution and copyright notices. Send all bug reports and questions for NanoEngineer-1 to support@nanorex.com.
 
 You may access the most current copy of this file on-line at: http://www.nanoengineer-1.net/mediawiki/index.php?title=Readme_A8
 
