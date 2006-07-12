@@ -19,6 +19,7 @@ from qt import *
 from HistoryWidget import redmsg, orangemsg, greenmsg, _graymsg
 import env, os, sys
 from platform import find_or_make_any_directory, find_or_make_Nanorex_subdir
+from debug import print_compact_traceback
 
 POVNum = 0
 
@@ -293,12 +294,27 @@ class PovrayScene(SimpleCopyMixin, Node):
         env.history.h_update() #bruce 060707 (after Windows A8, before Linux/Mac A8): try to make this message visible sooner
             # (doesn't work well enough, at least on Mac -- do we need to emit it before write_povray_ini_file?)
         env.history.widget.update() ###@@@ will this help? is it safe? should h_update do it?
+        ###e these history widget updates fail to get it to print. Guess: we'd need qapp process events. Fix after Mac A8.
+        # besides, we need this just before the launch call, not here.
 
-        if os.path.exists(out): #bruce 060711 in Mac A8 not Windows A8
-            msg = "Warning: image file we are about to produce already exists; will overwrite it [%s]" % out
+        if os.path.exists(out): #bruce 060711 in Mac A8 not Windows A8 (probably all of Mac A8 code will also be in Linux A8)
+            #e should perhaps first try moving the file to a constant name, so user could recover it manually if they wanted to
+            #e (better yet, we should also try to avoid this situation when choosing the filename)
+            msg = "Warning: image file already exists; removing it first [%s]" % out
             env.history.message(cmd + orangemsg(msg))
-            ###e it would make sense to try to remove it first, but I won't do that for Mac A8;
-            # better yet, avoid this situation when choosing the filename. [bruce 060711]
+            try:
+                os.remove(out)
+            except:
+                # this code was tested with a fake exception [060712 1041am]
+                msg1 = "Problem removing old image file"
+                msg2a = " [%s]" % out
+                msg2b = "-- will try to overwrite it, "\
+                      "but undetected rendering errors might leave it unchanged [%s]" % out
+                print_compact_traceback("%s: " % (msg1 + msg2a))
+                msg = redmsg(msg1) + msg2b
+                #e should report the exception text in the history, too
+                env.history.message(msg)
+            pass
         
         # Launch raytrace program (POV-Ray or MegaPOV)
         errorcode, errortext = launch_povray_or_megapov(win, info, ini)
