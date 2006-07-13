@@ -425,11 +425,21 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.animateToCsys( self.part.homeCsys)
         
     def setViewFitToWindow(self, fast=False):
-        "Change view so that the entire model fits in the glpane."
-        #Recalculate center and bounding box for the current part
-        part = self.part
-        part.computeBoundingBox()
-        scale = float( part.bbox.scale() * .75) #bruce 050616 added float() as a precaution, probably not needed
+        "Change view so that the entire model fits in the glpane. If <fast> is True, then snap to the view (i.e. don't animate)"
+        # Recalculate center and bounding box for all the visible chunks in the current part.
+        # The way a 3d bounding box is used to calculate the fit is not adequate. I consider this a bug, but I'm not sure
+        # how to best use the BBox object to compute the proper fit. Should ask Bruce. This will do for now. Mark 060713.
+        
+        bbox = BBox()
+
+        for mol in self.assy.molecules:
+            if mol.hidden or mol.display == diINVISIBLE:
+                continue
+            bbox.merge(mol.bbox)
+        
+        center = bbox.center()
+
+        scale = float( bbox.scale() * .75) #bruce 050616 added float() as a precaution, probably not needed
             # appropriate height to show everything, for square or wide glpane [bruce 050616 comment]
         aspect = float(self.width) / self.height
         if aspect < 1.0:
@@ -437,7 +447,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # (defined in terms of glpane height) so part bbox fits in width
             # [bruce 050616 comment]
             scale /= aspect
-        pov = V(-part.center[0], -part.center[1], -part.center[2])
+        pov = V(-center[0], -center[1], -center[2])
         if fast:
             self.snapToView(self.quat, scale, pov, 1.0)
         else:
