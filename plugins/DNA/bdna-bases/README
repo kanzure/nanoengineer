@@ -38,3 +38,38 @@ orientation. The output of prepare.py is those first four files.
 While working on Z-DNA, I used a slightly modified version of
 prepare.py. It needed modification because Z-DNA's structure does a
 zigzag on each pair of bonds.
+
+------------------------
+Here are some old notes, pertaining mostly to zdna.pdb
+
+* http://en.wikipedia.org/wiki/DNA
+* http://en.wikipedia.org/wiki/Image:Dna_pairing_aa.gif 
+
+The 5' and 3' terminators are respectively groups 32 (a single
+hydrogen) and 359 (a hydroxyl). The groups representing base pairs are
+as follows. The distances from the spinal carbon to the DNA axis
+alternate for Z-DNA, so we'll need two copies of each base.
+
+5' end (hydrogen)
+1             cytosine                  2.96
+9             guanine                   7.83
+41            cytosine                  2.97
+74            adenine                   7.79
+104           adenine                   2...
+136           adenine                   7...
+168           thymine                   2...
+200           thymine                   7...
+232           thymine                   2...
+264           cytosine                  7...
+296           guanine                   2...
+326           cytosine                  7...
+3' end (hydroxyl)
+
+The 5' and 3' ends are reversed for strand B. When a strand1 guanine
+is viewed from the +Z direction, its oxygen points clockwise, where a
+strand2 guanine's oxygen points counter-clockwise. That's what we
+want, it means the same bases will work for both strands with
+appropriate rotations. You get the strand2 version of the base by
+rotating it 180 degrees about a radial vector, so that its 5' and 3'
+connectors are reversed. Where the strand1 sequence is CGCAAATTTCGC,
+the strand2 sequence is GCGTTTAAAGCG.
