@@ -24,6 +24,7 @@ import os
 from movie import Movie
 from debug import print_compact_traceback
 import env
+from prefs_widgets import connect_checkbox_with_boolean_pref
 
 # class FakeMovie:
 #
@@ -65,6 +66,7 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
             # not yet needed, though in future we might display info
             # about this Part in the dialog, to avoid confusion
             # if it's not the main Part.
+        connect_checkbox_with_boolean_pref(self.potential_energy_checkbox, "potential energy checkbox")
         self.assy = part.assy # used only for assy.filename
         self.suffix = suffix
         self.previous_movie = previous_movie or _stickyParams or Movie(self.assy) # used only for its parameter settings
@@ -136,6 +138,7 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         self.movie.totalFramesRequested = self.nframesSB.value()
         self.movie.temp = self.tempSB.value()
         self.movie.stepsper = self.stepsperSB.value()
+        self.movie.print_energy = self.potential_energy_checkbox.isChecked()
 #        self.movie.timestep = self.timestepSB.value() # Not supported in Alpha
         #self.movie.create_movie_file = self.create_movie_file_checkbox.isChecked() 
             # removed for A7 (bug 1729). mark 060321

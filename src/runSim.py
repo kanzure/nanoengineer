@@ -41,6 +41,7 @@ from env import seen_before
 from VQT import A, V
 import re
 from chem import AtomDict
+from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
 
 # more imports lower down
 
@@ -64,7 +65,6 @@ _FAILURE_ALREADY_DOCUMENTED = -10101
 # ==
 
 def timestep_flag_and_arg( mflag = False): #bruce 060503
-    from debug_prefs import debug_pref, Choice
     timestep_fs_str = debug_pref("dynamics timestep (fs)", Choice(["0.1", "0.2", "0.5", "1.0"]), non_debug = True)
     timestep_fs = float(timestep_fs_str)
         # kluge: we use a string in the menu, since float 0.1 shows up in menu text as 0.100000000000000001 or so
@@ -99,7 +99,6 @@ class SimRunner:
     def __init__(self, part, mflag, simaspect = None, use_dylib_sim = use_pyrex_sim, cmdname = "Simulator", cmd_type = 'Minimize'):
             # [bruce 051230 added use_dylib_sim; revised 060102; 060106 added cmdname]
         "set up external relations from the part we'll operate on; take mflag since someday it'll specify the subclass to use"
-        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
         self.assy = assy = part.assy # needed?
         #self.tmpFilePath = assy.w.tmpFilePath
         self.win = assy.w  # might be used only for self.win.progressbar.launch
@@ -596,6 +595,8 @@ class SimRunner:
             else:
                 assert formarg == ''
                 simopts.DumpAsText = 0
+            if movie.print_energy:
+                simopts.PrintPotentialEnergy = 1
             if self.traceFileName:
                 simopts.TraceFileName = self.traceFileName # note spelling diff, 'T' vs 't' (I guess I like this difference [b 060102])
                 #k not sure if this would be ok to do otherwise, since C code doesn't turn "" into NULL and might get confused
