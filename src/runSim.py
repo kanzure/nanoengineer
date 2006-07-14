@@ -42,6 +42,7 @@ from VQT import A, V
 import re
 from chem import AtomDict
 from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
+from sim import SimulatorInterrupted
 
 # more imports lower down
 
@@ -986,7 +987,6 @@ class SimRunner:
                 self.tracefileProcessor = TracefileProcessor(self, minimize = minflag, simopts = simopts)
                     # so self.tracefile_callback does something [bruce 060109]
 
-                from sim import SimulatorInterrupted #bruce 060112 - not sure this will work here vs outside 'def' ###k
                 self.sim_frame_callback_prep()
                 if _sim_params_set:
                     for attr, expected in _sim_param_values.items():
@@ -1006,7 +1006,11 @@ class SimRunner:
                         #  are turned off by Interrupted).
                     if platform.atom_debug:
                         print "atom_debug: pyrex sim: returned normally"
-                except SimulatorInterrupted:
+                except SimulatorInterrupted, e:
+                    assert e.args[0] in (
+                        'simulator was interrupted',
+                        'window is preparing to close'
+                        )
                     self.pyrexSimInterrupted = True   # wware 060323 bug 1725
                     # This is the pyrex sim's new usual exit from a user abort, as of sometime 060111.
                     # Before that it was RuntimeError, but that could overlap with exceptions raised by Python callbacks
@@ -1118,8 +1122,7 @@ class SimRunner:
         #e Maybe we should make this into a lambda, or even code it in C, to optimize it.
         if self.PREPARE_TO_CLOSE:
             # wware 060406 bug 1263 - if exiting the program, interrupt the simulator
-            from sim import SimulatorInterrupted
-            raise SimulatorInterrupted
+            raise SimulatorInterrupted, 'window is preparing to close'
         self.__frame_number += 1
         if debug_all_frames:
             from sim import getFrame
@@ -1227,6 +1230,12 @@ class SimRunner:
                 pass
             pass
 
+        except SimulatorInterrupted, e:
+            assert e.args[0] in (
+                'simulator was interrupted',
+                'window is preparing to close'
+                )
+            pass
         except:
             #bruce 060530 -- ideally we'd propogate the exception up to our caller the sim,
             # and it would propogate it back to the python calling code in this object,
