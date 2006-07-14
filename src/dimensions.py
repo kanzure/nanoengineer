@@ -22,30 +22,221 @@ integer coordinates. The drawing space is 5x7.
 """
 
 _font = {
-    'X': ((0, 0),
+    'A': (((0, 0),
+           (0, 4),
+           (1, 6),
+           (3, 6),
+           (4, 4),
+           (4, 0)),
+          ((0, 3),
+           (4, 3))),
+    'B': (((0, 6),
+           (3, 6),
+           (4, 5),
+           (4, 4),
+           (3, 3),
+           (1, 3)),
+          ((3, 3),
+           (4, 2),
+           (4, 1),
+           (3, 0),
+           (0, 0)),
+          ((1, 6),
+           (1, 0))),
+    'C': ((4, 5),
           (3, 6),
-          (1, 2),
-          (2, 2),
+          (1, 6),
+          (0, 5),
+          (0, 1),
+          (1, 0),
+          (3, 0),
+          (4, 1)),
+    'D': (((0, 6),
+           (3, 6),
+           (4, 5),
+           (4, 1),
+           (3, 0),
+           (0, 0)),
+          ((1, 6),
+           (1, 0))),
+    'E': (((4, 6),
+           (0, 6),
+           (0, 0),
+           (4, 0)),
+          ((0, 3),
+           (3, 3))),
+    'F': (((4, 6),
+           (0, 6),
+           (0, 0)),
+          ((0, 3),
+           (3, 3))),
+    'G': ((4, 5),
+          (3, 6),
+          (1, 6),
+          (0, 5),
+          (0, 1),
+          (1, 0),
+          (3, 0),
+          (4, 1),
+          (4, 3),
+          (2, 3)),
+    'H': (((0, 6),
+           (0, 0)),
+          ((4, 6),
+           (4, 0)),
+          ((0, 3),
+           (4, 3))),
+    'I': (((1, 6),
+           (3, 6)),
+          ((1, 0),
+           (3, 0)),
+          ((2, 6),
+           (2, 0))),
+    'J': (((3, 6),
+           (3, 1),
+           (2, 0),
+           (1, 0),
+           (0, 1),
+           (0, 2)),
+          ((2, 6),
+           (4, 6))),
+    'K': (((0, 0),
+           (0, 6)),
+          ((0, 2),
+           (4, 6)),
+          ((2, 4),
+           (4, 0))),
+    'L': ((0, 6),
+          (0, 0),
+          (4, 0)),
+    'M': ((0, 0),
           (0, 6),
-          (3, 0)),
-    '.': ((1, 0),
+          (2, 2),
+          (4, 6),
+          (4, 0)),
+    'N': ((0, 0),
+          (0, 6),
+          (4, 0),
+          (4, 6)),
+    'O': ((4, 5),
+          (3, 6),
+          (1, 6),
+          (0, 5),
+          (0, 1),
+          (1, 0),
+          (3, 0),
+          (4, 1),
+          (4, 5)),
+    'P': ((0, 3),
+          (3, 3),
+          (4, 4),
+          (4, 5),
+          (3, 6),
+          (0, 6),
+          (0, 0)),
+    'Q': (((4, 5),
+           (3, 6),
+           (1, 6),
+           (0, 5),
+           (0, 1),
+           (1, 0),
+           (3, 0),
+           (4, 1),
+           (4, 5)),
+          ((2, 2),
+           (4, 0))),
+    'R': (((0, 3),
+           (3, 3),
+           (4, 4),
+           (4, 5),
+           (3, 6),
+           (0, 6),
+           (0, 0)),
+          ((2, 3),
+           (4, 0))),
+    'S': ((4, 5),
+          (3, 6),
+          (1, 6),
+          (0, 5),
+          (0, 4),
+          (1, 3),
+          (3, 3),
+          (4, 2),
+          (4, 1),
+          (3, 0),
+          (1, 0),
+          (0, 1)),
+    'T': (((0, 6),
+           (4, 6)),
+          ((2, 6),
+           (2, 0))),
+    'U': ((0, 6),
+          (0, 1),
+          (1, 0),
+          (3, 0),
+          (4, 1),
+          (4, 6)),
+    'V': ((0, 6),
           (2, 0),
+          (4, 6)),
+    'W': ((0, 6),
+          (1, 0),
+          (2, 4),
+          (3, 0),
+          (4, 6)),
+    'X': (((0, 0),
+           (4, 6)),
+          ((0, 6),
+           (4, 0))),
+    'Y': (((0, 6),
+           (2, 3),
+           (4, 6)),
+          ((2, 3),
+           (2, 0))),
+    'Z': ((0, 6),
+          (4, 6),
+          (0, 0),
+          (4, 0)),
+    # do we need lowercase? not yet
+    '.': ((2, 0),
+          (3, 0),
+          (3, 1),
           (2, 1),
-          (1, 1),
-          (1, 0)),
+          (2, 0)),
     '/': ((0, 0),
           (3, 6)),
+    '#': (((1, 0),
+           (2, 6)),
+          ((2, 0),
+           (3, 6)),
+          ((0, 4),
+           (4, 4)),
+          ((0, 2),
+           (4, 2))),
+    '+': (((0, 3),
+           (4, 3)),
+          ((2, 5),
+           (2, 1))),
     '-': ((0, 3),
-          (3, 3)),
-    '0': ((1, 0),
-          (0, 1),
-          (0, 5),
-          (1, 6),
-          (2, 6),
-          (3, 5),
-          (3, 1),
-          (2, 0),
-          (1, 0)),
+          (4, 3)),
+    '*': (((0, 3),
+           (4, 3)),
+          ((1, 1),
+           (3, 5)),
+          ((1, 5),
+           (3, 1))),
+    # Still need: ~ ` ! @ $ % ^ & ( ) _ = [ ] { } ; : ' " | < > , ?
+    '0': (((0, 6),
+           (4, 0)),
+          ((1, 0),
+           (0, 1),
+           (0, 5),
+           (1, 6),
+           (3, 6),
+           (4, 5),
+           (4, 1),
+           (3, 0),
+           (1, 0))),
     '1': ((1, 0),
           (3, 0),
           (2, 0),
@@ -53,85 +244,84 @@ _font = {
           (1, 5)),
     '2': ((0, 5),
           (1, 6),
-          (2, 6),
-          (3, 5),
-          (3, 3),
+          (3, 6),
+          (4, 5),
+          (4, 3),
           (0, 1),
           (0, 0),
-          (3, 0)),
+          (4, 0)),
     '3': ((0, 5),
           (1, 6),
-          (2, 6),
-          (3, 5),
-          (3, 4),
-          (2, 3),
+          (3, 6),
+          (4, 5),
+          (4, 4),
+          (3, 3),
           (1, 3),
-          (2, 3),
-          (3, 2),
-          (3, 1),
-          (2, 0),
+          (3, 3),
+          (4, 2),
+          (4, 1),
+          (3, 0),
           (1, 0),
           (0, 1)),
     '4': ((1, 6),
           (0, 3),
-          (3, 3),
-          (3, 6),
-          (3, 0)),
-    '5': ((3, 6),
+          (4, 3),
+          (4, 6),
+          (4, 0)),
+    '5': ((4, 6),
           (0, 6),
           (0, 3),
-          (2, 3),
-          (3, 2),
-          (3, 1),
-          (2, 0),
+          (3, 3),
+          (4, 2),
+          (4, 1),
+          (3, 0),
           (0, 0)),
-    '6': ((2, 6),
+    '6': ((3, 6),
           (0, 4),
           (0, 1),
           (1, 0),
-          (2, 0),
-          (3, 1),
-          (3, 2),
-          (2, 3),
+          (3, 0),
+          (4, 1),
+          (4, 2),
+          (3, 3),
           (1, 3),
           (0, 2)),
     '7': ((0, 6),
-          (3, 6),
-          (1, 0)),
+          (4, 6),
+          (2, 0)),
     '8': ((1, 3),
           (0, 4),
           (0, 5),
           (1, 6),
-          (2, 6),
-          (3, 5),
-          (3, 4),
-          (2, 3),
+          (3, 6),
+          (4, 5),
+          (4, 4),
+          (3, 3),
           (1, 3),
           (0, 2),
           (0, 1),
           (1, 0),
-          (2, 0),
-          (3, 1),
-          (3, 2),
-          (2, 3)),
+          (3, 0),
+          (4, 1),
+          (4, 2),
+          (3, 3)),
     '9': ((1, 0),
-          (3, 3),
-          (3, 5),
-          (2, 6),
+          (4, 3),
+          (4, 5),
+          (3, 6),
           (1, 6),
           (0, 5),
           (0, 4),
           (1, 3),
-          (2, 3),
-          (3, 4)),
+          (3, 3),
+          (4, 4)),
     }
 
+WIDTH = 5
+HEIGHT = 7
+SCALE = 0.08
 
 class Font3D:
-
-    WIDTH = 5
-    HEIGHT = 7
-    SCALE = 0.08
 
     def __init__(self, xoff, yoff, right, up, rot90):
 
@@ -144,33 +334,33 @@ class Font3D:
         else:
             self.xflip = xflip = right[0] < 0.0
 
-        xgap = self.WIDTH
-        halfheight = 0.5 * self.HEIGHT
+        xgap = WIDTH
+        halfheight = 0.5 * HEIGHT
 
         if xflip:
-            xgap *= -self.SCALE
-            def fx(x): return self.SCALE * (self.WIDTH - 1 - x)
+            xgap *= -SCALE
+            def fx(x): return SCALE * (WIDTH - 1 - x)
         else:
-            xgap *= self.SCALE
-            def fx(x): return self.SCALE * x
+            xgap *= SCALE
+            def fx(x): return SCALE * x
 
         if rot90:
             yoff += xgap
-            xoff -= halfheight * self.SCALE
+            xoff -= halfheight * SCALE
             def tfm(x, y, yoff1, yflip):
                 if yflip:
-                    y1 = self.SCALE * (self.HEIGHT - 1 - y)
+                    y1 = SCALE * (HEIGHT - 1 - y)
                 else:
-                    y1 = self.SCALE * y
+                    y1 = SCALE * y
                 return Numeric.array((xoff + yoff1 + y1, yoff + fx(x), 0.0))
         else:
             xoff += xgap
-            yoff -= halfheight * self.SCALE
+            yoff -= halfheight * SCALE
             def tfm(x, y, yoff1, yflip):
                 if yflip:
-                    y1 = self.SCALE * (self.HEIGHT - 1 - y)
+                    y1 = SCALE * (HEIGHT - 1 - y)
                 else:
-                    y1 = self.SCALE * y
+                    y1 = SCALE * y
                 return Numeric.array((xoff + fx(x), yoff + yoff1 + y1, 0.0))
         self.tfm = tfm
 
@@ -202,22 +392,28 @@ class Font3D:
         yflip = vdot(textOutOfScreen, self.outOfScreen) < 0.0
         for i in range(n):
             def tfm2(x, y):
-                return self.tfm(x + 5 * fi(i), y, yoff, yflip)
+                return self.tfm(x + (WIDTH+1) * fi(i), y, yoff, yflip)
             self.drawCharacter(str[i], tfm2)
 
 def drawCharacter(char, color, xfm):
+    def drawSeq(seq, drawline=drawline):
+        if type(seq[0][0]) in (types.TupleType, types.ListType):
+            for subseq in seq:
+                drawSeq(subseq)
+        else:
+            seq = map(lambda tpl,xfm=xfm: apply(xfm,tpl), seq)
+            for i in range(len(seq) - 1):
+                drawline(color, seq[i], seq[i+1])
     if _font.has_key(char):
         seq = _font[char]
     else:
         seq = _font['X']
-    seq = map(lambda tpl,xfm=xfm: apply(xfm,tpl), seq)
-    for i in range(len(seq) - 1):
-        drawline(color, seq[i], seq[i+1])
+    drawSeq(seq)
 
 def drawString(str, color, xfm):
     for i in range(len(str)):
         def xfm2(x, y):
-            return xfm(x + i * 5, y)
+            return xfm(x + i * (WIDTH+1), y)
         drawCharacter(str[i], color, xfm2)
 
 class CylindricalCoordinates:
@@ -285,10 +481,12 @@ def drawLinearDimension(color, right, up, p0, p1, text):
     # sure it goes from left to right
     if dot(csys.z, right) > 0:
         def tfm(x, y):
-            return csys.xyz((10 + y / 7., 0, 0.1 + csys.zinv * x / 5.))
+            return csys.xyz((10 + y / (1. * HEIGHT),
+                             0, 0.1 + csys.zinv * x / (1. * WIDTH)))
     else:
         def tfm(x, y):
-            return csys.xyz((10 + y / 7., 0, 0.9 - csys.zinv * x / 5.))
+            return csys.xyz((10 + y / (1. * HEIGHT),
+                             0, 0.9 - csys.zinv * x / (1. * WIDTH)))
     drawString(text, color, tfm)
 
 def drawAngleDimension(color, right, up, p0, p1, p2, text):
@@ -340,8 +538,8 @@ def drawAngleDimension(color, right, up, p0, p1, p2, text):
     textxyz = tmidpoint - (0.5 * len(text)) * textx
 
     def tfm(x, y):
-        x = (x / 5.) * textx
-        y = (y / 7.) * texty
+        x = (x / (1. * WIDTH)) * textx
+        y = (y / (1. * HEIGHT)) * texty
         return textxyz + x + y
     drawString(text, color, tfm)
 
