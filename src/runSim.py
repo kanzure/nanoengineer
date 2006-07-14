@@ -42,7 +42,6 @@ from VQT import A, V
 import re
 from chem import AtomDict
 from debug_prefs import debug_pref, Choice, Choice_boolean_True, Choice_boolean_False
-from sim import SimulatorInterrupted
 
 # more imports lower down
 
@@ -825,15 +824,7 @@ class SimRunner:
     def remove_old_tracefile(self, tracefile): #bruce 060101
         "remove the tracefile if it exists, after warning anything that might care [nim]; can raise exceptions"
         if os.path.exists(tracefile):
-            try:
-                os.remove(tracefile) # can raise exception, e.g. due to directory permission error
-            except OSError:
-                print 'Warning: OSError in remove_old_tracefile'   # attempt work-around for bug 2119, wware 060714
-                # if we succeeded in removing the file, maybe we don't care about the OSError?
-                if os.path.exists(tracefile):
-                    # oops, we didn't succeed
-                    raise
-                print 'File got successfully deleted anyway, so ignore OSError'
+            os.remove(tracefile) # can raise exception, e.g. due to directory permission error
         return
     
     def monitor_progress_by_file_growth(self, movie): #bruce 051231 split this out of sim_loop_using_standalone_executable
@@ -995,6 +986,7 @@ class SimRunner:
                 self.tracefileProcessor = TracefileProcessor(self, minimize = minflag, simopts = simopts)
                     # so self.tracefile_callback does something [bruce 060109]
 
+                from sim import SimulatorInterrupted #bruce 060112 - not sure this will work here vs outside 'def' ###k
                 self.sim_frame_callback_prep()
                 if _sim_params_set:
                     for attr, expected in _sim_param_values.items():
@@ -1014,11 +1006,7 @@ class SimRunner:
                         #  are turned off by Interrupted).
                     if platform.atom_debug:
                         print "atom_debug: pyrex sim: returned normally"
-                except SimulatorInterrupted, e:
-                    assert e.args[0] in (
-                        'simulator was interrupted',
-                        'window is preparing to close'
-                        )
+                except SimulatorInterrupted:
                     self.pyrexSimInterrupted = True   # wware 060323 bug 1725
                     # This is the pyrex sim's new usual exit from a user abort, as of sometime 060111.
                     # Before that it was RuntimeError, but that could overlap with exceptions raised by Python callbacks
@@ -1130,7 +1118,8 @@ class SimRunner:
         #e Maybe we should make this into a lambda, or even code it in C, to optimize it.
         if self.PREPARE_TO_CLOSE:
             # wware 060406 bug 1263 - if exiting the program, interrupt the simulator
-            raise SimulatorInterrupted, 'window is preparing to close'
+            from sim import SimulatorInterrupted
+            raise SimulatorInterrupted
         self.__frame_number += 1
         if debug_all_frames:
             from sim import getFrame
@@ -1238,12 +1227,6 @@ class SimRunner:
                 pass
             pass
 
-        except SimulatorInterrupted, e:
-            assert e.args[0] in (
-                'simulator was interrupted',
-                'window is preparing to close'
-                )
-            pass
         except:
             #bruce 060530 -- ideally we'd propogate the exception up to our caller the sim,
             # and it would propogate it back to the python calling code in this object,
