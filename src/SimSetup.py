@@ -44,6 +44,7 @@ class FakeMovie:
         self.watch_motion = realmovie.watch_motion # note 060705: might use __getattr__ in real movie, but ordinary attr in self
         self._update_data = realmovie._update_data
         self.update_cond = realmovie.update_cond # probably not needed
+        self.print_energy = realmovie.print_energy
     def fyi_reusing_your_moviefile(self, moviefile):
         pass
     def might_be_playable(self):

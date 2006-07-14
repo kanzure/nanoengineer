@@ -186,6 +186,8 @@ class Movie:
         self.moveToEnd = False
         # a flag that indicates if the wait (hourglass) cursor is displayed.
         self.waitCursor = False
+        # a flag to tell whether we should add energy information to the tracefile during dynamics runs
+        self.print_energy = False
 
         # simulator parameters to be used when creating this movie,
         # or that were used when it was created;
