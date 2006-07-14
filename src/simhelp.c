@@ -29,6 +29,8 @@ char __author__[] = "Will";
 #include "simulator.h"
 #include "version.h"
 
+#define WHERE_ARE_WE()   DPRINT2(D_PYREX_SIM, "%s: %d\n", __FILE__, __LINE__)
+
 static char const rcsid[] = "$Id$";
 /* rcsid strings for several *.h files */
 static char const rcsid2[] = MULTIPLE_RCSID_STRING;
@@ -52,12 +54,35 @@ char *py_exc_str = NULL;
 static char py_exc_strbuf[1024];
 PyObject *simulatorInterruptedException;
 
+/*
+ * Raise this exception with this string, UNLESS THIS PYTHON THREAD
+ * ALREADY HAD AN EXCEPTION. Never replace an earlier exception,
+ * because you'll be overwriting more significant diagnostic
+ * information.
+ *
+ * In the Python source code, see Python/errors.c, the following
+ * functions: PyErr_SetString, PyErr_SetObject, PyErr_Restore,
+ * PyErr_Occurred
+ */
+static int raiseExceptionIfNoneEarlier(PyObject *exception, const char *str)
+{
+    if (PyErr_Occurred()) {
+	// the exception already had a string, don't change it
+	// let the caller know there was already a string
+	WHERE_ARE_WE();
+	return 1;
+    }
+    PyErr_SetString(exception, str);
+    WHERE_ARE_WE();
+    return 0;
+}
+
 PyObject *
 specialExceptionIs(PyObject *specialExcep)
 {
     if (!PyClass_Check(specialExcep)) {
-	PyErr_SetString(PyExc_SystemError,
-			"argument must be a PyClass");
+	raiseExceptionIfNoneEarlier(PyExc_SystemError,
+				    "argument must be a PyClass");
 	return NULL;
     }
     simulatorInterruptedException = specialExcep;
@@ -76,18 +101,24 @@ static PyObject *
 finish_python_call(PyObject *retval)
 {
     if (callback_exception) {
+	WHERE_ARE_WE();
 	return NULL;
     } else if (py_exc_str != NULL) {
+	WHERE_ARE_WE();
 	// wware 060109  python exception handling
-	PyErr_SetString(PyExc_RuntimeError, py_exc_str);
+	raiseExceptionIfNoneEarlier(PyExc_RuntimeError, py_exc_str);
 	return NULL;
     } else if (Interrupted) {
-	PyErr_SetString(simulatorInterruptedException,
-			"simulator was interrupted");
+	raiseExceptionIfNoneEarlier(simulatorInterruptedException,
+				    "simulator was interrupted");
+	WHERE_ARE_WE();
 	return NULL;
     }
-    if (retval == Py_None)
+    if (retval == Py_None) {
+	WHERE_ARE_WE();
 	Py_INCREF(Py_None);
+    }
+    WHERE_ARE_WE();
     return retval;
 }
 
@@ -103,10 +134,12 @@ verifySimObject(PyObject *sim)
 {
     start_python_call();
     if (sim != mostRecentSimObject) {
-	PyErr_SetString(PyExc_AssertionError,
-			"not the most recent simulator object");
+	raiseExceptionIfNoneEarlier(PyExc_AssertionError,
+				    "not the most recent simulator object");
+	WHERE_ARE_WE();
 	return NULL;
     }
+    WHERE_ARE_WE();
     return finish_python_call(Py_None);
 }
 
@@ -125,7 +158,7 @@ setCallbackFunc(PyObject *f, PyObject **cb)
 	return Py_None;
     } else if (f == NULL) {
 	*cb = NULL;
-	PyErr_SetString(PyExc_RuntimeError, "null callback");
+	raiseExceptionIfNoneEarlier(PyExc_RuntimeError, "null callback");
 	return NULL;
     } else if (PyCallable_Check(f)) {
 	Py_INCREF(f);
@@ -134,7 +167,7 @@ setCallbackFunc(PyObject *f, PyObject **cb)
 	return Py_None;
     } else {
 	*cb = NULL;
-	PyErr_SetString(PyExc_RuntimeError, "callback is not callable");
+	raiseExceptionIfNoneEarlier(PyExc_RuntimeError, "callback is not callable");
 	return NULL;
     }
 }
@@ -166,7 +199,7 @@ do_python_callback(PyObject *callbackFunc, PyObject* args)
     }
     if (callbackFunc == NULL || !PyCallable_Check(callbackFunc)) {
 	callback_exception = 1;
-	PyErr_SetString(PyExc_RuntimeError, "callback not callable");
+	raiseExceptionIfNoneEarlier(PyExc_RuntimeError, "callback not callable");
 	goto fini;
     }
     pValue = PyObject_CallObject(callbackFunc, args);
@@ -179,8 +212,8 @@ do_python_callback(PyObject *callbackFunc, PyObject* args)
 	 * Looking at Python/errors.c, I don't think that should happen,
 	 * but let's be paranoid.
 	 */
-	PyErr_SetString(PyExc_RuntimeError,
-			"callback returned NULL, PyErr_Occurred() not set");
+	raiseExceptionIfNoneEarlier(PyExc_RuntimeError,
+				    "callback returned NULL, PyErr_Occurred() not set");
 	callback_exception = 1;
     }
     /*
@@ -234,7 +267,7 @@ callback_writeFrame(struct part *part1, struct xyz *pos1, int lastFrame)
 static PyObject *
 getFrame_c(void)
 {
-// .xyz files are in angstroms (1e-10 m)
+    // .xyz files are in angstroms (1e-10 m)
 #define XYZ (1.0e-2)
     PyObject *retval;
     double *data;
@@ -242,8 +275,8 @@ getFrame_c(void)
 
     start_python_call();
     if (part == NULL) {
-	PyErr_SetString(PyExc_MemoryError,
-			"part is null");
+	raiseExceptionIfNoneEarlier(PyExc_MemoryError,
+				    "part is null");
 	return NULL;
     }
     if (part->num_atoms == 0) {
@@ -252,8 +285,8 @@ getFrame_c(void)
     n = 3 * part->num_atoms * sizeof(double);
     data = (double *) malloc(n);
     if (data == NULL) {
-	PyErr_SetString(PyExc_MemoryError,
-			"out of memory");
+	raiseExceptionIfNoneEarlier(PyExc_MemoryError,
+				    "out of memory");
 	return NULL;
     }
     for (i = 0; i < part->num_atoms; i++) {
@@ -282,15 +315,15 @@ initsimhelp(void) // WARNING: this duplicates some code from simulator.c
         // (to complete the fix it would be necessary for every change by sim.pyx of either
         //  OutputFormat or DumpAsText to make sure the other one changed to fit,
         //  either at the time of the change or before the next .go method
-        // (or if changed during that method, before their next use by any C code); 
-        // this is not needed by the present client code, so I'll put it off for now 
+        // (or if changed during that method, before their next use by any C code);
+        // this is not needed by the present client code, so I'll put it off for now
         // and hope we can more extensively clean up this option later.)
-        OutputFormat = 1; // sim.pyx only tries to support "old" dpb format for now 
+        OutputFormat = 1; // sim.pyx only tries to support "old" dpb format for now
     }
     InputFileName = copy_string(InputFileName);
     OutputFileName = replaceExtension(InputFileName, DumpAsText ? "xyz" : "dpb");
-    
-    // bruce 060101 moved the rest of this function into the start of everythingElse 
+
+    // bruce 060101 moved the rest of this function into the start of everythingElse
     // since it depends on parameters set by the client code after this init method runs,
     // but then had to move initializeBondTable back here to fix a bug (since mmp reading
     // depends on it)
@@ -301,7 +334,7 @@ initsimhelp(void) // WARNING: this duplicates some code from simulator.c
 // wware 060109  python exception handling
 #define PYBAIL() \
   if (py_exc_str != NULL) { \
-    PyErr_SetString(PyExc_RuntimeError, py_exc_str); return NULL; }
+    raiseExceptionIfNoneEarlier(PyExc_RuntimeError, py_exc_str); return NULL; }
 
 static PyObject *
 dumpPart(void)
@@ -323,7 +356,7 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 	TraceFile = fopen(TraceFileName, "w");
 	if (TraceFile == NULL) {
 	    snprintf(buf, 1024, "can't open tracefile for writing: %s", TraceFileName);
-	    PyErr_SetString(PyExc_IOError, buf);
+	    raiseExceptionIfNoneEarlier(PyExc_IOError, buf);
 	    return NULL;
 	}
         traceFileVersion(); // call this before any other writes to trace file.
@@ -371,7 +404,7 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     OutputFile = fopen(OutputFileName, DumpAsText ? "w" : "wb");
     if (OutputFile == NULL) {
 	snprintf(buf, 1024, "bad output filename: %s", OutputFileName);
-	PyErr_SetString(PyExc_IOError, buf);
+	raiseExceptionIfNoneEarlier(PyExc_IOError, buf);
 	return NULL;
     }
     writeOutputHeader(OutputFile, part);
@@ -390,11 +423,11 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
     if (callback_exception) {
 	return NULL;
     } else if (py_exc_str != NULL) {
-	PyErr_SetString(PyExc_RuntimeError, py_exc_str);
+	raiseExceptionIfNoneEarlier(PyExc_RuntimeError, py_exc_str);
 	return NULL;
     } else if (Interrupted) {
-	PyErr_SetString(simulatorInterruptedException,
-			"simulator was interrupted");
+	raiseExceptionIfNoneEarlier(simulatorInterruptedException,
+				    "simulator was interrupted");
 	return NULL;
     }
     return finish_python_call(Py_None);
@@ -430,7 +463,7 @@ char * structCompareHelp(void) {
     int i2;
     struct xyz *basePositions;
     struct xyz *initialPositions;
-        
+
     if (BaseFileName == NULL || strlen(BaseFileName) == 0) {
 	sprintf(retval, "No BaseFileName");
 	return retval;
