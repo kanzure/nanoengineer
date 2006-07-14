@@ -30,16 +30,14 @@ SIMTARGET=simulator
 CFLAGS:=$(shell python distutils_compile_options.py compiler_so)
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
-CINCLUDES=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
+CFLAGS+=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
     -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/
-CFLAGS+=$(CINCLUDES)
 LDFLAGS=-Wl,-F. -framework Python
 LDSHARED=gcc -bundle
 else
 #---------------------------------------- Unix
 PYBASE:=$(shell which python | sed "s%/bin/python%%")
-CINCLUDES=-I$(PYBASE)/include/python$(PYDVER)
-CFLAGS+=$(CINCLUDES)
+CFLAGS+=-I$(PYBASE)/include/python$(PYDVER)
 LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
@@ -150,8 +148,11 @@ bonds.gen: stretch.py stretch.parms
 bends.gen: bend.py bending.parms
 	python bend.py bending.parms > bends.gen
 
+# There is something about bends.gen that the compiler doesn't want to
+# optimize. It's getting tripped up by the bend names; if they are all
+# the same it doesn't get stuck.
 newtables.o: newtables.c
-	$(CC) -o newtables.o -c -g -O $(CINCLUDES) newtables.c
+	$(CC) -o newtables.o -c -g newtables.c
 
 version.h:
 	python makehelp.py "$(CFLAGS)" "$(LDFLAGS)" "$(UNAME_A)" \
