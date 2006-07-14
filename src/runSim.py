@@ -824,7 +824,7 @@ class SimRunner:
     def remove_old_tracefile(self, tracefile): #bruce 060101
         "remove the tracefile if it exists, after warning anything that might care [nim]; can raise exceptions"
         if os.path.exists(tracefile):
-            os.remove(tracefile) # can raise exception, e.g. due to directory permission error
+                os.remove(tracefile) # can raise exception, e.g. due to directory permission error
         return
     
     def monitor_progress_by_file_growth(self, movie): #bruce 051231 split this out of sim_loop_using_standalone_executable
@@ -1227,6 +1227,14 @@ class SimRunner:
                 pass
             pass
 
+        except SimulatorInterrupted, e:
+            # With the precautions on the sim side, in sim.pyx and simhelp.c, the only time we'll
+            # ever get a SimulatorInterrupted exception is as the result of an actual interruption
+            # of the simulator, not as a result of any exception thrown by a Python callback or by
+            # any anomalous occurrence in the simulator C code. We don't want a traceback printed
+            # for a simulator interruption so in this event, just ignore the exception.
+            # wware, bug 2022, 060714
+            pass
         except:
             #bruce 060530 -- ideally we'd propogate the exception up to our caller the sim,
             # and it would propogate it back to the python calling code in this object,
