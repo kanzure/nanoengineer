@@ -825,7 +825,15 @@ class SimRunner:
     def remove_old_tracefile(self, tracefile): #bruce 060101
         "remove the tracefile if it exists, after warning anything that might care [nim]; can raise exceptions"
         if os.path.exists(tracefile):
-            os.remove(tracefile) # can raise exception, e.g. due to directory permission error
+            try:
+                os.remove(tracefile) # can raise exception, e.g. due to directory permission error
+            except OSError:
+                print 'Warning: OSError in remove_old_tracefile'   # attempt work-around for bug 2119, wware 060714
+                # if we succeeded in removing the file, maybe we don't care about the OSError?
+                if os.path.exists(tracefile):
+                    # oops, we didn't succeed
+                    raise
+                print 'File got successfully deleted anyway, so ignore OSError'
         return
     
     def monitor_progress_by_file_growth(self, movie): #bruce 051231 split this out of sim_loop_using_standalone_executable
