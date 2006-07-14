@@ -26,6 +26,7 @@ extern int PrintFrameNums;
 extern int OutputFormat;
 extern int KeyRecordInterval;
 extern int DirectEvaluate;
+extern int PrintPotentialEnergy;
 extern float ExcessiveEnergyLevel;
 extern char *IDKey;
 extern char *InputFileName;

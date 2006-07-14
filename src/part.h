@@ -273,6 +273,8 @@ extern void makeBond(struct part *p, int atomID1, int atomID2, char order);
 
 extern void makeVanDerWaals(struct part *p, int atomID1, int atomID2);
 
+extern double calculateKinetic(struct part *p);
+
 extern void makeGround(struct part *p, char *name, int atomListLength, int *atomList);
 
 extern void makeThermometer(struct part *p, char *name, int firstAtomID, int lastAtomID);

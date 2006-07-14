@@ -198,7 +198,6 @@ main(int argc, char **argv)
 {
     struct part *part;
     int opt, n;
-    int printPotentialEnergy = 0;
     double potentialEnergy;
     int dump_part = 0;
     char *printPotential = NULL;
@@ -265,7 +264,7 @@ main(int argc, char **argv)
 	    ToMinimize=1;
 	    break;
 	case 'E':
-	    printPotentialEnergy=1;
+	    PrintPotentialEnergy=1;
 	    break;
 	case 'i':
 	    IterPerFrame = atoi(optarg);
@@ -408,7 +407,7 @@ main(int argc, char **argv)
     generateTorsions(part);
     generateOutOfPlanes(part);
 
-    if (printPotentialEnergy) {
+    if (PrintPotentialEnergy) {
         struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
         potentialEnergy = calculatePotential(part, part->positions);
         calculateGradient(part, part->positions, force);

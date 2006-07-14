@@ -37,6 +37,7 @@ int PrintFrameNums;
 int OutputFormat;
 int KeyRecordInterval;
 int DirectEvaluate;
+int PrintPotentialEnergy;
 float ExcessiveEnergyLevel;
 char *IDKey;
 char *InputFileName;
@@ -101,6 +102,7 @@ reinit_globals(void)
     OutputFormat = 1;
     KeyRecordInterval = 32;
     DirectEvaluate = 0;
+    PrintPotentialEnergy = 0;
     ExcessiveEnergyLevel = 0.1; // attoJoules
     IDKey = "";
     InputFileName = NULL;

@@ -37,6 +37,7 @@ cdef extern from "simhelp.c":
     int OutputFormat
     int KeyRecordInterval
     int DirectEvaluate
+    int PrintPotentialEnergy
     int Interrupted
     double MinimizeThresholdCutoverRMS
     double MinimizeThresholdCutoverMax
@@ -126,6 +127,8 @@ cdef class BaseSimulator:
             return KeyRecordInterval
         elif strcmp(key, "DirectEvaluate") == 0:
             return DirectEvaluate
+        elif strcmp(key, "PrintPotentialEnergy") == 0:
+            return PrintPotentialEnergy
         elif strcmp(key, "Interrupted") == 0:
             return Interrupted
         elif strcmp(key, "MinimizeThresholdCutoverRMS") == 0:
@@ -201,6 +204,9 @@ cdef class BaseSimulator:
         elif strcmp(key, "DirectEvaluate") == 0:
             global DirectEvaluate
             DirectEvaluate = value
+        elif strcmp(key, "PrintPotentialEnergy") == 0:
+            global PrintPotentialEnergy
+            PrintPotentialEnergy = value
         elif strcmp(key, "Interrupted") == 0:
             global Interrupted
             Interrupted = value

@@ -251,7 +251,7 @@ dynamicsMovie(struct part *part)
     struct xyz *newPositions = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
     struct xyz *positions =  (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
     struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
-    int i;
+    int i, j;
 #ifndef WIN32
     int timefailure = 0;
     struct timeval start;
@@ -283,6 +283,12 @@ dynamicsMovie(struct part *part)
 	    if (PrintFrameNums) printf("\n");
 	oneDynamicsFrame(part, IterPerFrame,
 			 averagePositions, &oldPositions, &newPositions, &positions, force);
+	if (PrintPotentialEnergy) {
+	    // update velocities, so they can be used to compute kinetic energy - wware 060713
+	    for (j = 0; j < part->num_atoms; j++) {
+		vsub2(part->velocities[j], positions[j], oldPositions[j]);
+	    }
+	}
 	writeDynamicsMovieFrame(OutputFile, i, part, averagePositions, i == NumFrames-1);
         if (DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) {
             writeSimpleMovieFrame(part, newPositions, force, "");

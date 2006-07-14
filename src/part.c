@@ -965,6 +965,30 @@ makeVanDerWaals(struct part *p, int atomID1, int atomID2)
     v->parameters = getVanDerWaalsTable(v->a1->type->protons, v->a2->type->protons);
 }
 
+// Compute Sum(1/2*m*v**2) over all the atoms. This is valid ONLY if
+// part->velocities has been updated in dynamicsMovie().
+double
+calculateKinetic(struct part *p)
+{
+    struct xyz *velocities = p->velocities;
+    double total = 0.0;
+    int j;
+    for (j=0; j<p->num_atoms; j++) {
+	struct atom *a = p->atoms[j];
+	double v = vlen(velocities[a->index]);
+	// save the factor of 1/2 for later, to keep this loop fast
+	total += a->type->mass * v * v;
+    }
+    // We want energy in attojoules to be consistent with potential energy
+    // mass is in units of Dmass kilograms
+    // velocity is in picometers per Dt seconds
+    // total is in units of 1e-24*(Dmass/Dt^2) joules
+    // we want attojoules or 1e-18 joules, so we need to multiply by 1e6*Dt^2/Dmass
+    // and we need the factor of 1/2 that we left out of the atom loop
+    return 5e5 * (Dt * Dt / Dmass) * total;
+}
+
+
 static struct jig *
 newJig(struct part *p)
 {
