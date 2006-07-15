@@ -1112,6 +1112,7 @@ class SimRunner:
         
     def sim_frame_callback(self, last_frame):
         "Per-frame callback function for simulator object."
+        from sim import SimulatorInterrupted
         if last_frame and env.debug():
             print "debug: last_frame is true" #bruce 060712
         # Note: this was called 3550 times for minimizing a small C3 sp3 hydrocarbon... better check the elapsed time quickly.
