@@ -29,7 +29,7 @@ char __author__[] = "Will";
 #include "simulator.h"
 #include "version.h"
 
-#define WHERE_ARE_WE()   DPRINT2(D_PYREX_SIM, "%s: %d\n", __FILE__, __LINE__)
+// #define WWDEBUG
 
 static char const rcsid[] = "$Id$";
 /* rcsid strings for several *.h files */
@@ -53,6 +53,33 @@ static void *mostRecentSimObject = NULL;
 char *py_exc_str = NULL;
 static char py_exc_strbuf[1024];
 PyObject *simulatorInterruptedException;
+
+#ifdef WWDEBUG
+#define SAY(x)           fprintf(stderr, x)
+#define WHERE_ARE_WE()   DPRINT2(D_PYREX_SIM, "%s: %d\n", __FILE__, __LINE__)
+#else
+#define SAY(x)           ((void*) 0)
+#define WHERE_ARE_WE()   ((void*) 0)
+#endif
+
+// wware 060109  python exception handling
+#define PYBAIL() \
+    if (py_exc_str != NULL) { \
+        raiseExceptionIfNoneEarlier(PyExc_RuntimeError, py_exc_str); \
+	WHERE_ARE_WE(); \
+        fcloseIfNonNull(&TraceFile); \
+        fcloseIfNonNull(&OutputFile); \
+        return NULL; \
+    }
+
+static void
+fcloseIfNonNull(FILE **f)
+{
+    if (*f != NULL) {
+	fclose(*f);
+	*f = NULL;
+    }
+}
 
 /*
  * Raise this exception with this string, UNLESS THIS PYTHON THREAD
@@ -306,6 +333,10 @@ getFrame_c(void)
 static PyObject *
 initsimhelp(void) // WARNING: this duplicates some code from simulator.c
 {
+#ifdef WWDEBUG
+    debug_flags |= D_PYREX_SIM;
+#endif
+
     start_python_call();
 
     if (DumpAsText) {
@@ -330,11 +361,6 @@ initsimhelp(void) // WARNING: this duplicates some code from simulator.c
     initializeBondTable();
     return finish_python_call(Py_None);
 }
-
-// wware 060109  python exception handling
-#define PYBAIL() \
-  if (py_exc_str != NULL) { \
-    raiseExceptionIfNoneEarlier(PyExc_RuntimeError, py_exc_str); return NULL; }
 
 static PyObject *
 dumpPart(void)
@@ -416,16 +442,22 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
         dynamicsMovie(part);
     }
 
-    fclose(OutputFile);
+    fcloseIfNonNull(&OutputFile);
     if (py_exc_str != NULL) {
         ERROR(py_exc_str);
     }
     if (callback_exception) {
+	WHERE_ARE_WE();  SAY("closing tracefile\n");
+	fcloseIfNonNull(&TraceFile);
 	return NULL;
     } else if (py_exc_str != NULL) {
+	WHERE_ARE_WE();  SAY("closing tracefile\n");
+	fcloseIfNonNull(&TraceFile);
 	raiseExceptionIfNoneEarlier(PyExc_RuntimeError, py_exc_str);
 	return NULL;
     } else if (Interrupted) {
+	WHERE_ARE_WE();  SAY("closing tracefile\n");
+	fcloseIfNonNull(&TraceFile);
 	raiseExceptionIfNoneEarlier(simulatorInterruptedException,
 				    "simulator was interrupted");
 	return NULL;
@@ -438,9 +470,8 @@ everythingDone(void)
 {
     start_python_call();
     done("");
-    if (TraceFile != NULL) {
-        fclose(TraceFile);
-    }
+    WHERE_ARE_WE();  SAY("closing tracefile\n");
+    fcloseIfNonNull(&TraceFile);
     if (writeTraceCallbackFunc != NULL) {
 	Py_DECREF(writeTraceCallbackFunc);
     }
