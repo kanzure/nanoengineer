@@ -74,7 +74,11 @@ class Dna:
             return V(x, y, v[2] + z)
 
         if doubleStrand:
-            subgroup = Group("3' strand", grp.assy, None)
+            subgroup = Group("strand 1", grp.assy, None)
+                #bruce 060714 don't call this the "3' strand" -- there is no such thing.
+                # When we look up whether its bases are oriented in 3' to 5' or 5' to 3' direction,
+                # maybe we can call it something like "3' to 5'" or "5' to 3'",
+                # in order to indicate its direction.
             grp.addchild(subgroup)
         else:
             subgroup = grp
@@ -92,7 +96,7 @@ class Dna:
             z -= self.BASE_SPACING
 
         if doubleStrand:
-            subgroup = Group("5' strand", grp.assy, None)
+            subgroup = Group("strand 2", grp.assy, None) #bruce 060714 don't call this the "5' strand" (more info above)
             grp.addchild(subgroup)
             theta = 0.0
             z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
