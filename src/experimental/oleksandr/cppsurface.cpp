@@ -6,50 +6,64 @@
 */
 
 #include "cppsurface.h"
+#include "surface.h"
+
+Surface * s;
 
 void cppAdd(double x, double y, double z, double r)
 {
+	s->Add(x,y,z,r);
 }
 void cppCreateSurface()
 {
+	s->CreateSurface();
 }
-void cppClear()
+void cppAllocate()
 {
+	s = new Surface();
+}
+void cppFree()
+{
+	delete s;
 }
 int cppNp()
 {
-    return 0;
+    return s->Np();
 }
 int cppNt()
 {
-    return 1;
+    return s->Nt();
 }
 double cppPx(int i)
 {
-    return i;
+    return s->Px(i);
 }
 double cppPy(int i)
 {
-    return i;
+    return s->Py(i);
 }
 double cppPz(int i)
 {
-    return i;
+    return s->Pz(i);
 }
 double cppNx(int i)
 {
-    return i;
+    return s->Nx(i);
 }
 double cppNy(int i)
 {
-    return i;
+    return s->Ny(i);
 }
 double cppNz(int i)
 {
-    return i;
+    return s->Nz(i);
 }
 int cppI(int i)
 {
-    return i;
+    return s->I(i);
+}
+void cppLevel(int i)
+{
+	s->Level(i);
 }
 

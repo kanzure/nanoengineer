@@ -14,7 +14,8 @@ extern "C" {
 
 void cppAdd(double x, double y, double z, double r);
 void cppCreateSurface();
-void cppClear();
+void cppAllocate();
+void cppFree();
 int cppNp();
 int cppNt();
 double cppPx(int i);
@@ -24,6 +25,7 @@ double cppNx(int i);
 double cppNy(int i);
 double cppNz(int i);
 int cppI(int i);
+void cppLevel(int i);
 
 #ifdef __cplusplus
 }

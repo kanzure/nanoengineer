@@ -18,9 +18,13 @@ void cCreateSurface()
 {
 	cppCreateSurface();
 }
-void cClear()
+void cAllocate()
 {
-	cppClear();
+	cppAllocate();
+}
+void cFree()
+{
+	cppFree();
 }
 int cNp()
 {
@@ -57,6 +61,10 @@ double cNz(int i)
 int cI(int i)
 {
 	return cppI(i);
+}
+void cLevel(int i)
+{
+	cppLevel(i);
 }
 
 #endif  								// CSURFACE_INCLUDED

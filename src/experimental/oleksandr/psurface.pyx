@@ -1,7 +1,8 @@
 cdef extern from "csurface.h":
     void cAdd(double x, double y, double z, double r)
     void cCreateSurface()
-    void cClear()
+    void cAllocate()
+    void cFree()
     int cNp()
     int cNt()
     double cPx(int i)
@@ -11,30 +12,20 @@ cdef extern from "csurface.h":
     double cNy(int i)
     double cNz(int i)
     int cI(int i)
-def Add(double x, double y, double z, double r):    
-    cAdd(x, y, z, r)    
-def CreateSurface():    
-    cCreateSurface()    
-def Clear():    
-    cClear()    
-def Np():    
-    return cNp()    
-def Nt():    
-    return cNt()    
-def Px(int i):    
-    return cPx(i)    
-def Py(int i):    
-    return cPy(i)    
-def Pz(int i):    
-    return cPz(i)    
-def Nx(int i):    
-    return cNx(i)    
-def Ny(int i):    
-    return cNy(i)    
-def Nz(int i):    
-    return cNz(i)    
-def I(int i):    
-    return cI(i)    
-
-
-
+    void cLevel(int i)
+def CreateSurface(spheres,level):
+    cAllocate()
+    for s in spheres:
+        cAdd(s[0],s[1],s[2],s[3])
+    cLevel(level)
+    cCreateSurface()
+    points = []
+    normals = []
+    for i in range(cNp()):
+        points.append((cPx(i),cPy(i),cPz(i)))
+        normals.append((cNx(i),cNy(i),cNz(i)))
+    trias = []
+    for i in range(cNt() / 3):
+        trias.append((cI(3*i),cI(3*i+1),cI(3*i+2)))
+    cFree()
+    return ((trias, points), normals)
