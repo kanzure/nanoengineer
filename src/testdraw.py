@@ -96,7 +96,7 @@ def drawtest0(glpane):
     for i in range(1):
         glTranslatef( 0, -4, 0 )
         testexpr.draw() # it worked almost the first time!
-    glTranslatef( 0, -4, 0 )
+    glTranslatef( 0, -8, -1 )
     
 ##    te2 = Row( testexpr, testexpr, gap = 0.3 )
 ##    glTranslatef( 0, 6, 0 )
@@ -464,7 +464,45 @@ class Row(WidgetExpr):
         return max([a.btop for a in self.args])
     def _get_bbottom(self):
         return max([a.bbottom for a in self.args])
-    pass
+    pass # Row
+
+class Column(WidgetExpr):
+    "Column" # see notes for Row; this is like Row except left,right,width <-> top,bottom,height, and glTranslate is changed
+    def draw(self):
+        # compute layout -- redo each time
+        gap = self.kws.get('gap',0)
+        glPushMatrix()
+        pa = None
+        for a in self.args:
+            if pa is not None:
+                dy = pa.bbottom + a.btop + gap
+                glTranslate(0,-dy,0) 
+            pa = a # for next loop
+            a.draw() #e try/except
+            ## dx = a.height() # should we assume this is only available after drawing (as optim, permit computing it then)? NO!
+                # some callers will need it before.
+                # should it be an attr, can be invalled, otherwise more efficient? probably yes. ####@@@@
+                # but then a Row needs to subscribe to arg heights, or if it can't, needs to always recompute. (use a Property)
+                # this is wrong: we want a0.bottomheight() + a1.topheight(). (bbox elements; assuming origin inside)
+        glPopMatrix()
+    def _get_height(self): # inefficient, need inval/update
+        if not len(self.args):
+            return 0
+        w = self.kws.get('gap',0) * (len(self.args) - 1) # wrong if no args!
+        for a in self.args:
+            w += a.height
+        return w
+    def _get_btop(self):
+        if not len(self.args):
+            return 0
+        return self.args[0].btop
+    def _get_bbottom(self):
+        return self.height - self.btop
+    def _get_bleft(self):
+        return max([a.bleft for a in self.args])
+    def _get_bright(self):
+        return max([a.bright for a in self.args])
+    pass # Column
 
 from idlelib.Delegator import Delegator
 
@@ -512,7 +550,7 @@ class Corkscrew(WidgetExpr):
     def _get_btop(self):
         radius, axis, turn, n, color = self.args
         return radius
-    _get_bbottom = _get_btop    
+    _get_bbottom = _get_btop
     pass
 
 class Ribbon(Corkscrew):
@@ -531,7 +569,7 @@ class Ribbon(Corkscrew):
             Corkscrew.draw(self)
             glTranslate(offset, 0,0)
             
-            Corkscrew.draw(self)
+            if 0: Corkscrew.draw(self)
             glTranslate(-offset, 0,0)
         
         ## glColor3fv(interior_color)
@@ -558,7 +596,7 @@ class Ribbon(Corkscrew):
         glEnable(GL_CULL_FACE)
         glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE)
         if 0:
-            # ladder rungs
+            # ladder rungs - warning, they are buggy -- when they poke out, there are two in each place, but there should not be
             glDisable(GL_LIGHTING)
             glColor3fv(gray)
             glTranslate(halfoffset,0,0) # center the end within the ribbon width
@@ -569,6 +607,14 @@ class Ribbon(Corkscrew):
                 # end2 is not clearly correct;
                 # would look better in closeup if ends were inside rects (not on kinks like now), but never mind,
                 # whole thing will be replaced with something better
+                mid = (p + op)/2.0
+                pv = p - mid
+                opv = op - mid
+                radfactor = 1.1 # make them poke out on purpose
+                pv *= radfactor
+                opv *= radfactor
+                p = mid + pv
+                op = mid + opv
                 glVertex3fv(p)
                 glVertex3fv(op)
             glEnd()
@@ -590,7 +636,13 @@ class Ribbon2(Ribbon):
     pass
 
 testexpr = Row( Rect(1.5, 1, red),
-                Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
+                Column(
+                  Rect(1.5, 1, red),
+                  Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
+                  Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red),
+                  Rect(1.5, 1, green),
+                  gap = 0.2
+                ),
                 Closer(Rect(2, 3, pink)),
                 gap = 0.2)
 

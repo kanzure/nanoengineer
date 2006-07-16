@@ -103,7 +103,7 @@ class testmode(super):
         super.middleDrag(self, event)
         self.modelstate += 1
 ##        q2 = Q(glpane.quat)
-        novertigo(glpane)
+        ## novertigo(glpane)
 ##        q3 = Q(glpane.quat)
 ##        print "nv",q1,q2,q3
         return
