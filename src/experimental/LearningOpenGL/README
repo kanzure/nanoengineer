@@ -1,0 +1,9 @@
+This is a bunch of small programming exercises to help me (Will) learn
+about OpenGL. There are a few copies of the OpenGL Red Book online,
+and the one I am working with currently is here:
+http://fly.srk.fer.hr/~unreal/theredbook/
+
+So the idea is to write a lot of little C programs of gradually
+increasing complexity (or to just cut-and-paste them from the book,
+with minimal tweaks). Hopefully one of these will turn out to be
+pretty close to what we want.
