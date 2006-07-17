@@ -146,7 +146,7 @@ def drawtest0(glpane):
     # using those guesses, come up with tex-rects for each char as triples of 2-vectors (tex_origin, tex_dx, tex_dy) 
     def ff(i,j): # i for y, j or x (is that order normal??), still starting at bottom left
         if i == -1 or i == 7:
-            test = "hi mom!"
+            test = "(test string)"
             if j < len(test):
                 # replace i,j with new ones so as to draw those chars instead
                 ch1 = ord(test[j]) - 32
@@ -209,8 +209,8 @@ def mymousepoints(glpane, x, y): # modified from GLPane.mousepoints; x and y are
 
 # (minor: archive screenshots too)
 
-filename1 = "/Users/bruce/PythonModules/data/baby_tapir-256.png" # also try 1059 files, sibling files of this
-courierfile = "/Users/bruce/PythonModules/data/courier-128.png"
+## courierfile = "/Users/bruce/PythonModules/data/courier-128.png"
+courierfile = os.path.join( os.path.dirname(__file__), "experimental/textures/courier-128.png")
 
 '''
 ()()
@@ -571,7 +571,7 @@ class Ribbon(Corkscrew):
             Corkscrew.draw(self)
             glTranslate(offset, 0,0)
             
-            if 0: Corkscrew.draw(self)
+            if 0: Corkscrew.draw(self) ### maybe we should make the two edges look different, since they are (major vs minor groove)
             glTranslate(-offset, 0,0)
         
         ## glColor3fv(interior_color)
@@ -588,11 +588,21 @@ class Ribbon(Corkscrew):
             # the answer - see draw_vane() -- I have to do a lot of stuff to get this right:
             # - set some gl state, use apply_material, get CCW ordering right, and calculate normals.
 ##        glColor3fv(interior_color)
+        colorkluge = 0####@@@@ (works, except white edge is opposite as i'd expect, and doesn't happen for 1 of my 4 ribbons)
+        if colorkluge:
+            col1 = interior_color
+            col2 = white
         for p in points:
             perpvec = norm(V(0, p[1], p[2])) # norm here means divide by radius, that might be faster
             ## perpvec = V(0,0,1) # this makes front & back different solid lightness, BUT the values depend on the glRotate we did
             glNormal3fv( perpvec)
+            if colorkluge:
+                drawer.apply_material(col1)
+                col1, col2 = col2, col1
             glVertex3fv(p + offset * DX)
+            if colorkluge and 1:
+                drawer.apply_material(col1)
+                col1, col2 = col2, col1
             glVertex3fv(p)
         glEnd()
         glEnable(GL_CULL_FACE)
@@ -652,6 +662,10 @@ testexpr = Row( Rect(1.5, 1, red),
 class xx:
     def draw(self, **mods):
         color = self.getopt('color', mods) # mods, then self attrs
+        # e.g. dict(self.__dict__).update(mods)
+
+#e want: we's for highlighting, selection, other behavior; let these things act like atoms in build, get into mmp files & undo
+
 
 # end except for outtakes
 
