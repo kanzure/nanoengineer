@@ -527,11 +527,13 @@ class Corkscrew(WidgetExpr):
         radius, axis, turn, n, color = self.args #k checks length
     def draw(self):
         radius, axis, turn, n, color = self.args # axis is for x, theta starts 0, at top (y), so y = cos(theta), z = sin(theta)
-        glDisable(GL_LIGHTING)
+        glDisable(GL_LIGHTING) ### not doing this makes it take the color from the prior object 
         glColor3fv(color)
         glBegin(GL_LINE_STRIP)
         points = self.points()
         for p in points:
+            ##glNormal3fv(-DX) #####WRONG? with lighting: doesn't help, anyway. probably we have to draw ribbon edges as tiny rects.
+            # without lighting, probably has no effect.
             glVertex3fv(p)
         glEnd()
         glEnable(GL_LIGHTING)
@@ -646,6 +648,10 @@ testexpr = Row( Rect(1.5, 1, red),
                 Closer(Rect(2, 3, pink)),
                 gap = 0.2)
 
+#e want: draw myself or my subobj or superobj but with modified params: super.draw(self, color = othercolor)
+class xx:
+    def draw(self, **mods):
+        color = self.getopt('color', mods) # mods, then self attrs
 
 # end except for outtakes
 
