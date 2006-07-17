@@ -149,15 +149,37 @@ static void init_example_2(void)
     fontOffset = glGenLists(128);
     for (i = 32; i < 127; i++) {
         glNewList(i + fontOffset, GL_COMPILE);
+#if 1
+	unsigned char boffo[13] = {
+	    0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+	    0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x00
+	};
+	glBitmap(8, 13, 0.0, 2.0, 10.0, 0.0, boffo);
+#else
 	glBitmap(8, 13, 0.0, 2.0, 10.0, 0.0, rasters[i - 32]);
+#endif
         glEndList();
     }
+
+    int w = 200, h = 200;
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho (0.0, w, 0.0, h, -1.0, 1.0);
+    glMatrixMode(GL_MODELVIEW);
 }
 
 static void printString(char *s)
 {
     glPushAttrib (GL_LIST_BIT);
     glListBase(fontOffset);
+#if 0
+    int i;
+    printf("printString:");
+    for (i = 0; i < strlen(s); i++)
+	printf(" %u", s[i]);
+    printf("\n");
+#endif
     // printf("printString(\"%s\")\n", s);
     glCallLists(strlen(s), GL_UNSIGNED_BYTE, (GLubyte *) s);
     glPopAttrib ();
@@ -166,13 +188,14 @@ static void printString(char *s)
 static void example_2(void)
 {
     GLfloat white[3] = { 1.0, 1.0, 1.0 };
-    int i, j;
-    char teststring[33];
 
     // clearing works fine
     glClearColor(0.0, 0.5, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3fv(white);
+#if 1
+    int i, j;
+    char teststring[33];
     for (i = 32; i < 127; i += 32) {
         glRasterPos2i(20, 200 - 18*i/32);
         for (j = 0; j < 32; j++)
@@ -184,6 +207,14 @@ static void example_2(void)
     printString("The quick brown fox jumps");
     glRasterPos2i(20, 82);
     printString("over a lazy dog.");
+#else
+    float i, j;
+    for (i = 0; i < 1.0; i += 0.05)
+	for (j = 0; j < 1.0; j += 0.05) {
+	    glRasterPos2f(i, j);
+	    printString("The quick brown fox jumps");
+	}
+#endif
     glFlush ();
 }
 

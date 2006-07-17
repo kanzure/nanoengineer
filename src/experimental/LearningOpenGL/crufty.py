@@ -48,7 +48,7 @@ class Crufty(Cruft):
         if False:
             print 'paintEvent',
             sys.stdout.flush()
-        if True:
+        if False:
             # Here is how to draw stuff using PyQt
             p = QPainter()
             size = self.frame1.size()
