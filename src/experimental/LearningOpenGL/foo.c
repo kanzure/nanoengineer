@@ -126,6 +126,7 @@ static void printStrokedString(char *s)
 
 static void example_3(void)
 {
+    glClearColor(0.5, 0.0, 0.0, 0.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1.0, 1.0, 1.0);
     glPushMatrix();

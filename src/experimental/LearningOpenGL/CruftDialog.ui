@@ -1,5 +1,5 @@
 <!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>Cruft</class>
+<class>CruftDialog</class>
 <widget class="QDialog">
     <property name="name">
         <cstring>Cruft</cstring>
