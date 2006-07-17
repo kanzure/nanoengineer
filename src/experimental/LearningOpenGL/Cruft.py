@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-from cruft import *
+import CruftDialog
 from qt import *
 from qtcanvas import *
 from qtgl import *
@@ -10,7 +10,7 @@ import random
 import time
 import foo
 
-class Crufty(Cruft):
+class Cruft(CruftDialog.Cruft):
 
     ANIMATION_DELAY = 50   # milliseconds
     COLOR_CHOICES = (
@@ -21,7 +21,7 @@ class Crufty(Cruft):
         )
 
     def __init__(self, parent=None, name=None, modal=0, fl=0):
-        Cruft.__init__(self,parent,name,modal,fl)
+        CruftDialog.Cruft.__init__(self,parent,name,modal,fl)
         self.timer = QTimer(self)
         self.connect(self.timer, SIGNAL('timeout()'), self.timeout)
         self.lastTime = time.time()
@@ -74,7 +74,7 @@ class Crufty(Cruft):
 
 def main():
     app = QApplication(sys.argv)
-    cr = Crufty()
+    cr = Cruft()
     cr.app = app
     app.setMainWidget(cr)
     cr.show()

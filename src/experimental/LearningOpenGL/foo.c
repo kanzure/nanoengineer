@@ -32,6 +32,119 @@ static void example_1(void) {
 
 
 
+/* Font example from chapter 4 */
+
+#define PT 1
+#define STROKE 2
+#define END 3
+
+typedef struct charpoint {
+    GLfloat x, y;
+    int type;
+} CP;
+
+CP Adata[] = {
+    {0, 0, PT}, {0, 9, PT}, {1, 10, PT}, {4, 10, PT},
+    {5, 9, PT}, {5, 0, STROKE}, {0, 5, PT}, {5, 5, END}
+};
+
+CP Edata[] = {
+    {5, 0, PT}, {0, 0, PT}, {0, 10, PT}, {5, 10, STROKE},
+    {0, 5, PT}, {4, 5, END}
+};
+
+CP Pdata[] = {
+    {0, 0, PT}, {0, 10, PT},  {4, 10, PT}, {5, 9, PT},
+    {5, 6, PT}, {4, 5, PT}, {0, 5, END}
+};
+
+CP Rdata[] = {
+    {0, 0, PT}, {0, 10, PT},  {4, 10, PT}, {5, 9, PT},
+    {5, 6, PT}, {4, 5, PT}, {0, 5, STROKE}, {3, 5, PT},
+    {5, 0, END}
+};
+
+CP Sdata[] = {
+    {0, 1, PT}, {1, 0, PT}, {4, 0, PT}, {5, 1, PT}, {5, 4, PT},
+    {4, 5, PT}, {1, 5, PT}, {0, 6, PT}, {0, 9, PT}, {1, 10, PT},
+    {4, 10, PT}, {5, 9, END}
+};
+
+static void drawLetter(CP *l)
+{
+    glBegin(GL_LINE_STRIP);
+    while (1) {
+        switch (l->type) {
+	case PT:
+	    glVertex2fv(&l->x);
+	    break;
+	case STROKE:
+	    glVertex2fv(&l->x);
+	    glEnd();
+	    glBegin(GL_LINE_STRIP);
+	    break;
+	case END:
+	    glVertex2fv(&l->x);
+	    glEnd();
+	    glTranslatef(8.0, 0.0, 0.0);
+            return;
+        }
+	l++;
+    }
+}
+
+static void init_example_3(void)
+{
+    GLuint base;
+
+    glShadeModel (GL_FLAT);
+
+    base = glGenLists (128);
+    glListBase(base);
+    glNewList(base+'A', GL_COMPILE); drawLetter(Adata);
+    glEndList();
+    glNewList(base+'E', GL_COMPILE); drawLetter(Edata);
+    glEndList();
+    glNewList(base+'P', GL_COMPILE); drawLetter(Pdata);
+    glEndList();
+    glNewList(base+'R', GL_COMPILE); drawLetter(Rdata);
+    glEndList();
+    glNewList(base+'S', GL_COMPILE); drawLetter(Sdata);
+    glEndList();
+    glNewList(base+' ', GL_COMPILE);
+    glTranslatef(8.0, 0.0, 0.0); glEndList();
+}
+
+static char *test1 = "A SPARE SERAPE APPEARS AS";
+static char *test2 = "APES PREPARE RARE PEPPERS";
+
+static void printStrokedString(char *s)
+{
+    GLsizei len = strlen(s);
+    glCallLists(len, GL_BYTE, (GLbyte *)s);
+}
+
+static void example_3(void)
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1.0, 1.0, 1.0);
+    glPushMatrix();
+    glScalef(2.0, 2.0, 2.0);
+    glTranslatef(10.0, 30.0, 0.0);
+    printStrokedString(test1);
+    glPopMatrix();
+    glPushMatrix();
+    glScalef(2.0, 2.0, 2.0);
+    glTranslatef(10.0, 13.0, 0.0);
+    printStrokedString(test2);
+    glPopMatrix();
+    glFlush();
+}
+
+
+
+
+
 
 
 
@@ -218,39 +331,18 @@ static void example_2(void)
     glFlush ();
 }
 
-#if 0
-static void myReshape(GLsizei w, GLsizei h)
-{
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho (0.0, w, 0.0, h, -1.0, 1.0);
-    glMatrixMode(GL_MODELVIEW);
-}
-
-static int __main(int argc, char** argv)
-{
-    auxInitDisplayMode (AUX_SINGLE | AUX_RGBA);
-    auxInitPosition (0, 0, 500, 500);
-    auxInitWindow (argv[0]);
-    init_example_2();
-    auxReshapeFunc (myReshape);
-    auxMainLoop(example_2);
-}
-#endif
 
 
 
 
 
 
-#if 0
-#define INIT_FUNC  init_example_1
-#define EXAMPLE_FUNC  example_1
-#else
-#define INIT_FUNC  init_example_2
-#define EXAMPLE_FUNC  example_2
-#endif
+// #define INIT_FUNC  init_example_1
+// #define EXAMPLE_FUNC  example_1
+// #define INIT_FUNC  init_example_2
+// #define EXAMPLE_FUNC  example_2
+#define INIT_FUNC  init_example_3
+#define EXAMPLE_FUNC  example_3
 
 
 

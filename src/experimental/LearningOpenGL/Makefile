@@ -54,15 +54,15 @@ CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
 endif
 
 
-all: $(TARGET) cruft.py
+all: $(TARGET) CruftDialog.py
 
 foo.o: foo.c
 
 foo.so:  foo.o
 	$(LDSHARED) foo.o -o foo.so $(LDFLAGS)
 
-cruft.py: cruft.ui
-	pyuic cruft.ui > cruft.py
+CruftDialog.py: CruftDialog.ui
+	pyuic CruftDialog.ui > CruftDialog.py
 
 clean:
-	rm -f *.pyc *~ *.o *.so core.* cruft.py
+	rm -f *.pyc *~ *.o *.so core.* CruftDialog.py
