@@ -21,6 +21,7 @@ from constants import diTrueCPK
 from prefs_constants import atomHighlightColor_prefs_key
 from qt import QApplication, Qt, QCursor
 from HistoryWidget import redmsg, orangemsg, greenmsg
+import psurface
 
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
@@ -513,35 +514,66 @@ class SurfaceChunks(ChunkDisplayMode):
 	env.history.message(self.cmdname + "Computing surface. Please wait...") # Mark 060621.
 	env.history.h_update() # Update history widget with last message. # Mark 060623.
 	
-        center = chunk.center
-        bcenter = chunk.abs_to_base(center)
-        rad = 0.0
-	s = Surface()
-	margin = 0
-	for a in chunk.atoms.values():
-	    dispjunk, ra = a.howdraw(diTrueCPK)
-	    if ra > margin : margin = ra
-	    s.radiuses.append(ra)
-	    p = a.posn() - center
-	    s.spheres.append(Triple(p[0], p[1], p[2]))
-            r = p[0]**2+p[1]**2+p[2]**2
-            if r > rad: rad = r
-        rad = sqrt(rad)
-        radius = rad + margin
-	for i in range(len(s.spheres)):
-	    s.spheres[i] /= radius
-	    s.radiuses[i] /= radius
-	color = chunk.color
-        if color is None:
-            color = V(0.5,0.5,0.5)
-	#  create surface 
-	level = 3
-	if rad > 6 : level = 4
-	ts = drawer.getSphereTriangles(level)
-	#ts = s.TorusTriangles(0.7, 0.3, 20)
-	tm = s.SurfaceTriangles(ts)
-	nm = s.SurfaceNormals()
-	
+	if True: # cpp surface stuff
+	    center = chunk.center
+	    bcenter = chunk.abs_to_base(center)
+	    rad = 0.0
+	    margin = 0
+	    radiuses = []
+	    spheres = []
+	    for a in chunk.atoms.values():
+		dispjunk, ra = a.howdraw(diTrueCPK)
+		if ra > margin : margin = ra
+		radiuses.append(ra)
+		p = a.posn() - center
+		spheres.append(p)
+		r = p[0]**2+p[1]**2+p[2]**2
+		if r > rad: rad = r
+	    rad = sqrt(rad)
+	    radius = rad + margin
+	    cspheres = []
+	    for i in range(len(spheres)):
+		st = spheres[i] / radius
+		rt = radiuses[i] / radius
+		cspheres.append((st[0],st[1],st[2],rt))
+	    color = chunk.color
+	    if color is None:
+		color = V(0.5,0.5,0.5)
+	    #  create surface 
+	    level = 3
+	    if rad > 6 : level = 4
+	    ps = psurface
+	    (tm, nm) = ps.CreateSurface(cspheres, level)
+	else : # python surface stuff
+	    center = chunk.center
+	    bcenter = chunk.abs_to_base(center)
+	    rad = 0.0
+	    s = Surface()
+	    margin = 0
+	    for a in chunk.atoms.values():
+		dispjunk, ra = a.howdraw(diTrueCPK)
+		if ra > margin : margin = ra
+		s.radiuses.append(ra)
+		p = a.posn() - center
+		s.spheres.append(Triple(p[0], p[1], p[2]))
+		r = p[0]**2+p[1]**2+p[2]**2
+		if r > rad: rad = r
+	    rad = sqrt(rad)
+	    radius = rad + margin
+	    for i in range(len(s.spheres)):
+		s.spheres[i] /= radius
+		s.radiuses[i] /= radius
+	    color = chunk.color
+	    if color is None:
+		color = V(0.5,0.5,0.5)
+	    #  create surface 
+	    level = 3
+	    if rad > 6 : level = 4
+	    ts = drawer.getSphereTriangles(level)
+	    #ts = s.TorusTriangles(0.7, 0.3, 20)
+	    tm = s.SurfaceTriangles(ts)
+	    nm = s.SurfaceNormals()
+	    
 	QApplication.restoreOverrideCursor() # Restore the cursor. Mark 060621.
 	env.history.message(self.cmdname + "Done.") # Mark 060621.
 	
