@@ -69,8 +69,8 @@ clean:
 psurface.c: psurface.pyx
 	$(PYREXC) psurface.pyx
 
-psurface.o: psurface.cpp
-	g++ -c psurface.cpp -o psurface.o $(CXXFLAGS)
+psurface.o: psurface.c
+	gcc -c psurface.c -o psurface.o $(CFLAGS)
 
 cppsurface.o: cppsurface.cpp cppsurface.h
 	g++ -c cppsurface.cpp -o cppsurface.o $(CXXFLAGS)
