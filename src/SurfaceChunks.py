@@ -21,7 +21,13 @@ from constants import diTrueCPK
 from prefs_constants import atomHighlightColor_prefs_key
 from qt import QApplication, Qt, QCursor
 from HistoryWidget import redmsg, orangemsg, greenmsg
-import psurface
+
+_psurface_ok = False
+try:
+    import psurface
+    _psurface_ok = True
+except ImportError:
+    print "psurface not imported, check if it has been built"
 
 chunkHighlightColor_prefs_key = atomHighlightColor_prefs_key # initial kluge
 
@@ -514,7 +520,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	env.history.message(self.cmdname + "Computing surface. Please wait...") # Mark 060621.
 	env.history.h_update() # Update history widget with last message. # Mark 060623.
 	
-	if True: # cpp surface stuff
+	if _psurface_ok: # cpp surface stuff
 	    center = chunk.center
 	    bcenter = chunk.abs_to_base(center)
 	    rad = 0.0
