@@ -370,15 +370,17 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         return (length, n, m, bond_length, zdist, xydist,
                 twist, bend, members, endings, numwalls, spacing)
 
-    def build_struct(self, name, params, position, mol=None):
+    def build_struct(self, name, params, position, mol=None, createPrinted=False):
         length, n, m, bond_length, zdist, xydist, \
                 twist, bend, members, endings, numwalls, spacing = params
         # This can take a few seconds. Inform the user.
         # 100 is a guess on my part. Mark 051103.
-        if length > 100.0:
-            env.history.message(self.cmd + "Creating nanotube. This may take a moment...")
-        else: # Nanotubes under 100 Angstroms shouldn't take long.
-            env.history.message(self.cmd + "Creating nanotube.")
+        if not createPrinted:
+            # If it's a multi-wall tube, only print the "Creating" message once.
+            if length > 100.0:
+                env.history.message(self.cmd + "Creating nanotube. This may take a moment...")
+            else: # Nanotubes under 100 Angstroms shouldn't take long.
+                env.history.message(self.cmd + "Creating nanotube.")
         self.chirality = Chirality(n, m, bond_length)
         PROFILE = False
         if PROFILE:
@@ -484,7 +486,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
             n += int(spacing * 3 + 0.5)  # empirical tinkering
             params = (length, n, m, bond_length, zdist, xydist,
                       twist, bend, members, endings, numwalls-1, spacing)
-            self.build_struct(name, params, position, mol=mol)
+            self.build_struct(name, params, position, mol=mol, createPrinted=True)
 
         return mol
 
