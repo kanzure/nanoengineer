@@ -323,98 +323,98 @@ SCALE = 0.08
 
 class Font3D:
 
-    def __init__(self, xoff, yoff, right, up, rot90):
+    def __init__(self, xoff=0, yoff=0, right=None, up=None, rot90=False, glBegin=False):
 
-        # The out-of-screen direction for text should always agree with
-        # the "real" out-of-screen direction.
-        self.outOfScreen = cross(right, up)
+        self.glBegin = glBegin
+        if glBegin:
+            assert right is not None and up is not None
+            # The out-of-screen direction for text should always agree with
+            # the "real" out-of-screen direction.
+            self.outOfScreen = cross(right, up)
 
-        if rot90:
-            self.xflip = xflip = right[1] < 0.0
-        else:
-            self.xflip = xflip = right[0] < 0.0
+            if rot90:
+                self.xflip = xflip = right[1] < 0.0
+            else:
+                self.xflip = xflip = right[0] < 0.0
 
-        xgap = WIDTH
-        halfheight = 0.5 * HEIGHT
+            xgap = WIDTH
+            halfheight = 0.5 * HEIGHT
 
-        if xflip:
-            xgap *= -SCALE
-            def fx(x): return SCALE * (WIDTH - 1 - x)
-        else:
-            xgap *= SCALE
-            def fx(x): return SCALE * x
+            if xflip:
+                xgap *= -SCALE
+                def fx(x): return SCALE * (WIDTH - 1 - x)
+            else:
+                xgap *= SCALE
+                def fx(x): return SCALE * x
 
-        if rot90:
-            yoff += xgap
-            xoff -= halfheight * SCALE
-            def tfm(x, y, yoff1, yflip):
-                if yflip:
-                    y1 = SCALE * (HEIGHT - 1 - y)
-                else:
-                    y1 = SCALE * y
-                return Numeric.array((xoff + yoff1 + y1, yoff + fx(x), 0.0))
-        else:
-            xoff += xgap
-            yoff -= halfheight * SCALE
-            def tfm(x, y, yoff1, yflip):
-                if yflip:
-                    y1 = SCALE * (HEIGHT - 1 - y)
-                else:
-                    y1 = SCALE * y
-                return Numeric.array((xoff + fx(x), yoff + yoff1 + y1, 0.0))
-        self.tfm = tfm
+            if rot90:
+                yoff += xgap
+                xoff -= halfheight * SCALE
+                def tfm(x, y, yoff1, yflip):
+                    if yflip:
+                        y1 = SCALE * (HEIGHT - 1 - y)
+                    else:
+                        y1 = SCALE * y
+                    return Numeric.array((xoff + yoff1 + y1, yoff + fx(x), 0.0))
+            else:
+                xoff += xgap
+                yoff -= halfheight * SCALE
+                def tfm(x, y, yoff1, yflip):
+                    if yflip:
+                        y1 = SCALE * (HEIGHT - 1 - y)
+                    else:
+                        y1 = SCALE * y
+                    return Numeric.array((xoff + fx(x), yoff + yoff1 + y1, 0.0))
+            self.tfm = tfm
 
-    def drawCharacter(self, ch, tfm):
-        from dimensions import _font
-        if _font.has_key(ch):
-            seq = _font[ch]
-        else:
-            seq = _font['X']
-        seq = map(lambda tpl: apply(tfm,tpl), seq)
-        for i in range(len(seq) - 1):
-            pos1, pos2 = seq[i], seq[i+1]
-            # somebody has already taken care of glBegin(GL_LINES)
-            glVertex(pos1[0], pos1[1], pos1[2])
-            glVertex(pos2[0], pos2[1], pos2[2])
-            # somebody has already taken care of glEnd()
-
-    def drawString(self, str, yoff):
+    def drawString(self, str, yoff=None, color=None, tfm=None, _font_X=_font['X']):
         n = len(str)
-        if self.xflip:
-            def fi(i): return i - (n + 1)
+        if hasattr(self, 'tfm'):
+            assert tfm is None
+            if self.xflip:
+                def fi(i): return i - (n + 1)
+            else:
+                def fi(i): return i
+            # figure out what the yflip should be
+            p0 = self.tfm(0, 0, yoff, False)
+            px = self.tfm(1, 0, yoff, False) - p0
+            py = self.tfm(0, 1, yoff, False) - p0
+            textOutOfScreen = cross(px, py)
+            yflip = vdot(textOutOfScreen, self.outOfScreen) < 0.0
+            def tfmgen(i):
+                def tfm2(x, y):
+                    return self.tfm(x + (WIDTH+1) * fi(i), y, yoff, yflip)
+                return tfm2
         else:
-            def fi(i): return i
-        # figure out what the yflip should be
-        p0 = self.tfm(0, 0, yoff, False)
-        px = self.tfm(1, 0, yoff, False) - p0
-        py = self.tfm(0, 1, yoff, False) - p0
-        textOutOfScreen = cross(px, py)
-        yflip = vdot(textOutOfScreen, self.outOfScreen) < 0.0
+            assert tfm is not None
+            def tfmgen(i):
+                def tfm2(x, y):
+                    return tfm(x + i * (WIDTH+1), y)
+                return tfm2
         for i in range(n):
-            def tfm2(x, y):
-                return self.tfm(x + (WIDTH+1) * fi(i), y, yoff, yflip)
-            self.drawCharacter(str[i], tfm2)
-
-def drawCharacter(char, color, xfm):
-    def drawSeq(seq, drawline=drawline):
-        if type(seq[0][0]) in (types.TupleType, types.ListType):
-            for subseq in seq:
-                drawSeq(subseq)
-        else:
-            seq = map(lambda tpl,xfm=xfm: apply(xfm,tpl), seq)
-            for i in range(len(seq) - 1):
-                drawline(color, seq[i], seq[i+1])
-    if _font.has_key(char):
-        seq = _font[char]
-    else:
-        seq = _font['X']
-    drawSeq(seq)
-
-def drawString(str, color, xfm):
-    for i in range(len(str)):
-        def xfm2(x, y):
-            return xfm(x + i * (WIDTH+1), y)
-        drawCharacter(str[i], color, xfm2)
+            # A pen-stroke is a tuple of 2D vectors with integer
+            # coordinates. Each character is represented as a stroke,
+            # or a tuple of strokes e.g. '+' or 'X' or '#'.
+            def drawSequence(seq, tfm=tfmgen(i)):
+                if type(seq[0][0]) is not types.IntType:
+                    # handle multi-stroke characters
+                    for x in seq:
+                        drawSequence(x)
+                    return
+                seq = map(lambda tpl: apply(tfm,tpl), seq)
+                for i in range(len(seq) - 1):
+                    pos1, pos2 = seq[i], seq[i+1]
+                    if self.glBegin:
+                        # This is what we do for grid planes, where "somebody"
+                        # is drawGPGrid in drawers.py.
+                        # Somebody has already taken care of glBegin(GL_LINES).
+                        glVertex(pos1[0], pos1[1], pos1[2])
+                        glVertex(pos2[0], pos2[1], pos2[2])
+                        # Somebody has already taken care of glEnd().
+                    else:
+                        # This is what we do for dimensions.
+                        drawline(color, seq[i], seq[i+1])
+            drawSequence(_font.get(str[i], _font_X))
 
 class CylindricalCoordinates:
     def __init__(self, point0, z, uhint, uhint2):
@@ -487,7 +487,8 @@ def drawLinearDimension(color, right, up, p0, p1, text):
         def tfm(x, y):
             return csys.xyz((10 + y / (1. * HEIGHT),
                              0, 0.9 - csys.zinv * x / (1. * WIDTH)))
-    drawString(text, color, tfm)
+    f3d = Font3D()
+    f3d.drawString(text, tfm=tfm, color=color)
 
 def drawAngleDimension(color, right, up, p0, p1, p2, text):
     h = 1.0e-3
@@ -541,7 +542,8 @@ def drawAngleDimension(color, right, up, p0, p1, p2, text):
         x = (x / (1. * WIDTH)) * textx
         y = (y / (1. * HEIGHT)) * texty
         return textxyz + x + y
-    drawString(text, color, tfm)
+    f3d = Font3D()
+    f3d.drawString(text, tfm=tfm, color=color)
 
 
 def drawDihedralDimension(color, right, up, p0, p1, p2, p3, text):
