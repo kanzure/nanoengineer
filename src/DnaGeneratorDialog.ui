@@ -8,7 +8,7 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>206</width>
+            <width>236</width>
             <height>464</height>
         </rect>
     </property>
@@ -195,9 +195,15 @@
                                 </size>
                             </property>
                         </spacer>
-                        <widget class="QToolButton">
+                        <widget class="QPushButton">
                             <property name="name">
                                 <cstring>done_btn</cstring>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>40</width>
+                                    <height>32767</height>
+                                </size>
                             </property>
                             <property name="text">
                                 <string></string>
@@ -209,9 +215,15 @@
                                 <string>Done</string>
                             </property>
                         </widget>
-                        <widget class="QToolButton">
+                        <widget class="QPushButton">
                             <property name="name">
                                 <cstring>abort_btn</cstring>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>40</width>
+                                    <height>32767</height>
+                                </size>
                             </property>
                             <property name="text">
                                 <string></string>
@@ -223,9 +235,15 @@
                                 <string>Cancel</string>
                             </property>
                         </widget>
-                        <widget class="QToolButton">
+                        <widget class="QPushButton">
                             <property name="name">
                                 <cstring>preview_btn</cstring>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>40</width>
+                                    <height>32767</height>
+                                </size>
                             </property>
                             <property name="text">
                                 <string></string>
@@ -237,9 +255,15 @@
                                 <string>Preview</string>
                             </property>
                         </widget>
-                        <widget class="QToolButton">
+                        <widget class="QPushButton">
                             <property name="name">
                                 <cstring>whatsthis_btn</cstring>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>40</width>
+                                    <height>32767</height>
+                                </size>
                             </property>
                             <property name="text">
                                 <string></string>

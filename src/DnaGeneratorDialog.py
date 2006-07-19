@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'DnaGeneratorDialog.ui'
 #
-# Created: Mon Jul 10 11:02:24 2006
+# Created: Wed Jul 19 19:14:31 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1296,19 +1296,23 @@ class dna_dialog(QDialog):
         left_spacer = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout59.addItem(left_spacer)
 
-        self.done_btn = QToolButton(self.body_frame,"done_btn")
+        self.done_btn = QPushButton(self.body_frame,"done_btn")
+        self.done_btn.setMaximumSize(QSize(40,32767))
         self.done_btn.setIconSet(QIconSet(self.image3))
         layout59.addWidget(self.done_btn)
 
-        self.abort_btn = QToolButton(self.body_frame,"abort_btn")
+        self.abort_btn = QPushButton(self.body_frame,"abort_btn")
+        self.abort_btn.setMaximumSize(QSize(40,32767))
         self.abort_btn.setIconSet(QIconSet(self.image4))
         layout59.addWidget(self.abort_btn)
 
-        self.preview_btn = QToolButton(self.body_frame,"preview_btn")
+        self.preview_btn = QPushButton(self.body_frame,"preview_btn")
+        self.preview_btn.setMaximumSize(QSize(40,32767))
         self.preview_btn.setIconSet(QIconSet(self.image5))
         layout59.addWidget(self.preview_btn)
 
-        self.whatsthis_btn = QToolButton(self.body_frame,"whatsthis_btn")
+        self.whatsthis_btn = QPushButton(self.body_frame,"whatsthis_btn")
+        self.whatsthis_btn.setMaximumSize(QSize(40,32767))
         self.whatsthis_btn.setIconSet(QIconSet(self.image6))
         layout59.addWidget(self.whatsthis_btn)
         right_spacer = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -1437,7 +1441,7 @@ class dna_dialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(206,464).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(236,464).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.open_sponsor_homepage)
