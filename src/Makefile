@@ -41,6 +41,7 @@ LDSHARED=gcc -shared
 endif
 PYREXC=$(shell python -c "import platform; print platform.find_pyrexc()")
 LDFLAGS+=-L/usr/lib -lm
+LDFLAGS+=-L/usr/X11R6/lib -lGL
 CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
   -Wstrict-prototypes -fPIC
 # These CFLAGS and LDFLAGS are not used by distutils. If asked to
@@ -75,7 +76,7 @@ pyclean:
 	rm -f $(PYFILES0) *.pyc *~
 
 clean:
-	rm -f *.pyc *~ *.o *.so *.a *.dll *.def atombase.c
+	rm -f *.pyc *~ *.o *.so *.a *.dll *.def atombase.c core*
 
 abt: $(PYREXTARGET) atombasetests.py
 	python atombasetests.py

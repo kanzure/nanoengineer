@@ -20,6 +20,7 @@ cdef extern from "atombasehelp.c":
 
     cdef struct pointerlist:
         int size
+        int arraysize
         void **lst
 
     cdef struct xyz:
@@ -46,9 +47,11 @@ cdef extern from "atombasehelp.c":
     pointerlist *new_pointerlist()
     pointerlist *has_key(pointerlist *n, unsigned int key)
     add_to_pointerlist(pointerlist *head, key_thing *other)
-    remove_from_pointerlist(pointerlist *head, key_thing *other)
+    remove_from_pointerlist(pointerlist *head, unsigned int otherkey)
     extract_list(pointerlist *root, int values)
+    free_list(pointerlist *root)
     pointerlist_lookup(pointerlist *root, unsigned int key)
+    int _init_bitmap_font()
 
 cdef extern from "Numeric/arrayobject.h":
     struct PyArray_Descr:
@@ -65,6 +68,14 @@ cdef extern from "Numeric/arrayobject.h":
 cdef extern from "string.h":
     int strcmp(char *s1, char *s2)
 
+# this is a handy diagnostic for printing addresses of things
+cdef addr(void *p):
+    pl = long(<int> p)
+    if pl < 0:
+        return '%x' % (pl + (long(1) << 32))
+    else:
+        return '%x' % pl
+
 ##############################################################
 ##############################################################
 ##############################################################
@@ -80,6 +91,7 @@ cdef class _BaseItem:
 ##############################################################
 
 cdef class _BaseDictClass:
+
     cdef setstruct data
 
     # Define __setitem__ and __delitem__ for the kind of item in the set
@@ -102,6 +114,17 @@ cdef class _BaseDictClass:
         return pointerlist_lookup(self.data.members, key)
     def __len__(self):
         return len(self.values())
+    def __contains__(self, unsigned int key):
+        try:
+            pointerlist_lookup(self.data.members, key)
+            return 1
+        except KeyError:
+            return 0
+    def has_key(self, unsigned int key):
+        return self.__contains__(key)
+    def clear(self):
+        for k in self.keys():
+            self.remove(self[k])
     def keys(self):
         return extract_list(self.data.members, 0)
     def add(self, guy):
@@ -188,7 +211,7 @@ cdef class _AtomBase:
         add_to_pointerlist(self.data.sets, <key_thing*> &other.data)
 
     def removeDict(self, _BaseDictClass other):
-        remove_from_pointerlist(self.data.sets, <key_thing*> &other.data)
+        remove_from_pointerlist(self.data.sets, other.data.key)
 
 class AtomBase(_AtomBase):
     pass
@@ -200,23 +223,22 @@ class AtomBase(_AtomBase):
 
 cdef class _AtomDictBase(_BaseDictClass):
 
-    def __setitem__(self, key, _AtomBase atom):
-        if key != atom.key:
-            raise KeyError
-        add_to_pointerlist(self.data.members, <key_thing *>&atom.data)
-        add_to_pointerlist(atom.data.sets, <key_thing *>&self.data)
+    def __setitem__(self, unsigned int key, atom):
+        cdef atomstruct *adata
+        adata = &(<_AtomBase> atom).data
+        # Warn if key mismatches
+        if key != adata.key:
+            raise KeyError, (key, adata.key)
+        add_to_pointerlist(self.data.members, <key_thing*> adata)
+        assert (<long>adata.sets) != 0
+        add_to_pointerlist(adata.sets, <key_thing *>&self.data)
     def __delitem__(self, unsigned int key):
-        cdef atomstruct adata
+        cdef atomstruct *adata
         x = self[key]
-        adata = (<_AtomBase> x).data
-        remove_from_pointerlist(self.data.members, <key_thing*> &adata)
-        remove_from_pointerlist(adata.sets, <key_thing*> &self.data)
-    def __contains__(self, unsigned int key):
-        try:
-            pointerlist_lookup(self.data.members, key)
-            return 1
-        except KeyError:
-            return 0
+        adata = &(<_AtomBase> x).data
+        assert adata.key == key  # remove this eventually
+        remove_from_pointerlist(self.data.members, key)
+        remove_from_pointerlist(adata.sets, self.data.key)
     def atomInfo(self):
         ar = Numeric.zeros((len(self), 5), 'd')
         i = 0
@@ -277,7 +299,7 @@ cdef class _BondBase:
         add_to_pointerlist(self.data.sets, <key_thing*> &other.data)
 
     def removeDict(self, _BaseDictClass other):
-        remove_from_pointerlist(self.data.sets, <key_thing*> &other.data)
+        remove_from_pointerlist(self.data.sets, other.data.key)
 
 class BondBase(_BondBase):
     pass
@@ -298,8 +320,8 @@ cdef class _BondDictBase(_BaseDictClass):
         cdef bondstruct adata
         x = self[key]
         adata = (<_BondBase> x).data
-        remove_from_pointerlist(self.data.members, <key_thing*> &adata)
-        remove_from_pointerlist(adata.sets, <key_thing*> &self.data)
+        remove_from_pointerlist(self.data.members, adata.key)
+        remove_from_pointerlist(adata.sets, self.data.key)
     def __contains__(self, unsigned int key):
         try:
             pointerlist_lookup(self.data.members, key)
@@ -390,3 +412,11 @@ cdef class _DiffFactoryBase:
 
 class DiffFactoryBase(_DiffFactoryBase):
     pass
+
+##############################################################
+##############################################################
+##############################################################
+##############################################################
+
+def init_bitmap_font():
+    return _init_bitmap_font()

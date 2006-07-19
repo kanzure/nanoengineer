@@ -106,6 +106,13 @@ class AtomTests(TestCase):
         ab._atomtype = 2
         assert ab._atomtype == 2
 
+    def test_atoms_uniqueKeys(self):
+        a1 = Atom()
+        a1.key = 1
+        a2 = Atom()
+        a2.key = 2
+        assert a1.key != a2.key
+
 class BondTests(TestCase):
 
     def test_basic_bondbase(self):
@@ -257,22 +264,21 @@ class AtomDictTests(TestCase):
         except KeyError:
             pass
 
-##     def test_atomset_keysIn(self):
-##         """\
-##         atomset.add(atm1)
-##         atm1.key in atomset --> True
-##         atm2.key in atomset --> False
-##         """
-##         atomset = AtomDict()
-##         # create them forwards
-##         atom1 = Atom()
-##         atom2 = Atom()
-##         atomset.add(atom1)
-##         assert atomset.has_key(atom1.key)
-##         assert not atomset.has_key(atom2.key)
-##         print atom1.key
-##         assert atom1.key in atomset   # stuck here at the moment
-##         assert atom2.key not in atomset
+    def test_atomset_keysIn(self):
+        """\
+        atomset.add(atm1)
+        atm1.key in atomset --> True
+        atm2.key in atomset --> False
+        """
+        atomset = AtomDict()
+        # create them forwards
+        atom1 = Atom()
+        atom2 = Atom()
+        atomset.add(atom1)
+        assert atomset.has_key(atom1.key)
+        assert not atomset.has_key(atom2.key)
+        assert atom1.key in atomset
+        assert atom2.key not in atomset
 
     def test_atomset_keysSorted(self):
         """\
