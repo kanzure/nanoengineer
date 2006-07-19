@@ -183,14 +183,18 @@ void Surface::CreateSurface()
 	//TorusTriangles();
 	Duplicate();
 	SurfaceNormals();
-	for (int j = 0; j < mPoints.Size(); j++)
+	int n = 4; // number of iterations
+	for (int i = 0; i < n; i++)
 	{
-		Triple p = mPoints[j];
-		Triple n = - mNormals[j];
-		n.Normalize();
-		double om = Predicate(p);
-		if (om < -2.0) om = -2.0;
-		mPoints[j] = p - 0.5 * om * n;
+		for (int j = 0; j < mPoints.Size(); j++)
+		{
+			Triple p = mPoints[j];
+			Triple n = - mNormals[j];
+			n.Normalize();
+			double om = Predicate(p);
+			if (om < -1.0) om = -1.0;
+			mPoints[j] = p - 0.25 * om * n;
+		}
 	}
 	SurfaceNormals();
 }
