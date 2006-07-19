@@ -1141,22 +1141,25 @@ def _makeLonsCell():
            ]
     return res
 
-# SiC grid
-# The number in parentheses is the point's index in the sic_vpdat list
+# SiC grid geometry. The number in parentheses is the point's index in
+# the sic_vpdat list. This stuff is used to build an OpenGL display
+# list, indexed by SiCGridList. The repeating drawing unit is the
+# lines shown dotted here. The 1-6 line is omitted because it will be
+# supplied by the unit below.
 #
 #              |
 #  2*sic_yU  --+                   (3) . . . . . (4)
+#              |                   .               .
 #              |                  .                 .
 #              |                 .                   .
 #              |                .                     .
 #              |               .                       .
-#              |              .                         .
 #    sic_yU  -(0) . . . . . (2)                         (5)
-#              |               .                        .
-#              |                .                      .
-#              |                 .                    .
-#              |                  .                  .
-#              |                   .                .
+#              |               .                       .
+#              |                .                     .
+#              |                 .                   .
+#              |                  .                 .
+#              |                   .               .
 #         0  --+------+------|-----(1)-----|-----(6)-----|---
 #              |             |             |             |
 #              0          sic_uLen     2*sic_uLen    3*sic_uLen
