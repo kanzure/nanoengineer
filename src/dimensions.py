@@ -23,6 +23,7 @@ integer coordinates. The drawing space is 5x7.
 """
 
 _font = {
+    ' ': ( ),
     'A': (((0, 0),
            (0, 4),
            (1, 6),
@@ -397,6 +398,8 @@ class Font3D:
             # coordinates. Each character is represented as a stroke,
             # or a tuple of strokes e.g. '+' or 'X' or '#'.
             def drawSequence(seq, tfm=tfmgen(i)):
+                if len(seq) == 0:
+                    return  # a space character has an empty sequence
                 if type(seq[0][0]) is not types.IntType:
                     # handle multi-stroke characters
                     for x in seq:
