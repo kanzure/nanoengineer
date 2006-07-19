@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GrapheneGeneratorDialog.ui'
 #
-# Created: Mon Jul 10 10:45:20 2006
+# Created: Wed Jul 19 16:22:51 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -591,7 +591,6 @@ class graphene_sheet_dialog(QDialog):
         self.graphene_parameters_grpbtn = QPushButton(self.parameters_grpbox,"graphene_parameters_grpbtn")
         self.graphene_parameters_grpbtn.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.graphene_parameters_grpbtn.sizePolicy().hasHeightForWidth()))
         self.graphene_parameters_grpbtn.setMaximumSize(QSize(16,16))
-        self.graphene_parameters_grpbtn.setAutoDefault(0)
         self.graphene_parameters_grpbtn.setIconSet(QIconSet(self.image7))
         self.graphene_parameters_grpbtn.setFlat(1)
         layout42.addWidget(self.graphene_parameters_grpbtn)
