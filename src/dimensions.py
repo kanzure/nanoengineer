@@ -15,6 +15,7 @@ import math
 from VQT import *
 from drawer import *
 from debug import *
+from Utility import Node
 
 """
 The font is a vector-drawing thing. The entries in the font are
@@ -562,3 +563,26 @@ def drawDihedralDimension(color, right, up, p0, p1, p2, p3, text):
     # Use the existing angle drawing routine to finish up
     drawAngleDimension(color, right, up,
                        e0a, (p1 + p2) / 2, e1a, text)
+
+
+if False:
+    # work in progress, wware 060719
+    class Bauble(Node):
+        """A bauble is a small visible spherical object which can be
+        dragged around in 3 dimensions. Its purpose is to provide a
+        draggable point on a jig, for instance to set the height where
+        we display the length in a length measurement jig.
+
+        There needs to be some kind of drag method.
+        """
+        is_movable = True
+
+        def __init__(self, assy, owner):
+            Node.__init__(self, assy, gensym("Bauble-"), owner)
+
+        def draw(self, glpane, dispdef):
+            level = 2
+            pos = self.posn()
+            drawrad = 1.0 # ???
+            drawsphere(color, pos, drawrad, level)
+        # still need to define posn(), see Motor class in jigs_motors.py
