@@ -2238,14 +2238,14 @@ def drawSiCGrid(color, line_type, w, h, up, right):
     for j in range(j1, j2):
         yoff = j * YLen
         if -hh < yoff + ypos < hh:
-            f3d.drawString("%g" % j, color=color, yoff=yoff)
+            f3d.drawString("%-.4g" % yoff, color=color, yoff=yoff)
 
     xpos, ypos = 0.0, hh
     f3d = Font3D(xpos=xpos, ypos=ypos, right=right, up=up, rot90=True, glBegin=False)
     for i in range(2*i1, 2*i2):
         yoff = i * (XLen/2)
-        if -hw < yoff + xpos < hw:  # hw? hh?
-            f3d.drawString("%g" % i, color=color, yoff=yoff)
+        if -hw < yoff + xpos < hw:
+            f3d.drawString("%-.4g" % yoff, color=color, yoff=yoff)
     
     glEnable(GL_LIGHTING)
     return
