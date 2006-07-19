@@ -792,7 +792,7 @@ class Stat( Jig_onChunk_by1atom ):
     - boxed_atom: the atom in the chunk the user selected. A box is drawn
     around this atom.
        Note that the simulator applies the Stat to all atoms in the entire chunk
-    to which it's attached, but in case of merging or joining chunks, the atoms
+    to which it is attached, but in case of merging or joining chunks, the atoms
     in this chunk might be different each time the mmp file is written; even
     the atom order in one chunk might vary, so the first and last atoms can be
     different even when the set of atoms in the chunk has not changed.
