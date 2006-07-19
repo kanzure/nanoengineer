@@ -1141,12 +1141,36 @@ def _makeLonsCell():
            ]
     return res
 
-##Some varaible defined for SiC Grid
-sic_sqt3_2 = sqrt(3.0)/2.0; sic_uLen = 1.8; sic_yU = sic_uLen * sic_sqt3_2; sic_hLen = sic_uLen/2.0
-sic_vpdat = [[0.0, sic_yU, 0.0], [sic_uLen+sic_hLen, 0.0, 0.0], [sic_uLen, sic_yU, 0.0],
-             [sic_uLen+sic_hLen, sic_yU*2, 0.0], [2*sic_uLen+sic_hLen, sic_yU*2.0, 0.0],
-             [3*sic_uLen, sic_yU, 0.0], [2*sic_uLen+sic_hLen, 0.0, 0.0]]
-    
+# SiC grid
+# The number in parentheses is the point's index in the sic_vpdat list
+#
+#              |
+#  2*sic_yU  --+                   (3) . . . . . (4)
+#              |                  .                 .
+#              |                 .                   .
+#              |                .                     .
+#              |               .                       .
+#              |              .                         .
+#    sic_yU  -(0) . . . . . (2)                         (5)
+#              |               .                        .
+#              |                .                      .
+#              |                 .                    .
+#              |                  .                  .
+#              |                   .                .
+#         0  --+------+------|-----(1)-----|-----(6)-----|---
+#              |             |             |             |
+#              0          sic_uLen     2*sic_uLen    3*sic_uLen
+#
+sic_uLen = 1.8   # Si-C bond length (I think)
+sic_yU = sic_uLen * sqrt(3) / 2
+sic_vpdat = [[0.0 * sic_uLen, 1.0 * sic_yU, 0.0],
+             [1.5 * sic_uLen, 0.0 * sic_yU, 0.0],
+             [1.0 * sic_uLen, 1.0 * sic_yU, 0.0],
+             [1.5 * sic_uLen, 2.0 * sic_yU, 0.0],
+             [2.5 * sic_uLen, 2.0 * sic_yU, 0.0],
+             [3.0 * sic_uLen, 1.0 * sic_yU, 0.0],
+             [2.5 * sic_uLen, 0.0 * sic_yU, 0.0]]
+
 
 def setup(): #bruce 060613 added docstring, cleaned up display list name allocation
     """Set up the usual constant display lists in the current OpenGL context.
@@ -2176,7 +2200,7 @@ def drawSiCGrid(color, line_type, w, h):
         elif line_type == DOTTED_LINE:
             glLineStipple (1, 0x0101)  #  dotted
         else:
-            print "drawer.drawGPGrid(): line_type '", line_type,"' is not valid.  Drawing dashed grid line."
+            print "drawer.drawSiCGrid(): line_type '", line_type,"' is not valid.  Drawing dashed grid line."
             glLineStipple (1, 0x00FF)  #  dashed
     
     glClipPlane(GL_CLIP_PLANE0, (1.0, 0.0, 0.0, hw))
