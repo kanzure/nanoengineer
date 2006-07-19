@@ -1,9 +1,12 @@
 # Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
 """
-GeneratorBaseClass.py
+GeneratorBaseClass.py -- base class for generator dialogs or their controllers
+which supplies ok/cancel/preview logic and some other common behavior
 
 $Id$
 """
+
+__author__ = "Will"
 
 import platform
 import env
@@ -11,8 +14,7 @@ from qt import *
 from chem import gensym
 from Sponsors import SponsorableMixin
 from HistoryWidget import redmsg, orangemsg, greenmsg
-
-__author__ = "Will"
+from debug import print_compact_traceback
 
 _up_arrow_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d\x49\x48\x44\x52" \
@@ -314,8 +316,20 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         """When the user closes the dialog by clicking the 'X' button
         on the dialog title bar, do whatever the cancel button does.
         """
+        # Note: Qt wants the return value of .close to be of the correct type, apparently boolean;
+        # it may mean whether to really close (guess) [bruce 060719 comment]
         try:
             self.cancel_btn_clicked()
             return True
         except:
+            if 1:
+                #bruce 060719: adding this print, since an exception here is either an intentional one
+                # defined in this file (and should be reported as an error in history -- if this happens
+                # we need to fix this code to do that, maybe like _ok_or_preview does), or is a bug.
+                # Not printing anything here would always hide important info, whether errors or bugs.
+                print_compact_traceback("bug in cancel_btn_clicked or in not reporting an error it detected: ")
             return False
+        
+    pass # end of class GeneratorBaseClass
+
+# end

@@ -387,6 +387,7 @@ class PluginlikeGenerator:
         # (if there are more than one specified, for now just assume all of them need to be there)
         for outfile in outfiles:
             if not os.path.exists(outfile):
+                ###e should: self.remove_outfiles(outfiles, complain_if_missing = False)
                 raise PluginBug( "generator output file should exist but doesn't: [%s]" % (outfile,) )
         # insert file contents, rename the object in it, return that (see dna generator)
         thing = self.insert_output(outfiles, params, name)

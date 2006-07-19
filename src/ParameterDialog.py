@@ -27,6 +27,8 @@ from widget_controllers import CollapsibleGroupController_Qt, FloatLineeditContr
 
 from debug import print_compact_traceback
 
+import env # for env.debug(); warning: some methods have a local variable which overrides this
+
 
 # image uses -- we should rename them ####@@@@
 ##self.heading_pixmap.setPixmap(self.image1) # should be: title_icon ####
@@ -434,9 +436,9 @@ class ParameterDialogBase(parameter_dialog_or_frame):
             self.controller.meet_dialog(self)
         return
     def set_defaults(self, dict1):
-        if 1:
-            print "set_defaults is nim" ####k is it even sensible w/o a controller being involved??
-
+        if env.debug():
+            print "debug: set_defaults is nim" ####k is it even sensible w/o a controller being involved??
+        return
     def show(self):
         if self.controller:
             self.controller.setSponsor()
@@ -451,37 +453,41 @@ class ParameterDialogBase(parameter_dialog_or_frame):
 
     # bindings for the buttons -- delegate them to controller if we have one.
     def do_sponsor_btn(self):
-        print "do_sponsor_btn: delegating"
+##        print "do_sponsor_btn: delegating"
         # does SponsorableMixin have something like sponsor_btn_clicked? yes, under that name and open_sponsor_homepage.
         if self.controller:
             self.controller.sponsor_btn_clicked()
     def do_done_btn(self):
-        print "do_done_btn: delegating"
+##        print "do_done_btn: delegating"
         if self.controller:
             self.controller.done_btn_clicked()
     def do_abort_btn(self):
-        print "do_abort_btn: delegating"
+##        print "do_abort_btn: delegating"
         if self.controller:
             self.controller.abort_btn_clicked()
     def do_preview_btn(self):
-        print "do_preview_btn: delegating"
+##        print "do_preview_btn: delegating"
         if self.controller:
             self.controller.preview_btn_clicked()
     def do_whatsthis_btn(self):
-        print "do_whatsthis_btn: delegating"
+##        print "do_whatsthis_btn: delegating"
         if self.controller:
             self.controller.whatsthis_btn_clicked()
     def do_cancel_btn(self):
-        print "do_cancel_btn: delegating"
+##        print "do_cancel_btn: delegating"
         if self.controller:
             self.controller.cancel_btn_clicked()
     def close(self, e=None):
-        print "close: delegating"
+##        print "close: delegating"
+        res = True
+            # fixing bug 2138: Qt wants the return value of .close to be of the correct type, apparently boolean;
+            # it may mean whether to really close (guess) [bruce 060719]
         if self.controller:
-            self.controller.close()
+            res = self.controller.close()
+        return res 
     def do_ok_btn(self):
-        print "do_ok_btn: printing then delegating"
-        if 1:
+##        print "do_ok_btn: printing then delegating"
+        if 0:
             print "printing param values"
             getters = self.param_getters.items()
             getters.sort()
@@ -513,7 +519,7 @@ class ParameterPaneTextEditTest( ParameterDialogBase, QTextEdit): ##k see if thi
 
 # ==
 
-debug_parse = True #####@@@@@
+debug_parse = False
 
 def get_description(filename):
     """For now, only the filename option is supported.

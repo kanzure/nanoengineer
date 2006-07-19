@@ -7,6 +7,8 @@ $Id$
 
 __author__ = "bruce"
 
+import env
+
 from GeneratorBaseClass import GeneratorBaseClass
 
 class GeneratorController(GeneratorBaseClass):
@@ -57,8 +59,8 @@ class GeneratorController(GeneratorBaseClass):
             print "error: self.dialog %r is not dialog %r" % (self.dialog, dialog)
         return
 
-    def destroy(self): ######@@@@@@ call me
-        "To be called from the owning generator, only."
+    def destroy(self):
+        "To be called from the owning generator, only." ####@@@@ but it's also called below
         if self.dialog:
             self.dialog.set_controller(None) # calls self.forget_dialog
         self.gen = None
@@ -100,7 +102,8 @@ class GeneratorController(GeneratorBaseClass):
             self.dialog.reject()
             self.dismissed()
     def dismissed(self):
-        print "dismissed -- should we tell owner to destroy us? is it even still there?" #####@@@@@
+        if env.debug():
+            print "debug fyi: dismissed -- should we tell owner to destroy us? is it even still there?" ####@@@@
         self.destroy() # let's just take the initiative ourselves, though it might cause bugs, maybe we should do it later...
     pass # end of class GeneratorController
 
