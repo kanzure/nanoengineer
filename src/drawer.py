@@ -2075,8 +2075,8 @@ def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
     uh = height spacing between grid lines
     '''
 
-    from prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
     from dimensions import Font3D
+    from prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
     
     if line_type == NO_LINE:
         return
@@ -2142,7 +2142,7 @@ def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
 
     #Draw text for horizontal lines
     y1 = 0
-    f3d = Font3D(xoff=hw, yoff=y1, right=right, up=up, rot90=False, glBegin=True)
+    f3d = Font3D(xpos=hw, ypos=y1, right=right, up=up, rot90=False, glBegin=True)
     while y1 > -hh:
         f3d.drawString("%g" % y1, y1)
         y1 -= uh
@@ -2156,7 +2156,7 @@ def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
 
     #Draw text for vertical lines
     x1 = 0
-    f3d = Font3D(xoff=x1, yoff=hh, right=right, up=up, rot90=True, glBegin=True)
+    f3d = Font3D(xpos=x1, ypos=hh, right=right, up=up, rot90=True, glBegin=True)
     while x1 < hw:
         f3d.drawString("%g" % x1, x1)
         x1 += uw
@@ -2176,8 +2176,9 @@ def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
     glEnable(GL_LIGHTING)
     return
 
-def drawSiCGrid(color, line_type, w, h):
+def drawSiCGrid(color, line_type, w, h, up, right):
     '''Draw SiC grid. '''
+    from dimensions import Font3D
     from prefs_constants import NO_LINE, SOLID_LINE, DASHED_LINE, DOTTED_LINE
     
     if line_type == NO_LINE:
@@ -2186,12 +2187,10 @@ def drawSiCGrid(color, line_type, w, h):
     XLen = sic_uLen * 3.0
     YLen = sic_yU * 2.0
     hw = w/2.0; hh = h/2.0
-    xx = (-hw, hw)
-    yy = (-hh, hh)
-    i1 = int(floor(xx[0]/XLen))
-    i2 = int(ceil(xx[1]/XLen))
-    j1 = int(floor(xx[0]/YLen))
-    j2 = int(ceil(xx[1]/YLen))
+    i1 = int(floor(-hw/XLen))
+    i2 = int(ceil(hw/XLen))
+    j1 = int(floor(-hh/YLen))
+    j2 = int(ceil(hh/YLen))
     
     glDisable(GL_LIGHTING)
     glColor3fv(color)
@@ -2230,9 +2229,23 @@ def drawSiCGrid(color, line_type, w, h):
     glDisable(GL_CLIP_PLANE1)
     glDisable(GL_CLIP_PLANE2)
     glDisable(GL_CLIP_PLANE3)
-    
+        
     if line_type > 1:
         glDisable (GL_LINE_STIPPLE)
+
+    xpos, ypos = hw, 0.0
+    f3d = Font3D(xpos=xpos, ypos=ypos, right=right, up=up, rot90=False, glBegin=False)
+    for j in range(j1, j2):
+        yoff = j * YLen
+        if -hh < yoff + ypos < hh:
+            f3d.drawString("%g" % j, color=color, yoff=yoff)
+
+    xpos, ypos = 0.0, hh
+    f3d = Font3D(xpos=xpos, ypos=ypos, right=right, up=up, rot90=True, glBegin=False)
+    for i in range(2*i1, 2*i2):
+        yoff = i * (XLen/2)
+        if -hw < yoff + xpos < hw:  # hw? hh?
+            f3d.drawString("%g" % i, color=color, yoff=yoff)
     
     glEnable(GL_LIGHTING)
     return

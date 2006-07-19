@@ -264,7 +264,8 @@ class GridPlane(RectGadget):
             drawGPGrid(grid_color, self.line_type, self.width, self.height, self.x_spacing, self.y_spacing,
                        q.unrot(self.assy.o.up), q.unrot(self.assy.o.right))
         else:
-            drawSiCGrid(grid_color, self.line_type, self.width, self.height)
+            drawSiCGrid(grid_color, self.line_type, self.width, self.height,
+                        q.unrot(self.assy.o.up), q.unrot(self.assy.o.right))
         
         glPopMatrix()
     

@@ -323,11 +323,10 @@ SCALE = 0.08
 
 class Font3D:
 
-    def __init__(self, xoff=0, yoff=0, right=None, up=None, rot90=False, glBegin=False):
+    def __init__(self, xpos=0, ypos=0, right=None, up=None, rot90=False, glBegin=False):
 
         self.glBegin = glBegin
-        if glBegin:
-            assert right is not None and up is not None
+        if right is not None and up is not None:
             # The out-of-screen direction for text should always agree with
             # the "real" out-of-screen direction.
             self.outOfScreen = cross(right, up)
@@ -348,27 +347,29 @@ class Font3D:
                 def fx(x): return SCALE * x
 
             if rot90:
-                yoff += xgap
-                xoff -= halfheight * SCALE
+                ypos += xgap
+                xpos -= halfheight * SCALE
                 def tfm(x, y, yoff1, yflip):
                     if yflip:
                         y1 = SCALE * (HEIGHT - 1 - y)
                     else:
                         y1 = SCALE * y
-                    return Numeric.array((xoff + yoff1 + y1, yoff + fx(x), 0.0))
+                    return Numeric.array((xpos + yoff1 + y1, ypos + fx(x), 0.0))
             else:
-                xoff += xgap
-                yoff -= halfheight * SCALE
+                xpos += xgap
+                ypos -= halfheight * SCALE
                 def tfm(x, y, yoff1, yflip):
                     if yflip:
                         y1 = SCALE * (HEIGHT - 1 - y)
                     else:
                         y1 = SCALE * y
-                    return Numeric.array((xoff + fx(x), yoff + yoff1 + y1, 0.0))
+                    return Numeric.array((xpos + fx(x), ypos + yoff1 + y1, 0.0))
             self.tfm = tfm
 
-    def drawString(self, str, yoff=None, color=None, tfm=None, _font_X=_font['X']):
+    def drawString(self, str, yoff=1.0, color=None, tfm=None, _font_X=_font['X']):
         n = len(str)
+        if not self.glBegin:
+            assert color is not None
         if hasattr(self, 'tfm'):
             assert tfm is None
             if self.xflip:
@@ -377,9 +378,8 @@ class Font3D:
                 def fi(i): return i
             # figure out what the yflip should be
             p0 = self.tfm(0, 0, yoff, False)
-            px = self.tfm(1, 0, yoff, False) - p0
-            py = self.tfm(0, 1, yoff, False) - p0
-            textOutOfScreen = cross(px, py)
+            textOutOfScreen = cross(self.tfm(1, 0, yoff, False) - p0,
+                                    self.tfm(0, 1, yoff, False) - p0)
             yflip = vdot(textOutOfScreen, self.outOfScreen) < 0.0
             def tfmgen(i):
                 def tfm2(x, y):
