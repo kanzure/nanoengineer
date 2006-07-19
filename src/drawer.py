@@ -2082,7 +2082,7 @@ def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
 
     #Draw horizontal lines
     y1 = 0
-    f3d = Font3D(hw, y1, right, up, False)
+    f3d = Font3D(xoff=hw, yoff=y1, right=right, up=up, rot90=False, glBegin=True)
     while y1 > -hh:
         glVertex3f(-hw, y1, Z_OFF)
         glVertex3f(hw, y1, Z_OFF)
@@ -2100,7 +2100,7 @@ def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
 
     #Draw vertical lines
     x1 = 0
-    f3d = Font3D(x1, hh, right, up, True)
+    f3d = Font3D(xoff=x1, yoff=hh, right=right, up=up, rot90=True, glBegin=True)
     while x1 < hw:
         glVertex3f(x1, hh, Z_OFF)
         glVertex3f(x1, -hh, Z_OFF)
