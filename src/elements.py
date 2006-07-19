@@ -191,7 +191,7 @@ class ElementPeriodicTable(Singleton):
 
 # numbers changed below to match -- Josh 13Oct05
 # [but this is problematic; see the following string-comment -- bruce 051014]
-    '''
+    """
 [bruce 051014 revised the comments above, and adds:]
 
 Note that the covalent radii below are mainly used for two things: drawing bond
@@ -225,7 +225,7 @@ above), since this exists on C(sp) when one bond is single and one is triple
 values, but might as well instead just be the double bond value, since =C= is
 also a legal form for C(sp). The result is that there is no place in this table
 to put the C+ value.
-'''
+"""
 
     _mendeleev = [("X",  "Singlet",     0.001,  [[1, 0, None, 'sp']]), #bruce 050630 made X have atomtype name 'sp'; might revise again later
                   ("H",  "Hydrogen",    1.6737, [[1, 31, onebond]]),
@@ -287,13 +287,13 @@ to put the C+ value.
                   ("I",  "Iodine",    132.674,  [[1, 119, onebond]]),
                   ("Xe", "Xenon",     134.429,  None)
                 ]
-    _perodicalTable = {}
+    _periodicTable = {}
     _eltName2Num = {}
     _eltSym2Num = {}
     
     def __init__(self):
         #if win: self.w = win
-        if  not self._perodicalTable:
+        if  not self._periodicTable:
            self._createElements(0, self._mendeleev)
            self._createElements(51, self._appendix)
            #bruce 050419 add public attributes to count changes
@@ -314,18 +314,18 @@ to put the C+ value.
                 rad_color = prefs.get(elm[0], self._defaultRad_Color[elm[0]])
                 el = Elem(startIndex, elm[0], elm[1], elm[2], rad_color[0], rad_color[1], elm[3])
                 startIndex += 1
-                self. _perodicalTable[el.eltnum] = el
+                self. _periodicTable[el.eltnum] = el
                 self._eltName2Num[el.name] = el.eltnum
                 self._eltSym2Num[el.symbol] = el.eltnum               
     
     def _loadTableSettings(self, elSym2rad_color, changeNotFound = True ):
-        """Load a table of elements rad/color setting into the current set _perodicalTable. 
+        """Load a table of elements rad/color setting into the current set _periodicTable. 
         <Param> elnum2rad_color:  A dictionary of (eleSym : (rvdw, [r,g,b])).
                 [r,g,b] can be None, which requires color from default setting
         """
         self.rvdw_change_counter += 1
         self.color_change_counter += 1
-        for elm in self._perodicalTable.values():
+        for elm in self._periodicTable.values():
             try:
                 e_symbol = elm.symbol
                 rad_color = elSym2rad_color[e_symbol]
@@ -355,7 +355,7 @@ to put the C+ value.
         """Deep copy the current setting of elements rvdw/color,
         in case user cancel the modifications """
         copyPTable = {}
-        for elm in self._perodicalTable.values():
+        for elm in self._periodicTable.values():
             if type(elm.color) != type([1,1,1]):
                 print "Error: ", elm
             copyPTable[elm.symbol] = (elm.rvdw, elm.color[:])
@@ -371,7 +371,7 @@ to put the C+ value.
         assert type(colTab) == type([1,1, 1,1])
         self.color_change_counter += 1
         for elm in colTab:
-            self._perodicalTable[elm[0]].color = [elm[1], elm[2], elm[3]]
+            self._periodicTable[elm[0]].color = [elm[1], elm[2], elm[3]]
         #self._updateModelDisplay()
     
     def setElemColor(self, eleNum, c):
@@ -379,28 +379,28 @@ to put the C+ value.
         assert type(eleNum) == type(1)
         assert type(c) == type([1,1,1])
         self.color_change_counter += 1
-        self._perodicalTable[eleNum].color = c
+        self._periodicTable[eleNum].color = c
         #self._updateModelDisplay()
         
     def getElemColor(self, eleNum):
         """Return the element color as a triple list for <eleNum> """
         assert type(eleNum) == type(1)
-        return self._perodicalTable[eleNum].color
+        return self._periodicTable[eleNum].color
     
     def getPTsenil(self):
         """Reverse right ends of top 4 lines for passivating """
-        pTsenil = [[self._perodicalTable[2], self._perodicalTable[1]],
-           [self._perodicalTable[10], self._perodicalTable[9], self._perodicalTable[8],
-           self._perodicalTable[7], self._perodicalTable[6]],
-           [self._perodicalTable[18], self._perodicalTable[17], self._perodicalTable[16],
-           self._perodicalTable[15], self._perodicalTable[14]],
-           [self._perodicalTable[36], self._perodicalTable[35], self._perodicalTable[34],
-            self._perodicalTable[33], self._perodicalTable[32]]]
+        pTsenil = [[self._periodicTable[2], self._periodicTable[1]],
+           [self._periodicTable[10], self._periodicTable[9], self._periodicTable[8],
+           self._periodicTable[7], self._periodicTable[6]],
+           [self._periodicTable[18], self._periodicTable[17], self._periodicTable[16],
+           self._periodicTable[15], self._periodicTable[14]],
+           [self._periodicTable[36], self._periodicTable[35], self._periodicTable[34],
+            self._periodicTable[33], self._periodicTable[32]]]
         return pTsenil
     
     def getAllElements(self):
         """Return the whole list of elements of periodic table as dictionary object """
-        return self._perodicalTable
+        return self._periodicTable
     
     def getElement(self, num_or_name_or_symbol):
         """Return the element for <num_or_name_or_symbol>,
@@ -412,26 +412,26 @@ to put the C+ value.
             s = self._eltSym2Num[s]
         elif type(s) != type(1):
             assert 0, s
-        return self._perodicalTable[s]
+        return self._periodicTable[s]
             
     def getElemRvdw(self, eleNum):
         """Return the element rvdw  for <eleNum> """
-        return self._perodicalTable[eleNum].rvdw
+        return self._periodicTable[eleNum].rvdw
     
     def getElemMass(self, eleNum):
         """Return the mass for element <eleNum> """
-        return self._perodicalTable[eleNum].mass
+        return self._periodicTable[eleNum].mass
     
     def getElemName(self, eleNum):
         """Return the name for element <eleNum> """
-        return self._perodicalTable[eleNum].name
+        return self._periodicTable[eleNum].name
         
     def getElemBondCount(self, eleNum, atomtype = None): #bruce 050511 fixed for atomtype changes, added atomtype option
         """Return the number of open bonds for element <eleNum> (with no real bonds).
         If atomtype is provided, use that atomtype, otherwise use the default atomtype
         (i.e. assume all the open bonds should be single bonds).
         """
-        elem = self._perodicalTable[eleNum]
+        elem = self._periodicTable[eleNum]
         return elem.atomtypes[0].numbonds
     
     def getElemSymbol(self, eleNum):
@@ -440,7 +440,7 @@ to put the C+ value.
         """
         assert type(eleNum) == type(1)
         try:
-            elem = self._perodicalTable[eleNum]
+            elem = self._periodicTable[eleNum]
             return elem.symbol
         except:
             print "Can't find element: ", eleNum
@@ -458,7 +458,7 @@ to put the C+ value.
           """Save color/radius preference before deleting"""
           prefs = prefs_context()
           elms = {}
-          for elm in self._perodicalTable.values():
+          for elm in self._periodicTable.values():
               elms[elm.symbol] = (elm.rvdw, elm.color)
           prefs.update(elms)
           #print "__del__() is called now."    
