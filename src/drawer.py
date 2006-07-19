@@ -2082,44 +2082,66 @@ def drawGPGrid(color, line_type, w, h, uw, uh, up, right):
 
     #Draw horizontal lines
     y1 = 0
-    f3d = Font3D(xoff=hw, yoff=y1, right=right, up=up, rot90=False, glBegin=True)
     while y1 > -hh:
         glVertex3f(-hw, y1, Z_OFF)
         glVertex3f(hw, y1, Z_OFF)
+        y1 -= uh
+
+    y1 = 0
+    while y1 < hh:
+        glVertex3f(-hw, y1, Z_OFF)
+        glVertex3f(hw, y1, Z_OFF)
+        y1 += uh
+
+    #Draw vertical lines
+    x1 = 0
+    while x1 < hw:
+        glVertex3f(x1, hh, Z_OFF)
+        glVertex3f(x1, -hh, Z_OFF)
+        x1 += uw
+
+    x1 = 0
+    while x1 > -hw:
+        glVertex3f(x1, hh, Z_OFF)
+        glVertex3f(x1, -hh, Z_OFF)
+        x1 -= uw
+
+    glEnd()
+
+    if line_type > 1:
+        glDisable (GL_LINE_STIPPLE)
+
+    glBegin(GL_LINES)
+
+    #Draw text for horizontal lines
+    y1 = 0
+    f3d = Font3D(xoff=hw, yoff=y1, right=right, up=up, rot90=False, glBegin=True)
+    while y1 > -hh:
         f3d.drawString("%g" % y1, y1)
         y1 -= uh
     f3d.drawString("%g" % y1, y1)
 
     y1 = 0
     while y1 < hh:
-        glVertex3f(-hw, y1, Z_OFF)
-        glVertex3f(hw, y1, Z_OFF)
         f3d.drawString("%g" % y1, y1)
         y1 += uh
     f3d.drawString("%g" % y1, y1)
 
-    #Draw vertical lines
+    #Draw text for vertical lines
     x1 = 0
     f3d = Font3D(xoff=x1, yoff=hh, right=right, up=up, rot90=True, glBegin=True)
     while x1 < hw:
-        glVertex3f(x1, hh, Z_OFF)
-        glVertex3f(x1, -hh, Z_OFF)
         f3d.drawString("%g" % x1, x1)
         x1 += uw
     f3d.drawString("%g" % x1, x1)
 
     x1 = 0
     while x1 > -hw:
-        glVertex3f(x1, hh, Z_OFF)
-        glVertex3f(x1, -hh, Z_OFF)
         f3d.drawString("%g" % x1, x1)
         x1 -= uw
     f3d.drawString("%g" % x1, x1)
 
     glEnd()
-
-    if line_type > 1:
-        glDisable (GL_LINE_STIPPLE)
 
     #glDisable(GL_LINE_SMOOTH)
     #glDisable(GL_BLEND)
