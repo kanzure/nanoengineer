@@ -27,7 +27,6 @@ import env, platform
 from UserPrefs import get_pref_or_optval
 from widgets import double_fixup
 import preferences
-## from prefs_widgets import connect_checkbox_with_boolean_pref
 
 class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropDialog):
 
@@ -43,14 +42,13 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         self.setup_validators()
         self.seltype = 'All'
         self.update_widgets() # to make sure self attrs are set
-##        connect_checkbox_with_boolean_pref( self.watch_minimization_checkbox, Minimize_watchRealtimeMinimization_prefs_key )
 
     def setup_ruc(self):
         "#doc"
         #bruce 060705 use new common code, if it works
         from widget_controllers import realtime_update_controller
         self.ruc = realtime_update_controller( 
-            ( self.update_btngrp, self.update_number_spinbox, self.update_units_combobox ),#k all names
+            ( self.update_btngrp, self.update_number_spinbox, self.update_units_combobox ),
             self.watch_minimization_checkbox,
             Minimize_watchRealtimeMinimization_prefs_key
         )
