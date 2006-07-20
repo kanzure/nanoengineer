@@ -96,6 +96,40 @@ def seen_before(thing): #bruce 060317 [moved from runSim to env, 060324]
 
 # ==
 
+try:
+    _once_per_event_memo
+except:
+    _once_per_event_memo = {}
+
+def once_per_event(*args, **kws): #bruce 060720 ###@@@ should use this in debug's reload function
+    """Return True only once per user event (actually, per glpane redraw),
+    for the given exact combination of args and keyword args.
+    All arg values must be hashable as dict keys.
+    """
+    assert args or kws, "some args or kws are required, otherwise the result would be meaninglessly global"
+    if kws:
+        items = kws.items()
+        items.sort()
+        key1 = (args, tuple(items))
+    else:
+        # optim the usual case
+        # (it should be ok that this can, in theory, overlap the kws case,
+        #  since callers ought to be each passing distinct strings anyway)
+        key1 = args
+    # this version (untested) would work, but might accumulate so much memo data as to be a memory leak
+    ## key2 = ("once_per_event", redraw_counter, key1)
+    ## return not seen_before( key2)
+    # so use this version instead:
+    old = _once_per_event_memo.get(key1, -1)
+    if redraw_counter == old:
+        return False # fast case
+    else:
+        _once_per_event_memo[key1] = redraw_counter
+        return True
+    pass
+
+# ==
+
 # This module defines stub functions which are replaced with different implementations
 # by the changes module when it's imported.
 # So this module should not import the changes module, directly or indirectly.

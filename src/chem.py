@@ -656,8 +656,11 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         ###@@@ (need to report this bug)
         if len(self.bonds) == 0 and platform.atom_debug:
             # (I think the following cond (using self.element rather than elt) is correct even when elt is passed -- bruce 050707)
-            if self.element.atomtypes[0].numbonds != 0: # not a bug for noble gases! 
-                print_compact_stack( "atom_debug: warning: reguess_atomtype(%s) sees %s with no bonds -- probably a bug" % (elt,self) )
+            if self.element.atomtypes[0].numbonds != 0: # not a bug for noble gases!
+                if env.once_per_event("reguess_atomtype warning"): #bruce 060720, only warn once per user event
+                    print_compact_stack(
+                        "atom_debug: warning (once per event): reguess_atomtype(%s) sees %s with no bonds -- probably a bug" % \
+                        (elt,self) )
         return self.best_atomtype_for_numbonds(elt = elt)
 
     def set_atomtype_but_dont_revise_singlets(self, atomtype): ####@@@@ should merge with set_atomtype; perhaps use more widely
