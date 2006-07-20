@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'DnaGeneratorDialog.ui'
 #
-# Created: Wed Jul 19 19:14:31 2006
+# Created: Thu Jul 20 11:04:46 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1296,23 +1296,19 @@ class dna_dialog(QDialog):
         left_spacer = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout59.addItem(left_spacer)
 
-        self.done_btn = QPushButton(self.body_frame,"done_btn")
-        self.done_btn.setMaximumSize(QSize(40,32767))
+        self.done_btn = QToolButton(self.body_frame,"done_btn")
         self.done_btn.setIconSet(QIconSet(self.image3))
         layout59.addWidget(self.done_btn)
 
-        self.abort_btn = QPushButton(self.body_frame,"abort_btn")
-        self.abort_btn.setMaximumSize(QSize(40,32767))
+        self.abort_btn = QToolButton(self.body_frame,"abort_btn")
         self.abort_btn.setIconSet(QIconSet(self.image4))
         layout59.addWidget(self.abort_btn)
 
-        self.preview_btn = QPushButton(self.body_frame,"preview_btn")
-        self.preview_btn.setMaximumSize(QSize(40,32767))
+        self.preview_btn = QToolButton(self.body_frame,"preview_btn")
         self.preview_btn.setIconSet(QIconSet(self.image5))
         layout59.addWidget(self.preview_btn)
 
-        self.whatsthis_btn = QPushButton(self.body_frame,"whatsthis_btn")
-        self.whatsthis_btn.setMaximumSize(QSize(40,32767))
+        self.whatsthis_btn = QToolButton(self.body_frame,"whatsthis_btn")
         self.whatsthis_btn.setIconSet(QIconSet(self.image6))
         layout59.addWidget(self.whatsthis_btn)
         right_spacer = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -1342,6 +1338,7 @@ class dna_dialog(QDialog):
         self.grpbtn1 = QPushButton(self.grpbox1,"grpbtn1")
         self.grpbtn1.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.grpbtn1.sizePolicy().hasHeightForWidth()))
         self.grpbtn1.setMaximumSize(QSize(16,16))
+        self.grpbtn1.setAutoDefault(0)
         self.grpbtn1.setIconSet(QIconSet(self.image7))
         self.grpbtn1.setFlat(1)
         layout42.addWidget(self.grpbtn1)
@@ -1400,6 +1397,7 @@ class dna_dialog(QDialog):
         self.grpbtn2 = QPushButton(self.grpbox2,"grpbtn2")
         self.grpbtn2.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.Fixed,0,0,self.grpbtn2.sizePolicy().hasHeightForWidth()))
         self.grpbtn2.setMaximumSize(QSize(16,16))
+        self.grpbtn2.setAutoDefault(0)
         self.grpbtn2.setIconSet(QIconSet(self.image7))
         self.grpbtn2.setFlat(1)
         layout44.addWidget(self.grpbtn2)
@@ -1418,9 +1416,11 @@ class dna_dialog(QDialog):
         layout28 = QHBoxLayout(None,0,6,"layout28")
 
         self.complement_btn = QPushButton(self.grpbox2,"complement_btn")
+        self.complement_btn.setAutoDefault(0)
         layout28.addWidget(self.complement_btn)
 
         self.reverse_btn = QPushButton(self.grpbox2,"reverse_btn")
+        self.reverse_btn.setAutoDefault(0)
         layout28.addWidget(self.reverse_btn)
         grpbox2Layout.addLayout(layout28)
         body_frameLayout.addWidget(self.grpbox2)
@@ -1433,15 +1433,17 @@ class dna_dialog(QDialog):
         layout42_2.addItem(spacer20)
 
         self.cancel_btn = QPushButton(self,"cancel_btn")
+        self.cancel_btn.setAutoDefault(0)
         layout42_2.addWidget(self.cancel_btn)
 
         self.ok_btn = QPushButton(self,"ok_btn")
+        self.ok_btn.setAutoDefault(0)
         layout42_2.addWidget(self.ok_btn)
         dna_dialogLayout.addLayout(layout42_2)
 
         self.languageChange()
 
-        self.resize(QSize(236,464).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(206,464).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.sponsor_btn,SIGNAL("clicked()"),self.open_sponsor_homepage)
