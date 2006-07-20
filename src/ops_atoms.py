@@ -46,8 +46,9 @@ class ops_atoms_Mixin:
             # (Presently a.Transmute makes one per "error or refusal".)
             self.o.gl_update()
             
-        elif self.selmols:
-            dstElm = PeriodicTable.getElement(elem)
+        if self.selmols: #bruce 060720 elif -> if, in case both atoms and chunks can be selected someday
+            dstElem = PeriodicTable.getElement(elem) #bruce 060720 fix typo dstElm -> dstElem to fix bug 2149
+                # but we have to decide if we want the behavior this now gives us, of transmuting inside selected chunks.
             for mol in self.selmols[:]:
                 for atm in mol.atoms.values():
                     atm.Transmute(dstElem, force = force, atomtype=atomType)
