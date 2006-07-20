@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Mon Jul 10 16:49:44 2006
+# Created: Thu Jul 20 17:32:53 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -597,7 +597,7 @@ class nanotube_dialog(QDialog):
         layout43 = QHBoxLayout(None,0,6,"layout43")
 
         self.parameters_grpbox_label_2 = QLabel(self.tube_distortions_grpbox,"parameters_grpbox_label_2")
-        self.parameters_grpbox_label_2.setSizePolicy(QSizePolicy(QSizePolicy.Fixed,QSizePolicy.MinimumExpanding,0,0,self.parameters_grpbox_label_2.sizePolicy().hasHeightForWidth()))
+        self.parameters_grpbox_label_2.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Minimum,0,0,self.parameters_grpbox_label_2.sizePolicy().hasHeightForWidth()))
         self.parameters_grpbox_label_2.setPaletteForegroundColor(QColor(0,0,255))
         self.parameters_grpbox_label_2.setAlignment(QLabel.AlignVCenter)
         layout43.addWidget(self.parameters_grpbox_label_2)

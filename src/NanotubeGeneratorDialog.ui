@@ -670,8 +670,8 @@
                                     </property>
                                     <property name="sizePolicy">
                                         <sizepolicy>
-                                            <hsizetype>0</hsizetype>
-                                            <vsizetype>3</vsizetype>
+                                            <hsizetype>5</hsizetype>
+                                            <vsizetype>1</vsizetype>
                                             <horstretch>0</horstretch>
                                             <verstretch>0</verstretch>
                                         </sizepolicy>
@@ -1314,9 +1314,6 @@
         <slot>parameter_fixup()</slot>
     </connection>
 </connections>
-<includes>
-    <include location="local" impldecl="in implementation">NanotubeGeneratorDialog.ui.h</include>
-</includes>
 <slots>
     <slot>toggle_nt_distortion_grpbox()</slot>
     <slot>open_sponsor_homepage()</slot>
