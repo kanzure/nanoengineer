@@ -35,6 +35,8 @@ import env
 def QPointFromTuple((x,y)):
     return QPoint(x,y)
 
+debug_keys = env.debug() #####@@@@@
+
 debug_dragstuff = 0 # DO NOT COMMIT with 1. - at least not for the alpha-release version (see below)
     # to enable this at runtime, type the following into the "run py code" menu item's dialog:
     # import TreeWidget@@@TreeWidget.debug_dragstuff = 1
@@ -701,7 +703,13 @@ class TreeWidget(TreeView, DebugMenuMixin):
         caller might have its own opinion, which is what we use, so the flag
         would need to be separately passed anyway.)
         """
-
+        if platform.atom_debug: #bruce 060713 debug code, safe to be permanent
+            import debug
+            debug._event = event
+            debug._event_state = event.state()
+            debug._event_stateAfter = event.stateAfter()
+            print "set debug._event"
+        
         # handle debug menu; canonicalize buttons and modifier keys.
         
         if self.debug_event(event, 'mousePressEvent', permit_debug_menu_popup = 1):
@@ -735,8 +743,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # The menu (and the selection-modifying behavior before we put it up) can ignore dblclick.
             # 050126: let's pass it the modifier keys too (more clearly ok for shift
             # than for control, but try both for now).
+            #bruce 060713 - also pass optflag, in case some menus want to offer advanced entries then
+            optflag = (but & (midButton|altButton)) and 'Option' or None # (on Mac this is option key)
+                # (this only works with ctrl-left, not right -- Qt mac bug??)
             pos = event.globalPos()
-            self.menuReq( item, pos, modifier) # does all needed updates ###k even in glpane?
+            self.menuReq( item, pos, modifier, optflag) # does all needed updates ###k even in glpane?
             return
 
         # after this point, treat clicks to left of open/close icon as if on no item.
@@ -807,7 +818,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
     # context menu requests (the menu items themselves are defined by our subclass)
     
-    def menuReq(self, item, pos, modifier):
+    def menuReq(self, item, pos, modifier, optflag):
         """Context menu items function handler for the Model Tree View
         [interface is mostly compatible with a related QListView signal,
          but it's no longer called that way; col arg was not used and is now removed;
@@ -877,7 +888,7 @@ class TreeWidget(TreeView, DebugMenuMixin):
             # and [050126] equivalent to it now that we're enforcing "selected group
             # implies selected members", assuming the command are coded to operate on
             # all members of groups (when that makes sense).
-        menu = self.make_cmenu_for_set( nodeset)
+        menu = self.make_cmenu_for_set( nodeset, optflag)
         
         menu.exec_loop(pos) # was menu.popup before 050126
             #e should we care about which item to put where (e.g. popup(pos,1))?
@@ -891,22 +902,23 @@ class TreeWidget(TreeView, DebugMenuMixin):
 
         return # from menuReq
     
-    def make_cmenu_for_set(self, nodeset):
+    def make_cmenu_for_set(self, nodeset, optflag):
         """Return a context menu (QPopupMenu object #k)
         to show for the given set of (presumably selected) items.
         [Might be overridden by subclasses, but usually it's more convenient
         and better for them to override make_cmenuspec_for_set instead.]
         """
-        spec = self.make_cmenuspec_for_set(nodeset)  \
-               or self.make_cmenuspec_for_set([])  \
+        spec = self.make_cmenuspec_for_set(nodeset, optflag)  \
+               or self.make_cmenuspec_for_set([], optflag)  \
                or [('(empty context menu)',noop,'disabled')]
         return self.makemenu( spec)
 
-    def make_cmenuspec_for_set(self, nodeset):
+    def make_cmenuspec_for_set(self, nodeset, optflag):
         """Return a Menu_spec list (of a format suitable for makemenu_helper)
         for a context menu suitable for nodeset, a list of 0 or more selected nodes
         (which includes only the topmost selected nodes, i.e. it includes no
         children of selected nodes even if they are selected).
+           <optflag> can be 'Option' or None, in case menus want to include additional items when it's 'Option'.
            Subclasses should override this to provide an actual menu spec.
         The subclass implementation can directly examine the selection status of nodes
         below those in nodeset, if desired, and can assume every node in nodeset is picked,
@@ -1981,6 +1993,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
     
     def keyPressEvent(self, event): ####@@@@ Delete might need revision, and belongs in the subclass
         key = event.key()
+        if debug_keys:
+            print "mt key press",key###########@@@@@
         import platform
         key = platform.filter_key(key) #bruce 041220 (needed for bug 93)
         ####@@@@ as of 050126 this delete binding doesn't seem to work:
@@ -2012,6 +2026,11 @@ class TreeWidget(TreeView, DebugMenuMixin):
         else:
             pass #e should we let the mode process it??
         return
+
+    def keyReleaseEvent(self, event):
+        key = event.key()
+        if debug_keys:
+            print "mt key release",key###########@@@@@
 
     def moveup(self): #bruce 060219
         "Move the selection up (not the nodes, just their selectedness)"

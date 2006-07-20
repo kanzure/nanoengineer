@@ -1350,8 +1350,8 @@ class bonder_at_singlets:
             assert v1 != V_SINGLE or v2 != V_SINGLE # new code needed
         except:
             # old code can be used for now
-            if platform.atom_debug:
-                print "atom_debug: fyi: using OLD code for actually_bond" #####@@@@@
+            if platform.atom_debug and env.once_per_event("using OLD code for actually_bond"):
+                print "atom_debug: fyi (once per event): using OLD code for actually_bond"
             s1.kill()
             s2.kill()
             bond_atoms(a1,a2)

@@ -242,7 +242,7 @@ class modelTree(TreeWidget):
     
     # context menus
     
-    def make_cmenuspec_for_set(self, nodeset): # [see also the term Menu_spec]
+    def make_cmenuspec_for_set(self, nodeset, optflag): # [see also the term Menu_spec]
         "#doc... see superclass docstring"
 
         #e some advice [bruce]: put "display changes" (eg Hide) before "structural changes" (such as Group/Ungroup)...
@@ -357,7 +357,7 @@ class modelTree(TreeWidget):
         # or for exactly one clipboard item topnode itself if it's not already a Group.
         # [rules loosened by bruce 050419-050421]
         
-        if len(nodeset) >= 2:
+        if optflag or len(nodeset) >= 2:
             # note that these nodes are always in the same Part and can't include its topnode
             ok = True
         else:

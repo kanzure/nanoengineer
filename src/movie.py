@@ -825,6 +825,7 @@ class Movie:
         else:
             if abs(fnum - self.currentFrame) > 1000:
                 env.history.message("Advancing to frame " + str(fnum) + ". Please wait...")
+                env.history.h_update() #bruce 060707
                 waitCursor = True
         if waitCursor:
             self.waitCursor = True
