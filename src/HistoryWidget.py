@@ -305,7 +305,7 @@ class HistoryWidget:
         - add html or xml formatting, differently for different kinds of
           messages, as indicated by optional args (not yet designed).
         - when debugging, print info about the call stack at the time the
-          message is printed.]
+          message is printed [this is now implemented by a debug_pref, 060720].]
         """
         ###e in debug_stack mode, walk stack and compare to stored stack and print exit of old frames and enter of (some) new ones
         m1 = message(msg, hist = self)
@@ -381,6 +381,10 @@ class HistoryWidget:
         if not msg:
             return
         # now handle the present msg: save (and show transiently) or emit
+        from debug_prefs import debug_pref, Choice_boolean_False
+        if debug_pref("print history.message() call stacks?", Choice_boolean_False): #bruce 060720
+            from debug import compact_stack
+            options['compact_stack'] = compact_stack(skip_innermost_n = 2) # skips compact_stack itself, and this line that calls it
         if transient_id:
             self.statusbar_msg(msg, repaint = repaint) # (no html allowed in msg!)
             # (Actually we should make a message object now, so the timestamp is
@@ -465,6 +469,9 @@ class HistoryWidget:
             funcs = {'green':greenmsg, 'orange':orangemsg, 'red':redmsg, 'gray':_graymsg}
             func = funcs[_color] # any colorname not in this dict is an exception (ok for now)
             msg = func(msg)
+        _compact_stack = options.pop('compact_stack', "") #bruce 060720
+        if _compact_stack:
+            msg += _graymsg("; history.message() call stack: %s" % quote_html(_compact_stack))
         # any unrecognized options are warned about below
         self._print_msg(msg)
         if options:
