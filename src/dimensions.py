@@ -568,7 +568,7 @@ def drawDihedralDimension(color, right, up, p0, p1, p2, p3, text):
                        e0a, (p1 + p2) / 2, e1a, text)
 
 
-if False:
+if True:
     # work in progress, wware 060719
     class Bauble(Node):
         """A bauble is a small visible spherical object which can be
@@ -577,6 +577,37 @@ if False:
         we display the length in a length measurement jig.
 
         There needs to be some kind of drag method.
+
+        Bruce writes: <<< If this is intended to have any graphical
+        interactivity (eg draggable handles or resizers), that is
+        something we'll need to talk about at some point, since there
+        is not yet a clean API for such things, rather they are mostly
+        specialcased in Build/Select/Extrude/Cookie modes.
+
+        (Extrude's handles are an old prototype of something a bit
+        more modular, but it's been ages since I reviewed that code.)
+
+        But this is something I will need to fix for DNA Origami as
+        well. What is likely to be good is that a graphical object can
+        not only handle its own drawing (plain, highlighted,
+        selected), but its own region for hit test and region
+        selection (both bbox and actual test), and its own drag event
+        handler methods; then the modes that decide to let a specific
+        object handle a drag will pass the down/move/up events for
+        that drag to that object.
+
+        (If the mode is dragging the selection, and the selection
+        includes one of those objects, it might be more complicated,
+        but that would not apply to things like resizer handles, which
+        would be highlightable but not selectable.)
+
+        There may be some interaction with existing optimizations in
+        GLPane & modes for highlighting hit tests, and with the future
+        optim of only redrawing selection & highlighting & moving
+        stuff, when only that is changing.
+
+        A good API for this would have influence on cursors &
+        statusbar too. >>>
         """
         is_movable = True
 
