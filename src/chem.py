@@ -1452,8 +1452,8 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         # Include the distance between self and ppa2 in the info string.
         if self.molecule.assy.ppa2:
             try:
-                ainfo += (". Distance between %s-%s is %.3f." % \
-                    (self, self.molecule.assy.ppa2, vlen(self.posn()-self.molecule.assy.ppa2.posn())))
+                ainfo += (". Distance between %s-%s is %.3f Angstroms." % \
+                    (self, self.molecule.assy.ppa2, vlen(self.posn()-self.molecule.assy.ppa2.posn()))) # fix bug 366-2 ninad060721
             except:
                 print_compact_traceback("bug, fyi: ignoring exception in atom distance computation: ") #bruce 050218
                 pass
