@@ -1600,7 +1600,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             assert basename # it's normal for this to fail, when there is no file yet
             
             if caption_fullpath:
-                partname = self.assy.filename
+                partname = os.path.normpath(self.assy.filename)#fixed bug 453-1 ninad060721
             else:
                 partname = basename
         
