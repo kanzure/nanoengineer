@@ -656,7 +656,7 @@ class Movie:
         # Summary msgs tell user number of files saved and where they are located.
         msg = platform.fix_plurals("%d file(s) written." % nfiles)
         env.history.message(msg)
-        filenames = "%s.%06d.pov - %06d.pov" % (name, self.currentFrame, self.totalFramesActual+1)
+        filenames = "%s.%06d.pov - %06d.pov" % (name, self.currentFrame, self.totalFramesActual)#ninad060721 fixed bug 2148 See defn of totalFramesActual
         msg = "Files are named %s." % filenames
         env.history.message(msg)
         
