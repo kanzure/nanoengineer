@@ -3,6 +3,8 @@
 Drawable.py - shared properties of all drawable objects
 
 $Id$
+
+[not yet used]
 """
 
 import env
@@ -83,12 +85,13 @@ class Drawable:
     jig to move it or rotate it, and if so, just override those on
     your jig to do the right thing. If its position and orientation is
     fully relative, that code needn't be modified (if your jig has a
-    quat). Warning: Huaicai added quats to motor jigs and others, and
-    then partly or fully abandoned them and didn't clean up the mess,
+    quat). Warning: someone added quats to motor jigs and others, and
+    then (I think) partly or fully abandoned them and didn't clean up the mess,
     so there may be quats that are not modified and/or not honored,
-    etc, on some jigs. And it may be that the move/rotate code (in
-    Move Mode) is not very general and will need to be taught to send
-    a nicer method call to Jigs which own Baubles.
+    etc, on some jigs. Either that, or there are partly-redundant quat
+    and other attrs, so that the situation with rot methods is confusing.
+    And it may be that the move/rotate code (in Move Mode) is not very general
+    and will need to be taught to send a nicer method call to Jigs which own Baubles.
 
     *** motion relative to the jig is a good idea
     
@@ -125,6 +128,12 @@ class Drawable:
     highlighted or dragged as a whole Jig).
 
     or we could fix the current code to not make that assumption.
+
+    ===
+
+    see also http://www.nanoengineer-1.net/mediawiki/index.php?title=Drawable_objects
+
+    see also class Bauble, and handles.py
     """
     def __init__(self):
         self.glname = env.alloc_my_glselect_name(self)
