@@ -1,8 +1,23 @@
 # Copyright (c) 2004-2006 Nanorex, Inc.  All rights reserved.
 """
-selectMode.py -- the default mode for Atom's main model view.
+selectMode.py -- Select Chunks and Select Atoms modes, also used as superclasses for some other modes
 
 $Id$
+
+Some things that need cleanup in this code [bruce 060721 comment]: ####@@@@
+
+- redundant use of glRenderMode (see comment where that is used)
+
+- division between selectMode and selectAtomsMode
+
+- drag algorithms for various object types and modifier keys are split over lots of methods
+with lots of common but not identical code. For example, a set of atoms and jigs can be dragged
+in the same way, by two different pieces of code depending on whether an atom or jig in the set
+was clicked on. If this was cleaned up, so that objects clicked on would answer questions about
+how to drag them, and if a drag_handler object was created to handle the drag (or the object itself
+can act as one, if only it is dragged and if it knows how), the code would be clearer, some bugs
+would be easier to fix, and some NFRs easier to implement.
+
 """
 
 from modes import *
@@ -42,8 +57,7 @@ set_DRAG_STICKINESS_LIMIT_from_pref() # also called in selectAtomsMode.leftDown
 ## TEST_PYREX_OPENGL = 0 # bruce 060209 moved this to where it's used (below), and changed it to a debug_pref
 
 def do_what_MainWindowUI_should_do(w):
-    '''This creates the Select Atoms (not the Select Chunks) dashboard .
-    '''
+    """This creates the Select Atoms (not the Select Chunks) dashboard."""
      
     w.selectAtomsDashboard.clear()
 
@@ -117,7 +131,6 @@ def do_what_MainWindowUI_should_do(w):
     #w.elemFilterComboBox.insertItem("Iodine")
     #w.elemFilterComboBox.insertItem("Xenon")
     
-    
     w.transmute2ComboBox.clear()
     w.transmute2ComboBox.insertItem("Hydrogen")
     w.transmute2ComboBox.insertItem("Helium")
@@ -142,10 +155,14 @@ def do_what_MainWindowUI_should_do(w):
     from whatsthis import create_whats_this_descriptions_for_selectAtomsMode
     create_whats_this_descriptions_for_selectAtomsMode(w)
 
+    return
 
-    
+# ==
+
 class selectMode(basicMode):
-    "the default mode of GLPane"
+    "Superclass for Select Chunks, Select Atoms, Build, and other modes."
+    # Warning: some of the code in this superclass is probably only used in selectAtomsMode and its subclasses,
+    # but it's not clear exactly which code this applies to. [bruce 060721 comment]
     
     # class constants
     backgroundColor = 189/255.0, 228/255.0, 238/255.0
@@ -170,13 +187,6 @@ class selectMode(basicMode):
     hover_highlighting_enabled = True
         # Set this to False if you want to disable hover highlighting.
 
-
-    #&&& Marked for removal.  mark 060312
-    #def __init__(self, glpane):
-    #    """The initial function is called only once for the whole program """
-    #    basicMode.__init__(self, glpane)
-    #    self.jigSelectionEnabled = True
-    
     # init_gui handles all the GUI display when entering a mode    
     def init_gui(self):
         pass # let the subclass handle everything for the GUI - Mark [2004-10-11]
@@ -1191,9 +1201,14 @@ class selectMode(basicMode):
         env.history.message(msg)
     
     def get_jig_under_cursor(self, event):
-        '''Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
-           matrix before return. '''
-           
+        """Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
+           matrices before returning.
+        """
+        ####@@@@ WARNING: The original code for this, in GLPane, has been duplicated and slightly modified
+        # in at least three other places (search for glRenderMode to find them). This is bad; common code
+        # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
+        # that should be fixed too. [bruce 060721 comment]
+        
         if not self.o.jigSelectionEnabled:
             return None
         
@@ -1204,7 +1219,7 @@ class selectMode(basicMode):
         
         aspect = float(self.o.width)/self.o.height
                 
-        gz = self._calibrateZ(wX, wY) 
+        gz = self._calibrateZ(wX, wY)
         if gz >= GL_FAR_Z:  # Empty space was clicked--This may not be true for translucent face [Huaicai 10/5/05]
             return None  
         
@@ -1270,8 +1285,7 @@ class selectMode(basicMode):
                 #self.glselect_dict[id(obj)] = obj # now these can be rerendered specially, at the end of mode.Draw
                 if isinstance(obj, Jig):
                     return obj
-        return None
-        
+        return None # from get_jig_under_cursor
                 
     def Draw(self):
         if 1:
@@ -1427,8 +1441,11 @@ class selectMode(basicMode):
         return
 
     pass # end of class selectMode
-    
+
+# ==
+
 class selectMolsMode(selectMode):
+    "Select Chunks mode"
     modename = 'SELECTMOLS'
     default_mode_status_text = "Mode: Select Chunks"
     
@@ -1539,7 +1556,11 @@ class selectMolsMode(selectMode):
             atm.update_everything()
         for mol in self.o.assy.selmols:
             mol.update_everything()
+        return
 
+    pass # end of class selectMolsMode
+
+# ==
 
 class selectAtomsMode(selectMode):
     modename = 'SELECTATOMS'
@@ -1583,6 +1604,10 @@ class selectAtomsMode(selectMode):
             #   'Unpicked Atom'
             #   'Singlet'
             #   'Bond'
+            # [later note: it is only used to compare to 'Empty Space';
+            #  self.current_obj and other state variables are used instead of
+            #  checking for the other values; I don't know if the other values
+            #  are always correct. bruce 060721 comment]
         self.drag_multiple_atoms = False
             # set to True when we are dragging a movable unit of 2 or more atoms.
         self.maybe_use_bc = False # whether to use the BorrowerChunk optimization for the current drag (experimental) [bruce 060414]
@@ -1687,7 +1712,7 @@ class selectAtomsMode(selectMode):
         if self.hover_highlighting_enabled:
             self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # update_selatom() updates self.o.selatom and self.o.selobj.
-            # self.o.selatom is either a real atom or a singlet.
+            # self.o.selatom is either a real atom or a singlet [or None].
             # self.o.selobj can be a bond, and is used in leftUp() to determine if a bond was selected.
             
         # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
@@ -1701,14 +1726,23 @@ class selectAtomsMode(selectMode):
             
             if obj is None and self.o.selobj:
                 obj = self.o.selobj # a "highlighted" bond
+                if not isinstance(obj, Bond) and env.debug():
+                    print "debug fyi: not isinstance(obj, Bond) in get_obj_under_cursor, for %r" % (obj,)
+                        # I suspect some jigs can occur here
+                        # (and if not, we should put them here -- I know of no excuse for jig highlighting
+                        #  to work differently than for anything else) [bruce 060721] 
             
             if obj is None: # a "highlighted" jig
                 obj = self.get_jig_under_cursor(event)
+                if env.debug():
+                    print "debug fyi: get_jig_under_cursor returns %r" % (obj,) # [bruce 060721] 
+            pass
             
         else: # No hover highlighting
             obj = self.o.assy.findAtomUnderMouse(event, self.water_enabled, singlet_ok = True)
             # Note: findAtomUnderMouse() only returns atoms and singlets, not bonds or jigs.
             # This means that bonds can never be selected when highlighting is turned off.
+            # [What about jigs? bruce question 060721]
         return obj
             
     def get_real_atom_under_cursor(self, event):
@@ -2094,6 +2128,7 @@ class selectAtomsMode(selectMode):
             # If a drag event has happened after the cursor was over an atom and a modkey is pressed,
             # do a 2D region selection as if the atom were absent.
             self.emptySpaceLeftDown(self.LMB_press_event)
+            #bruce 060721 question: why don't we also do emptySpaceLeftDrag at this point?
             return
             
         if obj is None: # Nothing dragged (or clicked); return.
@@ -2174,7 +2209,7 @@ class selectAtomsMode(selectMode):
             pass
         
         self.baggage = []
-        self.current_obj = None #bruce 041130 fix bug 230
+        self.current_obj = None #bruce 041130 fix bug 230 [later: i guess this attr had a different name then -- bruce 060721]
         self.o.selatom = None #bruce 041208 for safety in case it's killed
         #bruce 041130 comment: it forgets selatom, but doesn't repaint,
         # so selatom is still visible; then the next event will probably
@@ -2376,9 +2411,8 @@ class selectAtomsMode(selectMode):
             win.atomSelect_hybridComboBox.hide()
         return
 
-
     def _highlightAtoms(self, grp):
-        '''High light atoms or chunks inside ESPImage jigs. '''
+        """Highlight atoms or chunks inside ESPImage jigs."""
         from jigs_planes import ESPImage
             
         if isinstance(grp, ESPImage): 
@@ -2389,9 +2423,14 @@ class selectAtomsMode(selectMode):
                     m.highlightAtomChunks()
                 elif isinstance(m, Group):
                     self._highlightAtoms(m)
-        
+        return
                         
     def Draw(self):
-        '''Draw model for the select Atom mode'''
+        """Draw the model for Select Atoms mode."""
         selectMode.Draw(self)
         self._highlightAtoms(self.o.assy.part.topnode)
+        return
+
+    pass # end of class selectAtomsMode
+
+# end

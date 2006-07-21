@@ -1549,7 +1549,18 @@ class depositMode(selectAtomsMode):
         self.line = None # required to erase white rubberband line on next gl_update.
         
         s2 = self.get_singlet_under_cursor(event)
-
+            ####@@@@ POSSIBLE BUG: s2 is not deterministic if cursor is over a real atom (see its docstring);
+            # this may lead to bond type changer on singlet sometimes but not always working, 
+            # if cursor goes up over its base atom; or it may lead to nondeterministic remaining bondpoint
+            # position or bondorder when bonding s1 to another atom.
+            #   When it doesn't work (for bond type changer), it'll try to create a bond
+            # between singlets on the same base atom; the code below indicates it won't really do it,
+            # but may erroneously set_cmdname then (but if nothing changes this may not cause a bug in Undo menu text).
+            # I tried to demo the basic bug (sometime-failure of bond type changer) but forgot to activate that tool.
+            # But I found that debug prints and behavior make it look like something prevents highlighting s1's base atom,
+            # but permits highlighting of other real atoms, during s1's drag. Even if that means this bug
+            # can't happen, the code needs to be clarified. [bruce 060721 comment]
+            
         if s2:
             if s2 is s1: # If the same singlet is highlighted...
                 if self.bond_type_changer_is_active():
@@ -1583,6 +1594,9 @@ class depositMode(selectAtomsMode):
             if a.is_singlet():
                 return a
             if a.singNeighbors():
+                if env.debug():
+                    #bruce 060721
+                    print "debug warning (likely bug): get_singlet_under_cursor returning an arbitrary bondpoint of %r" % (a,)
                 return a.singNeighbors()[0]
         return None
 

@@ -1487,12 +1487,17 @@ class basicMode(anyMode):
         
         return wZ[0][0]
 
-
     def jigGLSelect(self, event, selSense):
-        '''Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
-           matrix before return. '''
+        """Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
+           matrices before returning.
+        """
         ## [Huaicai 9/22/05]: Moved it from selectMode class, so it can be called in move mode, which
-        ## is asked for by Mark, but it's not intended for any other mode.          
+        ## is asked for by Mark, but it's not intended for any other mode.
+        #
+        ####@@@@ WARNING: The original code for this, in GLPane, has been duplicated and slightly modified
+        # in at least three other places (search for glRenderMode to find them). This is bad; common code
+        # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
+        # that should be fixed too. [bruce 060721 comment]
         
         from constants import GL_FAR_Z
         
@@ -1578,9 +1583,8 @@ class basicMode(anyMode):
                         if not obj.picked:
                             obj.pick()
                     return True
-        return  False       
+        return  False # from jigGLSelect
 
-    
     pass # end of class basicMode
 
 # ===

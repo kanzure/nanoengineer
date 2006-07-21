@@ -1772,6 +1772,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             pass
         
         if self.glselect_wanted:
+            ####@@@@ WARNING: The original code for this, here in GLPane, has been duplicated and slightly modified
+            # in at least three other places (search for glRenderMode to find them). This is bad; common code
+            # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
+            # that should be fixed too. [bruce 060721 comment]
             wX, wY, self.targetdepth = self.glselect_wanted # wX,wY is the point to do the hit-test at
                 # targetdepth is the depth buffer value to look for at that point, during ordinary drawing phase
                 # (could also be used to set up clipping planes to further restrict hit-test, but this isn't yet done)

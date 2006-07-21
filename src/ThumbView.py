@@ -409,8 +409,13 @@ class ThumbView(QGLWidget):
         
         
     def select(self, wX, wY):
-        '''Use the OpenGL picking/selection to select any object. Return the selected object, 
-           otherwise, return None. Restore projection and model/view matrix before return.'''
+        """Use the OpenGL picking/selection to select any object. Return the selected object, 
+           otherwise, return None. Restore projection and model/view matrices before returning.
+        """
+        ####@@@@ WARNING: The original code for this, in GLPane, has been duplicated and slightly modified
+        # in at least three other places (search for glRenderMode to find them). This is bad; common code
+        # should be used. Furthermore, I suspect it's sometimes needlessly called more than once per frame;
+        # that should be fixed too. [bruce 060721 comment]
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
         gz = wZ[0][0]
         
@@ -469,7 +474,7 @@ class ThumbView(QGLWidget):
             if names:
                 obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
                 return obj 
-        return None
+        return None # from ThumbView.select
 
 
     def highlightSelected(self, obj):
