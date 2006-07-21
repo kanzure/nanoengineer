@@ -49,6 +49,17 @@ API_ENFORCEMENT = False   # for performance, commit this only as False
 class APIViolation(Exception):
     pass
 
+_default_x = object()
+def print_verbose_traceback(x=_default_x):
+    import sys, traceback
+    #stack = traceback.extract_stack()
+    #for tpl in stack[:-1]:
+    #    print "%s line %d    %s\n\t%s" % tpl
+    traceback.print_stack(file=sys.stdout)
+    if x is not _default_x:
+        print x
+    print
+
 # We compare class names to find out whether calls to private methods
 # are originating from within the same class (or one of its friends). This
 # could give false negatives, if two classes defined in two different places
@@ -414,6 +425,7 @@ def exec_allowed():
 # traceback
 
 def print_compact_traceback(msg = "exception ignored: "):
+    # raise
     print >> sys.__stderr__, msg + compact_traceback()
 
 def compact_traceback():
