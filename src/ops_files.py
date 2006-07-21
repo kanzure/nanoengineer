@@ -101,7 +101,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     env.history.message( redmsg( "Internal error while inserting MMP file: " + fn) )
                 else:
                     self.assy.changed() # The file and the part are not the same.
-                    env.history.message( "MMP file inserted: " + os.path.normpath(fn) )# fix bug 453 item. ninad060722
+                    env.history.message( "MMP file inserted: " + os.path.normpath(fn) )# fix bug 453 item. ninad060721
             
             if fn[-3:] in ["pdb","PDB"]:
                 try:
