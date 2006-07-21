@@ -552,7 +552,7 @@ def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text):
     outOfScreen = cross(right, up)
     textForward = cross(textx, texty)
     if dot(outOfScreen, textForward) < 0:
-        tmidpoint = csys.xyz((r + 11, midangle, 0))
+        tmidpoint = csys.xyz((r + 1, midangle, 0))
         texty = -texty
 
     textxyz = tmidpoint - (0.5 * len(text)) * textx
