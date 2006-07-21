@@ -17,8 +17,6 @@ from drawer import *
 from debug import *
 from Utility import Node
 
-USE_BAUBLES = False
-
 """
 The font is a vector-drawing thing. The entries in the font are
 integer coordinates. The drawing space is 5x7.
@@ -384,7 +382,7 @@ class Font3D:
             p0 = self.tfm(0, 0, yoff, False)
             textOutOfScreen = cross(self.tfm(1, 0, yoff, False) - p0,
                                     self.tfm(0, 1, yoff, False) - p0)
-            yflip = vdot(textOutOfScreen, self.outOfScreen) < 0.0
+            yflip = dot(textOutOfScreen, self.outOfScreen) < 0.0
             def tfmgen(i):
                 def tfm2(x, y):
                     return self.tfm(x + (WIDTH+1) * fi(i), y, yoff, yflip)
@@ -464,14 +462,25 @@ class CylindricalCoordinates:
             self.drawLine(color, (r, theta1, z), (r, t, z))
             theta1 = t
 
-def drawLinearDimension(color, right, up, bpos, p0, p1, text):
-    csys = CylindricalCoordinates(p0, p1 - p0, up, right)
-    if USE_BAUBLES:
-        # Initialize bauble position in some reasonable way
-        # Constrain bauble dragging so it lies in the plane
-        br, bt, bz = csys.rtz(bpos)
+def constrainLinearHandle(pos, a0, a1):
+    p0, p1 = a0.posn(), a1.posn()
+    z = p1 - p0
+    nz = norm(z)
+    dotprod = dot(pos - p0, nz)
+    if dotprod < 0.0:
+        return pos - dotprod * nz
+    elif dotprod > vlen(z):
+        return pos - (dotprod - vlen(z)) * nz
     else:
-        br = 9.5
+        return pos
+
+def drawLinearDimension(color, right, up, bpos, p0, p1, text):
+    outOfScreen = cross(right, up)
+    bdiff = bpos - 0.5 * (p0 + p1)
+    csys = CylindricalCoordinates(p0, p1 - p0, bdiff, right)
+    # This works OK until we want to keep the text right side up, then the
+    # criterion for right-side-up-ness changes because we've changed 'up'.
+    br, bt, bz = csys.rtz(bpos)
     e0 = csys.xyz((br + 0.5, 0, 0))
     e1 = csys.xyz((br + 0.5, 0, 1))
     drawline(color, p0, e0)
@@ -491,29 +500,40 @@ def drawLinearDimension(color, right, up, bpos, p0, p1, text):
     drawline(color, v1, arrow11)
     # draw the text for the numerical measurement, make
     # sure it goes from left to right
-    if dot(csys.z, right) > 0:
-        def tfm(x, y):
-            return csys.xyz((br + 0.5 + y / (1. * HEIGHT),
-                             0, 0.1 + csys.zinv * x / (1. * WIDTH)))
-    else:
-        def tfm(x, y):
-            return csys.xyz((br + 0.5 + y / (1. * HEIGHT),
-                             0, 0.9 - csys.zinv * x / (1. * WIDTH)))
+    zflip = dot(csys.z, right) < 0
+    # then make sure it's right side up
+    theoreticalRight = (zflip and -csys.z) or csys.z
+    theoreticalOutOfScreen = cross(theoreticalRight, bdiff)
+    xflip = dot(theoreticalOutOfScreen, outOfScreen) < 0
+    def fx(y, xflip=xflip):
+        if xflip: return br + 1.5 - y / (1. * HEIGHT)
+        else: return br + 0.5 + y / (1. * HEIGHT)
+    def fz(x, zflip=zflip):
+        if zflip: return 0.9 - csys.zinv * x / (1. * WIDTH)
+        else: return 0.1 + csys.zinv * x / (1. * WIDTH)
+    def tfm(x, y, fx=fx, fz=fz):
+        return csys.xyz((fx(y), 0, fz(x)))
     f3d = Font3D()
     f3d.drawString(text, tfm=tfm, color=color)
 
-def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text):
-    h = 1.0e-3
+def constrainHandleToAngle(pos, p0, p1, p2):
+    u = pos - p1
+    z0 = norm(p0 - p1)
+    z2 = norm(p2 - p1)
+    oop = norm(cross(z0, z2))
+    u = u - dot(oop, u) * oop
+    dif0 = u - dot(u, z0) * z0
+    if dot(dif0, z2 - z0) < 0:
+        u = u - dif0
+    dif2 = u - dot(u, z2) * z2
+    if dot(dif2, z0 - z2) < 0:
+        u = u - dif2
+    return p1 + u
+
+def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR2=0.0):
     z = cross(p0 - p1, p2 - p1)
-    r = max(vlen(p0 - p1), vlen(p2 - p1))
     csys = CylindricalCoordinates(p1, z, up, right)
-    if USE_BAUBLES:
-        # Initialize bauble position with br = max(vlen(p0 - p1), vlen(2 - p1))
-        # Constrain bauble dragging so it lies in the plane of the angle
-        br, bt, bz = csys.rtz(bpos)
-        r = br + 0.5
-    else:
-        r += 10
+    br, bt, bz = csys.rtz(bpos)
     theta1 = csys.rtz(p0)[1]
     theta2 = csys.rtz(p2)[1]
     if theta2 < theta1 - math.pi:
@@ -522,27 +542,28 @@ def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text):
         theta2 -= 2 * math.pi
     if theta2 < theta1:
         theta1, theta2 = theta2, theta1
-    e0 = csys.xyz((r, theta1, 0))
-    e1 = csys.xyz((r, theta2, 0))
+    e0 = csys.xyz((max(vlen(p0 - p1), br, minR1) + 0.5, theta1, 0))
+    e1 = csys.xyz((max(vlen(p2 - p1), br, minR2) + 0.5, theta2, 0))
     drawline(color, p1, e0)
     drawline(color, p1, e1)
-    csys.drawArc(color, r - 0.5, theta1, theta2, 0)
+    csys.drawArc(color, br, theta1, theta2, 0)
     # draw some arrowheads
-    e00 = csys.xyz((r - 0.5, theta1, 0))
-    e10 = csys.xyz((r - 0.5, theta2, 0))
-    e0a = norm(csys.xyz((r - 0.5, theta1 + h, 0)) - e00)
-    e0b = norm(csys.xyz((r + 0.5, theta1, 0)) - e00)
-    e1a = norm(csys.xyz((r - 0.5, theta2 + h, 0)) - e10)
-    e1b = norm(csys.xyz((r + 0.5, theta2, 0)) - e10)
+    e00 = csys.xyz((br, theta1, 0))
+    e10 = csys.xyz((br, theta2, 0))
+    h = 1.0e-3
+    e0a = norm(csys.xyz((br, theta1 + h, 0)) - e00)
+    e0b = norm(csys.xyz((br + 1, theta1, 0)) - e00)
+    e1a = norm(csys.xyz((br, theta2 + h, 0)) - e10)
+    e1b = norm(csys.xyz((br + 1, theta2, 0)) - e10)
     drawline(color, e00, e00 + e0a + 0.25 * e0b)
     drawline(color, e00, e00 + e0a - 0.25 * e0b)
     drawline(color, e10, e10 - e1a + 0.25 * e1b)
     drawline(color, e10, e10 - e1a - 0.25 * e1b)
 
     midangle = (theta1 + theta2) / 2
-    tmidpoint = csys.xyz((r, midangle, 0))
-    textx = norm(csys.xyz((r, midangle + h, 0)) - tmidpoint)
-    texty = norm(csys.xyz((r + h, midangle, 0)) - tmidpoint)
+    tmidpoint = csys.xyz((br + 0.5, midangle, 0))
+    textx = norm(csys.xyz((br + 0.5, midangle + h, 0)) - tmidpoint)
+    texty = norm(csys.xyz((br + 0.5 + h, midangle, 0)) - tmidpoint)
 
     # make sure the text runs from left to right
     if dot(textx, right) < 0:
@@ -552,7 +573,7 @@ def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text):
     outOfScreen = cross(right, up)
     textForward = cross(textx, texty)
     if dot(outOfScreen, textForward) < 0:
-        tmidpoint = csys.xyz((r + 1, midangle, 0))
+        tmidpoint = csys.xyz((br + 1.5, midangle, 0))
         texty = -texty
 
     textxyz = tmidpoint - (0.5 * len(text)) * textx
@@ -564,6 +585,13 @@ def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text):
     f3d = Font3D()
     f3d.drawString(text, tfm=tfm, color=color)
 
+def constrainDihedralHandle(pos, p0, p1, p2, p3):
+    axis = norm(p2 - p1)
+    midpoint = 0.5 * (p1 + p2)
+    return constrainHandleToAngle(pos,
+                                  p0 - dot(p0 - midpoint, axis) * axis,
+                                  midpoint,
+                                  p3 - dot(p3 - midpoint, axis) * axis)
 
 def drawDihedralDimension(color, right, up, bpos, p0, p1, p2, p3, text):
     # Draw a frame of lines that shows how the four atoms are connected
@@ -580,4 +608,5 @@ def drawDihedralDimension(color, right, up, bpos, p0, p1, p2, p3, text):
     drawline(color, p1, p2)
     # Use the existing angle drawing routine to finish up
     drawAngleDimension(color, right, up, bpos,
-                       e0a, (p1 + p2) / 2, e1a, text)
+                       e0a, (p1 + p2) / 2, e1a, text,
+                       minR1=r1, minR2=r2)

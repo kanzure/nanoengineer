@@ -31,71 +31,42 @@ from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
 from jigs import Jig
-from dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension, USE_BAUBLES
+from dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension
 
 # work in progress, wware 060719
-class Bauble(Jig):
-    """A bauble is a small visible spherical object which can be
+class Handle:
+    """A handle is a small visible spherical object which can be
     dragged around in 3 dimensions. Its purpose is to provide a
-    draggable point on a jig, for instance to set the height where
-    we display the length in a length measurement jig.
-
-    There needs to be some kind of drag method.
-
-    http://www.nanoengineer-1.net/mediawiki/index.php?title=Drawable_objects
-
-    Bruce writes: <<< If this is intended to have any graphical
-    interactivity (eg draggable handles or resizers), that is
-    something we'll need to talk about at some point, since there
-    is not yet a clean API for such things, rather they are mostly
-    specialcased in Build/Select/Extrude/Cookie modes.
-
-    (Extrude's handles are an old prototype of something a bit
-    more modular, but it's been ages since I reviewed that code.)
-
-    But this is something I will need to fix for DNA Origami as
-    well. What is likely to be good is that a graphical object can
-    not only handle its own drawing (plain, highlighted,
-    selected), but its own region for hit test and region
-    selection (both bbox and actual test), and its own drag event
-    handler methods; then the modes that decide to let a specific
-    object handle a drag will pass the down/move/up events for
-    that drag to that object.
-
-    (If the mode is dragging the selection, and the selection
-    includes one of those objects, it might be more complicated,
-    but that would not apply to things like resizer handles, which
-    would be highlightable but not selectable.)
-
-    There may be some interaction with existing optimizations in
-    GLPane & modes for highlighting hit tests, and with the future
-    optim of only redrawing selection & highlighting & moving
-    stuff, when only that is changing.
-
-    A good API for this would have influence on cursors &
-    statusbar too. >>>
+    draggable point on a jig, for instance to set the position where
+    we display text in a length measurement jig.
     """
     def __init__(self, assy, owner, posn):
-        Jig.__init__(self, assy, [ ])        
-        #self._bbox = bounding box
-        self._posn = posn
+        self._posn_offset = Numeric.array((0.0, 0.0, 0.0))
+        self.owner = owner
+
+    def constrainMovement(self, posn):
+        # expected to be overloaded
+        return posn
 
     def move(self, offset):
-        #self._bbox += offset
-        self._posn += offset
+        c = self.owner.center()
+        p = c + self._posn_offset + offset
+        p = self.constrainMovement(p)
+        self._posn_offset = p - c
 
     def posn(self):
-        return self._posn
+        return self.owner.center() + self._posn_offset
 
-    def draw(self, glpane, highlighted=False):
+    def draw(self, glpane, color, highlighted=False):
         from constants import magenta, yellow
-        if highlighted:
-            color = yellow
-        else:
-            color = magenta
+        if True:
+            if highlighted:
+                color = yellow
+            else:
+                color = magenta
         level = 1
-        drawrad = 0.4
-        drawsphere(color, self._posn, drawrad, level)
+        drawrad = 0.25
+        drawsphere(color, self.posn(), drawrad, level)
 
 # == Measurement Jigs
 
@@ -110,12 +81,7 @@ class MeasurementJig(Jig):
         self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = black # This is the normal (unselected) color.
         self.cancelled = True # We will assume the user will cancel
-        # it will get a meaningful  position when I use it for real
-        if USE_BAUBLES:
-            posn = Numeric.array((0.0, 0.0, 0.0))
-        else:
-            posn = None
-        self.bauble = Bauble(assy, self, posn)
+        self.handle = Handle(assy, self, V(0.0, 0.0, 0.0))
 
     # move some things to base class, wware 051103
     copyable_attrs = Jig.copyable_attrs + ('font_name', 'font_size')
@@ -141,14 +107,8 @@ class MeasurementJig(Jig):
         "Delete the jig if any of its atoms are deleted"
         Node.kill(self)
 
-    def pick(self):
-        Jig.pick(self)
-        if USE_BAUBLES:
-            Jig.pick(self.bauble)
-
     def move(self, offset):
-        if USE_BAUBLES:
-            self.bauble.move(offset)
+        self.handle.move(offset)
         
     # Set the properties for a Measure Distance jig read from a (MMP) file
     # include atomlist, wware 051103
@@ -158,6 +118,12 @@ class MeasurementJig(Jig):
         self.font_name = font_name
         self.font_size = font_size
         self.setAtoms(atomlist)
+        self.handle.constrainMovement = self.handleConstraint()
+        # apply the constraint to the handle position
+        self.handle.move(V(0.0, 0.0, 0.0))
+
+    def handleConstraint(self):
+        return lambda pos: pos
 
     # simplified, wware 051103
     # Following Postscript: font names NEVER have parentheses in them.
@@ -202,8 +168,14 @@ class MeasurementJig(Jig):
 
     def _draw_jig(self, glpane, color, highlighted=False):
         Jig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
-        if USE_BAUBLES:
-            self.bauble.draw(glpane, highlighted)
+        self.handle.draw(glpane, color, highlighted)
+
+    def center(self):
+        c = Numeric.array((0.0, 0.0, 0.0))
+        n = len(self.atoms)
+        for a in self.atoms:
+            c += a.posn() / n
+        return c
 
     pass # end of class MeasurementJig
 
@@ -217,6 +189,10 @@ class MeasureDistance(MeasurementJig):
     sym = "Distance"
     icon_names = ["measuredistance.png", "measuredistance-hide.png"]
     featurename = "Measure Distance Jig" # added, wware 20051202
+
+    def handleConstraint(self):
+        from dimensions import constrainLinearHandle
+        return lambda pos, atoms=self.atoms: constrainLinearHandle(pos, atoms[0], atoms[1])
 
     def _getinfo(self): 
         return  "[Object: Measure Distance] [Name: " + str(self.name) + "] " + \
@@ -244,7 +220,7 @@ class MeasureDistance(MeasurementJig):
         MeasurementJig._draw_jig(self, glpane, color, highlighted)
         text = "%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance())
         # mechanical engineering style dimensions
-        drawLinearDimension(color, self.assy.o.right, self.assy.o.up, self.bauble._posn,
+        drawLinearDimension(color, self.assy.o.right, self.assy.o.up, self.handle.posn(),
                             self.atoms[0].posn(), self.atoms[1].posn(), text)
 
     mmp_record_name = "mdistance"
@@ -266,6 +242,13 @@ class MeasureAngle(MeasurementJig):
                     ("[Atoms = %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2])) + \
                     "[Angle = " + str(self.get_angle()) + " ]"
         
+    def handleConstraint(self):
+        from dimensions import constrainHandleToAngle
+        atoms = self.atoms
+        def constrain(pos, a0=atoms[0], a1=atoms[1], a2=atoms[2]):
+            return constrainHandleToAngle(pos, a0.posn(), a1.posn(), a2.posn())
+        return constrain
+
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mangle += 1
         
@@ -286,7 +269,7 @@ class MeasureAngle(MeasurementJig):
 
         text = "%.2f" % self.get_angle()
         # mechanical engineering style dimensions
-        drawAngleDimension(color, self.assy.o.right, self.assy.o.up, self.bauble._posn,
+        drawAngleDimension(color, self.assy.o.right, self.assy.o.up, self.handle.posn(),
                            self.atoms[0].posn(), self.atoms[1].posn(), self.atoms[2].posn(),
                            text)
 
@@ -309,6 +292,13 @@ class MeasureDihedral(MeasurementJig):
                     ("[Atoms = %s %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2], self.atoms[3])) + \
                     "[Dihedral = " + str(self.get_dihedral()) + " ]"
         
+    def handleConstraint(self):
+        from dimensions import constrainDihedralHandle
+        atoms = self.atoms
+        def constrain(pos, a0=atoms[0], a1=atoms[1], a2=atoms[2], a3=atoms[3]):
+            return constrainDihedralHandle(pos, a0.posn(), a1.posn(), a2.posn(), a3.posn())
+        return constrain
+
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mdihedral += 1
         
@@ -336,7 +326,7 @@ class MeasureDihedral(MeasurementJig):
 
         text = "%.2f" % self.get_dihedral()
         # mechanical engineering style dimensions
-        drawDihedralDimension(color, self.assy.o.right, self.assy.o.up, self.bauble._posn,
+        drawDihedralDimension(color, self.assy.o.right, self.assy.o.up, self.handle.posn(),
                               self.atoms[0].posn(), self.atoms[1].posn(),
                               self.atoms[2].posn(), self.atoms[3].posn(),
                               text)
