@@ -177,6 +177,16 @@ class MeasurementJig(Jig):
             c += a.posn() / n
         return c
 
+    def writemmp_info_leaf(self, mapping):
+        Node.writemmp_info_leaf(self, mapping)
+        x, y, z = self.handle.posn()
+        mapping.write("info leaf handle = %g %g %g\n" % (x, y, z))
+
+    def readmmp_info_leaf_setitem(self, key, val, interp):
+        import string, Numeric
+        if key == ['handle']:
+            self.handle.move(Numeric.array(map(string.atof, val.split())))
+
     pass # end of class MeasurementJig
 
 
