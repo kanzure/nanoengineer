@@ -101,7 +101,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     env.history.message( redmsg( "Internal error while inserting MMP file: " + fn) )
                 else:
                     self.assy.changed() # The file and the part are not the same.
-                    env.history.message( "MMP file inserted: " + fn )
+                    env.history.message( "MMP file inserted: " + os.path.normpath(fn) )# fix bug 453 item. ninad060722
             
             if fn[-3:] in ["pdb","PDB"]:
                 try:
@@ -111,7 +111,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     env.history.message( redmsg( "Internal error while inserting PDB file: " + fn) )
                 else:
                     self.assy.changed() # The file and the part are not the same.
-                    env.history.message( "PDB file inserted: " + fn )
+                    env.history.message( "PDB file inserted: " + os.path.normpath(fn) )
             
             if fn[-3:] in ["out","OUT"]:
                 try:
@@ -124,7 +124,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                         env.history.message( redmsg("File not inserted."))
                     else:
                         self.assy.changed() # The file and the part are not the same.
-                        env.history.message( "GAMESS file inserted: " + fn )
+                        env.history.message( "GAMESS file inserted: " + os.path.normpath(fn) )
                     
                     
             self.glpane.scale = self.assy.bbox.scale()
@@ -208,12 +208,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     #bruce 050418 comment: we need to check for an error return
                     # and in that case don't clear or have other side effects on assy;
                     # this is not yet perfectly possible in readmmmp.
-                env.history.message("MMP file opened: [" + fn + "]")
+                env.history.message("MMP file opened: [" + os.path.normpath(fn) + "]")
                 isMMPFile = True
                 
             if fn[-3:] in ["pdb","PDB"]:
                 readpdb(self.assy,fn)
-                env.history.message("PDB file opened: [" + fn + "]")
+                env.history.message("PDB file opened: [" + os.path.normpath(fn) + "]")
 
             dir, fil, ext = fileparse(fn)
             ###@@@e could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
@@ -496,7 +496,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
             self.saved_main_file(safile, fil)
 
-            env.history.message( "MMP file saved: " + self.assy.filename )
+            env.history.message( "MMP file saved: " + os.path.normpath(self.assy.filename) )
                 #bruce 060704 moved this before copying part files,
                 # which will now ask for permission before removing files,
                 # and will start and end with a history message if it does anything.
@@ -755,7 +755,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                        break
         
         if recentfiles_use_QSettings:
-            fileList.prepend(fileName)
+            fileList.prepend(fileName) 
         else:
             fileList.insert(0, fileName)
             
