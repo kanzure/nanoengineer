@@ -570,13 +570,15 @@ def drawDihedralDimension(color, right, up, p0, p1, p2, p3, text):
 
 if True:
     # work in progress, wware 060719
-    class Bauble(Node):
+    class Bauble:
         """A bauble is a small visible spherical object which can be
         dragged around in 3 dimensions. Its purpose is to provide a
         draggable point on a jig, for instance to set the height where
         we display the length in a length measurement jig.
 
         There needs to be some kind of drag method.
+
+        http://www.nanoengineer-1.net/mediawiki/index.php?title=Drawable_objects
 
         Bruce writes: <<< If this is intended to have any graphical
         interactivity (eg draggable handles or resizers), that is
