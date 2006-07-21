@@ -17,6 +17,8 @@ from drawer import *
 from debug import *
 from Utility import Node
 
+USE_BAUBLES = False
+
 """
 The font is a vector-drawing thing. The entries in the font are
 integer coordinates. The drawing space is 5x7.
@@ -428,7 +430,7 @@ class CylindricalCoordinates:
         self.p1 = point1 = point0 + z
         self.z = z
         zlen = vlen(z)
-        if zlen:
+        if zlen > 1.0e-6:
             self.zinv = 1.0 / zlen
         else:
             self.zinv = 1.
@@ -462,43 +464,56 @@ class CylindricalCoordinates:
             self.drawLine(color, (r, theta1, z), (r, t, z))
             theta1 = t
 
-def drawLinearDimension(color, right, up, p0, p1, text):
+def drawLinearDimension(color, right, up, bpos, p0, p1, text):
     csys = CylindricalCoordinates(p0, p1 - p0, up, right)
-    e0 = csys.xyz((10, 0, 0))
-    e1 = csys.xyz((10, 0, 1))
+    if USE_BAUBLES:
+        # Initialize bauble position in some reasonable way
+        # Constrain bauble dragging so it lies in the plane
+        br, bt, bz = csys.rtz(bpos)
+    else:
+        br = 9.5
+    e0 = csys.xyz((br + 0.5, 0, 0))
+    e1 = csys.xyz((br + 0.5, 0, 1))
     drawline(color, p0, e0)
     drawline(color, p1, e1)
-    v0 = csys.xyz((9.5, 0, 0))
-    v1 = csys.xyz((9.5, 0, 1))
+    v0 = csys.xyz((br, 0, 0))
+    v1 = csys.xyz((br, 0, 1))
     drawline(color, v0, v1)
     # draw arrowheads at the ends
     a1, a2 = 0.25, 1.0 * csys.zinv
-    arrow00 = csys.xyz((9.5+a1, 0, a2))
-    arrow01 = csys.xyz((9.5-a1, 0, a2))
+    arrow00 = csys.xyz((br + a1, 0, a2))
+    arrow01 = csys.xyz((br - a1, 0, a2))
     drawline(color, v0, arrow00)
     drawline(color, v0, arrow01)
-    arrow10 = csys.xyz((9.5+a1, 0, 1-a2))
-    arrow11 = csys.xyz((9.5-a1, 0, 1-a2))
+    arrow10 = csys.xyz((br + a1, 0, 1-a2))
+    arrow11 = csys.xyz((br - a1, 0, 1-a2))
     drawline(color, v1, arrow10)
     drawline(color, v1, arrow11)
     # draw the text for the numerical measurement, make
     # sure it goes from left to right
     if dot(csys.z, right) > 0:
         def tfm(x, y):
-            return csys.xyz((10 + y / (1. * HEIGHT),
+            return csys.xyz((br + 0.5 + y / (1. * HEIGHT),
                              0, 0.1 + csys.zinv * x / (1. * WIDTH)))
     else:
         def tfm(x, y):
-            return csys.xyz((10 + y / (1. * HEIGHT),
+            return csys.xyz((br + 0.5 + y / (1. * HEIGHT),
                              0, 0.9 - csys.zinv * x / (1. * WIDTH)))
     f3d = Font3D()
     f3d.drawString(text, tfm=tfm, color=color)
 
-def drawAngleDimension(color, right, up, p0, p1, p2, text):
+def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text):
     h = 1.0e-3
     z = cross(p0 - p1, p2 - p1)
     r = max(vlen(p0 - p1), vlen(p2 - p1))
     csys = CylindricalCoordinates(p1, z, up, right)
+    if USE_BAUBLES:
+        # Initialize bauble position with br = max(vlen(p0 - p1), vlen(2 - p1))
+        # Constrain bauble dragging so it lies in the plane of the angle
+        br, bt, bz = csys.rtz(bpos)
+        r = br + 0.5
+    else:
+        r += 10
     theta1 = csys.rtz(p0)[1]
     theta2 = csys.rtz(p2)[1]
     if theta2 < theta1 - math.pi:
@@ -507,27 +522,27 @@ def drawAngleDimension(color, right, up, p0, p1, p2, text):
         theta2 -= 2 * math.pi
     if theta2 < theta1:
         theta1, theta2 = theta2, theta1
-    e0 = csys.xyz((r + 10, theta1, 0))
-    e1 = csys.xyz((r + 10, theta2, 0))
+    e0 = csys.xyz((r, theta1, 0))
+    e1 = csys.xyz((r, theta2, 0))
     drawline(color, p1, e0)
     drawline(color, p1, e1)
-    csys.drawArc(color, r + 9.5, theta1, theta2, 0)
+    csys.drawArc(color, r - 0.5, theta1, theta2, 0)
     # draw some arrowheads
-    e00 = csys.xyz((r + 9.5, theta1, 0))
-    e10 = csys.xyz((r + 9.5, theta2, 0))
-    e0a = norm(csys.xyz((r + 9.5, theta1 + h, 0)) - e00)
-    e0b = norm(csys.xyz((r + 10.5, theta1, 0)) - e00)
-    e1a = norm(csys.xyz((r + 9.5, theta2 + h, 0)) - e10)
-    e1b = norm(csys.xyz((r + 10.5, theta2, 0)) - e10)
+    e00 = csys.xyz((r - 0.5, theta1, 0))
+    e10 = csys.xyz((r - 0.5, theta2, 0))
+    e0a = norm(csys.xyz((r - 0.5, theta1 + h, 0)) - e00)
+    e0b = norm(csys.xyz((r + 0.5, theta1, 0)) - e00)
+    e1a = norm(csys.xyz((r - 0.5, theta2 + h, 0)) - e10)
+    e1b = norm(csys.xyz((r + 0.5, theta2, 0)) - e10)
     drawline(color, e00, e00 + e0a + 0.25 * e0b)
     drawline(color, e00, e00 + e0a - 0.25 * e0b)
     drawline(color, e10, e10 - e1a + 0.25 * e1b)
     drawline(color, e10, e10 - e1a - 0.25 * e1b)
 
     midangle = (theta1 + theta2) / 2
-    tmidpoint = csys.xyz((r + 10, midangle, 0))
-    textx = norm(csys.xyz((r + 10, midangle + h, 0)) - tmidpoint)
-    texty = norm(csys.xyz((r + 10 + h, midangle, 0)) - tmidpoint)
+    tmidpoint = csys.xyz((r, midangle, 0))
+    textx = norm(csys.xyz((r, midangle + h, 0)) - tmidpoint)
+    texty = norm(csys.xyz((r + h, midangle, 0)) - tmidpoint)
 
     # make sure the text runs from left to right
     if dot(textx, right) < 0:
@@ -550,7 +565,7 @@ def drawAngleDimension(color, right, up, p0, p1, p2, text):
     f3d.drawString(text, tfm=tfm, color=color)
 
 
-def drawDihedralDimension(color, right, up, p0, p1, p2, p3, text):
+def drawDihedralDimension(color, right, up, bpos, p0, p1, p2, p3, text):
     # Draw a frame of lines that shows how the four atoms are connected
     # to the dihedral angle
     csys = CylindricalCoordinates(p1, p2 - p1, up, right)
@@ -564,61 +579,5 @@ def drawDihedralDimension(color, right, up, p0, p1, p2, p3, text):
     drawline(color, p2, p3)
     drawline(color, p1, p2)
     # Use the existing angle drawing routine to finish up
-    drawAngleDimension(color, right, up,
+    drawAngleDimension(color, right, up, bpos,
                        e0a, (p1 + p2) / 2, e1a, text)
-
-
-if True:
-    # work in progress, wware 060719
-    class Bauble:
-        """A bauble is a small visible spherical object which can be
-        dragged around in 3 dimensions. Its purpose is to provide a
-        draggable point on a jig, for instance to set the height where
-        we display the length in a length measurement jig.
-
-        There needs to be some kind of drag method.
-
-        http://www.nanoengineer-1.net/mediawiki/index.php?title=Drawable_objects
-
-        Bruce writes: <<< If this is intended to have any graphical
-        interactivity (eg draggable handles or resizers), that is
-        something we'll need to talk about at some point, since there
-        is not yet a clean API for such things, rather they are mostly
-        specialcased in Build/Select/Extrude/Cookie modes.
-
-        (Extrude's handles are an old prototype of something a bit
-        more modular, but it's been ages since I reviewed that code.)
-
-        But this is something I will need to fix for DNA Origami as
-        well. What is likely to be good is that a graphical object can
-        not only handle its own drawing (plain, highlighted,
-        selected), but its own region for hit test and region
-        selection (both bbox and actual test), and its own drag event
-        handler methods; then the modes that decide to let a specific
-        object handle a drag will pass the down/move/up events for
-        that drag to that object.
-
-        (If the mode is dragging the selection, and the selection
-        includes one of those objects, it might be more complicated,
-        but that would not apply to things like resizer handles, which
-        would be highlightable but not selectable.)
-
-        There may be some interaction with existing optimizations in
-        GLPane & modes for highlighting hit tests, and with the future
-        optim of only redrawing selection & highlighting & moving
-        stuff, when only that is changing.
-
-        A good API for this would have influence on cursors &
-        statusbar too. >>>
-        """
-        is_movable = True
-
-        def __init__(self, assy, owner):
-            Node.__init__(self, assy, gensym("Bauble-"), owner)
-
-        def draw(self, glpane, dispdef):
-            level = 2
-            pos = self.posn()
-            drawrad = 1.0 # ???
-            drawsphere(color, pos, drawrad, level)
-        # still need to define posn(), see Motor class in jigs_motors.py

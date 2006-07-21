@@ -31,7 +31,71 @@ from povheader import povpoint #bruce 050413
 from debug import print_compact_stack, print_compact_traceback
 import env #bruce 050901
 from jigs import Jig
-from dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension
+from dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension, USE_BAUBLES
+
+# work in progress, wware 060719
+class Bauble(Jig):
+    """A bauble is a small visible spherical object which can be
+    dragged around in 3 dimensions. Its purpose is to provide a
+    draggable point on a jig, for instance to set the height where
+    we display the length in a length measurement jig.
+
+    There needs to be some kind of drag method.
+
+    http://www.nanoengineer-1.net/mediawiki/index.php?title=Drawable_objects
+
+    Bruce writes: <<< If this is intended to have any graphical
+    interactivity (eg draggable handles or resizers), that is
+    something we'll need to talk about at some point, since there
+    is not yet a clean API for such things, rather they are mostly
+    specialcased in Build/Select/Extrude/Cookie modes.
+
+    (Extrude's handles are an old prototype of something a bit
+    more modular, but it's been ages since I reviewed that code.)
+
+    But this is something I will need to fix for DNA Origami as
+    well. What is likely to be good is that a graphical object can
+    not only handle its own drawing (plain, highlighted,
+    selected), but its own region for hit test and region
+    selection (both bbox and actual test), and its own drag event
+    handler methods; then the modes that decide to let a specific
+    object handle a drag will pass the down/move/up events for
+    that drag to that object.
+
+    (If the mode is dragging the selection, and the selection
+    includes one of those objects, it might be more complicated,
+    but that would not apply to things like resizer handles, which
+    would be highlightable but not selectable.)
+
+    There may be some interaction with existing optimizations in
+    GLPane & modes for highlighting hit tests, and with the future
+    optim of only redrawing selection & highlighting & moving
+    stuff, when only that is changing.
+
+    A good API for this would have influence on cursors &
+    statusbar too. >>>
+    """
+    def __init__(self, assy, owner, posn):
+        Jig.__init__(self, assy, [ ])        
+        #self._bbox = bounding box
+        self._posn = posn
+
+    def move(self, offset):
+        #self._bbox += offset
+        self._posn += offset
+
+    def posn(self):
+        return self._posn
+
+    def draw(self, glpane, highlighted=False):
+        from constants import magenta, yellow
+        if highlighted:
+            color = yellow
+        else:
+            color = magenta
+        level = 1
+        drawrad = 0.4
+        drawsphere(color, self._posn, drawrad, level)
 
 # == Measurement Jigs
 
@@ -46,6 +110,12 @@ class MeasurementJig(Jig):
         self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = black # This is the normal (unselected) color.
         self.cancelled = True # We will assume the user will cancel
+        # it will get a meaningful  position when I use it for real
+        if USE_BAUBLES:
+            posn = Numeric.array((0.0, 0.0, 0.0))
+        else:
+            posn = None
+        self.bauble = Bauble(assy, self, posn)
 
     # move some things to base class, wware 051103
     copyable_attrs = Jig.copyable_attrs + ('font_name', 'font_size')
@@ -70,6 +140,15 @@ class MeasurementJig(Jig):
     def rematom(self, atm):
         "Delete the jig if any of its atoms are deleted"
         Node.kill(self)
+
+    def pick(self):
+        Jig.pick(self)
+        if USE_BAUBLES:
+            Jig.pick(self.bauble)
+
+    def move(self, offset):
+        if USE_BAUBLES:
+            self.bauble.move(offset)
         
     # Set the properties for a Measure Distance jig read from a (MMP) file
     # include atomlist, wware 051103
@@ -121,6 +200,11 @@ class MeasurementJig(Jig):
                 return False
         return True
 
+    def _draw_jig(self, glpane, color, highlighted=False):
+        Jig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
+        if USE_BAUBLES:
+            self.bauble.draw(glpane, highlighted)
+
     pass # end of class MeasurementJig
 
 
@@ -157,10 +241,10 @@ class MeasureDistance(MeasurementJig):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the VdW and nuclei distances (e.g. 1.4/3.5) is included.
         '''
-        Jig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
+        MeasurementJig._draw_jig(self, glpane, color, highlighted)
         text = "%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance())
         # mechanical engineering style dimensions
-        drawLinearDimension(color, self.assy.o.right, self.assy.o.up,
+        drawLinearDimension(color, self.assy.o.right, self.assy.o.up, self.bauble._posn,
                             self.atoms[0].posn(), self.atoms[1].posn(), text)
 
     mmp_record_name = "mdistance"
@@ -198,11 +282,11 @@ class MeasureAngle(MeasurementJig):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the angle is included.
         '''
-        Jig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
+        MeasurementJig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
 
         text = "%.2f" % self.get_angle()
         # mechanical engineering style dimensions
-        drawAngleDimension(color, self.assy.o.right, self.assy.o.up,
+        drawAngleDimension(color, self.assy.o.right, self.assy.o.up, self.bauble._posn,
                            self.atoms[0].posn(), self.atoms[1].posn(), self.atoms[2].posn(),
                            text)
 
@@ -248,11 +332,11 @@ class MeasureDihedral(MeasurementJig):
         '''Draws a wire frame cube around two atoms and a line between them.
         A label displaying the dihedral is included.
         '''
-        Jig._draw_jig(self, glpane, color, highlighted)  # draw boxes around each of the jig's atoms.
+        MeasurementJig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
 
         text = "%.2f" % self.get_dihedral()
         # mechanical engineering style dimensions
-        drawDihedralDimension(color, self.assy.o.right, self.assy.o.up,
+        drawDihedralDimension(color, self.assy.o.right, self.assy.o.up, self.bauble._posn,
                               self.atoms[0].posn(), self.atoms[1].posn(),
                               self.atoms[2].posn(), self.atoms[3].posn(),
                               text)
