@@ -13,6 +13,7 @@ __author__ = "bruce"
 
 from testmode import *
 from debug import print_compact_stack
+import env
 
 ORIGIN = V(0,0,0)
 DX = V(1,0,0)
@@ -666,6 +667,41 @@ class xx:
 
 #e want: we's for highlighting, selection, other behavior; let these things act like atoms in build, get into mmp files & undo
 
+
+class Drawable: # see also Drawables.py, into which this is intended to be merged someday
+    """Abstract class for things which selectAtomsMode can draw, and optionally highlight, 
+    click-select, region-select, drag (alone or in a selected set of things), Fit To Window,
+    perhaps View Normal To, or get a context menu from.
+       Someday, they can also define custom cursors, statusbar info.
+       Drawables may, but need not, own the state they should represent graphically
+    (for viewing and editing) -- they may instead just hold a reference to another object
+    which owns that state (and which defines methods for operating on it, saving/loading it).
+       Similarly, they typically would not be defined as containing specific graphics primitives,
+    but rather, rules for creating those from the state they wish to represent.
+       They are likely to have similarities to, or more likely be merged with, WidgetExprs;
+    their state-representing rules may have some similarity to ParseRules.
+       One thing not yet well-defined is how they should interact with objects owning
+    display lists into which they want to draw these drawables. This implies that the drawables
+    (or at least their allocated glnames, and whatever objects they register to handle those)
+    last at least as long as the display list contents. That probably means that the objects need
+    to add themselves to a list of display-list content owners, available as a global for whatever
+    display list (if any) is currently being compiled. Even if no display list is being compiled,
+    that info is needed (and the objects in it need to last) for as long as something might keep
+    the namestack results from a glRenderMode call.
+    """
+    # but widget exprs need a more flexible framework, maybe related to ParseRule,
+    # as well as a better way of handling named options, mentioned elsewhere in this file.
+    def __init__(self):
+        pass
+    pass
+
+class glname_Drawable(Drawable):
+    "Mixin(?) class for drawables that own one glname."
+    def __init__(self):
+        #e super __init__
+        glname_handler = self ###WRONG? self is probably not the right object to register here!
+        self.glname = env.alloc_my_glselect_name(glname_handler) #e or this could be a _compute_ rule for self.glname
+    pass
 
 # end except for outtakes
 

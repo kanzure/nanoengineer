@@ -6,12 +6,19 @@ FOR NOW [060716], NO ONE BUT BRUCE SHOULD EDIT THIS FILE IN ANY WAY.
 
 $Id$
 
-How to use: make a symlink from ~/Nanorex/Modes/testmode.py to this file,
-then find it in debug menu's custom modes submenu. It reloads testdraw.py
+How to use: make a symlink from ~/Nanorex/Modes/testmode.py to this file, i.e.
+
+  % cd ~/Nanorex/Modes
+  % ln -s /.../cad/src/testmode.py .
+
+then find testmode in debug menu's custom modes submenu. It reloads testdraw.py
 on every click, so new drawing code can be tried by editing that file and clicking.
 
+(It also hides all your toolbars, but you can get them back using the context menu
+on the Qt dock, or customize this feature by editing the "annoyers" list below.)
+
 WARNING: some of the code in here might not be needed;
-but some of it might depend on code or data files bruce has at home.
+conversely, some of it might depend on code or data files bruce has at home.
 '''
 
 __author__ = "bruce"
