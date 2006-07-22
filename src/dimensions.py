@@ -462,18 +462,6 @@ class CylindricalCoordinates:
             self.drawLine(color, (r, theta1, z), (r, t, z))
             theta1 = t
 
-def constrainLinearHandle(pos, a0, a1):
-    p0, p1 = a0.posn(), a1.posn()
-    z = p1 - p0
-    nz = norm(z)
-    dotprod = dot(pos - p0, nz)
-    if dotprod < 0.0:
-        return pos - dotprod * nz
-    elif dotprod > vlen(z):
-        return pos - (dotprod - vlen(z)) * nz
-    else:
-        return pos
-
 def drawLinearDimension(color, right, up, bpos, p0, p1, text):
     outOfScreen = cross(right, up)
     bdiff = bpos - 0.5 * (p0 + p1)
@@ -515,20 +503,6 @@ def drawLinearDimension(color, right, up, bpos, p0, p1, text):
         return csys.xyz((fx(y), 0, fz(x)))
     f3d = Font3D()
     f3d.drawString(text, tfm=tfm, color=color)
-
-def constrainHandleToAngle(pos, p0, p1, p2):
-    u = pos - p1
-    z0 = norm(p0 - p1)
-    z2 = norm(p2 - p1)
-    oop = norm(cross(z0, z2))
-    u = u - dot(oop, u) * oop
-    dif0 = u - dot(u, z0) * z0
-    if dot(dif0, z2 - z0) < 0:
-        u = u - dif0
-    dif2 = u - dot(u, z2) * z2
-    if dot(dif2, z0 - z2) < 0:
-        u = u - dif2
-    return p1 + u
 
 def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR2=0.0):
     z = cross(p0 - p1, p2 - p1)
@@ -584,14 +558,6 @@ def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR
         return textxyz + x + y
     f3d = Font3D()
     f3d.drawString(text, tfm=tfm, color=color)
-
-def constrainDihedralHandle(pos, p0, p1, p2, p3):
-    axis = norm(p2 - p1)
-    midpoint = 0.5 * (p1 + p2)
-    return constrainHandleToAngle(pos,
-                                  p0 - dot(p0 - midpoint, axis) * axis,
-                                  midpoint,
-                                  p3 - dot(p3 - midpoint, axis) * axis)
 
 def drawDihedralDimension(color, right, up, bpos, p0, p1, p2, p3, text):
     # Draw a frame of lines that shows how the four atoms are connected

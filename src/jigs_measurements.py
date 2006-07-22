@@ -39,19 +39,36 @@ class Handle:
     dragged around in 3 dimensions. Its purpose is to provide a
     draggable point on a jig, for instance to set the position where
     we display text in a length measurement jig.
+
+    As currently implemented, there are a couple shortcomings with
+    handles. One is that if you drag from anywhere on the jig, it acts
+    as if you're dragging the handle. I don't perceive this as a real
+    bug, it just means the handle is a conveniently wide place to grab
+    the jig.
+
+    The other is that we can't yet put two separate handles on a jig
+    and have them act independently. It would need to be possible for
+    handles to be separately highlighted, so we could send a move to
+    one handle and not the other. I think that means each handle needs
+    a glname, which can later be provided by Drawable, from which this
+    class will eventually inherit. How a glname actually makes an
+    object highlightable is a bit mysterious, and we should document
+    it one of these days.
+
+    Relevant wiki stuff:
+    Drawable_objects#Hover_highlighting_implementation
+    Drawable_objects#Selection
     """
-    def __init__(self, assy, owner, posn):
+    def __init__(self, owner):
         self._posn_offset = Numeric.array((0.0, 0.0, 0.0))
         self.owner = owner
 
-    def constrainMovement(self, posn):
-        # expected to be overloaded
-        return posn
+    def constrainedPosition(self):
+        raise Exception('expected to be overloaded')
 
     def move(self, offset):
         c = self.owner.center()
         p = c + self._posn_offset + offset
-        p = self.constrainMovement(p)
         self._posn_offset = p - c
 
     def posn(self):
@@ -59,14 +76,62 @@ class Handle:
 
     def draw(self, glpane, color, highlighted=False):
         from constants import magenta, yellow
-        if True:
+        if False:
+            # I personally think the magenta looks good, but I should
+            # probably stick with pre-existing color conventions.
             if highlighted:
                 color = yellow
             else:
                 color = magenta
         level = 1
-        drawrad = 0.25
-        drawsphere(color, self.posn(), drawrad, level)
+        drawrad = 0.4
+        pos = self.constrainedPosition()
+        drawsphere(color, pos, drawrad, level)
+
+class LinearHandle(Handle):
+    def constrainedPosition(self):
+        a = self.owner.atoms
+        pos, p0, p1 = self.posn(), a[0].posn(), a[1].posn()
+        z = p1 - p0
+        nz = norm(z)
+        dotprod = dot(pos - p0, nz)
+        if dotprod < 0.0:
+            return pos - dotprod * nz
+        elif dotprod > vlen(z):
+            return pos - (dotprod - vlen(z)) * nz
+        else:
+            return pos
+
+def _constrainHandleToAngle(pos, p0, p1, p2):
+    u = pos - p1
+    z0 = norm(p0 - p1)
+    z2 = norm(p2 - p1)
+    oop = norm(cross(z0, z2))
+    u = u - dot(oop, u) * oop
+    dif0 = u - dot(u, z0) * z0
+    if dot(dif0, z2 - z0) < 0:
+        u = u - dif0
+    dif2 = u - dot(u, z2) * z2
+    if dot(dif2, z0 - z2) < 0:
+        u = u - dif2
+    return p1 + u
+
+
+class AngleHandle(Handle):
+    def constrainedPosition(self):
+        a = self.owner.atoms
+        return _constrainHandleToAngle(self.posn(), a[0].posn(), a[1].posn(), a[2].posn())
+
+class DihedralHandle(Handle):
+    def constrainedPosition(self):
+        a = self.owner.atoms
+        p0, p1, p2, p3 = a[0].posn(), a[1].posn(), a[2].posn(), a[3].posn()
+        axis = norm(p2 - p1)
+        midpoint = 0.5 * (p1 + p2)
+        return _constrainHandleToAngle(self.posn(),
+                                       p0 - dot(p0 - midpoint, axis) * axis,
+                                       midpoint,
+                                       p3 - dot(p3 - midpoint, axis) * axis)
 
 # == Measurement Jigs
 
@@ -81,7 +146,7 @@ class MeasurementJig(Jig):
         self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = black # This is the normal (unselected) color.
         self.cancelled = True # We will assume the user will cancel
-        self.handle = Handle(assy, self, V(0.0, 0.0, 0.0))
+        self.handle = self.HandleType(self)
 
     # move some things to base class, wware 051103
     copyable_attrs = Jig.copyable_attrs + ('font_name', 'font_size')
@@ -118,12 +183,7 @@ class MeasurementJig(Jig):
         self.font_name = font_name
         self.font_size = font_size
         self.setAtoms(atomlist)
-        self.handle.constrainMovement = self.handleConstraint()
-        # apply the constraint to the handle position
         self.handle.move(V(0.0, 0.0, 0.0))
-
-    def handleConstraint(self):
-        return lambda pos: pos
 
     # simplified, wware 051103
     # Following Postscript: font names NEVER have parentheses in them.
@@ -179,13 +239,16 @@ class MeasurementJig(Jig):
 
     def writemmp_info_leaf(self, mapping):
         Node.writemmp_info_leaf(self, mapping)
-        x, y, z = self.handle.posn()
+        handle = self.handle
+        x, y, z = handle.constrainedPosition()
         mapping.write("info leaf handle = %g %g %g\n" % (x, y, z))
 
     def readmmp_info_leaf_setitem(self, key, val, interp):
         import string, Numeric
         if key == ['handle']:
             self.handle.move(Numeric.array(map(string.atof, val.split())))
+        else:
+            Jig.readmmp_info_leaf_setitem(self, key, val, interp)
 
     pass # end of class MeasurementJig
 
@@ -199,10 +262,7 @@ class MeasureDistance(MeasurementJig):
     sym = "Distance"
     icon_names = ["measuredistance.png", "measuredistance-hide.png"]
     featurename = "Measure Distance Jig" # added, wware 20051202
-
-    def handleConstraint(self):
-        from dimensions import constrainLinearHandle
-        return lambda pos, atoms=self.atoms: constrainLinearHandle(pos, atoms[0], atoms[1])
+    HandleType = LinearHandle
 
     def _getinfo(self): 
         return  "[Object: Measure Distance] [Name: " + str(self.name) + "] " + \
@@ -246,19 +306,13 @@ class MeasureAngle(MeasurementJig):
     sym = "Angle"
     icon_names = ["measureangle.png", "measureangle-hide.png"]
     featurename = "Measure Angle Jig" # added, wware 20051202
+    HandleType = AngleHandle
 
     def _getinfo(self):   # add atom list, wware 051101
         return  "[Object: Measure Angle] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2])) + \
                     "[Angle = " + str(self.get_angle()) + " ]"
         
-    def handleConstraint(self):
-        from dimensions import constrainHandleToAngle
-        atoms = self.atoms
-        def constrain(pos, a0=atoms[0], a1=atoms[1], a2=atoms[2]):
-            return constrainHandleToAngle(pos, a0.posn(), a1.posn(), a2.posn())
-        return constrain
-
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mangle += 1
         
@@ -296,19 +350,13 @@ class MeasureDihedral(MeasurementJig):
     sym = "Dihedral"
     icon_names = ["measuredihedral.png", "measuredihedral-hide.png"]
     featurename = "Measure Dihedral Jig" # added, wware 20051202
+    HandleType = DihedralHandle
 
     def _getinfo(self):    # add atom list, wware 051101
         return  "[Object: Measure Dihedral] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2], self.atoms[3])) + \
                     "[Dihedral = " + str(self.get_dihedral()) + " ]"
         
-    def handleConstraint(self):
-        from dimensions import constrainDihedralHandle
-        atoms = self.atoms
-        def constrain(pos, a0=atoms[0], a1=atoms[1], a2=atoms[2], a3=atoms[3]):
-            return constrainDihedralHandle(pos, a0.posn(), a1.posn(), a2.posn(), a3.posn())
-        return constrain
-
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mdihedral += 1
         
