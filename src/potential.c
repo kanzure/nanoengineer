@@ -481,6 +481,9 @@ torsionGradientPart(struct part *p, struct xyz *position, struct xyz *force)
     v2x(v2, v5, v3); // v5 x v3 is normal to a-b-2 plane
     // v1 and v2 point along the direction that a1 and a2 should move
     theta = (Pi / 180.0) * angleBetween(v1, v2);
+    if (theta < 1e-10) {
+      continue;
+    }
 
     q1 = uvec(v1); // unit vector along which force will be applied to a1
     q2 = uvec(v2); // unit vector along which force will be applied to a2
@@ -493,9 +496,11 @@ torsionGradientPart(struct part *p, struct xyz *position, struct xyz *force)
     // vlen(v4) is pm/rad; ff is yJ/pm or pN
     ff = 1e3 * torque / vlen(v4);
     ff *= 2e3;
+    CHECKNAN(ff);
     vmulc(q1, ff);
     ff = 1e3 * torque / vlen(v5);
     ff *= 2e3;
+    CHECKNAN(ff);
     vmulc(q2, ff);
       
     vsub(force[torsion->aa->index], q1);
@@ -511,6 +516,7 @@ torsionGradientPart(struct part *p, struct xyz *position, struct xyz *force)
       vmulc(q2, -1.0);
       writeSimpleForceVector(position, torsion->ab->index, &q2, 2, 1.0); // green
     }
+    BAIL();
   }
 }
 

@@ -27,6 +27,7 @@ CC=gcc
 PYREXTARGET=sim.so
 STDC99=-std=c99
 SIMTARGET=simulator
+#CFLAGS=-pthread -fno-strict-aliasing -g -I/usr/include/python2.3 -fno-strict-aliasing -Wall -Wmissing-prototypes -Wstrict-prototypes -fPIC
 CFLAGS:=$(shell python distutils_compile_options.py compiler_so)
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
@@ -241,7 +242,10 @@ jigs.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 jigs.o: structcompare.h part.h newtables.h interpolate.h readmmp.h readxyz.h
 jigs.o: printers.h dynamics.h jigs.h potential.h minstructure.h writemovie.h
 jigs.o: globals.h
-lin-alg.o: lin-alg.h
+lin-alg.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+lin-alg.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+lin-alg.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
+lin-alg.o: writemovie.h globals.h
 minimize.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 minimize.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 minimize.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h

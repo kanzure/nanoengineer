@@ -8,9 +8,7 @@
 //   namely inside the calc loop, and these to he used everywhere else,
 //   for perspicuity.
 
-#include <math.h>
-
-#include "lin-alg.h"
+#include "simulator.h"
 
 static char const rcsid[] = "$Id$";
 
@@ -52,6 +50,7 @@ struct xyz uvec(struct xyz v) {	/* unit vector in given direction */
 	struct xyz w;
 	double rlen;
 	rlen=1.0/vlen(v);
+        CHECKNANR(rlen, v);
 	vmul2c(w,v,rlen);
 	return w;
 }

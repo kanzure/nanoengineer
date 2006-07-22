@@ -154,6 +154,12 @@ destroyPart(struct part *p)
         p->torsions = NULL;
     }
 
+    // nothing in a cumuleneTorsion needs freeing
+    if (p->cumuleneTorsions != NULL) {
+        free(p->cumuleneTorsions);
+        p->cumuleneTorsions = NULL;
+    }
+
     // nothing in an outOfPlane needs freeing
     if (p->outOfPlanes != NULL) {
         free(p->outOfPlanes);
@@ -372,8 +378,121 @@ makeTorsion(struct part *p, int index, struct bond *center, struct bond *b1, str
     t->A = 0.22; // XXX need to get actual value from real parameters
 }
 
+// This is called for every double bond in the cumulene chain.  On
+// either end of the chain, there should be atoms of sp2
+// hybridization.  In the middle, all of the atoms are sp.  This
+// routine returns non-zero only when called with b as one of the two
+// ending bonds, but not the other one.  When it does return non-zero,
+// b2 is filled in with the other ending bond, and aa, ab, ay, and az
+// are the atoms on either end of the bonds b and b2.  So, atom aa
+// will be sp2, as will az, while ab and ay are sp.  The total number
+// of double bonds in the chain (including b and b2) is returned in n.
+static int
+findCumuleneTorsion(struct bond *b,
+                    struct bond **b2,
+                    struct atom **aa,
+                    struct atom **ab,
+                    struct atom **ay,
+                    struct atom **az,
+                    int *n)
+{
+    int chainLength;
+    struct bond *lastBond;
+    struct bond *nextBond;
+    struct atom *nextAtom;
+    
+    if (b->a1->hybridization == sp && b->a2->hybridization == sp) {
+        return 0; // middle of the chain.
+    }
+    if (b->a1->hybridization != sp && b->a2->hybridization != sp) {
+        return 0; // not a cumulene
+    }
+    if (b->a1->hybridization == sp) {
+        nextAtom = b->a1;
+        *aa = b->a2;
+        *ab = b->a1;
+    } else {
+        nextAtom = b->a2;
+        *aa = b->a1;
+        *ab = b->a2;
+    }
+    nextBond = lastBond = b;
+    chainLength = 1;
+    while (nextAtom->hybridization == sp) {
+        if (nextAtom->num_bonds != 2) {
+            // XXX complain, I thought this thing was supposed to be sp, that means TWO bonds!
+            return 0;
+        }
+        if (nextAtom->bonds[0] == lastBond) {
+            nextBond = nextAtom->bonds[1];
+        } else {
+            nextBond = nextAtom->bonds[0];
+        }
+        switch (nextBond->order) {
+        case '2':
+        case 'a':
+        case 'g': // we're being lenient here, a and g don't really make sense
+            break;
+        default:
+            return 0; // chain terminated by a non-double bond, no torsions
+        }
+        if (nextBond->a1 == nextAtom) {
+            nextAtom = nextBond->a2;
+        } else {
+            nextAtom = nextBond->a1;
+        }
+        lastBond = nextBond;
+        chainLength++;
+    }
+    if ((*aa)->index >= nextAtom->index) {
+        return 0; // only pick one end of the chain
+    }
+    *az = nextAtom;
+    *b2 = nextBond;
+    *n = chainLength;
+    if (nextBond->a1 == nextAtom) {
+        *ay = nextBond->a2;
+    } else {
+        *ay = nextBond->a1;
+    }
+    return 1;
+}
+
+static void
+makeCumuleneTorsion(struct part *p,
+                    int index,
+                    struct atom *aa,
+                    struct atom *ab,
+                    struct atom *ay,
+                    struct atom *az,
+                    int j,
+                    int k,
+                    int n)
+{
+    struct cumuleneTorsion *t = &(p->cumuleneTorsions[index]);
+
+    if (aa->bonds[j]->a1 == aa) {
+        t->a1 = aa->bonds[j]->a2;
+    } else {
+        t->a1 = aa->bonds[j]->a1;
+    }
+    t->aa = aa;
+    t->ab = ab;
+    t->ay = ay;
+    t->az = az;
+    if (az->bonds[k]->a1 == az) {
+        t->a2 = az->bonds[k]->a2;
+    } else {
+        t->a2 = az->bonds[k]->a1;
+    }
+    t->numberOfDoubleBonds = n;
+    t->A = 0.22 / ((double)n); // XXX need actual value here
+}
+
 // Creates a torsion for each triplet of adjacent bonds in the part,
-// where the center bond is graphitic, aromatic, or double.
+// where the center bond is graphitic, aromatic, or double.  If one
+// end of a double bond is an sp atom, we make a cumuleneTorsion
+// instead.
 void
 generateTorsions(struct part *p)
 {
@@ -381,7 +500,14 @@ generateTorsions(struct part *p)
     int j;
     int k;
     int torsion_index = 0;
+    int cumuleneTorsion_index = 0;
     struct bond *b;
+    struct bond *b2;
+    struct atom *ct_a;
+    struct atom *ct_b;
+    struct atom *ct_y;
+    struct atom *ct_z;
+    int n;
     
     // first, count the number of torsions
     for (i=0; i<p->num_bonds; i++) {
@@ -391,6 +517,20 @@ generateTorsions(struct part *p)
         case 'a':
         case 'g':
         case '2':
+            if (b->a1->hybridization == sp || b->a2->hybridization == sp) {
+                if (findCumuleneTorsion(b, &b2, &ct_a, &ct_b, &ct_y, &ct_z, &n)) {
+                    for (j=0; j<ct_a->num_bonds; j++) {
+                        if (ct_a->bonds[j] != b) {
+                            for (k=0; k<ct_z->num_bonds; k++) {
+                                if (ct_z->bonds[k] != b2) {
+                                    p->num_cumuleneTorsions++;
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
             for (j=0; j<b->a1->num_bonds; j++) {
                 if (b->a1->bonds[j] != b) {
                     for (k=0; k<b->a2->num_bonds; k++) {
@@ -400,6 +540,7 @@ generateTorsions(struct part *p)
                     }
                 }
             }
+            break;
         default:
             break;
         }
@@ -407,6 +548,7 @@ generateTorsions(struct part *p)
     }
     
     p->torsions = (struct torsion *)allocate(sizeof(struct torsion) * p->num_torsions);
+    p->cumuleneTorsions = (struct cumuleneTorsion *)allocate(sizeof(struct cumuleneTorsion) * p->num_cumuleneTorsions);
     
     // now, fill them in (make sure loop structure is same as above)
     for (i=0; i<p->num_bonds; i++) {
@@ -416,6 +558,20 @@ generateTorsions(struct part *p)
         case 'a':
         case 'g':
         case '2':
+            if (b->a1->hybridization == sp || b->a2->hybridization == sp) {
+                if (findCumuleneTorsion(b, &b2, &ct_a, &ct_b, &ct_y, &ct_z, &n)) {
+                    for (j=0; j<ct_a->num_bonds; j++) {
+                        if (ct_a->bonds[j] != b) {
+                            for (k=0; k<ct_z->num_bonds; k++) {
+                                if (ct_z->bonds[k] != b2) {
+                                    makeCumuleneTorsion(p, cumuleneTorsion_index++, ct_a, ct_b, ct_y, ct_z, j, k, n);
+                                }
+                            }
+                        }
+                    }
+                }
+                break;
+            }
             for (j=0; j<b->a1->num_bonds; j++) {
                 if (b->a1->bonds[j] != b) {
                     for (k=0; k<b->a2->num_bonds; k++) {
@@ -1598,6 +1754,31 @@ printTorsion(FILE *f, struct part *p, struct torsion *t)
 }
 
 void
+printCumuleneTorsion(FILE *f, struct part *p, struct cumuleneTorsion *t)
+{
+    NULLPTR(t);
+    NULLPTR(t->a1);
+    NULLPTR(t->aa);
+    NULLPTR(t->ab);
+    NULLPTR(t->ay);
+    NULLPTR(t->az);
+    NULLPTR(t->a2);
+    fprintf(f, " cumuleneTorsion ");
+    printAtomShort(f, t->a1);
+    fprintf(f, " - ");
+    printAtomShort(f, t->aa);
+    fprintf(f, " = ");
+    printAtomShort(f, t->ab);
+    fprintf(f, " ... ");
+    printAtomShort(f, t->ay);
+    fprintf(f, " = ");
+    printAtomShort(f, t->az);
+    fprintf(f, " - ");
+    printAtomShort(f, t->a2);
+    fprintf(f, " chain length %d double bonds\n", t->numberOfDoubleBonds);
+}
+
+void
 printOutOfPlane(FILE *f, struct part *p, struct outOfPlane *o)
 {
     NULLPTR(o);
@@ -1642,6 +1823,9 @@ printPart(FILE *f, struct part *p)
     }
     for (i=0; i<p->num_torsions; i++) {
 	printTorsion(f, p, &p->torsions[i]);
+    }
+    for (i=0; i<p->num_cumuleneTorsions; i++) {
+	printCumuleneTorsion(f, p, &p->cumuleneTorsions[i]);
     }
     for (i=0; i<p->num_outOfPlanes; i++) {
 	printOutOfPlane(f, p, &p->outOfPlanes[i]);

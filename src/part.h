@@ -179,6 +179,19 @@ struct torsion
     double A; // aJ/rad^2
 };
 
+struct cumuleneTorsion
+{
+    struct atom *a1;
+    struct atom *aa;
+    struct atom *ab;
+    struct atom *ay;
+    struct atom *az;
+    struct atom *a2;
+    //params;
+    int numberOfDoubleBonds;
+    double A; // aJ/rad^2
+};
+
 struct outOfPlane
 {
     struct atom *ac;
@@ -239,6 +252,9 @@ struct part
     
     int num_torsions;
     struct torsion *torsions;
+    
+    int num_cumuleneTorsions;
+    struct cumuleneTorsion *cumuleneTorsions;
     
     int num_outOfPlanes;
     struct outOfPlane *outOfPlanes;
@@ -320,6 +336,8 @@ extern void printStretch(FILE *f, struct part *p, struct stretch *s);
 extern void printBend(FILE *f, struct part *p, struct bend *b);
 
 extern void printTorsion(FILE *f, struct part *p, struct torsion *t);
+
+extern void printCumuleneTorsion(FILE *f, struct part *p, struct cumuleneTorsion *t);
 
 extern void printOutOfPlane(FILE *f, struct part *p, struct outOfPlane *o);
 
