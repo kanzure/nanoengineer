@@ -92,8 +92,7 @@ def select_bad_atoms_cmd(widget): #bruce 060615 demo of simple "spelling checker
         return
     # done - deselect all, then select bad atoms if any. (Should we also deselect if we found no bad atoms, above??)
     win.glpane.gl_update()
-    assy.unpickatoms()
-    assy.unpickparts()
+    assy.unpickall_in_GLPane() #bruce 060721; was unpickatoms and unpickparts
     bad_atoms = {}
     for a1,a2,a3 in bad_triples:
         bad_atoms[a1.key] = a1

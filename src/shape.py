@@ -450,7 +450,10 @@ class shape:
     pass # end of class shape
     
 class SelectionShape(shape):
-        """This is used to construct shape for atoms/chunks selection. A curve or rectangle will be created, which is used as an area selection of all the atoms/chunks """
+        """This is used to construct shape for atoms/chunks selection.
+        A curve or rectangle will be created, which is used as an area
+        selection of all the atoms/chunks
+        """
         def pickline(self, ptlist, origin, selSense, **xx):
             self.curve = shape.pickline(self, ptlist, origin, selSense, **xx)
    
@@ -468,9 +471,9 @@ class SelectionShape(shape):
             # three selSense cases in each of select and partselect. If anyone adds
             # back any differences, this needs to be explained and justified in a
             # comment; lacking that, any such differences should be considered bugs.
+            #
             # (BTW I don't know whether it's valid to care about selSense of only the
             # first curve in the shape, as this code does.)
-            
             # Huaicai 04/23/05: For selection, every shape only has one curve, so 
             # the above worry by Bruce is not necessary. The reason of not reusing
             # shape is because after each selection user may change view orientation,
@@ -481,8 +484,9 @@ class SelectionShape(shape):
             else:
                 if self.curve.selSense == START_NEW_SELECTION: 
                     # New selection curve. Consistent with Select Chunks behavior.
-                    assy.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
-                    assy.unpickatoms() # Fixed bug 1598. Mark 060303.
+                    assy.unpickall_in_GLPane() # was unpickatoms and unpickparts [bruce 060721]
+##                    assy.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
+##                    assy.unpickatoms() # Fixed bug 1598. Mark 060303.
                 self._atomsSelect(assy)   
         
         
@@ -1358,8 +1362,15 @@ class CookieShape(shape):
                         mol.bond(keyAtom, bondAtom)
         
             if len(mol.atoms) > 0:
-            #bruce 050222 comment: much of this is not needed, since mol.pick() does it.
+                #bruce 050222 comment: much of this is not needed, since mol.pick() does it.
+                # Note: this method is similar to one in cookieMode.py.
                 assy.addmol(mol)
-                assy.unpickparts()
+                assy.unpickall_in_GLPane() # was unpickparts; not sure _in_GLPane is best (or that this is needed at all) [bruce 060721]
                 mol.pick()
-                assy.mt.mt_update()                
+                assy.mt.mt_update()
+        
+        return # from buildChunk
+    
+    pass # end of class CookieShape
+
+# end

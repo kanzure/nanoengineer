@@ -435,8 +435,9 @@ class selectMode(basicMode):
 
     def atomLeftDown(self, a, event):
         if not a.picked and self.o.modkeys is None:
-            self.o.assy.unpickatoms()
-            self.o.assy.unpickparts() # unpick any picked jigs.
+            self.o.assy.unpickall_in_GLPane() # was unpickatoms and unpickparts [bruce 060721]
+                # Note: a comment said that this was intended to unpick (among other things) jigs.
+                # It will, since they are selectable in GLPane.
             a.pick()
         if not a.picked and self.o.modkeys == 'Shift':
             a.pick()
@@ -817,10 +818,11 @@ class selectMode(basicMode):
         nochange = False
         
         if self.o.modkeys is None:
-            self.o.assy.unpickatoms()
+            # isn't this redundant with the side effects in atomLeftDown?? [bruce 060721 question]
+            self.o.assy.unpickall_in_GLPane() # was unpickatoms only; I think unpickall makes more sense [bruce 060721]
             if a.picked:
                 nochange = True
-                #bruce 060331 comment: nochange = True is wrong, since unpickatoms might have changed something.
+                #bruce 060331 comment: nochange = True is wrong, since the unpick might have changed something.
                 # For some reason the gl_update occurs anyway, so I don't know if this causes a real bug, so I didn't change it.
             else:
                 a.pick()
@@ -903,7 +905,7 @@ class selectMode(basicMode):
         #& To do: check if anything changed (picked/unpicked) before calling gl_update(). 
         #& mark 060210.
         if self.o.modkeys is None:
-            self.o.assy.unpickatoms()
+            self.o.assy.unpickall_in_GLPane() # was unpickatoms() [bruce 060721]
             b.atom1.pick()
             b.atom2.pick()
             self.set_cmdname('Select Atoms')
@@ -1001,8 +1003,7 @@ class selectMode(basicMode):
     def jigLeftDown(self, j, event):
         
         if not j.picked and self.o.modkeys is None:
-            self.o.assy.unpickatoms()
-            self.o.assy.unpickparts() # unpick any picked jigs.
+            self.o.assy.unpickall_in_GLPane() # was unpickatoms, unpickparts [bruce 060721]
             j.pick()
         if not j.picked and self.o.modkeys == 'Shift':
             j.pick()
@@ -1078,7 +1079,8 @@ class selectMode(basicMode):
         nochange = False
         
         if self.o.modkeys is None:
-            self.o.assy.unpickatoms()
+            # isn't this redundant with jigLeftDown? [bruce 060721 question; btw this method is very similar to atomLeftUp]
+            self.o.assy.unpickall_in_GLPane() # was unpickatoms only (but I think unpickall makes more sense) [bruce 060721]
             if j.picked:
                 # bruce 060412 fix unreported bug: remove nochange = True, in case atoms were just unpicked
                 pass ## nochange = True
@@ -1451,7 +1453,7 @@ class selectMolsMode(selectMode):
     
     def Enter(self): 
         basicMode.Enter(self)
-        self.o.assy.pickParts() # josh 10/7 to avoid race in assy init
+        self.o.assy.selectChunksWithSelAtoms_noupdate() # josh 10/7 to avoid race in assy init
             
     def init_gui(self):
         selectMode.init_gui(self)
@@ -1577,13 +1579,13 @@ class selectAtomsMode(selectMode):
     def Enter(self): 
         basicMode.Enter(self)
         
-        self.o.assy.selectAtoms()
+        self.o.assy.permit_pick_atoms()
+        self.w.win_update() #k needed? I doubt it, I bet caller of Enter does it [bruce comment 050517, moved here 060721]
+        
         self.set_selection_filter(0) # disable selection filter (sets current item to "All Elements").  mark 060301.
         # Reinitialize previously picked atoms (ppas).
         self.o.assy.ppa2 = self.o.assy.ppa3 = None
         
-        #self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
-            # permit_pick_atoms() already done in self.o.assy.selectAtoms().  mark 060219.
         self.o.selatom = None
         self.reset_drag_vars()
         self.dont_update_gui = True # until changed in init_gui

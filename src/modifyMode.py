@@ -114,7 +114,7 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
 
     def Enter(self):
         basicMode.Enter(self)
-        self.o.assy.selectParts()
+        self.o.assy.selectChunksWithSelAtoms()
         self.dragdist = 0.0
         
     # (see basicMode.Done.__doc__ for the ones we don't override here [bruce 040923])

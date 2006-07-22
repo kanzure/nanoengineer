@@ -81,6 +81,16 @@ def debug(): #bruce 060222
 
 # ==
 
+def permit_atom_chunk_coselection(): #bruce 060721; intended to become constant True for A9
+    ## from prefs_constants import permit_atom_chunk_coselection_prefs_key
+    permit_atom_chunk_coselection_prefs_key = "A9 devel2/permit_atom_chunk_coselection"
+    from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+    res = debug_pref("permit atom/chunk coselection?", Choice_boolean_False, ## use _True once this has no obvious bugs
+                      non_debug = True, prefs_key = permit_atom_chunk_coselection_prefs_key )
+    return res
+
+# ==
+
 try:
     _things_seen_before # don't reset this on reload (not important yet, since env.py doesn't support reload) 
 except:

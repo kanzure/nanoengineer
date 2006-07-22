@@ -1007,7 +1007,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             # only this one), to avoid a memory leak. Presently, jigs don't have a destroy method.
             env.history.message(cmd + "Cancelled")
             return
-        self.unpickatoms()
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
         
         env.history.message(cmd + "Motor created")
@@ -1039,7 +1039,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         if m.cancelled: # user hit Cancel button in Linear Motory Dialog.
             env.history.message(cmd + "Cancelled")
             return
-        self.unpickatoms()
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
         
         env.history.message(cmd + "Motor created")
@@ -1084,7 +1084,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             #bruce 050701 comment: I haven't reviewed this for correctness since the above change.
             env.history.message(cmd + "Cancelled")
             return
-        self.unpickatoms()
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
         
         env.history.message(cmd + "Gamess Jig created")
@@ -1109,7 +1109,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             return
 
         m = Anchor(self.assy, atoms)
-        self.unpickatoms()
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
         
         env.history.message(cmd + "Anchor created")
@@ -1133,7 +1133,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             env.history.message(cmd + msg)
             return
         m = Stat(self.assy, atoms)
-        self.unpickatoms()
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
         
         env.history.message(cmd + "Thermostat created")
@@ -1159,7 +1159,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             return
         
         m = Thermo(self.assy, atoms)
-        self.unpickatoms()
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
         
         env.history.message(cmd + "Thermometer created")
@@ -1190,7 +1190,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             env.history.message(cmd + "Cancelled")
             return 
         
-        self.unpickatoms()
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
         
         #After placing the jig, remove the atom list from the jig.
@@ -1217,7 +1217,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
             env.history.message(cmd + "Cancelled")
             return 
         
-        self.unpickatoms()
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(m)
         
         #After placing the jig, remove the atom list from the jig.
@@ -1264,7 +1264,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         from jigs_measurements import MeasureDistance
         d = MeasureDistance(self.assy, atoms)
-        self.unpickatoms()
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(d)
         
         env.history.message(cmd + "Measure Distance jig created")
@@ -1287,7 +1287,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         from jigs_measurements import MeasureAngle
         d = MeasureAngle(self.assy, atoms)
-        self.unpickatoms()
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(d)
         
         env.history.message(cmd + "Measure Angle jig created")
@@ -1307,7 +1307,7 @@ class jigmakers_Mixin: #bruce 050507 moved these here from part.py
         
         from jigs_measurements import MeasureDihedral
         d = MeasureDihedral(self.assy, atoms)
-        self.unpickatoms()
+        self.unpickall_in_GLPane() # [was unpickatoms -- bruce 060721]
         self.place_new_jig(d)
         
         env.history.message(cmd + "Measure Dihedral jig created")

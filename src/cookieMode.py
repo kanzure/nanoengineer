@@ -1255,8 +1255,9 @@ def molmake(assy,shap):
     #  i.e. before that it was effectively "if 1".]
     if len(mol.atoms) > 0:
         #bruce 050222 comment: much of this is not needed, since mol.pick() does it.
+        # Note: this method is similar to one in shape.py.
         assy.addmol(mol)
-        assy.unpickparts()
+        assy.unpickall_in_GLPane() # was unpickparts; not sure _in_GLPane is best (or that this is needed at all) [bruce 060721]
         mol.pick()
         assy.mt.mt_update()
 

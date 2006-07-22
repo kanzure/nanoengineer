@@ -1601,7 +1601,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
         for a in self.atoms.itervalues():
             if a.element.symbol == "X": stats.nsinglets +=1
     
-    def pickatoms(self): # mark 060211.  Could use a complementary unpickatoms() method.
+    def pickatoms(self): # mark 060211. Could use a complementary unpickatoms() method. [not referring to the one in ops_select --bruce]
         '''Pick the atoms of self not already picked. Return the number of newly picked atoms.
         '''
         self.assy.permit_pick_atoms()

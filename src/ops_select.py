@@ -88,8 +88,7 @@ class ops_select_Mixin:
 
     def selectNone(self):
         self.begin_select_cmd() #bruce 051031
-        self.unpickatoms()
-        self.unpickparts()
+        self.unpickall_in_win()
         self.w.win_update()
 
     def selectInvert(self):
@@ -100,6 +99,14 @@ class ops_select_Mixin:
         parts or atoms.)
            Note: when atoms are selected, only affects atoms as permitted by the selection filter.
         """ #bruce 060331 revised docstring
+        #bruce 060721 comments: this is problematic #####@@@@@ as we move to more general selection semantics.
+        # E.g. -- can it select atoms inside a CylinderChunk? It probably shouldn't, but now it can.
+        # (If some in it are already selected, then maybe, but not if they are not, and maybe that should
+        #  never be permitted to occur.)
+        # E.g. -- what if there are atoms selected inside chunks that are selected?
+        # (Even if not, how do you decide whether unselected stuff gets selected as atoms or chunks?
+        #  Now, this depends on the mode (Build -> atoms, Extrude -> Chunks); maybe that makes sense --
+        #  select things in the smallest units that could be done by clicking (for CylChunks this will mean chunks).)
         self.begin_select_cmd() #bruce 051031
         cmd = "Invert Selection: "
         env.history.message(greenmsg(cmd))
@@ -209,44 +216,32 @@ class ops_select_Mixin:
         env.history.message(msg)
         
         self.w.win_update()
-        
-    # these next methods (selectAtoms and selectParts) are not for general use:
-    # they do win_update but they don't change which select mode is in use.
+
+    # ==
     
-    def selectAtoms(self):
-        """change this Part's assy to permit selected atoms, not chunks;
-        then win_update
-        """
-        # This is called only by selectAtomsMode.Enter.
-        # (Does it actually need the update? I doubt it, I bet caller of Enter does it.)
-        # BTW, MainWindow has unused slot with same name.
-        # [bruce 050517 comment, and added docstring]
-        self.permit_pick_atoms()
-##        self.unpickparts()
-##        self.assy.set_selwhat(SELWHAT_ATOMS) #bruce 050517 revised API of this call
-        self.w.win_update()
-        
-    def selectParts(self):
+    def selectChunksWithSelAtoms(self): #bruce 060721 renamed from selectParts; see also permit_pick_parts
         """change this Part's assy to permit selected chunks, not atoms,
         but select all chunks which contained selected atoms;
         then win_update
+        [warning: not for general use -- doesn't change which select mode is in use]
         """
         # This is called only by modifyMode.Enter.
         # (Why not selectChunksMode? because selectMolsMode calls it w/o update, instead:
-        #   self.o.assy.pickParts() # josh 10/7 to avoid race in assy init
+        #   self.o.assy.selectChunksWithSelAtoms_noupdate() # josh 10/7 to avoid race in assy init
         # )
-        # BTW, MainWindow has unused slot with same name.
-        # [bruce 050517 comment, and added docstring]        
-        self.pickParts()
+        # BTW, MainWindowUI.{py,ui} has an unused slot with the same name this method used to have [selectParts]
+        # [bruce 050517/060721 comment and docstring]        
+        self.selectChunksWithSelAtoms_noupdate()
         self.w.win_update()
 
-    def pickParts(self): # see also permit_pick_parts
+    def selectChunksWithSelAtoms_noupdate(self): #bruce 060721 renamed from pickParts; see also permit_pick_parts
         """change this Part's assy to permit selected chunks, not atoms,
         but select all chunks which contained selected atoms; do no updates
+        [warning: not for general use -- doesn't change which select mode is in use]
         """
         #bruce 050517 added docstring
         lis = self.selatoms.values()
-        self.unpickatoms()
+        self.unpickatoms() # (not sure whether this is still always good, but probably it's ok -- bruce 060721)
         for atm in lis:
             atm.molecule.pick()
         self.assy.set_selwhat(SELWHAT_CHUNKS) #bruce 050517 revised API of this call
@@ -255,10 +250,12 @@ class ops_select_Mixin:
             # It's redundant only if lis has any atoms.
         return
 
-    def permit_pick_parts(self): #bruce 050125; see also pickParts, but that can leave some chunks initially selected
+    def permit_pick_parts(self): #bruce 050125; see also selectChunksWithSelAtoms_noupdate, but that can leave some chunks initially selected
         "ensure it's legal to pick chunks using mouse selection, and deselect any selected atoms (if picking chunks does so)"
         #bruce 060414 revised this to try to fix bug 1819
         # (and perhaps related bugs like 1106, where atoms & chunks are both selected)
+        if env.permit_atom_chunk_coselection(): #bruce 060721
+            return
         
         if self.selatoms and self.assy.selwhat == SELWHAT_CHUNKS and env.debug():
             print "debug: bug: permit_pick_parts sees self.selatoms even though self.assy.selwhat == SELWHAT_CHUNKS; unpicking them"
@@ -271,28 +268,21 @@ class ops_select_Mixin:
             self.unpickatoms()
         self.assy.set_selwhat(SELWHAT_CHUNKS) # not super-fast (could optim using our own test), but that's ok here
         return
-# pre-060414 code, plus debug print which was printed when reproducing bug 1819
-##        if self.assy.selwhat != SELWHAT_CHUNKS:
-##            self.unpickatoms()
-##            self.assy.set_selwhat(SELWHAT_CHUNKS) #bruce 050517 revised API of this call
-##        else:
-##            if self.selatoms:
-##                print "bug (fyi): self.selatoms even though self.assy.selwhat == SELWHAT_CHUNKS" #bruce 060414 re bug 1819, 1106
-##                #e do the same things in this case too? first see if we get the debug message.
-##        return
 
     def permit_pick_atoms(self): #bruce 050517 added this for use in some mode Enter methods -- but not sure they need it!
         "ensure it's legal to pick atoms using mouse selection, and deselect any selected chunks (if picking atoms does so)"
+        if env.permit_atom_chunk_coselection(): #bruce 060721
+            return
         ## if self.assy.selwhat != SELWHAT_ATOMS:
         if 1: # this matters, to callers who might have jigs selected
-            self.unpickparts(unpick_jigs=False) # only unpicks chunks, not jigs. mark 060309.
+            self.unpickchunks() # only unpick chunks, not jigs. mark 060309.
             self.assy.set_selwhat(SELWHAT_ATOMS) #bruce 050517 revised API of this call
         return
     
     # == selection functions using a mouse position
     ###@@@ move to glpane??
     
-    # (Not toplevel event handlers ###k some aren't anyway)
+    # (Note: some of these are not toplevel event handlers)
 
     # dumb hack: find which atom the cursor is pointing at by
     # checking every atom...
@@ -446,12 +436,13 @@ class ops_select_Mixin:
         If no atom or chunk is under the mouse, nothing in glpane is selected.
         """
         self.begin_select_cmd() #bruce 051031
-        if self.selwhat == SELWHAT_CHUNKS:
-            self.unpickparts()
-        else:
-            assert self.selwhat == SELWHAT_ATOMS
-            self.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
-            self.unpickatoms()
+        self.unpickall_in_GLPane() #bruce 060721, replacing the following selwhat-dependent unpickers:
+##        if self.selwhat == SELWHAT_CHUNKS:
+##            self.unpickparts()
+##        else:
+##            assert self.selwhat == SELWHAT_ATOMS
+##            self.unpickparts() # Fixed bug 606, partial fix for bug 365.  Mark 050713.
+##            self.unpickatoms()
         self.pick_at_event(event)
     
     def unpick_at_event(self, event): #renamed from unpick; modified
@@ -474,7 +465,7 @@ class ops_select_Mixin:
 
     # == internal selection-related routines
     
-    def unpickatoms(self):
+    def unpickatoms(self): #e [should this be private?] [bruce 060721]
         "Deselect any selected atoms (but don't change selwhat or do any updates)" #bruce 050517 added docstring
         if self.selatoms:
             from chem import _changed_picked_Atoms
@@ -491,21 +482,55 @@ class ops_select_Mixin:
                 a.molecule.changeapp(1)
                 a.molecule.changed_selection() #bruce 060227; could be optimized #e
             self.selatoms = {}
+        return
     
-    def unpickparts(self, unpick_jigs=True):
-        """Deselect any selected nodes (chunks,Jigs, Groups) in this part
-        (but don't change selwhat or do any updates)
-        If <unpick_jigs> is False, only selected chunks are unpicked.
-        """ #bruce 050517 added docstring
-        #mark 060308 added <unpick_jigs> argument
-        if unpick_jigs:
-            self.topnode.unpick()
-        else:
-            picked_chunks = filter( lambda m: m.picked, self.molecules )
-            for c in picked_chunks[:]:
+    def unpickparts(self): ##e this is misnamed -- should be unpicknodes #e [should this be private?] [bruce 060721]
+        """Deselect any selected nodes (e.g. chunks, Jigs, Groups) in this part
+        (but don't change selwhat or do any updates).
+        See also unpickchunks.
+        """ #bruce 050517 added docstring; 060721 split out unpickchunks
+        self.topnode.unpick()
+        return
+
+    def unpickchunks(self): #bruce 060721 made this to replace the misnamed unpick_jigs = False option of unpickparts 
+        """Deselect any selected chunks in this part
+        (but don't change selwhat or do any updates).
+        See also unpickparts.
+        """
+        # [bruce 060721 comment: unpick_jigs option to unpickparts was misnamed,
+        #  since there are selectable nodes other than jigs and chunks.
+        #  BTW Only one call uses this option, which will be obsolete soon
+        #  (when atoms & chunks can be coselected).]
+        for c in self.molecules:
+            if c.picked:
                 c.unpick()
         return
-        
+    
+    def unpickall_in_GLPane(self): #bruce 060721
+        """Unselect all things that ought to be unselected by a click in empty space in the GLPane.
+        As of 060721 this means "everything", but we might decide that MT nodes that are never drawn in GLPane
+        should remain selected in a case like this. ###@@@
+        """
+        self.unpickatoms()
+        self.unpickparts()
+        return
+
+    def unpickall_in_MT(self): #bruce 060721
+        """Unselect all things that ought to be unselected by a click in empty space in the Model Tree.
+        As of 060721 this means "all nodes", but we might decide that it should deselect atoms too. ###@@@
+        """
+        self.unpickparts()
+        return
+
+    def unpickall_in_win(self): #bruce 060721
+        """Unselect all things that a general "unselect all" tool button or menu command ought to.
+        This should unselect all selectable things, and should be equivalent to doing both
+        unpickall_in_GLPane and unpickall_in_MT.
+        """
+        self.unpickatoms()
+        self.unpickparts()        
+        return
+    
     def begin_select_cmd(self):
         # Warning: same named method exists in assembly, GLPane, and ops_select, with different implems.
         # More info in comments in assembly version. [bruce 051031]

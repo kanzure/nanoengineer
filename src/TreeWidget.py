@@ -596,6 +596,8 @@ class TreeWidget(TreeView, DebugMenuMixin):
         selection mode to fit what is actually selected. (We always assert that selwhat
         permitted whatever was selected to be selected.)
         """
+        if env.permit_atom_chunk_coselection(): #bruce 060721
+            return
         from selectMode import selectMolsMode
         ## from selectMode import selectAtomsMode
         #bruce 050519 revised docstring and totally rewrote code.

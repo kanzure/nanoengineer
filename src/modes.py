@@ -378,7 +378,7 @@ class basicMode(anyMode):
             # e.g. "Control-Shift Menu" vs. "Right-Shift Menu",
             # or   "Control-Command Menu" vs. "Right-Control Menu".
             # [bruce 041014]
-        if isinstance( self.o.selobj, Jig): # NRF 1740. mark 060322
+        if isinstance( self.o.selobj, Jig): # NFR 1740. mark 060322
             from wiki_help import wiki_help_menuspec_for_object
             ms = wiki_help_menuspec_for_object( self.o.selobj )
             if ms:
@@ -1578,8 +1578,7 @@ class basicMode(anyMode):
                         if not obj.picked: 
                             obj.pick()
                     else:               #Without key press, exclusive pick
-                        self.o.assy.unpickparts() 
-                        self.o.assy.unpickatoms()
+                        self.o.assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
                         if not obj.picked:
                             obj.pick()
                     return True

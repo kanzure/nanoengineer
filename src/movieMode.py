@@ -57,12 +57,11 @@ class movieMode(basicMode):
     def Enter(self):
         basicMode.Enter(self)
         # [bruce 050427 comment: I'm skeptical of this effect on selection,
-        #  since I can't think of any good reason for it,
-        #  and once we have movies as nodes in the MT it will be a problem,
+        #  since I can't think of any good reason for it [maybe rendering speed optimization??],
+        #  and once we have movies as nodes in the MT it will be a problem [why? #k],
         #  but for now I'll leave it in.]
-        self.o.assy.unpickatoms()
-        self.o.assy.unpickparts()
-        self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
+        self.o.assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
+        self.o.assy.permit_pick_atoms()
 
     def init_gui(self):
 

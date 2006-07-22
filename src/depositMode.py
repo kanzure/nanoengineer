@@ -1063,7 +1063,7 @@ class depositMode(selectAtomsMode):
         if self.o.modkeys is None and env.prefs[buildModeSelectAtomsOfDepositedObjEnabled_prefs_key]:
             # Needed when 'Select Atoms of Deposited Object' pref is enabled. mark 060314.
             self.o.modkeys = 'Shift'    
-            self.o.assy.unpickatoms()
+            self.o.assy.unpickall_in_GLPane() # [was unpickatoms; this (including Nodes) might be an undesirable change -- bruce 060721]
         
         self.transdepositing = True
         nobjs = 0
@@ -1163,7 +1163,7 @@ class depositMode(selectAtomsMode):
         If modkey is None (no modkey is pressed), it will unpick all currently picked atoms.
         '''
         if self.o.modkeys is None:
-            self.o.assy.unpickatoms()
+            self.o.assy.unpickall_in_GLPane() # [was unpickatoms; this is a guess, I didn't review the calls -- bruce 060721]
             if env.prefs[buildModeSelectAtomsOfDepositedObjEnabled_prefs_key]:
                 # Added NFR 1504.  mark 060304.
                 return True
@@ -1192,7 +1192,7 @@ class depositMode(selectAtomsMode):
             #& both deposit chunks. mark 060314.
         
         if self.o.modkeys is None: # no Shift or Ctrl modifier key.
-            self.o.assy.unpickatoms() # Clear selection.
+            self.o.assy.unpickall_in_GLPane() # Clear selection. [was unpickatoms -- bruce 060721]
         
         if self.w.depositState == 'Atoms':
             deposited_stuff, status = self.deposit_from_Atoms_page(atom_or_pos) # deposited_stuff is a chunk
@@ -2211,6 +2211,10 @@ class depositMode(selectAtomsMode):
             ('Change Background Color...', self.w.dispBGColor),
             ])
 
+        self.Menu_spec_shift = list(self.Menu_spec) #bruce 060721 experiment; if it causes no harm, we can
+            # replace the self.select item in the copy with one for shift-selecting the chunk, to fix a bug/NFR 1833 ####@@@@
+            # (we should also rename self.select)
+        
         return # from makeMenus
 
     def setCarbon_sp3(self):
@@ -2310,17 +2314,16 @@ class depositMode(selectAtomsMode):
             # so don't bother checking
         return
         
-    def select(self):
+    def select(self): # [this is badly named, since it's very hard to confirm the theory that it's only called from our cmenu.]
         "select the chunk containing the highlighted atom or singlet"
         # bruce 041217 guessed docstring from code
         if self.o.selatom:
-            #self.o.assy.pickParts() #& Replaced by permit_pick_parts(). Marked for deletion.  mark 060218.
             self.o.assy.permit_pick_parts()
-            self.o.assy.unpickparts()
+            self.o.assy.unpickall_in_GLPane() # was unpickparts; I think this is the intent (and the effect, before now) [bruce 060721]
             self.o.selatom.molecule.pick()
             self.w.win_update()
                                     
-    def skip(self):
+    def skip(self): #k needed?
         pass
 
     pass # end of class depositMode
