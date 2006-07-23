@@ -32,26 +32,11 @@ lightblue = ave_colors( 0.2, blue, white)
 halfblue = ave_colors( 0.5, blue, white)
 
 
-USE_avoidHighlightSlowness = False # since it doesn't work, and probably can't work. remove it if i still think so in a day.
-
-class avoidHighlightSlowness: # note: changes in this will not be seen by runtime reload unless you make the "try: vv" fail temporarily
-    "Just a fake glname-owner to try to make most drawing, with no glname of its own, not slow down mouseover motion"
-    def __init__(self):
-        glname_handler = self 
-        self.glname = env.alloc_my_glselect_name(glname_handler)
-    def highlight_color_for_modkeys(self, modkeys):
-        print "avoidHighlightSlowness, modkeys",modkeys # this never gets called, I don't know why ###k
-        return None
-    def draw_in_abs_coords(self, glpane, color): # needed, in spite of the color of None (not sure why, also that print didn't run yet)
-        ## print "avoidHighlightSlowness, draw_in_abs_coords, color", color
-        return # hope it's ok to do no drawing.. hmm, this doesn't crash, but it slows it down terribly!
-            # I guess this scheme is not going to work, needs rethinking.
-            # (Or special code in GLPane to detect this selobj, or an attr it has, and behave differently.)
-            # But come to think of it, how can it ever think it got this one, due to its depth testing?
-            # I guess this scheme doesn't yet make sense.
-            # BTW I now realize it was not a fair speed test, since disabling try: vv made each redraw reload a texture file!
-            # Ok, the fair test says, it makes no noticeable difference. So I'll disable it using a global flag.
-    pass
+# note: class avoidHighlightSlowness was defined here in rev. 1.6, but didn't work and probably can't work, so I zapped it.
+# Its goal was to avoid the redraws on every mouseover motion of drawing that doesn't use glname to make itself highlightable.
+# Instead, just get all drawing to be inside a highlightable object. (It's ok if the highlighting is not visible.
+# It just needs to get into the stencil and depth buffers like the plain object, so we don't worry whether we're over other objects
+# during the mouseover.)
 
 
 try:
@@ -61,7 +46,6 @@ except:
     vv.tex_name = 0
     vv.tex_data = None
     vv.counter = 0
-    vv.avoidHighlightSlowness = avoidHighlightSlowness() # harmless in itself, if we never push the name
     ##e should modify to make it easier to set up defaults; sort of like a debug_pref?
 
 # vv.counter = 0 # just to get started (was needed when i moved file to another machine, already running, too)
@@ -71,12 +55,7 @@ def drawtest(glpane):
     vv.counter += 1
     glPushMatrix()
     try:
-        if USE_avoidHighlightSlowness:
-            glname = vv.avoidHighlightSlowness.glname
-            glPushName(glname) # will anything complain about more than one of these on the name stack? [i never found out] #k
         drawtest0(glpane)
-        if USE_avoidHighlightSlowness:
-            glPopName()
     except:
         print_compact_traceback("exc ignored: ")
     glPopMatrix() # it turns out this is needed, if drawtest0 does glTranslate, or our coords are messed up when glselect code
@@ -449,18 +428,13 @@ class WidgetExpr(InvalMixin):
     #e _get_height
     pass
 
-class Highlightable(Delegator, WidgetExpr):#060721
+class Highlightable(Delegator, WidgetExpr):#060722
     "Highlightable(plain, highlight) renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight"
-    # works except for this harmless exception print (twice, don't know why):
-    #   unexpected selobj class in depmode.selobj_highlight_color: <testdraw.Highlightable instance at 0xec474e0>
-    # also twice, don't know why, or why different colors
-    # [guess: one is depth test by glpane to decide if it's the right object -- but then, why blue first then white?]:
-    #   draw_in_abs_coords <GLPane 0> (0.0, 0.0, 0.59999999999999998)
-    #   draw_in_abs_coords <GLPane 0> (1.0, 1.0, 1.0)
-    #
-    # bug if you ask for its cmenu (I can guess why, it's a selobj-still-valid check I vaguely recall):
-    # atom_debug: ignoring exception: exceptions.AttributeError: killed
-    # [modes.py:928] [Delegator.py:10] [inval.py:192] [inval.py:309]
+    # Works, except I suspect the docstring is inaccurate when it says "plain plus highlight" (rather than just highlight), 
+    # and there's an exception if you try to ask selectMode for a cmenu for this object, or if you just click on it
+    # (I can guess why -- it's a selobj-still-valid check I vaguely recall):
+    #   atom_debug: ignoring exception: exceptions.AttributeError: killed
+    #   [modes.py:928] [Delegator.py:10] [inval.py:192] [inval.py:309]
     #
     __init__ = WidgetExpr.__init__ # otherwise Delegator's comes first and init() never runs
     def init(self):
@@ -468,28 +442,29 @@ class Highlightable(Delegator, WidgetExpr):#060721
         try:
             self.highlight = self.args[1]
         except IndexError:
-            self.highlight = self.plain # useful for things that just want a glname to avoid mouseover stickiness ###test
+            self.highlight = self.plain # useful for things that just want a glname to avoid mouseover stickiness
         Delegator.__init__(self, self.plain) # for defns like bright, bleft
-        #e get glname, register self (or a new obj we make for that purpose), define necessary methods
-        glname_handler = self ###WRONG? self is probably not the right object to register here!
-        self.glname = env.alloc_my_glselect_name(glname_handler) #e or this could be a _compute_ rule for self.glname
+        # get glname, register self (or a new obj we make for that purpose #e), define necessary methods
+        glname_handler = self # self may not be the best object to register here, though it works for now
+        self.glname = env.alloc_my_glselect_name(glname_handler)
+            #e if we might never be drawn, we could optim by only doing this on demand
     def draw(self):
-        self.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords ###WRONG when in displaylists
+        self.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
+            ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
+            #e [if this (or any WE) is really a map from external state to drawables,
+            #   we'd need to store self.glname and self.saved_modelview_matrix in corresponding external state]
         glPushName(self.glname)
         self.plain.draw()
-        if 0 and 'klugetest':
-            if env.redraw_counter % 2:
-                self.highlight.draw()
+##        if 0 and 'klugetest':
+##            if env.redraw_counter % 2:
+##                self.highlight.draw()
         glPopName() ##e should protect this from exceptions
             #e (or have a WE-wrapper to do that for us, for .draw() -- or just a helper func, draw_and_catch_exceptions)
-        #e need to save modelview matrix for highlight? not to mention glname
-        # [if this (or any WE) is really a map from external state, store both those things there]
     def draw_in_abs_coords(self, glpane, color):
         # [this API comes from GLPane behavior
         # - why does it pass color? historical: so we can just call our own draw method, with that arg (misguided even so??)
         # - what about coords? it has no way to know old ones, so we have no choice but to know or record them...
         # ]
-        ## print "draw_in_abs_coords", glpane, color
         # restore coords [note: it won't be so simple if we're inside a display list which is drawn in its own relative coords...]
         ##glMatrixMode(GL_MODELVIEW) #k prob not needed
         glPushMatrix()
@@ -798,45 +773,17 @@ class Drawable: # see also Drawables.py, into which this is intended to be merge
         pass
     pass
 
-class glname_Drawable(Drawable): #obs, superceded by Highlightable
-    "Mixin(?) class for drawables that own one glname."
-    def __init__(self):
-        #e super __init__
-        glname_handler = self ###WRONG? self is probably not the right object to register here!
-        self.glname = env.alloc_my_glselect_name(glname_handler) #e or this could be a _compute_ rule for self.glname
-    pass
-
 # end except for outtakes
 
+##class glname_Drawable(Drawable): #obs, superceded by Highlightable
+##    "Mixin(?) class for drawables that own one glname."
+##    def __init__(self):
+##        #e super __init__
+##        glname_handler = self ###WRONG? self is probably not the right object to register here!
+##        self.glname = env.alloc_my_glselect_name(glname_handler) #e or this could be a _compute_ rule for self.glname
+##    pass
 
-##try:
-##    _nowversion
-##except:
-##    _nowversion = -1
-##    
-##try:
-##    nowversion = 8 ### this is too hard to hand-update -- NEED TO USE FILE MODTIME OR SO
-##    assert nowversion == _nowversion # fails if this needs to be redefined when we reload
-##    mynode #k not needed
-##except:
-##    _nowversion = nowversion # don't keep getting the exception even if the following fails
-##    print_compact_traceback("hmm: " )
-##    print "nowversion = %d" % nowversion
-##    from jigs_planes import ESPImage
-##    win = env.mainwindow()
-##    assy = win.assy
-##    READ_FROM_MMP = True # so it does not do self.__init_quat_center, in case that needs atoms
-##    mynode = ESPImage(assy, [], READ_FROM_MMP)
-##    mynode.center = ORIGIN
-##    mynode.quat = Q(1,0,0,0)
-##    assy.place_new_jig(mynode)
-##    win.win_update() # for MT update
-##
-##    # WHERE I AM:
-##    # not yet working due to baggage of ESPImage like a need for atoms
-##    # should copy it and pare it down
-    
-# tex bugs:
+# tex bugs: [semi-obs comment? not sure]
 # it's so big
 # it obscures rendered text no matter what
 # need nfrs to try things out with it
