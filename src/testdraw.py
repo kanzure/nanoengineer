@@ -7,6 +7,30 @@ FOR NOW [060716], NO ONE BUT BRUCE SHOULD EDIT THIS FILE IN ANY WAY.
 $Id$
 
 [for doc, see testmode.py]
+
+todo:
+- try a display list optim in main draw function, for keeping non-highlighted stuff in one;
+might work almost as well as a color/depth buffer, for this code;
+but this requires knowing when it changed. One advantage: works across rotations
+(as long as we keep any billboarded stuff out of it). Note: some text rendering here
+shrinks when it gets nonparallel, but that's a bug, not a form of billboarding.
+- more & better-organized widget exprs.
+- widget exprs that map from external state (such as that in Nodes), and let us edit it.
+  - i'm suspecting that one widget expr should often be used to draw all the things that use the same formulas it was set up with,
+    so it would never carry per-object state -- it would be more like code. (But right now, Highlightable does carry some.)
+  - for this to work, but fit with simple compounds like Row, the widget-subexprs need to get their own sub-state;
+    this (as func of main state) could either be a code-id from their instance, or a posn from their caller,
+    and done at compile time (their __init__ time) or draw time -- but it needs to work when they get reloaded/remade,
+    suggesting that (for these simple compound -- not for iteratives used to describe rules)
+    it's mainly positional, or "positional but sorted by type" so that a few kinds of code-changes don't destroy data.
+    (But with optional explicit ids per instance, so that old data *can* be destroyed if you want, or preserved more readily.
+    The auto ids are really only needed for transient things like glnames and saved modelview matrices, which any highlightable needs,
+    and maybe for saved display lists, inval data, etc; so maybe it doesn't matter if those change on reload.
+    And for anything referring to user-editable data, you need explicit ids anyway so you can recode and not obsolete your data.)
+    - likely state implem (if we ignore letting it be "externally storable"): linked dicts; any convenient pyobj-constant keys,
+    or maybe string keys.
+    Possible convention (not thought through): the ids usable as attrs are the ones whose chars work in a py identifier.
+- more todos findable by searching for "todo", "Drawable", and (older ones) "next up", "wishlist", and (implicit ones) "kluge".
 '''
 
 __author__ = "bruce"
@@ -625,21 +649,22 @@ class Corkscrew(WidgetExpr):
 class Ribbon(Corkscrew):
     def draw(self, **mods):
         radius, axis, turn, n, color = self.args
-        color = mods.get('color',color)###k kluge, should be more general
+        color = mods.get('color',color)##kluge
+            ##e todo: should be more general; maybe should get "state ref" (to show & edit) as arg, too?
         offset = axis * 2
         halfoffset = offset / 2.0
         interior_color = ave_colors(0.8,color, white) ###
         self.args = list(self.args) # slow!
-        self.args[-1] = interior_color #### kluge!
+        self.args[-1] = interior_color #### kluge! and/or misnamed, since used for both sides i think
         if 1:
             # draw the ribbon-edges; looks slightly better this way in some ways, worse in other ways --
             # basically, looks good on egdes that face you, bad on edges that face away (if the ribbons had actual thickness)
             # (guess: some kluge with lighting and normals could fix this)
             Corkscrew.draw(self)
-            glTranslate(offset, 0,0)
-            
-            if 0: Corkscrew.draw(self) ### maybe we should make the two edges look different, since they are (major vs minor groove)
-            glTranslate(-offset, 0,0)
+            if 0:
+                glTranslate(offset, 0,0)            
+                Corkscrew.draw(self) ### maybe we should make the two edges look different, since they are (major vs minor groove)
+                glTranslate(-offset, 0,0)
         
         ## glColor3fv(interior_color)
 
