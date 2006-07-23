@@ -1015,6 +1015,11 @@ class selectMode(basicMode):
         # Move section
         farQ_junk, self.jig_MovePt = self.dragstart_using_GL_DEPTH( event)
             #bruce 060316 replaced equivalent old code with this new method
+        
+        if 1: #bruce 060611 experiment, harmless, prototype of WidgetExpr-related changes, might help Bauble; committed 060722
+            method = getattr(j, 'clickedOn', None)
+            if method and method(self.jig_MovePt):
+                return
 
         self.jig_StartPt = self.jig_MovePt # Used in leftDrag() to compute move offset during drag op.
         
@@ -1771,7 +1776,7 @@ class selectAtomsMode(selectMode):
         """
         if not self.hover_highlighting_enabled:
             return None
-        
+
         if isinstance(selobj, Atom):
             if selobj.is_singlet():
                 if self.highlight_singlets: # added highlight_singlets to fix bug 1540. mark 060220.
@@ -1832,7 +1837,17 @@ class selectAtomsMode(selectMode):
             else:
                 return env.prefs[bondHighlightColor_prefs_key]
         else:
-            print "unexpected selobj class in depmode.selobj_highlight_color:", selobj
+            if 1:
+                # let the object tell us, if it's not one we have a special case for
+                # (note: some objects which tell us one just do it to avoid this print,
+                #  since they are free to ignore this color when drawing their highlight)
+                # [bruce 060722]
+                method = getattr(selobj, 'highlight_color_for_modkeys', None)
+                if method:
+                    return method(self.o.modkeys)
+                        # Note: this API might be revised; it only really makes sense if the mode created the selobj to fit its
+                        # current way of using modkeys, perhaps including not only its code but its active-tool state.
+            print "unexpected selobj class in mode.selobj_highlight_color:", selobj
             return blue
             
     def update_selobj(self, event): #bruce 050610

@@ -14,6 +14,7 @@ __author__ = "bruce"
 from testmode import *
 from debug import print_compact_stack
 import env
+from idlelib.Delegator import Delegator
 
 ORIGIN = V(0,0,0)
 DX = V(1,0,0)
@@ -30,6 +31,29 @@ from constants import ave_colors # (weight, color1, color2) # weight is of color
 lightblue = ave_colors( 0.2, blue, white)
 halfblue = ave_colors( 0.5, blue, white)
 
+
+USE_avoidHighlightSlowness = False # since it doesn't work, and probably can't work. remove it if i still think so in a day.
+
+class avoidHighlightSlowness: # note: changes in this will not be seen by runtime reload unless you make the "try: vv" fail temporarily
+    "Just a fake glname-owner to try to make most drawing, with no glname of its own, not slow down mouseover motion"
+    def __init__(self):
+        glname_handler = self 
+        self.glname = env.alloc_my_glselect_name(glname_handler)
+    def highlight_color_for_modkeys(self, modkeys):
+        print "avoidHighlightSlowness, modkeys",modkeys # this never gets called, I don't know why ###k
+        return None
+    def draw_in_abs_coords(self, glpane, color): # needed, in spite of the color of None (not sure why, also that print didn't run yet)
+        ## print "avoidHighlightSlowness, draw_in_abs_coords, color", color
+        return # hope it's ok to do no drawing.. hmm, this doesn't crash, but it slows it down terribly!
+            # I guess this scheme is not going to work, needs rethinking.
+            # (Or special code in GLPane to detect this selobj, or an attr it has, and behave differently.)
+            # But come to think of it, how can it ever think it got this one, due to its depth testing?
+            # I guess this scheme doesn't yet make sense.
+            # BTW I now realize it was not a fair speed test, since disabling try: vv made each redraw reload a texture file!
+            # Ok, the fair test says, it makes no noticeable difference. So I'll disable it using a global flag.
+    pass
+
+
 try:
     vv
 except:
@@ -37,17 +61,22 @@ except:
     vv.tex_name = 0
     vv.tex_data = None
     vv.counter = 0
+    vv.avoidHighlightSlowness = avoidHighlightSlowness() # harmless in itself, if we never push the name
     ##e should modify to make it easier to set up defaults; sort of like a debug_pref?
 
 # vv.counter = 0 # just to get started (was needed when i moved file to another machine, already running, too)
 
+
 def drawtest(glpane):
-    ## print_compact_stack( "testdraw.drawtest: ")
     vv.counter += 1
-    ## print ( "%d testdraw.drawtest: " % vv.counter)
     glPushMatrix()
     try:
+        if USE_avoidHighlightSlowness:
+            glname = vv.avoidHighlightSlowness.glname
+            glPushName(glname) # will anything complain about more than one of these on the name stack? [i never found out] #k
         drawtest0(glpane)
+        if USE_avoidHighlightSlowness:
+            glPopName()
     except:
         print_compact_traceback("exc ignored: ")
     glPopMatrix() # it turns out this is needed, if drawtest0 does glTranslate, or our coords are messed up when glselect code
@@ -147,7 +176,11 @@ def drawtest0(glpane):
     # using those guesses, come up with tex-rects for each char as triples of 2-vectors (tex_origin, tex_dx, tex_dy) 
     def ff(i,j): # i for y, j or x (is that order normal??), still starting at bottom left
         if i == -1 or i == 7:
-            test = "(test string)"
+            test = "(redraw %d)" % env.redraw_counter
+                # this shows that mouseover of objects (pixels) w/o glnames causes redraws! I understand glselect ones,
+                # but they should not be counted, and should not show up on the screen, so i don't understand
+                # any good reason for these visible ones to happen.
+                #e to try to find out, we could also record compact_stack of the first gl_update that caused this redraw...
             if j < len(test):
                 # replace i,j with new ones so as to draw those chars instead
                 ch1 = ord(test[j]) - 32
@@ -416,6 +449,66 @@ class WidgetExpr(InvalMixin):
     #e _get_height
     pass
 
+class Highlightable(Delegator, WidgetExpr):#060721
+    "Highlightable(plain, highlight) renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight"
+    # works except for this harmless exception print (twice, don't know why):
+    #   unexpected selobj class in depmode.selobj_highlight_color: <testdraw.Highlightable instance at 0xec474e0>
+    # also twice, don't know why, or why different colors
+    # [guess: one is depth test by glpane to decide if it's the right object -- but then, why blue first then white?]:
+    #   draw_in_abs_coords <GLPane 0> (0.0, 0.0, 0.59999999999999998)
+    #   draw_in_abs_coords <GLPane 0> (1.0, 1.0, 1.0)
+    #
+    # bug if you ask for its cmenu (I can guess why, it's a selobj-still-valid check I vaguely recall):
+    # atom_debug: ignoring exception: exceptions.AttributeError: killed
+    # [modes.py:928] [Delegator.py:10] [inval.py:192] [inval.py:309]
+    #
+    __init__ = WidgetExpr.__init__ # otherwise Delegator's comes first and init() never runs
+    def init(self):
+        self.plain = self.args[0]
+        try:
+            self.highlight = self.args[1]
+        except IndexError:
+            self.highlight = self.plain # useful for things that just want a glname to avoid mouseover stickiness ###test
+        Delegator.__init__(self, self.plain) # for defns like bright, bleft
+        #e get glname, register self (or a new obj we make for that purpose), define necessary methods
+        glname_handler = self ###WRONG? self is probably not the right object to register here!
+        self.glname = env.alloc_my_glselect_name(glname_handler) #e or this could be a _compute_ rule for self.glname
+    def draw(self):
+        self.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords ###WRONG when in displaylists
+        glPushName(self.glname)
+        self.plain.draw()
+        if 0 and 'klugetest':
+            if env.redraw_counter % 2:
+                self.highlight.draw()
+        glPopName() ##e should protect this from exceptions
+            #e (or have a WE-wrapper to do that for us, for .draw() -- or just a helper func, draw_and_catch_exceptions)
+        #e need to save modelview matrix for highlight? not to mention glname
+        # [if this (or any WE) is really a map from external state, store both those things there]
+    def draw_in_abs_coords(self, glpane, color):
+        # [this API comes from GLPane behavior
+        # - why does it pass color? historical: so we can just call our own draw method, with that arg (misguided even so??)
+        # - what about coords? it has no way to know old ones, so we have no choice but to know or record them...
+        # ]
+        ## print "draw_in_abs_coords", glpane, color
+        # restore coords [note: it won't be so simple if we're inside a display list which is drawn in its own relative coords...]
+        ##glMatrixMode(GL_MODELVIEW) #k prob not needed
+        glPushMatrix()
+        glLoadMatrixd(self.saved_modelview_matrix)
+        # examples of glLoadMatrix (and thus hopefully the glGet for that) can be found in these places on bruce's G4:
+        # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/OpenGLContext/renderpass.py
+        # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/VisionEgg/Core.py
+        self.highlight.draw()
+        glPopMatrix()
+        return
+    def __repr__(self): ### kluge -- better if selectMode called a specific method for this
+        return self.kws.get('sbar_text') or "<%s at %#x>" % (self.__class__.__name__, id(self))
+    def highlight_color_for_modkeys(self, modkeys):
+        """#doc; modkeys is e.g. "Shift+Control", taken from glpane.modkeys
+        """
+        return green # color doesn't matter, but it might matter that it's a legal color, or not None, to GLPane (I don't know);
+            # this color will be received by draw_in_abs_coords (which ignores it)
+    pass
+
 class Rect(WidgetExpr): #e example, not general enough to be a good use of this name
     "Rect(width, height, color) renders as a filled rect of that color, origin on bottomleft"
     def init(self):
@@ -504,8 +597,6 @@ class Column(WidgetExpr):
     def _get_bright(self):
         return max([a.bright for a in self.args])
     pass # Column
-
-from idlelib.Delegator import Delegator
 
 class Closer(Delegator, WidgetExpr):
     "Closer(thing, amount)"
@@ -656,7 +747,19 @@ testexpr = Row( Rect(1.5, 1, red),
                   Rect(1.5, 1, green),
                   gap = 0.2
                 ),
-                Closer(Rect(2, 3, pink)),
+                Closer(
+                    Highlightable( Rect(2, 3, pink),
+                                   # this form of highlight (same shape and depth) works from either front or back view
+                                   Rect(2, 3, orange), # comment this out to have no highlight color, but still sbar_text
+                                   # example of complex highlighting:
+                                   #   Row(Rect(1,3,blue),Rect(1,3,green)),
+                                   # example of bigger highlighting (could be used to define a nearby mouseover-tooltip as well):
+                                   #   Row(Rect(1,3,blue),Rect(2,3,green)),
+                                   sbar_text = "rect1"
+                                   )
+                    #Highlightable( Rect(2, 3, pink), Closer(Rect(2, 3, orange), 0.1) ) # only works from front
+                        # (presumably since glpane moves it less than 0.1; if I use 0.001 it still works from either side)
+                ),
                 gap = 0.2)
 
 #e want: draw myself or my subobj or superobj but with modified params: super.draw(self, color = othercolor)
@@ -695,7 +798,7 @@ class Drawable: # see also Drawables.py, into which this is intended to be merge
         pass
     pass
 
-class glname_Drawable(Drawable):
+class glname_Drawable(Drawable): #obs, superceded by Highlightable
     "Mixin(?) class for drawables that own one glname."
     def __init__(self):
         #e super __init__
