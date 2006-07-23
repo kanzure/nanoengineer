@@ -33,8 +33,6 @@ import env #bruce 050901
 from jigs import Jig
 from dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension
 
-BETTER_CURSOR_FOLLOWING = False
-
 # work in progress, wware 060719
 class Handle:
     """A handle is a small visible spherical object which can be
@@ -68,24 +66,22 @@ class Handle:
         # method which gives the average position of the atoms in the
         # atom list.
         self.owner = owner
-        self.atoms = owner.atoms
+        # can't do this too early, or we'll get a list of zero atoms
+        # self.atoms = owner.atoms
         self.glpane = owner.assy.o
 
     def constrainedPosition(self):
         raise Exception('expected to be overloaded')
 
+    def constrain(self):
+        self._posn_offset = self.constrainedPosition() - self.owner.center()
+
     def move(self, offset):
+        self.moveAbsolute(self.posn() + offset)
+
+    def moveAbsolute(self, pos):
         c = self.owner.center()
-        p = c + self._posn_offset + offset
-        self._posn_offset = p - c
-        if BETTER_CURSOR_FOLLOWING:
-            # Maintain a constrained position rather than
-            # unconstrained? Bruce thinks some people will be confused
-            # by this, but it fixes the stability problem with the
-            # better _constrainHandleToAngle function below. His
-            # objection is that the drag becomes stateful, but I think
-            # people can handle that small amount of state.
-            self._posn_offset = self.constrainedPosition() - c
+        self._posn_offset = pos - c
 
     def posn(self):
         return self.owner.center() + self._posn_offset
@@ -106,7 +102,7 @@ class Handle:
 
 class LinearHandle(Handle):
     def constrainedPosition(self):
-        a = self.atoms
+        a = self.owner.atoms
         pos, p0, p1 = self.posn(), a[0].posn(), a[1].posn()
         z = p1 - p0
         nz = norm(z)
@@ -133,51 +129,16 @@ def _constrainHandleToAngle(pos, p0, p1, p2, glpane):
         u = vlen(u) * z2
     return p1 + u
 
-if BETTER_CURSOR_FOLLOWING:
-    # Find the multiple of the GLPane.lineOfSight vector which, when added
-    # to pos, will yield a point lying in the plane of the angle. Use that
-    # point, and clip it as needed.
-
-    # This is a better algorithm, in the sense that the handle follows
-    # the cursor much more accurately. Personally I think that's less
-    # confusing than stateful drags.
-
-    # The problem with this is that to make it work, we need to draw using
-    # the constrained version of the handle position. Unfortunately the
-    # projection along the line of sight is a little unstable, and when
-    # the angle is rotated so that the line of sight is nearly coplanar
-    # with the angle, the handle goes shooting off into space. It comes
-    # back when the angle is no longer being viewed edgewise.
-
-    # The flying-handle problem
-
-    def __constrainHandleToAngle(pos, p0, p1, p2, glpane):  # still needs work
-        u = pos - p1
-        z0 = norm(p0 - p1)
-        z2 = norm(p2 - p1)
-        y2 = norm(z2 - dot(z0, z2) * z0)   # y2 and z0 are orthogonal
-        oop = norm(cross(z0, z2))
-        los = glpane.lineOfSight
-        # When the angle is viewed edgewise, dot(oop,los) becomes very
-        # small and u goes flying away.
-        u = u - (dot(oop, u) / dot(oop, los)) * los
-        if dot(cross(z0, u), oop) < 0:
-            # Clip on the z0 side of the angle.
-            u = vlen(u) * z0
-        elif dot(cross(u, z2), oop) < 0:
-            # Clip on the z2 side of the angle.
-            u = vlen(u) * z2
-        return p1 + u
-
 class AngleHandle(Handle):
     def constrainedPosition(self):
-        a = self.atoms
+        import types
+        a = self.owner.atoms
         return _constrainHandleToAngle(self.posn(), a[0].posn(), a[1].posn(), a[2].posn(),
                                        self.glpane)
 
 class DihedralHandle(Handle):
     def constrainedPosition(self):
-        a = self.atoms
+        a = self.owner.atoms
         p0, p1, p2, p3 = a[0].posn(), a[1].posn(), a[2].posn(), a[3].posn()
         axis = norm(p2 - p1)
         midpoint = 0.5 * (p1 + p2)
@@ -204,6 +165,10 @@ class MeasurementJig(Jig):
 
     # move some things to base class, wware 051103
     copyable_attrs = Jig.copyable_attrs + ('font_name', 'font_size')
+
+    def clickedOn(self, pos):
+        self.handle.moveAbsolute(pos)
+        self.handle.constrain()
 
     # move to base class, wware 051103
     # Email from Bruce, 060327 <<<<
