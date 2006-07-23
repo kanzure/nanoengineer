@@ -63,7 +63,13 @@ class Handle:
     """
     def __init__(self, owner):
         self._posn_offset = Numeric.array((0.0, 0.0, 0.0))
+        # owner is a measurement jig. It is expected to provide an
+        # atom list and a glpane. It should also have a center()
+        # method which gives the average position of the atoms in the
+        # atom list.
         self.owner = owner
+        self.atoms = owner.atoms
+        self.glpane = owner.assy.o
 
     def constrainedPosition(self):
         raise Exception('expected to be overloaded')
@@ -100,7 +106,7 @@ class Handle:
 
 class LinearHandle(Handle):
     def constrainedPosition(self):
-        a = self.owner.atoms
+        a = self.atoms
         pos, p0, p1 = self.posn(), a[0].posn(), a[1].posn()
         z = p1 - p0
         nz = norm(z)
@@ -165,13 +171,13 @@ if BETTER_CURSOR_FOLLOWING:
 
 class AngleHandle(Handle):
     def constrainedPosition(self):
-        a = self.owner.atoms
+        a = self.atoms
         return _constrainHandleToAngle(self.posn(), a[0].posn(), a[1].posn(), a[2].posn(),
-                                       self.owner.assy.o)
+                                       self.glpane)
 
 class DihedralHandle(Handle):
     def constrainedPosition(self):
-        a = self.owner.atoms
+        a = self.atoms
         p0, p1, p2, p3 = a[0].posn(), a[1].posn(), a[2].posn(), a[3].posn()
         axis = norm(p2 - p1)
         midpoint = 0.5 * (p1 + p2)
@@ -179,7 +185,7 @@ class DihedralHandle(Handle):
                                        p0 - dot(p0 - midpoint, axis) * axis,
                                        midpoint,
                                        p3 - dot(p3 - midpoint, axis) * axis,
-                                       self.owner.assy.o)
+                                       self.glpane)
 
 # == Measurement Jigs
 
