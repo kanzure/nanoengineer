@@ -478,16 +478,6 @@ def drawLinearDimension(color, right, up, bpos, p0, p1, text):
     v0 = csys.xyz((br, 0, 0))
     v1 = csys.xyz((br, 0, 1))
     drawline(color, v0, v1, width=THICKLINEWIDTH)
-    # draw arrowheads at the ends
-    a1, a2 = 0.25, 1.0 * csys.zinv
-    arrow00 = csys.xyz((br + a1, 0, a2))
-    arrow01 = csys.xyz((br - a1, 0, a2))
-    drawline(color, v0, arrow00)
-    drawline(color, v0, arrow01)
-    arrow10 = csys.xyz((br + a1, 0, 1-a2))
-    arrow11 = csys.xyz((br - a1, 0, 1-a2))
-    drawline(color, v1, arrow10)
-    drawline(color, v1, arrow11)
     # draw the text for the numerical measurement, make
     # sure it goes from left to right
     zflip = dot(csys.z, right) < 0
@@ -523,19 +513,7 @@ def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR
     drawline(color, p1, e0)
     drawline(color, p1, e1)
     csys.drawArc(color, br, theta1, theta2, 0, width=THICKLINEWIDTH)
-    # draw some arrowheads
-    e00 = csys.xyz((br, theta1, 0))
-    e10 = csys.xyz((br, theta2, 0))
     h = 1.0e-3
-    e0a = norm(csys.xyz((br, theta1 + h, 0)) - e00)
-    e0b = norm(csys.xyz((br + 1, theta1, 0)) - e00)
-    e1a = norm(csys.xyz((br, theta2 + h, 0)) - e10)
-    e1b = norm(csys.xyz((br + 1, theta2, 0)) - e10)
-    drawline(color, e00, e00 + e0a + 0.25 * e0b)
-    drawline(color, e00, e00 + e0a - 0.25 * e0b)
-    drawline(color, e10, e10 - e1a + 0.25 * e1b)
-    drawline(color, e10, e10 - e1a - 0.25 * e1b)
-
     midangle = (theta1 + theta2) / 2
     tmidpoint = csys.xyz((br + 0.5, midangle, 0))
     textx = norm(csys.xyz((br + 0.5, midangle + h, 0)) - tmidpoint)
