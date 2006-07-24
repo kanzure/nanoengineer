@@ -81,9 +81,7 @@ class Handle:
         self._posn_offset = self.constrainedPosition() - self.owner.center()
 
     def move(self, offset):
-        c = self.owner.center()
-        p = c + self._posn_offset + offset
-        self._posn_offset = p - c
+        self._posn_offset += offset
 
     def posn(self):
         return self.owner.center() + self._posn_offset
