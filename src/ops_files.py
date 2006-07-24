@@ -76,7 +76,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
          
         wd = globalParms['WorkingDirectory']
         fn = QFileDialog.getOpenFileName(wd,
-                "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out);;All of the above (*.pdb *.mmp *.out)",
+                "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out);;All Files (*.pdb *.mmp *.out)",
                 self,
                 "Insert File dialog",
                 "Select file to insert" ) # This is the caption for the dialog.  Fixes bug 1125. Mark 051116.
@@ -176,8 +176,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             fn = recentFile
         else:
             fn = QFileDialog.getOpenFileName(odir,
-                    "All Files (*.mmp *.pdb);;Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb)",
-                    self )
+                    "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;All Files (*.mmp *.pdb)",
+                    self ) #fixes bug 316 ninad060724
                     
             if not fn:
                 env.history.message("Cancelled.")
