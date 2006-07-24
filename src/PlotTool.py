@@ -268,6 +268,7 @@ class PlotTool(PlotToolDialog):
                     if debug_gnuplot:
                         print dfd # it does happen
                     environVb.append(dfd)
+                environVb.append('GNUTERM=aqua')
                 pass
             pass
 	 
