@@ -77,7 +77,6 @@ class testmode(super):
 
     def leftUp(self, event):
         pass
-
     
     def Enter(self):
         print
@@ -87,7 +86,8 @@ class testmode(super):
 ##        hacktrack(self.o)
 ##        hack_standard_repaint_0(self.o, self.pre_repaint)
         self.o.pov = V(0,0,0)
-        self.o.quat = Q(1,0,0,0) + Q(V(1,0,0),10.0 * pi/180)
+        self.o.quat = Q(1,0,0,0) ##  + Q(V(1,0,0),10.0 * pi/180) ###k why?
+        ###e maybe: testdraw.Enter, so it can do setViewHome
         self.right = V(1,0,0) ## self.o.right
         self.up = V(0,1,0)
         self.left = - self.right

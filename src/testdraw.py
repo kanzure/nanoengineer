@@ -81,6 +81,22 @@ from constants import ave_colors # (weight, color1, color2) # weight is of color
 lightblue = ave_colors( 0.2, blue, white)
 halfblue = ave_colors( 0.5, blue, white)
 
+def translucent_color(color, opacity = 0.5): #e refile with ave_colors
+    """Make color (a 3- or 4-tuple of floats) have the given opacity (default 0.5, might be revised);
+    if it was already translucent, this multiplies the opacity it had.
+    """
+    if len(color) == 3:
+        c1, c2, c3 = color
+        c4 = 1.0
+    else:
+        c1, c2, c3, c4 = color
+    return (c1, c2, c3, c4 * opacity)
+
+trans_blue = translucent_color(halfblue)
+trans_red = translucent_color(red)
+trans_green = translucent_color(green)
+
+# ==
 
 # note: class avoidHighlightSlowness was defined here in rev. 1.6, but didn't work and probably can't work, so I zapped it.
 # Its goal was to avoid the redraws on every mouseover motion of drawing that doesn't use glname to make itself highlightable.
@@ -104,6 +120,11 @@ except:
 
 # vv.counter = 0 # just to get started (was needed when i moved file to another machine, already running, too)
 
+# ==
+
+def Enter(glpane): # never yet called ###@@@
+    glpane.win.setViewHome() # not tested, might be wrong; redundant now (if home view is the default)
+    
 def leftDown(glpane, event):
     vv.havelist = 0 # so editing this file (and clicking) uses the new code
 
@@ -609,7 +630,13 @@ class Highlightable(Delegator, WidgetExpr):#060722
         """
         return green # color doesn't matter, but it might matter that it's a legal color, or not None, to GLPane (I don't know);
             # this color will be received by draw_in_abs_coords (which ignores it)
-    pass
+    def selobj_still_ok(self, glpane):
+        ###e needs to compare glpane.part to something in selobj, and worry whether selobj is killed, current, etc
+        # (it might make sense to see if it's created by current code, too;
+        #  but this might be too strict: self.__class__ is Highlightable )
+        return True ###e stub, not reviewed
+    pass # end of class Highlightable
+
 
 class Rect(WidgetExpr): #e example, not general enough to be a good use of this name
     "Rect(width, height, color) renders as a filled rect of that color, origin on bottomleft"
@@ -842,7 +869,7 @@ class Ribbon2(Ribbon):
         glRotatef(-angle, 1,0,0)
     pass
 
-testexpr = Row( Rect(1.5, 1, red),
+testexpr = Row( Rect(1.5, 1, trans_red),
                 Column(
                   Rect(1.5, 1, red),
                   Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
