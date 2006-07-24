@@ -49,17 +49,28 @@ class testmode(super):
     def Draw(self):
         ## print "testmode draw"
         # initial purpose: test new drawing primitives, defined in testdraw.py, frequently edited
+        ## did reload here, until 060723 late
         import testdraw
-        reload(testdraw)
         try:
             testdraw.drawtest(self.o)
         except:
             #e history message?
             print_compact_traceback("exception in testdraw.drawtest ignored: ")
         return
+
+    def reload(self):
+        import testdraw
+        reload(testdraw)
         
     def leftDown(self, event):
-        self.o.gl_update() # cause another call of self.Draw()
+        self.reload() # did this in Draw, not here & Enter, until 060723 late
+        import testdraw
+        try:
+            testdraw.leftDown(self.o, event)
+        except:
+            #e history message?
+            print_compact_traceback("exception in testdraw.leftDown ignored: ")
+        self.o.gl_update() # cause another call of self.Draw() [###e actually it might be better to let testdraw.leftDown decide on this]
 
     def leftDrag(self, event):
         pass
@@ -71,6 +82,7 @@ class testmode(super):
     def Enter(self):
         print
         print "entering testmode again", time.asctime()
+        self.reload()
         self.assy = self.w.assy
 ##        hacktrack(self.o)
 ##        hack_standard_repaint_0(self.o, self.pre_repaint)

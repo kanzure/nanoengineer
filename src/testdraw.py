@@ -8,6 +8,23 @@ $Id$
 
 [for doc, see testmode.py]
 
+known bugs:
++ slowness of redraw, and redraw happens whenever i go on or off a highlighted thing, or on or move around on something else.
+  this is much worse on my iMacG4 than my iMac G5, but not because of redraw speed,
+  but because on the G4, the mouse cursor stops following the mouse during the redraw!!!
+  Possible fixes: different hit test alg, C-coded redraw or hit test, use of display list or saved color/depth buffer for
+  nonhighlighted stuff.
+  ... i put in a display list, which fixed it, but it's not invalled enough. (it also needs inval by trackball, unlike a chunk's.)
+
+- Changing the current view doesn't reset havelist = 0, and this causes the highlight posn to be wrong!
+  So I made havelist care about assy._view_change_counter, but that's nim in assy (changed_view is not called by anything)
+  so this didn't help! Maybe it needs to care about the view data itself? ####@@@@
+  Workaround: click after you change the view.
+
+- we'll need to remember to reset havelist when we change other state, once we can do that.
+
+- highlight orange is slightly wider on right than nonhighlight pink (guess: glpane translates in model space, not just depth space)
+
 todo:
 - try a display list optim in main draw function, for keeping non-highlighted stuff in one;
 might work almost as well as a color/depth buffer, for this code;
@@ -65,15 +82,21 @@ halfblue = ave_colors( 0.5, blue, white)
 
 try:
     vv
+    vv.displist
+    vv.havelist
 except:
     vv = attrholder()
     vv.tex_name = 0
     vv.tex_data = None
     vv.counter = 0
+    vv.displist = glGenLists(1)
+    vv.havelist = 0
     ##e should modify to make it easier to set up defaults; sort of like a debug_pref?
 
 # vv.counter = 0 # just to get started (was needed when i moved file to another machine, already running, too)
 
+def leftDown(glpane, event):
+    vv.havelist = 0 # so editing this file (and clicking) uses the new code
 
 def drawtest(glpane):
     vv.counter += 1
@@ -85,7 +108,78 @@ def drawtest(glpane):
     glPopMatrix() # it turns out this is needed, if drawtest0 does glTranslate, or our coords are messed up when glselect code
     # makes us draw twice! noticed on g4, should happen on g5 too, did it happen but less??
 
+# ==
+
+def havelist_counters(glpane):
+    "return some counters which better have the same value or we'll treat havelist as if it was invalidated"
+    assy = glpane.assy
+    return (assy._view_change_counter,)
+
+def display_list_helper(self, glpane, drawfunc):
+    "self needs .havelist and .displist"
+    if self.havelist == havelist_counters(glpane): ## == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
+        ##print "calllist (redraw %d)" % env.redraw_counter
+        glCallList(self.displist)
+    else:
+        if 0:
+            #bruce 060608: record info to help per-chunk display modes
+            # figure out whether they need to invalidate their memo data.
+            if not self.havelist:
+                # only count when it was set to 0 externally, not just when it doesn't match and we reset it below.
+                # (Note: current code will also increment this every frame, when wantlist is false.
+                #  I'm not sure what to do about that. Could we set it here to False rather than 0, so we can tell?? ##e)
+                self._havelist_inval_counter += 1
+            ##e in future we might also record eltprefs, matprefs, drawLevel (since they're stored in .havelist)
+        self.havelist = 0 #bruce 051209: this is now needed
+##        try:
+##            wantlist = not env.mainwindow().movie_is_playing #bruce 051209
+##        except:
+##            print_compact_traceback("exception (a bug) ignored: ")
+##            wantlist = True
+        wantlist = True
+        if wantlist:
+##            match_checking_code = self.begin_tracking_usage()
+            glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
+##            ColorSorter.start() # grantham 20051205
+
+        # bruce 041028 -- protect against exceptions while making display
+        # list, or OpenGL will be left in an unusable state (due to the lack
+        # of a matching glEndList) in which any subsequent glNewList is an
+        # invalid operation. (Also done in shape.py; not needed in drawer.py.)
+        try:
+##            self.draw_displist(glpane, disp, (hd, delegate_draw_atoms, delegate_draw_chunk))
+            print "drawfunc (redraw %d)" % env.redraw_counter
+            drawfunc()
+        except:
+            print_compact_traceback("exception ignored: ")
+
+        if wantlist:
+##            ColorSorter.finish() # grantham 20051205
+            glEndList()
+##            self.end_tracking_usage( match_checking_code, self.inval_display_list )
+            # This is the only place where havelist is set to anything true;
+            # the value it's set to must match the value it's compared with, above.
+            # [bruce 050415 revised what it's set to/compared with; details above]
+            self.havelist = havelist_counters(glpane) ## (disp, eltprefs, matprefs, drawLevel)
+            assert self.havelist, "bug: havelist must be set to a true value here, not %r" % (self.havelist,)
+            # always set the self.havelist flag, even if exception happened,
+            # so it doesn't keep happening with every redraw of this molecule.
+            #e (in future it might be safer to remake the display list to contain
+            # only a known-safe thing, like a bbox and an indicator of the bug.)
+        pass
+    return
+
+# ==
+
+###@@@ bug: 
 def drawtest0(glpane):
+    # vv has .havelist and .displist
+    drawfunc = lambda:drawtest1(glpane)
+    display_list_helper( vv, glpane, drawfunc)
+    return
+
+def drawtest1(glpane):
+    glTranslatef(-7,7,0)
     dy = - 0.5
     ## drawline(color, pos1, pos2, dashEnabled = False, width = 1)
     drawline(red,   V(0,0,0),V(1,0,0),width = 2)
