@@ -73,9 +73,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     def fileInsert(self):
         
         env.history.message(greenmsg("Insert File:"))
-         
-        wd = globalParms['WorkingDirectory']
-        fn = QFileDialog.getOpenFileName(wd,
+        
+        if self.assy.filename: odir, fil, ext = fileparse(self.assy.filename)
+        else: odir = globalParms['WorkingDirectory'] #mitigated bug 291. at least handles one case. this is a temporary fix and probably live until a parmanent fix is committed ninad060724
+        fn = QFileDialog.getOpenFileName(odir,
                 "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out);;All Files (*.pdb *.mmp *.out)",
                 self,
                 "Insert File dialog",
