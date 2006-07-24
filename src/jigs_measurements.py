@@ -33,91 +33,9 @@ import env #bruce 050901
 from jigs import Jig
 from dimensions import drawLinearDimension, drawAngleDimension, drawDihedralDimension
 
-# work in progress, wware 060719
-class Handle:
-    """A handle is a small visible spherical object which can be
-    dragged around in 3 dimensions. Its purpose is to provide a
-    draggable point on a jig, for instance to set the position where
-    we display text in a length measurement jig.
-
-    As currently implemented, there are a couple shortcomings with
-    handles. One is that if you drag from anywhere on the jig, it acts
-    as if you're dragging the handle. I don't perceive this as a real
-    bug, it just means the handle is a conveniently wide place to grab
-    the jig.
-
-    The other is that we can't yet put two separate handles on a jig
-    and have them act independently. It would need to be possible for
-    handles to be separately highlighted, so we could send a move to
-    one handle and not the other. I think that means each handle needs
-    a glname, which can later be provided by Drawable, from which this
-    class will eventually inherit. How a glname actually makes an
-    object highlightable is a bit mysterious, and we should document
-    it one of these days.
-
-    Relevant wiki stuff:
-    Drawable_objects#Hover_highlighting_implementation
-    Drawable_objects#Selection
-    """
-    def __init__(self, owner):
-        self._posn_offset = Numeric.array((0.0, 0.0, 0.0))
-        # owner is a measurement jig. It is expected to provide an
-        # atom list and a glpane. It should also have a center()
-        # method which gives the average position of the atoms in the
-        # atom list.
-        self.owner = owner
-        self.atoms = owner.atoms
-        self.glpane = owner.assy.o
-
-    def constrainedPosition(self):
-        """The jig maintains an unconstrained position. Constraining
-        the position can mean projecting it onto a particular surface,
-        and/or confining it to a particular region satisfying some
-        linear inequalities in position.
-        """
-        raise Exception('expected to be overloaded')
-
-    def constrain(self):
-        self._posn_offset = self.constrainedPosition() - self.owner.center()
-
-    def move(self, offset):
-        self._posn_offset += offset
-
-    def posn(self):
-        return self.owner.center() + self._posn_offset
-
-    def draw(self, glpane, color, highlighted=False):
-        from constants import magenta, yellow
-        if False:
-            # I like the magenta myself, but I should probably stick
-            # with pre-existing color conventions.
-            if highlighted:
-                color = yellow
-            else:
-                color = magenta
-        level = 1
-        drawrad = 0.4
-        pos = self.constrainedPosition()
-        drawsphere(color, pos, drawrad, level)
-
-class LinearHandle(Handle):
-    def constrainedPosition(self):
-        a = self.owner.atoms
-        pos, p0, p1 = self.posn(), a[0].posn(), a[1].posn()
-        z = p1 - p0
-        nz = norm(z)
-        dotprod = dot(pos - p0, nz)
-        if dotprod < 0.0:
-            return pos - dotprod * nz
-        elif dotprod > vlen(z):
-            return pos - (dotprod - vlen(z)) * nz
-        else:
-            return pos
-
-def _constrainHandleToAngle(pos, p0, p1, p2, glpane):
+def _constrainHandleToAngle(pos, p0, p1, p2):
     """This works in two steps.
-    (1) Project pos onto the plane defined by (p0, p1, p2). In the
-        ideal case, use the glpane's lineOfSight to do the projection.
+    (1) Project pos onto the plane defined by (p0, p1, p2).
     (2) Confine the projected point to lie within the angular arc.
     """
     u = pos - p1
@@ -134,25 +52,6 @@ def _constrainHandleToAngle(pos, p0, p1, p2, glpane):
         u = vlen(u) * z2
     return p1 + u
 
-class AngleHandle(Handle):
-    def constrainedPosition(self):
-        import types
-        a = self.owner.atoms
-        return _constrainHandleToAngle(self.posn(), a[0].posn(), a[1].posn(), a[2].posn(),
-                                       self.glpane)
-
-class DihedralHandle(Handle):
-    def constrainedPosition(self):
-        a = self.owner.atoms
-        p0, p1, p2, p3 = a[0].posn(), a[1].posn(), a[2].posn(), a[3].posn()
-        axis = norm(p2 - p1)
-        midpoint = 0.5 * (p1 + p2)
-        return _constrainHandleToAngle(self.posn(),
-                                       p0 - dot(p0 - midpoint, axis) * axis,
-                                       midpoint,
-                                       p3 - dot(p3 - midpoint, axis) * axis,
-                                       self.glpane)
-
 # == Measurement Jigs
 
 # rename class for clarity, remove spurious methods, wware 051103
@@ -166,13 +65,32 @@ class MeasurementJig(Jig):
         self.color = black # This is the "draw" color.  When selected, this will become highlighted red.
         self.normcolor = black # This is the normal (unselected) color.
         self.cancelled = True # We will assume the user will cancel
-        self.handle = self.HandleType(self)
+        self.handle_offset = V(0.0, 0.0, 0.0)
 
     # move some things to base class, wware 051103
     copyable_attrs = Jig.copyable_attrs + ('font_name', 'font_size')
 
-    def clickedOn(self, ignored):
-        self.handle.constrain()
+    def constrainedPosition(self):
+        """The jig maintains an unconstrained position. Constraining
+        the position can mean projecting it onto a particular surface,
+        and/or confining it to a particular region satisfying some
+        linear inequalities in position.
+        """
+        raise Exception('expected to be overloaded')
+
+    def clickedOn(self, pos):
+        self.handle_offset = pos - self.center()
+        self.constrain()
+
+    def constrain(self):
+        self.handle_offset = self.constrainedPosition() - self.center()
+
+    def move(self, offset):
+        self.handle_offset += offset
+        self.constrain()
+
+    def posn(self):
+        return self.center() + self.handle_offset
 
     # move to base class, wware 051103
     # Email from Bruce, 060327 <<<<
@@ -195,9 +113,6 @@ class MeasurementJig(Jig):
         "Delete the jig if any of its atoms are deleted"
         Node.kill(self)
 
-    def move(self, offset):
-        self.handle.move(offset)
-        
     # Set the properties for a Measure Distance jig read from a (MMP) file
     # include atomlist, wware 051103
     def setProps(self, name, color, font_name, font_size, atomlist):
@@ -206,7 +121,6 @@ class MeasurementJig(Jig):
         self.font_name = font_name
         self.font_size = font_size
         self.setAtoms(atomlist)
-        self.handle.move(V(0.0, 0.0, 0.0))
 
     # simplified, wware 051103
     # Following Postscript: font names NEVER have parentheses in them.
@@ -219,9 +133,8 @@ class MeasurementJig(Jig):
         # use atom positions to compute center, where text should go
         if self.picked:
             # move the text to the lower left corner, and make it big
-            # self.assy.o is the GLPane
             drawtext(text, color, self.assy.o.selectedJigTextPosition(),
-                     3 * self.font_size, self.assy.o)
+                     3 * self.font_size)
         else:
             pos1 = self.atoms[0].posn()
             pos2 = self.atoms[-1].posn()
@@ -249,10 +162,6 @@ class MeasurementJig(Jig):
                 return False
         return True
 
-    def _draw_jig(self, glpane, color, highlighted=False):
-        Jig._draw_jig(self, glpane, color, highlighted) # draw boxes around each of the jig's atoms.
-        self.handle.draw(glpane, color, highlighted)
-
     def center(self):
         c = Numeric.array((0.0, 0.0, 0.0))
         n = len(self.atoms)
@@ -262,14 +171,13 @@ class MeasurementJig(Jig):
 
     def writemmp_info_leaf(self, mapping):
         Node.writemmp_info_leaf(self, mapping)
-        handle = self.handle
-        x, y, z = handle.constrainedPosition()
+        x, y, z = self.constrainedPosition()
         mapping.write("info leaf handle = %g %g %g\n" % (x, y, z))
 
     def readmmp_info_leaf_setitem(self, key, val, interp):
         import string, Numeric
         if key == ['handle']:
-            self.handle.move(Numeric.array(map(string.atof, val.split())))
+            self.handle_offset = Numeric.array(map(string.atof, val.split())) - self.center()
         else:
             Jig.readmmp_info_leaf_setitem(self, key, val, interp)
 
@@ -285,7 +193,19 @@ class MeasureDistance(MeasurementJig):
     sym = "Distance"
     icon_names = ["measuredistance.png", "measuredistance-hide.png"]
     featurename = "Measure Distance Jig" # added, wware 20051202
-    HandleType = LinearHandle
+
+    def constrainedPosition(self):
+        a = self.atoms
+        pos, p0, p1 = self.center() + self.handle_offset, a[0].posn(), a[1].posn()
+        z = p1 - p0
+        nz = norm(z)
+        dotprod = dot(pos - p0, nz)
+        if dotprod < 0.0:
+            return pos - dotprod * nz
+        elif dotprod > vlen(z):
+            return pos - (dotprod - vlen(z)) * nz
+        else:
+            return pos
 
     def _getinfo(self): 
         return  "[Object: Measure Distance] [Name: " + str(self.name) + "] " + \
@@ -313,7 +233,7 @@ class MeasureDistance(MeasurementJig):
         MeasurementJig._draw_jig(self, glpane, color, highlighted)
         text = "%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance())
         # mechanical engineering style dimensions
-        drawLinearDimension(color, self.assy.o.right, self.assy.o.up, self.handle.constrainedPosition(),
+        drawLinearDimension(color, self.assy.o.right, self.assy.o.up, self.constrainedPosition(),
                             self.atoms[0].posn(), self.atoms[1].posn(), text)
 
     mmp_record_name = "mdistance"
@@ -329,7 +249,12 @@ class MeasureAngle(MeasurementJig):
     sym = "Angle"
     icon_names = ["measureangle.png", "measureangle-hide.png"]
     featurename = "Measure Angle Jig" # added, wware 20051202
-    HandleType = AngleHandle
+
+    def constrainedPosition(self):
+        import types
+        a = self.atoms
+        return _constrainHandleToAngle(self.center() + self.handle_offset,
+                                       a[0].posn(), a[1].posn(), a[2].posn())
 
     def _getinfo(self):   # add atom list, wware 051101
         return  "[Object: Measure Angle] [Name: " + str(self.name) + "] " + \
@@ -356,7 +281,7 @@ class MeasureAngle(MeasurementJig):
 
         text = "%.2f" % self.get_angle()
         # mechanical engineering style dimensions
-        drawAngleDimension(color, self.assy.o.right, self.assy.o.up, self.handle.constrainedPosition(),
+        drawAngleDimension(color, self.assy.o.right, self.assy.o.up, self.constrainedPosition(),
                            self.atoms[0].posn(), self.atoms[1].posn(), self.atoms[2].posn(),
                            text)
 
@@ -373,7 +298,16 @@ class MeasureDihedral(MeasurementJig):
     sym = "Dihedral"
     icon_names = ["measuredihedral.png", "measuredihedral-hide.png"]
     featurename = "Measure Dihedral Jig" # added, wware 20051202
-    HandleType = DihedralHandle
+
+    def constrainedPosition(self):
+        a = self.atoms
+        p0, p1, p2, p3 = a[0].posn(), a[1].posn(), a[2].posn(), a[3].posn()
+        axis = norm(p2 - p1)
+        midpoint = 0.5 * (p1 + p2)
+        return _constrainHandleToAngle(self.center() + self.handle_offset,
+                                       p0 - dot(p0 - midpoint, axis) * axis,
+                                       midpoint,
+                                       p3 - dot(p3 - midpoint, axis) * axis)
 
     def _getinfo(self):    # add atom list, wware 051101
         return  "[Object: Measure Dihedral] [Name: " + str(self.name) + "] " + \
@@ -407,7 +341,7 @@ class MeasureDihedral(MeasurementJig):
 
         text = "%.2f" % self.get_dihedral()
         # mechanical engineering style dimensions
-        drawDihedralDimension(color, self.assy.o.right, self.assy.o.up, self.handle.constrainedPosition(),
+        drawDihedralDimension(color, self.assy.o.right, self.assy.o.up, self.constrainedPosition(),
                               self.atoms[0].posn(), self.atoms[1].posn(),
                               self.atoms[2].posn(), self.atoms[3].posn(),
                               text)

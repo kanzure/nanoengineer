@@ -452,15 +452,17 @@ class CylindricalCoordinates:
         dv = (r * sin(t)) * self.v
         dz = z * self.z
         return self.p0 + du + dv + dz
-    def drawLine(self, color, rtz1, rtz2):
-        drawline(color, self.xyz(rtz1), self.xyz(rtz2))
-    def drawArc(self, color, r, theta1, theta2, z):
+    def drawLine(self, color, rtz1, rtz2, width=1):
+        drawline(color, self.xyz(rtz1), self.xyz(rtz2), width=width)
+    def drawArc(self, color, r, theta1, theta2, z, width=1):
         n = int((30 / pi) * fabs(theta2 - theta1) + 1)
         step = (1.0 * theta2 - theta1) / n
         for i in range(n):
             t = theta1 + step
-            self.drawLine(color, (r, theta1, z), (r, t, z))
+            self.drawLine(color, (r, theta1, z), (r, t, z), width=width)
             theta1 = t
+
+THICKLINEWIDTH = 3
 
 def drawLinearDimension(color, right, up, bpos, p0, p1, text):
     outOfScreen = cross(right, up)
@@ -475,7 +477,7 @@ def drawLinearDimension(color, right, up, bpos, p0, p1, text):
     drawline(color, p1, e1)
     v0 = csys.xyz((br, 0, 0))
     v1 = csys.xyz((br, 0, 1))
-    drawline(color, v0, v1)
+    drawline(color, v0, v1, width=THICKLINEWIDTH)
     # draw arrowheads at the ends
     a1, a2 = 0.25, 1.0 * csys.zinv
     arrow00 = csys.xyz((br + a1, 0, a2))
@@ -520,7 +522,7 @@ def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR
     e1 = csys.xyz((max(vlen(p2 - p1), br, minR2) + 0.5, theta2, 0))
     drawline(color, p1, e0)
     drawline(color, p1, e1)
-    csys.drawArc(color, br, theta1, theta2, 0)
+    csys.drawArc(color, br, theta1, theta2, 0, width=THICKLINEWIDTH)
     # draw some arrowheads
     e00 = csys.xyz((br, theta1, 0))
     e10 = csys.xyz((br, theta2, 0))
