@@ -1946,14 +1946,14 @@ class depositMode(selectAtomsMode):
     def Draw(self):
         """ Draw 
         """
-        selectAtomsMode.Draw(self)
+        selectAtomsMode.Draw(self) # this includes self.o.assy.draw(self.o) [bruce 060724 comment]
         if self.line:
             color = get_selCurve_color(0,self.backgroundColor) 
                 # Make sure line color has good contrast with bg. mark 060305.
             drawline(color, self.line[0], self.line[1])
             ####@@@@ if this is for a higher-order bond, draw differently
-        self.o.assy.draw(self.o)
-        #bruce 050610 moved self.surface() call elsewhere
+        ## self.o.assy.draw(self.o) # THIS WAS REDUNDANT [bruce 060724 removed it as a speedup]
+        #bruce 050610 moved self.surface() call elsewhere [it's in Draw_after_highlighting]
         return
 
     def Draw_after_highlighting(self, pickCheckOnly=False): #bruce 050610
