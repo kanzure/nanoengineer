@@ -1877,6 +1877,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # draw the selobj as highlighted, and make provisions for fast test
             # (by external code) of mouse still being over it (using stencil buffer)
 
+            # note: if selobj highlight is partly translucent or transparent (neither yet supported),
+            # we might need to draw it depth-sorted with other translucent objects
+            # (now drawn by some modes using Draw_after_highlighting, not depth-sorted or modularly);
+            # but our use of the stencil buffer assumes it's drawn at the end (except for objects which
+            # don't obscure it for purposes of highlighting hit-test). This will need to be thought through
+            # carefully if there can be several translucent objects (meant to be opaque re hit-tests),
+            # and traslucent highlighting. See also the comment about highlight_into_depth, below. [bruce 060724 comment]
+
             # first gather info needed to know what to do -- highlight color (and whether to draw that at all)
             # and whether object might be bigger when highlighted (affects whether depth write is needed now).
             hicolor = self.selobj_hicolor( self.selobj) #bruce 050822 revised this; ###@@@ should record it from earlier test above
@@ -1896,7 +1904,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 # depth-writing is needed here, if highlight might be drawn in front of not-yet-drawn transparent surfaces
                 # (like Build mode water surface) -- otherwise they will look like they're in front of some of the highlighting
                 # even though they're not. (In principle, the preDraw_glselect_dict call above needs to know whether this depth
-                # writing occurred ###doc why. Probably we should store it into the object itself... ###@@@ review, then doit
+                # writing occurred ###doc why. Probably we should store it into the object itself... ###@@@ review, then doit )
                 highlight_into_depth = highlight_might_be_bigger
             else:
                 highlight_into_depth = False ###@@@ might also need to store 0 into obj...see discussion above

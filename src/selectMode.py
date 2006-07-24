@@ -1882,6 +1882,7 @@ class selectAtomsMode(selectMode):
         if self.o.is_animating:
             # If animating, do not select anything. For more info, see GLPane.animateToView(). mark 060404.
             # <is_animating> should be renamed to something more generic (i.e. <select_enabled>). mark 060701.
+            # [But not to anything containing the word "select", since it's about hover highlighting, not selection. bruce 060724]
             return
         
         wX = event.pos().x()

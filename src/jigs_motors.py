@@ -360,7 +360,15 @@ class RotaryMotor(Motor):
         '''Draw a Rotary Motor jig as a cylinder along the axis, with a thin cylinder (spoke) to each atom.
         If <highlighted> is True, the Rotary Motor is draw slightly larger.
         '''
-        
+        ## print "RMotor _draw_jig",env.redraw_counter
+            # This confirms that Jigs are drawn more times than they ought to need to be,
+            # possibly due to badly organized Jig hit-testing code -- 4 times on mouseenter that highlights them in Build mode
+            # (even after I fixed a bug today in which it redrew the entire model twice each frame);
+            # but it's hard to find something to compare it to for an objective test of whether being a Jig matters,
+            # since atoms, bonds, and chunks all have special behavior of their own. BTW, the suspected bad Jig code might redraw
+            # everything (not only Jigs) this often, even though all it cares about is seeing Jigs in glRenderMode output.
+            # BTW2, on opening a file containing one jig, it was drawn something like 20 times.
+            # [bruce 060724 comments]
         if highlighted:
             inc = 0.01 # tested.  Fixes bug 1681. mark 060314.
         else:
