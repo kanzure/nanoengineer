@@ -66,22 +66,24 @@ class Handle:
         # method which gives the average position of the atoms in the
         # atom list.
         self.owner = owner
-        # can't do this too early, or we'll get a list of zero atoms
-        # self.atoms = owner.atoms
+        self.atoms = owner.atoms
         self.glpane = owner.assy.o
 
     def constrainedPosition(self):
+        """The jig maintains an unconstrained position. Constraining
+        the position can mean projecting it onto a particular surface,
+        and/or confining it to a particular region satisfying some
+        linear inequalities in position.
+        """
         raise Exception('expected to be overloaded')
 
     def constrain(self):
         self._posn_offset = self.constrainedPosition() - self.owner.center()
 
     def move(self, offset):
-        self.moveAbsolute(self.posn() + offset)
-
-    def moveAbsolute(self, pos):
         c = self.owner.center()
-        self._posn_offset = pos - c
+        p = c + self._posn_offset + offset
+        self._posn_offset = p - c
 
     def posn(self):
         return self.owner.center() + self._posn_offset
@@ -115,6 +117,11 @@ class LinearHandle(Handle):
             return pos
 
 def _constrainHandleToAngle(pos, p0, p1, p2, glpane):
+    """This works in two steps.
+    (1) Project pos onto the plane defined by (p0, p1, p2). In the
+        ideal case, use the glpane's lineOfSight to do the projection.
+    (2) Confine the projected point to lie within the angular arc.
+    """
     u = pos - p1
     z0 = norm(p0 - p1)
     z2 = norm(p2 - p1)
@@ -166,8 +173,7 @@ class MeasurementJig(Jig):
     # move some things to base class, wware 051103
     copyable_attrs = Jig.copyable_attrs + ('font_name', 'font_size')
 
-    def clickedOn(self, pos):
-        self.handle.moveAbsolute(pos)
+    def clickedOn(self, ignored):
         self.handle.constrain()
 
     # move to base class, wware 051103
