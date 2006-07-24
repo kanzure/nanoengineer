@@ -25,6 +25,15 @@ known bugs:
 
 - highlight orange is slightly wider on right than nonhighlight pink (guess: glpane translates in model space, not just depth space)
 
+- highlighted Ribbon2 has color bug
+- and needs a larger highlight region w/o holes (since they cause flickering), but transparent highlight region is nim
+  (could do it with depth-only writing, at end like with all transparent stuff, or a different hit-test alg)
+
+- see the exception from the selobj alive test, which happens on clicks (left or cmenu) and on highlight not covering selobj,
+  described below (in class Highlightable)
+
+==
+
 todo:
 - try a display list optim in main draw function, for keeping non-highlighted stuff in one;
 might work almost as well as a color/depth buffer, for this code;
@@ -550,9 +559,9 @@ class Highlightable(Delegator, WidgetExpr):#060722
     "Highlightable(plain, highlight) renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight"
     # Works, except I suspect the docstring is inaccurate when it says "plain plus highlight" (rather than just highlight), 
     # and there's an exception if you try to ask selectMode for a cmenu for this object, or if you just click on it
-    # (I can guess why -- it's a selobj-still-valid check I vaguely recall):
+    # (I can guess why -- it's a selobj-still-valid check I vaguely recall, selobj_still_ok):
     #   atom_debug: ignoring exception: exceptions.AttributeError: killed
-    #   [modes.py:928] [Delegator.py:10] [inval.py:192] [inval.py:309]
+    #   [modes.py:928] (i.e. selobj_still_ok) [Delegator.py:10] [inval.py:192] [inval.py:309]
     #
     __init__ = WidgetExpr.__init__ # otherwise Delegator's comes first and init() never runs
     def init(self):
@@ -837,7 +846,7 @@ testexpr = Row( Rect(1.5, 1, red),
                 Column(
                   Rect(1.5, 1, red),
                   Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
-                  Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red),
+                  Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "ds2" ),
                   Rect(1.5, 1, green),
                   gap = 0.2
                 ),
