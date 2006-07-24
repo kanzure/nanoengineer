@@ -128,7 +128,7 @@ def do_what_MainWindowUI_should_do(self):
             self.extrudeSpinBox_y = FloatSpinBox(parent_now(), "extrudeSpinBox_y")
         end()
         if begin(QHBox):
-            insertlabel(" length ") # units?
+            insertlabel(" Length ") # units?
             self.extrudeSpinBox_length = FloatSpinBox(parent_now(), "extrudeSpinBox_length", for_a_length = 1)
         end()
     end()
@@ -139,19 +139,19 @@ def do_what_MainWindowUI_should_do(self):
 
     if begin(QVBox):
         if begin(QHBox):
-            insertlabel("show: ")
+            insertlabel("Show: ")
             # these have keyword args of sense (dflt True), in case you
             # rename them in a way which inverts meaning of True/False,
             # and default, to specify the initial value of the program
             # value (not nec. that of the checkbox, if sense = False!).
-            self.extrudePref1 = TogglePrefCheckBox("whole model", parent_now(), "extrudePref1",
+            self.extrudePref1 = TogglePrefCheckBox("Whole Model", parent_now(), "extrudePref1",
                                                    default = False, attr = 'show_whole_model', repaintQ = True )
-            self.extrudePref2 = TogglePrefCheckBox("bond-offset spheres", parent_now(), "extrudePref2",
+            self.extrudePref2 = TogglePrefCheckBox("Bond-offset Spheres", parent_now(), "extrudePref2",
                                                    default = False,  attr = 'show_bond_offsets', repaintQ = True )
                 #bruce 050218 don't show bond-offset spheres by default
         end()
         if begin(QHBox):
-            insertlabel("when done: ")
+            insertlabel("When Done: ")
             # these only affect what we do at the end -- no repaint needed.
             # History: when there were only two "when done" prefs, the names were "make bonds", "join into one part".
             # Other names tried and rejected (and the reasons):
@@ -160,8 +160,8 @@ def do_what_MainWindowUI_should_do(self):
             #   "single part" (sounds like "set ncopies = 1"), "one part" (same), "all one part" (good? maybe unclear);
             #   "join parts" (sounds like "bond");
             # - "ring" (unclear), "make ring" (might be ok), "bend into ring" (too long?).
-            self.extrudePref3 = TogglePrefCheckBox("make bonds", parent_now(), "extrudePref3", attr = 'whendone_make_bonds')
-            self.extrudePref4 = TogglePrefCheckBox("merge parts", parent_now(), "extrudePref4", attr = 'whendone_all_one_part')
+            self.extrudePref3 = TogglePrefCheckBox("Make Bonds", parent_now(), "extrudePref3", attr = 'whendone_make_bonds')
+            self.extrudePref4 = TogglePrefCheckBox("Merge Chunks", parent_now(), "extrudePref4", attr = 'whendone_all_one_part') #fixed bug 513 items 2, 3ninad060724
         end()
     end()
 
@@ -221,7 +221,7 @@ def lambda_tol_nbonds(tol, nbonds):
     # fixed-width (3 digits) but using initial spaces
     # (doesn't have all of desired effect, due to non-fixed-width font)
     tol_str = tol_str + "%"
-    return "tolerance: %s => %s bonds" % (tol_str,nbonds_str)
+    return "Tolerance: %s => %s bonds" % (tol_str,nbonds_str)
 
 def reinit_extrude_controls(win, glpane = None, length = None, attr_target = None):
     "reinitialize the extrude controls; used whenever we enter the mode; win should be the main window (MWSemantics object)"
