@@ -871,7 +871,6 @@ class basicMode(anyMode):
         if platform.atom_debug:
             self.o.assy.checkpicked(always_print = 0)
         return
-    
 
     def _drawESPImage(self, grp, pickCheckOnly):
         '''Draw any member in the Group <grp> if it is an ESP Image. Not consider the order
@@ -903,8 +902,8 @@ class basicMode(anyMode):
             return anythingDrawn
         except:
             print_compact_traceback("exception in drawing some Group member; skipping to end: ")
-        
-        
+            ###k return value?
+        pass
     
     def Draw_after_highlighting(self, pickCheckOnly=False): #bruce 050610
         """Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
@@ -916,25 +915,36 @@ class basicMode(anyMode):
          water surface. Could be used for transparent drawing in general.]
         """
         return self._drawESPImage(self.o.assy.part.topnode, pickCheckOnly)
-            
     
-    def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API
+    def selobj_still_ok(self, selobj): #bruce 050702 added this to mode API; revised 060724
         """Say whether a highlighted mouseover object from a prior draw (in the same mode) is still ok.
-        Default implem says yes unless it's been killed
-        (assuming selobj provides a .killed() method).
+        If the mode's special cases don't hold, we ask the selobj; if that doesn't work, we assume it
+        defines .killed (and answer yes unless it's been killed).
         [overrides anyMode method; subclasses might want to override this one]
         """
         try:
-            if selobj.killed():
-                #bruce 050702, part of fix 1 of 2 redundant fixes for bug 716 (both fixes are desirable)
-                return False
             # This sequence of conditionals fix bugs 1648 and 1676. mark 060315.
+            # [revised by bruce 060724 -- merged in selobj.killed() condition, dated 050702,
+            #  which was part of fix 1 of 2 redundant fixes for bug 716 (both fixes are desirable)]
             if isinstance(selobj, Atom):
-                return selobj.molecule.part is self.o.part
-            if isinstance(selobj, Bond):
-                return selobj.atom1.molecule.part is self.o.part
-            if isinstance(selobj, Node): # Jig
-                return selobj.part is self.o.part
+                return not selobj.killed() and selobj.molecule.part is self.o.part
+            elif isinstance(selobj, Bond):
+                return not selobj.killed() and selobj.atom1.molecule.part is self.o.part
+            elif isinstance(selobj, Node): # Jig
+                return not selobj.killed() and selobj.part is self.o.part
+            else:
+                #bruce 060724 new feature, related to Drawable API
+                try:
+                    method = selobj.selobj_still_ok
+                except AttributeError:
+                    pass
+                else:
+                    return method(self.o) # this method would need to compare glpane.part to something in selobj
+                        ##e it might be better to require selobj's to return a part, compare that here,
+                        # then call this for further conditions
+            if platform.atom_debug:
+                print "debug: selobj_still_ok doesn't recognize %r, assuming ok" % (selobj,)
+            return True
         except:
             if platform.atom_debug:
                 print_compact_traceback("atom_debug: ignoring exception: ")
