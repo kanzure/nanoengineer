@@ -1628,9 +1628,6 @@ class extrudeMode(basicMode):
                 assert hset1 in hsets
                 assert hset2 in hsets
                 
-                ### i tried drawing those backs of hset2 into depth only here, but it failed to obscure parts of the mol...
-                # OH, the mol is way above! duh. it did obscure parts of the magenta handle. ok.
-                
                 # draw back faces of hset2 into depth buffer (so far this also draws a color - which one? or does it? yes, white.)
                 ## glCullFace(GL_FRONT)
                 glFrontFace(GL_CW)
