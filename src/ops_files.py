@@ -74,8 +74,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         env.history.message(greenmsg("Insert File:"))
         
-        if self.assy.filename: odir, fil, ext = fileparse(self.assy.filename)
-        else: odir = globalParms['WorkingDirectory'] #mitigated bug 291. at least handles one case. this is a temporary fix and probably live until a parmanent fix is committed ninad060724
+        # Determine the directory to search for.
+        if os.path.exists(self.assy.filename):
+            odir,fil,ext = fileparse(self.assy.filename)
+        else: odir = globalParms['WorkingDirectory'] #mitigated bug 291. Handles one case only. This is a temporary fix ninad060724. Other changes after Bruce's code review. ninad060725
+        
         fn = QFileDialog.getOpenFileName(odir,
                 "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out);;All Files (*.pdb *.mmp *.out)",
                 self,
