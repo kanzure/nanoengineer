@@ -454,17 +454,18 @@ class CylindricalCoordinates:
         return self.p0 + du + dv + dz
     def drawLine(self, color, rtz1, rtz2, width=1):
         drawline(color, self.xyz(rtz1), self.xyz(rtz2), width=width)
-    def drawArc(self, color, r, theta1, theta2, z, width=1):
-        n = int((30 / pi) * fabs(theta2 - theta1) + 1)
+    def drawArc(self, color, r, theta1, theta2, z,
+                width=1, angleIncrement = pi / 50):
+        n = int(fabs(theta2 - theta1) / angleIncrement + 1)
         step = (1.0 * theta2 - theta1) / n
         for i in range(n):
             t = theta1 + step
             self.drawLine(color, (r, theta1, z), (r, t, z), width=width)
             theta1 = t
 
-THICKLINEWIDTH = 3
+THICKLINEWIDTH = 20
 
-def drawLinearDimension(color, right, up, bpos, p0, p1, text):
+def drawLinearDimension(color, right, up, bpos, p0, p1, text, highlighted=False):
     outOfScreen = cross(right, up)
     bdiff = bpos - 0.5 * (p0 + p1)
     csys = CylindricalCoordinates(p0, p1 - p0, bdiff, right)
@@ -477,7 +478,20 @@ def drawLinearDimension(color, right, up, bpos, p0, p1, text):
     drawline(color, p1, e1)
     v0 = csys.xyz((br, 0, 0))
     v1 = csys.xyz((br, 0, 1))
-    drawline(color, v0, v1, width=THICKLINEWIDTH)
+    if highlighted:
+        drawline(color, v0, v1, width=THICKLINEWIDTH)
+    else:
+        drawline(color, v0, v1)
+    # draw arrowheads at the ends
+    a1, a2 = 0.25, 1.0 * csys.zinv
+    arrow00 = csys.xyz((br + a1, 0, a2))
+    arrow01 = csys.xyz((br - a1, 0, a2))
+    drawline(color, v0, arrow00)
+    drawline(color, v0, arrow01)
+    arrow10 = csys.xyz((br + a1, 0, 1-a2))
+    arrow11 = csys.xyz((br - a1, 0, 1-a2))
+    drawline(color, v1, arrow10)
+    drawline(color, v1, arrow11)
     # draw the text for the numerical measurement, make
     # sure it goes from left to right
     zflip = dot(csys.z, right) < 0
@@ -496,7 +510,7 @@ def drawLinearDimension(color, right, up, bpos, p0, p1, text):
     f3d = Font3D()
     f3d.drawString(text, tfm=tfm, color=color)
 
-def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR2=0.0):
+def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR2=0.0, highlighted=False):
     z = cross(p0 - p1, p2 - p1)
     csys = CylindricalCoordinates(p1, z, up, right)
     br, bt, bz = csys.rtz(bpos)
@@ -512,10 +526,26 @@ def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR
     e1 = csys.xyz((max(vlen(p2 - p1), br, minR2) + 0.5, theta2, 0))
     drawline(color, p1, e0)
     drawline(color, p1, e1)
-    csys.drawArc(color, br, theta1, theta2, 0, width=THICKLINEWIDTH)
-    h = 1.0e-3
+    if highlighted:
+        csys.drawArc(color, br, theta1, theta2, 0, width=THICKLINEWIDTH)
+    else:
+        csys.drawArc(color, br, theta1, theta2, 0)
+    # draw some arrowheads
+    e00 = csys.xyz((br, theta1, 0))
+    e10 = csys.xyz((br, theta2, 0))
+    dr = 0.25
+    dtheta = 1 / br
+    e0a = csys.xyz((br + dr, theta1 + dtheta, 0))
+    e0b = csys.xyz((br - dr, theta1 + dtheta, 0))
+    e1a = csys.xyz((br + dr, theta2 - dtheta, 0))
+    e1b = csys.xyz((br - dr, theta2 - dtheta, 0))
+    drawline(color, e00, e0a)
+    drawline(color, e00, e0b)
+    drawline(color, e10, e1a)
+    drawline(color, e10, e1b)
     midangle = (theta1 + theta2) / 2
     tmidpoint = csys.xyz((br + 0.5, midangle, 0))
+    h = 1.0e-3
     textx = norm(csys.xyz((br + 0.5, midangle + h, 0)) - tmidpoint)
     texty = norm(csys.xyz((br + 0.5 + h, midangle, 0)) - tmidpoint)
 
@@ -539,7 +569,7 @@ def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR
     f3d = Font3D()
     f3d.drawString(text, tfm=tfm, color=color)
 
-def drawDihedralDimension(color, right, up, bpos, p0, p1, p2, p3, text):
+def drawDihedralDimension(color, right, up, bpos, p0, p1, p2, p3, text, highlighted=False):
     # Draw a frame of lines that shows how the four atoms are connected
     # to the dihedral angle
     csys = CylindricalCoordinates(p1, p2 - p1, up, right)
@@ -555,4 +585,4 @@ def drawDihedralDimension(color, right, up, bpos, p0, p1, p2, p3, text):
     # Use the existing angle drawing routine to finish up
     drawAngleDimension(color, right, up, bpos,
                        e0a, (p1 + p2) / 2, e1a, text,
-                       minR1=r1, minR2=r2)
+                       minR1=r1, minR2=r2, highlighted=highlighted)

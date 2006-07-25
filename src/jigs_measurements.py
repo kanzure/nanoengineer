@@ -234,7 +234,7 @@ class MeasureDistance(MeasurementJig):
         text = "%.2f/%.2f" % (self.get_vdw_distance(), self.get_nuclei_distance())
         # mechanical engineering style dimensions
         drawLinearDimension(color, self.assy.o.right, self.assy.o.up, self.constrainedPosition(),
-                            self.atoms[0].posn(), self.atoms[1].posn(), text)
+                            self.atoms[0].posn(), self.atoms[1].posn(), text, highlighted=highlighted)
 
     mmp_record_name = "mdistance"
     
@@ -283,7 +283,7 @@ class MeasureAngle(MeasurementJig):
         # mechanical engineering style dimensions
         drawAngleDimension(color, self.assy.o.right, self.assy.o.up, self.constrainedPosition(),
                            self.atoms[0].posn(), self.atoms[1].posn(), self.atoms[2].posn(),
-                           text)
+                           text, highlighted=highlighted)
 
     mmp_record_name = "mangle"
     
@@ -344,7 +344,7 @@ class MeasureDihedral(MeasurementJig):
         drawDihedralDimension(color, self.assy.o.right, self.assy.o.up, self.constrainedPosition(),
                               self.atoms[0].posn(), self.atoms[1].posn(),
                               self.atoms[2].posn(), self.atoms[3].posn(),
-                              text)
+                              text, highlighted=highlighted)
     
     mmp_record_name = "mdihedral"
     
