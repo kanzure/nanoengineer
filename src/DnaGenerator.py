@@ -215,8 +215,9 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
             dna = B_Dna()
         elif dnatype == 'Z-DNA':
             dna = Z_Dna()
-        self.dna = dna  # needed for done msg
         doubleStrand = (double == 'Double')
+        dna.double = doubleStrand
+        self.dna = dna  # needed for done msg
         if len(seq) > 30:
             env.history.message(self.cmd + "This may take a moment...")
         grp = Group(self.name, self.win.assy,
@@ -255,7 +256,12 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
     # The done message
 
     def done_msg(self):
-        return "Done creating a strand of %s." % self.dna.geometry
+        dna = self.dna
+        if dna.double:
+            dbl = "double "
+        else:
+            dbl = ""
+        return "Done creating a %sstrand of %s." % (dbl, dna.geometry)
 
     ###################################################
     # Any special controls for this kind of structure
