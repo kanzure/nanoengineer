@@ -200,7 +200,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
 
     def preview_btn_clicked(self):
         if platform.atom_debug: print 'preview button clicked'
-        self._ok_or_preview()
+        self._ok_or_preview(previewing=True)
 
     def ok_btn_clicked(self):
         'Slot for the OK button'
@@ -210,11 +210,11 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         self.struct = None
         return
 
-    def _ok_or_preview(self, doneMsg=False):
+    def _ok_or_preview(self, doneMsg=False, previewing=False):
         QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
         self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616
         try:
-            self._build_struct()
+            self._build_struct(previewing=previewing)
             if doneMsg:
                 env.history.message(self.cmd + self.done_msg())
         except CadBug, e:
@@ -251,7 +251,7 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         if hasattr(self, '_ViewNum'):
             Utility.ViewNum = self._ViewNum
 
-    def _build_struct(self):
+    def _build_struct(self, previewing=False):
         if platform.atom_debug:
             print '_build_struct'
         params = self.gather_parameters()
@@ -273,7 +273,10 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
 
         self.name = name = gensym(self.prefix)
         # self.name needed for done message
-        env.history.message(self.cmd + "Creating " + name)
+        if previewing:
+            env.history.message(self.cmd + "Previewing " + name)
+        else:
+            env.history.message(self.cmd + "Creating " + name)
         self.remove_struct()
         self.previousParams = params
         if platform.atom_debug: print 'build a new structure'
