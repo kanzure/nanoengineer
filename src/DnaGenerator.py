@@ -82,6 +82,7 @@ class Dna:
             grp.addchild(subgroup)
         else:
             subgroup = grp
+        subgroup.open = False
 
         theta = 0.0
         z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
@@ -97,6 +98,7 @@ class Dna:
 
         if doubleStrand:
             subgroup = Group("strand 2", grp.assy, None) #bruce 060714 don't call this the "5' strand" (more info above)
+            subgroup.open = False
             grp.addchild(subgroup)
             theta = 0.0
             z = 0.5 * self.BASE_SPACING * (len(sequence) - 1)
