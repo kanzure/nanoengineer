@@ -267,12 +267,16 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
     # Any special controls for this kind of structure
 
     def complement_btn_clicked(self):
-        seq = self.get_sequence(complement=True)
-        self.base_textedit.setText(seq)
+        def thunk():
+            seq = self.get_sequence(complement=True)
+            self.base_textedit.setText(seq)
+        self.handlePluginExceptions(thunk)
 
     def reverse_btn_clicked(self):
-        seq = self.get_sequence(reverse=True)
-        self.base_textedit.setText(seq)
+        def thunk():
+            seq = self.get_sequence(reverse=True)
+            self.base_textedit.setText(seq)
+        self.handlePluginExceptions(thunk)
 
     def toggle_nt_parameters_grpbox(self):
         self.toggle_groupbox(self.grpbtn1, self.line2,
