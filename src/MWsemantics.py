@@ -1076,6 +1076,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         versionString = repr(v) + (" (%s)" % v.releaseType)
         date = "Release Date: " + v.releaseDate
         filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+	if filePath.endsWith('/Contents/Resources'):
+            filePath = filePath[:-19]
         installdir = "Running from: " + filePath
         techsupport = "For technical support, send email to support@nanorex.com"
         website = "Website: www.nanoengineer-1.com"
