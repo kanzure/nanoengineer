@@ -210,13 +210,9 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         self.struct = None
         return
 
-    def _ok_or_preview(self, doneMsg=False, previewing=False):
-        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
-        self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616
+    def handlePluginExceptions(self, thunk):
         try:
-            self._build_struct(previewing=previewing)
-            if doneMsg:
-                env.history.message(self.cmd + self.done_msg())
+            return thunk()
         except CadBug, e:
             env.history.message(redmsg("Bug in the CAD system: " + " - ".join(map(str, e.args))))
             self.remove_struct()
@@ -229,6 +225,15 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         except Exception, e:
             env.history.message(self.cmd + redmsg(" - ".join(map(str, e.args))))
             self.remove_struct()
+
+    def _ok_or_preview(self, doneMsg=False, previewing=False):
+        QApplication.setOverrideCursor( QCursor(Qt.WaitCursor) )
+        self.win.assy.current_command_info(cmdname = self.cmdname) #bruce 060616
+        def thunk():
+            self._build_struct(previewing=previewing)
+            if doneMsg:
+                env.history.message(self.cmd + self.done_msg())
+        self.handlePluginExceptions(thunk)
         QApplication.restoreOverrideCursor() # Restore the cursor
         self.win.win_update()
 
