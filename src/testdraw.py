@@ -632,8 +632,10 @@ class Highlightable(DelegatingWidgetExpr):#060722
             #   we'd need to store self.glname and self.saved_modelview_matrix in corresponding external state]
         glPushName(self.glname)
         if self.transient_state.in_drag:
+            print "pressed_out.draw"
             self.pressed_out.draw() #e actually might depend on mouseover, or might not draw anything then...
         else:
+            print "plain.draw"
             self.plain.draw()
         glPopName() ##e should protect this from exceptions
             #e (or have a WE-wrapper to do that for us, for .draw() -- or just a helper func, draw_and_catch_exceptions)
@@ -650,9 +652,11 @@ class Highlightable(DelegatingWidgetExpr):#060722
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/OpenGLContext/renderpass.py
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/VisionEgg/Core.py
         if self.transient_state.in_drag:
+            print "pressed_in.draw"
             self.pressed_in.draw() #e actually might depend on mouseover, or might not draw anything then...
         else:
-            self.highlight.draw()
+            print "highlighted.draw"
+            self.highlighted.draw()
         glPopMatrix()
         return
     def __repr__(self): ### kluge -- better if selectMode called a specific method for this
