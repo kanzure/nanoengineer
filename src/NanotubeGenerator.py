@@ -378,9 +378,7 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         if not createPrinted:
             # If it's a multi-wall tube, only print the "Creating" message once.
             if length > 100.0:
-                env.history.message(self.cmd + "Creating nanotube. This may take a moment...")
-            else: # Nanotubes under 100 Angstroms shouldn't take long.
-                env.history.message(self.cmd + "Creating nanotube.")
+                env.history.message(self.cmd + "This may take a moment...")
         self.chirality = Chirality(n, m, bond_length)
         PROFILE = False
         if PROFILE:
