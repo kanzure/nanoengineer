@@ -63,10 +63,6 @@ class Dna:
                 baseList.append(member)
             shelf.kill()
 
-        for ch in sequence:
-            if ch not in 'GACT':
-                raise UserError('Unknown DNA base (not G, A, C, or T): ' + ch)
-
         def rotateTranslate(v, theta, z):
             c, s = cos(theta), sin(theta)
             x = c * v[0] + s * v[1]
@@ -243,9 +239,7 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
             elif ch in '\ \t\r\n':
                 pass
             else:
-                env.history.message(redmsg('Bogus DNA base: ' + ch +
-                                           ' (should be C, G, A, or T)'))
-                return ''
+                raise UserError('Bogus DNA base: ' + ch + ' (should be C, G, A, or T)')
         assert len(seq) > 0, 'Please enter a valid sequence'
         if reverse:
             seq = list(seq)
