@@ -1836,6 +1836,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                     # tho if we ever support "name/subname paths" we'll probably let first name interpret the remaining ones.
                     ###e in fact, when nodes change projection or viewport for kids, and/or share their kids, they need to
                     # put their own names on the stack, so we'll know how to redraw the kids, or which ones are meant when shared.
+                    if platform.atom_debug and len(names) > 1: ###@@@ bruce 060725
+                        if len(names) == 2 and names[0] == names[1]:
+                            if not env.seen_before("dual-names bug"): # this happens for Atoms, don't know why (colorsorter bug??)
+                                print "debug (once-per-session message): why are some glnames duplicated on the namestack?",names
+                        else:
+                            print "debug fyi: len(names) == %d (names = %r)" % (len(names), names)
                     obj = env.obj_with_glselect_name.get(names[-1]) #k should always return an obj
                     if obj is None:
                         print "bug: obj_with_glselect_name returns None for name %r at end of namestack %r" % (names[-1],names)

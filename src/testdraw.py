@@ -79,6 +79,7 @@ class attrholder: pass
 
 from constants import ave_colors # (weight, color1, color2) # weight is of color1 i think
 lightblue = ave_colors( 0.2, blue, white)
+lightgreen = ave_colors( 0.2, green, white)
 halfblue = ave_colors( 0.5, blue, white)
 
 def translucent_color(color, opacity = 0.5): #e refile with ave_colors
@@ -128,15 +129,22 @@ def Enter(glpane): # never yet called ###@@@
 def leftDown(glpane, event):
     vv.havelist = 0 # so editing this file (and clicking) uses the new code
 
-def drawtest(glpane):
+def drawtest(glpane): # called by testmode.Draw
     vv.counter += 1
     glPushMatrix()
     try:
-        drawtest0(glpane)
+        drawtest0(glpane) # this puts our special drawing into a display list
     except:
         print_compact_traceback("exc ignored: ")
     glPopMatrix() # it turns out this is needed, if drawtest0 does glTranslate, or our coords are messed up when glselect code
     # makes us draw twice! noticed on g4, should happen on g5 too, did it happen but less??
+    if 0:
+        glPushMatrix()
+        glpane.part.draw(glpane) # highlighting works fine on this copy
+        glTranslate(5,0,0)
+        glpane.part.draw(glpane) # but not on this one - i see why it doesn't draw it there, but why not complain about not finding it?
+        glPopMatrix()
+    return
 
 # ==
 
@@ -209,7 +217,7 @@ def drawtest0(glpane):
     return
 
 def drawtest1(glpane):
-    glTranslatef(-7,7,0)
+    glTranslatef(-9, 7, 0)
     dy = - 0.5
     ## drawline(color, pos1, pos2, dashEnabled = False, width = 1)
     drawline(red,   V(0,0,0),V(1,0,0),width = 2)
@@ -566,9 +574,14 @@ class WidgetExpr(InvalMixin):
     def _get_btop(self):
         return 1
     def __init__(self, *args, **kws):
-        self.args = args
+        self.args = args #####@@@@@ maybe don't do this, but pass them to init, let it do it instead, into self.__args instead
         self.kws = kws
-        self.init()
+        try:
+            self.init()
+        except:
+            print "info about exception in %r.init method: args = %r, kws = %r" % ( self, args, kws) #e use safe_repr for self
+            raise
+        return
     def init(self):
         pass
     def _get_width(self):
@@ -576,7 +589,13 @@ class WidgetExpr(InvalMixin):
     #e _get_height
     pass
 
-class Highlightable(Delegator, WidgetExpr):#060722
+class DelegatingWidgetExpr(Delegator, WidgetExpr):
+    def __init__(self, *args, **kws):
+        WidgetExpr.__init__(self, *args, **kws)
+        Delegator.__init__(self, self.args[0]) # usually same as args[0], but this way, init method can modify self.args[0] if it needs to
+    pass
+
+class Highlightable(DelegatingWidgetExpr):#060722
     "Highlightable(plain, highlight) renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight"
     # Works, except I suspect the docstring is inaccurate when it says "plain plus highlight" (rather than just highlight), 
     # and there's an exception if you try to ask selectMode for a cmenu for this object, or if you just click on it
@@ -584,14 +603,16 @@ class Highlightable(Delegator, WidgetExpr):#060722
     #   atom_debug: ignoring exception: exceptions.AttributeError: killed
     #   [modes.py:928] (i.e. selobj_still_ok) [Delegator.py:10] [inval.py:192] [inval.py:309]
     #
-    __init__ = WidgetExpr.__init__ # otherwise Delegator's comes first and init() never runs
-    def init(self):
-        self.plain = self.args[0]
+##    __init__ = WidgetExpr.__init__ # otherwise Delegator's comes first and init() never runs
+    def init(self, args = None):
+        if args is None:
+            args = self.args # kluge, unless we do away with self.args as being too specific to which superclass we're talking about
+        self.plain = args[0]
         try:
-            self.highlight = self.args[1]
+            self.highlight = args[1]
         except IndexError:
             self.highlight = self.plain # useful for things that just want a glname to avoid mouseover stickiness
-        Delegator.__init__(self, self.plain) # for defns like bright, bleft
+##        Delegator.__init__(self, self.plain) # for defns like bright, bleft
         # get glname, register self (or a new obj we make for that purpose #e), define necessary methods
         glname_handler = self # self may not be the best object to register here, though it works for now
         self.glname = env.alloc_my_glselect_name(glname_handler)
@@ -634,9 +655,12 @@ class Highlightable(Delegator, WidgetExpr):#060722
         ###e needs to compare glpane.part to something in selobj, and worry whether selobj is killed, current, etc
         # (it might make sense to see if it's created by current code, too;
         #  but this might be too strict: self.__class__ is Highlightable )
-        return True ###e stub, not reviewed
+        # actually it ought to be ok for now:
+        return self.__class__ is Highlightable # i.e. we didn't reload this module since self was created
+        #return True ###e stub, not reviewed
     pass # end of class Highlightable
 
+# ==
 
 class Rect(WidgetExpr): #e example, not general enough to be a good use of this name
     "Rect(width, height, color) renders as a filled rect of that color, origin on bottomleft"
@@ -649,6 +673,8 @@ class Rect(WidgetExpr): #e example, not general enough to be a good use of this 
         draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.color)
         glEnable(GL_CULL_FACE)
     pass
+
+# ==
 
 class Row(WidgetExpr):
     "Row" # note: this is only well-defined if we assume we know how to move to the right, and that "width" works that way!
@@ -727,20 +753,22 @@ class Column(WidgetExpr):
         return max([a.bright for a in self.args])
     pass # Column
 
-class Closer(Delegator, WidgetExpr):
+class Closer(DelegatingWidgetExpr):
     "Closer(thing, amount)"
-    __init__ = WidgetExpr.__init__ # otherwise Delegator's comes first and init() never runs
+##    __init__ = WidgetExpr.__init__ # otherwise Delegator's comes first and init() never runs
     def init(self):
         self.args = list(self.args) + [1] # default amount
         self.thing = self.args[0] # or use self.delegate
         self.amount = self.args[1]
-        Delegator.__init__(self, self.thing) # for defns like bright, bleft
+##        Delegator.__init__(self, self.thing) # for defns like bright, bleft
     def draw(self):
         glTranslate(0, 0, self.amount)
         self.thing.draw()
         glTranslate(0, 0, -self.amount)
         return
     pass
+
+# ==
 
 class Corkscrew(WidgetExpr):
     "Corkscrew(radius, axis, turn, n, color) - axis is length in DX, turn might be 1/10.5"
@@ -869,13 +897,155 @@ class Ribbon2(Ribbon):
         glRotatef(-angle, 1,0,0)
     pass
 
-testexpr = Row( Rect(1.5, 1, trans_red),
+# ==
+
+def printfunc(*args): #e might be more useful if it could take argfuncs too (maybe as an option); or make a widget expr for that
+    def printer(_guard = None, args = args):
+        assert not _guard # for now
+        print args
+    return printer
+
+class Button(Highlightable): ###IMPLEM callbacks from the mode to its drag_handler's DraggedOn/ReleasedOn (rename them)
+    # but this is not the selobj - need to work that out with arg1, or do things differently, or use nesting glnames
+    # when it is selobj, we'll find out, since it needs a handles_updates method but has none #####
+    
+    def init(self):
+        self.arg1, self.arg2 = self.args
+        self.transient_state = self # kluge, memory leak
+        self.transient_state.in_drag = False # necessary (hope this is soon enough)
+        Highlightable.init(self, (self.arg1, self.arg1)) # pass alternative args (kluge? or new convention?)
+    def leftClick(self, point):
+        self.transient_state.in_drag = True
+        self.do_action('on_press')
+        return self # in role of drag_handler; this is mostly nim in the mode ####@@@@
+    def DraggedOn(self, offset): ### might need better args (the mouseray, as two points?)
+        pass # not much to do -- the caller is tracking the selobj, and if it's us, we're on, otherwise off....
+            # we might have to modify the highlighting alg so the right different things highlight during a drag
+            # or we might decide that this routine has to call back to the env, to do highlighting of the kind it wants,
+            # since only this object knows what kind that is; also we have to tell caller if we need motion calls (same w/ baremotion)
+    def ReleasedOn(self, selobj): ### will need better args
+        self.transient_state.in_drag = False
+        if selobj is self.arg2: # is this the right selobj? can we somehow cause it to be self, for efficiency (if that would help)?
+            self.do_action('on_release_in')
+        elif selobj is self.arg1 or selobj is self:
+            print "didn't expect selobj %r of arg1 or self" % (selobj,)
+            self.do_action('on_release_in') # but work anyway
+        else:
+            self.do_action('on_release_out')
+        return
+    def do_action(self, name):
+        print "do_action",name ###@@@
+        action = self.kws.get(name)
+        if action:
+            action()
+        return
+    def draw(self):
+        #### note: it might be more efficient to implement drawing the pressed state as a kind of highlighting...
+        # but i guess it's not so simple (since it has to work when not over the button)...
+        # even so it can be "extra drawing" in case this button is in a display list.
+        if self.transient_state.in_drag:
+            self.arg2.draw()
+        else:
+            self.arg1.draw()
+            # ####@@@@ LOGIC BUG:
+            # this pushes arg1's glname, but what about pushing ours? only superclass-Highlightable draw can do that...
+            # but then it would fail to let us override what it does inside -- it would just call that guy's arg1.draw!!! Hmm....
+            # it might just mean that we and highlightable need a common superclass that does the pushname
+            # and then lets us decide how to draw inside... but more likely, a widget expr should do that,
+            # and give us enough control over the selobj callbacks... so we need to merge with our highlightable arg1...
+            # or turn into a highlightable of our own construction (other args than our own)
+            # rather than supering to it ... or something.....
+            # BUT WAIT, we did pass our superclass other args, so can't we rely on those now?
+            # problem is -- they were not always the *correct* other args! the correct arg1 would embody the switching
+            # on in_drag that we're doing right here.
+        return
+    pass # end of class Button
+
+# try to redefine it in a higher-level way, to get around the logic bug above... not the most straightforwad way,
+# but it was getting too much stuff to be reasonably thought of as a primitive, anyway.
+
+# define these, once i'm satisfied they make sense ####@@@@
+#__ - ok
+#Sensor
+#Overlay
+#Local
+#If
+
+class Symbol:
+    def __init__(self, data = ('prim')):
+        self.data = data
+    def __getattr__(self, attr):
+        if attr.startswith('_'):
+            raise AttributeError, attr
+        return Symbol(('attr', attr, self)) # or could use AttrSymbol; could call this Expr or PyLikeExpr or PyExpr
+    def eval(self, env):
+        if self.data[0] == 'attr': # assume data[0] is like the subclass of Symbol
+            junk, attr, base = self.data
+            return getattr(base.eval(env), attr)
+        # otherwise assume primitive
+        return env # for now
+    pass
+
+__ = Symbol()
+
+# I don't think Local and If can work until we get WEs to pass an env into their subexprs, as we know they need to do ####@@@@
+
+# If will eval its cond in the env, and delegate to the right argument -- when needing to draw, or anything else
+# Sensor is like Highlightable and Button code above
+# Overlay is like Row with no offsetting
+# Local will set up more in the env for its subexprs
+# Will they be fed the env only as each method in them gets called? or by "pre-instantiation"?
+
+def Button(plain, highlighted, pressed_inside, pressed_outside, **actions):
+    # this time around, we have a more specific API, so just one glname will be needed (also not required, just easier, I hope)
+    return Local(__, Sensor( # I think this means __ refers to the Sensor() -- not sure... (not even sure it can work perfectly)
+        0 and Overlay( plain,
+                 If( __.in_drag, pressed_outside),
+                 If( __.mouseover, If( __.in_drag, pressed_inside, highlighted )) ),
+            # what is going to sort out the right pieces to draw in various lists?
+            # this is like "difference in what's drawn with or without this flag set" -- which is a lot to ask smth to figure out...
+            # so it might be better to just admit we're defining multiple different-role draw methods. Like this: ###@@@
+        DrawRoles( ##e bad name
+            plain, dict(
+                in_drag = pressed_outside, ### is this a standard role or what? do we have general ability to invent kinds of extras?
+                mouseover = If( __.in_drag, pressed_inside, highlighted ) # this one is standard, for a Sensor (its own code uses it)
+            )),
+        # now we tell the Sensor how to behave
+        **actions # that simple? are the Button actions so generic? I suppose they might be. (But they'll get more args...)
+    ))
+
+testexpr = Row(
+    #obs Button:
+##                Button(
+##                    # unpressed look (can be highlightable; defines size)
+##                    Highlightable( Rect(1.5, 1, blue), Rect(1.5, 1, lightgreen), sbar_text = "button, unpressed" ),
+##                    # pressed look (can be highlightable; mode's code might need modification to make that work normally ###k)
+##                    Highlightable( Rect(1.5, 1, green), Rect(1.5, 1, yellow), sbar_text = "button, pressed" ), # lightgreen better
+##                    # actions
+##                    on_press = printfunc('pressed'),
+##                    on_release_in = printfunc('release in'),
+##                    on_release_out = printfunc('release out')
+##                ),
+    #nim Button:
+##                Button(
+                    Rect(1.5, 1, blue), Rect(1.5, 1, lightgreen),
+                        ####@@@@ where do I say this? sbar_text = "button, unpressed"
+                        ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
+                    Rect(1.5, 1, green), Rect(1.5, 1, yellow),#e lightgreen better than yellow, once debugging sees the difference
+                        ####@@@@ sbar_text = "button, pressed", 
+                    # actions (other ones we don't have include baremotion_in, baremotion_out (rare I hope) and drag)
+##                    on_press = printfunc('pressed'),
+##                    on_release_in = printfunc('release in'),
+##                    on_release_out = printfunc('release out')
+##                ),  
+                ## DrawThePart(),
                 Column(
                   Rect(1.5, 1, red),
                   Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
                   Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "ds2" ),
                   Rect(1.5, 1, green),
                   gap = 0.2
+                ## DrawThePart(),
                 ),
                 Closer(
                     Highlightable( Rect(2, 3, pink),
@@ -892,55 +1062,6 @@ testexpr = Row( Rect(1.5, 1, trans_red),
                 ),
                 gap = 0.2)
 
-#e want: draw myself or my subobj or superobj but with modified params: super.draw(self, color = othercolor)
-class xx:
-    def draw(self, **mods):
-        color = self.getopt('color', mods) # mods, then self attrs
-        # e.g. dict(self.__dict__).update(mods)
+# (some outtakes removed to bruceG5 testdraw-outtakes.py, last here in rev 1.11)
 
-#e want: we's for highlighting, selection, other behavior; let these things act like atoms in build, get into mmp files & undo
-
-
-class Drawable: # see also Drawables.py, into which this is intended to be merged someday
-    """Abstract class for things which selectAtomsMode can draw, and optionally highlight, 
-    click-select, region-select, drag (alone or in a selected set of things), Fit To Window,
-    perhaps View Normal To, or get a context menu from.
-       Someday, they can also define custom cursors, statusbar info.
-       Drawables may, but need not, own the state they should represent graphically
-    (for viewing and editing) -- they may instead just hold a reference to another object
-    which owns that state (and which defines methods for operating on it, saving/loading it).
-       Similarly, they typically would not be defined as containing specific graphics primitives,
-    but rather, rules for creating those from the state they wish to represent.
-       They are likely to have similarities to, or more likely be merged with, WidgetExprs;
-    their state-representing rules may have some similarity to ParseRules.
-       One thing not yet well-defined is how they should interact with objects owning
-    display lists into which they want to draw these drawables. This implies that the drawables
-    (or at least their allocated glnames, and whatever objects they register to handle those)
-    last at least as long as the display list contents. That probably means that the objects need
-    to add themselves to a list of display-list content owners, available as a global for whatever
-    display list (if any) is currently being compiled. Even if no display list is being compiled,
-    that info is needed (and the objects in it need to last) for as long as something might keep
-    the namestack results from a glRenderMode call.
-    """
-    # but widget exprs need a more flexible framework, maybe related to ParseRule,
-    # as well as a better way of handling named options, mentioned elsewhere in this file.
-    def __init__(self):
-        pass
-    pass
-
-# end except for outtakes
-
-##class glname_Drawable(Drawable): #obs, superceded by Highlightable
-##    "Mixin(?) class for drawables that own one glname."
-##    def __init__(self):
-##        #e super __init__
-##        glname_handler = self ###WRONG? self is probably not the right object to register here!
-##        self.glname = env.alloc_my_glselect_name(glname_handler) #e or this could be a _compute_ rule for self.glname
-##    pass
-
-# tex bugs: [semi-obs comment? not sure]
-# it's so big
-# it obscures rendered text no matter what
-# need nfrs to try things out with it
-# edges look funny - CLAMP - funny and diff color - REPEAT - funny and same color
-
+# end

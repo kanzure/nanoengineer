@@ -735,32 +735,32 @@ class depositMode(selectAtomsMode):
 
         return p1+k*(p2-p1) # always return a point on the line from p1 to p2
 
-    def OLD_OBS_update_selatom(self, event, singOnly = False, msg_about_click = False): # no longer used as of 050610
-        # bruce 041206 optimized redisplay (for some graphics chips)
-        # by keeping selatom out of its chunk's display list,
-        # so no changeapp is needed when selatom changes.
-        # bruce 041213 fixed several bugs using new findAtomUnderMouse,
-        # including an unreported one for atoms right at the eyeball position.
-        
-        oldselatom = self.o.selatom
-        # warning: don't change self.o.selatom yet, since findAtomUnderMouse uses
-        # its current value to support hysteresis for its selection radius.
-        atm = self.o.assy.findAtomUnderMouse(event, water_cutoff = True, singlet_ok = True) # note, this is not the only call!
-        assert oldselatom is self.o.selatom
-        if atm is not None and (atm.element is Singlet or not singOnly):
-            pass # we'll use this atm as the new selatom
-        else:
-            atm = None
-        self.o.selatom = atm
-        if msg_about_click: # [always do this, since many things can change what it should say]
-            # come up with a status bar message about what we would paste now.
-            # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable]
-            msg = self.describe_leftDown_action( self.o.selatom)
-            env.history.statusbar_msg( msg)
-        if self.o.selatom is not oldselatom:
-            # update display
-            self.o.gl_update() # draws selatom too, since its chunk is not hidden
-        return
+##    def OLD_OBS_update_selatom(self, event, singOnly = False, msg_about_click = False): # no longer used as of 050610
+##        # bruce 041206 optimized redisplay (for some graphics chips)
+##        # by keeping selatom out of its chunk's display list,
+##        # so no changeapp is needed when selatom changes.
+##        # bruce 041213 fixed several bugs using new findAtomUnderMouse,
+##        # including an unreported one for atoms right at the eyeball position.
+##        
+##        oldselatom = self.o.selatom
+##        # warning: don't change self.o.selatom yet, since findAtomUnderMouse uses
+##        # its current value to support hysteresis for its selection radius.
+##        atm = self.o.assy.findAtomUnderMouse(event, water_cutoff = True, singlet_ok = True) # note, this is not the only call!
+##        assert oldselatom is self.o.selatom
+##        if atm is not None and (atm.element is Singlet or not singOnly):
+##            pass # we'll use this atm as the new selatom
+##        else:
+##            atm = None
+##        self.o.selatom = atm
+##        if msg_about_click: # [always do this, since many things can change what it should say]
+##            # come up with a status bar message about what we would paste now.
+##            # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable]
+##            msg = self.describe_leftDown_action( self.o.selatom)
+##            env.history.statusbar_msg( msg)
+##        if self.o.selatom is not oldselatom:
+##            # update display
+##            self.o.gl_update() # draws selatom too, since its chunk is not hidden
+##        return
 
     def describe_leftDown_action(self, selatom): # bruce 050124
         # [bruce 050124 new feature, to mitigate current lack of model tree highlighting of pastable;

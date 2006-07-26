@@ -1016,7 +1016,9 @@ class selectMode(basicMode):
         farQ_junk, self.jig_MovePt = self.dragstart_using_GL_DEPTH( event)
             #bruce 060316 replaced equivalent old code with this new method
         
-        if 1: #bruce 060611 experiment, harmless, prototype of WidgetExpr-related changes, might help Bauble; committed 060722
+        if 1:
+            #bruce 060611 experiment, harmless, prototype of WidgetExpr-related changes, might help Bauble; committed 060722
+            # [see also leftClick, which will eventually supercede this, and probably could already -- bruce 060725]
             method = getattr(j, 'clickedOn', None)
             if method and method(self.jig_MovePt):
                 return
@@ -1675,6 +1677,8 @@ class selectAtomsMode(selectMode):
             # list of the real atoms connected to a deleted jig.  Used by jigLeftDouble()
             # to retreive the atoms of a recently deleted jig when double clicking with 'Shift+Control'
             # modifier keys pressed together.
+        self.drag_handler = None #bruce 060725
+        return
             
     def init_gui(self):
         selectMode.init_gui(self)
@@ -2085,16 +2089,40 @@ class selectAtomsMode(selectMode):
             # since this is only used for drag distance within single drags.
             
         obj = self.get_obj_under_cursor(event)
-            # If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets and bonds (not jigs).
+            # If highlighting is turned on, get_obj_under_cursor() returns atoms, singlets, bonds, jigs,
+            # or anything that can be highlighted and end up in glpane.selobj. [bruce revised this comment, 060725]
             # If highlighting is turned off, get_obj_under_cursor() returns atoms and singlets (not bonds or jigs).
-        
-        #print '-'*20
-        #print "leftDown(): obj=",obj
+            # [not sure if that's still true -- probably not. bruce 060725 addendum]
         
         if obj is None: # Cursor over empty space.
             self.emptySpaceLeftDown(event)
             return
-        
+
+        if 1:
+            #bruce 060725 new feature. Any selobj can decide how clicks/drags on it should behave, if it wants to.
+            # Normally this will not apply to an Atom, Bond, or Jig, but there's no reason it couldn't in theory.
+            # The API is experimental and is very likely to be modified, so don't depend on it yet.
+            # For example, we're likely to tell it some modkeys, something about this mode, the mousepoints, etc,
+            # and to respond more fundamentally to whatever is returned. ###@@@
+            method = getattr(obj, 'leftClick', None)
+            if method:
+                farQ_junk, hitpoint = self.dragstart_using_GL_DEPTH( event) ######k safe?
+                try:
+                    retval = method(hitpoint) ###e more args later
+                except:
+                    print_compact_traceback("exception ignored in %r.leftClick: " % (obj,))
+                    return # no update or other action here
+                # If retval is None, the object just wanted to know about the click, and now we handle it normally
+                # (including the usual special cases for Atom, etc).
+                # If retval is a drag handler (#doc), we let that object handle everything about the drag.
+                # (Someday, all of our object/modkey-specific code should be encapsulated into drag handlers.)
+                # If retval is something else... not sure, so nevermind for now, just assume it's a drag handler. ###@@@
+                self.drag_handler = retval ###e should wrap with something which exception-protects all method calls
+                if self.drag_handler is not None:
+                    if not self.drag_handler.handles_updates():
+                        self.w.win_update()
+                    return
+
         if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
             self.singletLeftDown(obj, event)
                 # no win_update() needed. It's the responsibility of singletLeftDown to do it if needed.
@@ -2112,10 +2140,11 @@ class selectAtomsMode(selectMode):
         else: # Cursor is over something else other than an atom, singlet or bond. 
             # The program never executes lines in this else statement since
             # get_obj_under_cursor() only returns atoms, singlets or bonds.
+            # [perhaps no longer true, if it ever was -- bruce 060725]
             pass
 
-        self.w.win_update()
-        return
+        self.w.win_update() #k (is this always desirable?)
+        return # from selectAtomsMode.leftDown
 
 # == LMB drag methods
 

@@ -30,6 +30,7 @@ import time, math
 from state_utils import copy_val
 
 from selectMode import *
+from depositMode import depositMode
 
 annoyers = ['editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
             'molecularDispToolbar', 'selectToolbar', 'simToolbar',
@@ -38,7 +39,8 @@ annoyers = ['editToolbar', 'fileToolbar', 'helpToolbar', 'modifyToolbar',
             ## one for modes too -- not sure of its name, but I guess I'll let it keep showing too
             ]
 
-super = selectAtomsMode
+## super = selectAtomsMode
+super = depositMode
 
 class testmode(super):
     # class constants
