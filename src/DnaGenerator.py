@@ -199,16 +199,20 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
     # any necessary helper functions
 
     def gather_parameters(self):
+        if not basepath_ok:
+            raise PluginBug("The cad/plugins/DNA directory is missing.")
         seq = self.get_sequence()
         dnatype = str(self.dna_type_combox.currentText())
+        if dnatype == 'A-DNA':
+            raise PluginBug("A-DNA is not yet implemented -- please try B- or Z-DNA");
+        assert dnatype in ('B-DNA', 'Z-DNA')
         double = str(self.endings_combox.currentText())
         return (seq, dnatype, double)
 
     def build_struct(self, name, params, position):
+        # No error checking in build_struct, do all your error
+        # checking in gather_parameters
         seq, dnatype, double = params
-        if not basepath_ok:
-            raise PluginBug("The cad/plugins/DNA directory is missing.")
-        assert len(seq) > 0, 'Please enter a valid sequence'
         if dnatype == 'A-DNA':
             dna = A_Dna()
         elif dnatype == 'B-DNA':
@@ -218,9 +222,7 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
         self.dna = dna  # needed for done msg
         doubleStrand = (double == 'Double')
         if len(seq) > 30:
-            env.history.message(self.cmd + "Creating DNA. This may take a moment...")
-        else:
-            env.history.message(self.cmd + "Creating DNA.")
+            env.history.message(self.cmd + "This may take a moment...")
         grp = Group(self.name, self.win.assy,
                     self.win.assy.part.topnode)
         try:
@@ -244,6 +246,7 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
                 env.history.message(redmsg('Bogus DNA base: ' + ch +
                                            ' (should be C, G, A, or T)'))
                 return ''
+        assert len(seq) > 0, 'Please enter a valid sequence'
         if reverse:
             seq = list(seq)
             seq.reverse()

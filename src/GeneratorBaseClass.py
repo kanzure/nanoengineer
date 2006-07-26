@@ -235,7 +235,8 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
     def gather_parameters(self):
         '''Return a tuple of the current parameters. This is an
         abstract method and must be overloaded in the specific
-        generator.'''
+        generator. This method must validate the parameters, or
+        raise an exception if they are invalid.'''
         raise AbstractMethod()
 
     def done_msg(self):
