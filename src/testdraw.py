@@ -605,14 +605,22 @@ class Highlightable(DelegatingWidgetExpr):#060722
     #
 ##    __init__ = WidgetExpr.__init__ # otherwise Delegator's comes first and init() never runs
     def init(self, args = None):
+        self.transient_state = self # kluge, memory leak
+        self.transient_state.in_drag = False # necessary (hope this is soon enough)
         if args is None:
             args = self.args # kluge, unless we do away with self.args as being too specific to which superclass we're talking about
-        self.plain = args[0]
-        try:
-            self.highlight = args[1]
-        except IndexError:
-            self.highlight = self.plain # useful for things that just want a glname to avoid mouseover stickiness
-##        Delegator.__init__(self, self.plain) # for defns like bright, bleft
+        def getargs(plain, highlighted = None, pressed_in = None, pressed_out = None):
+            "fill in our default args"
+            if not highlighted:
+                highlighted = plain # useful for things that just want a glname to avoid mouseover stickiness
+            # this next stuff is really meant for Button -- maybe we split into two kinds, Button and Draggable
+            if not pressed_in:
+                pressed_in = highlighted # might be better to make it plain (or highlighted) but with an outline, or so...
+            if not pressed_out:
+                pressed_out = plain # assuming we won't operate then
+            return plain, highlighted, pressed_in, pressed_out
+        args = getargs(*args)
+        self.plain, self.highlighted, self.pressed_in, self.pressed_out = args
         # get glname, register self (or a new obj we make for that purpose #e), define necessary methods
         glname_handler = self # self may not be the best object to register here, though it works for now
         self.glname = env.alloc_my_glselect_name(glname_handler)
@@ -623,10 +631,10 @@ class Highlightable(DelegatingWidgetExpr):#060722
             #e [if this (or any WE) is really a map from external state to drawables,
             #   we'd need to store self.glname and self.saved_modelview_matrix in corresponding external state]
         glPushName(self.glname)
-        self.plain.draw()
-##        if 0 and 'klugetest':
-##            if env.redraw_counter % 2:
-##                self.highlight.draw()
+        if self.transient_state.in_drag:
+            self.pressed_out.draw() #e actually might depend on mouseover, or might not draw anything then...
+        else:
+            self.plain.draw()
         glPopName() ##e should protect this from exceptions
             #e (or have a WE-wrapper to do that for us, for .draw() -- or just a helper func, draw_and_catch_exceptions)
     def draw_in_abs_coords(self, glpane, color):
@@ -641,7 +649,10 @@ class Highlightable(DelegatingWidgetExpr):#060722
         # examples of glLoadMatrix (and thus hopefully the glGet for that) can be found in these places on bruce's G4:
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/OpenGLContext/renderpass.py
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/VisionEgg/Core.py
-        self.highlight.draw()
+        if self.transient_state.in_drag:
+            self.pressed_in.draw() #e actually might depend on mouseover, or might not draw anything then...
+        else:
+            self.highlight.draw()
         glPopMatrix()
         return
     def __repr__(self): ### kluge -- better if selectMode called a specific method for this
@@ -658,6 +669,31 @@ class Highlightable(DelegatingWidgetExpr):#060722
         # actually it ought to be ok for now:
         return self.__class__ is Highlightable # i.e. we didn't reload this module since self was created
         #return True ###e stub, not reviewed
+    ### grabbed from Button, not yet fixed for here
+    def leftClick(self, point):
+        self.transient_state.in_drag = True
+        self.do_action('on_press')
+        return self # in role of drag_handler; this is mostly nim in the mode ####@@@@
+    def DraggedOn(self, offset): ### might need better args (the mouseray, as two points?) ### NOT YET CALLED
+        ### WRONG except for Button (not yet enough for draggables)
+        pass # not much to do -- the caller is tracking the selobj, and if it's us, we're on, otherwise off....
+            # we might have to modify the highlighting alg so the right different things highlight during a drag
+            # or we might decide that this routine has to call back to the env, to do highlighting of the kind it wants,
+            # since only this object knows what kind that is; also we have to tell caller if we need motion calls (same w/ baremotion)
+    def ReleasedOn(self, selobj): ### will need better args### NOT YET CALLED
+        ### written as if for Button, might not make sense for draggables
+        self.transient_state.in_drag = False
+        if selobj is self: #k is this the right selobj? 
+            self.do_action('on_release_in')
+        else:
+            self.do_action('on_release_out')
+        return
+    def do_action(self, name):
+        print "do_action",name ###@@@
+        action = self.kws.get(name)
+        if action:
+            action()
+        return
     pass # end of class Highlightable
 
 # ==
@@ -911,34 +947,34 @@ class Button(Highlightable): ###IMPLEM callbacks from the mode to its drag_handl
     
     def init(self):
         self.arg1, self.arg2 = self.args
-        self.transient_state = self # kluge, memory leak
-        self.transient_state.in_drag = False # necessary (hope this is soon enough)
+##        self.transient_state = self # kluge, memory leak
+##        self.transient_state.in_drag = False # necessary (hope this is soon enough)
         Highlightable.init(self, (self.arg1, self.arg1)) # pass alternative args (kluge? or new convention?)
-    def leftClick(self, point):
-        self.transient_state.in_drag = True
-        self.do_action('on_press')
-        return self # in role of drag_handler; this is mostly nim in the mode ####@@@@
-    def DraggedOn(self, offset): ### might need better args (the mouseray, as two points?)
-        pass # not much to do -- the caller is tracking the selobj, and if it's us, we're on, otherwise off....
-            # we might have to modify the highlighting alg so the right different things highlight during a drag
-            # or we might decide that this routine has to call back to the env, to do highlighting of the kind it wants,
-            # since only this object knows what kind that is; also we have to tell caller if we need motion calls (same w/ baremotion)
-    def ReleasedOn(self, selobj): ### will need better args
-        self.transient_state.in_drag = False
-        if selobj is self.arg2: # is this the right selobj? can we somehow cause it to be self, for efficiency (if that would help)?
-            self.do_action('on_release_in')
-        elif selobj is self.arg1 or selobj is self:
-            print "didn't expect selobj %r of arg1 or self" % (selobj,)
-            self.do_action('on_release_in') # but work anyway
-        else:
-            self.do_action('on_release_out')
-        return
-    def do_action(self, name):
-        print "do_action",name ###@@@
-        action = self.kws.get(name)
-        if action:
-            action()
-        return
+##    def leftClick(self, point):
+##        self.transient_state.in_drag = True
+##        self.do_action('on_press')
+##        return self # in role of drag_handler; this is mostly nim in the mode ####@@@@
+##    def DraggedOn(self, offset): ### might need better args (the mouseray, as two points?)
+##        pass # not much to do -- the caller is tracking the selobj, and if it's us, we're on, otherwise off....
+##            # we might have to modify the highlighting alg so the right different things highlight during a drag
+##            # or we might decide that this routine has to call back to the env, to do highlighting of the kind it wants,
+##            # since only this object knows what kind that is; also we have to tell caller if we need motion calls (same w/ baremotion)
+##    def ReleasedOn(self, selobj): ### will need better args
+##        self.transient_state.in_drag = False
+##        if selobj is self.arg2: # is this the right selobj? can we somehow cause it to be self, for efficiency (if that would help)?
+##            self.do_action('on_release_in')
+##        elif selobj is self.arg1 or selobj is self:
+##            print "didn't expect selobj %r of arg1 or self" % (selobj,)
+##            self.do_action('on_release_in') # but work anyway
+##        else:
+##            self.do_action('on_release_out')
+##        return
+##    def do_action(self, name):
+##        print "do_action",name ###@@@
+##        action = self.kws.get(name)
+##        if action:
+##            action()
+##        return
     def draw(self):
         #### note: it might be more efficient to implement drawing the pressed state as a kind of highlighting...
         # but i guess it's not so simple (since it has to work when not over the button)...
@@ -1014,6 +1050,75 @@ def Button(plain, highlighted, pressed_inside, pressed_outside, **actions):
         **actions # that simple? are the Button actions so generic? I suppose they might be. (But they'll get more args...)
     ))
 
+class Ifbad(DelegatingWidgetExpr):
+    def init(self, args): #####@@@@@ IMPLEM new init API, receives args
+        if len(args) == 2:
+            self.cond, self.then = args
+            self.else_ = None # .else is not allowed, since else is a keyword
+        else:
+            self.cond, self.then, self.else_ = args
+        self._delegate = self.then # override the default choice of what to pass to our super's upcoming Delegator.__init__ #####@@@@@ IMPLEM
+        ###e is that correct, or should we eval cond? problem: we can't eval it until we know an env.
+        # maybe the correct delegate until then is None? ###k
+        return
+    ###e now we want all methods, not indiv ones, to use a computed delegate.
+    # note that Delegator caches... we need to know when delegate changes...
+    # it won't ask us, we have to either subscribe, or be told explicitly.
+    #######@@@@@@ Hmm...
+    pass
+
+def resolve_callables(thing, env, pred = None):
+    """While thing is a callable (which does not satisfy pred, if given (typically a type-checker) -- good feature??),
+    apply it to env, and repeat. Return the first non-callable result,
+    optionally asserting it satisfies pred.
+    """
+    #e might want to also allow pred to be a list or tuple, a class or type, etc (see what isinstance will take)
+    while callable(thing) and (pred is None or not pred(thing)):
+        thing = thing(env)
+    if pred is not None:
+        assert pred(thing)
+    return thing
+
+class If_:
+    "If(cond, then, [else]), when cond is a function"
+    def __init__(self, cond, then, else_ = None):
+        self.args = cond, then, else_ # any of these might be constants or callables -- worry when they're used
+    def __call__(self, *args):
+        print "call got args",args
+        ###IMPLEM - this gets called with env, by resolve_callables, i think...
+        ### maybe it can also be called with some options, as mods... maybe this will turn out to have a superclass handle that,
+        # and handle buildup of .attr +number etc which can't run until env gets supplied (.attr is the only one really needed,
+        # so this can delegate methodcalls to different objects)
+
+        # skeptical. if someone says obj.draw, didn't they already resolve obj with env? if so, it's easy.,
+        # jus handle getting env, no need for getattr, it might assertfail.
+        # higher level exprs containing us will know to resolve us with env.
+    #e also need __repr__, maybe more
+    #e __setattr__? arithmetic??
+    def __getattr__(self, attr):
+        if attr.startswith('_'):
+            raise AttributeError, attr
+        # delegate to then or else_, according to cond (whether value is a bound method or a constant)
+        # don't resolve_callables in then or else_, let caller or themselves do that [I think #k]
+        cond, then, else_ = self.args
+        cond = resolve_callables(cond, env) ###### how do we know env??? hmm... LOGIC BUG #####@@@@@@ [can it be dynamic???]
+        ### or, do we save up the chain of attrs (like Symbol), then wait til we get passed env by resolve_callables ????
+        cond = not not cond
+        clause = (_else, then)[cond]
+        if clause is not None:
+            return getattr(clause, attr)
+        return None
+    pass
+
+def If(cond, then, else_ = None):
+    if callable(cond):
+        return If_(cond, then, else_)
+    cond = not not cond
+    clause = (_else, then)[cond]
+    # often a constant; if a function, let the caller resolve it when it wants to
+    # (which might not be now, and we don't know env anyway)
+    return clause 
+    
 testexpr = Row(
     #obs Button:
 ##                Button(
@@ -1047,7 +1152,7 @@ testexpr = Row(
                   gap = 0.2
                 ## DrawThePart(),
                 ),
-                Closer(
+                Closer(Column(
                     Highlightable( Rect(2, 3, pink),
                                    # this form of highlight (same shape and depth) works from either front or back view
                                    Rect(2, 3, orange), # comment this out to have no highlight color, but still sbar_text
@@ -1056,12 +1161,33 @@ testexpr = Row(
                                    # example of bigger highlighting (could be used to define a nearby mouseover-tooltip as well):
                                    #   Row(Rect(1,3,blue),Rect(2,3,green)),
                                    sbar_text = "rect1"
-                                   )
+                                   ),
                     #Highlightable( Rect(2, 3, pink), Closer(Rect(2, 3, orange), 0.1) ) # only works from front
                         # (presumably since glpane moves it less than 0.1; if I use 0.001 it still works from either side)
-                ),
+                    Highlightable( # rename? this is any highlightable/mouseoverable, cmenu/click/drag-sensitive object, maybe pickable
+                        Rect(1, 1, pink), # plain form, also determines size for layouts
+                        Rect(1, 1, orange), # highlighted form (can depend on active dragobj/tool if any, too) #e sbar_text?
+                        # [now generalize to be more like Button, but consider it a primitive, as said above]
+                        # handling_a_drag form:
+                        If( lambda env: env.this.mouseoverme , ####@@@@ this means the Highlightable -- is that well-defined???
+                            Rect(1, 1, blue),
+                            Rect(1, 1, lightblue)) # what to draw during the drag
+                                ),
+                )),
                 gap = 0.2)
 
 # (some outtakes removed to bruceG5 testdraw-outtakes.py, last here in rev 1.11)
+
+# e.g.:
+some_color_arg = red
+some_color_arg = If( lambda env: env.lighter_blob_colors, pink, red )
+some_color_arg = lambda env: env.color_for_type(env.thisAtom.type)
+some_color_arg = If( lambda env: env.thisAtom.doingdrag, pink, red)
+some_color_arg = lambda env: env.prefs[if_(env.thisAtom.doingdrag, key1, key2)]
+# or could we overload If for this (boolean or func arg)??
+#   >>> map(callable, [0,1,True,False,None,""])
+#   [False, False, False, False, False, False]
+# yes.
+some_color_arg = lambda env: env.prefs[If(env.thisAtom.doingdrag, key1, key2)]
 
 # end
