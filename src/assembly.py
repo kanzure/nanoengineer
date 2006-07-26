@@ -1086,7 +1086,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
         if self.filename: 
             cwd, file = os.path.split(self.filename)
         else: 
-            cwd = globalParms['WorkingDirectory']
+            cwd = env.prefs[workingDirectory_prefs_key]
         return cwd
 
     # ==

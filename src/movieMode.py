@@ -424,7 +424,7 @@ class movieDashboardSlotsMixin:
             odir, fil, ext = filesplit(self.assy.current_movie.filename)
             del fil, ext #bruce 050413
         else:
-            odir = globalParms['WorkingDirectory']
+            odir = env.prefs[workingDirectory_prefs_key]
 
         fn = QFileDialog.getOpenFileName(odir,
                 "Differential Position Bytes Format (*.dpb)",
@@ -488,7 +488,7 @@ class movieDashboardSlotsMixin:
         env.history.message(greenmsg("Save Movie File:"))
         
         if self.assy.filename: sdir = self.assy.filename
-        else: sdir = globalParms['WorkingDirectory']
+        else: sdir = env.prefs[workingDirectory_prefs_key]
 
         sfilter = QString("Differential Position Bytes Format (*.dpb)")
         

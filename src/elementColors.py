@@ -8,7 +8,7 @@ bruce 050913 used env.history in some places.
 '''
 from ElementColorsDialog import *
 from elements import PeriodicTable 
-from constants import globalParms, diTrueCPK, diBALL, diTUBES 
+from constants import diTrueCPK, diBALL, diTUBES 
 from ThumbView import ElementView
 
 from HistoryWidget import redmsg # Mark 050311
@@ -139,7 +139,7 @@ class elementColors(ElementColorsDialog):
         # Determine what directory to open.
         import os
         if self.w.assy.filename: odir = os.path.dirname(self.w.assy.filename)
-        else: odir = globalParms['WorkingDirectory']
+        else: odir = env.prefs[workingDirectory_prefs_key]
         self.fileName = str(QFileDialog.getOpenFileName(odir,
                 "Elements color file (*.txt);;All Files (*.*);;",
                 self ))
@@ -165,7 +165,7 @@ class elementColors(ElementColorsDialog):
         """Save the current set of element preferences into an external file---
         currently only r,g,b color of each element will be saved."""
         if not self.fileName:
-           sdir = globalParms['WorkingDirectory']
+           sdir = env.prefs[workingDirectory_prefs_key]
         else:
            sdir = self.fileName
            

@@ -61,6 +61,7 @@ defaultProjection_prefs_key = 'A7/Default Projection'
 animateHighQualityGraphics_prefs_key = 'A7/Animate with High Quality Graphics' #mark 060315. NIY.
 animateStandardViews_prefs_key = 'A7/Animate Standard Views'
 animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
+workingDirectory_prefs_key = 'WorkingDirectory' # Moved here from startup_funcs.py. Mark 060726.
 
 # Minimize prefs for Adjust All and Adjust Selection (presently on General prefs pane)
 # (note, Adjust Atoms does not yet have its own prefs -- its values are derived from these
@@ -216,6 +217,17 @@ _default_bondVaneColor = _compute_default_bondVaneColor()
 
 _default_bondColor = (0.25, 0.25, 0.25)
 
+def _get_default_workingDirectory():
+    import sys, os
+    if sys.platform == 'win32': # Windows
+        # e.g. "C:\Documents and Settings\Mark\My Documents"
+        return os.path.normpath(os.path.expanduser("~/My Documents/"))
+    else: # Linux and MacOS
+        # e.g. "/usr/mark"
+        return os.path.normpath(os.path.expanduser("~"))
+
+_default_workingDirectory = _get_default_workingDirectory()
+
 # the actual table (for doc, see the code that interprets it, in preferences.py)
 
 prefs_table = (
@@ -233,6 +245,7 @@ prefs_table = (
     ('animate_high_quality', 'boolean', animateHighQualityGraphics_prefs_key, True), # Mark 060315. NIY.
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
     ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
+    ('working_directory', 'string', workingDirectory_prefs_key,  _default_workingDirectory ), # Mark 060726.
 
     # Minimize prefs (some are in General prefs pane, some are in dialogs)
     # [mark 060627, revised & extended by bruce 060628, 060705 for A8]

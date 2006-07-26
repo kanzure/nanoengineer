@@ -21,7 +21,7 @@ from assembly import assembly
 import os, shutil
 import platform
 
-from constants import * # needed for at least globalParms
+#&&& from constants import * # needed for at least globalParms - globalParms was removed by me. Mark 060726.
 from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
     # (and it's certainly needed for the functions it defines, e.g. writepovfile.)
 from files_pdb import readpdb, insertpdb, writepdb
@@ -77,7 +77,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # Determine the directory to search for.
         if os.path.exists(self.assy.filename):
             odir,fil,ext = fileparse(self.assy.filename)
-        else: odir = globalParms['WorkingDirectory'] #mitigated bug 291. Handles one case only. This is a temporary fix ninad060724. Other changes after Bruce's code review. ninad060725
+        else: odir = env.prefs[workingDirectory_prefs_key] #mitigated bug 291. Handles one case only. This is a temporary fix ninad060724. Other changes after Bruce's code review. ninad060725
         
         fn = QFileDialog.getOpenFileName(odir,
                 "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out);;All Files (*.pdb *.mmp *.out)",
@@ -168,7 +168,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
         # Determine what directory to open.
         if self.assy.filename: odir, fil, ext = fileparse(self.assy.filename)
-        else: odir = globalParms['WorkingDirectory']
+        else: odir = env.prefs[workingDirectory_prefs_key]
 
         if recentFile:
             if not os.path.exists(recentFile):
@@ -289,7 +289,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             else: 
                 dir, fil = "./", self.assy.name
                 ext = ".mmp"
-                sdir = globalParms['WorkingDirectory']
+                sdir = env.prefs[workingDirectory_prefs_key]
         else:
             env.history.message( "Save Ignored: Part is currently empty." )
             return None
@@ -697,7 +697,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
         env.history.message(greenmsg("Set Working Directory:"))
         
-        wd = globalParms['WorkingDirectory']
+        wd = env.prefs[workingDirectory_prefs_key]
         wdstr = "Current Working Directory - [" + wd  + "]"
         wd = QFileDialog.getExistingDirectory( wd, self, "get existing directory", wdstr, 1 )
         
@@ -708,14 +708,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if wd:
             wd = str(wd)
             wd = os.path.normpath(wd)
-            globalParms['WorkingDirectory'] = wd
+            env.prefs[workingDirectory_prefs_key] = wd
             
             env.history.message( "Working Directory set to " + wd )
 
             # bruce 050119: store this in prefs database so no need for ~/.ne1rc
             from preferences import prefs_context
             prefs = prefs_context()
-            prefs['WorkingDirectory'] = wd
+            env.prefs[workingDirectory_prefs_key] = wd
                 
     def __clear(self): #bruce 050911 revised this: leaves glpane.mode as nullmode
         #bruce 050907 comment: this is only called from two file ops in this mixin, so I moved it here from MWsemantics

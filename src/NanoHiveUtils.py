@@ -14,7 +14,7 @@ __author__ = "Brian"
 
 import env, os, sys, time
 from platform import find_or_make_Nanorex_subdir
-from constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key, globalParms
+from constants import nanohive_path_prefs_key, nanohive_enabled_prefs_key
 from qt import Qt, QApplication, QCursor
 
 def get_nh_simspec_filename(basename):

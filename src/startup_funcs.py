@@ -126,52 +126,12 @@ def before_creating_app():
     "Do whatever needs to be done before creating the application object, but after importing MWsemantics."
     # the default (1000) bombs with large molecules
     sys.setrecursionlimit(5000)
-
-    # bruce 050119: get working directory from preferences database.
-    # (It used to be stored in ~/.ne1rc; this file is now optional,
-    #  used only if preferences doesn't find anything; it's no longer
-    #  ever created or written to.)
-    from preferences import prefs_context
-    prefs = prefs_context()
-    where = "preferences database" # only matters when wd is non-null
-    wd = prefs.get('WorkingDirectory')
-    if not wd:
-        # see if it's stored in the old location
-        # (this won't be needed in the Alpha release, but is needed for our own
-        #  internal users who have these files lying around - but only until the
-        #  next time they run the program, since we'll write wd found in .ne1rc
-        #  into the prefs db, too.)
-        # old code [slightly modified by bruce 050119]:
-        # Windows Users: .ne1rc must be placed in C:\Documents and Settings\[username]\.ne1rc
-        # .ne1rc contains one line, the Working Directory
-        # Example: C:\Documents and Settings\Mark\My Documents\MMP Parts
-        rc = os.path.expanduser("~/.ne1rc")
-        if os.path.exists(rc):
-            where = rc
-            f = open(rc,'r')
-            wd = os.path.normpath(f.readline())
-            f.close()
-            prefs['WorkingDirectory'] = wd # whether or not isdir(wd)!
-             # After this, in theory, this ~/.ne1rc is never again needed.
-    from constants import globalParms
-    if wd:
-        if os.path.isdir(wd):
-            globalParms['WorkingDirectory'] = wd
-        else:
-            print "Warning: working directory \"%s\" (from %s)" % (wd, where)
-            print " no longer exists; using \"%s\" for this session." % globalParms['WorkingDirectory']
-            #e Ideally we'd print this into env.history, but as of 050913 it might be too early,
-            # and I'm not even 100% sure we can safely import env at this point (#k that should be found out).
-            #e Someday we should perhaps save this message somewhere and print it into the history widget
-            # when that's created (or make sure env.history can do this, and is importable now).
-        pass
+    
     import undo
     undo.call_asap_after_QWidget_and_platform_imports_are_ok() #bruce 050917
     return
 
-
 # (MWsemantics.__init__ is presumably run after the above functions and before the following ones.)
-
 
 def pre_main_show( win):
     "Do whatever should be done after the main window is created but before it's first shown."

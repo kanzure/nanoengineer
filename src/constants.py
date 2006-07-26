@@ -141,9 +141,6 @@ LEDon = pink = (0.8, 0.4, 0.4) ##bruce 050610 darkened this and added the name '
 PickedColor = (0.0, 0.0, 1.0)
 ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 (used to indicate atoms with wrong valence, etc)
 
-globalParms = {}
-globalParms['WorkingDirectory'] = "."
-
 elemKeyTab =  [('H', Qt.Key_H, 1),
                ('B', Qt.Key_B, 5),
                ('C', Qt.Key_C, 6),
