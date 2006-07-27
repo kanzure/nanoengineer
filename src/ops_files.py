@@ -94,7 +94,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             if not os.path.exists(fn):
                 #bruce 050415: I think this should never happen;
                 # in case it does, I added a history message (to existing if/return code).
-                env.history.message( redmsg( "File not found: " + fn) )
+                env.history.message( redmsg( "File not found: [ " + fn+ " ]") )
                 return
 
             if fn[-3:] == "mmp":
@@ -102,33 +102,33 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     insertmmp(self.assy, fn)
                 except:
                     print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting MMP file [%s]: " % fn )
-                    env.history.message( redmsg( "Internal error while inserting MMP file: " + fn) )
+                    env.history.message( redmsg( "Internal error while inserting MMP file: [ " + fn+" ]") )
                 else:
                     self.assy.changed() # The file and the part are not the same.
-                    env.history.message( "MMP file inserted: " + os.path.normpath(fn) )# fix bug 453 item. ninad060721
+                    env.history.message( "MMP file inserted: [ " + os.path.normpath(fn) + " ]" )# fix bug 453 item. ninad060721
             
             if fn[-3:] in ["pdb","PDB"]:
                 try:
                     insertpdb(self.assy, fn)
                 except:
                     print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting PDB file [%s]: " % fn )
-                    env.history.message( redmsg( "Internal error while inserting PDB file: " + fn) )
+                    env.history.message( redmsg( "Internal error while inserting PDB file: [ " + fn + " ]") )
                 else:
                     self.assy.changed() # The file and the part are not the same.
-                    env.history.message( "PDB file inserted: " + os.path.normpath(fn) )
+                    env.history.message( "PDB file inserted: [ " + os.path.normpath(fn) + " ]" )
             
             if fn[-3:] in ["out","OUT"]:
                 try:
                     r = insertgms(self.assy, fn)
                 except:
                     print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting GAMESS OUT file [%s]: " % fn )
-                    env.history.message( redmsg( "Internal error while inserting GAMESS OUT file: " + fn) )
+                    env.history.message( redmsg( "Internal error while inserting GAMESS OUT file: [ " + fn + " ]") )
                 else:
                     if r:
                         env.history.message( redmsg("File not inserted."))
                     else:
                         self.assy.changed() # The file and the part are not the same.
-                        env.history.message( "GAMESS file inserted: " + os.path.normpath(fn) )
+                        env.history.message( "GAMESS file inserted: [ " + os.path.normpath(fn) + " ]" )
                     
                     
             self.glpane.scale = self.assy.bbox.scale()
@@ -173,7 +173,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if recentFile:
             if not os.path.exists(recentFile):
               QMessageBox.warning( self, self.name(),
-                "The file " + recentFile + " doesn't exist any more.", QMessageBox.Ok, QMessageBox.NoButton)
+                "The file [ " + recentFile + " ] doesn't exist any more.", QMessageBox.Ok, QMessageBox.NoButton)
               if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
               return
             
@@ -212,12 +212,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     #bruce 050418 comment: we need to check for an error return
                     # and in that case don't clear or have other side effects on assy;
                     # this is not yet perfectly possible in readmmmp.
-                env.history.message("MMP file opened: [" + os.path.normpath(fn) + "]")
+                env.history.message("MMP file opened: [ " + os.path.normpath(fn) + " ]")
                 isMMPFile = True
                 
             if fn[-3:] in ["pdb","PDB"]:
                 readpdb(self.assy,fn)
-                env.history.message("PDB file opened: [" + os.path.normpath(fn) + "]")
+                env.history.message("PDB file opened: [ " + os.path.normpath(fn) + " ]")
 
             dir, fil, ext = fileparse(fn)
             ###@@@e could replace some of following code with new method just now split out of saved_main_file [bruce 050907 comment]
@@ -396,11 +396,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 writepdb(self.assy.part, safile) #bruce 050927 revised arglist
             except:
                 print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % safile )
-                env.history.message(redmsg( "Problem saving PDB file: " + safile ))
+                env.history.message(redmsg( "Problem saving PDB file: [ " + safile + " ]" ))
             else:
                 self.saved_main_file(safile, fil)
                     #bruce 050907 split out this common code, though it's probably bad design for PDB files (as i commented elsewhere)
-                env.history.message( "PDB file saved: " + self.assy.filename )
+                env.history.message( "PDB file saved: [ " + os.path.normpath( self.assy.filename) +" ]" )
                     #bruce 050907 moved this after mt_update (which is now in saved_main_file)
         else:
             self.savePartInSeparateFile( self.assy.part, safile)
@@ -500,7 +500,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
             self.saved_main_file(safile, fil)
 
-            env.history.message( "MMP file saved: " + os.path.normpath(self.assy.filename) )
+            env.history.message( "MMP file saved: [ " + os.path.normpath(self.assy.filename) + " ]" )
                 #bruce 060704 moved this before copying part files,
                 # which will now ask for permission before removing files,
                 # and will start and end with a history message if it does anything.
