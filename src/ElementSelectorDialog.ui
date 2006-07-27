@@ -1,4 +1,5 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI>
+<UI stdsetdef="1" version="3.3">
 <class>ElementSelectorDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -303,9 +304,7 @@
             <property name="toolTip" stdset="0">
                 <string>3D thumbnail view</string>
             </property>
-            <property name="whatsThis" stdset="0">
-                <string>3D view of current atom type</string>
-            </property>
+            
         </widget>
         <widget class="QButtonGroup">
             <property name="name">
@@ -327,7 +326,7 @@
                 <number>1</number>
             </property>
             <property name="title">
-                <string></string>
+                <string/>
             </property>
             <property name="exclusive">
                 <bool>true</bool>
@@ -342,7 +341,7 @@
                 <property name="spacing">
                     <number>0</number>
                 </property>
-                <widget class="QToolButton" row="0" column="4">
+                <widget class="QToolButton" column="4" row="0">
                     <property name="name">
                         <cstring>toolButton1</cstring>
                     </property>
@@ -368,7 +367,7 @@
                         <string>Hydrogen</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="0" column="5">
+                <widget class="QToolButton" column="5" row="0">
                     <property name="name">
                         <cstring>toolButton2</cstring>
                     </property>
@@ -391,7 +390,7 @@
                         <string>Helium</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="1" column="1">
+                <widget class="QToolButton" column="1" row="1">
                     <property name="name">
                         <cstring>toolButton6</cstring>
                     </property>
@@ -417,7 +416,7 @@
                         <string>Carbon</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="1" column="2">
+                <widget class="QToolButton" column="2" row="1">
                     <property name="name">
                         <cstring>toolButton7</cstring>
                     </property>
@@ -443,7 +442,7 @@
                         <string>Nitrogen</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="1" column="3">
+                <widget class="QToolButton" column="3" row="1">
                     <property name="name">
                         <cstring>toolButton8</cstring>
                     </property>
@@ -469,7 +468,7 @@
                         <string>Oxygen</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="1" column="5">
+                <widget class="QToolButton" column="5" row="1">
                     <property name="name">
                         <cstring>toolButton10</cstring>
                     </property>
@@ -492,7 +491,7 @@
                         <string>Neon</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="1" column="4">
+                <widget class="QToolButton" column="4" row="1">
                     <property name="name">
                         <cstring>toolButton9</cstring>
                     </property>
@@ -518,7 +517,7 @@
                         <string>Fluorine</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="2" column="0">
+                <widget class="QToolButton" column="0" row="2">
                     <property name="name">
                         <cstring>toolButton13</cstring>
                     </property>
@@ -541,7 +540,7 @@
                         <string>Aluminum</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="2" column="4">
+                <widget class="QToolButton" column="4" row="2">
                     <property name="name">
                         <cstring>toolButton17</cstring>
                     </property>
@@ -564,7 +563,7 @@
                         <string>Chlorine</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="1" column="0">
+                <widget class="QToolButton" column="0" row="1">
                     <property name="name">
                         <cstring>toolButton5</cstring>
                     </property>
@@ -590,7 +589,7 @@
                         <string>Boron</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="2" column="5">
+                <widget class="QToolButton" column="5" row="2">
                     <property name="name">
                         <cstring>toolButton10_2</cstring>
                     </property>
@@ -613,7 +612,7 @@
                         <string>Argon</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="2" column="2">
+                <widget class="QToolButton" column="2" row="2">
                     <property name="name">
                         <cstring>toolButton15</cstring>
                     </property>
@@ -639,7 +638,7 @@
                         <string>Phosphorus</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="2" column="3">
+                <widget class="QToolButton" column="3" row="2">
                     <property name="name">
                         <cstring>toolButton16</cstring>
                     </property>
@@ -665,7 +664,7 @@
                         <string>Sulfur</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="2" column="1">
+                <widget class="QToolButton" column="1" row="2">
                     <property name="name">
                         <cstring>toolButton14</cstring>
                     </property>
@@ -688,7 +687,7 @@
                         <string>Silicon</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="3" column="2">
+                <widget class="QToolButton" column="2" row="3">
                     <property name="name">
                         <cstring>toolButton33</cstring>
                     </property>
@@ -711,7 +710,7 @@
                         <string>Arsenic</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="3" column="3">
+                <widget class="QToolButton" column="3" row="3">
                     <property name="name">
                         <cstring>toolButton34</cstring>
                     </property>
@@ -734,7 +733,7 @@
                         <string>Selenium</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="3" column="4">
+                <widget class="QToolButton" column="4" row="3">
                     <property name="name">
                         <cstring>toolButton35</cstring>
                     </property>
@@ -757,7 +756,7 @@
                         <string>Bromine</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="3" column="5">
+                <widget class="QToolButton" column="5" row="3">
                     <property name="name">
                         <cstring>toolButton36</cstring>
                     </property>
@@ -780,7 +779,7 @@
                         <string>Krypton</string>
                     </property>
                 </widget>
-                <widget class="QToolButton" row="3" column="1">
+                <widget class="QToolButton" column="1" row="3">
                     <property name="name">
                         <cstring>toolButton32</cstring>
                     </property>
@@ -856,9 +855,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Transmute Selected Atoms</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Transmutes selected atoms in the 3D workspace to current atom above.</string>
-                            </property>
+                            
                         </widget>
                         <spacer>
                             <property name="name">
@@ -897,9 +894,7 @@
                     <property name="toolTip" stdset="0">
                         <string>Check if transmuted atoms should keep all existing bonds,  even if chemistry is wrong</string>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>Check if transmuted atoms should keep all existing bonds,  even if chemistry is wrong.</string>
-                    </property>
+                    
                 </widget>
             </vbox>
         </widget>
@@ -1037,5 +1032,5 @@
     <slot>transmutePressed()</slot>
     <slot>changeDisplayMode(int)</slot>
 </slots>
-<layoutdefaults spacing="6" margin="11"/>
+<layoutdefaults margin="11" spacing="6"/>
 </UI>

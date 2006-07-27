@@ -1,4 +1,5 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI>
+<UI stdsetdef="1" version="3.3">
 <class>graphene_sheet_dialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -124,7 +125,7 @@
                 <property name="spacing">
                     <number>0</number>
                 </property>
-                <widget class="QPushButton" row="0" column="0">
+                <widget class="QPushButton" column="0" row="0">
                     <property name="name">
                         <cstring>sponsor_btn</cstring>
                     </property>
@@ -142,7 +143,7 @@
                         </color>
                     </property>
                     <property name="text">
-                        <string></string>
+                        <string/>
                     </property>
                     <property name="autoDefault">
                         <bool>false</bool>
@@ -203,7 +204,7 @@
                                 <cstring>done_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image2</iconset>
@@ -217,7 +218,7 @@
                                 <cstring>abort_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image3</iconset>
@@ -231,7 +232,7 @@
                                 <cstring>restore_defaults_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image4</iconset>
@@ -245,7 +246,7 @@
                                 <cstring>preview_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image5</iconset>
@@ -259,7 +260,7 @@
                                 <cstring>whatsthis_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image6</iconset>
@@ -301,7 +302,7 @@
                         <number>0</number>
                     </property>
                     <property name="title">
-                        <string></string>
+                        <string/>
                     </property>
                     <vbox>
                         <property name="name">
@@ -383,7 +384,7 @@
                                         </size>
                                     </property>
                                     <property name="text">
-                                        <string></string>
+                                        <string/>
                                     </property>
                                     <property name="autoDefault">
                                         <bool>false</bool>
@@ -422,7 +423,7 @@
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QLabel" row="1" column="0">
+                                <widget class="QLabel" column="0" row="1">
                                     <property name="name">
                                         <cstring>height_label</cstring>
                                     </property>
@@ -433,19 +434,16 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QLineEdit" row="1" column="1">
+                                <widget class="QLineEdit" column="1" row="1">
                                     <property name="name">
                                         <cstring>height_linedit</cstring>
                                     </property>
                                     <property name="text">
                                         <string>20.0</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Height&lt;/b&gt;
-&lt;p&gt;The height of the graphite sheet in angstroms.&lt;/p&gt;</string>
-                                    </property>
+                                    
                                 </widget>
-                                <widget class="QLabel" row="2" column="0">
+                                <widget class="QLabel" column="0" row="2">
                                     <property name="name">
                                         <cstring>width_label</cstring>
                                     </property>
@@ -456,19 +454,16 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QLineEdit" row="2" column="1">
+                                <widget class="QLineEdit" column="1" row="2">
                                     <property name="name">
                                         <cstring>width_linedit</cstring>
                                     </property>
                                     <property name="text">
                                         <string>20.0</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Width&lt;/b&gt;
-&lt;p&gt;The width of the graphene sheet in angstroms.&lt;/p&gt;</string>
-                                    </property>
+                                    
                                 </widget>
-                                <widget class="QLabel" row="3" column="0">
+                                <widget class="QLabel" column="0" row="3">
                                     <property name="name">
                                         <cstring>bond_length_label</cstring>
                                     </property>
@@ -479,19 +474,16 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QLineEdit" row="3" column="1">
+                                <widget class="QLineEdit" column="1" row="3">
                                     <property name="name">
                                         <cstring>bond_length_linedit</cstring>
                                     </property>
                                     <property name="text">
                                         <string>1.40</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Bond length&lt;/b&gt;
-&lt;p&gt;You can change the bond lengths in the graphene sheet. We believe the default value is accurate for sp&lt;sup&gt;2&lt;/sup&gt;-hybridized carbons.&lt;/p&gt;</string>
-                                    </property>
+                                    
                                 </widget>
-                                <widget class="QLabel" row="4" column="0">
+                                <widget class="QLabel" column="0" row="4">
                                     <property name="name">
                                         <cstring>endings_label</cstring>
                                     </property>
@@ -502,7 +494,7 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QComboBox" row="4" column="1">
+                                <widget class="QComboBox" column="1" row="4">
                                     <item>
                                         <property name="text">
                                             <string>None</string>
@@ -521,10 +513,7 @@
                                     <property name="name">
                                         <cstring>endings_combox</cstring>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Endings&lt;/b&gt;
-&lt;p&gt;Graphene sheets can be unterminated (dangling bonds), or terminated with hydrogen atoms or nitrogen atoms.&lt;/p&gt;</string>
-                                    </property>
+                                    
                                 </widget>
                             </grid>
                         </widget>
@@ -716,5 +705,5 @@
     <slot>done_btn_clicked()</slot>
     <slot>length_fixup()</slot>
 </slots>
-<layoutdefaults spacing="6" margin="11"/>
+<layoutdefaults margin="11" spacing="6"/>
 </UI>

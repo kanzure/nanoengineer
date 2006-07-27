@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MinimizeEnergyPropDialog.ui'
 #
-# Created: Thu Jul 6 12:25:16 2006
+# Created: Wed Jul 26 23:37:18 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1448,15 +1448,9 @@ class MinimizeEnergyPropDialog(QDialog):
 
     def languageChange(self):
         self.setCaption(self.__tr("Minimize Energy"))
-        QWhatsThis.add(self,self.__tr("<u><b>Minimize Energy</b></u>\n"
-"<p>The potential energy of a chemical structure is a function of the relative positions of its atoms. To obtain this energy with complete accuracy involves a lot of computer time spent on quantum mechanical calculations, which cannot be practically done on a desktop computer. To get an approximate potential energy without all that, we represent the energy as a series of terms involving geometric properties of the structure: lengths of chemical bonds, angles between pairs and triples of chemical bonds, etc.\n"
-"</p><p>As is generally the case with physical systems, the gradient of the potential energy represents the forces acting on various particles. The atoms want to move in the direction that most reduces the potential energy. Energy minimization is a process of adjusting the atom positions to try to find a global minimum of the potential energy. Each atom contributes three variables (its x, y, and z coordinates) so the search space is multi-dimensional. The global minimum is the configuration that the atoms will settle into if lowered to zero Kelvin.\n"
-"</p>"))
         self.heading_pixmap.setText(QString.null)
         self.heading_label.setText(self.__tr("Minimize Energy"))
         self.sponsor_btn.setText(QString.null)
-        QWhatsThis.add(self.sponsor_btn,self.__tr("<b>NanoEngineer-1 Sponsor</b>\n"
-"<p>Click on the logo to learn more about this NanoEngineer-1 sponsor.</p>"))
         self.done_btn.setText(QString.null)
         QToolTip.add(self.done_btn,self.__tr("OK"))
         self.abort_btn.setText(QString.null)
@@ -1470,38 +1464,26 @@ class MinimizeEnergyPropDialog(QDialog):
         self.grpbtn_1.setText(QString.null)
         self.minimize_all_rbtn.setText(self.__tr("Minimize All"))
         QToolTip.add(self.minimize_all_rbtn,self.__tr("Perform energy minimization on all the atoms in the workspace"))
-        QWhatsThis.add(self.minimize_all_rbtn,self.__tr("<b>Minimize All</b><p>Perform energy minimization on all the atoms in the workspace.</p>"))
         self.minimize_sel_rbtn.setText(self.__tr("Minimize Selection"))
         QToolTip.add(self.minimize_sel_rbtn,self.__tr("Perform energy minimization on only the atoms that have been selected"))
-        QWhatsThis.add(self.minimize_sel_rbtn,self.__tr("<b>Minimize Selection</b><p>Perform energy minimization on the atoms that are currently selected.</p>"))
         self.groupBox2.setTitle(QString.null)
         self.watch_min_options_label.setText(self.__tr("Watch Minimization Options"))
         self.grpbtn_2.setText(QString.null)
         self.watch_minimization_checkbox.setText(self.__tr("Watch minimization in real time"))
         QToolTip.add(self.watch_minimization_checkbox,self.__tr("Enables real time graphical updates during minimization runs"))
-        QWhatsThis.add(self.watch_minimization_checkbox,self.__tr("<p><b>Watch Motion In Real Time</b></p>Enables real time graphical updates during minimization runs."))
         self.update_btngrp.setTitle(QString.null)
         self.watch_min_options_label_2.setText(self.__tr("Update Options"))
         self.update_asap_rbtn.setText(self.__tr("As fast as possible"))
         QToolTip.add(self.update_asap_rbtn,self.__tr("Update every 2 seconds, or faster if it doesn't slow minimization by more than 20%"))
-        QWhatsThis.add(self.update_asap_rbtn,self.__tr("<b>Update as fast as possible</b>\n"
-"<p>\n"
-"Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimization by more than 20%</p>"))
         self.update_every_rbtn.setText(self.__tr("Every"))
         QToolTip.add(self.update_every_rbtn,self.__tr("Specify how often to update the screen during the minimization."))
-        QWhatsThis.add(self.update_every_rbtn,self.__tr("<b>Update every <i>n units.</u></b>\n"
-"<p>Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>"))
         QToolTip.add(self.update_number_spinbox,self.__tr("Specify how often to update the screen during the minimization."))
-        QWhatsThis.add(self.update_number_spinbox,self.__tr("<b>Update every <i>n units.</u></b>\n"
-"<p>Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>"))
         self.update_units_combobox.clear()
         self.update_units_combobox.insertItem(self.__tr("frames"))
         self.update_units_combobox.insertItem(self.__tr("seconds"))
         self.update_units_combobox.insertItem(self.__tr("minutes"))
         self.update_units_combobox.insertItem(self.__tr("hours"))
         QToolTip.add(self.update_units_combobox,self.__tr("Specify how often to update the screen during the minimization."))
-        QWhatsThis.add(self.update_units_combobox,self.__tr("<b>Update every <i>n units.</u></b>\n"
-"<p>Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>"))
         self.parms_grpbox.setTitle(QString.null)
         self.parameters_label.setText(self.__tr("Convergence Criteria"))
         self.grpbtn_3.setText(QString.null)
@@ -1511,26 +1493,16 @@ class MinimizeEnergyPropDialog(QDialog):
         self.cutovermax_lbl.setText(self.__tr("CutoverMax (pN) :"))
         self.endrms_linedit.setText(self.__tr("1.0"))
         QToolTip.add(self.endrms_linedit,self.__tr("Target RMS force (pN)"))
-        QWhatsThis.add(self.endrms_linedit,self.__tr("<b>EndRMS</b>\n"
-"<p>Continue until this RMS force is reached.</p>"))
         self.endmax_linedit.setText(QString.null)
         QToolTip.add(self.endmax_linedit,self.__tr("Target max force (pN)"))
-        QWhatsThis.add(self.endmax_linedit,self.__tr("<b>EndMax</b>\n"
-"<p>Continue until the total force on each atom is less than this value.</p>"))
         self.cutoverrms_linedit.setText(QString.null)
         QToolTip.add(self.cutoverrms_linedit,self.__tr("Cutover RMS foce (pN)"))
-        QWhatsThis.add(self.cutoverrms_linedit,self.__tr("<b>CutoverRMS</b>\n"
-"<p>Use steepest descent until this RMS force is reached.</p>"))
         self.cutovermax_linedit.setText(QString.null)
         QToolTip.add(self.cutovermax_linedit,self.__tr("Cutover max force (pN)"))
-        QWhatsThis.add(self.cutovermax_linedit,self.__tr("<b>CutoverMax</b>\n"
-"<p>Use steepest descent  until the total force on each atom is less than this value.</p>"))
         self.cancel_btn.setText(self.__tr("Cancel"))
         QToolTip.add(self.cancel_btn,self.__tr("Cancel"))
-        QWhatsThis.add(self.cancel_btn,self.__tr("<b>Cancel</b><p>Dismiss this dialog without taking any action.</p>"))
         self.ok_btn.setText(self.__tr("Minimize Energy"))
         QToolTip.add(self.ok_btn,self.__tr("OK"))
-        QWhatsThis.add(self.ok_btn,self.__tr("<b>Minimize Energy</b><p>Using the parameters specified above, perform energy minimization on some or all of the atoms.</p>"))
 
 
     def open_sponsor_homepage(self):

@@ -100,6 +100,9 @@ class MMKit(MMKitDialog):
         
         self.connect(self.dirView, SIGNAL("selectionChanged(QListViewItem *)"), self.partChanged)
 
+        QWhatsThis.add(self.elementFrame, """3D thumbnail view""")
+        # BUG 2077 INCOMPLETE FIX
+        # QWhatsThis.add(self.MMKitDialog, """Molecular Modeling Kit""")
         return # from __init__
 
     # ==

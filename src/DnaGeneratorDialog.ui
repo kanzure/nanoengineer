@@ -1,4 +1,5 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI>
+<UI stdsetdef="1" version="3.3">
 <class>dna_dialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -124,7 +125,7 @@
                 <property name="spacing">
                     <number>0</number>
                 </property>
-                <widget class="QPushButton" row="0" column="0">
+                <widget class="QPushButton" column="0" row="0">
                     <property name="name">
                         <cstring>sponsor_btn</cstring>
                     </property>
@@ -136,7 +137,7 @@
                         </color>
                     </property>
                     <property name="text">
-                        <string></string>
+                        <string/>
                     </property>
                     <property name="pixmap">
                         <pixmap>image2</pixmap>
@@ -200,7 +201,7 @@
                                 <cstring>done_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image3</iconset>
@@ -214,7 +215,7 @@
                                 <cstring>abort_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image4</iconset>
@@ -228,7 +229,7 @@
                                 <cstring>preview_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image5</iconset>
@@ -242,7 +243,7 @@
                                 <cstring>whatsthis_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image6</iconset>
@@ -284,7 +285,7 @@
                         <number>0</number>
                     </property>
                     <property name="title">
-                        <string></string>
+                        <string/>
                     </property>
                     <vbox>
                         <property name="name">
@@ -366,7 +367,7 @@
                                         </size>
                                     </property>
                                     <property name="text">
-                                        <string></string>
+                                        <string/>
                                     </property>
                                     <property name="autoDefault">
                                         <bool>false</bool>
@@ -405,7 +406,7 @@
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QComboBox" row="0" column="1">
+                                <widget class="QComboBox" column="1" row="0">
                                     <item>
                                         <property name="text">
                                             <string>B-DNA</string>
@@ -419,12 +420,9 @@
                                     <property name="name">
                                         <cstring>dna_type_combox</cstring>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;DNA Type&lt;/b&gt;
-&lt;p&gt;There are three DNA geometries, A-DNA, B-DNA, and Z-DNA. Currently we have not yet implemented A-DNA.&lt;/p&gt;</string>
-                                    </property>
+                                    
                                 </widget>
-                                <widget class="QLabel" row="5" column="0">
+                                <widget class="QLabel" column="0" row="5">
                                     <property name="name">
                                         <cstring>endings_label</cstring>
                                     </property>
@@ -435,7 +433,7 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QComboBox" row="5" column="1">
+                                <widget class="QComboBox" column="1" row="5">
                                     <item>
                                         <property name="text">
                                             <string>Double</string>
@@ -449,12 +447,9 @@
                                     <property name="name">
                                         <cstring>endings_combox</cstring>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Strand Type&lt;/b&gt;
-&lt;p&gt;DNA strands can be single or double.&lt;/p&gt;</string>
-                                    </property>
+                                    
                                 </widget>
-                                <widget class="QLabel" row="0" column="0">
+                                <widget class="QLabel" column="0" row="0">
                                     <property name="name">
                                         <cstring>dna_type_label</cstring>
                                     </property>
@@ -480,7 +475,7 @@
                         <enum>Sunken</enum>
                     </property>
                     <property name="title">
-                        <string></string>
+                        <string/>
                     </property>
                     <property name="checkable">
                         <bool>false</bool>
@@ -568,7 +563,7 @@
                                         </size>
                                     </property>
                                     <property name="text">
-                                        <string></string>
+                                        <string/>
                                     </property>
                                     <property name="autoDefault">
                                         <bool>false</bool>
@@ -603,10 +598,7 @@
                             <property name="name">
                                 <cstring>base_textedit</cstring>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Base sequence&lt;/b&gt;
-&lt;p&gt;The sequence of DNA bases in the strand. The bases are adenine, cytosine, guanine, and thymine.&lt;/p&gt;</string>
-                            </property>
+                            
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
@@ -626,10 +618,7 @@
                                     <property name="autoDefault">
                                         <bool>false</bool>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Complement&lt;/b&gt;
-&lt;p&gt;Swap all the bases with their matching bases. Adenine becomes thymine, thymine becomes adenine, cytosine becomes guanine, guanine becomes cytosine.&lt;/p&gt;</string>
-                                    </property>
+                                    
                                 </widget>
                                 <widget class="QPushButton">
                                     <property name="name">
@@ -641,10 +630,7 @@
                                     <property name="autoDefault">
                                         <bool>false</bool>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Reverse&lt;/b&gt;
-&lt;p&gt;Reverse the order of bases on the DNA strand, so GATTACA becomes ACATTAG. If it's a double strand, both are reversed.&lt;/p&gt;</string>
-                                    </property>
+                                    
                                 </widget>
                             </hbox>
                         </widget>
@@ -833,5 +819,5 @@
     <slot>reverse_btn_clicked()</slot>
     <slot>cancel_btn_clicked()</slot>
 </slots>
-<layoutdefaults spacing="6" margin="11"/>
+<layoutdefaults margin="11" spacing="6"/>
 </UI>

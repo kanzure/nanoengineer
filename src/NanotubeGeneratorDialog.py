@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Thu Jul 20 17:32:53 2006
+# Created: Wed Jul 26 23:37:18 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -789,24 +789,15 @@ class nanotube_dialog(QDialog):
         self.chirality_n_label.setText(self.__tr("Chirality (n) :"))
         self.chirality_m_spinbox.setSuffix(QString.null)
         QToolTip.add(self.chirality_m_spinbox,self.__tr("Chirality (m)"))
-        QWhatsThis.add(self.chirality_m_spinbox,self.__tr("<b>Chirality (m)</b>\n"
-"<p>Specifies <i>m</i> of the chiral vector (n, m), where n and m are integers of the vector equation R = na1 + ma2 .</p>"))
         self.chirality_m_label.setText(self.__tr("Chirality (m) :"))
         QToolTip.add(self.chirality_m_label,self.__tr("Chirality (m)"))
-        QWhatsThis.add(self.chirality_m_label,self.__tr("Chirality (m)"))
         self.length_label.setText(self.__tr("Length (A) :"))
         self.chirality_n_spinbox.setSuffix(QString.null)
         QToolTip.add(self.chirality_n_spinbox,self.__tr("Chirality (n)"))
-        QWhatsThis.add(self.chirality_n_spinbox,self.__tr("<b>Chirality (n)</b>\n"
-"<p>Specifies <i>n</i> of the chiral vector (n, m), where n and m are integers of the vector equation R = na1 + ma2 .</p>"))
         self.members_combox.clear()
         self.members_combox.insertItem(self.__tr("Carbon"))
         self.members_combox.insertItem(self.__tr("Boron Nitride"))
         QToolTip.add(self.members_combox,self.__tr("Members"))
-        QWhatsThis.add(self.members_combox,self.__tr("<b>Type</b>\n"
-"<p>Specifies the type of nanotube to generate.</p>\n"
-"<p>Selecting <b>Carbon</b> creates a carbon nanotube (CNT) made entirely of carbon atoms.\n"
-"<p>Selecting <b>Boron nitride</b> creates a boron nitride (BN) nanotube made of boron and nitrogen atoms.</p>"))
         self.endings_label.setText(self.__tr("Endings :"))
         self.bond_length_label.setText(self.__tr("Bond Length (A):"))
         QToolTip.add(self.bond_length_label,self.__tr("Bond length in angstroms"))
@@ -815,20 +806,11 @@ class nanotube_dialog(QDialog):
         self.endings_combox.insertItem(self.__tr("Hydrogen"))
         self.endings_combox.insertItem(self.__tr("Nitrogen"))
         QToolTip.add(self.endings_combox,self.__tr("Endings"))
-        QWhatsThis.add(self.endings_combox,self.__tr("<b>Endings</b>\n"
-"<p>Specify how to deal with bondpoints on the two ends of the nanotube.</p>\n"
-"<p>Selecting <b>None</b> does nothing, leaving bondpoints on the ends.</p>\n"
-"<p>Selecting <b>Hydrogen </b>terminates the bondpoints using hydrogen atoms.</p>\n"
-"<p>Selecting <b>Nitrogen </b>transmutes atoms with bondpoints into nitrogen atoms.</p>"))
         self.length_linedit.setText(self.__tr("20.0"))
         QToolTip.add(self.length_linedit,self.__tr("Length of nanotube in angstroms"))
-        QWhatsThis.add(self.length_linedit,self.__tr("<b>Length</b>\n"
-"<p>Specify the length of the nanotube in angstroms.</p>"))
         self.type_label.setText(self.__tr("Type :"))
         self.bond_length_linedit.setText(self.__tr("1.40"))
         QToolTip.add(self.bond_length_linedit,self.__tr("Bond length in angstroms"))
-        QWhatsThis.add(self.bond_length_linedit,self.__tr("<b>Bond Length</b>\n"
-"<p>Specify the bond length between atoms in angstroms.</p>"))
         self.tube_distortions_grpbox.setTitle(QString.null)
         self.parameters_grpbox_label_2.setText(self.__tr("Nanotube Distortions"))
         self.nt_distortion_grpbtn.setText(QString.null)
@@ -836,21 +818,13 @@ class nanotube_dialog(QDialog):
         self.xy_distortion_label.setText(self.__tr("XY-distortion (A):"))
         self.twist_spinbox.setSuffix(self.__tr(" deg/A"))
         QToolTip.add(self.twist_spinbox,self.__tr("Twist in degrees/angstrom"))
-        QWhatsThis.add(self.twist_spinbox,self.__tr("<b>Twist</b>\n"
-"<p>Introduces a twist along the length of the nanotube specified in degrees/angstrom.</p>"))
         self.z_distortion_linedit.setText(self.__tr("0.0"))
         QToolTip.add(self.z_distortion_linedit,self.__tr("Z-distortion in angstroms"))
-        QWhatsThis.add(self.z_distortion_linedit,self.__tr("<b>Z-distortion</b>\n"
-"<p>Distorts the bond length between atoms along the length of the nanotube by this amount in angstroms.</p>"))
         self.bend_label.setText(self.__tr("Bend :"))
         self.bend_spinbox.setSuffix(self.__tr(" deg"))
         QToolTip.add(self.bend_spinbox,self.__tr("Bend in degrees"))
-        QWhatsThis.add(self.bend_spinbox,self.__tr("<b>Bend</b>\n"
-"<p>Bend the nanotube by the specified number of degrees.</p>"))
         self.xy_distortion_linedit.setText(self.__tr("0.0"))
         QToolTip.add(self.xy_distortion_linedit,self.__tr("XY-distortion"))
-        QWhatsThis.add(self.xy_distortion_linedit,self.__tr("<b>XY-distortion</b>\n"
-"<p>Distorts the tube's cross-section so that the width in the X direction is this many angstroms greater than the width in the Y direction. Some distortion  of bond lengths results.</p>"))
         self.twist_label.setText(self.__tr("Twist :"))
         self.mwcnt_grpbox.setTitle(QString.null)
         self.parameters_grpbox_label_3.setText(self.__tr("Multi-Walled Nanotubes"))
@@ -859,14 +833,8 @@ class nanotube_dialog(QDialog):
         self.mwcnt_count_label.setText(self.__tr("Number of Nanotubes :"))
         self.mwcnt_count_spinbox.setSuffix(QString.null)
         QToolTip.add(self.mwcnt_count_spinbox,self.__tr("Number of nanotubes"))
-        QWhatsThis.add(self.mwcnt_count_spinbox,self.__tr("<b>Number of Nanotubes</b>\n"
-"<p>Specifies the number or Multi-Walled Nanotubes. Multi-Walled nanotubes (MWNT) consist of many concentric tubes wrapped one inside another.</p>\n"
-"<p>The specified chirality applies only to the innermost nanotube. The others, being larger, will have larger chiralities.\n"
-"</p>"))
         self.mwcnt_spacing_linedit.setText(self.__tr("2.46"))
         QToolTip.add(self.mwcnt_spacing_linedit,self.__tr("Spacing between nanotubes"))
-        QWhatsThis.add(self.mwcnt_spacing_linedit,self.__tr("<b>Spacing</b>\n"
-"<p>Specify the spacing between nanotubes in angstroms.</p>"))
         self.cancel_btn.setText(self.__tr("Cancel"))
         QToolTip.add(self.cancel_btn,self.__tr("Cancel"))
         self.ok_btn.setText(self.__tr("OK"))

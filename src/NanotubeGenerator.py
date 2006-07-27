@@ -16,7 +16,7 @@ import assembly, chem, bonds, Utility
 from chem import molecule, Atom
 import env
 from HistoryWidget import redmsg, orangemsg, greenmsg
-from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QIntValidator, QValidator
+from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QIntValidator, QValidator, QWhatsThis
 from VQT import dot, vlen, cross, norm
 import random
 import string
@@ -337,6 +337,53 @@ class NanotubeGenerator(GeneratorBaseClass, nanotube_dialog):
         self.xystr = str(self.xy_distortion_linedit.text())
         self.spstr = str(self.mwcnt_spacing_linedit.text())
         self.members = self.members_combox.currentItem()
+
+        QWhatsThis.add(self.chirality_m_spinbox, """<b>Chirality (m)</b>
+        <p>Specifies <i>m</i> of the chiral vector
+        (n, m), where n and m are integers of the vector equation R = na1 + ma2 .</p>""")
+        QWhatsThis.add(self.chirality_m_label, """Chirality (m)""")
+        QWhatsThis.add(self.chirality_n_spinbox, """<b>Chirality (n)</b>
+        <p>Specifies <i>n</i> of the chiral vector
+        (n, m), where n and m are integers of the vector equation R = na1 + ma2 .</p>""")
+        QWhatsThis.add(self.members_combox, """<b>Type</b>
+        <p>Specifies the type of nanotube to generate.</p>
+        <p>Selecting
+        <b>Carbon</b> creates a carbon nanotube (CNT) made entirely of carbon atoms.
+        <p>Selecting <b>Boron nitride</b> creates a
+        boron nitride (BN) nanotube made of boron and nitrogen atoms.</p>""")
+        QWhatsThis.add(self.endings_combox, """<b>Endings</b>
+        <p>Specify how to deal with bondpoints on the
+        two ends of the nanotube.</p>
+        <p>Selecting <b>None</b> does nothing, leaving bondpoints on the ends.</p>
+        <p>Selecting <b>Hydrogen
+        </b>terminates the bondpoints using hydrogen atoms.</p>
+        <p>Selecting <b>Nitrogen </b>transmutes atoms with bondpoints into
+        nitrogen atoms.</p>""")
+        QWhatsThis.add(self.length_linedit, """<b>Length</b>
+        <p>Specify the length of the nanotube in angstroms.</p>""")
+        QWhatsThis.add(self.bond_length_linedit, """<b>Bond Length</b>
+        <p>Specify the bond length between atoms in
+        angstroms.</p>""")
+        QWhatsThis.add(self.twist_spinbox, """<b>Twist</b>
+        <p>Introduces a twist along the length of the nanotube
+        specified in degrees/angstrom.</p>""")
+        QWhatsThis.add(self.z_distortion_linedit, """<b>Z-distortion</b>
+        <p>Distorts the bond length between atoms
+        along the length of the nanotube by this amount in angstroms.</p>""")
+        QWhatsThis.add(self.bend_spinbox, """<b>Bend</b>
+        <p>Bend the nanotube by the specified number of degrees.</p>""")
+        QWhatsThis.add(self.xy_distortion_linedit, """<b>XY-distortion</b>
+        <p>Distorts the tube's cross-section so
+        that the width in the X direction is this many angstroms greater than the width in the Y direction. Some distortion  of bond
+        lengths results.</p>""")
+        QWhatsThis.add(self.mwcnt_count_spinbox, """<b>Number of Nanotubes</b>
+        <p>Specifies the number or Multi-Walled
+        Nanotubes. Multi-Walled nanotubes (MWNT) consist of many concentric tubes wrapped one inside another.</p>
+        <p>The specified
+        chirality applies only to the innermost nanotube. The others, being larger, will have larger chiralities.
+        </p>""")
+        QWhatsThis.add(self.mwcnt_spacing_linedit, """<b>Spacing</b>
+        <p>Specify the spacing between nanotubes in angstroms.</p>""")
 
     ###################################################
     # How to build this kind of structure, along with

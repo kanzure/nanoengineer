@@ -3606,9 +3606,6 @@
         <property name="toolTip">
             <string>Mouse Controls</string>
         </property>
-        <property name="whatsThis">
-            <string>Displays help for mouse controls</string>
-        </property>
     </action>
     <action>
         <property name="name">
@@ -3619,9 +3616,6 @@
         </property>
         <property name="toolTip">
             <string>Keyboard Shortcuts</string>
-        </property>
-        <property name="whatsThis">
-            <string>Displays help for keyboard shortcuts</string>
         </property>
     </action>
     <action>
@@ -3934,9 +3928,6 @@
         </property>
         <property name="text">
             <string>Comment</string>
-        </property>
-        <property name="whatsThis">
-            <string>Inserts a comment in the part.</string>
         </property>
     </action>
     <action>

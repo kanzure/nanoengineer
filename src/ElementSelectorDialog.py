@@ -1,9 +1,8 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
 # Form implementation generated from reading ui file 'ElementSelectorDialog.ui'
 #
-# Created: Tue Sep 13 16:00:26 2005
+# Created: Wed Jul 26 23:37:17 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -306,7 +305,6 @@ class ElementSelectorDialog(QDialog):
     def languageChange(self):
         self.setCaption(self.__tr("Element Selector"))
         QToolTip.add(self.elementFrame,self.__tr("3D thumbnail view"))
-        QWhatsThis.add(self.elementFrame,self.__tr("3D view of current atom type"))
         self.elementButtonGroup.setTitle(QString.null)
         self.toolButton1.setText(self.__tr("H"))
         self.toolButton1.setAccel(self.__tr("H"))
@@ -356,10 +354,8 @@ class ElementSelectorDialog(QDialog):
         QToolTip.add(self.toolButton32,self.__tr("Germanium"))
         self.TransmuteButton.setText(self.__tr("Transmute"))
         QToolTip.add(self.TransmuteButton,self.__tr("Transmute Selected Atoms"))
-        QWhatsThis.add(self.TransmuteButton,self.__tr("Transmutes selected atoms in the 3D workspace to current atom above."))
         self.transmuteCheckBox.setText(self.__tr("Force to Keep Bonds"))
         QToolTip.add(self.transmuteCheckBox,self.__tr("Check if transmuted atoms should keep all existing bonds,  even if chemistry is wrong"))
-        QWhatsThis.add(self.transmuteCheckBox,self.__tr("Check if transmuted atoms should keep all existing bonds,  even if chemistry is wrong."))
         self.closePTableButton.setText(self.__tr("Close"))
 
 

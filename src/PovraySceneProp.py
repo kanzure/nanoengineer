@@ -32,6 +32,14 @@ class PovraySceneProp(SponsorableMixin, GroupButtonMixin, PovrayScenePropDialog)
         self.glpane = self.win.glpane
         self.node = None
         self.previousParams = None
+        QWhatsThis.add(self.sponsor_btn, """<b>NanoEngineer-1 Sponsor</b>
+        <p>Click on the logo to learn more
+        about this NanoEngineer-1 sponsor.</p>""")
+        QWhatsThis.add(self.name_linedit, """<b>Node Name</b>
+        <p>The POV-Ray Scene file node name as it appears
+        in the Model Tree.</p>""")
+        QWhatsThis.add(self.output_type_combox, """<b>Image Format </b>- the output image format when rendering
+        an image from this POV-Ray Scene file.""")
         
     def setup(self, pov=None):
         '''Show the Properties Manager dialog. If <pov> is supplied, 

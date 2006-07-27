@@ -15,6 +15,7 @@ import os
 import env
 import re
 from math import atan2, sin, cos, pi
+from qt import QWhatsThis
 from DnaGeneratorDialog import dna_dialog
 from chem import Atom
 from Utility import Group
@@ -189,6 +190,20 @@ class DnaGenerator(GeneratorBaseClass, dna_dialog):
     def __init__(self, win):
         dna_dialog.__init__(self, win) # win is parent.  Fixes bug 1089.  Mark 051119.
         GeneratorBaseClass.__init__(self, win)
+        QWhatsThis.add(self.dna_type_combox, """<b>DNA Type</b>
+        <p>There are three DNA geometries, A-DNA, B-DNA,
+        and Z-DNA. Currently we have not yet implemented A-DNA.</p>""")
+        QWhatsThis.add(self.endings_combox, """<b>Strand Type</b>
+        <p>DNA strands can be single or double.</p>""")
+        QWhatsThis.add(self.base_textedit, """<b>Base sequence</b>
+        <p>The sequence of DNA bases in the strand.
+        The bases are adenine, cytosine, guanine, and thymine.</p>""")
+        QWhatsThis.add(self.complement_btn, """<b>Complement</b>
+        <p>Swap all the bases with their matching bases.
+        Adenine becomes thymine, thymine becomes adenine, cytosine becomes guanine, guanine becomes cytosine.</p>""")
+        QWhatsThis.add(self.reverse_btn, """<b>Reverse</b>
+        <p>Reverse the order of bases on the DNA strand,
+        so GATTACA becomes ACATTAG. If it's a double strand, both are reversed.</p>""")
 
     ###################################################
     # How to build this kind of structure, along with

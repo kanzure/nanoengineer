@@ -1,4 +1,5 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI>
+<UI stdsetdef="1" version="3.3">
 <class>UserPrefsDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -19,7 +20,7 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QLayoutWidget" row="1" column="0">
+        <widget class="QLayoutWidget" column="0" row="1">
             <property name="name">
                 <cstring>layout28</cstring>
             </property>
@@ -57,7 +58,7 @@
                 </widget>
             </hbox>
         </widget>
-        <widget class="QTabWidget" row="0" column="0">
+        <widget class="QTabWidget" column="0" row="0">
             <property name="name">
                 <cstring>prefs_tab</cstring>
             </property>
@@ -104,9 +105,7 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Show/Hide Origin Axis</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Display Origin Axis&lt;/b&gt;&lt;/p&gt;Shows/Hides the Origin Axis</string>
-                                        </property>
+                                        
                                     </widget>
                                     <widget class="QCheckBox">
                                         <property name="name">
@@ -121,9 +120,7 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Show/Hide Point of View Axis</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Display Point of View Axis&lt;/b&gt;&lt;/p&gt;Shows/Hides the Point of View Axis</string>
-                                        </property>
+                                        
                                     </widget>
                                 </vbox>
                             </widget>
@@ -151,9 +148,7 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Show/Hide Display Compass</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Display Compass&lt;/b&gt;&lt;/p&gt;Shows/Hides the Display Compass</string>
-                                        </property>
+                                        
                                     </widget>
                                     <widget class="QCheckBox">
                                         <property name="name">
@@ -168,9 +163,7 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Show/Hide Display Compass</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Display Compass&lt;/b&gt;&lt;/p&gt;Shows/Hides the Display Compass</string>
-                                        </property>
+                                        
                                     </widget>
                                     <widget class="QLayoutWidget">
                                         <property name="name">
@@ -231,16 +224,14 @@
                                     <bool>true</bool>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string></string>
+                                    <string/>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string></string>
-                                </property>
+                                
                                 <grid>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QRadioButton" row="0" column="0">
+                                    <widget class="QRadioButton" column="0" row="0">
                                         <property name="name">
                                             <cstring>radioButton12</cstring>
                                         </property>
@@ -251,7 +242,7 @@
                                             <bool>true</bool>
                                         </property>
                                     </widget>
-                                    <widget class="QRadioButton" row="1" column="0">
+                                    <widget class="QRadioButton" column="0" row="1">
                                         <property name="name">
                                             <cstring>radioButton13</cstring>
                                         </property>
@@ -278,10 +269,7 @@
                                 <property name="title">
                                     <string>Settings for Adjust</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>&lt;b&gt;Settings for Adjust&lt;/b&gt;
-&lt;p&gt;This group of settings affect the behavior of &lt;b&gt;Adjust All&lt;/b&gt; and &lt;b&gt;Adjust Selection&lt;/b&gt;.&lt;/p&gt;</string>
-                                </property>
+                                
                                 <vbox>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
@@ -296,9 +284,7 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Enable/disable real time graphical updates for &lt;b&gt;Adjust All&lt;/b&gt; or &lt;b&gt;Adjust Selection&lt;/b&gt;</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Watch motion in real time&lt;/b&gt;&lt;/p&gt;Enables/disables real time graphical updates during adjust operations when using &lt;b&gt;Adjust All&lt;/b&gt; or &lt;b&gt;Adjust Selection&lt;/b&gt;</string>
-                                        </property>
+                                        
                                     </widget>
                                     <widget class="QButtonGroup">
                                         <property name="name">
@@ -311,13 +297,13 @@
                                             <enum>Sunken</enum>
                                         </property>
                                         <property name="title">
-                                            <string></string>
+                                            <string/>
                                         </property>
                                         <grid>
                                             <property name="name">
                                                 <cstring>unnamed</cstring>
                                             </property>
-                                            <widget class="QSpinBox" row="1" column="1">
+                                            <widget class="QSpinBox" column="1" row="1">
                                                 <property name="name">
                                                     <cstring>update_number_spinbox</cstring>
                                                 </property>
@@ -333,12 +319,9 @@
                                                 <property name="toolTip" stdset="0">
                                                     <string>Specify how often to update the screen during adjustments</string>
                                                 </property>
-                                                <property name="whatsThis" stdset="0">
-                                                    <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the adjustment. This allows the user to monitor results during adjustments.&lt;/p&gt;</string>
-                                                </property>
+                                                
                                             </widget>
-                                            <widget class="QComboBox" row="1" column="2">
+                                            <widget class="QComboBox" column="2" row="1">
                                                 <item>
                                                     <property name="text">
                                                         <string>frames</string>
@@ -365,12 +348,9 @@
                                                 <property name="toolTip" stdset="0">
                                                     <string>Specify how often to update the screen during adjustments</string>
                                                 </property>
-                                                <property name="whatsThis" stdset="0">
-                                                    <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the adjustment. This allows the user to monitor results during adjustments.&lt;/p&gt;</string>
-                                                </property>
+                                                
                                             </widget>
-                                            <widget class="QRadioButton" row="1" column="0">
+                                            <widget class="QRadioButton" column="0" row="1">
                                                 <property name="name">
                                                     <cstring>update_every_rbtn</cstring>
                                                 </property>
@@ -383,12 +363,9 @@
                                                 <property name="toolTip" stdset="0">
                                                     <string>Specify how often to update the screen during adjustments</string>
                                                 </property>
-                                                <property name="whatsThis" stdset="0">
-                                                    <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the adjustment. This allows the user to monitor results during adjustments.&lt;/p&gt;</string>
-                                                </property>
+                                                
                                             </widget>
-                                            <spacer row="1" column="3">
+                                            <spacer column="3" row="1">
                                                 <property name="name">
                                                     <cstring>spacer2</cstring>
                                                 </property>
@@ -405,7 +382,7 @@
                                                     </size>
                                                 </property>
                                             </spacer>
-                                            <widget class="QRadioButton" row="0" column="0" rowspan="1" colspan="3">
+                                            <widget class="QRadioButton" colspan="3" column="0" row="0" rowspan="1">
                                                 <property name="name">
                                                     <cstring>update_asap_rbtn</cstring>
                                                 </property>
@@ -421,11 +398,7 @@
                                                 <property name="toolTip" stdset="0">
                                                     <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
                                                 </property>
-                                                <property name="whatsThis" stdset="0">
-                                                    <string>&lt;b&gt;Update as fast as possible&lt;/b&gt;
-&lt;p&gt;
-Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments by more than 20%&lt;/p&gt;</string>
-                                                </property>
+                                                
                                             </widget>
                                         </grid>
                                     </widget>
@@ -456,7 +429,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                             <property name="name">
                                                                 <cstring>unnamed</cstring>
                                                             </property>
-                                                            <widget class="QLabel" row="0" column="0">
+                                                            <widget class="QLabel" column="0" row="0">
                                                                 <property name="name">
                                                                     <cstring>endrms_lbl</cstring>
                                                                 </property>
@@ -469,12 +442,9 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Target RMS force (pN)</string>
                                                                 </property>
-                                                                <property name="whatsThis" stdset="0">
-                                                                    <string>&lt;b&gt;EndRMS&lt;/b&gt;
-&lt;p&gt;Continue until this RMS force is reached.&lt;/p&gt;</string>
-                                                                </property>
+                                                                
                                                             </widget>
-                                                            <widget class="QLabel" row="1" column="0">
+                                                            <widget class="QLabel" column="0" row="1">
                                                                 <property name="name">
                                                                     <cstring>endmax_lbl</cstring>
                                                                 </property>
@@ -487,12 +457,9 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Target max force (pN)</string>
                                                                 </property>
-                                                                <property name="whatsThis" stdset="0">
-                                                                    <string>&lt;b&gt;EndMax&lt;/b&gt;
-&lt;p&gt;Continue until no interaction exceeds this force.&lt;/p&gt;</string>
-                                                                </property>
+                                                                
                                                             </widget>
-                                                            <widget class="QLineEdit" row="1" column="1">
+                                                            <widget class="QLineEdit" column="1" row="1">
                                                                 <property name="name">
                                                                     <cstring>endmax_linedit</cstring>
                                                                 </property>
@@ -502,12 +469,9 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Target max force (pN)</string>
                                                                 </property>
-                                                                <property name="whatsThis" stdset="0">
-                                                                    <string>&lt;b&gt;EndMax&lt;/b&gt;
-&lt;p&gt;Continue until no interaction exceeds this force.&lt;/p&gt;</string>
-                                                                </property>
+                                                                
                                                             </widget>
-                                                            <widget class="QLineEdit" row="0" column="1">
+                                                            <widget class="QLineEdit" column="1" row="0">
                                                                 <property name="name">
                                                                     <cstring>endrms_linedit</cstring>
                                                                 </property>
@@ -523,10 +487,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Target RMS force (pN)</string>
                                                                 </property>
-                                                                <property name="whatsThis" stdset="0">
-                                                                    <string>&lt;b&gt;EndRMS&lt;/b&gt;
-&lt;p&gt;Continue until this RMS force is reached.&lt;/p&gt;</string>
-                                                                </property>
+                                                                
                                                             </widget>
                                                         </grid>
                                                     </widget>
@@ -538,7 +499,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                             <property name="name">
                                                                 <cstring>unnamed</cstring>
                                                             </property>
-                                                            <widget class="QLabel" row="1" column="0">
+                                                            <widget class="QLabel" column="0" row="1">
                                                                 <property name="name">
                                                                     <cstring>cutovermax_lbl</cstring>
                                                                 </property>
@@ -551,12 +512,9 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Cutover max force (pN)</string>
                                                                 </property>
-                                                                <property name="whatsThis" stdset="0">
-                                                                    <string>&lt;b&gt;CutoverMax&lt;/b&gt;
-&lt;p&gt;Use steepest descent until no interaction exceeds this force.&lt;/p&gt;</string>
-                                                                </property>
+                                                                
                                                             </widget>
-                                                            <widget class="QLineEdit" row="1" column="1">
+                                                            <widget class="QLineEdit" column="1" row="1">
                                                                 <property name="name">
                                                                     <cstring>cutovermax_linedit</cstring>
                                                                 </property>
@@ -566,12 +524,9 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Cutover max force (pN)</string>
                                                                 </property>
-                                                                <property name="whatsThis" stdset="0">
-                                                                    <string>&lt;b&gt;CutoverMax&lt;/b&gt;
-&lt;p&gt;Use steepest descent until no interaction exceeds this force.&lt;/p&gt;</string>
-                                                                </property>
+                                                                
                                                             </widget>
-                                                            <widget class="QLineEdit" row="0" column="1">
+                                                            <widget class="QLineEdit" column="1" row="0">
                                                                 <property name="name">
                                                                     <cstring>cutoverrms_linedit</cstring>
                                                                 </property>
@@ -581,12 +536,9 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Cutover RMS force (pN)</string>
                                                                 </property>
-                                                                <property name="whatsThis" stdset="0">
-                                                                    <string>&lt;b&gt;CutoverRMS&lt;/b&gt;
-&lt;p&gt;Use steepest descent until this RMS force is reached.&lt;/p&gt;</string>
-                                                                </property>
+                                                                
                                                             </widget>
-                                                            <widget class="QLabel" row="0" column="0">
+                                                            <widget class="QLabel" column="0" row="0">
                                                                 <property name="name">
                                                                     <cstring>cutoverrms_lbl</cstring>
                                                                 </property>
@@ -599,10 +551,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Cutover RMS force (pN)</string>
                                                                 </property>
-                                                                <property name="whatsThis" stdset="0">
-                                                                    <string>&lt;b&gt;CutoverRMS&lt;/b&gt;
-&lt;p&gt;Use steepest descent until this RMS force is reached.&lt;/p&gt;</string>
-                                                                </property>
+                                                                
                                                             </widget>
                                                         </grid>
                                                     </widget>
@@ -621,7 +570,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                     </sizepolicy>
                                                 </property>
                                                 <property name="text">
-                                                    <string></string>
+                                                    <string/>
                                                 </property>
                                             </widget>
                                         </vbox>
@@ -652,9 +601,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                         <property name="toolTip" stdset="0">
                                             <string>Enable/disable animation between current view and a new view</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Animate Between Views&lt;/b&gt;&lt;/p&gt;Enables/disables animation when switching between the current view and a new view.</string>
-                                        </property>
+                                        
                                     </widget>
                                     <widget class="QLayoutWidget">
                                         <property name="name">
@@ -780,9 +727,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                         <property name="toolTip" stdset="0">
                                                             <string>View Animation Speed</string>
                                                         </property>
-                                                        <property name="whatsThis" stdset="0">
-                                                            <string>&lt;p&gt;&lt;b&gt;View Animation Speed&lt;/b&gt;&lt;/p&gt;Sets the animation speed when animating between view (i.e. Front View to Right View).  It is recommended that this be set to Fast when working on large models.</string>
-                                                        </property>
+                                                        
                                                     </widget>
                                                 </vbox>
                                             </widget>
@@ -850,7 +795,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget" row="0" column="1" rowspan="4" colspan="1">
+                    <widget class="QLayoutWidget" colspan="1" column="1" row="0" rowspan="4">
                         <property name="name">
                             <cstring>layout101</cstring>
                         </property>
@@ -879,9 +824,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                         <property name="toolTip" stdset="0">
                                             <string>Level of detail for atoms (and bonds)</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Level of Detail&lt;/b&gt;&lt;/p&gt;Sets the &lt;b&gt;Level of Detail&lt;/b&gt; for atoms and bonds.&lt;br&gt;&lt;br&gt;  &lt;b&gt;High&lt;/b&gt; = Best graphics quality (slowest rendering speed)&lt;br&gt;&lt;b&gt;Medium&lt;/b&gt; = Good graphics quality&lt;br&gt; &lt;b&gt;Low&lt;/b&gt; = Poor graphics quality (fastest rendering speed) &lt;br&gt;&lt;b&gt;Variable&lt;/b&gt; automatically switches between High, Medium and Low based on the model size (number of atoms).</string>
-                                        </property>
+                                        
                                     </widget>
                                     <widget class="QComboBox">
                                         <item>
@@ -913,9 +856,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                         <property name="toolTip" stdset="0">
                                             <string>Sets graphics quality for atoms (and bonds)</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Level of Detail&lt;/b&gt;&lt;/p&gt;Sets the graphics quality for atoms (and bonds)&lt;br&gt;&lt;br&gt;  &lt;b&gt;High&lt;/b&gt; = Best graphics quality (slowest rendering speed)&lt;br&gt;&lt;b&gt;Medium&lt;/b&gt; = Good graphics quality&lt;br&gt; &lt;b&gt;Low&lt;/b&gt; = Poor graphics quality (fastest rendering speed) &lt;br&gt;&lt;b&gt;Variable&lt;/b&gt; automatically switches between High, Medium and Low based on the number of atoms in the current part.</string>
-                                        </property>
+                                        
                                     </widget>
                                     <spacer>
                                         <property name="name">
@@ -955,7 +896,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                             </spacer>
                         </vbox>
                     </widget>
-                    <widget class="QGroupBox" row="0" column="0">
+                    <widget class="QGroupBox" column="0" row="0">
                         <property name="name">
                             <cstring>atom_colors_grpbox</cstring>
                         </property>
@@ -966,7 +907,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" row="0" column="0">
+                            <widget class="QLayoutWidget" column="0" row="0">
                                 <property name="name">
                                     <cstring>layout79</cstring>
                                 </property>
@@ -1004,12 +945,12 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                     </widget>
                                 </hbox>
                             </widget>
-                            <widget class="QGroupBox" row="1" column="0">
+                            <widget class="QGroupBox" column="0" row="1">
                                 <property name="name">
                                     <cstring>groupBox13</cstring>
                                 </property>
                                 <property name="title">
-                                    <string></string>
+                                    <string/>
                                 </property>
                                 <vbox>
                                     <property name="name">
@@ -1023,7 +964,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                             <property name="name">
                                                 <cstring>unnamed</cstring>
                                             </property>
-                                            <widget class="QLabel" row="0" column="0">
+                                            <widget class="QLabel" column="0" row="0">
                                                 <property name="name">
                                                     <cstring>textLabel3_2_3</cstring>
                                                 </property>
@@ -1034,7 +975,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                     <set>AlignVCenter|AlignRight</set>
                                                 </property>
                                             </widget>
-                                            <widget class="QLabel" row="2" column="0">
+                                            <widget class="QLabel" column="0" row="2">
                                                 <property name="name">
                                                     <cstring>hotspot_lbl_2</cstring>
                                                 </property>
@@ -1045,7 +986,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                     <set>AlignVCenter|AlignRight</set>
                                                 </property>
                                             </widget>
-                                            <widget class="QLabel" row="3" column="0">
+                                            <widget class="QLabel" column="0" row="3">
                                                 <property name="name">
                                                     <cstring>hotspot_lbl</cstring>
                                                 </property>
@@ -1056,7 +997,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                     <set>AlignVCenter|AlignRight</set>
                                                 </property>
                                             </widget>
-                                            <widget class="QLayoutWidget" row="2" column="1">
+                                            <widget class="QLayoutWidget" column="1" row="2">
                                                 <property name="name">
                                                     <cstring>layout37_2_2_2_2_2_2_2</cstring>
                                                 </property>
@@ -1104,7 +1045,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                     </widget>
                                                 </hbox>
                                             </widget>
-                                            <widget class="QLayoutWidget" row="0" column="1">
+                                            <widget class="QLayoutWidget" column="1" row="0">
                                                 <property name="name">
                                                     <cstring>layout37_2_2_2_3</cstring>
                                                 </property>
@@ -1149,7 +1090,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                     </widget>
                                                 </hbox>
                                             </widget>
-                                            <widget class="QLayoutWidget" row="3" column="1">
+                                            <widget class="QLayoutWidget" column="1" row="3">
                                                 <property name="name">
                                                     <cstring>layout37_2_2_2_2_2_2</cstring>
                                                 </property>
@@ -1238,7 +1179,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                             </widget>
                         </grid>
                     </widget>
-                    <spacer row="3" column="0">
+                    <spacer column="0" row="3">
                         <property name="name">
                             <cstring>spacer11</cstring>
                         </property>
@@ -1255,7 +1196,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" row="1" column="0">
+                    <widget class="QLayoutWidget" column="0" row="1">
                         <property name="name">
                             <cstring>layout74</cstring>
                         </property>
@@ -1276,9 +1217,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                 <property name="toolTip" stdset="0">
                                     <string>Set Atom Scale factor for Ball and Stick display mode</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>&lt;p&gt;&lt;b&gt;Ball and Stick Atom Scale&lt;/b&gt;&lt;/p&gt;Sets the Ball and Stick Atom Scale factor. It is best to change the scale factor while the current model is displayed in Ball and Stick mode.</string>
-                                </property>
+                                
                             </widget>
                             <widget class="QSpinBox">
                                 <property name="name">
@@ -1299,9 +1238,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                 <property name="toolTip" stdset="0">
                                     <string>Set Atom Scale factor for Ball and Stick display mode</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>&lt;p&gt;&lt;b&gt;Ball and Stick Atom Scale&lt;/b&gt;&lt;/p&gt;Sets the Ball and Stick Atom Scale factor. It is best to change the scale factor while the current model is displayed in Ball and Stick mode.</string>
-                                </property>
+                                
                             </widget>
                             <spacer>
                                 <property name="name">
@@ -1322,7 +1259,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                             </spacer>
                         </hbox>
                     </widget>
-                    <widget class="QLayoutWidget" row="2" column="0">
+                    <widget class="QLayoutWidget" column="0" row="2">
                         <property name="name">
                             <cstring>layout75</cstring>
                         </property>
@@ -1343,9 +1280,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                 <property name="toolTip" stdset="0">
                                     <string>CPK Atom Scale factor for CPK display mode</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>&lt;p&gt;&lt;b&gt;CPK Atom Scale&lt;/b&gt;&lt;/p&gt;Changes the CPK Atom Scale factor. It is best to change the scale factor while in CPK display mode so you can see the graphical effect of changing the scale.</string>
-                                </property>
+                                
                             </widget>
                             <widget class="QLineEdit">
                                 <property name="name">
@@ -1363,9 +1298,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                 <property name="toolTip" stdset="0">
                                     <string>Displays the value of the CPK Atom Scale</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>Displays the value of the CPK Atom Scale</string>
-                                </property>
+                                
                             </widget>
                             <widget class="QSlider">
                                 <property name="name">
@@ -1392,16 +1325,14 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                 <property name="toolTip" stdset="0">
                                     <string>Changes Atom Scale factor for CPK display mode</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>&lt;p&gt;&lt;b&gt;CPK Atom Scale&lt;/b&gt;&lt;/p&gt;Slider control for chaning the CPK Atom Scale factor. It is best to change the scale factor while in CPK display mode so you can see the graphical effect of changing the scale.</string>
-                                </property>
+                                
                             </widget>
                             <widget class="QToolButton">
                                 <property name="name">
                                     <cstring>reset_cpk_scale_factor_btn</cstring>
                                 </property>
                                 <property name="text">
-                                    <string></string>
+                                    <string/>
                                 </property>
                                 <property name="iconSet">
                                     <iconset>image0</iconset>
@@ -1409,9 +1340,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                 <property name="toolTip" stdset="0">
                                     <string>Restore default value</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>Restore the default value of the CPK Scale Factor</string>
-                                </property>
+                                
                             </widget>
                         </hbox>
                     </widget>
@@ -1428,7 +1357,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget" row="0" column="1" rowspan="3" colspan="1">
+                    <widget class="QLayoutWidget" colspan="1" column="1" row="0" rowspan="3">
                         <property name="name">
                             <cstring>layout98</cstring>
                         </property>
@@ -1474,13 +1403,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                 <property name="toolTip" stdset="0">
                                                     <string>Display high order bonds using multiple cylinders</string>
                                                 </property>
-                                                <property name="whatsThis" stdset="0">
-                                                    <string>&lt;p&gt;&lt;b&gt;Multiple Cylinders&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;&lt;b&gt;High Order Bonds&lt;/b&gt; are displayed using &lt;b&gt;Multiple Cylinders.&lt;/b&gt;&lt;/p&gt;
-&lt;b&gt;Double bonds&lt;/b&gt; are drawn with two cylinders.&lt;br&gt;
-&lt;b&gt;Triple bonds&lt;/b&gt; are drawn with three cylinders.&lt;br&gt;
-&lt;b&gt;Aromatic bonds&lt;/b&gt; are drawn as a single cylinder with a short green cylinder in the middle.</string>
-                                                </property>
+                                                
                                             </widget>
                                             <widget class="QRadioButton">
                                                 <property name="name">
@@ -1495,12 +1418,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                 <property name="toolTip" stdset="0">
                                                     <string>Display pi systems in high order bonds as Vanes</string>
                                                 </property>
-                                                <property name="whatsThis" stdset="0">
-                                                    <string>&lt;p&gt;&lt;b&gt;Vanes&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;&lt;i&gt;High Order Bonds&lt;/i&gt; are displayed using &lt;b&gt;Vanes.&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;Vanes represent &lt;i&gt;pi systems&lt;/i&gt; in high order bonds and are rendered as rectangular polygons. The orientation of the vanes approximates the orientation of the pi system(s).&lt;/p&gt;
-&lt;p&gt;Create an acetylene or ethene molecule and select this option to see how vanes are rendered.&lt;/p&gt;</string>
-                                                </property>
+                                                
                                             </widget>
                                             <widget class="QRadioButton">
                                                 <property name="name">
@@ -1512,12 +1430,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                                 <property name="toolTip" stdset="0">
                                                     <string>Display pi systems in high order bonds as Ribbons</string>
                                                 </property>
-                                                <property name="whatsThis" stdset="0">
-                                                    <string>&lt;p&gt;&lt;b&gt;Ribbons&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;&lt;i&gt;High Order Bonds&lt;/i&gt; are displayed using &lt;b&gt;Ribbons.&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;Ribbons represent &lt;i&gt;pi systems&lt;/i&gt; in high order bonds and are rendered as ribbons. The orientation of the ribbons approximates the orientation of the pi system.&lt;/p&gt;
-&lt;p&gt;Create an acetylene or ethene molecule and select this option to see how ribbons are rendered.&lt;/p&gt;</string>
-                                                </property>
+                                                
                                             </widget>
                                         </vbox>
                                     </widget>
@@ -1550,15 +1463,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                 <property name="toolTip" stdset="0">
                                     <string>Display Bond Type Label</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>&lt;p&gt;&lt;b&gt;Show Bond Type Letters&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;Shows/Hides Bond Type letters (labels) on top of bonds.&lt;/p&gt;
-&lt;u&gt;Bond Type Letters:&lt;/u&gt;&lt;br&gt;
-&lt;b&gt;2&lt;/b&gt; = Double bond&lt;br&gt;
-&lt;b&gt;3&lt;/b&gt; = Triple bond&lt;br&gt;
-&lt;b&gt;A&lt;/b&gt; = Aromatic bond&lt;br&gt;
-&lt;b&gt;G&lt;/b&gt; = Graphitic bond&lt;br&gt;</string>
-                                </property>
+                                
                             </widget>
                             <widget class="QCheckBox">
                                 <property name="name">
@@ -1570,10 +1475,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow adjustments
                                 <property name="toolTip" stdset="0">
                                     <string>Enable/Disable Valence Error Checker</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>&lt;p&gt;&lt;b&gt;Show Valence Errors&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Enables/Disables Valence Error Checker.&lt;/p&gt;
-When enabled, atoms with valence errors are displayed with an orange wireframe sphere. This indicates that one or more of the atom's bonds are not of the correct order (type).</string>
-                                </property>
+                                
                             </widget>
                             <spacer>
                                 <property name="name">
@@ -1594,7 +1496,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                             </spacer>
                         </vbox>
                     </widget>
-                    <spacer row="0" column="2">
+                    <spacer column="2" row="0">
                         <property name="name">
                             <cstring>spacer56_3</cstring>
                         </property>
@@ -1611,7 +1513,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QGroupBox" row="0" column="0">
+                    <widget class="QGroupBox" column="0" row="0">
                         <property name="name">
                             <cstring>groupBox4</cstring>
                         </property>
@@ -1622,7 +1524,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">
+                            <widget class="QLayoutWidget" colspan="2" column="0" row="1" rowspan="1">
                                 <property name="name">
                                     <cstring>layout25</cstring>
                                 </property>
@@ -1663,7 +1565,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                     </widget>
                                 </hbox>
                             </widget>
-                            <widget class="QLayoutWidget" row="0" column="1">
+                            <widget class="QLayoutWidget" column="1" row="0">
                                 <property name="name">
                                     <cstring>layout79</cstring>
                                 </property>
@@ -1671,7 +1573,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QLabel" row="0" column="0">
+                                    <widget class="QLabel" column="0" row="0">
                                         <property name="name">
                                             <cstring>textLabel3_2</cstring>
                                         </property>
@@ -1690,7 +1592,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
-                                    <widget class="QLayoutWidget" row="2" column="1">
+                                    <widget class="QLayoutWidget" column="1" row="2">
                                         <property name="name">
                                             <cstring>layout37_2_2_2_2</cstring>
                                         </property>
@@ -1744,7 +1646,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                             </widget>
                                         </hbox>
                                     </widget>
-                                    <widget class="QLayoutWidget" row="0" column="1">
+                                    <widget class="QLayoutWidget" column="1" row="0">
                                         <property name="name">
                                             <cstring>layout37_2_2_2</cstring>
                                         </property>
@@ -1795,7 +1697,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                             </widget>
                                         </hbox>
                                     </widget>
-                                    <widget class="QLabel" row="3" column="0">
+                                    <widget class="QLabel" column="0" row="3">
                                         <property name="name">
                                             <cstring>textLabel3_3</cstring>
                                         </property>
@@ -1806,7 +1708,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
-                                    <widget class="QLayoutWidget" row="1" column="1">
+                                    <widget class="QLayoutWidget" column="1" row="1">
                                         <property name="name">
                                             <cstring>layout37_2_2</cstring>
                                         </property>
@@ -1851,7 +1753,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                             </widget>
                                         </hbox>
                                     </widget>
-                                    <widget class="QLabel" row="1" column="0">
+                                    <widget class="QLabel" column="0" row="1">
                                         <property name="name">
                                             <cstring>textLabel3</cstring>
                                         </property>
@@ -1862,7 +1764,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
-                                    <widget class="QLabel" row="2" column="0">
+                                    <widget class="QLabel" column="0" row="2">
                                         <property name="name">
                                             <cstring>textLabel3_2_2</cstring>
                                         </property>
@@ -1887,7 +1789,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
-                                    <widget class="QLayoutWidget" row="3" column="1">
+                                    <widget class="QLayoutWidget" column="1" row="3">
                                         <property name="name">
                                             <cstring>layout37_2_2_2_2_3</cstring>
                                         </property>
@@ -1942,7 +1844,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                             </widget>
                         </grid>
                     </widget>
-                    <spacer row="2" column="0">
+                    <spacer column="0" row="2">
                         <property name="name">
                             <cstring>spacer22</cstring>
                         </property>
@@ -1959,7 +1861,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" row="1" column="0">
+                    <widget class="QLayoutWidget" column="0" row="1">
                         <property name="name">
                             <cstring>layout84</cstring>
                         </property>
@@ -1988,9 +1890,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                         <property name="toolTip" stdset="0">
                                             <string>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Ball and Stick Bond Scale&lt;/b&gt;&lt;/p&gt;Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode</string>
-                                        </property>
+                                        
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
@@ -2005,9 +1905,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                         <property name="toolTip" stdset="0">
                                             <string>Bond thickness (in pixels) for Lines Display Mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Bond Line Thickness&lt;/b&gt;&lt;/p&gt;Bond thickness (in pixels) for Lines Display Mode</string>
-                                        </property>
+                                        
                                     </widget>
                                 </vbox>
                             </widget>
@@ -2038,9 +1936,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                         <property name="toolTip" stdset="0">
                                             <string>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Ball and Stick Bond Scale&lt;/b&gt;&lt;/p&gt;Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode</string>
-                                        </property>
+                                        
                                     </widget>
                                     <widget class="QSpinBox">
                                         <property name="name">
@@ -2058,9 +1954,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                         <property name="toolTip" stdset="0">
                                             <string>Bond thickness (in pixels) for Lines Display Mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Bond Line Thickness&lt;/b&gt;&lt;/p&gt;Bond thickness (in pixels) for Lines Display Mode</string>
-                                        </property>
+                                        
                                     </widget>
                                 </vbox>
                             </widget>
@@ -2096,7 +1990,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <spacer row="0" column="0">
+                    <spacer column="0" row="0">
                         <property name="name">
                             <cstring>spacer8_3_2</cstring>
                         </property>
@@ -2113,7 +2007,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" row="0" column="0">
+                    <widget class="QLayoutWidget" column="0" row="0">
                         <property name="name">
                             <cstring>layout69</cstring>
                         </property>
@@ -2121,7 +2015,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" row="0" column="0">
+                            <widget class="QLayoutWidget" column="0" row="0">
                                 <property name="name">
                                     <cstring>layout68</cstring>
                                 </property>
@@ -2129,7 +2023,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QLabel" row="0" column="0">
+                                    <widget class="QLabel" column="0" row="0">
                                         <property name="name">
                                             <cstring>startup_mode_lbl</cstring>
                                         </property>
@@ -2142,11 +2036,9 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                         <property name="toolTip" stdset="0">
                                             <string>Startup Mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Startup Mode&lt;/b&gt;&lt;/p&gt;This specifies which mode the program will start in.</string>
-                                        </property>
+                                        
                                     </widget>
-                                    <widget class="QComboBox" row="0" column="1">
+                                    <widget class="QComboBox" column="1" row="0">
                                         <item>
                                             <property name="text">
                                                 <string>Default Mode</string>
@@ -2163,11 +2055,9 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                         <property name="toolTip" stdset="0">
                                             <string>Startup Mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Startup Mode&lt;/b&gt;&lt;/p&gt;This specifies which mode the program will start in.</string>
-                                        </property>
+                                        
                                     </widget>
-                                    <widget class="QLabel" row="1" column="0">
+                                    <widget class="QLabel" column="0" row="1">
                                         <property name="name">
                                             <cstring>default_mode_lbl</cstring>
                                         </property>
@@ -2188,11 +2078,9 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                         <property name="toolTip" stdset="0">
                                             <string>Default Mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Default Mode&lt;/b&gt;&lt;/p&gt;This specifies which mode the user will be placed in when exiting any other mode.</string>
-                                        </property>
+                                        
                                     </widget>
-                                    <widget class="QComboBox" row="1" column="1">
+                                    <widget class="QComboBox" column="1" row="1">
                                         <item>
                                             <property name="text">
                                                 <string>Select Chunks</string>
@@ -2214,13 +2102,11 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                         <property name="toolTip" stdset="0">
                                             <string>Default Mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Default Mode&lt;/b&gt;&lt;/p&gt;This specifies which mode the user will be placed in when exiting any other mode.</string>
-                                        </property>
+                                        
                                     </widget>
                                 </grid>
                             </widget>
-                            <spacer row="2" column="0">
+                            <spacer column="0" row="2">
                                 <property name="name">
                                     <cstring>spacer8_3</cstring>
                                 </property>
@@ -2237,7 +2123,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                     </size>
                                 </property>
                             </spacer>
-                            <widget class="QGroupBox" row="1" column="0">
+                            <widget class="QGroupBox" column="0" row="1">
                                 <property name="name">
                                     <cstring>mode_groupbox</cstring>
                                 </property>
@@ -2248,7 +2134,7 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QLayoutWidget" row="0" column="0">
+                                    <widget class="QLayoutWidget" column="0" row="0">
                                         <property name="name">
                                             <cstring>layout66</cstring>
                                         </property>
@@ -2339,12 +2225,9 @@ When enabled, atoms with valence errors are displayed with an orange wireframe s
                                                             <cstring>mode_combox</cstring>
                                                         </property>
                                                         <property name="toolTip" stdset="0">
-                                                            <string></string>
+                                                            <string/>
                                                         </property>
-                                                        <property name="whatsThis" stdset="0">
-                                                            <string>&lt;p&gt;&lt;b&gt;Mode Settings: Mode&lt;/b&gt;&lt;/p&gt;
-This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e or &lt;b&gt;Background Color&lt;/b&gt; for below.</string>
-                                                        </property>
+                                                        
                                                     </widget>
                                                     <widget class="QComboBox">
                                                         <item>
@@ -2386,16 +2269,13 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                                                         <property name="toolTip" stdset="0">
                                                             <string>Display Mode for this mode</string>
                                                         </property>
-                                                        <property name="whatsThis" stdset="0">
-                                                            <string>&lt;p&gt;&lt;b&gt;Display Mode&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;Sets the Display Mode for the current mode. If set to &lt;b&gt;Default&lt;/b&gt;, then atoms and bonds are displayed in the display mode defined by &lt;b&gt;Default Display Mode&lt;/b&gt;.&lt;/p&gt;</string>
-                                                        </property>
+                                                        
                                                     </widget>
                                                 </vbox>
                                             </widget>
                                         </hbox>
                                     </widget>
-                                    <widget class="QGroupBox" row="1" column="0">
+                                    <widget class="QGroupBox" column="0" row="1">
                                         <property name="name">
                                             <cstring>bg_groupbox</cstring>
                                         </property>
@@ -2406,7 +2286,7 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                                             <property name="name">
                                                 <cstring>unnamed</cstring>
                                             </property>
-                                            <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+                                            <widget class="QLayoutWidget" colspan="2" column="0" row="0" rowspan="1">
                                                 <property name="name">
                                                     <cstring>layout69</cstring>
                                                 </property>
@@ -2477,10 +2357,7 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Background fill type</string>
                                                                 </property>
-                                                                <property name="whatsThis" stdset="0">
-                                                                    <string>&lt;p&gt;&lt;b&gt;Fill Type&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;Sets the fill type of the background.  Each mode can have a different color, if desired.&lt;/p&gt;</string>
-                                                                </property>
+                                                                
                                                             </widget>
                                                             <widget class="QLayoutWidget">
                                                                 <property name="name">
@@ -2531,7 +2408,7 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                                                     </widget>
                                                 </hbox>
                                             </widget>
-                                            <widget class="QPushButton" row="1" column="1">
+                                            <widget class="QPushButton" column="1" row="1">
                                                 <property name="name">
                                                     <cstring>restore_bgcolor_btn</cstring>
                                                 </property>
@@ -2542,7 +2419,7 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                                                     <bool>false</bool>
                                                 </property>
                                             </widget>
-                                            <spacer row="1" column="0">
+                                            <spacer column="0" row="1">
                                                 <property name="name">
                                                     <cstring>spacer7_2</cstring>
                                                 </property>
@@ -2565,7 +2442,7 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                             </widget>
                         </grid>
                     </widget>
-                    <spacer row="0" column="2">
+                    <spacer column="2" row="0">
                         <property name="name">
                             <cstring>spacer8_4</cstring>
                         </property>
@@ -2582,7 +2459,7 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" row="0" column="1">
+                    <widget class="QLayoutWidget" column="1" row="0">
                         <property name="name">
                             <cstring>layout66</cstring>
                         </property>
@@ -2601,7 +2478,7 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QRadioButton" row="0" column="0">
+                                    <widget class="QRadioButton" column="0" row="0">
                                         <property name="name">
                                             <cstring>vwd_rbtn</cstring>
                                         </property>
@@ -2614,13 +2491,9 @@ This specifies which mode you are changing the &lt;b&gt;Display Mod&lt;/b&gt;e o
                                         <property name="toolTip" stdset="0">
                                             <string>CPK (Space Filling) Display Mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;u&gt;&lt;b&gt;CPK (Space Filling)&lt;/b&gt;&lt;/u&gt;&lt;br&gt;
-&lt;p&gt;Changes the &lt;i&gt;Default Display Mode&lt;/i&gt;  to &lt;b&gt;CPK&lt;/b&gt; mode.
-Atoms are rendered as space filling spheres. Bonds are not rendered.&lt;/p&gt;</string>
-                                        </property>
+                                        
                                     </widget>
-                                    <widget class="QRadioButton" row="1" column="0">
+                                    <widget class="QRadioButton" column="0" row="1">
                                         <property name="name">
                                             <cstring>cpk_rbtn</cstring>
                                         </property>
@@ -2633,13 +2506,9 @@ Atoms are rendered as space filling spheres. Bonds are not rendered.&lt;/p&gt;</
                                         <property name="toolTip" stdset="0">
                                             <string>Ball and Stick Display Mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;u&gt;&lt;b&gt;Ball and Stick&lt;/b&gt;&lt;/u&gt;&lt;br&gt;
-&lt;p&gt;Changes the &lt;i&gt;Default Display Mode&lt;/i&gt;  to &lt;b&gt;Ball and Stick&lt;/b&gt; mode.
-Atoms are rendered  as spheres (balls) and bonds are rendered as narrow cylinders (sticks).&lt;/p&gt;</string>
-                                        </property>
+                                        
                                     </widget>
-                                    <widget class="QRadioButton" row="3" column="0">
+                                    <widget class="QRadioButton" column="0" row="3">
                                         <property name="name">
                                             <cstring>lines_rbtn</cstring>
                                         </property>
@@ -2652,13 +2521,9 @@ Atoms are rendered  as spheres (balls) and bonds are rendered as narrow cylinder
                                         <property name="toolTip" stdset="0">
                                             <string>Lines Display Mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;u&gt;&lt;b&gt;Lines&lt;/b&gt;&lt;/u&gt;&lt;br&gt;
-&lt;p&gt;Changes the &lt;i&gt;Default Display Mode&lt;/i&gt;  to &lt;b&gt;Lines&lt;/b&gt; mode.
-Bonds are rendered as lines. Atoms are not rendered.&lt;/p&gt;</string>
-                                        </property>
+                                        
                                     </widget>
-                                    <widget class="QRadioButton" row="2" column="0">
+                                    <widget class="QRadioButton" column="0" row="2">
                                         <property name="name">
                                             <cstring>tubes_rbtn</cstring>
                                         </property>
@@ -2671,11 +2536,7 @@ Bonds are rendered as lines. Atoms are not rendered.&lt;/p&gt;</string>
                                         <property name="toolTip" stdset="0">
                                             <string>Tubes Display Mode</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;u&gt;&lt;b&gt;Tubes&lt;/b&gt;&lt;/u&gt;&lt;br&gt;
-&lt;p&gt;Changes the &lt;i&gt;Default Display Mode&lt;/i&gt;  to &lt;b&gt;Tubes&lt;/b&gt; mode.
-Atoms and bonds are rendered as colored tubes.&lt;/p&gt;</string>
-                                        </property>
+                                        
                                     </widget>
                                 </grid>
                             </widget>
@@ -2690,7 +2551,7 @@ Atoms and bonds are rendered as colored tubes.&lt;/p&gt;</string>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QCheckBox" row="0" column="0">
+                                    <widget class="QCheckBox" column="0" row="0">
                                         <property name="name">
                                             <cstring>autobond_checkbox</cstring>
                                         </property>
@@ -2700,11 +2561,9 @@ Atoms and bonds are rendered as colored tubes.&lt;/p&gt;</string>
                                         <property name="toolTip" stdset="0">
                                             <string>Build mode's default setting for Autobonding at startup (enabled/disabled)</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Build mode's default setting for Autobonding at startup (enabled/disabled)</string>
-                                        </property>
+                                        
                                     </widget>
-                                    <widget class="QCheckBox" row="0" column="1">
+                                    <widget class="QCheckBox" column="1" row="0">
                                         <property name="name">
                                             <cstring>water_checkbox</cstring>
                                         </property>
@@ -2714,11 +2573,9 @@ Atoms and bonds are rendered as colored tubes.&lt;/p&gt;</string>
                                         <property name="toolTip" stdset="0">
                                             <string>Build mode's default setting for Water at startup (enabled/disabled)</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Build mode's default setting for Water at startup (enabled/disabled)</string>
-                                        </property>
+                                        
                                     </widget>
-                                    <widget class="QCheckBox" row="2" column="0" rowspan="1" colspan="2">
+                                    <widget class="QCheckBox" colspan="2" column="0" row="2" rowspan="1">
                                         <property name="name">
                                             <cstring>buildmode_select_atoms_checkbox</cstring>
                                         </property>
@@ -2728,12 +2585,9 @@ Atoms and bonds are rendered as colored tubes.&lt;/p&gt;</string>
                                         <property name="toolTip" stdset="0">
                                             <string>Automatically select atoms when depositing</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>&lt;p&gt;&lt;b&gt;Select Atoms of Deposited Object&lt;/b&gt;&lt;/p&gt;
-When depositing atoms, clipboard chunks or library parts, their atoms will automatically be selected.</string>
-                                        </property>
+                                        
                                     </widget>
-                                    <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="2">
+                                    <widget class="QCheckBox" colspan="2" column="0" row="1" rowspan="1">
                                         <property name="name">
                                             <cstring>buildmode_highlighting_checkbox</cstring>
                                         </property>
@@ -2743,9 +2597,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                         <property name="toolTip" stdset="0">
                                             <string>Build mode's default setting for Highlighting at startup (enabled/disabled)</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Build mode's default setting for Highlighting at startup (enabled/disabled)</string>
-                                        </property>
+                                        
                                     </widget>
                                 </grid>
                             </widget>
@@ -2781,7 +2633,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QGroupBox" row="0" column="0" rowspan="3" colspan="1">
+                    <widget class="QGroupBox" colspan="1" column="0" row="0" rowspan="3">
                         <property name="name">
                             <cstring>groupBox8_2</cstring>
                         </property>
@@ -2795,7 +2647,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" row="0" column="0">
+                            <widget class="QLayoutWidget" column="0" row="0">
                                 <property name="name">
                                     <cstring>layout494</cstring>
                                 </property>
@@ -2904,7 +2756,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QLayoutWidget" row="0" column="1">
+                            <widget class="QLayoutWidget" column="1" row="0">
                                 <property name="name">
                                     <cstring>layout559</cstring>
                                 </property>
@@ -2972,7 +2824,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                                     <cstring>light_checkbox</cstring>
                                                 </property>
                                                 <property name="text">
-                                                    <string></string>
+                                                    <string/>
                                                 </property>
                                             </widget>
                                             <spacer>
@@ -3292,7 +3144,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </widget>
                         </grid>
                     </widget>
-                    <widget class="QLayoutWidget" row="2" column="1">
+                    <widget class="QLayoutWidget" column="1" row="2">
                         <property name="name">
                             <cstring>layout505</cstring>
                         </property>
@@ -3330,7 +3182,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </widget>
                         </hbox>
                     </widget>
-                    <spacer row="1" column="1">
+                    <spacer column="1" row="1">
                         <property name="name">
                             <cstring>spacer345</cstring>
                         </property>
@@ -3347,7 +3199,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QGroupBox" row="0" column="1">
+                    <widget class="QGroupBox" column="1" row="0">
                         <property name="name">
                             <cstring>groupBox9_2</cstring>
                         </property>
@@ -3361,7 +3213,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" row="0" column="0">
+                            <widget class="QLayoutWidget" column="0" row="0">
                                 <property name="name">
                                     <cstring>layout49</cstring>
                                 </property>
@@ -3466,7 +3318,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QLayoutWidget" row="0" column="1">
+                            <widget class="QLayoutWidget" column="1" row="0">
                                 <property name="name">
                                     <cstring>layout50</cstring>
                                 </property>
@@ -3479,7 +3331,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                             <cstring>ms_on_checkbox</cstring>
                                         </property>
                                         <property name="text">
-                                            <string></string>
+                                            <string/>
                                         </property>
                                     </widget>
                                     <spacer>
@@ -3592,7 +3444,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QLayoutWidget" row="0" column="2">
+                            <widget class="QLayoutWidget" column="2" row="0">
                                 <property name="name">
                                     <cstring>layout54</cstring>
                                 </property>
@@ -3881,14 +3733,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </rect>
                         </property>
                         <property name="text">
-                            <string></string>
+                            <string/>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Enable POV-Ray</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QLabel">
                         <property name="name">
@@ -3925,9 +3775,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>Enable POV-Ray</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QLabel">
                         <property name="name">
@@ -3967,9 +3815,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>Enable Nano-Hive.</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QCheckBox">
                         <property name="name">
@@ -3987,14 +3833,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </rect>
                         </property>
                         <property name="text">
-                            <string></string>
+                            <string/>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Enable Nano-Hive.</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QLineEdit">
                         <property name="name">
@@ -4024,7 +3868,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             <enum>Sunken</enum>
                         </property>
                         <property name="text">
-                            <string></string>
+                            <string/>
                         </property>
                         <property name="maxLength">
                             <number>32767</number>
@@ -4035,9 +3879,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>The full path to the POV-Ray executable file.</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>The full path to the POV-Ray executable file.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QLineEdit">
                         <property name="name">
@@ -4061,7 +3903,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             <enum>Sunken</enum>
                         </property>
                         <property name="text">
-                            <string></string>
+                            <string/>
                         </property>
                         <property name="readOnly">
                             <bool>true</bool>
@@ -4069,9 +3911,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>The full path to the Nano-Hive executable file.</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>The full path to the Nano-Hive executable file.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QLabel">
                         <property name="name">
@@ -4108,11 +3948,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>Enable GAMESS.</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>&lt;p&gt;This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. &lt;/p&gt;
-&lt;p&gt;For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.&lt;/p&gt;
-&lt;p&gt;For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.&lt;/p&gt;</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QLineEdit">
                         <property name="name">
@@ -4142,7 +3978,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             <enum>Sunken</enum>
                         </property>
                         <property name="text">
-                            <string></string>
+                            <string/>
                         </property>
                         <property name="maxLength">
                             <number>32767</number>
@@ -4153,9 +3989,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>The full path to the MegaPOV executable file (megapov.exe).</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>The full path to the MegaPOV executable file (megapov.exe).</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QCheckBox">
                         <property name="name">
@@ -4170,14 +4004,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </rect>
                         </property>
                         <property name="text">
-                            <string></string>
+                            <string/>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Enable MegaPOV</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QLineEdit">
                         <property name="name">
@@ -4207,7 +4039,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             <enum>Sunken</enum>
                         </property>
                         <property name="text">
-                            <string></string>
+                            <string/>
                         </property>
                         <property name="maxLength">
                             <number>32767</number>
@@ -4218,9 +4050,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QCheckBox">
                         <property name="name">
@@ -4235,16 +4065,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </rect>
                         </property>
                         <property name="text">
-                            <string></string>
+                            <string/>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>Enable GAMESS.</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>&lt;p&gt;This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. &lt;/p&gt;
-&lt;p&gt;For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/. PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.&lt;/p&gt;
-&lt;p&gt;For Linux and MacOS users, GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.&lt;/p&gt;</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QLineEdit">
                         <property name="name">
@@ -4264,9 +4090,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>Select custom POV include directory</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>Specify a directory for where to find POV-Ray or MegaPOV include files such as transforms.inc.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QPushButton">
                         <property name="name">
@@ -4292,9 +4116,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>Choose location of Nano-Hive executable </string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>This opens up a file chooser dialog so that you can specify the location of the Nano-Hive executable.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QPushButton">
                         <property name="name">
@@ -4320,9 +4142,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>Choose POV-Ray executable</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>This opens up a file chooser dialog so that you can specify the location of the POV-Ray executable.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QPushButton">
                         <property name="name">
@@ -4348,9 +4168,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>Choose MegaPOV executable (megapov.exe)</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>This opens up a file chooser dialog so that you can specify the location of the MegaPOV executable (megapov.exe).</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QPushButton">
                         <property name="name">
@@ -4398,9 +4216,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>Choose GAMESS executable</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>This opens up a file chooser dialog so that you can specify the location of the GAMESS or PC-GAMESS executable.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QLabel">
                         <property name="name">
@@ -4437,9 +4253,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                         <property name="toolTip" stdset="0">
                             <string>Enable MegaPOV</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QCheckBox">
                         <property name="name">
@@ -4464,14 +4278,12 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </color>
                         </property>
                         <property name="text">
-                            <string></string>
+                            <string/>
                         </property>
                         <property name="toolTip" stdset="0">
                             <string>User-custom directory for POV libraries</string>
                         </property>
-                        <property name="whatsThis" stdset="0">
-                            <string>Select a user-customized directory for POV-Ray and MegaPOV include files, such as transforms.inc.</string>
-                        </property>
+                        
                     </widget>
                     <widget class="QLabel">
                         <property name="name">
@@ -4505,7 +4317,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <spacer row="2" column="0">
+                    <spacer column="0" row="2">
                         <property name="name">
                             <cstring>spacer10</cstring>
                         </property>
@@ -4522,7 +4334,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" row="1" column="0">
+                    <widget class="QLayoutWidget" column="0" row="1">
                         <property name="name">
                             <cstring>layout68</cstring>
                         </property>
@@ -4541,7 +4353,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QCheckBox" row="0" column="0">
+                                    <widget class="QCheckBox" column="0" row="0">
                                         <property name="name">
                                             <cstring>msg_serial_number_checkbox</cstring>
                                         </property>
@@ -4549,7 +4361,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                             <string>Include message serial number</string>
                                         </property>
                                     </widget>
-                                    <widget class="QCheckBox" row="1" column="0">
+                                    <widget class="QCheckBox" column="0" row="1">
                                         <property name="name">
                                             <cstring>msg_timestamp_checkbox</cstring>
                                         </property>
@@ -4578,7 +4390,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </spacer>
                         </hbox>
                     </widget>
-                    <widget class="QLayoutWidget" row="0" column="0">
+                    <widget class="QLayoutWidget" column="0" row="0">
                         <property name="name">
                             <cstring>layout70</cstring>
                         </property>
@@ -4586,7 +4398,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <spacer row="2" column="2">
+                            <spacer column="2" row="2">
                                 <property name="name">
                                     <cstring>spacer56_5</cstring>
                                 </property>
@@ -4603,7 +4415,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     </size>
                                 </property>
                             </spacer>
-                            <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="3">
+                            <widget class="QCheckBox" colspan="3" column="0" row="1" rowspan="1">
                                 <property name="name">
                                     <cstring>undo_automatic_checkpoints_checkbox</cstring>
                                 </property>
@@ -4613,14 +4425,9 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                 <property name="toolTip" stdset="0">
                                     <string>Specify Automatic or Manual Checkpoints at program startup.</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>&lt;p&gt;&lt;b&gt;Automatic Checkpoints&lt;/b&gt;&lt;/p&gt;Specifies whether &lt;b&gt;Automatic Checkpointing&lt;/b&gt; is enabled/disabled during program startup only.  It does not enable/disable &lt;b&gt;Automatic Checkpointing&lt;/b&gt; when the program is running.
-&lt;p&gt;&lt;b&gt;Automatic Checkpointing&lt;/b&gt; can be enabled/disabled by the user at any time from &lt;b&gt;Edit &gt; Automatic Checkpointing&lt;/b&gt;. When enabled, the program maintains the Undo stack automatically.  When disabled, the user is required to manually set Undo checkpoints using the &lt;b&gt;Set Checkpoint&lt;/b&gt; button in the Edit Toolbar/Menu.&lt;/p&gt;
-&lt;p&gt;&lt;b&gt;Automatic Checkpointing&lt;/b&gt; can impact program performance. By disabling Automatic Checkpointing, the program will run faster.&lt;/p&gt;
-&lt;p&gt;&lt;b&gt;&lt;i&gt;Remember to you must set your own Undo checkpoints manually when Automatic Checkpointing is disabled.&lt;/i&gt;&lt;/b&gt;&lt;/p&gt;</string>
-                                </property>
+                                
                             </widget>
-                            <widget class="QSpinBox" row="2" column="1">
+                            <widget class="QSpinBox" column="1" row="2">
                                 <property name="name">
                                     <cstring>undo_stack_memory_limit_spinbox</cstring>
                                 </property>
@@ -4631,7 +4438,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <number>99999</number>
                                 </property>
                             </widget>
-                            <widget class="QCheckBox" row="0" column="0" rowspan="1" colspan="3">
+                            <widget class="QCheckBox" colspan="3" column="0" row="0" rowspan="1">
                                 <property name="name">
                                     <cstring>undo_restore_view_checkbox</cstring>
                                 </property>
@@ -4641,14 +4448,9 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                 <property name="toolTip" stdset="0">
                                     <string>Undo will switch to the view saved with each structural change.</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>&lt;p&gt;&lt;b&gt;Restore View when Undoing Structural Changes&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;When checked, the current view is stored along with each &lt;b&gt;&lt;i&gt;structural change&lt;/i&gt;&lt;/b&gt; on the undo stack.  The view is then restored when the user undoes a structural change.&lt;/p&gt;
-&lt;p&gt;&lt;b&gt;&lt;i&gt;Structural changes&lt;/i&gt;&lt;/b&gt; include any operation that modifies the model. Examples include adding, deleting or moving an atom, chunk or jig. &lt;/p&gt;
-&lt;p&gt;Selection (picking/unpicking) and view changes are examples of operations that do not modify the model (i.e. are not structural changes).&lt;/p&gt;</string>
-                                </property>
+                                
                             </widget>
-                            <widget class="QLabel" row="2" column="0">
+                            <widget class="QLabel" column="0" row="2">
                                 <property name="name">
                                     <cstring>undo_stack_memory_limit_label</cstring>
                                 </property>
@@ -4671,7 +4473,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <spacer row="2" column="0">
+                    <spacer column="0" row="2">
                         <property name="name">
                             <cstring>spacer94</cstring>
                         </property>
@@ -4688,7 +4490,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">
+                    <widget class="QLayoutWidget" colspan="2" column="0" row="1" rowspan="1">
                         <property name="name">
                             <cstring>layout15</cstring>
                         </property>
@@ -4706,9 +4508,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                 <property name="toolTip" stdset="0">
                                     <string>Window Border Caption Format</string>
                                 </property>
-                                <property name="whatsThis" stdset="0">
-                                    <string>Format Prefix and Suffix text the delimits the part name in the caption in window border.</string>
-                                </property>
+                                
                                 <vbox>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
@@ -4789,7 +4589,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                             <enum>Sunken</enum>
                                         </property>
                                         <property name="text">
-                                            <string></string>
+                                            <string/>
                                         </property>
                                     </widget>
                                     <widget class="QCheckBox">
@@ -4821,7 +4621,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </spacer>
                         </hbox>
                     </widget>
-                    <spacer row="0" column="1">
+                    <spacer column="1" row="0">
                         <property name="name">
                             <cstring>spacer47</cstring>
                         </property>
@@ -4838,7 +4638,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QGroupBox" row="0" column="0">
+                    <widget class="QGroupBox" column="0" row="0">
                         <property name="name">
                             <cstring>groupBox10</cstring>
                         </property>
@@ -4849,7 +4649,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" row="0" column="0">
+                            <widget class="QLayoutWidget" column="0" row="0">
                                 <property name="name">
                                     <cstring>layout115</cstring>
                                 </property>
@@ -4881,7 +4681,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QLayoutWidget" row="0" column="2">
+                            <widget class="QLayoutWidget" column="2" row="0">
                                 <property name="name">
                                     <cstring>layout116</cstring>
                                 </property>
@@ -4902,9 +4702,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                         <property name="toolTip" stdset="0">
                                             <string>Save current window position and size for next startup</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Saves the main window's current position and size for the next time the program starts.</string>
-                                        </property>
+                                        
                                     </widget>
                                     <widget class="QPushButton">
                                         <property name="name">
@@ -4919,13 +4717,11 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                         <property name="toolTip" stdset="0">
                                             <string>Save current window position and size for next startup</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string>Saves the main window's current position and size for the next time the program starts.</string>
-                                        </property>
+                                        
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QLayoutWidget" row="0" column="1">
+                            <widget class="QLayoutWidget" column="1" row="0">
                                 <property name="name">
                                     <cstring>layout117</cstring>
                                 </property>
@@ -4933,7 +4729,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QSpinBox" row="0" column="0">
+                                    <widget class="QSpinBox" column="0" row="0">
                                         <property name="name">
                                             <cstring>current_width_spinbox</cstring>
                                         </property>
@@ -4950,7 +4746,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                             <number>640</number>
                                         </property>
                                     </widget>
-                                    <widget class="QLineEdit" row="1" column="2">
+                                    <widget class="QLineEdit" column="2" row="1">
                                         <property name="name">
                                             <cstring>saved_height_lineedit</cstring>
                                         </property>
@@ -4958,7 +4754,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                             <bool>true</bool>
                                         </property>
                                     </widget>
-                                    <widget class="QSpinBox" row="0" column="2">
+                                    <widget class="QSpinBox" column="2" row="0">
                                         <property name="name">
                                             <cstring>current_height_spinbox</cstring>
                                         </property>
@@ -4975,7 +4771,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                             <number>480</number>
                                         </property>
                                     </widget>
-                                    <widget class="QLineEdit" row="1" column="0">
+                                    <widget class="QLineEdit" column="0" row="1">
                                         <property name="name">
                                             <cstring>saved_width_lineedit</cstring>
                                         </property>
@@ -4983,7 +4779,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                             <bool>true</bool>
                                         </property>
                                     </widget>
-                                    <widget class="QLabel" row="0" column="1">
+                                    <widget class="QLabel" column="1" row="0">
                                         <property name="name">
                                             <cstring>textLabel1_2_2_2</cstring>
                                         </property>
@@ -4994,7 +4790,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                             <set>AlignCenter</set>
                                         </property>
                                     </widget>
-                                    <widget class="QLabel" row="1" column="1">
+                                    <widget class="QLabel" column="1" row="1">
                                         <property name="name">
                                             <cstring>textLabel1_2_2_2_2</cstring>
                                         </property>
@@ -5007,7 +4803,7 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
                                     </widget>
                                 </grid>
                             </widget>
-                            <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="3">
+                            <widget class="QCheckBox" colspan="3" column="0" row="1" rowspan="1">
                                 <property name="name">
                                     <cstring>remember_win_pos_and_size_checkbox</cstring>
                                 </property>
@@ -5680,5 +5476,5 @@ When depositing atoms, clipboard chunks or library parts, their atoms will autom
     <slot>enable_povdir()</slot>
     <slot>set_povdir()</slot>
 </slots>
-<layoutdefaults spacing="6" margin="11"/>
+<layoutdefaults margin="11" spacing="6"/>
 </UI>

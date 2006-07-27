@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'GrapheneGeneratorDialog.ui'
 #
-# Created: Mon Jul 10 10:45:20 2006
+# Created: Wed Jul 26 23:37:17 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -698,23 +698,15 @@ class graphene_sheet_dialog(QDialog):
         self.graphene_parameters_grpbtn.setText(QString.null)
         self.height_label.setText(self.__tr("Height (A) :"))
         self.height_linedit.setText(self.__tr("20.0"))
-        QWhatsThis.add(self.height_linedit,self.__tr("<b>Height</b>\n"
-"<p>The height of the graphite sheet in angstroms.</p>"))
         self.width_label.setText(self.__tr("Width (A) :"))
         self.width_linedit.setText(self.__tr("20.0"))
-        QWhatsThis.add(self.width_linedit,self.__tr("<b>Width</b>\n"
-"<p>The width of the graphene sheet in angstroms.</p>"))
         self.bond_length_label.setText(self.__tr("Bond Length (A):"))
         self.bond_length_linedit.setText(self.__tr("1.40"))
-        QWhatsThis.add(self.bond_length_linedit,self.__tr("<b>Bond length</b>\n"
-"<p>You can change the bond lengths in the graphene sheet. We believe the default value is accurate for sp<sup>2</sup>-hybridized carbons.</p>"))
         self.endings_label.setText(self.__tr("Endings :"))
         self.endings_combox.clear()
         self.endings_combox.insertItem(self.__tr("None"))
         self.endings_combox.insertItem(self.__tr("Hydrogen"))
         self.endings_combox.insertItem(self.__tr("Nitrogen"))
-        QWhatsThis.add(self.endings_combox,self.__tr("<b>Endings</b>\n"
-"<p>Graphene sheets can be unterminated (dangling bonds), or terminated with hydrogen atoms or nitrogen atoms.</p>"))
         self.cancel_btn.setText(self.__tr("Cancel"))
         self.ok_btn.setText(self.__tr("OK"))
 

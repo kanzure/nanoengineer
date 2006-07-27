@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\LinearMotorPropDialog.ui'
+# Form implementation generated from reading ui file 'LinearMotorPropDialog.ui'
 #
-# Created: Mon Apr 24 14:01:59 2006
+# Created: Wed Jul 26 23:37:17 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -254,34 +254,15 @@ class LinearMotorPropDialog(QDialog):
         self.textLabel1.setText(self.__tr("Force:"))
         self.textLabel1_2.setText(self.__tr("Stiffness:"))
         QToolTip.add(self.forceLineEdit,self.__tr("Simulations will begin with the motor's force set to this value."))
-        QWhatsThis.add(self.forceLineEdit,self.__tr("<b>Force </b><p>Simulations will begin with the motor's force set to this\n"
-"value. On each simulation time step, the displacement of the linear motor's atoms are computed using Hooke's Law, where:</p>\n"
-"<p><b>displacement (x) = - Force(F) / Stiffness(k)</b></p>\n"
-"<p>The negative sign indicates that the force exerted by the motor (a spring) is in\n"
-"direct opposition to the direction of displacement. It is called a\n"
-"\"restoring force\", as it tends to restore the system to equilibrium.</p>\n"
-"<p>When Stiffness = 0, the restoring force is 0 and the displacement will\n"
-"continue in one direction.</p>"))
         self.textLabel2.setText(self.__tr("N/m"))
         self.textLabel1_4.setText(self.__tr("pN"))
         self.nameLineEdit.setText(QString.null)
         QToolTip.add(self.nameLineEdit,self.__tr("Name of Linear Motor"))
-        QWhatsThis.add(self.nameLineEdit,self.__tr("<b>Name</b><p>Name of Linear Motor that appears in the Model Tree</p>"))
         QToolTip.add(self.stiffnessLineEdit,self.__tr("Simulations will begin with the motor's stiffness set to this value."))
-        QWhatsThis.add(self.stiffnessLineEdit,self.__tr("<b>Stiffness </b><p>Simulations will begin with the motor's stiffness set to this\n"
-"value. On each simulation time step, the displacement of the linear motor's atoms are computed using Hooke's Law, where:</p>\n"
-"<p><b>displacement (x) = - Force(F) / Stiffness(k)</b></p>\n"
-"<p>The negative sign indicates that the force exerted by the motor (a spring) is in\n"
-"direct opposition to the direction of displacement. It is called a\n"
-"\"restoring force\", as it tends to restore the system to equilibrium.</p>\n"
-"<p>When Stiffness = 0, the restoring force is 0 and the displacement will\n"
-"continue in one direction.</p>"))
         self.textLabel1_5.setText(self.__tr("Enable in Minimize (experimental) :"))
         QToolTip.add(self.textLabel1_5,self.__tr("If checked, the force value is applied to the motor's atoms during minimization."))
-        QWhatsThis.add(self.textLabel1_5,self.__tr("<b>Enable in Minimize <i>(experimental)</i></b><p>If checked, the force specified above will be applied to the motor's atoms during a structure minimization.  While intended to allow simulations to begin with linear motors running at speed, this feature requires more work to be useful.</p>"))
         self.enable_minimize_checkbox.setText(QString.null)
         QToolTip.add(self.enable_minimize_checkbox,self.__tr("If checked, the force value is applied to the motor's atoms during minimization."))
-        QWhatsThis.add(self.enable_minimize_checkbox,self.__tr("<b>Enable in Minimize <i>(experimental)</i></b><p>If checked, the force specified above will be applied to the motor's atoms during a structure minimization.  While intended to allow simulations to begin with linear motors running at speed, this feature requires more work to be useful.</p>"))
 
 
     def change_jig_color(self):

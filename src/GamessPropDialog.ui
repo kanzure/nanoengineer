@@ -1,4 +1,5 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI>
+<UI stdsetdef="1" version="3.3">
 <class>GamessPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -103,14 +104,12 @@
                                 <enum>Sunken</enum>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="toolTip" stdset="0">
                                 <string>Name of the GAMESS jig</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Name of the GAMESS jig.</string>
-                            </property>
+                            
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
@@ -138,11 +137,9 @@
                                         <number>0</number>
                                     </property>
                                     <property name="toolTip" stdset="0">
-                                        <string>"Energy" = Energy Minina, "Optimization" = Equilibrium Geometry</string>
+                                        <string>&quot;Energy&quot; = Energy Minina, &quot;Optimization&quot; = Equilibrium Geometry</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Type of calculation, where "Energy" calculates the Energy Minima, and "Optimization" calculates the "Equilibrium Geometry".</string>
-                                    </property>
+                                    
                                 </widget>
                                 <spacer>
                                     <property name="name">
@@ -174,7 +171,7 @@
                                 <enum>Sunken</enum>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="maxLength">
                                 <number>80</number>
@@ -182,9 +179,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Description, also placed in the $DATA section of the INP file</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Description, also placed in the comment line of the $DATA section of the INP file.</string>
-                            </property>
+                            
                         </widget>
                         <widget class="QLayoutWidget">
                             <property name="name">
@@ -255,9 +250,7 @@
                                             <property name="toolTip" stdset="0">
                                                 <string>Change the GAMESS jig color</string>
                                             </property>
-                                            <property name="whatsThis" stdset="0">
-                                                <string>Change the GAMESS jig color.</string>
-                                            </property>
+                                            
                                         </widget>
                                     </hbox>
                                 </widget>
@@ -330,9 +323,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Restricted Hartree-Fock</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Restricted Hartree-Fock.  All electrons are paired and each spatial orbital is doubly occupied.  Cannot be used with multiplicities greater than 1.</string>
-                                    </property>
+                                    
                                 </widget>
                                 <widget class="QRadioButton">
                                     <property name="name">
@@ -347,9 +338,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Unrestricted Hartree-Fock</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Unrestricted Hartree-Fock.  All electrons are unpaired and spatial (spin) orbitals are uniquely defined for each electron.  More time consuming, but more accurate, than ROHF.  </string>
-                                    </property>
+                                    
                                 </widget>
                                 <widget class="QRadioButton">
                                     <property name="name">
@@ -364,9 +353,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Restricted Open-shell Hartree-Fock</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Restricted Open-shell Hartree-Fock.  Spin-paired electrons are assigned to doubly-occupied spatial orbitals, while electrons with unpaired spins are provided unique spatial orbitals.</string>
-                                    </property>
+                                    
                                 </widget>
                             </hbox>
                         </widget>
@@ -402,9 +389,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>The total charge of the structure (IGHARG)</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>The total charge of the structure to be treated quantum mechanically (ICHARG).</string>
-                                    </property>
+                                    
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
@@ -459,9 +444,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>N + 1, where N is the number of unpaired electrons (MULT)</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>N + 1, where N is the number of unpaired electrons (MULT).</string>
-                                    </property>
+                                    
                                 </widget>
                             </hbox>
                         </widget>
@@ -510,9 +493,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>System memory reserved for calculation</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>System memory reserved for calculation</string>
-                                    </property>
+                                    
                                 </widget>
                                 <widget class="QLabel">
                                     <property name="name">
@@ -537,9 +518,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Run the calculation in RAM</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Check this box to run the calculation in RAM and avoid hard disk usage for integral storage.</string>
-                            </property>
+                            
                         </widget>
                     </vbox>
                 </widget>
@@ -675,9 +654,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Gaussian-type basis sets and semi-empirical parameters</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Select from among the standard Gaussian-type basis sets and semi-empirical parameters in GAMESS.</string>
-                            </property>
+                            
                         </widget>
                         <spacer>
                             <property name="name">
@@ -727,9 +704,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Read $HESS group from previous output file</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Reads the $HESS group from the output file of a previous GAMESS calculation.  Only valid for identical molecules.</string>
-                                    </property>
+                                    
                                 </widget>
                                 <widget class="QCheckBox">
                                     <property name="name">
@@ -745,9 +720,7 @@
                                         <string>Read $VEC group from previous output file</string>
                                         <comment>Only if Hf basis same as CI basis</comment>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Reads the $VEC group from the output of a previous GAMESS calculation.  Requires that both the molecule and basis set be identical.  Useful for restarted calculations and starting orbitals for electron correlation methods.</string>
-                                    </property>
+                                    
                                 </widget>
                                 <widget class="QCheckBox">
                                     <property name="name">
@@ -767,7 +740,7 @@
                                 <cstring>ecm_btngrp</cstring>
                             </property>
                             <property name="title">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="exclusive">
                                 <bool>true</bool>
@@ -792,9 +765,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Neglect electron correlation</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Select this button to neglect electron correlation in the calculation.</string>
-                                    </property>
+                                    
                                 </widget>
                                 <widget class="QRadioButton">
                                     <property name="name">
@@ -806,9 +777,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Perform a density functional theory calculation</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Select this button to perform a density functional theory calculation.</string>
-                                    </property>
+                                    
                                 </widget>
                                 <widget class="QRadioButton">
                                     <property name="name">
@@ -823,9 +792,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Perform a Second-Order Moeller Plesset calculation</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Select this button to perform a Second-Order Moeller Plesset calculation.</string>
-                                    </property>
+                                    
                                 </widget>
                             </vbox>
                         </widget>
@@ -1006,9 +973,7 @@
                                                     <property name="toolTip" stdset="0">
                                                         <string>Density functional</string>
                                                     </property>
-                                                    <property name="whatsThis" stdset="0">
-                                                        <string>Select an available density functional in GAMESS.</string>
-                                                    </property>
+                                                    
                                                 </widget>
                                                 <widget class="QComboBox">
                                                     <item>
@@ -1043,9 +1008,7 @@
                                                     <property name="toolTip" stdset="0">
                                                         <string>Grid spacing for the DFT calculation</string>
                                                     </property>
-                                                    <property name="whatsThis" stdset="0">
-                                                        <string>Select the grid spacing for the DFT calculation.</string>
-                                                    </property>
+                                                    
                                                 </widget>
                                             </vbox>
                                         </widget>
@@ -1064,9 +1027,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Include both the valence and core electrons in the MP2 calculation</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>Check this box to include both the valence and core electrons in the MP2 calculation.</string>
-                                    </property>
+                                    
                                 </widget>
                             </vbox>
                         </widget>
@@ -1131,9 +1092,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Accuracy of the electron density convergence (CONV)</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Selects the accuracy of the electron density convergence for the calculation (CONV).</string>
-                            </property>
+                            
                         </widget>
                     </vbox>
                 </widget>
@@ -1210,9 +1169,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Gradient convergence tolerance (OPTTOL)</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Gradient convergence tolerance (OPTTOL), in Hartree/Bohr. Convergence of a geometry search requires the largest component of the gradient to be less than this value, and the root mean square gradient less than 1/3 of OPTTOL.  (default=0.0001)</string>
-                            </property>
+                            
                         </widget>
                     </vbox>
                 </widget>
@@ -1265,9 +1222,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Maximum number of SCF iteration cycles (MAXIT)</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>Maximum number of SCF iteration cycles (MAXIT).</string>
-                            </property>
+                            
                         </widget>
                     </vbox>
                 </widget>
@@ -1300,9 +1255,7 @@
             <property name="toolTip" stdset="0">
                 <string>Opens INP file in an editor</string>
             </property>
-            <property name="whatsThis" stdset="0">
-                <string>Opens the INP file generated by NanoEngineer-1 in a text editor.</string>
-            </property>
+            
         </widget>
         <widget class="QLayoutWidget">
             <property name="name">
@@ -1323,7 +1276,7 @@
                         </size>
                     </property>
                     <property name="text">
-                        <string></string>
+                        <string/>
                     </property>
                     <property name="iconSet">
                         <iconset>image1</iconset>
@@ -1331,9 +1284,7 @@
                     <property name="toolTip" stdset="0">
                         <string>What's This Help Utility</string>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>What's This Help Utility</string>
-                    </property>
+                    
                 </widget>
                 <spacer>
                     <property name="name">
@@ -1365,9 +1316,7 @@
                     <property name="toolTip" stdset="0">
                         <string>Save GAMESS parameters and launch job</string>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>Save GAMESS parameters, generates the INP file and launches the GAMESS job.</string>
-                    </property>
+                    
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
@@ -1382,9 +1331,7 @@
                     <property name="toolTip" stdset="0">
                         <string>Save GAMESS parameters and generates the INP file</string>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>Save GAMESS parameters and generates the INP file.  It does not launch the GAMESS job.</string>
-                    </property>
+                    
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
@@ -1402,9 +1349,7 @@
                     <property name="toolTip" stdset="0">
                         <string>Cancel</string>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>Cancels changes and closes dialog.</string>
-                    </property>
+                    
                 </widget>
             </hbox>
         </widget>
@@ -1479,5 +1424,5 @@
     <slot>change_jig_color()</slot>
     <slot>whats_this()</slot>
 </slots>
-<layoutdefaults spacing="6" margin="11"/>
+<layoutdefaults margin="11" spacing="6"/>
 </UI>

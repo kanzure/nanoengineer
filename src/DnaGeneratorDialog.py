@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'DnaGeneratorDialog.ui'
 #
-# Created: Thu Jul 20 11:04:46 2006
+# Created: Wed Jul 26 23:37:16 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1477,26 +1477,16 @@ class dna_dialog(QDialog):
         self.dna_type_combox.clear()
         self.dna_type_combox.insertItem(self.__tr("B-DNA"))
         self.dna_type_combox.insertItem(self.__tr("Z-DNA"))
-        QWhatsThis.add(self.dna_type_combox,self.__tr("<b>DNA Type</b>\n"
-"<p>There are three DNA geometries, A-DNA, B-DNA, and Z-DNA. Currently we have not yet implemented A-DNA.</p>"))
         self.endings_label.setText(self.__tr("Strand Type :"))
         self.endings_combox.clear()
         self.endings_combox.insertItem(self.__tr("Double"))
         self.endings_combox.insertItem(self.__tr("Single"))
-        QWhatsThis.add(self.endings_combox,self.__tr("<b>Strand Type</b>\n"
-"<p>DNA strands can be single or double.</p>"))
         self.dna_type_label.setText(self.__tr("DNA Type :"))
         self.grpbox2.setTitle(QString.null)
         self.grpbox2_label.setText(self.__tr("Base Sequence"))
         self.grpbtn2.setText(QString.null)
-        QWhatsThis.add(self.base_textedit,self.__tr("<b>Base sequence</b>\n"
-"<p>The sequence of DNA bases in the strand. The bases are adenine, cytosine, guanine, and thymine.</p>"))
         self.complement_btn.setText(self.__tr("Complement"))
-        QWhatsThis.add(self.complement_btn,self.__tr("<b>Complement</b>\n"
-"<p>Swap all the bases with their matching bases. Adenine becomes thymine, thymine becomes adenine, cytosine becomes guanine, guanine becomes cytosine.</p>"))
         self.reverse_btn.setText(self.__tr("Reverse"))
-        QWhatsThis.add(self.reverse_btn,self.__tr("<b>Reverse</b>\n"
-"<p>Reverse the order of bases on the DNA strand, so GATTACA becomes ACATTAG. If it's a double strand, both are reversed.</p>"))
         self.cancel_btn.setText(self.__tr("Cancel"))
         self.ok_btn.setText(self.__tr("OK"))
 

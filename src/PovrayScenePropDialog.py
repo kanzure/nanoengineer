@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\PovrayScenePropDialog.ui'
+# Form implementation generated from reading ui file 'PovrayScenePropDialog.ui'
 #
-# Created: Thu Jun 29 22:46:11 2006
+# Created: Wed Jul 26 23:37:18 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1527,8 +1527,6 @@ class PovrayScenePropDialog(QDialog):
         self.heading_pixmap.setText(QString.null)
         self.heading_label.setText(self.__tr("POV-Ray Scene"))
         self.sponsor_btn.setText(QString.null)
-        QWhatsThis.add(self.sponsor_btn,self.__tr("<b>NanoEngineer-1 Sponsor</b>\n"
-"<p>Click on the logo to learn more about this NanoEngineer-1 sponsor.</p>"))
         self.done_btn.setText(QString.null)
         QToolTip.add(self.done_btn,self.__tr("OK"))
         self.abort_btn.setText(QString.null)
@@ -1544,8 +1542,6 @@ class PovrayScenePropDialog(QDialog):
         self.grpbtn_1.setText(QString.null)
         self.name_linedit.setText(self.__tr("POV-Ray Scene-1.pov"))
         QToolTip.add(self.name_linedit,self.__tr("Name of POV-Ray Scene node in Model Tree"))
-        QWhatsThis.add(self.name_linedit,self.__tr("<b>Node Name</b>\n"
-"<p>The POV-Ray Scene file node name as it appears in the Model Tree.</p>"))
         self.output_image_grpbox.setTitle(QString.null)
         self.image_size_grpbox_label.setText(self.__tr("Render Image Parameters"))
         self.grpbtn_2.setText(QString.null)
@@ -1557,7 +1553,6 @@ class PovrayScenePropDialog(QDialog):
         self.output_type_combox.insertItem(self.__tr("PNG"))
         self.output_type_combox.insertItem(self.__tr("BMP"))
         QToolTip.add(self.output_type_combox,self.__tr("Output image format"))
-        QWhatsThis.add(self.output_type_combox,self.__tr("<b>Image Format </b>- the output image format when rendering an image from this POV-Ray Scene file."))
         self.width_spinbox.setSuffix(self.__tr(" pixels"))
         QToolTip.add(self.width_spinbox,self.__tr("Width of output image"))
         self.height_spinbox.setSuffix(self.__tr(" pixels"))

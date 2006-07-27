@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\MMKitDialog.ui'
+# Form implementation generated from reading ui file 'MMKitDialog.ui'
 #
-# Created: Fri Apr 14 12:25:02 2006
+# Created: Wed Jul 26 23:37:18 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -376,14 +376,11 @@ class MMKitDialog(QDialog):
     def languageChange(self):
         self.setCaption(self.__tr("MMKit"))
         QToolTip.add(self,self.__tr("Molecular Modeling Kit"))
-        QWhatsThis.add(self,self.__tr("Molecular Modeling Kit"))
         QToolTip.add(self.elementFrame,self.__tr("3D thumbnail view"))
-        QWhatsThis.add(self.elementFrame,self.__tr("3D thumbnail view"))
         self.elementButtonGroup.setTitle(QString.null)
         self.toolButton1.setText(self.__tr("H"))
         self.toolButton1.setAccel(self.__tr("H"))
         QToolTip.add(self.toolButton1,self.__tr("Hydrogen"))
-        QWhatsThis.add(self.toolButton1,QString.null)
         self.toolButton2.setText(self.__tr("He"))
         self.toolButton2.setAccel(QString.null)
         QToolTip.add(self.toolButton2,self.__tr("Helium"))

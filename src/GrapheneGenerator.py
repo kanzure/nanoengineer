@@ -13,7 +13,7 @@ import assembly, chem, bonds, Utility
 from chem import molecule, Atom
 import env
 from HistoryWidget import redmsg, orangemsg, greenmsg
-from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator
+from qt import Qt, QApplication, QCursor, QDialog, QDoubleValidator, QValidator, QWhatsThis
 from VQT import dot
 import string
 from widgets import double_fixup
@@ -53,6 +53,16 @@ class GrapheneGenerator(GeneratorBaseClass, graphene_sheet_dialog):
         self.wstr = self.width_linedit.text()
         self.blstr = self.bond_length_linedit.text()
         self.bond_length_linedit.setText(str(CC_GRAPHITIC_BONDLENGTH))
+        QWhatsThis.add(self.height_linedit, """<b>Height</b>
+        <p>The height of the graphite sheet in angstroms.</p>""")
+        QWhatsThis.add(self.width_linedit, """<b>Width</b>
+        <p>The width of the graphene sheet in angstroms.</p>""")
+        QWhatsThis.add(self.bond_length_linedit, """<b>Bond length</b>
+        <p>You can change the bond lengths in the
+        graphene sheet. We believe the default value is accurate for sp<sup>2</sup>-hybridized carbons.</p>""")
+        QWhatsThis.add(self.endings_combox, """<b>Endings</b>
+        <p>Graphene sheets can be unterminated (dangling
+        bonds), or terminated with hydrogen atoms or nitrogen atoms.</p>""")
 
     ###################################################
     # How to build this kind of structure, along with

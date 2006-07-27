@@ -16,6 +16,24 @@ class RotaryMotorProp(RotaryMotorPropDialog):
         RotaryMotorPropDialog.__init__(self)
         self.jig = motor
         self.glpane = glpane
+        QWhatsThis.add(self.nameLineEdit, """<b>Name</b><p>Name of Rotary Motor that appears in the Model
+        Tree</p>""")
+        QWhatsThis.add(self.torqueLineEdit, """<b>Torque </b><p>Simulations will begin with the motor's torque
+        set to this value.</p>""")
+        QWhatsThis.add(self.speedLineEdit, """<b>Final Speed</b><p>The final velocity of the motor's flywheel
+        during simulations.</p>""")
+        QWhatsThis.add(self.initialSpeedLineEdit, """<b>Initial Speed</b><p>Simulations will begin with the motor's
+        flywheel rotating at this velocity.</p>""")
+        QWhatsThis.add(self.dampers_textlabel, """<b>Dampers</b><p>If checked, the dampers are enabled for this
+        motor during a simulation. See the Rotary Motor web page on the NanoEngineer-1 Wiki for more information.</p>""")
+        QWhatsThis.add(self.textLabel1_5, """<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
+        the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations
+        to begin with rotary motors running at speed, this feature requires more work to be useful.</p>""")
+        QWhatsThis.add(self.dampers_checkbox, """<b>Dampers</b><p>If checked, the dampers are enabled for this
+        motor during a simulation. See the Rotary Motor web page on the NanoEngineer-1 Wiki for more information.</p>""")
+        QWhatsThis.add(self.enable_minimize_checkbox, """<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
+        the torque specified above will be applied to the motor atoms during a structure minimization.  While intended to allow simulations
+        to begin with rotary motors running at speed, this feature requires more work to be useful.</p>""")
 
     def setup(self):
         

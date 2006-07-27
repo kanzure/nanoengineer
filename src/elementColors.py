@@ -35,6 +35,10 @@ class elementColors(ElementColorsDialog):
         flayout.addWidget(self.elemGLPane,1)
         
         self.connectChangingControls()
+        QWhatsThis.add(self.saveColorsPB, """Save the current color settings for elements in a text file.""")
+        QWhatsThis.add(self.defaultButton, """Restore current element colors to the default colors.""")
+        QWhatsThis.add(self.loadColorsPB, """Load element colors from an external text file.""")
+        QWhatsThis.add(self.alterButton, """Set element colors to the alternate color set.""")
         
     def closeEvent(self, e):
         """When user closes dialog by clicking the 'X' button on the dialog title bar, this method

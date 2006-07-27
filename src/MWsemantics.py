@@ -250,7 +250,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.uprefs.enable_gamess(env.prefs[gamess_enabled_prefs_key])
         
         #Huaicai 9/14/05: Initialization for the 'Recently opened files' feature
-        from qt import QSettings
+        from qt import QSettings, QWhatsThis
         menuIndex = self.RECENT_FILES_MENU_INDEX
         if recentfiles_use_QSettings:
             prefsSetting = QSettings()
@@ -268,7 +268,9 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             self._createRecentFilesList()
         else:
             self.fileMenu.setItemEnabled(menuIndex, False)
-
+        QWhatsThis.add(self.helpMouseControlsAction, 'Displays help for mouse controls')
+        QWhatsThis.add(self.helpKeyboardShortcutsAction, 'Displays help for keyboard shortcuts')
+        QWhatsThis.add(self.insertCommentAction, 'Inserts a comment in the part.')
 
         # Create the Help dialog. Mark 050812
         from help import Help

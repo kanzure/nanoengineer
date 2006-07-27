@@ -1,4 +1,5 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI>
+<UI stdsetdef="1" version="3.3">
 <class>PovrayScenePropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -68,7 +69,7 @@
                         </sizepolicy>
                     </property>
                     <property name="text">
-                        <string></string>
+                        <string/>
                     </property>
                     <property name="pixmap">
                         <pixmap>image1</pixmap>
@@ -135,7 +136,7 @@
                         </color>
                     </property>
                     <property name="text">
-                        <string></string>
+                        <string/>
                     </property>
                     <property name="pixmap">
                         <pixmap>image2</pixmap>
@@ -146,10 +147,7 @@
                     <property name="flat">
                         <bool>true</bool>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;NanoEngineer-1 Sponsor&lt;/b&gt;
-&lt;p&gt;Click on the logo to learn more about this NanoEngineer-1 sponsor.&lt;/p&gt;</string>
-                    </property>
+                    
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
@@ -181,7 +179,7 @@
                                 <cstring>done_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image3</iconset>
@@ -195,7 +193,7 @@
                                 <cstring>abort_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image4</iconset>
@@ -209,7 +207,7 @@
                                 <cstring>restore_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image5</iconset>
@@ -223,7 +221,7 @@
                                 <cstring>preview_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image6</iconset>
@@ -237,7 +235,7 @@
                                 <cstring>whatsthis_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image7</iconset>
@@ -279,7 +277,7 @@
                         <number>0</number>
                     </property>
                     <property name="title">
-                        <string></string>
+                        <string/>
                     </property>
                     <vbox>
                         <property name="name">
@@ -361,7 +359,7 @@
                                         </size>
                                     </property>
                                     <property name="text">
-                                        <string></string>
+                                        <string/>
                                     </property>
                                     <property name="autoDefault">
                                         <bool>false</bool>
@@ -402,10 +400,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Name of POV-Ray Scene node in Model Tree</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Node Name&lt;/b&gt;
-&lt;p&gt;The POV-Ray Scene file node name as it appears in the Model Tree.&lt;/p&gt;</string>
-                            </property>
+                            
                         </widget>
                     </vbox>
                 </widget>
@@ -420,7 +415,7 @@
                         <enum>Sunken</enum>
                     </property>
                     <property name="title">
-                        <string></string>
+                        <string/>
                     </property>
                     <property name="checkable">
                         <bool>false</bool>
@@ -508,7 +503,7 @@
                                         </size>
                                     </property>
                                     <property name="text">
-                                        <string></string>
+                                        <string/>
                                     </property>
                                     <property name="autoDefault">
                                         <bool>false</bool>
@@ -626,9 +621,7 @@
                                             <property name="toolTip" stdset="0">
                                                 <string>Output image format</string>
                                             </property>
-                                            <property name="whatsThis" stdset="0">
-                                                <string>&lt;b&gt;Image Format &lt;/b&gt;- the output image format when rendering an image from this POV-Ray Scene file.</string>
-                                            </property>
+                                            
                                         </widget>
                                         <widget class="QSpinBox">
                                             <property name="name">
@@ -882,5 +875,5 @@
     <slot>change_height()</slot>
     <slot>filename_btn_clicked()</slot>
 </slots>
-<layoutdefaults spacing="6" margin="11"/>
+<layoutdefaults margin="11" spacing="6"/>
 </UI>

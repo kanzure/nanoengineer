@@ -1,4 +1,5 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI>
+<UI stdsetdef="1" version="3.3">
 <class>MMKitDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -285,9 +286,7 @@
     <property name="toolTip" stdset="0">
         <string>Molecular Modeling Kit</string>
     </property>
-    <property name="whatsThis" stdset="0">
-        <string>Molecular Modeling Kit</string>
-    </property>
+    
     <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
@@ -325,9 +324,7 @@
             <property name="toolTip" stdset="0">
                 <string>3D thumbnail view</string>
             </property>
-            <property name="whatsThis" stdset="0">
-                <string>3D thumbnail view</string>
-            </property>
+            
         </widget>
         <spacer>
             <property name="name">
@@ -366,7 +363,7 @@
                     <cstring>atomsPage</cstring>
                 </property>
                 <attribute name="title">
-                    <string></string>
+                    <string/>
                 </attribute>
                 <grid>
                     <property name="name">
@@ -378,7 +375,7 @@
                     <property name="spacing">
                         <number>2</number>
                     </property>
-                    <widget class="QFrame" row="0" column="0">
+                    <widget class="QFrame" column="0" row="0">
                         <property name="name">
                             <cstring>frame5</cstring>
                         </property>
@@ -406,7 +403,7 @@
                             <property name="spacing">
                                 <number>2</number>
                             </property>
-                            <widget class="QButtonGroup" row="0" column="0">
+                            <widget class="QButtonGroup" column="0" row="0">
                                 <property name="name">
                                     <cstring>elementButtonGroup</cstring>
                                 </property>
@@ -437,7 +434,7 @@
                                     <number>0</number>
                                 </property>
                                 <property name="title">
-                                    <string></string>
+                                    <string/>
                                 </property>
                                 <property name="exclusive">
                                     <bool>true</bool>
@@ -452,7 +449,7 @@
                                     <property name="spacing">
                                         <number>0</number>
                                     </property>
-                                    <widget class="QToolButton" row="0" column="4">
+                                    <widget class="QToolButton" column="4" row="0">
                                         <property name="name">
                                             <cstring>toolButton1</cstring>
                                         </property>
@@ -477,11 +474,9 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Hydrogen</string>
                                         </property>
-                                        <property name="whatsThis" stdset="0">
-                                            <string></string>
-                                        </property>
+                                        
                                     </widget>
-                                    <widget class="QToolButton" row="0" column="5">
+                                    <widget class="QToolButton" column="5" row="0">
                                         <property name="name">
                                             <cstring>toolButton2</cstring>
                                         </property>
@@ -495,7 +490,7 @@
                                             <string>He</string>
                                         </property>
                                         <property name="accel">
-                                            <string></string>
+                                            <string/>
                                         </property>
                                         <property name="toggleButton">
                                             <bool>true</bool>
@@ -507,7 +502,7 @@
                                             <string>Helium</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="1" column="1">
+                                    <widget class="QToolButton" column="1" row="1">
                                         <property name="name">
                                             <cstring>toolButton6</cstring>
                                         </property>
@@ -533,7 +528,7 @@
                                             <string>Carbon</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="1" column="2">
+                                    <widget class="QToolButton" column="2" row="1">
                                         <property name="name">
                                             <cstring>toolButton7</cstring>
                                         </property>
@@ -559,7 +554,7 @@
                                             <string>Nitrogen</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="1" column="3">
+                                    <widget class="QToolButton" column="3" row="1">
                                         <property name="name">
                                             <cstring>toolButton8</cstring>
                                         </property>
@@ -585,7 +580,7 @@
                                             <string>Oxygen</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="1" column="5">
+                                    <widget class="QToolButton" column="5" row="1">
                                         <property name="name">
                                             <cstring>toolButton10</cstring>
                                         </property>
@@ -599,7 +594,7 @@
                                             <string>Ne</string>
                                         </property>
                                         <property name="accel">
-                                            <string></string>
+                                            <string/>
                                         </property>
                                         <property name="toggleButton">
                                             <bool>true</bool>
@@ -611,7 +606,7 @@
                                             <string>Neon</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="1" column="4">
+                                    <widget class="QToolButton" column="4" row="1">
                                         <property name="name">
                                             <cstring>toolButton9</cstring>
                                         </property>
@@ -637,7 +632,7 @@
                                             <string>Fluorine</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="2" column="0">
+                                    <widget class="QToolButton" column="0" row="2">
                                         <property name="name">
                                             <cstring>toolButton13</cstring>
                                         </property>
@@ -663,7 +658,7 @@
                                             <string>Aluminum</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="2" column="4">
+                                    <widget class="QToolButton" column="4" row="2">
                                         <property name="name">
                                             <cstring>toolButton17</cstring>
                                         </property>
@@ -689,7 +684,7 @@
                                             <string>Chlorine</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="1" column="0">
+                                    <widget class="QToolButton" column="0" row="1">
                                         <property name="name">
                                             <cstring>toolButton5</cstring>
                                         </property>
@@ -715,7 +710,7 @@
                                             <string>Boron</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="2" column="5">
+                                    <widget class="QToolButton" column="5" row="2">
                                         <property name="name">
                                             <cstring>toolButton10_2</cstring>
                                         </property>
@@ -729,7 +724,7 @@
                                             <string>Ar</string>
                                         </property>
                                         <property name="accel">
-                                            <string></string>
+                                            <string/>
                                         </property>
                                         <property name="toggleButton">
                                             <bool>true</bool>
@@ -741,7 +736,7 @@
                                             <string>Argon</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="2" column="2">
+                                    <widget class="QToolButton" column="2" row="2">
                                         <property name="name">
                                             <cstring>toolButton15</cstring>
                                         </property>
@@ -767,7 +762,7 @@
                                             <string>Phosphorus</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="2" column="3">
+                                    <widget class="QToolButton" column="3" row="2">
                                         <property name="name">
                                             <cstring>toolButton16</cstring>
                                         </property>
@@ -793,7 +788,7 @@
                                             <string>Sulfur</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="2" column="1">
+                                    <widget class="QToolButton" column="1" row="2">
                                         <property name="name">
                                             <cstring>toolButton14</cstring>
                                         </property>
@@ -819,7 +814,7 @@
                                             <string>Silicon</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="3" column="2">
+                                    <widget class="QToolButton" column="2" row="3">
                                         <property name="name">
                                             <cstring>toolButton33</cstring>
                                         </property>
@@ -842,7 +837,7 @@
                                             <string>Arsenic</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="3" column="3">
+                                    <widget class="QToolButton" column="3" row="3">
                                         <property name="name">
                                             <cstring>toolButton34</cstring>
                                         </property>
@@ -865,7 +860,7 @@
                                             <string>Selenium</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="3" column="4">
+                                    <widget class="QToolButton" column="4" row="3">
                                         <property name="name">
                                             <cstring>toolButton35</cstring>
                                         </property>
@@ -888,7 +883,7 @@
                                             <string>Bromine</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="3" column="1">
+                                    <widget class="QToolButton" column="1" row="3">
                                         <property name="name">
                                             <cstring>toolButton32</cstring>
                                         </property>
@@ -911,7 +906,7 @@
                                             <string>Germanium</string>
                                         </property>
                                     </widget>
-                                    <widget class="QToolButton" row="3" column="5">
+                                    <widget class="QToolButton" column="5" row="3">
                                         <property name="name">
                                             <cstring>toolButton36</cstring>
                                         </property>
@@ -938,7 +933,7 @@
                             </widget>
                         </grid>
                     </widget>
-                    <spacer row="2" column="0">
+                    <spacer column="0" row="2">
                         <property name="name">
                             <cstring>spacer8</cstring>
                         </property>
@@ -955,7 +950,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" row="1" column="0">
+                    <widget class="QLayoutWidget" column="0" row="1">
                         <property name="name">
                             <cstring>layout14</cstring>
                         </property>
@@ -985,7 +980,7 @@
                                     <number>0</number>
                                 </property>
                                 <property name="title">
-                                    <string></string>
+                                    <string/>
                                 </property>
                                 <property name="exclusive">
                                     <bool>true</bool>
@@ -1011,7 +1006,7 @@
                                             </size>
                                         </property>
                                         <property name="text">
-                                            <string></string>
+                                            <string/>
                                         </property>
                                         <property name="accel">
                                             <string>3</string>
@@ -1037,7 +1032,7 @@
                                             </size>
                                         </property>
                                         <property name="text">
-                                            <string></string>
+                                            <string/>
                                         </property>
                                         <property name="accel">
                                             <string>2</string>
@@ -1063,7 +1058,7 @@
                                             </size>
                                         </property>
                                         <property name="text">
-                                            <string></string>
+                                            <string/>
                                         </property>
                                         <property name="accel">
                                             <string>1</string>
@@ -1089,7 +1084,7 @@
                                             </size>
                                         </property>
                                         <property name="text">
-                                            <string></string>
+                                            <string/>
                                         </property>
                                         <property name="accel">
                                             <string>4</string>
@@ -1149,7 +1144,7 @@
                     <cstring>clipboardPage</cstring>
                 </property>
                 <attribute name="title">
-                    <string></string>
+                    <string/>
                 </attribute>
                 <grid>
                     <property name="name">
@@ -1161,7 +1156,7 @@
                     <property name="spacing">
                         <number>2</number>
                     </property>
-                    <widget class="QListBox" row="0" column="0">
+                    <widget class="QListBox" column="0" row="0">
                         <property name="name">
                             <cstring>chunkListBox</cstring>
                         </property>
@@ -1190,7 +1185,7 @@
                     <cstring>libraryPage</cstring>
                 </property>
                 <attribute name="title">
-                    <string></string>
+                    <string/>
                 </attribute>
             </widget>
         </widget>
@@ -1357,5 +1352,5 @@
     <slot>chunkChanged(QListBoxItem *)</slot>
     <slot>browseDirectories()</slot>
 </slots>
-<layoutdefaults spacing="6" margin="11"/>
+<layoutdefaults margin="11" spacing="6"/>
 </UI>

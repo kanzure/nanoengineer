@@ -84,6 +84,29 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
             # self.movie is now a public attribute.
             #bruce 050329 comment: couldn't we set .movie to None, until we learn we succeeded? ###e ###@@@
         self.setup()
+        QWhatsThis.add(self.watch_motion_checkbox, """<p><b>Watch Motion In Real Time</b></p>Enables real time graphical
+        updates during simulation runs.""")
+        QWhatsThis.add(self.update_number_spinbox, """<b>Update every <i>n units.</u></b>
+        <p>Specify how often to update
+        the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>""")
+        QWhatsThis.add(self.update_units_combobox, """<b>Update every <i>n units.</u></b>
+        <p>Specify how often to update
+        the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>""")
+        QWhatsThis.add(self.update_every_rbtn, """<b>Update every <i>n units.</u></b>
+        <p>Specify how often to update
+        the model during the simulation. This allows the user to monitor simulation results while the simulation is running.</p>""")
+        QWhatsThis.add(self.update_asap_rbtn, """<b>Update as fast as possible</b>
+        <p>
+        Update every 2 seconds,
+        or faster (up to 20x/sec) if it doesn't slow simulation by more than 20%</p>""")
+        QWhatsThis.add(self.tempSB, """<b>Temperature</b><p>The temperature of the simulation in Kelvin
+        (300 K = room temp)</p>""")
+        QWhatsThis.add(self.nframesSB, """<b>Total Frames</b><p>The number of frames for the simulation
+        run.</p>""")
+        QWhatsThis.add(self.stepsperSB, """<b>Steps per Frame</b><p>The time duration between frames. 10
+        steps = 1 femtosecond.</p>""")
+        QWhatsThis.add(self.SimSetupDialog, """<b>NanoDynamics-1 Setup</b><p>NanoEngineer-1 Molecular Dynamics
+        Simulator Setup. Enter the parameters of the simulation and click <b>Run Simulation</b>.</p>""")
         self.exec_loop()
         
     def setup(self):

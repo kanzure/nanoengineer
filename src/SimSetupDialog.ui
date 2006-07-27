@@ -1,4 +1,5 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI>
+<UI stdsetdef="1" version="3.3">
 <class>SimSetupDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -24,9 +25,7 @@
     <property name="toolTip" stdset="0">
         <string>NanoDynamics-1 Simulator Setup Dialog</string>
     </property>
-    <property name="whatsThis" stdset="0">
-        <string>&lt;b&gt;NanoDynamics-1 Setup&lt;/b&gt;&lt;p&gt;NanoEngineer-1 Molecular Dynamics Simulator Setup. Enter the parameters of the simulation and click &lt;b&gt;Run Simulation&lt;/b&gt;.&lt;/p&gt;</string>
-    </property>
+    
     <spacer>
         <property name="name">
             <cstring>spacer17</cstring>
@@ -86,7 +85,7 @@
                 <enum>StyledPanel</enum>
             </property>
             <property name="title">
-                <string></string>
+                <string/>
             </property>
             <grid>
                 <property name="name">
@@ -98,7 +97,7 @@
                 <property name="spacing">
                     <number>1</number>
                 </property>
-                <widget class="QLabel" row="0" column="0">
+                <widget class="QLabel" column="0" row="0">
                     <property name="name">
                         <cstring>sim_options_label</cstring>
                     </property>
@@ -113,7 +112,7 @@
                         <string>Simulation Options</string>
                     </property>
                 </widget>
-                <widget class="Line" row="1" column="0">
+                <widget class="Line" column="0" row="1">
                     <property name="name">
                         <cstring>line2_4</cstring>
                     </property>
@@ -130,7 +129,7 @@
                         <enum>Horizontal</enum>
                     </property>
                 </widget>
-                <widget class="QCheckBox" row="2" column="0">
+                <widget class="QCheckBox" column="0" row="2">
                     <property name="name">
                         <cstring>watch_motion_checkbox</cstring>
                     </property>
@@ -143,11 +142,9 @@
                     <property name="toolTip" stdset="0">
                         <string>Enables real time graphical updates during simulation runs</string>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>&lt;p&gt;&lt;b&gt;Watch Motion In Real Time&lt;/b&gt;&lt;/p&gt;Enables real time graphical updates during simulation runs.</string>
-                    </property>
+                    
                 </widget>
-                <widget class="QButtonGroup" row="3" column="0">
+                <widget class="QButtonGroup" column="0" row="3">
                     <property name="name">
                         <cstring>update_btngrp</cstring>
                     </property>
@@ -158,13 +155,13 @@
                         <enum>Sunken</enum>
                     </property>
                     <property name="title">
-                        <string></string>
+                        <string/>
                     </property>
                     <grid>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QSpinBox" row="1" column="1">
+                        <widget class="QSpinBox" column="1" row="1">
                             <property name="name">
                                 <cstring>update_number_spinbox</cstring>
                             </property>
@@ -180,12 +177,9 @@
                             <property name="toolTip" stdset="0">
                                 <string>Specify how often to update the screen during the simulation.</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the simulation. This allows the user to monitor simulation results while the simulation is running.&lt;/p&gt;</string>
-                            </property>
+                            
                         </widget>
-                        <widget class="QComboBox" row="1" column="2">
+                        <widget class="QComboBox" column="2" row="1">
                             <item>
                                 <property name="text">
                                     <string>frames</string>
@@ -212,12 +206,9 @@
                             <property name="toolTip" stdset="0">
                                 <string>Specify how often to update the screen during the simulation.</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the simulation. This allows the user to monitor simulation results while the simulation is running.&lt;/p&gt;</string>
-                            </property>
+                            
                         </widget>
-                        <spacer row="1" column="3">
+                        <spacer column="3" row="1">
                             <property name="name">
                                 <cstring>spacer2</cstring>
                             </property>
@@ -234,7 +225,7 @@
                                 </size>
                             </property>
                         </spacer>
-                        <widget class="QRadioButton" row="1" column="0">
+                        <widget class="QRadioButton" column="0" row="1">
                             <property name="name">
                                 <cstring>update_every_rbtn</cstring>
                             </property>
@@ -247,12 +238,9 @@
                             <property name="toolTip" stdset="0">
                                 <string>Specify how often to update the screen during the simulation.</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the simulation. This allows the user to monitor simulation results while the simulation is running.&lt;/p&gt;</string>
-                            </property>
+                            
                         </widget>
-                        <widget class="QRadioButton" row="0" column="0" rowspan="1" colspan="4">
+                        <widget class="QRadioButton" colspan="4" column="0" row="0" rowspan="1">
                             <property name="name">
                                 <cstring>update_asap_rbtn</cstring>
                             </property>
@@ -268,11 +256,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Update every 2 seconds, or faster if it doesn't slow simulation by more than 20%</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Update as fast as possible&lt;/b&gt;
-&lt;p&gt;
-Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow simulation by more than 20%&lt;/p&gt;</string>
-                            </property>
+                            
                         </widget>
                     </grid>
                 </widget>
@@ -294,7 +278,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow simulation 
                 <enum>StyledPanel</enum>
             </property>
             <property name="title">
-                <string></string>
+                <string/>
             </property>
             <widget class="QCheckBox">
                 <property name="name">
@@ -397,9 +381,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow simulation 
                 <property name="toolTip" stdset="0">
                     <string>Temperature</string>
                 </property>
-                <property name="whatsThis" stdset="0">
-                    <string>&lt;b&gt;Temperature&lt;/b&gt;&lt;p&gt;The temperature of the simulation in Kelvin (300 K = room temp)&lt;/p&gt;</string>
-                </property>
+                
             </widget>
             <widget class="QSpinBox">
                 <property name="name">
@@ -428,9 +410,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow simulation 
                 <property name="toolTip" stdset="0">
                     <string>Total Frames value</string>
                 </property>
-                <property name="whatsThis" stdset="0">
-                    <string>&lt;b&gt;Total Frames&lt;/b&gt;&lt;p&gt;The number of frames for the simulation run.&lt;/p&gt;</string>
-                </property>
+                
             </widget>
             <widget class="QLabel">
                 <property name="name">
@@ -519,9 +499,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow simulation 
                 <property name="toolTip" stdset="0">
                     <string>Steps per Frame</string>
                 </property>
-                <property name="whatsThis" stdset="0">
-                    <string>&lt;b&gt;Steps per Frame&lt;/b&gt;&lt;p&gt;The time duration between frames. 10 steps = 1 femtosecond.&lt;/p&gt;</string>
-                </property>
+                
             </widget>
             <widget class="QLabel">
                 <property name="name">
@@ -655,5 +633,5 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow simulation 
     <slot>saveFilePressed()</slot>
     <slot>serverManager()</slot>
 </slots>
-<layoutdefaults spacing="6" margin="11"/>
+<layoutdefaults margin="11" spacing="6"/>
 </UI>

@@ -1,4 +1,5 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI>
+<UI stdsetdef="1" version="3.3">
 <class>LinearMotorPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -25,7 +26,7 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QGroupBox" row="2" column="0">
+        <widget class="QGroupBox" column="0" row="2">
             <property name="name">
                 <cstring>groupBox3</cstring>
             </property>
@@ -36,7 +37,7 @@
                 <property name="name">
                     <cstring>unnamed</cstring>
                 </property>
-                <widget class="QLineEdit" row="1" column="1">
+                <widget class="QLineEdit" column="1" row="1">
                     <property name="name">
                         <cstring>widthLineEdit</cstring>
                     </property>
@@ -50,7 +51,7 @@
                         <set>AlignLeft</set>
                     </property>
                 </widget>
-                <widget class="QLabel" row="0" column="2">
+                <widget class="QLabel" column="2" row="0">
                     <property name="name">
                         <cstring>textLabel3</cstring>
                     </property>
@@ -58,7 +59,7 @@
                         <string>Angstroms</string>
                     </property>
                 </widget>
-                <widget class="QLineEdit" row="2" column="1">
+                <widget class="QLineEdit" column="1" row="2">
                     <property name="name">
                         <cstring>sradiusLineEdit</cstring>
                     </property>
@@ -66,7 +67,7 @@
                         <set>AlignLeft</set>
                     </property>
                 </widget>
-                <widget class="QLineEdit" row="0" column="1">
+                <widget class="QLineEdit" column="1" row="0">
                     <property name="name">
                         <cstring>lengthLineEdit</cstring>
                     </property>
@@ -80,7 +81,7 @@
                         <set>AlignLeft</set>
                     </property>
                 </widget>
-                <widget class="QLabel" row="2" column="2">
+                <widget class="QLabel" column="2" row="2">
                     <property name="name">
                         <cstring>textLabel3_3</cstring>
                     </property>
@@ -88,7 +89,7 @@
                         <string>Angstroms</string>
                     </property>
                 </widget>
-                <widget class="QLabel" row="1" column="2">
+                <widget class="QLabel" column="2" row="1">
                     <property name="name">
                         <cstring>textLabel3_2</cstring>
                     </property>
@@ -96,7 +97,7 @@
                         <string>Angstroms</string>
                     </property>
                 </widget>
-                <widget class="QLayoutWidget" row="3" column="1" rowspan="1" colspan="2">
+                <widget class="QLayoutWidget" colspan="2" column="1" row="3" rowspan="1">
                     <property name="name">
                         <cstring>layout76</cstring>
                     </property>
@@ -168,7 +169,7 @@
                         </spacer>
                     </hbox>
                 </widget>
-                <widget class="QLabel" row="0" column="0">
+                <widget class="QLabel" column="0" row="0">
                     <property name="name">
                         <cstring>textLabel1_3</cstring>
                     </property>
@@ -179,7 +180,7 @@
                         <set>AlignVCenter|AlignRight</set>
                     </property>
                 </widget>
-                <widget class="QLabel" row="1" column="0">
+                <widget class="QLabel" column="0" row="1">
                     <property name="name">
                         <cstring>textLabel1_2_2</cstring>
                     </property>
@@ -190,7 +191,7 @@
                         <set>AlignVCenter|AlignRight</set>
                     </property>
                 </widget>
-                <widget class="QLabel" row="2" column="0">
+                <widget class="QLabel" column="0" row="2">
                     <property name="name">
                         <cstring>textLabel1_2_2_2</cstring>
                     </property>
@@ -201,7 +202,7 @@
                         <set>AlignVCenter|AlignRight</set>
                     </property>
                 </widget>
-                <widget class="QLabel" row="3" column="0">
+                <widget class="QLabel" column="0" row="3">
                     <property name="name">
                         <cstring>colorTextLabel</cstring>
                     </property>
@@ -214,7 +215,7 @@
                 </widget>
             </grid>
         </widget>
-        <spacer row="3" column="0">
+        <spacer column="0" row="3">
             <property name="name">
                 <cstring>spacer6</cstring>
             </property>
@@ -231,7 +232,7 @@
                 </size>
             </property>
         </spacer>
-        <widget class="QLayoutWidget" row="4" column="0">
+        <widget class="QLayoutWidget" column="0" row="4">
             <property name="name">
                 <cstring>layout45</cstring>
             </property>
@@ -289,7 +290,7 @@
                 </widget>
             </hbox>
         </widget>
-        <widget class="QLayoutWidget" row="0" column="0">
+        <widget class="QLayoutWidget" column="0" row="0">
             <property name="name">
                 <cstring>layout21</cstring>
             </property>
@@ -358,7 +359,7 @@
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QLineEdit" row="1" column="0">
+                        <widget class="QLineEdit" column="0" row="1">
                             <property name="name">
                                 <cstring>forceLineEdit</cstring>
                             </property>
@@ -368,18 +369,9 @@
                             <property name="toolTip" stdset="0">
                                 <string>Simulations will begin with the motor's force set to this value.</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Force &lt;/b&gt;&lt;p&gt;Simulations will begin with the motor's force set to this
-value. On each simulation time step, the displacement of the linear motor's atoms are computed using Hooke's Law, where:&lt;/p&gt;
-&lt;p&gt;&lt;b&gt;displacement (x) = - Force(F) / Stiffness(k)&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;The negative sign indicates that the force exerted by the motor (a spring) is in
-direct opposition to the direction of displacement. It is called a
-"restoring force", as it tends to restore the system to equilibrium.&lt;/p&gt;
-&lt;p&gt;When Stiffness = 0, the restoring force is 0 and the displacement will
-continue in one direction.&lt;/p&gt;</string>
-                            </property>
+                            
                         </widget>
-                        <widget class="QLabel" row="2" column="1">
+                        <widget class="QLabel" column="1" row="2">
                             <property name="name">
                                 <cstring>textLabel2</cstring>
                             </property>
@@ -387,7 +379,7 @@ continue in one direction.&lt;/p&gt;</string>
                                 <string>N/m</string>
                             </property>
                         </widget>
-                        <widget class="QLabel" row="1" column="1">
+                        <widget class="QLabel" column="1" row="1">
                             <property name="name">
                                 <cstring>textLabel1_4</cstring>
                             </property>
@@ -395,7 +387,7 @@ continue in one direction.&lt;/p&gt;</string>
                                 <string>pN</string>
                             </property>
                         </widget>
-                        <widget class="QLineEdit" row="0" column="0" rowspan="1" colspan="2">
+                        <widget class="QLineEdit" colspan="2" column="0" row="0" rowspan="1">
                             <property name="name">
                                 <cstring>nameLineEdit</cstring>
                             </property>
@@ -406,7 +398,7 @@ continue in one direction.&lt;/p&gt;</string>
                                 <enum>Sunken</enum>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="alignment">
                                 <set>AlignLeft</set>
@@ -417,11 +409,9 @@ continue in one direction.&lt;/p&gt;</string>
                             <property name="toolTip" stdset="0">
                                 <string>Name of Linear Motor</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Name&lt;/b&gt;&lt;p&gt;Name of Linear Motor that appears in the Model Tree&lt;/p&gt;</string>
-                            </property>
+                            
                         </widget>
-                        <widget class="QLineEdit" row="2" column="0">
+                        <widget class="QLineEdit" column="0" row="2">
                             <property name="name">
                                 <cstring>stiffnessLineEdit</cstring>
                             </property>
@@ -437,16 +427,7 @@ continue in one direction.&lt;/p&gt;</string>
                             <property name="toolTip" stdset="0">
                                 <string>Simulations will begin with the motor's stiffness set to this value.</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Stiffness &lt;/b&gt;&lt;p&gt;Simulations will begin with the motor's stiffness set to this
-value. On each simulation time step, the displacement of the linear motor's atoms are computed using Hooke's Law, where:&lt;/p&gt;
-&lt;p&gt;&lt;b&gt;displacement (x) = - Force(F) / Stiffness(k)&lt;/b&gt;&lt;/p&gt;
-&lt;p&gt;The negative sign indicates that the force exerted by the motor (a spring) is in
-direct opposition to the direction of displacement. It is called a
-"restoring force", as it tends to restore the system to equilibrium.&lt;/p&gt;
-&lt;p&gt;When Stiffness = 0, the restoring force is 0 and the displacement will
-continue in one direction.&lt;/p&gt;</string>
-                            </property>
+                            
                         </widget>
                     </grid>
                 </widget>
@@ -469,7 +450,7 @@ continue in one direction.&lt;/p&gt;</string>
                 </spacer>
             </hbox>
         </widget>
-        <widget class="QLayoutWidget" row="1" column="0">
+        <widget class="QLayoutWidget" column="0" row="1">
             <property name="name">
                 <cstring>layout22</cstring>
             </property>
@@ -490,23 +471,19 @@ continue in one direction.&lt;/p&gt;</string>
                     <property name="toolTip" stdset="0">
                         <string>If checked, the force value is applied to the motor's atoms during minimization.</string>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Enable in Minimize &lt;i&gt;(experimental)&lt;/i&gt;&lt;/b&gt;&lt;p&gt;If checked, the force specified above will be applied to the motor's atoms during a structure minimization.  While intended to allow simulations to begin with linear motors running at speed, this feature requires more work to be useful.&lt;/p&gt;</string>
-                    </property>
+                    
                 </widget>
                 <widget class="QCheckBox">
                     <property name="name">
                         <cstring>enable_minimize_checkbox</cstring>
                     </property>
                     <property name="text">
-                        <string></string>
+                        <string/>
                     </property>
                     <property name="toolTip" stdset="0">
                         <string>If checked, the force value is applied to the motor's atoms during minimization.</string>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Enable in Minimize &lt;i&gt;(experimental)&lt;/i&gt;&lt;/b&gt;&lt;p&gt;If checked, the force specified above will be applied to the motor's atoms during a structure minimization.  While intended to allow simulations to begin with linear motors running at speed, this feature requires more work to be useful.&lt;/p&gt;</string>
-                    </property>
+                    
                 </widget>
                 <spacer>
                     <property name="name">
@@ -588,5 +565,5 @@ continue in one direction.&lt;/p&gt;</string>
     <slot>change_jig_color()</slot>
     <slot>change_motor_size()</slot>
 </slots>
-<layoutdefaults spacing="6" margin="11"/>
+<layoutdefaults margin="11" spacing="6"/>
 </UI>

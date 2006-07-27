@@ -21,6 +21,11 @@ class elementSelector(ElementSelectorDialog):
         # Put the GL widget inside the frame
         flayout = QVBoxLayout(self.elementFrame,1,1,'flayout')
         flayout.addWidget(self.elemGLPane,1)
+        QWhatsThis.add(self.elementFrame, """3D view of current atom type""")
+        QWhatsThis.add(self.TransmuteButton, """Transmutes selected atoms in the 3D workspace to current atom
+        above.""")
+        QWhatsThis.add(self.transmuteCheckBox, """Check if transmuted atoms should keep all existing bonds,  even
+        if chemistry is wrong.""")
 
     def setElementInfo(self,value):
         '''Called as a slot from button push of the element Button Group'''

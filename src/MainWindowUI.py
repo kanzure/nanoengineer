@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Thu Jul 6 17:57:15 2006
+# Created: Thu Jul 27 00:40:12 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -7538,10 +7538,8 @@ class MainWindow(QMainWindow):
         self.modifyMMKitAction.setToolTip(self.__tr("Modeling Kit"))
         self.helpMouseControlsAction.setText(self.__tr("Mouse Controls..."))
         self.helpMouseControlsAction.setToolTip(self.__tr("Mouse Controls"))
-        self.helpMouseControlsAction.setWhatsThis(self.__tr("Displays help for mouse controls"))
         self.helpKeyboardShortcutsAction.setText(self.__tr("Keyboard Shortcuts..."))
         self.helpKeyboardShortcutsAction.setToolTip(self.__tr("Keyboard Shortcuts"))
-        self.helpKeyboardShortcutsAction.setWhatsThis(self.__tr("Displays help for keyboard shortcuts"))
         self.modifyCenterCommonAxisAction.setText(self.__tr("Center on Common Axis"))
         self.simNanoHiveAction.setText(self.__tr("Nano-Hive"))
         self.simNanoHiveAction.setMenuText(self.__tr("Nano-Hive..."))
@@ -7583,7 +7581,6 @@ class MainWindow(QMainWindow):
         self.insertDnaAction.setMenuText(self.__tr("DNA"))
         self.insertDnaAction.setToolTip(self.__tr("DNA Generator"))
         self.insertCommentAction.setText(self.__tr("Comment"))
-        self.insertCommentAction.setWhatsThis(self.__tr("Inserts a comment in the part."))
         self.viewRaytraceSceneAction.setText(self.__tr("Raytrace Scene"))
         self.insertPovraySceneAction.setText(self.__tr("POV-Ray Scene"))
         self.insertPovraySceneAction.setToolTip(self.__tr("Insert POV-Ray Scene file"))

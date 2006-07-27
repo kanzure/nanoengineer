@@ -41,6 +41,56 @@ class MinimizeEnergyProp(SponsorableMixin, GroupButtonMixin, MinimizeEnergyPropD
         self.setup_ruc()
         self.setup_validators()
         self.seltype = 'All'
+        QWhatsThis.add(self.sponsor_btn, """<b>NanoEngineer-1 Sponsor</b>
+        <p>Click on the logo to learn more
+        about this NanoEngineer-1 sponsor.</p>""")
+        QWhatsThis.add(self.minimize_all_rbtn, """<b>Minimize All</b><p>Perform energy minimization on all the
+        atoms in the workspace.</p>""")
+        QWhatsThis.add(self.minimize_sel_rbtn, """<b>Minimize Selection</b><p>Perform energy minimization on the
+        atoms that are currently selected.</p>""")
+        QWhatsThis.add(self.watch_minimization_checkbox, """<p><b>Watch Motion In Real Time</b></p>Enables real time graphical
+        updates during minimization runs.""")
+        QWhatsThis.add(self.update_asap_rbtn, """<b>Update as fast as possible</b>
+        <p>
+        Update every 2 seconds,
+        or faster (up to 20x/sec) if it doesn't slow minimization by more than 20%</p>""")
+        QWhatsThis.add(self.update_every_rbtn, """<b>Update every <i>n units.</u></b>
+        <p>Specify how often to update
+        the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>""")
+        QWhatsThis.add(self.update_number_spinbox, """<b>Update every <i>n units.</u></b>
+        <p>Specify how often to update
+        the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>""")
+        QWhatsThis.add(self.update_units_combobox, """<b>Update every <i>n units.</u></b>
+        <p>Specify how often to update
+        the model during the minimization. This allows the user to monitor minimization results while the minimization is running.</p>""")
+        QWhatsThis.add(self.endrms_linedit, """<b>EndRMS</b>
+        <p>Continue until this RMS force is reached.</p>""")
+        QWhatsThis.add(self.endmax_linedit, """<b>EndMax</b>
+        <p>Continue until the total force on each atom
+        is less than this value.</p>""")
+        QWhatsThis.add(self.cutoverrms_linedit, """<b>CutoverRMS</b>
+        <p>Use steepest descent until this RMS force
+        is reached.</p>""")
+        QWhatsThis.add(self.cutovermax_linedit, """<b>CutoverMax</b>
+        <p>Use steepest descent  until the total force
+        on each atom is less than this value.</p>""")
+        QWhatsThis.add(self.cancel_btn, """<b>Cancel</b><p>Dismiss this dialog without taking any action.</p>""")
+        QWhatsThis.add(self.ok_btn, """<b>Minimize Energy</b><p>Using the parameters specified above,
+        perform energy minimization on some or all of the atoms.</p>""")
+        # BUG 2077 INCOMPLETE FIX
+##         QWhatsThis.add(self.MinimizeEnergyPropDialog, """<u><b>Minimize Energy</b></u>
+##         <p>The potential energy of a chemical
+##         structure is a function of the relative positions of its atoms. To obtain this energy with complete accuracy involves a lot
+##         of computer time spent on quantum mechanical calculations, which cannot be practically done on a desktop computer. To get
+##         an approximate potential energy without all that, we represent the energy as a series of terms involving geometric properties
+##         of the structure: lengths of chemical bonds, angles between pairs and triples of chemical bonds, etc.
+##         </p><p>As is generally
+##         the case with physical systems, the gradient of the potential energy represents the forces acting on various particles. The
+##         atoms want to move in the direction that most reduces the potential energy. Energy minimization is a process of adjusting
+##         the atom positions to try to find a global minimum of the potential energy. Each atom contributes three variables (its x,
+##         y, and z coordinates) so the search space is multi-dimensional. The global minimum is the configuration that the atoms will
+##         settle into if lowered to zero Kelvin.
+##         </p>""")
         self.update_widgets() # to make sure self attrs are set
 
     def setup_ruc(self):

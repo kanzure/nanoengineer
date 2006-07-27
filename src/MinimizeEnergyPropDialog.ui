@@ -1,4 +1,5 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<!DOCTYPE UI>
+<UI stdsetdef="1" version="3.3">
 <class>MinimizeEnergyPropDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -18,12 +19,7 @@
     <property name="icon">
         <pixmap>image0</pixmap>
     </property>
-    <property name="whatsThis" stdset="0">
-        <string>&lt;u&gt;&lt;b&gt;Minimize Energy&lt;/b&gt;&lt;/u&gt;
-&lt;p&gt;The potential energy of a chemical structure is a function of the relative positions of its atoms. To obtain this energy with complete accuracy involves a lot of computer time spent on quantum mechanical calculations, which cannot be practically done on a desktop computer. To get an approximate potential energy without all that, we represent the energy as a series of terms involving geometric properties of the structure: lengths of chemical bonds, angles between pairs and triples of chemical bonds, etc.
-&lt;/p&gt;&lt;p&gt;As is generally the case with physical systems, the gradient of the potential energy represents the forces acting on various particles. The atoms want to move in the direction that most reduces the potential energy. Energy minimization is a process of adjusting the atom positions to try to find a global minimum of the potential energy. Each atom contributes three variables (its x, y, and z coordinates) so the search space is multi-dimensional. The global minimum is the configuration that the atoms will settle into if lowered to zero Kelvin.
-&lt;/p&gt;</string>
-    </property>
+    
     <vbox>
         <property name="name">
             <cstring>unnamed</cstring>
@@ -74,7 +70,7 @@
                         </sizepolicy>
                     </property>
                     <property name="text">
-                        <string></string>
+                        <string/>
                     </property>
                     <property name="pixmap">
                         <pixmap>image0</pixmap>
@@ -141,7 +137,7 @@
                         </color>
                     </property>
                     <property name="text">
-                        <string></string>
+                        <string/>
                     </property>
                     <property name="pixmap">
                         <pixmap>image1</pixmap>
@@ -152,10 +148,7 @@
                     <property name="flat">
                         <bool>true</bool>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;NanoEngineer-1 Sponsor&lt;/b&gt;
-&lt;p&gt;Click on the logo to learn more about this NanoEngineer-1 sponsor.&lt;/p&gt;</string>
-                    </property>
+                    
                 </widget>
                 <widget class="QLayoutWidget">
                     <property name="name">
@@ -187,7 +180,7 @@
                                 <cstring>done_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image2</iconset>
@@ -201,7 +194,7 @@
                                 <cstring>abort_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image3</iconset>
@@ -215,7 +208,7 @@
                                 <cstring>restore_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image4</iconset>
@@ -229,7 +222,7 @@
                                 <cstring>whatsthis_btn</cstring>
                             </property>
                             <property name="text">
-                                <string></string>
+                                <string/>
                             </property>
                             <property name="iconSet">
                                 <iconset>image5</iconset>
@@ -265,7 +258,7 @@
                         <enum>StyledPanel</enum>
                     </property>
                     <property name="title">
-                        <string></string>
+                        <string/>
                     </property>
                     <property name="exclusive">
                         <bool>true</bool>
@@ -339,7 +332,7 @@
                                         </size>
                                     </property>
                                     <property name="text">
-                                        <string></string>
+                                        <string/>
                                     </property>
                                     <property name="autoDefault">
                                         <bool>false</bool>
@@ -383,9 +376,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Perform energy minimization on all the atoms in the workspace</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Minimize All&lt;/b&gt;&lt;p&gt;Perform energy minimization on all the atoms in the workspace.&lt;/p&gt;</string>
-                            </property>
+                            
                         </widget>
                         <widget class="QRadioButton">
                             <property name="name">
@@ -397,9 +388,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Perform energy minimization on only the atoms that have been selected</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;b&gt;Minimize Selection&lt;/b&gt;&lt;p&gt;Perform energy minimization on the atoms that are currently selected.&lt;/p&gt;</string>
-                            </property>
+                            
                         </widget>
                     </vbox>
                 </widget>
@@ -411,7 +400,7 @@
                         <enum>StyledPanel</enum>
                     </property>
                     <property name="title">
-                        <string></string>
+                        <string/>
                     </property>
                     <vbox>
                         <property name="name">
@@ -482,7 +471,7 @@
                                         </size>
                                     </property>
                                     <property name="text">
-                                        <string></string>
+                                        <string/>
                                     </property>
                                     <property name="autoDefault">
                                         <bool>false</bool>
@@ -526,9 +515,7 @@
                             <property name="toolTip" stdset="0">
                                 <string>Enables real time graphical updates during minimization runs</string>
                             </property>
-                            <property name="whatsThis" stdset="0">
-                                <string>&lt;p&gt;&lt;b&gt;Watch Motion In Real Time&lt;/b&gt;&lt;/p&gt;Enables real time graphical updates during minimization runs.</string>
-                            </property>
+                            
                         </widget>
                         <widget class="QButtonGroup">
                             <property name="name">
@@ -541,7 +528,7 @@
                                 <enum>Sunken</enum>
                             </property>
                             <property name="title">
-                                <string></string>
+                                <string/>
                             </property>
                             <vbox>
                                 <property name="name">
@@ -601,11 +588,7 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Update every 2 seconds, or faster if it doesn't slow minimization by more than 20%</string>
                                     </property>
-                                    <property name="whatsThis" stdset="0">
-                                        <string>&lt;b&gt;Update as fast as possible&lt;/b&gt;
-&lt;p&gt;
-Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimization by more than 20%&lt;/p&gt;</string>
-                                    </property>
+                                    
                                 </widget>
                                 <widget class="QLayoutWidget">
                                     <property name="name">
@@ -634,10 +617,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                                             <property name="toolTip" stdset="0">
                                                 <string>Specify how often to update the screen during the minimization.</string>
                                             </property>
-                                            <property name="whatsThis" stdset="0">
-                                                <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimization is running.&lt;/p&gt;</string>
-                                            </property>
+                                            
                                         </widget>
                                         <widget class="QSpinBox">
                                             <property name="name">
@@ -655,10 +635,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                                             <property name="toolTip" stdset="0">
                                                 <string>Specify how often to update the screen during the minimization.</string>
                                             </property>
-                                            <property name="whatsThis" stdset="0">
-                                                <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimization is running.&lt;/p&gt;</string>
-                                            </property>
+                                            
                                         </widget>
                                         <widget class="QComboBox">
                                             <item>
@@ -687,10 +664,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                                             <property name="toolTip" stdset="0">
                                                 <string>Specify how often to update the screen during the minimization.</string>
                                             </property>
-                                            <property name="whatsThis" stdset="0">
-                                                <string>&lt;b&gt;Update every &lt;i&gt;n units.&lt;/u&gt;&lt;/b&gt;
-&lt;p&gt;Specify how often to update the model during the minimization. This allows the user to monitor minimization results while the minimization is running.&lt;/p&gt;</string>
-                                            </property>
+                                            
                                         </widget>
                                         <spacer>
                                             <property name="name">
@@ -723,7 +697,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                         <enum>StyledPanel</enum>
                     </property>
                     <property name="title">
-                        <string></string>
+                        <string/>
                     </property>
                     <vbox>
                         <property name="name">
@@ -794,7 +768,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                                         </size>
                                     </property>
                                     <property name="text">
-                                        <string></string>
+                                        <string/>
                                     </property>
                                     <property name="autoDefault">
                                         <bool>false</bool>
@@ -911,40 +885,31 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                                             <property name="toolTip" stdset="0">
                                                 <string>Target RMS force (pN)</string>
                                             </property>
-                                            <property name="whatsThis" stdset="0">
-                                                <string>&lt;b&gt;EndRMS&lt;/b&gt;
-&lt;p&gt;Continue until this RMS force is reached.&lt;/p&gt;</string>
-                                            </property>
+                                            
                                         </widget>
                                         <widget class="QLineEdit">
                                             <property name="name">
                                                 <cstring>endmax_linedit</cstring>
                                             </property>
                                             <property name="text">
-                                                <string></string>
+                                                <string/>
                                             </property>
                                             <property name="toolTip" stdset="0">
                                                 <string>Target max force (pN)</string>
                                             </property>
-                                            <property name="whatsThis" stdset="0">
-                                                <string>&lt;b&gt;EndMax&lt;/b&gt;
-&lt;p&gt;Continue until the total force on each atom is less than this value.&lt;/p&gt;</string>
-                                            </property>
+                                            
                                         </widget>
                                         <widget class="QLineEdit">
                                             <property name="name">
                                                 <cstring>cutoverrms_linedit</cstring>
                                             </property>
                                             <property name="text">
-                                                <string></string>
+                                                <string/>
                                             </property>
                                             <property name="toolTip" stdset="0">
                                                 <string>Cutover RMS foce (pN)</string>
                                             </property>
-                                            <property name="whatsThis" stdset="0">
-                                                <string>&lt;b&gt;CutoverRMS&lt;/b&gt;
-&lt;p&gt;Use steepest descent until this RMS force is reached.&lt;/p&gt;</string>
-                                            </property>
+                                            
                                         </widget>
                                         <widget class="QLineEdit">
                                             <property name="name">
@@ -957,15 +922,12 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                                                 <enum>Sunken</enum>
                                             </property>
                                             <property name="text">
-                                                <string></string>
+                                                <string/>
                                             </property>
                                             <property name="toolTip" stdset="0">
                                                 <string>Cutover max force (pN)</string>
                                             </property>
-                                            <property name="whatsThis" stdset="0">
-                                                <string>&lt;b&gt;CutoverMax&lt;/b&gt;
-&lt;p&gt;Use steepest descent  until the total force on each atom is less than this value.&lt;/p&gt;</string>
-                                            </property>
+                                            
                                         </widget>
                                     </vbox>
                                 </widget>
@@ -1050,9 +1012,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                     <property name="toolTip" stdset="0">
                         <string>Cancel</string>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Cancel&lt;/b&gt;&lt;p&gt;Dismiss this dialog without taking any action.&lt;/p&gt;</string>
-                    </property>
+                    
                 </widget>
                 <widget class="QPushButton">
                     <property name="name">
@@ -1067,9 +1027,7 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
                     <property name="toolTip" stdset="0">
                         <string>OK</string>
                     </property>
-                    <property name="whatsThis" stdset="0">
-                        <string>&lt;b&gt;Minimize Energy&lt;/b&gt;&lt;p&gt;Using the parameters specified above, perform energy minimization on some or all of the atoms.&lt;/p&gt;</string>
-                    </property>
+                    
                 </widget>
             </hbox>
         </widget>
@@ -1181,5 +1139,5 @@ Update every 2 seconds, or faster (up to 20x/sec) if it doesn't slow minimizatio
     <slot>toggle_grpbtn_3()</slot>
     <slot>newSlot()</slot>
 </slots>
-<layoutdefaults spacing="6" margin="11"/>
+<layoutdefaults margin="11" spacing="6"/>
 </UI>

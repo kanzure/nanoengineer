@@ -16,6 +16,40 @@ class LinearMotorProp(LinearMotorPropDialog):
         LinearMotorPropDialog.__init__(self)
         self.jig = motor
         self.glpane = glpane
+        QWhatsThis.add(self.forceLineEdit, """<b>Force </b><p>Simulations will begin with the motor's force
+        set to this
+        value. On each simulation time step, the displacement of the linear motor's atoms are computed using Hooke's
+        Law, where:</p>
+        <p><b>displacement (x) = - Force(F) / Stiffness(k)</b></p>
+        <p>The negative sign indicates that the force
+        exerted by the motor (a spring) is in
+        direct opposition to the direction of displacement. It is called a
+        "restoring force",
+        as it tends to restore the system to equilibrium.</p>
+        <p>When Stiffness = 0, the restoring force is 0 and the displacement
+        will
+        continue in one direction.</p>""")
+        QWhatsThis.add(self.nameLineEdit, """<b>Name</b><p>Name of Linear Motor that appears in the Model
+        Tree</p>""")
+        QWhatsThis.add(self.stiffnessLineEdit, """<b>Stiffness </b><p>Simulations will begin with the motor's stiffness
+        set to this
+        value. On each simulation time step, the displacement of the linear motor's atoms are computed using Hooke's
+        Law, where:</p>
+        <p><b>displacement (x) = - Force(F) / Stiffness(k)</b></p>
+        <p>The negative sign indicates that the force
+        exerted by the motor (a spring) is in
+        direct opposition to the direction of displacement. It is called a
+        "restoring force",
+        as it tends to restore the system to equilibrium.</p>
+        <p>When Stiffness = 0, the restoring force is 0 and the displacement
+        will
+        continue in one direction.</p>""")
+        QWhatsThis.add(self.textLabel1_5, """<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
+        the force specified above will be applied to the motor's atoms during a structure minimization.  While intended to allow
+        simulations to begin with linear motors running at speed, this feature requires more work to be useful.</p>""")
+        QWhatsThis.add(self.enable_minimize_checkbox, """<b>Enable in Minimize <i>(experimental)</i></b><p>If checked,
+        the force specified above will be applied to the motor's atoms during a structure minimization.  While intended to allow
+        simulations to begin with linear motors running at speed, this feature requires more work to be useful.</p>""")
 
     def setup(self):
         

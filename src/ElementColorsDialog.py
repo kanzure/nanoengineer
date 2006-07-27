@@ -1,9 +1,8 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\atom\cad\src\ElementColorsDialog.ui'
+# Form implementation generated from reading ui file 'ElementColorsDialog.ui'
 #
-# Created: Wed Feb 15 18:03:10 2006
+# Created: Wed Jul 26 23:37:17 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -471,17 +470,13 @@ class ElementColorsDialog(QDialog):
         QToolTip.add(self.toolButton0,self.__tr("Bondpoint"))
         self.saveColorsPB.setText(self.__tr("Save Colors ..."))
         QToolTip.add(self.saveColorsPB,self.__tr("Save the current element color settings to a file"))
-        QWhatsThis.add(self.saveColorsPB,self.__tr("Save the current color settings for elements in a text file."))
         self.defaultButton.setText(self.__tr("Restore Defaults"))
         QToolTip.add(self.defaultButton,self.__tr("Restore current element colors to the default colors."))
-        QWhatsThis.add(self.defaultButton,self.__tr("Restore current element colors to the default colors."))
         self.loadColorsPB.setText(self.__tr("Load Colors ..."))
         QToolTip.add(self.loadColorsPB,self.__tr("Load element colors from file"))
-        QWhatsThis.add(self.loadColorsPB,self.__tr("Load element colors from an external text file."))
         self.cancelButton.setText(self.__tr("Cancel"))
         self.alterButton.setText(self.__tr("Set To Alternate"))
         QToolTip.add(self.alterButton,self.__tr("Set element colors to the alternate color set"))
-        QWhatsThis.add(self.alterButton,self.__tr("Set element colors to the alternate color set."))
         self.okButton.setText(self.__tr("Ok"))
         self.previewPB.setText(self.__tr("Preview"))
         self.restorePB.setText(self.__tr("Restore"))
