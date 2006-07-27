@@ -31,7 +31,7 @@ import env
 
 Purpose and future plans:
 
-Soon we should move some more variables here from platform, assy, and win.
+Soon we should move some more variables here from platform, assy, and/or win.
 
 We might also put some "dynamic variables" here, like the current Part --
 this is not yet decided.

@@ -711,11 +711,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             env.prefs[workingDirectory_prefs_key] = wd
             
             env.history.message( "Working Directory set to " + wd )
-
-            # bruce 050119: store this in prefs database so no need for ~/.ne1rc
-            from preferences import prefs_context
-            prefs = prefs_context()
-            env.prefs[workingDirectory_prefs_key] = wd
+        return
                 
     def __clear(self): #bruce 050911 revised this: leaves glpane.mode as nullmode
         #bruce 050907 comment: this is only called from two file ops in this mixin, so I moved it here from MWsemantics
