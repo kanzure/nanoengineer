@@ -105,7 +105,7 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         run.</p>""")
         QWhatsThis.add(self.stepsperSB, """<b>Steps per Frame</b><p>The time duration between frames. 10
         steps = 1 femtosecond.</p>""")
-        QWhatsThis.add(self.SimSetupDialog, """<b>NanoDynamics-1 Setup</b><p>NanoEngineer-1 Molecular Dynamics
+        QWhatsThis.add(self, """<b>NanoDynamics-1 Setup</b><p>NanoEngineer-1 Molecular Dynamics
         Simulator Setup. Enter the parameters of the simulation and click <b>Run Simulation</b>.</p>""")
         self.exec_loop()
         
