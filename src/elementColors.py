@@ -142,8 +142,11 @@ class elementColors(ElementColorsDialog):
         update elements color in the selector dialog and also the display models """
         # Determine what directory to open.
         import os
-        if self.w.assy.filename: odir = os.path.dirname(self.w.assy.filename)
-        else: odir = env.prefs[workingDirectory_prefs_key]
+        if self.w.assy.filename: 
+            odir = os.path.dirname(self.w.assy.filename)
+        else: 
+            from prefs_constants import workingDirectory_prefs_key
+            odir = env.prefs[workingDirectory_prefs_key]
         self.fileName = str(QFileDialog.getOpenFileName(odir,
                 "Elements color file (*.txt);;All Files (*.*);;",
                 self ))

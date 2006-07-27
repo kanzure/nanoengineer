@@ -513,8 +513,11 @@ class MMKit(MMKitDialog):
     def browseDirectories(self):
        '''Slot method for the browse button of library page. '''
        # Determine what directory to open.
-       if self.w.assy.filename: odir = os.path.dirname(self.w.assy.filename)
-       else: odir = env.prefs[workingDirectory_prefs_key]
+       if self.w.assy.filename: 
+           odir = os.path.dirname(self.w.assy.filename)
+       else: 
+           from prefs_constants import workingDirectory_prefs_key
+           odir = env.prefs[workingDirectory_prefs_key]
         
        fdir = QFileDialog.getExistingDirectory(odir, self, "Choose directory", "Choose library directory", True)
        libDir = str(fdir)
