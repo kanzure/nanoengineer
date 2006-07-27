@@ -619,7 +619,7 @@ class Jig(Node):
             self.set_cntl()
             assert self.cntl is not None
         if self is self.assy.o.selobj:
-            self.assy.o.selobj = None 
+            self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
             # If the Properties dialog was selected from the GLPane's context menu, set selobj = None
             # so that we can see the jig's real color, not the highlighted color.  This is very important
             # when changing the jig's color from the properties dialog since it will remain highlighted
@@ -636,7 +636,7 @@ class Jig(Node):
             #bruce 060313 use correct call, to fix bug 1671 (and related unreported bugs)
         if self is self.assy.o.selobj:
             # Without this, self will remain highlighted until the mouse moves.
-            self.assy.o.selobj = None
+            self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
         self.assy.w.win_update()
         
     def mouseover_statusbar_message(self): # Fixes bug 1642. mark 060312

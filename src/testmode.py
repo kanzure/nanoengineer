@@ -65,20 +65,25 @@ class testmode(super):
         reload(testdraw)
         
     def leftDown(self, event):
-        self.reload() # did this in Draw, not here & Enter, until 060723 late
+        ## not here, only in emptySpaceLeftDown: self.reload() -- note, that depends on calling super.leftDown!
         import testdraw
         try:
-            testdraw.leftDown(self.o, event)
+            testdraw.leftDown(self, event, self.o, super) # if super.leftDown and/or gl_update should be called, this should do it
+            # this might reload testdraw, see other comments
         except:
             #e history message?
             print_compact_traceback("exception in testdraw.leftDown ignored: ")
-        self.o.gl_update() # cause another call of self.Draw() [###e actually it might be better to let testdraw.leftDown decide on this]
 
-    def leftDrag(self, event):
-        pass
+    def emptySpaceLeftDown(self, event):
+        self.reload() # did this in leftDown, not here, until 060726 late
+        super.emptySpaceLeftDown(self, event) #e does testdraw need to intercept this?
 
-    def leftUp(self, event):
-        pass
+    # let super do these, until we get around to defining them here and letting testdraw intercept them:
+##    def leftDrag(self, event):
+##        pass
+##
+##    def leftUp(self, event):
+##        pass
     
     def Enter(self):
         print

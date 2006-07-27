@@ -62,6 +62,8 @@ from changes import SubUsageTrackingMixin
 
 debug_lighting = False #bruce 050418
 
+debug_set_selobj = False # do not commit with true
+
 trans_feature = False ###@@@ bruce 050627 experimental code disabled for commit [DO NOT COMMIT with true]
 
 
@@ -2015,6 +2017,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
     def set_selobj(self, selobj, why = "why?"):
         if selobj is not self.selobj:
+            if debug_set_selobj:
+                print_compact_stack("debug_set_selobj: %r -> %r: " % (self.selobj, selobj))
             #bruce 050702 partly address bug 715-3 (the presently-broken Build mode statusbar messages).
             # Temporary fix, since Build mode's messages are better and should be restored.
             if selobj is not None:
@@ -2100,6 +2104,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             hicolor = self.selobj_hicolor( newpicked)
             if hicolor is None:
                 newpicked = None
+                # [note: there are one or two other checks of the same thing,
+                #  e.g. to cover preexisting selobjs whose hicolor might have changed [bruce 060726 comment]]
         else:
             #bruce 060217 debug code re bug 1527. Not sure only happens on a bug, so using atom_debug.
             # (But I couldn't yet cause this to be printed while testing that bug.)
@@ -2107,7 +2113,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # (though I didn't reanalyze my reasons for thinking it might be a bug, so I don't know if it's a real one or not).
             if 0 and platform.atom_debug:
                 print "atom_debug: newpicked is None -- bug? items are:", items
-        return newpicked # might be None in case of errors
+        return newpicked # might be None in case of errors (or if selobj_hicolor returns None)
 
     def check_target_depth(self, candidate): #bruce 050609; tolerance revised 050702
         """[private helper method]

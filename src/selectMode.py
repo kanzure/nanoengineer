@@ -26,6 +26,8 @@ from chunk import molecule
 import env
 from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False, Choice
 
+debug_update_selobj_calls = False # do not commit with true
+
 _count = 0
 
 #bruce 060315 revised DRAG_STICKINESS_LIMIT to be in pixels
@@ -940,17 +942,16 @@ class selectMode(basicMode):
         '''
         self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
-        selobj = self.o.selobj # only used if selatom is None
+        selobj = self.o.selobj # only used if selatom is None [this comment seems wrong -- bruce 060726]
         if isinstance( selobj, Bond) and not selobj.is_open_bond(): #bruce 050727 new feature
             env.history.message_no_html("breaking bond %s" % selobj)
-                ###e %r doesn't show bond type, but %s doesn't work in history since it contains "<-->" which looks like HTML.
-                ###e Should fix with a utility to quote HTML-active chars, to call here on the message.
+                # note: %r doesn't show bond type, but %s needs _no_html since it contains "<-->" which looks like HTML.
             self.o.selobj = None # without this, the bond remains highlighted even after it's broken (visible if it's toolong)
+                ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
             selobj.bust() # this fails to preserve the bond type on the open bonds -- not sure if that's bad, but probably it is
             self.set_cmdname('Delete Bond')
             self.o.assy.changed() #k needed?
-            
-            self.w.win_update()
+            self.w.win_update() #k wouldn't gl_update be enough? [bruce 060726 question]
             
     def bondDrag(self, event):
         # If a LMB+Drag event has happened after selecting a bond in left*Down(),
@@ -1714,24 +1715,30 @@ class selectAtomsMode(selectMode):
         """
         self.update_selobj(event)
         # note: this routine no longer updates glpane.selatom. For that see self.update_selatom().
+        ###e someday, if new or prior selobj asks for it (by defining certain methods), we'd tell it about this bareMotion
+        # and about changes in selobj. [bruce 060726]
+        return
 
     def get_obj_under_cursor(self, event):
         '''Return the object under the cursor.  Only atoms, singlets and bonds are returned.
         Returns None for all other cases, including when a bond, jig or nothing is under the cursor.
         ''' #bruce 060331 comment: this docstring appears wrong, since the code looks like it can return jigs.
-        
+        ### WARNING: this is slow, and redundant with highlighting -- only call it on mousedown or mouseup, never in move or drag.
+        # [true as of 060726 and before; bruce 060726 comment]
+        # It may be that it's not called when highlighting is on, and it has no excuse to be, but I suspect it is anyway.
+        # [bruce 060726 comment]
         if self.hover_highlighting_enabled:
             self.update_selatom(event) #bruce 041130 in case no update_selatom happened yet
             # update_selatom() updates self.o.selatom and self.o.selobj.
             # self.o.selatom is either a real atom or a singlet [or None].
             # self.o.selobj can be a bond, and is used in leftUp() to determine if a bond was selected.
             
-        # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
-        # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
-        # Therefore, the present value might be out of date -- but it does correspond to whatever
-        # highlighting is on the screen, so whatever it is should not be a surprise to the user,
-        # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
-        # motion before pressing the mouse. [bruce 050705 comment]
+            # Warning: if there was no GLPane repaint event (i.e. paintGL call) since the last bareMotion,
+            # update_selatom can't make selobj/selatom correct until the next time paintGL runs.
+            # Therefore, the present value might be out of date -- but it does correspond to whatever
+            # highlighting is on the screen, so whatever it is should not be a surprise to the user,
+            # so this is not too bad -- the user should wait for the highlighting to catch up to the mouse
+            # motion before pressing the mouse. [bruce 050705 comment] [might be out of context, copied from other code]
         
             obj = self.o.selatom # a "highlighted" atom or singlet
             
@@ -1743,7 +1750,7 @@ class selectAtomsMode(selectMode):
                         # (and if not, we should put them here -- I know of no excuse for jig highlighting
                         #  to work differently than for anything else) [bruce 060721] 
             
-            if obj is None: # a "highlighted" jig
+            if obj is None: # a "highlighted" jig [i think this comment is misleading, it might really be nothing -- bruce 060726]
                 obj = self.get_jig_under_cursor(event)
                 if env.debug():
                     print "debug fyi: get_jig_under_cursor returns %r" % (obj,) # [bruce 060721] 
@@ -1768,7 +1775,7 @@ class selectAtomsMode(selectMode):
     def bond_type_changer_is_active(self): #bruce 060702
         "[subclasses can override this; see depositMode implem for docstring]"
         return False
-        
+
     def selobj_highlight_color(self, selobj): #bruce 050612 added this to mode API
         """[mode API method]
         If we'd like this selobj to be highlighted on mouseover
@@ -1781,6 +1788,10 @@ class selectAtomsMode(selectMode):
         if not self.hover_highlighting_enabled:
             return None
 
+        #####@@@@@ if self.drag_handler, we should probably let it override all this
+        # (so it can highlight just the things it might let you DND its selobj to, for example),
+        # even for Atom/Bondpoint/Bond/Jig, maybe even when not self.hover_highlighting_enabled. [bruce 060726 comment]
+        
         if isinstance(selobj, Atom):
             if selobj.is_singlet():
                 if self.highlight_singlets: # added highlight_singlets to fix bug 1540. mark 060220.
@@ -1808,10 +1819,10 @@ class selectAtomsMode(selectMode):
                         # Highlight the atom in darkred if the control key is pressed and it is not picked.
                         # The delete_mode color should be a user pref.  Wait until A8, though.  mark 060129.
                 else:
-                    return env.prefs[atomHighlightColor_prefs_key] ## was HICOLOR_real_atom before bruce 050805
+                    return env.prefs[atomHighlightColor_prefs_key]
         elif isinstance(selobj, Bond):
             #bruce 050822 experiment: debug_pref to control whether to highlight bonds
-            # (when False they'll still obscure other things -- need to see if this works for Mark ####@@@@)
+            # (when False they'll still obscure other things -- need to see if this works for Mark ###@@@)
             # ###@@@ PROBLEM with this implem: they still have a cmenu and can be deleted by cmd-del (since still in selobj);
             # how would we *completely* turn this off? Need to see how GLPane decides whether a drawn thing is highlightable --
             # maybe just by whether it can draw_with_abs_coords? Maybe by whether it has a glname (not toggleable instantly)?
@@ -1822,16 +1833,17 @@ class selectAtomsMode(selectMode):
                 return None
             ###@@@ use checkbox to control this; when false, return None
             if selobj.atom1.is_singlet() or selobj.atom2.is_singlet():
-                # note: HICOLOR_singlet_bond is no longer used, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
-                print "Error: HICOLOR_singlet_bond no longer used"  # This can be removed soon. mark 060215.
-                return None # precaution.  
+                # this should never happen, since singlet-bond is part of singlet for selobj purposes [bruce 050708]
+                print "bug: selobj is a bond to a bondpoint, should have borrowed glname from that bondpoint", selobj
+                    #bruce 060726 revised this
+                return None # precaution
             else:
                 if self.only_highlight_singlets:
                     return None
                 if self.o.modkeys == 'Shift+Control': 
                     return darkred
                 else:
-                    return env.prefs[bondHighlightColor_prefs_key] ## was HICOLOR_real_bond before bruce 050805
+                    return env.prefs[bondHighlightColor_prefs_key]
         elif isinstance(selobj, Jig): #bruce 050729 bugfix (for some bugs caused by Huaicai's jig-selection code)
             if not self.o.jigSelectionEnabled: #mark 060312.
                 # jigSelectionEnabled set from GLPane context menu.
@@ -1842,17 +1854,29 @@ class selectAtomsMode(selectMode):
                 return env.prefs[bondHighlightColor_prefs_key]
         else:
             if 1:
-                # let the object tell us, if it's not one we have a special case for
-                # (note: some objects which tell us one just do it to avoid this print,
-                #  since they are free to ignore this color when drawing their highlight)
-                # [bruce 060722]
+                # Let the object tell us its highlight color, if it's not one we have a special case for here
+                # (and if no drag_handler told us instead (nim, above)).
+                # Note: this color will be passed to selobj.draw_in_abs_coords when selobj is asked
+                # to draw its highlight; but even if that method plans to ignore that color arg,
+                # this method better return a real color (or at least not None or (maybe) anything false),
+                # otherwise GLPane will decide it's not a valid selobj and not highlight it at all.
+                # (And in that case, will a context menu work on it (if it wasn't nim for that kind of selobj)?
+                #  I don't know.)
+                # [bruce 060722 new feature; revised comment 060726]
                 method = getattr(selobj, 'highlight_color_for_modkeys', None)
                 if method:
                     return method(self.o.modkeys)
                         # Note: this API might be revised; it only really makes sense if the mode created the selobj to fit its
                         # current way of using modkeys, perhaps including not only its code but its active-tool state.
+                        #e Does it make sense to pass the drag_handler, even if we let it override this?
+                        # Yes, since it might like to ask the object (so it needs an API to do that), or let the obj decide,
+                        # based on properties of the drag_handler.
+                        #e Does it make sense to pass the obj being dragged without a drag_handler?
+                        # Yes, even more so. Not sure if that's always called the same thing, depending on its type.
+                        # If not, we can probably just kluge it by self.this or self.that, if they all get reset each drag. ###@@@
             print "unexpected selobj class in mode.selobj_highlight_color:", selobj
-            return blue
+            return black ## bruce 060726 blue -> black so the fact that it's an error is more obvious
+        pass # end of selobj_highlight_color
             
     def update_selobj(self, event): #bruce 050610
         """Keep glpane.selobj up-to-date, as object under mouse, or None
@@ -1881,6 +1905,10 @@ class selectAtomsMode(selectMode):
         # Only goals of this method: maybe glupdate, if so maybe first set flag, and maybe set selobj none, but prob not
         # (repaint sets new selobj, maybe highlights it).
         # [some code copied from modifyMode]
+        
+        if debug_update_selobj_calls:
+            print_compact_stack("debug_update_selobj_calls: ")
+        
         glpane = self.o
         
         if self.o.is_animating:
@@ -1933,6 +1961,7 @@ class selectAtomsMode(selectMode):
             new_selobj = None
         else:
             # compare to water surface depth
+            ####@@@@ this could be optimized -- likely no need for gluProject when not self.water_enabled [bruce 060726 comment]
             cov = - glpane.pov # center_of_view (kluge: we happen to know this is where the water surface is drawn)
             try:
                 junk, junk, cov_depth = gluProject( cov[0], cov[1], cov[2] )
@@ -1943,7 +1972,7 @@ class selectAtomsMode(selectMode):
             if self.water_enabled and wZ >= water_depth:
                 #print "behind water: %r >= %r" % (wZ , water_depth)
                 new_selobj = None
-                    # btw, in constrast to this condition for a new selobj, an existing one will
+                    # btw, in contrast to this condition for a new selobj, an existing one will
                     # remain selected even when you mouseover the underwater part (that's intentional)
             else:
                 # depth is in front of water
@@ -1981,14 +2010,16 @@ class selectAtomsMode(selectMode):
         return not new_selobj_unknown # from update_selobj
 
     def update_selatom(self, event, singOnly = False, msg_about_click = False, resort_to_prior = True): 
-        #bruce 050610 rewrote this
         '''Keep selatom up-to-date, as atom under mouse based on <event>; 
-        When <singOnly> is True, only keep singlets up-to-date.
+        When <singOnly> is True, only keep singlets up-to-date. [not sure what that phrase means -- bruce 060726]
         When <msg_about_click> is True, print a message on the statusbar about the LMB press.
-        <resort_to_prior> is disabled.
+        <resort_to_prior> is disabled. [that statement seems incorrect -- bruce 060726]
         ###@@@ correctness after rewrite not yet proven, due to delay until paintGL
         '''
-        # bruce 050124 split this out of bareMotion so options can vary
+        #bruce 050124 split this out of bareMotion so options can vary
+        #bruce 050610 rewrote this
+        #bruce 060726 comment: looks to me like docstring is wrong about resort_to_prior, and some comments are obs.
+        # Note: it never changes glpane.selobj.
         glpane = self.o
         if event is None:
             # event (and thus its x,y position) is not known [bruce 050612 added this possibility]
@@ -2030,7 +2061,7 @@ class selectAtomsMode(selectMode):
             # update display (probably redundant with side effect of update_selobj; ok if it is, and I'm not sure it always is #k)
             glpane.gl_update() # draws selatom too, since its chunk is not hidden [comment might be obs, as of 050610]
         
-        return
+        return # from update_selatom
         
 # == LMB event handling methods ====================================
 #
@@ -2104,6 +2135,7 @@ class selectAtomsMode(selectMode):
             # The API is experimental and is very likely to be modified, so don't depend on it yet.
             # For example, we're likely to tell it some modkeys, something about this mode, the mousepoints, etc,
             # and to respond more fundamentally to whatever is returned. ###@@@
+            # (see also mouseover_statusbar_message, used in GLPane.set_selobj)
             method = getattr(obj, 'leftClick', None)
             if method:
                 farQ_junk, hitpoint = self.dragstart_using_GL_DEPTH( event) ######k safe?

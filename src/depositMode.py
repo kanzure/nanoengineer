@@ -1524,6 +1524,14 @@ class depositMode(selectAtomsMode):
         #bruce 051209 brought update_selatom inside this conditional, to fix an old bug; 
         # need to reset it in other case???###@@@
         self.update_selatom(event, singOnly = True) # indicate singlets we might bond to
+            #bruce 060726 question: I tried singOnly = False, but this had no visible effect -- the only highlightings during drag
+            # are the singlets, and real atoms that have singlets. Where is the cause of this?
+            # I can't find anything resetting selobj then.
+            # The code in update_selatom also looks like it won't refrain from storing anything in selobj, based on singOnly --
+            # this only affects what it stores in selatom. Guesses: selobj_still_ok? hicolor/selobj_highlight_color? ####@@@@
+            # Also, note that not all drag methods call update_selobj at all. (I think they then leave the old one highlighted --
+            # dragging a real atom seems to do that.) My motivations: a need to let self.drag_handler control what gets highlighted
+            # (and its color), and unexplained behavior of testdraw.py after leftDown.
         #bruce 041130 asks: is it correct to do that when a is real? 051209: no. now i don't, that's the bugfix.
         # see warnings about update_selatom's delayed effect, in its docstring or in leftDown. [bruce 050705 comment]
         self.line = [a.posn(), px] # This updates the endpoints of the white rubberband line.

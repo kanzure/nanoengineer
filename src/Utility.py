@@ -885,7 +885,7 @@ class Node( StateMixin):
         self.hide()
         if self is self.assy.o.selobj:
             # Without this, self will remain highlighted until the mouse moves.
-            self.assy.o.selobj = None
+            self.assy.o.selobj = None ###e shouldn't we use set_selobj instead?? [bruce 060726 question]
         self.assy.w.win_update()
         
     def unhide(self):

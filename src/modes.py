@@ -939,9 +939,13 @@ class basicMode(anyMode):
                 except AttributeError:
                     pass
                 else:
-                    return method(self.o) # this method would need to compare glpane.part to something in selobj
+                    res = method(self.o) # this method would need to compare glpane.part to something in selobj
                         ##e it might be better to require selobj's to return a part, compare that here,
                         # then call this for further conditions
+                    if res is None:
+                        print "likely bug: %r.selobj_still_ok(glpane) returned None, "\
+                              "should return boolean (missing return statement?)" % (selobj,)
+                    return res
             if platform.atom_debug:
                 print "debug: selobj_still_ok doesn't recognize %r, assuming ok" % (selobj,)
             return True

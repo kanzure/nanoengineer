@@ -66,6 +66,10 @@ from debug import print_compact_stack
 import env
 from idlelib.Delegator import Delegator
 
+USE_DISPLAY_LIST_OPTIM = False # usually True, set False to see if this optim is causing bugs
+
+printdraw = False # debug flag
+
 ORIGIN = V(0,0,0)
 DX = V(1,0,0)
 DY = V(0,1,0)
@@ -110,6 +114,7 @@ try:
     vv
     vv.displist
     vv.havelist
+    vv.reload_counter += 1
 except:
     vv = attrholder()
     vv.tex_name = 0
@@ -117,17 +122,26 @@ except:
     vv.counter = 0
     vv.displist = glGenLists(1)
     vv.havelist = 0
+    vv.reload_counter = 0
     ##e should modify to make it easier to set up defaults; sort of like a debug_pref?
 
 # vv.counter = 0 # just to get started (was needed when i moved file to another machine, already running, too)
 
 # ==
 
+print "\n%d reloads\n" % vv.reload_counter
+
 def Enter(glpane): # never yet called ###@@@
     glpane.win.setViewHome() # not tested, might be wrong; redundant now (if home view is the default)
     
-def leftDown(glpane, event):
+def leftDown(self, event, glpane, super): # called from testmode.leftDown, just after it reloads this module
+    "self is the mode, needed to call super.leftDown"
+    ####@@@@ LOGIC BUG: when we reload, we replace one highlightable with a new one in the same place --
+    # but don't replace selobj with the new one! So we predict not selobj_still_ok -- should print that from there ###@@@
+    if printdraw: print "\ntestdraw leftDown" ###@@@
     vv.havelist = 0 # so editing this file (and clicking) uses the new code
+    super.leftDown(self, event)
+    glpane.gl_update() # always, for now [might be redundant with super.leftDown, too]
 
 def drawtest(glpane): # called by testmode.Draw
     vv.counter += 1
@@ -155,7 +169,8 @@ def havelist_counters(glpane):
 
 def display_list_helper(self, glpane, drawfunc):
     "self needs .havelist and .displist"
-    if self.havelist == havelist_counters(glpane): ## == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
+    wantlist = USE_DISPLAY_LIST_OPTIM
+    if wantlist and self.havelist == havelist_counters(glpane): ## == (disp, eltprefs, matprefs, drawLevel): # value must agree with set of havelist, below
         ##print "calllist (redraw %d)" % env.redraw_counter
         glCallList(self.displist)
     else:
@@ -174,7 +189,6 @@ def display_list_helper(self, glpane, drawfunc):
 ##        except:
 ##            print_compact_traceback("exception (a bug) ignored: ")
 ##            wantlist = True
-        wantlist = True
         if wantlist:
 ##            match_checking_code = self.begin_tracking_usage()
             glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
@@ -186,7 +200,7 @@ def display_list_helper(self, glpane, drawfunc):
         # invalid operation. (Also done in shape.py; not needed in drawer.py.)
         try:
 ##            self.draw_displist(glpane, disp, (hd, delegate_draw_atoms, delegate_draw_chunk))
-            print "drawfunc (redraw %d)" % env.redraw_counter
+            if printdraw: print "drawfunc (redraw %d)" % env.redraw_counter
             drawfunc()
         except:
             print_compact_traceback("exception ignored: ")
@@ -555,6 +569,34 @@ def draw_filled_rect(origin, dx, dy, color):
     glEnd()
     glEnable(GL_LIGHTING) # should be outside of glEnd! when inside, i got infloop! (not sure that was why; quit/reran after that)
 
+# == selobj interface
+
+###e should define this; see class Highlightable --
+# draw_in_abs_coords,
+# ClickedOn/leftClick,
+# mouseover_statusbar_message
+# highlight_color_for_modkeys
+# selobj_still_ok, maybe more
+
+# == drag handler interface
+
+class DragHandler:
+    "document the drag_handler interface, and provide default method implems" # example subclass: class Highlightable
+    ### how does this relate to the selobj interface? often the same object, but different API;
+    # drag_handlers are retvals from a selobj method
+    def handles_updates(self):
+        """Return True if you will do mt and glpane updates as needed,
+        False if you want client mode to guess when to do them for you
+        (it will probably guess: do both, on mouse down, drag, up;
+         but do neither, on baremotion == move, except when selobj changes)
+        """
+        return False # otherwise subclass is likely to forget to do them
+    def DraggedOn(self, offset): ### might need better args (the mouseray, as two points?) ### NOT YET CALLED  #e rename
+        pass
+    def ReleasedOn(self, selobj): ### will need better args ### NOT YET CALLED  #e rename
+        pass
+    pass
+
 # == widget exprs
 
 class WidgetExpr(InvalMixin):
@@ -595,7 +637,7 @@ class DelegatingWidgetExpr(Delegator, WidgetExpr):
         Delegator.__init__(self, self.args[0]) # usually same as args[0], but this way, init method can modify self.args[0] if it needs to
     pass
 
-class Highlightable(DelegatingWidgetExpr):#060722
+class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
     "Highlightable(plain, highlight) renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight"
     # Works, except I suspect the docstring is inaccurate when it says "plain plus highlight" (rather than just highlight), 
     # and there's an exception if you try to ask selectMode for a cmenu for this object, or if you just click on it
@@ -632,10 +674,10 @@ class Highlightable(DelegatingWidgetExpr):#060722
             #   we'd need to store self.glname and self.saved_modelview_matrix in corresponding external state]
         glPushName(self.glname)
         if self.transient_state.in_drag:
-            print "pressed_out.draw"
+            if printdraw: print "pressed_out.draw",self
             self.pressed_out.draw() #e actually might depend on mouseover, or might not draw anything then...
         else:
-            print "plain.draw"
+            ## print "plain.draw",self
             self.plain.draw()
         glPopName() ##e should protect this from exceptions
             #e (or have a WE-wrapper to do that for us, for .draw() -- or just a helper func, draw_and_catch_exceptions)
@@ -652,15 +694,20 @@ class Highlightable(DelegatingWidgetExpr):#060722
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/OpenGLContext/renderpass.py
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/VisionEgg/Core.py
         if self.transient_state.in_drag:
-            print "pressed_in.draw"
+            if printdraw: print "pressed_in.draw",self
             self.pressed_in.draw() #e actually might depend on mouseover, or might not draw anything then...
         else:
-            print "highlighted.draw"
+            if printdraw: print "highlighted.draw",self
             self.highlighted.draw()
         glPopMatrix()
         return
-    def __repr__(self): ### kluge -- better if selectMode called a specific method for this
-        return self.kws.get('sbar_text') or "<%s at %#x>" % (self.__class__.__name__, id(self))
+    def __repr__(self):
+        sbar_text = self.kws.get('sbar_text') or ""
+        if sbar_text:
+            sbar_text = " %r" % sbar_text
+        return "<%s%s at %#x>" % (self.__class__.__name__, sbar_text, id(self))
+    def mouseover_statusbar_message(self): # called in GLPane.set_selobj
+        return self.kws.get('sbar_text') or "%r" % (self,)
     def highlight_color_for_modkeys(self, modkeys):
         """#doc; modkeys is e.g. "Shift+Control", taken from glpane.modkeys
         """
@@ -671,9 +718,12 @@ class Highlightable(DelegatingWidgetExpr):#060722
         # (it might make sense to see if it's created by current code, too;
         #  but this might be too strict: self.__class__ is Highlightable )
         # actually it ought to be ok for now:
-        return self.__class__ is Highlightable # i.e. we didn't reload this module since self was created
-        #return True ###e stub, not reviewed
-    ### grabbed from Button, not yet fixed for here
+        res = self.__class__ is Highlightable # i.e. we didn't reload this module since self was created
+        if not res and env.debug():
+            print "debug: selobj_still_ok is false for %r" % self ###@@@
+        return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
+            # Caller now prints a warning if it's not None.
+    ### grabbed from Button, maybe not yet fixed for here
     def leftClick(self, point):
         self.transient_state.in_drag = True
         self.do_action('on_press')
@@ -844,11 +894,20 @@ class Corkscrew(WidgetExpr):
     _get_bbottom = _get_btop
     pass
 
+debug_color_override = 0
+
 class Ribbon(Corkscrew):
     def draw(self, **mods):
         radius, axis, turn, n, color = self.args
-        color = mods.get('color',color)##kluge
+        color0 = mods.get('color',color)##kluge
             ##e todo: should be more general; maybe should get "state ref" (to show & edit) as arg, too?
+        if color != color0:
+            if debug_color_override:
+                print "color override in %r from %r to %r" % (self, color, color0) # seems to happen to much and then get stuck... ###@@@
+        else:
+            if debug_color_override:
+                print "no color override in %r for %r" % (self, color) 
+        color = color0
         offset = axis * 2
         halfoffset = offset / 2.0
         interior_color = ave_colors(0.8,color, white) ###
@@ -1105,10 +1164,11 @@ class If_:
         # delegate to then or else_, according to cond (whether value is a bound method or a constant)
         # don't resolve_callables in then or else_, let caller or themselves do that [I think #k]
         cond, then, else_ = self.args
+        print "kluge, will fail: using global env in If_.__getattr__"
         cond = resolve_callables(cond, env) ###### how do we know env??? hmm... LOGIC BUG #####@@@@@@ [can it be dynamic???]
         ### or, do we save up the chain of attrs (like Symbol), then wait til we get passed env by resolve_callables ????
         cond = not not cond
-        clause = (_else, then)[cond]
+        clause = (else_, then)[cond]
         if clause is not None:
             return getattr(clause, attr)
         return None
@@ -1118,7 +1178,7 @@ def If(cond, then, else_ = None):
     if callable(cond):
         return If_(cond, then, else_)
     cond = not not cond
-    clause = (_else, then)[cond]
+    clause = (else_, then)[cond]
     # often a constant; if a function, let the caller resolve it when it wants to
     # (which might not be now, and we don't know env anyway)
     return clause 
@@ -1151,7 +1211,7 @@ testexpr = Row(
                 Column(
                   Rect(1.5, 1, red),
                   Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
-                  Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "ds2" ),
+                  Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "bottom ribbon2" ),
                   Rect(1.5, 1, green),
                   gap = 0.2
                 ## DrawThePart(),
@@ -1164,7 +1224,7 @@ testexpr = Row(
                                    #   Row(Rect(1,3,blue),Rect(1,3,green)),
                                    # example of bigger highlighting (could be used to define a nearby mouseover-tooltip as well):
                                    #   Row(Rect(1,3,blue),Rect(2,3,green)),
-                                   sbar_text = "rect1"
+                                   sbar_text = "big pink rect"
                                    ),
                     #Highlightable( Rect(2, 3, pink), Closer(Rect(2, 3, orange), 0.1) ) # only works from front
                         # (presumably since glpane moves it less than 0.1; if I use 0.001 it still works from either side)
@@ -1173,14 +1233,18 @@ testexpr = Row(
                         Rect(1, 1, orange), # highlighted form (can depend on active dragobj/tool if any, too) #e sbar_text?
                         # [now generalize to be more like Button, but consider it a primitive, as said above]
                         # handling_a_drag form:
-                        If( lambda env: env.this.mouseoverme , ####@@@@ this means the Highlightable -- is that well-defined???
+                        If( True, ## won't work yet: lambda env: env.this.mouseoverme , ####@@@@ this means the Highlightable -- is that well-defined???
                             Rect(1, 1, blue),
-                            Rect(1, 1, lightblue)) # what to draw during the drag
-                                ),
+                            Rect(1, 1, lightblue) # what to draw during the drag
+                        ),
+                        sbar_text = "little buttonlike rect"
+                    )
                 )),
                 gap = 0.2)
 
 # (some outtakes removed to bruceG5 testdraw-outtakes.py, last here in rev 1.11)
+
+### btw i decided not to use env in these lambdas -- too likely to be confusing re global env. didn't yet decide what to use instead.
 
 # e.g.:
 some_color_arg = red

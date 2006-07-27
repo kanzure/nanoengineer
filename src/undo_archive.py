@@ -547,6 +547,7 @@ def final_post_undo_updates(archive): #060409 seems likely to be safe/sufficient
         glpane = win.glpane
         glpane.selatom = glpane.selobj = None # this works; but is there a better way (like some method in GLPane)?
             # if there is, not sure it's fully safe!
+            # [there is set_selobj, but its updates might be unsafe for this -- not reviewed, but seems likely. -- bruce 060726]
             #e Also, ideally glpane should do this itself in _undo_update_always, which we should call.
     return # from final_post_undo_updates
 
