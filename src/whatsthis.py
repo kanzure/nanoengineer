@@ -1048,7 +1048,18 @@ def createWhatsThis(self):
                                                        self. modifyAlignCommonAxisAction.iconSet().pixmap() )
        
         self. modifyAlignCommonAxisAction.setWhatsThis( modifyAlignCommonAxisActionText )
-                
+        
+        #Center on Common Axis 
+        modifyCenterCommonAxisActionText= " <u><b>Center On common Axis</b></u><br>"\
+        "<p><b> Moves</b> all selected chunks to the center of  the <b> first </b> selected chunk "\
+        "and also <b>aligns</b> them to the axis of the first one ."\
+        "You must select two or more chunks before using this feature. </p>" 
+        
+        #QMimeSourceFactory.defaultFactory().setPixmap( "modifyCenterCommonAxis",
+         #                                              self. modifyCenterCommonAxisAction.iconSet().pixmap() )
+                                                       
+        self.modifyCenterCommonAxisAction.setWhatsThis(modifyCenterCommonAxisActionText)
+        
         #
         # Tools Toolbar
         #
@@ -1245,7 +1256,7 @@ def createWhatsThis(self):
 
         toolsDoneActionText = "<u><b>Done</b></u><br>"\
                        "<p><img source=\" toolsDoneAction\"><br> "\
-                       "Completes the current operation and enters Select Chunks mode."\
+                       "Completes the current operation and enters the default mode."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsDoneAction",
@@ -1257,7 +1268,7 @@ def createWhatsThis(self):
 
         toolsCancelActionText = "<u><b>Cancel</b></u><br>"\
                        "<p><img source=\" toolsCancelAction\"><br> "\
-                       "Cancels the current operation and enters Select Chunks mode."\
+                       "Cancels the current operation and enters the default mode."\
                        "</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " toolsCancelAction",
