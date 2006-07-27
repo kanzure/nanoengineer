@@ -172,6 +172,7 @@ class elementColors(ElementColorsDialog):
         """Save the current set of element preferences into an external file---
         currently only r,g,b color of each element will be saved."""
         if not self.fileName:
+           from prefs_constants import workingDirectory_prefs_key   
            sdir = env.prefs[workingDirectory_prefs_key]
         else:
            sdir = self.fileName
