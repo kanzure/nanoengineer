@@ -1231,11 +1231,12 @@ class TreeWidget(TreeView, DebugMenuMixin):
         if self.__tooltipInvalid:
             self.__tooltipInvalid = False
             vp = self.viewport()
-            if platform.atom_debug and not isinstance(vp, QWidget):
-                # See bug 2113 - this does not appear to be very serious. wware 060727
-                sys.stderr.write("QScrollView.viewport() should return a QWidget\n")
-                #wware circa 060210; bruce adds: same message is in TreeView.py, and also mentions bug 1457
-                sys.stderr.write("Instead it returned " + repr(vp) + "\n")
+            if not isinstance(vp, QWidget):
+                if platform.atom_debug:
+                    # See bug 2113 - this does not appear to be very serious. wware 060727
+                    sys.stderr.write("QScrollView.viewport() should return a QWidget\n")
+                    #wware circa 060210; bruce adds: same message is in TreeView.py, and also mentions bug 1457
+                    sys.stderr.write("Instead it returned " + repr(vp) + "\n")
                 return
             try:
                 self.__tooltip.remove(vp)
