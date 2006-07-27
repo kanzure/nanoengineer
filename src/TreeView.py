@@ -34,7 +34,7 @@ from chem import *
 from jigs import *
 from Utility import *
 import sys, os, time
-
+import platform
 
 class TreeView(QListView):
     needs_update_state = 0
@@ -701,7 +701,8 @@ class TreeView(QListView):
                 item = _node_items[node]
                 try:
                     vp = self.viewport()
-                    if not isinstance(vp, QWidget):
+                    if platform.atom_debug and not isinstance(vp, QWidget):
+                        # See bug 2113 - this does not appear to be very serious. wware 060727
                         sys.stderr.write("QScrollView.viewport() should return a QWidget (bug 1457)\n")
                         sys.stderr.write("Instead it returned " + repr(vp) + "\n")
                         return
