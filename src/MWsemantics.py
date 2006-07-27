@@ -268,9 +268,16 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             self._createRecentFilesList()
         else:
             self.fileMenu.setItemEnabled(menuIndex, False)
-        QWhatsThis.add(self.helpMouseControlsAction, 'Displays help for mouse controls')
-        QWhatsThis.add(self.helpKeyboardShortcutsAction, 'Displays help for keyboard shortcuts')
-        QWhatsThis.add(self.insertCommentAction, 'Inserts a comment in the part.')
+        def safer_QWhatsThis_add(action, msg):
+            #bruce 060726 work around exceptions that prevent NE1 from starting (at least on my iMac G4)
+            try:
+                QWhatsThis.add(action, msg)
+            except:
+                print_compact_traceback("bug: ignoring exception in QWhatsThis.add(%r, %r): " % (action, msg))
+            return # from safer_QWhatsThis_add
+        safer_QWhatsThis_add(self.helpMouseControlsAction, 'Displays help for mouse controls')
+        safer_QWhatsThis_add(self.helpKeyboardShortcutsAction, 'Displays help for keyboard shortcuts')
+        safer_QWhatsThis_add(self.insertCommentAction, 'Inserts a comment in the part.')
 
         # Create the Help dialog. Mark 050812
         from help import Help
