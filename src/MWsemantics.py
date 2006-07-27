@@ -275,6 +275,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             except:
                 print_compact_traceback("bug: ignoring exception in QWhatsThis.add(%r, %r): " % (action, msg))
             return # from safer_QWhatsThis_add
+        # BUG 2077 INCOMPLETE FIX
         safer_QWhatsThis_add(self.helpMouseControlsAction, 'Displays help for mouse controls')
         safer_QWhatsThis_add(self.helpKeyboardShortcutsAction, 'Displays help for keyboard shortcuts')
         safer_QWhatsThis_add(self.insertCommentAction, 'Inserts a comment in the part.')
