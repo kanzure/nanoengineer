@@ -67,6 +67,9 @@ install: $(TARGET)
 clean:
 	rm -f *~ *.o *.pyc psurface.c *.so *.dll psurface.def
 
+libpython$(PYVER).a: libpython$(PYVER).a.gz
+	gunzip < libpython$(PYVER).a.gz > libpython$(PYVER).a
+
 psurface.c: psurface.pyx
 	$(PYREXC) psurface.pyx
 
