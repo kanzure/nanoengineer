@@ -15,7 +15,8 @@ UNAME_A=$(shell ver)
 # UNAME_A=$$(shell ver)   # Cygwin: but in this case use 'uname -a' anyway
 CC = "C:/Dev-Cpp/bin/gcc.exe"
 CFLAGS=-g -I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
-CXXFLAGS = -O3 -W1 $(CFLAGS)
+# CXXFLAGS = -O3 -W1 $(CFLAGS)     ### what is -W1 supposed to do???
+CXXFLAGS = -O3 $(CFLAGS)
 LDFLAGS=-L. -L"C:/Dev-Cpp/lib" -L"C:/Python$(PYVER)/libs"
 TARGET=psurface.dll
 PYREXC=python c:/Python$(PYVER)/Scripts/pyrexc.py
