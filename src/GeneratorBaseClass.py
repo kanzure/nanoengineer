@@ -206,22 +206,29 @@ class GeneratorBaseClass(GroupButtonMixin, SponsorableMixin):
         'Slot for the OK button'
         if platform.atom_debug: print 'ok button clicked'
         self._ok_or_preview(doneMsg=True)
-        self.accept() #bruce 060621
+        if not self.pluginException:
+            # if there was a (UserError, CadBug, PluginBug) then behave
+            # like preview button - do not close the dialog
+            self.accept() #bruce 060621
         self.struct = None
         return
 
     def handlePluginExceptions(self, thunk):
+        self.pluginException = False
         try:
             return thunk()
         except CadBug, e:
             env.history.message(redmsg("Bug in the CAD system: " + " - ".join(map(str, e.args))))
             self.remove_struct()
+            self.pluginException = True
         except PluginBug, e:
             env.history.message(redmsg("Bug in the plug-in: " + " - ".join(map(str, e.args))))
             self.remove_struct()
+            self.pluginException = True
         except UserError, e:
             env.history.message(redmsg("User error: " + " - ".join(map(str, e.args))))
             self.remove_struct()
+            self.pluginException = True
         except Exception, e:
             env.history.message(self.cmd + redmsg(" - ".join(map(str, e.args))))
             self.remove_struct()
