@@ -319,17 +319,18 @@ class depositMode(selectAtomsMode):
     
     dont_update_gui = True
     def Enter(self):
-        selectAtomsMode.Enter(self)
+        selectAtomsMode.Enter(self) # this calls self.reset_drag_vars(), which itself calls the super version
         
         #self.o.assy.permit_pick_atoms() #bruce 050517 revised API of this call
             # moved permit_pick_atoms() to selectAtomsMode.Enter().  mark 060219.
         self.pastable = None #k would it be nicer to preserve it from the past??
             # note, this is also done redundantly in init_gui.
         self.pastables_list = [] # should be ok, since update_gui comes after this...
-        self.reset_drag_vars()
+        ## removed this since it's redundant [bruce 060726]: self.reset_drag_vars()
         self.w.depositAtomDashboard.filterCB.setChecked(0) # generates signal.
 
     def reset_drag_vars(self):
+        # called in Enter and at start of (super's) leftDown
         selectAtomsMode.reset_drag_vars(self)
         
         self.pivot = None
@@ -1373,89 +1374,89 @@ class depositMode(selectAtomsMode):
         return chunk, status
 
 
-    def chunkSetup_OBS(self, a): #&& Not used.  Marked for removal.  mark 060214.
-        '''Setup dragging of a chunk by one of its atoms, atom <a>.
-        If the chunk is not bonded to any chunks, drag it around loosely, which means
-        the chunk follows atom <a> around.
-        If the chunk is bonded to 1 other chunk, the chunk will pivot around the
-        bond to the neighoring chunk.
-        If the chunk is bonded to 2 chunks, the chunk will pivot around an axis
-        defined by the two bonds of the neighboring chunks.
-        If the chunk is bonded to 3 or more chunks, drag it rigidly, which means
-        translate the chunk in the plane of the screen.
-        '''
-        self.objectSetup(a)
-        
-        if a.realNeighbors(): # probably part of larger molecule
-                    ###e should this be nonbaggageNeighbors? Need to understand the comments below. [bruce 051209] ###@@@
-            e=a.molecule.externs # externs are number of bonds to other chunks.
-            
-            if len(e)==0: # no bonds to other chunks, so just drag it around "loosely" (follow <a>)
-                self.pivot = None
-                self.pivax = True #k might have bugs if realNeighbors in other mols??
-                #bruce 041130 tried using this case for 1-atom mol as well,
-                # but it made singlet highlighting wrong (due to pivax??).
-                # (Could that mean there's some sort of basepos-updating bug
-                # in mol.pivot? ###@@@)
-                # I tried to reproduce the bug described above without success.  Sure it's still there?
-                # Mark 051213.
-                
-            elif len(e)==1: # bonded to 1 chunk; pivot around the single bond
-                self.pivot = e[0].center
-                # warning: Bond.center is only in abs coords since
-                # this is an external bond [bruce 050516 comment]
-                self.pivax = None
-                
-            elif len(e)==2: # bonded to 2 other chunks; pivot around the 2 bonds
-                self.pivot = e[0].center
-                self.pivax = norm(e[1].center-e[0].center)
-                
-            else: # more than 2 other chunks, drag it "rigidly" (translate the chunk)
-                self.pivot = None
-                self.pivax = None
-        
-        # Keep the comments below for now.  From Bruce's comments, it may be needed later.  Mark 051213.
-        
-        ##elif len(a.molecule.atoms) == 1 + len(a.bonds):
-                #bruce 041130 added this case to let plain left drag work to
-                # drag a 1-real-atom mol, not only a larger mol as before; the
-                # docstring makes me think this was the original intention, and
-                # the many "invalid bug reports" whose authors assume this will
-                # work imply this feature is desired and intuitively expected.
-            ##self.dragmol = a.molecule # self.dragmol decommissioned on 051213.  Mark
-            # fall thru
-        ##else:
-                #bruce 041130 added this case too:
-                # no real neighbors, but more than just the singlets in the mol
-                # (weird but possible)... for now, just do the same, though if
-                # there are 1 or 2 externs it might be better to do pivoting. #e
-            ##self.dragmol = a.molecule # self.dragmol decommissioned on 051213.  Mark
-            # fall thru
-            
-    def chunkDrag_OBS(self, a, event): # not used.  Marked for removal. mark 060214.
-        """Drag a chunk around by atom <a>. <event> is a drag event.
-        """
-        m = a.molecule
-        px = self.dragto(a.posn(), event)
-        if self.pivot:
-            po = a.posn() - self.pivot
-            pxv = px - self.pivot
-        if self.pivot and self.pivax:
-            m.pivot(self.pivot, twistor(self.pivax, po, pxv))
-        elif self.pivot:
-            q1 = twistor(self.pivot-m.center, po, pxv)
-            q2 = Q(q1.rot(po), pxv)
-            m.pivot(self.pivot, q1+q2)
-        elif self.pivax:
-            m.rot(Q(a.posn()-m.center,px-m.center))
-            m.move(px-a.posn())
-        else:
-            m.move(px-a.posn())
-        #e bruce 041130 thinks this should be given a new-coordinates-message,
-        # like in leftShiftDrag but starting with the atom-creation message
-        # (but the entire mol gets dragged, so the msg should reflect that)
-        # ###@@@
-        self.o.gl_update()
+##    def chunkSetup_OBS(self, a): #&& Not used.  Marked for removal.  mark 060214.
+##        '''Setup dragging of a chunk by one of its atoms, atom <a>.
+##        If the chunk is not bonded to any chunks, drag it around loosely, which means
+##        the chunk follows atom <a> around.
+##        If the chunk is bonded to 1 other chunk, the chunk will pivot around the
+##        bond to the neighoring chunk.
+##        If the chunk is bonded to 2 chunks, the chunk will pivot around an axis
+##        defined by the two bonds of the neighboring chunks.
+##        If the chunk is bonded to 3 or more chunks, drag it rigidly, which means
+##        translate the chunk in the plane of the screen.
+##        '''
+##        self.objectSetup(a)
+##        
+##        if a.realNeighbors(): # probably part of larger molecule
+##                    ###e should this be nonbaggageNeighbors? Need to understand the comments below. [bruce 051209] ###@@@
+##            e=a.molecule.externs # externs are number of bonds to other chunks.
+##            
+##            if len(e)==0: # no bonds to other chunks, so just drag it around "loosely" (follow <a>)
+##                self.pivot = None
+##                self.pivax = True #k might have bugs if realNeighbors in other mols??
+##                #bruce 041130 tried using this case for 1-atom mol as well,
+##                # but it made singlet highlighting wrong (due to pivax??).
+##                # (Could that mean there's some sort of basepos-updating bug
+##                # in mol.pivot? ###@@@)
+##                # I tried to reproduce the bug described above without success.  Sure it's still there?
+##                # Mark 051213.
+##                
+##            elif len(e)==1: # bonded to 1 chunk; pivot around the single bond
+##                self.pivot = e[0].center
+##                # warning: Bond.center is only in abs coords since
+##                # this is an external bond [bruce 050516 comment]
+##                self.pivax = None
+##                
+##            elif len(e)==2: # bonded to 2 other chunks; pivot around the 2 bonds
+##                self.pivot = e[0].center
+##                self.pivax = norm(e[1].center-e[0].center)
+##                
+##            else: # more than 2 other chunks, drag it "rigidly" (translate the chunk)
+##                self.pivot = None
+##                self.pivax = None
+##        
+##        # Keep the comments below for now.  From Bruce's comments, it may be needed later.  Mark 051213.
+##        
+##        ##elif len(a.molecule.atoms) == 1 + len(a.bonds):
+##                #bruce 041130 added this case to let plain left drag work to
+##                # drag a 1-real-atom mol, not only a larger mol as before; the
+##                # docstring makes me think this was the original intention, and
+##                # the many "invalid bug reports" whose authors assume this will
+##                # work imply this feature is desired and intuitively expected.
+##            ##self.dragmol = a.molecule # self.dragmol decommissioned on 051213.  Mark
+##            # fall thru
+##        ##else:
+##                #bruce 041130 added this case too:
+##                # no real neighbors, but more than just the singlets in the mol
+##                # (weird but possible)... for now, just do the same, though if
+##                # there are 1 or 2 externs it might be better to do pivoting. #e
+##            ##self.dragmol = a.molecule # self.dragmol decommissioned on 051213.  Mark
+##            # fall thru
+##            
+##    def chunkDrag_OBS(self, a, event): # not used.  Marked for removal. mark 060214.
+##        """Drag a chunk around by atom <a>. <event> is a drag event.
+##        """
+##        m = a.molecule
+##        px = self.dragto(a.posn(), event)
+##        if self.pivot:
+##            po = a.posn() - self.pivot
+##            pxv = px - self.pivot
+##        if self.pivot and self.pivax:
+##            m.pivot(self.pivot, twistor(self.pivax, po, pxv))
+##        elif self.pivot:
+##            q1 = twistor(self.pivot-m.center, po, pxv)
+##            q2 = Q(q1.rot(po), pxv)
+##            m.pivot(self.pivot, q1+q2)
+##        elif self.pivax:
+##            m.rot(Q(a.posn()-m.center,px-m.center))
+##            m.move(px-a.posn())
+##        else:
+##            m.move(px-a.posn())
+##        #e bruce 041130 thinks this should be given a new-coordinates-message,
+##        # like in leftShiftDrag but starting with the atom-creation message
+##        # (but the entire mol gets dragged, so the msg should reflect that)
+##        # ###@@@
+##        self.o.gl_update()
         
 #== Singlet helper methods
 
