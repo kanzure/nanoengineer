@@ -100,7 +100,7 @@ def get_filename_and_save_in_prefs(parent, prefs_key, caption=''):
     
     # Save filename in prefs db.    
     prefs = preferences.prefs_context()
-    prefs[prefs_key] = str(os.path.normpath(filename))
+    prefs[prefs_key] = os.path.normpath(str(filename))
         
     return filename
 
@@ -1455,7 +1455,7 @@ class UserPrefs(UserPrefsDialog):
         gamess_exe = get_filename_and_save_in_prefs(self, gmspath_prefs_key, 'Choose GAMESS Executable')
          
         if gamess_exe:
-            self.gamess_path_linedit.setText(os.path.normpath(gamess_exe))
+            self.gamess_path_linedit.setText(env.prefs[gmspath_prefs_key])
             
     def enable_gamess(self, enable=True):
         '''GAMESS is enabled when enable=True.
@@ -1626,7 +1626,7 @@ class UserPrefs(UserPrefsDialog):
         # (or uncheck the checkbox for the same effect). (#e do we want a "clear" button, for A8.1?)
         
         if povdir_path:
-            self.povdir_linedit.setText(os.path.normpath(povdir_path))
+            self.povdir_linedit.setText(env.prefs[povdir_path_prefs_key])
             # the function above already saved it in prefs, under the same condition
         return
     
