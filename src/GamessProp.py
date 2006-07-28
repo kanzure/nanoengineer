@@ -242,50 +242,32 @@ class GamessProp(GamessPropDialog):
         self.server = self.servers[0]
         
         QWhatsThis.add(self.name_linedit, """Name of the GAMESS jig.""")
-        QWhatsThis.add(self.runtyp_combox, """Type of calculation, where "Energy" calculates the Energy Minima,
-        and "Optimization" calculates the "Equilibrium Geometry".""")
-        QWhatsThis.add(self.comment_linedit, """Description, also placed in the comment line of the $DATA section
-        of the INP file.""")
+        QWhatsThis.add(self.runtyp_combox, """Type of calculation, where "Energy" calculates the Energy Minima,and "Optimization" calculates the "Equilibrium Geometry".""")
+        QWhatsThis.add(self.comment_linedit, """Description, also placed in the comment line of the $DATA section of the INP file.""")
         QWhatsThis.add(self.choose_color_btn, """Change the GAMESS jig color.""")
-        QWhatsThis.add(self.rhf_radiobtn, """Restricted Hartree-Fock.  All electrons are paired and each spatial
-        orbital is doubly occupied.  Cannot be used with multiplicities greater than 1.""")
-        QWhatsThis.add(self.uhf_radiobtn, """Unrestricted Hartree-Fock.  All electrons are unpaired and spatial
-        (spin) orbitals are uniquely defined for each electron.  More time consuming, but more accurate, than ROHF.  """)
-        QWhatsThis.add(self.rohf_radiobtn, """Restricted Open-shell Hartree-Fock.  Spin-paired electrons are
-        assigned to doubly-occupied spatial orbitals, while electrons with unpaired spins are provided unique spatial orbitals.""")
-        QWhatsThis.add(self.icharg_spinbox, """The total charge of the structure to be treated quantum mechanically
-        (ICHARG).""")
+        QWhatsThis.add(self.rhf_radiobtn, """Restricted Hartree-Fock.  All electrons are paired and each spatial orbital is doubly occupied.  Cannot be used with multiplicities greater than 1.""")
+        QWhatsThis.add(self.uhf_radiobtn, """Unrestricted Hartree-Fock.  All electrons are unpaired and spatial (spin) orbitals are uniquely defined for each electron.  More time consuming, but more accurate, than ROHF.  """)
+        QWhatsThis.add(self.rohf_radiobtn, """Restricted Open-shell Hartree-Fock.  Spin-paired electrons are assigned to doubly-occupied spatial orbitals, while electrons with unpaired spins are provided unique spatial orbitals.""")
+        QWhatsThis.add(self.icharg_spinbox, """The total charge of the structure to be treated quantum mechanically (ICHARG).""")
         QWhatsThis.add(self.multi_combox, """N + 1, where N is the number of unpaired electrons (MULT).""")
         QWhatsThis.add(self.memory_spinbox, """System memory reserved for calculation""")
-        QWhatsThis.add(self.dirscf_checkbox, """Check this box to run the calculation in RAM and avoid hard disk
-        usage for integral storage.""")
-        QWhatsThis.add(self.gbasis_combox, """Select from among the standard Gaussian-type basis sets and semi-empirical
-        parameters in GAMESS.""")
-        QWhatsThis.add(self.checkBox10_3_2, """Reads the $HESS group from the output file of a previous GAMESS
-        calculation.  Only valid for identical molecules.""")
-        QWhatsThis.add(self.checkBox10_2_2_2, """Reads the $VEC group from the output of a previous GAMESS calculation.
-        Requires that both the molecule and basis set be identical.  Useful for restarted calculations and starting orbitals for
-        electron correlation methods.""")
+        QWhatsThis.add(self.dirscf_checkbox, """Check this box to run the calculation in RAM and avoid hard disk usage for integral storage.""")
+        QWhatsThis.add(self.gbasis_combox, """Select from among the standard Gaussian-type basis sets and semi-empirical parameters in GAMESS.""")
+        QWhatsThis.add(self.checkBox10_3_2, """Reads the $HESS group from the output file of a previous GAMESS calculation.  Only valid for identical molecules.""")
+        QWhatsThis.add(self.checkBox10_2_2_2, """Reads the $VEC group from the output of a previous GAMESS calculation. Requires that both the molecule and basis set be identical.  Useful for restarted calculations and starting orbitals for electron correlation methods.""")
         QWhatsThis.add(self.none_radiobtn, """Select this button to neglect electron correlation in the calculation.""")
         QWhatsThis.add(self.dft_radiobtn, """Select this button to perform a density functional theory calculation.""")
-        QWhatsThis.add(self.mp2_radiobtn, """Select this button to perform a Second-Order Moeller Plesset
-        calculation.""")
+        QWhatsThis.add(self.mp2_radiobtn, """Select this button to perform a Second-Order Moeller Plesset calculation.""")
         QWhatsThis.add(self.dfttyp_combox, """Select an available density functional in GAMESS.""")
         QWhatsThis.add(self.gridsize_combox, """Select the grid spacing for the DFT calculation.""")
-        QWhatsThis.add(self.core_electrons_checkbox, """Check this box to include both the valence and core electrons
-        in the MP2 calculation.""")
-        QWhatsThis.add(self.density_conv_combox, """Selects the accuracy of the electron density convergence for
-        the calculation (CONV).""")
-        QWhatsThis.add(self.rmsd_combox, """Gradient convergence tolerance (OPTTOL), in Hartree/Bohr. Convergence
-        of a geometry search requires the largest component of the gradient to be less than this value, and the root mean square
-        gradient less than 1/3 of OPTTOL.  (default=0.0001)""")
+        QWhatsThis.add(self.core_electrons_checkbox, """Check this box to include both the valence and core electrons in the MP2 calculation.""")
+        QWhatsThis.add(self.density_conv_combox, """Selects the accuracy of the electron density convergence for the calculation (CONV).""")
+        QWhatsThis.add(self.rmsd_combox, """Gradient convergence tolerance (OPTTOL), in Hartree/Bohr. Convergence of a geometry search requires the largest component of the gradient to be less than this value, and the root mean square gradient less than 1/3 of OPTTOL.  (default=0.0001)""")
         QWhatsThis.add(self.iterations_spinbox, """Maximum number of SCF iteration cycles (MAXIT).""")
         QWhatsThis.add(self.edit_input_file_cbox, """Opens the INP file generated by NanoEngineer-1 in a text editor.""")
         QWhatsThis.add(self.whats_this_btn, """What's This Help Utility""")
-        QWhatsThis.add(self.run_job_btn, """Save GAMESS parameters, generates the INP file and launches the
-        GAMESS job.""")
-        QWhatsThis.add(self.save_btn, """Save GAMESS parameters and generates the INP file.  It does not
-        launch the GAMESS job.""")
+        QWhatsThis.add(self.run_job_btn, """Save GAMESS parameters, generates the INP file and launches the GAMESS job.""")
+        QWhatsThis.add(self.save_btn, """Save GAMESS parameters and generates the INP file.  It does not launch the GAMESS job.""")
         QWhatsThis.add(self.cancel_btn, """Cancels changes and closes dialog.""")
         
     def showDialog(self, job):
