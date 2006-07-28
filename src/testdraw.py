@@ -19,7 +19,7 @@ known bugs:
 - Changing the current view doesn't reset havelist = 0, and this causes the highlight posn to be wrong!
   So I made havelist care about assy._view_change_counter, but that's nim in assy (changed_view is not called by anything)
   so this didn't help! Maybe it needs to care about the view data itself? ####@@@@
-  Workaround: click after you change the view.
+  Workaround: click in empty space after you change the view.
 
 - we'll need to remember to reset havelist when we change other state, once we can do that.
 
@@ -30,8 +30,16 @@ known bugs:
   (could do it with depth-only writing, at end like with all transparent stuff, or a different hit-test alg)
 
 - see the exception from the selobj alive test, which happens on clicks (left or cmenu) and on highlight not covering selobj,
-  described below (in class Highlightable)
+  described below (in class Highlightable) [fixed now?]
 
+- DraggedOn and ReleasedOn are nim (and need renaming)
+
+- region selection - works to select atoms in a rect, but the rect for it is not being drawn  [even w/o displist optim]
+  - is it a failure to delegate some method to superclass, maybe emptySpaceLeftDown?
+  - is it related to the reload that happens on that leftDown? (not sure why it would be)
+
+- singlet-drag to bond - also works but lacks rubberband line [even w/o displist optim]
+  
 ==
 
 todo:
@@ -66,7 +74,7 @@ from debug import print_compact_stack
 import env
 from idlelib.Delegator import Delegator
 
-USE_DISPLAY_LIST_OPTIM = False # usually True, set False to see if this optim is causing bugs
+USE_DISPLAY_LIST_OPTIM = 1 # usually True, set False to see if this optim is causing bugs
 
 printdraw = False # debug flag
 
@@ -115,6 +123,7 @@ try:
     vv.displist
     vv.havelist
     vv.reload_counter += 1
+    vv.when_drawtest1_last_ran
 except:
     vv = attrholder()
     vv.tex_name = 0
@@ -123,14 +132,19 @@ except:
     vv.displist = glGenLists(1)
     vv.havelist = 0
     vv.reload_counter = 0
+    vv.when_drawtest1_last_ran = -1
     ##e should modify to make it easier to set up defaults; sort of like a debug_pref?
 
 # vv.counter = 0 # just to get started (was needed when i moved file to another machine, already running, too)
 
 # ==
 
-print "\n%d reloads\n" % vv.reload_counter
+print "\n%d reloads" % vv.reload_counter
 
+if vv.havelist:
+    vv.havelist = 0
+    print "(fyi, this reload needed to reset vv.havelist)"
+    
 def Enter(glpane): # never yet called ###@@@
     glpane.win.setViewHome() # not tested, might be wrong; redundant now (if home view is the default)
     
@@ -139,8 +153,8 @@ def leftDown(self, event, glpane, super): # called from testmode.leftDown, just 
     ####@@@@ LOGIC BUG: when we reload, we replace one highlightable with a new one in the same place --
     # but don't replace selobj with the new one! So we predict not selobj_still_ok -- should print that from there ###@@@
     if printdraw: print "\ntestdraw leftDown" ###@@@
-    vv.havelist = 0 # so editing this file (and clicking) uses the new code
-    super.leftDown(self, event)
+    vv.havelist = 0 # so editing this file (and clicking) uses the new code -- this also affects clicks on selobj which don't reload
+    super.leftDown(self, event) # this might call testmode.emptySpaceLeftDown (or other class-specific leftDown methods in it)
     glpane.gl_update() # always, for now [might be redundant with super.leftDown, too]
 
 def drawtest(glpane): # called by testmode.Draw
@@ -148,15 +162,18 @@ def drawtest(glpane): # called by testmode.Draw
     glPushMatrix()
     try:
         drawtest0(glpane) # this puts our special drawing into a display list
+        # [no point in putting the main model drawing into it, for now -- but when we can know when to inval, there might be]
     except:
         print_compact_traceback("exc ignored: ")
     glPopMatrix() # it turns out this is needed, if drawtest0 does glTranslate, or our coords are messed up when glselect code
+    # [not sure what this next comment is about:]
     # makes us draw twice! noticed on g4, should happen on g5 too, did it happen but less??
-    if 0:
+    if 1 and 'draw_model':
         glPushMatrix()
         glpane.part.draw(glpane) # highlighting works fine on this copy
-        glTranslate(5,0,0)
-        glpane.part.draw(glpane) # but not on this one - i see why it doesn't draw it there, but why not complain about not finding it?
+        if 0 and 'draw copy2 of model':
+            glTranslate(5,0,0)
+            glpane.part.draw(glpane) # but not on this one - i see why it doesn't draw it there, but why not complain about not finding it?
         glPopMatrix()
     return
 
@@ -165,7 +182,7 @@ def drawtest(glpane): # called by testmode.Draw
 def havelist_counters(glpane):
     "return some counters which better have the same value or we'll treat havelist as if it was invalidated"
     assy = glpane.assy
-    return (assy._view_change_counter,)
+    return (assy._view_change_counter,) # this doesn't work, since changing view doesn't actually incr that counter. ###@@@
 
 def display_list_helper(self, glpane, drawfunc):
     "self needs .havelist and .displist"
@@ -223,33 +240,27 @@ def display_list_helper(self, glpane, drawfunc):
 
 # ==
 
-###@@@ bug: 
+# old:
+####@@@@
+# next up: mouse event bindings, state, programming constructs incl scope, formulas (getters? inval?), option-defaults
+
 def drawtest0(glpane):
-    # vv has .havelist and .displist
+    "run drawtest1 inside a global display list, then run drawtest2 outside it"
+    # load the texture for the courier bitmap font; params incl tex_name are in vv
+    ensure_courierfile_loaded() # used to be done inside drawtest1
+
+    vv.start_time = time.time() # drawing can use this to get time so far, but it's up to it to be drawn near the end of what we draw
+    
+    # drawtest1, in displist [vv has .havelist and .displist]
     drawfunc = lambda:drawtest1(glpane)
     display_list_helper( vv, glpane, drawfunc)
+
+    # drawtest2, not in it
+    drawtest2(glpane)
     return
 
-def drawtest1(glpane):
-    glTranslatef(-9, 7, 0)
-    dy = - 0.5
-    ## drawline(color, pos1, pos2, dashEnabled = False, width = 1)
-    drawline(red,   V(0,0,0),V(1,0,0),width = 2)
-    glTranslatef( 0, dy, 0)
-    drawline(green, V(0,0,0),V(2,0,0),width = 2)
-    glTranslatef( 0, dy, 0)
-    drawline(yellow,V(0,0,0),V(1,0,0),width = 2)
-    ## def drawtext(text, color, pt, size, glpane)
-    glTranslatef( 0, dy, 0)
-    drawtext("hi! (@[fg])", blue, V(0,0,0), 12, glpane)
-    glTranslatef( 0, dy, 0)
-    drawtext("hi Mom...", white, V(0,0,0), 24, glpane) # ugly, but readable
-    #drawtext("<b>hi Mom</b>", blue, V(0,0,0), 24, glpane) # html doesn't work, as expected
-    # even \n doesn't work -- \n is a rectangle, \r is nothing, \t is single space.
-
-    glTranslatef( 0, dy, 0.002) # 0.002 is enough to obscure the yellow line; 0.001 is not enough.
-
-    ###e only do the following when needed!
+def ensure_courierfile_loaded(): #e rename to reflect binding too
+    "load font-texture if we edited the params for that in this function, or didn't load it yet; bind it for drawing"
     tex_filename = courierfile ## "xxx.png" # the charset
     "courierfile"
     tex_data = (tex_filename,)
@@ -259,6 +270,80 @@ def drawtest1(glpane):
     else:
         pass # assume those vars are fine from last time
     setup_to_draw_texture_name(vv.have_mipmaps, vv.tex_name)
+    return
+
+timing_data = {} # ok to zap on reload, code might change anyway (later, might be better to just mark entries as "old" then)
+
+def drawtest2(glpane): # never in displist
+    # draw some more useful and pretty text [used to show me redraw stats]
+    #e should be more flexible text, at an abs location on screen; warning: slow if lots of text
+
+    # get some timing stats
+    timesofar = time.time() - vv.start_time
+    timeflags = ""
+    if env.redraw_counter == vv.when_drawtest1_last_ran:
+        # this time is for making the dlist
+        timeflags += 'd+'
+    else:
+        # it's for using it (faster, so 'minus')
+        timeflags += 'd-'
+    #e also flags for what we drew in drawtest1, and for whether selobj changed, etc
+
+    timing_data[timeflags] = (env.redraw_counter, timesofar)
+
+    items = timing_data.items()
+    items.sort()
+    msg = ""
+    for flags, (redraw_counter, timesofar) in items:
+        try:
+            fps = int(1/timesofar)
+            # note, timesofar doesn't include some (fixed?) overhead time after this point; still, higher means faster
+        except:
+            fps = -1
+        if msg:
+            msg += '\n'
+        msg += "%s %4d (%4d fps)" % (flags, redraw_counter, fps)
+    ## msg = "redraw %d\n(dlist %d)" % (env.redraw_counter, vv.when_drawtest1_last_ran)
+    drawfont2(glpane, msg, charwidth = 18)
+    pass
+
+def drawtest1(glpane): # in displist (if flag for that is set)
+
+    vv.when_drawtest1_last_ran = env.redraw_counter # so we see when displist gets updated
+    
+    glTranslatef(-9, 7, 0)
+    dy = - 0.5
+
+    # draw some lines
+    
+    ## drawline(color, pos1, pos2, dashEnabled = False, width = 1)
+    drawline(red,   V(0,0,0),V(1,0,0),width = 2)
+    glTranslatef( 0, dy, 0)
+    drawline(green, V(0,0,0),V(2,0,0),width = 2)
+    glTranslatef( 0, dy, 0)
+    drawline(yellow,V(0,0,0),V(1,0,0),width = 2)
+
+    # draw some text using builtin facility for that # MAYBE SLOW
+    dothis = 0 # don't draw it - this speeds it up 
+    
+    ## def drawtext(text, color, pt, size, glpane)
+    glTranslatef( 0, dy, 0)
+    if dothis:
+        drawtext("hi! (@[fg])", blue, V(0,0,0), 12, glpane)
+    glTranslatef( 0, dy, 0)
+    if dothis:
+        drawtext("hi Mom...", white, V(0,0,0), 24, glpane) # ugly, but readable
+    #drawtext("<b>hi Mom</b>", blue, V(0,0,0), 24, glpane) # html doesn't work, as expected
+    # even \n doesn't work -- \n is a rectangle, \r is nothing, \t is single space.
+
+    glTranslatef( 0, dy, 0.002) # 0.002 is enough to obscure the yellow line; 0.001 is not enough.
+
+    # this used to be here:
+        ##    # load the texture for the courier bitmap font; params incl tex_name are in vv
+        ##    ensure_courierfile_loaded()
+
+    # draw the whole font-texture??
+    
     origin = ORIGIN
     dx = DX * 2
     dy = DY * 2
@@ -270,34 +355,51 @@ def drawtest1(glpane):
 ##    textureReady = True
 ##    opacity = 1.0
 ##    drawPlane(blue, width, width, textureReady, opacity, SOLID=True, pickCheckOnly=False)
-    draw_filled_rect(origin + 0.2*DZ + DX, dx, dy, halfblue) # note, it matters that dx/dy is right-handed.
 
+    if 0:
+        # draw a blue rect for some reason [might obscure the text]
+        draw_filled_rect(origin + 0.2*DZ + DX, dx, dy, halfblue) # note, it matters that dx/dy is right-handed.
+
+    # draw 1 copy of testexpr, our test widget expr defined at end of file
+    
     for i in range(1):
         glTranslatef( 0, -4, 0 )
         testexpr.draw() # it worked almost the first time!
     glTranslatef( 0, -8, -1 )
-    
-##    te2 = Row( testexpr, testexpr, gap = 0.3 )
-##    glTranslatef( 0, 6, 0 )
 
-##    te2.draw()
+    return # drawtest1 #e rename
 
-    ####@@@@
-    # next up: mouse event bindings, state, programming constructs incl scope, formulas (getters? inval?), option-defaults
-
-    #####@@@@@ new G4 stuff 060429
-    ## glTranslatef( 0, pixelheight / 2, 0 ) # perfect!
-        # (Ortho mode, home view, a certain window size -- not sure if that matters but it might)
-        # restoring last-saved window position (782, 44) and size (891, 749)
-
-#def drawtest0(glpane):
-    # adjust these guessed params until they work right:
-    tex_width = 6 # pixel width in texture of 1 char)
+def drawfont2(glpane, msg = None, charwidth = None, charheight = None):
+    """draws a rect of chars using vv's font texture, in a klugy way;
+    msg gives the chars to draw (lines must be short or they will be truncated)
+    """
+    # adjust these guessed params (about the specific font image we're using as a texture) until they work right:
+    tex_width = 6 # pixel width in texture of 1 char
     tex_height = 10 # guess (pixel height)
     tex_origin_chars = V(3,65) # guess was 0,64... changing y affects the constant color; try 0, not totally constant
     tex_size = (128,128) # guess
     tex_nx = 16
     tex_ny = 8
+
+    if msg is None:
+        msg = "(redraw %d)" % env.redraw_counter
+        charwidth = tex_nx
+        charheight = tex_ny + 1
+
+    lines = msg.split('\n') # tab not supported
+
+    if charwidth is None:
+        charwidth = 14 # could be max linelength plus 1
+    if charheight is None:
+        charheight = len(lines)
+    
+    # draw individual chars from font-texture,
+    # but first, try to position it so they look perfect (which worked for a while, but broke sometime before 060728)
+
+    ## glTranslatef( 0, pixelheight / 2, 0 ) # perfect!
+        # (Ortho mode, home view, a certain window size -- not sure if that matters but it might)
+        # restoring last-saved window position (782, 44) and size (891, 749)
+    
     ##pixelwidth = pixelheight = 0.05 * 2/3
     gap = 2 # in pixels - good for debugging
     gap = 0 # good for looking nice! but note that idlehack uses one extra pixel of vspace, and that does probably look better.
@@ -324,9 +426,16 @@ def drawtest1(glpane):
     tex_dy = V(0, tex_height)
     # using those guesses, come up with tex-rects for each char as triples of 2-vectors (tex_origin, tex_dx, tex_dy) 
     def ff(i,j): # i for y, j or x (is that order normal??), still starting at bottom left
-        if i == -1 or i == 7:
-            test = "(redraw %d)" % env.redraw_counter
-                # this shows that mouseover of objects (pixels) w/o glnames causes redraws! I understand glselect ones,
+        "which char to draw at this position? i is y, going up, -1 is lowest line (sorry)"
+        nlines = len(lines)
+        bottom = -1 # change this api sometime
+        abovethat = i - bottom # this one too -- caller ought to be able to use 0 or 1 for the top (first) line
+        if abovethat < nlines:
+            # draw chars from lines
+            test = lines[nlines-1 - abovethat]
+                # few-day(?)-old comment [as of 060728], not sure why it's exactly here, maybe since this tells when we redraw,
+                # but it might be correct other than that:
+                #   this shows that mouseover of objects (pixels) w/o glnames causes redraws! I understand glselect ones,
                 # but they should not be counted, and should not show up on the screen, so i don't understand
                 # any good reason for these visible ones to happen.
                 #e to try to find out, we could also record compact_stack of the first gl_update that caused this redraw...
@@ -335,21 +444,29 @@ def drawtest1(glpane):
                 ch1 = ord(test[j]) - 32
                 j = ch1 % tex_nx
                 i = 5 - (ch1 / tex_nx)
+            else:
+                # draw a blank instead
+                ch1 = 32 - 32
+                j = ch1 % tex_nx
+                i = 5 - (ch1 / tex_nx)
+        else:
+            pass # use i,j to index the texture, meaning, draw test chars, perhaps the entire thing
         return tex_origin_chars + i * tex_dy + j * tex_dx , tex_dx, tex_dy
     # now think about where to draw all this... use a gap, but otherwise the same layout
-    charwidth = tex_width * pixelwidth
-    charheight = tex_height * pixelheight
+    charwidth1 = tex_width * pixelwidth
+    charheight1 = tex_height * pixelheight
     char_dx = (tex_width + gap) * pixelwidth
     char_dy = (tex_height + gap) * pixelheight
     def gg(i,j):
-        return ORIGIN + j * char_dx * DX + i * char_dy * DY, charwidth * DX, charheight * DY
+        return ORIGIN + j * char_dx * DX + i * char_dy * DY, charwidth1 * DX, charheight1 * DY
     # now draw them
 
     if 1: #### for n in range(65): # simulate the delay of doing a whole page of chars
-      for i in range(-1,tex_ny): # 9
-        for j in range(tex_nx): # 16
-            origin, dx, dy = gg(i,j)
-            tex_origin, ltex_dx, ltex_dy = ff(i,j) # still in pixel ints
+      # note, this is significantly slow even if we just draw 5x as many chars!
+      for i in range(-1,charheight-1): # (range was -1,tex_ny==8, length 9) - note, increasing i goes up on screen, not down!
+        for j in range(charwidth): # was tex_nx==16
+            origin, dx, dy = gg(i,j) # where to draw this char ###k
+            tex_origin, ltex_dx, ltex_dy = ff(i,j) # still in pixel ints # what tex coords to use to find it
             tex_origin, ltex_dx, ltex_dy = 1.0/tex_size[0] * V(tex_origin, ltex_dx, ltex_dy) # kluge until i look up how to use pixels directly
             #print (origin, dx, dy, tex_origin, tex_dx, tex_dy)
             draw_textured_rect(origin, dx, dy, tex_origin, ltex_dx, ltex_dy) # cool bug effect bfr 'l's here
@@ -363,8 +480,9 @@ def drawtest1(glpane):
     # Try 65 redundant loops above & see what happens. It takes it a couple seconds! Too slow! Of course it's mostly the py code.
     # Anyway, it means we *will* have to do one of those optims mentioned, or some other one like not clearing/redrawing
     # the entire screen during most text editing, or having per-line display lists.
-    
-    #####@@@@@ end new G4/G5 stuff 060429
+
+    return #drawfont2 #e rename, clean up
+
     
 def mymousepoints(glpane, x, y): # modified from GLPane.mousepoints; x and y are window coords (y is 0 at top, positive as you go down)
     self = glpane
