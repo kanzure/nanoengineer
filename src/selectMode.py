@@ -1782,15 +1782,21 @@ class selectAtomsMode(selectMode):
             
             if obj is None and self.o.selobj:
                 obj = self.o.selobj # a "highlighted" bond
-                if not isinstance(obj, Bond) and env.debug():
-                    print "debug fyi: not isinstance(obj, Bond) in get_obj_under_cursor, for %r" % (obj,)
+                    # [or anything else, except Atom or Jig -- i.e. a general/drag_handler/Drawable seolobj [bruce 060728]]
+                if env.debug():
+                    # I want to know if either of these things occur -- I doubt they do, but I'm not sure about Jigs [bruce 060728]
+                    if isinstance(obj, Atom):
+                        print "debug fyi: likely bug: selobj is Atom but not in selatom: %r" % (obj,)
+                    elif isinstance(obj, Jig):
+                        print "debug fyi: selobj is a Jig in get_obj_under_cursor (comment is wrong), for %r" % (obj,)
                         # I suspect some jigs can occur here
                         # (and if not, we should put them here -- I know of no excuse for jig highlighting
-                        #  to work differently than for anything else) [bruce 060721] 
+                        #  to work differently than for anything else) [bruce 060721]
+                    pass
             
             if obj is None: # a "highlighted" jig [i think this comment is misleading, it might really be nothing -- bruce 060726]
                 obj = self.get_jig_under_cursor(event)
-                if env.debug():
+                if 0 and env.debug():
                     print "debug fyi: get_jig_under_cursor returns %r" % (obj,) # [bruce 060721] 
             pass
             
