@@ -25,10 +25,14 @@ known bugs:
 
 - highlight orange is slightly wider on right than nonhighlight pink (guess: glpane translates in model space, not just depth space)
 
-- highlighted Ribbon2 has color bug
-- and needs a larger highlight region w/o holes (since they cause flickering), but transparent highlight region is nim
++ [fixed] highlighted Ribbon2 has color bug (so does the unhighlighted one, or at least eventually that bug developed)
+
+- Ribbon2 needs a larger highlight region w/o holes (since they cause flickering), but transparent highlight region is nim
   (could do it with depth-only writing, at end like with all transparent stuff, or a different hit-test alg)
 
+- Ribbon2 highlighting flickers it somewhat, maybe related to the edge not being drawn in the same way???
+  guess (speculation): the coords are different enough that the pixel edge effects are not identical.
+  
 - see the exception from the selobj alive test, which happens on clicks (left or cmenu) and on highlight not covering selobj,
   described below (in class Highlightable) [fixed now?]
 
@@ -1119,8 +1123,10 @@ class Corkscrew(WidgetExpr):
     "Corkscrew(radius, axis, turn, n, color) - axis is length in DX, turn might be 1/10.5"
     def init(self):
         radius, axis, turn, n, color = self.args #k checks length
-    def draw(self):
-        radius, axis, turn, n, color = self.args # axis is for x, theta starts 0, at top (y), so y = cos(theta), z = sin(theta)
+    def draw(self, **mods):
+        radius, axis, turn, n, color = self.args
+            # axis is for x, theta starts 0, at top (y), so y = cos(theta), z = sin(theta)
+        color = mods.get('color',color)##kluge; see comments in Ribbon.draw
         glDisable(GL_LIGHTING) ### not doing this makes it take the color from the prior object 
         glColor3fv(color)
         glBegin(GL_LINE_STRIP)
@@ -1167,15 +1173,18 @@ class Ribbon(Corkscrew):
         halfoffset = offset / 2.0
         interior_color = ave_colors(0.8,color, white) ###
         self.args = list(self.args) # slow!
-        self.args[-1] = interior_color #### kluge! and/or misnamed, since used for both sides i think
+        # the next line (.args[-1]) is zapped since it causes the color2-used-for-ribbon1 bug;
+        # but it was needed for the edge colors to be correct.
+        # Try to fix that: add color = interior_color to Corkscrew.draw. [060729 233p g4]
+        #self.args[-1] = interior_color #### kluge! and/or misnamed, since used for both sides i think #####@@@@@ LIKELY CAUSE OF BUG
         if 1:
             # draw the ribbon-edges; looks slightly better this way in some ways, worse in other ways --
             # basically, looks good on egdes that face you, bad on edges that face away (if the ribbons had actual thickness)
             # (guess: some kluge with lighting and normals could fix this)
-            Corkscrew.draw(self)
+            Corkscrew.draw(self, color = interior_color)
             if 0:
                 glTranslate(offset, 0,0)            
-                Corkscrew.draw(self) ### maybe we should make the two edges look different, since they are (major vs minor groove)
+                Corkscrew.draw(self, color = interior_color) ### maybe we should make the two edges look different, since they are (major vs minor groove)
                 glTranslate(-offset, 0,0)
         
         ## glColor3fv(interior_color)
