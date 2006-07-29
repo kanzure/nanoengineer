@@ -124,6 +124,7 @@ try:
     vv.havelist
     vv.reload_counter += 1
     vv.when_drawtest1_last_ran
+    vv.state
 except:
     vv = attrholder()
     vv.tex_name = 0
@@ -133,6 +134,7 @@ except:
     vv.havelist = 0
     vv.reload_counter = 0
     vv.when_drawtest1_last_ran = -1
+    vv.state = {} # prototype of a place to store persistent state (presuming some persistent way of allocating keys, eg hardcoding)
     ##e should modify to make it easier to set up defaults; sort of like a debug_pref?
 
 # vv.counter = 0 # just to get started (was needed when i moved file to another machine, already running, too)
@@ -670,6 +672,9 @@ def draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy):
     glEnd()
     glDisable(GL_TEXTURE_2D)
 
+# Ideally we'd modularize the following to separate the fill/color info from the shape-info. (And optimize them.)
+# For now they're just demos that might be useful.
+
 def draw_filled_rect(origin, dx, dy, color):
     glColor3fv(color)
 ##    glRectfv(origin, origin + dx + dy) # won't work for most coords! also, ignores Z. color still not working.
@@ -687,6 +692,36 @@ def draw_filled_rect(origin, dx, dy, color):
     glEnd()
     glEnable(GL_LIGHTING) # should be outside of glEnd! when inside, i got infloop! (not sure that was why; quit/reran after that)
 
+def draw_filled_triangle(origin, dx, dy, color):
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+    glBegin(GL_TRIANGLES)
+    glVertex3fv(origin)
+    glVertex3fv(origin + dx)
+    glVertex3fv(origin + dy)
+    glEnd()
+    glEnable(GL_LIGHTING)
+
+def draw_filled_rect_frame(origin, dx, dy, thickness, color):
+    "draw something that looks like a picture frame of a single filled color."
+    tx = thickness * norm(dx)
+    ty = thickness * norm(dy)
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+    glBegin(GL_QUAD_STRIP)
+    glVertex3fv(origin)
+    glVertex3fv(origin + tx + ty)
+    glVertex3fv(origin + dx)
+    glVertex3fv(origin + dx - tx + ty)
+    glVertex3fv(origin + dx + dy)
+    glVertex3fv(origin + dx + dy - tx - ty)
+    glVertex3fv(origin + dy)
+    glVertex3fv(origin + dy + tx - ty)
+    glVertex3fv(origin)
+    glVertex3fv(origin + tx + ty)
+    glEnd()
+    glEnable(GL_LIGHTING)
+    
 # == selobj interface
 
 ###e should define this; see class Highlightable --
@@ -830,8 +865,10 @@ class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
     def highlight_color_for_modkeys(self, modkeys):
         """#doc; modkeys is e.g. "Shift+Control", taken from glpane.modkeys
         """
-        return green # color doesn't matter, but it might matter that it's a legal color, or not None, to GLPane (I don't know);
-            # this color will be received by draw_in_abs_coords (which ignores it)
+        return green
+            # The specific color we return doesn't matter, but it matters that it's not None, to GLPane --
+            # otherwise it sets selobj to None and draws no highlight for it.
+            # (This color will be received by draw_in_abs_coords, but our implem of that ignores it.)
     def selobj_still_ok(self, glpane):
         ###e needs to compare glpane.part to something in selobj, and worry whether selobj is killed, current, etc
         # (it might make sense to see if it's created by current code, too;
@@ -841,61 +878,125 @@ class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
         if not res and env.debug():
             print "debug: selobj_still_ok is false for %r" % self ###@@@
         return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
-            # Caller now prints a warning if it's not None.
+            # Caller now prints a warning if it's None.
     ### grabbed from Button, maybe not yet fixed for here
-    def leftClick(self, point):
+    def leftClick(self, point, mode):
         self.transient_state.in_drag = True
+        self.inval(mode)
         self.do_action('on_press')
-        return self # in role of drag_handler; this is mostly nim in the mode ####@@@@
+        return self # in role of drag_handler
     def DraggedOn(self, event, mode):
-        ### might need better args (the mouseray, as two points?)
-        # print "draggedon called, need to update_selobj - try it" ###@@@
-        mode.update_selobj(event) ##### args?? also needed on release??? #####@@@@@
+        # only ok for Button so far
+        #e might need better args (the mouseray, as two points?) - or get by callback
+        # print "draggedon called, need to update_selobj, current selobj %r" % mode.o.selobj
+        mode.update_selobj(event)
+        #e someday, optim by passing a flag, which says "don't do glselect or change stencil buffer if we go off of it",
+        # valid if no other objects are highlightable during this drag (typical for buttons). Can't do that yet,
+        # since current GLPane code has to fully redraw just to clear the highlight, and it clears stencil buffer then too.
 
-        #e need to update_selobj,
-        # and pass a flag about whether to look for other ones or just us... ########@@@@@@@@ 060728
-        
-        ### WRONG except for Button (not yet enough for draggables)
-         
-        # older: we might have to modify the highlighting alg so the right different things highlight during a drag
-        # or we might decide that this routine has to call back to the env, to do highlighting of the kind it wants,
-        # since only this object knows what kind that is; also we have to tell caller if we need motion calls (same w/ baremotion)
-
+        # for dnd-like moving draggables, we'll have to modify the highlighting alg so the right kinds of things highlight
+        # during a drag (different than what highlights during baremotion). Or we might decide that this routine has to
+        # call back to the env, to do highlighting of the kind it wants [do, or provide code to do as needed??],
+        # since only this object knows what kind that is.
         return
     
     def ReleasedOn(self, selobj, mode): ### will need better args
         ### written as if for Button, might not make sense for draggables
         self.transient_state.in_drag = False
+        self.inval(mode)
         if selobj is self: #k is this the right selobj? NO! or, maybe -- this DH is its own selobj and vice versa
             self.do_action('on_release_in')
         else:
             self.do_action('on_release_out')
+        ## mode.update_selobj(event) #k not sure if needed -- if it is, we'll need the 'event' arg
+        #e need update?
         return
     
     def do_action(self, name):
-        print "do_action",name ###@@@
+        # print "do_action",name 
         action = self.kws.get(name)
         if action:
             action()
+        return
+
+    def inval(self, mode):
+        """we might look different now;
+        make sure display lists that might contain us are remade [stub],
+        and glpanes are updated
+        """
+        vv.havelist = 0
+        mode.o.gl_update()
         return
     
     pass # end of class Highlightable (a widgetexpr, and one kind of DragHandler)
 
 # ==
 
+def fix_color(color): # kluge #######@@@@@@@
+    color = resolve_callables(color, 'fakeenv') ###e someday, most prims do this to most params...
+    r,g,b = color # sanity check, though not a complete test of okness (if wrong, it can crash python) (support 4 elements?)
+    return color
+
 class Rect(WidgetExpr): #e example, not general enough to be a good use of this name
     "Rect(width, height, color) renders as a filled rect of that color, origin on bottomleft"
     def init(self):
         self.bright = self.args[0]
         self.btop = self.args[1]
-        self.color = self.args[2] # or dflt color?
+        self.color = self.args[2] # or dflt color? note, it might be symbolic
+        #e let arg 2 or 3 be more drawable stuff, to center in the rect?
+        #e if color None, don't draw it, just the stuff?
     def draw(self):
         glDisable(GL_CULL_FACE)
-        draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.color)
+        draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, fix_color(self.color))
+        glEnable(GL_CULL_FACE)
+    pass
+
+class RightTriangle(Rect):
+    "RightTriangle(width, height, color) renders as a filled right triangle, origin and right-angle corner on bottomleft"
+    def draw(self):
+        glDisable(GL_CULL_FACE)
+        draw_filled_triangle(ORIGIN, DX * self.bright, DY * self.btop, fix_color(self.color))
+        glEnable(GL_CULL_FACE)
+    pass
+
+class IsocelesTriangle(Rect):
+    "IsocelesTriangle(width, height, color) renders as a filled upright isoceles triangle, origin on bottomleft"
+    def draw(self):
+        glDisable(GL_CULL_FACE)
+        draw_filled_triangle(ORIGIN, DX * self.bright, DY * self.btop + DX * self.bright * 0.5, fix_color(self.color))
+        glEnable(GL_CULL_FACE)
+    pass
+
+class RectFrame(WidgetExpr):
+    """RectFrame(width, height, thickness, color) is an empty rect (of the given outer dims)
+    with a filled border of the given thickness (like a picture frame with nothing inside).
+    """
+    def init(self):
+        #e improve arglist
+        self.bright = self.args[0]
+        self.btop = self.args[1]
+        self.thickness = self.args[2]
+        self.color = self.args[3]
+    def draw(self):
+        glDisable(GL_CULL_FACE)
+        draw_filled_rect_frame(ORIGIN, DX * self.bright, DY * self.btop, self.thickness, fix_color(self.color))
         glEnable(GL_CULL_FACE)
     pass
 
 # ==
+
+class Overlay(DelegatingWidgetExpr):
+    "Overlay has the size of its first arg, but draws all its args in the same place, with the same origin."
+    def draw(self):
+        for a in self.args[::-1]:
+            #e We'd like this to work properly for little filled polys drawn over big ones.
+            # We might need something like z translation or depth offset or "decal mode"(??) or a different depth test.
+            # Different depth test would be best, but roundoff error might make it wrong...
+            # This is definitely needed for overdrawing like that to work, but it's low priority for now.
+            # Callers can kluge it using Closer, though that's imperfect in perspective mode (or when viewpoint is rotated).
+            # But for now, let's just try drawing in the wrong order and see if that helps... yep!
+            a.draw() #e try/except
+    pass # Overlay
 
 class Row(WidgetExpr):
     "Row" # note: this is only well-defined if we assume we know how to move to the right, and that "width" works that way!
@@ -974,6 +1075,8 @@ class Column(WidgetExpr):
         return max([a.bright for a in self.args])
     pass # Column
 
+# ==
+
 class Closer(DelegatingWidgetExpr):
     "Closer(thing, amount)"
 ##    __init__ = WidgetExpr.__init__ # otherwise Delegator's comes first and init() never runs
@@ -989,6 +1092,27 @@ class Closer(DelegatingWidgetExpr):
         return
     pass
 
+class Rotated(DelegatingWidgetExpr):
+    """Rotated(thing) has the same width and height as thing, but is drawn rotated CCW by a given number of degrees
+    around the center of the width/height rectangle.
+       Note: if the width and height differ, and you rotate it by 90 degrees, they are *not* swapped;
+    it won't fit in them, if it filled them before. This is not an error, and indeed, it's true at the corners
+    for any rotation angle.
+    """
+    #e would it be better to list angle first, and let the rest of the args be an implicit Overlay?
+    #e would it be better to calculate width and height to enclose a rotated filled rect of the arg size?
+    def init(self):
+        self.args = list(self.args) + [45] # default angle
+        self.thing = self.args[0] # or use self.delegate?
+        self.amount = self.args[1]
+    def draw(self):
+        glPushMatrix()
+        glTranslate((self.bright - self.bleft)/2.0, (self.btop - self.bbottom)/2.0, 0)
+        glRotate(self.amount, 0,0,1)
+        glTranslate(-(self.bright - self.bleft)/2.0, -(self.btop - self.bbottom)/2.0, 0)
+        self.thing.draw()
+        glPopMatrix()
+    pass
 # ==
 
 class Corkscrew(WidgetExpr):
@@ -1129,47 +1253,15 @@ class Ribbon2(Ribbon):
 
 # ==
 
+# not sure if anything in here is non-obs, tho If is used
+
 def printfunc(*args): #e might be more useful if it could take argfuncs too (maybe as an option); or make a widget expr for that
     def printer(_guard = None, args = args):
         assert not _guard # for now
         print args
     return printer
 
-# outtake:
-##class Button(Highlightable): ###IMPLEM callbacks from the mode to its drag_handler's DraggedOn/ReleasedOn (rename them)
-##    # but this is not the selobj - need to work that out with arg1, or do things differently, or use nesting glnames
-##    # when it is selobj, we'll find out, since it needs a handles_updates method but has none #####
-##    
-##    def init(self):
-##        self.arg1, self.arg2 = self.args
-####        self.transient_state = self # kluge, memory leak
-####        self.transient_state.in_drag = False # necessary (hope this is soon enough)
-##        Highlightable.init(self, (self.arg1, self.arg1)) # pass alternative args (kluge? or new convention?)
-##    def draw(self):
-##        #### note: it might be more efficient to implement drawing the pressed state as a kind of highlighting...
-##        # but i guess it's not so simple (since it has to work when not over the button)...
-##        # even so it can be "extra drawing" in case this button is in a display list.
-##        if self.transient_state.in_drag:
-##            self.arg2.draw()
-##        else:
-##            self.arg1.draw()
-##            # ####@@@@ LOGIC BUG:
-##            # this pushes arg1's glname, but what about pushing ours? only superclass-Highlightable draw can do that...
-##            # but then it would fail to let us override what it does inside -- it would just call that guy's arg1.draw!!! Hmm....
-##            # it might just mean that we and highlightable need a common superclass that does the pushname
-##            # and then lets us decide how to draw inside... but more likely, a widget expr should do that,
-##            # and give us enough control over the selobj callbacks... so we need to merge with our highlightable arg1...
-##            # or turn into a highlightable of our own construction (other args than our own)
-##            # rather than supering to it ... or something.....
-##            # BUT WAIT, we did pass our superclass other args, so can't we rely on those now?
-##            # problem is -- they were not always the *correct* other args! the correct arg1 would embody the switching
-##            # on in_drag that we're doing right here.
-##        return
-##    pass # end of class Button
-
-# try to redefine it in a higher-level way, to get around the logic bug above... not the most straightforwad way,
-# but it was getting too much stuff to be reasonably thought of as a primitive, anyway.
-
+##k are these obs?
 # define these, once i'm satisfied they make sense ####@@@@
 #__ - ok
 #Sensor
@@ -1202,23 +1294,23 @@ __ = Symbol()
 # Local will set up more in the env for its subexprs
 # Will they be fed the env only as each method in them gets called? or by "pre-instantiation"?
 
-def Button(plain, highlighted, pressed_inside, pressed_outside, **actions):
-    # this time around, we have a more specific API, so just one glname will be needed (also not required, just easier, I hope)
-    return Local(__, Sensor( # I think this means __ refers to the Sensor() -- not sure... (not even sure it can work perfectly)
-        0 and Overlay( plain,
-                 If( __.in_drag, pressed_outside),
-                 If( __.mouseover, If( __.in_drag, pressed_inside, highlighted )) ),
-            # what is going to sort out the right pieces to draw in various lists?
-            # this is like "difference in what's drawn with or without this flag set" -- which is a lot to ask smth to figure out...
-            # so it might be better to just admit we're defining multiple different-role draw methods. Like this: ###@@@
-        DrawRoles( ##e bad name
-            plain, dict(
-                in_drag = pressed_outside, ### is this a standard role or what? do we have general ability to invent kinds of extras?
-                mouseover = If( __.in_drag, pressed_inside, highlighted ) # this one is standard, for a Sensor (its own code uses it)
-            )),
-        # now we tell the Sensor how to behave
-        **actions # that simple? are the Button actions so generic? I suppose they might be. (But they'll get more args...)
-    ))
+##def Button(plain, highlighted, pressed_inside, pressed_outside, **actions):
+##    # this time around, we have a more specific API, so just one glname will be needed (also not required, just easier, I hope)
+##    return Local(__, Sensor( # I think this means __ refers to the Sensor() -- not sure... (not even sure it can work perfectly)
+##        0 and Overlay( plain,
+##                 If( __.in_drag, pressed_outside),
+##                 If( __.mouseover, If( __.in_drag, pressed_inside, highlighted )) ),
+##            # what is going to sort out the right pieces to draw in various lists?
+##            # this is like "difference in what's drawn with or without this flag set" -- which is a lot to ask smth to figure out...
+##            # so it might be better to just admit we're defining multiple different-role draw methods. Like this: ###@@@
+##        DrawRoles( ##e bad name
+##            plain, dict(
+##                in_drag = pressed_outside, ### is this a standard role or what? do we have general ability to invent kinds of extras?
+##                mouseover = If( __.in_drag, pressed_inside, highlighted ) # this one is standard, for a Sensor (its own code uses it)
+##            )),
+##        # now we tell the Sensor how to behave
+##        **actions # that simple? are the Button actions so generic? I suppose they might be. (But they'll get more args...)
+##    ))
 
 class Ifbad(DelegatingWidgetExpr):
     def init(self, args): #####@@@@@ IMPLEM new init API, receives args
@@ -1289,32 +1381,66 @@ def If(cond, then, else_ = None):
     # often a constant; if a function, let the caller resolve it when it wants to
     # (which might not be now, and we don't know env anyway)
     return clause 
-    
+
+# ==
+
+Button = Highlightable
+
+Pass = Rect(0,0,white) # seems to work (draws nothing) (not fully tested)
+
+def FilledSquare(fillcolor, bordercolor, size = 0.5, thickness_ratio = 0.05):
+    return Overlay( Rect(size, size, fillcolor),
+                    RectFrame(size, size, size * thickness_ratio, bordercolor)
+    )
+
+# kluge to test state toggling:
+
+def bcolor(env, nextness = 0):
+    n = vv.state.setdefault('buttoncolor',0)
+    return (green, yellow, red)[(n + nextness) % 3]
+
+def next_bcolor(env):
+    return bcolor(env, 1)
+
+def toggleit():
+    n = vv.state.setdefault('buttoncolor',0)
+    n += 1
+    n = n % 3
+    vv.state['buttoncolor'] = n
+    return
+
 testexpr = Row(
-    #obs Button:
-##                Button(
-##                    # unpressed look (can be highlightable; defines size)
-##                    Highlightable( Rect(1.5, 1, blue), Rect(1.5, 1, lightgreen), sbar_text = "button, unpressed" ),
-##                    # pressed look (can be highlightable; mode's code might need modification to make that work normally ###k)
-##                    Highlightable( Rect(1.5, 1, green), Rect(1.5, 1, yellow), sbar_text = "button, pressed" ), # lightgreen better
-##                    # actions
-##                    on_press = printfunc('pressed'),
-##                    on_release_in = printfunc('release in'),
-##                    on_release_out = printfunc('release out')
-##                ),
     #nim Button:
-##                Button(
-                    Rect(1.5, 1, blue), Rect(1.5, 1, lightgreen),
+                Button(
+                    Rect(1.5, 1, blue),
+                    Overlay( Rect(1.5, 1, lightgreen), (IsocelesTriangle(1.6, 1.1, pink))),
                         ####@@@@ where do I say this? sbar_text = "button, unpressed"
                         ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
-                    Rect(1.5, 1, green), Rect(1.5, 1, yellow),#e lightgreen better than yellow, once debugging sees the difference
+                    IsocelesTriangle(1.5, 1, green),
+                    IsocelesTriangle(1.5, 1, yellow),#e lightgreen better than yellow, once debugging sees the difference
                         ####@@@@ sbar_text = "button, pressed", 
                     # actions (other ones we don't have include baremotion_in, baremotion_out (rare I hope) and drag)
-##                    on_press = printfunc('pressed'),
-##                    on_release_in = printfunc('release in'),
-##                    on_release_out = printfunc('release out')
-##                ),  
+                    on_press = printfunc('pressed'),
+                    on_release_in = printfunc('release in'),
+                    on_release_out = printfunc('release out')
+                ),
                 ## DrawThePart(),
+                Column(
+                    Rotated( Overlay( RectFrame(1.5, 1, 0.1, white),
+                                      Rect(0.5,0.5,orange),
+                                      RectFrame(0.5, 0.5, 0.025, ave_colors(0.5,yellow,gray))
+                                      ) ),
+                    Pass,
+                    Overlay( RectFrame(1.5, 1, 0.1, white),
+                             Button(
+                                 FilledSquare(bcolor, bcolor),
+                                 FilledSquare(bcolor, next_bcolor),
+                                 FilledSquare(next_bcolor, black),
+                                 FilledSquare(bcolor, gray),
+                                 on_release_in = toggleit
+                            )
+                    ),
+                ),
                 Column(
                   Rect(1.5, 1, red),
                   Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge

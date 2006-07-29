@@ -966,14 +966,14 @@ class DebugMenuMixin:
                 ('print object counts', self._debug_print_object_counts),
             ] )
         
-        res.extend( [
-            ('print self', self._debug_printself),
-        ] )
         if platform.atom_debug: # since it's a dangerous command
             res.extend( [
                 ('debug._widget = this widget', self._debug_set_widget),
                 ('destroy this widget', self._debug_destroy_self),
             ] )
+        res.extend( [
+            ('print self', self._debug_printself),
+        ] )
         return res
 
     def _debug_save_window_layout(self): # [see also UserPrefs.save_current_win_pos_and_size, new as of 051218]

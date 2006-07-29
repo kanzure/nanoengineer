@@ -1023,7 +1023,7 @@ class selectMode(basicMode):
     def dragHandlerDrag(self, drag_handler, event):
         ###e nim: for some kinds of them, we want to pick them in leftDown, then drag all picked objects, using self.dragto...
         try:
-            method = getattr(drag_handler, 'DraggedOn', None)#e rename
+            method = getattr(drag_handler, 'DraggedOn', None) #e rename
             if method:
                 old_selobj = self.o.selobj
                 ###e args it might need:
@@ -1034,11 +1034,14 @@ class selectMode(basicMode):
                 # - maybe the mouseray, as two points?
                 retval = method(event, self)
                 # assume no update needed unless selobj changed
-                ###e so detect that... not sure if we need to, maybe set_selobj or (probably) update_selobj does it???
+                #e so detect that... not sure if we need to, maybe set_selobj or (probably) update_selobj does it?
                 if old_selobj is not self.o.selobj:
-                    if env.debug():
+                    if 0 and env.debug():
                         print "debug fyi: selobj change noticed by dragHandlerDrag, %r -> %r" % (old_selobj ,  self.o.selobj)
-                        # why only when we go out, not in?? #####@@@@@
+                        # WARNING: this is not a good enough detection, if any outside code also does update_selobj and changes it,
+                        # since those changes won't be detected here. Apparently this happens when the mouse moves back onto a real
+                        # selobj. Therefore I'm disabling this test for now. If we need it, we'll need to store old_selobj in self,
+                        # between calls of this method. 
                     pass
                 pass
             pass
@@ -2019,7 +2022,7 @@ class selectAtomsMode(selectMode):
         glpane = self.o
         
         if self.o.is_animating:
-            # If animating, do not select anything. For more info, see GLPane.animateToView(). mark 060404.
+            # If animating, do not select [you mean highlight] anything. For more info, see GLPane.animateToView(). mark 060404.
             # <is_animating> should be renamed to something more generic (i.e. <select_enabled>). mark 060701.
             # [But not to anything containing the word "select", since it's about hover highlighting, not selection. bruce 060724]
             return
@@ -2245,9 +2248,9 @@ class selectAtomsMode(selectMode):
             # (see also mouseover_statusbar_message, used in GLPane.set_selobj)
             method = getattr(obj, 'leftClick', None)
             if method:
-                farQ_junk, hitpoint = self.dragstart_using_GL_DEPTH( event) ######k safe?
+                farQ_junk, hitpoint = self.dragstart_using_GL_DEPTH( event) ###k safe?
                 try:
-                    retval = method(hitpoint) ###e more args later -- mode? mouseray? modkeys?
+                    retval = method(hitpoint, self) ##e more args later -- mouseray? modkeys? or use callbacks to get them?
                 except:
                     print_compact_traceback("exception ignored in %r.leftClick: " % (obj,))
                     return # no update or other action here
