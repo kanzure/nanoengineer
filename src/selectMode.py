@@ -16,8 +16,9 @@ in the same way, by two different pieces of code depending on whether an atom or
 was clicked on. If this was cleaned up, so that objects clicked on would answer questions about
 how to drag them, and if a drag_handler object was created to handle the drag (or the object itself
 can act as one, if only it is dragged and if it knows how), the code would be clearer, some bugs
-would be easier to fix, and some NFRs easier to implement.
-
+would be easier to fix, and some NFRs easier to implement. [bruce 060728 -- I'm adding drag_handlers
+for use by new kinds of draggable or buttonlike things (only in selectAtoms mode and subclasses),
+but not changing how old dragging code works.]
 """
 
 from modes import *
@@ -450,9 +451,11 @@ class selectMode(basicMode):
             self.cursor_over_when_LMB_pressed = 'Unpicked Atom'
         self.atomSetup(a, event)
 
-    def objectSetup(self, obj):
+    def objectSetup(self, obj): ###e [should move this up, below generic left* methods -- it's not just about atoms]
         # [this seems to be called (sometimes indirectly) by every leftDown method, and by some methods in depmode
-        #  that create objects and can immediately drag them. [bruce 060727 comment]]
+        #  that create objects and can immediately drag them. Purpose is more general than just for a literal "drag" --
+        #  I guess it's for many things that immediately-subsequent leftDrag or leftUp or leftDouble might need to
+        #  know obj to decide on. I think I'll call it for all new drag_handlers too. [bruce 060728 comment]]
         self.current_obj = obj # [used by leftDrag and leftUp to decide what to do [bruce 060727 comment]]
         self.obj_doubleclicked = obj # [used by leftDouble and class-specific leftDouble methods [bruce 060727 comment]]
         if obj is None:
@@ -958,12 +961,13 @@ class selectMode(basicMode):
             self.o.assy.changed() #k needed?
             self.w.win_update() #k wouldn't gl_update be enough? [bruce 060726 question]
             
-    def bondDrag(self, event):
+    def bondDrag(self, obj, event):
+        # [bruce 060728 added obj arg, for uniformity; probably needed even more in other Bond methods ##e]
         # If a LMB+Drag event has happened after selecting a bond in left*Down(),
         # do a 2D region selection as if the bond were absent. This takes care of 
         # both Shift and Control mod key cases.
         self.cursor_over_when_LMB_pressed = 'Empty Space'
-        self.select_2d_region(self.LMB_press_event)
+        self.select_2d_region(self.LMB_press_event) # [i suspect this inlines something in another method -- bruce 060728 comment]
         self.current_obj_clicked = False
         self.current_obj = None
         return
@@ -1003,6 +1007,61 @@ class selectMode(basicMode):
         '''Singlet double click event handler for the left mouse button.
         '''
         pass
+
+# == drag_handler event handler methods [bruce 060728]
+
+    # note: dragHandlerLeftDown() does not exist, since self.drag_handler is only created by some other object's leftDown method
+
+    def dragHandlerSetup(self, drag_handler, event):
+        assert drag_handler is self.drag_handler #e clean up sometime? not sure how
+        self.cursor_over_when_LMB_pressed = 'drag_handler' # not presently used, except for not being 'Empty Space'
+        self.objectSetup(drag_handler) #bruce 060728
+        if not drag_handler.handles_updates():
+            self.w.win_update()
+        return
+    
+    def dragHandlerDrag(self, drag_handler, event):
+        ###e nim: for some kinds of them, we want to pick them in leftDown, then drag all picked objects, using self.dragto...
+        try:
+            method = getattr(drag_handler, 'DraggedOn', None)#e rename
+            if method:
+                old_selobj = self.o.selobj
+                ###e args it might need:
+                # - mode, for callbacks for things like update_selobj (which needs a flag to avoid glselect)
+                # - event, to pass to update_selobj (and maybe other callbacks we offer)
+                # and ones it can callback for:
+                # - offset, for convenient 3d motion of movable dragobjs
+                # - maybe the mouseray, as two points?
+                retval = method(event, self)
+                # assume no update needed unless selobj changed
+                ###e so detect that... not sure if we need to, maybe set_selobj or (probably) update_selobj does it???
+                if old_selobj is not self.o.selobj:
+                    if env.debug():
+                        print "debug fyi: selobj change noticed by dragHandlerDrag, %r -> %r" % (old_selobj ,  self.o.selobj)
+                        # why only when we go out, not in?? #####@@@@@
+                    pass
+                pass
+            pass
+        except:
+            print_compact_traceback("bug: exception in dragHandlerDrag ignored: ")
+        return
+        
+    def dragHandlerLeftUp(self, drag_handler, event):
+        try:
+            method = getattr(drag_handler, 'ReleasedOn', None)#e rename
+            if method:
+                retval = method(self.o.selobj, self)
+                self.w.win_update() ##k not always needed, might be redundant, should let the handler decide ####@@@@
+                # lots of other stuff done by other leftUp methods here? #####@@@@@
+            pass
+        except:
+            print_compact_traceback("bug: exception in dragHandlerLeftUp ignored: ")
+        pass
+        
+    def dragHandlerLeftDouble(self, drag_handler, event): #####@@@@@ CALL ME
+        if env.debug():
+            print "debug fyi: dragHandlerLeftDouble is nim" ###@@@
+        return
         
 #== Jig event handler helper methods
 
@@ -1178,7 +1237,7 @@ class selectMode(basicMode):
         self.o.gl_update() #bruce 060412 fix some possible unreported bugs
         return
         
-#== End of singlet helper methods
+#== End of (most) Jig helper methods
 
     def mouse_within_stickiness_limit(self, event, drag_stickiness_limit_pixels): #bruce 060315 reimplemented this
         """Check if mouse has never been dragged beyond <drag_stickiness_limit_pixels>
@@ -1215,7 +1274,7 @@ class selectMode(basicMode):
             msg = "Highlighting turned off."
         env.history.message(msg)
     
-    def get_jig_under_cursor(self, event):
+    def get_jig_under_cursor(self, event): ###e should move this up with the other Jig helper methods
         """Use the OpenGL picking/selection to select any jigs. Restore the projection and modelview
            matrices before returning.
         """
@@ -1301,7 +1360,9 @@ class selectMode(basicMode):
                 if isinstance(obj, Jig):
                     return obj
         return None # from get_jig_under_cursor
-                
+
+    # ==
+    
     def Draw(self):
         if 1:
             # wware 060124  Embed Pyrex/OpenGL unit tests into the cad code
@@ -1633,14 +1694,16 @@ class selectAtomsMode(selectMode):
             # current_obj is the object under the cursor when the LMB was pressed.
             # [it is set to that obj by objectSetup, and set back to None by some, but not all,
             #  mousedrag and mouseup methods. It's used by leftDrag and leftUp to decide what to do,
-            #  to what object. When a drag_handler is in use, it's not yet clear whether
-            #  this should be the selobj or the drag_handler, and in the latter case,
-            #  whether a separate self.drag_handler attr is needed. Guess: no need for separate attr,
-            #  just let this be the drag_handler -- need to re-review with that in mind.
-            #  But worst likely effect of doing it that way would be a need for some uses of this to filter it
-            #  though a self method which converts drag_handlers back to their underlying objects
-            #  (i.e. the selobj that they were made from or made for).
-            #  #####@@@@@ [bruce 060727 comment]]
+            #  to what object. When a drag_handler is in use, I think [bruce 060728] this will be the
+            #  drag_handler (not the selobj that it is for), but I'll still have a separate self.drag_handler
+            #  attr to also record that. One of these is redundant, but this will most clearly separate old and new code,
+            #  while ensuring that if old code tests current_obj it won't see a class it thinks it knows how to handle
+            #  (even if I sometimes use drag_handlers to drag old specialcase object classes), and won't see None.
+            #  (Other possibilities would be to not have self.drag_handler at all, and/or to let this be the selobj
+            #   that a drag_handler was made for; these seem worse now, but I mention them in case I need to switch to them.)
+            #  Maybe we'll need some uses of current_obj to filter it though a self method which converts drag_handlers
+            #  back to their underlying objects (i.e. the selobj that they were made from or made for). (Or have a .selobj attr.)
+            #  #####@@@@@ [bruce 060728 comment]]
         self.dragatoms = []
             # dragatoms is constructed in get_dragatoms_and_baggage() and contains all 
             # the selected atoms (except selected baggage atoms) that are dragged around
@@ -1757,7 +1820,7 @@ class selectAtomsMode(selectMode):
         # and about changes in selobj. [bruce 060726]
         return
 
-    def get_obj_under_cursor(self, event):
+    def get_obj_under_cursor(self, event): # docstring appears wrong
         '''Return the object under the cursor.  Only atoms, singlets and bonds are returned.
         Returns None for all other cases, including when a bond, jig or nothing is under the cursor.
         ''' #bruce 060331 comment: this docstring appears wrong, since the code looks like it can return jigs.
@@ -2184,7 +2247,7 @@ class selectAtomsMode(selectMode):
             if method:
                 farQ_junk, hitpoint = self.dragstart_using_GL_DEPTH( event) ######k safe?
                 try:
-                    retval = method(hitpoint) ###e more args later
+                    retval = method(hitpoint) ###e more args later -- mode? mouseray? modkeys?
                 except:
                     print_compact_traceback("exception ignored in %r.leftClick: " % (obj,))
                     return # no update or other action here
@@ -2193,13 +2256,12 @@ class selectAtomsMode(selectMode):
                 # If retval is a drag handler (#doc), we let that object handle everything about the drag.
                 # (Someday, all of our object/modkey-specific code should be encapsulated into drag handlers.)
                 # If retval is something else... not sure, so nevermind for now, just assume it's a drag handler. ###@@@
-                self.drag_handler = retval ###e should wrap with something which exception-protects all method calls
+                self.drag_handler = retval # needed even if this is None
+                    ##e should wrap with something which exception-protects all method calls
                 if self.drag_handler is not None:
                     # We're using a drag_handler to override most of our behavior for this drag.
-                    self.cursor_over_when_LMB_pressed = 'drag_handler' # not presently used, except for not being 'Empty Space'
-                    ## objectSetup(self.drag_handler) ###k want this??? note, conceivably this would be enough & self.dh is not needed
-                    if not self.drag_handler.handles_updates():
-                        self.w.win_update()
+                    self.dragHandlerSetup(self.drag_handler, event) # does updates if needed
+                    # don't do the rest of this method:
                     return
 
         if isinstance(obj, Atom) and obj.is_singlet(): # Cursor over a singlet
@@ -2207,7 +2269,7 @@ class selectAtomsMode(selectMode):
                 # no win_update() needed. It's the responsibility of singletLeftDown to do it if needed.
             return
             
-        if isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
+        elif isinstance(obj, Atom) and not obj.is_singlet(): # Cursor over a real atom
             self.atomLeftDown(obj, event)
         
         elif isinstance(obj, Bond) and not obj.is_open_bond(): # Cursor over a bond.
@@ -2222,7 +2284,7 @@ class selectAtomsMode(selectMode):
             # [perhaps no longer true, if it ever was -- bruce 060725]
             pass
 
-        self.w.win_update() #k (is this always desirable?)
+        self.w.win_update() #k (is this always desirable? note, a few cases above return early just so they can skip it.)
         return # from selectAtomsMode.leftDown
 
 # == LMB drag methods
@@ -2242,17 +2304,27 @@ class selectAtomsMode(selectMode):
         # what you're doing.  mark 060208.
         
         if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
+            # [let this happen even for drag_handlers -- bruce 060728]
             return
         
         if self.cursor_over_when_LMB_pressed == 'Empty Space':
+            if self.drag_handler is not None:
+                print "possible bug (fyi): self.drag_handler is not None, but cursor_over_when_LMB_pressed == 'Empty Space'", \
+                      self.drag_handler #bruce 060728
             self.emptySpaceLeftDrag(event)
             return
             
         if self.o.modkeys is not None:
             # If a drag event has happened after the cursor was over an atom and a modkey is pressed,
             # do a 2D region selection as if the atom were absent.
+            # [let this happen even for drag_handlers -- bruce 060728]
             self.emptySpaceLeftDown(self.LMB_press_event)
             #bruce 060721 question: why don't we also do emptySpaceLeftDrag at this point?
+            return
+
+        if self.drag_handler is not None:
+            #bruce 060728
+            self.dragHandlerDrag(self.drag_handler, event) # does updates if needed
             return
         
         obj = self.current_obj
@@ -2267,7 +2339,7 @@ class selectAtomsMode(selectMode):
                 self.atomDrag(obj, event)
         
         elif isinstance(obj, Bond): # Bond
-            self.bondDrag(event)
+            self.bondDrag(obj, event)
         
         elif isinstance(obj, Jig): # Jig
             self.jigDrag(obj, event)
@@ -2276,6 +2348,7 @@ class selectAtomsMode(selectMode):
             pass
             
         # No gl_update() needed. Already taken care of.
+        return
         
     def posn_str(self, atm): #bruce 041123
         """return the position of an atom
@@ -2311,13 +2384,21 @@ class selectAtomsMode(selectMode):
             self.emptySpaceLeftUp(event)
             return
         
+        if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
+            event = self.LMB_press_event
+                # pretend the mouse didn't move -- this replaces our argument event,
+                # for passing to *leftUp methods [bruce 060728 comment]
+
+        if self.drag_handler:
+            #bruce 060728
+            self.dragHandlerLeftUp(self.drag_handler, event) # does updates if needed
+            self.leftUp_reset_a_few_drag_vars() #k needed??
+            return
+        
         obj = self.current_obj
             
         if obj is None: # Nothing dragged (or clicked); return.
             return
-        
-        if self.mouse_within_stickiness_limit(event, DRAG_STICKINESS_LIMIT):
-            event = self.LMB_press_event
             
         if isinstance(obj, Atom):
             if obj.is_singlet(): # Bondpoint
@@ -2334,9 +2415,7 @@ class selectAtomsMode(selectMode):
         else:
             pass
         
-        self.baggage = []
-        self.current_obj = None #bruce 041130 fix bug 230 [later: i guess this attr had a different name then -- bruce 060721]
-        self.o.selatom = None #bruce 041208 for safety in case it's killed
+        self.leftUp_reset_a_few_drag_vars()
         #bruce 041130 comment: it forgets selatom, but doesn't repaint,
         # so selatom is still visible; then the next event will probably
         # set it again; all this seems ok for now, so I'll leave it alone.
@@ -2346,7 +2425,16 @@ class selectAtomsMode(selectMode):
         # current location (to set selatom again, if appropriate), but it's
         # not clear this would be good, so *this* is what I won't do for now.
         #self.o.gl_update() #& Now handled in modkey*() methods. mark 060210.
-        
+
+        return # from selectAtomsMode.leftUp
+
+    def leftUp_reset_a_few_drag_vars(self): #bruce 060728 split this out, guessed docstring
+        "reset a few drag vars at the end of leftUp -- might not be safe to reset them all (e.g. if some are used by leftDouble)"
+        self.baggage = []
+        self.current_obj = None #bruce 041130 fix bug 230 [later: i guess this attr had a different name then -- bruce 060721]
+        self.o.selatom = None #bruce 041208 for safety in case it's killed
+        return
+
 # == LMB double-click method
 
     def leftDouble(self, event): # mark 060126.

@@ -709,9 +709,9 @@ class DragHandler:
          but do neither, on baremotion == move, except when selobj changes)
         """
         return False # otherwise subclass is likely to forget to do them
-    def DraggedOn(self, offset): ### might need better args (the mouseray, as two points?) ### NOT YET CALLED  #e rename
+    def DraggedOn(self, event, mode): ### might need better args (the mouseray, as two points? offset? or just ask mode  #e rename
         pass
-    def ReleasedOn(self, selobj): ### will need better args ### NOT YET CALLED  #e rename
+    def ReleasedOn(self, selobj, mode): ### will need better args ### NOT YET CALLED  #e rename
         pass
     pass
 
@@ -765,6 +765,7 @@ class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
     #
 ##    __init__ = WidgetExpr.__init__ # otherwise Delegator's comes first and init() never runs
     def init(self, args = None):
+        "args are what it looks like when plain, highlighted, pressed_in, pressed_out (really this makes sense mostly for Button)"
         self.transient_state = self # kluge, memory leak
         self.transient_state.in_drag = False # necessary (hope this is soon enough)
         if args is None:
@@ -846,27 +847,39 @@ class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
         self.transient_state.in_drag = True
         self.do_action('on_press')
         return self # in role of drag_handler; this is mostly nim in the mode ####@@@@
-    def DraggedOn(self, offset): ### might need better args (the mouseray, as two points?) ### NOT YET CALLED
+    def DraggedOn(self, event, mode):
+        ### might need better args (the mouseray, as two points?)
+        # print "draggedon called, need to update_selobj - try it" ###@@@
+        mode.update_selobj(event) ##### args?? also needed on release??? #####@@@@@
+
+        #e need to update_selobj,
+        # and pass a flag about whether to look for other ones or just us... ########@@@@@@@@ 060728
+        
         ### WRONG except for Button (not yet enough for draggables)
-        pass # not much to do -- the caller is tracking the selobj, and if it's us, we're on, otherwise off....
-            # we might have to modify the highlighting alg so the right different things highlight during a drag
-            # or we might decide that this routine has to call back to the env, to do highlighting of the kind it wants,
-            # since only this object knows what kind that is; also we have to tell caller if we need motion calls (same w/ baremotion)
-    def ReleasedOn(self, selobj): ### will need better args### NOT YET CALLED
+         
+        # older: we might have to modify the highlighting alg so the right different things highlight during a drag
+        # or we might decide that this routine has to call back to the env, to do highlighting of the kind it wants,
+        # since only this object knows what kind that is; also we have to tell caller if we need motion calls (same w/ baremotion)
+
+        return
+    
+    def ReleasedOn(self, selobj, mode): ### will need better args
         ### written as if for Button, might not make sense for draggables
         self.transient_state.in_drag = False
-        if selobj is self: #k is this the right selobj? 
+        if selobj is self: #k is this the right selobj? NO! or, maybe -- this DH is its own selobj and vice versa
             self.do_action('on_release_in')
         else:
             self.do_action('on_release_out')
         return
+    
     def do_action(self, name):
         print "do_action",name ###@@@
         action = self.kws.get(name)
         if action:
             action()
         return
-    pass # end of class Highlightable
+    
+    pass # end of class Highlightable (a widgetexpr, and one kind of DragHandler)
 
 # ==
 
@@ -1122,61 +1135,37 @@ def printfunc(*args): #e might be more useful if it could take argfuncs too (may
         print args
     return printer
 
-class Button(Highlightable): ###IMPLEM callbacks from the mode to its drag_handler's DraggedOn/ReleasedOn (rename them)
-    # but this is not the selobj - need to work that out with arg1, or do things differently, or use nesting glnames
-    # when it is selobj, we'll find out, since it needs a handles_updates method but has none #####
-    
-    def init(self):
-        self.arg1, self.arg2 = self.args
-##        self.transient_state = self # kluge, memory leak
-##        self.transient_state.in_drag = False # necessary (hope this is soon enough)
-        Highlightable.init(self, (self.arg1, self.arg1)) # pass alternative args (kluge? or new convention?)
-##    def leftClick(self, point):
-##        self.transient_state.in_drag = True
-##        self.do_action('on_press')
-##        return self # in role of drag_handler; this is mostly nim in the mode ####@@@@
-##    def DraggedOn(self, offset): ### might need better args (the mouseray, as two points?)
-##        pass # not much to do -- the caller is tracking the selobj, and if it's us, we're on, otherwise off....
-##            # we might have to modify the highlighting alg so the right different things highlight during a drag
-##            # or we might decide that this routine has to call back to the env, to do highlighting of the kind it wants,
-##            # since only this object knows what kind that is; also we have to tell caller if we need motion calls (same w/ baremotion)
-##    def ReleasedOn(self, selobj): ### will need better args
-##        self.transient_state.in_drag = False
-##        if selobj is self.arg2: # is this the right selobj? can we somehow cause it to be self, for efficiency (if that would help)?
-##            self.do_action('on_release_in')
-##        elif selobj is self.arg1 or selobj is self:
-##            print "didn't expect selobj %r of arg1 or self" % (selobj,)
-##            self.do_action('on_release_in') # but work anyway
+# outtake:
+##class Button(Highlightable): ###IMPLEM callbacks from the mode to its drag_handler's DraggedOn/ReleasedOn (rename them)
+##    # but this is not the selobj - need to work that out with arg1, or do things differently, or use nesting glnames
+##    # when it is selobj, we'll find out, since it needs a handles_updates method but has none #####
+##    
+##    def init(self):
+##        self.arg1, self.arg2 = self.args
+####        self.transient_state = self # kluge, memory leak
+####        self.transient_state.in_drag = False # necessary (hope this is soon enough)
+##        Highlightable.init(self, (self.arg1, self.arg1)) # pass alternative args (kluge? or new convention?)
+##    def draw(self):
+##        #### note: it might be more efficient to implement drawing the pressed state as a kind of highlighting...
+##        # but i guess it's not so simple (since it has to work when not over the button)...
+##        # even so it can be "extra drawing" in case this button is in a display list.
+##        if self.transient_state.in_drag:
+##            self.arg2.draw()
 ##        else:
-##            self.do_action('on_release_out')
+##            self.arg1.draw()
+##            # ####@@@@ LOGIC BUG:
+##            # this pushes arg1's glname, but what about pushing ours? only superclass-Highlightable draw can do that...
+##            # but then it would fail to let us override what it does inside -- it would just call that guy's arg1.draw!!! Hmm....
+##            # it might just mean that we and highlightable need a common superclass that does the pushname
+##            # and then lets us decide how to draw inside... but more likely, a widget expr should do that,
+##            # and give us enough control over the selobj callbacks... so we need to merge with our highlightable arg1...
+##            # or turn into a highlightable of our own construction (other args than our own)
+##            # rather than supering to it ... or something.....
+##            # BUT WAIT, we did pass our superclass other args, so can't we rely on those now?
+##            # problem is -- they were not always the *correct* other args! the correct arg1 would embody the switching
+##            # on in_drag that we're doing right here.
 ##        return
-##    def do_action(self, name):
-##        print "do_action",name ###@@@
-##        action = self.kws.get(name)
-##        if action:
-##            action()
-##        return
-    def draw(self):
-        #### note: it might be more efficient to implement drawing the pressed state as a kind of highlighting...
-        # but i guess it's not so simple (since it has to work when not over the button)...
-        # even so it can be "extra drawing" in case this button is in a display list.
-        if self.transient_state.in_drag:
-            self.arg2.draw()
-        else:
-            self.arg1.draw()
-            # ####@@@@ LOGIC BUG:
-            # this pushes arg1's glname, but what about pushing ours? only superclass-Highlightable draw can do that...
-            # but then it would fail to let us override what it does inside -- it would just call that guy's arg1.draw!!! Hmm....
-            # it might just mean that we and highlightable need a common superclass that does the pushname
-            # and then lets us decide how to draw inside... but more likely, a widget expr should do that,
-            # and give us enough control over the selobj callbacks... so we need to merge with our highlightable arg1...
-            # or turn into a highlightable of our own construction (other args than our own)
-            # rather than supering to it ... or something.....
-            # BUT WAIT, we did pass our superclass other args, so can't we rely on those now?
-            # problem is -- they were not always the *correct* other args! the correct arg1 would embody the switching
-            # on in_drag that we're doing right here.
-        return
-    pass # end of class Button
+##    pass # end of class Button
 
 # try to redefine it in a higher-level way, to get around the logic bug above... not the most straightforwad way,
 # but it was getting too much stuff to be reasonably thought of as a primitive, anyway.
