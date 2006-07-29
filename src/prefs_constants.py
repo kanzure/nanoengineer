@@ -217,16 +217,26 @@ _default_bondVaneColor = _compute_default_bondVaneColor()
 
 _default_bondColor = (0.25, 0.25, 0.25)
 
-def _get_default_workingDirectory():
+def getDefaultWorkingDirectory(): # This should be moved to platform.py. Confirm with Bruce. Mark 060729.
+    '''Returns the default working directory.
+    '''
     import sys, os
+    wd = ''
     if sys.platform == 'win32': # Windows
         # e.g. "C:\Documents and Settings\Mark\My Documents"
-        return os.path.normpath(os.path.expanduser("~/My Documents/"))
+        wd = os.path.expanduser("~/My Documents")
+        if not os.path.isdir(wd): # Check since some Windows OSes (i.e. Win95) may not have "$HOME/My Documents".
+            wd = os.path.expanduser("~")
     else: # Linux and MacOS
         # e.g. "/usr/mark"
+        wd = os.path.expanduser("~")
+    if os.path.isdir(wd):
         return os.path.normpath(os.path.expanduser("~"))
+    else:
+        print "getDefaultWorkingDirectory(): default working directory [", wd ," does not exist. Setting default working directory to [.]"
+        return "."
 
-_default_workingDirectory = _get_default_workingDirectory()
+_default_workingDirectory = getDefaultWorkingDirectory()
 
 # the actual table (for doc, see the code that interprets it, in preferences.py)
 

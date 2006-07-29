@@ -74,12 +74,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         env.history.message(greenmsg("Insert File:"))
         
-        # Determine the directory to search for.
-        if os.path.exists(self.assy.filename):
-            odir,fil,ext = fileparse(self.assy.filename)
-        else: odir = env.prefs[workingDirectory_prefs_key] #mitigated bug 291. Handles one case only. This is a temporary fix ninad060724. Other changes after Bruce's code review. ninad060725
-        
-        fn = QFileDialog.getOpenFileName(odir,
+        fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
                 "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out);;All Files (*.pdb *.mmp *.out)",
                 self,
                 "Insert File dialog",
@@ -134,6 +129,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()
             self.mt.mt_update()
+            
+            # Update the current working directory (CWD). Mark 060729.
+            dir, fil = os.path.split(fn)
+            self.setCurrentWorkingDirectory(dir)
 
 
     def fileOpen(self, recentFile = None):
@@ -166,10 +165,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
                 return # Cancel clicked or Alt+C pressed or Escape pressed
 
-        # Determine what directory to open.
-        if self.assy.filename: odir, fil, ext = fileparse(self.assy.filename)
-        else: odir = env.prefs[workingDirectory_prefs_key]
-
         if recentFile:
             if not os.path.exists(recentFile):
               QMessageBox.warning( self, self.name(),
@@ -179,7 +174,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             
             fn = recentFile
         else:
-            fn = QFileDialog.getOpenFileName(odir,
+            fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
                     "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;All Files (*.mmp *.pdb)",
                     self ) #fixes bug 316 ninad060724
                     
@@ -242,6 +237,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             self.mt.mt_update()
 
         if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
+        
+        self.setCurrentWorkingDirectory()
         
         return
 
@@ -691,9 +688,26 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 self.assy.clear_undo_stack() #bruce 060126, maybe not needed, or might fix an unreported bug related to 1398
                 self.win_update()
         return
+    
+    def setCurrentWorkingDirectory(self, dir=None): # Mark 060729.
+        """Sets the current working directory (CWD) to <dir>. If <dir> is None, the CWD is set
+        to the directory of the current assy filename (i.e. the directory of the current part). 
+        If <dir> is None and there is no current assy filename, set the CWD to the default working directory.
+        """
+        if not dir:
+            dir, fil = os.path.split(self.assy.filename)
+        
+        if os.path.isdir(dir):
+            self.currentWorkingDirectory = dir
+        else:
+            self.currentWorkingDirectory =  getDefaultWorkingDirectory()
+            
+        #print "setCurrentWorkingDirectory(): dir=",dir
 
     def fileSetWorkDir(self):
-        """Sets working directory"""
+        """Slot for 'File > Set Working Directory', which sets the working directory preference.
+        If there is no open part, the CWD will be changed to the directory chosen by the user.
+        """
 
         env.history.message(greenmsg("Set Working Directory:"))
         
@@ -704,13 +718,23 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         if not wd:
             env.history.message("Cancelled.")
             return
-            
-        if wd:
-            wd = str(wd)
+        
+        wd = str(wd)
+        if os.path.isdir(wd):
             wd = os.path.normpath(wd)
-            env.prefs[workingDirectory_prefs_key] = wd
+            env.prefs[workingDirectory_prefs_key] = wd # Change pref in prefs db.
+            
+            # Change the CWD only if there is no open/saved file (i.e. the current file is "Untitled").
+            # Need to discuss with Ninad. Maybe we should always update the CWD whenever the user changes
+            # the Working Directory preference via 'File > Set Working Directory'. BTW, this menu item will be removed
+            # soon (the pref will be moved to the Preferences dialog). Mark 060729.
+            if not self.assy.filename:  
+                self.setCurrentWorkingDirectory(wd)
             
             env.history.message( "Working Directory set to " + wd )
+        else:
+            msg = "[" + dir + "] is not a directory. Working directory was not changed."
+            env.history.message( redmsg(msg))
         return
                 
     def __clear(self): #bruce 050911 revised this: leaves glpane.mode as nullmode

@@ -350,6 +350,23 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         # speed up rendering times by disabling the (re)building of display lists for each frame
         # of the movie.
         self.movie_is_playing = False
+	
+	# Current Working Directory (CWD).
+	# When NE1 starts, the CWD is set to the Working Directory (WD) pref from the prefs db. 
+	# Every time the user opens or inserts a file during a session, the CWD changes to the directory containing
+	# that file. When the user closes the current file and then attempts to open a new file, the CWD will still
+	# be the directory of the last file opened or inserted. 
+	# If the user changes the WD via 'File > Set Working Directory' when a file is open, 
+	# the CWD will not be changed to the new WD. (This rule may change. Need to discuss with Ninad).
+	# On the other hand, if there is no part open, the CWD will be changed to the new WD.  Mark 060729.
+	self.currentWorkingDirectory = ''
+
+	# Before setting the CWD, make sure the WD from the prefs db exists (it might have been deleted). 
+	# If not, set the CWD to the default WD.
+	if os.path.isdir(env.prefs[workingDirectory_prefs_key]): 
+	    self.currentWorkingDirectory = env.prefs[workingDirectory_prefs_key]
+	else:
+	    self.currentWorkingDirectory = getDefaultWorkingDirectory()
 
         #bruce 050810 replaced user preference initialization with this, and revised update_mainwindow_caption to match
         from changes import Formula

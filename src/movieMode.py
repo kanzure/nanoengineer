@@ -424,7 +424,7 @@ class movieDashboardSlotsMixin:
             odir, fil, ext = filesplit(self.assy.current_movie.filename)
             del fil, ext #bruce 050413
         else:
-            odir = env.prefs[workingDirectory_prefs_key]
+            odir = self.currentWorkingDirectory # Fixes bug 291 (comment #4). Mark 060729.
 
         fn = QFileDialog.getOpenFileName(odir,
                 "Differential Position Bytes Format (*.dpb)",
