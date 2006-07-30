@@ -41,9 +41,13 @@ known bugs:
 - region selection - works to select atoms in a rect, but the rect for it is not being drawn  [even w/o displist optim]
   - is it a failure to delegate some method to superclass, maybe emptySpaceLeftDown?
   - is it related to the reload that happens on that leftDown? (not sure why it would be)
+  solved: it was failure to call super.Draw! Tested, but fix reverted, since i wanted to test the old way again. ###@@@
 
 - singlet-drag to bond - also works but lacks rubberband line [even w/o displist optim]
-  
+
+- draw_later doesn't make thing highlightable even when i don't touch color enablement and do it not much later,
+so how can I test the real thing? [relates to Invisible] [would it work better as Transparent? Probably not yet...]
+
 ==
 
 todo:
@@ -78,7 +82,7 @@ from debug import print_compact_stack
 import env
 from idlelib.Delegator import Delegator
 
-USE_DISPLAY_LIST_OPTIM = 1 # usually True, set False to see if this optim is causing bugs
+USE_DISPLAY_LIST_OPTIM = 0 # usually True, set False to see if this optim is causing bugs
 
 printdraw = False # debug flag
 
@@ -153,6 +157,7 @@ if vv.havelist:
     
 def Enter(glpane): # never yet called ###@@@
     glpane.win.setViewHome() # not tested, might be wrong; redundant now (if home view is the default)
+    glpane._testmode_stuff = []
     
 def leftDown(self, event, glpane, super): # called from testmode.leftDown, just after it reloads this module
     "self is the mode, needed to call super.leftDown"
@@ -163,11 +168,12 @@ def leftDown(self, event, glpane, super): # called from testmode.leftDown, just 
     super.leftDown(self, event) # this might call testmode.emptySpaceLeftDown (or other class-specific leftDown methods in it)
     glpane.gl_update() # always, for now [might be redundant with super.leftDown, too]
 
-def drawtest(glpane): # called by testmode.Draw
+def Draw(self, glpane, super): # called by testmode.Draw
+    glpane._testmode_stuff = []
     vv.counter += 1
     glPushMatrix()
     try:
-        drawtest0(glpane) # this puts our special drawing into a display list
+        drawtest0(glpane) # this puts some of our special drawing into a display list
         # [no point in putting the main model drawing into it, for now -- but when we can know when to inval, there might be]
     except:
         print_compact_traceback("exc ignored: ")
@@ -176,11 +182,25 @@ def drawtest(glpane): # called by testmode.Draw
     # makes us draw twice! noticed on g4, should happen on g5 too, did it happen but less??
     if 1 and 'draw_model':
         glPushMatrix()
-        glpane.part.draw(glpane) # highlighting works fine on this copy
+        glpane.part.draw(glpane) # highlighting works fine on this copy...
+            # oh, i bet this is why selection rect is not drawn,
+            # since we never call super.Draw
+            ######@@@@@@ doit -- it worked but i needed to test not having it again; also it might be slow
+##        super.Draw(self)
         if 0 and 'draw copy2 of model':
             glTranslate(5,0,0)
             glpane.part.draw(glpane) # but not on this one - i see why it doesn't draw it there, but why not complain about not finding it?
         glPopMatrix()
+    # draw invisible stuff (after highlighting didn't work, let's see if this does -- no, still not highlightable)
+    for func in glpane._testmode_stuff:
+        func()
+    return
+
+def Draw_after_highlighting(self, pickCheckOnly, glpane, super):
+    ## print "testdraw.Draw_after_highlighting(pickCheckOnly = %r)" % (pickCheckOnly,) # pickCheckOnly is True once when I click
+    super.Draw_after_highlighting(self, pickCheckOnly)
+##    for func in glpane._testmode_stuff:
+##        func()
     return
 
 # ==
@@ -987,6 +1007,35 @@ class RectFrame(WidgetExpr):
         glEnable(GL_CULL_FACE)
     pass
 
+class Invisible(DelegatingWidgetExpr): #stub
+    """Invisible(thing) has size and hit-test behavior like thing (for use in Highlighting),
+    but is not visible and obscures nothing.
+    (Implem note: it has to be drawn at the end, but arbitrary order among all invisibles is ok.)
+    Note that thing's syntax might still require you to specify a color; which one you specify doesn't matter.
+    """
+    def draw(self):
+        # arrange to do it later... save the matrix
+        self.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX )
+        glpane = env.mainwindow().assy.o ###@@@ KLUGE 
+        glpane._testmode_stuff.append(self.draw_later) # assumes self has all the needed data
+        # see also code in renderpass about how to sort by depth
+        # but what if we're in a display list? well, we better not be... this aspect is nim too
+        # self.draw_later() # this fixed the bug, made it highlight again
+    def draw_later(self):
+        # print "draw_later called" # only works when we disable USE_DISPLAY_LIST_OPTIM
+        glPushMatrix()
+        glLoadMatrixd(self.saved_modelview_matrix)
+        ## why didn't zapping this fix the failure to highlight??? (it did make it visible as expected)
+        ## glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) # don't draw color pixels (but keep drawing depth pixels)
+        # it seems like this breaks stencil test
+        self.delegate.draw()
+        ##glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+            # WARNING: nested Invisibles would break, due to this in the inner one
+            # WARNING: better not do this when drawing a highlight!
+        glPopMatrix()
+        return
+    pass
+
 # ==
 
 class Overlay(DelegatingWidgetExpr):
@@ -1421,7 +1470,7 @@ def toggleit():
 testexpr = Row(
     #nim Button:
                 Button(
-                    Rect(1.5, 1, blue),
+                    Invisible(Rect(1.5, 1, blue)),
                     Overlay( Rect(1.5, 1, lightgreen), (IsocelesTriangle(1.6, 1.1, pink))),
                         ####@@@@ where do I say this? sbar_text = "button, unpressed"
                         ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
@@ -1484,6 +1533,23 @@ testexpr = Row(
                 )),
                 gap = 0.2)
 
+from Utility import SimpleCopyMixin, Node, imagename_to_pixmap, genViewNum
+
+class TestNode(Node, SimpleCopyMixin): # see TestNode.py... not yet more than a stub... see also DebugNode
+    """Abstract class for a kind of Node it's easy to experiment with.
+    Just make sure the subclass does the stuff needed by SimpleCopyMixin,
+    and that all the attrs can be saved as info records in a simple way by the code herein --
+    or maybe we'll save them in a Files Directory shelf instead? Not sure yet.
+    """
+    def draw(self, glpane, dispdef):
+        "Use our subtype to find some rules in a widget expr..."
+        # some WE is sitting there in the mode, knowing how to draw things for it...
+        # so we ask it...
+        # maybe it got passed to this method? ideally as dispdef, but that would break old code...
+        # so simplest way is as a dynamic glpane attr, and this is tolerable until we have a chance to clean up all Node draw methods.
+        pass
+    pass
+        
 # (some outtakes removed to bruceG5 testdraw-outtakes.py, last here in rev 1.11)
 
 ### btw i decided not to use env in these lambdas -- too likely to be confusing re global env. didn't yet decide what to use instead.

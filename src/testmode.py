@@ -49,16 +49,30 @@ class testmode(super):
     default_mode_status_text = "Mode: Test"
 
     def Draw(self):
-        ## print "testmode draw"
-        # initial purpose: test new drawing primitives, defined in testdraw.py, frequently edited
-        ## did reload here, until 060723 late
         import testdraw
         try:
-            testdraw.drawtest(self.o)
+            testdraw.Draw(self, self.o, super)
         except:
             #e history message?
-            print_compact_traceback("exception in testdraw.drawtest ignored: ")
+            print_compact_traceback("exception in testdraw.Draw ignored: ")
         return
+
+    def Draw_after_highlighting(self, pickCheckOnly = False): #bruce 050610
+        # I'm very suspicious of this pickCheckOnly arg in the API... it's not even acceptable to some modes,
+        # it's not clear whether they'll be called with it, it's not documented what it should do,
+        # and there seems to be a return value when it's used, but not all methods provide one.
+        """Do more drawing, after the main drawing code has completed its highlighting/stenciling for selobj.
+        Caller will leave glstate in standard form for Draw. Implems are free to turn off depth buffer read or write.
+        Warning: anything implems do to depth or stencil buffers will affect the standard selobj-check in bareMotion.
+        """
+        ## super.Draw_after_highlighting(self, pickCheckOnly) # let testdraw do this if if wants to
+        import testdraw
+        try:
+            testdraw.Draw_after_highlighting(self, pickCheckOnly, self.o, super)
+        except:
+            #e history message?
+            print_compact_traceback("exception in testdraw.Draw_after_highlighting ignored: ")
+        return        
 
     def reload(self):
         import testdraw
