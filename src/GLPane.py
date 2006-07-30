@@ -1951,6 +1951,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
             glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
                 # (this works, but someday verify sign is correct in theory #k)
+                # [actually it has some visual bugs, esp. in perspective view when off-center,
+                #  and it would be better to just use a depth offset, or better still (probably)
+                #  to change the depth test to LEQUAL, either just for now, or all the time. bruce 060729 comment]
             glMatrixMode(GL_MODELVIEW) # probably required!
             
             ####@@@@ TODO -- rename draw_in_abs_coords and make it imply highlighting so obj knows whether to get bigger
