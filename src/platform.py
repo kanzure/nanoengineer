@@ -359,11 +359,14 @@ def find_or_make_Nanorex_subdir(subdir, make = True): #bruce 060614 added make a
     return path_or_errortext
 
 def find_or_make_any_directory(dirname, make = True, make_higher_dirs = True): #bruce 060614
-    """Find or make the given directory, making containing directories as needed unless make_higher_dirs is false.
-    (If make is false, don't make it, only find it.)
-    Make sure it's really a directory.
-    For any error, return (1, errortext); on success return (0, full_path_of_dir).
-    In other words, return (errorcode, path_or_errortext).
+    """Find or make the given directory, making containing directories as needed unless make_higher_dirs is False.
+    If <make> is False, don't make it, only find it, and make sure it's really a directory.
+    
+    Return (errorcode, message), where:
+        - on success, return (0, the full and normalized path of <dirname>), 
+            or if <make> is False and <dirname> does not exist, return (0, None).
+        - on error, return (1, errormsg).
+        
     """
     ###e once this works, redefine some other functions in terms of it, here and in callers of functions here.
     dirname = os.path.abspath(os.path.normpath(dirname)) #k might be redundant, in wrong order, etc
@@ -373,7 +376,7 @@ def find_or_make_any_directory(dirname, make = True, make_higher_dirs = True): #
         return 1, "[%s] exists but is not a directory" % (dirname,)
     # not there
     if not make:
-        return 1, "[%s] does not exist" % (dirname,)
+        return 0, None # This isn't an error since <make> is False and <dirname> does not exist. 
     # try to make it; first make sure parent is there, only making it if make_higher_dirs is true.
     parent, basedir = os.path.split(dirname)
     if not parent or parent == dirname:
