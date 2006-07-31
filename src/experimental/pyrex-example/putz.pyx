@@ -41,10 +41,9 @@ class MainWindow(qt.QMainWindow):
         self.glpane.show()
         qt.QMainWindow.show(self)
 
-
 def main():
     qt.QApplication.setColorSpec(qt.QApplication.CustomColor)
     app = qt.QApplication(sys.argv)
-    app.connect(app, qt.SIGNAL("lastWindowClosed()"), app.quit)
     win = MainWindow()
     win.show()
+    app.connect(app, qt.SIGNAL("lastWindowClosed()"), app.quit)

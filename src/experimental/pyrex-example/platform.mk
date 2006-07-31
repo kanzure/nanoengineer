@@ -25,7 +25,7 @@ UNAME_A=$$(uname -a)
 CC=gcc
 TARGET_SUFFIX=.so
 STDC99=-std=c99
-CFLAGS:=$(shell python distutils_compile_options.py compiler_so)
+CFLAGS:=$(shell python makehelp.py compiler_so)
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
 CFLAGS+=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
@@ -40,7 +40,7 @@ LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
-PYREXC=$(shell python -c "import findpyrex; print findpyrex.find_pyrexc()")
+PYREXC=$(shell python makehelp.py findpyrex)
 LDFLAGS+=-L/usr/X11R6/lib -lGL
 LDFLAGS+=-L/usr/lib -lm
 CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
@@ -51,5 +51,22 @@ CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
 #---------------------------------------- End of Unix/Mac stuff
 endif
 
+PYREXTARGET=$(PYREXNAME)$(TARGET_SUFFIX)
+
+all: $(PYREXTARGET)
+
 libpython$(PYVER).a: libpython$(PYVER).a.gz
 	gunzip < libpython$(PYVER).a.gz > libpython$(PYVER).a
+
+clean:
+	rm -f *~ *.o *.pyc $(PYREXNAME).c $(PYREXNAME).so 
+
+$(PYREXNAME).c: $(PYREXNAME).pyx
+	$(PYREXC) $(PYREXNAME).pyx
+
+$(PYREXNAME).dll: $(PYREXNAME).c $(PYREXOBJS) libpython$(PYVER).a version.h
+	gcc -shared -I"C:/Python$(PYVER)/include" -o $(PYREXNAME).dll $(PYREXOBJS) \
+		-Wl,--output-def,$(PYREXNAME).def -L. -lpython$(PYVER)
+
+$(PYREXNAME).so: $(PYREXNAME).o
+	$(CC) -shared -o $(PYREXNAME).so $(PYREXNAME).o $(LDFLAGS)

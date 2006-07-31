@@ -19,7 +19,7 @@ void
 glSetup(int windowWidth, int windowHeight)
 {
 
-	exit(1);
+    //exit(1);
 
 }
 
