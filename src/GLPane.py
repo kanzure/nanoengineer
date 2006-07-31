@@ -454,7 +454,36 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.snapToView(self.quat, scale, pov, 1.0)
         else:
             self.animateToView(self.quat, scale, pov, 1.0)
-
+    
+    def setViewFitSelectionToWindow(self, fast = False):
+        """Change the view so that only selected chunks fit in the GLPane. If <fast> is True, then snap to the view 
+        It is NIY for jig selection - ninad060731"""
+        #It uses most of the code in setViewFitToWindow.What if the parameter 'chunks' is passed as an argument in that function ? (but we probably need a new icon for 'fit to selection' so it might be better to keep these functions seperate  
+        #This also needs history messages once implemented. - ninad060731
+        
+        chunks = self.assy.selmols
+        #jigs = self.assy.SelectedJigs
+        bbox = BBox()
+        for mol in chunks:
+            if mol.hidden or mol.display == diINVISIBLE: #I am not sure if it should neglect hidden/invisible chunks 
+                continue                                                          #while doing fit sel to window.Perhaps it should. ninad060731
+            bbox.merge(mol.bbox)
+        
+        center = bbox.center()
+        scale = float(bbox.scale() * .75)
+        aspect = float(self.width) / self.height
+        
+        if aspect < 1.0:
+            # tall (narrow) glpane -- need to increase self.scale
+            # (defined in terms of glpane height) so part bbox fits in width
+            # [bruce 050616 comment]
+            scale /= aspect
+        pov = V(-center[0], -center[1], -center[2])
+        if fast:
+            self.snapToView(self.quat, scale, pov, 1.0)
+        else:
+            self.animateToView(self.quat, scale, pov, 1.0)
+        
     def setViewHomeToCurrent(self):
         "Set the Home view to the current view."
         self.saveViewInCsys( self.part.homeCsys)
