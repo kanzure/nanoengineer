@@ -8,24 +8,31 @@ import types
 import string
 from math import cos, sin, sqrt
 
-GOT_PYREX = True
+PROFILING = True
+if PROFILING:
+    import hotshot, hotshot.stats
+
+GOT_PYREX = False
 try:
     import comp
+    GOT_PYREX = True
 except ImportError:
-    GOT_PYREX = False
-print "GOT_PYREX", GOT_PYREX
+    pass
+
+N = 4
+
+# milliseconds
+ANIMATION_DELAY = 50
 
 """I think this is the correct way to
 scale stiffness and viscosity.
 """
-N = 4
 RADIUS = 15 / N**.5
 MASS = 3.0e-6 / N**2
 DT = 3.0e-3
 STIFFNESS = 1.0e-8 * N
 VISCOSITY = 3.0e-9 * N
 DTM = (DT ** 2) / MASS
-ANIMATION_DELAY = 50   # milliseconds
 TIME_STEP = 0.2
 MAXTIME = 1.0e20
 
@@ -43,33 +50,27 @@ def scalevec(u, k):
 class Computronium:
     def __init__(self, owner):
         self.owner = owner
-        if GOT_PYREX:
-            comp._setup(N)
-        else:
-            self.u = u = N**2 * [ (0.0, 0.0) ]
-            self.u_old = N**2 * [ (0.0, 0.0) ]
-            self.u_new = N**2 * [ (0.0, 0.0) ]
-            self.x = x = [ ]  # nominal positions
-            for i in range(N):
-                for j in range(N):
-                    x.append((1. * j / N,
-                              1. * i / N))
-            self.forceTerms = [ ]
-            # set up the force terms
-            for i in range(N):
-                for j in range(N - 1):
-                    self.forceTerms.append((i * N + j,
-                                            i * N + j + 1))
-            for i in range(N - 1):
-                for j in range(N):
-                    self.forceTerms.append((i * N + j,
-                                            (i + 1) * N + j))
+        self.u = u = N**2 * [ (0.0, 0.0) ]
+        self.u_old = N**2 * [ (0.0, 0.0) ]
+        self.u_new = N**2 * [ (0.0, 0.0) ]
+        self.x = x = [ ]  # nominal positions
+        for i in range(N):
+            for j in range(N):
+                x.append((1. * j / N,
+                          1. * i / N))
+        self.forceTerms = [ ]
+        # set up the force terms
+        for i in range(N):
+            for j in range(N - 1):
+                self.forceTerms.append((i * N + j,
+                                        i * N + j + 1))
+        for i in range(N - 1):
+            for j in range(N):
+                self.forceTerms.append((i * N + j,
+                                        (i + 1) * N + j))
         self.simTime = 0.0
 
     def internalForces(self):
-        if GOT_PYREX:
-            comp._internalForces(STIFFNESS, VISCOSITY/DT, DTM)
-            return
         forces = self.zeroForces()
         u, o = self.u, self.u_old
         for i1, i2 in self.forceTerms:
@@ -82,18 +83,12 @@ class Computronium:
         self.applyForces(forces)
 
     def verletMomentum(self):
-        if GOT_PYREX:
-            comp._verletMomentum()
-            return
         self_u, self_uold, self_unew = self.u, self.u_old, self.u_new
         for i in range(N**2):
                 self_unew[i] = subvec(scalevec(self_u[i], 2),
                                       self_uold[i])
 
     def applyForces(self, f):
-        if GOT_PYREX:
-            comp._applyForces(f, DTM)
-            return
         self_unew = self.u_new
         index = 0
         for i in range(N**2):
@@ -106,8 +101,6 @@ class Computronium:
         return N**2 * [ (0.0, 0.0) ]
 
     def draw(self, cb, h, w):
-        if GOT_PYREX:
-            return comp._draw(cb, h, w)
         # x is nominal position
         # u is displacement
         p = [ ]
@@ -116,16 +109,40 @@ class Computronium:
         for i in range(N**2):
             xvec = self.x[i]
             uvec = self.u[i]
-            cb((h * (a * (xvec[0] + uvec[0]) + b),
-                w * (a * (xvec[1] + uvec[1]) + b)))
+            cb(h * (a * (xvec[0] + uvec[0]) + b),
+               w * (a * (xvec[1] + uvec[1]) + b))
 
     def rotate(self):
-        if GOT_PYREX:
-            return comp._rotate()
         tmp = self.u_old
         self.u_old = self.u
         self.u = self.u_new
         self.u_new = tmp
+
+
+if GOT_PYREX:
+    # Keep the old, current and new versions of u
+    # in here, along with x.
+    class ComputroniumWithPyrex(Computronium):
+        def __init__(self, owner):
+            self.owner = owner
+            comp._setup(N)
+
+        def internalForces(self):
+            comp._internalForces(STIFFNESS, VISCOSITY/DT, DTM)
+
+        def verletMomentum(self):
+            comp._verletMomentum()
+
+        def applyForces(self, f):
+            comp._applyForces(f, DTM)
+
+        def draw(self, cb, h, w):
+            return comp._draw(cb, h, w)
+
+        def rotate(self):
+            return comp._rotate()
+
+    Computronium = ComputroniumWithPyrex
 
 
 class Jello(JelloGui):
@@ -217,9 +234,17 @@ def main(n, maxTime=1.0e20):
     app.exec_loop()
 
 if __name__ == "__main__":
-    if False:
-        import profile
-        profile.run('main(4, maxTime=30.0)')
+    if PROFILING:
+        prof = hotshot.Profile("jello.prof")
+        def m():
+            main(4, maxTime=30.0)
+        prof.runcall(m)
+        prof.close()
+        print 'Profiling run is finished, figuring out stats'
+        stats = hotshot.stats.load("jello.prof")
+        stats.strip_dirs()
+        stats.sort_stats('time', 'calls')
+        stats.print_stats(20)
         sys.exit(0)
     try:
         n = string.atoi(sys.argv[1])
