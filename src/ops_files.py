@@ -14,6 +14,8 @@ bruce 050907 split this out of MWsemantics.py.
 [But it still needs major cleanup and generalization.]
 
 bruce 050913 used env.history in some places.
+
+mark 060730 removed unsupported slot method fileNew(); refined and added missing docstrings
 '''
 
 from qt import QFileDialog, QMessageBox, QString, qApp, QSettings
@@ -21,7 +23,6 @@ from assembly import assembly
 import os, shutil
 import platform
 
-#&&& from constants import * # needed for at least globalParms - globalParms was removed by me. Mark 060726.
 from fileIO import * # this might be needed for some of the many other modules it imports; who knows? [bruce 050418 comment]
     # (and it's certainly needed for the functions it defines, e.g. writepovfile.)
 from files_pdb import readpdb, insertpdb, writepdb
@@ -56,26 +57,22 @@ def fileparse(name): #bruce 050413 comment: see also filesplit and its comments.
     m=re.match("(.*\/)*([^\.]+)(\..*)?",name)
     return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
 
-
 class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     "Mixin class to provide file-related methods for class MWsemantics. Has slot methods and their helper methods."
-    
-    def fileNew(self):
-        """If this window is empty (has no assembly), do nothing.
-        Else create a new empty one.
-        """
-        #bruce 050418 comment: this has never worked correctly to my knowledge,
-        # and therefore it was made unavailable from the UI some time ago.
-        from MWsemantics import MWsemantics #bruce 050907 (might have a recursive import problem if done at toplevel)
-        foo = MWsemantics()
-        foo.show()
 
     def fileInsert(self):
-        
+        """Slot method for 'File > Insert'.
+        """
         env.history.message(greenmsg("Insert File:"))
         
+        formats = \
+                    "Molecular Machine Part (*.mmp);;"\
+                    "Protein Data Bank (*.pdb);;"\
+                    "GAMESS (*.out);;"\
+                    "All Files (*.pdb *.mmp *.out)"
+        
         fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
-                "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;GAMESS (*.out);;All Files (*.pdb *.mmp *.out)",
+                formats,
                 self,
                 "Insert File dialog",
                 "Select file to insert" ) # This is the caption for the dialog.  Fixes bug 1125. Mark 051116.
@@ -136,8 +133,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
 
     def fileOpen(self, recentFile = None):
-        '''By default, users open a file through 'Open File' dialog. If <recentFile> is provided, it means user
-           is opening a file named <recentFile> through the 'Recent Files' menu list. The file may or may not exist. '''
+        """Slot method for 'File > Open'.
+        By default, users open a file through 'Open File' dialog. If <recentFile> is provided, it means user
+        is opening a file named <recentFile> through the 'Recent Files' menu list. The file may or may not exist.
+        """
         env.history.message(greenmsg("Open File:"))
         
         mmkit_was_hidden = self.hide_MMKit_during_open_or_save_on_MacOS() # Fixes bug 1744. mark 060325
@@ -174,8 +173,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             
             fn = recentFile
         else:
+            formats = \
+                    "Molecular Machine Part (*.mmp);;"\
+                    "Protein Data Bank (*.pdb);;"\
+                    "All Files (*)"
+            
             fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
-                    "Molecular machine parts (*.mmp);;Protein Data Bank (*.pdb);;All Files (*.mmp *.pdb)",
+                    formats,
                     self ) #fixes bug 316 ninad060724
                     
             if not fn:
@@ -243,7 +247,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
 
     def fileSave(self):
-        
+        """Slot method for 'File > Save'.
+        """
         env.history.message(greenmsg("Save File:"))
         
         #Huaicai 1/6/05: by returning a boolean value to say if it is really 
@@ -257,6 +262,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return False #bruce 050927 added this line (should be equivalent to prior implicit return None)
 
     def fileSaveAs(self): #bruce 050927 revised this
+        """Slot method for 'File > Save As'.
+        """
         safile = self.fileSaveAs_filename()
         # fn will be None or a Python string
         if safile:
@@ -281,18 +288,26 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # figure out sdir, sfilter from existing filename
         if self.assy:
             if self.assy.filename:
-                dir, fil, ext = fileparse(self.assy.filename)
-                sdir = self.assy.filename
+                # Below, sdir is the filename minus the extension. This way only the basename is displayed
+                # in the QFileDialog. This is a workaround for bug 225. 
+                # Normally, we'd like to include the extension so that it is included in the filename field of
+                # the QFileDialog, but when the user changes the filter (i.e. *.mmp to *.pdb), the extension
+                # in the filename field does not get updated to match the selected filter. Mark 060730.
+                sdir, ext = os.path.splitext(self.assy.filename)
+                #sdir = self.assy.filename # Keeping this here in case there is strong disagreement. Mark 060730.
             else: 
-                dir, fil = "./", self.assy.name
+                # Marked for removal since <dir> and <fil> are not used. Mark 060730.
+                #&&& dir, fil = "./", self.assy.name
                 ext = ".mmp"
-                sdir = env.prefs[workingDirectory_prefs_key]
+                sdir = self.currentWorkingDirectory # Make sure the file chooser dialog opens to the CWD. Mark 060730.
         else:
             env.history.message( "Save Ignored: Part is currently empty." )
             return None
 
-        if ext == ".pdb": sfilter = QString("Protein Data Bank (*.pdb)")
-        else: sfilter = QString("Molecular machine parts (*.mmp)")
+        if ext == ".pdb": 
+            sfilter = QString("Protein Data Bank (*.pdb)")
+        else: 
+            sfilter = QString("Molecular Machine Part (*.mmp)")
 
         # ask user for new filename (and file type); they might cancel; fn will be a QString
         formats = \
@@ -307,8 +322,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
         mmkit_was_hidden = self.hide_MMKit_during_open_or_save_on_MacOS() # Fixes bug 1744. mark 060325
         
-        fn = QFileDialog.getSaveFileName(sdir, formats,
-                    self, "IDONTKNOWWHATTHISIS",
+        fn = QFileDialog.getSaveFileName(sdir, 
+                    formats,
+                    self, 
+                    None,
                     "Save As",
                     sfilter)
 
@@ -344,7 +361,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # that writes into the file, then if that fails it'll more likely require user to redo the entire op.)
             
             if mmkit_was_hidden: self.glpane.mode.MMKit.show() # Fixes bug 1744. mark 060325
-            
+                        
             return safile
             
         else:
@@ -353,7 +370,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             return None ## User canceled.
 
     def fileSaveSelection(self): #bruce 050927
-        "slot method for Save Selection"
+        """Slot method for 'File > Save Selection'.
+        """
         env.history.message(greenmsg("Save Selection:"))
             # print this before counting up what selection contains, in case that's slow or has bugs
         (part, killfunc, desc) = self.assy.part_for_save_selection()
@@ -381,12 +399,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
 
     def saveFile(self, safile):
+        """Save the current model. <safile> is the filename to save the part under.
+        """
         
         dir, fil, ext = fileparse(safile)
             #e only ext needed in most cases here, could replace with os.path.split [bruce 050907 comment]
                     
-        if ext == ".mmp" : # Write MMP file
+        if ext == ".mmp" : # Write MMP file.
             self.save_mmp_file( safile)
+            self.setCurrentWorkingDirectory() # Update the CWD.
 
         elif ext == ".pdb": # Write PDB file.
             try:
@@ -399,6 +420,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     #bruce 050907 split out this common code, though it's probably bad design for PDB files (as i commented elsewhere)
                 env.history.message( "PDB file saved: [ " + os.path.normpath( self.assy.filename) +" ]" )
                     #bruce 050907 moved this after mt_update (which is now in saved_main_file)
+                self.setCurrentWorkingDirectory() # Update the CWD.
         else:
             self.savePartInSeparateFile( self.assy.part, safile)
         return
@@ -464,18 +486,21 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
 
     def save_mmp_file(self, safile): #bruce 050907 split this out of saveFile; maybe some of it should be moved back into caller ###@@@untested
+        """Save the current part as a MMP file under the name <safile>.
+        If we are saving a part (assy) that already exists and it has an (old) Part Files directory, 
+        copy those files to the new Part Files directory (i.e. '<safile> Files').
+        """
         dir, fil, extjunk = fileparse(safile)
         try:
             tmpname = os.path.join(dir, '~' + fil + '.m~')
             self.assy.writemmpfile(tmpname)
         except:
             #bruce 050419 revised printed error message
-            print_compact_traceback( "MWsemantics.py: saveFile(): error writing file [%s]: " % safile )
+            print_compact_traceback( "Problem writing file [%s]: " % safile )
             env.history.message(redmsg( "Problem saving file: " + safile ))
             
-            # If you want to see what was wrong with the MMP file, you
-            # can comment this out so you can see what's in
-            # the temp MMP file.  Mark 050128.
+            # If you want to see what was wrong with the MMP file, you can comment this out so 
+            # you can see what's in the temp MMP file.  Mark 050128.
             if os.path.exists(tmpname):
                 os.remove (tmpname) # Delete tmp MMP file
         else:
@@ -488,12 +513,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             os.rename( tmpname, safile) # Move tmp file to saved filename.
             
             errorcode, oldPartFilesDir = self.assy.find_or_make_part_files_directory(make = False) # Mark 060703.
+            
+            # If errorcode, print a history warning about it and then proceed as if the old Part Files directory is not there.
             if errorcode:
-                # This code is guessing that the "error" is only that the old part_files_dir is not there.
-                # If there is some other error, we need to print a history warning about it,
-                # and then we can proceed as if the dir was not there. Printing that message is not implemented yet. ####@@@@
-                # [bruce 060704 comment]
-                oldPartFilesDir = None # Make sure we don't try to copy it.
+                env.history.message( orangemsg(oldPartFilesDir))
+                oldPartFilesDir = None # So we don't copy it below.
 
             self.saved_main_file(safile, fil)
 
@@ -502,6 +526,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 # which will now ask for permission before removing files,
                 # and will start and end with a history message if it does anything.
 
+            # If it exists, copy the Part Files directory of the original part (oldPartFilesDir) to the new name (i.e. "<safile> Files")
             if oldPartFilesDir: #bruce 060704 revised this code
                 errorcode, errortext = self.copy_part_files_dir(oldPartFilesDir) # Mark 060703. [only copies them if they exist]
                     #bruce 060704 will modify that function, e.g. to make it print a history message when it starts copying.
@@ -662,6 +687,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         return
 
     def fileClose(self):
+        """Slot method for 'File > Close'.
+        """
         
         env.history.message(greenmsg("Close File:"))
         
@@ -724,12 +751,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             wd = os.path.normpath(wd)
             env.prefs[workingDirectory_prefs_key] = wd # Change pref in prefs db.
             
-            # Change the CWD only if there is no open/saved file (i.e. the current file is "Untitled").
-            # Need to discuss with Ninad. Maybe we should always update the CWD whenever the user changes
-            # the Working Directory preference via 'File > Set Working Directory'. BTW, this menu item will be removed
-            # soon (the pref will be moved to the Preferences dialog). Mark 060729.
-            if not self.assy.filename:  
-                self.setCurrentWorkingDirectory(wd)
+            # Set the CWD to the Working Directory. Mark 060730.
+            self.setCurrentWorkingDirectory(wd)
             
             env.history.message( "Working Directory set to " + wd )
         else:
