@@ -47,6 +47,16 @@ known bugs:
 
 - draw_later doesn't make thing highlightable even when i don't touch color enablement and do it not much later,
 so how can I test the real thing? [relates to Invisible] [would it work better as Transparent? Probably not yet...]
+[###@@@ maybe fixed now]
+
+- TextRect:
+  - size is wrong
+  - origin is wrong [probably fixed]
+  + if too few lines, testchars at top rather than blanklines at bottom [fixed]
+  - sometimes fuzzy (should fix several of these by using pixmap/displist text, or the bitmap text in pyrex_atoms)
+  - fails to notice hits, in Button... no idea why. interesting Q - does it draw into depth buffer at all?
+    yes it does; also, if i slide off black rect onto text, it works fine, only if i slide onto text does it fail.
+    AHA, i bet it does something funny with size/pos, which messes up rendering by draw_in_abs_coords.
 
 ==
 
@@ -78,7 +88,7 @@ shrinks when it gets nonparallel, but that's a bug, not a form of billboarding.
 __author__ = "bruce"
 
 from testmode import *
-from debug import print_compact_stack
+from debug import print_compact_stack, print_compact_traceback
 import env
 from idlelib.Delegator import Delegator
 
@@ -170,6 +180,7 @@ def leftDown(self, event, glpane, super): # called from testmode.leftDown, just 
 
 def Draw(self, glpane, super): # called by testmode.Draw
     glpane._testmode_stuff = []
+    glpane._glnames = []
     vv.counter += 1
     glPushMatrix()
     try:
@@ -331,6 +342,13 @@ def drawtest2(glpane): # never in displist
         msg += "%s %4d (%4d fps)" % (flags, redraw_counter, fps)
     ## msg = "redraw %d\n(dlist %d)" % (env.redraw_counter, vv.when_drawtest1_last_ran)
     drawfont2(glpane, msg, charwidth = 18)
+
+    try:
+        glTranslate(0,1,0)
+        we = displist_expr ## Overlay(Rect(1,1,green),displist_expr)
+        we.draw()
+    except:
+        print_compact_traceback("exc ignored: ")
     pass
 
 def drawtest1(glpane): # in displist (if flag for that is set)
@@ -395,13 +413,15 @@ def drawtest1(glpane): # in displist (if flag for that is set)
 
     return # drawtest1 #e rename
 
-def drawfont2(glpane, msg = None, charwidth = None, charheight = None):
+#e put these into an object for a texture font!
+tex_width = 6 # pixel width in texture of 1 char
+tex_height = 10 # guess (pixel height)
+
+def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpattern = False):
     """draws a rect of chars using vv's font texture, in a klugy way;
-    msg gives the chars to draw (lines must be short or they will be truncated)
+    msg gives the chars to draw (lines must be shorter than charwidth or they will be truncated)
     """
     # adjust these guessed params (about the specific font image we're using as a texture) until they work right:
-    tex_width = 6 # pixel width in texture of 1 char
-    tex_height = 10 # guess (pixel height)
     tex_origin_chars = V(3,65) # guess was 0,64... changing y affects the constant color; try 0, not totally constant
     tex_size = (128,128) # guess
     tex_nx = 16
@@ -418,6 +438,10 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None):
         charwidth = 14 # could be max linelength plus 1
     if charheight is None:
         charheight = len(lines)
+
+    if not testpattern:
+        while len(lines) < charheight:
+            lines.append('')
     
     # draw individual chars from font-texture,
     # but first, try to position it so they look perfect (which worked for a while, but broke sometime before 060728)
@@ -442,6 +466,15 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None):
         # 0.0313971755382 0.0 0.0 home ortho
         # 0.03139613018 0.0 0.0 home perspective -- still looks good (looks the same) (with false "smoother textures")
     pixelwidth = pixelheight = px * pixfactor
+    # print "pixelwidth",pixelwidth
+        ####@@@@ can be one of:
+        #    0.0319194157846
+        # or 0.0313961295259
+        # or 0.00013878006302
+    if pixelwidth < 0.01:
+        pixelwidth = 0.0319194157846
+        ### kluge, in case you didn't notice [guess: formula is wrong during highlighting]
+        # but this failed to fix the bug in which a TextRect doesn't notice clicks unless you slide onto it from a Rect ####@@@@
     if pixfactor == 2:
         tex_origin_chars = V(3.5, 64.5) # 3.5 seems best, tho some shift to right; 3.55 through 3.75 are same, too much shift to left
     if pixfactor == 1:
@@ -484,7 +517,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None):
     char_dx = (tex_width + gap) * pixelwidth
     char_dy = (tex_height + gap) * pixelheight
     def gg(i,j):
-        return ORIGIN + j * char_dx * DX + i * char_dy * DY, charwidth1 * DX, charheight1 * DY
+        return ORIGIN + j * char_dx * DX + (i + 1) * char_dy * DY, charwidth1 * DX, charheight1 * DY
     # now draw them
 
     if 1: #### for n in range(65): # simulate the delay of doing a whole page of chars
@@ -814,6 +847,25 @@ class DelegatingWidgetExpr(Delegator, WidgetExpr):
         Delegator.__init__(self, self.args[0]) # usually same as args[0], but this way, init method can modify self.args[0] if it needs to
     pass
 
+def _kluge_glpane():
+    import env
+    return env.mainwindow().assy.o
+    
+def PushName(glname, drawenv = 'fake'):
+    glPushName(glname)
+    glpane = _kluge_glpane()
+    glpane._glnames.append(glname)
+            ###e actually we'll want to pass it to something in env, in case we're in a display list ####@@@@
+    return
+
+def PopName(glname, drawenv = 'fake'):
+    glPopName() ##e should protect this from exceptions
+            #e (or have a WE-wrapper to do that for us, for .draw() -- or just a helper func, draw_and_catch_exceptions)
+    glpane = _kluge_glpane()
+    popped = glpane._glnames.pop()
+    assert glname == popped
+    return
+
 class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
     "Highlightable(plain, highlight) renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight"
     # Works, except I suspect the docstring is inaccurate when it says "plain plus highlight" (rather than just highlight), 
@@ -850,15 +902,15 @@ class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
             ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
             #e [if this (or any WE) is really a map from external state to drawables,
             #   we'd need to store self.glname and self.saved_modelview_matrix in corresponding external state]
-        glPushName(self.glname)
+        #e do we need to save glnames? not in present system where only one can be active. ###@@@
+        PushName(self.glname)
         if self.transient_state.in_drag:
             if printdraw: print "pressed_out.draw",self
             self.pressed_out.draw() #e actually might depend on mouseover, or might not draw anything then...
         else:
             ## print "plain.draw",self
             self.plain.draw()
-        glPopName() ##e should protect this from exceptions
-            #e (or have a WE-wrapper to do that for us, for .draw() -- or just a helper func, draw_and_catch_exceptions)
+        PopName(self.glname)
     def draw_in_abs_coords(self, glpane, color):
         # [this API comes from GLPane behavior
         # - why does it pass color? historical: so we can just call our own draw method, with that arg (misguided even so??)
@@ -975,6 +1027,24 @@ class Rect(WidgetExpr): #e example, not general enough to be a good use of this 
         glEnable(GL_CULL_FACE)
     pass
 
+class TextRect(WidgetExpr):
+    "TextRect(width, height, msg_func) renders as a rect of width by height chars taken from msg_func(env), origin on bottomleft"
+    def init(self):
+        self.dims = width, height = self.args[0], self.args[1]
+        self.bright = width * tex_width # global constant
+        self.btop = height * tex_height
+        ### those are in the wrong units, not pixelwidth, so we need to kluge them for now
+        self.bright = self.btop = 1 ########@@@@@@@@ WRONG
+        self.msg_func = self.args[2]
+    def draw(self):
+        glpane = _kluge_glpane()
+        width, height = self.dims
+        msg = resolve_callables( self.msg_func, 'fakeenv')
+        glPushMatrix() ####k guess
+        drawfont2(glpane, msg, width, height)
+        glPopMatrix()
+    pass
+
 class RightTriangle(Rect):
     "RightTriangle(width, height, color) renders as a filled right triangle, origin and right-angle corner on bottomleft"
     def draw(self):
@@ -1014,9 +1084,10 @@ class Invisible(DelegatingWidgetExpr): #stub
     Note that thing's syntax might still require you to specify a color; which one you specify doesn't matter.
     """
     def draw(self):
+        glpane = _kluge_glpane()
         # arrange to do it later... save the matrix
         self.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX )
-        glpane = env.mainwindow().assy.o ###@@@ KLUGE 
+        self.saved_glnames = tuple(glpane._glnames)
         glpane._testmode_stuff.append(self.draw_later) # assumes self has all the needed data
         # see also code in renderpass about how to sort by depth
         # but what if we're in a display list? well, we better not be... this aspect is nim too
@@ -1026,10 +1097,14 @@ class Invisible(DelegatingWidgetExpr): #stub
         glPushMatrix()
         glLoadMatrixd(self.saved_modelview_matrix)
         ## why didn't zapping this fix the failure to highlight??? (it did make it visible as expected)
-        ## glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) # don't draw color pixels (but keep drawing depth pixels)
-        # it seems like this breaks stencil test
+        glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) # don't draw color pixels (but keep drawing depth pixels)
+        # it seems like this breaks stencil test #####@@@@@ RETEST now that i push tge nbame
+        for glname in self.saved_glnames:
+            glPushName(glname)
         self.delegate.draw()
-        ##glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        for glname in self.saved_glnames: # wrong order, but only the total number matters
+            glPopName()
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
             # WARNING: nested Invisibles would break, due to this in the inner one
             # WARNING: better not do this when drawing a highlight!
         glPopMatrix()
@@ -1467,6 +1542,22 @@ def toggleit():
     vv.state['buttoncolor'] = n
     return
 
+def getit(fakeenv): # note: the bug of saying getit() rather than getit in an expr was hard to catch; will be easier when env is real
+    return "use displist? %s" % ('no', 'yes')[not not USE_DISPLAY_LIST_OPTIM]
+
+def setit(val = None):
+    global USE_DISPLAY_LIST_OPTIM
+    if val is None:
+        # toggle it
+        val = not USE_DISPLAY_LIST_OPTIM
+    USE_DISPLAY_LIST_OPTIM = not not val
+    vv.havelist = 0
+    print "set USE_DISPLAY_LIST_OPTIM = %r" % USE_DISPLAY_LIST_OPTIM
+
+displist_expr = Button(Row(Rect(0.5,0.5,black),TextRect(18, 2, getit)), on_press = setit)
+displist_expr = Row(Button(Rect(0.5,0.5,black),Rect(0.5,0.5,gray), on_press = setit),
+                    TextRect(18, 2, getit))
+
 testexpr = Row(
     #nim Button:
                 Button(
@@ -1501,6 +1592,14 @@ testexpr = Row(
                 ),
                 Column(
                   Rect(1.5, 1, red),
+                  ##Button(Overlay(TextRect(18, 3, "line 1\nline 2...."),Rect(0.5,0.5,black)), on_press = printfunc("zz")),
+                      # buggy - sometimes invis to clicks on the text part, but sees them on the black rect part ###@@@
+                      # (see docstring at top for a theory about the cause)
+                  
+##                  Button(TextRect(18, 3, "line 1\nline 2...."), on_press = printfunc("zztr")), # 
+##                  Button(Overlay(Rect(3, 1, red),Rect(0.5,0.5,black)), on_press = printfunc("zzred")), # works
+##                  Button(Rect(0.5,0.5,black), on_press = printfunc("zz3")), # works
+                  Invisible(Rect(0.2,0.2,white)), # kluge to work around origin bug in TextRect ###@@@
                   Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
                   Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "bottom ribbon2" ),
                   Rect(1.5, 1, green),
