@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Jul 27 00:40:12 2006
+# Created: Mon Jul 31 11:10:16 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6557,6 +6557,7 @@ class MainWindow(QMainWindow):
         self.dispCylinderAction.setIconSet(QIconSet(self.image146))
         self.simMinimizeEnergyAction = QAction(self,"simMinimizeEnergyAction")
         self.simMinimizeEnergyAction.setIconSet(QIconSet(self.image147))
+        self.fileImportAction = QAction(self,"fileImportAction")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6821,6 +6822,7 @@ class MainWindow(QMainWindow):
 
         self.fileMenu = QPopupMenu(self)
         self.fileOpenAction.addTo(self.fileMenu)
+        self.fileImportAction.addTo(self.fileMenu)
         self.fileInsertAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
         self.fileCloseAction.addTo(self.fileMenu)
@@ -7130,6 +7132,7 @@ class MainWindow(QMainWindow):
         self.connect(self.dispSurfaceAction,SIGNAL("activated()"),self.dispSurface)
         self.connect(self.dispCylinderAction,SIGNAL("activated()"),self.dispCylinder)
         self.connect(self.simMinimizeEnergyAction,SIGNAL("activated()"),self.simMinimizeEnergy)
+        self.connect(self.fileImportAction,SIGNAL("activated()"),self.fileImport)
 
 
     def languageChange(self):
@@ -7587,6 +7590,8 @@ class MainWindow(QMainWindow):
         self.dispSurfaceAction.setText(self.__tr("Surface"))
         self.dispCylinderAction.setText(self.__tr("Cylinder"))
         self.simMinimizeEnergyAction.setText(self.__tr("Minimize Energy"))
+        self.fileImportAction.setText(self.__tr("Import File..."))
+        self.fileImportAction.setToolTip(self.__tr("Import File"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8189,6 +8194,9 @@ class MainWindow(QMainWindow):
 
     def simMinimizeEnergy(self):
         print "MainWindow.simMinimizeEnergy(): Not implemented yet"
+
+    def fileImport(self):
+        print "MainWindow.fileImport(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

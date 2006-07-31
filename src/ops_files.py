@@ -60,6 +60,122 @@ def fileparse(name): #bruce 050413 comment: see also filesplit and its comments.
 class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     "Mixin class to provide file-related methods for class MWsemantics. Has slot methods and their helper methods."
 
+    def fileImport(self): # Code copied from fileInsert() slot method. Mark 060731. 
+        """Slot method for 'File > Import'.
+        """
+        cmd = greenmsg("Import File: ")
+        
+        # This format list generated from the Open Babel wiki page: 
+        # http://openbabel.sourceforge.net/wiki/Babel#File_Formats
+        formats = \
+            "Molecular Machine Part (*.mmp);;"\
+            "All Files (*.*);;"\
+            "Accelrys/MSI Biosym/Insight II CAR (*.car);;"\
+            "Alchemy (*.alc, *.mol);;"\
+            "Amber Prep (*.prep);;"\
+            "Ball and Stick (*.bs);;"\
+            "Cacao Cartesian (*.caccrt);;"\
+            "CCC (*.ccc);;"\
+            "Chem3D Cartesian 1 (*.c3d1);;"\
+            "Chem3D Cartesian 2 (*.c3d2);;"\
+            "ChemDraw Connection Table (*.ct);;"\
+            "Chemical Markup Language (*.cml);;"\
+            "Chemical Resource Kit 2D diagram (*.crk2d);;"\
+            "Chemical Resource Kit 3D (*.crk3d);;"\
+            "CML Reaction (*.cmlr);;"\
+            "DMol3 coordinates (*.dmol);;"\
+            "Dock 3.5 Box (*.box);;"\
+            "FastSearching Index (*.fs);;"\
+            "Feature (*.feat);;"\
+            "Free Form Fractional (*.fract);;"\
+            "GAMESS Output (*.gam);;"\
+            "GAMESS Output (*.gamout);;"\
+            "Gaussian98/03 Output (*.g03);;"\
+            "Gaussian98/03 Output (*.g98);;"\
+            "General XML (*.xml);;"\
+            "Ghemical (*.gpr);;"\
+            "HyperChem HIN (*.hin);;"\
+            "Jaguar output (*.jout);;"\
+            "MacroModel (*.mmd);;"\
+            "MacroModel (*.mmod);;"\
+            "MDL MOL (*.mdl);;"\
+            "MDL MOL (*.mol);;"\
+            "MDL MOL (*.sd);;"\
+            "MDL MOL (*.sdf);;"\
+            "MDL RXN (*.rxn);;"\
+            "MOPAC Cartesian (*.mopcrt);;"\
+            "MOPAC Output (*.mopout);;"\
+            "MPQC output (*.mpqc);;"\
+            "MSI BGF (*.bgf);;"\
+            "NWChem output (*.nwo);;"\
+            "Parallel Quantum Solutions (*.pqs);;"\
+            "PCModel (*.pcm);;"\
+            "Protein Data Bank (*.ent);;"\
+            "Protein Data Bank (*.pdb);;"\
+            "PubChem (*.pc);;"\
+            "Q-Chem output (*.qcout);;"\
+            "ShelX (*.ins);;"\
+            "ShelX (*.res);;"\
+            "SMILES (*.smi);;"\
+            "Sybyl Mol2 (*.mol2);;"\
+            "TurboMole Coordinate (*.tmol);;"\
+            "UniChem XYZ (*.unixyz);;"\
+            "ViewMol (*.vmol);;"\
+            "XYZ cartesian coordinates (*.xyz);;"\
+            "YASARA.org YOB (*.yob)"
+        
+        fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
+                formats,
+                self,
+                "Import File dialog",
+                "Select file to Import" )
+                
+        if not fn:
+             env.history.message(cmd + "Cancelled")
+             return
+        
+        if fn:
+            fn = str(fn)
+            if not os.path.exists(fn):
+                #bruce 050415: I think this should never happen;
+                # in case it does, I added a history message (to existing if/return code).
+                env.history.message( redmsg( "File not found: [ " + fn+ " ]") )
+                return
+
+            if fn[-3:] == "mmp":
+                try:
+                    insertmmp(self.assy, fn)
+                except:
+                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting MMP file [%s]: " % fn )
+                    env.history.message( redmsg( "Internal error while inserting MMP file: [ " + fn+" ]") )
+                else:
+                    self.assy.changed() # The file and the part are not the same.
+                    env.history.message( cmd + "MMP file inserted: [ " + os.path.normpath(fn) + " ]" ) # fix bug 453 item. ninad060721
+            
+            elif fn[-3:] in ["pdb","PDB"]:
+                try:
+                    insertpdb(self.assy, fn)
+                except:
+                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting PDB file [%s]: " % fn )
+                    env.history.message( redmsg( "Internal error while inserting PDB file: [ " + fn + " ]") )
+                else:
+                    self.assy.changed() # The file and the part are not the same.
+                    env.history.message( cmd + "PDB file inserted: [ " + os.path.normpath(fn) + " ]" )
+            
+            else:
+                msg = "Open Babel to be called. File format selected: *" + fn[-4:]
+                env.history.message(cmd + msg)
+                return
+                    
+                    
+            self.glpane.scale = self.assy.bbox.scale()
+            self.glpane.gl_update()
+            self.mt.mt_update()
+            
+            # Update the current working directory (CWD).
+            dir, fil = os.path.split(fn)
+            self.setCurrentWorkingDirectory(dir)
+            
     def fileInsert(self):
         """Slot method for 'File > Insert'.
         """
@@ -69,7 +185,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     "Molecular Machine Part (*.mmp);;"\
                     "Protein Data Bank (*.pdb);;"\
                     "GAMESS (*.out);;"\
-                    "All Files (*.pdb *.mmp *.out)"
+                    "All Files (*.*)"
         
         fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
                 formats,
@@ -176,7 +292,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             formats = \
                     "Molecular Machine Part (*.mmp);;"\
                     "Protein Data Bank (*.pdb);;"\
-                    "All Files (*)"
+                    "All Files (*.*)"
             
             fn = QFileDialog.getOpenFileName(self.currentWorkingDirectory,
                     formats,
