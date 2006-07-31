@@ -61,7 +61,7 @@
     <connection>
         <sender>pushButton1</sender>
         <signal>clicked()</signal>
-        <receiver>JelloGui</receiver>
+        <receiver>Jello</receiver>
         <slot>pushButton1_clicked()</slot>
     </connection>
 </connections>
