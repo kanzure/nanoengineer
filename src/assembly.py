@@ -1153,20 +1153,44 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
             return 1, "I cannot do this until this part is saved."
         
     def find_or_make_part_files_directory(self, make=True):
-        """Return the Part Files directory for this assembly. 
+        """Return the Part Files directory for this assembly. Make it if it doesn't already exist.
+        If <make> is False, return the Part Files directory if it already exists. If it doesn't exist, return None.
+        
+        Specifically, return:
+            - on success, return (0, part files directory), 
+              or if <make> is False and the Part Files directory does not exist, return (0, None).
+            - on error, return (1, errormsg).
+        
+        About the "Part Files" directory:
+        
         The Part Files directory exists next to the current MMP file and has the same name as
-        the MMP file (without the .mmp extension) but with the ' Files' suffix. 
-        The Part Files directory contains all the associated subdirectories and files for this assembly, 
-        such as movie files (*.dpb), POV-Ray Scene files (*.pov), GAMESS files (*.gms), etc.
-        For any error, return (1, errortext); on success return (0, full_path_of_part_files_dir).
-        In other words, return (errorcode, path_or_errortext).
+        the MMP file (without the .mmp extension) but with the ' Files' suffix. For example, 
+        the MMP file "DNA Shape.mmp" will have "DNA Shape Files" as its Part Files directory.
+        
+        The Part Files directory contains all the associated subdirectories and files for this MMP part,
+        such as POV-Ray Scene files (*.pov), movie files (*.dpb), GAMESS files (*.gms), etc.
+        
+        The Part Files directory currently supports:
+            - POV-Ray Scene files (*.pov). 
+        
+        To be implemented: 
+            - Movie files (*.dpb)
+            - GAMESS files (*.gms)
+            - ESP Image files (*.png)
+            - Image files (*.png, *.bmp, etc)
         """
         if self.filename:
+            # The current file has been saved, so it is OK to make the Part Files directory.
             path_wo_ext, ext = os.path.splitext(self.filename)
             from platform import find_or_make_any_directory
             return find_or_make_any_directory(path_wo_ext + " Files", make = make)
         else:
-            return 1, "I cannot do this until this part is saved."
+            if make:
+                # Cannot make the Part Files directory until the current file is saved. Return error.
+                return 1, "I cannot do this until this part is saved."
+            else:
+                # The current file has not been saved, but since <make> = False, no error.
+                return 0, None
         
     def find_or_make_pov_files_directory(self, make=True):
         """Return the POV-Ray Scene Files directory for this assembly. 
