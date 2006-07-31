@@ -1,32 +1,54 @@
 UNAME := $(shell uname)
+# dotted python version (2.3, 2.4)
+PYDVER := $(shell python -c "import sys; print sys.version[:3]")
+# un-dotted python version (23, 24)
+PYVER := $(shell python -c "import sys; print sys.version[0]+sys.version[2]")
 
 ifeq ($(OS),Windows_NT)
-# Start Windows stuff
-CC="C:/Dev-Cpp/bin/gcc.exe"
-CFLAGS=-g -Wmissing-prototypes
-CFLAGS+=-I"C:/Dev-Cpp/include" -I"C:/Python23/include"
-LDFLAGS=-Wl,--output-def,comp.def -L. -L"C:/Dev-Cpp/lib" -lpython23
-PYREXC=python c:/Python23/Scripts/pyrexc.py
-TARGET=comp.dll
-# End of Windows stuff
+#---------------------------------------- Start Windows stuff
+# One dollar sign for DOS and two for Cygwin
+UNAME_A=$(shell ver)
+# UNAME_A=$$(shell ver)   # Cygwin: but in this case use 'uname -a' anyway
+CC = "C:/Dev-Cpp/bin/gcc.exe"
+CFLAGS=-g -I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
+LDFLAGS=-L"C:/Dev-Cpp/lib"
+TARGET_SUFFIX=.dll
+STDC99=
+PYREXC=python c:/Python$(PYVER)/Scripts/pyrexc.py
+#---------------------------------------- End of Windows stuff
 else
-# Start Unix/Mac stuff
-ifeq ($(strip $(UNAME)),Darwin)
-# Mac
-PYREXC=/Library/Python/2.3/Pyrex-0.9.3.1/bin/pyrexc
-CFLAGS=-DMACOSX -I/usr/include/python2.3
-LDFLAGS=-L/usr/lib/python2.3/config -lm -lpython2.3
-else
-# Unix
-PYREXC=pyrexc
-#CFLAGS=-g -Wall -I/usr/include/python2.3
-CFLAGS=-O3 -Wall -I/usr/include/python2.3
-LDFLAGS=-L/usr/lib/python2.3/config -lm -lpython2.3
-endif
+#---------------------------------------- Start Unix/Mac stuff
+UNAME_A=$$(uname -a)
 CC=gcc
-TARGET=comp.so
-# End of Unix/Mac stuff
+TARGET_SUFFIX=.so
+STDC99=-std=c99
+CFLAGS:=$(shell python distutils_compile_options.py compiler_so)
+ifeq ($(strip $(UNAME)),Darwin)
+#---------------------------------------- Mac
+CFLAGS+=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
+    -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/
+LDFLAGS=-Wl,-F. -framework Python
+LDSHARED=gcc -bundle
+else
+#---------------------------------------- Unix
+PYBASE:=$(shell which python | sed "s%/bin/python%%")
+CFLAGS+=-I$(PYBASE)/include/python$(PYDVER)
+LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
+LDSHARED=gcc -shared
+#---------------------------------------- End of Unix
 endif
+PYREXC=$(shell python -c "import findpyrex; print findpyrex.find_pyrexc()")
+LDFLAGS+=-L/usr/X11R6/lib -lGL
+LDFLAGS+=-L/usr/lib -lm
+CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
+  -Wstrict-prototypes -fPIC
+# These CFLAGS and LDFLAGS are not used by distutils. If asked to
+# compile or link, Pyrex uses distutils, and will therefore not
+# use these CFLAGS and LDFLAGS.
+#---------------------------------------- End of Unix/Mac stuff
+endif
+
+TARGET=comp$(TARGET_SUFFIX)
 
 all: jelloGui.py comp.so
 
@@ -40,4 +62,4 @@ comp.so: comp.o
 	$(CC) -shared -o comp.so comp.o $(LDFLAGS)
 
 clean:
-	rm -f *.pyc *~ *.o jelloGui.py *.so comp.c
+	rm -f *.pyc *~ *.o jelloGui.py *.so comp.c OUCH
