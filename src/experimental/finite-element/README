@@ -1,0 +1,36 @@
+2006 July 31
+
+This was an attempt from a few months back to write a C extension
+module for doing finite-element models with Verlet integration, to try
+to be compatible with how our simulator works.
+
+I did all that before I found out about hotshot, which is the cool new
+profiler in Python. As somebody said, premature optimization is the
+root of all evil, and I think I maybe jumped the gun. So going back to
+the Python reference implementation, we have:
+
+   ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+    10032   14.805    0.001   32.814    0.003 jello.py:73(internalForces)
+  1123584   10.029    0.000   10.029    0.000 jello.py:43(subvec)
+   642048    5.362    0.000    5.362    0.000 jello.py:45(scalevec)
+   481536    4.885    0.000    4.885    0.000 jello.py:41(addvec)
+    10032    3.082    0.000    6.210    0.001 jello.py:85(verletMomentum)
+    10032    0.864    0.000   39.955    0.004 jello.py:212(equationsOfMotion)
+    10366    0.810    0.000    0.810    0.000 jello.py:91(applyForces)
+        1    0.237    0.237   40.280   40.280 jello.py:223(main)
+    10033    0.060    0.000    0.060    0.000 jello.py:100(zeroForces)
+    10032    0.057    0.000    0.057    0.000 jello.py:115(rotate)
+      152    0.056    0.000   40.041    0.263 jello.py:191(oneFrame)
+      154    0.017    0.000    0.027    0.000 jello.py:103(draw)
+     2464    0.010    0.000    0.010    0.000 jello.py:206(draw)
+      154    0.003    0.000    0.030    0.000 jello.py:199(paintEvent)
+      152    0.002    0.000   40.043    0.263 jello.py:181(timeout)
+        1    0.000    0.000    0.000    0.000 jello.py:155(__init__)
+        1    0.000    0.000    0.000    0.000 jelloGui.py:40(languageChange)
+        1    0.000    0.000   40.280   40.280 jello.py:239(m)
+        1    0.000    0.000    0.000    0.000 jelloGui.py:15(__init__)
+        2    0.000    0.000    0.000    0.000 jelloGui.py:48(__tr)
+
+I am pretty sure I could improve this stuff substantially just by
+using Numeric rather than writing a whole bunch of C code. I should
+think about that, later.
