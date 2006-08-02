@@ -163,10 +163,19 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     env.history.message( cmd + "PDB file inserted: [ " + os.path.normpath(fn) + " ]" )
             
             else:
-                msg = "Open Babel to be called. File format selected: *" + fn[-4:]
-                env.history.message(cmd + msg)
+                from platform import find_or_make_Nanorex_subdir
+                from ops_files import fileparse
+                dir, fil, ext = fileparse(fn)
+                tmpdir = find_or_make_Nanorex_subdir('temp')
+                mmpfile = os.path.join(tmpdir, fil + ".mmp")
+                babelcmd = 'babel ' + fn + ' ' + mmpfile
+                if os.system(babelcmd) != 0:
+                    env.history.message(redmsg("Import command failed: " + babelcmd))
+                else:
+                    insertmmp(self.assy, mmpfile)
+                    # Theoretically, we have successfully imported the file at this point.
+                    # But there might be a warning from insertmmp.
                 return
-                    
                     
             self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()
