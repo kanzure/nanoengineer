@@ -384,6 +384,17 @@ if __name__ == '__main__':
 
     if not foo.permdialog.fini:
         foo.permdialog.show()
+
+    from platform import atom_debug
+    if atom_debug:
+        # Use a ridiculously specific keyword, so this isn't triggered accidentally.
+        if sys.argv[1] == '--initial-file':
+            # fileOpen gracefully handles the case where the file doesn't exist.
+            foo.fileOpen(sys.argv[2])
+            if len(sys.argv) > 3:
+                import env
+                from HistoryWidget import orangemsg
+                env.history.message(orangemsg("We can only import one file at a time."))
   
     if atom_debug_profile_filename:
         if PROFILE_WITH_HOTSHOT:
