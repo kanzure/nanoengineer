@@ -438,8 +438,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         formats = \
                     "Molecular Machine Part (*.mmp);;"\
                     "Protein Data Bank (*.pdb);;"\
-                    "POV-Ray (*.pov);;"\
-                    "Model MDL (*.mdl);;"
+                    "POV-Ray (*.pov);;" #ninad060208 removed option Model MDL (bug 1508.) See more comments in function 'writemdlfile' 
+                    
         if images_ok:
             formats += \
                     "JPEG (*.jpg);;"\

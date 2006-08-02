@@ -235,6 +235,7 @@ def writepovlighting(f, glpane):
 # ==
 
 # Create an MDL file - by Chris Phoenix and Mark for John Burch [04-12-03]
+# ninad060802 has disabled the File > Save As option to save the MDL file. (see bug 1508. Also, since in Alpha9 we will support OpenBabel, there will be a confusion between this MDL file format and the one that OpenBabel includes extension. If we support this filetype in future, its description field should be changed. 
 def writemdlfile(part, glpane, filename): #bruce 050927 replaced assy argument with part and glpane args, added docstring
     "write the given part into a new MDL file with the given name, using glpane.display"
     alist = [] #bruce 050325 changed assy.alist to localvar alist
