@@ -388,7 +388,7 @@ if __name__ == '__main__':
     from platform import atom_debug
     if atom_debug:
         # Use a ridiculously specific keyword, so this isn't triggered accidentally.
-        if sys.argv[1] == '--initial-file':
+        if len(sys.argv) >= 3 and sys.argv[1] == '--initial-file':
             # fileOpen gracefully handles the case where the file doesn't exist.
             foo.fileOpen(sys.argv[2])
             if len(sys.argv) > 3:
