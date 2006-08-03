@@ -151,8 +151,9 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 else:
                     self.assy.changed() # The file and the part are not the same.
                     env.history.message( cmd + "MMP file inserted: [ " + os.path.normpath(fn) + " ]" ) # fix bug 453 item. ninad060721
-            
-            elif fn[-3:] in ["pdb","PDB"]:
+
+            elif False and fn[-3:] in ["pdb","PDB"]:
+                # Open Babel sometimes does better PDB importing than we do.
                 try:
                     insertpdb(self.assy, fn)
                 except:
@@ -161,7 +162,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 else:
                     self.assy.changed() # The file and the part are not the same.
                     env.history.message( cmd + "PDB file inserted: [ " + os.path.normpath(fn) + " ]" )
-            
+
             else:
                 from platform import find_or_make_Nanorex_subdir
                 dir, fil, ext = fileparse(fn)
