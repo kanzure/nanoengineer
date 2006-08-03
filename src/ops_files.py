@@ -275,10 +275,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             tmpdir = find_or_make_Nanorex_subdir('temp')
             mmpfile = os.path.join(tmpdir, fil + ".mmp")
             self.saveFile(mmpfile, brag=False)
-            babelcmd = 'babel ' + mmpfile + ' ' + fn + ' 2>&1'
+            babelcmd = 'babel ' + mmpfile + ' ' + fn
             pop = popen2.Popen3(babelcmd, capturestderr=True)
             exit_status = pop.wait()
-            response = pop.fromchild.read()
+            response = pop.childerr.read()
             if exit_status != 0 or response != "1 molecule converted\n" or not os.path.exists(fn):
                 env.history.message(redmsg("Export command failed: " + babelcmd))
             else:
