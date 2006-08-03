@@ -49,6 +49,7 @@
     <item text="&amp;File" name="fileMenu">
         <action name="fileOpenAction"/>
         <action name="fileImportAction"/>
+        <action name="fileExportAction"/>
         <action name="fileInsertAction"/>
         <separator/>
         <action name="fileCloseAction"/>
@@ -4000,6 +4001,17 @@
             <string>Import File</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>fileExportAction</cstring>
+        </property>
+        <property name="text">
+            <string>Export File...</string>
+        </property>
+        <property name="toolTip">
+            <string>Export File</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -5366,6 +5378,12 @@
         <receiver>MainWindow</receiver>
         <slot>fileImport()</slot>
     </connection>
+    <connection>
+        <sender>fileExportAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileExport()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5551,6 +5569,7 @@
     <slot>dispCylinder()</slot>
     <slot>simMinimizeEnergy()</slot>
     <slot>fileImport()</slot>
+    <slot>fileExport()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -164,7 +164,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             
             else:
                 from platform import find_or_make_Nanorex_subdir
-                from ops_files import fileparse
                 dir, fil, ext = fileparse(fn)
                 tmpdir = find_or_make_Nanorex_subdir('temp')
                 mmpfile = os.path.join(tmpdir, fil + ".mmp")
@@ -175,8 +174,115 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     insertmmp(self.assy, mmpfile)
                     # Theoretically, we have successfully imported the file at this point.
                     # But there might be a warning from insertmmp.
-                return
-                    
+            self.glpane.scale = self.assy.bbox.scale()
+            self.glpane.gl_update()
+            self.mt.mt_update()
+            
+            # Update the current working directory (CWD).
+            dir, fil = os.path.split(fn)
+            self.setCurrentWorkingDirectory(dir)
+            
+    def fileExport(self): # Code copied from fileInsert() slot method. Mark 060731. 
+        """Slot method for 'File > Export'.
+        """
+        cmd = greenmsg("Export File: ")
+        
+        # This format list generated from the Open Babel wiki page: 
+        # http://openbabel.sourceforge.net/wiki/Babel#File_Formats
+        formats = \
+            "All Files (*.*);;"\
+            "Alchemy format (*.alc);;"\
+            "MSI BGF format (*.bgf);;"\
+            "Dock 3.5 Box format (*.box);;"\
+            "Ball and Stick format (*.bs);;"\
+            "Chem3D Cartesian 1 format (*.c3d1);;"\
+            "Chem3D Cartesian 2 format (*.c3d2);;"\
+            "Cacao Cartesian format (*.caccrt);;"\
+            "CAChe MolStruct format (*.cache);;"\
+            "Cacao Internal format (*.cacint);;"\
+            "Chemtool format (*.cht);;"\
+            "Chemical Markup Language (*.cml);;"\
+            "CML Reaction format (*.cmlr);;"\
+            "Gaussian 98/03 Cartesian Input (*.com);;"\
+            "Copies raw text (*.copy);;"\
+            "Chemical Resource Kit diagram format (2D) (*.crk2d);;"\
+            "Chemical Resource Kit 3D format (*.crk3d);;"\
+            "Accelrys/MSI Quanta CSR format (*.csr);;"\
+            "CSD CSSR format (*.cssr);;"\
+            "ChemDraw Connection Table format  (*.ct);;"\
+            "DMol3 coordinates format (*.dmol);;"\
+            "Molecular Machine Part format (*.ent);;"\
+            "Feature format (*.feat);;"\
+            "Fenske-Hall Z-Matrix format (*.fh);;"\
+            "SMILES FIX format (*.fix);;"\
+            "Fingerprint format (*.fpt);;"\
+            "Free Form Fractional format (*.fract);;"\
+            "FastSearching (*.fs);;"\
+            "GAMESS Input (*.gamin);;"\
+            "Gaussian 98/03 Cartesian Input (*.gau);;"\
+            "Ghemical format (*.gpr);;"\
+            "GROMOS96 format (*.gr96);;"\
+            "HyperChem HIN format (*.hin);;"\
+            "InChI format (*.inchi);;"\
+            "GAMESS Input (*.inp);;"\
+            "Jaguar input format (*.jin);;"\
+            "Compares first molecule to others using InChI. (*.k);;"\
+            "MDL MOL format (*.mdl);;"\
+            "MacroModel format (*.mmd);;"\
+            "MacroModel format (*.mmod);;"\
+            "Molecular Machine Part format (*.mmp);;"\
+            "MDL MOL format (*.mol);;"\
+            "Sybyl Mol2 format (*.mol2);;"\
+            "MOPAC Cartesian format (*.mopcrt);;"\
+            "Sybyl descriptor format (*.mpd);;"\
+            "MPQC simplified input format (*.mpqcin);;"\
+            "NWChem input format (*.nw);;"\
+            "PCModel Format (*.pcm);;"\
+            "Protein Data Bank format (*.pdb);;"\
+            "POV-Ray input format (*.pov);;"\
+            "Parallel Quantum Solutions format (*.pqs);;"\
+            "Q-Chem input format (*.qcin);;"\
+            "Open Babel report format (*.report);;"\
+            "MDL RXN format (*.rxn);;"\
+            "MDL MOL format (*.sd);;"\
+            "MDL MOL format (*.sdf);;"\
+            "SMILES format (*.smi);;"\
+            "Test format (*.test);;"\
+            "TurboMole Coordinate format (*.tmol);;"\
+            "Tinker MM2 format (*.txyz);;"\
+            "UniChem XYZ format (*.unixyz);;"\
+            "ViewMol format (*.vmol);;"\
+            "XED format (*.xed);;"\
+            "XYZ cartesian coordinates format (*.xyz);;"\
+            "YASARA.org YOB format (*.yob);;"\
+            "ZINDO input format (*.zin);;"
+        
+        fn = QFileDialog.getSaveFileName(self.currentWorkingDirectory,
+                formats,
+                self,
+                "Export File dialog",
+                "Select file to Export" )
+                
+        if not fn:
+             env.history.message(cmd + "Cancelled")
+             return
+        
+        if fn:
+            import popen2
+            from platform import find_or_make_Nanorex_subdir
+            fn = str(fn)
+            dir, fil, ext = fileparse(fn)
+            tmpdir = find_or_make_Nanorex_subdir('temp')
+            mmpfile = os.path.join(tmpdir, fil + ".mmp")
+            self.saveFile(mmpfile, brag=False)
+            babelcmd = 'babel ' + mmpfile + ' ' + fn + ' 2>&1'
+            pop = popen2.Popen3(babelcmd, capturestderr=True)
+            exit_status = pop.wait()
+            response = pop.fromchild.read()
+            if exit_status != 0 or response != "1 molecule converted\n" or not os.path.exists(fn):
+                env.history.message(redmsg("Export command failed: " + babelcmd))
+            else:
+                env.history.message( "File exported: [ " + fn + " ]" )
             self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()
             self.mt.mt_update()
@@ -523,7 +629,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         killfunc()
         return
 
-    def saveFile(self, safile):
+    def saveFile(self, safile, brag=True):
         """Save the current model. <safile> is the filename to save the part under.
         """
         
@@ -531,7 +637,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             #e only ext needed in most cases here, could replace with os.path.split [bruce 050907 comment]
                     
         if ext == ".mmp" : # Write MMP file.
-            self.save_mmp_file( safile)
+            self.save_mmp_file(safile, brag=brag)
             self.setCurrentWorkingDirectory() # Update the CWD.
 
         elif ext == ".pdb": # Write PDB file.
@@ -610,7 +716,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 env.history.message( "%s file saved: " % type + safile )
         return
 
-    def save_mmp_file(self, safile): #bruce 050907 split this out of saveFile; maybe some of it should be moved back into caller ###@@@untested
+    def save_mmp_file(self, safile, brag=True):
+        # bruce 050907 split this out of saveFile; maybe some of it should be moved back into caller ###@@@untested
         """Save the current part as a MMP file under the name <safile>.
         If we are saving a part (assy) that already exists and it has an (old) Part Files directory, 
         copy those files to the new Part Files directory (i.e. '<safile> Files').
@@ -646,10 +753,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
 
             self.saved_main_file(safile, fil)
 
-            env.history.message( "MMP file saved: [ " + os.path.normpath(self.assy.filename) + " ]" )
-                #bruce 060704 moved this before copying part files,
-                # which will now ask for permission before removing files,
-                # and will start and end with a history message if it does anything.
+            if brag: env.history.message( "MMP file saved: [ " + os.path.normpath(self.assy.filename) + " ]" )
+            # bruce 060704 moved this before copying part files,
+            # which will now ask for permission before removing files,
+            # and will start and end with a history message if it does anything.
+            # wware 060802 - if successful, we may choose not to brag, e.g. during a
+            # step of exporting a non-native file format
 
             # If it exists, copy the Part Files directory of the original part (oldPartFilesDir) to the new name (i.e. "<safile> Files")
             if oldPartFilesDir: #bruce 060704 revised this code

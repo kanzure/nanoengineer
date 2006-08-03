@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Mon Jul 31 11:10:16 2006
+# Created: Wed Aug 2 23:08:38 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6558,6 +6558,7 @@ class MainWindow(QMainWindow):
         self.simMinimizeEnergyAction = QAction(self,"simMinimizeEnergyAction")
         self.simMinimizeEnergyAction.setIconSet(QIconSet(self.image147))
         self.fileImportAction = QAction(self,"fileImportAction")
+        self.fileExportAction = QAction(self,"fileExportAction")
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6823,6 +6824,7 @@ class MainWindow(QMainWindow):
         self.fileMenu = QPopupMenu(self)
         self.fileOpenAction.addTo(self.fileMenu)
         self.fileImportAction.addTo(self.fileMenu)
+        self.fileExportAction.addTo(self.fileMenu)
         self.fileInsertAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
         self.fileCloseAction.addTo(self.fileMenu)
@@ -7133,6 +7135,7 @@ class MainWindow(QMainWindow):
         self.connect(self.dispCylinderAction,SIGNAL("activated()"),self.dispCylinder)
         self.connect(self.simMinimizeEnergyAction,SIGNAL("activated()"),self.simMinimizeEnergy)
         self.connect(self.fileImportAction,SIGNAL("activated()"),self.fileImport)
+        self.connect(self.fileExportAction,SIGNAL("activated()"),self.fileExport)
 
 
     def languageChange(self):
@@ -7592,6 +7595,8 @@ class MainWindow(QMainWindow):
         self.simMinimizeEnergyAction.setText(self.__tr("Minimize Energy"))
         self.fileImportAction.setText(self.__tr("Import File..."))
         self.fileImportAction.setToolTip(self.__tr("Import File"))
+        self.fileExportAction.setText(self.__tr("Export File..."))
+        self.fileExportAction.setToolTip(self.__tr("Export File"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8197,6 +8202,9 @@ class MainWindow(QMainWindow):
 
     def fileImport(self):
         print "MainWindow.fileImport(): Not implemented yet"
+
+    def fileExport(self):
+        print "MainWindow.fileExport(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
