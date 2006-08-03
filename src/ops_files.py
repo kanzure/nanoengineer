@@ -212,7 +212,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "CSD CSSR format (*.cssr);;"\
             "ChemDraw Connection Table format  (*.ct);;"\
             "DMol3 coordinates format (*.dmol);;"\
-            "Molecular Machine Part format (*.ent);;"\
+            "Protein Data Bank format (*.ent);;"\
             "Feature format (*.feat);;"\
             "Fenske-Hall Z-Matrix format (*.fh);;"\
             "SMILES FIX format (*.fix);;"\
