@@ -1204,7 +1204,7 @@ def createWhatsThis(self):
 
         # Simulator
 
-        simSetupActionText = "<u><b>Simulator</b></u><br>"\
+        simSetupActionText = "<u><b>NanoDynamics-1</b></u><br>"\
                        "<p><img source=\" simSetupAction\"><br> "\
                        "Creates a trajectory (movie) file by calculating the inter-atomic potentials and bonding "\
                        "of the entire model.  The user determines the number of frames in the movie, the time step, "\
