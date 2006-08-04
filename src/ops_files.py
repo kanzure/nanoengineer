@@ -142,6 +142,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 env.history.message( redmsg( "File not found: [ " + fn+ " ]") )
                 return
 
+            # Anything that isn't an MMP file, we will import with Open Babel.
+            # Its coverage of MMP files is imperfect so it makes mistakes, but
+            # it would be good to use it enough to find those mistakes.
+
             if fn[-3:] == "mmp":
                 try:
                     insertmmp(self.assy, fn)
@@ -152,15 +156,15 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     self.assy.changed() # The file and the part are not the same.
                     env.history.message( cmd + "MMP file inserted: [ " + os.path.normpath(fn) + " ]" ) # fix bug 453 item. ninad060721
 
-            elif fn[-3:] in ["pdb","PDB"]:
-                try:
-                    insertpdb(self.assy, fn)
-                except:
-                    print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting PDB file [%s]: " % fn )
-                    env.history.message( redmsg( "Internal error while inserting PDB file: [ " + fn + " ]") )
-                else:
-                    self.assy.changed() # The file and the part are not the same.
-                    env.history.message( cmd + "PDB file inserted: [ " + os.path.normpath(fn) + " ]" )
+#           elif fn[-3:] in ["pdb","PDB"]:
+#               try:
+#                   insertpdb(self.assy, fn)
+#               except:
+#                   print_compact_traceback( "MWsemantics.py: fileInsert(): error inserting PDB file [%s]: " % fn )
+#                   env.history.message( redmsg( "Internal error while inserting PDB file: [ " + fn + " ]") )
+#               else:
+#                   self.assy.changed() # The file and the part are not the same.
+#                   env.history.message( cmd + "PDB file inserted: [ " + os.path.normpath(fn) + " ]" )
 
             else:
                 dir, fil, ext = fileparse(fn)
@@ -196,10 +200,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # format, not a chemistry format.
         # Chemistry: http://openbabel.sourceforge.net/wiki/MDL_Molfile
         # Animation: http://www.hash.com/products/am.asp
+        # For file export, we will use Open Babel's chemistry MDL format.
 
         formats = \
             "All Files (*.*);;"\
-            "Animation Master (*.mdl);;"\
             "Alchemy format (*.alc);;"\
             "MSI BGF format (*.bgf);;"\
             "Dock 3.5 Box format (*.box);;"\
@@ -251,6 +255,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "Parallel Quantum Solutions format (*.pqs);;"\
             "Q-Chem input format (*.qcin);;"\
             "Open Babel report format (*.report);;"\
+            "MDL MOL format (*.mdl);;"\
             "MDL RXN format (*.rxn);;"\
             "MDL MOL format (*.sd);;"\
             "MDL MOL format (*.sdf);;"\
@@ -266,7 +271,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "ZINDO input format (*.zin);;"
 
             ## Don't use OpenBabel for MDL, otherwise it would look like this
-            ## "MDL MOL format (*.mdl);;"\
 
         fn = QFileDialog.getSaveFileName(self.currentWorkingDirectory,
                 formats,
@@ -284,27 +288,32 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             if ext == ".mmp":
                 self.save_mmp_file(fn, brag=True)
 
-            elif ext == ".pdb":
-                try:
-                    writepdb(self.assy.part, fn)
-                except:
-                    print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % fn )
-                    env.history.message(redmsg( "Problem saving PDB file: [ " + fn + " ]" ))
-                else:
-                    self.saved_main_file(fn, fil)
-                    # bruce 050907 split out this common code, though it's probably bad design
-                    # for PDB files (as i commented elsewhere)
-                    env.history.message( "PDB file saved: [ " + os.path.normpath( self.assy.filename) +" ]" )
+            # Anything that isn't an MMP file, we will export with Open Babel.
+            # Its coverage of MMP files is imperfect so it makes mistakes, but
+            # it would be good to use it enough to find those mistakes.
 
-            elif ext == ".mdl": # Animation Master format
-                try:
-                    writemdlfile(self.assy.part, self.glpane, fn)
-                except:
-                    print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % fn )
-                    env.history.message(redmsg( "Problem saving MDL file: [ " + fn + " ]" ))
-                else:
-                    self.saved_main_file(fn, fil)
-                    env.history.message( "MDL file saved: [ " + os.path.normpath(self.assy.filename) +" ]" )
+#           elif ext == ".pdb":
+#               try:
+#                   writepdb(self.assy.part, fn)
+#               except:
+#                   print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % fn )
+#                   env.history.message(redmsg( "Problem saving PDB file: [ " + fn + " ]" ))
+#               else:
+#                   self.saved_main_file(fn, fil)
+#                   # bruce 050907 split out this common code, though it's probably bad design
+#                   # for PDB files (as i commented elsewhere)
+#                   env.history.message( "PDB file saved: [ " + os.path.normpath( self.assy.filename) +" ]" )
+
+#            elif ext == ".mdl": # Animation Master format
+#               try:
+#                   # This writes the Animation Master MDL format, not the chemistry MDL format.
+#                   writemdlfile(self.assy.part, self.glpane, fn)
+#               except:
+#                   print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % fn )
+#                   env.history.message(redmsg( "Problem saving MDL file: [ " + fn + " ]" ))
+#               else:
+#                   self.saved_main_file(fn, fil)
+#                   env.history.message( "MDL file saved: [ " + os.path.normpath(self.assy.filename) +" ]" )
 
             else:
                 import time
@@ -354,7 +363,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     time.sleep(0.1)
             else:
                 break
-        return proc.exitStatus() != 0 and text[0] != "1 molecule converted\n"
+        return proc.exitStatus() == 0 and text[0] == "1 molecule converted\n"
 
     def fileInsert(self):
         """Slot method for 'File > Insert'.
@@ -606,10 +615,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             sfilter = QString("Molecular Machine Part (*.mmp)")
 
         # ask user for new filename (and file type); they might cancel; fn will be a QString
+        # The Animation Master MDL format was removed in version 1.47 to fix bug 1508. I am
+        # putting it back after email discussion with Mark.  - wware 060804
         formats = \
                     "Molecular Machine Part (*.mmp);;"\
                     "Protein Data Bank (*.pdb);;"\
-                    "POV-Ray (*.pov);;" #ninad060802 removed option Model MDL (bug 1508.) See more comments in function 'writemdlfile' 
+                    "POV-Ray (*.pov);;"\
+                    "Animation Master Model (*.mdl);;"
                     
         if images_ok:
             formats += \
@@ -727,6 +739,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         For JPG and PNG, assert part is the glpane's current part, since current implem only works then.
         """
         #e someday this might become a method of a "saveable object" (open file) or a "saveable subobject" (part, selection).
+        from debug import linenum
+        linenum()
         dir, fil, ext = fileparse(safile)
             #e only ext needed in most cases here, could replace with os.path.split [bruce 050908 comment]
         type = "this" # never used (even if caller passes in unsupported filetype) unless there are bugs in this routine
@@ -737,6 +751,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # kluges: glpane is used for various display options;
             # and for grabbing frame buffer for JPG and PNG formats
             # (only correct when the part being saved is the one it shows, which we try to check here).
+            linenum()
             if ext == ".mmp": #bruce 050927; for now, only used by Save Selection
                 type = "MMP"
                 part.writemmpfile( safile) ###@@@ WRONG, stub... this writes a smaller file, unreadable before A5, with no saved view.
@@ -756,6 +771,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 type = "POV-Ray"
                 writepovfile(part, glpane, safile) #bruce 050927 revised arglist
             elif ext == ".mdl":
+                linenum()
                 type = "MDL"
                 writemdlfile(part, glpane, safile) #bruce 050927 revised arglist
             elif ext == ".jpg":
@@ -774,10 +790,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 saved = False
                 env.history.message(redmsg( "File Not Saved. Unknown extension: " + ext))
         except:
+            linenum()
             print_compact_traceback( "error writing file %r: " % safile )
             env.history.message(redmsg( "Problem saving %s file: " % type + safile ))
         else:
+            linenum()
             if saved:
+                linenum()
                 env.history.message( "%s file saved: " % type + safile )
         return
 
