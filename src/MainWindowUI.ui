@@ -3995,10 +3995,10 @@
             <cstring>fileImportAction</cstring>
         </property>
         <property name="text">
-            <string>Import File...</string>
+            <string>Import File via Open Babel...</string>
         </property>
         <property name="toolTip">
-            <string>Import File</string>
+            <string>Import File via Open Babel</string>
         </property>
     </action>
     <action>
@@ -4006,10 +4006,10 @@
             <cstring>fileExportAction</cstring>
         </property>
         <property name="text">
-            <string>Export File...</string>
+            <string>Export File via Open Babel...</string>
         </property>
         <property name="toolTip">
-            <string>Export File</string>
+            <string>Export File via Open Babel</string>
         </property>
     </action>
 </actions>

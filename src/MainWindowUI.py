@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'MainWindowUI.ui'
 #
-# Created: Wed Aug 2 23:08:38 2006
+# Created: Fri Aug 4 12:15:41 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -7593,10 +7593,10 @@ class MainWindow(QMainWindow):
         self.dispSurfaceAction.setText(self.__tr("Surface"))
         self.dispCylinderAction.setText(self.__tr("Cylinder"))
         self.simMinimizeEnergyAction.setText(self.__tr("Minimize Energy"))
-        self.fileImportAction.setText(self.__tr("Import File..."))
-        self.fileImportAction.setToolTip(self.__tr("Import File"))
-        self.fileExportAction.setText(self.__tr("Export File..."))
-        self.fileExportAction.setToolTip(self.__tr("Export File"))
+        self.fileImportAction.setText(self.__tr("Import File via Open Babel..."))
+        self.fileImportAction.setToolTip(self.__tr("Import File via Open Babel"))
+        self.fileExportAction.setText(self.__tr("Export File via Open Babel..."))
+        self.fileExportAction.setToolTip(self.__tr("Export File via Open Babel"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
