@@ -68,8 +68,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # This format list generated from the Open Babel wiki page: 
         # http://openbabel.sourceforge.net/wiki/Babel#File_Formats
         formats = \
-            "Molecular Machine Part (*.mmp);;"\
             "All Files (*.*);;"\
+            "Molecular Machine Part (*.mmp);;"\
             "Accelrys/MSI Biosym/Insight II CAR (*.car);;"\
             "Alchemy (*.alc, *.mol);;"\
             "Amber Prep (*.prep);;"\
@@ -152,8 +152,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     self.assy.changed() # The file and the part are not the same.
                     env.history.message( cmd + "MMP file inserted: [ " + os.path.normpath(fn) + " ]" ) # fix bug 453 item. ninad060721
 
-            elif False and fn[-3:] in ["pdb","PDB"]:
-                # Open Babel sometimes does better PDB importing than we do.
+            elif fn[-3:] in ["pdb","PDB"]:
                 try:
                     insertpdb(self.assy, fn)
                 except:
@@ -164,17 +163,17 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     env.history.message( cmd + "PDB file inserted: [ " + os.path.normpath(fn) + " ]" )
 
             else:
-                from platform import find_or_make_Nanorex_subdir
                 dir, fil, ext = fileparse(fn)
-                tmpdir = find_or_make_Nanorex_subdir('temp')
+                tmpdir = platform.find_or_make_Nanorex_subdir('temp')
                 mmpfile = os.path.join(tmpdir, fil + ".mmp")
-                babelcmd = 'babel ' + fn + ' ' + mmpfile
-                if os.system(babelcmd) != 0:
-                    env.history.message(redmsg("Import command failed: " + babelcmd))
-                else:
+                result = self.runBabel(fn, mmpfile)
+                if result:
                     insertmmp(self.assy, mmpfile)
                     # Theoretically, we have successfully imported the file at this point.
                     # But there might be a warning from insertmmp.
+                else:
+                    print 'Problem:', fn, '->', mmpfile
+                    env.history.message(redmsg("File translation failed."))
             self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()
             self.mt.mt_update()
@@ -190,8 +189,17 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         # This format list generated from the Open Babel wiki page: 
         # http://openbabel.sourceforge.net/wiki/Babel#File_Formats
+
+        # -- * * * NOTE * * * --
+        # The "MDL" file format used for Animation Master is not the
+        # MDL format that Open Babel knows about. It is an animation
+        # format, not a chemistry format.
+        # Chemistry: http://openbabel.sourceforge.net/wiki/MDL_Molfile
+        # Animation: http://www.hash.com/products/am.asp
+
         formats = \
             "All Files (*.*);;"\
+            "Animation Master (*.mdl);;"\
             "Alchemy format (*.alc);;"\
             "MSI BGF format (*.bgf);;"\
             "Dock 3.5 Box format (*.box);;"\
@@ -228,7 +236,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "GAMESS Input (*.inp);;"\
             "Jaguar input format (*.jin);;"\
             "Compares first molecule to others using InChI. (*.k);;"\
-            "MDL MOL format (*.mdl);;"\
             "MacroModel format (*.mmd);;"\
             "MacroModel format (*.mmod);;"\
             "Molecular Machine Part format (*.mmp);;"\
@@ -257,7 +264,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             "XYZ cartesian coordinates format (*.xyz);;"\
             "YASARA.org YOB format (*.yob);;"\
             "ZINDO input format (*.zin);;"
-        
+
+            ## Don't use OpenBabel for MDL, otherwise it would look like this
+            ## "MDL MOL format (*.mdl);;"\
+
         fn = QFileDialog.getSaveFileName(self.currentWorkingDirectory,
                 formats,
                 self,
@@ -269,21 +279,47 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
              return
         
         if fn:
-            import popen2
-            from platform import find_or_make_Nanorex_subdir
             fn = str(fn)
             dir, fil, ext = fileparse(fn)
-            tmpdir = find_or_make_Nanorex_subdir('temp')
-            mmpfile = os.path.join(tmpdir, fil + ".mmp")
-            self.saveFile(mmpfile, brag=False)
-            babelcmd = 'babel ' + mmpfile + ' ' + fn
-            pop = popen2.Popen3(babelcmd, capturestderr=True)
-            exit_status = pop.wait()
-            response = pop.childerr.read()
-            if exit_status != 0 or response != "1 molecule converted\n" or not os.path.exists(fn):
-                env.history.message(redmsg("Export command failed: " + babelcmd))
+            if ext == ".mmp":
+                self.save_mmp_file(fn, brag=True)
+
+            elif ext == ".pdb":
+                try:
+                    writepdb(self.assy.part, fn)
+                except:
+                    print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % fn )
+                    env.history.message(redmsg( "Problem saving PDB file: [ " + fn + " ]" ))
+                else:
+                    self.saved_main_file(fn, fil)
+                    # bruce 050907 split out this common code, though it's probably bad design
+                    # for PDB files (as i commented elsewhere)
+                    env.history.message( "PDB file saved: [ " + os.path.normpath( self.assy.filename) +" ]" )
+
+            elif ext == ".mdl": # Animation Master format
+                try:
+                    writemdlfile(self.assy.part, self.glpane, fn)
+                except:
+                    print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % fn )
+                    env.history.message(redmsg( "Problem saving MDL file: [ " + fn + " ]" ))
+                else:
+                    self.saved_main_file(fn, fil)
+                    env.history.message( "MDL file saved: [ " + os.path.normpath(self.assy.filename) +" ]" )
+
             else:
-                env.history.message( "File exported: [ " + fn + " ]" )
+                import time
+                from qt import QStringList, QProcess
+                dir, fil, ext = fileparse(fn)
+                tmpdir = platform.find_or_make_Nanorex_subdir('temp')
+                mmpfile = os.path.join(tmpdir, fil + ".mmp")
+                self.saveFile(mmpfile, brag=False)
+                result = self.runBabel(mmpfile, fn)
+                if result and os.path.exists(fn):
+                    env.history.message( "File exported: [ " + fn + " ]" )
+                else:
+                    print 'Problem:', mmpfile, '->', fn
+                    env.history.message(redmsg("File translation failed."))
+
             self.glpane.scale = self.assy.bbox.scale()
             self.glpane.gl_update()
             self.mt.mt_update()
@@ -291,7 +327,35 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # Update the current working directory (CWD).
             dir, fil = os.path.split(fn)
             self.setCurrentWorkingDirectory(dir)
-            
+
+    def runBabel(self, infile, outfile):
+        import time
+        from qt import QStringList, QProcess
+        arguments = QStringList()
+        if sys.platform == 'win32':
+            program = 'babel.exe'
+        else:
+            program = 'babel'
+        for arg in [program, infile, outfile]:
+            arguments.append(arg)
+        proc = QProcess()
+        proc.setArguments(arguments)
+        text = [ None ]
+        def blaberr(text=text):
+            text[0] = str(proc.readStderr())
+        QObject.connect(proc, SIGNAL("readyReadStderr()"), blaberr)
+        proc.start()
+        while 1:
+            if proc.isRunning():
+                if platform.atom_debug:
+                    print "still running"
+                    time.sleep(1)
+                else:
+                    time.sleep(0.1)
+            else:
+                break
+        return proc.exitStatus() != 0 and text[0] != "1 molecule converted\n"
+
     def fileInsert(self):
         """Slot method for 'File > Insert'.
         """
