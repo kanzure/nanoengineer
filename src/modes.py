@@ -993,6 +993,9 @@ class basicMode(anyMode):
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
         self.picking = True
+        
+        # Turn off hover highlighting while rotating the view with middle mouse button. Fixes bug 1657. Mark 060805.
+        self.o.selobj = None # <selobj> is the object highlighted under the cursor.
 
     def middleDrag(self, event):
         # Huaicai 4/12/05: Originally 'self.picking=0 in both middle*Down
@@ -1314,6 +1317,9 @@ class basicMode(anyMode):
         self.o.scale *= 1.0 + dScale * event.delta()
         ##: The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
         ##  because of machine precision, which will cause OpenGL Error. Huaicai 10/18/04
+        
+        # Turn off hover highlighting while zooming with mouse wheel. Fixes bug 1657. Mark 060805.
+        self.o.selobj = None # <selobj> is the object highlighted under the cursor.
         self.o.gl_update()
 
     # [remaining methods not yet analyzed by bruce 040922]
