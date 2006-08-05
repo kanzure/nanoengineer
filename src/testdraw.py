@@ -93,6 +93,9 @@ import env
 from idlelib.Delegator import Delegator
 
 USE_DISPLAY_LIST_OPTIM = 0 # usually True, set False to see if this optim is causing bugs
+    # also settable from glpane, but reloading breaks that, but if we fixed that, then editing it here would fail to also set it...
+    # we could add code to let this be default only, but measure diff with prev to get a modtime,
+    # compare to modtime of a manual change... ##e
 
 printdraw = False # debug flag
 
@@ -165,22 +168,30 @@ if vv.havelist:
     vv.havelist = 0
     print "(fyi, this reload needed to reset vv.havelist)"
     
-def Enter(glpane): # never yet called ###@@@
+def Enter(glpane): # never yet called ###@@@ [still true??]
     glpane.win.setViewHome() # not tested, might be wrong; redundant now (if home view is the default)
+    init_glpane_vars(glpane)
+
+def init_glpane_vars(glpane):
+    glpane._glnames = []
     glpane._testmode_stuff = []
+    glpane._testmode_stuff_2 = []
+    glpane._testmode_stuff_3 = []
+    glpane._alpha = 1.0
     
-def leftDown(self, event, glpane, super): # called from testmode.leftDown, just after it reloads this module
+def leftDown(self, event, glpane, super): # called from testmode.leftDown, just after it reloads this module (on empty-space clicks only)
+    ###@@@ move reload condition into another func in this module? make it wait for leftUp and only if it didn't move, in empty space?
     "self is the mode, needed to call super.leftDown"
     ####@@@@ LOGIC BUG: when we reload, we replace one highlightable with a new one in the same place --
     # but don't replace selobj with the new one! So we predict not selobj_still_ok -- should print that from there ###@@@
+    # [fixed now?]
     if printdraw: print "\ntestdraw leftDown" ###@@@
     vv.havelist = 0 # so editing this file (and clicking) uses the new code -- this also affects clicks on selobj which don't reload
     super.leftDown(self, event) # this might call testmode.emptySpaceLeftDown (or other class-specific leftDown methods in it)
     glpane.gl_update() # always, for now [might be redundant with super.leftDown, too]
 
 def Draw(self, glpane, super): # called by testmode.Draw
-    glpane._testmode_stuff = []
-    glpane._glnames = []
+    init_glpane_vars(glpane)
     vv.counter += 1
     glPushMatrix()
     try:
@@ -193,25 +204,29 @@ def Draw(self, glpane, super): # called by testmode.Draw
     # makes us draw twice! noticed on g4, should happen on g5 too, did it happen but less??
     if 1 and 'draw_model':
         glPushMatrix()
-        glpane.part.draw(glpane) # highlighting works fine on this copy...
-            # oh, i bet this is why selection rect is not drawn,
-            # since we never call super.Draw
-            ######@@@@@@ doit -- it worked but i needed to test not having it again; also it might be slow
-##        super.Draw(self)
+        if 1:
+            super.Draw(self) # needed for region selection's separate xor-drawing;
+            # I suspect this is slower than the other case. Does it draw more than once (for glselect) or something like that? ####@@@@
+        else:
+            # region selection's drawing won't work in this case, though its selection op itself will work
+            glpane.part.draw(glpane) # highlighting works fine on this copy...
         if 0 and 'draw copy2 of model':
             glTranslate(5,0,0)
             glpane.part.draw(glpane) # but not on this one - i see why it doesn't draw it there, but why not complain about not finding it?
         glPopMatrix()
-    # draw invisible stuff (after highlighting didn't work, let's see if this does -- no, still not highlightable)
-    for func in glpane._testmode_stuff:
+    # draw invisible stuff
+    #e (we'll want to split this into stages for more than one kind of such stuff; later, to go through a "rendering pass widget expr")
+    for func in glpane._testmode_stuff_2: # colors, for translucent stuff
+        func()
+    for func in glpane._testmode_stuff_3: # depths, for translucent stuff (matters if they are highlightable)
+        func()
+    for func in glpane._testmode_stuff: # depths, for invisible stuff
         func()
     return
 
 def Draw_after_highlighting(self, pickCheckOnly, glpane, super):
     ## print "testdraw.Draw_after_highlighting(pickCheckOnly = %r)" % (pickCheckOnly,) # pickCheckOnly is True once when I click
     super.Draw_after_highlighting(self, pickCheckOnly)
-##    for func in glpane._testmode_stuff:
-##        func()
     return
 
 # ==
@@ -733,10 +748,15 @@ def draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy):
 # For now they're just demos that might be useful.
 
 def draw_filled_rect(origin, dx, dy, color):
-    glColor3fv(color)
-##    glRectfv(origin, origin + dx + dy) # won't work for most coords! also, ignores Z. color still not working.
     glDisable(GL_LIGHTING) # this allows the specified color to work. Otherwise it doesn't work (I always get dark blue). Why???
      # guess: if i want lighting, i have to specify a materialcolor, not just a regular color. (and vertex normals)
+    if len(color) == 4:
+        glColor4fv(color)
+        if color[3] != 1.0:
+            print "color has alpha",color ####@@@@
+    else:
+        glColor3fv(color)
+##    glRectfv(origin, origin + dx + dy) # won't work for most coords! also, ignores Z. color still not working.
     glBegin(GL_QUADS)
     glVertex3fv(origin)
     #glColor3fv(white)#
@@ -839,6 +859,22 @@ class WidgetExpr(InvalMixin):
     def _get_width(self):
         return self.bright + self.bleft
     #e _get_height
+
+    # helper methods (some really belong on other objects)
+    def disable_color(self): ### really should be a glpane method
+        "don't draw color pixels (but keep drawing depth pixels, if you were)"
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
+        pass
+    def enable_color(self):
+        # nested ones would break, due to this in the inner one -- could be fixed by a counter, if we used them in matched pairs
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
+        pass
+    def push_saved_names(self): # truer args would be: both glpane and transient_state object
+        for glname in self.saved_glnames:
+            glPushName(glname)
+    def pop_saved_names(self):
+        for glname in self.saved_glnames: # wrong order, but only the total number matters
+            glPopName()
     pass
 
 class DelegatingWidgetExpr(Delegator, WidgetExpr):
@@ -1011,7 +1047,8 @@ class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
 def fix_color(color): # kluge #######@@@@@@@
     color = resolve_callables(color, 'fakeenv') ###e someday, most prims do this to most params...
     r,g,b = color # sanity check, though not a complete test of okness (if wrong, it can crash python) (support 4 elements?)
-    return color
+    glpane = _kluge_glpane()
+    return r,g,b, glpane._alpha
 
 class Rect(WidgetExpr): #e example, not general enough to be a good use of this name
     "Rect(width, height, color) renders as a filled rect of that color, origin on bottomleft"
@@ -1077,9 +1114,9 @@ class RectFrame(WidgetExpr):
         glEnable(GL_CULL_FACE)
     pass
 
-class Invisible(DelegatingWidgetExpr): #stub
+class Invisible(DelegatingWidgetExpr):
     """Invisible(thing) has size and hit-test behavior like thing (for use in Highlighting),
-    but is not visible and obscures nothing.
+    but is not visible and does not visually obscure anything.
     (Implem note: it has to be drawn at the end, but arbitrary order among all invisibles is ok.)
     Note that thing's syntax might still require you to specify a color; which one you specify doesn't matter.
     """
@@ -1096,17 +1133,72 @@ class Invisible(DelegatingWidgetExpr): #stub
         # print "draw_later called" # only works when we disable USE_DISPLAY_LIST_OPTIM
         glPushMatrix()
         glLoadMatrixd(self.saved_modelview_matrix)
-        ## why didn't zapping this fix the failure to highlight??? (it did make it visible as expected)
-        glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE) # don't draw color pixels (but keep drawing depth pixels)
-        # it seems like this breaks stencil test #####@@@@@ RETEST now that i push tge nbame
-        for glname in self.saved_glnames:
-            glPushName(glname)
-        self.delegate.draw()
-        for glname in self.saved_glnames: # wrong order, but only the total number matters
-            glPopName()
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-            # WARNING: nested Invisibles would break, due to this in the inner one
-            # WARNING: better not do this when drawing a highlight!
+        self.push_saved_names()
+        if 1:
+            self.disable_color() # don't draw color pixels (but keep drawing depth pixels)
+            if 1:
+                self.delegate.draw()
+            self.enable_color()
+                # WARNING: nested Invisibles would break, due to this in the inner one -- could be fixed if we used them in matched pairs
+                # WARNING: better not do this when drawing a highlight!
+        self.pop_saved_names()
+        glPopMatrix()
+        return
+    pass
+
+class Translucent(DelegatingWidgetExpr):
+    """Translucent(thing, alpha) has size and hit-test behavior like thing (for use in Highlighting),
+    but is tranlucent.
+    (Implem note: it has to be drawn at the end; in principle it should be depth-sorted, but this might be nim.)
+    """#######@@@@@@ UNFINISHED CODE HERE
+    def draw(self):
+        glpane = _kluge_glpane()
+        # arrange to do it later... save the matrix
+        self.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX )
+        self.saved_glnames = tuple(glpane._glnames)
+        glpane._testmode_stuff_2.append(self.draw_later_1) # assumes self has all the needed data
+        glpane._testmode_stuff_3.append(self.draw_later_2)
+        # see also code in renderpass about how to sort by depth
+        # but what if we're in a display list? well, we better not be... this aspect is nim too
+        # self.draw_later() # this fixed the bug, made it highlight again
+    def draw_later_1(self):
+        "pass 1 - draw the colors (don't modify the depth buffer)"
+        # we need these two passes if they are not sorted or imperfectly sorted --
+        # first draw the colors, then draw the depths
+        #
+        # probably this only works when we disable USE_DISPLAY_LIST_OPTIM ####@@@@        
+        glPushMatrix()
+        glLoadMatrixd(self.saved_modelview_matrix)
+        self.push_saved_names()
+        if 1:
+            ### wish we could change alpha factor globally; the supposed way didn't work (see comments elsewhere)
+            glEnable(GL_BLEND)
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+            glDepthMask(GL_FALSE)
+            if 1:
+                glpane = _kluge_glpane()
+                glpane._alpha = 0.1 ####@@@@ stub: use arg1; have a stack or save the old value
+                    # bug: not translucent, but this does affect the color, as if there was a white bg.
+                    # IS IT THE HIGHLIGHT DRAWING DOING THIS?
+                self.delegate.draw()
+                glpane._alpha = 1.0
+                ######@@@@@@@ change this to use alpha in color, unless we can get CONST_ALPHA to work
+            glDisable(GL_BLEND)
+            glDepthMask(GL_TRUE)
+        self.pop_saved_names()
+        glPopMatrix()
+        return
+    def draw_later_2(self):
+        "pass 2 - draw the depths"
+        glPushMatrix()
+        glLoadMatrixd(self.saved_modelview_matrix)
+        self.push_saved_names()
+        if 1:
+            self.disable_color()
+            if 1:
+                self.delegate.draw()
+            self.enable_color()
+        self.pop_saved_names()
         glPopMatrix()
         return
     pass
@@ -1279,6 +1371,42 @@ class Corkscrew(WidgetExpr):
     _get_bbottom = _get_btop
     pass
 
+# ==
+
+def dictset(lis):
+    return dict([(e,e) for e in lis])
+dset = dictset
+
+def conn(a,b): return (a,b) #stub
+
+def eg2():
+    places = dictset([(i,j) for i in range(10) for j in range(10)])
+    # xconns = dset([conn((x,y),(x+1,y)) for (x,y) in places]) # how do we also say 'if x < 10-1'?
+    xconns = []
+    for (x,y) in places:
+        if x < 10-1:
+            xconns.append(conn((x,y),(x+1,y)))
+    yconns = []
+    for (x,y) in places:
+        if y < 10-1:
+            yconns.append(conn((x,y),(x,y+1)))
+    print len(xconns)
+    # at each place, a cube
+    # group by xconns (into strips)
+    # draw...
+
+
+# grid - has the set of points, the navigation functions, the paths, the set of vectors along edges, etc...
+# these can all be methods on the elts, and functions coming out of the grid object
+#   then we give names to various other sets of interesting features of the egg-carton-like thing we envision
+#   and ops on them, code to make them, to map them between each other & other sets; how to extend a sym on grid to a sym on them
+# (easy if we define them as a tuple of gridobjs which satisfy some relations, plus other params that stay constant;
+#  but how to we say the class of ops we're defining on them?)
+
+eg2()
+
+# ==
+
 debug_color_override = 0
 
 class Ribbon(Corkscrew):
@@ -1372,7 +1500,8 @@ class Ribbon(Corkscrew):
         return
     pass
 
-class Ribbon2(Ribbon):
+class Ribbon2(Ribbon): ##, Atom): ####@@@@ class Atom - hack kluge experiment - had no noticable effect - i guess it wouldn't...
+                                    # the selobj is not this, but the Highlighted made from it
     def draw(self):
         radius, axis, turn, n, color1 = self.args
         color2 = self.kws.get('color2')
@@ -1383,6 +1512,15 @@ class Ribbon2(Ribbon):
         Ribbon.draw(self, color = color2)
         glRotatef(-angle, 1,0,0)
     pass
+
+# Ribbon2 has: radius, axis (some sort of length - of one bp?), turn (angle??), n, color1, color2, and full position/orientation
+# and it will have display modes, incl cyl with helix/base/groove texture, and flexible coloring;
+# and ability to show the units in it, namely strands, or basepairs, or bases (selected/opd by type)
+# and for us to add cmd bindings like "make neighbor strand" (if room) or "make crossover here" (maybe only on a base?)
+
+# but as a first step, we can select it as a unit, copy/paste, deposit, move, etc.
+# In this, it is sort of like an atom or set of co-selected atoms... some relation to chunk or jig too.
+# I'd get best results by letting it be its own thing... but fastest, by borrowing one of those...
 
 # ==
 
@@ -1561,7 +1699,8 @@ displist_expr = Row(Button(Rect(0.5,0.5,black),Rect(0.5,0.5,gray), on_press = se
 testexpr = Row(
     #nim Button:
                 Button(
-                    Invisible(Rect(1.5, 1, blue)),
+                    ## Invisible(Rect(1.5, 1, blue)), # works
+                    Translucent(Rect(1.5, 1, blue)), # has bug
                     Overlay( Rect(1.5, 1, lightgreen), (IsocelesTriangle(1.6, 1.1, pink))),
                         ####@@@@ where do I say this? sbar_text = "button, unpressed"
                         ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
@@ -1573,6 +1712,7 @@ testexpr = Row(
                     on_release_in = printfunc('release in'),
                     on_release_out = printfunc('release out')
                 ),
+                Translucent(Rect(1.5, 1, blue)), # has same bug
                 ## DrawThePart(),
                 Column(
                     Rotated( Overlay( RectFrame(1.5, 1, 0.1, white),
@@ -1632,6 +1772,35 @@ testexpr = Row(
                 )),
                 gap = 0.2)
 
+# try a simpler type. a tile, easy ways to attach near ones.
+# a tile has pos/orient, size, color. like a Rect, really. RectParams. Do we say this? Or just write code to use & set them?
+# How do we make one? Constructor of data expr?
+
+#e define("Tile") ? note, we might keep remaking the class of commands/methods, but the data itself lives elsewhere...
+# might be a Node or more likely an AtomLike.
+
+class Tile(WidgetExpr): pass # stub, just so no syntax error below
+
+tile1 = Tile(color = green) # standard options for pos/orient, membership in larger things, tags...
+
+def draw_tile(self, mods, env): # nim
+    width, height, color = 'stub'
+    Rect(width, height, color).draw() # or use Rect.draw? that requires a real Rect, flyweight or cached.
+    #e and some bindings; Highlightable; cache a drawable for it?
+
+class MethodRunClass:pass
+
+class Tile(MethodRunClass):
+    "data and method defs useful for showing and editing Tiles" # reloads, but their state stays... it's stored as a superclass??
+    def _CM_make_neighbor(self):
+        "show transparent neighbor tiles (in empty positions), with some way to make one of them (submenu items? mouse up?)"
+        #e can we show them just while a certain menuitem is up, so as we scan submenu, we see the options?
+        # surely yes if the submenu is displayed as a 3d object... or just display them and let clicked ones become real...
+        # maybe display lots of them at once... maybe let them be selected even before they are real, with cmenu on selection
+        # to make them real. yes, that sounds flexible, good whenever the set of positions to extend is often deterministic.
+        pass
+    pass
+
 from Utility import SimpleCopyMixin, Node, imagename_to_pixmap, genViewNum
 
 class TestNode(Node, SimpleCopyMixin): # see TestNode.py... not yet more than a stub... see also DebugNode
@@ -1664,5 +1833,89 @@ some_color_arg = lambda env: env.prefs[if_(env.thisAtom.doingdrag, key1, key2)]
 #   [False, False, False, False, False, False]
 # yes.
 some_color_arg = lambda env: env.prefs[If(env.thisAtom.doingdrag, key1, key2)]
+
+# ==
+
+def Stub(*args,**kws): pass
+
+Menu = Stub
+Wirebox = Stub
+DragBinding = Stub
+
+WE_for_atom_cmenu = Menu(
+    MItem("item1", Stub('command1'))
+)
+
+WE_for_atom_wirebox = Stub(#for each atom, with state or params of a kind we imply here, here is what to draw using that state
+    Wirebox(black, 2.0) # give size & color & linethickness; it's centered on the atom by default, as is anything we draw here
+)
+
+# "potential" objects show as very translucent gray; "desired" objects as less-translucent color; "real" objects as solid color.
+# objects being specifically offered (among a few alternatives) might be in between potential and desired, somehow.
+# this applies to cyls/helices, crossovers, maybe other things. [until translucent works, use wireframes for that.]
+# [keep our own stacks of glstate on the glpane, so we can restore prior one when we pop it, and copy them into draw_later code.
+#  not clear how it'll interact with display lists.]
+
+Cylinder = Stub( # much like Ribbon2; we really ought to name it Helix or DoubleHelix or DNACylinder
+    # it has: enough to draw the helices and know where the potential bases are; interrelated geom variables
+    # (they all have values, and there are set methods that keep them consistent; much of details of that are general but unknown)
+    # (maybe you set them, leaving them inconsistent, then adjust others by name (1 or a few), making them consistent by formulas)
+    
+    # like any model object, it can have indiv display mode, tags, attached/sub objects, etc
+    # the way it interfaces -- it can live within a raster (which can give it potential crossovers),
+    # or it can get some from being in same 3d space as other cyls
+    # (or maybe, other real strands -- anything offering dna-bps or cps (crossover points))
+
+    # also like any model object, it has params (and its existence) getting saved, so it has a place in mmp file, a place in MT, etc,
+    # which means it needs "creation operators", which can be by paste (copy), command with params, or creating a raster of them;
+    # for prototype, just let it have an id to index state, and keep state anywhere, and pass id or state obj to methods
+    # or use in creating transient-state objs...
+
+    twist = 30, # need to look these up
+    rise = 3.4,
+    pitch = 10.5,
+)
+
+WE_for_dragging_strands_within_cyls = Stub(
+    DragBinding(
+        #e on what kind of thing? 
+        # (what we bind it on can be a thing we're already drawing, described at any level,
+        #  and this modifies the drawing/selobj code;
+        #  or a drawable kind of place, like grid faces, even if we don't yet draw into it.)
+
+        #e for what kinds of tools? this might depend on where we put this expr, not on the expr itself...
+        #e with what doc, highlight, cursor, before it happens?
+
+        # relates to cyls, their baseposns, seams, ends of strands... for the strand-path tool.
+        # so we might find a strand to extend (or add a loop to), or find a base to start a new strand at,
+        # and then, it's really the strand-end we're dragging, and the other objects (potential cyls, potential crossovers)
+        # see us dragging a strand-end with some tool (& options), as they decide how to respond to that for highlight, action, etc.
+        
+        #e what happens as it runs: start, move, end (some of this can depend on what it's over, have overrides/defaults, etc)?
+        start = Stub(),# a WE which runs in an env that includes all of this, plus info avail when we start, like posn and modkeys
+        move = Stub(), # gets state from the prior event too; decide what things we moved over, change their state
+            # simplest that could work: assume motion was small; see if on same or nearby cyl; find crossover it crossed; ...
+            # exercise, for bitmap editor: find a path of pixels approximating a line. (not approp. in this case)
+            # in this case: do a fill, guided by seams and target point. fill alg: in cyl we'll leave, pick best place --
+            # as far as we can in known dir, based on seams & crossover. we either stop, or leave thru some (potential) crossover;
+            # it decides direction in new cyl. so some of this is a per-cyl method -- this event sets up an env, then iterates
+            # through objects which finish or which pass the buck to more objects, while growing a "path object" we're extending.
+            # (initial click created one, or was on/near end of one (on an obj we drew there, marking end) and is extending it.)
+        end = Stub()
+    )
+)
+
+# the code snippets need names for:
+# - built ins
+# - locals from surrounding WE's or maybe dynamically-surrounding helper-class method calls (or locals in same method)
+# - dynamics (eg the ongoing drag, its start, the prior event in it)
+# - the thing we're showing
+# - the env and prefs
+# - the glpane
+
+# when they are in a class, it's so a set of methods know the others are there, but are sometimes overridable by name;
+# it's convenient to call them with mods... which are probably mods to per-call vars anyway...
+# they might be mods like color = red, or color_formula = F, which apply to various params, of the thing being drawn, etc...
+
 
 # end
