@@ -1388,6 +1388,17 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.mode.bareMotion(event)
         return
     
+    def leaveEvent(self, event): # Mark 060805.
+        """Event handler for when the cursor leaves the GLPane.
+        <event> is the last mouse event before leaving the GLpane.
+        """
+        # If an object is highlighted, unhighlight it when leaving the GLpane.
+        if self.selobj:
+            self.selobj = None
+            self.gl_update()
+            
+        return
+    
     def wheelEvent(self, event):
         self.debug_event(event, 'wheelEvent')
         if not self.in_drag:
