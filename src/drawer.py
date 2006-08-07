@@ -2325,17 +2325,31 @@ def drawsurface_wireframe(color, pos, radius, tm, nm):
     glPolygonMode(GL_BACK, GL_FILL) 
     return
 
-def renderSurface(surfaceTriangles, surfaceNormals):
-    (triangleIndex, surfacePoints) = surfaceTriangles
-    glBegin(GL_TRIANGLES)
-    for tri in triangleIndex:
-        glNormal3fv(surfaceNormals[tri[0]])
-        glVertex3fv(surfacePoints[tri[0]])
-        glNormal3fv(surfaceNormals[tri[1]])
-        glVertex3fv(surfacePoints[tri[1]])
-        glNormal3fv(surfaceNormals[tri[2]])
-        glVertex3fv(surfacePoints[tri[2]])
-    glEnd()
-
+def renderSurface(surfaceEntities, surfaceNormals):
+    (entityIndex, surfacePoints) = surfaceEntities
+    e0 = entityIndex[0]
+    n = len(e0)
+    if n == 3:
+	glBegin(GL_TRIANGLES)
+	for entity in entityIndex:
+	    glNormal3fv(surfaceNormals[entity[0]])
+	    glVertex3fv(surfacePoints[entity[0]])
+	    glNormal3fv(surfaceNormals[entity[1]])
+	    glVertex3fv(surfacePoints[entity[1]])
+	    glNormal3fv(surfaceNormals[entity[2]])
+	    glVertex3fv(surfacePoints[entity[2]])
+	glEnd()
+    else:	
+	glBegin(GL_QUADS)
+	for entity in entityIndex:
+	    glNormal3fv(surfaceNormals[entity[0]])
+	    glVertex3fv(surfacePoints[entity[0]])
+	    glNormal3fv(surfaceNormals[entity[1]])
+	    glVertex3fv(surfacePoints[entity[1]])
+	    glNormal3fv(surfaceNormals[entity[2]])
+	    glVertex3fv(surfacePoints[entity[2]])
+	    glNormal3fv(surfaceNormals[entity[3]])
+	    glVertex3fv(surfacePoints[entity[3]])
+	glEnd()
 
 #end
