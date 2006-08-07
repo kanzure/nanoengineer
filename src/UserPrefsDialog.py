@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Jul 26 23:37:20 2006
+# Created: Mon Aug 7 11:28:24 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,7 +14,7 @@ image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
     "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
-    "\x6d\x49\x44\x41\x54\x38\x8d\xed\xd4\x41\x0e\x80" \
+    "\x6d\x49\x44\x41\x54\x78\x9c\xed\xd4\x41\x0e\x80" \
     "\x20\x0c\x44\xd1\xaf\x17\xf6\x2c\x9e\x58\xb7\x86" \
     "\x74\x68\x61\x42\x62\x8c\x5d\x97\x47\xd3\x16\xe0" \
     "\x73\x71\xc2\x35\x73\x6e\x5f\x81\x76\x61\x07\x95" \
@@ -23,7 +23,7 @@ image0_data = \
     "\x62\x05\x8d\xe4\xc9\x56\x54\xf1\x61\xd8\xc5\xd3" \
     "\xe1\xcd\xe2\xf6\x56\xfc\xf0\x5a\xb8\xf7\xfc\x4b" \
     "\x13\xcf\xfe\x8f\x68\x73\xec\x56\xb8\x0f\xe9\x3d" \
-    "\x71\x03\x2f\xef\x14\x20\x3d\x50\xa0\x3f\x00\x00" \
+    "\x71\x03\x2f\xef\x14\x20\x18\x3f\xe3\xe2\x00\x00" \
     "\x00\x00\x49\x45\x4e\x44\xae\x42\x60\x82"
 
 class UserPrefsDialog(QDialog):
@@ -1126,125 +1126,165 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
 
         self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
+        TabPageLayout_5 = QGridLayout(self.TabPage_5,1,1,11,6,"TabPageLayout_5")
+        spacer49 = QSpacerItem(20,218,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_5.addItem(spacer49,1,0)
 
         self.file_locations_grp = QGroupBox(self.TabPage_5,"file_locations_grp")
-        self.file_locations_grp.setGeometry(QRect(11,11,581,210))
-
-        self.povray_checkbox = QCheckBox(self.file_locations_grp,"povray_checkbox")
-        self.povray_checkbox.setGeometry(QRect(11,67,16,16))
-
-        self.povray_lbl = QLabel(self.file_locations_grp,"povray_lbl")
-        self.povray_lbl.setGeometry(QRect(30,59,77,30))
-        self.povray_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.povray_lbl.sizePolicy().hasHeightForWidth()))
-        self.povray_lbl.setMinimumSize(QSize(60,0))
-        self.povray_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        self.nanohive_lbl = QLabel(self.file_locations_grp,"nanohive_lbl")
-        self.nanohive_lbl.setEnabled(1)
-        self.nanohive_lbl.setGeometry(QRect(30,23,77,30))
-        self.nanohive_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.nanohive_lbl.sizePolicy().hasHeightForWidth()))
-        self.nanohive_lbl.setMinimumSize(QSize(60,0))
-        self.nanohive_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-
-        self.nanohive_checkbox = QCheckBox(self.file_locations_grp,"nanohive_checkbox")
-        self.nanohive_checkbox.setEnabled(1)
-        self.nanohive_checkbox.setGeometry(QRect(10,30,16,16))
+        self.file_locations_grp.setColumnLayout(0,Qt.Vertical)
+        self.file_locations_grp.layout().setSpacing(6)
+        self.file_locations_grp.layout().setMargin(11)
+        file_locations_grpLayout = QGridLayout(self.file_locations_grp.layout())
+        file_locations_grpLayout.setAlignment(Qt.AlignTop)
 
         self.povray_path_linedit = QLineEdit(self.file_locations_grp,"povray_path_linedit")
         self.povray_path_linedit.setEnabled(0)
-        self.povray_path_linedit.setGeometry(QRect(113,62,350,24))
         self.povray_path_linedit.setMaximumSize(QSize(32767,32767))
         self.povray_path_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.povray_path_linedit.setFrameShadow(QLineEdit.Sunken)
         self.povray_path_linedit.setMaxLength(32767)
         self.povray_path_linedit.setReadOnly(1)
 
+        file_locations_grpLayout.addMultiCellWidget(self.povray_path_linedit,1,1,1,2)
+
         self.nanohive_path_linedit = QLineEdit(self.file_locations_grp,"nanohive_path_linedit")
         self.nanohive_path_linedit.setEnabled(0)
-        self.nanohive_path_linedit.setGeometry(QRect(113,26,350,24))
         self.nanohive_path_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.nanohive_path_linedit.setFrameShadow(QLineEdit.Sunken)
         self.nanohive_path_linedit.setReadOnly(1)
 
-        self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
-        self.gamess_lbl.setGeometry(QRect(30,167,77,30))
-        self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
-        self.gamess_lbl.setMinimumSize(QSize(60,0))
-        self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        file_locations_grpLayout.addMultiCellWidget(self.nanohive_path_linedit,0,0,1,2)
 
         self.megapov_path_linedit = QLineEdit(self.file_locations_grp,"megapov_path_linedit")
         self.megapov_path_linedit.setEnabled(0)
-        self.megapov_path_linedit.setGeometry(QRect(113,98,350,24))
         self.megapov_path_linedit.setMaximumSize(QSize(32767,32767))
         self.megapov_path_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.megapov_path_linedit.setFrameShadow(QLineEdit.Sunken)
         self.megapov_path_linedit.setMaxLength(32767)
         self.megapov_path_linedit.setReadOnly(1)
 
-        self.megapov_checkbox = QCheckBox(self.file_locations_grp,"megapov_checkbox")
-        self.megapov_checkbox.setGeometry(QRect(11,103,16,16))
+        file_locations_grpLayout.addMultiCellWidget(self.megapov_path_linedit,2,2,1,2)
 
         self.gamess_path_linedit = QLineEdit(self.file_locations_grp,"gamess_path_linedit")
         self.gamess_path_linedit.setEnabled(0)
-        self.gamess_path_linedit.setGeometry(QRect(113,170,350,24))
         self.gamess_path_linedit.setMaximumSize(QSize(32767,32767))
         self.gamess_path_linedit.setFrameShape(QLineEdit.LineEditPanel)
         self.gamess_path_linedit.setFrameShadow(QLineEdit.Sunken)
         self.gamess_path_linedit.setMaxLength(32767)
         self.gamess_path_linedit.setReadOnly(1)
 
-        self.gamess_checkbox = QCheckBox(self.file_locations_grp,"gamess_checkbox")
-        self.gamess_checkbox.setGeometry(QRect(11,175,16,16))
-
-        self.povdir_linedit = QLineEdit(self.file_locations_grp,"povdir_linedit")
-        self.povdir_linedit.setEnabled(0)
-        self.povdir_linedit.setGeometry(QRect(169,134,294,24))
-
-        self.nanohive_choose_btn = QPushButton(self.file_locations_grp,"nanohive_choose_btn")
-        self.nanohive_choose_btn.setEnabled(0)
-        self.nanohive_choose_btn.setGeometry(QRect(475,23,95,30))
-        self.nanohive_choose_btn.setAutoDefault(0)
+        file_locations_grpLayout.addMultiCellWidget(self.gamess_path_linedit,4,4,1,2)
 
         self.povray_choose_btn = QPushButton(self.file_locations_grp,"povray_choose_btn")
         self.povray_choose_btn.setEnabled(0)
-        self.povray_choose_btn.setGeometry(QRect(475,59,95,30))
         self.povray_choose_btn.setAutoDefault(0)
+
+        file_locations_grpLayout.addWidget(self.povray_choose_btn,1,3)
 
         self.megapov_choose_btn = QPushButton(self.file_locations_grp,"megapov_choose_btn")
         self.megapov_choose_btn.setEnabled(0)
-        self.megapov_choose_btn.setGeometry(QRect(475,95,95,30))
         self.megapov_choose_btn.setAutoDefault(0)
+
+        file_locations_grpLayout.addWidget(self.megapov_choose_btn,2,3)
 
         self.povdir_choose_btn = QPushButton(self.file_locations_grp,"povdir_choose_btn")
         self.povdir_choose_btn.setEnabled(0)
-        self.povdir_choose_btn.setGeometry(QRect(474,131,95,31))
         self.povdir_choose_btn.setAutoDefault(0)
+
+        file_locations_grpLayout.addWidget(self.povdir_choose_btn,3,3)
 
         self.gamess_choose_btn = QPushButton(self.file_locations_grp,"gamess_choose_btn")
         self.gamess_choose_btn.setEnabled(0)
-        self.gamess_choose_btn.setGeometry(QRect(475,167,95,30))
         self.gamess_choose_btn.setAutoDefault(0)
 
+        file_locations_grpLayout.addWidget(self.gamess_choose_btn,4,3)
+
+        self.povdir_linedit = QLineEdit(self.file_locations_grp,"povdir_linedit")
+        self.povdir_linedit.setEnabled(0)
+
+        file_locations_grpLayout.addWidget(self.povdir_linedit,3,2)
+
+        self.nanohive_choose_btn = QPushButton(self.file_locations_grp,"nanohive_choose_btn")
+        self.nanohive_choose_btn.setEnabled(0)
+        self.nanohive_choose_btn.setAutoDefault(0)
+
+        file_locations_grpLayout.addWidget(self.nanohive_choose_btn,0,3)
+
+        layout71_2 = QHBoxLayout(None,0,6,"layout71_2")
+
+        self.nanohive_checkbox = QCheckBox(self.file_locations_grp,"nanohive_checkbox")
+        self.nanohive_checkbox.setEnabled(1)
+        layout71_2.addWidget(self.nanohive_checkbox)
+
+        self.nanohive_lbl = QLabel(self.file_locations_grp,"nanohive_lbl")
+        self.nanohive_lbl.setEnabled(1)
+        self.nanohive_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.nanohive_lbl.sizePolicy().hasHeightForWidth()))
+        self.nanohive_lbl.setMinimumSize(QSize(60,0))
+        self.nanohive_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout71_2.addWidget(self.nanohive_lbl)
+
+        file_locations_grpLayout.addLayout(layout71_2,0,0)
+
+        layout72_2 = QHBoxLayout(None,0,6,"layout72_2")
+
+        self.povray_checkbox = QCheckBox(self.file_locations_grp,"povray_checkbox")
+        layout72_2.addWidget(self.povray_checkbox)
+
+        self.povray_lbl = QLabel(self.file_locations_grp,"povray_lbl")
+        self.povray_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.povray_lbl.sizePolicy().hasHeightForWidth()))
+        self.povray_lbl.setMinimumSize(QSize(60,0))
+        self.povray_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout72_2.addWidget(self.povray_lbl)
+
+        file_locations_grpLayout.addLayout(layout72_2,1,0)
+
+        layout73_2 = QHBoxLayout(None,0,6,"layout73_2")
+
+        self.megapov_checkbox = QCheckBox(self.file_locations_grp,"megapov_checkbox")
+        layout73_2.addWidget(self.megapov_checkbox)
+
         self.megapov_lbl = QLabel(self.file_locations_grp,"megapov_lbl")
-        self.megapov_lbl.setGeometry(QRect(30,95,77,30))
         self.megapov_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.megapov_lbl.sizePolicy().hasHeightForWidth()))
         self.megapov_lbl.setMinimumSize(QSize(60,0))
         self.megapov_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout73_2.addWidget(self.megapov_lbl)
+
+        file_locations_grpLayout.addLayout(layout73_2,2,0)
+
+        layout74_2 = QHBoxLayout(None,0,6,"layout74_2")
 
         self.povdir_checkbox = QCheckBox(self.file_locations_grp,"povdir_checkbox")
-        self.povdir_checkbox.setEnabled(1)
-        self.povdir_checkbox.setGeometry(QRect(30,139,16,16))
+        self.povdir_checkbox.setEnabled(0)
         self.povdir_checkbox.setPaletteForegroundColor(QColor(0,0,0))
+        layout74_2.addWidget(self.povdir_checkbox)
 
         self.povdir_lbl = QLabel(self.file_locations_grp,"povdir_lbl")
-        self.povdir_lbl.setGeometry(QRect(54,134,110,30))
+        self.povdir_lbl.setEnabled(0)
         self.povdir_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout74_2.addWidget(self.povdir_lbl)
+
+        file_locations_grpLayout.addMultiCellLayout(layout74_2,3,3,0,1)
+
+        layout75_2 = QHBoxLayout(None,0,6,"layout75_2")
+
+        self.gamess_checkbox = QCheckBox(self.file_locations_grp,"gamess_checkbox")
+        layout75_2.addWidget(self.gamess_checkbox)
+
+        self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
+        self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
+        self.gamess_lbl.setMinimumSize(QSize(60,0))
+        self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
+        layout75_2.addWidget(self.gamess_lbl)
+
+        file_locations_grpLayout.addLayout(layout75_2,4,0)
+
+        TabPageLayout_5.addWidget(self.file_locations_grp,0,0)
         self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
 
         self.TabPage_6 = QWidget(self.prefs_tab,"TabPage_6")
-        TabPageLayout_5 = QGridLayout(self.TabPage_6,1,1,11,6,"TabPageLayout_5")
+        TabPageLayout_6 = QGridLayout(self.TabPage_6,1,1,11,6,"TabPageLayout_6")
         spacer10 = QSpacerItem(20,110,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_5.addItem(spacer10,2,0)
+        TabPageLayout_6.addItem(spacer10,2,0)
 
         layout68_3 = QHBoxLayout(None,0,6,"layout68_3")
 
@@ -1266,7 +1306,7 @@ class UserPrefsDialog(QDialog):
         spacer58_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout68_3.addItem(spacer58_2)
 
-        TabPageLayout_5.addLayout(layout68_3,1,0)
+        TabPageLayout_6.addLayout(layout68_3,1,0)
 
         layout70_2 = QGridLayout(None,1,1,0,6,"layout70_2")
         spacer56_5 = QSpacerItem(268,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
@@ -1289,13 +1329,13 @@ class UserPrefsDialog(QDialog):
 
         layout70_2.addWidget(self.undo_stack_memory_limit_label,2,0)
 
-        TabPageLayout_5.addLayout(layout70_2,0,0)
+        TabPageLayout_6.addLayout(layout70_2,0,0)
         self.prefs_tab.insertTab(self.TabPage_6,QString.fromLatin1(""))
 
         self.TabPage_7 = QWidget(self.prefs_tab,"TabPage_7")
-        TabPageLayout_6 = QGridLayout(self.TabPage_7,1,1,11,6,"TabPageLayout_6")
+        TabPageLayout_7 = QGridLayout(self.TabPage_7,1,1,11,6,"TabPageLayout_7")
         spacer94 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_6.addItem(spacer94,2,0)
+        TabPageLayout_7.addItem(spacer94,2,0)
 
         layout15 = QHBoxLayout(None,0,6,"layout15")
 
@@ -1334,9 +1374,9 @@ class UserPrefsDialog(QDialog):
         spacer9_2 = QSpacerItem(210,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout15.addItem(spacer9_2)
 
-        TabPageLayout_6.addMultiCellLayout(layout15,1,1,0,1)
+        TabPageLayout_7.addMultiCellLayout(layout15,1,1,0,1)
         spacer47 = QSpacerItem(70,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TabPageLayout_6.addItem(spacer47,0,1)
+        TabPageLayout_7.addItem(spacer47,0,1)
 
         self.groupBox10 = QGroupBox(self.TabPage_7,"groupBox10")
         self.groupBox10.setColumnLayout(0,Qt.Vertical)
@@ -1411,14 +1451,14 @@ class UserPrefsDialog(QDialog):
 
         groupBox10Layout.addMultiCellWidget(self.remember_win_pos_and_size_checkbox,1,1,0,2)
 
-        TabPageLayout_6.addWidget(self.groupBox10,0,0)
+        TabPageLayout_7.addWidget(self.groupBox10,0,0)
         self.prefs_tab.insertTab(self.TabPage_7,QString.fromLatin1(""))
 
         UserPrefsDialogLayout.addWidget(self.prefs_tab,0,0)
 
         self.languageChange()
 
-        self.resize(QSize(627,513).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(595,481).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -1501,6 +1541,10 @@ class UserPrefsDialog(QDialog):
         self.connect(self.megapov_choose_btn,SIGNAL("clicked()"),self.set_megapov_path)
         self.connect(self.povdir_checkbox,SIGNAL("toggled(bool)"),self.enable_povdir)
         self.connect(self.povdir_choose_btn,SIGNAL("clicked()"),self.set_povdir)
+        self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.povdir_checkbox.setEnabled)
+        self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.povdir_lbl.setEnabled)
+        self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.povdir_linedit.setEnabled)
+        self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.povdir_linedit.clear)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_compass_labels_checkbox)
@@ -1813,31 +1857,14 @@ class UserPrefsDialog(QDialog):
         self.textLabel2_4_3.setText(self.__tr("High"))
         self.prefs_tab.changeTab(self.TabPage_4,self.__tr("Lighting"))
         self.file_locations_grp.setTitle(self.__tr("Location of Executables"))
-        self.povray_checkbox.setText(QString.null)
-        QToolTip.add(self.povray_checkbox,self.__tr("Enable POV-Ray"))
-        self.povray_lbl.setText(self.__tr("POV-Ray :"))
-        QToolTip.add(self.povray_lbl,self.__tr("Enable POV-Ray"))
-        self.nanohive_lbl.setText(self.__tr("Nano-Hive :"))
-        QToolTip.add(self.nanohive_lbl,self.__tr("Enable Nano-Hive."))
-        self.nanohive_checkbox.setText(QString.null)
-        QToolTip.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
         self.povray_path_linedit.setText(QString.null)
         QToolTip.add(self.povray_path_linedit,self.__tr("The full path to the POV-Ray executable file."))
         self.nanohive_path_linedit.setText(QString.null)
         QToolTip.add(self.nanohive_path_linedit,self.__tr("The full path to the Nano-Hive executable file."))
-        self.gamess_lbl.setText(self.__tr("GAMESS :"))
-        QToolTip.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
         self.megapov_path_linedit.setText(QString.null)
         QToolTip.add(self.megapov_path_linedit,self.__tr("The full path to the MegaPOV executable file (megapov.exe)."))
-        self.megapov_checkbox.setText(QString.null)
-        QToolTip.add(self.megapov_checkbox,self.__tr("Enable MegaPOV"))
         self.gamess_path_linedit.setText(QString.null)
         QToolTip.add(self.gamess_path_linedit,self.__tr("The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe."))
-        self.gamess_checkbox.setText(QString.null)
-        QToolTip.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
-        QToolTip.add(self.povdir_linedit,self.__tr("Select custom POV include directory"))
-        self.nanohive_choose_btn.setText(self.__tr("Choose..."))
-        QToolTip.add(self.nanohive_choose_btn,self.__tr("Choose location of Nano-Hive executable "))
         self.povray_choose_btn.setText(self.__tr("Choose..."))
         QToolTip.add(self.povray_choose_btn,self.__tr("Choose POV-Ray executable"))
         self.megapov_choose_btn.setText(self.__tr("Choose..."))
@@ -1845,11 +1872,28 @@ class UserPrefsDialog(QDialog):
         self.povdir_choose_btn.setText(self.__tr("Choose..."))
         self.gamess_choose_btn.setText(self.__tr("Choose..."))
         QToolTip.add(self.gamess_choose_btn,self.__tr("Choose GAMESS executable"))
+        QToolTip.add(self.povdir_linedit,self.__tr("Select custom POV include directory"))
+        self.nanohive_choose_btn.setText(self.__tr("Choose..."))
+        QToolTip.add(self.nanohive_choose_btn,self.__tr("Choose location of Nano-Hive executable "))
+        self.nanohive_checkbox.setText(QString.null)
+        QToolTip.add(self.nanohive_checkbox,self.__tr("Enable Nano-Hive."))
+        self.nanohive_lbl.setText(self.__tr("Nano-Hive :"))
+        QToolTip.add(self.nanohive_lbl,self.__tr("Enable Nano-Hive."))
+        self.povray_checkbox.setText(QString.null)
+        QToolTip.add(self.povray_checkbox,self.__tr("Enable POV-Ray"))
+        self.povray_lbl.setText(self.__tr("POV-Ray :"))
+        QToolTip.add(self.povray_lbl,self.__tr("Enable POV-Ray"))
+        self.megapov_checkbox.setText(QString.null)
+        QToolTip.add(self.megapov_checkbox,self.__tr("Enable MegaPOV"))
         self.megapov_lbl.setText(self.__tr("MegaPOV :"))
         QToolTip.add(self.megapov_lbl,self.__tr("Enable MegaPOV"))
         self.povdir_checkbox.setText(QString.null)
         QToolTip.add(self.povdir_checkbox,self.__tr("User-custom directory for POV libraries"))
-        self.povdir_lbl.setText(self.__tr("POV include dir :"))
+        self.povdir_lbl.setText(self.__tr("POV-Ray include dir :"))
+        self.gamess_checkbox.setText(QString.null)
+        QToolTip.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
+        self.gamess_lbl.setText(self.__tr("GAMESS :"))
+        QToolTip.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
         self.groupBox17.setTitle(self.__tr("History Preferences"))
         self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))

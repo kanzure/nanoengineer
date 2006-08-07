@@ -1,5 +1,4 @@
-<!DOCTYPE UI>
-<UI stdsetdef="1" version="3.3">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>UserPrefsDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -9,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>627</width>
-            <height>513</height>
+            <width>595</width>
+            <height>481</height>
         </rect>
     </property>
     <property name="caption">
@@ -20,7 +19,7 @@
         <property name="name">
             <cstring>unnamed</cstring>
         </property>
-        <widget class="QLayoutWidget" column="0" row="1">
+        <widget class="QLayoutWidget" row="1" column="0">
             <property name="name">
                 <cstring>layout28</cstring>
             </property>
@@ -58,7 +57,7 @@
                 </widget>
             </hbox>
         </widget>
-        <widget class="QTabWidget" column="0" row="0">
+        <widget class="QTabWidget" row="0" column="0">
             <property name="name">
                 <cstring>prefs_tab</cstring>
             </property>
@@ -105,7 +104,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Show/Hide Origin Axis</string>
                                         </property>
-                                        
                                     </widget>
                                     <widget class="QCheckBox">
                                         <property name="name">
@@ -120,7 +118,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Show/Hide Point of View Axis</string>
                                         </property>
-                                        
                                     </widget>
                                 </vbox>
                             </widget>
@@ -148,7 +145,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Show/Hide Display Compass</string>
                                         </property>
-                                        
                                     </widget>
                                     <widget class="QCheckBox">
                                         <property name="name">
@@ -163,7 +159,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Show/Hide Display Compass</string>
                                         </property>
-                                        
                                     </widget>
                                     <widget class="QLayoutWidget">
                                         <property name="name">
@@ -224,14 +219,13 @@
                                     <bool>true</bool>
                                 </property>
                                 <property name="toolTip" stdset="0">
-                                    <string/>
+                                    <string></string>
                                 </property>
-                                
                                 <grid>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QRadioButton" column="0" row="0">
+                                    <widget class="QRadioButton" row="0" column="0">
                                         <property name="name">
                                             <cstring>radioButton12</cstring>
                                         </property>
@@ -242,7 +236,7 @@
                                             <bool>true</bool>
                                         </property>
                                     </widget>
-                                    <widget class="QRadioButton" column="0" row="1">
+                                    <widget class="QRadioButton" row="1" column="0">
                                         <property name="name">
                                             <cstring>radioButton13</cstring>
                                         </property>
@@ -269,7 +263,6 @@
                                 <property name="title">
                                     <string>Settings for Adjust</string>
                                 </property>
-                                
                                 <vbox>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
@@ -284,7 +277,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Enable/disable real time graphical updates for &lt;b&gt;Adjust All&lt;/b&gt; or &lt;b&gt;Adjust Selection&lt;/b&gt;</string>
                                         </property>
-                                        
                                     </widget>
                                     <widget class="QButtonGroup">
                                         <property name="name">
@@ -297,13 +289,13 @@
                                             <enum>Sunken</enum>
                                         </property>
                                         <property name="title">
-                                            <string/>
+                                            <string></string>
                                         </property>
                                         <grid>
                                             <property name="name">
                                                 <cstring>unnamed</cstring>
                                             </property>
-                                            <widget class="QSpinBox" column="1" row="1">
+                                            <widget class="QSpinBox" row="1" column="1">
                                                 <property name="name">
                                                     <cstring>update_number_spinbox</cstring>
                                                 </property>
@@ -319,9 +311,8 @@
                                                 <property name="toolTip" stdset="0">
                                                     <string>Specify how often to update the screen during adjustments</string>
                                                 </property>
-                                                
                                             </widget>
-                                            <widget class="QComboBox" column="2" row="1">
+                                            <widget class="QComboBox" row="1" column="2">
                                                 <item>
                                                     <property name="text">
                                                         <string>frames</string>
@@ -348,9 +339,8 @@
                                                 <property name="toolTip" stdset="0">
                                                     <string>Specify how often to update the screen during adjustments</string>
                                                 </property>
-                                                
                                             </widget>
-                                            <widget class="QRadioButton" column="0" row="1">
+                                            <widget class="QRadioButton" row="1" column="0">
                                                 <property name="name">
                                                     <cstring>update_every_rbtn</cstring>
                                                 </property>
@@ -363,9 +353,8 @@
                                                 <property name="toolTip" stdset="0">
                                                     <string>Specify how often to update the screen during adjustments</string>
                                                 </property>
-                                                
                                             </widget>
-                                            <spacer column="3" row="1">
+                                            <spacer row="1" column="3">
                                                 <property name="name">
                                                     <cstring>spacer2</cstring>
                                                 </property>
@@ -382,7 +371,7 @@
                                                     </size>
                                                 </property>
                                             </spacer>
-                                            <widget class="QRadioButton" colspan="3" column="0" row="0" rowspan="1">
+                                            <widget class="QRadioButton" row="0" column="0" rowspan="1" colspan="3">
                                                 <property name="name">
                                                     <cstring>update_asap_rbtn</cstring>
                                                 </property>
@@ -398,7 +387,6 @@
                                                 <property name="toolTip" stdset="0">
                                                     <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
                                                 </property>
-                                                
                                             </widget>
                                         </grid>
                                     </widget>
@@ -429,7 +417,7 @@
                                                             <property name="name">
                                                                 <cstring>unnamed</cstring>
                                                             </property>
-                                                            <widget class="QLabel" column="0" row="0">
+                                                            <widget class="QLabel" row="0" column="0">
                                                                 <property name="name">
                                                                     <cstring>endrms_lbl</cstring>
                                                                 </property>
@@ -442,9 +430,8 @@
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Target RMS force (pN)</string>
                                                                 </property>
-                                                                
                                                             </widget>
-                                                            <widget class="QLabel" column="0" row="1">
+                                                            <widget class="QLabel" row="1" column="0">
                                                                 <property name="name">
                                                                     <cstring>endmax_lbl</cstring>
                                                                 </property>
@@ -457,9 +444,8 @@
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Target max force (pN)</string>
                                                                 </property>
-                                                                
                                                             </widget>
-                                                            <widget class="QLineEdit" column="1" row="1">
+                                                            <widget class="QLineEdit" row="1" column="1">
                                                                 <property name="name">
                                                                     <cstring>endmax_linedit</cstring>
                                                                 </property>
@@ -469,9 +455,8 @@
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Target max force (pN)</string>
                                                                 </property>
-                                                                
                                                             </widget>
-                                                            <widget class="QLineEdit" column="1" row="0">
+                                                            <widget class="QLineEdit" row="0" column="1">
                                                                 <property name="name">
                                                                     <cstring>endrms_linedit</cstring>
                                                                 </property>
@@ -487,7 +472,6 @@
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Target RMS force (pN)</string>
                                                                 </property>
-                                                                
                                                             </widget>
                                                         </grid>
                                                     </widget>
@@ -499,7 +483,7 @@
                                                             <property name="name">
                                                                 <cstring>unnamed</cstring>
                                                             </property>
-                                                            <widget class="QLabel" column="0" row="1">
+                                                            <widget class="QLabel" row="1" column="0">
                                                                 <property name="name">
                                                                     <cstring>cutovermax_lbl</cstring>
                                                                 </property>
@@ -512,9 +496,8 @@
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Cutover max force (pN)</string>
                                                                 </property>
-                                                                
                                                             </widget>
-                                                            <widget class="QLineEdit" column="1" row="1">
+                                                            <widget class="QLineEdit" row="1" column="1">
                                                                 <property name="name">
                                                                     <cstring>cutovermax_linedit</cstring>
                                                                 </property>
@@ -524,9 +507,8 @@
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Cutover max force (pN)</string>
                                                                 </property>
-                                                                
                                                             </widget>
-                                                            <widget class="QLineEdit" column="1" row="0">
+                                                            <widget class="QLineEdit" row="0" column="1">
                                                                 <property name="name">
                                                                     <cstring>cutoverrms_linedit</cstring>
                                                                 </property>
@@ -536,9 +518,8 @@
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Cutover RMS force (pN)</string>
                                                                 </property>
-                                                                
                                                             </widget>
-                                                            <widget class="QLabel" column="0" row="0">
+                                                            <widget class="QLabel" row="0" column="0">
                                                                 <property name="name">
                                                                     <cstring>cutoverrms_lbl</cstring>
                                                                 </property>
@@ -551,7 +532,6 @@
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Cutover RMS force (pN)</string>
                                                                 </property>
-                                                                
                                                             </widget>
                                                         </grid>
                                                     </widget>
@@ -570,7 +550,7 @@
                                                     </sizepolicy>
                                                 </property>
                                                 <property name="text">
-                                                    <string/>
+                                                    <string></string>
                                                 </property>
                                             </widget>
                                         </vbox>
@@ -601,7 +581,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Enable/disable animation between current view and a new view</string>
                                         </property>
-                                        
                                     </widget>
                                     <widget class="QLayoutWidget">
                                         <property name="name">
@@ -727,7 +706,6 @@
                                                         <property name="toolTip" stdset="0">
                                                             <string>View Animation Speed</string>
                                                         </property>
-                                                        
                                                     </widget>
                                                 </vbox>
                                             </widget>
@@ -795,7 +773,7 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget" colspan="1" column="1" row="0" rowspan="4">
+                    <widget class="QLayoutWidget" row="0" column="1" rowspan="4" colspan="1">
                         <property name="name">
                             <cstring>layout101</cstring>
                         </property>
@@ -824,7 +802,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Level of detail for atoms (and bonds)</string>
                                         </property>
-                                        
                                     </widget>
                                     <widget class="QComboBox">
                                         <item>
@@ -856,7 +833,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Sets graphics quality for atoms (and bonds)</string>
                                         </property>
-                                        
                                     </widget>
                                     <spacer>
                                         <property name="name">
@@ -896,7 +872,7 @@
                             </spacer>
                         </vbox>
                     </widget>
-                    <widget class="QGroupBox" column="0" row="0">
+                    <widget class="QGroupBox" row="0" column="0">
                         <property name="name">
                             <cstring>atom_colors_grpbox</cstring>
                         </property>
@@ -907,7 +883,7 @@
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" column="0" row="0">
+                            <widget class="QLayoutWidget" row="0" column="0">
                                 <property name="name">
                                     <cstring>layout79</cstring>
                                 </property>
@@ -945,12 +921,12 @@
                                     </widget>
                                 </hbox>
                             </widget>
-                            <widget class="QGroupBox" column="0" row="1">
+                            <widget class="QGroupBox" row="1" column="0">
                                 <property name="name">
                                     <cstring>groupBox13</cstring>
                                 </property>
                                 <property name="title">
-                                    <string/>
+                                    <string></string>
                                 </property>
                                 <vbox>
                                     <property name="name">
@@ -964,7 +940,7 @@
                                             <property name="name">
                                                 <cstring>unnamed</cstring>
                                             </property>
-                                            <widget class="QLabel" column="0" row="0">
+                                            <widget class="QLabel" row="0" column="0">
                                                 <property name="name">
                                                     <cstring>textLabel3_2_3</cstring>
                                                 </property>
@@ -975,7 +951,7 @@
                                                     <set>AlignVCenter|AlignRight</set>
                                                 </property>
                                             </widget>
-                                            <widget class="QLabel" column="0" row="2">
+                                            <widget class="QLabel" row="2" column="0">
                                                 <property name="name">
                                                     <cstring>hotspot_lbl_2</cstring>
                                                 </property>
@@ -986,7 +962,7 @@
                                                     <set>AlignVCenter|AlignRight</set>
                                                 </property>
                                             </widget>
-                                            <widget class="QLabel" column="0" row="3">
+                                            <widget class="QLabel" row="3" column="0">
                                                 <property name="name">
                                                     <cstring>hotspot_lbl</cstring>
                                                 </property>
@@ -997,7 +973,7 @@
                                                     <set>AlignVCenter|AlignRight</set>
                                                 </property>
                                             </widget>
-                                            <widget class="QLayoutWidget" column="1" row="2">
+                                            <widget class="QLayoutWidget" row="2" column="1">
                                                 <property name="name">
                                                     <cstring>layout37_2_2_2_2_2_2_2</cstring>
                                                 </property>
@@ -1045,7 +1021,7 @@
                                                     </widget>
                                                 </hbox>
                                             </widget>
-                                            <widget class="QLayoutWidget" column="1" row="0">
+                                            <widget class="QLayoutWidget" row="0" column="1">
                                                 <property name="name">
                                                     <cstring>layout37_2_2_2_3</cstring>
                                                 </property>
@@ -1090,7 +1066,7 @@
                                                     </widget>
                                                 </hbox>
                                             </widget>
-                                            <widget class="QLayoutWidget" column="1" row="3">
+                                            <widget class="QLayoutWidget" row="3" column="1">
                                                 <property name="name">
                                                     <cstring>layout37_2_2_2_2_2_2</cstring>
                                                 </property>
@@ -1179,7 +1155,7 @@
                             </widget>
                         </grid>
                     </widget>
-                    <spacer column="0" row="3">
+                    <spacer row="3" column="0">
                         <property name="name">
                             <cstring>spacer11</cstring>
                         </property>
@@ -1196,7 +1172,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" column="0" row="1">
+                    <widget class="QLayoutWidget" row="1" column="0">
                         <property name="name">
                             <cstring>layout74</cstring>
                         </property>
@@ -1217,7 +1193,6 @@
                                 <property name="toolTip" stdset="0">
                                     <string>Set Atom Scale factor for Ball and Stick display mode</string>
                                 </property>
-                                
                             </widget>
                             <widget class="QSpinBox">
                                 <property name="name">
@@ -1238,7 +1213,6 @@
                                 <property name="toolTip" stdset="0">
                                     <string>Set Atom Scale factor for Ball and Stick display mode</string>
                                 </property>
-                                
                             </widget>
                             <spacer>
                                 <property name="name">
@@ -1259,7 +1233,7 @@
                             </spacer>
                         </hbox>
                     </widget>
-                    <widget class="QLayoutWidget" column="0" row="2">
+                    <widget class="QLayoutWidget" row="2" column="0">
                         <property name="name">
                             <cstring>layout75</cstring>
                         </property>
@@ -1280,7 +1254,6 @@
                                 <property name="toolTip" stdset="0">
                                     <string>CPK Atom Scale factor for CPK display mode</string>
                                 </property>
-                                
                             </widget>
                             <widget class="QLineEdit">
                                 <property name="name">
@@ -1298,7 +1271,6 @@
                                 <property name="toolTip" stdset="0">
                                     <string>Displays the value of the CPK Atom Scale</string>
                                 </property>
-                                
                             </widget>
                             <widget class="QSlider">
                                 <property name="name">
@@ -1325,14 +1297,13 @@
                                 <property name="toolTip" stdset="0">
                                     <string>Changes Atom Scale factor for CPK display mode</string>
                                 </property>
-                                
                             </widget>
                             <widget class="QToolButton">
                                 <property name="name">
                                     <cstring>reset_cpk_scale_factor_btn</cstring>
                                 </property>
                                 <property name="text">
-                                    <string/>
+                                    <string></string>
                                 </property>
                                 <property name="iconSet">
                                     <iconset>image0</iconset>
@@ -1340,7 +1311,6 @@
                                 <property name="toolTip" stdset="0">
                                     <string>Restore default value</string>
                                 </property>
-                                
                             </widget>
                         </hbox>
                     </widget>
@@ -1357,7 +1327,7 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget" colspan="1" column="1" row="0" rowspan="3">
+                    <widget class="QLayoutWidget" row="0" column="1" rowspan="3" colspan="1">
                         <property name="name">
                             <cstring>layout98</cstring>
                         </property>
@@ -1403,7 +1373,6 @@
                                                 <property name="toolTip" stdset="0">
                                                     <string>Display high order bonds using multiple cylinders</string>
                                                 </property>
-                                                
                                             </widget>
                                             <widget class="QRadioButton">
                                                 <property name="name">
@@ -1418,7 +1387,6 @@
                                                 <property name="toolTip" stdset="0">
                                                     <string>Display pi systems in high order bonds as Vanes</string>
                                                 </property>
-                                                
                                             </widget>
                                             <widget class="QRadioButton">
                                                 <property name="name">
@@ -1430,7 +1398,6 @@
                                                 <property name="toolTip" stdset="0">
                                                     <string>Display pi systems in high order bonds as Ribbons</string>
                                                 </property>
-                                                
                                             </widget>
                                         </vbox>
                                     </widget>
@@ -1463,7 +1430,6 @@
                                 <property name="toolTip" stdset="0">
                                     <string>Display Bond Type Label</string>
                                 </property>
-                                
                             </widget>
                             <widget class="QCheckBox">
                                 <property name="name">
@@ -1475,7 +1441,6 @@
                                 <property name="toolTip" stdset="0">
                                     <string>Enable/Disable Valence Error Checker</string>
                                 </property>
-                                
                             </widget>
                             <spacer>
                                 <property name="name">
@@ -1496,7 +1461,7 @@
                             </spacer>
                         </vbox>
                     </widget>
-                    <spacer column="2" row="0">
+                    <spacer row="0" column="2">
                         <property name="name">
                             <cstring>spacer56_3</cstring>
                         </property>
@@ -1513,7 +1478,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QGroupBox" column="0" row="0">
+                    <widget class="QGroupBox" row="0" column="0">
                         <property name="name">
                             <cstring>groupBox4</cstring>
                         </property>
@@ -1524,7 +1489,7 @@
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" colspan="2" column="0" row="1" rowspan="1">
+                            <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">
                                 <property name="name">
                                     <cstring>layout25</cstring>
                                 </property>
@@ -1565,7 +1530,7 @@
                                     </widget>
                                 </hbox>
                             </widget>
-                            <widget class="QLayoutWidget" column="1" row="0">
+                            <widget class="QLayoutWidget" row="0" column="1">
                                 <property name="name">
                                     <cstring>layout79</cstring>
                                 </property>
@@ -1573,7 +1538,7 @@
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QLabel" column="0" row="0">
+                                    <widget class="QLabel" row="0" column="0">
                                         <property name="name">
                                             <cstring>textLabel3_2</cstring>
                                         </property>
@@ -1592,7 +1557,7 @@
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
-                                    <widget class="QLayoutWidget" column="1" row="2">
+                                    <widget class="QLayoutWidget" row="2" column="1">
                                         <property name="name">
                                             <cstring>layout37_2_2_2_2</cstring>
                                         </property>
@@ -1646,7 +1611,7 @@
                                             </widget>
                                         </hbox>
                                     </widget>
-                                    <widget class="QLayoutWidget" column="1" row="0">
+                                    <widget class="QLayoutWidget" row="0" column="1">
                                         <property name="name">
                                             <cstring>layout37_2_2_2</cstring>
                                         </property>
@@ -1697,7 +1662,7 @@
                                             </widget>
                                         </hbox>
                                     </widget>
-                                    <widget class="QLabel" column="0" row="3">
+                                    <widget class="QLabel" row="3" column="0">
                                         <property name="name">
                                             <cstring>textLabel3_3</cstring>
                                         </property>
@@ -1708,7 +1673,7 @@
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
-                                    <widget class="QLayoutWidget" column="1" row="1">
+                                    <widget class="QLayoutWidget" row="1" column="1">
                                         <property name="name">
                                             <cstring>layout37_2_2</cstring>
                                         </property>
@@ -1753,7 +1718,7 @@
                                             </widget>
                                         </hbox>
                                     </widget>
-                                    <widget class="QLabel" column="0" row="1">
+                                    <widget class="QLabel" row="1" column="0">
                                         <property name="name">
                                             <cstring>textLabel3</cstring>
                                         </property>
@@ -1764,7 +1729,7 @@
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
-                                    <widget class="QLabel" column="0" row="2">
+                                    <widget class="QLabel" row="2" column="0">
                                         <property name="name">
                                             <cstring>textLabel3_2_2</cstring>
                                         </property>
@@ -1789,7 +1754,7 @@
                                             <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
-                                    <widget class="QLayoutWidget" column="1" row="3">
+                                    <widget class="QLayoutWidget" row="3" column="1">
                                         <property name="name">
                                             <cstring>layout37_2_2_2_2_3</cstring>
                                         </property>
@@ -1844,7 +1809,7 @@
                             </widget>
                         </grid>
                     </widget>
-                    <spacer column="0" row="2">
+                    <spacer row="2" column="0">
                         <property name="name">
                             <cstring>spacer22</cstring>
                         </property>
@@ -1861,7 +1826,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" column="0" row="1">
+                    <widget class="QLayoutWidget" row="1" column="0">
                         <property name="name">
                             <cstring>layout84</cstring>
                         </property>
@@ -1890,7 +1855,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode</string>
                                         </property>
-                                        
                                     </widget>
                                     <widget class="QLabel">
                                         <property name="name">
@@ -1905,7 +1869,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Bond thickness (in pixels) for Lines Display Mode</string>
                                         </property>
-                                        
                                     </widget>
                                 </vbox>
                             </widget>
@@ -1936,7 +1899,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode</string>
                                         </property>
-                                        
                                     </widget>
                                     <widget class="QSpinBox">
                                         <property name="name">
@@ -1954,7 +1916,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Bond thickness (in pixels) for Lines Display Mode</string>
                                         </property>
-                                        
                                     </widget>
                                 </vbox>
                             </widget>
@@ -1990,7 +1951,7 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <spacer column="0" row="0">
+                    <spacer row="0" column="0">
                         <property name="name">
                             <cstring>spacer8_3_2</cstring>
                         </property>
@@ -2007,7 +1968,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" column="0" row="0">
+                    <widget class="QLayoutWidget" row="0" column="0">
                         <property name="name">
                             <cstring>layout69</cstring>
                         </property>
@@ -2015,7 +1976,7 @@
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" column="0" row="0">
+                            <widget class="QLayoutWidget" row="0" column="0">
                                 <property name="name">
                                     <cstring>layout68</cstring>
                                 </property>
@@ -2023,7 +1984,7 @@
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QLabel" column="0" row="0">
+                                    <widget class="QLabel" row="0" column="0">
                                         <property name="name">
                                             <cstring>startup_mode_lbl</cstring>
                                         </property>
@@ -2036,9 +1997,8 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Startup Mode</string>
                                         </property>
-                                        
                                     </widget>
-                                    <widget class="QComboBox" column="1" row="0">
+                                    <widget class="QComboBox" row="0" column="1">
                                         <item>
                                             <property name="text">
                                                 <string>Default Mode</string>
@@ -2055,9 +2015,8 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Startup Mode</string>
                                         </property>
-                                        
                                     </widget>
-                                    <widget class="QLabel" column="0" row="1">
+                                    <widget class="QLabel" row="1" column="0">
                                         <property name="name">
                                             <cstring>default_mode_lbl</cstring>
                                         </property>
@@ -2078,9 +2037,8 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Default Mode</string>
                                         </property>
-                                        
                                     </widget>
-                                    <widget class="QComboBox" column="1" row="1">
+                                    <widget class="QComboBox" row="1" column="1">
                                         <item>
                                             <property name="text">
                                                 <string>Select Chunks</string>
@@ -2102,11 +2060,10 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Default Mode</string>
                                         </property>
-                                        
                                     </widget>
                                 </grid>
                             </widget>
-                            <spacer column="0" row="2">
+                            <spacer row="2" column="0">
                                 <property name="name">
                                     <cstring>spacer8_3</cstring>
                                 </property>
@@ -2123,7 +2080,7 @@
                                     </size>
                                 </property>
                             </spacer>
-                            <widget class="QGroupBox" column="0" row="1">
+                            <widget class="QGroupBox" row="1" column="0">
                                 <property name="name">
                                     <cstring>mode_groupbox</cstring>
                                 </property>
@@ -2134,7 +2091,7 @@
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QLayoutWidget" column="0" row="0">
+                                    <widget class="QLayoutWidget" row="0" column="0">
                                         <property name="name">
                                             <cstring>layout66</cstring>
                                         </property>
@@ -2225,9 +2182,8 @@
                                                             <cstring>mode_combox</cstring>
                                                         </property>
                                                         <property name="toolTip" stdset="0">
-                                                            <string/>
+                                                            <string></string>
                                                         </property>
-                                                        
                                                     </widget>
                                                     <widget class="QComboBox">
                                                         <item>
@@ -2269,13 +2225,12 @@
                                                         <property name="toolTip" stdset="0">
                                                             <string>Display Mode for this mode</string>
                                                         </property>
-                                                        
                                                     </widget>
                                                 </vbox>
                                             </widget>
                                         </hbox>
                                     </widget>
-                                    <widget class="QGroupBox" column="0" row="1">
+                                    <widget class="QGroupBox" row="1" column="0">
                                         <property name="name">
                                             <cstring>bg_groupbox</cstring>
                                         </property>
@@ -2286,7 +2241,7 @@
                                             <property name="name">
                                                 <cstring>unnamed</cstring>
                                             </property>
-                                            <widget class="QLayoutWidget" colspan="2" column="0" row="0" rowspan="1">
+                                            <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
                                                 <property name="name">
                                                     <cstring>layout69</cstring>
                                                 </property>
@@ -2357,7 +2312,6 @@
                                                                 <property name="toolTip" stdset="0">
                                                                     <string>Background fill type</string>
                                                                 </property>
-                                                                
                                                             </widget>
                                                             <widget class="QLayoutWidget">
                                                                 <property name="name">
@@ -2408,7 +2362,7 @@
                                                     </widget>
                                                 </hbox>
                                             </widget>
-                                            <widget class="QPushButton" column="1" row="1">
+                                            <widget class="QPushButton" row="1" column="1">
                                                 <property name="name">
                                                     <cstring>restore_bgcolor_btn</cstring>
                                                 </property>
@@ -2419,7 +2373,7 @@
                                                     <bool>false</bool>
                                                 </property>
                                             </widget>
-                                            <spacer column="0" row="1">
+                                            <spacer row="1" column="0">
                                                 <property name="name">
                                                     <cstring>spacer7_2</cstring>
                                                 </property>
@@ -2442,7 +2396,7 @@
                             </widget>
                         </grid>
                     </widget>
-                    <spacer column="2" row="0">
+                    <spacer row="0" column="2">
                         <property name="name">
                             <cstring>spacer8_4</cstring>
                         </property>
@@ -2459,7 +2413,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" column="1" row="0">
+                    <widget class="QLayoutWidget" row="0" column="1">
                         <property name="name">
                             <cstring>layout66</cstring>
                         </property>
@@ -2478,7 +2432,7 @@
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QRadioButton" column="0" row="0">
+                                    <widget class="QRadioButton" row="0" column="0">
                                         <property name="name">
                                             <cstring>vwd_rbtn</cstring>
                                         </property>
@@ -2491,9 +2445,8 @@
                                         <property name="toolTip" stdset="0">
                                             <string>CPK (Space Filling) Display Mode</string>
                                         </property>
-                                        
                                     </widget>
-                                    <widget class="QRadioButton" column="0" row="1">
+                                    <widget class="QRadioButton" row="1" column="0">
                                         <property name="name">
                                             <cstring>cpk_rbtn</cstring>
                                         </property>
@@ -2506,9 +2459,8 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Ball and Stick Display Mode</string>
                                         </property>
-                                        
                                     </widget>
-                                    <widget class="QRadioButton" column="0" row="3">
+                                    <widget class="QRadioButton" row="3" column="0">
                                         <property name="name">
                                             <cstring>lines_rbtn</cstring>
                                         </property>
@@ -2521,9 +2473,8 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Lines Display Mode</string>
                                         </property>
-                                        
                                     </widget>
-                                    <widget class="QRadioButton" column="0" row="2">
+                                    <widget class="QRadioButton" row="2" column="0">
                                         <property name="name">
                                             <cstring>tubes_rbtn</cstring>
                                         </property>
@@ -2536,7 +2487,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Tubes Display Mode</string>
                                         </property>
-                                        
                                     </widget>
                                 </grid>
                             </widget>
@@ -2551,7 +2501,7 @@
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QCheckBox" column="0" row="0">
+                                    <widget class="QCheckBox" row="0" column="0">
                                         <property name="name">
                                             <cstring>autobond_checkbox</cstring>
                                         </property>
@@ -2561,9 +2511,8 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Build mode's default setting for Autobonding at startup (enabled/disabled)</string>
                                         </property>
-                                        
                                     </widget>
-                                    <widget class="QCheckBox" column="1" row="0">
+                                    <widget class="QCheckBox" row="0" column="1">
                                         <property name="name">
                                             <cstring>water_checkbox</cstring>
                                         </property>
@@ -2573,9 +2522,8 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Build mode's default setting for Water at startup (enabled/disabled)</string>
                                         </property>
-                                        
                                     </widget>
-                                    <widget class="QCheckBox" colspan="2" column="0" row="2" rowspan="1">
+                                    <widget class="QCheckBox" row="2" column="0" rowspan="1" colspan="2">
                                         <property name="name">
                                             <cstring>buildmode_select_atoms_checkbox</cstring>
                                         </property>
@@ -2585,9 +2533,8 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Automatically select atoms when depositing</string>
                                         </property>
-                                        
                                     </widget>
-                                    <widget class="QCheckBox" colspan="2" column="0" row="1" rowspan="1">
+                                    <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="2">
                                         <property name="name">
                                             <cstring>buildmode_highlighting_checkbox</cstring>
                                         </property>
@@ -2597,7 +2544,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Build mode's default setting for Highlighting at startup (enabled/disabled)</string>
                                         </property>
-                                        
                                     </widget>
                                 </grid>
                             </widget>
@@ -2633,7 +2579,7 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QGroupBox" colspan="1" column="0" row="0" rowspan="3">
+                    <widget class="QGroupBox" row="0" column="0" rowspan="3" colspan="1">
                         <property name="name">
                             <cstring>groupBox8_2</cstring>
                         </property>
@@ -2647,7 +2593,7 @@
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" column="0" row="0">
+                            <widget class="QLayoutWidget" row="0" column="0">
                                 <property name="name">
                                     <cstring>layout494</cstring>
                                 </property>
@@ -2756,7 +2702,7 @@
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QLayoutWidget" column="1" row="0">
+                            <widget class="QLayoutWidget" row="0" column="1">
                                 <property name="name">
                                     <cstring>layout559</cstring>
                                 </property>
@@ -2824,7 +2770,7 @@
                                                     <cstring>light_checkbox</cstring>
                                                 </property>
                                                 <property name="text">
-                                                    <string/>
+                                                    <string></string>
                                                 </property>
                                             </widget>
                                             <spacer>
@@ -3144,7 +3090,7 @@
                             </widget>
                         </grid>
                     </widget>
-                    <widget class="QLayoutWidget" column="1" row="2">
+                    <widget class="QLayoutWidget" row="2" column="1">
                         <property name="name">
                             <cstring>layout505</cstring>
                         </property>
@@ -3182,7 +3128,7 @@
                             </widget>
                         </hbox>
                     </widget>
-                    <spacer column="1" row="1">
+                    <spacer row="1" column="1">
                         <property name="name">
                             <cstring>spacer345</cstring>
                         </property>
@@ -3199,7 +3145,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QGroupBox" column="1" row="0">
+                    <widget class="QGroupBox" row="0" column="1">
                         <property name="name">
                             <cstring>groupBox9_2</cstring>
                         </property>
@@ -3213,7 +3159,7 @@
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" column="0" row="0">
+                            <widget class="QLayoutWidget" row="0" column="0">
                                 <property name="name">
                                     <cstring>layout49</cstring>
                                 </property>
@@ -3318,7 +3264,7 @@
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QLayoutWidget" column="1" row="0">
+                            <widget class="QLayoutWidget" row="0" column="1">
                                 <property name="name">
                                     <cstring>layout50</cstring>
                                 </property>
@@ -3331,7 +3277,7 @@
                                             <cstring>ms_on_checkbox</cstring>
                                         </property>
                                         <property name="text">
-                                            <string/>
+                                            <string></string>
                                         </property>
                                     </widget>
                                     <spacer>
@@ -3444,7 +3390,7 @@
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QLayoutWidget" column="2" row="0">
+                            <widget class="QLayoutWidget" row="0" column="2">
                                 <property name="name">
                                     <cstring>layout54</cstring>
                                 </property>
@@ -3680,631 +3626,500 @@
                 <attribute name="title">
                     <string>Plug-ins</string>
                 </attribute>
-                <spacer>
+                <grid>
                     <property name="name">
-                        <cstring>spacer49</cstring>
+                        <cstring>unnamed</cstring>
                     </property>
-                    <property name="orientation">
-                        <enum>Vertical</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>20</width>
-                            <height>201</height>
-                        </size>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>268</x>
-                            <y>222</y>
-                            <width>20</width>
-                            <height>201</height>
-                        </rect>
-                    </property>
-                </spacer>
-                <widget class="QGroupBox">
-                    <property name="name">
-                        <cstring>file_locations_grp</cstring>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>11</x>
-                            <y>11</y>
-                            <width>581</width>
-                            <height>210</height>
-                        </rect>
-                    </property>
-                    <property name="title">
-                        <string>Location of Executables</string>
-                    </property>
-                    <widget class="QCheckBox">
+                    <spacer row="1" column="0">
                         <property name="name">
-                            <cstring>povray_checkbox</cstring>
+                            <cstring>spacer49</cstring>
                         </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>11</x>
-                                <y>67</y>
-                                <width>16</width>
-                                <height>16</height>
-                            </rect>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
                         </property>
-                        <property name="text">
-                            <string/>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
                         </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Enable POV-Ray</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>povray_lbl</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
-                                <y>59</y>
-                                <width>77</width>
-                                <height>30</height>
-                            </rect>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>1</hsizetype>
-                                <vsizetype>5</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
+                        <property name="sizeHint">
                             <size>
-                                <width>60</width>
-                                <height>0</height>
+                                <width>20</width>
+                                <height>218</height>
                             </size>
                         </property>
-                        <property name="text">
-                            <string>POV-Ray :</string>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignVCenter|AlignRight</set>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Enable POV-Ray</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QLabel">
+                    </spacer>
+                    <widget class="QGroupBox" row="0" column="0">
                         <property name="name">
-                            <cstring>nanohive_lbl</cstring>
+                            <cstring>file_locations_grp</cstring>
                         </property>
-                        <property name="enabled">
-                            <bool>true</bool>
+                        <property name="title">
+                            <string>Location of Executables</string>
                         </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
-                                <y>23</y>
-                                <width>77</width>
-                                <height>30</height>
-                            </rect>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>1</hsizetype>
-                                <vsizetype>5</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                            <size>
-                                <width>60</width>
-                                <height>0</height>
-                            </size>
-                        </property>
-                        <property name="text">
-                            <string>Nano-Hive :</string>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignVCenter|AlignRight</set>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Enable Nano-Hive.</string>
-                        </property>
-                        
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLineEdit" row="1" column="1" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>povray_path_linedit</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="maximumSize">
+                                    <size>
+                                        <width>32767</width>
+                                        <height>32767</height>
+                                    </size>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="maxLength">
+                                    <number>32767</number>
+                                </property>
+                                <property name="readOnly">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>The full path to the POV-Ray executable file.</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="0" column="1" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>nanohive_path_linedit</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="readOnly">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>The full path to the Nano-Hive executable file.</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="2" column="1" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>megapov_path_linedit</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="maximumSize">
+                                    <size>
+                                        <width>32767</width>
+                                        <height>32767</height>
+                                    </size>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="maxLength">
+                                    <number>32767</number>
+                                </property>
+                                <property name="readOnly">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>The full path to the MegaPOV executable file (megapov.exe).</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="4" column="1" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>gamess_path_linedit</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="maximumSize">
+                                    <size>
+                                        <width>32767</width>
+                                        <height>32767</height>
+                                    </size>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="maxLength">
+                                    <number>32767</number>
+                                </property>
+                                <property name="readOnly">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton" row="1" column="3">
+                                <property name="name">
+                                    <cstring>povray_choose_btn</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="text">
+                                    <string>Choose...</string>
+                                </property>
+                                <property name="autoDefault">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Choose POV-Ray executable</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton" row="2" column="3">
+                                <property name="name">
+                                    <cstring>megapov_choose_btn</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="text">
+                                    <string>Choose...</string>
+                                </property>
+                                <property name="autoDefault">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Choose MegaPOV executable (megapov.exe)</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton" row="3" column="3">
+                                <property name="name">
+                                    <cstring>povdir_choose_btn</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="text">
+                                    <string>Choose...</string>
+                                </property>
+                                <property name="autoDefault">
+                                    <bool>false</bool>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton" row="4" column="3">
+                                <property name="name">
+                                    <cstring>gamess_choose_btn</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="text">
+                                    <string>Choose...</string>
+                                </property>
+                                <property name="autoDefault">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Choose GAMESS executable</string>
+                                </property>
+                            </widget>
+                            <widget class="QLineEdit" row="3" column="2">
+                                <property name="name">
+                                    <cstring>povdir_linedit</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Select custom POV include directory</string>
+                                </property>
+                            </widget>
+                            <widget class="QPushButton" row="0" column="3">
+                                <property name="name">
+                                    <cstring>nanohive_choose_btn</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="text">
+                                    <string>Choose...</string>
+                                </property>
+                                <property name="autoDefault">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Choose location of Nano-Hive executable </string>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget" row="0" column="0">
+                                <property name="name">
+                                    <cstring>layout71</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>nanohive_checkbox</cstring>
+                                        </property>
+                                        <property name="enabled">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Enable Nano-Hive.</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>nanohive_lbl</cstring>
+                                        </property>
+                                        <property name="enabled">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>5</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="minimumSize">
+                                            <size>
+                                                <width>60</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property name="text">
+                                            <string>Nano-Hive :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Enable Nano-Hive.</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                            <widget class="QLayoutWidget" row="1" column="0">
+                                <property name="name">
+                                    <cstring>layout72</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>povray_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Enable POV-Ray</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>povray_lbl</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>5</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="minimumSize">
+                                            <size>
+                                                <width>60</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property name="text">
+                                            <string>POV-Ray :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Enable POV-Ray</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                            <widget class="QLayoutWidget" row="2" column="0">
+                                <property name="name">
+                                    <cstring>layout73</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>megapov_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Enable MegaPOV</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>megapov_lbl</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>5</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="minimumSize">
+                                            <size>
+                                                <width>60</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property name="text">
+                                            <string>MegaPOV :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Enable MegaPOV</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                            <widget class="QLayoutWidget" row="3" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>layout74</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>povdir_checkbox</cstring>
+                                        </property>
+                                        <property name="enabled">
+                                            <bool>false</bool>
+                                        </property>
+                                        <property name="paletteForegroundColor">
+                                            <color>
+                                                <red>0</red>
+                                                <green>0</green>
+                                                <blue>0</blue>
+                                            </color>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>User-custom directory for POV libraries</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>povdir_lbl</cstring>
+                                        </property>
+                                        <property name="enabled">
+                                            <bool>false</bool>
+                                        </property>
+                                        <property name="text">
+                                            <string>POV-Ray include dir :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                            <widget class="QLayoutWidget" row="4" column="0">
+                                <property name="name">
+                                    <cstring>layout75</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>gamess_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string></string>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Enable GAMESS.</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>gamess_lbl</cstring>
+                                        </property>
+                                        <property name="sizePolicy">
+                                            <sizepolicy>
+                                                <hsizetype>1</hsizetype>
+                                                <vsizetype>5</vsizetype>
+                                                <horstretch>0</horstretch>
+                                                <verstretch>0</verstretch>
+                                            </sizepolicy>
+                                        </property>
+                                        <property name="minimumSize">
+                                            <size>
+                                                <width>60</width>
+                                                <height>0</height>
+                                            </size>
+                                        </property>
+                                        <property name="text">
+                                            <string>GAMESS :</string>
+                                        </property>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Enable GAMESS.</string>
+                                        </property>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                        </grid>
                     </widget>
-                    <widget class="QCheckBox">
-                        <property name="name">
-                            <cstring>nanohive_checkbox</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>true</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>10</x>
-                                <y>30</y>
-                                <width>16</width>
-                                <height>16</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string/>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Enable Nano-Hive.</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>povray_path_linedit</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>false</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>113</x>
-                                <y>62</y>
-                                <width>350</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="maximumSize">
-                            <size>
-                                <width>32767</width>
-                                <height>32767</height>
-                            </size>
-                        </property>
-                        <property name="frameShape">
-                            <enum>LineEditPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                        <property name="text">
-                            <string/>
-                        </property>
-                        <property name="maxLength">
-                            <number>32767</number>
-                        </property>
-                        <property name="readOnly">
-                            <bool>true</bool>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>The full path to the POV-Ray executable file.</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>nanohive_path_linedit</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>false</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>113</x>
-                                <y>26</y>
-                                <width>350</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="frameShape">
-                            <enum>LineEditPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                        <property name="text">
-                            <string/>
-                        </property>
-                        <property name="readOnly">
-                            <bool>true</bool>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>The full path to the Nano-Hive executable file.</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>gamess_lbl</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
-                                <y>167</y>
-                                <width>77</width>
-                                <height>30</height>
-                            </rect>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>1</hsizetype>
-                                <vsizetype>5</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                            <size>
-                                <width>60</width>
-                                <height>0</height>
-                            </size>
-                        </property>
-                        <property name="text">
-                            <string>GAMESS :</string>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignVCenter|AlignRight</set>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Enable GAMESS.</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>megapov_path_linedit</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>false</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>113</x>
-                                <y>98</y>
-                                <width>350</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="maximumSize">
-                            <size>
-                                <width>32767</width>
-                                <height>32767</height>
-                            </size>
-                        </property>
-                        <property name="frameShape">
-                            <enum>LineEditPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                        <property name="text">
-                            <string/>
-                        </property>
-                        <property name="maxLength">
-                            <number>32767</number>
-                        </property>
-                        <property name="readOnly">
-                            <bool>true</bool>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>The full path to the MegaPOV executable file (megapov.exe).</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QCheckBox">
-                        <property name="name">
-                            <cstring>megapov_checkbox</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>11</x>
-                                <y>103</y>
-                                <width>16</width>
-                                <height>16</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string/>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Enable MegaPOV</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>gamess_path_linedit</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>false</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>113</x>
-                                <y>170</y>
-                                <width>350</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="maximumSize">
-                            <size>
-                                <width>32767</width>
-                                <height>32767</height>
-                            </size>
-                        </property>
-                        <property name="frameShape">
-                            <enum>LineEditPanel</enum>
-                        </property>
-                        <property name="frameShadow">
-                            <enum>Sunken</enum>
-                        </property>
-                        <property name="text">
-                            <string/>
-                        </property>
-                        <property name="maxLength">
-                            <number>32767</number>
-                        </property>
-                        <property name="readOnly">
-                            <bool>true</bool>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>The gamess executable file. Usually it's called gamess.??.x or ??gamess.exe.</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QCheckBox">
-                        <property name="name">
-                            <cstring>gamess_checkbox</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>11</x>
-                                <y>175</y>
-                                <width>16</width>
-                                <height>16</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string/>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Enable GAMESS.</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QLineEdit">
-                        <property name="name">
-                            <cstring>povdir_linedit</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>false</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>169</x>
-                                <y>134</y>
-                                <width>294</width>
-                                <height>24</height>
-                            </rect>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Select custom POV include directory</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QPushButton">
-                        <property name="name">
-                            <cstring>nanohive_choose_btn</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>false</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>475</x>
-                                <y>23</y>
-                                <width>95</width>
-                                <height>30</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Choose...</string>
-                        </property>
-                        <property name="autoDefault">
-                            <bool>false</bool>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Choose location of Nano-Hive executable </string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QPushButton">
-                        <property name="name">
-                            <cstring>povray_choose_btn</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>false</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>475</x>
-                                <y>59</y>
-                                <width>95</width>
-                                <height>30</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Choose...</string>
-                        </property>
-                        <property name="autoDefault">
-                            <bool>false</bool>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Choose POV-Ray executable</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QPushButton">
-                        <property name="name">
-                            <cstring>megapov_choose_btn</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>false</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>475</x>
-                                <y>95</y>
-                                <width>95</width>
-                                <height>30</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Choose...</string>
-                        </property>
-                        <property name="autoDefault">
-                            <bool>false</bool>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Choose MegaPOV executable (megapov.exe)</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QPushButton">
-                        <property name="name">
-                            <cstring>povdir_choose_btn</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>false</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>474</x>
-                                <y>131</y>
-                                <width>95</width>
-                                <height>31</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Choose...</string>
-                        </property>
-                        <property name="autoDefault">
-                            <bool>false</bool>
-                        </property>
-                    </widget>
-                    <widget class="QPushButton">
-                        <property name="name">
-                            <cstring>gamess_choose_btn</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>false</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>475</x>
-                                <y>167</y>
-                                <width>95</width>
-                                <height>30</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>Choose...</string>
-                        </property>
-                        <property name="autoDefault">
-                            <bool>false</bool>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Choose GAMESS executable</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>megapov_lbl</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
-                                <y>95</y>
-                                <width>77</width>
-                                <height>30</height>
-                            </rect>
-                        </property>
-                        <property name="sizePolicy">
-                            <sizepolicy>
-                                <hsizetype>1</hsizetype>
-                                <vsizetype>5</vsizetype>
-                                <horstretch>0</horstretch>
-                                <verstretch>0</verstretch>
-                            </sizepolicy>
-                        </property>
-                        <property name="minimumSize">
-                            <size>
-                                <width>60</width>
-                                <height>0</height>
-                            </size>
-                        </property>
-                        <property name="text">
-                            <string>MegaPOV :</string>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignVCenter|AlignRight</set>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>Enable MegaPOV</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QCheckBox">
-                        <property name="name">
-                            <cstring>povdir_checkbox</cstring>
-                        </property>
-                        <property name="enabled">
-                            <bool>true</bool>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>30</x>
-                                <y>139</y>
-                                <width>16</width>
-                                <height>16</height>
-                            </rect>
-                        </property>
-                        <property name="paletteForegroundColor">
-                            <color>
-                                <red>0</red>
-                                <green>0</green>
-                                <blue>0</blue>
-                            </color>
-                        </property>
-                        <property name="text">
-                            <string/>
-                        </property>
-                        <property name="toolTip" stdset="0">
-                            <string>User-custom directory for POV libraries</string>
-                        </property>
-                        
-                    </widget>
-                    <widget class="QLabel">
-                        <property name="name">
-                            <cstring>povdir_lbl</cstring>
-                        </property>
-                        <property name="geometry">
-                            <rect>
-                                <x>54</x>
-                                <y>134</y>
-                                <width>110</width>
-                                <height>30</height>
-                            </rect>
-                        </property>
-                        <property name="text">
-                            <string>POV include dir :</string>
-                        </property>
-                        <property name="alignment">
-                            <set>AlignVCenter|AlignRight</set>
-                        </property>
-                    </widget>
-                </widget>
+                </grid>
             </widget>
             <widget class="QWidget">
                 <property name="name">
@@ -4317,7 +4132,7 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <spacer column="0" row="2">
+                    <spacer row="2" column="0">
                         <property name="name">
                             <cstring>spacer10</cstring>
                         </property>
@@ -4334,7 +4149,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" column="0" row="1">
+                    <widget class="QLayoutWidget" row="1" column="0">
                         <property name="name">
                             <cstring>layout68</cstring>
                         </property>
@@ -4353,7 +4168,7 @@
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QCheckBox" column="0" row="0">
+                                    <widget class="QCheckBox" row="0" column="0">
                                         <property name="name">
                                             <cstring>msg_serial_number_checkbox</cstring>
                                         </property>
@@ -4361,7 +4176,7 @@
                                             <string>Include message serial number</string>
                                         </property>
                                     </widget>
-                                    <widget class="QCheckBox" column="0" row="1">
+                                    <widget class="QCheckBox" row="1" column="0">
                                         <property name="name">
                                             <cstring>msg_timestamp_checkbox</cstring>
                                         </property>
@@ -4390,7 +4205,7 @@
                             </spacer>
                         </hbox>
                     </widget>
-                    <widget class="QLayoutWidget" column="0" row="0">
+                    <widget class="QLayoutWidget" row="0" column="0">
                         <property name="name">
                             <cstring>layout70</cstring>
                         </property>
@@ -4398,7 +4213,7 @@
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <spacer column="2" row="2">
+                            <spacer row="2" column="2">
                                 <property name="name">
                                     <cstring>spacer56_5</cstring>
                                 </property>
@@ -4415,7 +4230,7 @@
                                     </size>
                                 </property>
                             </spacer>
-                            <widget class="QCheckBox" colspan="3" column="0" row="1" rowspan="1">
+                            <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="3">
                                 <property name="name">
                                     <cstring>undo_automatic_checkpoints_checkbox</cstring>
                                 </property>
@@ -4425,9 +4240,8 @@
                                 <property name="toolTip" stdset="0">
                                     <string>Specify Automatic or Manual Checkpoints at program startup.</string>
                                 </property>
-                                
                             </widget>
-                            <widget class="QSpinBox" column="1" row="2">
+                            <widget class="QSpinBox" row="2" column="1">
                                 <property name="name">
                                     <cstring>undo_stack_memory_limit_spinbox</cstring>
                                 </property>
@@ -4438,7 +4252,7 @@
                                     <number>99999</number>
                                 </property>
                             </widget>
-                            <widget class="QCheckBox" colspan="3" column="0" row="0" rowspan="1">
+                            <widget class="QCheckBox" row="0" column="0" rowspan="1" colspan="3">
                                 <property name="name">
                                     <cstring>undo_restore_view_checkbox</cstring>
                                 </property>
@@ -4448,9 +4262,8 @@
                                 <property name="toolTip" stdset="0">
                                     <string>Undo will switch to the view saved with each structural change.</string>
                                 </property>
-                                
                             </widget>
-                            <widget class="QLabel" column="0" row="2">
+                            <widget class="QLabel" row="2" column="0">
                                 <property name="name">
                                     <cstring>undo_stack_memory_limit_label</cstring>
                                 </property>
@@ -4473,7 +4286,7 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <spacer column="0" row="2">
+                    <spacer row="2" column="0">
                         <property name="name">
                             <cstring>spacer94</cstring>
                         </property>
@@ -4490,7 +4303,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QLayoutWidget" colspan="2" column="0" row="1" rowspan="1">
+                    <widget class="QLayoutWidget" row="1" column="0" rowspan="1" colspan="2">
                         <property name="name">
                             <cstring>layout15</cstring>
                         </property>
@@ -4508,7 +4321,6 @@
                                 <property name="toolTip" stdset="0">
                                     <string>Window Border Caption Format</string>
                                 </property>
-                                
                                 <vbox>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
@@ -4589,7 +4401,7 @@
                                             <enum>Sunken</enum>
                                         </property>
                                         <property name="text">
-                                            <string/>
+                                            <string></string>
                                         </property>
                                     </widget>
                                     <widget class="QCheckBox">
@@ -4621,7 +4433,7 @@
                             </spacer>
                         </hbox>
                     </widget>
-                    <spacer column="1" row="0">
+                    <spacer row="0" column="1">
                         <property name="name">
                             <cstring>spacer47</cstring>
                         </property>
@@ -4638,7 +4450,7 @@
                             </size>
                         </property>
                     </spacer>
-                    <widget class="QGroupBox" column="0" row="0">
+                    <widget class="QGroupBox" row="0" column="0">
                         <property name="name">
                             <cstring>groupBox10</cstring>
                         </property>
@@ -4649,7 +4461,7 @@
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QLayoutWidget" column="0" row="0">
+                            <widget class="QLayoutWidget" row="0" column="0">
                                 <property name="name">
                                     <cstring>layout115</cstring>
                                 </property>
@@ -4681,7 +4493,7 @@
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QLayoutWidget" column="2" row="0">
+                            <widget class="QLayoutWidget" row="0" column="2">
                                 <property name="name">
                                     <cstring>layout116</cstring>
                                 </property>
@@ -4702,7 +4514,6 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Save current window position and size for next startup</string>
                                         </property>
-                                        
                                     </widget>
                                     <widget class="QPushButton">
                                         <property name="name">
@@ -4717,11 +4528,10 @@
                                         <property name="toolTip" stdset="0">
                                             <string>Save current window position and size for next startup</string>
                                         </property>
-                                        
                                     </widget>
                                 </vbox>
                             </widget>
-                            <widget class="QLayoutWidget" column="1" row="0">
+                            <widget class="QLayoutWidget" row="0" column="1">
                                 <property name="name">
                                     <cstring>layout117</cstring>
                                 </property>
@@ -4729,7 +4539,7 @@
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QSpinBox" column="0" row="0">
+                                    <widget class="QSpinBox" row="0" column="0">
                                         <property name="name">
                                             <cstring>current_width_spinbox</cstring>
                                         </property>
@@ -4746,7 +4556,7 @@
                                             <number>640</number>
                                         </property>
                                     </widget>
-                                    <widget class="QLineEdit" column="2" row="1">
+                                    <widget class="QLineEdit" row="1" column="2">
                                         <property name="name">
                                             <cstring>saved_height_lineedit</cstring>
                                         </property>
@@ -4754,7 +4564,7 @@
                                             <bool>true</bool>
                                         </property>
                                     </widget>
-                                    <widget class="QSpinBox" column="2" row="0">
+                                    <widget class="QSpinBox" row="0" column="2">
                                         <property name="name">
                                             <cstring>current_height_spinbox</cstring>
                                         </property>
@@ -4771,7 +4581,7 @@
                                             <number>480</number>
                                         </property>
                                     </widget>
-                                    <widget class="QLineEdit" column="0" row="1">
+                                    <widget class="QLineEdit" row="1" column="0">
                                         <property name="name">
                                             <cstring>saved_width_lineedit</cstring>
                                         </property>
@@ -4779,7 +4589,7 @@
                                             <bool>true</bool>
                                         </property>
                                     </widget>
-                                    <widget class="QLabel" column="1" row="0">
+                                    <widget class="QLabel" row="0" column="1">
                                         <property name="name">
                                             <cstring>textLabel1_2_2_2</cstring>
                                         </property>
@@ -4790,7 +4600,7 @@
                                             <set>AlignCenter</set>
                                         </property>
                                     </widget>
-                                    <widget class="QLabel" column="1" row="1">
+                                    <widget class="QLabel" row="1" column="1">
                                         <property name="name">
                                             <cstring>textLabel1_2_2_2_2</cstring>
                                         </property>
@@ -4803,7 +4613,7 @@
                                     </widget>
                                 </grid>
                             </widget>
-                            <widget class="QCheckBox" colspan="3" column="0" row="1" rowspan="1">
+                            <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="3">
                                 <property name="name">
                                     <cstring>remember_win_pos_and_size_checkbox</cstring>
                                 </property>
@@ -4820,7 +4630,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="166">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000006d49444154388dedd4410e80200c44d1af17f62c9e58b78674686142628c5d9747d316e07371c235736e5f8176610795b08b026c2e7a0406243dae842a24bcad4d56553df3da9cb062058de4c95654f161d8c5d3e1cde2f656fcf05ab8f7fc4b13cffe8f6873ec56b80fe93d71032fef14203d50a03f0000000049454e44ae426082</data>
+        <data format="PNG" length="166">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000006d49444154789cedd4410e80200c44d1af17f62c9e58b78674686142628c5d9747d316e07371c235736e5f8176610795b08b026c2e7a0406243dae842a24bcad4d56553df3da9cb062058de4c95654f161d8c5d3e1cde2f656fcf05ab8f7fc4b13cffe8f6873ec56b80fe93d71032fef1420183fe3e20000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5304,6 +5114,30 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>set_povdir()</slot>
     </connection>
+    <connection>
+        <sender>megapov_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>povdir_checkbox</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>megapov_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>povdir_lbl</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>megapov_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>povdir_linedit</receiver>
+        <slot>setEnabled(bool)</slot>
+    </connection>
+    <connection>
+        <sender>megapov_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>povdir_linedit</receiver>
+        <slot>clear()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -5476,5 +5310,5 @@
     <slot>enable_povdir()</slot>
     <slot>set_povdir()</slot>
 </slots>
-<layoutdefaults margin="11" spacing="6"/>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>
