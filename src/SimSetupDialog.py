@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'SimSetupDialog.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\SimSetupDialog.ui'
 #
-# Created: Wed Jul 26 23:37:19 2006
+# Created: Mon Aug 7 11:47:19 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -14,7 +14,7 @@ image0_data = \
     "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
     "\x49\x48\x44\x52\x00\x00\x00\x14\x00\x00\x00\x14" \
     "\x08\x06\x00\x00\x00\x8d\x89\x1d\x0d\x00\x00\x00" \
-    "\xc5\x49\x44\x41\x54\x38\x8d\xb5\x94\xbd\x0d\x83" \
+    "\xc5\x49\x44\x41\x54\x78\x9c\xb5\x94\xbd\x0d\x83" \
     "\x30\x14\x84\xef\xd2\x66\x02\x32\x42\xa6\xc0\x63" \
     "\xf8\x51\x67\x2a\xea\xb0\x06\x5b\xd0\x45\xe9\xc2" \
     "\x04\xd4\x97\x26\x41\xfc\x39\x82\x07\x79\x92\x8b" \
@@ -30,8 +30,8 @@ image0_data = \
     "\xbe\xd0\x03\x5f\x05\x5c\x03\xcf\x2e\x19\x66\x09" \
     "\xf3\x26\x22\x95\x30\x7a\xdb\x86\xe4\x62\xc2\xdc" \
     "\x6d\x93\x4c\xd8\x9e\x22\x58\x4a\x98\xdb\x72\x6a" \
-    "\xfe\x53\xb0\x47\xce\x1b\x98\xac\x42\x98\x41\x7d" \
-    "\x52\x01\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
+    "\xfe\x53\xb0\x47\xce\x1b\x98\xac\x42\x98\x1b\x03" \
+    "\xf8\x6f\x00\x00\x00\x00\x49\x45\x4e\x44\xae\x42" \
     "\x60\x82"
 
 class SimSetupDialog(QDialog):
@@ -193,8 +193,8 @@ class SimSetupDialog(QDialog):
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("NanoDynamics-1"))
-        QToolTip.add(self,self.__tr("NanoDynamics-1 Simulator Setup Dialog"))
+        self.setCaption(self.__tr("Run Dynamics"))
+        QToolTip.add(self,self.__tr("Run Dynamics Setup Dialog"))
         self.groupBox2.setTitle(QString.null)
         self.sim_options_label.setText(self.__tr("Simulation Options"))
         self.watch_motion_checkbox.setText(self.__tr("Watch motion in real time"))

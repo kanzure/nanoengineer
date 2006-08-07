@@ -2347,13 +2347,13 @@
                 <iconset>image61</iconset>
             </property>
             <property name="text">
-                <string>Movie Player</string>
+                <string>Play Movie</string>
             </property>
             <property name="menuText">
-                <string>&amp;Movie Player</string>
+                <string>Play &amp;Movie</string>
             </property>
             <property name="toolTip">
-                <string>Movie Player</string>
+                <string>Play Movie</string>
             </property>
         </action>
         <action>
@@ -3134,10 +3134,10 @@
             <iconset>image99</iconset>
         </property>
         <property name="text">
-            <string>NanoDynamics-1</string>
+            <string>Run Dynamics</string>
         </property>
         <property name="menuText">
-            <string>NanoDynamics-1...</string>
+            <string> Run Dynamics...</string>
         </property>
     </action>
     <action>
@@ -3151,10 +3151,10 @@
             <iconset>image100</iconset>
         </property>
         <property name="text">
-            <string>Plot Tool</string>
+            <string>Make Graphs</string>
         </property>
         <property name="menuText">
-            <string>Plot Tool...</string>
+            <string>Make Graphs...</string>
         </property>
     </action>
     <action>

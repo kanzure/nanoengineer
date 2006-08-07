@@ -13,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>Plot Tool</string>
+        <string>Make Graphs</string>
     </property>
     <grid>
         <property name="name">
@@ -48,7 +48,7 @@
                                         <cstring>plot_btn</cstring>
                                     </property>
                                     <property name="text">
-                                        <string>Plot</string>
+                                        <string>Make Graph</string>
                                     </property>
                                 </widget>
                                 <widget class="QPushButton">
@@ -71,7 +71,7 @@
                                 <cstring>textLabel1</cstring>
                             </property>
                             <property name="text">
-                                <string>Select Jig to Graph:</string>
+                                <string>Select jig to graph:</string>
                             </property>
                         </widget>
                     </grid>

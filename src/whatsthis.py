@@ -1202,36 +1202,38 @@ def createWhatsThis(self):
        
         self. simMinimizeEnergyAction.setWhatsThis( simMinimizeEnergyActionText )
 
-        # Simulator
+        # Run Dynamics (was NanoDynamics-1). Mark 060807.
 
-        simSetupActionText = "<u><b>NanoDynamics-1</b></u><br>"\
-                       "<p><img source=\" simSetupAction\"><br> "\
-                       "Creates a trajectory (movie) file by calculating the inter-atomic potentials and bonding "\
-                       "of the entire model.  The user determines the number of frames in the movie, the time step, "\
-                       "and the temperature for the simulation.</p>"
+        simSetupActionText = "<u><b>Run Dynamics</b></u><br>"\
+                    "<p><img source=\" simSetupAction\"><br> "\
+                    "This is the interface to the NanoEngineer-1 molecular dynamics simulator. "\
+                    "Enter the parameters of the simulation and click <b>Run Simulation</b>."\
+                    "The simulator creates a trajectory (movie) file by calculating the inter-atomic potentials and bonding "\
+                    "of the entire model.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " simSetupAction",
                                                        self. simSetupAction.iconSet().pixmap() )
        
         self. simSetupAction.setWhatsThis( simSetupActionText )
         
-        # Movie Player
+        # Play Movie (was Movie Player) Mark 060807.
 
-        simMoviePlayerActionText = "<u><b>Movie Player</b></u><br>"\
+        simMoviePlayerActionText = "<u><b>Play Movie</b></u><br>"\
                        "<p><img source=\" simMoviePlayerAction\"><br> "\
-                       "Plays the most recent trajectory (movie) file created by the <b>Simulator</b>.</p>"
+                       "Plays the most recent trajectory (movie) file created by the NanoEngineer-1 molecular dynamics simulator."\
+                       "To create a movie file, select <b>Run Dynamics</b>.</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( " simMoviePlayerAction",
                                                        self. simMoviePlayerAction.iconSet().pixmap() )
        
         self. simMoviePlayerAction.setWhatsThis( simMoviePlayerActionText )  
 
-        # Plot Tool
+        # Make Graphs (was Plot Tool) Mark 060807.
 
-        simPlotToolActionText = "<u><b>Plot Tool</b></u><br>"\
+        simPlotToolActionText = "<u><b>Make Graphs</b></u><br>"\
                        "<p><img source=\" simPlotToolAction\"><br> "\
-                       "Plots a simulator trace file using GNUplot.  A simulation must be run to create "\
-                       "the trace file, and the part must have a jig that writes output to the trace file. <br><br>"\
+                       "Make a graph of a simulator trace file using GNUplot.  A simulation must be run to create "\
+                       "the trace file and the part must have a jig that writes output to the trace file. <br><br>"\
                        "The following list of jigs write data to the trace file:<br>"\
                        "<b>Rotary Motors:</b> speed (GHz) and torque (nn-nm)<br>"\
                        "<b>Linear Motors:</b> displacement (pm)<br>"\

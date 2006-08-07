@@ -1,5 +1,4 @@
-<!DOCTYPE UI>
-<UI stdsetdef="1" version="3.3">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>SimSetupDialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -14,7 +13,7 @@
         </rect>
     </property>
     <property name="caption">
-        <string>NanoDynamics-1</string>
+        <string>Run Dynamics</string>
     </property>
     <property name="icon">
         <pixmap>image0</pixmap>
@@ -23,9 +22,8 @@
         <bool>true</bool>
     </property>
     <property name="toolTip" stdset="0">
-        <string>NanoDynamics-1 Simulator Setup Dialog</string>
+        <string>Run Dynamics Setup Dialog</string>
     </property>
-    
     <spacer>
         <property name="name">
             <cstring>spacer17</cstring>
@@ -85,7 +83,7 @@
                 <enum>StyledPanel</enum>
             </property>
             <property name="title">
-                <string/>
+                <string></string>
             </property>
             <grid>
                 <property name="name">
@@ -97,7 +95,7 @@
                 <property name="spacing">
                     <number>1</number>
                 </property>
-                <widget class="QLabel" column="0" row="0">
+                <widget class="QLabel" row="0" column="0">
                     <property name="name">
                         <cstring>sim_options_label</cstring>
                     </property>
@@ -112,7 +110,7 @@
                         <string>Simulation Options</string>
                     </property>
                 </widget>
-                <widget class="Line" column="0" row="1">
+                <widget class="Line" row="1" column="0">
                     <property name="name">
                         <cstring>line2_4</cstring>
                     </property>
@@ -129,7 +127,7 @@
                         <enum>Horizontal</enum>
                     </property>
                 </widget>
-                <widget class="QCheckBox" column="0" row="2">
+                <widget class="QCheckBox" row="2" column="0">
                     <property name="name">
                         <cstring>watch_motion_checkbox</cstring>
                     </property>
@@ -142,9 +140,8 @@
                     <property name="toolTip" stdset="0">
                         <string>Enables real time graphical updates during simulation runs</string>
                     </property>
-                    
                 </widget>
-                <widget class="QButtonGroup" column="0" row="3">
+                <widget class="QButtonGroup" row="3" column="0">
                     <property name="name">
                         <cstring>update_btngrp</cstring>
                     </property>
@@ -155,13 +152,13 @@
                         <enum>Sunken</enum>
                     </property>
                     <property name="title">
-                        <string/>
+                        <string></string>
                     </property>
                     <grid>
                         <property name="name">
                             <cstring>unnamed</cstring>
                         </property>
-                        <widget class="QSpinBox" column="1" row="1">
+                        <widget class="QSpinBox" row="1" column="1">
                             <property name="name">
                                 <cstring>update_number_spinbox</cstring>
                             </property>
@@ -177,9 +174,8 @@
                             <property name="toolTip" stdset="0">
                                 <string>Specify how often to update the screen during the simulation.</string>
                             </property>
-                            
                         </widget>
-                        <widget class="QComboBox" column="2" row="1">
+                        <widget class="QComboBox" row="1" column="2">
                             <item>
                                 <property name="text">
                                     <string>frames</string>
@@ -206,9 +202,8 @@
                             <property name="toolTip" stdset="0">
                                 <string>Specify how often to update the screen during the simulation.</string>
                             </property>
-                            
                         </widget>
-                        <spacer column="3" row="1">
+                        <spacer row="1" column="3">
                             <property name="name">
                                 <cstring>spacer2</cstring>
                             </property>
@@ -225,7 +220,7 @@
                                 </size>
                             </property>
                         </spacer>
-                        <widget class="QRadioButton" column="0" row="1">
+                        <widget class="QRadioButton" row="1" column="0">
                             <property name="name">
                                 <cstring>update_every_rbtn</cstring>
                             </property>
@@ -238,9 +233,8 @@
                             <property name="toolTip" stdset="0">
                                 <string>Specify how often to update the screen during the simulation.</string>
                             </property>
-                            
                         </widget>
-                        <widget class="QRadioButton" colspan="4" column="0" row="0" rowspan="1">
+                        <widget class="QRadioButton" row="0" column="0" rowspan="1" colspan="4">
                             <property name="name">
                                 <cstring>update_asap_rbtn</cstring>
                             </property>
@@ -256,7 +250,6 @@
                             <property name="toolTip" stdset="0">
                                 <string>Update every 2 seconds, or faster if it doesn't slow simulation by more than 20%</string>
                             </property>
-                            
                         </widget>
                     </grid>
                 </widget>
@@ -278,7 +271,7 @@
                 <enum>StyledPanel</enum>
             </property>
             <property name="title">
-                <string/>
+                <string></string>
             </property>
             <widget class="QCheckBox">
                 <property name="name">
@@ -381,7 +374,6 @@
                 <property name="toolTip" stdset="0">
                     <string>Temperature</string>
                 </property>
-                
             </widget>
             <widget class="QSpinBox">
                 <property name="name">
@@ -410,7 +402,6 @@
                 <property name="toolTip" stdset="0">
                     <string>Total Frames value</string>
                 </property>
-                
             </widget>
             <widget class="QLabel">
                 <property name="name">
@@ -499,7 +490,6 @@
                 <property name="toolTip" stdset="0">
                     <string>Steps per Frame</string>
                 </property>
-                
             </widget>
             <widget class="QLabel">
                 <property name="name">
@@ -601,7 +591,7 @@
 </widget>
 <images>
     <image name="image0">
-        <data format="PNG" length="254">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000c549444154388db594bd0d83301484efd266023242a6c063f851672aeab0065bd045e9c204d4972641fc39820779928bb3e4cf3e5977948423e77428ed0bb4c2445256d8fee7468b92a4b26b54768d3e1ade45002abba6bfe076be4212dd96a3c55eb48f2786da3592102d0ac0c86e9ee72eeb2700a8ee1525b17db5008010c2e873a6faa7e5e9460841755d73a8b7c067c0296c2b7c041c1ede0a4fbed0035f055c03cf2e196609f3262295307adb86e462c2dc6d934cd89e22584a98db726afe53b047ce1b98ac4298417d52010000000049454e44ae426082</data>
+        <data format="PNG" length="254">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000c549444154789cb594bd0d83301484efd266023242a6c063f851672aeab0065bd045e9c204d4972641fc39820779928bb3e4cf3e5977948423e77428ed0bb4c2445256d8fee7468b92a4b26b54768d3e1ade45002abba6bfe076be4212dd96a3c55eb48f2786da3592102d0ac0c86e9ee72eeb2700a8ee1525b17db5008010c2e873a6faa7e5e9460841755d73a8b7c067c0296c2b7c041c1ede0a4fbed0035f055c03cf2e196609f3262295307adb86e462c2dc6d934cd89e22584a98db726afe53b047ce1b98ac42981b03f86f0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -633,5 +623,5 @@
     <slot>saveFilePressed()</slot>
     <slot>serverManager()</slot>
 </slots>
-<layoutdefaults margin="11" spacing="6"/>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

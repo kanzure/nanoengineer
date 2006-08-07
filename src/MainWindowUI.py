@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\MainWindowUI.ui'
 #
-# Created: Fri Aug 4 12:15:41 2006
+# Created: Mon Aug 7 11:40:48 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -7360,9 +7360,9 @@ class MainWindow(QMainWindow):
         self.toolsMirrorCircularBoundaryAction.setText(self.__tr("Mirror Circular Boundary"))
         self.toolsMirrorCircularBoundaryAction.setMenuText(self.__tr("Mirror Circular &Boundary"))
         self.toolsMirrorCircularBoundaryAction.setToolTip(self.__tr("Mirror Circular Boundary"))
-        self.simMoviePlayerAction.setText(self.__tr("Movie Player"))
-        self.simMoviePlayerAction.setMenuText(self.__tr("&Movie Player"))
-        self.simMoviePlayerAction.setToolTip(self.__tr("Movie Player"))
+        self.simMoviePlayerAction.setText(self.__tr("Play Movie"))
+        self.simMoviePlayerAction.setMenuText(self.__tr("Play &Movie"))
+        self.simMoviePlayerAction.setToolTip(self.__tr("Play Movie"))
         self.toolsSelectAtomsAction.setText(self.__tr("Select Atoms"))
         self.toolsSelectAtomsAction.setMenuText(self.__tr("Select Atoms"))
         self.toolsSelectAtomsAction.setToolTip(self.__tr("Select Atoms"))
@@ -7473,10 +7473,10 @@ class MainWindow(QMainWindow):
         self.modifyDeleteBondsAction.setMenuText(self.__tr("Delete &Bonds"))
         self.dispElementColorSettingsAction.setText(self.__tr("Element Color Settings..."))
         self.dispElementColorSettingsAction.setMenuText(self.__tr("Element Color Settings..."))
-        self.simSetupAction.setText(self.__tr("NanoDynamics-1"))
-        self.simSetupAction.setMenuText(self.__tr("NanoDynamics-1..."))
-        self.simPlotToolAction.setText(self.__tr("Plot Tool"))
-        self.simPlotToolAction.setMenuText(self.__tr("Plot Tool..."))
+        self.simSetupAction.setText(self.__tr("Run Dynamics"))
+        self.simSetupAction.setMenuText(self.__tr(" Run Dynamics..."))
+        self.simPlotToolAction.setText(self.__tr("Make Graphs"))
+        self.simPlotToolAction.setMenuText(self.__tr("Make Graphs..."))
         self.dispLightingAction.setText(self.__tr("Lighting"))
         self.dispLightingAction.setMenuText(self.__tr("Lighting..."))
         self.dispResetAtomsDisplayAction.setText(self.__tr("Reset Atoms Display"))

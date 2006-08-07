@@ -1,9 +1,8 @@
-# Copyright (c) 2006 Nanorex, Inc. All rights reserved.
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'PlotToolDialog.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\PlotToolDialog.ui'
 #
-# Created: Tue Sep 13 16:00:27 2005
+# Created: Mon Aug 7 11:47:16 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -75,10 +74,10 @@ class PlotToolDialog(QDialog):
 
 
     def languageChange(self):
-        self.setCaption(self.__tr("Plot Tool"))
-        self.plot_btn.setText(self.__tr("Plot"))
+        self.setCaption(self.__tr("Make Graphs"))
+        self.plot_btn.setText(self.__tr("Make Graph"))
         self.done_btn.setText(self.__tr("Done"))
-        self.textLabel1.setText(self.__tr("Select Jig to Graph:"))
+        self.textLabel1.setText(self.__tr("Select jig to graph:"))
         self.open_trace_file_btn.setText(self.__tr("Open Trace File"))
         self.open_gnuplot_btn.setText(self.__tr("Open GNUplot File"))
 
