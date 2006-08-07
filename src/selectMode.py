@@ -1263,6 +1263,20 @@ class selectMode(basicMode):
         dist = vlen(A(xy_orig) - A(xy_now)) #e could be optimized (e.g. store square of dist), probably doesn't matter
         self.max_dragdist_pixels = max( self.max_dragdist_pixels, dist)
         return self.max_dragdist_pixels <= drag_stickiness_limit_pixels
+    
+    def mouse_exceeded_distance(self, event, pixel_distance): 
+        """Check if mouse has been moved beyond <pixel_distance> since the last mouse 'move event'.
+        Return True if <pixel_distance> is exceeded, False if it hasn't. Distance is measured in pixels.
+        """
+        try:
+            xy_last = self.xy_last
+        except:
+            self.xy_last = (event.pos().x(), event.pos().y())
+            return False
+        xy_now = (event.pos().x(), event.pos().y())
+        dist = vlen(A(xy_last) - A(xy_now)) #e could be optimized (e.g. store square of dist), probably doesn't matter
+        self.xy_last = xy_now
+        return dist > pixel_distance
             
     def set_hoverHighlighting(self, on):
         '''Turn hover highlighting on/off.
@@ -1817,6 +1831,26 @@ class selectAtomsMode(selectMode):
         """called for motion with no button down
         [should not be called otherwise -- call update_selatom or update_selobj directly instead]
         """
+    
+        # The mouse_exceeded_distance() conditional below is a "hover highlighting" optimization. 
+        # It works by returning before calling update_selobj() if the mouse is moving fast. 
+        # This reduces unnecessary highlighting of objects whenever the user moves the cursor 
+        # quickly across the GLPane. In many cases, this unnecessary highlighting degrades 
+        # interactive responsiveness and can also cause the user to select the wrong objects (i.e. atoms), 
+        # especially in large models.
+        #
+        # One problem with this approach (pointed out by Bruce) happens when the user moves the
+        # cursor quickly from one object and suddenly stops on another object, expecting it (the 2nd 
+        # object) to be highlighted. Since bareMotion() is only called when the mouse is moving, and the
+        # distance between the last two mouse move events is far, mouse_exceed_distance() will 
+        # return True. In that case, update_selobj() will not get called and the object under the cursor 
+        # will never get highlighted unless the user jiggles the mouse slightly. To address this issue, 
+        # a GLpane timer was implemented. The timer calls bareMotion() whenever it expires and the 
+        # cursor hasn't moved since the previous timer event. For more details, read the docstring for 
+        # GLPane.timerEvent().
+        if self.mouse_exceeded_distance(event, 1):
+            return
+        
         self.update_selobj(event)
         # note: this routine no longer updates glpane.selatom. For that see self.update_selatom().
         ###e someday, if new or prior selobj asks for it (by defining certain methods), we'd tell it about this bareMotion
@@ -2022,9 +2056,8 @@ class selectAtomsMode(selectMode):
         glpane = self.o
         
         if self.o.is_animating:
-            # If animating, do not select [you mean highlight] anything. For more info, see GLPane.animateToView(). mark 060404.
-            # <is_animating> should be renamed to something more generic (i.e. <select_enabled>). mark 060701.
-            # [But not to anything containing the word "select", since it's about hover highlighting, not selection. bruce 060724]
+            # If animating, do not (hover) highlight anything. For more info, see GLPane.animateToView(). mark 060404.
+            # <is_animating> should be renamed to something more generic (i.e. <hoverHighlightingEnabled>). mark 060805.
             return
         
         wX = event.pos().x()

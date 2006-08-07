@@ -1387,18 +1387,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         else:
             self.mode.bareMotion(event)
         return
-    
-    def leaveEvent(self, event): # Mark 060805.
-        """Event handler for when the cursor leaves the GLPane.
-        <event> is the last mouse event before leaving the GLpane.
-        """
-        # If an object is highlighted, unhighlight it when leaving the GLpane.
-        if self.selobj:
-            self.selobj = None
-            self.gl_update()
-            
-        return
-    
+
     def wheelEvent(self, event):
         self.debug_event(event, 'wheelEvent')
         if not self.in_drag:
@@ -1407,6 +1396,66 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.mode.Wheel(event) # mode bindings use modkeys from event; maybe this is ok?
             # Or would it be better to ignore this completely during a drag? [bruce 060220 questions]
         return
+
+#== Timer helper methods
+
+    def enterEvent(self, event): # Mark 060806.
+        """Event handler for when the cursor enters the GLPane.
+        <event> is the mouse event after entering the GLpane.
+        """
+        self.highlightTimer = self.startTimer(100) # 100-millisecond timer
+        return
+    
+    def leaveEvent(self, event): # Mark 060806.
+        """Event handler for when the cursor leaves the GLPane.
+        <event> is the last mouse event before leaving the GLpane.
+        """
+        # If an object is "hover highlighted", unhighlight it when leaving the GLpane.
+        if self.selobj:
+            self.selobj = None
+            self.gl_update()
+        
+        # Kill timer when the cursor leaves the GLpane. It is (re)started in enterEvent() above.
+        self.killTimer(self.highlightTimer)
+        return
+    
+    def timerEvent(self, e): # Mark 060806.
+        """When the GLpane's timer expires, a signal is generated calling this slot method.
+        The timer is started in enterEvent() and killed in leaveEvent(), so the timer is only
+        active when the cursor is in the GLpane.
+        
+        This method is part of a hover highlighting optimization and works in concert with mouse_exceeded_distance(),
+        which is called by bareMotion() in selectMode. It works by creating a 'MouseMove' event using the current 
+        cursor position and sending it to mode.bareMotion() whenever the mouse hasn't moved since the
+        previous timer event.
+        
+        For more information, read the docstring for selectMode.mouse_exceeded_distance().
+        """
+        
+        # Get the x, y positions of the cursor and store as tuple in <xy_now>.
+        cursor = self.cursor()
+        cursorPos = self.mapFromGlobal(cursor.pos()) # mapFromGlobal() maps from screen coords to GLpane coords.
+        xy_now = (cursorPos.x(), cursorPos.y())
+        
+        # Get the cursor position from the last timer event, stored in the <timer_event_last_xy> attr. 
+        # Should this be initialized in __init__() as a private attr? Ask Bruce. Mark 060806.
+        try:
+            xy_last = self.timer_event_last_xy
+        except:
+            self.timer_event_last_xy = xy_now
+            return
+        
+        # If this cursor position hasn't changed since the last timer event, create a 'MouseMove' mouse event
+        # and pass it to mode.bareMotion(). Only selectMode (mouse_exceeded_distance()) makes use of this
+        # event. 
+        if xy_now == xy_last:
+            mouseEvent = QMouseEvent( QEvent.MouseMove, cursorPos, Qt.NoButton, Qt.NoButton ) 
+            self.mode.bareMotion(mouseEvent) # Only selectMode.mouse_exceeded_distance() makes use of this.
+
+        self.timer_event_last_xy = xy_now
+        return
+    
+#== end of Timer helper methods
 
     def selectedJigTextPosition(self):
         return A(gluUnProject(5, 5, 0))
