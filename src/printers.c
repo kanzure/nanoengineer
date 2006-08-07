@@ -38,7 +38,7 @@ countOutputColumns(struct jig *j)
 void
 traceFileVersion()
 {
-    write_traceline("# nanoENGINEER-1.com Simulator Trace File, Version 050310\n");
+    write_traceline("# NanoEngineer-1.com Simulator Trace File, Version 050310\n");
     write_traceline("#\n");
 }
 
