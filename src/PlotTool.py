@@ -26,7 +26,7 @@ debug_gnuplot = False
 
 debug_plottool = False
 
-cmd = greenmsg("Plot Tool: ") #### this is bad, needs to be removed, but that's hard to do safely [bruce 060105 comment]
+cmd = greenmsg("Make Graphs: ") #### this is bad, needs to be removed, but that's hard to do safely [bruce 060105 comment] #ninad060807 renamed Plot Tool to 'Make Graphs'
 
 class PlotTool(PlotToolDialog):
     # Bug 1484, wware 060317 - PlotTool requires a trace file and a plot file.

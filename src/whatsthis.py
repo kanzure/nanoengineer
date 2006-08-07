@@ -1050,7 +1050,7 @@ def createWhatsThis(self):
         self. modifyAlignCommonAxisAction.setWhatsThis( modifyAlignCommonAxisActionText )
         
         #Center on Common Axis 
-        modifyCenterCommonAxisActionText= " <u><b>Center On Common Axis</b></u><br>"\
+        modifyCenterCommonAxisActionText= "<u><b>Center On Common Axis</b></u><br>"\
         "<p><b> Moves</b> all selected chunks to the center of  the <b> first </b> selected chunk "\
         "and also <b>aligns</b> them to the axis of the first one ."\
         "You must select two or more chunks before using this feature. </p>" 
