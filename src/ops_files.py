@@ -54,8 +54,9 @@ def fileparse(name): #bruce 050413 comment: see also filesplit and its comments.
     """breaks name into directory, main name, and extension in a tuple.
     fileparse('~/foo/bar/gorp.xam') ==> ('~/foo/bar/', 'gorp', '.xam')
     """
-    m=re.match("(.*\/)*([^\.]+)(\..*)?",name)
-    return ((m.group(1) or "./"), m.group(2), (m.group(3) or ""))
+    dir, x = os.path.split(name)
+    fil, ext = os.path.splitext(x)
+    return dir + os.path.sep, fil, ext
 
 class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     "Mixin class to provide file-related methods for class MWsemantics. Has slot methods and their helper methods."
