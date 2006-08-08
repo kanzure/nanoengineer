@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Aug 7 11:40:48 2006
+# Created: Mon Aug 7 23:27:11 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6823,16 +6823,16 @@ class MainWindow(QMainWindow):
 
         self.fileMenu = QPopupMenu(self)
         self.fileOpenAction.addTo(self.fileMenu)
+        self.fileCloseAction.addTo(self.fileMenu)
+        self.fileMenu.insertSeparator()
+        self.fileSaveAction.addTo(self.fileMenu)
+        self.fileSaveAsAction.addTo(self.fileMenu)
+        self.fileMenu.insertSeparator()
         self.fileImportAction.addTo(self.fileMenu)
         self.fileExportAction.addTo(self.fileMenu)
         self.fileInsertAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
-        self.fileCloseAction.addTo(self.fileMenu)
-        self.fileMenu.insertSeparator()
         self.fileSetWorkDirAction.addTo(self.fileMenu)
-        self.fileMenu.insertSeparator()
-        self.fileSaveAction.addTo(self.fileMenu)
-        self.fileSaveAsAction.addTo(self.fileMenu)
         self.fileMenu.insertSeparator()
         self.fileExitAction.addTo(self.fileMenu)
         self.MenuBar.insertItem(QString(""),self.fileMenu,4)
@@ -7314,8 +7314,9 @@ class MainWindow(QMainWindow):
         self.modifyMergeAction.setMenuText(self.__tr("Mer&ge"))
         self.toggleDatumDispTbarAction.setText(self.__tr("Datum Display"))
         self.toggleDatumDispTbarAction.setMenuText(self.__tr("Datum Display"))
-        self.fileInsertAction.setText(self.__tr("Inser&t..."))
-        self.fileInsertAction.setMenuText(self.__tr("Inser&t..."))
+        self.fileInsertAction.setText(self.__tr("Insert Part..."))
+        self.fileInsertAction.setMenuText(self.__tr("Insert Part..."))
+        self.fileInsertAction.setToolTip(self.__tr("Insert Part"))
         self.modifyDehydrogenateAction.setText(self.__tr("Dehydrogenate"))
         self.modifyDehydrogenateAction.setMenuText(self.__tr("&Dehydrogenate"))
         self.toggleGridsTbarAction.setText(self.__tr("Grids"))
@@ -7593,10 +7594,12 @@ class MainWindow(QMainWindow):
         self.dispSurfaceAction.setText(self.__tr("Surface"))
         self.dispCylinderAction.setText(self.__tr("Cylinder"))
         self.simMinimizeEnergyAction.setText(self.__tr("Minimize Energy"))
-        self.fileImportAction.setText(self.__tr("Import File via Open Babel..."))
-        self.fileImportAction.setToolTip(self.__tr("Import File via Open Babel"))
-        self.fileExportAction.setText(self.__tr("Export File via Open Babel..."))
-        self.fileExportAction.setToolTip(self.__tr("Export File via Open Babel"))
+        self.fileImportAction.setText(self.__tr("Import File..."))
+        self.fileImportAction.setMenuText(self.__tr("&Import File..."))
+        self.fileImportAction.setToolTip(self.__tr("Import File"))
+        self.fileExportAction.setText(self.__tr("Export File..."))
+        self.fileExportAction.setMenuText(self.__tr("&Export File..."))
+        self.fileExportAction.setToolTip(self.__tr("Export File"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))

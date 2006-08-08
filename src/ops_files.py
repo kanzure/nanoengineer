@@ -1170,7 +1170,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         menuIndex = self.RECENT_FILES_MENU_INDEX
         self.fileMenu.removeItemAt(menuIndex)
-        self.fileMenu.insertItem(qApp.translate("Main Window", "Recent Files", None), self.recentFilePopupMenu, menuIndex, menuIndex)
+        self.fileMenu.insertItem(qApp.translate("Main Window", "Open Recent Files", None), self.recentFilePopupMenu, menuIndex, menuIndex)
         
         self.connect(self.recentFilePopupMenu, SIGNAL('activated (int)'), self._openRecentFile)
   

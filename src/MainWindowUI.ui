@@ -48,16 +48,16 @@
     </property>
     <item text="&amp;File" name="fileMenu">
         <action name="fileOpenAction"/>
+        <action name="fileCloseAction"/>
+        <separator/>
+        <action name="fileSaveAction"/>
+        <action name="fileSaveAsAction"/>
+        <separator/>
         <action name="fileImportAction"/>
         <action name="fileExportAction"/>
         <action name="fileInsertAction"/>
         <separator/>
-        <action name="fileCloseAction"/>
-        <separator/>
         <action name="fileSetWorkDirAction"/>
-        <separator/>
-        <action name="fileSaveAction"/>
-        <action name="fileSaveAsAction"/>
         <separator/>
         <action name="fileExitAction"/>
     </item>
@@ -2022,10 +2022,13 @@
             <cstring>fileInsertAction</cstring>
         </property>
         <property name="text">
-            <string>Inser&amp;t...</string>
+            <string>Insert Part...</string>
         </property>
         <property name="menuText">
-            <string>Inser&amp;t...</string>
+            <string>Insert Part...</string>
+        </property>
+        <property name="toolTip">
+            <string>Insert Part</string>
         </property>
     </action>
     <action>
@@ -3995,10 +3998,13 @@
             <cstring>fileImportAction</cstring>
         </property>
         <property name="text">
-            <string>Import File via Open Babel...</string>
+            <string>Import File...</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Import File...</string>
         </property>
         <property name="toolTip">
-            <string>Import File via Open Babel</string>
+            <string>Import File</string>
         </property>
     </action>
     <action>
@@ -4006,10 +4012,13 @@
             <cstring>fileExportAction</cstring>
         </property>
         <property name="text">
-            <string>Export File via Open Babel...</string>
+            <string>Export File...</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Export File...</string>
         </property>
         <property name="toolTip">
-            <string>Export File via Open Babel</string>
+            <string>Export File</string>
         </property>
     </action>
 </actions>

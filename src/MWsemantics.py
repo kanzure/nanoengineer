@@ -81,8 +81,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     initialised = 0 #bruce 041222
     _ok_to_autosave_geometry_changes = False #bruce 051218
 
-    # This is the location of the separator that gets inserted in the File menu above "Recent Files".
-    RECENT_FILES_MENU_INDEX = 10 
+    # This determines the location of "Open Recent Files" menu item in the File Menu. Mark 060807.
+    RECENT_FILES_MENU_INDEX = 1 
 
     def __init__(self, parent = None, name = None):
     
@@ -257,7 +257,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         else:
             prefsSetting = preferences.prefs_context()
         popupMenu = QPopupMenu(self)        
-        self.fileMenu.insertItem(qApp.translate("Main Window", "Recent Files", None), popupMenu, menuIndex, menuIndex)
+        self.fileMenu.insertItem(qApp.translate("Main Window", "Open Recent Files", None), popupMenu, menuIndex, menuIndex)
         
         if recentfiles_use_QSettings:
             fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
