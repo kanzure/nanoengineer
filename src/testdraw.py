@@ -43,7 +43,7 @@ known bugs:
   - is it related to the reload that happens on that leftDown? (not sure why it would be)
   solved: it was failure to call super.Draw! Tested, but fix reverted, since i wanted to test the old way again. ###@@@
 
-- singlet-drag to bond - also works but lacks rubberband line [even w/o displist optim]
+- singlet-drag to bond - also works but lacks rubberband line [even w/o displist optim] [might be fixed now??]
 
 - draw_later doesn't make thing highlightable even when i don't touch color enablement and do it not much later,
 so how can I test the real thing? [relates to Invisible] [would it work better as Transparent? Probably not yet...]
@@ -753,7 +753,7 @@ def draw_filled_rect(origin, dx, dy, color):
     if len(color) == 4:
         glColor4fv(color)
         if color[3] != 1.0:
-            print "color has alpha",color ####@@@@
+            if 0: print "color has alpha",color ####@@@@
     else:
         glColor3fv(color)
 ##    glRectfv(origin, origin + dx + dy) # won't work for most coords! also, ignores Z. color still not working.
@@ -1838,7 +1838,7 @@ some_color_arg = lambda env: env.prefs[If(env.thisAtom.doingdrag, key1, key2)]
 
 def Stub(*args,**kws): pass
 
-Menu = Stub
+Menu = MItem = Stub
 Wirebox = Stub
 DragBinding = Stub
 
@@ -1904,6 +1904,10 @@ WE_for_dragging_strands_within_cyls = Stub(
         end = Stub()
     )
 )
+
+import testdraw2
+reload(testdraw2)
+from testdraw2 import *
 
 # the code snippets need names for:
 # - built ins
