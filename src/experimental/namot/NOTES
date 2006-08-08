@@ -1,0 +1,176 @@
+I think I can get a lot of use out of the ParseAddUnitInfo and
+ParseAddHelixInfo functions.
+
+ProcessString uses functions from top_level_commands in cmds_h.c. This
+is the top of a two-deep tree that brings you to functions at the
+level of ParseAddUnitInfo. This is a command line interface, and I
+have not figured out how to bring up the window for entering the
+command line.
+
+Lots of useful structs defined in defs.h.
+
+"H:U:B" means "helix unit base".
+"M:C:G" means "molecule chain group".
+
+The generate_bp function generates atomic co-ordinates from H:U:B
+parameters. This appears to be the heavy lifting for figuring out
+where the atoms will go in the base pairs. For the backbone, the
+corresponding functions are generate_sugar and generate_phosphate.
+
+A Base_unit aggregates a sequence of bases and some deformation
+information for them. A Helix owns one or more Base_units and each
+Base_unit owns one or more Bases. Each base owns one or more atoms.
+
+There is a non-standard use of the word "strands" in a variable name
+in generate_bp, where it is actually being used to mean "number of
+bases in this base unit". Probably a new programmer was writing this
+code and was unfamiliar with the conventional nomenclature.
+
+I think "bendH" means "bend helix", not "bend hydrogen". Several
+functions are suffixed with "H", and I suspect that always refers to
+"helix".
+
+Places where we assign the X coordinates of molecules, gotten by
+searching for the string "->x = ". This can occur for _BrokenLinks,
+Text and Vector_t objects as well as ATom objects.
+
+load_into_sugar  (Loads the furanose co-ordinates in the data structures)
+load_into_phop   (Load phosphate into data structures.)
+generate_ho3     (Generate HE)  used by "generate_phosphate"
+generate_ho5     (Generate HB)  used by "generate_phosphate"
+add_c5_hs        (add the c5 hydrogens)
+load_into_base   (loads the coordinates into the global data structures)
+read_amber       (Loads in amber files.)
+read_amber7
+read_pdb
+rotate           (rotate the molecule(s) around a given axes and a given point)
+ALIGN            (Aligns the specified atoms)
+
+Try to find out what SSTBuildAtomics is about. It mightt be important.
+It is called by generate. "SST" seems to stand for "single strand".
+
+------------------------------
+
+What are the different kinds of distortions, and how do they modify
+the atom coordinates?
+
+These use "->twist" and "->tilt" and "->roll", as well as the
+displacement vector for Base_unit.
+
+    add_helix_to_molecule  (add a helix from the helix lib to HUB)
+    engage           (Builds canonical helices from minimal information)
+
+Form_lib has three parameters, tilt, twist, and roll.
+
+Unit_lib has several.
+
+Helix_lib has tilt, roll, and twist, and a displacement vector.
+
+Base_unit has three angles (Omega, tau, rho) and a displacement
+vector.
+
+-----------------------------
+
+My impression at this point is that I'm likely to make a call to
+ParseAddHelixInfo, passing it command line information, it is then
+going to cook up the atom positions, and then maybe I can make it
+write a PDB file.
+
+To get command line behavior, comment out the call to X11Init in
+main() and recompile. You then get a 'namot>' prompt.
+
+Here is my meager understanding about the command line, for the
+moment. You can say 'add helix example 0 0 0 0 0 0 a:b:c d:e:f' and
+something happens. It must say 'example' because that's the name of a
+helix, and until I understand better, the only one NAMOT will accept.
+
+But there isn't a group yet apparently. 'a:b:c' specifies a
+molecule-group-chain and those need to be set up first.
+
+ParseAddUnitInfo args:
+add unit ade B 0 0 0 0 0.000000 0.000000 3.400000 0.000000 34.000000 0.000000
+add unit ade B 0 0 0 0 0.000000 0.000000 3.400000 0.000000 34.000000 0.000000
+add unit thy B 0 0 0 0 0.000000 0.000000 3.400000 -0.000000 34.000000 0.000000
+add unit thy B 0 0 0 0 0.000000 0.000000 3.400000 -0.000000 34.000000 0.000000
+
+I think this would work. Build NAMOT as a command-line program. Make
+repeated calls to ParseAddUnitInfo by putting in "add unit" lines as
+standard input. Finish up with a "write pdb foo.pdb" line, and then
+use OpenBabel to convert it to a MMP file.
+
+If I use File->Generate to make a double-stranded piece of B-DNA, here
+is how I get to load_into_base:
+
+#0  load_into_base (bu_ptr=0x81c9648, all_x=0x81c93b8,
+                    all_y=0x81c9498, all_z=0x81c9578) at Bases.c:2979
+#1  0x0805cf67 in generate_bp () at Bases.c:632
+#2  0x08053104 in generate () at main.c:368
+#3  0x08078723 in SetRibose (argc=4, argv=0xbfb590c0) at input.c:901
+#4  0x0806d69d in engage (istrand=2, isug=0, form=0x81a8d35 "b",
+                          seq=0x81a7478 "gattaca") at builder.c:2433
+#5  0x080865ff in ParseGenerateInfo (argc=5, argv=0xbfb5955c) at input2.c:299
+#6  0x080832cc in ProcessString (lline=0x81a8ce8 "generate d d b
+                                 gattaca\n", RecHist=0 '\0') at cmds_h.c:398
+#7  0x08071353 in gen_action_choice_handler (widget=0x819ec78,
+                    client_data=0x0, call_data=0x81c9648) at handlers.c:1995
+#8  0xb7c9b873 in XtCallCallbackList () from /usr/X11R6/lib/libXt.so.6
+#9  0xb7dae9f7 in _XmMenuFocus () from /usr/X11R6/lib/libXm.so.2
+
+The command line arguments handed to ParseGenerateInfo are:
+	generate d d b gattaca
+argv works like this:
+(0) Always the word "generate".
+(1) Either "s" or "d", for single or double strand.
+(2) Either "d" or "r", for DNA or RNA.
+(3) Form, can be "a", "b", or "z", and some other choices. Passed to
+	the engage function as its third argument. The other choices
+	are "0", "t", and "q", I don't know what those are. This stuff
+	is taken from libs/form.lib.
+(4) Sequence, e.g. "gattaca".
+
+ParseGenerateInfo does not give the opportunity to apply distortions.
+It just makes up a vanilla helix or double helix. But you can use
+these:
+
+namot> modify sug w 1:1:1 1:4:2 0.5
+# Legitimate parameters: w, q, chi
+namot> modify base pt 1:1:1 1:4:2 0.5
+# Legitimate parameters here: sx, sy, sz, bu, op, pt
+# I don't know what they mean.
+INFO:Change of 0.500000 in bu
+INFO:Change of 0.500000 in bu
+INFO:Change of 0.500000 in bu
+INFO:Change of 0.500000 in bu
+INFO:Change of 0.500000 in bu
+INFO:Change of 0.500000 in bu
+INFO:Change of 0.500000 in bu
+INFO:Change of 0.500000 in bu
+namot> modify phos phi 1:1:1 1:4:2 0.5
+# Legitimate parameters: tors, ang1, ang2, phi
+
+Let's take a stab at a Python script. Oops, I found what appears to be
+a bug in input.c, lines 1114 and 1130 appear to be swapped. There is
+also a naming discrepancy between "pr" and "pt".
+<<<<<
+import os
+
+seq = 'gat'
+n = len(seq)
+bu = 0.0    # twists the bases perpendicular to helical axis
+op = 0.0    # I don't know what this does
+pt = 0.0    # makes the inner part of each base dip by that angle
+
+# NAMOT seems broken for one strand? Am I using it wrong?
+strands = 2
+namot = os.popen('./namot', 'w')
+namot.write('generate %s d b %s\n' % (" sd"[strands], seq))
+namot.write('modify base bu 1:1:1 1:%d:%d %f\n' % (n, strands, bu))
+namot.write('modify base op 1:1:1 1:%d:%d %f\n' % (n, strands, op))
+namot.write('modify base pt 1:1:1 1:%d:%d %f\n' % (n, strands, pt))
+namot.write('write pdb /home/wware/foo.pdb\n')
+namot.write('quit\n')
+namot.close()
+os.system('babel /home/wware/foo.pdb /home/wware/foo.mmp')
+>>>>>
+
+Hmm, there is a Python interface called pynamot. Let's try that.
