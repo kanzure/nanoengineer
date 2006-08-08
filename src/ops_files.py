@@ -1135,8 +1135,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         del prefsSetting
         
         self._createRecentFilesList()
-        
-        
+        return
 
     def _openRecentFile(self, idx):
         '''Slot method when user choose from the recently opened files submenu. '''
@@ -1152,7 +1151,7 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         selectedFile = str(fileList[idx])
         self.fileOpen(selectedFile)
-        
+        return
         
     def _createRecentFilesList(self):
         '''Dynamically construct the list of recently opened files submenus '''
@@ -1172,9 +1171,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         menuIndex = self.RECENT_FILES_MENU_INDEX
         self.fileMenu.removeItemAt(menuIndex)
         self.fileMenu.insertItem(qApp.translate("Main Window", "Open Recent Files", None), self.recentFilePopupMenu, menuIndex, menuIndex)
+            # WARNING: this is added in two places, in MWsemantics.__init__ and in _createRecentFilesList in ops_files.py.
+            # Some of the other code here is duplicated as well, but not quite identically. [bruce 060808 comment]
         
         self.connect(self.recentFilePopupMenu, SIGNAL('activated (int)'), self._openRecentFile)
-  
+        return
 
     pass # end of class fileSlotsMixin
 

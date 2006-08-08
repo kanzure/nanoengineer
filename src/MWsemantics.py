@@ -258,6 +258,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             prefsSetting = preferences.prefs_context()
         popupMenu = QPopupMenu(self)        
         self.fileMenu.insertItem(qApp.translate("Main Window", "Open Recent Files", None), popupMenu, menuIndex, menuIndex)
+            # WARNING: this is added in two places, in MWsemantics.__init__ and in _createRecentFilesList in ops_files.py.
+            # Some of the other code here is duplicated as well, but not quite identically. [bruce 060808 comment]
         
         if recentfiles_use_QSettings:
             fileList = prefsSetting.readListEntry('/Nanorex/nE-1/recentFiles')[0]
