@@ -1,3 +1,12 @@
+To build NAMOT, I needed to run 'ldconfig' as root so that the
+configure script could find libgsl.so in /usr/local/lib. You find
+this out when configure fails by studying config.log.
+
+Also in src/x.h, I needed to comment out the definition for "Byte".
+It conflicted with something.
+
+=============================================
+
 I think I can get a lot of use out of the ParseAddUnitInfo and
 ParseAddHelixInfo functions.
 
@@ -31,8 +40,9 @@ functions are suffixed with "H", and I suspect that always refers to
 "helix".
 
 Places where we assign the X coordinates of molecules, gotten by
-searching for the string "->x = ". This can occur for _BrokenLinks,
-Text and Vector_t objects as well as ATom objects.
+searching for the string "->x = ". Ignore occurrences for
+_BrokenLinks, Text and Vector_t objects, we only care about ATom
+objects.
 
 load_into_sugar  (Loads the furanose co-ordinates in the data structures)
 load_into_phop   (Load phosphate into data structures.)
@@ -148,29 +158,10 @@ INFO:Change of 0.500000 in bu
 namot> modify phos phi 1:1:1 1:4:2 0.5
 # Legitimate parameters: tors, ang1, ang2, phi
 
-Let's take a stab at a Python script. Oops, I found what appears to be
-a bug in input.c, lines 1114 and 1130 appear to be swapped. There is
-also a naming discrepancy between "pr" and "pt".
-<<<<<
-import os
+Let's take a stab at a Python script. See hack.py.
 
-seq = 'gat'
-n = len(seq)
-bu = 0.0    # twists the bases perpendicular to helical axis
-op = 0.0    # I don't know what this does
-pt = 0.0    # makes the inner part of each base dip by that angle
-
-# NAMOT seems broken for one strand? Am I using it wrong?
-strands = 2
-namot = os.popen('./namot', 'w')
-namot.write('generate %s d b %s\n' % (" sd"[strands], seq))
-namot.write('modify base bu 1:1:1 1:%d:%d %f\n' % (n, strands, bu))
-namot.write('modify base op 1:1:1 1:%d:%d %f\n' % (n, strands, op))
-namot.write('modify base pt 1:1:1 1:%d:%d %f\n' % (n, strands, pt))
-namot.write('write pdb /home/wware/foo.pdb\n')
-namot.write('quit\n')
-namot.close()
-os.system('babel /home/wware/foo.pdb /home/wware/foo.mmp')
->>>>>
+Oops, I found what appears to be a bug in input.c, lines 1086 and 1102
+appear to be swapped. There is also a naming discrepancy between "pr"
+and "pt".
 
 Hmm, there is a Python interface called pynamot. Let's try that.
