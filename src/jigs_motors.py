@@ -409,8 +409,9 @@ class RotaryMotor(Motor):
         file.write("rmotor(" + povpoint(c+(self.length / 2.0)*a) + "," + povpoint(c-(self.length / 2.0)*a)  + "," + str (self.radius) +
                     ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
         for a in self.atoms:
-            file.write("spoke(" + povpoint(c) + "," + povpoint(a.posn()) + "," + str (self.sradius) +
-                    ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
+            if vlen(c - a.posn()) > 0.001: #bruce 060808 add condition to see if this fixes bug 719 (two places in this file)
+                file.write("spoke(" + povpoint(c) + "," + povpoint(a.posn()) + "," + str (self.sradius) +
+                        ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
     
     # Returns the jig-specific mmp data for the current Rotary Motor as:
     #    torque speed (cx, cy, cz) (ax, ay, az) length radius sradius \n shaft
@@ -576,8 +577,9 @@ class LinearMotor(Motor):
             + "<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
                     
         for a in self.atoms:
-            file.write("spoke(" + povpoint(c) + "," + povpoint(a.posn())  + "," + str (self.sradius) +
-                    ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
+            if vlen(c - a.posn()) > 0.001: #bruce 060808 add condition to see if this fixes bug 719 (two places in this file)
+                file.write("spoke(" + povpoint(c) + "," + povpoint(a.posn())  + "," + str (self.sradius) +
+                        ",<" + str(self.color[0]) + "," + str(self.color[1]) + "," + str(self.color[2]) + ">)\n")
     
     # Returns the jig-specific mmp data for the current Linear Motor as:
     #    force stiffness (cx, cy, cz) (ax, ay, az) length width sradius \n shaft
