@@ -1166,7 +1166,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         
         self.recentFilePopupMenu = QPopupMenu(self)
         for ii in range(len(fileList)):
-            self.recentFilePopupMenu.insertItem(qApp.translate("Main Window",  "&" + str(ii+1) + "  " + str(fileList[ii]), None), ii)
+            recentFilename = os.path.normpath(str(fileList[ii])) # Fixes bug 2193. Mark 060808.
+            self.recentFilePopupMenu.insertItem(qApp.translate("Main Window",  "&" + str(ii+1) + "  " + recentFilename, None), ii)
         
         menuIndex = self.RECENT_FILES_MENU_INDEX
         self.fileMenu.removeItemAt(menuIndex)
