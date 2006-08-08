@@ -285,6 +285,14 @@ def createWhatsThis(self):
 
         self.editDeleteAction.setWhatsThis( editDeleteText )
         
+        #Preferences Dialog
+        
+        editPrefsText = "<u><b>Preferences Dialog</b></u>"\
+                            "<p>Allows you to edit various user preferences "\
+                             "such as changing atom, bond display properties,"\
+                             "lighting, background color, window position and"\
+                             "size, plugins etc. </p>"
+        self.editPrefsAction.setWhatsThis( editPrefsText )
         #
         # View Toolbar
         #
@@ -823,6 +831,15 @@ def createWhatsThis(self):
                                                        self.dispSurfaceAction.iconSet().pixmap() )
 
         self.dispSurfaceAction.setWhatsThis(dispSurfaceActionText )
+        
+        #Element Color Settings Dialog
+        
+        dispElementColorSettingsText = "<u><b>Element Color Settings Dialog</b></u><br>"\
+                                    "Element colors can be manually changed " \
+                                    "using this dialog. Also, the user can load"\
+                                    "or save the element colors"
+                                    
+        self.dispElementColorSettingsAction.setWhatsThis(dispElementColorSettingsText)
         
         #
         # Select toolbar
