@@ -3847,7 +3847,7 @@
                                     <cstring>povdir_linedit</cstring>
                                 </property>
                                 <property name="enabled">
-                                    <bool>false</bool>
+                                    <bool>true</bool>
                                 </property>
                                 <property name="toolTip" stdset="0">
                                     <string>Select custom POV include directory</string>
@@ -4036,7 +4036,7 @@
                                             <cstring>povdir_checkbox</cstring>
                                         </property>
                                         <property name="enabled">
-                                            <bool>false</bool>
+                                            <bool>true</bool>
                                         </property>
                                         <property name="paletteForegroundColor">
                                             <color>
@@ -4057,10 +4057,10 @@
                                             <cstring>povdir_lbl</cstring>
                                         </property>
                                         <property name="enabled">
-                                            <bool>false</bool>
+                                            <bool>true</bool>
                                         </property>
                                         <property name="text">
-                                            <string>POV-Ray include dir :</string>
+                                            <string>POV include dir :</string>
                                         </property>
                                         <property name="alignment">
                                             <set>AlignVCenter|AlignRight</set>
@@ -5113,30 +5113,6 @@
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>set_povdir()</slot>
-    </connection>
-    <connection>
-        <sender>megapov_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>povdir_checkbox</receiver>
-        <slot>setEnabled(bool)</slot>
-    </connection>
-    <connection>
-        <sender>megapov_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>povdir_lbl</receiver>
-        <slot>setEnabled(bool)</slot>
-    </connection>
-    <connection>
-        <sender>megapov_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>povdir_linedit</receiver>
-        <slot>setEnabled(bool)</slot>
-    </connection>
-    <connection>
-        <sender>megapov_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>povdir_linedit</receiver>
-        <slot>clear()</slot>
     </connection>
 </connections>
 <tabstops>

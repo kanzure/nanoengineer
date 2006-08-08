@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
 #
-# Created: Mon Aug 7 11:28:24 2006
+# Created: Mon Aug 7 22:40:46 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -1200,7 +1200,7 @@ class UserPrefsDialog(QDialog):
         file_locations_grpLayout.addWidget(self.gamess_choose_btn,4,3)
 
         self.povdir_linedit = QLineEdit(self.file_locations_grp,"povdir_linedit")
-        self.povdir_linedit.setEnabled(0)
+        self.povdir_linedit.setEnabled(1)
 
         file_locations_grpLayout.addWidget(self.povdir_linedit,3,2)
 
@@ -1254,12 +1254,12 @@ class UserPrefsDialog(QDialog):
         layout74_2 = QHBoxLayout(None,0,6,"layout74_2")
 
         self.povdir_checkbox = QCheckBox(self.file_locations_grp,"povdir_checkbox")
-        self.povdir_checkbox.setEnabled(0)
+        self.povdir_checkbox.setEnabled(1)
         self.povdir_checkbox.setPaletteForegroundColor(QColor(0,0,0))
         layout74_2.addWidget(self.povdir_checkbox)
 
         self.povdir_lbl = QLabel(self.file_locations_grp,"povdir_lbl")
-        self.povdir_lbl.setEnabled(0)
+        self.povdir_lbl.setEnabled(1)
         self.povdir_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout74_2.addWidget(self.povdir_lbl)
 
@@ -1541,10 +1541,6 @@ class UserPrefsDialog(QDialog):
         self.connect(self.megapov_choose_btn,SIGNAL("clicked()"),self.set_megapov_path)
         self.connect(self.povdir_checkbox,SIGNAL("toggled(bool)"),self.enable_povdir)
         self.connect(self.povdir_choose_btn,SIGNAL("clicked()"),self.set_povdir)
-        self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.povdir_checkbox.setEnabled)
-        self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.povdir_lbl.setEnabled)
-        self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.povdir_linedit.setEnabled)
-        self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.povdir_linedit.clear)
 
         self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
         self.setTabOrder(self.display_compass_checkbox,self.display_compass_labels_checkbox)
@@ -1889,7 +1885,7 @@ class UserPrefsDialog(QDialog):
         QToolTip.add(self.megapov_lbl,self.__tr("Enable MegaPOV"))
         self.povdir_checkbox.setText(QString.null)
         QToolTip.add(self.povdir_checkbox,self.__tr("User-custom directory for POV libraries"))
-        self.povdir_lbl.setText(self.__tr("POV-Ray include dir :"))
+        self.povdir_lbl.setText(self.__tr("POV include dir :"))
         self.gamess_checkbox.setText(QString.null)
         QToolTip.add(self.gamess_checkbox,self.__tr("Enable GAMESS."))
         self.gamess_lbl.setText(self.__tr("GAMESS :"))
