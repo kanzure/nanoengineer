@@ -190,6 +190,10 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
     def fileExport(self): # Code copied from fileInsert() slot method. Mark 060731. 
         """Slot method for 'File > Export'.
         """
+        if platform.atom_debug:
+            from debug import linenum
+            linenum()
+            print 'start fileExport()'
         cmd = greenmsg("Export File: ")
         
         # This format list generated from the Open Babel wiki page: 
@@ -278,67 +282,67 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 self,
                 "Export File dialog",
                 "Select file to Export" )
-                
-        if not fn:
-             env.history.message(cmd + "Cancelled")
-             return
-        
-        if fn:
-            fn = str(fn)
-            dir, fil, ext = fileparse(fn)
-            if ext == ".mmp":
-                self.save_mmp_file(fn, brag=True)
+        if platform.atom_debug:
+            linenum()
+            print 'fn', repr(str(fn))
 
+        if not fn:
+            env.history.message(cmd + "Cancelled")
+            if platform.atom_debug:
+                linenum()
+                print 'fileExport cancelled because fn is no good'
+            return
+        
+        fn = str(fn)
+        dir, fil, ext = fileparse(fn)
+        if ext == ".mmp":
+            self.save_mmp_file(fn, brag=True)
+        else:
             # Anything that isn't an MMP file, we will export with Open Babel.
             # Its coverage of MMP files is imperfect so it makes mistakes, but
             # it would be good to use it enough to find those mistakes.
-
-#           elif ext == ".pdb":
-#               try:
-#                   writepdb(self.assy.part, fn)
-#               except:
-#                   print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % fn )
-#                   env.history.message(redmsg( "Problem saving PDB file: [ " + fn + " ]" ))
-#               else:
-#                   self.saved_main_file(fn, fil)
-#                   # bruce 050907 split out this common code, though it's probably bad design
-#                   # for PDB files (as i commented elsewhere)
-#                   env.history.message( "PDB file saved: [ " + os.path.normpath( self.assy.filename) +" ]" )
-
-#            elif ext == ".mdl": # Animation Master format
-#               try:
-#                   # This writes the Animation Master MDL format, not the chemistry MDL format.
-#                   writemdlfile(self.assy.part, self.glpane, fn)
-#               except:
-#                   print_compact_traceback( "MWsemantics.py: saveFile(): error writing file %r: " % fn )
-#                   env.history.message(redmsg( "Problem saving MDL file: [ " + fn + " ]" ))
-#               else:
-#                   self.saved_main_file(fn, fil)
-#                   env.history.message( "MDL file saved: [ " + os.path.normpath(self.assy.filename) +" ]" )
-
+            import time
+            from qt import QStringList, QProcess
+            dir, fil, ext = fileparse(fn)
+            if platform.atom_debug:
+                linenum()
+                print 'dir, fil, ext', repr(dir), repr(fil), repr(ext)
+            tmpdir = platform.find_or_make_Nanorex_subdir('temp')
+            mmpfile = os.path.join(tmpdir, fil + ".mmp")
+            if platform.atom_debug:
+                linenum()
+                print 'tmpdir, mmpfile', repr(tmpdir), repr(mmpfile)
+            self.saveFile(mmpfile, brag=False)
+            result = self.runBabel(mmpfile, fn)
+            if result and os.path.exists(fn):
+                if platform.atom_debug:
+                    linenum()
+                    print 'file translation OK'
+                env.history.message( "File exported: [ " + fn + " ]" )
             else:
-                import time
-                from qt import QStringList, QProcess
-                dir, fil, ext = fileparse(fn)
-                tmpdir = platform.find_or_make_Nanorex_subdir('temp')
-                mmpfile = os.path.join(tmpdir, fil + ".mmp")
-                self.saveFile(mmpfile, brag=False)
-                result = self.runBabel(mmpfile, fn)
-                if result and os.path.exists(fn):
-                    env.history.message( "File exported: [ " + fn + " ]" )
-                else:
-                    print 'Problem:', mmpfile, '->', fn
-                    env.history.message(redmsg("File translation failed."))
+                if platform.atom_debug:
+                    linenum()
+                    print 'file translation failed'
+                print 'Problem:', mmpfile, '->', fn
+                env.history.message(redmsg("File translation failed."))
 
-            self.glpane.scale = self.assy.bbox.scale()
-            self.glpane.gl_update()
-            self.mt.mt_update()
-            
-            # Update the current working directory (CWD).
-            dir, fil = os.path.split(fn)
-            self.setCurrentWorkingDirectory(dir)
+        self.glpane.scale = self.assy.bbox.scale()
+        self.glpane.gl_update()
+        self.mt.mt_update()
+
+        # Update the current working directory (CWD).
+        dir, fil = os.path.split(fn)
+        if platform.atom_debug:
+            linenum()
+            print 'fileExport changing working directory to %s' % repr(dir)
+        self.setCurrentWorkingDirectory(dir)
+        if platform.atom_debug:
+            linenum()
+            print 'finish fileExport()'
 
     def runBabel(self, infile, outfile):
+        if platform.atom_debug:
+            print 'start runBabel(%s, %s)' % (repr(infile), repr(outfile))
         import time
         from qt import QStringList, QProcess
         arguments = QStringList()
@@ -346,7 +350,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             program = 'babel.exe'
         else:
             program = 'babel'
+        i = 0
         for arg in [program, infile, outfile]:
+            if platform.atom_debug:
+                print 'argument', i, repr(arg)
+            i += 1
             arguments.append(arg)
         proc = QProcess()
         proc.setArguments(arguments)
@@ -364,7 +372,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                     time.sleep(0.1)
             else:
                 break
-        return proc.exitStatus() == 0 and text[0] == "1 molecule converted\n"
+        exitStatus = proc.exitStatus()
+        stderr = text[0]
+        if platform.atom_debug:
+            print 'exit status', exitStatus
+            print 'stderr says', repr(stderr)
+            print 'finish runBabel(%s, %s)' % (repr(infile), repr(outfile))
+        return exitStatus == 0 and stderr == "1 molecule converted\n"
 
     def fileInsert(self):
         """Slot method for 'File > Insert'.
