@@ -1,0 +1,91 @@
+# single-tile crystal DAO-O tile
+#
+#  Uses the same crossover motif as junction36E.script,
+#  but constructs everything from just two ds regions,
+#  using "nick".
+#
+set hush info off
+set WCAdfirst on
+close
+#
+#  create the initial ds regions
+#
+#  even input: sticky complement                    sticky
+generate d d b CGATCAcacgatccgtcctcgactcatttgcctgcggtagtgGAGTGA
+modify unit twist g 1:2 1:16 +1.7
+modify unit twist g 1:17 1:17 -2
+modify unit twist g 1:18 1:32 -1.87
+modify unit twist g 1:33 1:33 -2
+modify unit twist g 1:34 1:48 +1.7
+rotorig 1 3 -107.1
+rotorig 1 3 -251.35
+trans 1 0 0 -71.4
+write pdb Stop
+close
+#
+# even output: sticky                               sticky complement
+generate d d b GAGTGAgacagtagcctgctatcttatggcgtccagaatgacCGATCA
+modify unit twist g 1:2 1:16  -.9
+modify unit twist g 1:17 1:17 -2
+modify unit twist g 1:18 1:32 +1.6
+modify unit twist g 1:33 1:33 -2
+modify unit twist g 1:34 1:48 -.9
+rotorig 1 3 -99.3
+rotorig 1 3 -246.2
+trans 1 19 0 -71.4
+write pdb Sbot
+close
+#
+#  add nicks for crossovers and for sticky ends
+#
+load pdb na Stop
+nick 1:2:32
+nick 1:2:6
+nick 1:1:32
+nick 1:1:6
+load pdb na Sbot
+nick 2:2:16
+nick 2:2:6
+nick 2:1:16
+nick 2:1:6
+
+#
+#  create crossover phosphates
+#
+link 2:2 1:6
+modify phos phi 1:16:2 1:16:2 -120
+link 1:5 2:3
+modify phos phi 2:17:1 2:17:1 -120
+link 1:2 2:5
+modify phos phi 2:32:2 2:32:2 -120
+link 2:4 1:3
+modify phos phi 1:33:1 1:33:1 -120
+#
+#  bring good stuff into mol #1, sticky end complements -> mol #2
+#     (thus bogus warnings)
+#
+move chain 2:4 1
+move chain 2:2 1
+move chain 1:3 2
+move chain 1:1 2
+delete mol 2
+#
+#  Make it so rotorig 1 1 180 is aligned with original 
+#
+trans 1 0 0 1.7
+rotorig 1 3 90
+rotorig 1 1 -90
+rotorig 1 3 180
+rotorig 1 2 180
+#
+write pdb DAO-O.pdb
+#
+
+
+# set colors for tile diagram
+set background white
+set color m1:1:*:* blue
+set color m1:2:*:* cyan
+set color m1:3:*:* green
+set color m1:4:*:* yellow
+set color m1:5:*:* red
