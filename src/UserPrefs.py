@@ -291,10 +291,8 @@ class UserPrefs(UserPrefsDialog):
         QWhatsThis.add(self.radioButton11_2_2, """<p><b>Ribbons</b></p>
         <p><i>High Order Bonds</i> are displayed
         using <b>Ribbons.</b></p>
-        <p>Ribbons represent <i>pi systems</i> in high order bonds and are rendered as ribbons. The orientation
-        of the ribbons approximates the orientation of the pi system.</p>
-        <p>Create an acetylene or ethene molecule and select this
-        option to see how ribbons are rendered.</p>""")
+        <p>Ribbons represent <i>pi systems</i> in high order bonds and are rendered as ribbons. The orientation of the ribbons approximates the orientation of the pi system.</p>
+        <p>Create an acetylene or ethene molecule and select this option to see how ribbons are rendered.</p>""")
         QWhatsThis.add(self.show_bond_labels_checkbox, """<p><b>Show Bond Type Letters</b></p>
         <p>Shows/Hides Bond Type
         letters (labels) on top of bonds.</p>
@@ -305,13 +303,10 @@ class UserPrefs(UserPrefsDialog):
         = Aromatic bond<br>
         <b>G</b> = Graphitic bond<br>""")
         QWhatsThis.add(self.show_valence_errors_checkbox, """<p><b>Show Valence Errors</b></p><p>Enables/Disables Valence
-        Error Checker.</p>
-        When enabled, atoms with valence errors are displayed with an orange wireframe sphere. This indicates
+        Error Checker.</p>When enabled, atoms with valence errors are displayed with an orange wireframe sphere. This indicates
         that one or more of the atom's bonds are not of the correct order (type).""")
-        QWhatsThis.add(self.textLabel1_3, """<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor
-        for the cylinder representing bonds in Ball and Stick display mode""")
-        QWhatsThis.add(self.textLabel1, """<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for
-        Lines Display Mode""")
+        QWhatsThis.add(self.textLabel1_3, """<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor for the cylinder representing bonds in Ball and Stick display mode""")
+        QWhatsThis.add(self.textLabel1, """<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for Lines Display Mode""")
         QWhatsThis.add(self.cpk_cylinder_rad_spinbox, """<p><b>Ball and Stick Bond Scale</b></p>Set scale (size) factor
         for the cylinder representing bonds in Ball and Stick display mode""")
         QWhatsThis.add(self.bond_line_thickness_spinbox, """<p><b>Bond Line Thickness</b></p>Bond thickness (in pixels) for
@@ -325,63 +320,39 @@ class UserPrefs(UserPrefsDialog):
         QWhatsThis.add(self.default_mode_combox, """<p><b>Default Mode</b></p>This specifies which mode the user
         will be placed in when exiting any other mode.""")
         QWhatsThis.add(self.mode_combox, """<p><b>Mode Settings: Mode</b></p>
-        This specifies which mode you
-        are changing the <b>Display Mod</b>e or <b>Background Color</b> for below.""")
+        This specifies which mode you are changing the <b>Display Mod</b>e or <b>Background Color</b> for below.""")
         QWhatsThis.add(self.display_mode_combox, """<p><b>Display Mode</b></p>
-        <p>Sets the Display Mode for the current
-        mode. If set to <b>Default</b>, then atoms and bonds are displayed in the display mode defined by <b>Default Display Mode</b>.</p>""")
+        <p>Sets the Display Mode for the current mode. If set to <b>Default</b>, then atoms and bonds are displayed in the display mode defined by <b>Default Display Mode</b>.</p>""")
         QWhatsThis.add(self.fill_type_combox, """<p><b>Fill Type</b></p>
-        <p>Sets the fill type of the background.
-        Each mode can have a different color, if desired.</p>""")
+        <p>Sets the fill type of the background. Each mode can have a different color, if desired.</p>""")
         QWhatsThis.add(self.vwd_rbtn, """<u><b>CPK (Space Filling)</b></u><br>
-        <p>Changes the <i>Default
-        Display Mode</i>  to <b>CPK</b> mode.
+        <p>Changes the <i>Default Display Mode</i>  to <b>CPK</b> mode.
         Atoms are rendered as space filling spheres. Bonds are not rendered.</p>""")
         QWhatsThis.add(self.cpk_rbtn, """<u><b>Ball and Stick</b></u><br>
-        <p>Changes the <i>Default Display
-        Mode</i>  to <b>Ball and Stick</b> mode.
-        Atoms are rendered  as spheres (balls) and bonds are rendered as narrow cylinders
+        <p>Changes the <i>Default Display Mode</i>  to <b>Ball and Stick</b> mode. Atoms are rendered  as spheres (balls) and bonds are rendered as narrow cylinders
         (sticks).</p>""")
         QWhatsThis.add(self.lines_rbtn, """<u><b>Lines</b></u><br>
-        <p>Changes the <i>Default Display Mode</i>
-        to <b>Lines</b> mode.
-        Bonds are rendered as lines. Atoms are not rendered.</p>""")
+        <p>Changes the <i>Default Display Mode</i> to <b>Lines</b> mode. Bonds are rendered as lines. Atoms are not rendered.</p>""")
         QWhatsThis.add(self.tubes_rbtn, """<u><b>Tubes</b></u><br>
-        <p>Changes the <i>Default Display Mode</i>
-        to <b>Tubes</b> mode.
-        Atoms and bonds are rendered as colored tubes.</p>""")
+        <p>Changes the <i>Default Display Mode</i> to <b>Tubes</b> mode.Atoms and bonds are rendered as colored tubes.</p>""")
         QWhatsThis.add(self.autobond_checkbox, """Build mode's default setting for Autobonding at startup (enabled/disabled)""")
         QWhatsThis.add(self.water_checkbox, """Build mode's default setting for Water at startup (enabled/disabled)""")
         QWhatsThis.add(self.buildmode_select_atoms_checkbox, """<p><b>Select Atoms of Deposited Object</b></p>
-        When depositing
-        atoms, clipboard chunks or library parts, their atoms will automatically be selected.""")
+        When depositing atoms, clipboard chunks or library parts, their atoms will automatically be selected.""")
         QWhatsThis.add(self.buildmode_highlighting_checkbox, """Build mode's default setting for Highlighting at startup (enabled/disabled)""")
-        QWhatsThis.add(self.povray_checkbox, """This enables POV-Ray as a plug-in. POV-Ray is a free raytracing
-        program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray
-        plug-in.""")
-        QWhatsThis.add(self.povray_lbl, """This enables POV-Ray as a plug-in. POV-Ray is a free raytracing
-        program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray
-        plug-in.""")
-        QWhatsThis.add(self.nanohive_lbl, """This enables Nano-Hive as a plug-in. Nano-Hive is available for
-        download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive
-        plug-in.""")
-        QWhatsThis.add(self.nanohive_checkbox, """This enables Nano-Hive as a plug-in. Nano-Hive is available for
-        download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive
-        plug-in.""")
+        QWhatsThis.add(self.povray_checkbox, """This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
+        QWhatsThis.add(self.povray_lbl, """This enables POV-Ray as a plug-in. POV-Ray is a free raytracing program available from http://www.povray.org/. POV-Ray must be installed on your computer before you can enable the POV-Ray plug-in.""")
+        QWhatsThis.add(self.nanohive_lbl, """This enables Nano-Hive as a plug-in. Nano-Hive is available for download from  http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
+        QWhatsThis.add(self.nanohive_checkbox, """This enables Nano-Hive as a plug-in. Nano-Hive is available for download from http://www.nano-hive.com/. Nano-Hive must be installed on your computer before you can enable the Nano-Hive plug-in.""")
         QWhatsThis.add(self.povray_path_linedit, """The full path to the POV-Ray executable file.""")
         QWhatsThis.add(self.nanohive_path_linedit, """The full path to the Nano-Hive executable file.""")
-        QWhatsThis.add(self.gamess_lbl, """<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS)
-        as a plug-in. </p>
+        QWhatsThis.add(self.gamess_lbl, """<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS) as a plug-in. </p>
         <p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/.
         PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>
         <p>For Linux and MacOS users,
-        GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer
-        before you can enable the GAMESS plug-in.</p>""")
+        GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>""")
         QWhatsThis.add(self.megapov_path_linedit, """The full path to the MegaPOV executable file (megapov.exe).""")
-        QWhatsThis.add(self.megapov_checkbox, """This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing
-        program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you
-        can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed
-        while rendering).""")
+        QWhatsThis.add(self.megapov_checkbox, """This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).""")
         QWhatsThis.add(self.gamess_path_linedit, """The gamess executable file. Usually it's called gamess.??.x or
         ??gamess.exe.""")
         QWhatsThis.add(self.gamess_checkbox, """<p>This enables PC-GAMESS (Windows) or GAMESS (Linux or MacOS)
@@ -389,8 +360,7 @@ class UserPrefs(UserPrefsDialog):
         <p>For Windows users, PC-GAMESS is available for download from http://classic.chem.msu.su/gran/gamess/.
         PC-GAMESS must be installed on your computer before you can enable the PC-GAMESS plug-in.</p>
         <p>For Linux and MacOS users,
-        GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer
-        before you can enable the GAMESS plug-in.</p>""")
+        GAMESS is available for download from http://www.msg.ameslab.gov/GAMESS/GAMESS.html. GAMESS must be installed on your computer before you can enable the GAMESS plug-in.</p>""")
         QWhatsThis.add(self.povdir_linedit, """Specify a directory for where to find POV-Ray or MegaPOV include
         files such as transforms.inc.""")
         QWhatsThis.add(self.nanohive_choose_btn, """This opens up a file chooser dialog so that you can specify the
@@ -401,36 +371,21 @@ class UserPrefs(UserPrefsDialog):
         location of the MegaPOV executable (megapov.exe).""")
         QWhatsThis.add(self.gamess_choose_btn, """This opens up a file chooser dialog so that you can specify the
         location of the GAMESS or PC-GAMESS executable.""")
-        QWhatsThis.add(self.megapov_lbl, """This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing
-        program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you
-        can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed
-        while rendering).""")
-        QWhatsThis.add(self.povdir_checkbox, """Select a user-customized directory for POV-Ray and MegaPOV include
-        files, such as transforms.inc.""")
+        QWhatsThis.add(self.megapov_lbl, """This enables MegaPOV as a plug-in. MegaPOV is a free addon raytracing program available from http://megapov.inetart.net/. Both MegaPOV and POV-Ray must be installed on your computer before you can enable the MegaPOV plug-in. MegaPOV allows rendering to happen silently on Windows (i.e. no POV_Ray GUI is displayed while rendering).""")
+        QWhatsThis.add(self.povdir_checkbox, """Select a user-customized directory for POV-Ray and MegaPOV include files, such as transforms.inc.""")
         QWhatsThis.add(self.undo_automatic_checkpoints_checkbox, """<p><b>Automatic Checkpoints</b></p>Specifies whether <b>Automatic
         Checkpointing</b> is enabled/disabled during program startup only.  It does not enable/disable <b>Automatic Checkpointing</b>
         when the program is running.
-        <p><b>Automatic Checkpointing</b> can be enabled/disabled by the user at any time from <b>Edit
-        > Automatic Checkpointing</b>. When enabled, the program maintains the Undo stack automatically.  When disabled, the user
-        is required to manually set Undo checkpoints using the <b>Set Checkpoint</b> button in the Edit Toolbar/Menu.</p>
-        <p><b>Automatic
-        Checkpointing</b> can impact program performance. By disabling Automatic Checkpointing, the program will run faster.</p>
-        <p><b><i>Remember
-        to you must set your own Undo checkpoints manually when Automatic Checkpointing is disabled.</i></b></p>""")
+        <p><b>Automatic Checkpointing</b> can be enabled/disabled by the user at any time from <b>Edit > Automatic Checkpointing</b>. When enabled, the program maintains the Undo stack automatically.  When disabled, the user is required to manually set Undo checkpoints using the <b>Set Checkpoint</b> button in the Edit Toolbar/Menu.</p>
+        <p><b>Automatic Checkpointing</b> can impact program performance. By disabling Automatic Checkpointing, the program will run faster.</p><p><b><i>Remember to you must set your own Undo checkpoints manually when Automatic Checkpointing is disabled.</i></b></p>""")
         QWhatsThis.add(self.undo_restore_view_checkbox, """<p><b>Restore View when Undoing Structural Changes</b></p>
-        <p>When
-        checked, the current view is stored along with each <b><i>structural change</i></b> on the undo stack.  The view is then
+        <p>When checked, the current view is stored along with each <b><i>structural change</i></b> on the undo stack.  The view is then
         restored when the user undoes a structural change.</p>
-        <p><b><i>Structural changes</i></b> include any operation that modifies
-        the model. Examples include adding, deleting or moving an atom, chunk or jig. </p>
-        <p>Selection (picking/unpicking) and view
-        changes are examples of operations that do not modify the model (i.e. are not structural changes).</p>""")
-        QWhatsThis.add(self.groupBox3, """Format Prefix and Suffix text the delimits the part name in the
-        caption in window border.""")
-        QWhatsThis.add(self.save_current_btn, """Saves the main window's current position and size for the next
-        time the program starts.""")
-        QWhatsThis.add(self.restore_saved_size_btn, """Saves the main window's current position and size for the next
-        time the program starts.""")
+        <p><b><i>Structural changes</i></b> include any operation that modifies the model. Examples include adding, deleting or moving an atom, chunk or jig. </p>
+        <p>Selection (picking/unpicking) and view changes are examples of operations that do not modify the model (i.e. are not structural changes).</p>""")
+        QWhatsThis.add(self.groupBox3, """Format Prefix and Suffix text the delimits the part name in the caption in window border.""")
+        QWhatsThis.add(self.save_current_btn, """Saves the main window's current position and size for the next time the program starts.""")
+        QWhatsThis.add(self.restore_saved_size_btn, """Saves the main window's current position and size for the next time the program starts.""")
         return
 
     def _setup_caption_signals(self):
