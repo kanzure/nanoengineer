@@ -649,6 +649,7 @@ class Movie:
             # env.history.message( "Writing file: " + filename ) 
             writepovfile(self.assy.part, self.assy.o, filename) #bruce 050927 revised arglist
             nfiles += 1
+            self.framecounter  =  i #  gets the the last frame number of the file written. This will be passed in the history message ninad060809
         
         # Return to currentFrame. Fixes bug 1025.  Mark 051119
         self.alist_and_moviefile.play_frame(self.currentFrame) 
@@ -656,10 +657,11 @@ class Movie:
         # Summary msgs tell user number of files saved and where they are located.
         msg = platform.fix_plurals("%d file(s) written." % nfiles)
         env.history.message(msg)
-        filenames = "%s.%06d.pov - %06d.pov" % (name, self.currentFrame, self.totalFramesActual)#ninad060721 fixed bug 2148 See defn of totalFramesActual
+        filenames = "%s.%06d.pov - %06d.pov" % (name, self.currentFrame, self.framecounter)#ninad060809 fixed bugs 2147 and 2148 
         msg = "Files are named %s." % filenames
         env.history.message(msg)
         
+
     def _continue(self, hflag = True): # [bruce 050427 comment: only called from self._play]
         """Continue playing movie from current position.
         hflag - if True, print history message
