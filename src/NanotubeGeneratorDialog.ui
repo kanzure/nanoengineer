@@ -1,5 +1,4 @@
-<!DOCTYPE UI>
-<UI stdsetdef="1" version="3.3">
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
 <class>nanotube_dialog</class>
 <widget class="QDialog">
     <property name="name">
@@ -125,7 +124,7 @@
                 <property name="spacing">
                     <number>0</number>
                 </property>
-                <widget class="QPushButton" column="0" row="0">
+                <widget class="QPushButton" row="0" column="0">
                     <property name="name">
                         <cstring>sponsor_btn</cstring>
                     </property>
@@ -143,7 +142,7 @@
                         </color>
                     </property>
                     <property name="text">
-                        <string/>
+                        <string></string>
                     </property>
                     <property name="autoDefault">
                         <bool>false</bool>
@@ -204,7 +203,7 @@
                                 <cstring>done_btn</cstring>
                             </property>
                             <property name="text">
-                                <string/>
+                                <string></string>
                             </property>
                             <property name="iconSet">
                                 <iconset>image2</iconset>
@@ -218,7 +217,7 @@
                                 <cstring>abort_btn</cstring>
                             </property>
                             <property name="text">
-                                <string/>
+                                <string></string>
                             </property>
                             <property name="iconSet">
                                 <iconset>image3</iconset>
@@ -232,7 +231,7 @@
                                 <cstring>restore_defaults_btn</cstring>
                             </property>
                             <property name="text">
-                                <string/>
+                                <string></string>
                             </property>
                             <property name="iconSet">
                                 <iconset>image4</iconset>
@@ -246,7 +245,7 @@
                                 <cstring>preview_btn</cstring>
                             </property>
                             <property name="text">
-                                <string/>
+                                <string></string>
                             </property>
                             <property name="iconSet">
                                 <iconset>image5</iconset>
@@ -260,7 +259,7 @@
                                 <cstring>whatsthis_btn</cstring>
                             </property>
                             <property name="text">
-                                <string/>
+                                <string></string>
                             </property>
                             <property name="iconSet">
                                 <iconset>image6</iconset>
@@ -302,7 +301,7 @@
                         <number>0</number>
                     </property>
                     <property name="title">
-                        <string/>
+                        <string></string>
                     </property>
                     <vbox>
                         <property name="name">
@@ -384,7 +383,7 @@
                                         </size>
                                     </property>
                                     <property name="text">
-                                        <string/>
+                                        <string></string>
                                     </property>
                                     <property name="autoDefault">
                                         <bool>false</bool>
@@ -423,7 +422,7 @@
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QLabel" column="0" row="2">
+                                <widget class="QLabel" row="2" column="0">
                                     <property name="name">
                                         <cstring>chirality_n_label</cstring>
                                     </property>
@@ -434,12 +433,12 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QSpinBox" column="1" row="3">
+                                <widget class="QSpinBox" row="3" column="1">
                                     <property name="name">
                                         <cstring>chirality_m_spinbox</cstring>
                                     </property>
                                     <property name="suffix">
-                                        <string/>
+                                        <string></string>
                                     </property>
                                     <property name="minValue">
                                         <number>0</number>
@@ -450,9 +449,8 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Chirality (m)</string>
                                     </property>
-                                    
                                 </widget>
-                                <widget class="QLabel" column="0" row="3">
+                                <widget class="QLabel" row="3" column="0">
                                     <property name="name">
                                         <cstring>chirality_m_label</cstring>
                                     </property>
@@ -465,9 +463,8 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Chirality (m)</string>
                                     </property>
-                                    
                                 </widget>
-                                <widget class="QLabel" column="0" row="1">
+                                <widget class="QLabel" row="1" column="0">
                                     <property name="name">
                                         <cstring>length_label</cstring>
                                     </property>
@@ -478,12 +475,12 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QSpinBox" column="1" row="2">
+                                <widget class="QSpinBox" row="2" column="1">
                                     <property name="name">
                                         <cstring>chirality_n_spinbox</cstring>
                                     </property>
                                     <property name="suffix">
-                                        <string/>
+                                        <string></string>
                                     </property>
                                     <property name="minValue">
                                         <number>0</number>
@@ -494,9 +491,8 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Chirality (n)</string>
                                     </property>
-                                    
                                 </widget>
-                                <widget class="QComboBox" column="1" row="0">
+                                <widget class="QComboBox" row="0" column="1">
                                     <item>
                                         <property name="text">
                                             <string>Carbon</string>
@@ -513,9 +509,8 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Members</string>
                                     </property>
-                                    
                                 </widget>
-                                <widget class="QLabel" column="0" row="5">
+                                <widget class="QLabel" row="5" column="0">
                                     <property name="name">
                                         <cstring>endings_label</cstring>
                                     </property>
@@ -526,7 +521,7 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QLabel" column="0" row="4">
+                                <widget class="QLabel" row="4" column="0">
                                     <property name="name">
                                         <cstring>bond_length_label</cstring>
                                     </property>
@@ -540,7 +535,7 @@
                                         <string>Bond length in angstroms</string>
                                     </property>
                                 </widget>
-                                <widget class="QComboBox" column="1" row="5">
+                                <widget class="QComboBox" row="5" column="1">
                                     <item>
                                         <property name="text">
                                             <string>None</string>
@@ -562,9 +557,8 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Endings</string>
                                     </property>
-                                    
                                 </widget>
-                                <widget class="QLineEdit" column="1" row="1">
+                                <widget class="QLineEdit" row="1" column="1">
                                     <property name="name">
                                         <cstring>length_linedit</cstring>
                                     </property>
@@ -574,9 +568,8 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Length of nanotube in angstroms</string>
                                     </property>
-                                    
                                 </widget>
-                                <widget class="QLabel" column="0" row="0">
+                                <widget class="QLabel" row="0" column="0">
                                     <property name="name">
                                         <cstring>type_label</cstring>
                                     </property>
@@ -587,7 +580,7 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QLineEdit" column="1" row="4">
+                                <widget class="QLineEdit" row="4" column="1">
                                     <property name="name">
                                         <cstring>bond_length_linedit</cstring>
                                     </property>
@@ -597,7 +590,6 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Bond length in angstroms</string>
                                     </property>
-                                    
                                 </widget>
                             </grid>
                         </widget>
@@ -614,7 +606,7 @@
                         <enum>Sunken</enum>
                     </property>
                     <property name="title">
-                        <string/>
+                        <string></string>
                     </property>
                     <property name="checkable">
                         <bool>false</bool>
@@ -702,7 +694,7 @@
                                         </size>
                                     </property>
                                     <property name="text">
-                                        <string/>
+                                        <string></string>
                                     </property>
                                     <property name="autoDefault">
                                         <bool>false</bool>
@@ -741,7 +733,7 @@
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QLabel" column="0" row="0">
+                                <widget class="QLabel" row="0" column="0">
                                     <property name="name">
                                         <cstring>z_distortion_label</cstring>
                                     </property>
@@ -752,7 +744,7 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QLabel" column="0" row="1">
+                                <widget class="QLabel" row="1" column="0">
                                     <property name="name">
                                         <cstring>xy_distortion_label</cstring>
                                     </property>
@@ -763,7 +755,7 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QSpinBox" column="1" row="2">
+                                <widget class="QSpinBox" row="2" column="1">
                                     <property name="name">
                                         <cstring>twist_spinbox</cstring>
                                     </property>
@@ -779,9 +771,8 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Twist in degrees/angstrom</string>
                                     </property>
-                                    
                                 </widget>
-                                <widget class="QLineEdit" column="1" row="0">
+                                <widget class="QLineEdit" row="0" column="1">
                                     <property name="name">
                                         <cstring>z_distortion_linedit</cstring>
                                     </property>
@@ -791,9 +782,8 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Z-distortion in angstroms</string>
                                     </property>
-                                    
                                 </widget>
-                                <widget class="QLabel" column="0" row="3">
+                                <widget class="QLabel" row="3" column="0">
                                     <property name="name">
                                         <cstring>bend_label</cstring>
                                     </property>
@@ -804,7 +794,7 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QSpinBox" column="1" row="3">
+                                <widget class="QSpinBox" row="3" column="1">
                                     <property name="name">
                                         <cstring>bend_spinbox</cstring>
                                     </property>
@@ -823,9 +813,8 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Bend in degrees</string>
                                     </property>
-                                    
                                 </widget>
-                                <widget class="QLineEdit" column="1" row="1">
+                                <widget class="QLineEdit" row="1" column="1">
                                     <property name="name">
                                         <cstring>xy_distortion_linedit</cstring>
                                     </property>
@@ -835,9 +824,8 @@
                                     <property name="toolTip" stdset="0">
                                         <string>XY-distortion</string>
                                     </property>
-                                    
                                 </widget>
-                                <widget class="QLabel" column="0" row="2">
+                                <widget class="QLabel" row="2" column="0">
                                     <property name="name">
                                         <cstring>twist_label</cstring>
                                     </property>
@@ -863,7 +851,7 @@
                         <enum>Sunken</enum>
                     </property>
                     <property name="title">
-                        <string/>
+                        <string></string>
                     </property>
                     <property name="checkable">
                         <bool>false</bool>
@@ -951,7 +939,7 @@
                                         </size>
                                     </property>
                                     <property name="text">
-                                        <string/>
+                                        <string></string>
                                     </property>
                                     <property name="autoDefault">
                                         <bool>false</bool>
@@ -990,7 +978,7 @@
                                 <property name="name">
                                     <cstring>unnamed</cstring>
                                 </property>
-                                <widget class="QLabel" column="0" row="1">
+                                <widget class="QLabel" row="1" column="0">
                                     <property name="name">
                                         <cstring>mwcnt_spacing_label</cstring>
                                     </property>
@@ -1001,7 +989,7 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QLabel" column="0" row="0">
+                                <widget class="QLabel" row="0" column="0">
                                     <property name="name">
                                         <cstring>mwcnt_count_label</cstring>
                                     </property>
@@ -1012,12 +1000,12 @@
                                         <set>AlignVCenter|AlignRight</set>
                                     </property>
                                 </widget>
-                                <widget class="QSpinBox" column="1" row="0">
+                                <widget class="QSpinBox" row="0" column="1">
                                     <property name="name">
                                         <cstring>mwcnt_count_spinbox</cstring>
                                     </property>
                                     <property name="suffix">
-                                        <string/>
+                                        <string></string>
                                     </property>
                                     <property name="minValue">
                                         <number>0</number>
@@ -1028,9 +1016,8 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Number of nanotubes</string>
                                     </property>
-                                    
                                 </widget>
-                                <widget class="QLineEdit" column="1" row="1">
+                                <widget class="QLineEdit" row="1" column="1">
                                     <property name="name">
                                         <cstring>mwcnt_spacing_linedit</cstring>
                                     </property>
@@ -1040,7 +1027,6 @@
                                     <property name="toolTip" stdset="0">
                                         <string>Spacing between nanotubes</string>
                                     </property>
-                                    
                                 </widget>
                             </grid>
                         </widget>
@@ -1270,6 +1256,26 @@
         <slot>parameter_fixup()</slot>
     </connection>
 </connections>
+<tabstops>
+    <tabstop>sponsor_btn</tabstop>
+    <tabstop>nt_parameters_grpbtn</tabstop>
+    <tabstop>members_combox</tabstop>
+    <tabstop>length_linedit</tabstop>
+    <tabstop>chirality_n_spinbox</tabstop>
+    <tabstop>chirality_m_spinbox</tabstop>
+    <tabstop>bond_length_linedit</tabstop>
+    <tabstop>endings_combox</tabstop>
+    <tabstop>nt_distortion_grpbtn</tabstop>
+    <tabstop>z_distortion_linedit</tabstop>
+    <tabstop>xy_distortion_linedit</tabstop>
+    <tabstop>twist_spinbox</tabstop>
+    <tabstop>bend_spinbox</tabstop>
+    <tabstop>mwcnt_grpbtn</tabstop>
+    <tabstop>mwcnt_count_spinbox</tabstop>
+    <tabstop>mwcnt_spacing_linedit</tabstop>
+    <tabstop>ok_btn</tabstop>
+    <tabstop>cancel_btn</tabstop>
+</tabstops>
 <slots>
     <slot>toggle_nt_distortion_grpbox()</slot>
     <slot>open_sponsor_homepage()</slot>
@@ -1288,5 +1294,5 @@
     <slot>done_btn_clicked()</slot>
     <slot>parameter_fixup()</slot>
 </slots>
-<layoutdefaults margin="11" spacing="6"/>
+<layoutdefaults spacing="6" margin="11"/>
 </UI>

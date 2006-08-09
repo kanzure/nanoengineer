@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'NanotubeGeneratorDialog.ui'
 #
-# Created: Wed Jul 26 23:37:18 2006
+# Created: Wed Aug 9 16:49:02 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -767,6 +767,24 @@ class nanotube_dialog(QDialog):
         self.connect(self.chirality_m_spinbox,SIGNAL("valueChanged(int)"),self.parameter_fixup)
         self.connect(self.endings_combox,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
         self.connect(self.members_combox,SIGNAL("textChanged(const QString&)"),self.parameter_fixup)
+
+        self.setTabOrder(self.sponsor_btn,self.nt_parameters_grpbtn)
+        self.setTabOrder(self.nt_parameters_grpbtn,self.members_combox)
+        self.setTabOrder(self.members_combox,self.length_linedit)
+        self.setTabOrder(self.length_linedit,self.chirality_n_spinbox)
+        self.setTabOrder(self.chirality_n_spinbox,self.chirality_m_spinbox)
+        self.setTabOrder(self.chirality_m_spinbox,self.bond_length_linedit)
+        self.setTabOrder(self.bond_length_linedit,self.endings_combox)
+        self.setTabOrder(self.endings_combox,self.nt_distortion_grpbtn)
+        self.setTabOrder(self.nt_distortion_grpbtn,self.z_distortion_linedit)
+        self.setTabOrder(self.z_distortion_linedit,self.xy_distortion_linedit)
+        self.setTabOrder(self.xy_distortion_linedit,self.twist_spinbox)
+        self.setTabOrder(self.twist_spinbox,self.bend_spinbox)
+        self.setTabOrder(self.bend_spinbox,self.mwcnt_grpbtn)
+        self.setTabOrder(self.mwcnt_grpbtn,self.mwcnt_count_spinbox)
+        self.setTabOrder(self.mwcnt_count_spinbox,self.mwcnt_spacing_linedit)
+        self.setTabOrder(self.mwcnt_spacing_linedit,self.ok_btn)
+        self.setTabOrder(self.ok_btn,self.cancel_btn)
 
 
     def languageChange(self):
