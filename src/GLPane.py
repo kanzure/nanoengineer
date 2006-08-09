@@ -1444,10 +1444,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.timer_event_last_xy = xy_now
             return
         
-        # If this cursor position hasn't changed since the last timer event, create a 'MouseMove' mouse event
-        # and pass it to mode.bareMotion(). Only selectMode (mouse_exceeded_distance()) makes use of this
-        # event. 
-        if xy_now == xy_last:
+        # If this cursor position hasn't changed since the last timer event, and no mouse button is
+        # being pressed, create a 'MouseMove' mouse event and pass it to mode.bareMotion().  
+        # Only selectMode (mouse_exceeded_distance()) makes use of this event. 
+        if xy_now == xy_last and self.button == None:
             mouseEvent = QMouseEvent( QEvent.MouseMove, cursorPos, Qt.NoButton, Qt.NoButton ) 
             self.mode.bareMotion(mouseEvent) # Only selectMode.mouse_exceeded_distance() makes use of this.
 
