@@ -129,6 +129,25 @@ def createWhatsThis(self):
 
         self.fileOpenAction.setWhatsThis( fileOpenText )
         
+        # Import File
+        
+        fileImportText = "<u><b>Import File</b></u><br>"\
+                                    "Inserts a file of any chemical file format supported by <b>Openbabel</b> "\
+                                    "into the current Part"
+        
+        self.fileImportAction.setWhatsThis(fileImportText)
+        
+        #Export File 
+        fileExportText = "<u><b>Import File</b></u><br>"\
+                                    "Save the current Part in any chemical file format supported by "\
+                                    "<b>Openbabel</b>. Note that exclusive features of NanoEngineer-1 "\
+                                    "are not saved to the exported file"
+                                    
+        
+        self.fileExportAction.setWhatsThis(fileExportText)
+        
+                                    
+        
         # Save File
         
         fileSaveText = "<u><b>Save File</b></u>     (Ctrl + S)<br> "\
@@ -140,6 +159,7 @@ def createWhatsThis(self):
                                                        self.fileSaveAction.iconSet().pixmap() )
 
         self.fileSaveAction.setWhatsThis( fileSaveText )
+        
         
         #
         # Edit Toolbar
@@ -831,6 +851,31 @@ def createWhatsThis(self):
                                                        self.dispSurfaceAction.iconSet().pixmap() )
 
         self.dispSurfaceAction.setWhatsThis(dispSurfaceActionText )
+        
+        #Reset Chunk Color
+        dispResetChunkColorText = "<u><b>Reset Chunk Color</b></u>"\
+                                                            "Resets the user defined chunk color and renders the atoms " \
+                                                            "in the chunk in their own element colors"
+        
+        #Reset Atoms Display
+        
+        dispResetAtomsDisplayText = "<u><b>Reset Atoms Display</b></u><br>"\
+                                                                    "Renders the  selected atoms (or the atoms in the"\
+                                                                    "selected chunks) with the same display style as "\
+                                                                    "that of their parent chunk"
+        
+        self.dispResetAtomsDisplayAction.setWhatsThis(dispResetAtomsDisplayText)
+        
+        #Show Invisible Atoms
+      
+        dispShowInvisAtomsText = "<u><b>Show Invisible Atoms</b></u><br>"\
+                                                                    "Renders the  selected atoms (or the atoms in the  selected "\
+                                                                    "chunks)  with the same display style as their parent chunk. "\
+                                                                    "However, if the parent chunk  is set as invisible, this feature " \
+                                                                    "will not work. "
+        
+        self.dispShowInvisAtomsAction.setWhatsThis(dispShowInvisAtomsText)
+     
         
         #Element Color Settings Dialog
         
