@@ -294,7 +294,7 @@ class basicMode(anyMode):
         key = self.displayMode_prefs_key
         prefs[key] = displayMode
         return
-        
+    
     def set_cmdname(self, name): # mark 060220.
         '''Helper method for setting the cmdname to be used by Undo/Redo.
         '''
@@ -989,6 +989,8 @@ class basicMode(anyMode):
     # middle mouse button actions -- these support a trackball, and
     # are the same for all modes (with a few exceptions)
     def middleDown(self, event):
+        """Set up for rotating the view with MMB+Drag.
+        """
         self.update_cursor()
         self.o.SaveMouse(event)
         self.o.trackball.start(self.o.MousePos[0],self.o.MousePos[1])
@@ -998,6 +1000,8 @@ class basicMode(anyMode):
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
 
     def middleDrag(self, event):
+        """ Rotate the view with MMB+Drag.
+        """
         # Huaicai 4/12/05: Originally 'self.picking=0 in both middle*Down
         # and middle*Drag methods. Change it as it is now is to prevent 
         # possible similar bug that happened in the modifyMode where 
@@ -1037,6 +1041,8 @@ class basicMode(anyMode):
         return farQ, point
 
     def middleShiftDown(self, event):
+        """Set up for panning the view with MMB+Shift+Drag.
+        """
         self.update_cursor()
         # Setup pan operation
         farQ_junk, self.movingPoint = self.dragstart_using_GL_DEPTH( event)
@@ -1045,6 +1051,9 @@ class basicMode(anyMode):
         
         self.o.SaveMouse(event) #k still needed?? probably yes; might even be useful to help dragto for atoms #e [bruce 060316 comment]
         self.picking = True
+        
+        # Turn off hover highlighting while panning the view with middle mouse button. Fixes bug 1657. Mark 060808.
+        self.o.selobj = None # <selobj> is the object highlighted under the cursor.
         
     def middleShiftDown_OBS(self, event):
         self.w.OldCursor = QCursor(self.o.cursor())
@@ -1104,8 +1113,8 @@ class basicMode(anyMode):
         return self.dragto(point + offset, event) - offset
     
     def middleShiftDrag(self, event):
-        """Move point of view so that objects appear to follow
-        the mouse on the screen.
+        """Pan view with MMB+Shift+Drag. 
+        Move point of view so that the model appears to follow the cursor on the screen.
         """
         point = self.dragto( self.movingPoint, event) #bruce 060316 replaced old code with dragto (equivalent)
         self.o.pov += point - self.movingPoint
@@ -1147,7 +1156,7 @@ class basicMode(anyMode):
         self.update_cursor()
     
     def middleCntlDown(self, event):
-        """ Set up for rotating view around POV axis
+        """Set up for rotating view around POV axis with MMB+Cntl+Drag.
         """
         self.update_cursor()
         self.o.SaveMouse(event)
@@ -1155,9 +1164,12 @@ class basicMode(anyMode):
         self.Zq = Q(self.o.quat)
         self.Zpov = self.o.pov
         self.picking = 1
+        
+        # Turn off hover highlighting while rotating the view with middle mouse button. Mark 060808.
+        self.o.selobj = None # <selobj> is the object highlighted under the cursor.
     
     def middleCntlDrag(self, event):
-        """rotate around the point of view (POV) axis
+        """Rotate around the point of view (POV) axis
         """
         if not self.picking: return
         

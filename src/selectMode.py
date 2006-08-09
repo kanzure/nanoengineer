@@ -2055,9 +2055,9 @@ class selectAtomsMode(selectMode):
         
         glpane = self.o
         
-        if self.o.is_animating:
-            # If animating, do not (hover) highlight anything. For more info, see GLPane.animateToView(). mark 060404.
-            # <is_animating> should be renamed to something more generic (i.e. <hoverHighlightingEnabled>). mark 060805.
+        # If animating or ZPRing (zooming/panning/rotating) with the MMB, do not hover highlight anything. 
+        # For more info about <is_animating>, see GLPane.animateToView(). mark 060404.
+        if self.o.is_animating or self.o.button == "MMB":
             return
         
         wX = event.pos().x()
