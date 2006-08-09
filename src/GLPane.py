@@ -256,9 +256,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.jigSelectionEnabled = True # mark 060312
         
         self.is_animating = False # mark 060404
-            # Set to True while animating between views in animateToView() so 
-            # that selectAtomsMode.update_selobj() will not select and highlight
-            # objects under the cursor. mark 060404
+            # Set to True while animating between views in animateToView() so that update_selobj() in
+            # selectAtomsMode will not hover highlight objects under the cursor. mark 060404
 
         # [bruce 050608]
         self.glselect_dict = {} # only used within individual runs
