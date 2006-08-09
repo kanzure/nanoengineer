@@ -853,9 +853,11 @@ def createWhatsThis(self):
         self.dispSurfaceAction.setWhatsThis(dispSurfaceActionText )
         
         #Reset Chunk Color
-        dispResetChunkColorText = "<u><b>Reset Chunk Color</b></u>"\
+        dispResetChunkColorText = "<u><b>Reset Chunk Color</b></u><br>"\
                                                             "Resets the user defined chunk color and renders the atoms " \
-                                                            "in the chunk in their own element colors"
+                                                            "(in the chunk) with their own element colors"
+                                                            
+        self.dispResetChunkColorAction.setWhatsThis(dispResetChunkColorText )
         
         #Reset Atoms Display
         
