@@ -306,6 +306,17 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         env.history.message(cmd + info)
 
         self.glpane.rotateView(Q(V(1,0,0),pi/2))
+
+    def setViewIsometric(self):
+        "This sets the view to isometric. For isometric view, it needs"\
+        "rotation around the vertical axis by pi/4 *followed* by rotation around horizontal axis by asin(tan(pi/6) - ninad060810"
+        #This is not yet called from the MainWindow. Need UI for this. Also need code review -ninad060810
+        cmd = greenmsg("Isometric View: ")
+        info = 'Current view is Isometric View'
+        env.history.message(cmd + info)
+        self.quatX = Q(V(1,0,0), asin(tan(pi/6)))
+        self.quatY = Q(V(0,1,0), -pi/4)
+        self.glpane.rotateView(self.quatY+self.quatX) #If you put quatX first, it won't give isometric view ninad060810
         
     def saveNamedView(self):
         from Utility import Csys
