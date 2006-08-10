@@ -36,9 +36,7 @@ void Surface::Subdivide(
     else
     {
 		//  generate tria
-        mPoints.Add(a);
-        mPoints.Add(b);
-        mPoints.Add(c);
+		Tria(a, b, c);
     }
 }
 
@@ -49,6 +47,7 @@ void Surface::Subdivide(
 //
 void Surface::SphereTriangles()
 {
+	mType = 0;
     // the golden ratio
     double phi = (1.0 + sqrt(5.0)) / 2.0;
     Triple vert(phi, 0, 1);
@@ -103,12 +102,13 @@ Triple Surface::CalculateTorus(double a, double b, double u, double v)
 }
 
 //------------------------------------------------------------------------
-// TorusTriangles()
+// TorusRectangles()
 //
-// create torus triangles
+// create torus rectangles
 //
-void Surface::TorusTriangles()
+void Surface::TorusRectangles()
 {
+	mType = 1;
 	int n = 3 * mL;
 	double a = 0.7;
 	double b = 0.3;
@@ -131,17 +131,126 @@ void Surface::TorusTriangles()
 			Triple p2 = CalculateTorus(a,b,u1,v1);
 			Triple p3 = CalculateTorus(a,b,u0,v1);
 
-			mPoints.Add(p0);
-			mPoints.Add(p1);
-			mPoints.Add(p2);
-
-			mPoints.Add(p0);
-			mPoints.Add(p2);
-			mPoints.Add(p3);
+			Quad(p0, p1, p2, p3);
 		}
 	}
 }
 
+//------------------------------------------------------------------------
+// OmegaRectangles()
+//
+// create omega rectangles
+//
+void Surface::OmegaRectangles()
+{
+	mType = 1;
+    int nx = 41;
+    int ny = 41;
+    int nz = 41;
+    for (int i = 0; i < nx; i++)
+    {
+        double x0 = 2.0 * i / nx - 1.0;
+        double x1 = 2.0 * (i + 1) / nx - 1.0;
+        for (int j = 0; j < ny; j++)
+        {
+            double y0 = 2.0 * j / ny - 1.0;
+            double y1 = 2.0 * (j + 1) / ny - 1.0;
+            for (int k = 0; k < nz; k++)
+            {
+                double z0 = 2.0 * k / nz - 1.0;
+                double z1 = 2.0 * (k + 1) / nz - 1.0;
+
+                Triple p0(x0, y0, z0);
+                Triple p1(x0, y0, z1);
+                Triple p2(x0, y1, z0);
+                Triple p3(x0, y1, z1);
+                Triple p4(x1, y0, z0);
+                Triple p5(x1, y0, z1);
+                Triple p6(x1, y1, z0);
+                Triple p7(x1, y1, z1);
+                int flag = 0;
+                double eps = 0.0001;
+                double w0 = Predicate(p0);
+                double w1 = Predicate(p1);
+                double w2 = Predicate(p2);
+                double w3 = Predicate(p3);
+                double w4 = Predicate(p4);
+                double w5 = Predicate(p5);
+                double w6 = Predicate(p6);
+                double w7 = Predicate(p7);
+                if (w0 < eps) flag += 1;
+                if (w1 < eps) flag += 2;
+                if (w2 < eps) flag += 4;
+                if (w3 < eps) flag += 8;
+                if (w4 < eps) flag += 16;
+                if (w5 < eps) flag += 32;
+                if (w6 < eps) flag += 64;
+                if (w7 < eps) flag += 128;
+                switch (flag)
+                {
+                    default:
+
+                        if (w0 < eps && w1 < eps && w3 < eps && w2 < eps)
+                        {
+                            Quad(p0, p1, p3, p2);
+                        }
+                        if (w4 < eps && w6 < eps && w7 < eps && w5 < eps)
+                        {
+                            Quad(p4, p6, p7, p5);
+                        }
+                        if (w0 < eps && w4 < eps && w5 < eps && w1 < eps)
+                        {
+                            Quad(p0, p4, p5, p1);
+                        }
+                        if (w2 < eps && w3 < eps && w7 < eps && w6 < eps)
+                        {
+                            Quad(p2, p3, p7, p6);
+                        }
+                        if (w0 < eps && w2 < eps && w6 < eps && w4 < eps)
+                        {
+                            Quad(p0, p2, p6, p4);
+                        }
+                        if (w1 < eps && w5 < eps && w7 < eps && w3 < eps)
+                        {
+                            Quad(p1, p5, p7, p3);
+                        }
+
+                        break;
+                    case 0:
+                        break;
+                    case 255:
+                        break;
+                }
+            }
+        }
+    }
+}
+
+//------------------------------------------------------------------------
+// Quad()
+//
+// generate quad
+//
+void Surface::Quad(Triple p0, Triple p1, Triple p2, Triple p3)
+{
+	mPoints.Add(p0);
+	mPoints.Add(p1);
+	mPoints.Add(p2);
+	mPoints.Add(p3);
+}
+       
+//------------------------------------------------------------------------
+// Tria()
+//
+// generate tria
+//
+void Surface::Tria(Triple p0, Triple p1, Triple p2)
+{
+	mPoints.Add(p0);
+	mPoints.Add(p1);
+	mPoints.Add(p2);
+}
+       
 //------------------------------------------------------------------------
 // Predicate()
 //
@@ -157,8 +266,8 @@ double Surface::Predicate(
 	//  calculate omega functions for all spheres
 	for (int i = 0; i < mCenters.Size(); i++)
 	{
-		Triple t = p - mCenters[i] / mGreatest;
-		double r = mRadiuses[i] / mGreatest;
+		Triple t = p - mCenters[i];
+		double r = mRadiuses[i];
 		double s = (r * r - t.X() * t.X() - t.Y() * t.Y() - t.Z() * t.Z()) / (r + r); 
 		if (i)
 		{
@@ -169,7 +278,7 @@ double Surface::Predicate(
 			om = s;
 		}
 	}
-	return om;
+	return om + 0.1;
 }
 
 //------------------------------------------------------------------------
@@ -180,23 +289,25 @@ double Surface::Predicate(
 void Surface::CreateSurface()
 {
 	SphereTriangles();
-	//TorusTriangles();
+	//TorusRectangles();
+	//OmegaRectangles();
 	Duplicate();
 	SurfaceNormals();
-	int n = 4; // number of iterations
+	int n = 3; // number of iterations
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < mPoints.Size(); j++)
 		{
 			Triple p = mPoints[j];
-			Triple n = - mNormals[j];
-			n.Normalize();
+			Triple n = mNormals[j];
+			if (n.Len2() > 0)
+				n.Normalize();
 			double om = Predicate(p);
 			if (om < -1.0) om = -1.0;
-			mPoints[j] = p - 0.25 * om * n;
+			mPoints[j] = p + 0.25 * om * n;
 		}
-	}
 	SurfaceNormals();
+	}
 }
 
 //------------------------------------------------------------------------
@@ -212,19 +323,30 @@ void Surface::SurfaceNormals()
 	{
 		mNormals.Add(Triple(0,0,0));
 	}
-	for (i = 0; i < mTrias.Size(); i += 3)
+	if (mType)
 	{
-		Triple v0(mPoints[mTrias[i]], mPoints[mTrias[i + 1]]);
-		Triple v1(mPoints[mTrias[i]], mPoints[mTrias[i + 2]]);
-		Triple n = v0 * v1;
-		mNormals[mTrias[i]] += n;
-		mNormals[mTrias[i + 1]] += n;
-		mNormals[mTrias[i + 2]] += n;
+		for (i = 0; i < mEntities.Size(); i += 4)
+		{
+			Triple v0(mPoints[mEntities[i]], mPoints[mEntities[i + 2]]);
+			Triple v1(mPoints[mEntities[i + 1]], mPoints[mEntities[i + 3]]);
+			Triple n = v0 * v1;
+			mNormals[mEntities[i]] += n;
+			mNormals[mEntities[i + 1]] += n;
+			mNormals[mEntities[i + 2]] += n;
+			mNormals[mEntities[i + 3]] += n;
+		}
 	}
-	for (i = 0; i< mNormals.Size(); i++)
+	else
 	{
-		Triple n = mNormals[i];
-		mNormals[i] = n.Normalize();
+		for (i = 0; i < mEntities.Size(); i += 3)
+		{
+			Triple v0(mPoints[mEntities[i]], mPoints[mEntities[i + 1]]);
+			Triple v1(mPoints[mEntities[i]], mPoints[mEntities[i + 2]]);
+			Triple n = v0 * v1;
+			mNormals[mEntities[i]] += n;
+			mNormals[mEntities[i + 1]] += n;
+			mNormals[mEntities[i + 2]] += n;
+		}
 	}
 }
 
@@ -292,7 +414,7 @@ void Surface::Duplicate()
     //    change entities for delete duplicate points
     for (i = 0; i < n; i++)
     {
-        mTrias.Add(ia[i] - 1);
+        mEntities.Add(ia[i] - 1);
     }
 }
 

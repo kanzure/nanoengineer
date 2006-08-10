@@ -13,6 +13,7 @@ cdef extern from "csurface.h":
     double cNz(int i)
     int cI(int i)
     void cLevel(int i)
+    int cType()
 def CreateSurface(spheres,level):
     cAllocate()
     for s in spheres:
@@ -24,8 +25,12 @@ def CreateSurface(spheres,level):
     for i in range(cNp()):
         points.append((cPx(i),cPy(i),cPz(i)))
         normals.append((cNx(i),cNy(i),cNz(i)))
-    trias = []
-    for i in range(cNt() / 3):
-        trias.append((cI(3*i),cI(3*i+1),cI(3*i+2)))
+    entities = []
+    if cType() == 0 :
+        for i in range(cNt() / 3):
+            entities.append((cI(3*i),cI(3*i+1),cI(3*i+2)))
+    else:
+        for i in range(cNt() / 4):
+            entities.append((cI(4*i),cI(4*i+1),cI(4*i+2),cI(4*i+3)))
     cFree()
-    return ((trias, points), normals)
+    return ((entities, points), normals)

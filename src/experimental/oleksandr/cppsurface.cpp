@@ -66,4 +66,8 @@ void cppLevel(int i)
 {
 	s->Level(i);
 }
+int cppType()
+{
+	return s->Type();
+}
 

@@ -66,5 +66,9 @@ void cLevel(int i)
 {
 	cppLevel(i);
 }
+int cType()
+{
+	return cppType();
+}
 
 #endif  								// CSURFACE_INCLUDED

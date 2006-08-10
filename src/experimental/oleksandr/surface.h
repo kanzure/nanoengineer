@@ -37,6 +37,13 @@ class Surface
 	inline void Level(int l);
 
 	//------------------------------------------------------------------------
+	// Type()
+	//
+	// get type
+	//
+	inline int Type();
+
+	//------------------------------------------------------------------------
 	// Add()
 	//
 	// add centers and radiuses
@@ -130,11 +137,11 @@ class Surface
 	void SphereTriangles();
 
 	//------------------------------------------------------------------------
-	// TorusTriangles()
+	// TorusRectangles()
 	//
-	// create torus triangles
+	// create torus rectangles
 	//
-	void TorusTriangles();
+	void TorusRectangles();
 
 	//------------------------------------------------------------------------
 	// CalculateTorus()
@@ -143,7 +150,28 @@ class Surface
 	//
 	Triple CalculateTorus(double a, double b, double u, double v);
 
-	//------------------------------------------------------------------------
+    //------------------------------------------------------------------------
+    // OmegaRectangles()
+    //
+    // create omega rectangles
+    //
+    void OmegaRectangles();
+
+    //------------------------------------------------------------------------
+    // Quad()
+    //
+    // generate quad
+    //
+    void Quad(Triple p0, Triple p1, Triple p2, Triple p3);
+
+    //------------------------------------------------------------------------
+    // Tria()
+    //
+    // generate tria
+    //
+    void Tria(Triple p0, Triple p1, Triple p2);
+
+    //------------------------------------------------------------------------
 	// Subdivide()
 	//
 	// recurcive subdividing on sphere
@@ -176,9 +204,9 @@ class Surface
     Container<double> mRadiuses;     // array for radiuses                                          
              
 	//------------------------------------------------------------------------
-	// mGreatest
+	// mType
 
-	double mGreatest;				 // greatest value form box
+	int mType;						// type of entity (tria, quad)
 
 	//------------------------------------------------------------------------
 	// mL
@@ -196,9 +224,9 @@ class Surface
     Container<Triple> mNormals;      // array for normals to surface                                          
              
 	//------------------------------------------------------------------------
-	// mTrias
+	// mEntities
 
-    Container<int> mTrias;          // array for trias indices                                          
+    Container<int> mEntities;        // array for indices                                          
              
 };
 
@@ -207,7 +235,7 @@ class Surface
 
 inline Surface::Surface()
 {
-       mGreatest = 1;
+       mType = 0;
 	   mL = 3;
 }
 
@@ -219,6 +247,16 @@ inline Surface::Surface()
 inline void Surface::Level(int l)
 {
 	mL = l;
+}
+
+//------------------------------------------------------------------------
+// Type()
+//
+// get type
+//
+inline int Surface::Type()
+{
+	return mType;
 }
 
 //------------------------------------------------------------------------
@@ -245,11 +283,11 @@ inline int Surface::Np()
 //------------------------------------------------------------------------
 // Nt()
 //
-// get size of trias
+// get size of entities
 //
 inline int Surface::Nt()
 {
-	return mTrias.Size();
+	return mEntities.Size();
 }
 
 //------------------------------------------------------------------------
@@ -319,7 +357,7 @@ inline double Surface::Nz(int i)
 //
 inline int Surface::I(int i)
 {
-	return mTrias[i];
+	return mEntities[i];
 }
 
 #endif  								// SURFACE_INCLUDED
