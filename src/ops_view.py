@@ -17,6 +17,7 @@ mark 060120 split this out of MWsemantics.py.
 from HistoryWidget import greenmsg, redmsg, orangemsg
 from constants import *
 from VQT import *
+from math import *
 
 import preferences
 import env
