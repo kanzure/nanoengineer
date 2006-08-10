@@ -36,8 +36,12 @@ mpeg_width = even(aspect_ratio * mpeg_height)
 # want the downloaded video to look better
 bitrate = 3e6
 
-os.system("rm -rf /tmp/mpeg")
-os.system("mkdir /tmp/mpeg")
+# Where will I keep all my temporary files? On Mandriva, /tmp is small
+# but $HOME/tmp is large.
+mpeg_dir = '/home/wware/tmp/mpeg'
+
+os.system("rm -rf " + mpeg_dir)
+os.system("mkdir " + mpeg_dir)
 
 def convert_and_crop(infile, w1, h1, outfile, w2, h2):
     scale = max(1.0 * w2 / w1, 1.0 * h2 / h1)
@@ -57,8 +61,8 @@ def povraySequence(filename_format, begin, frames):
     if QUICK_CHECK: frames = min(frames, 10)
     for i in range(frames):
         pov = filename_format % i
-        tga = '/tmp/mpeg/foo.%06d.tga' % (i + begin)
-        yuv = '/tmp/mpeg/foo.%06d.yuv' % (i + begin)
+        tga = '%s/foo.%06d.tga' % (mpeg_dir, i + begin)
+        yuv = '%s/foo.%06d.yuv' % (mpeg_dir, i + begin)
         cmd = ('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X' %
                (pov, tga, povray_width, povray_height))
         os.system(cmd)
@@ -71,10 +75,10 @@ def povraySequence(filename_format, begin, frames):
 def titleSequence(gifFile, begin, frames=300):
     if QUICK_CHECK: frames = min(frames, 10)
     h, w = getGifSize(gifFile)
-    first_yuv = '/tmp/mpeg/foo.%06d.yuv' % begin
+    first_yuv = '%s/foo.%06d.yuv' % (mpeg_dir, begin)
     convert_and_crop(gifFile, h, w, first_yuv, mpeg_width, mpeg_height)
     for i in range(1, frames):
-        yuv = '/tmp/mpeg/foo.%06d.yuv' % (i + begin)
+        yuv = '%s/foo.%06d.yuv' % (mpeg_diri + begin)
         shutil.copy(first_yuv, yuv)
     return begin + frames
 
@@ -89,7 +93,7 @@ frames = povraySequence('slowpov/slow.%06d.pov', frames, 1500)  # 50 seconds
 
 ###################################################
 
-sourcefileformat = "/tmp/mpeg/foo.%06d"
+sourcefileformat = mpeg_dir + "/foo.%06d"
 
 params = """MPEG-2 Test Sequence, 30 frames/sec
 %(sourcefileformat)s    /* name of source files */
