@@ -1,0 +1,42 @@
+== Making MPEGs ==
+
+Google Video accepts the following formats: AVI, MPEG, Quicktime,
+Real, and Windows Media. The one I think would be easiest to create on
+a Linux box is MPEG. (See http://www.mpeg.org/MSSG/ for codec source
+code.) Following advice from distutils, I changed CFLAGS in Makefile
+to
+
+  -pthread -fno-strict-aliasing -DNDEBUG -O2 -fomit-frame-pointer \
+               -pipe -march=i586 -mtune=pentiumpro  -g -fPIC
+
+and built mpeg2encode and mpeg2decode, and installed them both in
+/usr/local/bin.
+
+To encode MPEG, you need a parameter file. A good place to start is
+par/NTSC.par. Set the number of frames and the input filenames for
+your animation. You can change the horizontal and vertical size, but
+BOTH must be EVEN NUMBERS. The input filenames can be (*.Y, *.U, *.V)
+or *.yuv or *.ppm.
+
+=== Google Video experiments ===
+
+[http://video.google.com/videoplay?docid=3912306740235211587 Here] is
+my first attempt at a MPEG file, posted on Google Video. The problems
+with this are that it's fuzzy (I think the resolution was too low),
+the aspect ratio is wrong (should be 4:3, I think), and 30 seconds is
+a shorter video than I imagined.
+
+My [http://video.google.com/videoplay?docid=-6790724163882599903
+second attempt] has a better aspect ratio, but it's still quite fuzzy
+inspite of having used a much higher resolution. I suspect Google
+Video is downsampling the video for expedient web presentation. Also,
+thirty seconds is still just too darn brief.
+
+The fuzziness is because Google downsamples the video when you view it
+in your browser. The idea is that viewing the video shouldn't be a big
+burden on your network connection.
+
+But then you have the option to download the full-resolution video as
+an AVI file, and view it with a local viewer. Then it looks as sharp
+as whatever you uploaded, because you're downloading a file at the
+full resolution. So higher resolutions aren't completely wasted.
