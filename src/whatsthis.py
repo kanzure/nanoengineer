@@ -138,7 +138,7 @@ def createWhatsThis(self):
         self.fileImportAction.setWhatsThis(fileImportText)
         
         #Export File 
-        fileExportText = "<u><b>Import File</b></u><br>"\
+        fileExportText = "<u><b>Export File</b></u><br>"\
                                     "Save the current Part in any chemical file format supported by "\
                                     "<b>Openbabel</b>. Note that exclusive features of NanoEngineer-1 "\
                                     "are not saved to the exported file"
@@ -146,7 +146,6 @@ def createWhatsThis(self):
         
         self.fileExportAction.setWhatsThis(fileExportText)
         
-                                    
         
         # Save File
         
@@ -528,6 +527,19 @@ def createWhatsThis(self):
                                                        self.setViewRightAction.iconSet().pixmap() )
 
         self.setViewRightAction.setWhatsThis( setViewRightActionText )
+        
+        #Isometric View 
+        
+        setViewIsometricActionText = "<u><b>IsometricView</b></u><br>"\
+                       "<p><img source=\"setViewIsometric\"><br> "\
+                       "Orients the view to the Isometric View."\
+                       "</p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "setViewIsometric",
+                                                       self.setViewIsometricAction.iconSet().pixmap() )
+
+        self.setViewIsometricAction.setWhatsThis( setViewIsometricActionText )
+
         
         # Rotate View 180
         
@@ -1616,11 +1628,11 @@ def createWhatsThis(self):
         # Display
         #
         
-        # Display Object Color
+        # Display Chunk Color
 
-        dispObjectColorActionText = "<u><b>Object Color</b></u><br>"\
+        dispObjectColorActionText = "<u><b>Chunk Color</b></u><br>"\
                        "<p><img source=\"dispObjectColorAction\"><br> "\
-                       "Allows you to change the color of the selected object(s).</p>"
+                       "Allows you to change the color of the selected chunks(s).</p>"
 
         QMimeSourceFactory.defaultFactory().setPixmap( "dispObjectColorAction",
                                                        self.dispObjectColorAction.iconSet().pixmap() )
