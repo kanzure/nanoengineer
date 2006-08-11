@@ -25,23 +25,28 @@ povray_width = int(aspect_ratio * povray_height)
 # below in the MPEG parameter file.
 aspect_ratio = 4.0 / 3.0
 # mpeg_height and mpeg_width must both be even to make mpeg2encode
-# happy. NTSC is 4:3 with resolution 704x480, so those are non-square
-# pixels. Luckily I don't need to figure that out very soon.
+# happy. NTSC is 4:3 with resolution 704x480, with non-square pixels.
+# I don't know if ImageMagick handles non-square pixels.
 def even(x): return int(x) & -2
 mpeg_height = povray_height
 mpeg_width = even(aspect_ratio * mpeg_height)
 
-# megabits per second of MPEG stream, 3e6 minimum for good quality NTSC
-# probably a lower rate is tolerable for Google video display, but you
-# want the downloaded video to look better
-bitrate = 3e6
+# Bit rate of the MPEG stream in bits per second. For 30 FPS video at
+# 600x450, 2 mbits/sec looks good and gives a file size of about 250
+# Kbytes per second of video. At 1.5 mbits/sec you start to see some
+# MPEG artifacts, with file size of 190 Kbytes per second of video.
+bitrate = 2.0e6
 
 # Where will I keep all my temporary files? On Mandriva, /tmp is small
 # but $HOME/tmp is large.
 mpeg_dir = '/home/wware/tmp/mpeg'
 
-os.system("rm -rf " + mpeg_dir)
-os.system("mkdir " + mpeg_dir)
+# Are we ready to discard any existing animation frames?
+OVERWRITE_FRAMES = False
+
+if OVERWRITE_FRAMES:
+    os.system("rm -rf " + mpeg_dir)
+    os.system("mkdir -p " + mpeg_dir)
 
 def convert_and_crop(infile, w1, h1, outfile, w2, h2):
     scale = max(1.0 * w2 / w1, 1.0 * h2 / h1)
@@ -85,11 +90,12 @@ def titleSequence(gifFile, begin, frames=300):
 ###################################################
 
 frames = 0
-frames = titleSequence('title1.gif', frames)
-frames = titleSequence('title2.gif', frames)
-frames = povraySequence('fastpov/fast.%06d.pov', frames, 500)  # 16.67 seconds
-frames = titleSequence('title3.gif', frames)
-frames = povraySequence('slowpov/slow.%06d.pov', frames, 1500)  # 50 seconds
+if OVERWRITE_FRAMES:
+    frames = titleSequence('title1.gif', frames)
+    frames = titleSequence('title2.gif', frames)
+    frames = povraySequence('fastpov/fast.%06d.pov', frames, 500)  # 16.67 seconds
+    frames = titleSequence('title3.gif', frames)
+    frames = povraySequence('slowpov/slow.%06d.pov', frames, 1500)  # 50 seconds
 
 ###################################################
 
