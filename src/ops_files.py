@@ -48,13 +48,14 @@ def set_waitcursor(on_or_off):
 
 debug_part_files = False #&&& Debug prints to history. Change to False after QA. Mark 060703 [revised by bruce 060704]
 
-def fileparse(name): #bruce 050413 comment: see also filesplit and its comments.
-    # This has known bugs (e.g. for basename containing two dots);
-    # should be revised to use os.path.split and splitext. ###@@@
+def fileparse(name): #bruce 050413 comment: see also filesplit (movieMode.py) and its comments.
+    # clean things up using os.path functions - wware 060811
     """breaks name into directory, main name, and extension in a tuple.
     fileparse('~/foo/bar/gorp.xam') ==> ('~/foo/bar/', 'gorp', '.xam')
     """
     dir, x = os.path.split(name)
+    if not dir:
+        dir = '.'
     fil, ext = os.path.splitext(x)
     return dir + os.path.sep, fil, ext
 
