@@ -535,10 +535,11 @@ def createWhatsThis(self):
                        "Orients the view to the Isometric View."\
                        "</p>"
 
-        QMimeSourceFactory.defaultFactory().setPixmap( "setViewIsometric",
+        if 0:#bruce 060811 if 0 until ninad commits the .ui file that defines this
+            QMimeSourceFactory.defaultFactory().setPixmap( "setViewIsometric",
                                                        self.setViewIsometricAction.iconSet().pixmap() )
 
-        self.setViewIsometricAction.setWhatsThis( setViewIsometricActionText )
+            self.setViewIsometricAction.setWhatsThis( setViewIsometricActionText )
 
         
         # Rotate View 180
