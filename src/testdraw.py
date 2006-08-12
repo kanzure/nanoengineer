@@ -1215,6 +1215,8 @@ class Overlay(DelegatingWidgetExpr):
             # This is definitely needed for overdrawing like that to work, but it's low priority for now.
             # Callers can kluge it using Closer, though that's imperfect in perspective mode (or when viewpoint is rotated).
             # But for now, let's just try drawing in the wrong order and see if that helps... yep!
+            if a is None:
+                continue # even for first arg -- but that being None would fail in other ways, since it'd be our delegate
             a.draw() #e try/except
     pass # Overlay
 
@@ -1227,6 +1229,8 @@ class Row(WidgetExpr):
         glPushMatrix()
         pa = None
         for a in self.args:
+            if a is None:
+                continue
             if pa is not None:
                 dx = pa.bright + a.bleft + gap
                 glTranslate(dx,0,0)
@@ -1265,6 +1269,12 @@ class Column(WidgetExpr):
         glPushMatrix()
         pa = None
         for a in self.args:
+            if a is None:
+                continue
+                ###@@@ should do this more generally (for other WEs), but maybe not for all WE arglists, not sure;
+                # note that for Overlay, it only makes sense for args after the first one;
+                # note that we are not yet handling well the case of all Column args being None, unless
+                # (by accident) we already handle the 0-arg case well (untested, unthoughtabout).
             if pa is not None:
                 dy = pa.bbottom + a.btop + gap
                 glTranslate(0,-dy,0) 
@@ -1540,22 +1550,23 @@ def printfunc(*args): #e might be more useful if it could take argfuncs too (may
 #Local
 #If
 
-class Symbol:
-    def __init__(self, data = ('prim')):
-        self.data = data
-    def __getattr__(self, attr):
-        if attr.startswith('_'):
-            raise AttributeError, attr
-        return Symbol(('attr', attr, self)) # or could use AttrSymbol; could call this Expr or PyLikeExpr or PyExpr
-    def eval(self, env):
-        if self.data[0] == 'attr': # assume data[0] is like the subclass of Symbol
-            junk, attr, base = self.data
-            return getattr(base.eval(env), attr)
-        # otherwise assume primitive
-        return env # for now
-    pass
-
-__ = Symbol()
+# for a newer Symbol, see testdraw2
+##class Symbol:
+##    def __init__(self, data = ('prim')):
+##        self.data = data
+##    def __getattr__(self, attr):
+##        if attr.startswith('_'):
+##            raise AttributeError, attr
+##        return Symbol(('attr', attr, self)) # or could use AttrSymbol; could call this Expr or PyLikeExpr or PyExpr
+##    def eval(self, env):
+##        if self.data[0] == 'attr': # assume data[0] is like the subclass of Symbol
+##            junk, attr, base = self.data
+##            return getattr(base.eval(env), attr)
+##        # otherwise assume primitive
+##        return env # for now
+##    pass
+##
+##__ = Symbol()
 
 # I don't think Local and If can work until we get WEs to pass an env into their subexprs, as we know they need to do ####@@@@
 
@@ -1692,85 +1703,16 @@ def setit(val = None):
     vv.havelist = 0
     print "set USE_DISPLAY_LIST_OPTIM = %r" % USE_DISPLAY_LIST_OPTIM
 
-displist_expr = Button(Row(Rect(0.5,0.5,black),TextRect(18, 2, getit)), on_press = setit)
-displist_expr = Row(Button(Rect(0.5,0.5,black),Rect(0.5,0.5,gray), on_press = setit),
-                    TextRect(18, 2, getit))
+displist_expr_BUGGY = Button(Row(Rect(0.5,0.5,black),TextRect(18, 2, getit)), on_press = setit)
+    # works, but has bug: not sensitive to baremotion or click on text if you drag onto it from empty space,
+    # only if you drag onto it from the Rect.
+    
+displist_expr = Row(
+    Button( Rect(0.5,0.5,black), Rect(0.5,0.5,gray), on_press = setit),
+    TextRect(18, 2, getit))
 
-testexpr = Row(
-    #nim Button:
-                Button(
-                    ## Invisible(Rect(1.5, 1, blue)), # works
-                    Translucent(Rect(1.5, 1, blue)), # has bug
-                    Overlay( Rect(1.5, 1, lightgreen), (IsocelesTriangle(1.6, 1.1, pink))),
-                        ####@@@@ where do I say this? sbar_text = "button, unpressed"
-                        ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
-                    IsocelesTriangle(1.5, 1, green),
-                    IsocelesTriangle(1.5, 1, yellow),#e lightgreen better than yellow, once debugging sees the difference
-                        ####@@@@ sbar_text = "button, pressed", 
-                    # actions (other ones we don't have include baremotion_in, baremotion_out (rare I hope) and drag)
-                    on_press = printfunc('pressed'),
-                    on_release_in = printfunc('release in'),
-                    on_release_out = printfunc('release out')
-                ),
-                Translucent(Rect(1.5, 1, blue)), # has same bug
-                ## DrawThePart(),
-                Column(
-                    Rotated( Overlay( RectFrame(1.5, 1, 0.1, white),
-                                      Rect(0.5,0.5,orange),
-                                      RectFrame(0.5, 0.5, 0.025, ave_colors(0.5,yellow,gray))
-                                      ) ),
-                    Pass,
-                    Overlay( RectFrame(1.5, 1, 0.1, white),
-                             Button(
-                                 FilledSquare(bcolor, bcolor),
-                                 FilledSquare(bcolor, next_bcolor),
-                                 FilledSquare(next_bcolor, black),
-                                 FilledSquare(bcolor, gray),
-                                 on_release_in = toggleit
-                            )
-                    ),
-                ),
-                Column(
-                  Rect(1.5, 1, red),
-                  ##Button(Overlay(TextRect(18, 3, "line 1\nline 2...."),Rect(0.5,0.5,black)), on_press = printfunc("zz")),
-                      # buggy - sometimes invis to clicks on the text part, but sees them on the black rect part ###@@@
-                      # (see docstring at top for a theory about the cause)
-                  
-##                  Button(TextRect(18, 3, "line 1\nline 2...."), on_press = printfunc("zztr")), # 
-##                  Button(Overlay(Rect(3, 1, red),Rect(0.5,0.5,black)), on_press = printfunc("zzred")), # works
-##                  Button(Rect(0.5,0.5,black), on_press = printfunc("zz3")), # works
-                  Invisible(Rect(0.2,0.2,white)), # kluge to work around origin bug in TextRect ###@@@
-                  Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
-                  Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "bottom ribbon2" ),
-                  Rect(1.5, 1, green),
-                  gap = 0.2
-                ## DrawThePart(),
-                ),
-                Closer(Column(
-                    Highlightable( Rect(2, 3, pink),
-                                   # this form of highlight (same shape and depth) works from either front or back view
-                                   Rect(2, 3, orange), # comment this out to have no highlight color, but still sbar_text
-                                   # example of complex highlighting:
-                                   #   Row(Rect(1,3,blue),Rect(1,3,green)),
-                                   # example of bigger highlighting (could be used to define a nearby mouseover-tooltip as well):
-                                   #   Row(Rect(1,3,blue),Rect(2,3,green)),
-                                   sbar_text = "big pink rect"
-                                   ),
-                    #Highlightable( Rect(2, 3, pink), Closer(Rect(2, 3, orange), 0.1) ) # only works from front
-                        # (presumably since glpane moves it less than 0.1; if I use 0.001 it still works from either side)
-                    Highlightable( # rename? this is any highlightable/mouseoverable, cmenu/click/drag-sensitive object, maybe pickable
-                        Rect(1, 1, pink), # plain form, also determines size for layouts
-                        Rect(1, 1, orange), # highlighted form (can depend on active dragobj/tool if any, too) #e sbar_text?
-                        # [now generalize to be more like Button, but consider it a primitive, as said above]
-                        # handling_a_drag form:
-                        If( True, ## won't work yet: lambda env: env.this.mouseoverme , ####@@@@ this means the Highlightable -- is that well-defined???
-                            Rect(1, 1, blue),
-                            Rect(1, 1, lightblue) # what to draw during the drag
-                        ),
-                        sbar_text = "little buttonlike rect"
-                    )
-                )),
-                gap = 0.2)
+
+### testexpr was here
 
 # try a simpler type. a tile, easy ways to attach near ones.
 # a tile has pos/orient, size, color. like a Rect, really. RectParams. Do we say this? Or just write code to use & set them?
@@ -1921,5 +1863,87 @@ from testdraw2 import *
 # it's convenient to call them with mods... which are probably mods to per-call vars anyway...
 # they might be mods like color = red, or color_formula = F, which apply to various params, of the thing being drawn, etc...
 
+"""testexpr is sort of like an experimental toplevel rendering loop,
+since it doesn't refer to model state except in whatever way it says so internally.
+"""
 
+testexpr = Row(
+    #nim Button:
+                Button(
+                    ## Invisible(Rect(1.5, 1, blue)), # works
+                    Translucent(Rect(1.5, 1, blue)), # has bug
+                    Overlay( Rect(1.5, 1, lightgreen), (IsocelesTriangle(1.6, 1.1, pink))),
+                        ####@@@@ where do I say this? sbar_text = "button, unpressed"
+                        ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
+                    IsocelesTriangle(1.5, 1, green),
+                    IsocelesTriangle(1.5, 1, yellow),#e lightgreen better than yellow, once debugging sees the difference
+                        ####@@@@ sbar_text = "button, pressed", 
+                    # actions (other ones we don't have include baremotion_in, baremotion_out (rare I hope) and drag)
+                    on_press = printfunc('pressed'),
+                    on_release_in = printfunc('release in'),
+                    on_release_out = printfunc('release out')
+                ),
+                Translucent(Rect(1.5, 1, blue)), # has same bug
+                ## DrawThePart(),
+                Column(
+                    Rotated( Overlay( RectFrame(1.5, 1, 0.1, white),
+                                      Rect(0.5,0.5,orange),
+                                      RectFrame(0.5, 0.5, 0.025, ave_colors(0.5,yellow,gray))
+                                      ) ),
+                    Pass,
+                    Overlay( RectFrame(1.5, 1, 0.1, white),
+                             Button(
+                                 FilledSquare(bcolor, bcolor),
+                                 FilledSquare(bcolor, next_bcolor),
+                                 FilledSquare(next_bcolor, black),
+                                 FilledSquare(bcolor, gray),
+                                 on_release_in = toggleit
+                            )
+                    ),
+                ),
+                If(0,
+                    Column(
+                      Rect(1.5, 1, red),
+                      ##Button(Overlay(TextRect(18, 3, "line 1\nline 2...."),Rect(0.5,0.5,black)), on_press = printfunc("zz")),
+                          # buggy - sometimes invis to clicks on the text part, but sees them on the black rect part ###@@@
+                          # (see docstring at top for a theory about the cause)
+                      
+    ##                  Button(TextRect(18, 3, "line 1\nline 2...."), on_press = printfunc("zztr")), # 
+    ##                  Button(Overlay(Rect(3, 1, red),Rect(0.5,0.5,black)), on_press = printfunc("zzred")), # works
+    ##                  Button(Rect(0.5,0.5,black), on_press = printfunc("zz3")), # works
+                      Invisible(Rect(0.2,0.2,white)), # kluge to work around origin bug in TextRect ###@@@
+                      Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
+                      Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "bottom ribbon2" ),
+                      Rect(1.5, 1, green),
+                      gap = 0.2
+                    ## DrawThePart(),
+                    ),
+                ),
+                Closer(Column(
+                    Highlightable( Rect(2, 3, pink),
+                                   # this form of highlight (same shape and depth) works from either front or back view
+                                   Rect(2, 3, orange), # comment this out to have no highlight color, but still sbar_text
+                                   # example of complex highlighting:
+                                   #   Row(Rect(1,3,blue),Rect(1,3,green)),
+                                   # example of bigger highlighting (could be used to define a nearby mouseover-tooltip as well):
+                                   #   Row(Rect(1,3,blue),Rect(2,3,green)),
+                                   sbar_text = "big pink rect"
+                                   ),
+                    #Highlightable( Rect(2, 3, pink), Closer(Rect(2, 3, orange), 0.1) ) # only works from front
+                        # (presumably since glpane moves it less than 0.1; if I use 0.001 it still works from either side)
+                    Highlightable( # rename? this is any highlightable/mouseoverable, cmenu/click/drag-sensitive object, maybe pickable
+                        Rect(1, 1, pink), # plain form, also determines size for layouts
+                        Rect(1, 1, orange), # highlighted form (can depend on active dragobj/tool if any, too) #e sbar_text?
+                        # [now generalize to be more like Button, but consider it a primitive, as said above]
+                        # handling_a_drag form:
+                        If( True, ## won't work yet: lambda env: env.this.mouseoverme , ####@@@@ this means the Highlightable -- is that well-defined???
+                            Rect(1, 1, blue),
+                            Rect(1, 1, lightblue) # what to draw during the drag
+                        ),
+                        sbar_text = "little buttonlike rect"
+                    )
+                )),
+                gap = 0.2)
+    # end of testexpr
+    
 # end
