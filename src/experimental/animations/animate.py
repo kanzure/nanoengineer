@@ -2,7 +2,7 @@
 
 import os, sys, string, types, Numeric
 
-DEBUG = '-debug' in sys.argv[1:]
+DEBUG = False
 
 def do(cmd):
     if DEBUG:
@@ -38,22 +38,29 @@ class ImageBuffer:
         elif type(size) is types.StringType:
             size = map(string.atoi, size.split('x'))
         self.fil = fil
-        self.typ = Numeric.UInt32
+        self.size = size = tuple(size)
         self.w, self.h = w, h = size
         if fil is not None:
             # array module has fast file I/O, Numeric might not
             import array
-            assert type(size) in (types.ListType, types.TupleType)
             do('convert -size %s -interlace plane %s /tmp/foo.rgb' %
-               ('%dx%d' % tuple(size), fil))
+               ('%dx%d' % size, fil))
             a = array.array('B')  # unsigned bytes
             a.fromstring(open('/tmp/foo.rgb').read())
-            self.red = Numeric.array(a[:w*h], self.typ)
-            self.green = Numeric.array(a[w*h:2*w*h], self.typ)
-            self.blue = Numeric.array(a[2*w*h:], self.typ)
+            self.red = Numeric.array(a[:w*h], Numeric.UInt32)
+            self.green = Numeric.array(a[w*h:2*w*h], Numeric.UInt32)
+            self.blue = Numeric.array(a[2*w*h:], Numeric.UInt32)
+
+    def _subcopy(self):
+        dst = ImageBuffer(size=(self.w, self.h))
+        dst.fil = self.fil
+        dst.size = self.size
+        dst.w = self.w
+        dst.h = self.h
+        return dst
 
     def copy(self):
-        dst = ImageBuffer(size=(self.w, self.h))
+        dst = self._subcopy()
         dst.red = self.red.copy()
         dst.green = self.green.copy()
         dst.blue = self.blue.copy()
@@ -62,7 +69,7 @@ class ImageBuffer:
     def __add__(self, other):
         assert self.w == other.w
         assert self.h == other.h
-        dst = ImageBuffer(size=(self.w, self.h))
+        dst = self._subcopy()
         dst.red = self.red + other.red
         dst.green = self.green + other.green
         dst.blue = self.blue + other.blue
@@ -70,10 +77,10 @@ class ImageBuffer:
 
     def __mul__(self, other):
         assert type(other) in (types.IntType, types.FloatType)
-        dst = ImageBuffer(size=(self.w, self.h))
-        dst.red = (other * self.red).astype(self.typ)
-        dst.green = (other * self.green).astype(self.typ)
-        dst.blue = (other * self.blue).astype(self.typ)
+        dst = self._subcopy()
+        dst.red = (other * self.red).astype(Numeric.UInt32)
+        dst.green = (other * self.green).astype(Numeric.UInt32)
+        dst.blue = (other * self.blue).astype(Numeric.UInt32)
         return dst
 
     def __rmul__(self, other):
@@ -140,27 +147,6 @@ class ImageBuffer:
 # Figure out how to make this less dependent on my directory structure.
 font = ImageBuffer('/home/wware/polosims/cad/src/experimental/animations/font.gif')
 
-#def hack_motion_blur():
-#    if DEBUG:
-#        N = 60
-#    else:
-#        N = 4500
-#    povraySequence('/home/wware/tmp/mpeg/subframes/subframes.%06d', 0, N)
-#    fmt = '/home/wware/tmp/mpeg/foo.%06d.yuv'
-#    size = '600x450'
-#    for i in range(N / 10):
-#        start = 10 * i
-#        ib = ImageBuffer(fmt % start, size=size)
-#        for j in range(start + 1, start + 10):
-#            ib2 = ImageBuffer(fmt % j, size=size)
-#            ib += ib2
-#        ib *= 0.1
-#        ib.add_clock(1./3, i)
-#        ib.save('slow.%06d.yuv' % i)
-
-
-
-
 
 # Dimensions for recommended povray rendering, gotten from the first line
 # of any of the *.pov files.
@@ -190,119 +176,6 @@ bitrate = 2.0e6
 # but $HOME/tmp is large.
 mpeg_dir = '/home/wware/tmp/mpeg'
 
-
-
-
-class MpegSequence:
-
-    def __init__(self, bitrate, forReal=False):
-        self.bitrate = bitrate
-        self.frame = 0
-        self.width = mpeg_width
-        self.height = mpeg_height
-        self.size = (self.width, self.height)
-        # We might not want to overwrite all our YUV files
-        self.forReal = forReal
-        if forReal:
-            do("rm -rf " + mpeg_dir + "/yuvs")
-            do("mkdir -p " + mpeg_dir + "/yuvs")
-
-    def __len__(self):
-        return self.frame
-
-    def yuv_format(self):
-        # Leave off the ".yuv" so we can use it for the
-        # mpeg2encode parameter file.
-        return mpeg_dir + '/yuvs/foo.%06d'
-
-    def yuv_name(self, i=None):
-        if i is None:
-            i = self.frame
-        return (self.yuv_format() % i) + '.yuv'
-
-    # By default, each title page stays up for 300 frames, or ten seconds
-    def titleSequence(self, titlefile, frames=300):
-        assert os.path.exists(titlefile)
-        if not self.forReal:
-            self.frame += frames
-            return
-        if DEBUG: frames = min(frames, 10)
-        first_yuv = self.yuv_name()
-        self.convert_and_crop(titlefile, first_yuv)
-        self.frame += 1
-        for i in range(1, frames):
-            import shutil
-            shutil.copy(first_yuv, self.yuv_name())
-            self.frame += 1
-
-    def convert_and_crop(self, infile, outfile):
-        w1, h1 = image_size(infile)
-        w2, h2 = self.size
-        scale = max(1.0 * w2 / w1, 1.0 * h2 / h1)
-        w3, h3 = int(scale * w1), int(scale * h1)
-        w3, h3 = max(w3, w2), max(h3, h2)
-        # First we scale the image up to w3 x h3, preserving the old aspect ratio.
-        # Then we (shrink if needed and) crop it to the desired size.
-        do('convert %s -geometry %dx%d -crop %dx%d+%d+%d %s' %
-           (infile, w3, h3, w2, h2, (w3 - w2) / 2, (h3 - h2) / 2, outfile))
-
-    def povraySequence(self, povfmt, frames, psecs_per_frame, psecs_step=30):
-        assert povfmt[-4:] == '.pov'
-        if DEBUG: frames = min(frames, 10)
-        for i in range(frames):
-            pov = povfmt % i
-            assert os.path.exists(pov), 'cannot find file: ' + pov
-            tga = '%s/foo.%06d.tga' % (mpeg_dir, self.frame)
-            yuv = self.yuv_name()
-            if self.forReal:
-                do('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X' %
-                   (pov, tga, povray_width, povray_height))
-                self.convert_and_crop(tga, yuv)
-                os.remove(tga)
-                if DEBUG: print 'start adding text'
-                ib = ImageBuffer(yuv, size=self.size)
-                psecs = ((i / psecs_step) * psecs_step) * psecs_per_frame
-                ib.addtext(1, 1, '%.2f picoseconds' % psecs)
-                ib.save()
-                if DEBUG: print 'finish adding text'
-            self.frame += 1
-
-    # This could be combined with povraySequence, which is a special case
-    # where ratio is 1.
-    def motionBlurSequence(self, povfmt, frames, ratio, psecs_per_frame):
-        # "frames" is the number of _output_ frames. Going in, you need
-        # N _input_ frames, where N=frames*ratio, which means N POV files.
-        if not self.forReal:
-            self.frame += frames
-            return
-        if DEBUG:
-            frames = min(frames, 60)
-            ratio = min(ratio, 10)
-        N = frames * ratio
-        #povraySequence('/home/wware/tmp/mpeg/subframes/subframes.%06d', 0, N)
-        old_frame = self.frame  # we will back up to here later
-        self.povraySequence(povfmt, N, psecs_per_frame, psecs_step=30*ratio)
-        self.frame = old_frame
-        for frame in range(frames):
-            ib = ImageBuffer(fmt % start, size=self.size)
-            for subframe in range(1, ratio):
-                ib += ImageBuffer(self.yuv_name(self.frame + subframe), size)
-            ((1.0 / ratio) * ib).save(self.yuv_name(frame))
-
-    def encode(self):
-        parfil = mpeg_dir + "/foo.par"
-        outf = open(parfil, "w")
-        outf.write(params % {'sourcefileformat': self.yuv_format(),
-                             'frames': len(self),
-                             'height': self.height,
-                             'width': self.width,
-                             'bitrate': self.bitrate})
-        outf.close()
-        # encoding is an inexpensive operation, do it even if not for real
-        do('mpeg2encode foo.par foo.mpeg')
-
-
-###################################################
 
 params = """MPEG-2 Test Sequence, 30 frames/sec
 %(sourcefileformat)s    /* name of source files */
@@ -362,31 +235,146 @@ stat.out  /* name of statistics file ("-": stdout ) */
 """
 
 
+class MpegSequence:
 
-#################################################################
+    def __init__(self, bitrate, forReal=False):
+        self.bitrate = bitrate
+        self.frame = 0
+        self.width = mpeg_width
+        self.height = mpeg_height
+        self.size = (self.width, self.height)
+        # We might not want to overwrite all our YUV files
+        self.forReal = forReal
+        if forReal:
+            do("rm -rf " + mpeg_dir + "/yuvs")
+            do("mkdir -p " + mpeg_dir + "/yuvs")
+
+    def __len__(self):
+        return self.frame
+
+    def yuv_format(self):
+        # Leave off the ".yuv" so we can use it for the
+        # mpeg2encode parameter file.
+        return mpeg_dir + '/yuvs/foo.%06d'
+
+    def yuv_name(self, i=None):
+        if i is None:
+            i = self.frame
+        return (self.yuv_format() % i) + '.yuv'
+
+    # By default, each title page stays up for 300 frames, or ten seconds
+    def titleSequence(self, titlefile, frames=300):
+        assert os.path.exists(titlefile)
+        if not self.forReal:
+            self.frame += frames
+            return
+        if DEBUG: frames = min(frames, 10)
+        first_yuv = self.yuv_name()
+        self.convert_and_crop(titlefile, first_yuv)
+        self.frame += 1
+        for i in range(1, frames):
+            import shutil
+            shutil.copy(first_yuv, self.yuv_name())
+            self.frame += 1
+
+    def previouslyComputed(self, fmt, frames, begin=0):
+        assert os.path.exists(titlefile)
+        if not self.forReal:
+            self.frame += frames
+            return
+        if DEBUG: frames = min(frames, 10)
+        for i in range(frames):
+            import shutil
+            src = fmt % (i + begin)
+            shutil.copy(src, self.yuv_name())
+            self.frame += 1
+
+    # This could probably be done a lot more efficiently as a method
+    # in ImageBuffer, as long as we don't need to re-sample pixels.
+    def convert_and_crop(self, infile, outfile):
+        w1, h1 = image_size(infile)
+        w2, h2 = self.size
+        scale = max(1.0 * w2 / w1, 1.0 * h2 / h1)
+        w3, h3 = int(scale * w1), int(scale * h1)
+        w3, h3 = max(w3, w2), max(h3, h2)
+        # First we scale the image up to w3 x h3, preserving the old aspect ratio.
+        # Then we (shrink if needed and) crop it to the desired size.
+        do('convert %s -geometry %dx%d -crop %dx%d+%d+%d %s' %
+           (infile, w3, h3, w2, h2, (w3 - w2) / 2, (h3 - h2) / 2, outfile))
+
+    def povraySequence(self, povfmt, frames, psecs_per_frame,
+                       psecs_step=30, begin=0):
+        assert povfmt[-4:] == '.pov'
+        if DEBUG: frames = min(frames, 10)
+        for i in range(frames):
+            pov = povfmt % (i + begin)
+            assert os.path.exists(pov), 'cannot find file: ' + pov
+            tga = '%s/foo.%06d.tga' % (mpeg_dir, self.frame)
+            yuv = self.yuv_name()
+            if self.forReal:
+                do('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X' %
+                   (pov, tga, povray_width, povray_height))
+                self.convert_and_crop(tga, yuv)
+                os.remove(tga)
+                if DEBUG: print 'start adding text'
+                ib = ImageBuffer(yuv, size=self.size)
+                psecs = ((i / psecs_step) * psecs_step) * psecs_per_frame
+                ib.addtext(1, 1, '%.2f picoseconds' % psecs)
+                ib.save()
+                if DEBUG: print 'finish adding text'
+            self.frame += 1
+
+    # This could be combined with povraySequence, which is a special case
+    # where ratio is 1.
+    def motionBlurSequence(self, povfmt, frames, ratio, psecs_per_frame, begin=0):
+        # "frames" is the number of _output_ frames. Going in, you need
+        # N _input_ frames, where N=frames*ratio, which means N POV files.
+        if not self.forReal:
+            self.frame += frames
+            return
+        if DEBUG:
+            frames = min(frames, 30)
+            ratio = min(ratio, 5)
+        N = frames * ratio
+        init_frame = self.frame
+        for frame in range(frames):
+            previous = self.frame  # we will back up to here later
+            self.povraySequence(povfmt, ratio, psecs_per_frame,
+                                psecs_step=30*ratio,
+                                begin=begin+self.frame-init_frame)
+            self.frame = previous
+            ib = ImageBuffer(self.yuv_name(self.frame), size=self.size)
+            for subframe in range(1, ratio):
+                ib += ImageBuffer(self.yuv_name(self.frame + subframe),
+                                  size=self.size)
+            (ib * (1.0 / ratio)).save()
+            self.frame += 1
+
+    def encode(self):
+        parfil = mpeg_dir + "/foo.par"
+        outf = open(parfil, "w")
+        outf.write(params % {'sourcefileformat': self.yuv_format(),
+                             'frames': len(self),
+                             'height': self.height,
+                             'width': self.width,
+                             'bitrate': self.bitrate})
+        outf.close()
+        # encoding is an inexpensive operation, do it even if not for real
+        do('mpeg2encode foo.par foo.mpeg')
 
 
-if __name__ == '__main__':
+###################################################
 
+
+def example_usage():
     m = MpegSequence(2e6, True)
     #m.titleSequence('title1.gif')
     #m.titleSequence('title2.gif')
     #m.povraySequence('fastpov/fast.%06d.pov', 450, 0.01)
-    m.titleSequence('title3.gif')
-    m.povraySequence('slowpov/slow.%06d.pov', 450, 10, 0.3333)
+    #m.titleSequence('title3.gif')
+    m.motionBlurSequence('slowpov/slow.%06d.pov', 450, 10, 0.3333)
     m.encode()
 
+# python -c "import animate; animate.example_usage()"
 
-if False and __name__ == '__main__':
-    try:
-        infile, outfile, textx, texty, message = sys.argv[1:]
-        textx = string.atoi(textx)
-        texty = string.atoi(texty)
-        ib = ImageBuffer(infile, size=size)
-        ib.addtext(text, texty, message)
-        ib.save(outfile)
-    except ValueError:
-        print """Usage: %s <infile> <outfile> <x> <y> <message>
-        <x> and <y> specify the position of the text
-        <message> is the content of the text
-        """ % sys.argv[0]
+# python -c "import animate; animate.DEBUG=True; animate.example_usage()"
