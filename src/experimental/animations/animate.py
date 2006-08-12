@@ -4,6 +4,19 @@ import os, sys, string, types, Numeric
 
 DEBUG = False
 
+def linenum(*args):
+    try:
+        raise Exception
+    except:
+        tb = sys.exc_info()[2]
+        f = tb.tb_frame.f_back
+        print f.f_code.co_filename, f.f_code.co_name, f.f_lineno,
+    if len(args) > 0:
+        print ' --> ',
+        for x in args:
+            print x,
+    print
+
 def do(cmd):
     if DEBUG:
         try:
@@ -302,52 +315,74 @@ class MpegSequence:
         do('convert %s -geometry %dx%d -crop %dx%d+%d+%d %s' %
            (infile, w3, h3, w2, h2, (w3 - w2) / 2, (h3 - h2) / 2, outfile))
 
-    def povraySequence(self, povfmt, frames, psecs_per_frame,
-                       psecs_step=30, begin=0):
+    def add_clock(self, imgbuf, which_frame, psecs_per_frame):
+        if DEBUG: print 'start adding text'
+        if DEBUG: print 'finish adding text'
+
+    def povraySequence(self, povfmt, frames, psecs_per_frame=None,
+                       begin=0):
         assert povfmt[-4:] == '.pov'
         if DEBUG: frames = min(frames, 10)
         for i in range(frames):
+            if DEBUG: linenum('i', i)
             pov = povfmt % (i + begin)
             assert os.path.exists(pov), 'cannot find file: ' + pov
             tga = '%s/foo.%06d.tga' % (mpeg_dir, self.frame)
             yuv = self.yuv_name()
             if self.forReal:
-                do('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X' %
-                   (pov, tga, povray_width, povray_height))
+                if True:
+                    do('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X 2>/dev/null' %
+                       (pov, tga, povray_width, povray_height))
+                else:
+                    do('povray +I%s +O%s +FT +A +W%d +H%d -V -D +X' %
+                       (pov, tga, povray_width, povray_height))
                 self.convert_and_crop(tga, yuv)
                 os.remove(tga)
-                if DEBUG: print 'start adding text'
-                ib = ImageBuffer(yuv, size=self.size)
-                psecs = ((i / psecs_step) * psecs_step) * psecs_per_frame
-                ib.addtext(1, 1, '%.2f picoseconds' % psecs)
-                ib.save()
-                if DEBUG: print 'finish adding text'
+                if psecs_per_frame is not None:
+                    ib = ImageBuffer(yuv, size=self.size)
+                    if DEBUG: update_psecs = 5
+                    else: update_psecs = 30
+                    psecs = ((i / update_psecs) * update_psecs) * psecs_per_frame
+                    ib.addtext(1, 1, '%.2f picoseconds' % psecs)
+                    ib.save()
             self.frame += 1
 
     # This could be combined with povraySequence, which is a special case
-    # where ratio is 1.
-    def motionBlurSequence(self, povfmt, frames, ratio, psecs_per_frame, begin=0):
-        # "frames" is the number of _output_ frames. Going in, you need
-        # N _input_ frames, where N=frames*ratio, which means N POV files.
+    # where avg and ratio are both 1.
+    def motionBlurSequence(self, povfmt, frames, psecs_per_subframe,
+                           ratio, avg, begin=0):
+        # avg is how many subframes are averaged to produce each frame
+        # ratio is the ratio of subframes to frames
         if not self.forReal:
             self.frame += frames
             return
         if DEBUG:
-            frames = min(frames, 30)
-            ratio = min(ratio, 5)
+            frames = min(frames, 3)
+            avg = min(avg, 5)
+            print 'MOTION BLUR SEQUENCE'
+            print 'povfmt', povfmt
+            print 'frames', frames
+            print 'psecs_per_subframe', psecs_per_subframe
+            print 'ratio', ratio
+            print 'avg', avg
+            print 'begin', begin
         N = frames * ratio
-        init_frame = self.frame
-        for frame in range(frames):
-            previous = self.frame  # we will back up to here later
-            self.povraySequence(povfmt, ratio, psecs_per_frame,
-                                psecs_step=30*ratio,
-                                begin=begin+self.frame-init_frame)
+        for i in range(frames):
+            if DEBUG: linenum('i', i)
+            previous = self.frame
+            if DEBUG: linenum('starting POV files at', begin + i * ratio)
+            self.povraySequence(povfmt, avg, begin=begin+i*ratio)
             self.frame = previous
             ib = ImageBuffer(self.yuv_name(self.frame), size=self.size)
-            for subframe in range(1, ratio):
-                ib += ImageBuffer(self.yuv_name(self.frame + subframe),
+            for j in range(1, avg):
+                ib += ImageBuffer(self.yuv_name(self.frame + j),
                                   size=self.size)
-            (ib * (1.0 / ratio)).save()
+            ib *= 1.0 / avg
+            if DEBUG: update_psecs = 1
+            else: update_psecs = 30
+            psecs = ((i / update_psecs) * update_psecs) * ratio * psecs_per_subframe
+            ib.addtext(1, 1, '%.2f picoseconds' % psecs)
+            ib.save()
             self.frame += 1
 
     def encode(self):
@@ -370,9 +405,14 @@ def example_usage():
     m = MpegSequence(2e6, True)
     #m.titleSequence('title1.gif')
     #m.titleSequence('title2.gif')
-    #m.povraySequence('fastpov/fast.%06d.pov', 450, 0.01)
+    #m.povraySequence('fastpov/fast.%06d.pov', 450, psecs_per_frame=0.01)
     #m.titleSequence('title3.gif')
-    m.motionBlurSequence('slowpov/slow.%06d.pov', 450, 10, 0.3333)
+
+    m.motionBlurSequence('slowpov/slow.%06d.pov', 450, 0.0333,
+                         10, 10)
+    #m.motionBlurSequence('slowpov/slow.%06d.pov', 3, 0.0333,
+    #                     2000, 5)
+
     m.encode()
 
 # python -c "import animate; animate.example_usage()"
