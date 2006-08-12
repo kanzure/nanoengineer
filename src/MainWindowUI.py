@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Aug 7 23:27:11 2006
+# Created: Sat Aug 12 16:37:01 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -5812,6 +5812,25 @@ image147_data = \
     "\x5c\xc2\x1b\x4b\x7a\xdf\x31\xd8\xaf\xe9\x0b\x68" \
     "\xb8\x0f\x64\x49\xe4\xe7\x73\x00\x00\x00\x00\x49" \
     "\x45\x4e\x44\xae\x42\x60\x82"
+image148_data = \
+    "\x89\x50\x4e\x47\x0d\x0a\x1a\x0a\x00\x00\x00\x0d" \
+    "\x49\x48\x44\x52\x00\x00\x00\x16\x00\x00\x00\x16" \
+    "\x08\x06\x00\x00\x00\xc4\xb4\x6c\x3b\x00\x00\x00" \
+    "\x99\x49\x44\x41\x54\x78\x9c\xed\x95\x41\x0e\x80" \
+    "\x30\x08\x04\xc1\xf0\x80\xfe\xff\xad\x26\x78\x29" \
+    "\x9a\x52\x28\x60\x62\xf4\xe0\x5e\xea\x61\x99\x6d" \
+    "\x10\x11\xe0\x23\xe2\xac\x71\x2b\x00\x19\x76\xbe" \
+    "\x9e\x03\x61\x02\x08\x1d\x38\x8a\xce\x52\x93\xe1" \
+    "\x81\x7d\x60\x32\x40\x83\xf3\xc0\x20\x60\xee\xf1" \
+    "\x1d\xa8\x51\x37\x83\x29\x6a\xbb\x23\x55\x67\xdf" \
+    "\x98\x30\x1f\x20\x5e\x75\x63\x32\xcd\x62\x12\xf8" \
+    "\x6a\x2a\x9c\xd6\xd9\xe0\x55\x40\x00\xcc\x81\xad" \
+    "\x80\xe4\xcb\xcd\x7e\x79\x65\xfd\xe0\xe7\xc1\x7a" \
+    "\x2a\x10\x08\xeb\xfb\xc2\x58\x44\xd6\xb8\x61\x37" \
+    "\xc7\x01\xc1\xea\x8c\x24\x4b\x7e\x3c\x0b\x7f\x93" \
+    "\xa5\x5a\x6b\x0c\x00\xdc\xcf\xf7\x74\x00\x38\x36" \
+    "\x3c\x73\x53\x57\x9f\xcc\x00\x00\x00\x00\x49\x45" \
+    "\x4e\x44\xae\x42\x60\x82"
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6108,6 +6127,8 @@ class MainWindow(QMainWindow):
         self.image146.loadFromData(image146_data,"PNG")
         self.image147 = QPixmap()
         self.image147.loadFromData(image147_data,"PNG")
+        self.image148 = QPixmap()
+        self.image148.loadFromData(image148_data,"PNG")
         self.image11 = QPixmap(image11_data)
         self.image19 = QPixmap(image19_data)
         self.image27 = QPixmap(image27_data)
@@ -6559,6 +6580,8 @@ class MainWindow(QMainWindow):
         self.simMinimizeEnergyAction.setIconSet(QIconSet(self.image147))
         self.fileImportAction = QAction(self,"fileImportAction")
         self.fileExportAction = QAction(self,"fileExportAction")
+        self.setViewIsometricAction = QAction(self,"setViewIsometricAction")
+        self.setViewIsometricAction.setIconSet(QIconSet(self.image148))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6583,7 +6606,7 @@ class MainWindow(QMainWindow):
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.viewToolbar.setEnabled(1)
-        self.viewToolbar.setGeometry(QRect(280,0,542,29))
+        self.viewToolbar.setGeometry(QRect(280,0,570,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
@@ -6601,6 +6624,7 @@ class MainWindow(QMainWindow):
         self.setViewRightAction.addTo(self.viewToolbar)
         self.setViewTopAction.addTo(self.viewToolbar)
         self.setViewBottomAction.addTo(self.viewToolbar)
+        self.setViewIsometricAction.addTo(self.viewToolbar)
         self.viewToolbar.addSeparator()
         self.setViewOppositeAction.addTo(self.viewToolbar)
         self.setViewPlus90Action.addTo(self.viewToolbar)
@@ -6610,7 +6634,7 @@ class MainWindow(QMainWindow):
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.molecularDispToolbar.setEnabled(1)
-        self.molecularDispToolbar.setGeometry(QRect(822,0,238,29))
+        self.molecularDispToolbar.setGeometry(QRect(850,0,238,29))
         self.molecularDispToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
@@ -6662,7 +6686,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,19,1087,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1085,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6873,6 +6897,7 @@ class MainWindow(QMainWindow):
         self.setViewLeftAction.addTo(self.viewMenu)
         self.setViewTopAction.addTo(self.viewMenu)
         self.setViewBottomAction.addTo(self.viewMenu)
+        self.setViewIsometricAction.addTo(self.viewMenu)
         self.viewMenu.insertSeparator()
         self.setViewOppositeAction.addTo(self.viewMenu)
         self.setViewPlus90Action.addTo(self.viewMenu)
@@ -7136,6 +7161,7 @@ class MainWindow(QMainWindow):
         self.connect(self.simMinimizeEnergyAction,SIGNAL("activated()"),self.simMinimizeEnergy)
         self.connect(self.fileImportAction,SIGNAL("activated()"),self.fileImport)
         self.connect(self.fileExportAction,SIGNAL("activated()"),self.fileExport)
+        self.connect(self.setViewIsometricAction,SIGNAL("activated()"),self.setViewIsometric)
 
 
     def languageChange(self):
@@ -7600,6 +7626,8 @@ class MainWindow(QMainWindow):
         self.fileExportAction.setText(self.__tr("Export File..."))
         self.fileExportAction.setMenuText(self.__tr("&Export File..."))
         self.fileExportAction.setToolTip(self.__tr("Export File"))
+        self.setViewIsometricAction.setText(self.__tr("Isometric"))
+        self.setViewIsometricAction.setMenuText(self.__tr("&Isometric"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8208,6 +8236,9 @@ class MainWindow(QMainWindow):
 
     def fileExport(self):
         print "MainWindow.fileExport(): Not implemented yet"
+
+    def setViewIsometric(self):
+        print "MainWindow.setViewIsometric(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

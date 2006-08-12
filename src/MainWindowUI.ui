@@ -96,6 +96,7 @@
         <action name="setViewLeftAction"/>
         <action name="setViewTopAction"/>
         <action name="setViewBottomAction"/>
+        <action name="setViewIsometricAction"/>
         <separator/>
         <action name="setViewOppositeAction"/>
         <action name="setViewPlus90Action"/>
@@ -256,7 +257,7 @@
             <rect>
                 <x>280</x>
                 <y>0</y>
-                <width>542</width>
+                <width>570</width>
                 <height>29</height>
             </rect>
         </property>
@@ -282,6 +283,7 @@
         <action name="setViewRightAction"/>
         <action name="setViewTopAction"/>
         <action name="setViewBottomAction"/>
+        <action name="setViewIsometricAction"/>
         <separator/>
         <action name="setViewOppositeAction"/>
         <action name="setViewPlus90Action"/>
@@ -298,7 +300,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>822</x>
+                <x>850</x>
                 <y>0</y>
                 <width>238</width>
                 <height>29</height>
@@ -472,7 +474,7 @@
             <rect>
                 <x>0</x>
                 <y>19</y>
-                <width>1087</width>
+                <width>1085</width>
                 <height>29</height>
             </rect>
         </property>
@@ -4021,6 +4023,20 @@
             <string>Export File</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>setViewIsometricAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image148</iconset>
+        </property>
+        <property name="text">
+            <string>Isometric</string>
+        </property>
+        <property name="menuText">
+            <string>&amp;Isometric</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4466,6 +4482,9 @@
     </image>
     <image name="image147">
         <data format="PNG" length="367">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000013649444154789cbd95314ec3401045df274889e422650e4049439f03a488259038000507f0012838080748c1112828288344e182027a4a4a0b05692832461b7b0d368e1969b5deddff9fd6de99b5cc8c21e26010eabf82258d246592d69236924c522ee94a52128348aa7f4f33fb6e4002dc03d6d07260167adc67b5b98ae0d601cfc002180323600eac7deda113d8cd06bc0049c49c04f06517f08d9bceaba24073ea9a551770eea6e90fe069f956bf81551688a402984473271266a6302bc231eca65b6b689b380c9e3f7d3c31b38fbee070c7afde9ff48556c18fde9fed031c9eec92ed8917c07143565c1029125a54de9d1bdf814b3cf58023e01ad8f8faa22b78063cd17c571890b9366d584f6b60378c818c6df9162e7e0356c0bca2adc2d3e88effd20278ba33df175cc21b4b7adf31d8afe90b68b80f6449e4e7730000000049454e44ae426082</data>
+    </image>
+    <image name="image148">
+        <data format="PNG" length="210">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000009949444154789ced95410e80300804c1f080feffad2678299a52286062f4e05eea61996d1011e023e2ac712b001976be9e036102081d388ace5293e1817d60324083f3c02060eef11da8513783296abb235567df98301f205e756332cd6212f86a2a9cd6d9e0554000cc81ad80e4cbcd7e7965fde0e7c17a2a1008ebfbc25844d6b86137c701c1ea8c244b7e3c0b7f93a55a6b0c00dccff7740038363c7353579fcc0000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5393,6 +5412,12 @@
         <receiver>MainWindow</receiver>
         <slot>fileExport()</slot>
     </connection>
+    <connection>
+        <sender>setViewIsometricAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewIsometric()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5579,6 +5604,7 @@
     <slot>simMinimizeEnergy()</slot>
     <slot>fileImport()</slot>
     <slot>fileExport()</slot>
+    <slot>setViewIsometric()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
