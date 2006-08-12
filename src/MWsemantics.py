@@ -1538,6 +1538,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.setViewBottomAction.setEnabled(enableFlag)
         self.setViewLeftAction.setEnabled(enableFlag)
         self.setViewRightAction.setEnabled(enableFlag)
+        self.setViewIsometricAction.setEnabled(enableFlag)
         
         self.setViewHomeAction.setEnabled(enableFlag)
         self.setViewFitToWindowAction.setEnabled(enableFlag)
