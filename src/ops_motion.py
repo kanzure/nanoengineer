@@ -17,6 +17,7 @@ from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
 from VQT import V, norm, Q
 import env
+from math import *
 
 class ops_motion_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -100,6 +101,51 @@ class ops_motion_Mixin:
         info = fix_plurals( "Inverted %d chunk(s)" % len(self.selmols))
         env.history.message( cmd + info)
         env.end_op(mc) #e try/finally?
+        
+    #Mirror the selected chunks 
+    def Mirror(self):
+        "Mirror the selected chunk(s) about YZ plane."
+        #ninad060812--: As of 060812, it creates a mirrored chunk about YZ plane only. 
+        #This has some known bugs. listed below ninad060812: 
+        #What it does:
+            #- Mirrors selected chunks about YZ Plane,  keeps the mirrored chunks at the same location as the original chunks.
+        # Known Bugs and NIYs for which I(ninad) need help---
+            #1. (major bug) If the whole part is selected (either main part or any clipboard part) and then you try to mirror, it  
+            # crashes  the program. For that, we need a check to see that the whole part is not selected. 
+            #(probably similar to the one implemented in TreeWidget.py lines 1125-1132)
+            #2. Only mirrors about YZ plane. (best viewed in Front and top view) . I think we should implement a more general feature 
+            #that will ask the user to select a plane about which to mirror objects. 
+            #3. When the selected chunks have interchunk bonds, and you hit mirror, it breaks the interchunk bond while doing mirror 
+            #operation. (Suggestion: It should treat connected chunks as a single entity while doing mirror op..but once the operation is
+            # over, it should separate them like the original chunks)
+            #. UI for this feature is NIY.
+            #4. At present, it keeps the mirrored entities at the same location. We should offset it in X direction by 'some' distance.
+            # I don't know what should be an appropriate distance. 
+            #5. If I mirror a clipboard chunk, the history says "Mirrored 0 chunks"
+            #6 . Untested on very large objects. Hopefully  it will take the same amount of time as that of the copy op.
+        mc = env.begin_op("Mirror")
+        cmd = greenmsg("Mirror: ")
+        
+        if not self.selmols:
+            msg = redmsg("No selected chunks to mirror")
+            env.history.message(cmd + msg)
+            return
+        self.changed()
+        
+        for m in self.selmols:
+            mirrorChunk = m.copy(None) #ninad060812 make a copy of the selection first
+            self.o.assy.addmol(mirrorChunk)
+            mirrorChunk.stretch(-1.0)
+            mirrorChunk.rot(Q(V(1,0,0), pi)) #ninad060812 rotate the inverted chunk by 180 degrees about X axis
+            #offset = 
+            #self.o.assy.movesel(offset) 
+            #self.o.gl_update()
+            
+        self.w.win_update()  # update GLPane as well as MT
+        
+        info = fix_plurals( "Mirrored  %d chunk(s)" % len(self.selmols)) # see item 5 in known bugs ninad060812
+        env.history.message( cmd + info)
+        env.end_op(mc) 
     
     def align(self):
         
