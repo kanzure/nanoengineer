@@ -327,6 +327,18 @@ class MpegSequence:
         do('convert %s -geometry %dx%d -crop %dx%d+%d+%d %s' %
            (infile, w3, h3, w2, h2, (w3 - w2) / 2, (h3 - h2) / 2, outfile))
 
+    def nanosecond_format(self, psecs_per_frame):
+        if psecs_per_frame >= 10.0:
+            return '%.0f nanoseconds'
+        elif psecs_per_frame >= 1.0:
+            return '%.1f nanoseconds'
+        elif psecs_per_frame >= 0.1:
+            return '%.2f nanoseconds'
+        elif psecs_per_frame >= 0.01:
+            return '%.3f nanoseconds'
+        else:
+            return '%.4f nanoseconds'
+
     def povraySequence(self, povfmt, frames, psecs_per_frame=None,
                        begin=0):
         assert povfmt[-4:] == '.pov'
@@ -337,6 +349,7 @@ class MpegSequence:
             assert os.path.exists(pov), 'cannot find file: ' + pov
             tga = '%s/foo.%06d.tga' % (mpeg_dir, self.frame)
             yuv = self.yuv_name()
+            nfmt = self.nanosecond_format(psecs_per_frame)
             if self.forReal:
                 do('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X 2>/dev/null' %
                    (pov, tga, povray_width, povray_height))
@@ -345,10 +358,10 @@ class MpegSequence:
                 os.remove(tga)
                 if psecs_per_frame is not None:
                     ib = ImageBuffer(yuv, size=self.size)
-                    if DEBUG: update_psecs = 5
-                    else: update_psecs = 30
-                    psecs = ((i / update_psecs) * update_psecs) * psecs_per_frame
-                    ib.addtext(1, 1, '%.2f picoseconds' % psecs)
+                    nsecs = 0.001 * i * psecs_per_frame
+                    ib.addtext(1, 1, nfmt % nsecs)
+                    # Rotation of small bearing at 5 GHz
+                    ib.addtext(1, 2, '%.3f rotations' % (nsecs / 0.2))
                     ib.save()
             self.frame += 1
 
@@ -372,6 +385,7 @@ class MpegSequence:
             print 'avg', avg
             print 'begin', begin
         N = frames * ratio
+        nfmt = self.nanosecond_format(ratio * psecs_per_subframe)
         for i in range(frames):
             if DEBUG: linenum('i', i)
             previous = self.frame
@@ -385,8 +399,10 @@ class MpegSequence:
             ib *= 1.0 / avg
             if DEBUG: update_psecs = 1
             else: update_psecs = 30
-            psecs = ((i / update_psecs) * update_psecs) * ratio * psecs_per_subframe
-            ib.addtext(1, 1, '%.2f picoseconds' % psecs)
+            nsecs = 0.001 * i * ratio * psecs_per_subframe
+            ib.addtext(1, 1, nfmt % nsecs)
+            # Rotation of small bearing at 5 GHz
+            ib.addtext(1, 2, '%.3f rotations' % (nsecs / 0.2))
             ib.save()
             self.frame += 1
 
@@ -413,10 +429,14 @@ def example_usage():
     #m.povraySequence('fastpov/fast.%06d.pov', 450, psecs_per_frame=0.01)
     #m.titleSequence('title3.gif')
 
-    m.motionBlurSequence('slowpov/slow.%06d.pov', 450, 0.0333,
-                         10, 10)
-    #m.motionBlurSequence('slowpov/slow.%06d.pov', 3, 0.0333,
-    #                     2000, 5)
+    # 10 psecs per animation second -> 1/3 psecs per frame
+    # 1/30 psecs per subframe
+    if True:
+        m.motionBlurSequence('slowpov/slow.%06d.pov', 450, 1. / 30,
+                             10, 10)
+    else:
+        m.motionBlurSequence('slowpov/slow.%06d.pov', 3, 1. / 30,
+                             1000, 5)
 
     m.encode()
 
