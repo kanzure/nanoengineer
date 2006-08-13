@@ -2,6 +2,12 @@
 
 import os, sys, string, types, Numeric
 
+####################
+#                  #
+#   DEBUG STUFF    #
+#                  #
+####################
+
 DEBUG = False
 
 def linenum(*args):
@@ -29,7 +35,13 @@ def do(cmd):
     if os.system(cmd) != 0:
         raise Exception(cmd)
 
-def image_size(img):
+####################
+#                  #
+#   IMAGE BUFFER   #
+#                  #
+####################
+
+def _image_size(img):
     lines = os.popen('convert -verbose %s /dev/null' % img).readlines()
     if len(lines) < 1 or len(lines[0].split()) < 3:
         print 'confusion', repr(lines)
@@ -47,7 +59,7 @@ class ImageBuffer:
     def __init__(self, fil=None, size=None):
         if size is None:
             assert fil is not None
-            size = image_size(fil)
+            size = _image_size(fil)
         elif type(size) is types.StringType:
             size = map(string.atoi, size.split('x'))
         self.fil = fil
@@ -152,14 +164,14 @@ class ImageBuffer:
         do('convert -depth 8 -size %dx%d -interlace plane /tmp/foo.rgb %s' %
            (self.w, self.h, fil))
 
-    def add_clock(self, psecs_per_frame, frame_number):
-        # assume we only want to update every 30 frames
-        psecs = ((frame_number / 30) * 30) * psecs_per_frame
-        self.addtext(1, 1, '%.2f picoseconds' % psecs)
-
 # Figure out how to make this less dependent on my directory structure.
 font = ImageBuffer('/home/wware/polosims/cad/src/experimental/animations/font.gif')
 
+####################
+#                  #
+#    MPEG STUFF    #
+#                  #
+####################
 
 # Dimensions for recommended povray rendering, gotten from the first line
 # of any of the *.pov files.
@@ -305,7 +317,7 @@ class MpegSequence:
     # This could probably be done a lot more efficiently as a method
     # in ImageBuffer, as long as we don't need to re-sample pixels.
     def convert_and_crop(self, infile, outfile):
-        w1, h1 = image_size(infile)
+        w1, h1 = _image_size(infile)
         w2, h2 = self.size
         scale = max(1.0 * w2 / w1, 1.0 * h2 / h1)
         w3, h3 = int(scale * w1), int(scale * h1)
@@ -314,10 +326,6 @@ class MpegSequence:
         # Then we (shrink if needed and) crop it to the desired size.
         do('convert %s -geometry %dx%d -crop %dx%d+%d+%d %s' %
            (infile, w3, h3, w2, h2, (w3 - w2) / 2, (h3 - h2) / 2, outfile))
-
-    def add_clock(self, imgbuf, which_frame, psecs_per_frame):
-        if DEBUG: print 'start adding text'
-        if DEBUG: print 'finish adding text'
 
     def povraySequence(self, povfmt, frames, psecs_per_frame=None,
                        begin=0):
@@ -330,12 +338,9 @@ class MpegSequence:
             tga = '%s/foo.%06d.tga' % (mpeg_dir, self.frame)
             yuv = self.yuv_name()
             if self.forReal:
-                if True:
-                    do('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X 2>/dev/null' %
-                       (pov, tga, povray_width, povray_height))
-                else:
-                    do('povray +I%s +O%s +FT +A +W%d +H%d -V -D +X' %
-                       (pov, tga, povray_width, povray_height))
+                do('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X 2>/dev/null' %
+                   (pov, tga, povray_width, povray_height))
+                # think about immediately converting the TGA to an ImageBuffer
                 self.convert_and_crop(tga, yuv)
                 os.remove(tga)
                 if psecs_per_frame is not None:
