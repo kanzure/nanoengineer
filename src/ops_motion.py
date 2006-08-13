@@ -15,10 +15,10 @@ bruce 050913 used env.history in some places.
 
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
-from VQT import V, norm, Q
+from VQT import V, norm, Q, vlen
 import env
-from math import *
-import jigs_planes #@@@ ninad060812 for mirror feature
+from math import pi
+from jigs_planes import GridPlane #@@@ ninad060812 for mirror feature
 
 class ops_motion_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -85,6 +85,7 @@ class ops_motion_Mixin:
     
     #invert a chunk
     def Invert(self):
+    #def Invertorig(self):
         '''Invert the atoms of the selected chunk(s)'''
 
         mc = env.begin_op("Invert")
@@ -105,6 +106,7 @@ class ops_motion_Mixin:
         
     #Mirror the selected chunks 
     def Mirror(self):
+    #def Invert(self):
         "Mirror the selected chunk(s) about a selected grid plane."
         #ninad060812--: As of 060812 (11 PM EST) it creates mirror chunks about a selected grid plane
         #This has some known bugs. listed below ninad060812: 
@@ -140,9 +142,10 @@ class ops_motion_Mixin:
             self.mirrorAxis = jigs[0].getaxis() # ninad060812 Get the axis vector of the Grid Plane. Then you need to 
                                                                #rotate the inverted chunk by pi around this axis vector 
             mirrorChunk.rot(Q(self.mirrorAxis, pi)) 
-           # self.mirrorPlaneCenter = GridPlane.center #@@@@ ninad060812 is trying to get the distance between grid plane jig center 
-                                                                            # and chunk center
-            #self.mirrorDistance = #@@@@
+            
+            self.mirrorDistance = self.getMirrorDistance(m.center, jigs[0].center)  #@@@@ninad060813 is trying to move the chunk 
+                                                                                                                    #on the other side of the mirror. Got the distance right need correct direction
+            mirrorChunk.move(2*(self.mirrorDistance))
             #older implementation (if it is to be mirrored about YZ axis)
             #mirrorChunk.rot(Q(V(1,0,0), pi)) #ninad060812 rotate the inverted chunk by 180 degrees about X axis 
             
@@ -151,6 +154,10 @@ class ops_motion_Mixin:
         info = fix_plurals( "Mirrored  %d chunk(s)" % len(self.selmols)) # see item 5 in known bugs ninad060812
         env.history.message( cmd + info)
         env.end_op(mc) 
+        
+    def getMirrorDistance(self, chunkCenter, mirrorPlaneCenter):
+        "return the distance between the chunk center and the mirror plane center"
+        return vlen(chunkCenter - mirrorPlaneCenter)
     
     def align(self):
         
