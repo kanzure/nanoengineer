@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, sys, string, types, Numeric
+import os, sys, string, types, Numeric, threading, time
 
 ####################
 #                  #
@@ -23,13 +23,15 @@ def linenum(*args):
             print x,
     print
 
-def do(cmd):
+def do(cmd, howfarback=0):
     if DEBUG:
         try:
             raise Exception
         except:
             tb = sys.exc_info()[2]
             f = tb.tb_frame.f_back
+            for i in range(howfarback):
+                f = f.f_back
             print f.f_code.co_filename, f.f_code.co_name, f.f_lineno
         print cmd
     if os.system(cmd) != 0:
@@ -166,6 +168,143 @@ class ImageBuffer:
 
 # Figure out how to make this less dependent on my directory structure.
 font = ImageBuffer('/home/wware/polosims/cad/src/experimental/animations/font.gif')
+
+############################
+#                          #
+#    DISTRIBUTED POVRAY    #
+#                          #
+############################
+
+class PovrayJob:
+    def __init__(self, srcdir, dstdir, pov, yuv,
+                 pwidth, pheight, ywidth, yheight):
+
+        assert pov[-4:] == '.pov'
+        assert yuv[-4:] == '.yuv'
+        self.pov = pov
+        self.tga = pov[:-4] + '.tga'
+        self.yuv = yuv
+
+        self.srcdir = srcdir
+        self.dstdir = dstdir
+        self.srcpov = os.path.join(srcdir, pov)
+        self.dstyuv = os.path.join(dstdir, yuv)
+
+        w1, h1 = pwidth, pheight
+        w2, h2 = ywidth, yheight
+        scale = max(1.0 * w2 / w1, 1.0 * h2 / h1)
+        w3, h3 = int(scale * w1), int(scale * h1)  # preserve aspect ratio
+        w3, h3 = max(w3, w2), max(h3, h2)  # be careful of round-off error
+
+        self.w1, self.h1 = w1, h1
+        self.w2, self.h2 = w2, h2
+        self.w3, self.h3 = w3, h3
+
+    def go(self, host, workdir):
+
+        assert self.pov[-4:] == '.pov'
+        tga = self.pov[:-4] + '.tga'
+
+        w1, h1 = self.w1, self.h1
+        w2, h2 = self.w2, self.h2
+        w3, h3 = self.w3, self.h3
+
+        srcpov, dstyuv = self.srcpov, self.dstyuv
+        pov = os.path.join(workdir, self.pov)
+        tga = os.path.join(workdir, self.tga)
+        yuv = os.path.join(workdir, self.yuv)
+
+        if host in ('localhost', '127.0.0.1'):
+            # do stuff on this machine
+            def copy(src, dst, outgoing):
+                do('cp ' + src + ' ' + dst, howfarback=1)
+            def run(cmd):
+                do(cmd, howfarback=1)
+        else:
+            # do stuff on a remote machine
+            def copy(src, dst, outgoing):
+                if outgoing:
+                    do('scp ' + src + ' ' + host + ':' + dst, howfarback=1)
+                else:
+                    do('scp ' + host + ':' + src + ' ' + dst, howfarback=1)
+            def run(cmd):
+                do('ssh ' + host + ' ' + cmd, howfarback=1)
+
+        # scp pov file to worker
+        copy(srcpov, pov, True)
+        # ssh-povray job on worker machine
+        run('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X 2>/dev/null' %
+            (pov, tga, w1, h1))
+        # First we scale the image up to w3 x h3, preserving the old aspect ratio.
+        # Then we (shrink if needed and) crop it to the desired size.
+        run('convert %s -geometry %dx%d -crop %dx%d+%d+%d %s' %
+            (tga, w3, h3,
+             w2, h2, (w3 - w2) / 2, (h3 - h2) / 2, yuv))
+        # scp yuv file back from worker
+        copy(yuv, dstyuv, False)
+        # clean up the worker machine
+        run('rm -f %s %s %s' % (pov, tga, yuv))
+
+class PovrayJobQueue:
+
+    worker_list = (
+        ('localhost', '/tmp'),
+        ('server', '/tmp'),
+        ('laptop', '/tmp'),
+        )
+
+    class WorkerMachine(threading.Thread):
+        def __init__(self, jobqueue, host, workdir):
+            threading.Thread.__init__(self)
+            self.host = host
+            self.jobqueue = jobqueue
+            self.workdir = workdir
+            self.busy = True
+        def run(self):
+            while True:
+                job = None
+                self.jobqueue.lock()
+                job = self.jobqueue.get()
+                self.jobqueue.unlock()
+                if job is None:
+                    self.busy = False
+                    return
+                job.go(self.host, self.workdir)
+
+    def __init__(self):
+        self.worker_pool = [ ]
+        self.jobqueue = [ ]
+        self._lock = threading.Lock()
+        for ipaddr, workdir in self.worker_list:
+            worker = self.WorkerMachine(self, ipaddr, workdir)
+            self.worker_pool.append(worker)
+
+    def lock(self):
+        self._lock.acquire()
+    def unlock(self):
+        self._lock.release()
+    def append(self, job):
+        self.lock()
+        self.jobqueue.append(job)
+        self.unlock()
+    def get(self):
+        q = self.jobqueue
+        if len(q) == 0:
+            return None
+        return q.pop(0)
+
+    def start(self):
+        for worker in self.worker_pool:
+            worker.start()
+    def wait(self):
+        busy_workers = 1
+        while busy_workers > 0:
+            time.sleep(0.5)
+            busy_workers = 0
+            for worker in self.worker_pool:
+                if worker.busy:
+                    busy_workers += 1
+
 
 ####################
 #                  #
@@ -314,19 +453,6 @@ class MpegSequence:
             shutil.copy(src, self.yuv_name())
             self.frame += 1
 
-    # This could probably be done a lot more efficiently as a method
-    # in ImageBuffer, as long as we don't need to re-sample pixels.
-    def convert_and_crop(self, infile, outfile):
-        w1, h1 = _image_size(infile)
-        w2, h2 = self.size
-        scale = max(1.0 * w2 / w1, 1.0 * h2 / h1)
-        w3, h3 = int(scale * w1), int(scale * h1)
-        w3, h3 = max(w3, w2), max(h3, h2)
-        # First we scale the image up to w3 x h3, preserving the old aspect ratio.
-        # Then we (shrink if needed and) crop it to the desired size.
-        do('convert %s -geometry %dx%d -crop %dx%d+%d+%d %s' %
-           (infile, w3, h3, w2, h2, (w3 - w2) / 2, (h3 - h2) / 2, outfile))
-
     def nanosecond_format(self, psecs_per_frame):
         if psecs_per_frame >= 10.0:
             return '%.0f nanoseconds'
@@ -343,27 +469,36 @@ class MpegSequence:
                        begin=0):
         assert povfmt[-4:] == '.pov'
         if DEBUG: frames = min(frames, 10)
+
+        pq = PovrayJobQueue()
+        nfmt = self.nanosecond_format(psecs_per_frame)
+        yuvs = [ ]
+
         for i in range(frames):
             if DEBUG: linenum('i', i)
             pov = povfmt % (i + begin)
             assert os.path.exists(pov), 'cannot find file: ' + pov
-            tga = '%s/foo.%06d.tga' % (mpeg_dir, self.frame)
             yuv = self.yuv_name()
-            nfmt = self.nanosecond_format(psecs_per_frame)
-            if self.forReal:
-                do('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X 2>/dev/null' %
-                   (pov, tga, povray_width, povray_height))
-                # think about immediately converting the TGA to an ImageBuffer
-                self.convert_and_crop(tga, yuv)
-                os.remove(tga)
-                if psecs_per_frame is not None:
-                    ib = ImageBuffer(yuv, size=self.size)
-                    nsecs = 0.001 * i * psecs_per_frame
-                    ib.addtext(1, 1, nfmt % nsecs)
-                    # Rotation of small bearing at 5 GHz
-                    ib.addtext(1, 2, '%.3f rotations' % (nsecs / 0.2))
-                    ib.save()
+            yuvs.append(yuv)
+
+            srcdir, pov = os.path.split(pov)
+            dstdir, yuv = os.path.split(yuv)
+            job = PovrayJob(srcdir, dstdir, pov, yuv,
+                            povray_width, povray_height,
+                            mpeg_width, mpeg_height)
+            pq.append(job)
             self.frame += 1
+        pq.start()
+        pq.wait()
+
+        if psecs_per_frame is not None:
+            for yuv in yuvs:
+                ib = ImageBuffer(yuv, size=self.size)
+                nsecs = 0.001 * i * psecs_per_frame
+                ib.addtext(1, 1, nfmt % nsecs)
+                # Rotation of small bearing at 5 GHz
+                ib.addtext(1, 2, '%.3f rotations' % (nsecs / 0.2))
+                ib.save()
 
     # This could be combined with povraySequence, which is a special case
     # where avg and ratio are both 1.
@@ -432,7 +567,7 @@ def example_usage():
     # 10 psecs per animation second -> 1/3 psecs per frame
     # 1/30 psecs per subframe
     if True:
-        m.motionBlurSequence('slowpov/slow.%06d.pov', 450, 1. / 30,
+        m.motionBlurSequence('slowpov/slow.%06d.pov', 450/12, 1. / 30,
                              10, 10)
     else:
         m.motionBlurSequence('slowpov/slow.%06d.pov', 3, 1. / 30,
