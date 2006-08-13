@@ -15,10 +15,10 @@ bruce 050913 used env.history in some places.
 
 from HistoryWidget import greenmsg, redmsg
 from platform import fix_plurals
-from VQT import V, norm, Q, vlen
+from VQT import V, norm, Q, vlen, orthodist
 import env
 from math import pi
-from jigs_planes import GridPlane #@@@ ninad060812 for mirror feature
+
 
 class ops_motion_Mixin:
     "Mixin class for providing these methods to class Part"
@@ -108,10 +108,10 @@ class ops_motion_Mixin:
     def Mirror(self):
     #def Invert(self):
         "Mirror the selected chunk(s) about a selected grid plane."
-        #ninad060812--: As of 060812 (11 PM EST) it creates mirror chunks about a selected grid plane
+        #ninad060812--: As of 060812 (11 PM EST) it creates mirror chunks about a selected grid plane/(or jig with 0 atoms)
         #This has some known bugs. listed below ninad060812: 
         #What it does:
-            #- Mirrors selected chunks about a selected Grid plane but keeps the mirrored chunks at the same location as the original chunks.
+            #- Mirrors selected chunks about a selected Grid plane. (Moves the mirrored copies on the other side of the mirror).
         # Known Bugs and NIYs for which I(ninad) need help---
             #1. (major bug) If the whole part is selected (either main part or any clipboard part) and then you try to mirror, it  
             # crashes  the program. For that, we need a check to see that the whole part is not selected. (probably similar to the one
@@ -120,10 +120,9 @@ class ops_motion_Mixin:
             #operation. (Suggestion: It should treat connected chunks as a single entity while doing mirror op..but once the operation is
             # over, it should separate them like the original chunks)
             #3. UI for this feature is NIY.
-            #4. At present, it keeps the mirrored entities at the same location. 
-            #5. If I mirror a clipboard chunk, the history says "Mirrored 0 chunks"
-            #6. Untested (and most likely it will break if multiple grid planes are selected) 
-            #7. Untested on very large objects. Hopefully  it will take the same amount of time as that of the copy op.
+            #4. If I mirror a clipboard chunk, the history says "Mirrored 0 chunks"
+            #5. Untested (and most likely it will break if multiple grid planes are selected) 
+            #6. Untested on very large objects. Hopefully  it will take the same amount of time as that of the copy op.
         mc = env.begin_op("Mirror")
         cmd = greenmsg("Mirror: ")
         
@@ -142,10 +141,12 @@ class ops_motion_Mixin:
             self.mirrorAxis = jigs[0].getaxis() # ninad060812 Get the axis vector of the Grid Plane. Then you need to 
                                                                #rotate the inverted chunk by pi around this axis vector 
             mirrorChunk.rot(Q(self.mirrorAxis, pi)) 
+
+            self.mirrorDistance, self.wid = orthodist(m.center, self.mirrorAxis, jigs[0].center) # ninad060813 This gives an orthogonal distance between 
+                                                                                                                        #the chunk center and mirror plane. 
             
-            self.mirrorDistance = self.getMirrorDistance(m.center, jigs[0].center)  #@@@@ninad060813 is trying to move the chunk 
-                                                                                                                    #on the other side of the mirror. Got the distance right need correct direction
-            mirrorChunk.move(2*(self.mirrorDistance))
+            mirrorChunk.move(2*(self.mirrorDistance)*self.mirrorAxis)# @@@@ ninad060813 This moves the mirrror chunk on the other side of the mirror plane. It surely moves the chunk along the axis of the mirror plane but I am still unsure if this *always* moves the chunk on the other side of the mirror. Probably the 'orthodist' function has helped me here??  Need to discuss this.
+                                                                                                    
             #older implementation (if it is to be mirrored about YZ axis)
             #mirrorChunk.rot(Q(V(1,0,0), pi)) #ninad060812 rotate the inverted chunk by 180 degrees about X axis 
             
@@ -155,9 +156,6 @@ class ops_motion_Mixin:
         env.history.message( cmd + info)
         env.end_op(mc) 
         
-    def getMirrorDistance(self, chunkCenter, mirrorPlaneCenter):
-        "return the distance between the chunk center and the mirror plane center"
-        return vlen(chunkCenter - mirrorPlaneCenter)
     
     def align(self):
         
