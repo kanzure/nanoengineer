@@ -84,7 +84,7 @@ class ops_motion_Mixin:
         return
     
     #invert a chunk
-    def Invertorig(self):
+    def Invert(self):
         '''Invert the atoms of the selected chunk(s)'''
 
         mc = env.begin_op("Invert")
@@ -104,8 +104,7 @@ class ops_motion_Mixin:
         env.end_op(mc) #e try/finally?
         
     #Mirror the selected chunks 
-    #def Mirror(self):
-    def Invert(self):
+    def Mirror(self):
         "Mirror the selected chunk(s) about a selected grid plane."
         #ninad060812--: As of 060812 (11 PM EST) it creates mirror chunks about a selected grid plane
         #This has some known bugs. listed below ninad060812: 
