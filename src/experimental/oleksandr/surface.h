@@ -10,6 +10,7 @@
 
 #include "container.h"
 #include "triple.h"
+#include "bucket.h"
 
 class Surface
 {
@@ -209,6 +210,11 @@ class Surface
 	int mType;						// type of entity (tria, quad)
 
 	//------------------------------------------------------------------------
+	// mBp
+
+	Bucket * mBp;					// bucket for predicate
+
+	//------------------------------------------------------------------------
 	// mL
 
 	int mL;							// level for trias generation
@@ -235,8 +241,9 @@ class Surface
 
 inline Surface::Surface()
 {
-       mType = 0;
-	   mL = 3;
+	mBp = 0;
+    mType = 0;
+    mL = 3;
 }
 
 //------------------------------------------------------------------------

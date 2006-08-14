@@ -272,12 +272,15 @@ double Surface::Predicate(
 		if (i)
 		{
 			if (om < s) om = s;
+			//om = (om + s + sqrt(om * om + s * s))/2; 
 		}
 		else
 		{
 			om = s;
 		}
 	}
+
+	double om1 = mBp->Predicate(mCenters, mRadiuses, p);
 	return om + 0.1;
 }
 
@@ -288,12 +291,14 @@ double Surface::Predicate(
 //
 void Surface::CreateSurface()
 {
+	mBp = new Bucket(21,17,13);
+	mBp->Add(mCenters);
 	SphereTriangles();
 	//TorusRectangles();
 	//OmegaRectangles();
 	Duplicate();
 	SurfaceNormals();
-	int n = 3; // number of iterations
+	int n = 4; // number of iterations
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < mPoints.Size(); j++)
@@ -308,6 +313,7 @@ void Surface::CreateSurface()
 		}
 	SurfaceNormals();
 	}
+	delete mBp;
 }
 
 //------------------------------------------------------------------------
@@ -367,28 +373,9 @@ void Surface::Duplicate()
 	}
 	//  find and mark duplicate points
 	int nb = 17;
-	Bucket bucket(nb);
-	for (i = 0; i < n; i++)
-	{
-		bucket.Add(i,mPoints[i]);
-	}
-	for (i = 0; i < n; i++)
-	{
-		Triple p = mPoints[i];
-		bucket.Index(p);
-		for (int jv = 0; jv < bucket.Size(); jv++)
-		{
-			j = bucket.Value(jv);
-			if (i == j) continue;
-			if (ia[j] > 0)
-			{
-				if ((p - mPoints[j]).Len2() < eps)
-				{
-					ia[j] = -ia[i];
-				}
-			}
-		}
-	}
+	Bucket bd(nb, nb, nb);
+	bd.Add(mPoints);
+	bd.Duplicate(mPoints, ia);
 	int k = 0;
     //    change array for points & normals
     //    change index

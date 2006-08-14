@@ -21,21 +21,37 @@ class Bucket
 	//
 	//  empty bucket
 	//
-	Bucket(int n);
+	Bucket(int l, int m, int n);
 	
 	//------------------------------------------------------------------------
 	// Add
 	//
-	//  add point to bucket
+	//  add points to bucket
 	//
-	void Add(int i, const Triple & p);
+	void Add(const Container<Triple> & points);
 	
+	//------------------------------------------------------------------------
+	// Duplicate
+	//
+	//  find duplicate points
+	//
+	void Duplicate(const Container<Triple> & points, int * ia);
+	
+	//------------------------------------------------------------------------
+	// Predicate
+	//
+	//  calculate predicate for all spheres
+	//
+	double Predicate(const Container<Triple> & centers, const Container<double> & radiuses, const Triple & p);
+	
+  private:
+          
 	//------------------------------------------------------------------------
 	// Index()
 	//
 	// calculate index
 	//
-	inline int Index(const Triple & p);
+	inline void Index(const Triple & p);
 
 	//------------------------------------------------------------------------
 	// Size()
@@ -51,49 +67,70 @@ class Bucket
 	//
 	inline int Value(int i) const;
 
-  private:
-          
 	//------------------------------------------------------------------------
 	// mI
 
-	int mI;							// index
+	int mI;							// index i
+
+	//------------------------------------------------------------------------
+	// mJ
+
+	int mJ;							// index j
+
+	//------------------------------------------------------------------------
+	// mK
+
+	int mK;							// index k
+
+	//------------------------------------------------------------------------
+	// mL
+
+	int mL;							// size x
+
+	//------------------------------------------------------------------------
+	// mM
+
+	int mM;							// size y
 
 	//------------------------------------------------------------------------
 	// mN
 
-	int mN;							// size
-
-	//------------------------------------------------------------------------
-	// mNN
-
-	int mNN;						// size square
-
-	//------------------------------------------------------------------------
-	// mNNN
-
-	int mNNN;						// size cube
+	int mN;							// size z
 
 	//------------------------------------------------------------------------
 	// mA
 
-    Container<int> * mA;			// array for bucket                                          
+    Container<int> *** mA;			// array for bucket                                          
+             
+	//------------------------------------------------------------------------
+	// mB
+
+    Container<int> ** mB;			// array for bucket                                          
+             
+	//------------------------------------------------------------------------
+	// mC
+
+    Container<int> * mC;			// array for bucket                                          
              
 };
 
 //----------------------------------------------------------------------------
 // Index()
 
-inline int Bucket::Index(const Triple & p)
+inline void Bucket::Index(const Triple & p)
 {
 	//  calculate index for point p
-	int i = int(mN * (p.X() + 1) / 2);
-	if ( i >= mN) i = mN - 1;
-	int j = int(mN * (p.Y() + 1) / 2);
-	if ( j >= mN) j = mN - 1;
-	int k = int(mN * (p.Z() + 1) / 2);
-	if ( k >= mN) k = mN - 1;
-	mI = i * mNN + j * mN + k;
-	return mI;
+	mI = int(mL * (p.X() + 1) / 2);
+	if ( mI < 0) mI = 0;
+	if ( mI >= mL) mI = mL - 1;
+
+	mJ = int(mM * (p.Y() + 1) / 2);
+	if ( mJ < 0) mJ = 0;
+	if ( mJ >= mM) mJ = mM - 1;
+
+	mK = int(mN * (p.Z() + 1) / 2);
+	if ( mK < 0) mK = 0;
+	if ( mK >= mN) mK = mN - 1;
 }
 
 //----------------------------------------------------------------------------
@@ -101,7 +138,7 @@ inline int Bucket::Index(const Triple & p)
 
 inline int Bucket::Size() const
 {
-	return mA[mI].Size();
+	return mA[mI][mJ][mK].Size();
 }
 
 //----------------------------------------------------------------------------
@@ -109,7 +146,7 @@ inline int Bucket::Size() const
 
 inline int Bucket::Value(int i) const
 {
-	return mA[mI][i];
+	return mA[mI][mJ][mK][i];
 }
 
 #endif  								// BUCKET_INCLUDED
