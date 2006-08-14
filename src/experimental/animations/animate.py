@@ -175,6 +175,36 @@ font = ImageBuffer('/home/wware/polosims/cad/src/experimental/animations/font.gi
 #                          #
 ############################
 
+worker_list = [
+    'localhost',
+    'server',
+    'laptop',
+    ]
+
+# Some new stuff I've learned about ImageMagick, which will make the
+# ImageBuffer obsolete. That's a shame, I enjoyed working on it. To
+# average a bunch of image files of the same size, do this:
+#
+# convert -average <input1> <input2> <input3>... <inputN> <output>
+#
+# To add some text to an image, do this:
+#
+# convert -average <input files> -pointsize 30 \
+#    -annotate +10+30 "0.175 nanoseconds" \
+#    -annotate +10+60 "0.003 rotations" <output>
+#
+# ImageMagick normally works to preserve the aspect ratio. But you can
+# force a change in aspect ratio with an exclamation point, like this:
+#
+# convert <input> -geometry 600x450! <output>
+#
+# This will be useful when we want to do video with non-square pixels
+# for a DVD.
+#
+# One consequence of all this is that averaging and labels will be
+# done on the worker machines. So I need to generate a shell script to
+# send to the worker that has all the commands.
+
 class PovrayJob:
     def __init__(self, srcdir, dstdir, pov, yuv,
                  pwidth, pheight, ywidth, yheight):
@@ -200,7 +230,7 @@ class PovrayJob:
         self.w2, self.h2 = w2, h2
         self.w3, self.h3 = w3, h3
 
-    def go(self, host, workdir):
+    def go(self, machine, workdir):
 
         assert self.pov[-4:] == '.pov'
         tga = self.pov[:-4] + '.tga'
@@ -214,7 +244,9 @@ class PovrayJob:
         tga = os.path.join(workdir, self.tga)
         yuv = os.path.join(workdir, self.yuv)
 
-        if host in ('localhost', '127.0.0.1'):
+        local = machine in ('localhost', '127.0.0.1')
+
+        if local:
             # do stuff on this machine
             def copy(src, dst, outgoing):
                 do('cp ' + src + ' ' + dst, howfarback=1)
@@ -224,11 +256,11 @@ class PovrayJob:
             # do stuff on a remote machine
             def copy(src, dst, outgoing):
                 if outgoing:
-                    do('scp ' + src + ' ' + host + ':' + dst, howfarback=1)
+                    do('scp ' + src + ' ' + machine + ':' + dst, howfarback=1)
                 else:
-                    do('scp ' + host + ':' + src + ' ' + dst, howfarback=1)
+                    do('scp ' + machine + ':' + src + ' ' + dst, howfarback=1)
             def run(cmd):
-                do('ssh ' + host + ' ' + cmd, howfarback=1)
+                do('ssh ' + machine + ' ' + cmd, howfarback=1)
 
         # scp pov file to worker
         copy(srcpov, pov, True)
@@ -245,39 +277,35 @@ class PovrayJob:
         # clean up the worker machine
         run('rm -f %s %s %s' % (pov, tga, yuv))
 
+class Worker(threading.Thread):
+
+    def __init__(self, jobqueue, machine, workdir):
+        threading.Thread.__init__(self)
+        self.machine = machine
+        self.jobqueue = jobqueue
+        self.workdir = workdir
+        self.busy = True
+
+    def run(self):
+        while True:
+            job = None
+            self.jobqueue.lock()
+            job = self.jobqueue.get()
+            self.jobqueue.unlock()
+            if job is None:
+                self.busy = False
+                return
+            job.go(self.machine, self.workdir)
+
 class PovrayJobQueue:
-
-    worker_list = (
-        ('localhost', '/tmp'),
-        ('server', '/tmp'),
-        ('laptop', '/tmp'),
-        )
-
-    class WorkerMachine(threading.Thread):
-        def __init__(self, jobqueue, host, workdir):
-            threading.Thread.__init__(self)
-            self.host = host
-            self.jobqueue = jobqueue
-            self.workdir = workdir
-            self.busy = True
-        def run(self):
-            while True:
-                job = None
-                self.jobqueue.lock()
-                job = self.jobqueue.get()
-                self.jobqueue.unlock()
-                if job is None:
-                    self.busy = False
-                    return
-                job.go(self.host, self.workdir)
 
     def __init__(self):
         self.worker_pool = [ ]
         self.jobqueue = [ ]
         self._lock = threading.Lock()
-        for ipaddr, workdir in self.worker_list:
-            worker = self.WorkerMachine(self, ipaddr, workdir)
-            self.worker_pool.append(worker)
+        for machine in worker_list:
+            workdir = '/tmp'
+            self.worker_pool.append(Worker(self, machine, workdir))
 
     def lock(self):
         self._lock.acquire()
@@ -336,11 +364,6 @@ mpeg_width = even(aspect_ratio * mpeg_height)
 # MPEG artifacts, with file size of 190 Kbytes per second of video.
 bitrate = 2.0e6
 
-# Where will I keep all my temporary files? On Mandriva, /tmp is small
-# but $HOME/tmp is large.
-mpeg_dir = '/home/wware/tmp/mpeg'
-
-
 params = """MPEG-2 Test Sequence, 30 frames/sec
 %(sourcefileformat)s    /* name of source files */
 -         /* name of reconstructed images ("-": don't store) */
@@ -398,6 +421,10 @@ stat.out  /* name of statistics file ("-": stdout ) */
 1 1 3  3  /* B2: back_hor_f_code back_vert_f_code search_width/height */
 """
 
+
+# Where will I keep all my temporary files? On Mandriva, /tmp is small
+# but $HOME/tmp is large.
+mpeg_dir = '/home/wware/tmp/mpeg'
 
 class MpegSequence:
 
@@ -492,12 +519,15 @@ class MpegSequence:
         pq.wait()
 
         if psecs_per_frame is not None:
+            i = 0
             for yuv in yuvs:
                 ib = ImageBuffer(yuv, size=self.size)
                 nsecs = 0.001 * i * psecs_per_frame
+                i += 1
                 ib.addtext(1, 1, nfmt % nsecs)
                 # Rotation of small bearing at 5 GHz
                 ib.addtext(1, 2, '%.3f rotations' % (nsecs / 0.2))
+                ib.addtext(1, 3, '%.1f degrees' % (360. * nsecs / 0.2))
                 ib.save()
 
     # This could be combined with povraySequence, which is a special case
@@ -510,7 +540,7 @@ class MpegSequence:
             self.frame += frames
             return
         if DEBUG:
-            frames = min(frames, 3)
+            frames = min(frames, 20)
             avg = min(avg, 5)
             print 'MOTION BLUR SEQUENCE'
             print 'povfmt', povfmt
@@ -538,6 +568,7 @@ class MpegSequence:
             ib.addtext(1, 1, nfmt % nsecs)
             # Rotation of small bearing at 5 GHz
             ib.addtext(1, 2, '%.3f rotations' % (nsecs / 0.2))
+            ib.addtext(1, 3, '%.1f degrees' % (360. * nsecs / 0.2))
             ib.save()
             self.frame += 1
 
@@ -551,7 +582,7 @@ class MpegSequence:
                              'bitrate': self.bitrate})
         outf.close()
         # encoding is an inexpensive operation, do it even if not for real
-        do('mpeg2encode foo.par foo.mpeg')
+        do('mpeg2encode %s/foo.par %s/foo.mpeg' % (mpeg_dir, mpeg_dir))
 
 
 ###################################################
@@ -564,14 +595,10 @@ def example_usage():
     #m.povraySequence('fastpov/fast.%06d.pov', 450, psecs_per_frame=0.01)
     #m.titleSequence('title3.gif')
 
-    # 10 psecs per animation second -> 1/3 psecs per frame
-    # 1/30 psecs per subframe
-    if True:
-        m.motionBlurSequence('slowpov/slow.%06d.pov', 450/12, 1. / 30,
-                             10, 10)
-    else:
-        m.motionBlurSequence('slowpov/slow.%06d.pov', 3, 1. / 30,
-                             1000, 5)
+    #m.povraySequence(os.path.join(mpeg_dir, 'slowpov/slow.%06d.pov'),
+    #                 200, 0.05)
+    m.motionBlurSequence(os.path.join(mpeg_dir, 'slowpov/slow.%06d.pov'),
+                         450, 0.05, 4, 4)
 
     m.encode()
 
