@@ -111,13 +111,9 @@ class ops_motion_Mixin:
         #What it does:
             #- Mirrors selected chunks about a selected Grid plane. (Moves the mirrored copies on the other side of the mirror).
         # Known Bugs and NIYs for which I(ninad) need help---
-            #1. (major bug) If the whole part is selected (either main part or any clipboard part) and then you try to mirror, it  
-            # crashes  the program. For that, we need a check to see that the whole part is not selected. (probably similar to the one
-            # implemented in TreeWidget.py lines 1125-1132)
             #2. When the selected chunks have interchunk bonds, and you hit mirror, it breaks the interchunk bond while doing mirror 
             #operation. (Suggestion: It should treat connected chunks as a single entity while doing mirror op..but once the operation is
             # over, it should separate them like the original chunks)
-            #3. UI for this feature is NIY.
             #4. If I mirror a clipboard chunk, the history says "Mirrored 0 chunks"
             #5. Untested (and most likely it will break if multiple grid planes are selected) 
             #6. Untested on very large objects. Hopefully  it will take the same amount of time as that of the copy op.
@@ -137,6 +133,10 @@ class ops_motion_Mixin:
             env.history.message(cmd + msg + instruction)
             return
         self.changed()
+        
+        if self.topnode.picked:
+            self.topnode.unpick_top() #ninad060814 this is necessary to fix a bug. Otherwise program will crash if you try to mirror
+                                                    #when the top node of the part (main part of clipboard) is selected
             
         for m in self.selmols:
             mirrorChunk = m.copy(None) #ninad060812 make a copy of the selection first
