@@ -131,7 +131,7 @@ class ops_motion_Mixin:
         self.changed()
         
         jigs = self.assy.getSelectedJigs()
-        if not jigs[0]:  # not sufficient condition.Needs to know which jig it is (bug when the jig is e.g. anchor) 
+        if not jigs:  # not sufficient condition.Needs to know which jig it is (bug when the jig is e.g. anchor) 
             msg = redmsg("No mirror plane selected. Please select a Grid Plane first.") 
             instruction = "  (If it doesn't exists, create it first using <b>Jigs > Grid Plane</b>)" 
             env.history.message(cmd + msg + instruction)
