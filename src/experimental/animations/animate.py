@@ -2,6 +2,21 @@
 
 import os, sys, string, types, Numeric, threading, time
 
+# Dimensions for recommended povray rendering, gotten from the first line
+# of any of the *.pov files.
+recommended_width, recommended_height = 751, 459
+povray_aspect_ratio = (1. * recommended_width) / recommended_height
+
+# Bit rate of the MPEG stream in bits per second. For 30 FPS video at
+# 600x450, 2 mbits/sec looks good and gives a file size of about 250
+# Kbytes per second of video. At 1.5 mbits/sec you start to see some
+# MPEG artifacts, with file size of 190 Kbytes per second of video.
+bitrate = 3.0e6
+
+# Google Video uses a 4:3 aspect ratio because that's what is specified
+# below in the MPEG parameter file.
+video_aspect_ratio = 4.0 / 3.0
+
 ####################
 #                  #
 #   DEBUG STUFF    #
@@ -37,138 +52,6 @@ def do(cmd, howfarback=0):
     if os.system(cmd) != 0:
         raise Exception(cmd)
 
-####################
-#                  #
-#   IMAGE BUFFER   #
-#                  #
-####################
-
-def _image_size(img):
-    lines = os.popen('convert -verbose %s /dev/null' % img).readlines()
-    if len(lines) < 1 or len(lines[0].split()) < 3:
-        print 'confusion', repr(lines)
-        raise Exception
-    size = lines[0].split()[2]
-    w, h = map(string.atoi, size.split('x'))
-    return w, h
-
-class ImageBuffer:
-    """
-    This fast ImageBuffer can perform the image averaging that Bruce
-    and Eric D talked about. It can also help put font characters on
-    an image.
-    """
-    def __init__(self, fil=None, size=None):
-        if size is None:
-            assert fil is not None
-            size = _image_size(fil)
-        elif type(size) is types.StringType:
-            size = map(string.atoi, size.split('x'))
-        self.fil = fil
-        self.size = size = tuple(size)
-        self.w, self.h = w, h = size
-        if fil is not None:
-            # array module has fast file I/O, Numeric might not
-            import array
-            do('convert -size %s -interlace plane %s /tmp/foo.rgb' %
-               ('%dx%d' % size, fil))
-            a = array.array('B')  # unsigned bytes
-            a.fromstring(open('/tmp/foo.rgb').read())
-            self.red = Numeric.array(a[:w*h], Numeric.UInt32)
-            self.green = Numeric.array(a[w*h:2*w*h], Numeric.UInt32)
-            self.blue = Numeric.array(a[2*w*h:], Numeric.UInt32)
-
-    def _subcopy(self):
-        dst = ImageBuffer(size=(self.w, self.h))
-        dst.fil = self.fil
-        dst.size = self.size
-        dst.w = self.w
-        dst.h = self.h
-        return dst
-
-    def copy(self):
-        dst = self._subcopy()
-        dst.red = self.red.copy()
-        dst.green = self.green.copy()
-        dst.blue = self.blue.copy()
-        return dst
-
-    def __add__(self, other):
-        assert self.w == other.w
-        assert self.h == other.h
-        dst = self._subcopy()
-        dst.red = self.red + other.red
-        dst.green = self.green + other.green
-        dst.blue = self.blue + other.blue
-        return dst
-
-    def __mul__(self, other):
-        assert type(other) in (types.IntType, types.FloatType)
-        dst = self._subcopy()
-        dst.red = (other * self.red).astype(Numeric.UInt32)
-        dst.green = (other * self.green).astype(Numeric.UInt32)
-        dst.blue = (other * self.blue).astype(Numeric.UInt32)
-        return dst
-
-    def __rmul__(self, other):
-        return other.__mul__(self)
-
-    def paste(self, smaller, x1, y1, x2, y2, w2, h2):
-        r1, g1, b1 = self.red, self.green, self.blue
-        r2, g2, b2 = smaller.red, smaller.green, smaller.blue
-        w1, h1, sw = self.w, self.h, smaller.w
-        assert x1 + w2 < w1
-        assert y1 + h2 < h1
-        A = x1 + y1 * w1
-        B = x2 + y2 * sw
-        for row in range(h2):
-            for dst, src in ((r1, r2), (g1, g2), (b1, b2)):
-                dst[A:A+w2] = src[B:B+w2]
-            A += w1
-            B += sw
-
-    def merge(self, smaller, x1, y1, x2, y2, w2, h2):
-        r1, g1, b1 = self.red, self.green, self.blue
-        r2, g2, b2 = smaller.red, smaller.green, smaller.blue
-        w1, h1, sw = self.w, self.h, smaller.w
-        assert x1 + w2 < w1
-        assert y1 + h2 < h1
-        A = x1 + y1 * w1
-        B = x2 + y2 * sw
-        for row in range(h2):
-            for dst, src in ((r1, r2), (g1, g2), (b1, b2)):
-                dst[A:A+w2] = (0.5 * (src[B:B+w2] + dst[A:A+w2])).astype(Numeric.UInt32)
-            A += w1
-            B += sw
-
-    def addtext(self, textx, texty, message):
-        for i in range(len(message)):
-            # ascii codes from 32 to 126
-            x = ord(message[i]) - 32
-            if x < 0 or x > 94:
-                x = 0
-            #func = self.paste  # opaque text
-            func = self.merge  # translucent text
-            func(font,
-                 (textx + i) * 12, texty * 24,
-                 (x & 0xf) * 12, (x >> 4) * 24,
-                 12, 24)
-
-    def save(self, fil=None):
-        if fil is None:
-            fil = self.fil
-        assert fil is not None
-        outf = open('/tmp/foo.rgb', 'w')
-        outf.write(self.red.astype(Numeric.UInt8).tostring())
-        outf.write(self.green.astype(Numeric.UInt8).tostring())
-        outf.write(self.blue.astype(Numeric.UInt8).tostring())
-        outf.close()
-        do('convert -depth 8 -size %dx%d -interlace plane /tmp/foo.rgb %s' %
-           (self.w, self.h, fil))
-
-# Figure out how to make this less dependent on my directory structure.
-font = ImageBuffer('/home/wware/polosims/cad/src/experimental/animations/font.gif')
-
 ############################
 #                          #
 #    DISTRIBUTED POVRAY    #
@@ -181,15 +64,14 @@ worker_list = [
     'laptop',
     ]
 
-# Some new stuff I've learned about ImageMagick, which will make the
-# ImageBuffer obsolete. That's a shame, I enjoyed working on it. To
-# average a bunch of image files of the same size, do this:
+# Some new stuff I've learned about ImageMagick. To average a bunch of
+# image files of the same size, do this:
 #
 # convert -average <input1> <input2> <input3>... <inputN> <output>
 #
 # To add some text to an image, do this:
 #
-# convert -average <input files> -pointsize 30 \
+# convert -average <input files> -font times-roman -pointsize 30 \
 #    -annotate +10+30 "0.175 nanoseconds" \
 #    -annotate +10+60 "0.003 rotations" <output>
 #
@@ -205,77 +87,96 @@ worker_list = [
 # done on the worker machines. So I need to generate a shell script to
 # send to the worker that has all the commands.
 
-class PovrayJob:
-    def __init__(self, srcdir, dstdir, pov, yuv,
-                 pwidth, pheight, ywidth, yheight):
+_which_povray_job = 0
 
-        assert pov[-4:] == '.pov'
+class PovrayJob:
+    def __init__(self, srcdir, dstdir, povfmt, povmin, povmax_plus_one, yuv,
+                 pwidth, pheight, ywidth, yheight, textlist):
+
+        assert povfmt[-4:] == '.pov'
         assert yuv[-4:] == '.yuv'
-        self.pov = pov
-        self.tga = pov[:-4] + '.tga'
+        self.srcdir = srcdir
+        self.dstdir = dstdir
+        self.povfmt = povfmt
+        self.povmin = povmin
+        self.povmax_plus_one = povmax_plus_one
         self.yuv = yuv
+
+        self.workdir = '/tmp'
+        yuv = os.path.join(self.workdir, yuv)
 
         self.srcdir = srcdir
         self.dstdir = dstdir
-        self.srcpov = os.path.join(srcdir, pov)
-        self.dstyuv = os.path.join(dstdir, yuv)
 
-        w1, h1 = pwidth, pheight
-        w2, h2 = ywidth, yheight
-        scale = max(1.0 * w2 / w1, 1.0 * h2 / h1)
-        w3, h3 = int(scale * w1), int(scale * h1)  # preserve aspect ratio
-        w3, h3 = max(w3, w2), max(h3, h2)  # be careful of round-off error
+        global _which_povray_job
+        self.scriptname = 'povray_job_%08d.sh' % _which_povray_job
+        _which_povray_job += 1
 
-        self.w1, self.h1 = w1, h1
-        self.w2, self.h2 = w2, h2
-        self.w3, self.h3 = w3, h3
+        shellscript = open(self.scriptname, 'w')
+        tgalist = [ ]
+        erasable = [ ]
+        for i in range(povmin, povmax_plus_one):
+            pov = os.path.join(self.workdir, povfmt % i)
+            tga = pov[:-4] + '.tga'
+            shellscript.write('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X 2>/dev/null\n' %
+                              (pov, tga, pwidth, pheight))
+            tgalist.append(tga)
+            erasable.append(pov)
+            erasable.append(tga)
+        w2 = int(video_aspect_ratio * pheight)
+
+        cmd = ('convert -average %s -crop %dx%d+%d+0 -geometry %dx%d!' %
+               (' '.join(tgalist), w2, pheight, (pwidth - w2) / 2, ywidth, yheight))
+        if textlist:
+            cmd += ' -font times-roman -pointsize 30'
+            for i in range(len(textlist)):
+                cmd += ' -annotate +10+%d "%s"' % (30 * (i + 1), textlist[i])
+        shellscript.write(cmd + ' ' + yuv + '\n')
+
+        # clean up the pov and tga files
+        shellscript.write('rm -f ' + (' '.join(erasable)) + '\n')
+        shellscript.close()
+        os.system('chmod 755 ' + self.scriptname)
 
     def go(self, machine, workdir):
-
-        assert self.pov[-4:] == '.pov'
-        tga = self.pov[:-4] + '.tga'
-
-        w1, h1 = self.w1, self.h1
-        w2, h2 = self.w2, self.h2
-        w3, h3 = self.w3, self.h3
-
-        srcpov, dstyuv = self.srcpov, self.dstyuv
-        pov = os.path.join(workdir, self.pov)
-        tga = os.path.join(workdir, self.tga)
-        yuv = os.path.join(workdir, self.yuv)
 
         local = machine in ('localhost', '127.0.0.1')
 
         if local:
             # do stuff on this machine
-            def copy(src, dst, outgoing):
+            def copy_out(src, dst):
                 do('cp ' + src + ' ' + dst, howfarback=1)
+            copy_in = copy_out
             def run(cmd):
                 do(cmd, howfarback=1)
         else:
             # do stuff on a remote machine
-            def copy(src, dst, outgoing):
-                if outgoing:
-                    do('scp ' + src + ' ' + machine + ':' + dst, howfarback=1)
-                else:
-                    do('scp ' + machine + ':' + src + ' ' + dst, howfarback=1)
+            def copy_out(src, dst):
+                do('scp ' + src + ' ' + machine + ':' + dst, howfarback=1)
+            def copy_in(src, dst):
+                do('scp ' + machine + ':' + src + ' ' + dst, howfarback=1)
             def run(cmd):
                 do('ssh ' + machine + ' ' + cmd, howfarback=1)
 
-        # scp pov file to worker
-        copy(srcpov, pov, True)
-        # ssh-povray job on worker machine
-        run('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X 2>/dev/null' %
-            (pov, tga, w1, h1))
-        # First we scale the image up to w3 x h3, preserving the old aspect ratio.
-        # Then we (shrink if needed and) crop it to the desired size.
-        run('convert %s -geometry %dx%d -crop %dx%d+%d+%d %s' %
-            (tga, w3, h3,
-             w2, h2, (w3 - w2) / 2, (h3 - h2) / 2, yuv))
+        # scp shell script and pov files to worker
+        copy_out(self.scriptname,
+                 os.path.join(self.workdir, self.scriptname))
+        run('chmod +x ' + os.path.join(self.workdir, self.scriptname))
+        do('rm -f ' + self.scriptname)
+        for i in range(self.povmin, self.povmax_plus_one):
+            copy_out(os.path.join(self.srcdir, self.povfmt % i),
+                     os.path.join(self.workdir, self.povfmt % i))
+
+        # run the shell script on the worker
+        run(os.path.join(self.workdir, self.scriptname))
+
         # scp yuv file back from worker
-        copy(yuv, dstyuv, False)
+        copy_in(os.path.join(self.workdir, self.yuv),
+                os.path.join(self.dstdir, self.yuv))
         # clean up the worker machine
-        run('rm -f %s %s %s' % (pov, tga, yuv))
+        run('rm -f %s %s' %
+            (os.path.join(self.workdir, self.scriptname),
+             os.path.join(self.workdir, self.yuv)))
 
 class Worker(threading.Thread):
 
@@ -340,29 +241,20 @@ class PovrayJobQueue:
 #                  #
 ####################
 
-# Dimensions for recommended povray rendering, gotten from the first line
-# of any of the *.pov files.
-recommended_width, recommended_height = 751, 459
-aspect_ratio = (1. * recommended_width) / recommended_height
-
-povray_height = 450
-povray_width = int(aspect_ratio * povray_height)
-
-# Google Video uses a 4:3 aspect ratio because that's what is specified
-# below in the MPEG parameter file.
-aspect_ratio = 4.0 / 3.0
 # mpeg_height and mpeg_width must both be even to make mpeg2encode
 # happy. NTSC is 4:3 with resolution 704x480, with non-square pixels.
 # I don't know if ImageMagick handles non-square pixels.
 def even(x): return int(x) & -2
-mpeg_height = povray_height
-mpeg_width = even(aspect_ratio * mpeg_height)
-
-# Bit rate of the MPEG stream in bits per second. For 30 FPS video at
-# 600x450, 2 mbits/sec looks good and gives a file size of about 250
-# Kbytes per second of video. At 1.5 mbits/sec you start to see some
-# MPEG artifacts, with file size of 190 Kbytes per second of video.
-bitrate = 2.0e6
+if False:
+    povray_height = recommended_height
+    povray_width = int(povray_aspect_ratio * povray_height)
+    mpeg_height = povray_height
+    mpeg_width = even(video_aspect_ratio * mpeg_height)
+else:
+    povray_height = 480
+    povray_width = int(povray_aspect_ratio * povray_height)
+    mpeg_width = 704
+    mpeg_height = 480
 
 params = """MPEG-2 Test Sequence, 30 frames/sec
 %(sourcefileformat)s    /* name of source files */
@@ -492,44 +384,6 @@ class MpegSequence:
         else:
             return '%.4f nanoseconds'
 
-    def povraySequence(self, povfmt, frames, psecs_per_frame=None,
-                       begin=0):
-        assert povfmt[-4:] == '.pov'
-        if DEBUG: frames = min(frames, 10)
-
-        pq = PovrayJobQueue()
-        nfmt = self.nanosecond_format(psecs_per_frame)
-        yuvs = [ ]
-
-        for i in range(frames):
-            if DEBUG: linenum('i', i)
-            pov = povfmt % (i + begin)
-            assert os.path.exists(pov), 'cannot find file: ' + pov
-            yuv = self.yuv_name()
-            yuvs.append(yuv)
-
-            srcdir, pov = os.path.split(pov)
-            dstdir, yuv = os.path.split(yuv)
-            job = PovrayJob(srcdir, dstdir, pov, yuv,
-                            povray_width, povray_height,
-                            mpeg_width, mpeg_height)
-            pq.append(job)
-            self.frame += 1
-        pq.start()
-        pq.wait()
-
-        if psecs_per_frame is not None:
-            i = 0
-            for yuv in yuvs:
-                ib = ImageBuffer(yuv, size=self.size)
-                nsecs = 0.001 * i * psecs_per_frame
-                i += 1
-                ib.addtext(1, 1, nfmt % nsecs)
-                # Rotation of small bearing at 5 GHz
-                ib.addtext(1, 2, '%.3f rotations' % (nsecs / 0.2))
-                ib.addtext(1, 3, '%.1f degrees' % (360. * nsecs / 0.2))
-                ib.save()
-
     # This could be combined with povraySequence, which is a special case
     # where avg and ratio are both 1.
     def motionBlurSequence(self, povfmt, frames, psecs_per_subframe,
@@ -540,7 +394,7 @@ class MpegSequence:
             self.frame += frames
             return
         if DEBUG:
-            frames = min(frames, 20)
+            frames = min(frames, 60)
             avg = min(avg, 5)
             print 'MOTION BLUR SEQUENCE'
             print 'povfmt', povfmt
@@ -549,28 +403,32 @@ class MpegSequence:
             print 'ratio', ratio
             print 'avg', avg
             print 'begin', begin
-        N = frames * ratio
+        pq = PovrayJobQueue()
         nfmt = self.nanosecond_format(ratio * psecs_per_subframe)
+        yuvs = [ ]
+        srcdir, povfmt = os.path.split(povfmt)
+
         for i in range(frames):
-            if DEBUG: linenum('i', i)
-            previous = self.frame
-            if DEBUG: linenum('starting POV files at', begin + i * ratio)
-            self.povraySequence(povfmt, avg, begin=begin+i*ratio)
-            self.frame = previous
-            ib = ImageBuffer(self.yuv_name(self.frame), size=self.size)
-            for j in range(1, avg):
-                ib += ImageBuffer(self.yuv_name(self.frame + j),
-                                  size=self.size)
-            ib *= 1.0 / avg
-            if DEBUG: update_psecs = 1
-            else: update_psecs = 30
+            yuv = self.yuv_name()
+            yuvs.append(yuv)
+            dstdir, yuv = os.path.split(yuv)
             nsecs = 0.001 * i * ratio * psecs_per_subframe
-            ib.addtext(1, 1, nfmt % nsecs)
-            # Rotation of small bearing at 5 GHz
-            ib.addtext(1, 2, '%.3f rotations' % (nsecs / 0.2))
-            ib.addtext(1, 3, '%.1f degrees' % (360. * nsecs / 0.2))
-            ib.save()
+            textlist = [
+                nfmt % nsecs,
+                # Rotation of small bearing at 5 GHz
+                '%.3f rotations' % (nsecs / 0.2),
+                '%.1f degrees' % (360. * nsecs / 0.2)
+                ]
+            job = PovrayJob(srcdir, dstdir, povfmt,
+                            begin + i * ratio,
+                            begin + i * ratio + avg,
+                            yuv,
+                            povray_width, povray_height,
+                            mpeg_width, mpeg_height, textlist)
+            pq.append(job)
             self.frame += 1
+        pq.start()
+        pq.wait()
 
     def encode(self):
         parfil = mpeg_dir + "/foo.par"
@@ -595,10 +453,10 @@ def example_usage():
     #m.povraySequence('fastpov/fast.%06d.pov', 450, psecs_per_frame=0.01)
     #m.titleSequence('title3.gif')
 
-    #m.povraySequence(os.path.join(mpeg_dir, 'slowpov/slow.%06d.pov'),
-    #                 200, 0.05)
     m.motionBlurSequence(os.path.join(mpeg_dir, 'slowpov/slow.%06d.pov'),
-                         450, 0.05, 4, 4)
+                         120, 0.02, 10, 10)
+    #m.motionBlurSequence(os.path.join(mpeg_dir, 'slowpov/slow.%06d.pov'),
+    #                     450, 0.05, 4, 4)
 
     m.encode()
 
