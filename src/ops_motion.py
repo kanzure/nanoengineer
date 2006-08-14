@@ -85,7 +85,6 @@ class ops_motion_Mixin:
     
     #invert a chunk
     def Invert(self):
-    #def Invertorig(self):
         '''Invert the atoms of the selected chunk(s)'''
 
         mc = env.begin_op("Invert")
@@ -106,7 +105,6 @@ class ops_motion_Mixin:
         
     #Mirror the selected chunks 
     def Mirror(self):
-    #def Invert(self):
         "Mirror the selected chunk(s) about a selected grid plane."
         #ninad060812--: As of 060812 (11 PM EST) it creates mirror chunks about a selected grid plane/(or jig with 0 atoms)
         #This has some known bugs. listed below ninad060812: 
@@ -127,13 +125,19 @@ class ops_motion_Mixin:
         cmd = greenmsg("Mirror: ")
         
         if not self.selmols:
-            msg = redmsg("No selected chunks to mirror")
+            msg = redmsg("No chunks selected to mirror")
             env.history.message(cmd + msg)
             return
         self.changed()
         
         jigs = self.assy.getSelectedJigs()
-        
+        if not jigs[0]:  # not sufficient condition.Needs to know which jig it is (bug when the jig is e.g. anchor) 
+            msg = redmsg("No mirror plane selected. Please select a Grid Plane first.") 
+            instruction = "  (If it doesn't exists, create it first using <b>Jigs > Grid Plane</b>)" 
+            env.history.message(cmd + msg + instruction)
+            return
+        self.changed()
+            
         for m in self.selmols:
             mirrorChunk = m.copy(None) #ninad060812 make a copy of the selection first
             self.o.assy.addmol(mirrorChunk)

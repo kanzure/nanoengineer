@@ -40,7 +40,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>33</height>
+            <height>35</height>
         </rect>
     </property>
     <property name="backgroundOrigin">
@@ -173,6 +173,7 @@
         <action name="modifySeparateAction"/>
         <action name="modifyStretchAction"/>
         <action name="modifyMergeAction"/>
+        <action name="modifyMirrorAction"/>
         <action name="modifyInvertAction"/>
         <action name="modifyAlignCommonAxisAction"/>
         <action name="modifyCenterCommonAxisAction"/>
@@ -204,7 +205,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>70</width>
+                <width>71</width>
                 <height>29</height>
             </rect>
         </property>
@@ -226,9 +227,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>70</x>
+                <x>71</x>
                 <y>0</y>
-                <width>210</width>
+                <width>211</width>
                 <height>29</height>
             </rect>
         </property>
@@ -255,9 +256,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>280</x>
+                <x>282</x>
                 <y>0</y>
-                <width>570</width>
+                <width>571</width>
                 <height>29</height>
             </rect>
         </property>
@@ -300,9 +301,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>850</x>
+                <x>853</x>
                 <y>0</y>
-                <width>238</width>
+                <width>239</width>
                 <height>29</height>
             </rect>
         </property>
@@ -332,7 +333,7 @@
             <rect>
                 <x>0</x>
                 <y>29</y>
-                <width>210</width>
+                <width>211</width>
                 <height>29</height>
             </rect>
         </property>
@@ -359,9 +360,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>210</x>
+                <x>211</x>
                 <y>29</y>
-                <width>42</width>
+                <width>43</width>
                 <height>29</height>
             </rect>
         </property>
@@ -384,8 +385,8 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>94</width>
-                <height>19</height>
+                <width>98</width>
+                <height>22</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -412,10 +413,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>94</x>
+                <x>98</x>
                 <y>0</y>
-                <width>95</width>
-                <height>19</height>
+                <width>104</width>
+                <height>22</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -442,10 +443,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>189</x>
+                <x>202</x>
                 <y>0</y>
-                <width>96</width>
-                <height>19</height>
+                <width>103</width>
+                <height>22</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -473,8 +474,8 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>19</y>
-                <width>1085</width>
+                <y>22</y>
+                <width>1109</width>
                 <height>29</height>
             </rect>
         </property>
@@ -649,8 +650,8 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>48</y>
-                <width>156</width>
+                <y>51</y>
+                <width>160</width>
                 <height>29</height>
             </rect>
         </property>
@@ -680,9 +681,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>156</x>
-                <y>48</y>
-                <width>115</width>
+                <x>160</x>
+                <y>51</y>
+                <width>119</width>
                 <height>29</height>
             </rect>
         </property>
@@ -712,9 +713,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>271</x>
-                <y>48</y>
-                <width>104</width>
+                <x>279</x>
+                <y>51</y>
+                <width>106</width>
                 <height>29</height>
             </rect>
         </property>
@@ -744,9 +745,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>375</x>
-                <y>48</y>
-                <width>120</width>
+                <x>385</x>
+                <y>51</y>
+                <width>123</width>
                 <height>29</height>
             </rect>
         </property>
@@ -776,9 +777,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>495</x>
-                <y>48</y>
-                <width>92</width>
+                <x>508</x>
+                <y>51</y>
+                <width>96</width>
                 <height>29</height>
             </rect>
         </property>
@@ -806,9 +807,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>587</x>
-                <y>48</y>
-                <width>19</width>
+                <x>604</x>
+                <y>51</y>
+                <width>20</width>
                 <height>29</height>
             </rect>
         </property>
@@ -831,7 +832,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>30</width>
-                <height>257</height>
+                <height>258</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -860,9 +861,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>257</y>
+                <y>258</y>
                 <width>30</width>
-                <height>311</height>
+                <height>339</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -880,6 +881,7 @@
         <action name="modifyStretchAction"/>
         <action name="modifySeparateAction"/>
         <action name="modifyMergeAction"/>
+        <action name="modifyMirrorAction"/>
         <action name="modifyInvertAction"/>
         <action name="modifyAlignCommonAxisAction"/>
     </toolbar>
@@ -893,9 +895,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>568</y>
+                <y>597</y>
                 <width>30</width>
-                <height>182</height>
+                <height>183</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -922,9 +924,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>750</y>
+                <y>780</y>
                 <width>30</width>
-                <height>122</height>
+                <height>123</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -4037,6 +4039,20 @@
             <string>&amp;Isometric</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>modifyMirrorAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image149</iconset>
+        </property>
+        <property name="text">
+            <string>Mirror</string>
+        </property>
+        <property name="toolTip">
+            <string>Mirror Chunks</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4485,6 +4501,9 @@
     </image>
     <image name="image148">
         <data format="PNG" length="210">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b0000009949444154789ced95410e80300804c1f080feffad2678299a52286062f4e05eea61996d1011e023e2ac712b001976be9e036102081d388ace5293e1817d60324083f3c02060eef11da8513783296abb235567df98301f205e756332cd6212f86a2a9cd6d9e0554000cc81ad80e4cbcd7e7965fde0e7c17a2a1008ebfbc25844d6b86137c701c1ea8c244b7e3c0b7f93a55a6b0c00dccff7740038363c7353579fcc0000000049454e44ae426082</data>
+    </image>
+    <image name="image149">
+        <data format="PNG" length="303">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000f649444154789c6360180c405757f73fb16a9968e508da1bacababfb1fddabd8c460203b3bfb7f7676f67fbc62bababaff677fbdf67ff6d76bff757575ff77f677ff471763606060d03355fd0f33e0e8c3ebff8f3ebc0e37085d0ceee2e777efc32d2a2f2c65441763606060f8ff8303cedefbf11e9c1d979bf61f5d0cafb7d1c590d9848202ee62d7483f86cb972f33222bbc7cf932a3477800a62b181818d8a50518a64e9d8aa27eead4a98c5c92420c2806ef5ebe09239deaeaeafedfb1720356837f3efdc080cdc5df9ebf4335003da27089c10c202bf26091811e79c86034f2e06034f2888e3c9200cd0afadf7fdf93ec98a103009b08337b8a72ca520000000049454e44ae426082</data>
     </image>
 </images>
 <connections>
@@ -5418,6 +5437,12 @@
         <receiver>MainWindow</receiver>
         <slot>setViewIsometric()</slot>
     </connection>
+    <connection>
+        <sender>modifyMirrorAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyMirror()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5605,6 +5630,7 @@
     <slot>fileImport()</slot>
     <slot>fileExport()</slot>
     <slot>setViewIsometric()</slot>
+    <slot>modifyMirror()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

@@ -928,7 +928,7 @@ def createWhatsThis(self):
 
         self.selectNoneAction.setWhatsThis(selectNoneActionText )
  
-        # Invert Selection
+        # InvertSelection
 
         selectInvertActionText = "<u><b>Invert Selection</b></u> (Ctrl + Shift + I)<br>"\
                        "<p><img source=\"selectInvertAction\"><br> "\
@@ -1111,6 +1111,20 @@ def createWhatsThis(self):
                                                        self.modifyInvertAction.iconSet().pixmap() )
        
         self.modifyInvertAction.setWhatsThis(modifyInvertActionText )  
+        
+        # Mirror Selected Chunks
+        
+        #Note that the the feature name is intentionally kept "Mirror" instead of "Mirror Chunks" because 
+        # in future we will support mirrroing atoms as well. -- ninad060814
+        modifyMirrorActionText = "<u><b>Mirror</b></u><br>"\
+                       "<p><img source=\"modifyMirrorAction\"><br> "\
+                       "Mirrors the selected <b> chunks </b> about a reference Grid Plane.<br>"\
+                       "<font color=\"#808080\">Note: In this version, it doesn't mirror jigs or individual atoms.</font> </p>"
+
+        QMimeSourceFactory.defaultFactory().setPixmap( "modifyMirrorAction",
+                                                       self.modifyMirrorAction.iconSet().pixmap() )
+       
+        self.modifyMirrorAction.setWhatsThis(modifyMirrorActionText )  
 
         # Align to Common Axis
 

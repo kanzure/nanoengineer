@@ -1027,6 +1027,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def modifyInvert(self):
         """ Invert the atoms of the selected chunk(s) """
         self.assy.Invert()
+    
+    def modifyMirror(self):
+        "Mirrors the selected chunk about a jig with 0 atoms (mainly grid plane)"
+        self.assy.Mirror()
 
     def modifyAlignCommonAxis(self):
         """ Align selected chunks to the computed axis of the first chunk by rotating them """
