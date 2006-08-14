@@ -267,6 +267,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # repaint times will be appended to this,
             # but it will be trimmed to keep only the last 5 (or fewer) times
         self._repaint_duration = MIN_REPAINT_TIME
+        
+        self.triggerBareMotionEvent = True 
+            # Supports timerEvent() to minimize calls to bareMotion(). Mark 060814.
 
         ###### User Preference initialization ##############################
         
@@ -1431,7 +1434,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         For more information, read the docstring for selectMode.mouse_exceeded_distance().
         """
         
-        # Get the x, y positions of the cursor and store as tuple in <xy_now>.
+        # Get the x, y position of the cursor and store as tuple in <xy_now>.
         cursor = self.cursor()
         cursorPos = self.mapFromGlobal(cursor.pos()) # mapFromGlobal() maps from screen coords to GLpane coords.
         xy_now = (cursorPos.x(), cursorPos.y())
@@ -1448,9 +1451,20 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # being pressed, create a 'MouseMove' mouse event and pass it to mode.bareMotion().  
         # Only selectMode (mouse_exceeded_distance()) makes use of this event. 
         if xy_now == xy_last and self.button == None:
-            mouseEvent = QMouseEvent( QEvent.MouseMove, cursorPos, Qt.NoButton, Qt.NoButton ) 
-            self.mode.bareMotion(mouseEvent) # Only selectMode.mouse_exceeded_distance() makes use of this.
-
+            # Only pass a 'MouseMove" mouse event once to bareMotion() when the mouse stops 
+            # and hasn't moved since the last timer event.
+            if self.triggerBareMotionEvent:
+                #print "Calling bareMotion. xy_now = ", xy_now
+                mouseEvent = QMouseEvent( QEvent.MouseMove, cursorPos, Qt.NoButton, Qt.NoButton ) 
+                self.mode.bareMotion(mouseEvent) # Only selectMode.mouse_exceeded_distance() makes use of this.
+            self.triggerBareMotionEvent = False
+            
+            # Idea: start is one-shot timer here that would eventually display a tooltip with info about the highlighted object
+            # (atom) if the cursor hasn't moved after 2-3 seconds. Eric has expressed a strong desire for this feature.
+            
+        else:
+            self.triggerBareMotionEvent = True
+                
         self.timer_event_last_xy = xy_now
         return
     
