@@ -114,9 +114,8 @@ class ops_motion_Mixin:
             #2. When the selected chunks have interchunk bonds, and you hit mirror, it breaks the interchunk bond while doing mirror 
             #operation. (Suggestion: It should treat connected chunks as a single entity while doing mirror op..but once the operation is
             # over, it should separate them like the original chunks)
-            #4. If I mirror a clipboard chunk, the history says "Mirrored 0 chunks"
-            #5. Untested (and most likely it will break if multiple grid planes are selected) 
             #6. Untested on very large objects. Hopefully  it will take the same amount of time as that of the copy op.
+            
         mc = env.begin_op("Mirror")
         cmd = greenmsg("Mirror: ")
         
@@ -124,42 +123,50 @@ class ops_motion_Mixin:
             msg = redmsg("No chunks selected to mirror")
             env.history.message(cmd + msg)
             return
-        self.changed()
-        
-        jigs = self.assy.getSelectedJigs()
-        if not jigs:  # not sufficient condition.Needs to know which jig it is (bug when the jig is e.g. anchor) 
-            msg = redmsg("No mirror plane selected. Please select a Grid Plane first.") 
-            instruction = "  (If it doesn't exists, create it first using <b>Jigs > Grid Plane</b>)" 
-            env.history.message(cmd + msg + instruction)
-            return
-        self.changed()
+        #self.changed() # well assembly is not changed here - ninad060814
         
         if self.topnode.picked:
             self.topnode.unpick_top() #ninad060814 this is necessary to fix a bug. Otherwise program will crash if you try to mirror
                                                     #when the top node of the part (main part of clipboard) is selected
-            
-        for m in self.selmols:
-            mirrorChunk = m.copy(None) #ninad060812 make a copy of the selection first
-            self.o.assy.addmol(mirrorChunk)
-            mirrorChunk.stretch(-1.0)
-            self.mirrorAxis = jigs[0].getaxis() # ninad060812 Get the axis vector of the Grid Plane. Then you need to 
-                                                               #rotate the inverted chunk by pi around this axis vector 
-            mirrorChunk.rot(Q(self.mirrorAxis, pi)) 
-
-            self.mirrorDistance, self.wid = orthodist(m.center, self.mirrorAxis, jigs[0].center) # ninad060813 This gives an orthogonal distance between 
-                                                                                                                        #the chunk center and mirror plane. 
-            
-            mirrorChunk.move(2*(self.mirrorDistance)*self.mirrorAxis)# @@@@ ninad060813 This moves the mirrror chunk on the other side of the mirror plane. It surely moves the chunk along the axis of the mirror plane but I am still unsure if this *always* moves the chunk on the other side of the mirror. Probably the 'orthodist' function has helped me here??  Need to discuss this.
-                                                                                                    
-            #older implementation (if it is to be mirrored about YZ axis)
-            #mirrorChunk.rot(Q(V(1,0,0), pi)) #ninad060812 rotate the inverted chunk by 180 degrees about X axis 
-            
-        self.w.win_update()  # update GLPane as well as MT
         
-        info = fix_plurals( "Mirrored  %d chunk(s)" % len(self.selmols)) # see item 5 in known bugs ninad060812
-        env.history.message( cmd + info)
-        env.end_op(mc) 
+        jigs = self.assy.getSelectedJigs()
+        jigCounter = self.getQualifiedMirrorJigs(jigs) # ninad060814 - check if Grid Plane is selected. If it does , check how many!
+                
+        if jigCounter < 1:
+            msg = redmsg("No mirror plane selected. Please select a Grid Plane first.")
+            instruction = "  (If it doesn't exists, create it using <b>Jigs > Grid Plane</b> )"
+            env.history.message(cmd + msg  + instruction)
+            return 
+        elif jigCounter >1:
+            msg = redmsg("More than one Grid Plane selected. Please select only one Grid Plane and try again")
+            env.history.message(cmd + msg ) 
+            return 
+        else:
+            for m in self.selmols:
+                mirrorChunk = m.copy(None) #ninad060812 make a copy of the selection first
+                self.o.assy.addmol(mirrorChunk)
+                mirrorChunk.stretch(-1.0)
+                self.mirrorAxis = jigs[0].getaxis() # ninad060812 Get the axis vector of the Grid Plane. Then you need to 
+                                                                   #rotate the inverted chunk by pi around this axis vector 
+                mirrorChunk.rot(Q(self.mirrorAxis, pi)) 
+    
+                self.mirrorDistance, self.wid = orthodist(m.center, self.mirrorAxis, jigs[0].center) # ninad060813 This gives an orthogonal distance between the chunk center and mirror plane.
+                mirrorChunk.move(2*(self.mirrorDistance)*self.mirrorAxis)# @@@@ ninad060813 This moves the mirrror chunk on the other side of the mirror plane. It surely moves the chunk along the axis of the mirror plane but I am still unsure if this *always* moves the chunk on the other side of the mirror. Probably the 'orthodist' function has helped me here??  Need to discuss this.
+                                                                                                                        
+            self.w.win_update()  # update GLPane as well as MT
+            
+            info = fix_plurals( "Mirrored  %d chunk(s)" % len(self.selmols))
+            env.history.message( cmd + info)
+            env.end_op(mc) 
         
+    def getQualifiedMirrorJigs(self, jigs):
+        "Returns the jig names which can be used a  reference plane in Mirror Feature. Also returns how many such jigs are selected"
+        #I am planning to extend this method for ESP images also. - ninad060814
+        jigCounter = 0
+        for j in jigs:
+            if j.mmp_record_name is "gridplane":
+                jigCounter = jigCounter + 1
+        return jigCounter # if its 0 then no grid plane is selected.  If its >1 more than 1 grid planes are selected
     
     def align(self):
         
