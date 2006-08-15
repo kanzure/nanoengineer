@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, sys, string, types, Numeric, threading, time
+import os, sys, threading, time
 
 # Dimensions for recommended povray rendering, gotten from the first line
 # of any of the *.pov files.
@@ -11,11 +11,36 @@ povray_aspect_ratio = (1. * recommended_width) / recommended_height
 # 600x450, 2 mbits/sec looks good and gives a file size of about 250
 # Kbytes per second of video. At 1.5 mbits/sec you start to see some
 # MPEG artifacts, with file size of 190 Kbytes per second of video.
-bitrate = 3.0e6
+bitrate = 5.0e6
 
 # Google Video uses a 4:3 aspect ratio because that's what is specified
 # below in the MPEG parameter file.
 video_aspect_ratio = 4.0 / 3.0
+
+ntsc = True
+
+# mpeg_height and mpeg_width must both be even to make mpeg2encode
+# happy. NTSC is 4:3 with resolution 704x480, with non-square pixels.
+# I don't know if ImageMagick handles non-square pixels.
+def even(x): return int(x) & -2
+if ntsc:
+    povray_height = 480
+    povray_width = int(povray_aspect_ratio * povray_height)
+    mpeg_width = 704
+    mpeg_height = 480
+else:
+    # Quick little pictures of much lower resolution
+    mpeg_height = 240
+    mpeg_width = even(video_aspect_ratio * mpeg_height)
+    povray_height = mpeg_height
+    povray_width = int(povray_aspect_ratio * povray_height)
+
+worker_list = [
+    ('localhost', '/tmp/mpeg'),
+    ('server', '/tmp/mpeg'),
+    ('laptop', '/tmp/mpeg'),
+    ('mac', '/Users/wware/tmp')
+    ]
 
 framelimit = None
 
@@ -42,14 +67,15 @@ def linenum(*args):
 
 def do(cmd, howfarback=0):
     if DEBUG:
-        try:
-            raise Exception
-        except:
-            tb = sys.exc_info()[2]
-            f = tb.tb_frame.f_back
-            for i in range(howfarback):
-                f = f.f_back
-            print f.f_code.co_filename, f.f_code.co_name, f.f_lineno
+        if False:
+            try:
+                raise Exception
+            except:
+                tb = sys.exc_info()[2]
+                f = tb.tb_frame.f_back
+                for i in range(howfarback):
+                    f = f.f_back
+                print f.f_code.co_filename, f.f_code.co_name, f.f_lineno
         print cmd
     if os.system(cmd) != 0:
         raise Exception(cmd)
@@ -59,13 +85,6 @@ def do(cmd, howfarback=0):
 #    DISTRIBUTED POVRAY    #
 #                          #
 ############################
-
-worker_list = [
-    ('localhost', '/tmp'),
-    ('server', '/tmp'),
-    ('laptop', '/tmp'),
-    ('mac', '/Users/wware/tmp')
-    ]
 
 _which_povray_job = 0
 
@@ -87,101 +106,100 @@ class PovrayJob:
         self.yheight = yheight
         self.textlist = textlist
 
-        self.srcdir = srcdir
-        self.dstdir = dstdir
-
     def go(self, machine, workdir):
-
-        global _which_povray_job
-        self.scriptname = 'povray_job_%08d.sh' % _which_povray_job
-        _which_povray_job += 1
-
-        shellscript = open(self.scriptname, 'w')
-        shellscript.write('cd %s\n' % workdir)
-        tgalist = [ ]
-        erasable = [ ]
-        for i in range(self.povmin, self.povmax_plus_one):
-            pov = os.path.join(workdir, self.povfmt % i)
-            tga = pov[:-4] + '.tga'
-            shellscript.write('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X 2>/dev/null\n' %
-                              (pov, tga, self.pwidth, self.pheight))
-            tgalist.append(tga)
-            erasable.append(pov)
-            erasable.append(tga)
-        w2 = int(video_aspect_ratio * self.pheight)
-
-        cmd = ('convert -average %s -crop %dx%d+%d+0 -geometry %dx%d!' %
-               (' '.join(tgalist), w2, self.pheight, (self.pwidth - w2) / 2,
-                self.ywidth, self.yheight))
-        shellscript.write(cmd + ' ' + os.path.join(workdir, self.yuv) + '\n')
-
-        # clean up the pov and tga files
-        shellscript.write('rm -f ' + (' '.join(erasable)) + '\n')
-        shellscript.close()
-        os.system('chmod 755 ' + self.scriptname)
 
         local = machine in ('localhost', '127.0.0.1')
 
-        if local:
-            # do stuff on this machine
-            def copy_out(src, dst):
-                do('cp ' + src + ' ' + dst, howfarback=1)
-            copy_in = copy_out
-            def run(cmd):
+        def worker_do(cmd):
+            if DEBUG: print '[[%s]]' % machine,
+            if local:
+                # do stuff on this machine
                 do(cmd, howfarback=1)
-        else:
-            # do stuff on a remote machine
-            def copy_out(src, dst):
-                do('scp ' + src + ' ' + machine + ':' + dst, howfarback=1)
-            def copy_in(src, dst):
-                do('scp ' + machine + ':' + src + ' ' + dst, howfarback=1)
-            def run(cmd):
-                do('ssh ' + machine + ' ' + cmd, howfarback=1)
+            else:
+                # do stuff on a remote machine
+                do('ssh %s "%s"' % (machine, cmd), howfarback=1)
 
-        '''
-        It would be smart to tar-gzip the pov files for shipping to
-        the host, like this:
-        
-        (cd srcdir; tar cf - foo.pov bar.pov baz.pov) | gzip | \
-                     ssh machine "(cd workdir; gunzip | tar xf -)"
+        worker_do('mkdir -p ' + workdir)
+        # worker_do('find %s -type f -exec rm -f {} \;' % workdir)
 
-        Likewise, the yuv file can be gzipped for the return voyage.
-
-        ssh machine "(cd workdir; tar cf - foo.yuv | gzip)" | \
-                     gunzip | (cd dstdir; tar xf -)
-        '''
-
-        # scp shell script and pov files to worker
-        copy_out(self.scriptname,
-                 os.path.join(workdir, self.scriptname))
-        run('chmod +x ' + os.path.join(workdir, self.scriptname))
-        do('rm -f ' + self.scriptname)
+        #
+        # Create a shell script to run on the worker machine
+        #
+        global _which_povray_job
+        self.scriptname = 'povray_job_%08d.sh' % _which_povray_job
+        _which_povray_job += 1
+        w2 = int(video_aspect_ratio * self.pheight)
+        jpg = (self.povfmt % self.povmin)[:-4] + '.jpg'
+        tgalist = ''
+        povlist = ''
+        shellscript = open(os.path.join(self.srcdir, self.scriptname), 'w')
+        shellscript.write('cd %s\n' % workdir)
+        # Worker machine renders a bunch of pov files to tga files
         for i in range(self.povmin, self.povmax_plus_one):
-            copy_out(os.path.join(self.srcdir, self.povfmt % i),
-                     os.path.join(workdir, self.povfmt % i))
+            pov = self.povfmt % i
+            povlist += ' ' + pov
+            tga = pov[:-4] + '.tga'
+            tgalist += ' ' + tga
+            shellscript.write('povray +I%s +O%s +FT +A +W%d +H%d -V -D +X 2>/dev/null\n' %
+                              (pov, tga, self.pwidth, self.pheight))
+        # Worker machine averages the tga files into one jpeg file
+        shellscript.write('convert -average %s -crop %dx%d+%d+0 -geometry %dx%d! %s\n' %
+                          (tgalist, w2, self.pheight, (self.pwidth - w2) / 2,
+                           self.ywidth, self.yheight, jpg))
+        # Worker cleans up the pov and tga files, no longer needed
+        shellscript.write('rm -f %s %s\n' %
+                          (povlist, tgalist))
+        shellscript.close()
 
-        # run the shell script on the worker
-        run(os.path.join(workdir, self.scriptname))
+        #
+        # Copy shell script and pov files to worker
+        #
+        if local:
+            cmd = ('(cd %s; tar cf - %s %s) | (cd %s; tar xf -)' %
+                   (self.srcdir, self.scriptname, povlist, workdir))
+        else:
+            cmd = ('(cd %s; tar cf - %s %s) | gzip | ssh %s "(cd %s; gunzip | tar xf -)"' %
+                   (self.srcdir, self.scriptname, povlist, machine, workdir))
+        do(cmd)
+        do('rm -f ' + os.path.join(self.srcdir, self.scriptname))
+        worker_do('chmod +x ' + os.path.join(workdir, self.scriptname))
 
-        # scp yuv file back from worker
-        copy_in(os.path.join(workdir, self.yuv),
-                os.path.join(self.dstdir, self.yuv))
+        #
+        # Run the shell script on the worker
+        #
+        worker_do(os.path.join(workdir, self.scriptname))
 
+        #
+        # Retrieve finished image file back from worker
+        #
+        if DEBUG: print '[[%s]]' % machine,
+        if local:
+            do('cp %s %s' % (src, dst))
+        else:
+            do('scp %s:%s %s' % (machine, src, dst))
+
+        #
+        # Put text on finished image, and convert to YUV
+        #
         if self.textlist:
-            cmd = ('convert -size %dx%d %s -font times-roman -pointsize 30' %
-                   (self.ywidth, self.yheight, os.path.join(self.dstdir, self.yuv)))
+            cmd = ('convert %s -font times-roman -pointsize 30' %
+                   (os.path.join(self.dstdir, jpg)))
             for i in range(len(self.textlist)):
                 cmd += ' -annotate +10+%d "%s"' % (30 * (i + 1), self.textlist[i])
-            cmd += ' /tmp/annotated.%s' % self.yuv
+            cmd += ' ' + os.path.join(self.dstdir, self.yuv)
             do(cmd)
-            do('mv %s %s' %
-               ('/tmp/annotated.%s' % self.yuv,
+        else:
+            do('convert %s %s' %
+               (os.path.join(self.dstdir, jpg),
                 os.path.join(self.dstdir, self.yuv)))
+        do('rm -f %s' % os.path.join(self.dstdir, jpg))
 
-        # clean up the worker machine
-        run('rm -f %s %s' %
-            (os.path.join(workdir, self.scriptname),
-             os.path.join(workdir, self.yuv)))
+        #
+        # Clean up remaining files on the worker machine
+        #
+        worker_do('rm -f %s %s' %
+                  (os.path.join(workdir, self.scriptname),
+                   os.path.join(workdir, jpg)))
 
 all_workers_stop = False
 
@@ -194,14 +212,17 @@ class Worker(threading.Thread):
         self.workdir = workdir
         self.busy = True
 
+    #
+    # Each worker grabs a new jobs as soon as he finishes the previous
+    # one. This allows mixing of slower and faster worker machines; each
+    # works at capacity.
+    #
     def run(self):
         global all_workers_stop
         while not all_workers_stop:
-            job = None
-            self.jobqueue.lock()
             job = self.jobqueue.get()
-            self.jobqueue.unlock()
             if job is None:
+                # no jobs left in the queue, we're finished
                 self.busy = False
                 return
             try:
@@ -219,19 +240,18 @@ class PovrayJobQueue:
         for machine, workdir in worker_list:
             self.worker_pool.append(Worker(self, machine, workdir))
 
-    def lock(self):
-        self._lock.acquire()
-    def unlock(self):
-        self._lock.release()
     def append(self, job):
-        self.lock()
+        self._lock.acquire()   # thread safety
         self.jobqueue.append(job)
-        self.unlock()
+        self._lock.release()
     def get(self):
-        q = self.jobqueue
-        if len(q) == 0:
-            return None
-        return q.pop(0)
+        self._lock.acquire()   # thread safety
+        try:
+            r = self.jobqueue.pop(0)
+        except IndexError:
+            r = None
+        self._lock.release()
+        return r
 
     def start(self):
         for worker in self.worker_pool:
@@ -246,27 +266,15 @@ class PovrayJobQueue:
                     busy_workers += 1
             if all_workers_stop:
                 raise Exception
+        #for machine, workdir in worker_list:
+        #    # clean up all work files
+        #    do('ssh %s "find %s -type f -exec rm -f {} \;"' % (machine, workdir))
 
 ####################
 #                  #
 #    MPEG STUFF    #
 #                  #
 ####################
-
-# mpeg_height and mpeg_width must both be even to make mpeg2encode
-# happy. NTSC is 4:3 with resolution 704x480, with non-square pixels.
-# I don't know if ImageMagick handles non-square pixels.
-def even(x): return int(x) & -2
-if False:
-    povray_height = recommended_height
-    povray_width = int(povray_aspect_ratio * povray_height)
-    mpeg_height = povray_height
-    mpeg_width = even(video_aspect_ratio * mpeg_height)
-else:
-    povray_height = 480
-    povray_width = int(povray_aspect_ratio * povray_height)
-    mpeg_width = 704
-    mpeg_height = 480
 
 params = """MPEG-2 Test Sequence, 30 frames/sec
 %(sourcefileformat)s    /* name of source files */
@@ -388,21 +396,11 @@ class MpegSequence:
         else:
             return '%.4f nanoseconds'
 
-    # This could be combined with povraySequence, which is a special case
-    # where avg and ratio are both 1.
     def motionBlurSequence(self, povfmt, frames, psecs_per_subframe,
                            ratio, avg, begin=0):
         # avg is how many subframes are averaged to produce each frame
         # ratio is the ratio of subframes to frames
         if framelimit is not None: frames = min(frames, framelimit)
-        if DEBUG:
-            print 'MOTION BLUR SEQUENCE'
-            print 'povfmt', povfmt
-            print 'frames', frames
-            print 'psecs_per_subframe', psecs_per_subframe
-            print 'ratio', ratio
-            print 'avg', avg
-            print 'begin', begin
         pq = PovrayJobQueue()
         nfmt = self.nanosecond_format(ratio * psecs_per_subframe)
         yuvs = [ ]
