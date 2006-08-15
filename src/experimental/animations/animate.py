@@ -17,6 +17,8 @@ bitrate = 3.0e6
 # below in the MPEG parameter file.
 video_aspect_ratio = 4.0 / 3.0
 
+framelimit = None
+
 ####################
 #                  #
 #   DEBUG STUFF    #
@@ -59,33 +61,11 @@ def do(cmd, howfarback=0):
 ############################
 
 worker_list = [
-    'localhost',
-    'server',
-    'laptop',
+    ('localhost', '/tmp'),
+    ('server', '/tmp'),
+    ('laptop', '/tmp'),
+    ('mac', '/Users/wware/tmp')
     ]
-
-# Some new stuff I've learned about ImageMagick. To average a bunch of
-# image files of the same size, do this:
-#
-# convert -average <input1> <input2> <input3>... <inputN> <output>
-#
-# To add some text to an image, do this:
-#
-# convert -average <input files> -font times-roman -pointsize 30 \
-#    -annotate +10+30 "0.175 nanoseconds" \
-#    -annotate +10+60 "0.003 rotations" <output>
-#
-# ImageMagick normally works to preserve the aspect ratio. But you can
-# force a change in aspect ratio with an exclamation point, like this:
-#
-# convert <input> -geometry 600x450! <output>
-#
-# This will be useful when we want to do video with non-square pixels
-# for a DVD.
-#
-# One consequence of all this is that averaging and labels will be
-# done on the worker machines. So I need to generate a shell script to
-# send to the worker that has all the commands.
 
 _which_povray_job = 0
 
@@ -101,44 +81,44 @@ class PovrayJob:
         self.povmin = povmin
         self.povmax_plus_one = povmax_plus_one
         self.yuv = yuv
-
-        self.workdir = '/tmp'
-        yuv = os.path.join(self.workdir, yuv)
+        self.pwidth = pwidth
+        self.pheight = pheight
+        self.ywidth = ywidth
+        self.yheight = yheight
+        self.textlist = textlist
 
         self.srcdir = srcdir
         self.dstdir = dstdir
+
+    def go(self, machine, workdir):
 
         global _which_povray_job
         self.scriptname = 'povray_job_%08d.sh' % _which_povray_job
         _which_povray_job += 1
 
         shellscript = open(self.scriptname, 'w')
+        shellscript.write('cd %s\n' % workdir)
         tgalist = [ ]
         erasable = [ ]
-        for i in range(povmin, povmax_plus_one):
-            pov = os.path.join(self.workdir, povfmt % i)
+        for i in range(self.povmin, self.povmax_plus_one):
+            pov = os.path.join(workdir, self.povfmt % i)
             tga = pov[:-4] + '.tga'
             shellscript.write('povray +I%s +O%s +FT +A +W%d +H%d +V -D +X 2>/dev/null\n' %
-                              (pov, tga, pwidth, pheight))
+                              (pov, tga, self.pwidth, self.pheight))
             tgalist.append(tga)
             erasable.append(pov)
             erasable.append(tga)
-        w2 = int(video_aspect_ratio * pheight)
+        w2 = int(video_aspect_ratio * self.pheight)
 
         cmd = ('convert -average %s -crop %dx%d+%d+0 -geometry %dx%d!' %
-               (' '.join(tgalist), w2, pheight, (pwidth - w2) / 2, ywidth, yheight))
-        if textlist:
-            cmd += ' -font times-roman -pointsize 30'
-            for i in range(len(textlist)):
-                cmd += ' -annotate +10+%d "%s"' % (30 * (i + 1), textlist[i])
-        shellscript.write(cmd + ' ' + yuv + '\n')
+               (' '.join(tgalist), w2, self.pheight, (self.pwidth - w2) / 2,
+                self.ywidth, self.yheight))
+        shellscript.write(cmd + ' ' + os.path.join(workdir, self.yuv) + '\n')
 
         # clean up the pov and tga files
         shellscript.write('rm -f ' + (' '.join(erasable)) + '\n')
         shellscript.close()
         os.system('chmod 755 ' + self.scriptname)
-
-    def go(self, machine, workdir):
 
         local = machine in ('localhost', '127.0.0.1')
 
@@ -158,25 +138,52 @@ class PovrayJob:
             def run(cmd):
                 do('ssh ' + machine + ' ' + cmd, howfarback=1)
 
+        '''
+        It would be smart to tar-gzip the pov files for shipping to
+        the host, like this:
+        
+        (cd srcdir; tar cf - foo.pov bar.pov baz.pov) | gzip | \
+                     ssh machine "(cd workdir; gunzip | tar xf -)"
+
+        Likewise, the yuv file can be gzipped for the return voyage.
+
+        ssh machine "(cd workdir; tar cf - foo.yuv | gzip)" | \
+                     gunzip | (cd dstdir; tar xf -)
+        '''
+
         # scp shell script and pov files to worker
         copy_out(self.scriptname,
-                 os.path.join(self.workdir, self.scriptname))
-        run('chmod +x ' + os.path.join(self.workdir, self.scriptname))
+                 os.path.join(workdir, self.scriptname))
+        run('chmod +x ' + os.path.join(workdir, self.scriptname))
         do('rm -f ' + self.scriptname)
         for i in range(self.povmin, self.povmax_plus_one):
             copy_out(os.path.join(self.srcdir, self.povfmt % i),
-                     os.path.join(self.workdir, self.povfmt % i))
+                     os.path.join(workdir, self.povfmt % i))
 
         # run the shell script on the worker
-        run(os.path.join(self.workdir, self.scriptname))
+        run(os.path.join(workdir, self.scriptname))
 
         # scp yuv file back from worker
-        copy_in(os.path.join(self.workdir, self.yuv),
+        copy_in(os.path.join(workdir, self.yuv),
                 os.path.join(self.dstdir, self.yuv))
+
+        if self.textlist:
+            cmd = ('convert -size %dx%d %s -font times-roman -pointsize 30' %
+                   (self.ywidth, self.yheight, os.path.join(self.dstdir, self.yuv)))
+            for i in range(len(self.textlist)):
+                cmd += ' -annotate +10+%d "%s"' % (30 * (i + 1), self.textlist[i])
+            cmd += ' /tmp/annotated.%s' % self.yuv
+            do(cmd)
+            do('mv %s %s' %
+               ('/tmp/annotated.%s' % self.yuv,
+                os.path.join(self.dstdir, self.yuv)))
+
         # clean up the worker machine
         run('rm -f %s %s' %
-            (os.path.join(self.workdir, self.scriptname),
-             os.path.join(self.workdir, self.yuv)))
+            (os.path.join(workdir, self.scriptname),
+             os.path.join(workdir, self.yuv)))
+
+all_workers_stop = False
 
 class Worker(threading.Thread):
 
@@ -188,7 +195,8 @@ class Worker(threading.Thread):
         self.busy = True
 
     def run(self):
-        while True:
+        global all_workers_stop
+        while not all_workers_stop:
             job = None
             self.jobqueue.lock()
             job = self.jobqueue.get()
@@ -196,7 +204,11 @@ class Worker(threading.Thread):
             if job is None:
                 self.busy = False
                 return
-            job.go(self.machine, self.workdir)
+            try:
+                job.go(self.machine, self.workdir)
+            except:
+                all_workers_stop = True
+                raise
 
 class PovrayJobQueue:
 
@@ -204,8 +216,7 @@ class PovrayJobQueue:
         self.worker_pool = [ ]
         self.jobqueue = [ ]
         self._lock = threading.Lock()
-        for machine in worker_list:
-            workdir = '/tmp'
+        for machine, workdir in worker_list:
             self.worker_pool.append(Worker(self, machine, workdir))
 
     def lock(self):
@@ -233,7 +244,8 @@ class PovrayJobQueue:
             for worker in self.worker_pool:
                 if worker.busy:
                     busy_workers += 1
-
+            if all_workers_stop:
+                raise Exception
 
 ####################
 #                  #
@@ -320,17 +332,14 @@ mpeg_dir = '/home/wware/tmp/mpeg'
 
 class MpegSequence:
 
-    def __init__(self, bitrate, forReal=False):
+    def __init__(self, bitrate):
         self.bitrate = bitrate
         self.frame = 0
         self.width = mpeg_width
         self.height = mpeg_height
         self.size = (self.width, self.height)
-        # We might not want to overwrite all our YUV files
-        self.forReal = forReal
-        if forReal:
-            do("rm -rf " + mpeg_dir + "/yuvs")
-            do("mkdir -p " + mpeg_dir + "/yuvs")
+        do("rm -rf " + mpeg_dir + "/yuvs")
+        do("mkdir -p " + mpeg_dir + "/yuvs")
 
     def __len__(self):
         return self.frame
@@ -345,15 +354,13 @@ class MpegSequence:
             i = self.frame
         return (self.yuv_format() % i) + '.yuv'
 
-    # By default, each title page stays up for 300 frames, or ten seconds
-    def titleSequence(self, titlefile, frames=300):
+    # By default, each title page stays up for five seconds
+    def titleSequence(self, titlefile, frames=150):
         assert os.path.exists(titlefile)
-        if not self.forReal:
-            self.frame += frames
-            return
-        if DEBUG: frames = min(frames, 10)
+        if framelimit is not None: frames = min(frames, framelimit)
         first_yuv = self.yuv_name()
-        self.convert_and_crop(titlefile, first_yuv)
+        do('convert -geometry %dx%d! %s %s' %
+           (self.width, self.height, titlefile, first_yuv))
         self.frame += 1
         for i in range(1, frames):
             import shutil
@@ -362,10 +369,7 @@ class MpegSequence:
 
     def previouslyComputed(self, fmt, frames, begin=0):
         assert os.path.exists(titlefile)
-        if not self.forReal:
-            self.frame += frames
-            return
-        if DEBUG: frames = min(frames, 10)
+        if framelimit is not None: frames = min(frames, framelimit)
         for i in range(frames):
             import shutil
             src = fmt % (i + begin)
@@ -390,12 +394,8 @@ class MpegSequence:
                            ratio, avg, begin=0):
         # avg is how many subframes are averaged to produce each frame
         # ratio is the ratio of subframes to frames
-        if not self.forReal:
-            self.frame += frames
-            return
+        if framelimit is not None: frames = min(frames, framelimit)
         if DEBUG:
-            frames = min(frames, 60)
-            avg = min(avg, 5)
             print 'MOTION BLUR SEQUENCE'
             print 'povfmt', povfmt
             print 'frames', frames
@@ -447,19 +447,25 @@ class MpegSequence:
 
 
 def example_usage():
-    m = MpegSequence(2e6, True)
-    #m.titleSequence('title1.gif')
-    #m.titleSequence('title2.gif')
-    #m.povraySequence('fastpov/fast.%06d.pov', 450, psecs_per_frame=0.01)
-    #m.titleSequence('title3.gif')
-
+    m = MpegSequence(bitrate)
+    m.titleSequence('title1.gif')
+    m.titleSequence('title2.gif')
+    m.motionBlurSequence(os.path.join(mpeg_dir, 'fastpov/fast.%06d.pov'),
+                         450, 0.0005, 10, 10)
+    m.titleSequence('title3.gif')
+    m.motionBlurSequence(os.path.join(mpeg_dir, 'medpov/med.%06d.pov'),
+                         450, 0.002, 10, 10)
+    m.titleSequence('title4.gif')
     m.motionBlurSequence(os.path.join(mpeg_dir, 'slowpov/slow.%06d.pov'),
-                         120, 0.02, 10, 10)
-    #m.motionBlurSequence(os.path.join(mpeg_dir, 'slowpov/slow.%06d.pov'),
-    #                     450, 0.05, 4, 4)
-
+                         450, 0.02, 10, 10)
     m.encode()
 
-# python -c "import animate; animate.example_usage()"
+'''
+Example usages:
 
-# python -c "import animate; animate.DEBUG=True; animate.example_usage()"
+python -c "import animate; animate.example_usage()"
+python -c "import animate; animate.framelimit=4; animate.example_usage()"
+python -c "import animate; animate.DEBUG=True; animate.example_usage()"
+
+or you could write a script that imports and uses this stuff.
+'''
