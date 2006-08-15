@@ -11,20 +11,12 @@ from modes import *
 class panMode(basicMode):
 
     # class constants
-    backgroundColor = 0.5, 0.5, 0.5
     modename = 'PAN'
     default_mode_status_text = "Tool: Pan" # Changed 'Mode' to 'Tool'. Fixes bug 1298. mark 060323
 
     # no __init__ method needed
     
     # methods related to entering this mode
-    
-    def Enter(self):
-        basicMode.Enter(self)
-        # Set background color to the previous mode's bg color
-        self.backgroundColor = self.o.prevModeColor
-        self.backgroundGradient = self.o.prevModeGradient
-        self.o.setDisplay(self.o.prevModeDisplay)  # Fixes bug 1489. mark 060215.
 
     # init_gui handles all the GUI display when entering this mode [mark 041004
     def init_gui(self):

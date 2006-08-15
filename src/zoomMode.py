@@ -20,11 +20,8 @@ class zoomMode(basicMode):
     
     def Enter(self):
         basicMode.Enter(self)
-        # Set background color to the previous mode's bg color
-        bg = self.backgroundColor = self.o.prevModeColor
-        self.backgroundGradient = self.o.prevModeGradient
-        self.o.setDisplay(self.o.prevModeDisplay) # Fixes bug 1489. mark 060215.
-        
+        bg = self.o.backgroundColor
+                
         # rubber window shows as white color normally, but when the
         # background becomes bright, we'll set it as black.
         brightness = bg[0] + bg[1] + bg[2]

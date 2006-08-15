@@ -48,7 +48,6 @@ class movieMode(basicMode):
     """
 
     # class constants
-    backgroundColor = 189/255.0, 228/255.0, 238/255.0
     modename = 'MOVIE'
     default_mode_status_text = "Mode: Movie Player"
     

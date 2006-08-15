@@ -62,6 +62,9 @@ animateHighQualityGraphics_prefs_key = 'A7/Animate with High Quality Graphics' #
 animateStandardViews_prefs_key = 'A7/Animate Standard Views'
 animateMaximumTime_prefs_key = 'A7/Maximum Animation Time'
 workingDirectory_prefs_key = 'WorkingDirectory' # Moved here from startup_funcs.py. Mark 060726.
+backgroundColor_prefs_key = 'A9/Background Color' # Mark 060814.
+backgroundGradient_prefs_key = 'A9/Background Gradient' # Mark 060814.
+defaultDisplayMode_prefs_key = 'A9/Default Display Mode' # Mark 060815.
 
 # Minimize prefs for Adjust All and Adjust Selection (presently on General prefs pane)
 # (note, Adjust Atoms does not yet have its own prefs -- its values are derived from these
@@ -260,6 +263,9 @@ prefs_table = (
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
     ('animate_max_time', 'float', animateMaximumTime_prefs_key, 1.0), # 1 second.  Mark 060124.
     ('working_directory', 'string', workingDirectory_prefs_key,  _default_workingDirectory ), # Mark 060726.
+    ('background_color', 'color', backgroundColor_prefs_key, white),
+    ('background_gradient', 'int', backgroundGradient_prefs_key, 1), # 1 = Sky Blue . Mark 060814.
+    ('default_display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Mark 060815.
 
     # Minimize prefs (some are in General prefs pane, some are in dialogs)
     # [mark 060627, revised & extended by bruce 060628, 060705 for A8]

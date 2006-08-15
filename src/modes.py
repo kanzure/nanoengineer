@@ -95,13 +95,8 @@ class anyMode( StateMixin): #bruce 060223 renamed mixin class
     # they're read-only; mode-related code (in this file) can override
     # them in subclasses and/or instances, and modify them directly.
     
-    backgroundColor = 0.0, 0.0, 0.0
-    # backgroundGradient changed to True.  Mark 051029.
-    backgroundGradient = True #bruce 050913 bugfix of Mark 050808 code (all mode objects must now have this attribute)
     # internal name of mode, e.g. 'DEPOSIT',
     # only seen by users in "debug" error messages
-    displayMode = diDEFAULT # mark 060218.
-        # Every mode has its own displayMode, with the default set to diDEFAULT.
     modename = "(bug: missing modename 1)" 
     # name of mode to be shown to users, as a phrase, e.g. 'sketch mode'
     msg_modename = "(bug: unknown mode)"
@@ -127,7 +122,6 @@ class nullMode(anyMode):
     # (this mode is not put into the glpane's modetab)
     modename = 'nullMode'
     msg_modename = 'nullMode'
-    backgroundColor = 0.5, 0.5, 0.5
         # this will be overwritten when modes are changing [bruce 050106]
     # needs no __init__ method; constructor takes no arguments
     def noop_method(self, *args, **kws):
@@ -154,8 +148,6 @@ class nullMode(anyMode):
     def keyReleaseEvent(self, e):
         pass
     def bareMotion(self, e):
-        pass
-    def set_displayMode(self, displayMode): #bruce 060220 added this to remove frequent debug print
         pass
     def Done(self, *args, **kws): #bruce 060316 added this to remove frequent harmless debug print
         pass
@@ -242,57 +234,13 @@ class basicMode(anyMode):
 
         self.setup_menus_in_init()
 
-    def init_prefs(self): # bruce 050105 new feature [bruce 050117 cleaned it up]
-        "set some of our constants from user preferences, if they exist"
-        self.bgcolor_prefs_key = key = "mode %s backgroundColor" % self.modename
-        self.prefs = prefs = preferences.prefs_context()
-        bgcolor = prefs.get( key, self.backgroundColor )
-        # (Note: if we wanted concurrent sessions to share bgcolor pref,
-        # then besides this, we'd also need to clear the prefs cache for
-        # this key... and update it more often.)
-        self.backgroundColor = bgcolor
+    def init_prefs(self):
+        """Initialize mode attrs that should to be set from the prefs db.
         
-        # New feature.  See docstring for set_backgroundGradient. Mark 050808
-        self.bggradient_prefs_key = key = "A6/mode %s backgroundGradient" % self.modename
-        self.backgroundGradient = prefs.get( key, self.backgroundGradient )
-        
-        # Display Mode for this mode
-        self.displayMode_prefs_key = key = "A7/mode %s displayMode" % self.modename
-        self.displayMode = prefs.get( key, self.displayMode)
-
-        return
-
-    def set_backgroundColor(self, color): # bruce 050105 new feature [bruce 050117 cleaned it up]
-        '''Sets the mode's background color and stores it in the prefs db.'''
-        self.backgroundColor = color
-        # bruce 041118 comment: the above, by itself, would only last until the
-        # next time this mode object was remade (presently, whenever a new file
-        # is loaded; in principle, at arbitrary times).
-        prefs = self.prefs
-        key = self.bgcolor_prefs_key
-        prefs[key] = color # this stores the new color into a prefs db file
-        return
-
-    def set_backgroundGradient(self, gradient): # mark 050808 new feature
-        '''Stores the background gradient prefs value in the prefs db.
-        gradient can be either True or False.  
-        If True, the background gradient is set to a 'Blue Sky' gradient.
-        If False, the background color is used to fill the GLPane.
-        See GLPane.standard_repaint_0() to see how this is used when redrawing the glpane.'''
-        self.backgroundGradient = gradient
-        prefs = self.prefs
-        key = self.bggradient_prefs_key
-        prefs[key] = gradient
-        return
-        
-    def set_displayMode(self, displayMode): # mark 060218
-        '''Stores the display mode prefs value for this mode in the prefs db.
-        displayMode is the display mode.
-        '''
-        self.displayMode = displayMode
-        prefs = self.prefs
-        key = self.displayMode_prefs_key
-        prefs[key] = displayMode
+        Between Alpha 1-8, each modes had its own background color and display mode.
+        After Alpha 9, background color and display mode attrs were moved to the GLPane class where they
+        are global for all modes.
+        """
         return
     
     def set_cmdname(self, name): # mark 060220.
@@ -474,7 +422,6 @@ class basicMode(anyMode):
            [by bruce 040922; see head comment of this file for how
            this relates to previous code]           
         """
-        self.o.setDisplay(self.displayMode) # Set the display mode when entering this mode.
         self.UpdateDashboard() # Added to hide Done button for Default mode. Mark 050922.
         self.picking = False
         self.update_cursor()
@@ -883,13 +830,13 @@ class basicMode(anyMode):
             if isinstance(grp, ESPImage):
                 anythingDrawn = True
                 grp.pickCheckOnly = pickCheckOnly
-                grp.draw(self.o, self.o.display)
+                grp.draw(self.o, self.o.displayMode)
             elif isinstance(grp, Group):    
                 for ob in grp.members[:]:
                     if isinstance(ob, ESPImage):
                         anythingDrawn = True
                         ob.pickCheckOnly = pickCheckOnly
-                        ob.draw(self.o, self.o.display)
+                        ob.draw(self.o, self.o.displayMode)
                     elif isinstance(ob, Group):
                         self._drawESPImage(ob, pickCheckOnly)
                 #k Do they actually use dispdef? I know some of them sometimes circumvent it (i.e. look directly at outermost one).
@@ -1483,7 +1430,7 @@ class basicMode(anyMode):
     def draw_selection_curve(self):
         """Draw the (possibly unfinished) freehand selection curve.
         """
-        color = get_selCurve_color(self.selSense, self.backgroundColor)
+        color = get_selCurve_color(self.selSense, self.o.backgroundColor)
         
         pl = zip(self.selCurve_List[:-1],self.selCurve_List[1:])
         for pp in pl: # Draw the selection curve (lasso).
@@ -1710,8 +1657,6 @@ class modeMixin:
         self.use_nullmode()
 
     def use_nullmode(self):
-        self.nullmode.backgroundColor = self.mode.backgroundColor
-            # [bruce 050106 to try to fix bug 141]
         self.mode = self.nullmode
         
     def start_using_mode(self, mode):

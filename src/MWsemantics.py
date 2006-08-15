@@ -736,7 +736,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             for ob in self.assy.selmols:
                 ob.setDisplay(form)
         else:
-            if self.glpane.display == form:
+            if self.glpane.displayMode == form:
                 pass ## was 'return' # no change needed
                 # bruce 041129 removing this optim, tho correct in theory,
                 # since it's not expensive to changeapp and repaint if user
@@ -830,8 +830,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def dispBGColor(self):
         "Let user change the current mode's background color"
         # Fixed bug 894.  Mark
-        # Changed "Background" to "Modes". Mark 050911.
-        self.uprefs.showDialog(pagename='Modes')
+        # Changed "Background" to "General". Mark 060815.
+        self.uprefs.showDialog(pagename='General')
     
     # pop up Element Color Selector dialog
     def dispElementColorSettings(self):
@@ -855,9 +855,9 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         elementColorsWin = elementColors(parent)
         elementColorsWin.setDisplay(self.Element)
         # Sync the thumbview bg color with the current mode's bg color.  Mark 051216.
-        elementColorsWin.elemGLPane.change_bg_color(
-            self.glpane.mode.backgroundColor, 
-            self.glpane.mode.backgroundGradient
+        elementColorsWin.elemGLPane.setBackgroundColor(
+            self.glpane.backgroundColor, 
+            self.glpane.backgroundGradient
             )
         elementColorsWin.show()
 

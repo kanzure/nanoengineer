@@ -287,7 +287,6 @@ class fusechunksMode(modifyMode, fusechunksBase):
     '''
 
     # class constants
-    backgroundColor = 210/255.0, 210/255.0, 210/255.0
     modename = 'FUSECHUNKS'
     default_mode_status_text = "Mode: Fuse Chunks"
     
@@ -491,7 +490,7 @@ class fusechunksMode(modifyMode, fusechunksBase):
         Singlets in the unselected chunk(s) are colored blue.
         Singlets with more than one way to bond are colored magenta.
         '''
-        bondline_color = get_selCurve_color(0,self.backgroundColor) # Color of bond lines
+        bondline_color = get_selCurve_color(0,self.o.backgroundColor) # Color of bond lines
         for s1,s2 in self.bondable_pairs:
             color = (self.ways_of_bonding[s1.key] > 1) and magenta or green
             s1.overdraw_with_special_color(color)

@@ -798,7 +798,7 @@ class molecule(Node, InvalMixin, SelfUsageTrackingMixin, SubUsageTrackingMixin):
             if glpane is None:
                 # this possibility added by bruce 041207
                 glpane = self.assy.o
-            disp = glpane.display
+            disp = glpane.displayMode
         return disp
 
     def pushMatrix(self): #bruce 050609 duplicated this from some of self.draw()

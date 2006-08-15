@@ -689,7 +689,7 @@ class Part( jigmakers_Mixin, InvalMixin, StateMixin,
             #  but recomputing natoms should be fast compared to drawing, anyway)
         ###e bruce 050617: might revise this to draw "computed topnode for drawing" if that exists and is enabled and updated...
         #e and it might be that the glpane we're passed is modified or a proxy, and can tell us what to do about this.
-        self.topnode.draw(glpane, glpane.display)
+        self.topnode.draw(glpane, glpane.displayMode)
 
     def draw_text_label(self, glpane):
         "#doc; called from GLPane.paintGL just after it calls mode.Draw()"

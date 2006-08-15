@@ -79,7 +79,7 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     # Background color. The SkyBlue gradient is supported, but only works correctly when in "Front View".
     # This is a work in progress (and this implementation is better than nothing).  See bug 888 for more info.
     # Mark 051104.
-    if glpane.mode.backgroundGradient: # SkyBlue.
+    if glpane.backgroundGradient: # SkyBlue.
         dt = Q(glpane.quat)
         if not vlen(V(dt.x, dt.y, dt.z)):
             # This addresses a problem in POV-Ray when dt=0,0,0 for Axis_Rotate_Trans. mark 051111.
@@ -99,7 +99,7 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
         "    Axis_Rotate_Trans(" + povpoint(V(dt.x, dt.y, dt.z)) + ", " + str(degY) + ")\n" +
         "  }\n")
     else: # Solid
-        f.write("background {\n  color rgb " + povpoint(glpane.mode.backgroundColor*V(1,1,-1)) + "\n}\n")
+        f.write("background {\n  color rgb " + povpoint(glpane.backgroundColor*V(1,1,-1)) + "\n}\n")
     
     # Lights and Atomic finish.
     writepovlighting(f, glpane)
@@ -110,7 +110,7 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     f.write("\nunion {\t\n") ##Head of the union object
  
     # Write atoms and bonds in the part
-    part.topnode.writepov(f, glpane.display)
+    part.topnode.writepov(f, glpane.displayMode)
         #bruce 050421 changed assy.tree to assy.part.topnode to fix an assy/part bug
         #bruce 050927 changed assy.part -> new part arg
     
@@ -237,7 +237,7 @@ def writepovlighting(f, glpane):
 # Create an MDL file - by Chris Phoenix and Mark for John Burch [04-12-03]
 # ninad060802 has disabled the File > Save As option to save the MDL file. (see bug 1508. Also, since in Alpha9 we will support OpenBabel, there will be a confusion between this MDL file format and the one that OpenBabel includes extension. If we support this filetype in future, its description field should be changed. 
 def writemdlfile(part, glpane, filename): #bruce 050927 replaced assy argument with part and glpane args, added docstring
-    "write the given part into a new MDL file with the given name, using glpane.display"
+    "write the given part into a new MDL file with the given name, using glpane.displayMode"
     alist = [] #bruce 050325 changed assy.alist to localvar alist
     natoms = 0
     # Specular values keyed by atom color 
@@ -264,7 +264,7 @@ def writemdlfile(part, glpane, filename): #bruce 050927 replaced assy argument w
     
     # Write atoms with spline coordinates
     f.write("Splines=%d\n"%(13*natoms))
-    part.topnode.writemdl(alist, f, glpane.display)
+    part.topnode.writemdl(alist, f, glpane.displayMode)
         #bruce 050421 changed assy.tree to assy.part.topnode to fix an assy/part bug
         #bruce 050927 changed assy.part -> new part arg
     

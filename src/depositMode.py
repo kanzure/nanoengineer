@@ -298,7 +298,6 @@ class depositMode(selectAtomsMode):
     """
     
     # class constants
-    backgroundColor = 74/255.0, 186/255.0, 226/255.0
     gridColor = 74/255.0, 186/255.0, 226/255.0
     modename = 'DEPOSIT' 
     msg_modename = "Build Mode" # Capitalized 'Mode'. Fixes bugs 612-1.2 and 1.3. mark 060323
@@ -375,7 +374,7 @@ class depositMode(selectAtomsMode):
         
         # This is a workaround for a bug caused by the way in which the MMKit is created.
         # This should be fixed when the MMKit code gets cleaned up.  Mark 051216.
-        self.MMKit.elemGLPane.change_bg_color(self.backgroundColor, self.backgroundGradient)
+        self.MMKit.elemGLPane.setBackgroundColor(self.o.backgroundColor, self.o.backgroundGradient)
         
         self.w.depositAtomDashboard.buildBtn.setOn(1) # Fixes bug 1537. mark 060301.
 
@@ -1957,7 +1956,7 @@ class depositMode(selectAtomsMode):
         """
         selectAtomsMode.Draw(self) # this includes self.o.assy.draw(self.o) [bruce 060724 comment]
         if self.line:
-            color = get_selCurve_color(0,self.backgroundColor) 
+            color = get_selCurve_color(0,self.o.backgroundColor) 
                 # Make sure line color has good contrast with bg. mark 060305.
             drawline(color, self.line[0], self.line[1])
             ####@@@@ if this is for a higher-order bond, draw differently

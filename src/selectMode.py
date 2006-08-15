@@ -168,7 +168,6 @@ class selectMode(basicMode):
     # but it's not clear exactly which code this applies to. [bruce 060721 comment]
     
     # class constants
-    backgroundColor = 189/255.0, 228/255.0, 238/255.0
     gridColor = (0.0, 0.0, 0.6)
 
     # default initial values

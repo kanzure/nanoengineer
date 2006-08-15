@@ -542,7 +542,7 @@ class assembly( StateMixin): #bruce 060224 adding alternate name Assembly for th
                 print_compact_stack("atom_debug: more info about that exception: self %r, glpane %r: " % (self, glpane))
         if glpane.special_topnode is not None:
             #bruce 050627 new feature, only used experimentally so far (mainly a kluge for old-mode-API compatibility)
-            glpane.special_topnode.draw(glpane, glpane.display) #k 2nd arg might not be needed someday, but is needed for now
+            glpane.special_topnode.draw(glpane, glpane.displayMode) #k 2nd arg might not be needed someday, but is needed for now
         elif self.part is not None: #k not None condition needed??
             self.part.draw(glpane)
         return

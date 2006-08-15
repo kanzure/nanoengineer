@@ -193,7 +193,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         self.trackball = Trackball(10,10)
 
-
         # [bruce 050419 new feature:]
         # The current Part to be displayed in this GLPane.
         # Logically this might not be the same as it's assy's current part, self.assy.part,
@@ -277,17 +276,22 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # Default values are set in "prefs_table" in prefs_constants.py.
         # Mark 050919.
         
+        # (Note: if we wanted concurrent sessions to share bgcolor pref,
+        # then besides this, we'd also need to clear the prefs cache for
+        # this key... and update it more often.)
+        self.backgroundColor = env.prefs[backgroundColor_prefs_key]
+        self.backgroundGradient = env.prefs[backgroundGradient_prefs_key]
+        
         self.compassPosition = env.prefs[compassPosition_prefs_key]
         self.ortho = env.prefs[defaultProjection_prefs_key]
         # This updates the checkmark in the View menu. Fixes bug #996 Mark 050925.
         self.setViewProjection(self.ortho) 
 
-        # default display form for objects in the window
-        # even tho there is only one assembly to a window,
-        # this is here in anticipation of being able to have
-        # multiple windows on the same assembly
-        self.display = env.prefs[defaultDisplayMode_prefs_key]
-        self.win.dispbarLabel.setText( "Current Display: " + dispLabel[self.display] )
+        # default display form for objects in the window even tho there is only one assembly to a window,
+        # this is here in anticipation of being able to have multiple windows on the same assembly.
+        # Start the GLPane's current display mode in "Default Display Mode" (pref).
+        self.displayMode = env.prefs[defaultDisplayMode_prefs_key]
+        self.win.dispbarLabel.setText( "Current Display: " + dispLabel[self.displayMode] )
         
         ###### End of User Preference initialization ########################## 
         
@@ -299,7 +303,40 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.loadLighting() #bruce 050311
             #bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
         
-        return # from GLPane.__init__        
+        return # from GLPane.__init__ 
+    
+    #== Background color helper methods. Moved here from basicMode (modes.py). Mark 060814.
+    
+    def restoreDefaultBackground(self):
+        """Restore the default background color and gradient (Sky Blue).
+        Always do a gl_update.
+        """
+        env.prefs.restore_defaults([
+            backgroundColor_prefs_key, 
+            backgroundGradient_prefs_key, 
+            ])
+        
+        self.setBackgroundColor(env.prefs[ backgroundColor_prefs_key ])
+        self.setBackgroundGradient(env.prefs[ backgroundGradient_prefs_key ] )
+        self.gl_update()
+        
+    def setBackgroundColor(self, color): # bruce 050105 new feature [bruce 050117 cleaned it up]
+        '''Sets the mode's background color and stores it in the prefs db.'''
+        self.backgroundColor = color
+        env.prefs[ backgroundColor_prefs_key ] = color
+        return
+
+    def setBackgroundGradient(self, gradient): # mark 050808 new feature
+        """Stores the background gradient prefs value in the prefs db.
+        gradient can be either:
+            0 - the background color is used to fill the GLPane.
+            1 - the background gradient is set to a 'Blue Sky' gradient.
+        
+        See GLPane.standard_repaint_0() to see how this is used when redrawing the glpane.
+        """
+        self.backgroundGradient = gradient
+        env.prefs[ backgroundGradient_prefs_key ] = gradient
+        return
 
     # self.part maintenance [bruce 050419]
     
@@ -720,7 +757,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # on Windows. (Not sure about Linux.)
         # See also bug 141 (black during mode-change), related but different.
         if sys.platform == 'darwin':
-            bgcolor = self.mode.backgroundColor
+            bgcolor = self.backgroundColor
                 ##e [bruce 050615 comment, moved here from a wrong location by bruce 050702:]
                 # for modes with transparent surfaces covering screen, this ought to blend that in
                 # (or we could change how they work so the blank areas looked like the specified bgcolor)
@@ -1531,7 +1568,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.quat = Q(q)
         self.gl_update()
         return what
-
+    
     def setDisplay(self, disp, default_display=False):
         '''Set the display mode of the GLPane, where:
             "disp" is the display mode, and
@@ -1539,24 +1576,25 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             or "Current Display (False, the default).
         '''
         
+        #&&& print_compact_stack("GLPane.setDisplay():")
+        #&&& print "Current Display Mode = ", self.displayMode
+        #&&& print "Default Display Mode = ", env.prefs[defaultDisplayMode_prefs_key]
+        #&&& print "setDisplay(disp = ", disp, ", default_display=", default_display, ")"
+        
         # Fix to bug 800. Mark 050807
         if default_display:
             # Used when the user presses "Default Display" or changes the "Default Display"
             # in the preferences dialog.  
             header = "Default Display: " 
-            self.mode.set_displayMode(diDEFAULT) # Fixes bug 1544. mark 060221.
         else:
             # Used for all other purposes.
             header = "Current Display: " 
-            self.mode.set_displayMode(disp) # updates the prefs db.
             
         if disp == diDEFAULT:
-            #disp = default_display_mode #bruce 041129 to fix bug 21
-            prefs = preferences.prefs_context() #mark 050802 to fix bug 799
-            disp = prefs.get(defaultDisplayMode_prefs_key, default_display_mode)
-        #e someday: if self.display == disp, no actual change needed??
+            disp = env.prefs[ defaultDisplayMode_prefs_key ]
+        #e someday: if self.displayMode == disp, no actual change needed??
         # not sure if that holds for all init code, so being safe for now.
-        self.display = disp
+        self.displayMode = disp
         ##Huaicai 3/29/05: Add the condition to fix bug 477
         if self.mode.modename == 'COOKIE':
             self.win.dispbarLabel.setText("    ")
@@ -1725,7 +1763,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             #e should remove non_debug = True before release!
 
         if fog_test_enable:
-            drawer.setup_fog(125, 170, self.mode.backgroundColor)
+            drawer.setup_fog(125, 170, self.backgroundColor)
             # this next line really should be just before rendering
             # the atomic model itself.  I dunno where that is.
             drawer.enable_fog()
@@ -1771,7 +1809,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 # standard render loop! ie a call of standard_repaint (and self's other attrs) need passing in. well we did pass self!
                 # is that enough? if so, then right now, rather than std repaint we would just call rendertop.draw! (when no exc above)
                 self.rendertop = rendertop # will be needed later for mouse-event processing, maybe more ###@@@
-                rendertop.draw(self, self.display)
+                rendertop.draw(self, self.displayMode)
             pass
         else:
             self.standard_repaint()
@@ -1831,14 +1869,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def standard_repaint_0(self):
         drawer._glprefs.update() #bruce 051126 (so prefs changes do gl_update when needed)
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
-        c = self.mode.backgroundColor
+        c = self.backgroundColor
         glClearColor(c[0], c[1], c[2], 0.0)
         
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT )
             #e if stencil clear is expensive, we could optim and only do it when needed [bruce ca. 050615]
 
         # "Blue Sky" is the only gradient supported in A7.  Mark 05
-        if self.mode.backgroundGradient:
+        if self.backgroundGradient:
             vtColors = (bluesky)
             glMatrixMode(GL_PROJECTION)
             glLoadIdentity()

@@ -319,10 +319,6 @@ class UserPrefs(UserPrefsDialog):
         will be placed in when exiting any other mode.""")
         QWhatsThis.add(self.default_mode_combox, """<p><b>Default Mode</b></p>This specifies which mode the user
         will be placed in when exiting any other mode.""")
-        QWhatsThis.add(self.mode_combox, """<p><b>Mode Settings: Mode</b></p>
-        This specifies which mode you are changing the <b>Display Mod</b>e or <b>Background Color</b> for below.""")
-        QWhatsThis.add(self.display_mode_combox, """<p><b>Display Mode</b></p>
-        <p>Sets the Display Mode for the current mode. If set to <b>Default</b>, then atoms and bonds are displayed in the display mode defined by <b>Default Display Mode</b>.</p>""")
         QWhatsThis.add(self.fill_type_combox, """<p><b>Fill Type</b></p>
         <p>Sets the fill type of the background. Each mode can have a different color, if desired.</p>""")
         QWhatsThis.add(self.vwd_rbtn, """<u><b>CPK (Space Filling)</b></u><br>
@@ -468,9 +464,11 @@ class UserPrefs(UserPrefsDialog):
         connect_checkbox_with_boolean_pref( self.display_pov_axis_checkbox, displayPOVAxis_prefs_key )
         self.compass_position_combox.setCurrentItem(self.glpane.compassPosition)
         self.default_projection_btngrp.setButton(env.prefs[defaultProjection_prefs_key])
-        connect_checkbox_with_boolean_pref( self.high_quality_graphics_checkbox, animateHighQualityGraphics_prefs_key )
         connect_checkbox_with_boolean_pref( self.animate_views_checkbox, animateStandardViews_prefs_key )
         connect_checkbox_with_boolean_pref( self.watch_min_in_realtime_checkbox, Adjust_watchRealtimeMinimization_prefs_key )
+        
+        # This has been removed for A9. It has never been implemented anyway. Mark 060815.
+        # connect_checkbox_with_boolean_pref( self.high_quality_graphics_checkbox, animateHighQualityGraphics_prefs_key )
         
         speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
         self.animation_speed_slider.setValue(speed)
@@ -489,6 +487,12 @@ class UserPrefs(UserPrefsDialog):
         
         self.cutovermax = get_pref_or_optval(Adjust_cutoverMax_prefs_key, -1.0, '')
         self.cutovermax_linedit.setText(str(self.cutovermax))
+        
+        # Setup Background Color widgets.
+        if self.glpane.backgroundGradient:
+            self.bg_gradient_setup()
+        else:
+            self.bg_solid_setup()
 
     def _setup_plugins_page(self):
         ''' Setup widgets to initial (default or defined) values on the Plug-ins page.
@@ -526,20 +530,8 @@ class UserPrefs(UserPrefsDialog):
         self.gamess_path_linedit.setText(env.prefs[gmspath_prefs_key])
         
     def _setup_modes_page(self):
-        ''' Setup widgets to initial (default or defined) values on the Modes page.
-        '''
-        # Set the mode drop box to the current mode, 
-        # or "Select Chunks" if the mode is not in the "modes" list.
-        if self.glpane.mode.modename in modes:
-            self.mode_combox.setCurrentItem(modes.index(self.glpane.mode.modename))
-        else:
-            self.mode_combox.setCurrentItem(0) # Set to Select Chunks
-
-        self.currentItem_mode = self.glpane._find_mode(modes[self.mode_combox.currentItem()])
-            # The mode object of the current item selected in the 'Mode' combobox.
-        
-        self.display_mode_combox.setCurrentItem(self.currentItem_mode.displayMode) 
-            # Update the Display Mode combobox.
+        """ Setup widgets to initial (default or defined) values on the Modes page.
+        """
         
         # Update the "Default Mode" and "Startup Mode" combo boxes.
         self.default_mode_combox.setCurrentItem( default_modes.index( default_modename() )) #bruce 060403 revised this
@@ -552,11 +544,6 @@ class UserPrefs(UserPrefsDialog):
 ##            smode = startup_modes[0] # = Default Mode
         
         self.startup_mode_combox.setCurrentItem(startup_modes.index(smode))
-
-        if self.currentItem_mode.backgroundGradient:
-            self.bg_gradient_setup()
-        else:
-            self.bg_solid_setup()
             
         # Bug 799 fix.  Mark 050731
         self.default_display_btngrp.setButton( env.prefs[defaultDisplayMode_prefs_key] ) #bruce 050810 revised this
@@ -873,7 +860,10 @@ class UserPrefs(UserPrefsDialog):
         self.glpane.setViewProjection(projection)
     
     def change_high_quality_graphics(self, state): #mark 060315.
-        "Enable/disable high quality graphics during view animations."
+        """Enable/disable high quality graphics during view animations.
+        This has never been implemented. The checkbox has been removed from the UI file for A9.
+        Mark 060815.
+        """
         # Let the user know this is NIY. Addresses bug 1249 for A7. mark 060314.
         msg = "High Quality Graphics is not implemented yet."
         from HistoryWidget import orangemsg
@@ -949,6 +939,72 @@ class UserPrefs(UserPrefsDialog):
             self.cutovermax = cutovermax_str
         except:
             print_compact_traceback("bug in change_cutovermax ignored: ") #bruce 060627
+            
+    ########### BG Color slots ############
+    
+    def change_fill_type(self, ftype):
+        '''Slot called when the user changes the Fill Type.
+        '''        
+        if ftype == 'Solid':
+            self.bg_solid_setup()
+        else: # 'Blue Sky'
+            self.bg_gradient_setup()
+    
+        self.glpane.gl_update()
+        
+    def bg_solid_setup(self):
+        '''Setup the BG color page for a solid fill type.
+        '''
+
+        self.bg1_color_lbl.setEnabled(True)
+        self.bg1_color_frame.setEnabled(True)
+        self.choose_bg1_color_btn.setEnabled(True)
+        
+        self.fill_type_combox.setCurrentItem(0) # Solid
+        
+        # Get the bg color rgb values of the glpane.
+        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(self.glpane.backgroundColor))
+        
+        self.glpane.setBackgroundGradient(False) # This also stores the pref in the db.
+    
+    def bg_gradient_setup(self):
+        '''Setup the Modes page for the background gradient fill type.
+        '''
+
+        self.bg1_color_lbl.setEnabled(False)
+        self.bg1_color_frame.setEnabled(False)
+        self.choose_bg1_color_btn.setEnabled(False)
+        
+        self.fill_type_combox.setCurrentItem(1) # Gradient
+        
+        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
+        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(self.glpane.backgroundColor))
+        
+        self.glpane.setBackgroundGradient(True) # This also stores the pref in the db.
+
+    def change_bg1_color(self):
+        '''Change a mode's primary background color.
+        '''
+        # Allow user to select a new background color and set it.
+        c = QColorDialog.getColor(self.bg1_color_frame.paletteBackgroundColor(), self, "choose")
+        if c.isValid():
+            bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
+            self.glpane.setBackgroundColor( bgcolor )
+            self.bg1_color_frame.setPaletteBackgroundColor(c)
+            
+        self.glpane.gl_update()
+                
+    def restore_default_bgcolor(self):
+        '''Slot for "Restore Default Color" button, which restores the bg color and fill type.
+        '''
+        
+        self.glpane.restoreDefaultBackground()
+
+        # Now update the UI.
+        if self.glpane.backgroundGradient:
+            self.bg_gradient_setup()
+        else:
+            self.bg_solid_setup()
             
     ########## End of slot methods for "General" page widgets ###########
     
@@ -1116,26 +1172,6 @@ class UserPrefs(UserPrefsDialog):
     
     ########## Slot methods for "Modes" page widgets ################
 
-    def mode_changed(self, val):
-        '''Slot called when the user changes the mode in the mode-bgcolor drop box.
-        '''
-        self.currentItem_mode = self.glpane._find_mode(modes[val])
-        
-        self.display_mode_combox.setCurrentItem(self.currentItem_mode.displayMode) 
-            # Update the Display Mode combobox.
-        
-        if modes[val] == 'COOKIE':
-            # Cannot change Cookie mode's display mode.
-            self.display_mode_combox.setEnabled(False)
-        else:
-            self.display_mode_combox.setEnabled(True)
-        
-        # Update the modes page.
-        if self.currentItem_mode.backgroundGradient:
-            self.bg_gradient_setup()
-        else:
-            self.bg_solid_setup()
-
     def change_startup_mode(self, option):
         "Slot for the combobox that sets the Startup Mode."
         env.prefs[ startupMode_prefs_key ] = startup_modes[self.startup_mode_combox.currentItem()]
@@ -1147,104 +1183,19 @@ class UserPrefs(UserPrefsDialog):
         self.glpane.mode.UpdateDashboard() # Update Done button on dashboard.
         return
             
-    def fill_type_changed(self, ftype):
-        '''Slot called when the user changes the Fill Type.
+    def set_default_display_mode(self, displayMode): #bruce 050810 revised this to set the pref immediately
+        '''Set default display mode to <displayMode>. 
+        This also changes the current display mode of the glpane to <displayMode>.
         '''
-        if ftype == 'Solid':
-            self.bg_solid_setup()
-        else: # 'Blue Sky'
-            self.bg_gradient_setup()
-        
-        # Update the GLPane if the selected mode is the current mode.
-        # [bruce comment 050911: this and related code needs review when dialog becomes non-modal,
-        #  since mode objects might be replaced with new instances,
-        #  so it ought to store modenames, not mode objects, in self. ###@@@]
-        # Same thing goes for change_bg1_color().  Mark 051029.
-        if self.currentItem_mode == self.glpane.mode:
-            self.glpane.gl_update()
-        
-    def bg_solid_setup(self):
-        '''Setup the BG color page for a solid fill type.
-        '''
-
-        self.bg1_color_lbl.setEnabled(True)
-        self.bg1_color_frame.setEnabled(True)
-        self.choose_bg1_color_btn.setEnabled(True)
-        
-        self.fill_type_combox.setCurrentItem(0) # Solid
-        
-        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
-        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(self.currentItem_mode.backgroundColor))
-        
-        self.currentItem_mode.set_backgroundGradient(False) # This also stores the pref in the db.
-    
-    def bg_gradient_setup(self):
-        '''Setup the Modes page for the background gradient fill type.
-        '''
-
-        self.bg1_color_lbl.setEnabled(False)
-        self.bg1_color_frame.setEnabled(False)
-        self.choose_bg1_color_btn.setEnabled(False)
-        
-        self.fill_type_combox.setCurrentItem(1) # Gradient
-        
-        # Get the bg color rgb values of the mode selected in the "Mode" combo box.
-        self.bg1_color_frame.setPaletteBackgroundColor(RGBf_to_QColor(self.currentItem_mode.backgroundColor))
-        
-        self.currentItem_mode.set_backgroundGradient(True) # This also stores the pref in the db.
-
-    def change_bg1_color(self):
-        '''Change a mode's primary background color.
-        '''
-        # Allow user to select a new background color and set it.
-        c = QColorDialog.getColor(self.bg1_color_frame.paletteBackgroundColor(), self, "choose")
-        if c.isValid():
-            bgcolor = (c.red()/255.0, c.green()/255.0, c.blue()/255.0)
-            self.currentItem_mode.set_backgroundColor( bgcolor )
-            self.bg1_color_frame.setPaletteBackgroundColor(c)
-            
-        # Update the GLPane if the selected mode is the current mode.
-        # See Bruce's note about this in fill_type_changed().  Mark 051029.
-        if self.currentItem_mode == self.glpane.mode:
-            self.glpane.gl_update()
-                
-    def restore_default_bgcolor(self):
-        '''Slot for "Restore Default Color" button, which restores the selected mode's bg color.
-        '''
-        # Set the background color and gradient to the default.
-        self.currentItem_mode.set_backgroundColor(self.currentItem_mode.__class__.backgroundColor)
-        self.currentItem_mode.set_backgroundGradient(self.currentItem_mode.__class__.backgroundGradient)
-        # Now update the UI.
-        if self.currentItem_mode.__class__.backgroundGradient:
-            self.bg_gradient_setup()
-        else:
-            self.bg_solid_setup()
-        # If the selected mode is the current mode, update the glpane to display the new (default) bg color.
-        if self.currentItem_mode == self.glpane.mode:
-            self.glpane.gl_update()
-            
-    def set_default_display_mode(self, val): #bruce 050810 revised this to set the pref immediately
-        '''Set default display mode of GLpane.
-        '''
-        if val == env.prefs[defaultDisplayMode_prefs_key]:
-            print "No Change in Default Display Mode: ddm=", val
+        if displayMode == env.prefs[defaultDisplayMode_prefs_key]:
+            print "No change in Default Display Mode: ddm=", displayMode
             return
         # set the pref
-        env.prefs[defaultDisplayMode_prefs_key] = val
+        env.prefs[defaultDisplayMode_prefs_key] = displayMode
         
-        # If the current mode's display mode is 'Default', update.
-        if self.glpane.mode.displayMode == diDEFAULT:
-            self.glpane.setDisplay(val, True)
-            self.glpane.gl_update()
-        
-    def change_display_mode(self, val):
-        '''Slot for "Display Mode" dropbox, which changes the display mode for this mode.
-        '''
-        self.currentItem_mode.set_displayMode( val )
-        # If the selected mode is the current mode, update the model with the new display mode.
-        if self.currentItem_mode == self.glpane.mode:
-            self.glpane.setDisplay(val, True)
-            self.glpane.gl_update()
+        # Set to the current display mode in the glpane.
+        self.glpane.setDisplay(displayMode, True)
+        self.glpane.gl_update()
         
     ########## End of slot methods for "Modes" page widgets ###########
     

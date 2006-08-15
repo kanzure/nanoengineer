@@ -354,7 +354,6 @@ class extrudeMode(basicMode):
 
     # class constants
     is_revolve = 0
-    backgroundColor = 199/255.0, 100/255.0, 100/255.0 # different than in cookieMode
     modename = 'EXTRUDE'
     default_mode_status_text = "Mode: Extrude"
     keeppicked = 0 # whether to keep the units all picked, or all unpicked, during the mode
@@ -1094,7 +1093,7 @@ class extrudeMode(basicMode):
         # just store a mark->singlet table in the molcopies -- once when each one is made should be enough i think.
         hh = self.bonds_for_current_offset_and_tol
         self.prep_to_make_inter_unit_bonds() # needed for find_singlet; could be done just once each time bonds change, i think
-        bondline_color = get_selCurve_color(0,self.backgroundColor) # Color of bond lines. mark 060305.
+        bondline_color = get_selCurve_color(0,self.o.backgroundColor) # Color of bond lines. mark 060305.
         for (pos,radius,info) in hh:
             i1,i2 = info
             ## not so simple as this: p1 = unit1.singlets[i1].posn()
@@ -1634,7 +1633,7 @@ class extrudeMode(basicMode):
                 ## glDisable(GL_LIGHTING)
                 glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE)
                 try:
-                    hset2.draw(self.o, color = list(self.backgroundColor))##green) # alpha factor inside draw method will be 0.25 but won't matter
+                    hset2.draw(self.o, color = list(self.o.backgroundColor))##green) # alpha factor inside draw method will be 0.25 but won't matter
                         ###e wrong when the special_color gets mixed in
                     # bugs 1139pm: the back faces are not altering depth buffer, when invis, but are when color = green... why?
                     # is it list vs tuple? does tuple fail for a vector?
@@ -1986,7 +1985,6 @@ class revolveMode(extrudeMode):
     "revolve, a slightly different version of Extrude, someday with a different dashboard"
 
     # class constants
-    backgroundColor = 150/255.0, 200/255.0, 100/255.0 # different than in extrudeMode
     modename = 'REVOLVE'
     msg_modename = "revolve mode" #e need to fix up anything else?
     default_mode_status_text = "Mode: Revolve"

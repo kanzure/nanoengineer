@@ -114,9 +114,6 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         # we never want these modes (ZOOM, PAN, ROTATE) to be assigned to "prevMode".
         if self.glpane.mode.modename not in ['ZOOM', 'PAN', 'ROTATE']:
             self.glpane.prevMode = self.glpane.mode.modename
-            self.glpane.prevModeDisplay = self.glpane.display  # Added to fix bug 1489. mark 060215.
-            self.glpane.prevModeColor = self.glpane.mode.backgroundColor
-            self.glpane.prevModeGradient = self.glpane.mode.backgroundGradient
                 
     # GLPane.ortho is checked in GLPane.paintGL
     def setViewOrtho(self):

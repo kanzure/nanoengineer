@@ -1291,10 +1291,10 @@ class Node( StateMixin):
         [Subclasses which are able to use color for highlighting in Build mode,
          or which want to look different when highlighted in Build mode,
          or which are ever drawn in non-absolute modelview coordinates,
-         or for which glpane.display is not what would be passed to their draw method,
+         or for which glpane.displayMode is not what would be passed to their draw method,
          should override this method.]
         """
-        dispdef = glpane.display
+        dispdef = glpane.displayMode
         del color
         self.draw(glpane, dispdef)
         return

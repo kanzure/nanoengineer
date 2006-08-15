@@ -60,6 +60,14 @@ class cookieMode(basicMode):
     
     def Enter(self): 
         basicMode.Enter(self)
+        
+        # Save original GLPane background color and gradient, to be restored when exiting Cookie Cutter mode.
+        self.glpane_backgroundColor = self.o.backgroundColor
+        self.o.backgroundColor = self.backgroundColor
+        
+        self.glpane_backgroundGradient = self.o.backgroundGradient
+        self.o.backgroundGradient = self.backgroundGradient
+        
         self.oldPov = V(self.o.pov[0], self.o.pov[1], self.o.pov[2])
         self.setOrientSurf(self.o.snap2trackball())
         
@@ -145,6 +153,9 @@ class cookieMode(basicMode):
         glDisable(GL_COLOR_LOGIC_OP)
         glEnable(GL_DEPTH_TEST)
    
+        # Restore default background color. Ask Bruce if I should create a subclass of Done and place it there. Mark 060815.
+        self.o.backgroundColor = self.glpane_backgroundColor
+        self.o.backgroundGradient = self.glpane_backgroundGradient
     
     def setFreeView(self, freeView):
         """Enables/disables 'free view' mode.

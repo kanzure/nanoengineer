@@ -271,7 +271,7 @@ class CookieCtrlPanel:
             self.w.simToolbar.show()
             
             #Restore display mode status message
-            self.w.dispbarLabel.setText( "Current Display: " + dispLabel[self.w.glpane.display] )
+            self.w.dispbarLabel.setText( "Current Display: " + dispLabel[self.w.glpane.displayMode] )
             
             # Restore view projection, enable them.
             self.w.setViewOrthoAction.setEnabled(True)

@@ -115,7 +115,7 @@ class ThumbView(QGLWidget):
         self.pov = V(0.0, 0.0, 0.0)
         self.quat = Q(1, 0, 0, 0)
         
-    def change_bg_color(self, color, gradient):
+    def setBackgroundColor(self, color, gradient):
         '''Set the background  to 'color' or 'gradient' (Sky Blue).
         '''
         self.backgroundColor = color
@@ -547,7 +547,7 @@ class ElementView(ThumbView):
         
         ## Dummy attributes. A kludge, just try to make other code
         ##  think it looks like a glpane object.
-        self.display = 0  
+        self.displayMode = 0  
         self.selatom = None
     
     def resetView(self, scale = 2.0):
@@ -626,7 +626,7 @@ class MMKitView(ThumbView):
         
         ## Dummy attributes. A kludge, just try to make other code
         ##  think it looks like a glpane object.
-        self.display = 0  
+        self.displayMode = 0  
         self.selatom = None
         self.special_topnode = None
 
@@ -769,7 +769,7 @@ class MMKitView(ThumbView):
     
     
     def setDisplay(self, mode):
-        self.display = mode
+        self.displayMode = mode
     
     
     def _fitInWindow(self):
@@ -804,7 +804,7 @@ class ChunkView(ThumbView):
         
         ## Dummy attributes. A kludge, just try to make other code
         ##  think it looks like a glpane object.
-        self.display = 0  
+        self.displayMode = 0  
     
     def resetView(self):
         '''Reset current view'''
