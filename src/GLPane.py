@@ -11,7 +11,7 @@ bruce 050913 used env.history in some places.
 """
 
 ## bruce 050408 removed several "import *" below
-from qt import QFont, QWidget, QMessageBox
+from qt import QFont, QWidget, QMessageBox, QTimer, QToolTip, QRect, QString
 from qtgl import QGLWidget
 from OpenGL.GL import *
 from OpenGL.GLU import *
@@ -1494,16 +1494,55 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 #print "Calling bareMotion. xy_now = ", xy_now
                 mouseEvent = QMouseEvent( QEvent.MouseMove, cursorPos, Qt.NoButton, Qt.NoButton ) 
                 self.mode.bareMotion(mouseEvent) # Only selectMode.mouse_exceeded_distance() makes use of this.
+                
+                # Idea: start is one-shot timer here that would eventually display a tooltip with info about the highlighted object
+                # (atom) if the cursor hasn't moved after 2-3 seconds. Eric has expressed a strong desire for this feature.
+                print "starting single shot timer"
+                # QTimer.singleShot(2*1000, self, SLOT('showTooltip()') ) #  2 second timer
+                QTimer.singleShot(2*1000, self.showTooltip ) #  2 second timer
+                
             self.triggerBareMotionEvent = False
-            
-            # Idea: start is one-shot timer here that would eventually display a tooltip with info about the highlighted object
-            # (atom) if the cursor hasn't moved after 2-3 seconds. Eric has expressed a strong desire for this feature.
             
         else:
             self.triggerBareMotionEvent = True
                 
         self.timer_event_last_xy = xy_now
         return
+        
+    def showTooltip(self):
+        # 1. Get position of cursor. (see first few lines of code in timerEvent() above)
+        # Get the x, y position of the cursor and store as tuple in <xy_now>.
+        #from bond_constants import describe_atom_and_atomtype
+        cursor = self.cursor()
+        cursorPos = self.mapFromGlobal(cursor.pos()) # mapFromGlobal() maps from screen coords to GLpane coords.
+        xy_now = (cursorPos.x(), cursorPos.y())
+        
+        # 2. Check this position with the cursor position when the timer started.
+        try:
+            xy_last = self.timer_event_last_xy
+        except:
+            self.timer_event_last_xy = xy_now
+            return
+        # 3. If they are the same, then show the tooltip.
+        tooltip_str = "hi"
+        if xy_now == xy_last and self.button == None:
+            if(self.selobj):
+                #print self.selobj
+                #ninad060816 IThe following works. Atleast it 'shows' tooltip. But it is very hard to 
+                # display it when something is highlighted. This is because the random QRectangle coordinated 
+                #that I am supplying to the Qtooltip. This needs more work. I need to talk with Mark to check how to specify 
+                # the correct QRectangle
+                rect = self.getRectangleForToolTip(cursorPos.x(), cursorPos.y())
+                tooltip_str = str(self.selobj)
+                #should I use describe_atom_and_atomtype(self.selobj) from bond_constants instead? ninad060816
+                print tooltip_str
+                tooltip_str = QString(tooltip_str)
+                QToolTip.add(self, rect, tooltip_str)
+        
+    def getRectangleForToolTip(self, x,y):
+        x = int(x)
+        y = int(y)
+        return QRect(-x, y, 2*x, 2*y) #@@@@ ninad060816 This is wrong!! just for testing. I want to see 
     
 #== end of Timer helper methods
 
