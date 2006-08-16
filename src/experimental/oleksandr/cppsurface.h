@@ -27,6 +27,7 @@ double cppNz(int i);
 int cppI(int i);
 void cppLevel(int i);
 int cppType();
+void cppMethod(int i);
 
 #ifdef __cplusplus
 }

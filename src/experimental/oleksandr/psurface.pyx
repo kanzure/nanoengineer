@@ -14,11 +14,13 @@ cdef extern from "csurface.h":
     int cI(int i)
     void cLevel(int i)
     int cType()
-def CreateSurface(spheres,level):
+    void cMethod(int m)
+def CreateSurface(spheres,level,method):
     cAllocate()
     for s in spheres:
         cAdd(s[0],s[1],s[2],s[3])
     cLevel(level)
+    cMethod(method)
     cCreateSurface()
     points = []
     normals = []

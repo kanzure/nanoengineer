@@ -70,5 +70,9 @@ int cType()
 {
 	return cppType();
 }
+void cMethod(int i)
+{
+	cppMethod(i);
+}
 
 #endif  								// CSURFACE_INCLUDED

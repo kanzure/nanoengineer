@@ -549,7 +549,11 @@ class SurfaceChunks(ChunkDisplayMode):
 	    level = 3
 	    if rad > 6 : level = 4
 	    ps = psurface
-	    (tm, nm) = ps.CreateSurface(cspheres, level)
+	    # 0 - sphere triangles
+	    # 1 - torus rectangles
+	    # 2 - omega rectangles
+	    method = 0
+	    (tm, nm) = ps.CreateSurface(cspheres, level, method)
 	else : # python surface stuff
 	    center = chunk.center
 	    bcenter = chunk.abs_to_base(center)

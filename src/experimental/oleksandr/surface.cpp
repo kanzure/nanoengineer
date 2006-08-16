@@ -281,7 +281,7 @@ double Surface::Predicate(
 	}
 
 	double om1 = mBp->Predicate(mCenters, mRadiuses, p);
-	return om + 0.1;
+	return om;
 }
 
 //------------------------------------------------------------------------
@@ -293,9 +293,18 @@ void Surface::CreateSurface()
 {
 	mBp = new Bucket(21,17,13);
 	mBp->Add(mCenters);
-	SphereTriangles();
-	//TorusRectangles();
-	//OmegaRectangles();
+	switch (mM)
+	{
+	case 0:
+        SphereTriangles();
+		break;
+	case 1:
+		TorusRectangles();
+		break;
+	case 2:
+		OmegaRectangles();
+		break;
+	}
 	Duplicate();
 	SurfaceNormals();
 	int n = 4; // number of iterations
@@ -311,8 +320,8 @@ void Surface::CreateSurface()
 			if (om < -1.0) om = -1.0;
 			mPoints[j] = p + 0.25 * om * n;
 		}
-	SurfaceNormals();
 	}
+	SurfaceNormals();
 	delete mBp;
 }
 

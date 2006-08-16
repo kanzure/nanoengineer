@@ -45,6 +45,13 @@ class Surface
 	inline int Type();
 
 	//------------------------------------------------------------------------
+	// Method()
+	//
+	// set surface method
+	//
+	inline void Method(int m);
+
+	//------------------------------------------------------------------------
 	// Add()
 	//
 	// add centers and radiuses
@@ -220,6 +227,11 @@ class Surface
 	int mL;							// level for trias generation
 
 	//------------------------------------------------------------------------
+	// mM
+
+	int mM;							// surface method
+
+	//------------------------------------------------------------------------
 	// mPoints
 
     Container<Triple> mPoints;      // array for points on surface                                          
@@ -243,6 +255,7 @@ inline Surface::Surface()
 {
 	mBp = 0;
     mType = 0;
+	mM = 0;
     mL = 3;
 }
 
@@ -264,6 +277,16 @@ inline void Surface::Level(int l)
 inline int Surface::Type()
 {
 	return mType;
+}
+
+//------------------------------------------------------------------------
+// Method()
+//
+// set surface method
+//
+inline void Surface::Method(int m)
+{
+	mM = m;
 }
 
 //------------------------------------------------------------------------

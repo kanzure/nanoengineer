@@ -70,4 +70,8 @@ int cppType()
 {
 	return s->Type();
 }
+void cppMethod(int i)
+{
+	s->Method(i);
+}
 
