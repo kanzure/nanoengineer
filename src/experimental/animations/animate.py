@@ -7,33 +7,23 @@ import os, sys, threading, time
 recommended_width, recommended_height = 751, 459
 povray_aspect_ratio = (1. * recommended_width) / recommended_height
 
-# Bit rate of the MPEG stream in bits per second. For 30 FPS video at
-# 600x450, 2 mbits/sec looks good and gives a file size of about 250
-# Kbytes per second of video. At 1.5 mbits/sec you start to see some
-# MPEG artifacts, with file size of 190 Kbytes per second of video.
-bitrate = 5.0e6
-
-# Google Video uses a 4:3 aspect ratio because that's what is specified
-# below in the MPEG parameter file.
-video_aspect_ratio = 4.0 / 3.0
-
-ntsc = True
-
-# mpeg_height and mpeg_width must both be even to make mpeg2encode
-# happy. NTSC is 4:3 with resolution 704x480, with non-square pixels.
-# I don't know if ImageMagick handles non-square pixels.
-def even(x): return int(x) & -2
-if ntsc:
-    povray_height = 480
-    povray_width = int(povray_aspect_ratio * povray_height)
-    mpeg_width = 704
-    mpeg_height = 480
-else:
-    # Quick little pictures of much lower resolution
-    mpeg_height = 240
-    mpeg_width = even(video_aspect_ratio * mpeg_height)
+def set_resolution(w, h):
+    global mpeg_width, mpeg_height, povray_width, povray_height
+    # mpeg_height and mpeg_width must both be even to make mpeg2encode
+    # happy. The aspect ratio for video should be 4:3.
+    def even(x):
+        return int(x) & -2
+    mpeg_width = even(w)
+    mpeg_height = even(h)
     povray_height = mpeg_height
     povray_width = int(povray_aspect_ratio * povray_height)
+
+def set_width(w):
+    set_resolution(w, (3.0 / 4.0) * w)
+def set_height(h):
+    set_resolution((4.0 / 3.0) * h, h)
+
+set_resolution(600, 450)
 
 worker_list = [
     ('localhost', '/tmp/mpeg'),
@@ -42,7 +32,13 @@ worker_list = [
     ('mac', '/Users/wware/tmp')
     ]
 
+bitrate = 6.0e6
+
 framelimit = None
+
+povray_pretty = True
+
+border = None
 
 ####################
 #                  #
@@ -119,6 +115,11 @@ class PovrayJob:
                 # do stuff on a remote machine
                 do('ssh %s "%s"' % (machine, cmd), howfarback=1)
 
+        if povray_pretty:
+            povray_options = '+A -V -D +X'
+        else:
+            povray_options = '-A +Q0 -V -D +X'
+
         worker_do('mkdir -p ' + workdir)
         # worker_do('find %s -type f -exec rm -f {} \;' % workdir)
 
@@ -128,27 +129,34 @@ class PovrayJob:
         global _which_povray_job
         self.scriptname = 'povray_job_%08d.sh' % _which_povray_job
         _which_povray_job += 1
+        video_aspect_ratio = 4.0 / 3.0
         w2 = int(video_aspect_ratio * self.pheight)
         jpg = (self.povfmt % self.povmin)[:-4] + '.jpg'
         tgalist = ''
         povlist = ''
-        shellscript = open(os.path.join(self.srcdir, self.scriptname), 'w')
-        shellscript.write('cd %s\n' % workdir)
+        scriptlines = [ ]
+        scriptlines.append('cd %s' % workdir)
         # Worker machine renders a bunch of pov files to tga files
         for i in range(self.povmin, self.povmax_plus_one):
             pov = self.povfmt % i
             povlist += ' ' + pov
             tga = pov[:-4] + '.tga'
             tgalist += ' ' + tga
-            shellscript.write('povray +I%s +O%s +FT +A +W%d +H%d -V -D +X 2>/dev/null\n' %
-                              (pov, tga, self.pwidth, self.pheight))
+            scriptlines.append('povray +I%s +O%s +FT %s +W%d +H%d 2>/dev/null' %
+                              (pov, tga, povray_options, self.pwidth, self.pheight))
         # Worker machine averages the tga files into one jpeg file
-        shellscript.write('convert -average %s -crop %dx%d+%d+0 -geometry %dx%d! %s\n' %
-                          (tgalist, w2, self.pheight, (self.pwidth - w2) / 2,
-                           self.ywidth, self.yheight, jpg))
+        scriptlines.append('convert -average %s -crop %dx%d+%d+0 -geometry %dx%d! %s' %
+                           (tgalist, w2, self.pheight, (self.pwidth - w2) / 2,
+                            self.ywidth, self.yheight, jpg))
         # Worker cleans up the pov and tga files, no longer needed
-        shellscript.write('rm -f %s %s\n' %
-                          (povlist, tgalist))
+        scriptlines.append('rm -f %s %s' %
+                           (povlist, tgalist))
+        if DEBUG:
+            for line in scriptlines:
+                print machine + '>>> ' + line
+        shellscript = open(os.path.join(self.srcdir, self.scriptname), 'w')
+        for line in scriptlines:
+            shellscript.write(line + '\n')
         shellscript.close()
 
         #
@@ -174,25 +182,29 @@ class PovrayJob:
         #
         if DEBUG: print '[[%s]]' % machine,
         if local:
-            do('cp %s %s' % (src, dst))
+            do('cp %s %s' % (os.path.join(workdir, jpg),
+                             os.path.join(self.dstdir, jpg)))
         else:
-            do('scp %s:%s %s' % (machine, src, dst))
+            do('scp %s:%s %s' % (machine, os.path.join(workdir, jpg),
+                                 os.path.join(self.dstdir, jpg)))
 
         #
-        # Put text on finished image, and convert to YUV
+        # Put text on finished image, apply border, and convert to YUV
         #
         if self.textlist:
             cmd = ('convert %s -font times-roman -pointsize 30' %
                    (os.path.join(self.dstdir, jpg)))
             for i in range(len(self.textlist)):
                 cmd += ' -annotate +10+%d "%s"' % (30 * (i + 1), self.textlist[i])
+            if border is not None:
+                cmd += ' -bordercolor black -border %dx%d' % border
             cmd += ' ' + os.path.join(self.dstdir, self.yuv)
             do(cmd)
         else:
             do('convert %s %s' %
                (os.path.join(self.dstdir, jpg),
                 os.path.join(self.dstdir, self.yuv)))
-        do('rm -f %s' % os.path.join(self.dstdir, jpg))
+        #do('rm -f %s' % os.path.join(self.dstdir, jpg))
 
         #
         # Clean up remaining files on the worker machine
@@ -266,9 +278,6 @@ class PovrayJobQueue:
                     busy_workers += 1
             if all_workers_stop:
                 raise Exception
-        #for machine, workdir in worker_list:
-        #    # clean up all work files
-        #    do('ssh %s "find %s -type f -exec rm -f {} \;"' % (machine, workdir))
 
 ####################
 #                  #
@@ -333,6 +342,8 @@ stat.out  /* name of statistics file ("-": stdout ) */
 1 1 3  3  /* B2: back_hor_f_code back_vert_f_code search_width/height */
 """
 
+def textlist(i):
+    return [ ]
 
 # Where will I keep all my temporary files? On Mandriva, /tmp is small
 # but $HOME/tmp is large.
@@ -340,8 +351,7 @@ mpeg_dir = '/home/wware/tmp/mpeg'
 
 class MpegSequence:
 
-    def __init__(self, bitrate):
-        self.bitrate = bitrate
+    def __init__(self):
         self.frame = 0
         self.width = mpeg_width
         self.height = mpeg_height
@@ -367,8 +377,14 @@ class MpegSequence:
         assert os.path.exists(titlefile)
         if framelimit is not None: frames = min(frames, framelimit)
         first_yuv = self.yuv_name()
-        do('convert -geometry %dx%d! %s %s' %
-           (self.width, self.height, titlefile, first_yuv))
+        if border is not None:
+            w, h = self.width - 2 * border[0], self.height - 2 * border[1]
+            borderoption = ' -bordercolor black -border %dx%d' % border
+        else:
+            w, h = self.width, self.height
+            borderoption = ''
+        do('convert %s -geometry %dx%d! %s %s' %
+           (titlefile, w, h, borderoption, first_yuv))
         self.frame += 1
         for i in range(1, frames):
             import shutil
@@ -384,25 +400,12 @@ class MpegSequence:
             shutil.copy(src, self.yuv_name())
             self.frame += 1
 
-    def nanosecond_format(self, psecs_per_frame):
-        if psecs_per_frame >= 10.0:
-            return '%.0f nanoseconds'
-        elif psecs_per_frame >= 1.0:
-            return '%.1f nanoseconds'
-        elif psecs_per_frame >= 0.1:
-            return '%.2f nanoseconds'
-        elif psecs_per_frame >= 0.01:
-            return '%.3f nanoseconds'
-        else:
-            return '%.4f nanoseconds'
-
-    def motionBlurSequence(self, povfmt, frames, psecs_per_subframe,
+    def motionBlurSequence(self, povfmt, frames,
                            ratio, avg, begin=0):
         # avg is how many subframes are averaged to produce each frame
         # ratio is the ratio of subframes to frames
         if framelimit is not None: frames = min(frames, framelimit)
         pq = PovrayJobQueue()
-        nfmt = self.nanosecond_format(ratio * psecs_per_subframe)
         yuvs = [ ]
         srcdir, povfmt = os.path.split(povfmt)
 
@@ -410,19 +413,16 @@ class MpegSequence:
             yuv = self.yuv_name()
             yuvs.append(yuv)
             dstdir, yuv = os.path.split(yuv)
-            nsecs = 0.001 * i * ratio * psecs_per_subframe
-            textlist = [
-                nfmt % nsecs,
-                # Rotation of small bearing at 5 GHz
-                '%.3f rotations' % (nsecs / 0.2),
-                '%.1f degrees' % (360. * nsecs / 0.2)
-                ]
+            ywidth, yheight = mpeg_width, mpeg_height
+            if border is not None:
+                ywidth -= 2 * border[0]
+                yheight -= 2 * border[1]
             job = PovrayJob(srcdir, dstdir, povfmt,
                             begin + i * ratio,
                             begin + i * ratio + avg,
                             yuv,
                             povray_width, povray_height,
-                            mpeg_width, mpeg_height, textlist)
+                            ywidth, yheight, textlist(i))
             pq.append(job)
             self.frame += 1
         pq.start()
@@ -435,35 +435,7 @@ class MpegSequence:
                              'frames': len(self),
                              'height': self.height,
                              'width': self.width,
-                             'bitrate': self.bitrate})
+                             'bitrate': bitrate})
         outf.close()
         # encoding is an inexpensive operation, do it even if not for real
         do('mpeg2encode %s/foo.par %s/foo.mpeg' % (mpeg_dir, mpeg_dir))
-
-
-###################################################
-
-
-def example_usage():
-    m = MpegSequence(bitrate)
-    m.titleSequence('title1.gif')
-    m.titleSequence('title2.gif')
-    m.motionBlurSequence(os.path.join(mpeg_dir, 'fastpov/fast.%06d.pov'),
-                         450, 0.0005, 10, 10)
-    m.titleSequence('title3.gif')
-    m.motionBlurSequence(os.path.join(mpeg_dir, 'medpov/med.%06d.pov'),
-                         450, 0.002, 10, 10)
-    m.titleSequence('title4.gif')
-    m.motionBlurSequence(os.path.join(mpeg_dir, 'slowpov/slow.%06d.pov'),
-                         450, 0.02, 10, 10)
-    m.encode()
-
-'''
-Example usages:
-
-python -c "import animate; animate.example_usage()"
-python -c "import animate; animate.framelimit=4; animate.example_usage()"
-python -c "import animate; animate.DEBUG=True; animate.example_usage()"
-
-or you could write a script that imports and uses this stuff.
-'''
