@@ -439,4 +439,5 @@ class MpegSequence:
         outf.close()
         # encoding is an inexpensive operation, do it even if not for real
         do('mpeg2encode %s/foo.par %s/foo.mpeg' % (mpeg_dir, mpeg_dir))
+        do('rm -f %s/foo.mp4' % mpeg_dir)
         do('ffmpeg -i %s/foo.mpeg -sameq %s/foo.mp4' % (mpeg_dir, mpeg_dir))
