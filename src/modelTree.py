@@ -515,7 +515,13 @@ class modelTree(TreeWidget):
         # Cut (unlike Copy), and Delete, should always be ok.
         res.append(( 'Cut', self.cm_cut ))
         res.append(( 'Delete', self.cm_delete ))
-
+        
+        #ninad060816 added option to select all atoms of the selected chunks. 
+        #I don't know how to handle a case when a whole grop is selected. So putting a condition allstats.nchunks == allstats.n
+        #perhaps, I should unpick the groups while picking atoms? 
+        if allstats.nchunks == allstats.n and allstats.nchunks : 
+            res.append((fix_plurals("Select all atoms of %d chunk(s)" % allstats.nchunks), self.cmSelectAllAtomsInChunk))
+        
         # add basic info on what's selected at the end (later might turn into commands related to subclasses of nodes)
 
         if allstats.nchunks + allstats.njigs: # otherwise, nothing we can yet print stats on... (e.g. clipboard)
@@ -760,6 +766,16 @@ class modelTree(TreeWidget):
         self.assy.delete_sel(use_selatoms = False) #bruce 050505 don't touch atoms, to fix bug (reported yesterday in checkin mail)
         ##bruce 050427 moved win_update into delete_sel as part of fixing bug 566
         ##self.win.win_update()
+        
+    def cmSelectAllAtomsInChunk(self):
+        "ninad060816 added this. It selects all the atoms preseent in the selected chunk(s)" 
+        nodeset = self.topmost_selected_nodes()
+        self.assy.part.permit_pick_atoms()
+        for m in nodeset:
+            for a in m.atoms.itervalues():
+                a.pick()
+        self.win.toolsBuildAtoms()
+        self.win.win_update()
 
     def cm_disable(self): #bruce 050421
         nodeset = self.topmost_selected_nodes()
