@@ -25,15 +25,16 @@ else
 #---------------------------------------- Start Unix/Mac stuff
 UNAME_A=$$(uname -a)
 CC=gcc
+CXX:=$(shell python distutils_compile_options.py compiler_cxx)
 TARGET=psurface.so
 CFLAGS:=$(shell python distutils_compile_options.py compiler_so)
-CXXFLAGS:=$(shell python distutils_compile_options.py compiler_cxx)
+CXXFLAGS:=$(CFLAGS)
 ifeq ($(strip $(UNAME)),Darwin)
 #---------------------------------------- Mac
 CFLAGS+=-I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/lib/python$(PYDVER)/config \
     -I/System/Library/Frameworks/Python.framework/Versions/$(PYDVER)/include/python$(PYDVER)/
 LDFLAGS=-Wl,-F. -framework Python
-LDSHARED=gcc -bundle
+LDSHARED=g++ -bundle
 else
 #---------------------------------------- Unix
 PYBASE:=$(shell which python | sed "s%/bin/python%%")
