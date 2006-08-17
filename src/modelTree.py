@@ -774,7 +774,6 @@ class modelTree(TreeWidget):
         for m in nodeset:
             for a in m.atoms.itervalues():
                 a.pick()
-        self.win.toolsBuildAtoms()
         self.win.win_update()
 
     def cm_disable(self): #bruce 050421
