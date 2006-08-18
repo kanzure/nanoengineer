@@ -135,7 +135,6 @@ oneDynamicsFrame(struct part *part,
             //}
 	    
 	    vadd(newPositions[j],f);
-	    vadd(averagePositions[j],newPositions[j]);
 	    
 	    //vsub2(f, newPositions[j], positions[j]);
 	    //ff = vdot(f, f);
@@ -197,6 +196,9 @@ oneDynamicsFrame(struct part *part,
             default:
 		break;
 	    }
+	}
+	for (j=0; j<part->num_atoms; j++) {
+	    vadd(averagePositions[j],newPositions[j]);
 	}
 	
 	tmp=oldPositions; oldPositions=positions; positions=newPositions; newPositions=tmp;
