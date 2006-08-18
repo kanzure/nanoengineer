@@ -1044,6 +1044,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     }
     
     mass = a->type->mass * 1e-27;
+    a->mass = a->type->mass;
     a->inverseMass = Dt * Dt / mass;
     
     // XXX break this out into another routine
@@ -1133,7 +1134,7 @@ calculateKinetic(struct part *p)
 	struct atom *a = p->atoms[j];
 	double v = vlen(velocities[a->index]);
 	// save the factor of 1/2 for later, to keep this loop fast
-	total += a->type->mass * v * v;
+	total += a->mass * v * v;
     }
     // We want energy in attojoules to be consistent with potential energy
     // mass is in units of Dmass kilograms
@@ -1353,7 +1354,7 @@ makeRotaryMotor(struct part *p, char *name,
 	double lenv;
 	k = j->atoms[i]->index;
 	/* for each atom connected to the motor */
-	mass = j->atoms[i]->type->mass * 1e-27;
+	mass = j->atoms[i]->mass * 1e-27;
 	
 	/* u, v, and w can be used to compute the new anchor position from
 	 * theta. The new position is u + v cos(theta) + w sin(theta). u is

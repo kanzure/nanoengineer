@@ -184,7 +184,7 @@ jigMotor(struct jig *jig, double deltaTframe, struct xyz *position, struct xyz *
 
 	    // friction is force divided by velocity
 	    double friction = 2 * jig->j.rmotor.dampingCoefficient *
-		sqrt(SPRING_STIFFNESS * 1.e-27 * jig->atoms[k]->type->mass);
+		sqrt(SPRING_STIFFNESS * 1.e-27 * jig->atoms[k]->mass);
 	    vsub(r, jig->j.rmotor.rPrevious[k]);
 	    // we need a factor of Dt because of Verlet integration
 	    vmul2c(tmp, r, -friction / Dt);
@@ -451,7 +451,7 @@ jigThermometer(struct jig *jig, double deltaTframe, struct xyz *position, struct
     for (k=0; k<jig->num_atoms; k++) {
 	a1 = jig->atoms[k]->index;
 	f = vdif(position[a1],new_position[a1]);
-	ff += vdot(f, f) * jig->atoms[k]->type->mass;
+	ff += vdot(f, f) * jig->atoms[k]->mass;
     }
     ff *= Dx*Dx/(Dt*Dt) * 1e-27 / Boltz;
     jig->data += ff*z;
@@ -476,7 +476,7 @@ jigThermostat(struct jig *jig, double deltaTframe, struct xyz *position, struct 
 
     for (k=0; k<jig->num_atoms; k++) {
 	a1 = jig->atoms[k]->index;
-	mass = jig->atoms[k]->type->mass;
+	mass = jig->atoms[k]->mass;
 	therm = sqrt((Boltz*jig->j.thermostat.temperature)/
 		     (mass * 1e-27))*Dt/Dx;
         v1 = vdif(new_position[a1],position[a1]);

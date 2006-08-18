@@ -23,6 +23,7 @@ struct atom
     struct atom **vdwBucket;
     struct atom *vdwPrev;
     struct atom *vdwNext;
+    double mass;
     double inverseMass;
     //double charge;
     
