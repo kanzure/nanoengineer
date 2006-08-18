@@ -45,6 +45,16 @@ class ops_select_Mixin:
         atoms += self.assy.selatoms_list()
         
         return atoms
+    
+    def getOnlyAtomsSelectedByUser(self): #ninad 0600818
+        '''Returns a list of atoms selected by the user. It doesn't consider atoms in a chunk or 
+        of a jig if they(the atoms) are not explicitely selected.
+        '''
+        #ninad060818 is using this function to get distance and other info in the DynamiceTooltip class. 
+        atoms = []
+        atoms += self.assy.selatoms_list()
+        return atoms
+    
 
     def getSelectedJigs(self):
         '''Returns a list of all the currently selected jigs.
@@ -68,7 +78,8 @@ class ops_select_Mixin:
         self.topnode.apply2all(addMovableNode)
         return selected_movables
 
-    def selectAll(self):
+    #def selectAll(self):
+    def selectAllorig(self):
         """Select all parts if nothing selected.
         If some parts are selected, select all atoms in those parts.
         If some atoms are selected, select all atoms in the parts
@@ -84,6 +95,24 @@ class ops_select_Mixin:
             for m in self.molecules:
                 for a in m.atoms.itervalues():
                     a.pick()
+        self.w.win_update()
+        
+    #def selectAtomsInChunk(self):
+    def selectAll(self):
+        "Selects all  atoms present in a chunk" 
+        #from TreeWidget import TreeWidget
+        self.begin_select_cmd()
+        #if self.selwhat == SELWHAT_CHUNKS:
+            
+        #assert self.selwhat == SELWHAT_ATOMS
+       # from depositMode import depositMode
+        
+        for m in self.selmols:
+            for a in m.atoms.itervalues():
+                a.pick()
+        #self.assy.part.permit_pick_atoms()
+        self.w.toolsBuildAtoms() 
+        self.unpickchunks()
         self.w.win_update()
 
     def selectNone(self):
