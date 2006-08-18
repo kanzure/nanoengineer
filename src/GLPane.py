@@ -240,6 +240,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # not selecting anything currently
         # [as of 050418 (and before), this is used in cookieMode and selectMode]
         self.shape = None
+        
+        # Dynamic tooltip that is displayed whenever the mouse pauses over a highlighted object.
+        # See the docstring for DynamicToolTip.maybeTip() for details. Mark 060818
+        self.dynamicToolTip = DynamicTip(self)
+        
+        # Cursor position of the last timer event. Mark 060818
+        self.timer_event_last_xy = (0, 0)
 
         self.setMouseTracking(True)
 
@@ -302,6 +309,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         self.loadLighting() #bruce 050311
             #bruce question 051212: why doesn't this prevent bug 1204 in use of lighting directions on startup?
+            
         
         return # from GLPane.__init__ 
     
@@ -1474,15 +1482,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # Get the x, y position of the cursor and store as tuple in <xy_now>.
         cursor = self.cursor()
         cursorPos = self.mapFromGlobal(cursor.pos()) # mapFromGlobal() maps from screen coords to GLpane coords.
-        xy_now = (cursorPos.x(), cursorPos.y())
-        
-        # Get the cursor position from the last timer event, stored in the <timer_event_last_xy> attr. 
-        # Should this be initialized in __init__() as a private attr? Ask Bruce. Mark 060806.
-        try:
-            xy_last = self.timer_event_last_xy
-        except:
-            self.timer_event_last_xy = xy_now
-            return
+        xy_now = (cursorPos.x(), cursorPos.y()) # Current cursor position
+        xy_last = self.timer_event_last_xy # Cursor position from last timer event.
         
         # If this cursor position hasn't changed since the last timer event, and no mouse button is
         # being pressed, create a 'MouseMove' mouse event and pass it to mode.bareMotion().  
@@ -1490,59 +1491,28 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         if xy_now == xy_last and self.button == None:
             # Only pass a 'MouseMove" mouse event once to bareMotion() when the mouse stops 
             # and hasn't moved since the last timer event.
+            
             if self.triggerBareMotionEvent:
                 #print "Calling bareMotion. xy_now = ", xy_now
                 mouseEvent = QMouseEvent( QEvent.MouseMove, cursorPos, Qt.NoButton, Qt.NoButton ) 
                 self.mode.bareMotion(mouseEvent) # Only selectMode.mouse_exceeded_distance() makes use of this.
                 
-                # Idea: start is one-shot timer here that would eventually display a tooltip with info about the highlighted object
-                # (atom) if the cursor hasn't moved after 2-3 seconds. Eric has expressed a strong desire for this feature.
-                print "starting single shot timer"
-                # QTimer.singleShot(2*1000, self, SLOT('showTooltip()') ) #  2 second timer
-                QTimer.singleShot(2*1000, self.showTooltip ) #  2 second timer
-                
             self.triggerBareMotionEvent = False
             
+            if self.dynamicToolTip: # Probably always True. Mark 060818.
+                # The cursor hasn't moved since the last timer event. See if we should display the tooltip now.
+                self.dynamicToolTip.maybeTip(cursorPos) # maybeTip() is responsible for displaying the tooltip.
+            
         else:
+            
+            self.cursorMotionlessStartTime = time.time()
+                # Reset the cursor motionless start time to "zero" (now). 
+                # Used by maybeTip() to support the display of dynamic tooltips.
+            
             self.triggerBareMotionEvent = True
                 
         self.timer_event_last_xy = xy_now
         return
-        
-    def showTooltip(self):
-        # 1. Get position of cursor. (see first few lines of code in timerEvent() above)
-        # Get the x, y position of the cursor and store as tuple in <xy_now>.
-        #from bond_constants import describe_atom_and_atomtype
-        cursor = self.cursor()
-        cursorPos = self.mapFromGlobal(cursor.pos()) # mapFromGlobal() maps from screen coords to GLpane coords.
-        xy_now = (cursorPos.x(), cursorPos.y())
-        
-        # 2. Check this position with the cursor position when the timer started.
-        try:
-            xy_last = self.timer_event_last_xy
-        except:
-            self.timer_event_last_xy = xy_now
-            return
-        # 3. If they are the same, then show the tooltip.
-        tooltip_str = "hi"
-        if xy_now == xy_last and self.button == None:
-            if(self.selobj):
-                #print self.selobj
-                #ninad060816 IThe following works. Atleast it 'shows' tooltip. But it is very hard to 
-                # display it when something is highlighted. This is because the random QRectangle coordinated 
-                #that I am supplying to the Qtooltip. This needs more work. I need to talk with Mark to check how to specify 
-                # the correct QRectangle
-                rect = self.getRectangleForToolTip(cursorPos.x(), cursorPos.y())
-                tooltip_str = str(self.selobj)
-                #should I use describe_atom_and_atomtype(self.selobj) from bond_constants instead? ninad060816
-                print tooltip_str
-                tooltip_str = QString(tooltip_str)
-                QToolTip.add(self, rect, tooltip_str)
-        
-    def getRectangleForToolTip(self, x,y):
-        x = int(x)
-        y = int(y)
-        return QRect(-x, y, 2*x, 2*y) #@@@@ ninad060816 This is wrong!! just for testing. I want to see 
     
 #== end of Timer helper methods
 
@@ -2589,4 +2559,89 @@ def typecheckViewArgs(q2, s2, p2, z2): #mark 060128
     assert isinstance(z2, float)
     return
 
+#==
+
+class DynamicTip(QToolTip): # Mark and Ninad 060817.
+    """For the support of dynamic, informative tooltips of a highligthed object in the GLPane. 
+    """
+    def __init__(self, parent):
+        QToolTip.__init__(self, parent)
+        self.glpane = parent
+        
+        # <toolTipShown> is a flag set to True when a tooltip is currently displayed for the 
+        # highlighted object under the cursor.
+        self.toolTipShown = False
+     
+    def maybeTip(self, cursorPos):
+        """Determines if this tooltip should be displayed. The tooltip will be displayed at
+        <cusorPos> if an object is highlighted and the mouse hasn't moved for 
+        some period of time, called the "wake up delay" period, which is a user pref
+        (not yet implemented in the Preferences dialog) currently set to 1 second.
+        
+        <cursorPos> is the current cursor position in the GLPane's local coordinates.
+        
+        maybeTip() is called by GLPane.timerEvent() whenever the cursor is not moving to 
+        determine if the tooltip should be displayed.
+        
+        For more details about this member, see Qt documentation on QToolTip.maybeTip().
+        """
+        
+        # <motionlessCursorDuration> is the amount of time the cursor (mouse) has been motionless.
+        motionlessCursorDuration = time.time()- self.glpane.cursorMotionlessStartTime
+        
+        # Don't display the tooltip yet if <motionlessCursorDuration> hasn't exceeded the "wake up delay".
+        # The wake up delay is currently set to 1 second in prefs_constants.py. Mark 060818.
+        if motionlessCursorDuration < env.prefs[dynamicToolTipWakeUpDelay_prefs_key]:
+            self.toolTipShown = False
+            return
+        
+        selobj = self.glpane.selobj
+        
+        # If an object is not currently highlighted, don't display a tooltip.
+        if not selobj:
+            return
+        
+        # If the highlighted object is a singlet, don't display a tooltip for it.
+        if isinstance(selobj, atom) and (selobj.element is Singlet):
+            return
+            
+        if self.toolTipShown:
+            # The tooltip is already displayed, so return. Do not allow tip() to be called again or it will "flash".
+            #print "maybeTip(): TOOLTIP ALREADY SHOWN. highlighted object = ", str(self.glpane.selobj)
+            return
+            
+        # Position and size of QRect for tooltip.
+        rect = QRect(cursorPos.x()-1, cursorPos.y()-1, 3, 3)
+        #print "maybeTip(): CREATING AND DISPLAYING TOOLTIP. highlighted object = ", str(self.glpane.selobj)
+            
+        tipText = self.getToolTipText()
+            
+        self.tip(rect, tipText) # Display the tooltip for the highlighted object <self.glpane.selobj>.
+            # This should always display a tooltip when called. There are times when it will not work, at least on Windows.
+            # For example, if you rest the cursor over an atom until the tooltip is displayed, then highlight a different atom,
+            # then move back to the first atom and rest the cursor, the tooltip will not display. Try this again, it will work. 
+            # Another time, it will not work. This appears to be a Qt bug. Not serious, however, since slightly moving and
+            # resting the cursor over the same atom will cause the tooltip to appear. Mark 060817.
+                
+        self.toolTipShown = True
+                            
+                            
+    def getToolTipText(self): # Mark 060818
+        """Return the tooltip text to display, which depends on what is selected and what is highlighted.
+        
+        For now:
+        Return the name of the highlighted object.
+        
+        For later:
+        If nothing is selected, return the name of the highlighted object.
+        If one atom is selected, return the distance between it and the highlighted atom.
+        If two atoms are selected, return the angle between them and the highlighted atom.
+        If three atoms are selected, return the torsion angle between them and the highlighted atom.
+        If more than three atoms as selected, return the name of the highlighted object.
+        
+        Damian also suggested having preferences for setting the precision (decimal place) for each measurement.
+        """
+        
+        return str(self.glpane.selobj) 
+    
 # end

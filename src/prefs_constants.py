@@ -65,6 +65,7 @@ workingDirectory_prefs_key = 'WorkingDirectory' # Moved here from startup_funcs.
 backgroundColor_prefs_key = 'A9/Background Color' # Mark 060814.
 backgroundGradient_prefs_key = 'A9/Background Gradient' # Mark 060814.
 defaultDisplayMode_prefs_key = 'A9/Default Display Mode' # Mark 060815.
+dynamicToolTipWakeUpDelay_prefs_key = 'A9/DynamicToolTip Wake Up Delay'
 
 # Minimize prefs for Adjust All and Adjust Selection (presently on General prefs pane)
 # (note, Adjust Atoms does not yet have its own prefs -- its values are derived from these
@@ -372,6 +373,8 @@ prefs_table = (
     ('', 'boolean', QToolButton_MacOSX_Tiger_workaround_prefs_key, False ), #bruce 050810
     ('', 'boolean', sponsor_download_permission_prefs_key, False ),
     ('', 'boolean', sponsor_permanent_permission_prefs_key, False ),
+    
+    ('wake_up_delay', 'float', dynamicToolTipWakeUpDelay_prefs_key, 1.0), # 1 second. Mark 060817.
 
 )
 
