@@ -27,6 +27,7 @@ from chem import move_alist_and_snuggle
 import platform
 from debug import print_compact_stack, print_compact_traceback
 from moviefile import MovieFile #e might be renamed, creation API revised, etc
+from qt import QDialog, QGridLayout, QPushButton, QTextBrowser
 ## can't do this here (recursive import), so done at runtime:
 ## from movieMode import _controls
 
@@ -41,6 +42,29 @@ DEBUG1 = 0 # DO NOT COMMIT WITH 1
 DEBUG_DUMP = 0 # DO NOT COMMIT WITH 1
 
 playDirection = { FWD : "Forward", REV : "Reverse" }
+
+
+class MovieRewindDialog(QDialog):
+
+    def __init__(self, movie):
+        self.movie = movie
+        QDialog.__init__(self, None)
+        self.setName("movie_warning")
+        self.text_browser = QTextBrowser(self,"movie_warning_textbrowser")
+        self.text_browser.setMinimumSize(400, 40)
+        self.setCaption('Rewind your movie?')
+        self.text_browser.setText(
+            "You may want to rewind the movie now. If you save the part without " +
+            "rewinding the movie, the movie file will become invalid because it " +
+            "depends upon the initial atom positions. The atoms move as the movie " +
+            "proresses, and saving the part now will save the final positions," +
+            " which are incorrect for the movie you just watched.")
+        self.ok_button = QPushButton(self,"ok_button")
+        self.ok_button.setText("Ok")
+        layout = QGridLayout(self,1,1,0,-1,"movie_warning_layout")
+        layout.addMultiCellWidget(self.text_browser,0,0,0,0)
+        layout.addWidget(self.ok_button,1,0)
+        self.connect(self.ok_button,SIGNAL("clicked()"),self.accept)
 
 class Movie:
     """
@@ -788,6 +812,23 @@ class Movie:
             self.win.movie_is_playing = False # May not be needed.  Doing it anyway.  Mark 051209.
             return
 
+        if False:
+            # There are implications with the Undo system that I don't understand here. Bruce better look
+            # this over before we switch it on.
+            if self.currentFrame == 0:
+                if not hasattr(self, 'origfile'):
+                    errorcode, partdir = self.assy.find_or_make_part_files_directory()
+                    if errorcode:
+                        raise Exception("filename does not exist")
+                    self.origfile = os.path.normpath(os.path.join(partdir,
+                                                                  self.assy.filename[:-4] + '.orig' +
+                                                                  self.assy.filename[-4:]))
+                try:
+                    env.mainwindow().fileOpen(self.origfile)
+                except:
+                    print 'cannot open original file'
+                    raise
+
         # "inc" is the frame increment (FWD = 1, REV = -1) .
         if fnum > self.currentFrame: 
             inc = FWD
@@ -923,6 +964,9 @@ class Movie:
         self.win.movie_is_playing = False
         # This is the last frame (fnum).
         self.glpane.gl_update() #e bruce 050427 comment: we should optimize and only do this if we didn't just do it in the loop
+
+        mrd = MovieRewindDialog(self)
+        mrd.exec_loop()
 
         if 1: ## if not from_slider:
             #bruce 050428 always do this, since Mark agrees it'd be good for moving the slider to pause the movie
