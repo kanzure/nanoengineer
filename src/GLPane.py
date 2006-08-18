@@ -59,6 +59,8 @@ from prefs_constants import glpane_lights_prefs_key #bruce 051206
 import env
 from changes import SubUsageTrackingMixin
 
+from DynamicTip import DynamicTip #ninad060818 moved class DynamicTip to a new file
+
 
 debug_lighting = False #bruce 050418
 
@@ -2561,87 +2563,4 @@ def typecheckViewArgs(q2, s2, p2, z2): #mark 060128
 
 #==
 
-class DynamicTip(QToolTip): # Mark and Ninad 060817.
-    """For the support of dynamic, informative tooltips of a highligthed object in the GLPane. 
-    """
-    def __init__(self, parent):
-        QToolTip.__init__(self, parent)
-        self.glpane = parent
-        
-        # <toolTipShown> is a flag set to True when a tooltip is currently displayed for the 
-        # highlighted object under the cursor.
-        self.toolTipShown = False
-     
-    def maybeTip(self, cursorPos):
-        """Determines if this tooltip should be displayed. The tooltip will be displayed at
-        <cusorPos> if an object is highlighted and the mouse hasn't moved for 
-        some period of time, called the "wake up delay" period, which is a user pref
-        (not yet implemented in the Preferences dialog) currently set to 1 second.
-        
-        <cursorPos> is the current cursor position in the GLPane's local coordinates.
-        
-        maybeTip() is called by GLPane.timerEvent() whenever the cursor is not moving to 
-        determine if the tooltip should be displayed.
-        
-        For more details about this member, see Qt documentation on QToolTip.maybeTip().
-        """
-        
-        # <motionlessCursorDuration> is the amount of time the cursor (mouse) has been motionless.
-        motionlessCursorDuration = time.time()- self.glpane.cursorMotionlessStartTime
-        
-        # Don't display the tooltip yet if <motionlessCursorDuration> hasn't exceeded the "wake up delay".
-        # The wake up delay is currently set to 1 second in prefs_constants.py. Mark 060818.
-        if motionlessCursorDuration < env.prefs[dynamicToolTipWakeUpDelay_prefs_key]:
-            self.toolTipShown = False
-            return
-        
-        selobj = self.glpane.selobj
-        
-        # If an object is not currently highlighted, don't display a tooltip.
-        if not selobj:
-            return
-        
-        # If the highlighted object is a singlet, don't display a tooltip for it.
-        if isinstance(selobj, atom) and (selobj.element is Singlet):
-            return
-            
-        if self.toolTipShown:
-            # The tooltip is already displayed, so return. Do not allow tip() to be called again or it will "flash".
-            #print "maybeTip(): TOOLTIP ALREADY SHOWN. highlighted object = ", str(self.glpane.selobj)
-            return
-            
-        # Position and size of QRect for tooltip.
-        rect = QRect(cursorPos.x()-1, cursorPos.y()-1, 3, 3)
-        #print "maybeTip(): CREATING AND DISPLAYING TOOLTIP. highlighted object = ", str(self.glpane.selobj)
-            
-        tipText = self.getToolTipText()
-            
-        self.tip(rect, tipText) # Display the tooltip for the highlighted object <self.glpane.selobj>.
-            # This should always display a tooltip when called. There are times when it will not work, at least on Windows.
-            # For example, if you rest the cursor over an atom until the tooltip is displayed, then highlight a different atom,
-            # then move back to the first atom and rest the cursor, the tooltip will not display. Try this again, it will work. 
-            # Another time, it will not work. This appears to be a Qt bug. Not serious, however, since slightly moving and
-            # resting the cursor over the same atom will cause the tooltip to appear. Mark 060817.
-                
-        self.toolTipShown = True
-                            
-                            
-    def getToolTipText(self): # Mark 060818
-        """Return the tooltip text to display, which depends on what is selected and what is highlighted.
-        
-        For now:
-        Return the name of the highlighted object.
-        
-        For later:
-        If nothing is selected, return the name of the highlighted object.
-        If one atom is selected, return the distance between it and the highlighted atom.
-        If two atoms are selected, return the angle between them and the highlighted atom.
-        If three atoms are selected, return the torsion angle between them and the highlighted atom.
-        If more than three atoms as selected, return the name of the highlighted object.
-        
-        Damian also suggested having preferences for setting the precision (decimal place) for each measurement.
-        """
-        
-        return str(self.glpane.selobj) 
-    
-# end
+#end
