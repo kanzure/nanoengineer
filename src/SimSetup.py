@@ -158,6 +158,12 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         """
         ###@@@ bruce 050324 comment: Not sure if/when user can rename the file.
         QDialog.accept(self)
+
+        errorcode, partdir = self.assy.find_or_make_part_files_directory()
+        if errorcode:
+            return "filename_does_not_exist"
+        #povrayscene_file = os.path.normpath(os.path.join(partdir, name))
+
         self.movie.cancelled = False # This is the only way caller can tell we succeeded.
         self.movie.totalFramesRequested = self.nframesSB.value()
         self.movie.temp = self.tempSB.value()
@@ -240,9 +246,17 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
 
         suffix = self.suffix
         if self.assy.filename: # Could be an MMP or PDB file.
-            self.movie.filename = self.assy.filename[:-4] + suffix + '.dpb'
+            import shutil
+            self.movie.filename = os.path.normpath(os.path.join(partdir,
+                                                                self.assy.filename[:-4] +
+                                                                suffix + '.dpb'))
+            self.movie.origfile = os.path.normpath(os.path.join(partdir,
+                                                                self.assy.filename[:-4] + '.orig' +
+                                                                self.assy.filename[-4:]))
+            shutil.copy(self.assy.filename, self.movie.origfile)
         else: 
             self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled%s.dpb" % suffix)
+            # Untitled parts usually do not have a filename
         #bruce 060601 fix bug 1840, also make params sticky across opening of new files
         global _stickyParams
         _stickyParams = FakeMovie(self.movie) # these will be used as default params next time, whether or not this gets aborted
