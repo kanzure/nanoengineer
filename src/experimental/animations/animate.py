@@ -204,7 +204,6 @@ class PovrayJob:
             do('convert %s %s' %
                (os.path.join(self.dstdir, jpg),
                 os.path.join(self.dstdir, self.yuv)))
-        #do('rm -f %s' % os.path.join(self.dstdir, jpg))
 
         #
         # Clean up remaining files on the worker machine
@@ -349,6 +348,11 @@ def textlist(i):
 # but $HOME/tmp is large.
 mpeg_dir = '/home/wware/tmp/mpeg'
 
+def remove_old_yuvs():
+    # you don't always want to do this
+    do("rm -rf " + mpeg_dir + "/yuvs")
+    do("mkdir -p " + mpeg_dir + "/yuvs")
+
 class MpegSequence:
 
     def __init__(self):
@@ -356,8 +360,6 @@ class MpegSequence:
         self.width = mpeg_width
         self.height = mpeg_height
         self.size = (self.width, self.height)
-        do("rm -rf " + mpeg_dir + "/yuvs")
-        do("mkdir -p " + mpeg_dir + "/yuvs")
 
     def __len__(self):
         return self.frame
