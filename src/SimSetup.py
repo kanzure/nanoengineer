@@ -160,9 +160,6 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         QDialog.accept(self)
 
         errorcode, partdir = self.assy.find_or_make_part_files_directory()
-        if errorcode:
-            return "filename_does_not_exist"
-        #povrayscene_file = os.path.normpath(os.path.join(partdir, name))
 
         self.movie.cancelled = False # This is the only way caller can tell we succeeded.
         self.movie.totalFramesRequested = self.nframesSB.value()
@@ -245,7 +242,7 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         # end of 060705 changes
 
         suffix = self.suffix
-        if self.assy.filename: # Could be an MMP or PDB file.
+        if self.assy.filename and not errorcode: # filename could be an MMP or PDB file.
             import shutil
             self.movie.filename = os.path.normpath(os.path.join(partdir,
                                                                 self.assy.filename[:-4] +
