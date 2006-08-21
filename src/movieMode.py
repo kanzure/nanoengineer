@@ -30,6 +30,39 @@ auto_play = False # whether to automatically start playing the movie when you en
     # Not sure whether this will need to be added back under certain conditions,
     # therefore I'm adding this flag, so it's easy to review all the places that might need changing.
 
+from qt import QDialog, QGridLayout, QPushButton, QTextBrowser
+
+class MovieRewindDialog(QDialog):
+
+    def __init__(self, movie):
+        self.movie = movie
+        QDialog.__init__(self, None)
+        self.setName("movie_warning")
+        self.text_browser = QTextBrowser(self,"movie_warning_textbrowser")
+        self.text_browser.setMinimumSize(400, 40)
+        self.setCaption('Rewind your movie?')
+        self.text_browser.setText(
+            "You may want to rewind the movie now. If you save the part without " +
+            "rewinding the movie, the movie file will become invalid because it " +
+            "depends upon the initial atom positions. The atoms move as the movie " +
+            "progresses, and saving the part now will save the final positions, " +
+            "which are incorrect for the movie you just watched.")
+        self.ok_button = QPushButton(self,"ok_button")
+        self.ok_button.setText("Rewind movie")
+        self.cancel_button = QPushButton(self,"cancel_button")
+        self.cancel_button.setText("No thanks")
+        layout = QGridLayout(self,1,1,0,-1,"movie_warning_layout")
+        layout.addMultiCellWidget(self.text_browser,0,0,0,1)
+        layout.addWidget(self.ok_button,1,0)
+        layout.addWidget(self.cancel_button,1,1)
+        self.connect(self.ok_button,SIGNAL("clicked()"),self.rewindMovie)
+        self.connect(self.cancel_button,SIGNAL("clicked()"),self.noThanks)
+    def rewindMovie(self):
+        self.movie._reset()
+        self.accept()
+    def noThanks(self):
+        self.accept()
+
 
 ####@@@@ It might need removing from other places in the code, as well, like entering the mode.
 
@@ -61,6 +94,11 @@ class movieMode(basicMode):
         #  but for now I'll leave it in.]
         self.o.assy.unpickall_in_GLPane() # was: unpickparts, unpickatoms [bruce 060721]
         self.o.assy.permit_pick_atoms()
+
+    def _exitMode(self, new_mode = None):
+        mrd = MovieRewindDialog(self.o.assy.current_movie)
+        mrd.exec_loop()
+        basicMode._exitMode(self, new_mode)
 
     def init_gui(self):
 
