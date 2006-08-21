@@ -244,12 +244,10 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
         suffix = self.suffix
         if self.assy.filename and not errorcode: # filename could be an MMP or PDB file.
             import shutil
-            self.movie.filename = os.path.normpath(os.path.join(partdir,
-                                                                self.assy.filename[:-4] +
-                                                                suffix + '.dpb'))
-            self.movie.origfile = os.path.normpath(os.path.join(partdir,
-                                                                self.assy.filename[:-4] + '.orig' +
-                                                                self.assy.filename[-4:]))
+            dir, fil = os.path.split(self.assy.filename)
+            fil, ext = os.path.splitext(fil)
+            self.movie.filename = os.path.join(partdir, fil + suffix + '.dpb')
+            self.movie.origfile = os.path.join(partdir, fil + '.orig' + ext)
             shutil.copy(self.assy.filename, self.movie.origfile)
         else: 
             self.movie.filename = os.path.join(self.assy.w.tmpFilePath, "Untitled%s.dpb" % suffix)
