@@ -476,12 +476,7 @@ namespace OpenBabel
 	    break;
 	}
 
-	if (!mol.AddBond(bnd)) {
-	    fprintf(stderr, "TROUBLE: %s line %d\n", __FILE__, __LINE__);
-	    printf("Unable to add bond.\n");
-	    OUCH();
-	    //return false;
-	}
+	mol.AddBond(bnd);
     }
 
     static void
