@@ -65,7 +65,16 @@ workingDirectory_prefs_key = 'WorkingDirectory' # Moved here from startup_funcs.
 backgroundColor_prefs_key = 'A9/Background Color' # Mark 060814.
 backgroundGradient_prefs_key = 'A9/Background Gradient' # Mark 060814.
 defaultDisplayMode_prefs_key = 'A9/Default Display Mode' # Mark 060815.
+
 dynamicToolTipWakeUpDelay_prefs_key = 'A9/DynamicToolTip Wake Up Delay'
+dynamicToolTipAtomDistancePrecision_prefs_key = 'A9/DynamicToolTip Atom Distance Precision'
+dynamicToolTipBendAnglePrecision_prefs_key = 'A9/DynamicToolTip Bend Angle Precision'
+dynamicToolTipTorsionAnglePrecision_prefs_key = 'A9/DynamicToolTip Torsion Angle Precision'
+dynamicToolTipAtomChunkInfo_prefs_key = 'A9/DynamicToolTip Atom Chunk Info'
+dynamicToolTipBondChunkInfo_prefs_key = 'A9/DynamicToolTip Bond Chunk Info'
+dynamicToolTipAtomPosition_prefs_key = 'A9/DynamicToolTip Atom Position'
+dynamicToolTipAtomDistanceDeltas_prefs_key = 'A9/DynamicToolTip Atom Distance Deltas'
+dynamicToolTipBondLength_prefs_key = 'A9/DynamicToolTip Bond Length'
 
 # Minimize prefs for Adjust All and Adjust Selection (presently on General prefs pane)
 # (note, Adjust Atoms does not yet have its own prefs -- its values are derived from these
@@ -375,6 +384,20 @@ prefs_table = (
     ('', 'boolean', sponsor_permanent_permission_prefs_key, False ),
     
     ('wake_up_delay', 'float', dynamicToolTipWakeUpDelay_prefs_key, 1.0), # 1 second. Mark 060817.
+    #=== Start of NIYs ninad060821===#
+    ('atom_distance_precision', 'int', dynamicToolTipAtomDistancePrecision_prefs_key, 3.0), # number of decimal places  ninad 060821
+    ('bend_angle_precision', 'int', dynamicToolTipBendAnglePrecision_prefs_key, 3.0), # number of decimal places 
+    ('torsion_angle_precision', 'int', dynamicToolTipTorsionAnglePrecision_prefs_key, 3.0), # number of decimal places 
+    ('atom_chunk_info', 'boolean', dynamicToolTipAtomChunkInfo_prefs_key, False), # checkbox for displaying chunk name an atom belongs to
+    ('bond_chunk_info', 'boolean', dynamicToolTipBondChunkInfo_prefs_key, False), # checkbox -chunk name(s) of the two atoms in the bond
+    ('atom_position', 'boolean', dynamicToolTipAtomPosition_prefs_key, False), #checkbox for displaying xyz pos
+    ('atom_distance_deltas', 'boolean', dynamicToolTipAtomDistanceDeltas_prefs_key, False), # check box to display xyz deltas
+    ('bond_length', 'boolean', dynamicToolTipBondLength_prefs_key, True), # displays the bond length (precision determined by atom distance precision)
+    #===End of NIYs ninad060821 ===#
+    
+    
+    
+    
 
 )
 
