@@ -1213,6 +1213,17 @@ makeGround(struct part *p, char *name, int atomListLength, int *atomList)
     jigAtomList(p, j, atomListLength, atomList);
     for (i=0; i<atomListLength; i++) {
 	j->atoms[i]->isGrounded = 1;
+        // The following lines test energy conservation of systems
+        // with grounds.  Do a dynamics run without these lines,
+        // saving the result.  Then comment these lines in and rerun
+        // the dynamics run.  Make sure the computed velocities at the
+        // beginning of the run are identical.  It's simplest to just
+        // do the run at 0 K.  Start with a slightly strained
+        // structure to get some motion.  The results should be
+        // identical between the two runs.
+
+        //j->atoms[i]->mass *= 100.0;
+        //j->atoms[i]->inverseMass = Dt * Dt / (j->atoms[i]->mass * 1e-27);
     }
 }
 
