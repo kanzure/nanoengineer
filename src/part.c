@@ -78,7 +78,6 @@ destroyPart(struct part *p)
         a = p->atoms[i];
 
         //a->type points into periodicTable, don't free
-        //a->vdwBucket points into p->vdwHash, allocated as part of part
         //a->prev and next just point to other atoms
         //a->bonds has pointers into the p->bonds array
         free(a->bonds);
@@ -648,6 +647,14 @@ generateOutOfPlanes(struct part *p)
     }
 }
 
+// use these if the vdw generation code fails to create or destroy an
+// interaction when it should, as determined by the verification
+// routine.  The grid locations of the two indicated atoms will be
+// printed each time, along with indications of when the interaction
+// between them is created or destroyed.
+//#define TRACK_VDW_PAIR
+//#define VDW_FIRST_ATOM_ID 61
+//#define VDW_SECOND_ATOM_ID 73
 
 // Scan the dynamic van der Waals list and mark as invalid any
 // interaction involving atom a.
@@ -660,6 +667,11 @@ invalidateVanDerWaals(struct part *p, struct atom *a)
     for (i=p->num_static_vanDerWaals; i<p->num_vanDerWaals; i++) {
 	vdw = p->vanDerWaals[i];
 	if (vdw && (vdw->a1 == a || vdw->a2 == a)) {
+#ifdef TRACK_VDW_PAIR
+            if (vdw->a1->atomID == VDW_FIRST_ATOM_ID && vdw->a2->atomID == VDW_SECOND_ATOM_ID) {
+                fprintf(stderr, "deleting vdw from %d to %d\n", vdw->a1->atomID, vdw->a2->atomID);
+            }
+#endif
 	    p->vanDerWaals[i] = NULL;
 	    free(vdw);
 	    if (i < p->start_vanDerWaals_free_scan) {
@@ -698,6 +710,11 @@ makeDynamicVanDerWaals(struct part *p, struct atom *a1, struct atom *a2)
     vdw->a1 = a1;
     vdw->a2 = a2;
     vdw->parameters = getVanDerWaalsTable(a1->type->protons, a2->type->protons);
+#ifdef TRACK_VDW_PAIR
+    if (a1->atomID == VDW_FIRST_ATOM_ID && a2->atomID == VDW_SECOND_ATOM_ID) {
+        fprintf(stderr, "creating vdw from %d to %d\n", a1->atomID, a2->atomID);
+    }
+#endif
 }
 
 // Are a1 and a2 both bonded to the same atom (or to each other)?
@@ -811,7 +828,7 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
 		if (distance < rvdw * 1.5) {
 		    fprintf(stderr, "should have found this one above!!!\n");
 		}
-		if (distance > rvdw * 1.5 + 866.0) {
+		if (distance > rvdw * 1.5 + 2079.0) { // was 866.0
 		    fprintf(stderr, "unnecessary vdw: a1:");
 		    printAtomShort(stderr, vdw->a1);
 		    fprintf(stderr, " a2:");
@@ -825,87 +842,6 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
     free(seen); // yes, alloca would work here too.
 }
 
-// XXX watch for atom vibrating between buckets
-
-// Update the dynamic van der Waals list for this part.  Validity is a
-// tag to prevent rescanning the same configuration a second time.
-void
-updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
-{
-    int i;
-    int x;
-    int y;
-    int z;
-    int ax;
-    int ay;
-    int az;
-    struct atom *a;
-    struct atom *a2;
-    struct atom **bucket;
-    double r;
-
-    // wware 060109  python exception handling
-    NULLPTR(p);
-    NULLPTR(positions);
-    if (validity && p->vanDerWaals_validity == validity) {
-	return;
-    }
-    for (i=0; i<p->num_atoms; i++) {
-	a = p->atoms[i];
-	ax = (int)positions[i].x / 250;
-	ay = (int)positions[i].y / 250;
-	az = (int)positions[i].z / 250;
-	bucket = &(p->vdwHash[ax&VDW_HASH][ay&VDW_HASH][az&VDW_HASH]);
-	if (a->vdwBucket != bucket) {
-	    invalidateVanDerWaals(p, a);
-	    // remove a from it's old bucket chain
-	    if (a->vdwNext) {
-		a->vdwNext->vdwPrev = a->vdwPrev;
-	    }
-	    if (a->vdwPrev) {
-		a->vdwPrev->vdwNext = a->vdwNext;
-	    } else if (a->vdwBucket) {
-		*(a->vdwBucket) = a->vdwNext;
-	    }
-	    // and add it to the new one
-	    a->vdwBucket = bucket;
-	    a->vdwNext = *bucket;
-	    a->vdwPrev = NULL;
-	    *bucket = a;
-	    if (a->vdwNext) {
-		a->vdwNext->vdwPrev = a;
-	    }
-	    for (x=ax-3; x<=ax+3; x++) {
-		for (y=ay-3; y<=ay+3; y++) {
-		    for (z=az-3; z<=az+3; z++) {
-			a2 = p->vdwHash[x&VDW_HASH][y&VDW_HASH][z&VDW_HASH];
-			while (a2 != NULL) {
-			    if (!isBondedToSame(a, a2)) {
-				r = vlen(vdif(positions[i], positions[a2->index]));
-				if (r<800.0) {
-				    if (i < a2->index) {
-					// wware 060109  python exception handling
-					makeDynamicVanDerWaals(p, a, a2); BAIL();
-				    } else {
-					// wware 060109  python exception handling
-					makeDynamicVanDerWaals(p, a2, a); BAIL();
-				    }
-				}
-			    }
-			    a2 = a2->vdwNext;
-			}
-		    }
-		}
-	    }
-	}
-    }
-    p->vanDerWaals_validity = validity;
-    if (DEBUG(D_VERIFY_VDW)) { // -D13
-	// wware 060109  python exception handling
-	verifyVanDerWaals(p, positions); BAIL();
-    }
-}
-
 // All of space is divided into a cubic grid with each cube being
 // GRID_SPACING pm on a side.  Every GRID_OCCUPANCY cubes in each
 // direction there is a bucket.  Every GRID_SIZE buckets the grid
@@ -914,7 +850,8 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
 // of GRID_SPACING * GRID_OCCUPANCY * GRID_SIZE pm apart.  GRID_SIZE
 // must be a power of two, so the index along a particular dimension
 // of the bucket array where a particular coordinates is found is
-// calculated with: (int(x) * GRID_OCCUPANCY) & (GRID_SIZE-1).
+// calculated with: (int(x/GRID_SPACING) * GRID_OCCUPANCY) &
+// (GRID_SIZE-1).
 //
 // Buckets can overlap.  When deciding if an atom is still in the same
 // bucket, a fuzzy match is used, masking off one or more low order
@@ -925,7 +862,7 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
 // same bucket irrespective of it's position with respect to the grid
 // while it is vibrating.
 //
-// The fuzzy match looks like this: moved = (current - previous) *
+// The fuzzy match looks like this: moved = (current - previous) &
 // GRID_MASK.  GRID_MASK is (GRID_SIZE-1) with one or more low order
 // bits zeroed.  It works correctly if the subtraction is done two's
 // complement, it may not for one's complement subtraction.  With no
@@ -933,6 +870,167 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
 // overlap by 50%.  Two zeros = 3/4 overlap.  Three zeros = 7/8
 // overlap.  The above are if GRID_OCCUPANCY == 1.  Larger values for
 // GRID_OCCUPANCY allow overlaps between zero and 50%.
+//
+// Current algorithm is written for 50% overlap, so GRID_OCCUPANCY is
+// assumed to be 1, simplifing the code.
+//
+// GRID_FUZZY_BUCKET_WIDTH is the size of a fuzzy bucket in bucket
+// units.  For a 50% overlap it has the value 2.
+
+
+
+// Update the dynamic van der Waals list for this part.  Validity is a
+// tag to prevent rescanning the same configuration a second time.
+void
+updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
+{
+    int i;
+    int ax;
+    int ay;
+    int az;
+    int ax2;
+    int ay2;
+    int az2;
+    struct atom *a;
+    struct atom *a2;
+    struct atom **bucket;
+    double r;
+    double rSquared;
+    struct xyz dr;
+    double drSquared;
+    int dx;
+    int dy;
+    int dz;
+    double deltax;
+    double deltay;
+    double deltaz;
+    double deltaXSquared;
+    double deltaYSquared;
+    double deltaZSquared;
+    int signx;
+    int signy;
+    int signz;
+
+    // wware 060109  python exception handling
+    NULLPTR(p);
+    if (validity && p->vanDerWaals_validity == validity) {
+	return;
+    }
+    NULLPTR(positions);
+    for (i=0; i<p->num_atoms; i++) {
+	a = p->atoms[i];
+	ax = (int)(positions[i].x / GRID_SPACING);
+	ay = (int)(positions[i].y / GRID_SPACING);
+	az = (int)(positions[i].z / GRID_SPACING);
+
+#ifdef TRACK_VDW_PAIR
+        if (a->atomID == VDW_FIRST_ATOM_ID || a->atomID == VDW_SECOND_ATOM_ID) {
+            fprintf(stderr, "%d (%d, %d, %d) Iteration %d\n", a->atomID, ax, ay, az, Iteration);
+        }
+#endif
+	if (a->vdwBucketInvalid ||
+            (ax - a->vdwBucketIndexX) & GRID_MASK_FUZZY ||
+            (ay - a->vdwBucketIndexY) & GRID_MASK_FUZZY ||
+            (az - a->vdwBucketIndexZ) & GRID_MASK_FUZZY) {
+
+	    invalidateVanDerWaals(p, a);
+	    // remove a from it's old bucket chain
+	    if (a->vdwNext) {
+		a->vdwNext->vdwPrev = a->vdwPrev;
+	    }
+	    if (a->vdwPrev) {
+		a->vdwPrev->vdwNext = a->vdwNext;
+	    } else {
+                bucket = &(p->vdwHash[a->vdwBucketIndexX][a->vdwBucketIndexY][a->vdwBucketIndexZ]);
+                if (*bucket == a) {
+                    *bucket = a->vdwNext;
+                }
+	    }
+	    // and add it to the new one
+            a->vdwBucketIndexX = ax & GRID_MASK;
+            a->vdwBucketIndexY = ay & GRID_MASK;
+            a->vdwBucketIndexZ = az & GRID_MASK;
+            a->vdwBucketInvalid = 0;
+            bucket = &(p->vdwHash[a->vdwBucketIndexX][a->vdwBucketIndexY][a->vdwBucketIndexZ]);
+            
+	    a->vdwNext = *bucket;
+	    a->vdwPrev = NULL;
+	    *bucket = a;
+	    if (a->vdwNext) {
+		a->vdwNext->vdwPrev = a;
+	    }
+            r = (a->type->vanDerWaalsRadius * 100.0 + MAX_VDW_RADIUS);
+            rSquared = r * r;
+            dx = 0;
+            while (1) {
+                deltax = (dx-GRID_FUZZY_BUCKET_WIDTH > 0 ? dx-GRID_FUZZY_BUCKET_WIDTH : 0) * GRID_SPACING;
+                if (deltax > r) {
+                    break;
+                }
+                deltaXSquared = deltax * deltax;
+                for (signx=-1; signx<=1; signx+=2) {
+                    if (signx > 0 || dx > 0) {
+                        ax2 = ax + dx * signx;
+                        
+                        dy = 0;
+                        while (1) {
+                            deltay = (dy-GRID_FUZZY_BUCKET_WIDTH > 0 ? dy-GRID_FUZZY_BUCKET_WIDTH : 0) * GRID_SPACING;
+                            deltaYSquared = deltay * deltay;
+                            if (deltaXSquared + deltaYSquared > rSquared) {
+                                break;
+                            }
+                            for (signy=-1; signy<=1; signy+=2) {
+                                if (signy > 0 || dy > 0) {
+                                    ay2 = ay + dy * signy;
+
+                                    dz = 0;
+                                    while (1) {
+                                        deltaz = (dz-GRID_FUZZY_BUCKET_WIDTH > 0 ? dz-GRID_FUZZY_BUCKET_WIDTH : 0) * GRID_SPACING;
+                                        deltaZSquared = deltaz * deltaz;
+                                        if (deltaXSquared +
+                                            deltaYSquared +
+                                            deltaZSquared > rSquared) {
+                                            break;
+                                        }
+                                        for (signz=-1; signz<=1; signz+=2) {
+                                            if (signz > 0 || dz > 0) {
+                                                az2 = az + dz * signz;
+
+                                                a2 = p->vdwHash[ax2&GRID_MASK][ay2&GRID_MASK][az2&GRID_MASK];
+                                                while (a2 != NULL) {
+                                                    if (!isBondedToSame(a, a2)) {
+                                                        dr = vdif(positions[i], positions[a2->index]);
+                                                        drSquared = vdot(dr, dr);
+                                                        if (drSquared < GRID_WRAP_COMPARE * GRID_WRAP_COMPARE) {
+                                                            if (i < a2->index) {
+                                                                makeDynamicVanDerWaals(p, a, a2); BAIL();
+                                                            } else {
+                                                                makeDynamicVanDerWaals(p, a2, a); BAIL();
+                                                            }
+                                                        }
+                                                    }
+                                                    a2 = a2->vdwNext;
+                                                }
+                                            }
+                                        }
+                                        dz++;
+                                    }
+                                }
+                            }
+                            dy++;
+                        }
+                    }
+                }
+                dx++;
+            }
+        }
+    }
+    p->vanDerWaals_validity = validity;
+    if (DEBUG(D_VERIFY_VDW)) { // -D13
+	// wware 060109  python exception handling
+	verifyVanDerWaals(p, positions); BAIL();
+    }
+}
 
 // Returns an entry in the p->atoms array, given an external atom id
 // (as used in an mmp file, for example).
@@ -1034,7 +1132,10 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     a->isGrounded = 0;
     a->num_bonds = 0;
     a->bonds = NULL;
-    a->vdwBucket = NULL;
+    a->vdwBucketIndexX = 0;
+    a->vdwBucketIndexY = 0;
+    a->vdwBucketIndexZ = 0;
+    a->vdwBucketInvalid = 1;
     a->vdwPrev = NULL;
     a->vdwNext = NULL;
     if (a->type->group == 3) {

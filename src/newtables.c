@@ -235,6 +235,7 @@ initializeBondTable(void)
   // evdW in zJ (zepto Joules, or milli atto Joules, or 1e-21 J)
   //   an e_vanDerWaals value < .1 will be calculated in setElement()
   // rCovalent in Angstroms (1e-10 m)
+  // NOTE: change MAX_VDW_RADIUS in part.[ch] if adding an atom larger than Si
   //
   // protons, group, period, symbol, name, mass, vanDerWaalsRadius,
   //    e_vanDerWaals, n_bonds, covalentRadius

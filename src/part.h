@@ -4,8 +4,15 @@
 
 #define RCSID_PART_H  "$Id$"
 
-#define VDW_HASH 127
-#define VDW_SIZE (VDW_HASH+1)
+// See part.c for comment defining these values.
+#define GRID_SPACING 300
+#define GRID_OCCUPANCY 1
+#define GRID_SIZE 128
+#define GRID_MASK 127
+#define GRID_MASK_FUZZY 126
+#define GRID_FUZZY_BUCKET_WIDTH 2
+#define GRID_WRAP_COMPARE (GRID_SPACING * GRID_SIZE / 2)
+#define MAX_VDW_RADIUS 225 // pm
 
 enum hybridization {
   sp,
@@ -20,7 +27,10 @@ struct atom
     struct atomType *type;
     enum hybridization hybridization;
   
-    struct atom **vdwBucket;
+    unsigned char vdwBucketIndexX;
+    unsigned char vdwBucketIndexY;
+    unsigned char vdwBucketIndexZ;    
+    unsigned char vdwBucketInvalid;    
     struct atom *vdwPrev;
     struct atom *vdwNext;
     double mass;
@@ -263,7 +273,7 @@ struct part
     struct xyz *positions;
     struct xyz *velocities;
     
-    struct atom *vdwHash[VDW_SIZE][VDW_SIZE][VDW_SIZE];
+    struct atom *vdwHash[GRID_SIZE][GRID_SIZE][GRID_SIZE];
 };
 
 extern struct part *makePart(char *filename, void (*parseError)(void *), void *stream);

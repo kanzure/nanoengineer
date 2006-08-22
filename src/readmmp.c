@@ -364,7 +364,9 @@ expectIntList(struct mmpStream *mmp, int **listPtr, int *length, int expectedLen
   *listPtr = buf;
 }
 
-
+// Note that this must be called AFTER simulation parameters (like Dt)
+// have been set.  makeAtom() uses Dt to set inverseMass for each
+// atom.
 struct part *
 readMMP(char *filename)
 {
