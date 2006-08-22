@@ -96,8 +96,10 @@ class movieMode(basicMode):
         self.o.assy.permit_pick_atoms()
 
     def _exitMode(self, new_mode = None):
-        mrd = MovieRewindDialog(self.o.assy.current_movie)
-        mrd.exec_loop()
+        movie = self.o.assy.current_movie
+        if movie.currentFrame is not 0:
+            mrd = MovieRewindDialog(movie)
+            mrd.exec_loop()
         basicMode._exitMode(self, new_mode)
 
     def init_gui(self):
