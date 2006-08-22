@@ -19,6 +19,7 @@ import preferences
 from prefs_constants import dynamicToolTipWakeUpDelay_prefs_key
 from selectMode import *
 from math import *
+from platform import fix_plurals
 
 
 
@@ -32,6 +33,17 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         # <toolTipShown> is a flag set to True when a tooltip is currently displayed for the 
         # highlighted object under the cursor.
         self.toolTipShown = False
+        
+        #ninad060822 Initialize various preferences
+        self.atomDistPrecision = env.prefs[dynamicToolTipAtomDistancePrecision_prefs_key] #int
+        self.bendAngPrecision = env.prefs[dynamicToolTipBendAnglePrecision_prefs_key] #int
+        self.torsionAngPrecision = env.prefs[dynamicToolTipTorsionAnglePrecision_prefs_key] #int
+        self.isAtomChunkInfo = env.prefs[dynamicToolTipAtomChunkInfo_prefs_key]#boolean
+        self.isBondChunkInfo = env.prefs[dynamicToolTipBondChunkInfo_prefs_key]#boolean
+        self.isAtomPosition = env.prefs[dynamicToolTipAtomPosition_prefs_key]#boolean
+        self.isAtomDistDeltas = env.prefs[dynamicToolTipAtomDistanceDeltas_prefs_key]#boolean
+        self.isBondLength = env.prefs[dynamicToolTipBondLength_prefs_key] #boolean
+        
         
      
     def maybeTip(self, cursorPos):
@@ -92,26 +104,24 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         """Return the tooltip text to display, which depends on what is selected and what is highlighted.
         
         For now:
-        Return the name of the highlighted object.
-        
-        For later:
         If nothing is selected, return the name of the highlighted object.
         If one atom is selected, return the distance between it and the highlighted atom.
         If two atoms are selected, return the angle between them and the highlighted atom.
+        Preferences for setting the precision (decimal place) for each measurement
+        
+        For later:
+       
         If three atoms are selected, return the torsion angle between them and the highlighted atom.
         If more than three atoms as selected, return the name of the highlighted object.
-        
-        Damian also suggested having preferences for setting the precision (decimal place) for each measurement.
+        Display Jig info
         """
-        
-        #@@@@@@@ ninad060818. Replace the strings "nothing selected" etc with actual conditions
-        
+                
         from ops_select import ops_select_Mixin 
         
         glpane = self.glpane
         
-        objStr = self.getHighlightedObjectName()
-                       
+        objStr = self.getHighlightedObjectInfo()
+                               
         selectedAtomList = glpane.assy.getOnlyAtomsSelectedByUser()
         selectedJigList = glpane.assy.getSelectedJigs()
         
@@ -130,9 +140,10 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         #Known bug: If many atoms selected, if ppa2 and ppa2 exists and if ppa2 is deleted, it doesn't display the distance between 
         #highlighted and ppa3. (as of 060818 it doesn't even display the atom info ..but thats not a bug just NIY that I need to 
         #handle somewhere else. 
+        
         elif isinstance(glpane.selobj, atom) and (len(selectedAtomList) == 1 ):
-            if self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2):
-                distStr = self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2)
+            if self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2,self.atomDistPrecision):
+                distStr = self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2,self.atomDistPrecision)
                 return objStr + "\n" + distStr
             else:
                 return objStr
@@ -143,15 +154,17 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         #If distance info is not available for some reasons (e.g. no ppa2 or more than 2 atoms region selected  etc, return Distance info only)
         
         elif  isinstance(glpane.selobj, atom) and ( len(selectedAtomList) == 2 or len(selectedAtomList) == 3):
-            if self.getAngleHighlightedAtomAndSelAtoms(ppa2, ppa3,selectedAtomList):
-                angleStr = self.getAngleHighlightedAtomAndSelAtoms(ppa2, ppa3,selectedAtomList)
+            if self.getAngleHighlightedAtomAndSelAtoms(ppa2, ppa3,selectedAtomList,self.bendAngPrecision):
+                angleStr = self.getAngleHighlightedAtomAndSelAtoms(ppa2, ppa3,selectedAtomList,self.bendAngPrecision)
                 return objStr + "\n" + angleStr
             else:
-                if self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2):
-                    distStr = self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2)
+                if self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2,self.atomDistPrecision):
+                    distStr = self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2,self.atomDistPrecision)
                     return objStr + "\n" + distStr
                 else:
                     return objStr
+        
+        #ninad060822 For all other cases, simply return the object info. 
         else:
             return objStr #@@@ ninad060818 ...if we begin to support other objects (other than jig/chunk/bonds/atoms)
                                 #then we need to retirn glpane.selobj
@@ -164,24 +177,40 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             return torsionStr + "\n" + angleStr + "\n" + distStr'''
             
         
-    def getHighlightedObjectName(self): 
-        "Returns the name of the highlighed object"
+    def getHighlightedObjectInfo(self): 
+        "Returns the info such as name, id, xyz coordinates etc of the highlighed object"
         from bond_constants import describe_atom_and_atomtype
         #from chem import Atom
         
         glpane = self.glpane
+        atomposn = None
+        atomChunkInfo = None
         
+        #      ---- Atom Info ----
         if isinstance(glpane.selobj, atom):
             atomStr = describe_atom_and_atomtype(glpane.selobj)
-            elementNameStr = " (" + glpane.selobj.element.name + ")"
-            xyz = glpane.selobj.posn()
-            atomposn = ("X: %.3f\nY: %.3f\nZ: %.3f" %(xyz[0], xyz[1], xyz[2]))
-            return atomStr + elementNameStr + "\n" + atomposn
+            elementNameStr = " [" + glpane.selobj.element.name + "]"
             
+            atomInfoStr = atomStr +  elementNameStr       
+            
+            # check for user pref 'atom_position'
+            atomposn = self.getAtomPositions(self.isAtomPosition)
+            if atomposn:
+                atomInfoStr +=  "\n" + atomposn
+                        
+            # check for user pref 'atom_chunk_info'
+            atomChunkInfo = self.getAtomChunkInfo(self.isAtomChunkInfo)
+            if atomChunkInfo:
+                atomInfoStr +=  "\n" + atomChunkInfo
+            
+            return atomInfoStr
+                
+        #       ----Bond Info----
         if isinstance(glpane.selobj, Bond):
             bondStr = str(glpane.selobj)
             return bondStr
             
+        #          ---- Jig Info ----
         if isinstance(glpane.selobj, Jig):
             jigStr = "Jig"
             return jigStr
@@ -190,7 +219,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         # e.g. else: return "unknown object" .
             
         
-    def getDistHighlightedAtomAndSelectedAtom(self, selectedAtomList, ppa2): 
+    def getDistHighlightedAtomAndSelectedAtom(self, selectedAtomList, ppa2, atomDistPrecision): 
         
         from VQT import vlen
         """
@@ -200,8 +229,11 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         """
        
         glpane = self.glpane
-        
+               
         selectedAtom = None
+        
+        atomDistDeltas =None
+        
         
         #ninad060821 It is posible that 2 atoms are selected and one is highlighted. This condition allows the function use in the conditional loop that shows angle between the selkected and highlighted atoms
         if  len(selectedAtomList) ==2 and glpane.selobj in selectedAtomList: #this means the highlighted object is also in this list
@@ -228,17 +260,30 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             
         xyz = glpane.selobj.posn()
         
+         # round the distance value using atom distance precision preference ninad 060822
+         
+         #ninad060822: Note: In prefs constant.py, I am using for example--
+         # ('atom_distance_precision', 'int', dynamicToolTipAtomDistancePrecision_prefs_key, 3)
+         #Notice that the digit is not 3.0  but is simply 3 as its an integer. 
+         #I changed to to plain 3 because I got a Deprecation warning: integer arg expected, got float 
+         
+        roundedDist = str(round(vlen(xyz - selectedAtom.posn()),atomDistPrecision))
+        
         #ninad060818 No need to display disance info if highlighed object and lastpicked/ only selected object are identical
         if selectedAtom:
             if selectedAtom is not glpane.selobj: 
-                distStr = ("Distance %s-%s : %.2f A"%(glpane.selobj, selectedAtom,vlen(xyz - selectedAtom.posn())))
+                distStr = ("Distance %s-%s : %s A"%(glpane.selobj, selectedAtom,roundedDist))
+                atomDistDeltas = self.getAtomDistDeltas(self.isAtomDistDeltas, atomDistPrecision,selectedAtom)
+                if atomDistDeltas:
+                    distStr += "\n" + atomDistDeltas
+                
                 return distStr
             else:
                 return False
         else:
             return False
     
-    def getAngleHighlightedAtomAndSelAtoms(self,ppa2, ppa3,selectedAtomList):
+    def getAngleHighlightedAtomAndSelAtoms(self,ppa2, ppa3,selectedAtomList,bendAngPrecision):
         
         """
         Returns the angle between the last two selected atoms and the current highlighted atom. 
@@ -251,6 +296,9 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         glpane = self.glpane
         lastSelAtom = None
         secondLastSelAtom = None
+        
+        
+        
         ppa3Exists = self.lastTwoPickedInSelAtomList(ppa2, ppa3, selectedAtomList) #checks if *both* ppa2 and ppa3 exist
         
         #if len(selectedAtomList) < 2 or len(selectedAtomList) > 3:
@@ -281,7 +329,8 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         
         if lastSelAtom and secondLastSelAtom:
             angle = atom_angle_radians( glpane.selobj, lastSelAtom,secondLastSelAtom ) * 180/pi
-            angleStr = ("Angle %s-%s-%s: %.3f degrees"%(glpane.selobj, lastSelAtom,secondLastSelAtom,angle))
+            roundedAngle = str(round(angle,bendAngPrecision))
+            angleStr = fix_plurals("Angle %s-%s-%s: %s degree(s)"%(glpane.selobj, lastSelAtom,secondLastSelAtom,roundedAngle))
             return angleStr
         else:
             return False
@@ -319,5 +368,52 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         '''Checks whether *all*  the three picked atoms (ppa2 , ppa3 and ppa4) exist in the atom list
            Returns True of False.  Note: there is no ppa4 yet - ninad060818
         '''
+        
+    def getAtomPositions(self, isAtomPosition):
+        ''' returns X, Y, Z position string if the 'show atom position in dynamic toooltip is checked from the user prefs
+        otherwise returns None
+        '''
+        glpane = self.glpane
+        
+        if isAtomPosition:
+            xyz = glpane.selobj.posn()
+            atomposn = ("X: %.3f\nY: %.3f\nZ: %.3f" %(xyz[0], xyz[1], xyz[2]))
+            return atomposn
+        else:
+            return None
+            
+    def getAtomChunkInfo(self, isAtomChunkInfo):
+        ''' returns atom's chunk information string  if the 'show atom's chunk info in dynamic toooltip is checked from the user prefs
+        otherwise returns None
+        '''
+        
+        glpane = self.glpane
+        
+        if isAtomChunkInfo:
+            if glpane.selobj is not None:
+                atomChunkInfo = "Parent Chunk: [" + glpane.selobj.molecule.name + "]"
+                return atomChunkInfo #@@@@ NIY ninad060822
+        else:
+            return None
+        
+    def getAtomDistDeltas(self, isAtomDistDeltas, atomDistPrecision,selectedAtom):
+        ''' returns atom distance deltas (delX, delY, delZ) string  if the 'show atom distance delta in dynamic toooltip is checked from the user prefs
+        otherwise returns None
+        '''
+        glpane = self.glpane
+        if isAtomDistDeltas:
+            
+            xyz = glpane.selobj.posn()
+            xyzSelAtom = selectedAtom.posn()
+            deltaX = str(round(vlen(xyz[0]- xyzSelAtom[0]),atomDistPrecision))
+            deltaY = str(round(vlen(xyz[1]- xyzSelAtom[1]),atomDistPrecision))
+            deltaZ  = str(round(vlen(xyz[2]- xyzSelAtom[2]),atomDistPrecision))
+            atomDistDeltas = "DeltaX:" + deltaX + "\n" + "DeltaY:" + deltaY + "\n" +  "DeltaZ:" + deltaZ
+            return atomDistDeltas
+        else:
+            return None
+            
+            
+        
         
 # end
