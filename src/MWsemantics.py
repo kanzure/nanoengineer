@@ -600,7 +600,6 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
             # since it's really about this window's widget-owner,
             # not about the place to print history messages [bruce 050913]
         
-
     ###################################
     # File Toolbar Slots 
     ###################################
@@ -1580,6 +1579,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         disable = not disableFlag
         self.modifyAdjustSelAction.setEnabled(disable) # "Adjust Selection"
         self.modifyAdjustAllAction.setEnabled(disable) # "Adjust All"
+        self.simMinimizeEnergyAction.setEnabled(disable) # Minimize Energy 
         self.simSetupAction.setEnabled(disable) # "Simulator"
         self.fileSaveAction.setEnabled(disable) # "File Save"
         self.fileSaveAsAction.setEnabled(disable) # "File Save As"
