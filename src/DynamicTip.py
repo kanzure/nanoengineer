@@ -143,7 +143,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         elif isinstance(glpane.selobj, atom) and (len(selectedAtomList) == 1 ):
             if self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2,self.atomDistPrecision):
                 distStr = self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2,self.atomDistPrecision)
-                return objStr + "\n" + distStr
+                return objStr + "<br>" + distStr
             else:
                 return objStr
                 
@@ -155,11 +155,11 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         elif  isinstance(glpane.selobj, atom) and ( len(selectedAtomList) == 2 or len(selectedAtomList) == 3):
             if self.getAngleHighlightedAtomAndSelAtoms(ppa2, ppa3,selectedAtomList,self.bendAngPrecision):
                 angleStr = self.getAngleHighlightedAtomAndSelAtoms(ppa2, ppa3,selectedAtomList,self.bendAngPrecision)
-                return objStr + "\n" + angleStr
+                return objStr + "<br>" + angleStr
             else:
                 if self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2,self.atomDistPrecision):
                     distStr = self.getDistHighlightedAtomAndSelectedAtom(selectedAtomList, ppa2,self.atomDistPrecision)
-                    return objStr + "\n" + distStr
+                    return objStr + "<br>" + distStr
                 else:
                     return objStr
         
@@ -173,7 +173,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             torsionStr = self.getTorsionHighlightedAtomAndSelAtoms()
             angleStr = self.getAngleHighlightedAtomAndSelAtoms()
             distStr = self.getDistHighlightedAtomAndSelectedAtom()
-            return torsionStr + "\n" + angleStr + "\n" + distStr'''
+            return torsionStr + "<br>" + angleStr + "<br>" + distStr'''
             
         
     def getHighlightedObjectInfo(self, atomDistPrecision): 
@@ -196,12 +196,12 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             # check for user pref 'atom_position'
             atomposn = self.getAtomPositions(self.isAtomPosition, atomDistPrecision)
             if atomposn:
-                atomInfoStr +=  "\n" + atomposn
+                atomInfoStr +=  "<br>" + atomposn
                         
             # check for user pref 'atom_chunk_info'
             atomChunkInfo = self.getAtomChunkInfo(self.isAtomChunkInfo)
             if atomChunkInfo:
-                atomInfoStr +=  "\n" + atomChunkInfo
+                atomInfoStr +=  "<br>" + atomChunkInfo
             
             return atomInfoStr
                 
@@ -220,7 +220,8 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             #check for user pref 'bond length'
             bondLength = self.getBondLength(self.isBondLength, atomDistPrecision)
             if bondLength:
-                bondInfoStr += "\n" + bondLength
+                bondInfoStr += "\n" + bondLength #ninad060823  don't use "<br>" ..it is weird. doesn'tr break into a new line.
+                                                                    #perhaps because I am not using htmp stuff in getBonndLength etc functions??
                 
             return bondInfoStr
             
@@ -286,11 +287,11 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         #ninad060818 No need to display disance info if highlighed object and lastpicked/ only selected object are identical
         if selectedAtom:
             if selectedAtom is not glpane.selobj: 
-                distStr = ("Distance %s-%s : %s A"%(glpane.selobj, selectedAtom,roundedDist))
+                distStr = ("<font color=\"#0000FF\">Distance %s-%s :</font> %s A"%(glpane.selobj, selectedAtom,roundedDist))
                 distStr = distStr
                 atomDistDeltas = self.getAtomDistDeltas(self.isAtomDistDeltas, atomDistPrecision,selectedAtom)
                 if atomDistDeltas:
-                    distStr += "\n" + atomDistDeltas
+                    distStr += "<br>" + atomDistDeltas
                 
                 return distStr
             else:
@@ -343,7 +344,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         if lastSelAtom and secondLastSelAtom:
             angle = atom_angle_radians( glpane.selobj, lastSelAtom,secondLastSelAtom ) * 180/pi
             roundedAngle = str(round(angle,bendAngPrecision))
-            angleStr = fix_plurals("Angle %s-%s-%s: %s degree(s)"%(glpane.selobj, lastSelAtom,secondLastSelAtom,roundedAngle))
+            angleStr = fix_plurals("<font color=\"#0000FF\">Angle %s-%s-%s:</font> %s degree(s)"%(glpane.selobj, lastSelAtom,secondLastSelAtom,roundedAngle))
             return angleStr
         else:
             return False
@@ -391,7 +392,8 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             xPosn = str(round(xyz[0], atomDistPrecision))
             yPosn = str(round(xyz[1], atomDistPrecision))
             zPosn = str(round(xyz[2], atomDistPrecision))
-            atomposn = ("X: %s\nY: %s\nZ: %s" %(xPosn, yPosn, zPosn))
+            atomposn = ("<font color=\"#0000FF\">X:</font> %s<br><font color=\"#0000FF\">Y:</font> %s<br>"\
+            "<font color=\"#0000FF\">Z:</font> %s" %(xPosn, yPosn, zPosn))
             return atomposn
         else:
             return None
@@ -405,7 +407,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         
         if isAtomChunkInfo:
             if glpane.selobj is not None:
-                atomChunkInfo = "Parent Chunk: [" + glpane.selobj.molecule.name + "]"
+                atomChunkInfo = "<font color=\"#0000FF\">Parent Chunk:</font> [" + glpane.selobj.molecule.name + "]"
                 return atomChunkInfo 
         else:
             return None
@@ -422,7 +424,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             deltaX = str(round(vlen(xyz[0]- xyzSelAtom[0]),atomDistPrecision))
             deltaY = str(round(vlen(xyz[1]- xyzSelAtom[1]),atomDistPrecision))
             deltaZ  = str(round(vlen(xyz[2]- xyzSelAtom[2]),atomDistPrecision))
-            atomDistDeltas = "DeltaX: " + deltaX + "\n" + "DeltaY: " + deltaY + "\n" +  "DeltaZ: " + deltaZ
+            atomDistDeltas = "<font color=\"#0000FF\">DeltaX:</font> " + deltaX + "<br>" + "<font color=\"#0000FF\">DeltaY:</font> " + deltaY + "<br>" +  "<font color=\"#0000FF\">DeltaZ:</font> " + deltaZ
             return atomDistDeltas
         else:
             return None
@@ -441,7 +443,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             
             #ninad060822 I am noot checking if chunk 1 and 2 are the same. I think its not needed as the tooltip string won't be compact
             #even if it is implemented.so leaving it as is
-            bondChunkInfo = str(a1) + " in [" + str(chunk1) + "]" + "\n"+ str(a2) + " in [" + str(chunk2) + "]"
+            bondChunkInfo = str(a1) + " in [" + str(chunk1) + "]\n" + str(a2) + " in [" + str(chunk2) + "]"
             return bondChunkInfo
         else:
             return None
