@@ -102,17 +102,16 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
                             
     def getToolTipText(self): # Mark 060818, Ninad 060818
         """Return the tooltip text to display, which depends on what is selected and what is highlighted.
-        
-        For now:
+        Fetures implemented --
         If nothing is selected, return the name of the highlighted object.
         If one atom is selected, return the distance between it and the highlighted atom.
         If two atoms are selected, return the angle between them and the highlighted atom.
         Preferences for setting the precision (decimal place) for each measurement
-        
+        Preferences for displaying atom chunk info, bond chunk info, Atom distance Deltas, 
+        atom coordinates, bond length (nuclear distance), bond type
+
         For later:
-       
         If three atoms are selected, return the torsion angle between them and the highlighted atom.
-        If more than three atoms as selected, return the name of the highlighted object.
         Display Jig info
         """
                 
@@ -206,9 +205,22 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             return atomInfoStr
                 
         #       ----Bond Info----
+        bondChunkInfo = None
+        
         if isinstance(glpane.selobj, Bond):
             bondStr = str(glpane.selobj)
-            return bondStr
+            bondInfoStr = bondStr
+            # check for user pref 'bond_chunk_info'
+            bondChunkInfo = self.getBondChunkInfo(self.isBondChunkInfo)
+            if bondChunkInfo:
+                bondInfoStr += "\n" + bondChunkInfo
+            
+            #check for user pref 'bond length'
+            bondLength = self.getBondLength(self.isBondLength)
+            if bondLength:
+                bondInfoStr += "\n" + bondLength
+                
+            return bondInfoStr
             
         #          ---- Jig Info ----
         if isinstance(glpane.selobj, Jig):
@@ -273,6 +285,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         if selectedAtom:
             if selectedAtom is not glpane.selobj: 
                 distStr = ("Distance %s-%s : %s A"%(glpane.selobj, selectedAtom,roundedDist))
+                distStr = distStr
                 atomDistDeltas = self.getAtomDistDeltas(self.isAtomDistDeltas, atomDistPrecision,selectedAtom)
                 if atomDistDeltas:
                     distStr += "\n" + atomDistDeltas
@@ -296,9 +309,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         glpane = self.glpane
         lastSelAtom = None
         secondLastSelAtom = None
-        
-        
-        
+               
         ppa3Exists = self.lastTwoPickedInSelAtomList(ppa2, ppa3, selectedAtomList) #checks if *both* ppa2 and ppa3 exist
         
         #if len(selectedAtomList) < 2 or len(selectedAtomList) > 3:
@@ -341,8 +352,6 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         If the highlighed atom is also selected, it excludes it while finding the last 3 selected atoms. 
         If the highlighed atom is also one of the selected atoms and there are only 2 selected  atoms other than 
         the highlighted one then it returns None. (then the function calling this routine needs to handle that case.) 
-        
-        
         """
         return False
         
@@ -392,13 +401,13 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         if isAtomChunkInfo:
             if glpane.selobj is not None:
                 atomChunkInfo = "Parent Chunk: [" + glpane.selobj.molecule.name + "]"
-                return atomChunkInfo #@@@@ NIY ninad060822
+                return atomChunkInfo 
         else:
             return None
         
     def getAtomDistDeltas(self, isAtomDistDeltas, atomDistPrecision,selectedAtom):
-        ''' returns atom distance deltas (delX, delY, delZ) string  if the 'show atom distance delta in dynamic toooltip is checked from the user prefs
-        otherwise returns None
+        ''' returns atom distance deltas (delX, delY, delZ) string  if the 'show atom distance delta info' in dynamic toooltip is checked from
+         the user prefs otherwise returns None
         '''
         glpane = self.glpane
         if isAtomDistDeltas:
@@ -413,7 +422,41 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         else:
             return None
             
+    def getBondChunkInfo(self, isBondChunkInfo, quat = Q(1,0,0,0)):
+        ''' returns chunk information of the atoms forming a bond. Returns none if Bond chunk user pref is unchecked.
+        It uses some code of bonded_atoms_summary method
+        '''
+        glpane = self.glpane
+        if isBondChunkInfo:
+            a1 = glpane.selobj.atom1
+            a2 = glpane.selobj.atom2
+                
+            chunk1 = a1.molecule.name
+            chunk2 = a2.molecule.name
             
+            #ninad060822 I am noot checking if chunk 1 and 2 are the same. I think its not needed as the tooltip string won't be compact
+            #even if it is implemented.so leaving it as is
+            bondChunkInfo = str(a1) + " in [" + str(chunk1) + "]" + "\n"+ str(a2) + " in [" + str(chunk2) + "]"
+            return bondChunkInfo
+        else:
+            return None
+            
+    def getBondLength(self, isBondLength):
+        '''returns the atom center distance between the atoms connected by the highlighted bond.
+        Note that this does *not* return the covalent bondlength'''
         
+        from VQT import vlen
         
+        glpane = self.glpane
+        
+        if isBondLength:
+            a1 = glpane.selobj.atom1
+            a2 = glpane.selobj.atom2
+
+            nuclearDist = str(vlen(a1.posn() - a2.posn()))
+            bondLength = "Distance " + str(a1) + "-" + str(a2) + ":" + nuclearDist + " A"
+            return bondLength
+        else: 
+            return None
+            
 # end
