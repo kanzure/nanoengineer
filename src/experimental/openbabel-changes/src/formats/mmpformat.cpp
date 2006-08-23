@@ -449,10 +449,12 @@ namespace OpenBabel
 	OBAtom *atom1, *atom2;
 	atom1 = mol.GetAtom(previousAtomID);
 	atom2 = mol.GetAtom(atomID);
-	if (atom1 == NULL)
-	    OUCH();
-	if (atom2 == NULL)
-	    OUCH();
+	if (atom1 == NULL || atom2 == NULL) {
+	    // This will happen whenever there are bondpoints in an MMP file
+	    // so it's not a big deal.
+	    return;
+	}
+
 	bnd.Set(bond_index++, atom1, atom2, 1, 0);
 
 	switch (bondOrder) {
