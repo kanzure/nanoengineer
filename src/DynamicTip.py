@@ -119,7 +119,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         
         glpane = self.glpane
         
-        objStr = self.getHighlightedObjectInfo()
+        objStr = self.getHighlightedObjectInfo(self.atomDistPrecision)
                                
         selectedAtomList = glpane.assy.getOnlyAtomsSelectedByUser()
         selectedJigList = glpane.assy.getSelectedJigs()
@@ -176,7 +176,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             return torsionStr + "\n" + angleStr + "\n" + distStr'''
             
         
-    def getHighlightedObjectInfo(self): 
+    def getHighlightedObjectInfo(self, atomDistPrecision): 
         "Returns the info such as name, id, xyz coordinates etc of the highlighed object"
         from bond_constants import describe_atom_and_atomtype
         #from chem import Atom
@@ -184,6 +184,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         glpane = self.glpane
         atomposn = None
         atomChunkInfo = None
+        
         
         #      ---- Atom Info ----
         if isinstance(glpane.selobj, atom):
@@ -193,7 +194,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             atomInfoStr = atomStr +  elementNameStr       
             
             # check for user pref 'atom_position'
-            atomposn = self.getAtomPositions(self.isAtomPosition)
+            atomposn = self.getAtomPositions(self.isAtomPosition, atomDistPrecision)
             if atomposn:
                 atomInfoStr +=  "\n" + atomposn
                         
@@ -206,6 +207,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
                 
         #       ----Bond Info----
         bondChunkInfo = None
+        bondLength = None
         
         if isinstance(glpane.selobj, Bond):
             bondStr = str(glpane.selobj)
@@ -216,7 +218,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
                 bondInfoStr += "\n" + bondChunkInfo
             
             #check for user pref 'bond length'
-            bondLength = self.getBondLength(self.isBondLength)
+            bondLength = self.getBondLength(self.isBondLength, atomDistPrecision)
             if bondLength:
                 bondInfoStr += "\n" + bondLength
                 
@@ -378,7 +380,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
            Returns True of False.  Note: there is no ppa4 yet - ninad060818
         '''
         
-    def getAtomPositions(self, isAtomPosition):
+    def getAtomPositions(self, isAtomPosition,atomDistPrecision):
         ''' returns X, Y, Z position string if the 'show atom position in dynamic toooltip is checked from the user prefs
         otherwise returns None
         '''
@@ -386,7 +388,10 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         
         if isAtomPosition:
             xyz = glpane.selobj.posn()
-            atomposn = ("X: %.3f\nY: %.3f\nZ: %.3f" %(xyz[0], xyz[1], xyz[2]))
+            xPosn = str(round(xyz[0], atomDistPrecision))
+            yPosn = str(round(xyz[1], atomDistPrecision))
+            zPosn = str(round(xyz[2], atomDistPrecision))
+            atomposn = ("X: %s\nY: %s\nZ: %s" %(xPosn, yPosn, zPosn))
             return atomposn
         else:
             return None
@@ -417,7 +422,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             deltaX = str(round(vlen(xyz[0]- xyzSelAtom[0]),atomDistPrecision))
             deltaY = str(round(vlen(xyz[1]- xyzSelAtom[1]),atomDistPrecision))
             deltaZ  = str(round(vlen(xyz[2]- xyzSelAtom[2]),atomDistPrecision))
-            atomDistDeltas = "DeltaX:" + deltaX + "\n" + "DeltaY:" + deltaY + "\n" +  "DeltaZ:" + deltaZ
+            atomDistDeltas = "DeltaX: " + deltaX + "\n" + "DeltaY: " + deltaY + "\n" +  "DeltaZ: " + deltaZ
             return atomDistDeltas
         else:
             return None
@@ -441,7 +446,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         else:
             return None
             
-    def getBondLength(self, isBondLength):
+    def getBondLength(self, isBondLength, atomDistPrecision):
         '''returns the atom center distance between the atoms connected by the highlighted bond.
         Note that this does *not* return the covalent bondlength'''
         
@@ -453,8 +458,8 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             a1 = glpane.selobj.atom1
             a2 = glpane.selobj.atom2
 
-            nuclearDist = str(vlen(a1.posn() - a2.posn()))
-            bondLength = "Distance " + str(a1) + "-" + str(a2) + ":" + nuclearDist + " A"
+            nuclearDist = str(round(vlen(a1.posn() - a2.posn()), atomDistPrecision))
+            bondLength = "Distance " + str(a1) + "-" + str(a2) + ": " + nuclearDist + " A"
             return bondLength
         else: 
             return None
