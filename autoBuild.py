@@ -636,7 +636,7 @@ fi
 
 class NanoBuildMacOSX(NanoBuildBase):
 
-    LIBAQUA_MD5 = "6b6ba1b9d567cb6d809398fef79e2f10"
+    LIBAQUA_MD5 = "c5e2db5ab38c2af63891cc95c7c1ddf5"
 
     def get_md5(self, file):
         return listResults("md5 " + file + " | cut -d'=' -f 2 | cut -c 2-")[0]
