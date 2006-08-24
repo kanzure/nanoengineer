@@ -249,6 +249,8 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         
         atomDistDeltas =None
         
+        if len(selectedAtomList) > 2: # ninad060824 don't show atom distance info when there are more than 2 atoms selected. Fixes bug2225 
+            return False
         
         #ninad060821 It is posible that 2 atoms are selected and one is highlighted. This condition allows the function use in the conditional loop that shows angle between the selkected and highlighted atoms
         if  len(selectedAtomList) ==2 and glpane.selobj in selectedAtomList: #this means the highlighted object is also in this list
@@ -288,7 +290,6 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         if selectedAtom:
             if selectedAtom is not glpane.selobj: 
                 distStr = ("<font color=\"#0000FF\">Distance %s-%s :</font> %s A"%(glpane.selobj, selectedAtom,roundedDist))
-                distStr = distStr
                 atomDistDeltas = self.getAtomDistDeltas(self.isAtomDistDeltas, atomDistPrecision,selectedAtom)
                 if atomDistDeltas:
                     distStr += "<br>" + atomDistDeltas
@@ -315,19 +316,21 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
                
         ppa3Exists = self.lastTwoPickedInSelAtomList(ppa2, ppa3, selectedAtomList) #checks if *both* ppa2 and ppa3 exist
         
-        #if len(selectedAtomList) < 2 or len(selectedAtomList) > 3:
-         #   return False
-        
         if  len(selectedAtomList) ==3 and glpane.selobj in selectedAtomList:
             if ppa3Exists and not (glpane.selobj is ppa2 or glpane.selobj is ppa3):
                 lastSelAtom = ppa2
                 secondLastSelAtom = ppa3
             else:
-                selectedAtomList.remove(glpane.selobj) #@@@@ninad060821 kludge to get the other two selected atoms. Bad idea? Neeed help.
-                lastSelAtom = selectedAtomList[0]
-                secondLastSelAtom = selectedAtomList[1] # ninad060821 There is no second last selected atom btw. Here it is just one of the 
-                                                                    #selected atoms.
-                selectedAtomList.append(glpane.selobj) #@@@@add back the highlighted object to the selected atom list ninad060821
+                #ninad060824 - The logic is below good for this case when there are exactly 3 atoms selected (and that’s when it will enter 
+                #the conditional loop)  With the math below, when index i = 0  -->  j = 1, k =2;  i = 1  -->  j = 0, k =2,  i = 2  -->  j = 1, k =0. 
+                # I am not considering further,  whether 'j' is greater than 'k' or vice versa because this is an else loop where both ppa2 and ppa3 don't
+                # exist. So the order in which it displays the angle doesn't matter (we just need to make sure that one of the other two selected 
+                #atoms is not the highlighted atom.). This replaces the kludge that I put in in v1.2
+                i = selectedAtomList.index(glpane.selobj)
+                j = abs((3 - i)- 2)
+                k = (3 - i) -j 
+                lastSelAtom = selectedAtomList[j]
+                secondLastSelAtom = selectedAtomList[k]
             
         if len(selectedAtomList) == 2: #here I (ninad) don't care about whether itselected atom is also highlighted. It is handled below. 
             if ppa3Exists:
