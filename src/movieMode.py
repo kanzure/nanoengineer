@@ -293,7 +293,13 @@ def simMoviePlayer(assy):
         if assy.part is not assy.tree.part:
             msg = "Movie Player: Warning: Looking for saved movie for main part, not for displayed clipboard item."
             env.history.message(orangemsg(msg))
-        mfile = assy.filename[:-4] + ".dpb"
+        errorcode, partdir = assy.find_or_make_part_files_directory()
+        if not errorcode: # filename could be an MMP or PDB file.
+            dir, fil = os.path.split(assy.filename)
+            fil, ext = os.path.splitext(fil)
+            mfile = os.path.join(partdir, fil + '.dpb')
+        else:
+            mfile = os.path.splitext(assy.filename)[0] + ".dpb"
         movie = find_saved_movie( assy, mfile)
             # checks existence -- should also check validity for current part or main part, but doesn't yet ###e
             # (neither did the pre-030527 code for this function, unless that's done in moviePlay, which it might be)
