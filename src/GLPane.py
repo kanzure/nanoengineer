@@ -1452,7 +1452,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         """Event handler for when the cursor enters the GLPane.
         <event> is the mouse event after entering the GLpane.
         """
-        self.highlightTimer = self.startTimer(100) # 100-millisecond timer
+        from debug_prefs import debug_pref, Choice
+        interval = int( debug_pref("glpane timer interval", Choice([100, 0]), non_debug = True, prefs_key = True) )
+        self.highlightTimer = self.startTimer(interval) # 100-millisecond repeating timer
         return
     
     def leaveEvent(self, event): # Mark 060806.
@@ -1460,7 +1462,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         <event> is the last mouse event before leaving the GLpane.
         """
         # If an object is "hover highlighted", unhighlight it when leaving the GLpane.
-        if self.selobj:
+        if self.selobj is not None:
             self.selobj = None
             self.gl_update()
         
