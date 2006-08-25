@@ -57,6 +57,16 @@ class Expr:
         """operator float(a)"""
         print "kluge: float(expr) -> 17.0"####@@@@
         return 17.0
+    def _e_replace(self, reps):
+        "perform replacements (reps) in self, and return the result [same as self if possible?] [some subclasses override this]"
+        # for most kinds of exprs, just replace in the args, and in the option values [####@@@@ NIM].
+        args = self._e_args
+        modargs = tuple(map(reps, args)) ##k reps is callable??
+        if args == modargs:
+            ##k requires fast == on Expr, which unlike other ops is not meant as a formula
+            # (could it be a formula, but with a boolean value too, stored independently???)
+            return self
+        return self.__class__(*modargs)
     pass
 
 class getattr_Expr(Expr):
