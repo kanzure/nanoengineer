@@ -32,15 +32,37 @@ class Expr:
     def __mul__( self, rhs ):
         """operator a * b"""
         return mul_Expr(self, rhs)
+    def __rdiv__( self, lhs ):
+        """operator b / a"""
+        return div_Expr(lhs, self)
+    def __div__( self, rhs ):
+        """operator a / b"""
+        return div_Expr(self, rhs)
     def __radd__( self, lhs ):
         """operator b + a"""
         return add_Expr(lhs, self)
     def __add__( self, rhs ):
         """operator a + b"""
         return add_Expr(self, rhs)
+    def __rsub__( self, lhs ):
+        """operator b - a"""
+        return sub_Expr(lhs, self)
+    def __sub__( self, rhs ):
+        """operator a - b"""
+        return sub_Expr(self, rhs)
+    def __neg__( self):
+        """operator -a"""
+        return neg_Expr(self)
+    def __float__( self):
+        """operator float(a)"""
+        print "kluge: float(expr) -> 17.0"####@@@@
+        return 17.0
     pass
 
 class getattr_Expr(Expr):
+    def __call__(self, *args, **kws):
+        print '__call__ of %r with:' % self,args,kws###@@@
+        assert 0, "getattr exprs are not callable [ok??]"
     def _e_init(self):
         assert len(self._e_args) == 2 #e kind of useless and slow #e should also check types?
     def __str__(self):
@@ -54,11 +76,32 @@ class mul_Expr(Expr):
         return "%s * %s" % self._e_args #e need parens?
     pass
 
+class div_Expr(Expr):
+    def _e_init(self):
+        assert len(self._e_args) == 2
+    def __str__(self):
+        return "%s / %s" % self._e_args #e need parens?
+    pass
+
 class add_Expr(Expr):
     def _e_init(self):
         assert len(self._e_args) == 2
     def __str__(self):
         return "%s + %s" % self._e_args #e need parens?
+    pass
+
+class sub_Expr(Expr):
+    def _e_init(self):
+        assert len(self._e_args) == 2
+    def __str__(self):
+        return "%s - %s" % self._e_args #e need parens?
+    pass
+
+class neg_Expr(Expr):
+    def _e_init(self):
+        assert len(self._e_args) == 1
+    def __str__(self):
+        return "- %s" % self._e_args #e need parens?
     pass
 
 class call_Expr(Expr):
@@ -119,8 +162,9 @@ sys.modules['__Symbols__'] = FakeModule('__Symbols__', Symbol)
 # ==
 
 # old constructors -- this will break drawing (silently, since <any expr>.draw will be callable!)
+#####@@@@@ do we need to make expr.attr callable? not in the egs I can think of right now!
 
-from __Symbols__ import Column, Rect, Row, Button, If
+#####@@@@@ from __Symbols__ import Column, Rect, Row, Button, If
 
 # constructors
 from __Symbols__ import NamedLambda, Hidden, Centered, Set
@@ -150,7 +194,9 @@ NamedLambda = Symbol('NamedLambda') # or could import as usual
 ##Widget = Stub
 ##StateRef = Stub
 ##ImageWidget = Widget # not sure if we want this to be a definite subtype
-from __Symbols__ import Widget, StateRef, ImageWidget
+# could it be renamed to Image? possible name conflict (probably ok): import Image # from the PIL library
+# I'll rename it.
+from __Symbols__ import Widget, StateRef, Image
 
 # constants
 from __Symbols__ import Automatic
@@ -172,8 +218,8 @@ from __Symbols__ import stateref, false_icon, true_icon
 ToggleButton = NamedLambda(
     'ToggleButton',
     ((stateref, StateRef),
-     (false_icon, ImageWidget), #e add a default
-     (true_icon, ImageWidget, false_icon), # same as false_icon, by default (default is a formula which can use prior symbols)
+     (false_icon, Image), #e add a default
+     (true_icon, Image, false_icon), # same as false_icon, by default (default is a formula which can use prior symbols)
     ),
     Button(
         # plain image
@@ -225,7 +271,7 @@ test_ToggleShow = ToggleShow( Rect(3,3,lightblue), "test_ToggleShow's label" )
 # ==
 
 from __Symbols__ import thing, gap, border, color, extra
-from __Symbols__ import Overlay, RectFrame, Centered, With, pixels
+from __Symbols__ import XXOverlay, XXRectFrame, Centered, With, pixels
 
 Boxed = NamedLambda(
     'Boxed',
@@ -287,6 +333,10 @@ class Rect_obs_eg(WidgetExpr): #e example, not general enough to be a good use o
         glEnable(GL_CULL_FACE)
     pass
 
+#from __Symbols__ import Widget2D - following stubs are just to avoid import errors, totally wrong other than that
+class Widget2D: pass
+DelegatingWidget2D = Widget2D
+
 class Rect_try2(Widget2D): ### Widget2D gives us defaults for bright etc, and rules like width = bright + bleft
     "Rect(width, height, color) renders as a filled rect of that color, origin on bottomleft"
     def init(self): ###e might replace this with some sort of arglist description, similar to the one in NamedLambda
@@ -305,6 +355,14 @@ class Rect_try2(Widget2D): ### Widget2D gives us defaults for bright etc, and ru
         glDisable(GL_CULL_FACE)
         draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, fix_color(self.color))
         glEnable(GL_CULL_FACE)
+    pass
+
+class Overlay_try2(DelegatingWidget2D): # this means, I think, Widget2D with arg1 used for layout... sort of like a "WidgetDecorator"
+    def draw(self):
+        for a in self.args: # does args get computed from _e_args by evalling formulas, removing None, etc? call it .kids instead?
+            #try1 draws args in reverse order, i guess we will too ###@@@
+            a.draw() # this assumes these draw methods don't change the coordinate system...
+        pass
     pass
 
 # end

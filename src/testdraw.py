@@ -114,6 +114,7 @@ from constants import ave_colors # (weight, color1, color2) # weight is of color
 lightblue = ave_colors( 0.2, blue, white)
 lightgreen = ave_colors( 0.2, green, white)
 halfblue = ave_colors( 0.5, blue, white)
+purple = ave_colors(0.5, red, blue)
 
 def translucent_color(color, opacity = 0.5): #e refile with ave_colors
     """Make color (a 3- or 4-tuple of floats) have the given opacity (default 0.5, might be revised);
@@ -419,6 +420,10 @@ def drawtest1(glpane): # in displist (if flag for that is set)
         # draw a blue rect for some reason [might obscure the text]
         draw_filled_rect(origin + 0.2*DZ + DX, dx, dy, halfblue) # note, it matters that dx/dy is right-handed.
 
+##    Rect(1,1,red).draw() ####@@@@ not working
+##    print "is it an Expr?",Rect(1,1,red),Rect(1,1,red).draw
+##    return #####@@@@@@
+    
     # draw 1 copy of testexpr, our test widget expr defined at end of file
     
     for i in range(1):
@@ -748,12 +753,13 @@ def draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy):
 # For now they're just demos that might be useful.
 
 def draw_filled_rect(origin, dx, dy, color):
+##    print 'draw_filled_rect',(origin, dx, dy, color) #####@@@@@
     glDisable(GL_LIGHTING) # this allows the specified color to work. Otherwise it doesn't work (I always get dark blue). Why???
      # guess: if i want lighting, i have to specify a materialcolor, not just a regular color. (and vertex normals)
     if len(color) == 4:
         glColor4fv(color)
-        if color[3] != 1.0:
-            if 0: print "color has alpha",color ####@@@@
+        if 0 and color[3] != 1.0:
+            print "color has alpha",color ####@@@@
     else:
         glColor3fv(color)
 ##    glRectfv(origin, origin + dx + dy) # won't work for most coords! also, ignores Z. color still not working.
@@ -1060,6 +1066,10 @@ class Rect(WidgetExpr): #e example, not general enough to be a good use of this 
         #e if color None, don't draw it, just the stuff?
     def draw(self):
         glDisable(GL_CULL_FACE)
+##        print "drawing Rect",self.args ####@@@@
+        ### -- what could we print to indicate *which subexpr* we're drawing? esp which DebugDraw subexpr?
+        # once we have a drawing env, it should have an attr for whether to print debug info like this
+        # and its "address" or other sort of "posn in state".
         draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, fix_color(self.color))
         glEnable(GL_CULL_FACE)
     pass
@@ -1106,8 +1116,14 @@ class RectFrame(WidgetExpr):
         #e improve arglist
         self.bright = self.args[0]
         self.btop = self.args[1]
-        self.thickness = self.args[2]
-        self.color = self.args[3]
+        try:
+            self.thickness = self.args[2]
+        except:
+            self.thickness = 4
+        try:
+            self.color = self.args[3]
+        except:
+            self.color = white
     def draw(self):
         glDisable(GL_CULL_FACE)
         draw_filled_rect_frame(ORIGIN, DX * self.bright, DY * self.btop, self.thickness, fix_color(self.color))
@@ -1219,6 +1235,49 @@ class Overlay(DelegatingWidgetExpr):
                 continue # even for first arg -- but that being None would fail in other ways, since it'd be our delegate
             a.draw() #e try/except
     pass # Overlay
+
+def printmousepos():
+    glpane = _kluge_glpane()
+    self = glpane
+    # this code is copied from GLPane.timerEvent as of 060823 (I wonder if it needs makeCurrent to work properly?)
+    cursor = self.cursor()
+    cursorPos = self.mapFromGlobal(cursor.pos()) # mapFromGlobal() maps from screen coords to GLpane coords.
+    ## xy_now = (cursorPos.x(), cursorPos.y()) # Current cursor position
+    # consistent with x,y = 0,0 being top left, but not tested precisely; note, gluProject uses 0,0 = bottom left (y is reversed)
+    # so fix that:
+    xy_now = (cursorPos.x(), self.height - cursorPos.y())
+    print "mousepos:", xy_now
+
+class DebugDraw(DelegatingWidgetExpr):
+    """DebugDraw(widget, name) draws like widget, but prints name and other useful info whenever widget gets drawn.
+    Specifically, it prints "gotme(name) at (x,y,depth)", with x,y being mouse posn as gluProject returns it.
+    (It may print nonsense x,y when we're drawn during glSelect operations.)
+    Once per event in which this prints anything, it prints mousepos first.
+    If name is 0 or -1 or None, the debug-printing is disabled.
+    """
+    def draw(self):
+        # who are we?
+        who = who0 = ""
+        if len(self.args) > 1:
+            who0 = self.args[1]
+            who = "(%s)" % (who0,)
+        if (who0 is not None) and who0 != 0 and who0 != -1:
+##            # print "who yes: %r" % (who,), (who is not None), who != 0 , who != -1, 0 != 0
+            if env.once_per_event('DebugDraw'):
+                try:
+                    printmousepos()
+                except:
+                    print_compact_traceback("ignoring exception in printmousepos(): ")
+            # figure out where in the window we'd be drawing right now [this only works if we're not inside a display list]
+            x,y,depth = gluProject(0,0,0)
+            msg = "gotme%s at %r" % (who, (x,y,depth),)
+            ## print_compact_stack(msg + ": ")
+            print msg
+##        else:
+##            print "who no: %r" % (who,)
+
+        self.delegate.draw()
+    pass
 
 class Row(WidgetExpr):
     "Row" # note: this is only well-defined if we assume we know how to move to the right, and that "width" works that way!
@@ -1336,6 +1395,12 @@ class Rotated(DelegatingWidgetExpr):
         self.thing = self.args[0] # or use self.delegate?
         self.amount = self.args[1]
     def draw(self):
+        try:
+            (self.bright - self.bleft)/2.0, (self.btop - self.bbottom)/2.0
+        except:
+            print "data related to following exception:",self.bright,self.bleft,self.btop, self.bbottom
+            print_compact_traceback()
+            return
         glPushMatrix()
         glTranslate((self.bright - self.bleft)/2.0, (self.btop - self.bbottom)/2.0, 0)
         glRotate(self.amount, 0,0,1)
@@ -1708,7 +1773,7 @@ displist_expr_BUGGY = Button(Row(Rect(0.5,0.5,black),TextRect(18, 2, getit)), on
     # only if you drag onto it from the Rect.
     
 displist_expr = Row(
-    Button( Rect(0.5,0.5,black), Rect(0.5,0.5,gray), on_press = setit),
+    Button( Rect(0.5,0.5,black), DebugDraw( Rect(0.5,0.5,gray), "grayguy"), on_press = setit),
     TextRect(18, 2, getit))
 
 
@@ -1867,6 +1932,7 @@ from testdraw2 import *
 since it doesn't refer to model state except in whatever way it says so internally.
 """
 
+## testexpr = DebugDraw(Rect(1,1,purple), 1 and "d1")
 testexpr = Row(
     #nim Button:
                 Button(
@@ -1901,7 +1967,7 @@ testexpr = Row(
                             )
                     ),
                 ),
-                If(0,
+                If(1,
                     Column(
                       Rect(1.5, 1, red),
                       ##Button(Overlay(TextRect(18, 3, "line 1\nline 2...."),Rect(0.5,0.5,black)), on_press = printfunc("zz")),
