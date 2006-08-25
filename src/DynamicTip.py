@@ -227,7 +227,9 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             
         #          ---- Jig Info ----
         if isinstance(glpane.selobj, Jig):
-            jigStr = "Jig"
+            
+            jigStr = glpane.selobj.name
+            
             return jigStr
         
         #@@@ninad060818 In future if we support other object types in glpane, do we need a check for that? 
@@ -321,7 +323,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
                 lastSelAtom = ppa2
                 secondLastSelAtom = ppa3
             else:
-                #ninad060824 - The logic is below good for this case when there are exactly 3 atoms selected (and that’s when it will enter 
+                #ninad060824 - The logic is below good for this case when there are exactly 3 atoms selected (and that's when it will enter 
                 #the conditional loop)  With the math below, when index i = 0  -->  j = 1, k =2;  i = 1  -->  j = 0, k =2,  i = 2  -->  j = 1, k =0. 
                 # I am not considering further,  whether 'j' is greater than 'k' or vice versa because this is an else loop where both ppa2 and ppa3 don't
                 # exist. So the order in which it displays the angle doesn't matter (we just need to make sure that one of the other two selected 
