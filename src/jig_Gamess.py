@@ -89,6 +89,16 @@ class Gamess(Jig):
 
     def _getinfo(self):
         return "[Object: Gamess Jig] [Name: " + str(self.name) + "] [Total Atoms: " + str(len(self.atoms)) + "] [Parameters: " + self.gms_parms_info() + "]"
+    
+    def getToolTipInfo(self):#ninad060825
+        return self._getToolTipInfo() 
+                    
+    def _getToolTipInfo(self): #ninad060825
+        "Return a string for display in Dynamic Tool tip "
+        attachedAtomCount = "<font color=\"#0000FF\">Total  Atoms: </font>%d"%(len(self.atoms))
+        return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Gamess Jig"\
+        + "<br>"  +  "<font color=\"#0000FF\"> Parameters:</font>" + self.gms_parms_info()\
+        + "<br>" +  str(attachedAtomCount)
 
     def getstatistics(self, stats):
         stats.ngamess += 1

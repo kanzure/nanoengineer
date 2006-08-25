@@ -253,6 +253,18 @@ class RotaryMotor(Motor):
         return  "[Object: Rotary Motor] [Name: " + str(self.name) + "] " + \
                     "[Torque = " + str(self.torque) + " nN-nm] " + \
                     "[Speed = " + str(self.speed) + " GHz]"
+                    
+    def getToolTipInfo(self):#ninad060825
+        return self._getToolTipInfo() 
+                    
+    def _getToolTipInfo(self): #ninad060825
+        "Return a string for display in Dynamic Tool tip "
+        from platform import fix_plurals
+        attachedAtomCount = fix_plurals("Attached to %d atom(s)"%(len(self.atoms)))
+        return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Rotary Motor"\
+        +  "<br>" + "<font color=\"#0000FF\">Torque: </font>" + str(self.torque) +  " nN-nm " \
+        +  "<br>" + "<font color=\"#0000FF\">Speed:</font> " + str(self.speed) + " GHz" \
+        + "<br>"  + str(attachedAtomCount)
         
     def getstatistics(self, stats):
         stats.nrmotors += 1
@@ -531,6 +543,18 @@ class LinearMotor(Motor):
         return  "[Object: Linear Motor] [Name: " + str(self.name) + "] " + \
                     "[Force = " + str(self.force) + " pN] " + \
                     "[Stiffness = " + str(self.stiffness) + " N/m]"
+
+    def getToolTipInfo(self):#ninad060825
+        return self._getToolTipInfo() 
+                    
+    def _getToolTipInfo(self): #ninad060825
+        "Return a string for display in Dynamic Tool tip "
+        from platform import fix_plurals
+        attachedAtomCount = fix_plurals("Attached to %d atom(s)"%(len(self.atoms)))
+        return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Linear Motor"\
+        +  "<br>" + "<font color=\"#0000FF\">Force: </font>" + str(self.force) +  " pN " \
+        +  "<br>" + "<font color=\"#0000FF\">Stiffness:</font> " + str(self.stiffness) + " N/m" \
+        + "<br>"  + str(attachedAtomCount)
 
     def getstatistics(self, stats):
         stats.nlmotors += 1

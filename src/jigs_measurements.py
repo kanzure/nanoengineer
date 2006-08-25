@@ -211,6 +211,23 @@ class MeasureDistance(MeasurementJig):
         return  "[Object: Measure Distance] [Name: " + str(self.name) + "] " + \
                     "[Nuclei Distance = " + str(self.get_nuclei_distance()) + " ]" + \
                     "[VdW Distance = " + str(self.get_vdw_distance()) + " ]"
+                    
+    def getToolTipInfo(self):#ninad060825
+        return self._getToolTipInfo() 
+                    
+    def _getToolTipInfo(self): #ninad060825
+        "Return a string for display in Dynamic Tool tip "
+        
+        #honor user preferences for digit after decimal
+        distPrecision = env.prefs[dynamicToolTipAtomDistancePrecision_prefs_key] 
+        nucleiDist = round(self.get_nuclei_distance(),distPrecision)
+        vdwDist =  round(self.get_vdw_distance(),distPrecision)
+        
+        attachedAtoms = str(self.atoms[0]) + "-" + str(self.atoms[1])
+        return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type:</font>Measure Distance"\
+        +  "<br>" + "<font color=\"#0000FF\">Atoms: </font>" + attachedAtoms+"<br>"\
+         +"<font color=\"#0000FF\">Nuclei Distance: </font>" + str(nucleiDist) +  " A" \
+        +  "<br>" + "<font color=\"#0000FF\">VdW Distance: </font> " + str(vdwDist)  + " A"
         
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mdistance += 1
@@ -260,6 +277,22 @@ class MeasureAngle(MeasurementJig):
         return  "[Object: Measure Angle] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2])) + \
                     "[Angle = " + str(self.get_angle()) + " ]"
+
+    def getToolTipInfo(self):#ninad060825
+        return self._getToolTipInfo() 
+                    
+    def _getToolTipInfo(self): #ninad060825
+        "Return a string for display in Dynamic Tool tip "
+        
+        #honor user preferences for digit after decimal
+        anglePrecision = env.prefs[dynamicToolTipBendAnglePrecision_prefs_key] 
+        bendAngle = round(self.get_angle(),anglePrecision)
+             
+        attachedAtoms = str(self.atoms[0]) + "-" + str(self.atoms[1]) + "-" + str(self.atoms[2])
+        
+        return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type: </font>Measure Angle"\
+        +  "<br>" + "<font color=\"#0000FF\">Atoms: </font>" + attachedAtoms + "<br>"\
+        + "<font color=\"#0000FF\">Angle </font> " + str(bendAngle)  + " Degrees"
         
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mangle += 1
@@ -313,6 +346,22 @@ class MeasureDihedral(MeasurementJig):
         return  "[Object: Measure Dihedral] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2], self.atoms[3])) + \
                     "[Dihedral = " + str(self.get_dihedral()) + " ]"
+
+    def getToolTipInfo(self):#ninad060825
+        return self._getToolTipInfo() 
+                    
+    def _getToolTipInfo(self): #ninad060825
+        "Return a string for display in Dynamic Tool tip "
+        
+        #honor user preferences for digit after decimal
+        anglePrecision = env.prefs[dynamicToolTipBendAnglePrecision_prefs_key] 
+        dihedral = round(self.get_dihedral(),anglePrecision)
+             
+        attachedAtoms = str(self.atoms[0]) + "-" + str(self.atoms[1]) + "-" + str(self.atoms[2]) + "-" + str(self.atoms[3])
+        
+        return str(self.name) + "<br>" +  "<font color=\"#0000FF\"> Jig Type: </font>Measure Dihedral"\
+        +  "<br>" + "<font color=\"#0000FF\">Atoms: </font>" + attachedAtoms + "<br>"\
+        + "<font color=\"#0000FF\">Angle </font> " + str(dihedral)  + " Degrees"
         
     def getstatistics(self, stats): # Should be _getstatistics().  Mark
         stats.num_mdihedral += 1

@@ -109,10 +109,12 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         Preferences for setting the precision (decimal place) for each measurement
         Preferences for displaying atom chunk info, bond chunk info, Atom distance Deltas, 
         atom coordinates, bond length (nuclear distance), bond type
-
+        
         For later:
         If three atoms are selected, return the torsion angle between them and the highlighted atom.
-        Display Jig info
+        Display Jig info (only displays Displays jig name.for now)
+        We also need to truncate long item info strings(e.g. if an item has a very long name it should
+        truncate it with 3 dots : "item na...")
         """
                 
         from ops_select import ops_select_Mixin 
@@ -227,9 +229,8 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             
         #          ---- Jig Info ----
         if isinstance(glpane.selobj, Jig):
-            
-            jigStr = glpane.selobj.name
-            
+            jig = glpane.selobj
+            jigStr = jig.getToolTipInfo()
             return jigStr
         
         #@@@ninad060818 In future if we support other object types in glpane, do we need a check for that? 
@@ -323,16 +324,11 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
                 lastSelAtom = ppa2
                 secondLastSelAtom = ppa3
             else:
-                #ninad060824 - The logic is below good for this case when there are exactly 3 atoms selected (and that's when it will enter 
-                #the conditional loop)  With the math below, when index i = 0  -->  j = 1, k =2;  i = 1  -->  j = 0, k =2,  i = 2  -->  j = 1, k =0. 
-                # I am not considering further,  whether 'j' is greater than 'k' or vice versa because this is an else loop where both ppa2 and ppa3 don't
-                # exist. So the order in which it displays the angle doesn't matter (we just need to make sure that one of the other two selected 
-                #atoms is not the highlighted atom.). This replaces the kludge that I put in in v1.2
-                i = selectedAtomList.index(glpane.selobj)
-                j = abs((3 - i)- 2)
-                k = (3 - i) -j 
-                lastSelAtom = selectedAtomList[j]
-                secondLastSelAtom = selectedAtomList[k]
+                #ninad060825 revised the following. Earlier code in v1.8 was correct but this one is simpler. Suggested by Bruce. I have tested it and is safe.
+                tempAtomList =list(selectedAtomList)
+                tempAtomList.remove(glpane.selobj)
+                lastSelAtom = tempAtomList[0]
+                secondLastSelAtom = tempAtomList[1]
             
         if len(selectedAtomList) == 2: #here I (ninad) don't care about whether itselected atom is also highlighted. It is handled below. 
             if ppa3Exists:
