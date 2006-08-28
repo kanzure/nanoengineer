@@ -1487,6 +1487,30 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             ainfo += " (%s)" % msg
         
         return ainfo
+    
+    def getToolTipInfo(self, glpane, isAtomPosition, isAtomChunkInfo, atomDistPrecision):
+        ''' returns atom's basic info string for the dynamic toooltip
+        '''
+        atomStr = describe_atom_and_atomtype(glpane.selobj)
+        elementNameStr = " [" + glpane.selobj.element.name + "]"
+        
+        atomInfoStr = atomStr +  elementNameStr       
+
+        if isAtomPosition:
+            xyz = glpane.selobj.posn()
+            xPosn = str(round(xyz[0], atomDistPrecision))
+            yPosn = str(round(xyz[1], atomDistPrecision))
+            zPosn = str(round(xyz[2], atomDistPrecision))
+            atomposn = ("<font color=\"#0000FF\">X:</font> %s<br><font color=\"#0000FF\">Y:</font> %s<br>"\
+            "<font color=\"#0000FF\">Z:</font> %s" %(xPosn, yPosn, zPosn))
+            atomInfoStr += "<br>" + atomposn
+            
+        if isAtomChunkInfo:
+            if glpane.selobj is not None:
+                atomChunkInfo = "<font color=\"#0000FF\">Parent Chunk:</font> [" + glpane.selobj.molecule.name + "]"
+                atomInfoStr += "<br>" + atomChunkInfo
+                
+        return atomInfoStr
 
     def pick(self):
         """make the atom selected

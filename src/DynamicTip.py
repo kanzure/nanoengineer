@@ -190,24 +190,12 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         
         #      ---- Atom Info ----
         if isinstance(glpane.selobj, atom):
-            atomStr = describe_atom_and_atomtype(glpane.selobj)
-            elementNameStr = " [" + glpane.selobj.element.name + "]"
-            
-            atomInfoStr = atomStr +  elementNameStr       
-            
-            # check for user pref 'atom_position'
-            atomposn = self.getAtomPositions(self.isAtomPosition, atomDistPrecision)
-            if atomposn:
-                atomInfoStr +=  "<br>" + atomposn
-                        
-            # check for user pref 'atom_chunk_info'
-            atomChunkInfo = self.getAtomChunkInfo(self.isAtomChunkInfo)
-            if atomChunkInfo:
-                atomInfoStr +=  "<br>" + atomChunkInfo
-            
+            selAtom  = glpane.selobj
+            atomInfoStr = selAtom.getToolTipInfo(glpane, self.isAtomPosition, self.isAtomChunkInfo, atomDistPrecision)
             return atomInfoStr
-                
+           
         #       ----Bond Info----
+
         bondChunkInfo = None
         bondLength = None
         
@@ -381,37 +369,6 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         '''Checks whether *all*  the three picked atoms (ppa2 , ppa3 and ppa4) exist in the atom list
            Returns True of False.  Note: there is no ppa4 yet - ninad060818
         '''
-        
-    def getAtomPositions(self, isAtomPosition,atomDistPrecision):
-        ''' returns X, Y, Z position string if the 'show atom position in dynamic toooltip is checked from the user prefs
-        otherwise returns None
-        '''
-        glpane = self.glpane
-        
-        if isAtomPosition:
-            xyz = glpane.selobj.posn()
-            xPosn = str(round(xyz[0], atomDistPrecision))
-            yPosn = str(round(xyz[1], atomDistPrecision))
-            zPosn = str(round(xyz[2], atomDistPrecision))
-            atomposn = ("<font color=\"#0000FF\">X:</font> %s<br><font color=\"#0000FF\">Y:</font> %s<br>"\
-            "<font color=\"#0000FF\">Z:</font> %s" %(xPosn, yPosn, zPosn))
-            return atomposn
-        else:
-            return None
-            
-    def getAtomChunkInfo(self, isAtomChunkInfo):
-        ''' returns atom's chunk information string  if the 'show atom's chunk info in dynamic toooltip is checked from the user prefs
-        otherwise returns None
-        '''
-        
-        glpane = self.glpane
-        
-        if isAtomChunkInfo:
-            if glpane.selobj is not None:
-                atomChunkInfo = "<font color=\"#0000FF\">Parent Chunk:</font> [" + glpane.selobj.molecule.name + "]"
-                return atomChunkInfo 
-        else:
-            return None
         
     def getAtomDistDeltas(self, isAtomDistDeltas, atomDistPrecision,selectedAtom):
         ''' returns atom distance deltas (delX, delY, delZ) string  if the 'show atom distance delta info' in dynamic toooltip is checked from
