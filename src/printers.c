@@ -315,6 +315,28 @@ printError(const char *file, int line, int error_type,
   }
 }
 
+static FILE *testAlertFile = NULL;
+
+void
+testAlert(const char *format, ...)
+{
+    va_list args;
+
+    if (testAlertFile == NULL) {
+        testAlertFile = fopen("/tmp/simTestAlerts", "a");
+        if (testAlertFile == NULL) {
+            ERROR("failed to open /tmp/simTestAlerts");
+            testAlertFile = stderr;
+        } else {
+            fprintf(testAlertFile, "----------------------------------------------\nInputFile: %s\n", InputFileName);
+        }
+    }
+    va_start(args, format);
+    vfprintf(testAlertFile, format, args);
+    va_end(args);
+    fflush(testAlertFile);
+}
+
 void
 done(const char *format, ...)
 {

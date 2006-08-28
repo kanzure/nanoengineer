@@ -4,7 +4,8 @@
 
 #define RCSID_PART_H  "$Id$"
 
-// See part.c for comment defining these values.
+// See part.c for comment defining these values.  Don't change any of
+// them without deeply understanding the vdw search algorithm there.
 #define GRID_SPACING 300
 #define GRID_OCCUPANCY 1
 #define GRID_SIZE 128
@@ -12,7 +13,9 @@
 #define GRID_MASK_FUZZY 126
 #define GRID_FUZZY_BUCKET_WIDTH 2
 #define GRID_WRAP_COMPARE (GRID_SPACING * GRID_SIZE / 2)
-#define MAX_VDW_RADIUS 225 // pm
+
+// Si has the highest vdw radius, 225 pm
+#define MAX_VDW_RADIUS 225
 
 enum hybridization {
   sp,

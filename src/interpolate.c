@@ -415,7 +415,7 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element
   vdw->evdW = (periodicTable[element1].e_vanDerWaals + periodicTable[element2].e_vanDerWaals) / 2.0;
 
   start = vdw->rvdW * 0.4;
-  end = vdw->rvdW * 1.5;
+  end = vdw->rvdW * VDW_CUTOFF_FACTOR;
   scale = (end - start) / TABLEN;
 
   vdw->vInfinity = 0.0;
@@ -581,7 +581,7 @@ printVdWPAndG(char *vdwName, double initial, double increment, double limit)
 
   printf("# table start = %e table end = %e\n",
          vdw->rvdW * 0.4,
-         vdw->rvdW * 1.5);
+         vdw->rvdW * VDW_CUTOFF_FACTOR);
 
   interpolated_potential = vanDerWaalsPotential(NULL, NULL, vdw, initial);
   for (r=initial; r<limit; r+=increment) {

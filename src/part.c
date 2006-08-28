@@ -765,7 +765,7 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
     int found;
     int actual_count;
     int notseen_count;
-    
+
     seen = (int *)allocate(sizeof(int) * p->num_vanDerWaals);
     // wware 060109  python exception handling
     NULLPTR(seen);
@@ -786,7 +786,7 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
 		p2 = positions[i2];
 		rvdw = (r1 + r2) * 100.0; // picometers
 		distance = vlen(vdif(p1, p2));
-		if (distance < rvdw * 1.5) {
+		if (distance < rvdw * VDW_CUTOFF_FACTOR) {
 		    found = 0;
 		    for (i=0; i<p->num_vanDerWaals; i++) {
 			vdw = p->vanDerWaals[i];
@@ -800,11 +800,11 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
 			}
 		    }
 		    if (!found) {
-			fprintf(stderr, "missing vdw: a1:");
+			testAlert("missing vdw: a1:");
 			printAtomShort(stderr, a1);
-			fprintf(stderr, " a2:");
+			testAlert(" a2:");
 			printAtomShort(stderr, a2);
-			fprintf(stderr, " distance: %f rvdw: %f\n", distance, rvdw);
+			testAlert(" distance: %f rvdw: %f\n", distance, rvdw);
 		    }
 		}
 	    }
@@ -825,20 +825,20 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
 		r1 = vdw->a1->type->vanDerWaalsRadius; // angstroms
 		r2 = vdw->a2->type->vanDerWaalsRadius; // angstroms
 		rvdw = (r1 + r2) * 100.0; // picometers
-		if (distance < rvdw * 1.5) {
-		    fprintf(stderr, "should have found this one above!!!\n");
+		if (distance < rvdw * VDW_CUTOFF_FACTOR) {
+		    testAlert("should have found this one above!!!\n");
 		}
-		if (distance > rvdw * 1.5 + 2079.0) { // was 866.0
-		    fprintf(stderr, "unnecessary vdw: a1:");
+		if (distance > rvdw * VDW_CUTOFF_FACTOR + 2079.0) { // was 866.0
+		    testAlert("unnecessary vdw: a1:");
 		    printAtomShort(stderr, vdw->a1);
-		    fprintf(stderr, " a2:");
+		    testAlert(" a2:");
 		    printAtomShort(stderr, vdw->a2);
-		    fprintf(stderr, " distance: %f rvdw: %f\n", distance, rvdw);
+		    testAlert(" distance: %f rvdw: %f\n", distance, rvdw);
 		}
 	    }
 	}
     }
-    //fprintf(stderr, "num_vdw: %d actual_count: %d not_seen: %d\n", p->num_vanDerWaals, actual_count, notseen_count);
+    //testAlert("num_vdw: %d actual_count: %d not_seen: %d\n", p->num_vanDerWaals, actual_count, notseen_count);
     free(seen); // yes, alloca would work here too.
 }
 
@@ -896,6 +896,7 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
     struct atom **bucket;
     double r;
     double rSquared;
+    double actualR;
     struct xyz dr;
     double drSquared;
     int dx;
@@ -959,10 +960,16 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
 	    if (a->vdwNext) {
 		a->vdwNext->vdwPrev = a;
 	    }
-            r = (a->type->vanDerWaalsRadius * 100.0 + MAX_VDW_RADIUS);
+            r = (a->type->vanDerWaalsRadius * 100.0 + MAX_VDW_RADIUS) * VDW_CUTOFF_FACTOR;
             rSquared = r * r;
             dx = 0;
             while (1) {
+                // deltax is the minimum distance along the x axis
+                // between the fuzzy edges of the two buckets we're
+                // looking at.  Both atoms can move within their
+                // respective fuzzy buckets and will never get closer
+                // than this along the x axis.  If the fuzzy buckets
+                // overlap, or share an edge, the distance is zero.
                 deltax = (dx-GRID_FUZZY_BUCKET_WIDTH > 0 ? dx-GRID_FUZZY_BUCKET_WIDTH : 0) * GRID_SPACING;
                 if (deltax > r) {
                     break;
@@ -995,13 +1002,38 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
                                         for (signz=-1; signz<=1; signz+=2) {
                                             if (signz > 0 || dz > 0) {
                                                 az2 = az + dz * signz;
+                                                // We hit this point in the code once for each bucket
+                                                // that could contain an atom of any type which is
+                                                // within the maximum vdw cutoff radius.
 
                                                 a2 = p->vdwHash[ax2&GRID_MASK][ay2&GRID_MASK][az2&GRID_MASK];
-                                                while (a2 != NULL) {
+                                                for (; a2 != NULL; a2=a2->vdwNext) {
                                                     if (!isBondedToSame(a, a2)) {
+                                                        // At this point, we know the types of both
+                                                        // atoms, so we can eliminate buckets which
+                                                        // might be in range for some atom types,
+                                                        // but not for this one.
+                                                        actualR = (a->type->vanDerWaalsRadius * 100.0 +
+                                                                   a2->type->vanDerWaalsRadius * 100.0)
+                                                            * VDW_CUTOFF_FACTOR;
+                                                        if (deltaXSquared +
+                                                            deltaYSquared +
+                                                            deltaZSquared > (actualR * actualR)) {
+                                                            continue;
+                                                        }
+                                                        // Now we check to see if the two atoms are
+                                                        // actually within the same wrapping of the
+                                                        // grid.  Just because they're in nearby
+                                                        // buckets, it doesn't mean that they are
+                                                        // actually near each other.  This check is
+                                                        // very coarse, because we've already
+                                                        // eliminated intermediate distances.
                                                         dr = vdif(positions[i], positions[a2->index]);
                                                         drSquared = vdot(dr, dr);
                                                         if (drSquared < GRID_WRAP_COMPARE * GRID_WRAP_COMPARE) {
+                                                            // We insure that all vdw's are created
+                                                            // with the first atom of lower index
+                                                            // than the second.
                                                             if (i < a2->index) {
                                                                 makeDynamicVanDerWaals(p, a, a2); BAIL();
                                                             } else {
@@ -1009,7 +1041,6 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
                                                             }
                                                         }
                                                     }
-                                                    a2 = a2->vdwNext;
                                                 }
                                             }
                                         }
