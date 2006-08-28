@@ -4,10 +4,6 @@
 
 #define RCSID_INTERPOLATE_H  "$Id$"
 
-// multiple of rvdW where interpolation table ends, and van der Waals
-// force is considered exactly zero beyond this point.
-#define VDW_CUTOFF_FACTOR 1.5
-
 extern double potentialLippincottMorse(double r, void *p);
 
 extern double gradientLippincottMorse(double r, void *p);
@@ -18,9 +14,14 @@ extern double gradientBuckingham(double r, void *p);
 
 extern double potentialBuckingham(double r, void *p);
 
+extern double potentialModifiedBuckingham(double r, void *p);
+
+extern double gradientModifiedBuckingham(double r, void *p);
+
 extern void initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element1, int element2);
 
 extern void printPotentialAndGradientFunctions(char *name, double initial, double increment, double limit);
+
 extern void printBendStretch(void);
 
 #endif

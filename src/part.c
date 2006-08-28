@@ -786,7 +786,7 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
 		p2 = positions[i2];
 		rvdw = (r1 + r2) * 100.0; // picometers
 		distance = vlen(vdif(p1, p2));
-		if (distance < rvdw * VDW_CUTOFF_FACTOR) {
+		if (distance < rvdw * VanDerWaalsCutoffFactor) {
 		    found = 0;
 		    for (i=0; i<p->num_vanDerWaals; i++) {
 			vdw = p->vanDerWaals[i];
@@ -825,10 +825,10 @@ verifyVanDerWaals(struct part *p, struct xyz *positions)
 		r1 = vdw->a1->type->vanDerWaalsRadius; // angstroms
 		r2 = vdw->a2->type->vanDerWaalsRadius; // angstroms
 		rvdw = (r1 + r2) * 100.0; // picometers
-		if (distance < rvdw * VDW_CUTOFF_FACTOR) {
+		if (distance < rvdw * VanDerWaalsCutoffFactor) {
 		    testAlert("should have found this one above!!!\n");
 		}
-		if (distance > rvdw * VDW_CUTOFF_FACTOR + 2079.0) { // was 866.0
+		if (distance > rvdw * VanDerWaalsCutoffFactor + 2079.0) { // was 866.0
 		    testAlert("unnecessary vdw: a1:");
 		    printAtomShort(stderr, vdw->a1);
 		    testAlert(" a2:");
@@ -960,7 +960,7 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
 	    if (a->vdwNext) {
 		a->vdwNext->vdwPrev = a;
 	    }
-            r = (a->type->vanDerWaalsRadius * 100.0 + MAX_VDW_RADIUS) * VDW_CUTOFF_FACTOR;
+            r = (a->type->vanDerWaalsRadius * 100.0 + MAX_VDW_RADIUS) * VanDerWaalsCutoffFactor;
             rSquared = r * r;
             dx = 0;
             while (1) {
@@ -1015,7 +1015,7 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
                                                         // but not for this one.
                                                         actualR = (a->type->vanDerWaalsRadius * 100.0 +
                                                                    a2->type->vanDerWaalsRadius * 100.0)
-                                                            * VDW_CUTOFF_FACTOR;
+                                                            * VanDerWaalsCutoffFactor;
                                                         if (deltaXSquared +
                                                             deltaYSquared +
                                                             deltaZSquared > (actualR * actualR)) {

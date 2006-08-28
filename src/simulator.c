@@ -53,6 +53,8 @@ usage(void)
                     terminate minimization when rms force falls below this level and...\n\
    --min-threshold-end-max=<float>\n\
                     ...when max force is below this level.\n\
+   --vdw-cutoff-factor=<float>\n\
+                    maximum range of vdw force, as multiple of rvdW.\n\
    -E, --print-energy\n\
                     print structure potential energy\n\
    -i<int>, --iters-per-frame=<num>\n\
@@ -136,6 +138,7 @@ set_py_exc_str(const char *filename,
 #define OPT_MIN_THRESH_CUT_MAX  LONG_OPT (10)
 #define OPT_MIN_THRESH_END_RMS  LONG_OPT (11)
 #define OPT_MIN_THRESH_END_MAX  LONG_OPT (12)
+#define OPT_VDW_CUTOFF_FACTOR   LONG_OPT (13)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
@@ -151,6 +154,7 @@ static const struct option option_vec[] = {
     { "min-threshold-cutover-max", required_argument, NULL, OPT_MIN_THRESH_CUT_MAX},
     { "min-threshold-end-rms", required_argument, NULL, OPT_MIN_THRESH_END_RMS},
     { "min-threshold-end-max", required_argument, NULL, OPT_MIN_THRESH_END_MAX},
+    { "vdw-cutoff-factor", required_argument, NULL, OPT_VDW_CUTOFF_FACTOR},
     { "num-atoms", required_argument, NULL, 'n' },
     { "minimize", no_argument, NULL, 'm' },
     { "print-energy", no_argument, NULL, 'E' },
@@ -256,6 +260,9 @@ main(int argc, char **argv)
             break;
         case OPT_MIN_THRESH_END_MAX:
             MinimizeThresholdEndMax = atof(optarg);
+            break;
+        case OPT_VDW_CUTOFF_FACTOR:
+            VanDerWaalsCutoffFactor = atof(optarg);
             break;
 	case 'n':
 	    // ignored

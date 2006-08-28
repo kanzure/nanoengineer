@@ -39,6 +39,7 @@ extern double MinimizeThresholdCutoverRMS;
 extern double MinimizeThresholdCutoverMax;
 extern double MinimizeThresholdEndRMS;
 extern double MinimizeThresholdEndMax;
+extern double VanDerWaalsCutoffFactor;
 
 extern FILE *OutputFile;
 extern FILE *TraceFile;

@@ -368,7 +368,7 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
 }
 
 
-/* the Buckingham potential for van der Waals / London force */
+// the Buckingham potential for van der Waals / London force
 // result in aJ
 double
 potentialBuckingham(double r, void *p)
@@ -396,6 +396,66 @@ gradientBuckingham(double r, void *p)
   return y;
 }
 
+// The Buckingham potential for van der Waals / London force.
+// Modified by a switching function to allow the potential to smoothly
+// approach zero by the time it reaches the cutoff radius.
+//
+// The potential function is mulitplied by the switching function S:
+//
+// S = (1 - (r/rvdW - 1)^4 / (rCutoff-1)^4)^4
+//
+// when r > rvdW.
+//
+// result in aJ
+double
+potentialModifiedBuckingham(double r, void *p)
+{
+  struct vanDerWaalsParameters *vdw = (struct vanDerWaalsParameters *)p;
+  double rDiff;
+  double rCutoffDiff;
+  double S1;
+  double S;
+  
+  if (r <= vdw->rvdW) {
+    return potentialBuckingham(r, p);
+  }
+  if (r >= VanDerWaalsCutoffFactor * vdw->rvdW) {
+    return 0.0;
+  }
+  rDiff = (r / vdw->rvdW) - 1.0;
+  rCutoffDiff = VanDerWaalsCutoffFactor - 1.0;
+  S1 = 1 - (rDiff * rDiff * rDiff * rDiff) / (rCutoffDiff * rCutoffDiff * rCutoffDiff *rCutoffDiff);
+  S = S1 * S1 * S1 * S1;
+  return S * potentialBuckingham(r, p);
+}
+
+// the result is in attoJoules per picometer = microNewtons
+// aJ / pm = 1e-18 J / 1e-12 m = 1e-6 J / m = uN
+double
+gradientModifiedBuckingham(double r, void *p)
+{
+  struct vanDerWaalsParameters *vdw = (struct vanDerWaalsParameters *)p;
+  double rDiff;
+  double rCutoffDiff;
+  double S1;
+  double S;
+  double dS;
+  
+  if (r <= vdw->rvdW) {
+    return gradientBuckingham(r, p);
+  }
+  if (r >= VanDerWaalsCutoffFactor * vdw->rvdW) {
+    return 0.0;
+  }
+  rDiff = (r / vdw->rvdW) - 1.0;
+  rCutoffDiff = VanDerWaalsCutoffFactor - 1.0;
+  S1 = 1 - (rDiff * rDiff * rDiff * rDiff) / (rCutoffDiff * rCutoffDiff * rCutoffDiff *rCutoffDiff);
+  S = S1 * S1 * S1 * S1;
+  dS = (-16.0 * rDiff * rDiff * rDiff * S1 * S1 * S1) /
+    (rCutoffDiff * rCutoffDiff * rCutoffDiff * rCutoffDiff * vdw->rvdW);
+  return S * gradientBuckingham(r, p) + dS * potentialBuckingham(r, p);
+}
+
 void
 initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element1, int element2)
 {
@@ -415,20 +475,31 @@ initializeVanDerWaalsInterpolator(struct vanDerWaalsParameters *vdw, int element
   vdw->evdW = (periodicTable[element1].e_vanDerWaals + periodicTable[element2].e_vanDerWaals) / 2.0;
 
   start = vdw->rvdW * 0.4;
-  end = vdw->rvdW * VDW_CUTOFF_FACTOR;
+  end = vdw->rvdW * VanDerWaalsCutoffFactor;
   scale = (end - start) / TABLEN;
 
   vdw->vInfinity = 0.0;
-  vdw->vInfinity = potentialBuckingham(end, vdw);
+  if (DEBUG(D_VDW_NO_SWITCHOVER)) {
+    vdw->vInfinity = potentialBuckingham(end, vdw);
   
-  fillInterpolationTable(&vdw->Buckingham,
-                         potentialBuckingham,
-                         gradientBuckingham,
-                         start, scale, vdw);
-  vdw->minPhysicalTableIndex = findExcessiveEnergyLevel(&vdw->Buckingham,
-                                                        vdw->rvdW, -1, 0,
-                                                        potentialBuckingham(vdw->rvdW, vdw),
-                                                        vdw->vdwName);
+    fillInterpolationTable(&vdw->Buckingham,
+                           potentialBuckingham,
+                           gradientBuckingham,
+                           start, scale, vdw);
+    vdw->minPhysicalTableIndex = findExcessiveEnergyLevel(&vdw->Buckingham,
+                                                          vdw->rvdW, -1, 0,
+                                                          potentialBuckingham(vdw->rvdW, vdw),
+                                                          vdw->vdwName);
+  } else {
+    fillInterpolationTable(&vdw->Buckingham,
+                           potentialModifiedBuckingham,
+                           gradientModifiedBuckingham,
+                           start, scale, vdw);
+    vdw->minPhysicalTableIndex = findExcessiveEnergyLevel(&vdw->Buckingham,
+                                                          vdw->rvdW, -1, 0,
+                                                          potentialModifiedBuckingham(vdw->rvdW, vdw),
+                                                          vdw->vdwName);
+  }
 }
 
 static void
@@ -554,6 +625,8 @@ printVdWPAndG(char *vdwName, double initial, double increment, double limit)
   double interpolated_gradient;
   double direct_potential;
   double direct_gradient;
+  double modified_potential;
+  double modified_gradient;
   double lip; // last interpolated_potential
   double dip; // derivitive of interpolated_potential
   
@@ -581,7 +654,7 @@ printVdWPAndG(char *vdwName, double initial, double increment, double limit)
 
   printf("# table start = %e table end = %e\n",
          vdw->rvdW * 0.4,
-         vdw->rvdW * VDW_CUTOFF_FACTOR);
+         vdw->rvdW * VanDerWaalsCutoffFactor);
 
   interpolated_potential = vanDerWaalsPotential(NULL, NULL, vdw, initial);
   for (r=initial; r<limit; r+=increment) {
@@ -591,13 +664,17 @@ printVdWPAndG(char *vdwName, double initial, double increment, double limit)
     interpolated_gradient = vanDerWaalsGradient(NULL, NULL, vdw, r);
     direct_potential = potentialBuckingham(r, vdw);
     direct_gradient = gradientBuckingham(r, vdw) * 1e6;
-    printf("%19.12e %19.12e %19.12e %19.12e %19.12e %19.12e\n",
+    modified_potential = potentialModifiedBuckingham(r, vdw);
+    modified_gradient = gradientModifiedBuckingham(r, vdw) * 1e6;
+    printf("%19.12e %19.12e %19.12e %19.12e %19.12e %19.12e %19.12e %19.12e\n",
            r,                      // 1
            interpolated_potential, // 2
            interpolated_gradient, // 3
            direct_potential,       // 4
            direct_gradient,       // 5
-           dip                    // 6
+           dip,                    // 6
+           modified_potential,    // 7
+           modified_gradient      //8
            );
   }
 }

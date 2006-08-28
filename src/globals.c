@@ -51,6 +51,11 @@ double MinimizeThresholdCutoverMax;
 double MinimizeThresholdEndRMS;
 double MinimizeThresholdEndMax;
 
+
+// multiple of rvdW where interpolation table ends, and van der Waals
+// force is considered exactly zero beyond this point.
+double VanDerWaalsCutoffFactor;
+
 FILE *OutputFile;
 FILE *TraceFile;
 
@@ -89,7 +94,6 @@ void
 reinit_globals(void)
 {
     debug_flags = 0;
-    //debug_flags = D_SKIP_VDW | D_SKIP_OUT_OF_PLANE ;
     Interrupted = 0;
     Iteration = 0;
     CommandLine = NULL;
@@ -116,6 +120,8 @@ reinit_globals(void)
     MinimizeThresholdCutoverMax = 250.0;
     MinimizeThresholdEndRMS = 1.0;
     MinimizeThresholdEndMax = 5.0;
+
+    VanDerWaalsCutoffFactor = 1.7;
     
     OutputFile = NULL;
     TraceFile = NULL;
@@ -149,6 +155,12 @@ constrainGlobals()
     if (MinimizeThresholdEndMax < MinimizeThresholdEndRMS) {
         MinimizeThresholdEndMax = 5.0 * MinimizeThresholdEndRMS;
     }
+    if (VanDerWaalsCutoffFactor < 1.2) {
+        VanDerWaalsCutoffFactor = 1.2;
+    }
+    if (VanDerWaalsCutoffFactor > 10.0) {
+        VanDerWaalsCutoffFactor = 10.0;
+    }
 }
 
 void
@@ -172,6 +184,7 @@ printGlobals()
         write_traceline("# MinimizeThresholdEndRMS: %f\n", MinimizeThresholdEndRMS);
         write_traceline("# MinimizeThresholdEndMax: %f\n", MinimizeThresholdEndMax);
     }
+    write_traceline("# VanDerWaalsCutoffFactor: %f\n", VanDerWaalsCutoffFactor);
     write_traceline("#\n");
 }
 
