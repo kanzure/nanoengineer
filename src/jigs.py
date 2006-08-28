@@ -580,15 +580,15 @@ class Jig(Node):
     def _getinfo(self):#ninad060825
         "Return a string for display in history or Properties [subclasses should override this]"
         return "[%s: %s]" % (self.sym, self.name)
-        
-    def getToolTipInfo(self):#ninad060825
-        return self._getToolTipInfo()
+    
+    def getToolTipInfo(self):
+        "public method that returns a string for display in Dynamic Tool tip "
+        return self._getToolTipInfo() 
             
     def _getToolTipInfo(self):
         "Return a string for display in Dynamic Tool tip  [subclasses should override this]"
         return "%s <br><font color=\"#0000FF\"> Jig Type:</font> %s" % (self.name, self.sym)
         
-
     def draw(self, glpane, dispdef): #bruce 050421 added this wrapper method and renamed the subclass methods it calls. ###@@@writepov too
         if self.hidden:
             return
@@ -707,9 +707,6 @@ class Anchor(Jig):
 
     def _getinfo(self):
         return "[Object: Anchor] [Name: " + str(self.name) + "] [Total Anchors: " + str(len(self.atoms)) + "]"
-
-    def getToolTipInfo(self):#ninad060825
-        return self._getToolTipInfo() 
                     
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
@@ -851,10 +848,7 @@ class Stat( Jig_onChunk_by1atom ):
                     "[Name: " + str(self.name) + "] "\
                     "[Temp = " + str(self.temp) + "K]" + "] "\
                     "[Attached to: " + str(self.atoms[0].molecule.name) + "] "
-                    
-    def getToolTipInfo(self):#ninad060825
-        return self._getToolTipInfo() 
-                    
+                                        
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
         #ninad060825 We know that stat has only one atom  May be we should use try - except to be safer?
@@ -913,9 +907,6 @@ class Thermo(Jig_onChunk_by1atom):
         return  "[Object: Thermometer] "\
                     "[Name: " + str(self.name) + "] "\
                     "[Attached to: " + str(self.atoms[0].molecule.name) + "] "
-
-    def getToolTipInfo(self):#ninad060825
-        return self._getToolTipInfo() 
                     
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
@@ -973,9 +964,6 @@ class AtomSet(Jig):
         
     def _getinfo(self):
         return "[Object: Atom Set] [Name: " + str(self.name) + "] [Total Atoms: " + str(len(self.atoms)) + "]"
-    
-    def getToolTipInfo(self):#ninad060825
-        return self._getToolTipInfo() 
                     
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "

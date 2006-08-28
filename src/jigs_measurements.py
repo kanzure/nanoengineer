@@ -212,9 +212,6 @@ class MeasureDistance(MeasurementJig):
                     "[Nuclei Distance = " + str(self.get_nuclei_distance()) + " ]" + \
                     "[VdW Distance = " + str(self.get_vdw_distance()) + " ]"
                     
-    def getToolTipInfo(self):#ninad060825
-        return self._getToolTipInfo() 
-                    
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
         
@@ -277,10 +274,7 @@ class MeasureAngle(MeasurementJig):
         return  "[Object: Measure Angle] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2])) + \
                     "[Angle = " + str(self.get_angle()) + " ]"
-
-    def getToolTipInfo(self):#ninad060825
-        return self._getToolTipInfo() 
-                    
+                 
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
         
@@ -346,9 +340,6 @@ class MeasureDihedral(MeasurementJig):
         return  "[Object: Measure Dihedral] [Name: " + str(self.name) + "] " + \
                     ("[Atoms = %s %s %s %s]" % (self.atoms[0], self.atoms[1], self.atoms[2], self.atoms[3])) + \
                     "[Dihedral = " + str(self.get_dihedral()) + " ]"
-
-    def getToolTipInfo(self):#ninad060825
-        return self._getToolTipInfo() 
                     
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "

@@ -254,9 +254,6 @@ class RotaryMotor(Motor):
                     "[Torque = " + str(self.torque) + " nN-nm] " + \
                     "[Speed = " + str(self.speed) + " GHz]"
                     
-    def getToolTipInfo(self):#ninad060825
-        return self._getToolTipInfo() 
-                    
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
         from platform import fix_plurals
@@ -543,9 +540,6 @@ class LinearMotor(Motor):
         return  "[Object: Linear Motor] [Name: " + str(self.name) + "] " + \
                     "[Force = " + str(self.force) + " pN] " + \
                     "[Stiffness = " + str(self.stiffness) + " N/m]"
-
-    def getToolTipInfo(self):#ninad060825
-        return self._getToolTipInfo() 
                     
     def _getToolTipInfo(self): #ninad060825
         "Return a string for display in Dynamic Tool tip "
