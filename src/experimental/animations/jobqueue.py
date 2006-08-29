@@ -21,7 +21,7 @@ if os.environ.has_key("DEBUG"):
 
 all_workers_stop = False
 
-def _local_do(cmd):
+def do(cmd):
     if DEBUG >= 1:
         print cmd
     if os.system(cmd) != 0:
@@ -35,7 +35,7 @@ class Worker(threading.Thread):
         self.jobqueue = jobqueue
         self.workdir = workdir
         if machine in ('localhost', '127.0.0.1'):
-            self.do = _local_do
+            self.do = do
             self.get = self._local_get
             self.put = self._local_put
         else:
@@ -44,27 +44,27 @@ class Worker(threading.Thread):
             self.put = self._remote_put
 
     def _remote_do(self, cmd):
-        _local_do('ssh ' + self.machine + ' ' + cmd)
+        do('ssh ' + self.machine + ' ' + cmd)
 
     def _local_put(self, filelist, srcdir):
-        # Transfer files from host to worker
-        _local_do('for x in %s; do mv %s/$x %s; done' %
-                  (" ".join(filelist), srcdir, self.workdir))
+        # Transfer files from host to worker, NON DESTRUCTIVELY
+        do('for x in %s; do cp %s/$x %s; done' %
+           (" ".join(filelist), srcdir, self.workdir))
 
     def _local_get(self, filelist, dstdir):
         # Transfer files from host to worker
-        _local_do('for x in %s; do mv %s/$x %s; done' %
-                  (" ".join(filelist), self.workdir, dstdir))
+        do('for x in %s; do mv %s/$x %s; done' %
+           (" ".join(filelist), self.workdir, dstdir))
 
     def _remote_put(self, filelist, srcdir):
         # Transfer files from host to worker
-        _local_do('(cd %s; tar cf - %s) | gzip | ssh %s "(cd %s; gunzip | tar xf -)"' %
-                  (srcdir, " ".join(filelist), self.machine, self.workdir))
+        do('(cd %s; tar cf - %s) | gzip | ssh %s "(cd %s; gunzip | tar xf -)"' %
+           (srcdir, " ".join(filelist), self.machine, self.workdir))
 
     def _remote_get(self, filelist, dstdir):
         # Transfer files from host to worker
-        _local_do('ssh %s "(cd %s; tar cf - %s)" | gzip | (cd %s; gunzip | tar xf -)' %
-                  (self.machine, self.workdir, " ".join(filelist), dstdir))
+        do('ssh %s "(cd %s; tar cf - %s)" | gzip | (cd %s; gunzip | tar xf -)' %
+           (self.machine, self.workdir, " ".join(filelist), dstdir))
 
     # Each worker grabs a new jobs as soon as he finishes the previous
     # one. This allows mixing of slower and faster worker machines;
@@ -75,10 +75,10 @@ class Worker(threading.Thread):
         while not all_workers_stop:
             job = self.jobqueue.get()
             if job is None:
-                self.do('rm -rf ' + self.workdir)
                 return
             try:
                 job.go(self)
+                self.do('rm -rf ' + self.workdir + '/*')
             except:
                 all_workers_stop = True
                 raise
@@ -99,7 +99,14 @@ class Job:
     def shellScript(self):
         raise Exception, 'overload me'
 
+    def preJob(self, worker):
+        pass
+
+    def postJob(self, worker):
+        pass
+
     def go(self, worker):
+        self.preJob(worker)
         scriptname = 'job_%08d.sh' % self.index
         longname = os.path.join(self.srcdir, scriptname)
         script = ("(cd " + worker.workdir + "\n" +
@@ -113,15 +120,18 @@ class Job:
         worker.put(self.inputfiles + [ scriptname ], self.srcdir)
         worker.do(os.path.join(worker.workdir, scriptname))
         worker.get(self.outputfiles, self.dstdir)
+        self.postJob(worker)
 
 
 class JobQueue:
 
-    def __init__(self, worker_list):
+    def __init__(self, _worker_list=None):
+        if _worker_list is None:
+            _worker_list = worker_list
         self.worker_pool = worker_pool = [ ]
         self.jobqueue = [ ]
         self._lock = threading.Lock()
-        for macdir in worker_list:
+        for macdir in _worker_list:
             try:
                 machine, workdir = macdir
             except:

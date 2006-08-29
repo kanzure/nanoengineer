@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-import os, sys, threading, time
+import os, sys, threading, time, jobqueue
 
 # Dimensions for recommended povray rendering, gotten from the first line
 # of any of the *.pov files.
@@ -25,13 +25,6 @@ def set_height(h):
 
 set_resolution(600, 450)
 
-worker_list = [
-    ('localhost', '/tmp/mpeg'),
-    ('server', '/tmp/mpeg'),
-    ('laptop', '/tmp/mpeg'),
-    ('mac', '/Users/wware/tmp')
-    ]
-
 bitrate = 6.0e6
 
 framelimit = None
@@ -40,58 +33,20 @@ povray_pretty = True
 
 border = None
 
-####################
-#                  #
-#   DEBUG STUFF    #
-#                  #
-####################
-
-DEBUG = False
-
-def linenum(*args):
-    try:
-        raise Exception
-    except:
-        tb = sys.exc_info()[2]
-        f = tb.tb_frame.f_back
-        print f.f_code.co_filename, f.f_code.co_name, f.f_lineno,
-    if len(args) > 0:
-        print ' --> ',
-        for x in args:
-            print x,
-    print
-
-def do(cmd, howfarback=0):
-    if DEBUG:
-        if False:
-            try:
-                raise Exception
-            except:
-                tb = sys.exc_info()[2]
-                f = tb.tb_frame.f_back
-                for i in range(howfarback):
-                    f = f.f_back
-                print f.f_code.co_filename, f.f_code.co_name, f.f_lineno
-        print cmd
-    if os.system(cmd) != 0:
-        raise Exception(cmd)
-
-############################
-#                          #
-#    DISTRIBUTED POVRAY    #
-#                          #
-############################
-
-_which_povray_job = 0
-
-class PovrayJob:
+class PovrayJob(jobqueue.Job):
     def __init__(self, srcdir, dstdir, povfmt, povmin, povmax_plus_one, yuv,
                  pwidth, pheight, ywidth, yheight, textlist):
 
         assert povfmt[-4:] == '.pov'
         assert yuv[-4:] == '.yuv'
-        self.srcdir = srcdir
-        self.dstdir = dstdir
+
+        ifiles = [ ]
+        for i in range(povmin, povmax_plus_one):
+            ifiles.append(povfmt % i)
+        ofile = (povfmt % povmin)[:-4] + '.jpg'
+        jobqueue.Job.__init__(self, srcdir, dstdir,
+                              ifiles, [ ofile ])
+
         self.povfmt = povfmt
         self.povmin = povmin
         self.povmax_plus_one = povmax_plus_one
@@ -102,181 +57,83 @@ class PovrayJob:
         self.yheight = yheight
         self.textlist = textlist
 
-    def go(self, machine, workdir):
-
-        local = machine in ('localhost', '127.0.0.1')
-
-        def worker_do(cmd):
-            if DEBUG: print '[[%s]]' % machine,
-            if local:
-                # do stuff on this machine
-                do(cmd, howfarback=1)
-            else:
-                # do stuff on a remote machine
-                do('ssh %s "%s"' % (machine, cmd), howfarback=1)
+    def shellScript(self):
 
         if povray_pretty:
             povray_options = '+A -V -D +X'
         else:
             povray_options = '-A +Q0 -V -D +X'
 
-        worker_do('mkdir -p ' + workdir)
-        # worker_do('find %s -type f -exec rm -f {} \;' % workdir)
+        script = ""
 
-        #
-        # Create a shell script to run on the worker machine
-        #
-        global _which_povray_job
-        self.scriptname = 'povray_job_%08d.sh' % _which_povray_job
-        _which_povray_job += 1
         video_aspect_ratio = 4.0 / 3.0
         w2 = int(video_aspect_ratio * self.pheight)
-        jpg = (self.povfmt % self.povmin)[:-4] + '.jpg'
         tgalist = ''
-        povlist = ''
-        scriptlines = [ ]
-        scriptlines.append('cd %s' % workdir)
         # Worker machine renders a bunch of pov files to tga files
-        for i in range(self.povmin, self.povmax_plus_one):
-            pov = self.povfmt % i
-            povlist += ' ' + pov
+        for pov in self.inputfiles:
             tga = pov[:-4] + '.tga'
             tgalist += ' ' + tga
-            scriptlines.append('povray +I%s +O%s +FT %s +W%d +H%d 2>/dev/null' %
-                              (pov, tga, povray_options, self.pwidth, self.pheight))
+            script += ('povray +I%s +O%s +FT %s +W%d +H%d 2>/dev/null\n' %
+                       (pov, tga, povray_options, self.pwidth, self.pheight))
         # Worker machine averages the tga files into one jpeg file
-        scriptlines.append('convert -average %s -crop %dx%d+%d+0 -geometry %dx%d! %s' %
-                           (tgalist, w2, self.pheight, (self.pwidth - w2) / 2,
-                            self.ywidth, self.yheight, jpg))
-        # Worker cleans up the pov and tga files, no longer needed
-        scriptlines.append('rm -f %s %s' %
-                           (povlist, tgalist))
-        if DEBUG:
-            for line in scriptlines:
-                print machine + '>>> ' + line
-        shellscript = open(os.path.join(self.srcdir, self.scriptname), 'w')
-        for line in scriptlines:
-            shellscript.write(line + '\n')
-        shellscript.close()
+        script += ('convert -average %s -crop %dx%d+%d+0 -geometry %dx%d! %s\n' %
+                   (tgalist, w2, self.pheight, (self.pwidth - w2) / 2,
+                    self.ywidth, self.yheight, self.outputfiles[0]))
+        return script
 
-        #
-        # Copy shell script and pov files to worker
-        #
-        if local:
-            cmd = ('(cd %s; tar cf - %s %s) | (cd %s; tar xf -)' %
-                   (self.srcdir, self.scriptname, povlist, workdir))
-        else:
-            cmd = ('(cd %s; tar cf - %s %s) | gzip | ssh %s "(cd %s; gunzip | tar xf -)"' %
-                   (self.srcdir, self.scriptname, povlist, machine, workdir))
-        do(cmd)
-        do('rm -f ' + os.path.join(self.srcdir, self.scriptname))
-        worker_do('chmod +x ' + os.path.join(workdir, self.scriptname))
-
-        #
-        # Run the shell script on the worker
-        #
-        worker_do(os.path.join(workdir, self.scriptname))
-
-        #
-        # Retrieve finished image file back from worker
-        #
-        if DEBUG: print '[[%s]]' % machine,
-        if local:
-            do('cp %s %s' % (os.path.join(workdir, jpg),
-                             os.path.join(self.dstdir, jpg)))
-        else:
-            do('scp %s:%s %s' % (machine, os.path.join(workdir, jpg),
-                                 os.path.join(self.dstdir, jpg)))
-
+    def postJob(self, worker):
         #
         # Put text on finished image, apply border, and convert to YUV
         #
         if self.textlist:
             cmd = ('convert %s -font times-roman -pointsize 30' %
-                   (os.path.join(self.dstdir, jpg)))
+                   (os.path.join(self.dstdir, self.outputfiles[0])))
             for i in range(len(self.textlist)):
                 cmd += ' -annotate +10+%d "%s"' % (30 * (i + 1), self.textlist[i])
             if border is not None:
                 cmd += ' -bordercolor black -border %dx%d' % border
             cmd += ' ' + os.path.join(self.dstdir, self.yuv)
-            do(cmd)
+            jobqueue.do(cmd)
         else:
-            do('convert %s %s' %
-               (os.path.join(self.dstdir, jpg),
+            jobqueue.do('convert %s %s' %
+               (os.path.join(self.dstdir, self.outputfiles[0]),
                 os.path.join(self.dstdir, self.yuv)))
 
-        #
-        # Clean up remaining files on the worker machine
-        #
-        worker_do('rm -f %s %s' %
-                  (os.path.join(workdir, self.scriptname),
-                   os.path.join(workdir, jpg)))
+class SubframePovrayJob(jobqueue.Job):
+    def __init__(self, srcdir, dstdir, ifiles, ofiles,
+                 pwidth, pheight, ywidth, yheight):
 
-all_workers_stop = False
+        jobqueue.Job.__init__(self, srcdir, dstdir,
+                              ifiles, ofiles)
 
-class Worker(threading.Thread):
+        self.pwidth = pwidth
+        self.pheight = pheight
+        self.ywidth = ywidth
+        self.yheight = yheight
 
-    def __init__(self, jobqueue, machine, workdir):
-        threading.Thread.__init__(self)
-        self.machine = machine
-        self.jobqueue = jobqueue
-        self.workdir = workdir
-        self.busy = True
+    def shellScript(self):
 
-    #
-    # Each worker grabs a new jobs as soon as he finishes the previous
-    # one. This allows mixing of slower and faster worker machines; each
-    # works at capacity.
-    #
-    def run(self):
-        global all_workers_stop
-        while not all_workers_stop:
-            job = self.jobqueue.get()
-            if job is None:
-                # no jobs left in the queue, we're finished
-                self.busy = False
-                return
-            try:
-                job.go(self.machine, self.workdir)
-            except:
-                all_workers_stop = True
-                raise
+        if povray_pretty:
+            povray_options = '+A -V -D +X'
+        else:
+            povray_options = '-A +Q0 -V -D +X'
 
-class PovrayJobQueue:
+        script = ""
 
-    def __init__(self):
-        self.worker_pool = [ ]
-        self.jobqueue = [ ]
-        self._lock = threading.Lock()
-        for machine, workdir in worker_list:
-            self.worker_pool.append(Worker(self, machine, workdir))
+        video_aspect_ratio = 4.0 / 3.0
+        w2 = int(video_aspect_ratio * self.pheight)
+        # Worker machine renders a bunch of pov files to make jpeg files
+        for pov, jpeg in map(None, self.inputfiles, self.outputfiles):
+            tga = pov[:-4] + '.tga'
+            script += ('povray +I%s +O%s +FT %s +W%d +H%d 2>/dev/null\n' %
+                       (pov, tga, povray_options, self.pwidth, self.pheight))
+            script += ('convert %s -crop %dx%d+%d+0 -geometry %dx%d! %s\n' %
+                       (tga, w2, self.pheight, (self.pwidth - w2) / 2,
+                        self.ywidth, self.yheight, jpeg))
+        return script
 
-    def append(self, job):
-        self._lock.acquire()   # thread safety
-        self.jobqueue.append(job)
-        self._lock.release()
-    def get(self):
-        self._lock.acquire()   # thread safety
-        try:
-            r = self.jobqueue.pop(0)
-        except IndexError:
-            r = None
-        self._lock.release()
-        return r
-
-    def start(self):
-        for worker in self.worker_pool:
-            worker.start()
-    def wait(self):
-        busy_workers = 1
-        while busy_workers > 0:
-            time.sleep(0.5)
-            busy_workers = 0
-            for worker in self.worker_pool:
-                if worker.busy:
-                    busy_workers += 1
-            if all_workers_stop:
-                raise Exception
+    def postJob(self, worker):
+        pass
 
 ####################
 #                  #
@@ -350,8 +207,8 @@ mpeg_dir = '/home/wware/tmp/mpeg'
 
 def remove_old_yuvs():
     # you don't always want to do this
-    do("rm -rf " + mpeg_dir + "/yuvs")
-    do("mkdir -p " + mpeg_dir + "/yuvs")
+    jobqueue.do("rm -rf " + mpeg_dir + "/yuvs")
+    jobqueue.do("mkdir -p " + mpeg_dir + "/yuvs")
 
 class MpegSequence:
 
@@ -374,8 +231,8 @@ class MpegSequence:
             i = self.frame
         return (self.yuv_format() % i) + '.yuv'
 
-    # By default, each title page stays up for five seconds
-    def titleSequence(self, titlefile, frames=150):
+    # By default, each title page stays up for fifteen seconds
+    def titleSequence(self, titlefile, frames=450):
         assert os.path.exists(titlefile)
         if framelimit is not None: frames = min(frames, framelimit)
         first_yuv = self.yuv_name()
@@ -385,8 +242,8 @@ class MpegSequence:
         else:
             w, h = self.width, self.height
             borderoption = ''
-        do('convert %s -geometry %dx%d! %s %s' %
-           (titlefile, w, h, borderoption, first_yuv))
+        jobqueue.do('convert %s -geometry %dx%d! %s %s' %
+                    (titlefile, w, h, borderoption, first_yuv))
         self.frame += 1
         for i in range(1, frames):
             import shutil
@@ -402,12 +259,69 @@ class MpegSequence:
             shutil.copy(src, self.yuv_name())
             self.frame += 1
 
+    def rawSubframes(self, srcdir, dstdir, povfmt, howmany):
+        if framelimit is not None: howmany = min(howmany, framelimit)
+        assert povfmt[-4:] == '.pov'
+        jpgfmt = povfmt[:-4] + '.jpg'
+        q = jobqueue.JobQueue()
+        batchsize = 40
+        i = 0
+        while i < howmany:
+
+            num = min(batchsize, howmany - i)
+            assert num > 0
+            ifiles = [ ]
+            ofiles = [ ]
+            for j in range(num):
+                ifiles.append(povfmt % (i + j))
+                ofiles.append(jpgfmt % (i + j))
+
+            job = SubframePovrayJob(srcdir, dstdir,
+                                    ifiles, ofiles,
+                                    povray_width, povray_height,
+                                    mpeg_width, mpeg_height)
+            q.append(job)
+            i += num
+        q.start()
+        q.wait()
+
+    def blur(povfmt, start, incr, frames, avg, textlist):
+        # avg is how many subframes are averaged to produce each frame
+        # ratio is the ratio of subframes to frames
+        if framelimit is not None: frames = min(frames, framelimit)
+        tmpimage = '/tmp/foo.jpg'
+        for i in range(frames):
+            if avg > 1:
+                avgopt = '-average'
+            else:
+                avgopt = ''
+            inputs = ''
+            fnum = start + incr * i
+            yuv = (self.yuv_format() % self.frame) + '.yuv'
+            for j in range(avg):
+                inputs += ' ' + (povfmt % (fnum + j))
+            jobqueue.do('convert %s %s -crop %dx%d+%d+0 -geometry %dx%d! %s\n' %
+                        (avgopt, inputs, w2, self.pheight, (self.pwidth - w2) / 2,
+                         self.ywidth, self.yheight, tmpimage))
+            if self.textlist:
+                cmd = ''
+                for i in range(len(self.textlist)):
+                    cmd += ' -annotate +10+%d "%s"' % (30 * (i + 1), self.textlist[i])
+                if border is not None:
+                    cmd += ' -bordercolor black -border %dx%d' % border
+                cmd = ('convert %s -font times-roman -pointsize 30 %s %s' %
+                       (tmpimage, cmd, yuv))
+                jobqueue.do(cmd)
+            else:
+                jobqueue.do('convert %s %s' % (tmpimage, yuv))
+            self.frame += 1
+
     def motionBlurSequence(self, povfmt, frames,
                            ratio, avg, begin=0):
         # avg is how many subframes are averaged to produce each frame
         # ratio is the ratio of subframes to frames
         if framelimit is not None: frames = min(frames, framelimit)
-        pq = PovrayJobQueue()
+        q = jobqueue.JobQueue()
         yuvs = [ ]
         srcdir, povfmt = os.path.split(povfmt)
 
@@ -425,10 +339,10 @@ class MpegSequence:
                             yuv,
                             povray_width, povray_height,
                             ywidth, yheight, textlist(i))
-            pq.append(job)
+            q.append(job)
             self.frame += 1
-        pq.start()
-        pq.wait()
+        q.start()
+        q.wait()
 
     def encode(self):
         parfil = mpeg_dir + "/foo.par"
@@ -440,6 +354,6 @@ class MpegSequence:
                              'bitrate': bitrate})
         outf.close()
         # encoding is an inexpensive operation, do it even if not for real
-        do('mpeg2encode %s/foo.par %s/foo.mpeg' % (mpeg_dir, mpeg_dir))
-        do('rm -f %s/foo.mp4' % mpeg_dir)
-        do('ffmpeg -i %s/foo.mpeg -sameq %s/foo.mp4' % (mpeg_dir, mpeg_dir))
+        jobqueue.do('mpeg2encode %s/foo.par %s/foo.mpeg' % (mpeg_dir, mpeg_dir))
+        jobqueue.do('rm -f %s/foo.mp4' % mpeg_dir)
+        jobqueue.do('ffmpeg -i %s/foo.mpeg -sameq %s/foo.mp4' % (mpeg_dir, mpeg_dir))

@@ -1,6 +1,6 @@
-import os, sys, animate, string
+import os, sys, animate, string, jobqueue
 
-animate.worker_list = [
+jobqueue.worker_list = [
     ('localhost', '/tmp/mpeg'),
     ('server', '/tmp/mpeg'),
     ('laptop', '/tmp/mpeg'),
@@ -9,7 +9,7 @@ animate.worker_list = [
 
 for arg in sys.argv[1:]:
     if arg == 'debug':
-        animate.DEBUG = True
+        jobqueue.DEBUG = 1
     elif arg == 'ugly':
         animate.povray_pretty = False
     elif arg.startswith('framelimit='):
@@ -18,55 +18,79 @@ for arg in sys.argv[1:]:
 h = 438
 w = 584
 animate.set_resolution(w, h)
-animate.border = (w/10, h/10)
+animate.border = (35, 18)
 
 #################################
-
-N = 1   # nominally 1, test with 4, 5, or 9
 
 animate.remove_old_yuvs()
 
 m = animate.MpegSequence()
-m.titleSequence('title1.gif', 150 / N)
+
+m.rawSubframes(os.path.join(animate.mpeg_dir, 'fastpov'),
+               os.path.join(animate.mpeg_dir, 'fastjpeg'),
+               'wwrot.%06d.pov',
+               2008)
+
+raise SystemExit
+
+m.rawSubframes(os.path.join(animate.mpeg_dir, 'slowpov'),
+               os.path.join(animate.mpeg_dir, 'slowjpeg'),
+               'wwrot.%06d.pov',
+               5020)
+
+m.titleSequence('1_Title.gif', 300)
+m.titleSequence('2_Intro.gif', 300)
 
 # Each frame is 5 femtoseconds, each subframe is 0.5 fs
 def textlist(i):
     nsecs = i * 5.0e-6
     return [
         '%.4f nanoseconds' % nsecs,
-        '%.4f rotations' % (nsecs / 0.2),
-        '%.1f degrees' % (360. * nsecs / 0.2)
+        '%.4f rotations' % (nsecs / 0.2)
         ]
 animate.textlist = textlist
-m.titleSequence('title2.gif', 150 / N)
-m.motionBlurSequence(os.path.join(animate.mpeg_dir, 'fastpov/fast.%06d.pov'),
-                     450 / N, 10 * N, 10 / N)
 
+m.titleSequence('3_0.15ps.gif', 300)
+m.blur(os.path.join(animate.mpeg_dir,
+                    'fastjpeg/SmallBearingWithLongShaft.%06d.jpg'),
+       start=0, incr=1, frames=502, avg=1, textlist=textlist)
 
 # Each frame is 20 femtoseconds, each subframe is 2 fs
 def textlist(i):
     nsecs = i * 20.0e-6
     return [
-        '%.3f nanoseconds' % nsecs,
-        '%.3f rotations' % (nsecs / 0.2),
-        '%.0f degrees' % (360. * nsecs / 0.2)
+        '%.4f nanoseconds' % nsecs,
+        '%.4f rotations' % (nsecs / 0.2)
         ]
 animate.textlist = textlist
-m.titleSequence('title3.gif', 150 / N)
-m.motionBlurSequence(os.path.join(animate.mpeg_dir, 'medpov/med.%06d.pov'),
-                     450 / N, 10 * N, 10 / N)
 
+m.titleSequence('4_0.6ps.gif', 300)
+m.blur(os.path.join(animate.mpeg_dir,
+                    'fastjpeg/SmallBearingWithLongShaft.%06d.jpg'),
+       start=0, incr=4, frames=502, avg=4, textlist=textlist)
 
 # Each frame is 200 femtoseconds, each subframe is 20 fs
 def textlist(i):
     nsecs = i * 200.0e-6
     return [
-        '%.2f nanoseconds' % nsecs,
-        '%.2f rotations' % (nsecs / 0.2),
-        '%.0f degrees' % (360. * nsecs / 0.2)
+        '%.4f nanoseconds' % nsecs,
+        '%.4f rotations' % (nsecs / 0.2)
         ]
 animate.textlist = textlist
-m.titleSequence('title4.gif', 150 / N)
-m.motionBlurSequence(os.path.join(animate.mpeg_dir, 'slowpov/slow.%06d.pov'),
-                     450 / N, 10 * N, 10 / N)
+
+m.titleSequence('5_6.0ps.gif', 300)
+m.blur(os.path.join(animate.mpeg_dir,
+                    'slowjpeg/SmallBearingWithLongShaft.%06d.jpg'),
+       start=0, incr=10, frames=502, avg=10, textlist=textlist)
+
+# no motion blur, average only one image instead of ten
+# same time representation as previously
+m.titleSequence('6_OneSample.gif', 300)
+m.blur(os.path.join(animate.mpeg_dir,
+                    'slowjpeg/SmallBearingWithLongShaft.%06d.jpg'),
+       start=0, incr=10, frames=502, avg=1, textlist=textlist)
+
+m.titleSequence('7_FutureFab.gif', 300)
+m.titleSequence('8_Credits.gif', 300)
+
 m.encode()
