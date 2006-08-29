@@ -25,6 +25,7 @@ from movie import Movie
 from debug import print_compact_traceback
 import env
 from prefs_widgets import connect_checkbox_with_boolean_pref
+from prefs_constants import Potential_energy_tracefile_prefs_key
 
 # class FakeMovie:
 #
@@ -67,7 +68,8 @@ class SimSetup(SimSetupDialog): # before 050325 this class was called runSim
             # not yet needed, though in future we might display info
             # about this Part in the dialog, to avoid confusion
             # if it's not the main Part.
-        connect_checkbox_with_boolean_pref(self.potential_energy_checkbox, "potential energy checkbox")
+        connect_checkbox_with_boolean_pref(self.potential_energy_checkbox,
+                                           Potential_energy_tracefile_prefs_key)
         self.assy = part.assy # used only for assy.filename
         self.suffix = suffix
         self.previous_movie = previous_movie or _stickyParams or Movie(self.assy) # used only for its parameter settings

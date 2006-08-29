@@ -93,6 +93,9 @@ Minimize_endMax_prefs_key = 'A8/End Max Minimize'
 Minimize_cutoverRMS_prefs_key = 'A8/Cutover RMS Minimize'
 Minimize_cutoverMax_prefs_key = 'A8/Cutover Max Minimize'
 
+# Pref to add potential energy to trace file
+Potential_energy_tracefile_prefs_key = 'A8/Potential energy checkbox'
+
 # Atom prefs
 atomHighlightColor_prefs_key = 'A6/Atom Highlight Color'
 bondpointHighlightColor_prefs_key = 'A7/Bondpoint Highlight Color'
@@ -292,6 +295,10 @@ prefs_table = (
     ('', 'float', Minimize_endMax_prefs_key, -1.0), 
     ('', 'float', Minimize_cutoverRMS_prefs_key, -1.0), 
     ('', 'float', Minimize_cutoverMax_prefs_key, -1.0), 
+
+    # preference for adding potential energy to trace file
+
+    ('', 'boolean', Potential_energy_tracefile_prefs_key, False),
     
     # Atom preferences - colors (other than element colors, handled separately)
 
