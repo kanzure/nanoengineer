@@ -1,3 +1,5 @@
+#!/usr/bin/python
+
 import os, sys, animate, string, jobqueue
 
 jobqueue.worker_list = [
@@ -7,11 +9,15 @@ jobqueue.worker_list = [
     ('mac', '/Users/wware/tmp')
     ]
 
+rendering = False
+
 for arg in sys.argv[1:]:
-    if arg == 'debug':
-        jobqueue.DEBUG = 1
+    if arg.startswith('debug='):
+        jobqueue.DEBUG = string.atoi(arg[6:])
     elif arg == 'ugly':
         animate.povray_pretty = False
+    elif arg == 'rendering':
+        rendering = True
     elif arg.startswith('framelimit='):
         animate.framelimit = string.atoi(arg[11:])
 
@@ -26,16 +32,18 @@ animate.remove_old_yuvs()
 
 m = animate.MpegSequence()
 
-if False:
+if rendering:
+    print 'RENDERING...'
     # First step, generate all the subframes we'll need
-    m.rawSubframes(os.path.join(animate.mpeg_dir, 'fastpov'),
-                   os.path.join(animate.mpeg_dir, 'fastjpeg'),
-                   'wwrot.%06d.pov',
-                   2008)
+    #m.rawSubframes(os.path.join(animate.mpeg_dir, 'fastpov'),
+    #               os.path.join(animate.mpeg_dir, 'fastjpeg'),
+    #               'wwrot.%06d.pov',
+    #               2008)
     m.rawSubframes(os.path.join(animate.mpeg_dir, 'slowpov'),
                    os.path.join(animate.mpeg_dir, 'slowjpeg'),
                    'wwrot.%06d.pov',
-                   5020)
+                   5020,
+                   povray_res=(832, 594))
     raise SystemExit
 
 m.titleSequence('1_Title.gif', 300)
