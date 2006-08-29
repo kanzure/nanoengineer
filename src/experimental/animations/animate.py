@@ -285,11 +285,17 @@ class MpegSequence:
         q.start()
         q.wait()
 
-    def blur(povfmt, start, incr, frames, avg, textlist):
+    def blur(self, povfmt, start, incr, frames, avg, textlist):
         # avg is how many subframes are averaged to produce each frame
         # ratio is the ratio of subframes to frames
         if framelimit is not None: frames = min(frames, framelimit)
         tmpimage = '/tmp/foo.jpg'
+        video_aspect_ratio = 4.0 / 3.0
+        w2 = int(video_aspect_ratio * povray_height)
+        ywidth, yheight = mpeg_width, mpeg_height
+        if border is not None:
+            ywidth -= 2 * border[0]
+            yheight -= 2 * border[1]
         for i in range(frames):
             if avg > 1:
                 avgopt = '-average'
@@ -300,13 +306,14 @@ class MpegSequence:
             yuv = (self.yuv_format() % self.frame) + '.yuv'
             for j in range(avg):
                 inputs += ' ' + (povfmt % (fnum + j))
-            jobqueue.do('convert %s %s -crop %dx%d+%d+0 -geometry %dx%d! %s\n' %
-                        (avgopt, inputs, w2, self.pheight, (self.pwidth - w2) / 2,
-                         self.ywidth, self.yheight, tmpimage))
-            if self.textlist:
+            jobqueue.do('convert %s %s -crop %dx%d+%d+0 -geometry %dx%d! %s' %
+                        (avgopt, inputs, w2, povray_height, (povray_width - w2) / 2,
+                         ywidth, yheight, tmpimage))
+            if textlist:
+                texts = textlist(i)
                 cmd = ''
-                for i in range(len(self.textlist)):
-                    cmd += ' -annotate +10+%d "%s"' % (30 * (i + 1), self.textlist[i])
+                for j in range(len(texts)):
+                    cmd += ' -annotate +10+%d "%s"' % (30 * (j + 1), texts[j])
                 if border is not None:
                     cmd += ' -bordercolor black -border %dx%d' % border
                 cmd = ('convert %s -font times-roman -pointsize 30 %s %s' %

@@ -26,17 +26,17 @@ animate.remove_old_yuvs()
 
 m = animate.MpegSequence()
 
-m.rawSubframes(os.path.join(animate.mpeg_dir, 'fastpov'),
-               os.path.join(animate.mpeg_dir, 'fastjpeg'),
-               'wwrot.%06d.pov',
-               2008)
-
-raise SystemExit
-
-m.rawSubframes(os.path.join(animate.mpeg_dir, 'slowpov'),
-               os.path.join(animate.mpeg_dir, 'slowjpeg'),
-               'wwrot.%06d.pov',
-               5020)
+if False:
+    # First step, generate all the subframes we'll need
+    m.rawSubframes(os.path.join(animate.mpeg_dir, 'fastpov'),
+                   os.path.join(animate.mpeg_dir, 'fastjpeg'),
+                   'wwrot.%06d.pov',
+                   2008)
+    m.rawSubframes(os.path.join(animate.mpeg_dir, 'slowpov'),
+                   os.path.join(animate.mpeg_dir, 'slowjpeg'),
+                   'wwrot.%06d.pov',
+                   5020)
+    raise SystemExit
 
 m.titleSequence('1_Title.gif', 300)
 m.titleSequence('2_Intro.gif', 300)
@@ -52,7 +52,7 @@ animate.textlist = textlist
 
 m.titleSequence('3_0.15ps.gif', 300)
 m.blur(os.path.join(animate.mpeg_dir,
-                    'fastjpeg/SmallBearingWithLongShaft.%06d.jpg'),
+                    'fastjpeg/wwrot.%06d.jpg'),
        start=0, incr=1, frames=502, avg=1, textlist=textlist)
 
 # Each frame is 20 femtoseconds, each subframe is 2 fs
@@ -66,7 +66,7 @@ animate.textlist = textlist
 
 m.titleSequence('4_0.6ps.gif', 300)
 m.blur(os.path.join(animate.mpeg_dir,
-                    'fastjpeg/SmallBearingWithLongShaft.%06d.jpg'),
+                    'fastjpeg/wwrot.%06d.jpg'),
        start=0, incr=4, frames=502, avg=4, textlist=textlist)
 
 # Each frame is 200 femtoseconds, each subframe is 20 fs
@@ -80,14 +80,14 @@ animate.textlist = textlist
 
 m.titleSequence('5_6.0ps.gif', 300)
 m.blur(os.path.join(animate.mpeg_dir,
-                    'slowjpeg/SmallBearingWithLongShaft.%06d.jpg'),
+                    'slowjpeg/wwrot.%06d.jpg'),
        start=0, incr=10, frames=502, avg=10, textlist=textlist)
 
 # no motion blur, average only one image instead of ten
 # same time representation as previously
 m.titleSequence('6_OneSample.gif', 300)
 m.blur(os.path.join(animate.mpeg_dir,
-                    'slowjpeg/SmallBearingWithLongShaft.%06d.jpg'),
+                    'slowjpeg/wwrot.%06d.jpg'),
        start=0, incr=10, frames=502, avg=1, textlist=textlist)
 
 m.titleSequence('7_FutureFab.gif', 300)
