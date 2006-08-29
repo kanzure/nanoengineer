@@ -43,7 +43,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         self.isAtomPosition = env.prefs[dynamicToolTipAtomPosition_prefs_key]#boolean
         self.isAtomDistDeltas = env.prefs[dynamicToolTipAtomDistanceDeltas_prefs_key]#boolean
         self.isBondLength = env.prefs[dynamicToolTipBondLength_prefs_key] #boolean
-        
+        self.isAtomMass = env.prefs[dynamicToolTipAtomMass_prefs_key] #boolean
         
      
     def maybeTip(self, cursorPos):
@@ -191,7 +191,7 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         #      ---- Atom Info ----
         if isinstance(glpane.selobj, atom):
             selAtom  = glpane.selobj
-            atomInfoStr = selAtom.getToolTipInfo(glpane, self.isAtomPosition, self.isAtomChunkInfo, atomDistPrecision)
+            atomInfoStr = selAtom.getToolTipInfo(glpane, self.isAtomPosition, self.isAtomChunkInfo, self.isAtomMass, atomDistPrecision)
             return atomInfoStr
            
         #       ----Bond Info----

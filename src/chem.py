@@ -1488,14 +1488,14 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         
         return ainfo
     
-    def getToolTipInfo(self, glpane, isAtomPosition, isAtomChunkInfo, atomDistPrecision):
+    def getToolTipInfo(self, glpane, isAtomPosition, isAtomChunkInfo, isAtomMass, atomDistPrecision):
         ''' returns atom's basic info string for the dynamic toooltip
         '''
         atomStr = describe_atom_and_atomtype(glpane.selobj)
         elementNameStr = " [" + glpane.selobj.element.name + "]"
         
         atomInfoStr = atomStr +  elementNameStr       
-
+        
         if isAtomPosition:
             xyz = glpane.selobj.posn()
             xPosn = str(round(xyz[0], atomDistPrecision))
@@ -1509,6 +1509,13 @@ class Atom(AtomBase, InvalMixin, StateMixin):
             if glpane.selobj is not None:
                 atomChunkInfo = "<font color=\"#0000FF\">Parent Chunk:</font> [" + glpane.selobj.molecule.name + "]"
                 atomInfoStr += "<br>" + atomChunkInfo
+
+        if isAtomMass:
+            atomMass = "<font color=\"#0000FF\">Mass: </font>" + str(glpane.selobj.element.mass) + "  x 10-27 Kg"
+            atomInfoStr += "<br>" + atomMass
+                
+        #if isRVdw:
+           # rVdw = "<font color=\"#0000FF\">Vdw:Radius:  </font>" + str(glpane.selobj.element.rvdw) + "A"
                 
         return atomInfoStr
 

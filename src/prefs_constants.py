@@ -75,6 +75,8 @@ dynamicToolTipBondChunkInfo_prefs_key = 'A9/DynamicToolTip Bond Chunk Info'
 dynamicToolTipAtomPosition_prefs_key = 'A9/DynamicToolTip Atom Position'
 dynamicToolTipAtomDistanceDeltas_prefs_key = 'A9/DynamicToolTip Atom Distance Deltas'
 dynamicToolTipBondLength_prefs_key = 'A9/DynamicToolTip Bond Length'
+dynamicToolTipAtomMass_prefs_key = 'A9/DynamicToolTip Atom Mass'
+
 
 # Minimize prefs for Adjust All and Adjust Selection (presently on General prefs pane)
 # (note, Adjust Atoms does not yet have its own prefs -- its values are derived from these
@@ -403,6 +405,7 @@ prefs_table = (
      ('atom_position', 'boolean', dynamicToolTipAtomPosition_prefs_key, True), #checkbox for displaying xyz pos
      ('atom_distance_deltas', 'boolean', dynamicToolTipAtomDistanceDeltas_prefs_key, True), # check box to display xyz deltas
       ('bond_length', 'boolean', dynamicToolTipBondLength_prefs_key, True), # displays the bond length (precision determined by atom distance precision) @@@ ninad060823: It only returns the nuclear distance between the bonded atoms doesn't return covalent bond length.
+      ('atom_mass', 'boolean', dynamicToolTipAtomMass_prefs_key, True), #displays mass of the atom ninad060829
       
      #=== Start of NIYs ninad060822===#
     ('torsion_angle_precision', 'int', dynamicToolTipTorsionAnglePrecision_prefs_key, 3), # number of decimal places 
