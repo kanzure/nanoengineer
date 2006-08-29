@@ -355,16 +355,20 @@ class ThumbView(QGLWidget):
 
     def wheelEvent(self, event):
         but = event.state()
-        
+
+        # The following copies some code from basicMode.Wheel, but not yet the call of rescale_around_point,
+        # since that is not implemented in this class; it ought to be made a method of a new common superclass
+        # of this class and GLPane (and there are quite a few methods of GLPane about which that can be said,
+        # some redundantly implemented here and some not).
+        # [bruce 060829 comment]
         dScale = 1.0/1200.0
         if but & shiftButton: dScale *= 0.5
         if but & cntlButton: dScale *= 2.0
         self.scale *= 1.0 + dScale * event.delta()
-
-        ##: The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
-        ##  because of machine precision, which will cause OpenGL Error. Huaicai 10/18/04
+            ##: The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
+            ##  because of machine precision, which will cause OpenGL Error. Huaicai 10/18/04
         self.updateGL()
-
+        return
 
     def bareMotion(self, event):
         wX = event.pos().x()

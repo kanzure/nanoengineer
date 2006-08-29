@@ -1622,10 +1622,48 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         ##     if mol.display == diDEFAULT: mol.changeapp(1)
         return
 
-    def setZoomFactor(self, zFactor):
-            self.zoomFactor = zFactor
-    def getZoomFactor(self):
-            return self.zoomFactor    
+    # note: as of long before 060829, set/getZoomFactor are never called, and I suspect that nothing
+    # ever sets self.zoomFactor to anything other than 1.0, though I didn't fully analyze the calls
+    # of the code that looks like it might. So I'll comment these out for now. [bruce 060829 comment]
+##    def setZoomFactor(self, zFactor): 
+##        self.zoomFactor = zFactor
+##    
+##    def getZoomFactor(self):
+##        return self.zoomFactor
+
+    def dragstart_using_GL_DEPTH(self, event): #bruce 060829 moved this from basicMode, which now calls it here
+        """Use the OpenGL depth buffer pixel at the coordinates of event
+        (which works correctly only if the proper GL context (of self) is current -- caller is responsible for this)
+        to guess the 3D point that was visually clicked on.
+        If that was too far away to be correct, use a point under the mouse and in the plane of the center of view.
+           Return (False, point) when point came from the depth buffer, or (True, point) when point came from the
+        plane of the center of view. Callers should typically do further sanity checks on point and the "farQ" flag,
+        perhaps replacing point with an object's center, projected onto the mousepoints line, if point is an unrealistic
+        dragpoint for the object which will be dragged. [#e there should be a canned routine for doing that to our retval]
+        """
+        wX = event.pos().x()
+        wY = self.height - event.pos().y()
+        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        
+        if wZ[0][0] >= GL_FAR_Z:
+            junk, point = self.mousepoints(event)
+            farQ = True
+        else:
+            point = A(gluUnProject(wX, wY, wZ[0][0]))
+            farQ = False
+        return farQ, point
+
+    def rescale_around_point(self, factor, point): #bruce 060829
+        """Change self.scale by the given multiplicative factor, changing the center of view
+        (- self.pov) so that the given point is at the same position in eyespace.
+        [In the initial commit, the effect on pov is not yet implemented.]
+        """
+        ###e NIM (will implement soon):
+        # use point somehow, so that it, not center of view, gets preserved in screen x,y position and "apparent depth" (??)
+        self.scale *= factor
+            ###e The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
+            ###  because of machine precision, which will cause OpenGL Error. [needed but NIM] [Huaicai comment 10/18/04]
+        return
             
     def gl_update_duration(self, new_part=False):
         '''Redraw GLPane and update the repaint duration variable <self._repaint_duration>
@@ -2366,7 +2404,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         glMatrixMode(GL_PROJECTION)
         glLoadIdentity()
 
-        scalezoom = self.scale * self.zoomFactor #bruce 050608 used this to clarify following code
+        scale = self.scale * self.zoomFactor #bruce 050608 used this to clarify following code
         near, far = self.near, self.far
 
         if glselect:
@@ -2378,12 +2416,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             )
          
         if self.ortho:
-            glOrtho( - scalezoom * aspect, scalezoom * aspect,
-                     - scalezoom,          scalezoom,
+            glOrtho( - scale * aspect, scale * aspect,
+                     - scale,          scale,
                        vdist * near, vdist * far )
         else:
-            glFrustum( - scalezoom * near * aspect, scalezoom * near * aspect,
-                       - scalezoom * near,          scalezoom * near,
+            glFrustum( - scale * near * aspect, scale * near * aspect,
+                       - scale * near,          scale * near,
                          vdist * near, vdist * far)
         return
 

@@ -965,26 +965,12 @@ class basicMode(anyMode):
         self.picking = False
         self.update_cursor()
 
-    def dragstart_using_GL_DEPTH(self, event): #bruce 060316 made this from common code in several places
+    def dragstart_using_GL_DEPTH(self, event): #bruce 060316 made this from common code in several places; 060829 moved body to GLPane
         """Use the OpenGL depth buffer pixel at the coordinates of event
         (which works correctly only if the proper GL context, self.o, is current -- caller is responsible for this)
-        to guess the 3D point that was visually clicked on.
-        If that was too far away to be correct, use a point under the mouse and in the plane of the center of view.
-           Return (False, point) when point came from the depth buffer, or (True, point) when point came from the
-        plane of the center of view. Callers should typically do further sanity checks on point and the "farQ" flag,
-        perhaps replacing point with an object's center, projected onto the mousepoints line, if point is an unrealistic
-        dragpoint for the object which will be dragged. [#e there should be a canned routine for doing that to our retval]
+        to guess the 3D point that was visually clicked on. See GLPane version's docstring for details.
         """
-        wX = event.pos().x()
-        wY = self.o.height - event.pos().y()
-        wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
-        
-        if wZ[0][0] >= GL_FAR_Z:
-            junk, point = self.o.mousepoints(event)
-            farQ = True
-        else:
-            point = A(gluUnProject(wX, wY, wZ[0][0]))
-            farQ = False
+        farQ, point = self.o.dragstart_using_GL_DEPTH(event)
         return farQ, point
 
     def middleShiftDown(self, event):
@@ -1273,13 +1259,14 @@ class basicMode(anyMode):
             # Switched Shift and Control zoom factors to be more intuitive.
             # Shift + Wheel zooms in quickly (2x), Control + Wheel zooms in slowly (.25x). 
             # mark 060321
-        self.o.scale *= 1.0 + dScale * event.delta()
-        ##: The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
-        ##  because of machine precision, which will cause OpenGL Error. Huaicai 10/18/04
+        farQ_junk, point = self.dragstart_using_GL_DEPTH( event)
+        factor = 1.0 + dScale * event.delta()
+        self.o.rescale_around_point( factor , point )
         
         # Turn off hover highlighting while zooming with mouse wheel. Fixes bug 1657. Mark 060805.
         self.o.selobj = None # <selobj> is the object highlighted under the cursor.
         self.o.gl_update()
+        return
 
     # [remaining methods not yet analyzed by bruce 040922]
 
