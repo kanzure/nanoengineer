@@ -22,8 +22,7 @@ if os.environ.has_key("DEBUG"):
 all_workers_stop = False
 
 def do(cmd):
-    if DEBUG >= 1:
-        print cmd
+    print cmd
     if os.system(cmd) != 0:
         raise Exception(cmd)
 
@@ -111,7 +110,7 @@ class Job:
         longname = os.path.join(self.srcdir, scriptname)
         script = ("(cd " + worker.workdir + "\n" +
                   (self.shellScript()) + ")\n")
-        if DEBUG >= 2:
+        if DEBUG >= 1:
             print worker.machine + ' <<<\n' + script + '>>>'
         outf = open(longname, 'w')
         outf.write(script)
