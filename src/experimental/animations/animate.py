@@ -259,8 +259,10 @@ class MpegSequence:
             shutil.copy(src, self.yuv_name())
             self.frame += 1
 
-    def rawSubframes(self, srcdir, dstdir, povfmt, howmany):
+    def rawSubframes(self, srcdir, dstdir, povfmt, howmany, povray_res=None):
         if framelimit is not None: howmany = min(howmany, framelimit)
+        if povray_res is None:
+            povray_res = povray_width, povray_height
         assert povfmt[-4:] == '.pov'
         jpgfmt = povfmt[:-4] + '.jpg'
         q = jobqueue.JobQueue()
@@ -278,7 +280,7 @@ class MpegSequence:
 
             job = SubframePovrayJob(srcdir, dstdir,
                                     ifiles, ofiles,
-                                    povray_width, povray_height,
+                                    povray_res[0], povray_res[1],
                                     mpeg_width, mpeg_height)
             q.append(job)
             i += num
