@@ -78,8 +78,7 @@ class ops_select_Mixin:
         self.topnode.apply2all(addMovableNode)
         return selected_movables
 
-    #def selectAll(self):
-    def selectAllorig(self):
+    def selectAll(self):
         """Select all parts if nothing selected.
         If some parts are selected, select all atoms in those parts.
         If some atoms are selected, select all atoms in the parts
@@ -97,24 +96,6 @@ class ops_select_Mixin:
                     a.pick()
         self.w.win_update()
         
-    #def selectAtomsInChunk(self):
-    def selectAll(self):
-        "Selects all  atoms present in a chunk" 
-        #from TreeWidget import TreeWidget
-        self.begin_select_cmd()
-        #if self.selwhat == SELWHAT_CHUNKS:
-            
-        #assert self.selwhat == SELWHAT_ATOMS
-       # from depositMode import depositMode
-        
-        for m in self.selmols:
-            for a in m.atoms.itervalues():
-                a.pick()
-        #self.assy.part.permit_pick_atoms()
-        self.w.toolsBuildAtoms() 
-        self.unpickchunks()
-        self.w.win_update()
-
     def selectNone(self):
         self.begin_select_cmd() #bruce 051031
         self.unpickall_in_win()
