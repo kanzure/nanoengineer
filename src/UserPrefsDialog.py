@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Tue Aug 15 00:33:34 2006
-#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
+# Created: Wed Aug 30 17:06:52 2006
+#      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -139,7 +139,7 @@ class UserPrefsDialog(QDialog):
         layout127.addItem(spacer110)
 
         self.textLabel1_5 = QLabel(self.groupBox8,"textLabel1_5")
-        self.textLabel1_5.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.textLabel1_5.sizePolicy().hasHeightForWidth()))
+        self.textLabel1_5.setSizePolicy(QSizePolicy(1,5,0,0,self.textLabel1_5.sizePolicy().hasHeightForWidth()))
         self.textLabel1_5.setScaledContents(0)
         self.textLabel1_5.setAlignment(QLabel.AlignVCenter)
         layout127.addWidget(self.textLabel1_5)
@@ -268,7 +268,7 @@ class UserPrefsDialog(QDialog):
         groupBox20Layout.addLayout(layout79)
 
         self.minimize_warning_lbl = QLabel(self.groupBox20,"minimize_warning_lbl")
-        self.minimize_warning_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Expanding,0,0,self.minimize_warning_lbl.sizePolicy().hasHeightForWidth()))
+        self.minimize_warning_lbl.setSizePolicy(QSizePolicy(5,7,0,0,self.minimize_warning_lbl.sizePolicy().hasHeightForWidth()))
         groupBox20Layout.addWidget(self.minimize_warning_lbl)
         groupBox14Layout.addWidget(self.groupBox20)
 
@@ -332,7 +332,7 @@ class UserPrefsDialog(QDialog):
         tabLayout.addLayout(layout83)
         spacer58_4 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         tabLayout.addItem(spacer58_4)
-        self.prefs_tab.insertTab(self.tab,QString.fromLatin1(""))
+        self.prefs_tab.insertTab(self.tab,QString(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
         TabPageLayout = QGridLayout(self.TabPage,1,1,11,6,"TabPageLayout")
@@ -496,7 +496,7 @@ class UserPrefsDialog(QDialog):
         TabPageLayout.addLayout(layout86,0,0)
         spacer76 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         TabPageLayout.addItem(spacer76,0,1)
-        self.prefs_tab.insertTab(self.TabPage,QString.fromLatin1(""))
+        self.prefs_tab.insertTab(self.TabPage,QString(""))
 
         self.TabPage_2 = QWidget(self.prefs_tab,"TabPage_2")
         TabPageLayout_2 = QGridLayout(self.TabPage_2,1,1,11,6,"TabPageLayout_2")
@@ -561,7 +561,7 @@ class UserPrefsDialog(QDialog):
         layout79_3 = QGridLayout(None,1,1,0,6,"layout79_3")
 
         self.textLabel3_2 = QLabel(self.groupBox4,"textLabel3_2")
-        self.textLabel3_2.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.textLabel3_2.sizePolicy().hasHeightForWidth()))
+        self.textLabel3_2.setSizePolicy(QSizePolicy(5,5,0,0,self.textLabel3_2.sizePolicy().hasHeightForWidth()))
         self.textLabel3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         layout79_3.addWidget(self.textLabel3_2,0,0)
@@ -625,7 +625,7 @@ class UserPrefsDialog(QDialog):
         layout79_3.addWidget(self.textLabel3,1,0)
 
         self.textLabel3_2_2 = QLabel(self.groupBox4,"textLabel3_2_2")
-        self.textLabel3_2_2.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.textLabel3_2_2.sizePolicy().hasHeightForWidth()))
+        self.textLabel3_2_2.setSizePolicy(QSizePolicy(5,5,0,0,self.textLabel3_2_2.sizePolicy().hasHeightForWidth()))
         self.textLabel3_2_2.setMinimumSize(QSize(0,0))
         self.textLabel3_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
@@ -683,7 +683,7 @@ class UserPrefsDialog(QDialog):
         layout84.addItem(spacer58)
 
         TabPageLayout_2.addLayout(layout84,1,0)
-        self.prefs_tab.insertTab(self.TabPage_2,QString.fromLatin1(""))
+        self.prefs_tab.insertTab(self.TabPage_2,QString(""))
 
         self.TabPage_3 = QWidget(self.prefs_tab,"TabPage_3")
         TabPageLayout_3 = QGridLayout(self.TabPage_3,1,1,11,6,"TabPageLayout_3")
@@ -702,7 +702,7 @@ class UserPrefsDialog(QDialog):
         layout68.addWidget(self.startup_mode_combox,0,1)
 
         self.default_mode_lbl = QLabel(self.TabPage_3,"default_mode_lbl")
-        self.default_mode_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.default_mode_lbl.sizePolicy().hasHeightForWidth()))
+        self.default_mode_lbl.setSizePolicy(QSizePolicy(5,5,0,0,self.default_mode_lbl.sizePolicy().hasHeightForWidth()))
         self.default_mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         layout68.addWidget(self.default_mode_lbl,1,0)
@@ -769,7 +769,7 @@ class UserPrefsDialog(QDialog):
         TabPageLayout_3.addLayout(layout84_2,0,0)
         spacer8_4 = QSpacerItem(51,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         TabPageLayout_3.addItem(spacer8_4,0,1)
-        self.prefs_tab.insertTab(self.TabPage_3,QString.fromLatin1(""))
+        self.prefs_tab.insertTab(self.TabPage_3,QString(""))
 
         self.TabPage_4 = QWidget(self.prefs_tab,"TabPage_4")
         TabPageLayout_4 = QGridLayout(self.TabPage_4,1,1,11,6,"TabPageLayout_4")
@@ -1079,7 +1079,7 @@ class UserPrefsDialog(QDialog):
         groupBox9_2Layout.addLayout(layout54,0,2)
 
         TabPageLayout_4.addWidget(self.groupBox9_2,0,1)
-        self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
+        self.prefs_tab.insertTab(self.TabPage_4,QString(""))
 
         self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
         TabPageLayout_5 = QGridLayout(self.TabPage_5,1,1,11,6,"TabPageLayout_5")
@@ -1157,6 +1157,8 @@ class UserPrefsDialog(QDialog):
 
         self.povdir_linedit = QLineEdit(self.file_locations_grp,"povdir_linedit")
         self.povdir_linedit.setEnabled(1)
+        self.povdir_linedit.setFrameShape(QLineEdit.LineEditPanel)
+        self.povdir_linedit.setFrameShadow(QLineEdit.Sunken)
 
         file_locations_grpLayout.addWidget(self.povdir_linedit,3,2)
 
@@ -1174,7 +1176,7 @@ class UserPrefsDialog(QDialog):
 
         self.nanohive_lbl = QLabel(self.file_locations_grp,"nanohive_lbl")
         self.nanohive_lbl.setEnabled(1)
-        self.nanohive_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.nanohive_lbl.sizePolicy().hasHeightForWidth()))
+        self.nanohive_lbl.setSizePolicy(QSizePolicy(1,5,0,0,self.nanohive_lbl.sizePolicy().hasHeightForWidth()))
         self.nanohive_lbl.setMinimumSize(QSize(60,0))
         self.nanohive_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout71_2.addWidget(self.nanohive_lbl)
@@ -1187,7 +1189,7 @@ class UserPrefsDialog(QDialog):
         layout72_2.addWidget(self.povray_checkbox)
 
         self.povray_lbl = QLabel(self.file_locations_grp,"povray_lbl")
-        self.povray_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.povray_lbl.sizePolicy().hasHeightForWidth()))
+        self.povray_lbl.setSizePolicy(QSizePolicy(1,5,0,0,self.povray_lbl.sizePolicy().hasHeightForWidth()))
         self.povray_lbl.setMinimumSize(QSize(60,0))
         self.povray_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout72_2.addWidget(self.povray_lbl)
@@ -1200,7 +1202,7 @@ class UserPrefsDialog(QDialog):
         layout73_2.addWidget(self.megapov_checkbox)
 
         self.megapov_lbl = QLabel(self.file_locations_grp,"megapov_lbl")
-        self.megapov_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.megapov_lbl.sizePolicy().hasHeightForWidth()))
+        self.megapov_lbl.setSizePolicy(QSizePolicy(1,5,0,0,self.megapov_lbl.sizePolicy().hasHeightForWidth()))
         self.megapov_lbl.setMinimumSize(QSize(60,0))
         self.megapov_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout73_2.addWidget(self.megapov_lbl)
@@ -1227,7 +1229,7 @@ class UserPrefsDialog(QDialog):
         layout75_2.addWidget(self.gamess_checkbox)
 
         self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
-        self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
+        self.gamess_lbl.setSizePolicy(QSizePolicy(1,5,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
         self.gamess_lbl.setMinimumSize(QSize(60,0))
         self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout75_2.addWidget(self.gamess_lbl)
@@ -1235,7 +1237,7 @@ class UserPrefsDialog(QDialog):
         file_locations_grpLayout.addLayout(layout75_2,4,0)
 
         TabPageLayout_5.addWidget(self.file_locations_grp,0,0)
-        self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
+        self.prefs_tab.insertTab(self.TabPage_5,QString(""))
 
         self.TabPage_6 = QWidget(self.prefs_tab,"TabPage_6")
         TabPageLayout_6 = QGridLayout(self.TabPage_6,1,1,11,6,"TabPageLayout_6")
@@ -1286,7 +1288,7 @@ class UserPrefsDialog(QDialog):
         layout70_2.addWidget(self.undo_stack_memory_limit_label,2,0)
 
         TabPageLayout_6.addLayout(layout70_2,0,0)
-        self.prefs_tab.insertTab(self.TabPage_6,QString.fromLatin1(""))
+        self.prefs_tab.insertTab(self.TabPage_6,QString(""))
 
         self.TabPage_7 = QWidget(self.prefs_tab,"TabPage_7")
         TabPageLayout_7 = QGridLayout(self.TabPage_7,1,1,11,6,"TabPageLayout_7")
@@ -1408,13 +1410,95 @@ class UserPrefsDialog(QDialog):
         groupBox10Layout.addMultiCellWidget(self.remember_win_pos_and_size_checkbox,1,1,0,2)
 
         TabPageLayout_7.addWidget(self.groupBox10,0,0)
-        self.prefs_tab.insertTab(self.TabPage_7,QString.fromLatin1(""))
+        self.prefs_tab.insertTab(self.TabPage_7,QString(""))
+
+        self.TabPage_8 = QWidget(self.prefs_tab,"TabPage_8")
+        TabPageLayout_8 = QGridLayout(self.TabPage_8,1,1,11,6,"TabPageLayout_8")
+        spacer96 = QSpacerItem(90,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        TabPageLayout_8.addItem(spacer96,0,2)
+
+        self.groupBox35 = QGroupBox(self.TabPage_8,"groupBox35")
+        self.groupBox35.setColumnLayout(0,Qt.Vertical)
+        self.groupBox35.layout().setSpacing(6)
+        self.groupBox35.layout().setMargin(11)
+        groupBox35Layout = QGridLayout(self.groupBox35.layout())
+        groupBox35Layout.setAlignment(Qt.AlignTop)
+
+        layout451 = QVBoxLayout(None,0,6,"layout451")
+
+        self.dynamicToolTipBondLength_checkbox = QCheckBox(self.groupBox35,"dynamicToolTipBondLength_checkbox")
+        layout451.addWidget(self.dynamicToolTipBondLength_checkbox)
+
+        self.dynamicToolTipBondChunkInfo_checkbox = QCheckBox(self.groupBox35,"dynamicToolTipBondChunkInfo_checkbox")
+        layout451.addWidget(self.dynamicToolTipBondChunkInfo_checkbox)
+
+        groupBox35Layout.addLayout(layout451,0,0)
+
+        TabPageLayout_8.addWidget(self.groupBox35,0,1)
+        spacer95 = QSpacerItem(20,320,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_8.addMultiCell(spacer95,1,2,1,1)
+        spacer48 = QSpacerItem(20,161,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        TabPageLayout_8.addItem(spacer48,2,0)
+
+        self.atom_dynamic_tooltips_grpbox = QGroupBox(self.TabPage_8,"atom_dynamic_tooltips_grpbox")
+        self.atom_dynamic_tooltips_grpbox.setColumnLayout(0,Qt.Vertical)
+        self.atom_dynamic_tooltips_grpbox.layout().setSpacing(2)
+        self.atom_dynamic_tooltips_grpbox.layout().setMargin(4)
+        atom_dynamic_tooltips_grpboxLayout = QGridLayout(self.atom_dynamic_tooltips_grpbox.layout())
+        atom_dynamic_tooltips_grpboxLayout.setAlignment(Qt.AlignTop)
+
+        self.dynamicToolTipAtomChunkInfo_checkbox = QCheckBox(self.atom_dynamic_tooltips_grpbox,"dynamicToolTipAtomChunkInfo_checkbox")
+        self.dynamicToolTipAtomChunkInfo_checkbox.setChecked(0)
+
+        atom_dynamic_tooltips_grpboxLayout.addMultiCellWidget(self.dynamicToolTipAtomChunkInfo_checkbox,0,0,0,1)
+
+        self.dynamicToolTipAtomDistanceDeltas_checkbox = QCheckBox(self.atom_dynamic_tooltips_grpbox,"dynamicToolTipAtomDistanceDeltas_checkbox")
+
+        atom_dynamic_tooltips_grpboxLayout.addMultiCellWidget(self.dynamicToolTipAtomDistanceDeltas_checkbox,3,3,0,1)
+
+        self.dynamicToolTipAtomMass_checkbox = QCheckBox(self.atom_dynamic_tooltips_grpbox,"dynamicToolTipAtomMass_checkbox")
+
+        atom_dynamic_tooltips_grpboxLayout.addMultiCellWidget(self.dynamicToolTipAtomMass_checkbox,1,1,0,1)
+
+        layout78 = QVBoxLayout(None,0,6,"layout78")
+
+        self.textLabel1_8 = QLabel(self.atom_dynamic_tooltips_grpbox,"textLabel1_8")
+        layout78.addWidget(self.textLabel1_8)
+
+        self.textLabel1_8_3 = QLabel(self.atom_dynamic_tooltips_grpbox,"textLabel1_8_3")
+        layout78.addWidget(self.textLabel1_8_3)
+
+        atom_dynamic_tooltips_grpboxLayout.addLayout(layout78,4,0)
+
+        layout79_4 = QVBoxLayout(None,0,6,"layout79_4")
+
+        self.dynamicToolTipAtomDistancePrecision_spinbox = QSpinBox(self.atom_dynamic_tooltips_grpbox,"dynamicToolTipAtomDistancePrecision_spinbox")
+        self.dynamicToolTipAtomDistancePrecision_spinbox.setMaxValue(5)
+        self.dynamicToolTipAtomDistancePrecision_spinbox.setMinValue(1)
+        self.dynamicToolTipAtomDistancePrecision_spinbox.setValue(3)
+        layout79_4.addWidget(self.dynamicToolTipAtomDistancePrecision_spinbox)
+
+        self.dynamicToolTipBendAnglePrecision_spinbox = QSpinBox(self.atom_dynamic_tooltips_grpbox,"dynamicToolTipBendAnglePrecision_spinbox")
+        self.dynamicToolTipBendAnglePrecision_spinbox.setMaxValue(5)
+        self.dynamicToolTipBendAnglePrecision_spinbox.setMinValue(1)
+        self.dynamicToolTipBendAnglePrecision_spinbox.setValue(3)
+        layout79_4.addWidget(self.dynamicToolTipBendAnglePrecision_spinbox)
+
+        atom_dynamic_tooltips_grpboxLayout.addLayout(layout79_4,4,1)
+
+        self.dynamicToolTipAtomPosition_checkbox = QCheckBox(self.atom_dynamic_tooltips_grpbox,"dynamicToolTipAtomPosition_checkbox")
+        self.dynamicToolTipAtomPosition_checkbox.setChecked(0)
+
+        atom_dynamic_tooltips_grpboxLayout.addMultiCellWidget(self.dynamicToolTipAtomPosition_checkbox,2,2,0,1)
+
+        TabPageLayout_8.addMultiCellWidget(self.atom_dynamic_tooltips_grpbox,0,1,0,0)
+        self.prefs_tab.insertTab(self.TabPage_8,QString(""))
 
         UserPrefsDialogLayout.addWidget(self.prefs_tab,0,0)
 
         self.languageChange()
 
-        self.resize(QSize(604,483).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(616,544).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -1474,7 +1558,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
         self.connect(self.nanohive_checkbox,SIGNAL("toggled(bool)"),self.enable_nanohive)
         self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
         self.connect(self.povdir_checkbox,SIGNAL("toggled(bool)"),self.enable_povdir)
         self.connect(self.povdir_choose_btn,SIGNAL("clicked()"),self.set_povdir)
         self.connect(self.povray_checkbox,SIGNAL("toggled(bool)"),self.enable_povray)
@@ -1490,34 +1574,41 @@ class UserPrefsDialog(QDialog):
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
         self.connect(self.undo_stack_memory_limit_spinbox,SIGNAL("valueChanged(int)"),self.change_undo_stack_memory_limit)
         self.connect(self.update_number_spinbox,SIGNAL("valueChanged(int)"),self.update_number_spinbox_valueChanged)
-        self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("toggled(bool)"),self.update_btngrp.setEnabled)
+        self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("toggled(bool)"),self.update_btngrp,SLOT("setEnabled(bool)"))
         self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.change_fill_type)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
 
-        self.setTabOrder(self.prefs_tab,self.display_compass_checkbox)
-        self.setTabOrder(self.display_compass_checkbox,self.display_compass_labels_checkbox)
-        self.setTabOrder(self.display_compass_labels_checkbox,self.display_origin_axis_checkbox)
+        self.setTabOrder(self.prefs_tab,self.display_origin_axis_checkbox)
         self.setTabOrder(self.display_origin_axis_checkbox,self.display_pov_axis_checkbox)
-        self.setTabOrder(self.display_pov_axis_checkbox,self.watch_min_in_realtime_checkbox)
-        self.setTabOrder(self.watch_min_in_realtime_checkbox,self.endrms_linedit)
+        self.setTabOrder(self.display_pov_axis_checkbox,self.display_compass_checkbox)
+        self.setTabOrder(self.display_compass_checkbox,self.display_compass_labels_checkbox)
+        self.setTabOrder(self.display_compass_labels_checkbox,self.compass_position_combox)
+        self.setTabOrder(self.compass_position_combox,self.radioButton12)
+        self.setTabOrder(self.radioButton12,self.fill_type_combox)
+        self.setTabOrder(self.fill_type_combox,self.choose_bg1_color_btn)
+        self.setTabOrder(self.choose_bg1_color_btn,self.restore_bgcolor_btn)
+        self.setTabOrder(self.restore_bgcolor_btn,self.animate_views_checkbox)
+        self.setTabOrder(self.animate_views_checkbox,self.animation_speed_slider)
+        self.setTabOrder(self.animation_speed_slider,self.watch_min_in_realtime_checkbox)
+        self.setTabOrder(self.watch_min_in_realtime_checkbox,self.update_asap_rbtn)
+        self.setTabOrder(self.update_asap_rbtn,self.update_number_spinbox)
+        self.setTabOrder(self.update_number_spinbox,self.update_units_combobox)
+        self.setTabOrder(self.update_units_combobox,self.endrms_linedit)
         self.setTabOrder(self.endrms_linedit,self.endmax_linedit)
         self.setTabOrder(self.endmax_linedit,self.cutoverrms_linedit)
         self.setTabOrder(self.cutoverrms_linedit,self.cutovermax_linedit)
-        self.setTabOrder(self.cutovermax_linedit,self.radioButton12)
-        self.setTabOrder(self.radioButton12,self.animate_views_checkbox)
-        self.setTabOrder(self.animate_views_checkbox,self.animation_speed_slider)
-        self.setTabOrder(self.animation_speed_slider,self.ok_btn)
+        self.setTabOrder(self.cutovermax_linedit,self.ok_btn)
         self.setTabOrder(self.ok_btn,self.change_element_colors_btn)
         self.setTabOrder(self.change_element_colors_btn,self.atom_hilite_color_btn)
         self.setTabOrder(self.atom_hilite_color_btn,self.bondpoint_hilite_color_btn)
         self.setTabOrder(self.bondpoint_hilite_color_btn,self.hotspot_color_btn)
         self.setTabOrder(self.hotspot_color_btn,self.reset_atom_colors_btn)
-        self.setTabOrder(self.reset_atom_colors_btn,self.cpk_atom_rad_spinbox)
+        self.setTabOrder(self.reset_atom_colors_btn,self.level_of_detail_combox)
+        self.setTabOrder(self.level_of_detail_combox,self.cpk_atom_rad_spinbox)
         self.setTabOrder(self.cpk_atom_rad_spinbox,self.cpk_scale_factor_linedit)
         self.setTabOrder(self.cpk_scale_factor_linedit,self.cpk_scale_factor_slider)
-        self.setTabOrder(self.cpk_scale_factor_slider,self.level_of_detail_combox)
-        self.setTabOrder(self.level_of_detail_combox,self.bond_hilite_color_btn)
+        self.setTabOrder(self.cpk_scale_factor_slider,self.bond_hilite_color_btn)
         self.setTabOrder(self.bond_hilite_color_btn,self.ballstick_bondcolor_btn)
         self.setTabOrder(self.ballstick_bondcolor_btn,self.bond_stretch_color_btn)
         self.setTabOrder(self.bond_stretch_color_btn,self.bond_vane_color_btn)
@@ -1557,13 +1648,22 @@ class UserPrefsDialog(QDialog):
         self.setTabOrder(self.ms_shininess_slider,self.ms_brightness_linedit)
         self.setTabOrder(self.ms_brightness_linedit,self.ms_brightness_slider)
         self.setTabOrder(self.ms_brightness_slider,self.lighting_restore_defaults_btn)
-        self.setTabOrder(self.lighting_restore_defaults_btn,self.gamess_checkbox)
-        self.setTabOrder(self.gamess_checkbox,self.gamess_path_linedit)
-        self.setTabOrder(self.gamess_path_linedit,self.gamess_choose_btn)
-        self.setTabOrder(self.gamess_choose_btn,self.nanohive_checkbox)
+        self.setTabOrder(self.lighting_restore_defaults_btn,self.nanohive_checkbox)
         self.setTabOrder(self.nanohive_checkbox,self.nanohive_path_linedit)
         self.setTabOrder(self.nanohive_path_linedit,self.nanohive_choose_btn)
-        self.setTabOrder(self.nanohive_choose_btn,self.undo_restore_view_checkbox)
+        self.setTabOrder(self.nanohive_choose_btn,self.povray_checkbox)
+        self.setTabOrder(self.povray_checkbox,self.povray_path_linedit)
+        self.setTabOrder(self.povray_path_linedit,self.povray_choose_btn)
+        self.setTabOrder(self.povray_choose_btn,self.megapov_checkbox)
+        self.setTabOrder(self.megapov_checkbox,self.megapov_path_linedit)
+        self.setTabOrder(self.megapov_path_linedit,self.megapov_choose_btn)
+        self.setTabOrder(self.megapov_choose_btn,self.povdir_checkbox)
+        self.setTabOrder(self.povdir_checkbox,self.povdir_linedit)
+        self.setTabOrder(self.povdir_linedit,self.povdir_choose_btn)
+        self.setTabOrder(self.povdir_choose_btn,self.gamess_checkbox)
+        self.setTabOrder(self.gamess_checkbox,self.gamess_path_linedit)
+        self.setTabOrder(self.gamess_path_linedit,self.gamess_choose_btn)
+        self.setTabOrder(self.gamess_choose_btn,self.undo_restore_view_checkbox)
         self.setTabOrder(self.undo_restore_view_checkbox,self.undo_automatic_checkpoints_checkbox)
         self.setTabOrder(self.undo_automatic_checkpoints_checkbox,self.undo_stack_memory_limit_spinbox)
         self.setTabOrder(self.undo_stack_memory_limit_spinbox,self.msg_serial_number_checkbox)
@@ -1578,9 +1678,14 @@ class UserPrefsDialog(QDialog):
         self.setTabOrder(self.remember_win_pos_and_size_checkbox,self.caption_prefix_linedit)
         self.setTabOrder(self.caption_prefix_linedit,self.caption_suffix_linedit)
         self.setTabOrder(self.caption_suffix_linedit,self.caption_fullpath_checkbox)
-        self.setTabOrder(self.caption_fullpath_checkbox,self.povray_path_linedit)
-        self.setTabOrder(self.povray_path_linedit,self.povray_choose_btn)
-        self.setTabOrder(self.povray_choose_btn,self.povray_checkbox)
+        self.setTabOrder(self.caption_fullpath_checkbox,self.dynamicToolTipAtomChunkInfo_checkbox)
+        self.setTabOrder(self.dynamicToolTipAtomChunkInfo_checkbox,self.dynamicToolTipAtomMass_checkbox)
+        self.setTabOrder(self.dynamicToolTipAtomMass_checkbox,self.dynamicToolTipAtomPosition_checkbox)
+        self.setTabOrder(self.dynamicToolTipAtomPosition_checkbox,self.dynamicToolTipAtomDistanceDeltas_checkbox)
+        self.setTabOrder(self.dynamicToolTipAtomDistanceDeltas_checkbox,self.dynamicToolTipAtomDistancePrecision_spinbox)
+        self.setTabOrder(self.dynamicToolTipAtomDistancePrecision_spinbox,self.dynamicToolTipBendAnglePrecision_spinbox)
+        self.setTabOrder(self.dynamicToolTipBendAnglePrecision_spinbox,self.dynamicToolTipBondLength_checkbox)
+        self.setTabOrder(self.dynamicToolTipBondLength_checkbox,self.dynamicToolTipBondChunkInfo_checkbox)
 
 
     def languageChange(self):
@@ -1846,6 +1951,19 @@ class UserPrefsDialog(QDialog):
         self.textLabel1_2_2_2_2.setText(self.__tr("x"))
         self.remember_win_pos_and_size_checkbox.setText(self.__tr("Always save current window position and size when quitting"))
         self.prefs_tab.changeTab(self.TabPage_7,self.__tr("Window"))
+        self.groupBox35.setTitle(self.__tr("Dynamic Tool Tips for Bonds"))
+        self.dynamicToolTipBondLength_checkbox.setText(self.__tr("Distance Between Atom Centers"))
+        self.dynamicToolTipBondChunkInfo_checkbox.setText(self.__tr("Chunk Information"))
+        self.atom_dynamic_tooltips_grpbox.setTitle(self.__tr("Dynamic Tool Tips for Atoms"))
+        self.dynamicToolTipAtomChunkInfo_checkbox.setText(self.__tr("Chunk Information"))
+        self.dynamicToolTipAtomDistanceDeltas_checkbox.setText(self.__tr("XYZ Distance Deltas "))
+        self.dynamicToolTipAtomMass_checkbox.setText(self.__tr("Mass Information"))
+        self.textLabel1_8.setText(self.__tr("Distance Precision:"))
+        self.textLabel1_8_3.setText(self.__tr("Angle Precision:"))
+        QToolTip.add(self.dynamicToolTipAtomDistancePrecision_spinbox,self.__tr("Sets the number of digits after the decimal places"))
+        QToolTip.add(self.dynamicToolTipBendAnglePrecision_spinbox,self.__tr("Sets the number of digits after the decimal places"))
+        self.dynamicToolTipAtomPosition_checkbox.setText(self.__tr("XYZ Coordinates"))
+        self.prefs_tab.changeTab(self.TabPage_8,self.__tr("ToolTips"))
 
 
     def display_compass(self):

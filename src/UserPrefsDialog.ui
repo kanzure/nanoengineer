@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>604</width>
-            <height>483</height>
+            <width>616</width>
+            <height>544</height>
         </rect>
     </property>
     <property name="caption">
@@ -3652,6 +3652,12 @@
                                 <property name="enabled">
                                     <bool>true</bool>
                                 </property>
+                                <property name="frameShape">
+                                    <enum>LineEditPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
                                 <property name="toolTip" stdset="0">
                                     <string>Select custom POV include directory</string>
                                 </property>
@@ -4428,6 +4434,242 @@
                     </widget>
                 </grid>
             </widget>
+            <widget class="QWidget">
+                <property name="name">
+                    <cstring>TabPage</cstring>
+                </property>
+                <attribute name="title">
+                    <string>ToolTips</string>
+                </attribute>
+                <grid>
+                    <property name="name">
+                        <cstring>unnamed</cstring>
+                    </property>
+                    <spacer row="0" column="2">
+                        <property name="name">
+                            <cstring>spacer96</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>90</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QGroupBox" row="0" column="1">
+                        <property name="name">
+                            <cstring>groupBox35</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Dynamic Tool Tips for Bonds</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLayoutWidget" row="0" column="0">
+                                <property name="name">
+                                    <cstring>layout451</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>dynamicToolTipBondLength_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Distance Between Atom Centers</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QCheckBox">
+                                        <property name="name">
+                                            <cstring>dynamicToolTipBondChunkInfo_checkbox</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Chunk Information</string>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <spacer row="1" column="1" rowspan="2" colspan="1">
+                        <property name="name">
+                            <cstring>spacer95</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>320</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <spacer row="2" column="0">
+                        <property name="name">
+                            <cstring>spacer48</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Vertical</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>20</width>
+                                <height>161</height>
+                            </size>
+                        </property>
+                    </spacer>
+                    <widget class="QGroupBox" row="0" column="0" rowspan="2" colspan="1">
+                        <property name="name">
+                            <cstring>atom_dynamic_tooltips_grpbox</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Dynamic Tool Tips for Atoms</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <property name="margin">
+                                <number>4</number>
+                            </property>
+                            <property name="spacing">
+                                <number>2</number>
+                            </property>
+                            <widget class="QCheckBox" row="0" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>dynamicToolTipAtomChunkInfo_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Chunk Information</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>false</bool>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox" row="3" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>dynamicToolTipAtomDistanceDeltas_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>XYZ Distance Deltas </string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>dynamicToolTipAtomMass_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Mass Information</string>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget" row="4" column="0">
+                                <property name="name">
+                                    <cstring>layout78</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel1_8</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Distance Precision:</string>
+                                        </property>
+                                        <property name="buddy" stdset="0">
+                                            <cstring>atomDistPrecision_spinbox</cstring>
+                                        </property>
+                                    </widget>
+                                    <widget class="QLabel">
+                                        <property name="name">
+                                            <cstring>textLabel1_8_3</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Angle Precision:</string>
+                                        </property>
+                                        <property name="buddy" stdset="0">
+                                            <cstring>atomAngPrecision_spinbox_3</cstring>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QLayoutWidget" row="4" column="1">
+                                <property name="name">
+                                    <cstring>layout79</cstring>
+                                </property>
+                                <vbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QSpinBox">
+                                        <property name="name">
+                                            <cstring>dynamicToolTipAtomDistancePrecision_spinbox</cstring>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>5</number>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>1</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>3</number>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Sets the number of digits after the decimal places</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QSpinBox">
+                                        <property name="name">
+                                            <cstring>dynamicToolTipBendAnglePrecision_spinbox</cstring>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>5</number>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>1</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>3</number>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Sets the number of digits after the decimal places</string>
+                                        </property>
+                                    </widget>
+                                </vbox>
+                            </widget>
+                            <widget class="QCheckBox" row="2" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>dynamicToolTipAtomPosition_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>XYZ Coordinates</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>false</bool>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                </grid>
+            </widget>
         </widget>
     </grid>
 </widget>
@@ -4902,28 +5144,35 @@
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
-    <tabstop>display_compass_checkbox</tabstop>
-    <tabstop>display_compass_labels_checkbox</tabstop>
     <tabstop>display_origin_axis_checkbox</tabstop>
     <tabstop>display_pov_axis_checkbox</tabstop>
+    <tabstop>display_compass_checkbox</tabstop>
+    <tabstop>display_compass_labels_checkbox</tabstop>
+    <tabstop>compass_position_combox</tabstop>
+    <tabstop>radioButton12</tabstop>
+    <tabstop>fill_type_combox</tabstop>
+    <tabstop>choose_bg1_color_btn</tabstop>
+    <tabstop>restore_bgcolor_btn</tabstop>
+    <tabstop>animate_views_checkbox</tabstop>
+    <tabstop>animation_speed_slider</tabstop>
     <tabstop>watch_min_in_realtime_checkbox</tabstop>
+    <tabstop>update_asap_rbtn</tabstop>
+    <tabstop>update_number_spinbox</tabstop>
+    <tabstop>update_units_combobox</tabstop>
     <tabstop>endrms_linedit</tabstop>
     <tabstop>endmax_linedit</tabstop>
     <tabstop>cutoverrms_linedit</tabstop>
     <tabstop>cutovermax_linedit</tabstop>
-    <tabstop>radioButton12</tabstop>
-    <tabstop>animate_views_checkbox</tabstop>
-    <tabstop>animation_speed_slider</tabstop>
     <tabstop>ok_btn</tabstop>
     <tabstop>change_element_colors_btn</tabstop>
     <tabstop>atom_hilite_color_btn</tabstop>
     <tabstop>bondpoint_hilite_color_btn</tabstop>
     <tabstop>hotspot_color_btn</tabstop>
     <tabstop>reset_atom_colors_btn</tabstop>
+    <tabstop>level_of_detail_combox</tabstop>
     <tabstop>cpk_atom_rad_spinbox</tabstop>
     <tabstop>cpk_scale_factor_linedit</tabstop>
     <tabstop>cpk_scale_factor_slider</tabstop>
-    <tabstop>level_of_detail_combox</tabstop>
     <tabstop>bond_hilite_color_btn</tabstop>
     <tabstop>ballstick_bondcolor_btn</tabstop>
     <tabstop>bond_stretch_color_btn</tabstop>
@@ -4964,12 +5213,21 @@
     <tabstop>ms_brightness_linedit</tabstop>
     <tabstop>ms_brightness_slider</tabstop>
     <tabstop>lighting_restore_defaults_btn</tabstop>
-    <tabstop>gamess_checkbox</tabstop>
-    <tabstop>gamess_path_linedit</tabstop>
-    <tabstop>gamess_choose_btn</tabstop>
     <tabstop>nanohive_checkbox</tabstop>
     <tabstop>nanohive_path_linedit</tabstop>
     <tabstop>nanohive_choose_btn</tabstop>
+    <tabstop>povray_checkbox</tabstop>
+    <tabstop>povray_path_linedit</tabstop>
+    <tabstop>povray_choose_btn</tabstop>
+    <tabstop>megapov_checkbox</tabstop>
+    <tabstop>megapov_path_linedit</tabstop>
+    <tabstop>megapov_choose_btn</tabstop>
+    <tabstop>povdir_checkbox</tabstop>
+    <tabstop>povdir_linedit</tabstop>
+    <tabstop>povdir_choose_btn</tabstop>
+    <tabstop>gamess_checkbox</tabstop>
+    <tabstop>gamess_path_linedit</tabstop>
+    <tabstop>gamess_choose_btn</tabstop>
     <tabstop>undo_restore_view_checkbox</tabstop>
     <tabstop>undo_automatic_checkpoints_checkbox</tabstop>
     <tabstop>undo_stack_memory_limit_spinbox</tabstop>
@@ -4985,9 +5243,14 @@
     <tabstop>caption_prefix_linedit</tabstop>
     <tabstop>caption_suffix_linedit</tabstop>
     <tabstop>caption_fullpath_checkbox</tabstop>
-    <tabstop>povray_path_linedit</tabstop>
-    <tabstop>povray_choose_btn</tabstop>
-    <tabstop>povray_checkbox</tabstop>
+    <tabstop>dynamicToolTipAtomChunkInfo_checkbox</tabstop>
+    <tabstop>dynamicToolTipAtomMass_checkbox</tabstop>
+    <tabstop>dynamicToolTipAtomPosition_checkbox</tabstop>
+    <tabstop>dynamicToolTipAtomDistanceDeltas_checkbox</tabstop>
+    <tabstop>dynamicToolTipAtomDistancePrecision_spinbox</tabstop>
+    <tabstop>dynamicToolTipBendAnglePrecision_spinbox</tabstop>
+    <tabstop>dynamicToolTipBondLength_checkbox</tabstop>
+    <tabstop>dynamicToolTipBondChunkInfo_checkbox</tabstop>
 </tabstops>
 <slots>
     <slot>display_compass()</slot>

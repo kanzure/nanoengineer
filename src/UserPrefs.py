@@ -443,6 +443,8 @@ class UserPrefs(UserPrefsDialog):
         elif pagename == 'Caption':
             #bruce 051216 comment: I don't know if it's safe to change this string to 'Window' to match tab text
             self.prefs_tab.setCurrentPage(7)
+        elif pagename == 'ToolTips':
+            self.prefs_tab.setCurrentPage(8)
         else:
             print 'Error: Preferences page unknown: ', pagename
 
@@ -807,6 +809,20 @@ class UserPrefs(UserPrefsDialog):
             ##e someday we should make a 2-way connector function for LineEdits too
         connect_checkbox_with_boolean_pref( self.caption_fullpath_checkbox, captionFullPath_prefs_key )
         return
+    
+    def _setup_tooltips_page(self): #Ninad 060830
+        ''' Setup widgets to initialize (default or defined) values on the tooltips page.'''
+        #Atom related Dynamic tooltip preferences
+        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomChunkInfo_checkbox, dynamicToolTipAtomChunkInfo_prefs_key)
+        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomMass_checkbox, dynamicToolTipAtomMass_prefs_key)
+        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomPosition_checkbox, dynamicToolTipAtomPosition_prefs_key)
+        connect_checkbox_with_boolean_pref(self.dynamicToolTipAtomDistanceDeltas_checkbox, dynamicToolTipAtomDistanceDeltas_prefs_key)
+        
+        #Bond related dynamic tool tip preferences
+        connect_checkbox_with_boolean_pref(self.dynamicToolTipBondLength_checkbox, dynamicToolTipBondLength_prefs_key)
+        connect_checkbox_with_boolean_pref(self.dynamicToolTipBondChunkInfo_checkbox, dynamicToolTipBondChunkInfo_prefs_key)
+        
+        return
 
     #e this is really a slot method -- should refile it
     def any_caption_text_changed(self):
@@ -1152,7 +1168,7 @@ class UserPrefs(UserPrefsDialog):
         '''
         env.prefs[linesDisplayModeThickness_prefs_key] = pixel_thickness
         self.update_bond_line_thickness_suffix()
-        
+            
     def update_bond_line_thickness_suffix(self):
         '''Updates the suffix for the bond line thickness spinbox.
         '''
@@ -1625,6 +1641,15 @@ class UserPrefs(UserPrefsDialog):
         
     ########## End of slot methods for "Window" page widgets ###########
     
+    ########## Start slot methods for "toolTips" page widgets ###########
+    
+    def changeDynamicTipAtomChunkInfo(self):
+        '''toggle the checkbox for displaying atom's chunk info in the dynamic tool tip'''
+        
+    
+    ########## End of slot methods for "ToolTips" page widgets ###########
+    
+    
     ########## Slot methods for "Undo" page widgets ################
     
     def set_history_height(self, height):
@@ -1661,6 +1686,9 @@ class UserPrefs(UserPrefsDialog):
                 self._setup_undo_page()
             elif pagename == 'Window':
                 self._setup_window_page()
+            elif pagename == 'ToolTips':
+                self._setup_tooltips_page()
+            
             else:
                 print 'Error: Preferences page unknown: ', pagename
         except:
