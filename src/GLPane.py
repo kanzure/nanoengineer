@@ -1658,11 +1658,21 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         (- self.pov) so that the given point is at the same position in eyespace.
         [In the initial commit, the effect on pov is not yet implemented.]
         """
-        ###e NIM (will implement soon):
-        # use point somehow, so that it, not center of view, gets preserved in screen x,y position and "apparent depth" (??)
         self.scale *= factor
             ###e The scale variable needs to set a limit, otherwise, it will set self.near = self.far = 0.0
             ###  because of machine precision, which will cause OpenGL Error. [needed but NIM] [Huaicai comment 10/18/04]
+            # [I'm not sure that comment is still correct -- nothing is actually changing self.near and self.far.
+            #  But it may be referring to the numbers made from them and fed to the glu projection routines;
+            #  if so, it might still apply. [bruce 060829]]
+        # Now use point, so that it, not center of view, gets preserved in screen x,y position and "apparent depth" (between near/far).
+        # Method: we're going to move point, in eyespace, relative to center of view (aka cov == -self.pov)
+        # from oldscale * (point - cov) to newscale * (point - cov), in units of oldscale (since we're in them now),
+        # so we're moving it by (factor - 1) * (point - cov), so translate back, by moving cov the other way (why the other way??):
+        # cov -= (factor - 1) * (point - cov). I think this will work the same in ortho and perspective, and can ignore self.quat.
+        # Test shows that works; but I don't yet understand why I needed to move cov in the opposite direction as I assumed.
+        # But I worry about whether it will work if more than one Wheel event occurs between redraws (which rewrite depth buffer).
+        # [bruce 060829]
+        self.pov += (factor - 1) * (point - (-self.pov))
         return
             
     def gl_update_duration(self, new_part=False):
