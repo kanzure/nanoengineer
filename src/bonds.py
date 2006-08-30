@@ -536,6 +536,49 @@ class Bond(BondBase, StateMixin):
 ##        return a1 is not None and a2 is not None \
 ##               and not a1._Atom__killed and not a2._Atom__killed \
 ##               and self in a1.bonds and self in a2.bonds
+
+    def getToolTipInfo(self, glpane, isBondChunkInfo, isBondLength, atomDistPrecision): #Ninad 060830
+        '''Returns a string that has bond related info ...used in DynamicTool Tip'''
+        #ninad060830 moved these methodes from the class DynamicTip
+        bondStr = str(glpane.selobj)
+        bondInfoStr = bondStr
+        # check for user pref 'bond_chunk_info'
+        if isBondChunkInfo:
+            bondChunkInfo = self.getBondChunkInfo(glpane)
+            bondInfoStr +=  "\n" + bondChunkInfo
+        #check for user pref 'bond length'
+        if isBondLength:
+            bondLength = self.getBondLength(glpane, atomDistPrecision)
+            bondInfoStr += "\n" + bondLength #ninad060823  don't use "<br>" ..it is weird. doesn'tr break into a new line.
+                                                                #perhaps because I am not using htmp stuff in getBonndLength etc functions??
+        return bondInfoStr
+            
+    def getBondChunkInfo(self, glpane, quat = Q(1,0,0,0)): #Ninad 060830
+        ''' returns chunk information of the atoms forming a bond. Returns none if Bond chunk user pref is unchecked.
+        It uses some code of bonded_atoms_summary method
+        '''
+        a1 = glpane.selobj.atom1
+        a2 = glpane.selobj.atom2
+        chunk1 = a1.molecule.name
+        chunk2 = a2.molecule.name
+            
+            #ninad060822 I am noot checking if chunk 1 and 2 are the same. I think its not needed as the tooltip string won't be compact
+            #even if it is implemented.so leaving it as is
+        bondChunkInfo = str(a1) + " in [" + str(chunk1) + "]\n" + str(a2) + " in [" + str(chunk2) + "]"
+        return bondChunkInfo
+            
+    def getBondLength(self, glpane, atomDistPrecision):#Ninad 060830
+        '''returns the atom center distance between the atoms connected by the highlighted bond.
+        Note that this does *not* return the covalent bondlength'''
+        from VQT import vlen
+
+        a1 = glpane.selobj.atom1
+        a2 = glpane.selobj.atom2
+
+        nuclearDist = str(round(vlen(a1.posn() - a2.posn()), atomDistPrecision))
+        bondLength = "Distance " + str(a1) + "-" + str(a2) + ": " + nuclearDist + " A"
+        return bondLength
+
     
     def destroy(self): #bruce 060322 (not yet called) ###@@@
         """[see comments in Atom.destroy docstring]

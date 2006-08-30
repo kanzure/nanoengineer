@@ -108,11 +108,11 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         If two atoms are selected, return the angle between them and the highlighted atom.
         Preferences for setting the precision (decimal place) for each measurement
         Preferences for displaying atom chunk info, bond chunk info, Atom distance Deltas, 
-        atom coordinates, bond length (nuclear distance), bond type
+        atom coordinates, bond length (nuclear distance), bond type.
+        Displays Jig info 
         
         For later:
         If three atoms are selected, return the torsion angle between them and the highlighted atom.
-        Display Jig info (only displays Displays jig name.for now)
         We also need to truncate long item info strings(e.g. if an item has a very long name it should
         truncate it with 3 dots : "item na...")
         """
@@ -170,12 +170,12 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             return objStr #@@@ ninad060818 ...if we begin to support other objects (other than jig/chunk/bonds/atoms)
                                 #then we need to retirn glpane.selobj
                 
-        '''elif "three atoms are selected":
+        """elif "three atoms are selected":
             self
             torsionStr = self.getTorsionHighlightedAtomAndSelAtoms()
             angleStr = self.getAngleHighlightedAtomAndSelAtoms()
             distStr = self.getDistHighlightedAtomAndSelectedAtom()
-            return torsionStr + "<br>" + angleStr + "<br>" + distStr'''
+            return torsionStr + "<br>" + angleStr + "<br>" + distStr"""
             
         
     def getHighlightedObjectInfo(self, atomDistPrecision): 
@@ -186,34 +186,18 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         glpane = self.glpane
         atomposn = None
         atomChunkInfo = None
-        
-        
+                
         #      ---- Atom Info ----
         if isinstance(glpane.selobj, atom):
             selAtom  = glpane.selobj
-            atomInfoStr = selAtom.getToolTipInfo(glpane, self.isAtomPosition, self.isAtomChunkInfo, self.isAtomMass, atomDistPrecision)
+            atomInfoStr = selAtom.getToolTipInfo(glpane, self.isAtomPosition,self.isAtomChunkInfo, self.isAtomMass, atomDistPrecision)
             return atomInfoStr
            
         #       ----Bond Info----
-
-        bondChunkInfo = None
-        bondLength = None
-        
         if isinstance(glpane.selobj, Bond):
-            bondStr = str(glpane.selobj)
-            bondInfoStr = bondStr
-            # check for user pref 'bond_chunk_info'
-            bondChunkInfo = self.getBondChunkInfo(self.isBondChunkInfo)
-            if bondChunkInfo:
-                bondInfoStr += "\n" + bondChunkInfo
-            
-            #check for user pref 'bond length'
-            bondLength = self.getBondLength(self.isBondLength, atomDistPrecision)
-            if bondLength:
-                bondInfoStr += "\n" + bondLength #ninad060823  don't use "<br>" ..it is weird. doesn'tr break into a new line.
-                                                                    #perhaps because I am not using htmp stuff in getBonndLength etc functions??
-                
-            return bondInfoStr
+            selBond = glpane.selobj
+            bondInfoStr = selBond.getToolTipInfo(glpane, self.isBondChunkInfo, self.isBondLength, atomDistPrecision)
+            return  bondInfoStr
             
         #          ---- Jig Info ----
         if isinstance(glpane.selobj, Jig):
@@ -333,7 +317,8 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         if lastSelAtom and secondLastSelAtom:
             angle = atom_angle_radians( glpane.selobj, lastSelAtom,secondLastSelAtom ) * 180/pi
             roundedAngle = str(round(angle,bendAngPrecision))
-            angleStr = fix_plurals("<font color=\"#0000FF\">Angle %s-%s-%s:</font> %s degree(s)"%(glpane.selobj, lastSelAtom,secondLastSelAtom,roundedAngle))
+            angleStr = fix_plurals("<font color=\"#0000FF\">Angle %s-%s-%s:</font> %s degree(s)"
+            %(glpane.selobj, lastSelAtom,secondLastSelAtom,roundedAngle))
             return angleStr
         else:
             return False
@@ -386,42 +371,5 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
             return atomDistDeltas
         else:
             return None
-            
-    def getBondChunkInfo(self, isBondChunkInfo, quat = Q(1,0,0,0)):
-        ''' returns chunk information of the atoms forming a bond. Returns none if Bond chunk user pref is unchecked.
-        It uses some code of bonded_atoms_summary method
-        '''
-        glpane = self.glpane
-        if isBondChunkInfo:
-            a1 = glpane.selobj.atom1
-            a2 = glpane.selobj.atom2
-                
-            chunk1 = a1.molecule.name
-            chunk2 = a2.molecule.name
-            
-            #ninad060822 I am noot checking if chunk 1 and 2 are the same. I think its not needed as the tooltip string won't be compact
-            #even if it is implemented.so leaving it as is
-            bondChunkInfo = str(a1) + " in [" + str(chunk1) + "]\n" + str(a2) + " in [" + str(chunk2) + "]"
-            return bondChunkInfo
-        else:
-            return None
-            
-    def getBondLength(self, isBondLength, atomDistPrecision):
-        '''returns the atom center distance between the atoms connected by the highlighted bond.
-        Note that this does *not* return the covalent bondlength'''
-        
-        from VQT import vlen
-        
-        glpane = self.glpane
-        
-        if isBondLength:
-            a1 = glpane.selobj.atom1
-            a2 = glpane.selobj.atom2
-
-            nuclearDist = str(round(vlen(a1.posn() - a2.posn()), atomDistPrecision))
-            bondLength = "Distance " + str(a1) + "-" + str(a2) + ": " + nuclearDist + " A"
-            return bondLength
-        else: 
-            return None
-            
+                        
 # end
