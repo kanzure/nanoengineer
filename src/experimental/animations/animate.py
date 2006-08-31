@@ -330,7 +330,7 @@ class MpegSequence:
 
     def simpleSequence(self, frames, drawOne, step=1, repeat_final_frame=1):
         if framelimit is not None: frames = min(frames, framelimit)
-        for i in range(0, frames, step):
+        for i in range(0, frames+1, step):
             yuv = self.yuv_name()
             self.frame += 1
             t = 1.0 * i / frames
