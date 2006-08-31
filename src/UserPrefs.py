@@ -822,10 +822,8 @@ class UserPrefs(UserPrefsDialog):
         connect_checkbox_with_boolean_pref(self.dynamicToolTipBondLength_checkbox, dynamicToolTipBondLength_prefs_key)
         connect_checkbox_with_boolean_pref(self.dynamicToolTipBondChunkInfo_checkbox, dynamicToolTipBondChunkInfo_prefs_key)
         
-        
-        print "pref key =", env.prefs[ dynamicToolTipAtomDistancePrecision_prefs_key ] 
-        print "self.dynamicToolTipAtomDistancePrecision_spinbox.value() = ", self.dynamicToolTipAtomDistancePrecision_spinbox.value()
-        
+        self.dynamicToolTipAtomDistancePrecision_spinbox.setValue(env.prefs[ dynamicToolTipAtomDistancePrecision_prefs_key ] )
+        self.dynamicToolTipBendAnglePrecision_spinbox.setValue(env.prefs[ dynamicToolTipBendAnglePrecision_prefs_key ] )
         
         return
 
@@ -1594,13 +1592,13 @@ class UserPrefs(UserPrefsDialog):
     ########## End of slot methods for "Window" page widgets ###########
     
     ########## Start slot methods for "ToolTips" page widgets ###########
-    def change_dynamicToolTipAtomDistancePrecision(self):
+    def change_dynamicToolTipAtomDistancePrecision(self, value):
         '''Update the atom distance precision for the dynamic tool tip.'''
-        env.prefs[ dynamicToolTipAtomDistancePrecision_prefs_key ] = self.dynamicToolTipAtomDistancePrecision_spinbox.value()
+        env.prefs[ dynamicToolTipAtomDistancePrecision_prefs_key ] = value
         
-    def change_dynamicToolTipBendAnglePrecision(self):
+    def change_dynamicToolTipBendAnglePrecision(self, value):
         '''Update the bend angle precision for the dynamic tool tip.'''
-        env.prefs[ dynamicToolTipBendAnglePrecision_prefs_key ] = self.dynamicToolTipBendAnglePrecision_spinbox.value()
+        env.prefs[ dynamicToolTipBendAnglePrecision_prefs_key ] = value
     
     ########## End of slot methods for "ToolTips" page widgets ###########
     
