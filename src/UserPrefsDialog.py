@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Aug 30 17:06:52 2006
+# Created: Thu Aug 31 13:06:03 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -1578,6 +1578,8 @@ class UserPrefsDialog(QDialog):
         self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.change_fill_type)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
+        self.connect(self.dynamicToolTipAtomDistancePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipAtomDistancePrecision)
+        self.connect(self.dynamicToolTipBendAnglePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipBendAnglePrecision)
 
         self.setTabOrder(self.prefs_tab,self.display_origin_axis_checkbox)
         self.setTabOrder(self.display_origin_axis_checkbox,self.display_pov_axis_checkbox)
@@ -2181,6 +2183,12 @@ class UserPrefsDialog(QDialog):
 
     def set_povdir(self):
         print "UserPrefsDialog.set_povdir(): Not implemented yet"
+
+    def change_dynamicToolTipAtomDistancePrecision(self):
+        print "UserPrefsDialog.change_dynamicToolTipAtomDistancePrecision(): Not implemented yet"
+
+    def change_dynamicToolTipBendAnglePrecision(self):
+        print "UserPrefsDialog.change_dynamicToolTipBendAnglePrecision(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

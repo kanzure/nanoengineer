@@ -822,6 +822,11 @@ class UserPrefs(UserPrefsDialog):
         connect_checkbox_with_boolean_pref(self.dynamicToolTipBondLength_checkbox, dynamicToolTipBondLength_prefs_key)
         connect_checkbox_with_boolean_pref(self.dynamicToolTipBondChunkInfo_checkbox, dynamicToolTipBondChunkInfo_prefs_key)
         
+        
+        print "pref key =", env.prefs[ dynamicToolTipAtomDistancePrecision_prefs_key ] 
+        print "self.dynamicToolTipAtomDistancePrecision_spinbox.value() = ", self.dynamicToolTipAtomDistancePrecision_spinbox.value()
+        
+        
         return
 
     #e this is really a slot method -- should refile it
@@ -1586,7 +1591,21 @@ class UserPrefs(UserPrefsDialog):
         '''
         env.prefs[undoStackMemoryLimit_prefs_key] = mb_val
         
-    ########## End of slot methods for "Plug-ins" page widgets ###########
+    ########## End of slot methods for "Window" page widgets ###########
+    
+    ########## Start slot methods for "ToolTips" page widgets ###########
+    def change_dynamicToolTipAtomDistancePrecision(self):
+        '''Update the atom distance precision for the dynamic tool tip.'''
+        env.prefs[ dynamicToolTipAtomDistancePrecision_prefs_key ] = self.dynamicToolTipAtomDistancePrecision_spinbox.value()
+        
+    def change_dynamicToolTipBendAnglePrecision(self):
+        '''Update the bend angle precision for the dynamic tool tip.'''
+        env.prefs[ dynamicToolTipBendAnglePrecision_prefs_key ] = self.dynamicToolTipBendAnglePrecision_spinbox.value()
+    
+    ########## End of slot methods for "ToolTips" page widgets ###########
+    
+    
+    
 
     ########## Slot methods for "Window" (former name "Caption") page widgets ################
 
@@ -1640,16 +1659,7 @@ class UserPrefs(UserPrefsDialog):
         pass
         
     ########## End of slot methods for "Window" page widgets ###########
-    
-    ########## Start slot methods for "toolTips" page widgets ###########
-    
-    def changeDynamicTipAtomChunkInfo(self):
-        '''toggle the checkbox for displaying atom's chunk info in the dynamic tool tip'''
-        
-    
-    ########## End of slot methods for "ToolTips" page widgets ###########
-    
-    
+  
     ########## Slot methods for "Undo" page widgets ################
     
     def set_history_height(self, height):

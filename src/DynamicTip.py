@@ -33,18 +33,6 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         # <toolTipShown> is a flag set to True when a tooltip is currently displayed for the 
         # highlighted object under the cursor.
         self.toolTipShown = False
-        
-        #ninad060822 Initialize various preferences
-        self.atomDistPrecision = env.prefs[dynamicToolTipAtomDistancePrecision_prefs_key] #int
-        self.bendAngPrecision = env.prefs[dynamicToolTipBendAnglePrecision_prefs_key] #int
-        self.torsionAngPrecision = env.prefs[dynamicToolTipTorsionAnglePrecision_prefs_key] #int
-        self.isAtomChunkInfo = env.prefs[dynamicToolTipAtomChunkInfo_prefs_key]#boolean
-        self.isBondChunkInfo = env.prefs[dynamicToolTipBondChunkInfo_prefs_key]#boolean
-        self.isAtomPosition = env.prefs[dynamicToolTipAtomPosition_prefs_key]#boolean
-        self.isAtomDistDeltas = env.prefs[dynamicToolTipAtomDistanceDeltas_prefs_key]#boolean
-        self.isBondLength = env.prefs[dynamicToolTipBondLength_prefs_key] #boolean
-        self.isAtomMass = env.prefs[dynamicToolTipAtomMass_prefs_key] #boolean
-        
      
     def maybeTip(self, cursorPos):
         """Determines if this tooltip should be displayed. The tooltip will be displayed at
@@ -120,6 +108,20 @@ class DynamicTip(QToolTip): # Mark and Ninad 060817.
         from ops_select import ops_select_Mixin 
         
         glpane = self.glpane
+        
+        #ninad060831 - First I defined the following in the _init method of this class. But the prefeences were 
+        #not updated immediately when changed from prefs dialog. So I moved those definitions below and now it works fine
+        
+        self.atomDistPrecision = env.prefs[dynamicToolTipAtomDistancePrecision_prefs_key] #int
+        self.bendAngPrecision = env.prefs[dynamicToolTipBendAnglePrecision_prefs_key] #int
+        self.torsionAngPrecision = env.prefs[dynamicToolTipTorsionAnglePrecision_prefs_key] #int
+        self.isAtomChunkInfo = env.prefs[dynamicToolTipAtomChunkInfo_prefs_key]#boolean
+        self.isBondChunkInfo = env.prefs[dynamicToolTipBondChunkInfo_prefs_key]#boolean
+        self.isAtomPosition = env.prefs[dynamicToolTipAtomPosition_prefs_key]#boolean
+        self.isAtomDistDeltas = env.prefs[dynamicToolTipAtomDistanceDeltas_prefs_key]#boolean
+        self.isBondLength = env.prefs[dynamicToolTipBondLength_prefs_key] #boolean
+        self.isAtomMass = env.prefs[dynamicToolTipAtomMass_prefs_key] #boolean
+        
         
         objStr = self.getHighlightedObjectInfo(self.atomDistPrecision)
                                

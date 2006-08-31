@@ -5141,6 +5141,18 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>change_bg1_color()</slot>
     </connection>
+    <connection>
+        <sender>dynamicToolTipAtomDistancePrecision_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_dynamicToolTipAtomDistancePrecision()</slot>
+    </connection>
+    <connection>
+        <sender>dynamicToolTipBendAnglePrecision_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_dynamicToolTipBendAnglePrecision()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -5325,6 +5337,8 @@
     <slot>set_megapov_path()</slot>
     <slot>enable_povdir()</slot>
     <slot>set_povdir()</slot>
+    <slot>change_dynamicToolTipAtomDistancePrecision()</slot>
+    <slot>change_dynamicToolTipBendAnglePrecision()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
