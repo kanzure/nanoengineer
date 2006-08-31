@@ -65,5 +65,5 @@ for i in range(0, 100, 10):
     oneSecond(fillVertical, i, yuvname)
 
 do('mpeg2encode foo.par foo.mpeg')
-do('rm -f foo.00*.yuv blech.jpg')
+do('rm -f foo.00*.yuv')
 do('ffmpeg -i foo.mpeg -sameq foo.mp4')
