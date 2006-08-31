@@ -17,10 +17,10 @@ def drawOneFrame(t, filename):
     cmd = (('composite -dissolve %d -geometry +%d+%d ' % (100 * t, nanorex_xpos, nanorex_ypos)) +
            'Nanorex_logos/nanorex_logo_text_outline_medium.png blank.jpg /tmp/foo.jpg')
     jobqueue.do(cmd)
-    cmd = 'convert -fill white'
-    cmd += (' -font times-roman -pointsize 48 -draw' +
-            ' "text %d,%d \'%s\'"' % (preamble_xpos, preamble_ypos, preamble))
-    cmd += ' /tmp/foo.jpg ' + filename
+    # Fonts are in /usr/lib/openoffice/share/psprint/fontmetric/
+    cmd = ('convert -fill \#f53b19 -font Helvetica-Bold -pointsize 48 -draw' +
+           ' "text %d,%d \'%s\'" /tmp/foo.jpg %s' %
+           (preamble_xpos, preamble_ypos, preamble, filename))
     jobqueue.do(cmd)
 
 m = animate.MpegSequence()
