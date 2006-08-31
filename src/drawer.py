@@ -1727,6 +1727,82 @@ def drawaxes(n,point,coloraxes=False):
     glEnable(GL_LIGHTING)
     glPopMatrix()
     return
+############################
+#@@@ninad 060831 is experimenting the following. Not used anywhere yet
+def drawSmallAxes(n, point, coloraxes = False):
+    '''Draw a smaller version of origin (a point (0,0,0) and 3 small axes)'''
+    
+    #ninad060831 : Issues: 
+    #1) at the beginning, the POV axis is not shown because of the use of 'if coloraxes' condition
+    #2) I need to make the 'origin axis' immune to zoom (but it should still respond to pan and rotate ops) 
+    #3) Need 'cones' as axes termination style (see glePolycone)
+    
+    from constants import blue, red, darkgreen, black
+    x1, y1, z1 = n*0.02, n*0.02, n*0.02
+
+    glPushMatrix()
+    glTranslate(point[0], point[1], point[2])
+    glDisable(GL_LIGHTING)
+    glBegin(GL_LINES)
+    if coloraxes:
+        glColor3f(black[0], black[1], black[2])
+        #start draw origin
+        glVertex(-x1,0,0)
+        glVertex(x1,0,0)
+        glVertex(0, -y1, 0)
+        glVertex(0, y1, 0)
+        glVertex(-x1,y1,z1)
+        glVertex(x1, -y1, -z1)    
+        glVertex(x1, y1, z1)
+        glVertex(-x1, -y1,- z1)    
+        glVertex(x1, y1, -z1)
+        glVertex(-x1, -y1, z1)    
+        glVertex(-x1, y1, -z1)
+        glVertex(x1, -y1, z1)   
+        #end draw origin
+        #start draw colored axes (small axes)
+        glColor3f(red[0], red[1], red[2])
+        glVertex(n*0.1,0,0)
+        glVertex(0,0,0)
+        glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
+        glVertex(0,n*0.16,0)
+        glVertex(0,0,0)
+        glColor3f(blue[0], blue[1], blue[2])
+        glVertex(0,0,n*0.08)
+        glVertex(0,0,0)
+        #end draw draw colored axes (small axes)
+        
+        #ninad060831 - I need help in figuring out how to draw the cones properly. 
+        #Looked on the web but didn't quite get a lot of useful info .
+        """ # X Arrow (Red)      
+        glePolyCone([[-1,0,0], [0,0,0], [4,0,0], [3,0,0], [5,0,0], [6,0,0]],
+                    [[0,0,0], [1,0,0], [1,0,0], [.5,0,0], [.5,0,0], [0,0,0]],
+                    [.3,.3,.3,.75,0,0])
+            
+        # Y Arrow (Green) 
+        glePolyCone([[0,-1,0], [0,0,0], [0,4,0], [0,3,0], [0,5,0], [0,6,0]],
+                    [[0,0,0], [0,.9,0], [0,.9,0], [0,.4,0], [0,.4,0], [0,0,0]],
+                    [.3,.3,.3,.75,0,0])
+            
+        # Z Arrow (Blue)
+        glePolyCone([[0,0,-1], [0,0,0], [0,0,4], [0,0,3], [0,0,5], [0,0,6]],
+                    [[0,0,0], [0,0,1], [0,0,1], [0,0,.4], [0,0,.4], [0,0,0]],
+                    [.3,.3,.3,.75,0,0])"""
+    else:                
+        #Code to draw POV axes
+        glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
+        glVertex(n,0,0)
+        glVertex(-n,0,0)
+        glVertex(0,n,0)
+        glVertex(0,-n,0)
+        glVertex(0,0,n)
+        glVertex(0,0,-n)
+        
+    glEnd()
+    glEnable(GL_LIGHTING)
+    glPopMatrix()
+    return
+###################    
 
 def findCell(pt, latticeType):
     """Return the cell which contains the point <pt> """
