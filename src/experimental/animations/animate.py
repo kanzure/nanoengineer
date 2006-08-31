@@ -6,6 +6,7 @@ import os, sys, threading, time, jobqueue
 # of any of the *.pov files.
 recommended_width, recommended_height = 751, 459
 povray_aspect_ratio = (1. * recommended_width) / recommended_height
+assert povray_aspect_ratio > 4.0 / 3.0
 
 def set_resolution(w, h):
     global mpeg_width, mpeg_height, povray_width, povray_height
@@ -31,7 +32,7 @@ framelimit = None
 
 povray_pretty = True
 
-border = None
+border = (80, 30)
 
 class PovrayJob(jobqueue.Job):
     def __init__(self, srcdir, dstdir, povfmt, povmin, povmax_plus_one, yuv,
@@ -212,6 +213,8 @@ def remove_old_yuvs():
 
 class MpegSequence:
 
+    SECOND = 30    # NTSC frame rate
+
     def __init__(self):
         self.frame = 0
         self.width = mpeg_width
@@ -323,6 +326,18 @@ class MpegSequence:
                 jobqueue.do(cmd)
             else:
                 jobqueue.do('convert %s %s' % (tmpimage, yuv))
+            self.frame += 1
+
+    def simpleSequence(self, frames, drawOne, step=1, repeat_final_frame=1):
+        if framelimit is not None: frames = min(frames, framelimit)
+        for i in range(0, frames, step):
+            yuv = self.yuv_name()
+            self.frame += 1
+            t = 1.0 * i / frames
+            drawOne(t, yuv)
+        for i in range(repeat_final_frame - 1):
+            import shutil
+            shutil.copy(yuv, self.yuv_name())
             self.frame += 1
 
     def motionBlurSequence(self, povfmt, frames,
