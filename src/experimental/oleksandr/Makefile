@@ -57,6 +57,7 @@ OBJS = cppsurface.o \
 	surface.o \
 	container.o \
 	bucket.o \
+	distancetransform.o \
 	triple.o \
 	psurface.o
 
@@ -88,6 +89,9 @@ container.o: container.cpp container.h
 
 bucket.o: bucket.cpp bucket.h
 	g++ -c bucket.cpp -o bucket.o $(CXXFLAGS)
+	
+distancetransform.o: distancetransform.cpp distancetransform.h
+	g++ -c distancetransform.cpp -o distancetransform.o $(CXXFLAGS)
 
 triple.o: triple.cpp triple.h
 	g++ -c triple.cpp -o triple.o $(CXXFLAGS)
@@ -111,6 +115,7 @@ depend:
 # DO NOT DELETE
 
 bucket.o: container.h triple.h
+distancetransform.o: container.h triple.h
 csurface.o: cppsurface.h
 psurface.o: csurface.h cppsurface.h
 surface.o: container.h triple.h
