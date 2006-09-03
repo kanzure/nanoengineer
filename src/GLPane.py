@@ -503,81 +503,55 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         else:
             self.animateToView(self.quat, scale, pov, 1.0)
     
-    def setViewZoomToSelection(self, fast = False):
-        '''Change the view so that only selected chunks and Jigs fit in the GLPane. 
+    def setViewZoomToSelection(self, fast = False): #Nnad 60903
+        '''Change the view so that only selected atoms, chunks and Jigs fit in the GLPane. 
         (i.e. Zoom to the selection) If <fast> is True, then snap to the view '''
         #ninad060903: 
         # I am not using bounding box object as used in fit to selection. I am using only self.scale
         #Not sure if this will create any issue for different glpane sizes. 
         #This considers only selected jigs and chunks while doing fit to window. 
         #I will discuss with Bruce and Mark for further refinements and potential issues. 
-        #Zoom to selection doesn't work for Anchors and other immovable jigs. 
-        # For future:  It should work for selected atoms too. (and also when a non movable jig is selected)
+        #Zoom to selection ignores  and other immovable jigs. (it clearly tells this in a history msg)
+        # For future:  Should work when a non movable jig is selected
         
         comCenter = V(0.0, 0.0, 0.0)
         
         movables = self.assy.getSelectedMovables()
         numMovables = len(movables)
         
-        if movables and not self.assy.selatoms_list():
+        if self.assy.selatoms_list():
+            for atm in self.assy.selatoms_list():
+                if atm.display == diINVISIBLE: #ninad 060903  may not be necessary. 
+                #@@@ Could be buggy because user is probably seeing the selection wireframe around invisible atom 
+                #and you are now allowing zoom to selection. Same is true for invisible chunks. 
+                    continue
+                comCenter += atm.posn()
+            comCenter /= len(self.assy.selatoms_list())
+        
+        #if movables and not self.assy.selatoms_list():
+        if movables:
             for obj in movables:
                 if obj.hidden:
                     continue
                 if not isinstance(obj, Jig):
                     if obj.display == diINVISIBLE:
                         continue
-            comCenter += obj.center
-            comCenter /= numMovables
-            center = comCenter
-            pov = V(-center[0], -center[1], -center[2])
-            if fast:
-                self.snapToView(self.quat, self.scale, pov, 1.0)
-            else:
-                self.animateToView(self.quat, self.scale, pov, 1.0)
-        else:
-            env.history.message(orangemsg( " Zoom To Selection: No visible chunks or movable jigs selected"\
-            " [Acceptable Jigs: Motors, Grid Plane and ESP Image]"))
-        
-        ###start scrach area  ninad060903###
-        
-        """
-        selectedChunksAndJigs = self.assy.getSelectedChunksAndJigs()
-        numSelectedObjects = len(selectedChunksAndJigs)
-        
-        if numSelectedObjects and not self.assy.selatoms_list():
-            for obj in selectedChunksAndJigs:
-                if obj.hidden:
-                    continue
-                if not isinstance(obj, Jig):
-                    if obj.display == diINVISIBLE:
-                        continue
-                if not obj.center:
-                    continue
                 comCenter += obj.center
-                comCenter /= numSelectedObjects
-                center = comCenter
-                pov = V(-center[0], -center[1], -center[2])
-                if fast:
-                    self.snapToView(self.quat, self.scale, pov, 1.0)
-                else:
-                    self.animateToView(self.quat, self.scale, pov, 1.0)
-                    
-        def getSelectedChunksAndJigs(self):
-        '''Returns a list of all selected chunks and jigs(also includes hidden objects'''
-        #ninad060903 -- If I'm going to useapproach in scratch area, then 
-        #this method will be moved to ops_select.py 
-        selectedObjects = []
-        for obj in self.assy.selmols:
-            selectedObjects += [obj]
-        
-        selectedJigs = self.getSelectedJigs()
-        
-        for jig in selectedJigs:
-            selectedObjects += [jig]
-            
-        return selectedObjects"""
-        ###end scratch area ninad060903###
-            
+                
+            if self.assy.selatoms_list(): comCenter /= (numMovables + 1) # 1 is to account for the 'common 'atom' whose center we calculated earlier ninad060903. @@@ ask Bruce and Mark abouth their opinion. ...Is there a better way to handle this? 
+            else: comCenter /= numMovables
+        else:
+            if not self.assy.selatoms_list():
+                env.history.message(orangemsg( " Zoom To Selection: No visible atoms , chunks or movable jigs selected"\
+                " [Acceptable Jigs: Motors, Grid Plane and ESP Image]"))
+                return
+                
+        center = comCenter
+        pov = V(-center[0], -center[1], -center[2])
+        if fast:
+            self.snapToView(self.quat, self.scale, pov, 1.0)
+        else:
+            self.animateToView(self.quat, self.scale, pov, 1.0)
         
     def setViewHomeToCurrent(self):
         "Set the Home view to the current view."
