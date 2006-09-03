@@ -476,7 +476,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.animateToCsys( self.part.homeCsys)
         
     def setViewFitToWindow(self, fast=False):
-    #def setViewFitToWindow_original(self, fast=False):
         "Change view so that the entire model fits in the glpane. If <fast> is True, then snap to the view (i.e. don't animate)"
         # Recalculate center and bounding box for all the visible chunks in the current part.
         # The way a 3d bounding box is used to calculate the fit is not adequate. I consider this a bug, but I'm not sure
@@ -505,7 +504,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.animateToView(self.quat, scale, pov, 1.0)
     
     def setViewZoomToSelection(self, fast = False):
-    #def setViewFitToWindow(self, fast = False):
         '''Change the view so that only selected chunks and Jigs fit in the GLPane. 
         (i.e. Zoom to the selection) If <fast> is True, then snap to the view '''
         #ninad060903: 
