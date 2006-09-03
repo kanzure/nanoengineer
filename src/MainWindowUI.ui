@@ -80,6 +80,7 @@
         <action name="setViewHomeToCurrentAction"/>
         <action name="setViewFitToWindowAction"/>
         <action name="setViewRecenterAction"/>
+        <action name="setViewZoomtoSelectionAction"/>
         <action name="zoomToolAction"/>
         <action name="panToolAction"/>
         <separator/>
@@ -258,7 +259,7 @@
             <rect>
                 <x>282</x>
                 <y>0</y>
-                <width>571</width>
+                <width>599</width>
                 <height>29</height>
             </rect>
         </property>
@@ -271,6 +272,7 @@
         <action name="setViewHomeAction"/>
         <action name="setViewFitToWindowAction"/>
         <action name="setViewRecenterAction"/>
+        <action name="setViewZoomtoSelectionAction"/>
         <action name="zoomToolAction"/>
         <action name="panToolAction"/>
         <action name="rotateToolAction"/>
@@ -301,8 +303,8 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>853</x>
-                <y>0</y>
+                <x>0</x>
+                <y>29</y>
                 <width>239</width>
                 <height>29</height>
             </rect>
@@ -331,7 +333,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>0</x>
+                <x>239</x>
                 <y>29</y>
                 <width>211</width>
                 <height>29</height>
@@ -360,7 +362,7 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>211</x>
+                <x>450</x>
                 <y>29</y>
                 <width>43</width>
                 <height>29</height>
@@ -475,7 +477,7 @@
             <rect>
                 <x>0</x>
                 <y>22</y>
-                <width>1109</width>
+                <width>1107</width>
                 <height>29</height>
             </rect>
         </property>
@@ -4053,6 +4055,23 @@
             <string>Mirror Chunks</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>setViewZoomtoSelectionAction</cstring>
+        </property>
+        <property name="iconSet">
+            <iconset>image150</iconset>
+        </property>
+        <property name="text">
+            <string>Zoom To Selection</string>
+        </property>
+        <property name="menuText">
+            <string>Zoom To Selection</string>
+        </property>
+        <property name="toolTip">
+            <string>Zoom to Selected Chunks and Jigs</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -4504,6 +4523,9 @@
     </image>
     <image name="image149">
         <data format="PNG" length="303">89504e470d0a1a0a0000000d4948445200000016000000160806000000c4b46c3b000000f649444154789c6360180c405757f73fb16a9968e508da1bacababfb1fddabd8c460203b3bfb7f7676f67fbc62bababaff677fbdf67ff6d76bff757575ff77f677ff471763606060d03355fd0f33e0e8c3ebff8f3ebc0e37085d0ceee2e777efc32d2a2f2c65441763606060f8ff8303cedefbf11e9c1d979bf61f5d0cafb7d1c590d9848202ee62d7483f86cb972f33222bbc7cf932a3477800a62b181818d8a50518a64e9d8aa27eead4a98c5c92420c2806ef5ebe09239deaeaeafedfb1720356837f3efdc080cdc5df9ebf4335003da27089c10c202bf26091811e79c86034f2e06034f2888e3c9200cd0afadf7fdf93ec98a103009b08337b8a72ca520000000049454e44ae426082</data>
+    </image>
+    <image name="image150">
+        <data format="XPM.GZ" length="1130">789ca5d1bb6edb301406e0dd4f21589b51241229ca128a0c8e936c013a16283a50e790b624cb37c9b7147df7eafce962479972a8e5c34f1e5e743f097efe780d26f7a3b6b35d49012ded3e98f0a1692ebf7e3ffc198d950afa4f27413cfe361af71382304209cf6016e591159e847114ab58099fc0786a38113e83c610a1d523989b38c3e4a3506995284c9e8149aa724c2e843ad5461be11b4832840cbad4e5e04698505224e05cd82f54061b5930357d092fa0358529840ee48c0bacdd0a539d6bc27d5fc04c86b001c96ac621bd70aa6d4448d7a0ed073a87c22c92215c08f3b89832d2039852eabc702fb429650ee94a58c46c3cdeb9060d5b8f43b6a063ef736125ec571acfc24ec8491f3be10e24af3c362a852ef1e63dbd03c9e58c2b2c851e8574b0be9a84b6201b0e24c4ce7bc7f421a1c5b2acea55ddd04db2e6d2a22a5e5f279b6d49a8dd76739dd0be6a5775dbedcac3f13a39eeebf76ee5e174dbadfda4db9adb1af5e10477b46dabaeabaae63c74d3c5c2f1f94203af737ab321cd1e69f845e7f434a3e1b7fe1f0dfd85393d7f92f4d1cbd7ffe94df2f7fbe81fff92fca6</data>
     </image>
 </images>
 <connections>
@@ -5443,6 +5465,12 @@
         <receiver>MainWindow</receiver>
         <slot>modifyMirror()</slot>
     </connection>
+    <connection>
+        <sender>setViewZoomtoSelectionAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewZoomToSelection()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5631,6 +5659,7 @@
     <slot>fileExport()</slot>
     <slot>setViewIsometric()</slot>
     <slot>modifyMirror()</slot>
+    <slot>setViewZoomToSelection()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

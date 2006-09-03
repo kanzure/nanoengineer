@@ -476,11 +476,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.animateToCsys( self.part.homeCsys)
         
     def setViewFitToWindow(self, fast=False):
+    #def setViewFitToWindow_original(self, fast=False):
         "Change view so that the entire model fits in the glpane. If <fast> is True, then snap to the view (i.e. don't animate)"
         # Recalculate center and bounding box for all the visible chunks in the current part.
         # The way a 3d bounding box is used to calculate the fit is not adequate. I consider this a bug, but I'm not sure
         # how to best use the BBox object to compute the proper fit. Should ask Bruce. This will do for now. Mark 060713.
-        
         bbox = BBox()
 
         for mol in self.assy.molecules:
@@ -504,34 +504,82 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         else:
             self.animateToView(self.quat, scale, pov, 1.0)
     
-    def setViewFitSelectionToWindow(self, fast = False):
-        """Change the view so that only selected chunks fit in the GLPane. If <fast> is True, then snap to the view 
-        It is NIY for jig selection - ninad060731"""
-        #It uses most of the code in setViewFitToWindow.What if the parameter 'chunks' is passed as an argument in that function ? (but we probably need a new icon for 'fit to selection' so it might be better to keep these functions seperate  
-        #This also needs history messages once implemented. - ninad060731
+    def setViewZoomToSelection(self, fast = False):
+    #def setViewFitToWindow(self, fast = False):
+        '''Change the view so that only selected chunks and Jigs fit in the GLPane. 
+        (i.e. Zoom to the selection) If <fast> is True, then snap to the view '''
+        #ninad060903: 
+        # I am not using bounding box object as used in fit to selection. I am using only self.scale
+        #Not sure if this will create any issue for different glpane sizes. 
+        #This considers only selected jigs and chunks while doing fit to window. 
+        #I will discuss with Bruce and Mark for further refinements and potential issues. 
+        #Zoom to selection doesn't work for Anchors and other immovable jigs. 
+        # For future:  It should work for selected atoms too. (and also when a non movable jig is selected)
         
-        chunks = self.assy.selmols
-        #jigs = self.assy.SelectedJigs
-        bbox = BBox()
-        for mol in chunks:
-            if mol.hidden or mol.display == diINVISIBLE: #I am not sure if it should neglect hidden/invisible chunks 
-                continue                                                          #while doing fit sel to window.Perhaps it should. ninad060731
-            bbox.merge(mol.bbox)
+        comCenter = V(0.0, 0.0, 0.0)
         
-        center = bbox.center()
-        scale = float(bbox.scale() * .75)
-        aspect = float(self.width) / self.height
+        movables = self.assy.getSelectedMovables()
+        numMovables = len(movables)
         
-        if aspect < 1.0:
-            # tall (narrow) glpane -- need to increase self.scale
-            # (defined in terms of glpane height) so part bbox fits in width
-            # [bruce 050616 comment]
-            scale /= aspect
-        pov = V(-center[0], -center[1], -center[2])
-        if fast:
-            self.snapToView(self.quat, scale, pov, 1.0)
+        if movables and not self.assy.selatoms_list():
+            for obj in movables:
+                if obj.hidden:
+                    continue
+                if not isinstance(obj, Jig):
+                    if obj.display == diINVISIBLE:
+                        continue
+            comCenter += obj.center
+            comCenter /= numMovables
+            center = comCenter
+            pov = V(-center[0], -center[1], -center[2])
+            if fast:
+                self.snapToView(self.quat, self.scale, pov, 1.0)
+            else:
+                self.animateToView(self.quat, self.scale, pov, 1.0)
         else:
-            self.animateToView(self.quat, scale, pov, 1.0)
+            env.history.message(orangemsg( " Zoom To Selection: No visible chunks or movable jigs selected"\
+            " [Acceptable Jigs: Motors, Grid Plane and ESP Image]"))
+        
+        ###start scrach area  ninad060903###
+        
+        """
+        selectedChunksAndJigs = self.assy.getSelectedChunksAndJigs()
+        numSelectedObjects = len(selectedChunksAndJigs)
+        
+        if numSelectedObjects and not self.assy.selatoms_list():
+            for obj in selectedChunksAndJigs:
+                if obj.hidden:
+                    continue
+                if not isinstance(obj, Jig):
+                    if obj.display == diINVISIBLE:
+                        continue
+                if not obj.center:
+                    continue
+                comCenter += obj.center
+                comCenter /= numSelectedObjects
+                center = comCenter
+                pov = V(-center[0], -center[1], -center[2])
+                if fast:
+                    self.snapToView(self.quat, self.scale, pov, 1.0)
+                else:
+                    self.animateToView(self.quat, self.scale, pov, 1.0)
+                    
+        def getSelectedChunksAndJigs(self):
+        '''Returns a list of all selected chunks and jigs(also includes hidden objects'''
+        #ninad060903 -- If I'm going to useapproach in scratch area, then 
+        #this method will be moved to ops_select.py 
+        selectedObjects = []
+        for obj in self.assy.selmols:
+            selectedObjects += [obj]
+        
+        selectedJigs = self.getSelectedJigs()
+        
+        for jig in selectedJigs:
+            selectedObjects += [jig]
+            
+        return selectedObjects"""
+        ###end scratch area ninad060903###
+            
         
     def setViewHomeToCurrent(self):
         "Set the Home view to the current view."

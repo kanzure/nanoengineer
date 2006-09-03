@@ -42,6 +42,14 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         info = ''
         env.history.message(cmd + info)
         self.glpane.setViewFitToWindow()
+        
+    def setViewZoomToSelection(self):
+        '''Zoom to selection (Implemented for only selected jigs and chunks'''
+        cmd = greenmsg("Zoom To Selection:")
+        info = ''
+        env.history.message(cmd + info)
+        self.glpane.setViewZoomToSelection()
+        
             
     def setViewHomeToCurrent(self): #bruce 050418 revised docstring, and moved bodies of View methods into GLPane
         """Changes Home view of the model to the current view in the glpane."""

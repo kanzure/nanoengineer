@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Atom\cad\src\MainWindowUI.ui'
 #
-# Created: Mon Aug 14 11:07:06 2006
+# Created: Sun Sep 3 16:25:56 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -5858,6 +5858,65 @@ image149_data = \
     "\xdf\x93\xec\x98\xa1\x03\x00\x9b\x08\x33\x7b\x8a" \
     "\x72\xca\x52\x00\x00\x00\x00\x49\x45\x4e\x44\xae" \
     "\x42\x60\x82"
+image150_data = [
+"22 22 34 1",
+"c c #000000",
+"x c #08090a",
+"w c #101212",
+"D c #1175d4",
+"E c #155cc1",
+"B c #195182",
+"v c #232424",
+"A c #246291",
+"b c #363535",
+"z c #3c3c3c",
+"d c #3e6e9c",
+"o c #4c4b4c",
+"C c #535252",
+"a c #565555",
+"y c #5a5b5b",
+"e c #5d8dbc",
+"p c #6393c0",
+"F c #686868",
+"m c #6ca3d1",
+"f c #73a0c8",
+"n c #7a7a7b",
+"# c #808080",
+"g c #91b7db",
+"u c #96c6ef",
+"r c #a6c8eb",
+"l c #b1d5fa",
+"k c #b5dafc",
+"s c #bedff9",
+"j c #c8e5fd",
+"t c #d4edfe",
+"q c #dcf2ff",
+"i c #e4f5fe",
+". c #ece9d8",
+"h c #ffffff",
+"......................",
+"......................",
+"......................",
+"........#abca#........",
+".......cdeffedc.......",
+"......cghijklkmc......",
+".....ndiaaaaaajdn.....",
+".....opiccccccqpo.....",
+".....crjslkstqiuv.....",
+".....vrkaaaaaaiuw.....",
+".....opsccccccqpo.....",
+".....ndskkkkkkjdn.....",
+"......cpsjttjjmx......",
+".......cdeggedxyc.....",
+"........#awza#cABc....",
+"..............CcDAc...",
+"...............CcDAc..",
+"................CcEc..",
+".................CcF..",
+"......................",
+"......................",
+"......................"
+]
 
 class MainWindow(QMainWindow):
     def __init__(self,parent = None,name = None,fl = 0):
@@ -6161,6 +6220,7 @@ class MainWindow(QMainWindow):
         self.image11 = QPixmap(image11_data)
         self.image19 = QPixmap(image19_data)
         self.image27 = QPixmap(image27_data)
+        self.image150 = QPixmap(image150_data)
 
         if not name:
             self.setName("MainWindow")
@@ -6613,6 +6673,8 @@ class MainWindow(QMainWindow):
         self.setViewIsometricAction.setIconSet(QIconSet(self.image148))
         self.modifyMirrorAction = QAction(self,"modifyMirrorAction")
         self.modifyMirrorAction.setIconSet(QIconSet(self.image149))
+        self.setViewZoomtoSelectionAction = QAction(self,"setViewZoomtoSelectionAction")
+        self.setViewZoomtoSelectionAction.setIconSet(QIconSet(self.image150))
 
 
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
@@ -6637,11 +6699,12 @@ class MainWindow(QMainWindow):
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.viewToolbar.setEnabled(1)
-        self.viewToolbar.setGeometry(QRect(282,0,571,29))
+        self.viewToolbar.setGeometry(QRect(282,0,599,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
         self.setViewRecenterAction.addTo(self.viewToolbar)
+        self.setViewZoomtoSelectionAction.addTo(self.viewToolbar)
         self.zoomToolAction.addTo(self.viewToolbar)
         self.panToolAction.addTo(self.viewToolbar)
         self.rotateToolAction.addTo(self.viewToolbar)
@@ -6665,7 +6728,7 @@ class MainWindow(QMainWindow):
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.molecularDispToolbar.setEnabled(1)
-        self.molecularDispToolbar.setGeometry(QRect(853,0,239,29))
+        self.molecularDispToolbar.setGeometry(QRect(0,29,239,29))
         self.molecularDispToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
@@ -6678,7 +6741,7 @@ class MainWindow(QMainWindow):
         self.selectToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.selectToolbar.setEnabled(1)
-        self.selectToolbar.setGeometry(QRect(0,29,211,29))
+        self.selectToolbar.setGeometry(QRect(239,29,211,29))
         self.selectToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.selectAllAction.addTo(self.selectToolbar)
         self.selectNoneAction.addTo(self.selectToolbar)
@@ -6690,7 +6753,7 @@ class MainWindow(QMainWindow):
         self.helpToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.helpToolbar.setEnabled(1)
-        self.helpToolbar.setGeometry(QRect(211,29,43,29))
+        self.helpToolbar.setGeometry(QRect(450,29,43,29))
         self.helpToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
@@ -6717,7 +6780,7 @@ class MainWindow(QMainWindow):
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,22,1109,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,22,1107,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6913,6 +6976,7 @@ class MainWindow(QMainWindow):
         self.setViewHomeToCurrentAction.addTo(self.viewMenu)
         self.setViewFitToWindowAction.addTo(self.viewMenu)
         self.setViewRecenterAction.addTo(self.viewMenu)
+        self.setViewZoomtoSelectionAction.addTo(self.viewMenu)
         self.zoomToolAction.addTo(self.viewMenu)
         self.panToolAction.addTo(self.viewMenu)
         self.viewMenu.insertSeparator()
@@ -7196,6 +7260,7 @@ class MainWindow(QMainWindow):
         self.connect(self.fileExportAction,SIGNAL("activated()"),self.fileExport)
         self.connect(self.setViewIsometricAction,SIGNAL("activated()"),self.setViewIsometric)
         self.connect(self.modifyMirrorAction,SIGNAL("activated()"),self.modifyMirror)
+        self.connect(self.setViewZoomtoSelectionAction,SIGNAL("activated()"),self.setViewZoomToSelection)
 
 
     def languageChange(self):
@@ -7664,6 +7729,9 @@ class MainWindow(QMainWindow):
         self.setViewIsometricAction.setMenuText(self.__tr("&Isometric"))
         self.modifyMirrorAction.setText(self.__tr("Mirror"))
         self.modifyMirrorAction.setToolTip(self.__tr("Mirror Chunks"))
+        self.setViewZoomtoSelectionAction.setText(self.__tr("Zoom To Selection"))
+        self.setViewZoomtoSelectionAction.setMenuText(self.__tr("Zoom To Selection"))
+        self.setViewZoomtoSelectionAction.setToolTip(self.__tr("Zoom to Selected Chunks and Jigs"))
         self.fileToolbar.setLabel(self.__tr("File"))
         self.editToolbar.setLabel(self.__tr("Edit"))
         self.viewToolbar.setLabel(self.__tr("View"))
@@ -8278,6 +8346,9 @@ class MainWindow(QMainWindow):
 
     def modifyMirror(self):
         print "MainWindow.modifyMirror(): Not implemented yet"
+
+    def setViewZoomToSelection(self):
+        print "MainWindow.setViewZoomToSelection(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)
