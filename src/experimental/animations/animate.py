@@ -32,7 +32,8 @@ framelimit = None
 
 povray_pretty = True
 
-border = (80, 30)
+# Viewable area is 520x410
+border = (40, 20)
 
 class PovrayJob(jobqueue.Job):
     def __init__(self, srcdir, dstdir, povfmt, povmin, povmax_plus_one, yuv,
@@ -234,24 +235,38 @@ class MpegSequence:
             i = self.frame
         return (self.yuv_format() % i) + '.yuv'
 
-    # By default, each title page stays up for fifteen seconds
-    def titleSequence(self, titlefile, frames=450):
-        assert os.path.exists(titlefile)
-        if framelimit is not None: frames = min(frames, framelimit)
-        first_yuv = self.yuv_name()
-        if border is not None:
-            w, h = self.width - 2 * border[0], self.height - 2 * border[1]
-            borderoption = ' -bordercolor black -border %dx%d' % border
-        else:
-            w, h = self.width, self.height
-            borderoption = ''
-        jobqueue.do('convert %s -geometry %dx%d! %s %s' %
-                    (titlefile, w, h, borderoption, first_yuv))
-        self.frame += 1
-        for i in range(1, frames):
-            import shutil
-            shutil.copy(first_yuv, self.yuv_name())
+    if True:
+        # By default, each title page stays up for fifteen seconds
+        def titleSequence(self, titlefile, frames=450):
+            assert os.path.exists(titlefile)
+            if framelimit is not None: frames = min(frames, framelimit)
+            first_yuv = self.yuv_name()
+            if border is not None:
+                w, h = self.width - 2 * border[0], self.height - 2 * border[1]
+                borderoption = ' -bordercolor black -border %dx%d' % border
+            else:
+                w, h = self.width, self.height
+                borderoption = ''
+            jobqueue.do('convert %s -geometry %dx%d! %s %s' %
+                        (titlefile, w, h, borderoption, first_yuv))
             self.frame += 1
+            for i in range(1, frames):
+                import shutil
+                shutil.copy(first_yuv, self.yuv_name())
+                self.frame += 1
+    else:
+        # By default, each title page stays up for fifteen seconds
+        def titleSequence(self, titlefile, frames=450):
+            assert os.path.exists(titlefile)
+            if framelimit is not None: frames = min(frames, framelimit)
+            first_yuv = self.yuv_name()
+            jobqueue.do('convert %s -geometry %dx%d %s' %
+                        (titlefile, self.width, self.height, first_yuv))
+            self.frame += 1
+            for i in range(1, frames):
+                import shutil
+                shutil.copy(first_yuv, self.yuv_name())
+                self.frame += 1
 
     def previouslyComputed(self, fmt, frames, begin=0):
         assert os.path.exists(titlefile)
@@ -328,8 +343,11 @@ class MpegSequence:
                 jobqueue.do('convert %s %s' % (tmpimage, yuv))
             self.frame += 1
 
-    def simpleSequence(self, frames, drawOne, step=1, repeat_final_frame=1):
+    def simpleSequence(self, drawOne, frames, step=1, repeat_final_frame=1):
         if framelimit is not None: frames = min(frames, framelimit)
+        frames = int(frames)
+        step = int(step)
+        repeat_final_frame = int(repeat_final_frame)
         for i in range(0, frames+1, step):
             yuv = self.yuv_name()
             self.frame += 1
