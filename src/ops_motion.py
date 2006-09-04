@@ -169,7 +169,6 @@ class ops_motion_Mixin:
         return jigCounter # if its 0 then no grid plane is selected.  If its >1 more than 1 grid planes are selected
     
     def align(self):
-        
         cmd = greenmsg("Align to Common Axis: ")
         
         if len(self.selmols) < 2:
@@ -189,6 +188,53 @@ class ops_motion_Mixin:
         info = fix_plurals( "Aligned %d chunk(s)" % (len(self.selmols) - 1) ) \
             + " to chunk %s" % self.selmols[0].name
         env.history.message( cmd + info)
+    
+    #Ninad 060904 The following is not called from UI. Need to see if this is useful to the user. 
+    def alignPerpendicularToPlane(self):
+        ''' Aligns the axes of selected jigs or chunks perpendicular to a reference plane'''
+
+        cmd = greenmsg("Align to Plane:")
+        
+        jigs = self.assy.getSelectedJigs()
+        referencePlaneList = self.getQualifiedReferencePlanes(jigs)
+        jigCounter = len(referencePlaneList) # as of 060904 qualified ref plane is grid plane jig. Other option is to use ESP image
+        
+        self.changed()
+        
+        if jigCounter:
+            referencePlane = referencePlaneList[0] #ninad060904 If more than 1 ref planes are selected, it selectes the first in the order in the mmp file
+        
+            
+        if jigCounter < 1:
+            msg = redmsg("No reference plane selected. Please select a Grid Plane first.")
+            instruction = "  (If it doesn't exists, create one using <b>Jigs > Grid Plane</b> )"
+            env.history.message(cmd + msg  + instruction)
+            return 
+
+        movables = self.assy.getSelectedMovables()
+        numMovables = len(movables)
+        #print len(movables)
+        
+        if numMovables >1:
+            for obj in movables:
+                if obj is referencePlane:
+                    pass
+                refAxis = referencePlane.getaxis()
+                obj.rot(Q(obj.getaxis(),refAxis))
+                self.o.gl_update()
+        else:
+            msg = redmsg("No chunks or movable jigs selected to align perpendicular to the reference plane.")
+            env.history.message(cmd + msg  + instruction)
+            return 
+            
+                 
+    def getQualifiedReferencePlanes(self, jigs): #Ninad 060904
+        "Returns a list of jigs that can be used a  reference plane in align to plane feature."
+        referencePlaneList = []
+        for j in jigs:
+            if j.mmp_record_name is "gridplane":
+                referencePlaneList += [j]
+        return referencePlaneList 
         
     def alignmove(self):
         
