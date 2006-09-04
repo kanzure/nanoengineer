@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Aug 31 13:06:03 2006
+# Created: Mon Sep 4 16:15:56 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.12
 #
 # WARNING! All changes made in this file will be lost!
@@ -1240,60 +1240,68 @@ class UserPrefsDialog(QDialog):
         self.prefs_tab.insertTab(self.TabPage_5,QString(""))
 
         self.TabPage_6 = QWidget(self.prefs_tab,"TabPage_6")
-        TabPageLayout_6 = QGridLayout(self.TabPage_6,1,1,11,6,"TabPageLayout_6")
-        spacer10 = QSpacerItem(20,110,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_6.addItem(spacer10,2,0)
 
-        layout68_3 = QHBoxLayout(None,0,6,"layout68_3")
+        LayoutWidget = QWidget(self.TabPage_6,"layout70")
+        LayoutWidget.setGeometry(QRect(12,12,568,95))
+        layout70_2 = QGridLayout(LayoutWidget,1,1,11,6,"layout70_2")
+        spacer56_5 = QSpacerItem(268,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout70_2.addItem(spacer56_5,2,2)
 
-        self.groupBox17 = QGroupBox(self.TabPage_6,"groupBox17")
+        self.undo_automatic_checkpoints_checkbox = QCheckBox(LayoutWidget,"undo_automatic_checkpoints_checkbox")
+
+        layout70_2.addMultiCellWidget(self.undo_automatic_checkpoints_checkbox,1,1,0,2)
+
+        self.undo_stack_memory_limit_spinbox = QSpinBox(LayoutWidget,"undo_stack_memory_limit_spinbox")
+        self.undo_stack_memory_limit_spinbox.setMaxValue(99999)
+
+        layout70_2.addWidget(self.undo_stack_memory_limit_spinbox,2,1)
+
+        self.undo_restore_view_checkbox = QCheckBox(LayoutWidget,"undo_restore_view_checkbox")
+
+        layout70_2.addMultiCellWidget(self.undo_restore_view_checkbox,0,0,0,2)
+
+        self.undo_stack_memory_limit_label = QLabel(LayoutWidget,"undo_stack_memory_limit_label")
+
+        layout70_2.addWidget(self.undo_stack_memory_limit_label,2,0)
+
+        LayoutWidget_2 = QWidget(self.TabPage_6,"layout76")
+        LayoutWidget_2.setGeometry(QRect(12,109,568,128))
+        layout76_2 = QGridLayout(LayoutWidget_2,1,1,11,0,"layout76_2")
+        spacer58_2 = QSpacerItem(330,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout76_2.addItem(spacer58_2,0,1)
+
+        self.groupBox17 = QGroupBox(LayoutWidget_2,"groupBox17")
         self.groupBox17.setColumnLayout(0,Qt.Vertical)
         self.groupBox17.layout().setSpacing(6)
         self.groupBox17.layout().setMargin(11)
         groupBox17Layout = QGridLayout(self.groupBox17.layout())
         groupBox17Layout.setAlignment(Qt.AlignTop)
 
-        self.msg_serial_number_checkbox = QCheckBox(self.groupBox17,"msg_serial_number_checkbox")
+        self.textLabel1_9 = QLabel(self.groupBox17,"textLabel1_9")
 
-        groupBox17Layout.addWidget(self.msg_serial_number_checkbox,0,0)
+        groupBox17Layout.addWidget(self.textLabel1_9,2,0)
 
         self.msg_timestamp_checkbox = QCheckBox(self.groupBox17,"msg_timestamp_checkbox")
 
-        groupBox17Layout.addWidget(self.msg_timestamp_checkbox,1,0)
-        layout68_3.addWidget(self.groupBox17)
-        spacer58_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout68_3.addItem(spacer58_2)
+        groupBox17Layout.addMultiCellWidget(self.msg_timestamp_checkbox,1,1,0,1)
 
-        TabPageLayout_6.addLayout(layout68_3,1,0)
+        self.msg_serial_number_checkbox = QCheckBox(self.groupBox17,"msg_serial_number_checkbox")
 
-        layout70_2 = QGridLayout(None,1,1,0,6,"layout70_2")
-        spacer56_5 = QSpacerItem(268,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout70_2.addItem(spacer56_5,2,2)
+        groupBox17Layout.addMultiCellWidget(self.msg_serial_number_checkbox,0,0,0,1)
 
-        self.undo_automatic_checkpoints_checkbox = QCheckBox(self.TabPage_6,"undo_automatic_checkpoints_checkbox")
+        self.historyHeight_spinbox = QSpinBox(self.groupBox17,"historyHeight_spinbox")
+        self.historyHeight_spinbox.setMaxValue(20)
+        self.historyHeight_spinbox.setValue(4)
 
-        layout70_2.addMultiCellWidget(self.undo_automatic_checkpoints_checkbox,1,1,0,2)
+        groupBox17Layout.addWidget(self.historyHeight_spinbox,2,1)
 
-        self.undo_stack_memory_limit_spinbox = QSpinBox(self.TabPage_6,"undo_stack_memory_limit_spinbox")
-        self.undo_stack_memory_limit_spinbox.setMaxValue(99999)
-
-        layout70_2.addWidget(self.undo_stack_memory_limit_spinbox,2,1)
-
-        self.undo_restore_view_checkbox = QCheckBox(self.TabPage_6,"undo_restore_view_checkbox")
-
-        layout70_2.addMultiCellWidget(self.undo_restore_view_checkbox,0,0,0,2)
-
-        self.undo_stack_memory_limit_label = QLabel(self.TabPage_6,"undo_stack_memory_limit_label")
-
-        layout70_2.addWidget(self.undo_stack_memory_limit_label,2,0)
-
-        TabPageLayout_6.addLayout(layout70_2,0,0)
+        layout76_2.addWidget(self.groupBox17,0,0)
         self.prefs_tab.insertTab(self.TabPage_6,QString(""))
 
         self.TabPage_7 = QWidget(self.prefs_tab,"TabPage_7")
-        TabPageLayout_7 = QGridLayout(self.TabPage_7,1,1,11,6,"TabPageLayout_7")
+        TabPageLayout_6 = QGridLayout(self.TabPage_7,1,1,11,6,"TabPageLayout_6")
         spacer94 = QSpacerItem(20,16,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_7.addItem(spacer94,2,0)
+        TabPageLayout_6.addItem(spacer94,2,0)
 
         layout15 = QHBoxLayout(None,0,6,"layout15")
 
@@ -1329,12 +1337,12 @@ class UserPrefsDialog(QDialog):
         self.caption_fullpath_checkbox = QCheckBox(self.groupBox3,"caption_fullpath_checkbox")
         groupBox3Layout.addWidget(self.caption_fullpath_checkbox)
         layout15.addWidget(self.groupBox3)
-        spacer9_2 = QSpacerItem(210,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        spacer9_2 = QSpacerItem(280,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout15.addItem(spacer9_2)
 
-        TabPageLayout_7.addMultiCellLayout(layout15,1,1,0,1)
+        TabPageLayout_6.addMultiCellLayout(layout15,1,1,0,1)
         spacer47 = QSpacerItem(70,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TabPageLayout_7.addItem(spacer47,0,1)
+        TabPageLayout_6.addItem(spacer47,0,1)
 
         self.groupBox10 = QGroupBox(self.TabPage_7,"groupBox10")
         self.groupBox10.setColumnLayout(0,Qt.Vertical)
@@ -1409,13 +1417,13 @@ class UserPrefsDialog(QDialog):
 
         groupBox10Layout.addMultiCellWidget(self.remember_win_pos_and_size_checkbox,1,1,0,2)
 
-        TabPageLayout_7.addWidget(self.groupBox10,0,0)
+        TabPageLayout_6.addWidget(self.groupBox10,0,0)
         self.prefs_tab.insertTab(self.TabPage_7,QString(""))
 
         self.TabPage_8 = QWidget(self.prefs_tab,"TabPage_8")
-        TabPageLayout_8 = QGridLayout(self.TabPage_8,1,1,11,6,"TabPageLayout_8")
+        TabPageLayout_7 = QGridLayout(self.TabPage_8,1,1,11,6,"TabPageLayout_7")
         spacer96 = QSpacerItem(90,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        TabPageLayout_8.addItem(spacer96,0,2)
+        TabPageLayout_7.addItem(spacer96,0,2)
 
         self.groupBox35 = QGroupBox(self.TabPage_8,"groupBox35")
         self.groupBox35.setColumnLayout(0,Qt.Vertical)
@@ -1434,11 +1442,11 @@ class UserPrefsDialog(QDialog):
 
         groupBox35Layout.addLayout(layout451,0,0)
 
-        TabPageLayout_8.addWidget(self.groupBox35,0,1)
+        TabPageLayout_7.addWidget(self.groupBox35,0,1)
         spacer95 = QSpacerItem(20,320,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_8.addMultiCell(spacer95,1,2,1,1)
+        TabPageLayout_7.addMultiCell(spacer95,1,2,1,1)
         spacer48 = QSpacerItem(20,161,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_8.addItem(spacer48,2,0)
+        TabPageLayout_7.addItem(spacer48,2,0)
 
         self.atom_dynamic_tooltips_grpbox = QGroupBox(self.TabPage_8,"atom_dynamic_tooltips_grpbox")
         self.atom_dynamic_tooltips_grpbox.setColumnLayout(0,Qt.Vertical)
@@ -1491,7 +1499,7 @@ class UserPrefsDialog(QDialog):
 
         atom_dynamic_tooltips_grpboxLayout.addMultiCellWidget(self.dynamicToolTipAtomPosition_checkbox,2,2,0,1)
 
-        TabPageLayout_8.addMultiCellWidget(self.atom_dynamic_tooltips_grpbox,0,1,0,0)
+        TabPageLayout_7.addMultiCellWidget(self.atom_dynamic_tooltips_grpbox,0,1,0,0)
         self.prefs_tab.insertTab(self.TabPage_8,QString(""))
 
         UserPrefsDialogLayout.addWidget(self.prefs_tab,0,0)
@@ -1580,6 +1588,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
         self.connect(self.dynamicToolTipAtomDistancePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipAtomDistancePrecision)
         self.connect(self.dynamicToolTipBendAnglePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipBendAnglePrecision)
+        self.connect(self.historyHeight_spinbox,SIGNAL("valueChanged(int)"),self.change_historyHeight)
 
         self.setTabOrder(self.prefs_tab,self.display_origin_axis_checkbox)
         self.setTabOrder(self.display_origin_axis_checkbox,self.display_pov_axis_checkbox)
@@ -1924,15 +1933,17 @@ class UserPrefsDialog(QDialog):
         self.gamess_lbl.setText(self.__tr("GAMESS :"))
         QToolTip.add(self.gamess_lbl,self.__tr("Enable GAMESS."))
         self.prefs_tab.changeTab(self.TabPage_5,self.__tr("Plug-ins"))
-        self.groupBox17.setTitle(self.__tr("History Preferences"))
-        self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
-        self.msg_timestamp_checkbox.setText(self.__tr("Include message timestamp"))
         self.undo_automatic_checkpoints_checkbox.setText(self.__tr("Automatic Checkpoints"))
         QToolTip.add(self.undo_automatic_checkpoints_checkbox,self.__tr("Specify Automatic or Manual Checkpoints at program startup."))
         self.undo_stack_memory_limit_spinbox.setSuffix(self.__tr(" MB"))
         self.undo_restore_view_checkbox.setText(self.__tr("Restore View when Undoing Structural Changes"))
         QToolTip.add(self.undo_restore_view_checkbox,self.__tr("Undo will switch to the view saved with each structural change."))
         self.undo_stack_memory_limit_label.setText(self.__tr("Undo Stack Memory Limit :"))
+        self.groupBox17.setTitle(self.__tr("History Preferences"))
+        self.textLabel1_9.setText(self.__tr("History Widget Height"))
+        self.msg_timestamp_checkbox.setText(self.__tr("Include message timestamp"))
+        self.msg_serial_number_checkbox.setText(self.__tr("Include message serial number"))
+        QToolTip.add(self.historyHeight_spinbox,self.__tr("Adjust the height of history widget"))
         self.prefs_tab.changeTab(self.TabPage_6,self.__tr("Undo"))
         self.groupBox3.setTitle(self.__tr("Window Caption Format"))
         QToolTip.add(self.groupBox3,self.__tr("Window Border Caption Format"))
@@ -2189,6 +2200,9 @@ class UserPrefsDialog(QDialog):
 
     def change_dynamicToolTipBendAnglePrecision(self):
         print "UserPrefsDialog.change_dynamicToolTipBendAnglePrecision(): Not implemented yet"
+
+    def change_historyHeight(self):
+        print "UserPrefsDialog.change_historyHeight(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)

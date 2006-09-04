@@ -774,9 +774,13 @@ class UserPrefs(UserPrefsDialog):
         #& self.history_height_spinbox.hide()
         
         ## self.history_height_spinbox.setValue(self.history.history_height) #bruce 050810 removed this
-        
+                       
         connect_checkbox_with_boolean_pref( self.msg_serial_number_checkbox, historyMsgSerialNumber_prefs_key )
         connect_checkbox_with_boolean_pref( self.msg_timestamp_checkbox, historyMsgTimestamp_prefs_key )
+        
+        #ninad060904 
+        self.historyHeight_spinbox.setValue(env.prefs[historyHeight_prefs_key] )
+        
         return
 
     def _setup_window_page(self): #bruce 050810 revised this, and also call it from __init__ to be safe
@@ -1581,7 +1585,7 @@ class UserPrefs(UserPrefsDialog):
 
     ########## End of slot methods for "Plug-ins" page widgets ###########
     
-    ########## Slot methods for "Window" (former name "Caption") page widgets ################
+    ########## Slot methods for "Undo" (former name "Caption") page widgets ################
     
     def change_undo_stack_memory_limit(self, mb_val):
         '''Slot for 'Undo Stack Memory Limit' spinbox. Sets the RAM limit for the Undo Stack.
@@ -1589,7 +1593,11 @@ class UserPrefs(UserPrefsDialog):
         '''
         env.prefs[undoStackMemoryLimit_prefs_key] = mb_val
         
-    ########## End of slot methods for "Window" page widgets ###########
+    def change_historyHeight(self, value):
+        ''' slot for  history height spinbox'''
+        env.prefs[ historyHeight_prefs_key] = value
+        
+    ########## End of slot methods for "Undo" page widgets ###########
     
     ########## Start slot methods for "ToolTips" page widgets ###########
     def change_dynamicToolTipAtomDistancePrecision(self, value):

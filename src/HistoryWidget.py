@@ -192,8 +192,10 @@ class HistoryWidget:
         # The keys are located in constants.py
         # Mark 050716
         # [revised by bruce 050810; comment above is now no longer up to date]
-                
-        self.history_height = env.prefs.get(historyHeight_prefs_key, 4)
+        
+        #ninad 060904 modified this Still a partial implementation of NFR 843
+        self.history_height = env.prefs[historyHeight_prefs_key]
+
         
         ###### End of User Preference initialization ########################## 
         
@@ -222,6 +224,7 @@ class HistoryWidget:
             # to support copy/paste command sequences, etc
 
         # Partial implem for NFR 843.  Need a method for updating the height of the widget. Mark 050729
+                
         h = self.widget.fontMetrics().lineSpacing() * self.history_height + 2 # Plus 2 pixels
         self.widget.setGeometry(QRect(0,0,100,h))
         return

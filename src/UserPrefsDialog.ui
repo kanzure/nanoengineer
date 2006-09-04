@@ -3937,152 +3937,199 @@
                 <attribute name="title">
                     <string>Undo</string>
                 </attribute>
-                <grid>
+                <spacer>
                     <property name="name">
-                        <cstring>unnamed</cstring>
+                        <cstring>spacer10</cstring>
                     </property>
-                    <spacer row="2" column="0">
+                    <property name="orientation">
+                        <enum>Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>200</height>
+                        </size>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>285</x>
+                            <y>239</y>
+                            <width>20</width>
+                            <height>200</height>
+                        </rect>
+                    </property>
+                </spacer>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout70</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>12</x>
+                            <y>12</y>
+                            <width>568</width>
+                            <height>95</height>
+                        </rect>
+                    </property>
+                    <grid>
                         <property name="name">
-                            <cstring>spacer10</cstring>
+                            <cstring>unnamed</cstring>
                         </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>110</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QLayoutWidget" row="1" column="0">
-                        <property name="name">
-                            <cstring>layout68</cstring>
-                        </property>
-                        <hbox>
+                        <spacer row="2" column="2">
                             <property name="name">
-                                <cstring>unnamed</cstring>
+                                <cstring>spacer56_5</cstring>
                             </property>
-                            <widget class="QGroupBox">
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>268</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="3">
+                            <property name="name">
+                                <cstring>undo_automatic_checkpoints_checkbox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Automatic Checkpoints</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Specify Automatic or Manual Checkpoints at program startup.</string>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox" row="2" column="1">
+                            <property name="name">
+                                <cstring>undo_stack_memory_limit_spinbox</cstring>
+                            </property>
+                            <property name="suffix">
+                                <string> MB</string>
+                            </property>
+                            <property name="maxValue">
+                                <number>99999</number>
+                            </property>
+                        </widget>
+                        <widget class="QCheckBox" row="0" column="0" rowspan="1" colspan="3">
+                            <property name="name">
+                                <cstring>undo_restore_view_checkbox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Restore View when Undoing Structural Changes</string>
+                            </property>
+                            <property name="toolTip" stdset="0">
+                                <string>Undo will switch to the view saved with each structural change.</string>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="2" column="0">
+                            <property name="name">
+                                <cstring>undo_stack_memory_limit_label</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Undo Stack Memory Limit :</string>
+                            </property>
+                        </widget>
+                    </grid>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout76</cstring>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>12</x>
+                            <y>109</y>
+                            <width>568</width>
+                            <height>128</height>
+                        </rect>
+                    </property>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <property name="spacing">
+                            <number>0</number>
+                        </property>
+                        <spacer row="0" column="1">
+                            <property name="name">
+                                <cstring>spacer58_2</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>330</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                        <widget class="QGroupBox" row="0" column="0">
+                            <property name="name">
+                                <cstring>groupBox17</cstring>
+                            </property>
+                            <property name="title">
+                                <string>History Preferences</string>
+                            </property>
+                            <grid>
                                 <property name="name">
-                                    <cstring>groupBox17</cstring>
+                                    <cstring>unnamed</cstring>
                                 </property>
-                                <property name="title">
-                                    <string>History Preferences</string>
-                                </property>
-                                <grid>
+                                <widget class="QLabel" row="2" column="0">
                                     <property name="name">
-                                        <cstring>unnamed</cstring>
+                                        <cstring>textLabel1_9</cstring>
                                     </property>
-                                    <widget class="QCheckBox" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>msg_serial_number_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Include message serial number</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QCheckBox" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>msg_timestamp_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Include message timestamp</string>
-                                        </property>
-                                    </widget>
-                                </grid>
-                            </widget>
-                            <spacer>
-                                <property name="name">
-                                    <cstring>spacer58_2</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>40</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                        </hbox>
-                    </widget>
-                    <widget class="QLayoutWidget" row="0" column="0">
-                        <property name="name">
-                            <cstring>layout70</cstring>
-                        </property>
-                        <grid>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <spacer row="2" column="2">
-                                <property name="name">
-                                    <cstring>spacer56_5</cstring>
-                                </property>
-                                <property name="orientation">
-                                    <enum>Horizontal</enum>
-                                </property>
-                                <property name="sizeType">
-                                    <enum>Expanding</enum>
-                                </property>
-                                <property name="sizeHint">
-                                    <size>
-                                        <width>268</width>
-                                        <height>20</height>
-                                    </size>
-                                </property>
-                            </spacer>
-                            <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="3">
-                                <property name="name">
-                                    <cstring>undo_automatic_checkpoints_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Automatic Checkpoints</string>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Specify Automatic or Manual Checkpoints at program startup.</string>
-                                </property>
-                            </widget>
-                            <widget class="QSpinBox" row="2" column="1">
-                                <property name="name">
-                                    <cstring>undo_stack_memory_limit_spinbox</cstring>
-                                </property>
-                                <property name="suffix">
-                                    <string> MB</string>
-                                </property>
-                                <property name="maxValue">
-                                    <number>99999</number>
-                                </property>
-                            </widget>
-                            <widget class="QCheckBox" row="0" column="0" rowspan="1" colspan="3">
-                                <property name="name">
-                                    <cstring>undo_restore_view_checkbox</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Restore View when Undoing Structural Changes</string>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string>Undo will switch to the view saved with each structural change.</string>
-                                </property>
-                            </widget>
-                            <widget class="QLabel" row="2" column="0">
-                                <property name="name">
-                                    <cstring>undo_stack_memory_limit_label</cstring>
-                                </property>
-                                <property name="text">
-                                    <string>Undo Stack Memory Limit :</string>
-                                </property>
-                            </widget>
-                        </grid>
-                    </widget>
-                </grid>
+                                    <property name="text">
+                                        <string>History Widget Height</string>
+                                    </property>
+                                    <property name="buddy" stdset="0">
+                                        <cstring>spinBox10</cstring>
+                                    </property>
+                                </widget>
+                                <widget class="QCheckBox" row="1" column="0" rowspan="1" colspan="2">
+                                    <property name="name">
+                                        <cstring>msg_timestamp_checkbox</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Include message timestamp</string>
+                                    </property>
+                                </widget>
+                                <widget class="QCheckBox" row="0" column="0" rowspan="1" colspan="2">
+                                    <property name="name">
+                                        <cstring>msg_serial_number_checkbox</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Include message serial number</string>
+                                    </property>
+                                </widget>
+                                <widget class="QSpinBox" row="2" column="1">
+                                    <property name="name">
+                                        <cstring>historyHeight_spinbox</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>20</number>
+                                    </property>
+                                    <property name="value">
+                                        <number>4</number>
+                                    </property>
+                                    <property name="toolTip" stdset="0">
+                                        <string>Adjust the height of history widget</string>
+                                    </property>
+                                </widget>
+                            </grid>
+                        </widget>
+                    </grid>
+                </widget>
             </widget>
             <widget class="QWidget">
                 <property name="name">
@@ -4235,7 +4282,7 @@
                                 </property>
                                 <property name="sizeHint">
                                     <size>
-                                        <width>210</width>
+                                        <width>280</width>
                                         <height>20</height>
                                     </size>
                                 </property>
@@ -5153,6 +5200,12 @@
         <receiver>UserPrefsDialog</receiver>
         <slot>change_dynamicToolTipBendAnglePrecision()</slot>
     </connection>
+    <connection>
+        <sender>historyHeight_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_historyHeight()</slot>
+    </connection>
 </connections>
 <tabstops>
     <tabstop>prefs_tab</tabstop>
@@ -5339,6 +5392,7 @@
     <slot>set_povdir()</slot>
     <slot>change_dynamicToolTipAtomDistancePrecision()</slot>
     <slot>change_dynamicToolTipBendAnglePrecision()</slot>
+    <slot>change_historyHeight()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

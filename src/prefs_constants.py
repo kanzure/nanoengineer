@@ -378,6 +378,7 @@ prefs_table = (
     ('', 'int', undoStackMemoryLimit_prefs_key, 100), # mark 060327
     ('', 'boolean', historyMsgSerialNumber_prefs_key, True),
     ('', 'boolean', historyMsgTimestamp_prefs_key, True),
+    ('history_height', 'int', historyHeight_prefs_key, 4), # ninad 060904
     
     # Window preferences [added to this table by bruce 050810]
     
