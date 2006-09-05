@@ -35,72 +35,6 @@ povray_pretty = True
 # Viewable area is 520x410
 border = (40, 20)
 
-class PovrayJob(jobqueue.Job):
-    def __init__(self, srcdir, dstdir, povfmt, povmin, povmax_plus_one, yuv,
-                 pwidth, pheight, ywidth, yheight, textlist):
-
-        assert povfmt[-4:] == '.pov'
-        assert yuv[-4:] == '.yuv'
-
-        ifiles = [ ]
-        for i in range(povmin, povmax_plus_one):
-            ifiles.append(povfmt % i)
-        ofile = (povfmt % povmin)[:-4] + '.jpg'
-        jobqueue.Job.__init__(self, srcdir, dstdir,
-                              ifiles, [ ofile ])
-
-        self.povfmt = povfmt
-        self.povmin = povmin
-        self.povmax_plus_one = povmax_plus_one
-        self.yuv = yuv
-        self.pwidth = pwidth
-        self.pheight = pheight
-        self.ywidth = ywidth
-        self.yheight = yheight
-        self.textlist = textlist
-
-    def shellScript(self):
-
-        if povray_pretty:
-            povray_options = '+A -V -D +X'
-        else:
-            povray_options = '-A +Q0 -V -D +X'
-
-        script = ""
-
-        video_aspect_ratio = 4.0 / 3.0
-        w2 = int(video_aspect_ratio * self.pheight)
-        tgalist = ''
-        # Worker machine renders a bunch of pov files to tga files
-        for pov in self.inputfiles:
-            tga = pov[:-4] + '.tga'
-            tgalist += ' ' + tga
-            script += ('povray +I%s +O%s +FT %s +W%d +H%d 2>/dev/null\n' %
-                       (pov, tga, povray_options, self.pwidth, self.pheight))
-        # Worker machine averages the tga files into one jpeg file
-        script += ('convert -average %s -crop %dx%d+%d+0 -geometry %dx%d! %s\n' %
-                   (tgalist, w2, self.pheight, (self.pwidth - w2) / 2,
-                    self.ywidth, self.yheight, self.outputfiles[0]))
-        return script
-
-    def postJob(self, worker):
-        #
-        # Put text on finished image, apply border, and convert to YUV
-        #
-        if self.textlist:
-            cmd = ('convert %s -font times-roman -pointsize 30' %
-                   (os.path.join(self.dstdir, self.outputfiles[0])))
-            for i in range(len(self.textlist)):
-                cmd += ' -annotate +10+%d "%s"' % (30 * (i + 1), self.textlist[i])
-            if border is not None:
-                cmd += ' -bordercolor black -border %dx%d' % border
-            cmd += ' ' + os.path.join(self.dstdir, self.yuv)
-            jobqueue.do(cmd)
-        else:
-            jobqueue.do('convert %s %s' %
-               (os.path.join(self.dstdir, self.outputfiles[0]),
-                os.path.join(self.dstdir, self.yuv)))
-
 class SubframePovrayJob(jobqueue.Job):
     def __init__(self, srcdir, dstdir, ifiles, ofiles,
                  pwidth, pheight, ywidth, yheight):
@@ -296,16 +230,104 @@ class MpegSequence:
                 ifiles.append(povfmt % (i + j))
                 ofiles.append(jpgfmt % (i + j))
 
-            job = SubframePovrayJob(srcdir, dstdir,
-                                    ifiles, ofiles,
-                                    povray_res[0], povray_res[1],
-                                    mpeg_width, mpeg_height)
-            q.append(job)
+            got_them_all = True
+            for ofile in ofiles:
+                if not os.path.exists(os.path.join(dstdir, ofile)):
+                    got_them_all = False
+                    break
+
+            if not got_them_all:
+                job = SubframePovrayJob(srcdir, dstdir,
+                                        ifiles, ofiles,
+                                        povray_res[0], povray_res[1],
+                                        mpeg_width, mpeg_height)
+                q.append(job)
             i += num
         q.start()
         q.wait()
 
-    def blur(self, povfmt, start, incr, frames, avg, textlist):
+
+    def translucentTitleSequence(self, titleImage, povfmt, start, incr, frames, avg):
+        # avg is how many subframes are averaged to produce each frame
+        # ratio is the ratio of subframes to frames
+        if framelimit is not None: frames = min(frames, framelimit)
+        tmpimage = '/tmp/foo.jpg'
+        video_aspect_ratio = 4.0 / 3.0
+        w2 = int(video_aspect_ratio * povray_height)
+        ywidth, yheight = mpeg_width, mpeg_height
+        if border is not None:
+            ywidth -= 2 * border[0]
+            yheight -= 2 * border[1]
+        for i in range(frames):
+            if avg > 1:
+                avgopt = '-average'
+            else:
+                avgopt = ''
+            inputs = ''
+            fnum = start + incr * i
+            yuv = (self.yuv_format() % self.frame) + '.yuv'
+            for j in range(avg):
+                inputs += ' ' + (povfmt % (fnum + j))
+            jobqueue.do('convert %s %s -crop %dx%d+%d+0 -geometry %dx%d! %s' %
+                        (avgopt, inputs, w2, povray_height, (povray_width - w2) / 2,
+                         ywidth, yheight, tmpimage))
+            cmd = ('composite %s %s %s' % (titleImage, tmpimage, yuv))
+            jobqueue.do(cmd)
+            self.frame += 1
+
+
+    def crossfade(self, povfmt, povfmt2, start, incr, frames, avg, textlist):
+        # avg is how many subframes are averaged to produce each frame
+        # ratio is the ratio of subframes to frames
+        if framelimit is not None: frames = min(frames, framelimit)
+        tmpimage = '/tmp/foo.jpg'
+        tmpimage2 = '/tmp/foo2.jpg'
+        video_aspect_ratio = 4.0 / 3.0
+        w2 = int(video_aspect_ratio * povray_height)
+        ywidth, yheight = mpeg_width, mpeg_height
+        if border is not None:
+            ywidth -= 2 * border[0]
+            yheight -= 2 * border[1]
+        for i in range(frames):
+            if avg > 1:
+                avgopt = '-average'
+            else:
+                avgopt = ''
+            inputs = ''
+            inputs2 = ''
+            fnum = start + incr * i
+            yuv = (self.yuv_format() % self.frame) + '.yuv'
+            for j in range(avg):
+                inputs += ' ' + (povfmt % (fnum + j))
+                inputs2 += ' ' + (povfmt2 % (fnum + j))
+            jobqueue.do('convert %s %s -crop %dx%d+%d+0 -geometry %dx%d! %s' %
+                        (avgopt, inputs, w2, povray_height, (povray_width - w2) / 2,
+                         ywidth, yheight, tmpimage))
+            jobqueue.do('convert %s %s -crop %dx%d+%d+0 -geometry %dx%d! %s' %
+                        (avgopt, inputs2, w2, povray_height, (povray_width - w2) / 2,
+                         ywidth, yheight, tmpimage2))
+            inputs = ''
+            for j in range(frames):
+                if j < i:
+                    inputs += ' ' + tmpimage2
+                else:
+                    inputs += ' ' + tmpimage
+            jobqueue.do('convert -average %s %s' % (inputs, tmpimage))
+            if textlist:
+                texts = textlist(i)
+                cmd = ''
+                for j in range(len(texts)):
+                    cmd += ' -annotate +10+%d "%s"' % (30 * (j + 1), texts[j])
+                if border is not None:
+                    cmd += ' -bordercolor black -border %dx%d' % border
+                cmd = ('convert %s -font Courier -pointsize 30 %s %s' %
+                       (tmpimage, cmd, yuv))
+                jobqueue.do(cmd)
+            else:
+                jobqueue.do('convert %s %s' % (tmpimage, yuv))
+            self.frame += 1
+
+    def motionBlur(self, povfmt, start, incr, frames, avg, textlist):
         # avg is how many subframes are averaged to produce each frame
         # ratio is the ratio of subframes to frames
         if framelimit is not None: frames = min(frames, framelimit)
@@ -336,7 +358,7 @@ class MpegSequence:
                     cmd += ' -annotate +10+%d "%s"' % (30 * (j + 1), texts[j])
                 if border is not None:
                     cmd += ' -bordercolor black -border %dx%d' % border
-                cmd = ('convert %s -font times-roman -pointsize 30 %s %s' %
+                cmd = ('convert %s -font Courier -pointsize 30 %s %s' %
                        (tmpimage, cmd, yuv))
                 jobqueue.do(cmd)
             else:
@@ -357,34 +379,6 @@ class MpegSequence:
             import shutil
             shutil.copy(yuv, self.yuv_name())
             self.frame += 1
-
-    def motionBlurSequence(self, povfmt, frames,
-                           ratio, avg, begin=0):
-        # avg is how many subframes are averaged to produce each frame
-        # ratio is the ratio of subframes to frames
-        if framelimit is not None: frames = min(frames, framelimit)
-        q = jobqueue.JobQueue()
-        yuvs = [ ]
-        srcdir, povfmt = os.path.split(povfmt)
-
-        for i in range(frames):
-            yuv = self.yuv_name()
-            yuvs.append(yuv)
-            dstdir, yuv = os.path.split(yuv)
-            ywidth, yheight = mpeg_width, mpeg_height
-            if border is not None:
-                ywidth -= 2 * border[0]
-                yheight -= 2 * border[1]
-            job = PovrayJob(srcdir, dstdir, povfmt,
-                            begin + i * ratio,
-                            begin + i * ratio + avg,
-                            yuv,
-                            povray_width, povray_height,
-                            ywidth, yheight, textlist(i))
-            q.append(job)
-            self.frame += 1
-        q.start()
-        q.wait()
 
     def encode(self):
         parfil = mpeg_dir + "/foo.par"
