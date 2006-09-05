@@ -252,12 +252,18 @@ class MpegSequence:
         # ratio is the ratio of subframes to frames
         if framelimit is not None: frames = min(frames, framelimit)
         tmpimage = '/tmp/foo.jpg'
+        tmpimage2 = '/tmp/foo2.jpg'
         video_aspect_ratio = 4.0 / 3.0
         w2 = int(video_aspect_ratio * povray_height)
         ywidth, yheight = mpeg_width, mpeg_height
         if border is not None:
             ywidth -= 2 * border[0]
             yheight -= 2 * border[1]
+            borderoption = ' -bordercolor black -border %dx%d' % border
+        else:
+            borderoption = ''
+        jobqueue.do('convert %s %s -geometry %dx%d! %s' %
+                    (titleImage, borderoption, ywidth, yheight, tmpimage2))
         for i in range(frames):
             if avg > 1:
                 avgopt = '-average'
@@ -271,9 +277,10 @@ class MpegSequence:
             jobqueue.do('convert %s %s -crop %dx%d+%d+0 -geometry %dx%d! %s' %
                         (avgopt, inputs, w2, povray_height, (povray_width - w2) / 2,
                          ywidth, yheight, tmpimage))
-            cmd = ('composite %s %s %s' % (titleImage, tmpimage, yuv))
-            jobqueue.do(cmd)
+            jobqueue.do('composite %s %s -geometry %dx%d! %s' %
+                        (tmpimage2, tmpimage, ywidth, yheight, yuv))
             self.frame += 1
+        return start + incr * frames
 
 
     def crossfade(self, povfmt, povfmt2, start, incr, frames, avg, textlist):
@@ -326,6 +333,7 @@ class MpegSequence:
             else:
                 jobqueue.do('convert %s %s' % (tmpimage, yuv))
             self.frame += 1
+        return start + incr * frames
 
     def motionBlur(self, povfmt, start, incr, frames, avg, textlist):
         # avg is how many subframes are averaged to produce each frame
@@ -364,6 +372,7 @@ class MpegSequence:
             else:
                 jobqueue.do('convert %s %s' % (tmpimage, yuv))
             self.frame += 1
+        return start + incr * frames
 
     def simpleSequence(self, drawOne, frames, step=1, repeat_final_frame=1):
         if framelimit is not None: frames = min(frames, framelimit)
