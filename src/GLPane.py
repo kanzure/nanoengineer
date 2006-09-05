@@ -480,6 +480,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # Recalculate center and bounding box for all the visible chunks in the current part.
         # The way a 3d bounding box is used to calculate the fit is not adequate. I consider this a bug, but I'm not sure
         # how to best use the BBox object to compute the proper fit. Should ask Bruce. This will do for now. Mark 060713.
+        
         bbox = BBox()
 
         for mol in self.assy.molecules:
@@ -506,18 +507,17 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     def setViewZoomToSelection(self, fast = False): #Nnad 60903
         '''Change the view so that only selected atoms, chunks and Jigs fit in the GLPane. 
         (i.e. Zoom to the selection) If <fast> is True, then snap to the view '''
-        #ninad060903: 
-        # I am not using bounding box object as used in fit to selection. I am using only self.scale
-        #Not sure if this will create any issue for different glpane sizes. 
-        #This considers only selected jigs and chunks while doing fit to window. 
-        #I will discuss with Bruce and Mark for further refinements and potential issues. 
-        #Zoom to selection ignores  and other immovable jigs. (it clearly tells this in a history msg)
+        #ninad060905: 
+        #This considers only selected atoms, movable jigs and chunks while doing fit to window. 
+        #Zoom to selection ignores other immovable jigs. (it clearly tells this in a history msg)
         # For future:  Should work when a non movable jig is selected
-        
-        comCenter = V(0.0, 0.0, 0.0)
-        
+        #Bugs due to use of Bbox remain as in fit to window. 
+                
         movables = self.assy.getSelectedMovables()
-        numMovables = len(movables)
+        
+        #We will compute a Bbox with a point list. 
+        #Approach to fix bug 2250. ninad060905
+        pointList = []
         
         if self.assy.selatoms_list():
             for atm in self.assy.selatoms_list():
@@ -525,10 +525,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 #@@@ Could be buggy because user is probably seeing the selection wireframe around invisible atom 
                 #and you are now allowing zoom to selection. Same is true for invisible chunks. 
                     continue
-                comCenter += atm.posn()
-            comCenter /= len(self.assy.selatoms_list())
+                pointList += [atm.posn()]
         
-        #if movables and not self.assy.selatoms_list():
         if movables:
             for obj in movables:
                 if obj.hidden:
@@ -536,22 +534,30 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 if not isinstance(obj, Jig):
                     if obj.display == diINVISIBLE:
                         continue
-                comCenter += obj.center
-                
-            if self.assy.selatoms_list(): comCenter /= (numMovables + 1) # 1 is to account for the 'common 'atom' whose center we calculated earlier ninad060903. @@@ ask Bruce and Mark abouth their opinion. ...Is there a better way to handle this? 
-            else: comCenter /= numMovables
+                pointList += [obj.center]
         else:
             if not self.assy.selatoms_list():
                 env.history.message(orangemsg( " Zoom To Selection: No visible atoms , chunks or movable jigs selected"\
                 " [Acceptable Jigs: Motors, Grid Plane and ESP Image]"))
                 return
-                
-        center = comCenter
+        
+        bbox = BBox(pointList)
+        center = bbox.center()
+        scale = float( bbox.scale() * 0.85) #ninad060905 experimenting with the scale factor. I see no change with various values!
+        aspect = float(self.width) / self.height
+        
+        if aspect < 1.0:
+            # tall (narrow) glpane -- need to increase self.scale
+            # (defined in terms of glpane height) so part bbox fits in width
+            # [bruce 050616 comment]  
+            #Keeping the above comment as I copied this code from fit to window ninad060905
+            scale /= aspect
+            
         pov = V(-center[0], -center[1], -center[2])
         if fast:
-            self.snapToView(self.quat, self.scale, pov, 1.0)
+            self.snapToView(self.quat, scale, pov, 1.0)
         else:
-            self.animateToView(self.quat, self.scale, pov, 1.0)
+            self.animateToView(self.quat, scale, pov, 1.0)
         
     def setViewHomeToCurrent(self):
         "Set the Home view to the current view."
