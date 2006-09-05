@@ -77,7 +77,8 @@ class Worker(threading.Thread):
                 return
             try:
                 job.go(self)
-                self.do('rm -rf ' + self.workdir + '/*')
+                self.do('rm -rf ' + self.workdir)
+                self.do('mkdir -p ' + self.workdir)
             except:
                 all_workers_stop = True
                 raise
