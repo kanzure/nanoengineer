@@ -20,6 +20,9 @@ from Numeric import *
 from LinearAlgebra import *
 import platform
 from debug import print_compact_traceback #bruce 060228
+from prefs_constants import * #ninad060906 
+import env #ninad 060906 
+
 debug_quats = 1 #bruce 050518; I'll leave this turned on in the main sources for awhile
 
 intType = type(2)
@@ -469,7 +472,7 @@ class Trackball:
         self.oldmouse = None
             # note: oldmouse and newmouse are not mouse positions; they come out of proj2sphere.
             # I think they're related to a non-incremental trackball goal; not sure yet. [bruce 060514 comment]
-
+            
     def rescale(self, wide, high):
         """This should be called when the trackball's window or pane has been resized
         to the given values (window width and height in pixels).
@@ -480,8 +483,13 @@ class Trackball:
 
     def start(self, px, py):
         """This should be called in a mouseDown binding, with window coordinates of the mouse."""
-        self.oldmouse = proj2sphere( (px - self.w2)*self.scale,
-                                     (self.h2 - py)*self.scale )
+        
+        # ninad060906 initializing the factor 'mouse speed during rotation' here instead of init 
+        #so that it will come to effect  immediately
+        self.mouseSpeedDuringRotation = env.prefs[mouseSpeedDuringRotation_prefs_key] 
+        
+        self.oldmouse = proj2sphere( (px - self.w2)*self.scale*self.mouseSpeedDuringRotation,
+                                     (self.h2 - py)*self.scale*self.mouseSpeedDuringRotation )
 
     def update(self, px, py, uq = None):
         """This should be called in a mouseDrag binding, with window coordinates of the mouse;
@@ -494,8 +502,11 @@ class Trackball:
          or glpane.quat alone, but this is not the same as a retval suitable for incrementing obj.quat alone.)
         """
         #bruce 060514 revised this code (should be equivalent to the prior code), added docstring
-        newmouse = proj2sphere((px-self.w2)*self.scale,
-                               (self.h2-py)*self.scale)
+        #ninad 060906 added 'rotation sensitivity to this formula. the rotation sensitivity will be used 
+        #while middle drag rotating the model. By default a lower value is set for this and can be adjusted 
+        #via a user preference. This helps mitigate bug 1856
+        newmouse = proj2sphere((px-self.w2)*self.scale*self.mouseSpeedDuringRotation,
+                               (self.h2-py)*self.scale*self.mouseSpeedDuringRotation) 
         if self.oldmouse is not None:
             quat = Q(self.oldmouse, newmouse)
             if uq is not None:

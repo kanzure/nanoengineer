@@ -475,6 +475,16 @@ class UserPrefs(UserPrefsDialog):
         speed = int (env.prefs[animateMaximumTime_prefs_key] * -100)
         self.animation_speed_slider.setValue(speed)
         
+        #mouse speed during rotation slider - ninad060906
+        mouseSpeedDuringRotation = int(env.prefs[mouseSpeedDuringRotation_prefs_key]*100)
+        
+        if mouseSpeedDuringRotation == 60:
+            self.resetMouseSpeedDuringRotation_btn.setEnabled(0)
+        else:
+            self.resetMouseSpeedDuringRotation_btn.setEnabled(1)
+            
+        self.mouseSpeedDuringRotation_slider.setValue(mouseSpeedDuringRotation) # generates signal
+               
         self.update_btngrp.setEnabled(env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
 
         # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]        
@@ -901,6 +911,24 @@ class UserPrefs(UserPrefsDialog):
         # change minValue to -400.  mark 060124.
         env.prefs[animateMaximumTime_prefs_key] = \
             self.animation_speed_slider.value() / -100.0
+            
+    def change_mouseSpeedDuringRotation(self):
+        '''Slot that sets the factor controlling rotation speed during middle mouse drag 0.3(slow) and 1(fast)'''
+        env.prefs[mouseSpeedDuringRotation_prefs_key] = self.mouseSpeedDuringRotation_slider.value() / 100.0
+        
+        val = self.mouseSpeedDuringRotation_slider.value() 
+        if val == 60:
+            self.resetMouseSpeedDuringRotation_btn.setEnabled(0)
+        else:
+            self.resetMouseSpeedDuringRotation_btn.setEnabled(1)
+    
+    def reset_mouseSpeedDuringRotation(self):
+        '''Slot called when pressing the Mouse speed during rotation  reset button.
+        Restores the default value of the mouse speed.
+        '''
+        env.prefs.restore_defaults([mouseSpeedDuringRotation_prefs_key])
+        self.mouseSpeedDuringRotation_slider.setValue(int (env.prefs[mouseSpeedDuringRotation_prefs_key] * 100.0))
+        self.resetMouseSpeedDuringRotation_btn.setEnabled(0)
 
     # [WARNING: bruce 060705 copied some of the following methods into MinimizeEnergyProp.py]
     def change_endrms(self, text):
