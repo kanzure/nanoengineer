@@ -144,9 +144,9 @@ void Surface::TorusRectangles()
 void Surface::OmegaRectangles()
 {
 	mType = 1;
-    int nx = 41;
-    int ny = 41;
-    int nz = 41;
+	int nx = mDT->L();
+	int ny = mDT->M();
+	int nz = mDT->N();
     for (int i = 0; i < nx; i++)
     {
         double x0 = 2.0 * i / nx - 1.0;
@@ -169,48 +169,47 @@ void Surface::OmegaRectangles()
                 Triple p6(x1, y1, z0);
                 Triple p7(x1, y1, z1);
                 int flag = 0;
-                double eps = 0.0001;
-                double w0 = Predicate(p0);
-                double w1 = Predicate(p1);
-                double w2 = Predicate(p2);
-                double w3 = Predicate(p3);
-                double w4 = Predicate(p4);
-                double w5 = Predicate(p5);
-                double w6 = Predicate(p6);
-                double w7 = Predicate(p7);
-                if (w0 < eps) flag += 1;
-                if (w1 < eps) flag += 2;
-                if (w2 < eps) flag += 4;
-                if (w3 < eps) flag += 8;
-                if (w4 < eps) flag += 16;
-                if (w5 < eps) flag += 32;
-                if (w6 < eps) flag += 64;
-                if (w7 < eps) flag += 128;
+                double w0 = mDT->Omega(i, j, k);
+                double w1 = mDT->Omega(i, j, k + 1);
+                double w2 = mDT->Omega(i, j + 1, k);
+                double w3 = mDT->Omega(i, j + 1, k + 1);
+                double w4 = mDT->Omega(i + 1, j, k);
+                double w5 = mDT->Omega(i + 1, j, k + 1);
+                double w6 = mDT->Omega(i + 1, j + 1, k);
+                double w7 = mDT->Omega(i + 1, j + 1, k + 1);
+                if (w0 < 0) flag += 1;
+                if (w1 < 0) flag += 2;
+                if (w2 < 0) flag += 4;
+                if (w3 < 0) flag += 8;
+                if (w4 < 0) flag += 16;
+                if (w5 < 0) flag += 32;
+                if (w6 < 0) flag += 64;
+                if (w7 < 0) flag += 128;
                 switch (flag)
                 {
                     default:
 
-                        if (w0 < eps && w1 < eps && w3 < eps && w2 < eps)
+                        if (w0 < 0 && w1 < 0 && w3 < 0 && w2 < 0)
                         {
                             Quad(p0, p1, p3, p2);
                         }
-                        if (w4 < eps && w6 < eps && w7 < eps && w5 < eps)
+                        if (w4 < 0 && w6 < 0 && w7 < 0 && w5 < 0)
                         {
                             Quad(p4, p6, p7, p5);
                         }
-                        if (w0 < eps && w4 < eps && w5 < eps && w1 < eps)
+                        if (w0 < 0 && w4 < 0 && w5 < 0 && w1 < 0)
                         {
                             Quad(p0, p4, p5, p1);
                         }
-                        if (w2 < eps && w3 < eps && w7 < eps && w6 < eps)
+                        if (w2 < 0 && w3 < 0 && w7 < 0 && w6 < 0)
                         {
                             Quad(p2, p3, p7, p6);
                         }
-                        if (w0 < eps && w2 < eps && w6 < eps && w4 < eps)
+                        if (w0 < 0 && w2 < 0 && w6 < 0 && w4 < 0)
                         {
                             Quad(p0, p2, p6, p4);
                         }
-                        if (w1 < eps && w5 < eps && w7 < eps && w3 < eps)
+                        if (w1 < 0 && w5 < 0 && w7 < 0 && w3 < 0)
                         {
                             Quad(p1, p5, p7, p3);
                         }
@@ -263,24 +262,7 @@ double Surface::Predicate(
 	const Triple & p)
 {
 	double om = 0;
-	//  calculate omega functions for all spheres
-	for (int i = 0; i < mCenters.Size(); i++)
-	{
-		Triple t = p - mCenters[i];
-		double r = mRadiuses[i];
-		double s = (r * r - t.X() * t.X() - t.Y() * t.Y() - t.Z() * t.Z()) / (r + r); 
-		if (i)
-		{
-			if (om < s) om = s;
-			//om = (om + s + sqrt(om * om + s * s))/2; 
-		}
-		else
-		{
-			om = s;
-		}
-	}
-
-	double om1 = mBp->Predicate(mCenters, mRadiuses, p);
+	om = mDT->Omega(p);
 	return om;
 }
 
@@ -291,8 +273,7 @@ double Surface::Predicate(
 //
 void Surface::CreateSurface()
 {
-	mBp = new Bucket(21,17,13);
-	mBp->Add(mCenters);
+	mDT = new DistanceTransform(mCenters,mRadiuses);
 	switch (mM)
 	{
 	case 0:
@@ -302,7 +283,7 @@ void Surface::CreateSurface()
 		TorusRectangles();
 		break;
 	case 2:
-		OmegaRectangles();
+		OmegaRectangles(); 
 		break;
 	}
 	Duplicate();
@@ -322,7 +303,7 @@ void Surface::CreateSurface()
 		}
 	}
 	SurfaceNormals();
-	delete mBp;
+	delete mDT;
 }
 
 //------------------------------------------------------------------------
@@ -344,7 +325,7 @@ void Surface::SurfaceNormals()
 		{
 			Triple v0(mPoints[mEntities[i]], mPoints[mEntities[i + 2]]);
 			Triple v1(mPoints[mEntities[i + 1]], mPoints[mEntities[i + 3]]);
-			Triple n = v0 * v1;
+			Triple n = (v0 * v1).Normalize();
 			mNormals[mEntities[i]] += n;
 			mNormals[mEntities[i + 1]] += n;
 			mNormals[mEntities[i + 2]] += n;
@@ -357,7 +338,7 @@ void Surface::SurfaceNormals()
 		{
 			Triple v0(mPoints[mEntities[i]], mPoints[mEntities[i + 1]]);
 			Triple v1(mPoints[mEntities[i]], mPoints[mEntities[i + 2]]);
-			Triple n = v0 * v1;
+			Triple n = (v0 * v1).Normalize();
 			mNormals[mEntities[i]] += n;
 			mNormals[mEntities[i + 1]] += n;
 			mNormals[mEntities[i + 2]] += n;
@@ -375,7 +356,7 @@ void Surface::Duplicate()
 	double eps = 0.0000001;
 	int n = mPoints.Size();
 	int * ia = new int[n];
-	int i, j;
+	int i;
 	for (i = 0; i < n; i++)
 	{
 		ia[i] = i + 1;

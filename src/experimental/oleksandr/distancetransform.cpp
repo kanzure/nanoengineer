@@ -10,8 +10,23 @@
 //----------------------------------------------------------------------------
 // Constructor
 
-DistanceTransform::DistanceTransform(int l, int m, int n)
+DistanceTransform::DistanceTransform(const Container<Triple> & centers, const Container<double> & radiuses)
 {
+	mR = 1;
+	for (int ir = 0; ir < radiuses.Size(); ir++)
+	{
+		double r = radiuses[ir];
+		if (r < mR) mR = r;
+	}
+	
+	int n = 20; 
+	if (mR < 0.1) n = 30;
+	if (mR < 0.07) n = 40;
+	if (mR < 0.05) n = 50;
+	if (mR < 0.03) n = 60;
+	if (mR < 0.02) n = 80;
+	int m = n;
+	int l = n;
 	mN = n;
 	mM = m;
 	mL = l;
@@ -48,6 +63,8 @@ DistanceTransform::DistanceTransform(int l, int m, int n)
             }
         }
     }
+	Distance(centers, radiuses);
+	Omega(centers, radiuses);
 }
 
 //------------------------------------------------------------------------
@@ -108,7 +125,7 @@ void DistanceTransform::Distance(const Container<Triple> & centers, const Contai
     {
 
         Index(centers[ii]);
-        int d = (int)(radiuses[ii] * mL / 2 + 2);
+        int d = (int)(radiuses[ii] * mL / 2 + 4);
         int ic = mI;
         int jc = mJ;
         int kc = mK;

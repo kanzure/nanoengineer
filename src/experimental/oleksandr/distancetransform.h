@@ -21,8 +21,52 @@ class DistanceTransform
 	//
 	//  distancetrasform
 	//
-	DistanceTransform(int l, int m, int n);
+	DistanceTransform(const Container<Triple> & centers, const Container<double> & radiuses);
 	
+	//------------------------------------------------------------------------
+	// Omega()
+	//
+	// calculate omega function
+	//
+	inline double Omega(const Triple & p);
+
+	//------------------------------------------------------------------------
+	// Omega()
+	//
+	// calculate omega function
+	//
+	inline double Omega(int i, int j, int k);
+
+	//------------------------------------------------------------------------
+	// L()
+	//
+	// returns size x 
+	//
+	inline int L();
+
+	//------------------------------------------------------------------------
+	// M()
+	//
+	// returns size y
+	//
+	inline int M();
+
+	//------------------------------------------------------------------------
+	// N()
+	//
+	// returns size z
+	//
+	inline int N();
+
+  private:
+          
+	//------------------------------------------------------------------------
+	// Index()
+	//
+	// calculate index
+	//
+	inline void Index(const Triple & p);
+
 	//------------------------------------------------------------------------
 	// Omega()
 	//
@@ -37,22 +81,6 @@ class DistanceTransform
 	//
 	void Distance(const Container<Triple> & centers, const Container<double> & radiuses);
 	
-	//------------------------------------------------------------------------
-	// Omega()
-	//
-	// calculate omega function
-	//
-	inline double Omega(const Triple & p);
-
-  private:
-          
-	//------------------------------------------------------------------------
-	// Index()
-	//
-	// calculate index
-	//
-	inline void Index(const Triple & p);
-
 	//------------------------------------------------------------------------
 	// mI
 
@@ -113,10 +141,18 @@ class DistanceTransform
 
     double * mC;					// array for omega                                          
              
+	//------------------------------------------------------------------------
+	// mR
+
+	double mR;						// minimal radius
+
 };
 
 //----------------------------------------------------------------------------
 // Index()
+//
+// calculate index
+//
 
 inline void DistanceTransform::Index(const Triple & p)
 {
@@ -140,9 +176,14 @@ inline void DistanceTransform::Index(const Triple & p)
 	if ( mK >= mN) mK = mN - 1;
 }
 
+//------------------------------------------------------------------------
+// Omega()
+//
+// calculate omega function
+//
 double DistanceTransform::Omega(const Triple & p)
 {
-//  calculate omega function
+	//  calculate omega function
     Index(p);
     double om;
     om = (1 - mU) * (1 - mV) * (1 - mW) * mA[mI][mJ][mK] +
@@ -154,6 +195,47 @@ double DistanceTransform::Omega(const Triple & p)
         mU * mV * mW * mA[mI + 1][mJ + 1][mK + 1] +
         (1 - mU) * mV * mW * mA[mI][mJ + 1][mK + 1];
     return om;
+}
+
+//------------------------------------------------------------------------
+// Omega()
+//
+// calculate omega function
+//
+double DistanceTransform::Omega(int i, int j, int k)
+{
+	//  calculate omega function
+    return mA[i][j][k];
+}
+
+//------------------------------------------------------------------------
+// L()
+//
+// returns size x
+//
+int DistanceTransform::L()
+{
+	return mL;
+}
+
+//------------------------------------------------------------------------
+// M()
+//
+// returns size y
+//
+int DistanceTransform::M()
+{
+	return mM;
+}
+
+//------------------------------------------------------------------------
+// N()
+//
+// returns size z
+//
+int DistanceTransform::N()
+{
+	return mN;
 }
 
 #endif  								// DISTANCETRANSFORM_INCLUDED

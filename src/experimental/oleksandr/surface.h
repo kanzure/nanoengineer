@@ -10,7 +10,7 @@
 
 #include "container.h"
 #include "triple.h"
-#include "bucket.h"
+#include "distancetransform.h"
 
 class Surface
 {
@@ -217,9 +217,9 @@ class Surface
 	int mType;						// type of entity (tria, quad)
 
 	//------------------------------------------------------------------------
-	// mBp
+	// mDT
 
-	Bucket * mBp;					// bucket for predicate
+	DistanceTransform * mDT;		// distance transform for predicate
 
 	//------------------------------------------------------------------------
 	// mL
@@ -253,7 +253,7 @@ class Surface
 
 inline Surface::Surface()
 {
-	mBp = 0;
+	mDT = 0;
     mType = 0;
 	mM = 0;
     mL = 3;
@@ -286,7 +286,7 @@ inline int Surface::Type()
 //
 inline void Surface::Method(int m)
 {
-	mM = m;
+	mM = m; 
 }
 
 //------------------------------------------------------------------------
