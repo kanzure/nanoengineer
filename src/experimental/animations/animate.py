@@ -345,8 +345,8 @@ class MpegSequence:
                         inputs += ' ' + tmpimage
                 jobqueue.do('convert -average %s %s' % (inputs, tmpimage))
             if titleImage is not None:
-                jobqueue.do('convert -fill lightblue -tint 80 %s %s' %
-                            (tmpimage, tmpimage))
+                jobqueue.do('convert %s -average lightblue.jpg lightblue.jpg lightblue.jpg %s %s' %
+                            (clipped.exactGeometry(), tmpimage, tmpimage))
                 jobqueue.do('composite %s %s %s %s' % (titleImage,
                                                        clipped.exactGeometry(),
                                                        tmpimage, tmpimage))
