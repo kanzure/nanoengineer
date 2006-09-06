@@ -95,8 +95,21 @@ class SubframePovrayJob(jobqueue.Job):
                        (tga, clipped.resizeFrom(povray), jpeg))
         return script
 
-    def postJob(self, worker):
-        pass
+class MotionBlurJob(jobqueue.Job):
+
+    def shellScript(self):
+        num_inputs = len(self.inputfiles)
+        num_outputs = len(self.outputfiles)
+        script = ""
+        i = 0
+        for outfile in self.outputfiles:
+            script += 'convert -average'
+            for j in range(num_inputs / num_outputs):
+                script += ' ' + self.inputfiles[i]
+                i += 1
+            script += ' ' + outfile + '\n'
+        return script
+
 
 ####################
 #                  #
@@ -255,26 +268,74 @@ class MpegSequence:
         if framelimit is not None: frames = min(frames, framelimit)
         tmpimage = '/tmp/foo.jpg'
         tmpimage2 = '/tmp/foo2.jpg'
-        video_aspect_ratio = 4.0 / 3.0
+        averages = [ ]
+        averages2 = [ ]
+        # Stick the averages in a bunch of GIF files
+        assert jpgfmt[-4:] == '.jpg'
+        srcdir, fil = os.path.split(jpgfmt)
+        jpgfmt = fil
+        dstdir = srcdir
+        avgfmt = jpgfmt[:-4] + '.gif'
+        if fadeTo is not None:
+            assert fadeTo[-4:] == '.jpg'
+            fadesrcdir, fadeTo = os.path.split(fadeTo)
+            avgfadefmt = fadeTo[:-4] + '.gif'
+            fadedstdir = fadesrcdir
+        if avg > 1:
+            # parallelize the averaging because it's the slowest operation
+            # each job will be five frames
+            q = jobqueue.JobQueue()
+            i = 0
+            while i < frames:
+                frames_this_job = min(5, frames - i)
+                ifiles = [ ]
+                ofiles = [ ]
+                for j in range(frames_this_job):
+                    P = start + (i + j) * incr
+                    for k in range(avg):
+                        ifiles.append(jpgfmt % (P + k))
+                    ofile = avgfmt % P
+                    averages.append(ofile)
+                    ofiles.append(ofile)
+                job = MotionBlurJob(srcdir, dstdir, ifiles, ofiles)
+                q.append(job)
+                i += frames_this_job
+            if fadeTo is not None:
+                i = 0
+                while i < frames:
+                    frames_this_job = min(5, frames - i)
+                    ifiles = [ ]
+                    ofiles = [ ]
+                    for j in range(frames_this_job):
+                        P = start + (i + j) * incr
+                        for k in range(avg):
+                            ifiles.append(fadeTo % (P + k))
+                        ofile = avgfadefmt % P
+                        averages2.append(ofile)
+                        ofiles.append(ofile)
+                    job = MotionBlurJob(fadesrcdir, fadedstdir, ifiles, ofiles)
+                    q.append(job)
+                    i += frames_this_job
+            q.start()
+            q.wait()
+        else:
+            averages = map(lambda i: jpgfmt % (start + i * incr),
+                           range(frames))
+            if fadeTo is not None:
+                averages2 = map(lambda i: fadeTo % (start + i * incr),
+                                range(frames))
+
         for i in range(frames):
-            if avg > 1:
-                avgopt = '-average'
-            else:
-                avgopt = ''
-            inputs = ''
             fnum = start + incr * i
             yuv = (self.yuv_format() % self.frame) + '.yuv'
-            for j in range(avg):
-                inputs += ' ' + (jpgfmt % (fnum + j))
-            jobqueue.do('convert %s %s %s %s' %
-                        (avgopt, inputs, clipped.exactGeometry(), tmpimage))
+            jobqueue.do('convert %s %s %s' %
+                        (os.path.join(dstdir, averages[i]),
+                         clipped.exactGeometry(), tmpimage))
             # tmpimage is now in clipped dimensions
             if fadeTo is not None:
-                inputs2 = ''
-                for j in range(avg):
-                    inputs2 += ' ' + (fadeTo % (fnum + j))
-                jobqueue.do('convert %s %s %s %s' %
-                            (avgopt, inputs2, clipped.exactGeometry(), tmpimage2))
+                jobqueue.do('convert %s %s %s' %
+                            (os.path.join(fadedstdir, averages2[i]),
+                             clipped.exactGeometry(), tmpimage2))
                 # perform a cross-fade
                 inputs = ''
                 for j in range(frames):
@@ -284,6 +345,8 @@ class MpegSequence:
                         inputs += ' ' + tmpimage
                 jobqueue.do('convert -average %s %s' % (inputs, tmpimage))
             if titleImage is not None:
+                jobqueue.do('convert -fill lightblue -tint 80 %s %s' %
+                            (tmpimage, tmpimage))
                 jobqueue.do('composite %s %s %s %s' % (titleImage,
                                                        clipped.exactGeometry(),
                                                        tmpimage, tmpimage))
