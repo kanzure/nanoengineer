@@ -35,6 +35,8 @@ from HistoryWidget import greenmsg, redmsg, orangemsg, _graymsg
 import preferences
 import env
 
+debug_babel = False   # DO NOT COMMIT with True
+
 def set_waitcursor(on_or_off):
     """For on_or_off True, set the main window waitcursor.
     For on_or_off False, revert to the prior cursor.
@@ -358,6 +360,16 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             i += 1
             arguments.append(arg)
         proc = QProcess()
+        if debug_babel:
+            # wware 060906  Create a shell script to re-run OpenBabel
+            outf = open("rerunbabel.sh", "w")
+            # On the Mac, "-f" prevents running .bashrc
+            # On Linux it disables filename wildcards (harmless)
+            outf.write("#!/bin/sh -f\n")
+            for a in arguments:
+                outf.write(str(a) + " \\\n")
+            outf.write("\n")
+            outf.close()
         proc.setArguments(arguments)
         text = [ None ]
         def blaberr(text=text):
