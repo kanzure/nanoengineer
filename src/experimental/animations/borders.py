@@ -8,7 +8,7 @@ import os
 # pixels as the white rectangle grows horizontally. Then do a vertical
 # rectangle. The whole thing should be a ten-second animation maybe.
 
-# Start with blank.jpg, a 600x450 black image.
+# Start with black.jpg, a 600x450 black image.
 
 # The outcome of this test, with my television and my DVD player, is
 # that a 600x450 graphic should have a border that shrinks it to
@@ -30,7 +30,7 @@ def fillHorizontal(border, filename):
     cmd += (' -font courier -pointsize 24 -draw' +
             ' "text 200, 150 \'%d/600 pixels\'"'
             % (right - left))
-    cmd += ' blank.jpg ' + filename
+    cmd += ' black.jpg ' + filename
     do(cmd)
 
 def fillVertical(border, filename):
@@ -42,7 +42,7 @@ def fillVertical(border, filename):
     cmd += (' -font courier -pointsize 24 -draw' +
             ' "rotate 90 text 130, -200 \'%d/450 pixels\'"'
             % (bottom - top))
-    cmd += ' blank.jpg ' + filename
+    cmd += ' black.jpg ' + filename
     do(cmd)
 
 yuv_num = 0

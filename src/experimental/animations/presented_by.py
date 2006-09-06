@@ -14,7 +14,7 @@ def drawOneFrame(t, filename):
     nanorex_xpos = 50
     nanorex_ypos = move(t, 460, 140)
     cmd = (('composite -geometry +%d+%d ' % (nanorex_xpos, nanorex_ypos)) +
-           'Nanorex_logos/nanorex_logo_text_outline_medium.png blank.jpg /tmp/foo.jpg')
+           'Nanorex_logos/nanorex_logo_text_outline_medium.png black.jpg /tmp/foo.jpg')
     do(cmd)
     # Fonts are in /usr/lib/openoffice/share/psprint/fontmetric/
     cmd = ('convert -fill white -font Helvetica-Bold -pointsize 48 -draw' +

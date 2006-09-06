@@ -1,30 +1,6 @@
 #!/usr/bin/python
 
-import os, sys, threading, time, jobqueue
-
-# Dimensions for recommended povray rendering, gotten from the first line
-# of any of the *.pov files.
-recommended_width, recommended_height = 751, 459
-povray_aspect_ratio = (1. * recommended_width) / recommended_height
-assert povray_aspect_ratio > 4.0 / 3.0
-
-def set_resolution(w, h):
-    global mpeg_width, mpeg_height, povray_width, povray_height
-    # mpeg_height and mpeg_width must both be even to make mpeg2encode
-    # happy. The aspect ratio for video should be 4:3.
-    def even(x):
-        return int(x) & -2
-    mpeg_width = even(w)
-    mpeg_height = even(h)
-    povray_height = mpeg_height
-    povray_width = int(povray_aspect_ratio * povray_height)
-
-def set_width(w):
-    set_resolution(w, (3.0 / 4.0) * w)
-def set_height(h):
-    set_resolution((4.0 / 3.0) * h, h)
-
-set_resolution(600, 450)
+import os, sys, threading, time, types, jobqueue
 
 bitrate = 6.0e6
 
@@ -32,20 +8,74 @@ framelimit = None
 
 povray_pretty = True
 
-# Viewable area is 520x410
-border = (40, 20)
+class Dimensions:
+    def __init__(self, w, h):
+        def even(x):
+            return int(x) & -2
+        self.width = even(w)
+        self.height = even(h)
+    def __add__(self, other):
+        return Dimensions(self.width + other.width,
+                          self.height + other.height)
+    def __sub__(self, other):
+        return Dimensions(self.width - other.width,
+                          self.height - other.height)
+    def __rmul__(self, other):
+        numtypes = (types.IntType, types.FloatType)
+        if type(other) in numtypes:
+            return Dimensions(other * self.width,
+                              other * self.height)
+        elif type(other) is types.TupleType and \
+             len(other) is 2 and \
+             type(other[0]) in numtypes and \
+             type(other[1]) in numtypes:
+            return Dimensions(other[0] * self.width,
+                              other[1] * self.height)
+        else:
+            raise TypeError(other)
+    def povray(self):
+        return ' +W%d +H%d ' % (self.width, self.height)
+    def geometry(self):
+        return ' -geometry %dx%d ' % (self.width, self.height)
+    def exactGeometry(self):
+        return ' -geometry %dx%d! ' % (self.width, self.height)
+    def resizeFrom(self, wider):
+        ar = self.aspectRatio()
+        if wider.aspectRatio() > ar:
+            # original format is wider, so crop horizontally
+            w2 = int(ar * wider.height)
+            return (' -crop %dx%d+%d+0 -geometry %dx%d! ' %
+                            (w2, wider.height, (wider.width - w2) / 2,
+                             self.width, self.height))
+        else:
+            # original format is taller, so crop vertically
+            h2 = int(wider.width / ar)
+            return (' -crop %dx%d+0+%d -geometry %dx%d! ' %
+                            (wider.width, h2, (wider.height - h2) / 2,
+                             self.width, self.height))
+    def border(self):
+        return ' -bordercolor black -border %dx%d ' % (self.width, self.height)
+    def __repr__(self):
+        return "<Dimensions %d %d>" % (self.width, self.height)
+    def aspectRatio(self):
+        return 1.0 * self.width / self.height
+    def even(self):
+        return (self.width & -2, self.height & -2)
+
+def setScale(scale):
+    global povray, video, border, clipped
+    # Dimensions for recommended povray rendering, gotten from the first line
+    # of any of the *.pov files.
+    povray = scale * Dimensions(751, 459)
+
+    video = scale * Dimensions(600, 450)
+    # When outside of frame is 600x450, viewable area is 520x410
+    border = (0.0666, 0.0444) * video
+    clipped = video - 2 * border
+
+setScale(1.0)
 
 class SubframePovrayJob(jobqueue.Job):
-    def __init__(self, srcdir, dstdir, ifiles, ofiles,
-                 pwidth, pheight, ywidth, yheight):
-
-        jobqueue.Job.__init__(self, srcdir, dstdir,
-                              ifiles, ofiles)
-
-        self.pwidth = pwidth
-        self.pheight = pheight
-        self.ywidth = ywidth
-        self.yheight = yheight
 
     def shellScript(self):
 
@@ -56,16 +86,13 @@ class SubframePovrayJob(jobqueue.Job):
 
         script = ""
 
-        video_aspect_ratio = 4.0 / 3.0
-        w2 = int(video_aspect_ratio * self.pheight)
         # Worker machine renders a bunch of pov files to make jpeg files
         for pov, jpeg in map(None, self.inputfiles, self.outputfiles):
             tga = pov[:-4] + '.tga'
-            script += ('povray +I%s +O%s +FT %s +W%d +H%d 2>/dev/null\n' %
-                       (pov, tga, povray_options, self.pwidth, self.pheight))
-            script += ('convert %s -crop %dx%d+%d+0 -geometry %dx%d! %s\n' %
-                       (tga, w2, self.pheight, (self.pwidth - w2) / 2,
-                        self.ywidth, self.yheight, jpeg))
+            script += ('povray +I%s +O%s +FT %s %s 2>/dev/null\n' %
+                       (pov, tga, povray_options, povray.povray()))
+            script += ('convert %s %s %s\n' %
+                       (tga, clipped.resizeFrom(povray), jpeg))
         return script
 
     def postJob(self, worker):
@@ -152,9 +179,9 @@ class MpegSequence:
 
     def __init__(self):
         self.frame = 0
-        self.width = mpeg_width
-        self.height = mpeg_height
-        self.size = (self.width, self.height)
+        #self.width = mpeg_width
+        #self.height = mpeg_height
+        #self.size = (self.width, self.height)
 
     def __len__(self):
         return self.frame
@@ -169,38 +196,17 @@ class MpegSequence:
             i = self.frame
         return (self.yuv_format() % i) + '.yuv'
 
-    if True:
-        # By default, each title page stays up for fifteen seconds
-        def titleSequence(self, titlefile, frames=450):
-            assert os.path.exists(titlefile)
-            if framelimit is not None: frames = min(frames, framelimit)
-            first_yuv = self.yuv_name()
-            if border is not None:
-                w, h = self.width - 2 * border[0], self.height - 2 * border[1]
-                borderoption = ' -bordercolor black -border %dx%d' % border
-            else:
-                w, h = self.width, self.height
-                borderoption = ''
-            jobqueue.do('convert %s -geometry %dx%d! %s %s' %
-                        (titlefile, w, h, borderoption, first_yuv))
+    def titleSequence(self, titlefile, frames=450):
+        assert os.path.exists(titlefile)
+        if framelimit is not None: frames = min(frames, framelimit)
+        first_yuv = self.yuv_name()
+        jobqueue.do('convert %s %s %s %s' %
+                    (titlefile, border.border(), video.exactGeometry(), first_yuv))
+        self.frame += 1
+        for i in range(1, frames):
+            import shutil
+            shutil.copy(first_yuv, self.yuv_name())
             self.frame += 1
-            for i in range(1, frames):
-                import shutil
-                shutil.copy(first_yuv, self.yuv_name())
-                self.frame += 1
-    else:
-        # By default, each title page stays up for fifteen seconds
-        def titleSequence(self, titlefile, frames=450):
-            assert os.path.exists(titlefile)
-            if framelimit is not None: frames = min(frames, framelimit)
-            first_yuv = self.yuv_name()
-            jobqueue.do('convert %s -geometry %dx%d %s' %
-                        (titlefile, self.width, self.height, first_yuv))
-            self.frame += 1
-            for i in range(1, frames):
-                import shutil
-                shutil.copy(first_yuv, self.yuv_name())
-                self.frame += 1
 
     def previouslyComputed(self, fmt, frames, begin=0):
         assert os.path.exists(titlefile)
@@ -213,8 +219,6 @@ class MpegSequence:
 
     def rawSubframes(self, srcdir, dstdir, povfmt, howmany, povray_res=None):
         if framelimit is not None: howmany = min(howmany, framelimit)
-        if povray_res is None:
-            povray_res = povray_width, povray_height
         assert povfmt[-4:] == '.pov'
         jpgfmt = povfmt[:-4] + '.jpg'
         q = jobqueue.JobQueue()
@@ -237,33 +241,21 @@ class MpegSequence:
                     break
 
             if not got_them_all:
-                job = SubframePovrayJob(srcdir, dstdir,
-                                        ifiles, ofiles,
-                                        povray_res[0], povray_res[1],
-                                        mpeg_width, mpeg_height)
+                job = SubframePovrayJob(srcdir, dstdir, ifiles, ofiles)
                 q.append(job)
             i += num
         q.start()
         q.wait()
 
 
-    def translucentTitleSequence(self, titleImage, povfmt, start, incr, frames, avg):
+    def motionBlur(self, jpgfmt, start, incr, frames, avg,
+                   textlist=None, fadeTo=None, titleImage=None):
         # avg is how many subframes are averaged to produce each frame
         # ratio is the ratio of subframes to frames
         if framelimit is not None: frames = min(frames, framelimit)
         tmpimage = '/tmp/foo.jpg'
         tmpimage2 = '/tmp/foo2.jpg'
         video_aspect_ratio = 4.0 / 3.0
-        w2 = int(video_aspect_ratio * povray_height)
-        ywidth, yheight = mpeg_width, mpeg_height
-        if border is not None:
-            ywidth -= 2 * border[0]
-            yheight -= 2 * border[1]
-            borderoption = ' -bordercolor black -border %dx%d' % border
-        else:
-            borderoption = ''
-        jobqueue.do('convert %s %s -geometry %dx%d! %s' %
-                    (titleImage, borderoption, ywidth, yheight, tmpimage2))
         for i in range(frames):
             if avg > 1:
                 avgopt = '-average'
@@ -273,104 +265,37 @@ class MpegSequence:
             fnum = start + incr * i
             yuv = (self.yuv_format() % self.frame) + '.yuv'
             for j in range(avg):
-                inputs += ' ' + (povfmt % (fnum + j))
-            jobqueue.do('convert %s %s -crop %dx%d+%d+0 -geometry %dx%d! %s' %
-                        (avgopt, inputs, w2, povray_height, (povray_width - w2) / 2,
-                         ywidth, yheight, tmpimage))
-            jobqueue.do('composite %s %s -geometry %dx%d! %s' %
-                        (tmpimage2, tmpimage, ywidth, yheight, yuv))
-            self.frame += 1
-        return start + incr * frames
-
-
-    def crossfade(self, povfmt, povfmt2, start, incr, frames, avg, textlist):
-        # avg is how many subframes are averaged to produce each frame
-        # ratio is the ratio of subframes to frames
-        if framelimit is not None: frames = min(frames, framelimit)
-        tmpimage = '/tmp/foo.jpg'
-        tmpimage2 = '/tmp/foo2.jpg'
-        video_aspect_ratio = 4.0 / 3.0
-        w2 = int(video_aspect_ratio * povray_height)
-        ywidth, yheight = mpeg_width, mpeg_height
-        if border is not None:
-            ywidth -= 2 * border[0]
-            yheight -= 2 * border[1]
-        for i in range(frames):
-            if avg > 1:
-                avgopt = '-average'
-            else:
-                avgopt = ''
-            inputs = ''
-            inputs2 = ''
-            fnum = start + incr * i
-            yuv = (self.yuv_format() % self.frame) + '.yuv'
-            for j in range(avg):
-                inputs += ' ' + (povfmt % (fnum + j))
-                inputs2 += ' ' + (povfmt2 % (fnum + j))
-            jobqueue.do('convert %s %s -crop %dx%d+%d+0 -geometry %dx%d! %s' %
-                        (avgopt, inputs, w2, povray_height, (povray_width - w2) / 2,
-                         ywidth, yheight, tmpimage))
-            jobqueue.do('convert %s %s -crop %dx%d+%d+0 -geometry %dx%d! %s' %
-                        (avgopt, inputs2, w2, povray_height, (povray_width - w2) / 2,
-                         ywidth, yheight, tmpimage2))
-            inputs = ''
-            for j in range(frames):
-                if j < i:
-                    inputs += ' ' + tmpimage2
-                else:
-                    inputs += ' ' + tmpimage
-            jobqueue.do('convert -average %s %s' % (inputs, tmpimage))
-            if textlist:
+                inputs += ' ' + (jpgfmt % (fnum + j))
+            jobqueue.do('convert %s %s %s %s' %
+                        (avgopt, inputs, clipped.exactGeometry(), tmpimage))
+            # tmpimage is now in clipped dimensions
+            if fadeTo is not None:
+                inputs2 = ''
+                for j in range(avg):
+                    inputs2 += ' ' + (fadeTo % (fnum + j))
+                jobqueue.do('convert %s %s %s %s' %
+                            (avgopt, inputs2, clipped.exactGeometry(), tmpimage2))
+                # perform a cross-fade
+                inputs = ''
+                for j in range(frames):
+                    if j < i:
+                        inputs += ' ' + tmpimage2
+                    else:
+                        inputs += ' ' + tmpimage
+                jobqueue.do('convert -average %s %s' % (inputs, tmpimage))
+            if titleImage is not None:
+                jobqueue.do('composite %s %s %s %s' % (titleImage,
+                                                       clipped.exactGeometry(),
+                                                       tmpimage, tmpimage))
+            elif textlist is not None:
                 texts = textlist(i)
-                cmd = ''
+                cmd = 'convert ' + tmpimage + ' -font Courier-Bold -pointsize 30 '
                 for j in range(len(texts)):
                     cmd += ' -annotate +10+%d "%s"' % (30 * (j + 1), texts[j])
-                if border is not None:
-                    cmd += ' -bordercolor black -border %dx%d' % border
-                cmd = ('convert %s -font Courier -pointsize 30 %s %s' %
-                       (tmpimage, cmd, yuv))
+                cmd += ' ' + tmpimage
                 jobqueue.do(cmd)
-            else:
-                jobqueue.do('convert %s %s' % (tmpimage, yuv))
-            self.frame += 1
-        return start + incr * frames
-
-    def motionBlur(self, povfmt, start, incr, frames, avg, textlist):
-        # avg is how many subframes are averaged to produce each frame
-        # ratio is the ratio of subframes to frames
-        if framelimit is not None: frames = min(frames, framelimit)
-        tmpimage = '/tmp/foo.jpg'
-        video_aspect_ratio = 4.0 / 3.0
-        w2 = int(video_aspect_ratio * povray_height)
-        ywidth, yheight = mpeg_width, mpeg_height
-        if border is not None:
-            ywidth -= 2 * border[0]
-            yheight -= 2 * border[1]
-        for i in range(frames):
-            if avg > 1:
-                avgopt = '-average'
-            else:
-                avgopt = ''
-            inputs = ''
-            fnum = start + incr * i
-            yuv = (self.yuv_format() % self.frame) + '.yuv'
-            for j in range(avg):
-                inputs += ' ' + (povfmt % (fnum + j))
-            jobqueue.do('convert %s %s -crop %dx%d+%d+0 -geometry %dx%d! %s' %
-                        (avgopt, inputs, w2, povray_height, (povray_width - w2) / 2,
-                         ywidth, yheight, tmpimage))
-            if textlist:
-                texts = textlist(i)
-                cmd = ''
-                for j in range(len(texts)):
-                    cmd += ' -annotate +10+%d "%s"' % (30 * (j + 1), texts[j])
-                if border is not None:
-                    cmd += ' -bordercolor black -border %dx%d' % border
-                cmd = ('convert %s -font Courier -pointsize 30 %s %s' %
-                       (tmpimage, cmd, yuv))
-                jobqueue.do(cmd)
-            else:
-                jobqueue.do('convert %s %s' % (tmpimage, yuv))
+            jobqueue.do('convert %s %s %s %s' % (tmpimage, border.border(),
+                                                 video.exactGeometry(), yuv))
             self.frame += 1
         return start + incr * frames
 
@@ -394,8 +319,8 @@ class MpegSequence:
         outf = open(parfil, "w")
         outf.write(params % {'sourcefileformat': self.yuv_format(),
                              'frames': len(self),
-                             'height': self.height,
-                             'width': self.width,
+                             'height': video.height,
+                             'width': video.width,
                              'bitrate': bitrate})
         outf.close()
         # encoding is an inexpensive operation, do it even if not for real
