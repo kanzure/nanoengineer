@@ -37,13 +37,6 @@ class Bucket
 	//
 	void Duplicate(const Container<Triple> & points, int * ia);
 	
-	//------------------------------------------------------------------------
-	// Predicate
-	//
-	//  calculate predicate for all spheres
-	//
-	double Predicate(const Container<Triple> & centers, const Container<double> & radiuses, const Triple & p);
-	
   private:
           
 	//------------------------------------------------------------------------
