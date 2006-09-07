@@ -245,6 +245,48 @@ formatSeconds(double seconds, char *buf)
 }
 #endif
 
+static void
+dynamicsMovieRun(struct part *part,
+                 struct xyz *averagePositions,
+                 struct xyz **pOldPositions,
+                 struct xyz **pNewPositions,
+                 struct xyz **pPositions,
+                 struct xyz *force,
+                 int start_frame,
+                 int num_frames)
+{
+    int i;
+    int j;
+    
+    // wware 060110  don't handle Interrupted with the BAIL mechanism
+    for (i = start_frame; i < num_frames && !Interrupted; i++) {
+	if (PrintFrameNums) {
+            printf("%4d ", i);
+            if ((i & 15) == 15) {
+                printf("\n");
+            }
+            fflush(stdout);
+        }
+	oneDynamicsFrame(part, IterPerFrame,
+			 averagePositions, pOldPositions, pNewPositions, pPositions, force);
+	if (PrintPotentialEnergy) {
+	    // update velocities, so they can be used to compute kinetic energy - wware 060713
+	    for (j = 0; j < part->num_atoms; j++) {
+		vsub2(part->velocities[j], (*pPositions)[j], (*pOldPositions)[j]);
+	    }
+	}
+	writeDynamicsMovieFrame(OutputFile, i, part, averagePositions, i == NumFrames-1);
+        if (DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) {
+            writeSimpleMovieFrame(part, *pNewPositions, force, "");
+        }
+    }
+    if (PrintFrameNums) {
+        printf("\n");
+        fflush(stdout);
+    }
+}
+
+
 void
 dynamicsMovie(struct part *part)
 {
@@ -253,7 +295,8 @@ dynamicsMovie(struct part *part)
     struct xyz *newPositions = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
     struct xyz *positions =  (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
     struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
-    int i, j;
+    struct xyz *tmp;
+    int i;
 #ifndef WIN32
     int timefailure = 0;
     struct timeval start;
@@ -277,26 +320,17 @@ dynamicsMovie(struct part *part)
     }
 #endif
 
-    // wware 060110  don't handle Interrupted with the BAIL mechanism
-    for (i = 0; i < NumFrames && !Interrupted; i++) {
-	if (PrintFrameNums) printf(" %d", i);
-	fflush(stdout);
-	if ((i & 15) == 15)
-	    if (PrintFrameNums) printf("\n");
-	oneDynamicsFrame(part, IterPerFrame,
-			 averagePositions, &oldPositions, &newPositions, &positions, force);
-	if (PrintPotentialEnergy) {
-	    // update velocities, so they can be used to compute kinetic energy - wware 060713
-	    for (j = 0; j < part->num_atoms; j++) {
-		vsub2(part->velocities[j], positions[j], oldPositions[j]);
-	    }
-	}
-	writeDynamicsMovieFrame(OutputFile, i, part, averagePositions, i == NumFrames-1);
-        if (DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) {
-            writeSimpleMovieFrame(part, newPositions, force, "");
-        }
+
+    if (TimeReversal) {
+        dynamicsMovieRun(part, averagePositions, &oldPositions, &newPositions, &positions, force, 0, NumFrames/2);
+        tmp = newPositions;
+        newPositions = positions;
+        positions = tmp;
+        dynamicsMovieRun(part, averagePositions, &oldPositions, &newPositions, &positions, force, NumFrames/2, NumFrames);
+    } else {
+        dynamicsMovieRun(part, averagePositions, &oldPositions, &newPositions, &positions, force, 0, NumFrames);
     }
-    if (PrintFrameNums) printf("\n");
+    
 
 #ifndef WIN32
     if (gettimeofday(&end, NULL)) {
@@ -319,21 +353,6 @@ dynamicsMovie(struct part *part)
                         formatSeconds(elapsedSeconds, timebuffer),
                         elapsedSeconds / (double)i,
                         elapsedSeconds / (double)(i * IterPerFrame));
-    }
-#endif
-    
-#if 0
-    // do the time-reversal (for debugging)
-    tmp=positions; positions=newPositions; newPositions=tmp;
-    
-    for (i=0; i<NumFrames; i++) {
-	printf(" %d", i);
-	fflush(stdout);
-	if ((i & 15) == 15)
-	    printf("\n");
-	oneDynamicsFrame(part, IterPerFrame,
-			 averagePositions, &oldPositions, &newPositions, &positions, force);
-	snapshot(OutputFile, i, averagePositions);
     }
 #endif
     

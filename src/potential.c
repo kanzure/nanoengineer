@@ -86,7 +86,7 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
   d = iTable->d;
   k = (int)((r - start) / scale);
   if (k < 0) {
-    if (!ToMinimize && DEBUG(D_TABLE_BOUNDS) && stretch) { //linear
+    if (DEBUG(D_TABLE_BOUNDS) && stretch) { // -D0
       fprintf(stderr, "stretch: low --");
       printStretch(stderr, p, stretch);
     }
@@ -100,10 +100,10 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
         stretchType->potentialExtensionA;
     } else {
       potential=0.0;
-      if (DEBUG(D_TABLE_BOUNDS) && stretch) {
-        fprintf(stderr, "stretch: high --");
-        printStretch(stderr, p, stretch);
-      }
+    }
+    if (DEBUG(D_TABLE_BOUNDS) && stretch) { // -D0
+      fprintf(stderr, "stretch: high --");
+      printStretch(stderr, p, stretch);
     }
   } else if (DirectEvaluate) {
     potential = potentialLippincottMorse(r, stretchType);
@@ -170,7 +170,7 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
       ExcessiveEnergyWarningThisFrame++;
     }
   if (k < 0) {
-    if (!ToMinimize && DEBUG(D_TABLE_BOUNDS) && stretch) { //linear
+    if (DEBUG(D_TABLE_BOUNDS) && stretch) { // -D0
       fprintf(stderr, "stretch: low --");
       printStretch(stderr, p, stretch);
     }
@@ -183,10 +183,10 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
         stretchType->potentialExtensionB;
     } else {
       gradient=0.0;
-      if (DEBUG(D_TABLE_BOUNDS) && stretch) {
-        fprintf(stderr, "stretch: high --");
-        printStretch(stderr, p, stretch);
-      }
+    }
+    if (DEBUG(D_TABLE_BOUNDS) && stretch) { // -D0
+      fprintf(stderr, "stretch: high --");
+      printStretch(stderr, p, stretch);
     }
   } else if (DirectEvaluate) {
     gradient = gradientLippincottMorse(r, stretchType);

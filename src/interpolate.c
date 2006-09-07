@@ -344,7 +344,7 @@ initializeBondStretchInterpolater(struct bondStretch *stretch)
   double rmax;
   
   rmin = stretch->r0 * 0.5;
-  rmax = stretch->inflectionR;
+  rmax = ToMinimize ? stretch->inflectionR : stretch->r0 * 3.0;
 
   scale = (rmax - rmin) / TABLEN;
 
@@ -562,16 +562,17 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
          stretch->beta,
          stretch->inflectionR);
 
+  iTable = &stretch->LippincottMorse;
+  start = iTable->start;
+  scale = iTable->scale;
+
   printf("# table start = %e table end = %e\n",
-         stretch->r0 * 0.5,
-         stretch->inflectionR);
+         start,
+         TABLEN * scale + start);
 
   printf("# r in pm, potentials in aJ, gradients in pN\n");
   printf("#        r            interp potential    interp gradient     direct potential    direct gradient   extension potential  extention gradient  d(interp potential) k\n");
 
-  iTable = &stretch->LippincottMorse;
-  start = iTable->start;
-  scale = iTable->scale;
   interpolated_potential = stretchPotential(NULL, NULL, stretch, initial);
   for (r=initial; r<limit; r+=increment) {
     k = (int)((r - start) / scale);

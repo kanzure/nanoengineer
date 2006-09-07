@@ -50,7 +50,7 @@ double MinimizeThresholdCutoverRMS;
 double MinimizeThresholdCutoverMax;
 double MinimizeThresholdEndRMS;
 double MinimizeThresholdEndMax;
-
+int TimeReversal;
 
 // multiple of rvdW where interpolation table ends, and van der Waals
 // force is considered exactly zero beyond this point.
@@ -115,7 +115,8 @@ reinit_globals(void)
     BaseFileName = NULL;
     QualityWarningLevel = 5;
     SimpleMovieForceScale = 1.0;
-
+    TimeReversal = 0;
+    
     MinimizeThresholdCutoverRMS = 50.0; // pN
     MinimizeThresholdCutoverMax = 250.0;
     MinimizeThresholdEndRMS = 1.0;

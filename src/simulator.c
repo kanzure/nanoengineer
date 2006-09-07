@@ -57,6 +57,8 @@ usage(void)
                     maximum range of vdw force, as multiple of rvdW.\n\
    -E, --print-energy\n\
                     print structure potential energy\n\
+   --time-reversal\n\
+                    Run dynamics forward, then backwards, to check for conservation of energy\n\
    -i<int>, --iters-per-frame=<num>\n\
                     number of iterations per frame\n\
    -f<int>, --num-frames=<int>\n\
@@ -139,6 +141,7 @@ set_py_exc_str(const char *filename,
 #define OPT_MIN_THRESH_END_RMS  LONG_OPT (11)
 #define OPT_MIN_THRESH_END_MAX  LONG_OPT (12)
 #define OPT_VDW_CUTOFF_FACTOR   LONG_OPT (13)
+#define OPT_TIME_REVERSAL     LONG_OPT (14)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
@@ -155,6 +158,7 @@ static const struct option option_vec[] = {
     { "min-threshold-end-rms", required_argument, NULL, OPT_MIN_THRESH_END_RMS},
     { "min-threshold-end-max", required_argument, NULL, OPT_MIN_THRESH_END_MAX},
     { "vdw-cutoff-factor", required_argument, NULL, OPT_VDW_CUTOFF_FACTOR},
+    { "time-reversal", no_argument, NULL, OPT_TIME_REVERSAL},
     { "num-atoms", required_argument, NULL, 'n' },
     { "minimize", no_argument, NULL, 'm' },
     { "print-energy", no_argument, NULL, 'E' },
@@ -263,6 +267,9 @@ main(int argc, char **argv)
             break;
         case OPT_VDW_CUTOFF_FACTOR:
             VanDerWaalsCutoffFactor = atof(optarg);
+            break;
+        case OPT_TIME_REVERSAL:
+            TimeReversal = 1;
             break;
 	case 'n':
 	    // ignored

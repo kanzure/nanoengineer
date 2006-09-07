@@ -40,6 +40,7 @@ extern double MinimizeThresholdCutoverMax;
 extern double MinimizeThresholdEndRMS;
 extern double MinimizeThresholdEndMax;
 extern double VanDerWaalsCutoffFactor;
+extern int TimeReversal;
 
 extern FILE *OutputFile;
 extern FILE *TraceFile;
