@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Sep 6 17:57:14 2006
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Thu Sep 7 12:27:40 2006
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -122,7 +122,7 @@ class UserPrefsDialog(QDialog):
         groupBox8Layout.setAlignment(Qt.AlignTop)
 
         self.textLabel1_5 = QLabel(self.groupBox8,"textLabel1_5")
-        self.textLabel1_5.setSizePolicy(QSizePolicy(1,5,0,0,self.textLabel1_5.sizePolicy().hasHeightForWidth()))
+        self.textLabel1_5.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.textLabel1_5.sizePolicy().hasHeightForWidth()))
         self.textLabel1_5.setScaledContents(0)
         self.textLabel1_5.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
@@ -362,7 +362,7 @@ class UserPrefsDialog(QDialog):
         layout111.addItem(spacer62)
 
         tabLayout.addLayout(layout111,2,0)
-        self.prefs_tab.insertTab(self.tab,QString(""))
+        self.prefs_tab.insertTab(self.tab,QString.fromLatin1(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
         TabPageLayout = QGridLayout(self.TabPage,1,1,11,6,"TabPageLayout")
@@ -526,7 +526,7 @@ class UserPrefsDialog(QDialog):
         TabPageLayout.addLayout(layout86,0,0)
         spacer76 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         TabPageLayout.addItem(spacer76,0,1)
-        self.prefs_tab.insertTab(self.TabPage,QString(""))
+        self.prefs_tab.insertTab(self.TabPage,QString.fromLatin1(""))
 
         self.TabPage_2 = QWidget(self.prefs_tab,"TabPage_2")
 
@@ -589,7 +589,7 @@ class UserPrefsDialog(QDialog):
         layout79_2 = QGridLayout(None,1,1,0,6,"layout79_2")
 
         self.textLabel3_2 = QLabel(self.groupBox4,"textLabel3_2")
-        self.textLabel3_2.setSizePolicy(QSizePolicy(5,5,0,0,self.textLabel3_2.sizePolicy().hasHeightForWidth()))
+        self.textLabel3_2.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.textLabel3_2.sizePolicy().hasHeightForWidth()))
         self.textLabel3_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         layout79_2.addWidget(self.textLabel3_2,0,0)
@@ -653,7 +653,7 @@ class UserPrefsDialog(QDialog):
         layout79_2.addWidget(self.textLabel3,1,0)
 
         self.textLabel3_2_2 = QLabel(self.groupBox4,"textLabel3_2_2")
-        self.textLabel3_2_2.setSizePolicy(QSizePolicy(5,5,0,0,self.textLabel3_2_2.sizePolicy().hasHeightForWidth()))
+        self.textLabel3_2_2.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.textLabel3_2_2.sizePolicy().hasHeightForWidth()))
         self.textLabel3_2_2.setMinimumSize(QSize(0,0))
         self.textLabel3_2_2.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
@@ -707,7 +707,7 @@ class UserPrefsDialog(QDialog):
         layout84.addLayout(layout82)
         spacer58 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout84.addItem(spacer58)
-        self.prefs_tab.insertTab(self.TabPage_2,QString(""))
+        self.prefs_tab.insertTab(self.TabPage_2,QString.fromLatin1(""))
 
         self.TabPage_3 = QWidget(self.prefs_tab,"TabPage_3")
         TabPageLayout_2 = QGridLayout(self.TabPage_3,1,1,11,6,"TabPageLayout_2")
@@ -726,7 +726,7 @@ class UserPrefsDialog(QDialog):
         layout68.addWidget(self.startup_mode_combox,0,1)
 
         self.default_mode_lbl = QLabel(self.TabPage_3,"default_mode_lbl")
-        self.default_mode_lbl.setSizePolicy(QSizePolicy(5,5,0,0,self.default_mode_lbl.sizePolicy().hasHeightForWidth()))
+        self.default_mode_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Preferred,QSizePolicy.Preferred,0,0,self.default_mode_lbl.sizePolicy().hasHeightForWidth()))
         self.default_mode_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
 
         layout68.addWidget(self.default_mode_lbl,1,0)
@@ -793,7 +793,7 @@ class UserPrefsDialog(QDialog):
         TabPageLayout_2.addLayout(layout84_2,0,0)
         spacer8_4 = QSpacerItem(51,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         TabPageLayout_2.addItem(spacer8_4,0,1)
-        self.prefs_tab.insertTab(self.TabPage_3,QString(""))
+        self.prefs_tab.insertTab(self.TabPage_3,QString.fromLatin1(""))
 
         self.TabPage_4 = QWidget(self.prefs_tab,"TabPage_4")
         TabPageLayout_3 = QGridLayout(self.TabPage_4,1,1,11,6,"TabPageLayout_3")
@@ -1103,7 +1103,7 @@ class UserPrefsDialog(QDialog):
         groupBox9_2Layout.addLayout(layout54,0,2)
 
         TabPageLayout_3.addWidget(self.groupBox9_2,0,1)
-        self.prefs_tab.insertTab(self.TabPage_4,QString(""))
+        self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
 
         self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
         TabPageLayout_4 = QGridLayout(self.TabPage_5,1,1,11,6,"TabPageLayout_4")
@@ -1200,7 +1200,7 @@ class UserPrefsDialog(QDialog):
 
         self.nanohive_lbl = QLabel(self.file_locations_grp,"nanohive_lbl")
         self.nanohive_lbl.setEnabled(1)
-        self.nanohive_lbl.setSizePolicy(QSizePolicy(1,5,0,0,self.nanohive_lbl.sizePolicy().hasHeightForWidth()))
+        self.nanohive_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.nanohive_lbl.sizePolicy().hasHeightForWidth()))
         self.nanohive_lbl.setMinimumSize(QSize(60,0))
         self.nanohive_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout71.addWidget(self.nanohive_lbl)
@@ -1213,7 +1213,7 @@ class UserPrefsDialog(QDialog):
         layout72.addWidget(self.povray_checkbox)
 
         self.povray_lbl = QLabel(self.file_locations_grp,"povray_lbl")
-        self.povray_lbl.setSizePolicy(QSizePolicy(1,5,0,0,self.povray_lbl.sizePolicy().hasHeightForWidth()))
+        self.povray_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.povray_lbl.sizePolicy().hasHeightForWidth()))
         self.povray_lbl.setMinimumSize(QSize(60,0))
         self.povray_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout72.addWidget(self.povray_lbl)
@@ -1226,7 +1226,7 @@ class UserPrefsDialog(QDialog):
         layout73.addWidget(self.megapov_checkbox)
 
         self.megapov_lbl = QLabel(self.file_locations_grp,"megapov_lbl")
-        self.megapov_lbl.setSizePolicy(QSizePolicy(1,5,0,0,self.megapov_lbl.sizePolicy().hasHeightForWidth()))
+        self.megapov_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.megapov_lbl.sizePolicy().hasHeightForWidth()))
         self.megapov_lbl.setMinimumSize(QSize(60,0))
         self.megapov_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout73.addWidget(self.megapov_lbl)
@@ -1253,7 +1253,7 @@ class UserPrefsDialog(QDialog):
         layout75_2.addWidget(self.gamess_checkbox)
 
         self.gamess_lbl = QLabel(self.file_locations_grp,"gamess_lbl")
-        self.gamess_lbl.setSizePolicy(QSizePolicy(1,5,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
+        self.gamess_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.gamess_lbl.sizePolicy().hasHeightForWidth()))
         self.gamess_lbl.setMinimumSize(QSize(60,0))
         self.gamess_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
         layout75_2.addWidget(self.gamess_lbl)
@@ -1261,7 +1261,7 @@ class UserPrefsDialog(QDialog):
         file_locations_grpLayout.addLayout(layout75_2,4,0)
 
         TabPageLayout_4.addWidget(self.file_locations_grp,0,0)
-        self.prefs_tab.insertTab(self.TabPage_5,QString(""))
+        self.prefs_tab.insertTab(self.TabPage_5,QString.fromLatin1(""))
 
         self.TabPage_6 = QWidget(self.prefs_tab,"TabPage_6")
 
@@ -1320,7 +1320,7 @@ class UserPrefsDialog(QDialog):
         groupBox17Layout.addWidget(self.historyHeight_spinbox,2,1)
 
         layout76_2.addWidget(self.groupBox17,0,0)
-        self.prefs_tab.insertTab(self.TabPage_6,QString(""))
+        self.prefs_tab.insertTab(self.TabPage_6,QString.fromLatin1(""))
 
         self.TabPage_7 = QWidget(self.prefs_tab,"TabPage_7")
         TabPageLayout_5 = QGridLayout(self.TabPage_7,1,1,11,6,"TabPageLayout_5")
@@ -1442,7 +1442,7 @@ class UserPrefsDialog(QDialog):
         groupBox10Layout.addMultiCellWidget(self.remember_win_pos_and_size_checkbox,1,1,0,2)
 
         TabPageLayout_5.addWidget(self.groupBox10,0,0)
-        self.prefs_tab.insertTab(self.TabPage_7,QString(""))
+        self.prefs_tab.insertTab(self.TabPage_7,QString.fromLatin1(""))
 
         self.TabPage_8 = QWidget(self.prefs_tab,"TabPage_8")
         TabPageLayout_6 = QGridLayout(self.TabPage_8,1,1,11,6,"TabPageLayout_6")
@@ -1524,13 +1524,13 @@ class UserPrefsDialog(QDialog):
         atom_dynamic_tooltips_grpboxLayout.addMultiCellWidget(self.dynamicToolTipAtomPosition_checkbox,2,2,0,1)
 
         TabPageLayout_6.addMultiCellWidget(self.atom_dynamic_tooltips_grpbox,0,1,0,0)
-        self.prefs_tab.insertTab(self.TabPage_8,QString(""))
+        self.prefs_tab.insertTab(self.TabPage_8,QString.fromLatin1(""))
 
         UserPrefsDialogLayout.addWidget(self.prefs_tab,0,0)
 
         self.languageChange()
 
-        self.resize(QSize(694,719).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(626,673).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -1590,7 +1590,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
         self.connect(self.nanohive_checkbox,SIGNAL("toggled(bool)"),self.enable_nanohive)
         self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
-        self.connect(self.ok_btn,SIGNAL("clicked()"),self,SLOT("accept()"))
+        self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
         self.connect(self.povdir_checkbox,SIGNAL("toggled(bool)"),self.enable_povdir)
         self.connect(self.povdir_choose_btn,SIGNAL("clicked()"),self.set_povdir)
         self.connect(self.povray_checkbox,SIGNAL("toggled(bool)"),self.enable_povray)
@@ -1606,7 +1606,7 @@ class UserPrefsDialog(QDialog):
         self.connect(self.startup_mode_combox,SIGNAL("activated(const QString&)"),self.change_startup_mode)
         self.connect(self.undo_stack_memory_limit_spinbox,SIGNAL("valueChanged(int)"),self.change_undo_stack_memory_limit)
         self.connect(self.update_number_spinbox,SIGNAL("valueChanged(int)"),self.update_number_spinbox_valueChanged)
-        self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("toggled(bool)"),self.update_btngrp,SLOT("setEnabled(bool)"))
+        self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("toggled(bool)"),self.update_btngrp.setEnabled)
         self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.change_fill_type)
         self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)

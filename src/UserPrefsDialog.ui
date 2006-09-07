@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>694</width>
-            <height>719</height>
+            <width>626</width>
+            <height>673</height>
         </rect>
     </property>
     <property name="caption">
@@ -1763,31 +1763,6 @@
                         </spacer>
                     </vbox>
                 </widget>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer56_3</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>16</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                    <property name="geometry">
-                        <rect>
-                            <x>558</x>
-                            <y>112</y>
-                            <width>99</width>
-                            <height>20</height>
-                        </rect>
-                    </property>
-                </spacer>
                 <widget class="QGroupBox">
                     <property name="name">
                         <cstring>groupBox4</cstring>
@@ -2294,6 +2269,31 @@
                             <y>310</y>
                             <width>20</width>
                             <height>300</height>
+                        </rect>
+                    </property>
+                </spacer>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer56_3</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                    <property name="geometry">
+                        <rect>
+                            <x>560</x>
+                            <y>110</y>
+                            <width>20</width>
+                            <height>20</height>
                         </rect>
                     </property>
                 </spacer>

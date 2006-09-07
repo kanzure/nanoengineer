@@ -2,8 +2,8 @@
 
 # Form implementation generated from reading ui file 'C:\Atom\cad\src\MainWindowUI.ui'
 #
-# Created: Wed Sep 6 18:18:55 2006
-#      by: The PyQt User Interface Compiler (pyuic) 3.12
+# Created: Thu Sep 7 12:27:45 2006
+#      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
 
@@ -7170,7 +7170,7 @@ class MainWindow(QMainWindow):
         self.connect(self.editUndoAction,SIGNAL("activated()"),self.editUndo)
         self.connect(self.fileClearAction,SIGNAL("activated()"),self.fileClear)
         self.connect(self.fileCloseAction,SIGNAL("activated()"),self.fileClose)
-        self.connect(self.fileExitAction,SIGNAL("activated()"),self,SLOT("close()"))
+        self.connect(self.fileExitAction,SIGNAL("activated()"),self.close)
         self.connect(self.fileImageAction,SIGNAL("activated()"),self.fileImage)
         self.connect(self.fileInsertAction,SIGNAL("activated()"),self.fileInsert)
         self.connect(self.fileOpenAction,SIGNAL("activated()"),self.fileOpen)
