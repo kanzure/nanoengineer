@@ -210,6 +210,8 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         # Animation: http://www.hash.com/products/am.asp
         # For file export, we will use Open Babel's chemistry MDL format.
 
+        sfilter = QString("Protein Data Bank (*.pdb)")
+
         formats = \
             "All Files (*.*);;"\
             "Alchemy format (*.alc);;"\
@@ -281,13 +283,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             ## Don't use OpenBabel for MDL, otherwise it would look like this
 
         fn = QFileDialog.getSaveFileName(self.currentWorkingDirectory,
-                formats,
-                self,
-                "Export File dialog",
-                "Select file to Export" )
-        if platform.atom_debug:
-            linenum()
-            print 'fn', repr(str(fn))
+                                         formats,
+                                         self,
+                                         "Export File dialog",
+                                         "Select file to Export",
+                                         sfilter)
 
         if not fn:
             env.history.message(cmd + "Cancelled")
@@ -295,8 +295,18 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
                 linenum()
                 print 'fileExport cancelled because fn is no good'
             return
-        
         fn = str(fn)
+
+        sext = re.compile('.*\(\*(.+)\)').search(str(sfilter))
+        assert sext is not None
+        sext = sext.group(1)
+        if not fn.endswith(sext):
+            fn += sext
+
+        if platform.atom_debug:
+            linenum()
+            print 'fn', repr(fn)
+
         dir, fil, ext = fileparse(fn)
         if ext == ".mmp":
             self.save_mmp_file(fn, brag=True)
@@ -372,9 +382,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             outf.close()
         proc.setArguments(arguments)
         text = [ None ]
-        def blaberr(text=text):
-            text[0] = str(proc.readStderr())
-        QObject.connect(proc, SIGNAL("readyReadStderr()"), blaberr)
         proc.start()
         while 1:
             if proc.isRunning():
@@ -386,12 +393,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             else:
                 break
         exitStatus = proc.exitStatus()
-        stderr = text[0]
+        stderr = str(proc.readLineStderr())
         if platform.atom_debug:
             print 'exit status', exitStatus
             print 'stderr says', repr(stderr)
             print 'finish runBabel(%s, %s)' % (repr(infile), repr(outfile))
-        return exitStatus == 0 and stderr == "1 molecule converted\n"
+        return exitStatus == 0 and stderr == "1 molecule converted"
 
     def fileInsert(self):
         """Slot method for 'File > Insert'.
@@ -659,11 +666,11 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         mmkit_was_hidden = self.hide_MMKit_during_open_or_save_on_MacOS() # Fixes bug 1744. mark 060325
         
         fn = QFileDialog.getSaveFileName(sdir, 
-                    formats,
-                    self, 
-                    None,
-                    "Save As",
-                    sfilter)
+                                         formats,
+                                         self, 
+                                         None,
+                                         "Save As",
+                                         sfilter)
 
         if fn:
             fn = str(fn)
