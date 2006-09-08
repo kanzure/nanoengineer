@@ -334,6 +334,11 @@ class NanoBuildWin32(NanoBuildBase):
         copy(os.path.join(self.atomPath, 'cad/src/experimental/pyrex-opengl',
                           self.openglAcceleratorName()), self.binPath)
         copy(self.iconFile, self.buildSourcePath)
+	# These DLLs are required for OpenBabel, and anything else built with the Cygwin compiler.
+        copy('win32/cygwin1.dll', self.binPath)
+        copy('win32/cygz.dll', self.binPath)
+        copy('win32/cyginchi-0.dll', self.binPath)
+	#
         copy('win32/uninst.ico', self.buildSourcePath)
         copy('win32/setup.py', os.path.join(self.atomPath,'cad/src'))
         copy(os.path.join(self.atomPath,'cad/src/RELEASENOTES.txt'), self.buildSourcePath)
