@@ -1705,6 +1705,27 @@ def segend():
     glEnd()
     glEnable(GL_LIGHTING)
     return
+    
+def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
+    '''Draw chunk or jig axis'''
+    #ninad060907 Note that this is different than draw 
+    #I may need this function to draw axis line. see its current implementation in 
+    #branch "ninad_060908_drawAxis_notAsAPropOfObject"
+    glDisable(GL_LIGHTING)
+    glColor3fv(color)
+    glLineStipple(3, 0x1C47) # dash-dot-dash line
+    glEnable(GL_LINE_STIPPLE)
+    if width != 1:
+        glLineWidth(width)
+    glBegin(GL_LINES)
+    glVertex(pos1[0], pos1[1], pos1[2])
+    glVertex(pos2[0], pos2[1], pos2[2])
+    glEnd()
+    if width != 1:
+        glLineWidth(1.0) # restore default state
+    glDisable(GL_LINE_STIPPLE)
+    glEnable(GL_LIGHTING)
+    return
 
 def drawaxes(n,point,coloraxes=False):
     from constants import blue, red, darkgreen
