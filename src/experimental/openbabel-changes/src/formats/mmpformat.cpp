@@ -32,6 +32,7 @@ static int WWARE_DEBUG;
 #define HERE()  WWPRINTF("\n")
 #define DD(z)   WWPRINTF("%s = %d\n", #z, z);
 #define XX(z)   WWPRINTF("%s = %08X\n", #z, z);
+#define SS(z)   WWPRINTF("%s = \"%s\"\n", #z, z);
 
 static int atom_index = 1;
 static int bond_index = 1;
@@ -515,16 +516,13 @@ namespace OpenBabel
 	int resnum = 1;
 	int atoms_in_this_group = 0;  // we want the first NON-EMPTY group
 
-	WWARE_DEBUG = (getenv("WWARE_DEBUG") != NULL);
-	printf("WWARE_DEBUG = %d\n", WWARE_DEBUG);
-
 	mmpInfo.lineNumber = 1;
 	mmpInfo.charPosition = 1;
 	group_name[0] = '\0';
 
 	while ((tok = readToken(mmp, &mmpInfo)) != NULL) {
 
-	    WWPRINTF("TOKEN: \"%s\"\n", tok);
+	    SS(tok);
 
 	    // atom atomNumber (element) (posx, posy, posz)
 	    // Identifies a new atom with the given element type and position.
@@ -677,6 +675,9 @@ namespace OpenBabel
     bool MMPFormat::ReadMolecule(OBBase* pOb, OBConversion* pConv)
     {
 
+	WWARE_DEBUG = (getenv("WWARE_DEBUG") != NULL);
+	DD(WWARE_DEBUG);
+
 	OBMol* pmol = dynamic_cast<OBMol*>(pOb);
 	if(pmol==NULL) {
 	    WWPRINTF("ouch\n");
@@ -732,6 +733,10 @@ namespace OpenBabel
     bool MMPFormat::WriteMolecule(OBBase* pOb, OBConversion* pConv)
     {
 	extern void _mmp_write_atoms(OBMol& mol, ostream &ofs, int resnum);
+
+	WWARE_DEBUG = (getenv("WWARE_DEBUG") != NULL);
+	DD(WWARE_DEBUG);
+
 	OBMol* pmol = dynamic_cast<OBMol*>(pOb);
 	if(pmol==NULL) {
 	    WWPRINTF("ouch\n");
@@ -747,9 +752,6 @@ namespace OpenBabel
 	char group_name[200];
 	int resnum = 1;
 	int residueIndex, previousResidueIndex = -1;
-
-	WWARE_DEBUG = (getenv("WWARE_DEBUG") != NULL);
-	printf("WWARE_DEBUG = %d\n", WWARE_DEBUG);
 
 	snprintf(buffer, BUFF_SIZE, "mmpformat 050920 required; 060421 preferred");
 	ofs << buffer << endl;
