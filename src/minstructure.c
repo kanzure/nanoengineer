@@ -140,7 +140,7 @@ minimizeStructureGradient(struct configuration *p)
             p->gradient[i] *= 1e6; // convert uN to pN
         }
         if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE) && DEBUG(D_GRADIENT_COMPARISON)) { // -D4
-            struct xyz offset = { 10.0, 0.0, 0.0 };
+            struct xyz offset = { 0.0, 10.0, 0.0 };
             
             forces = (struct xyz *)p->gradient;
             for (i=0; i<Part->num_atoms; i++) {
@@ -379,12 +379,35 @@ minimizeStructure(struct part *part)
 	initial->coordinate[j++] = part->positions[i].z;
     }
 
+    // To compare the torsion gradient code to the results of a
+    // numerical differentiation, put the following lines in an .mmp
+    // file, uncomment the define TORSION_DEBUG line, and run:
+    // simulator -m -x TorsionDebug.mmp
+    // Then, run:
+    // glviewer < TorsionDebug.xyz
+#if 0
+atom 1 (6) (400, 0, 0) def
+atom 2 (6) (250, 0, 0) def
+info atom atomtype = sp2
+bond1 1
+atom 3 (6) (-250, 0, 0) def
+info atom atomtype = sp2
+bond2 2
+atom 4 (6) (-400, 500, 0) def
+bond1 3
+#endif
+    
     //#define TORSION_DEBUG
 #ifdef TORSION_DEBUG
+    debug_flags |= D_MINIMIZE_GRADIENT_MOVIE
+        | D_GRADIENT_COMPARISON
+        | D_SKIP_VDW
+        | D_SKIP_BEND
+        | D_SKIP_STRETCH;
     double theta;
     for (theta=0.0; theta<Pi; theta+=Pi/180.0) {
-        initial->coordinate[j-2] = 50.0 * sin(theta);
-        initial->coordinate[j-1] = 50.0 * cos(theta);
+        initial->coordinate[1] = 50.0 * cos(theta);
+        initial->coordinate[2] = 50.0 * sin(theta);
         evaluateGradient(initial);
         free(initial->gradient);
         initial->gradient = NULL;

@@ -424,26 +424,34 @@ torsionPotentialPart(struct part *p, struct xyz *position)
 {
   int j;
   struct torsion *torsion;
-  struct xyz v1;
-  struct xyz v2;
-  struct xyz v3;
-  struct xyz v4;
-  struct xyz v5;
+  struct xyz va;
+  struct xyz vb;
+  struct xyz vc;
+  struct xyz bxc;
+  double b;
+  double num;
+  double denom;
   double theta;
   double potential = 0.0;
 
   for (j=0; j<p->num_torsions; j++) {
     torsion = &p->torsions[j];
 
-    // v3: ab --- aa is central bond that the torsion is around
-    // v4 and v5 are are the two end bonds
-    vsub2(v3, position[torsion->ab->index], position[torsion->aa->index]);
-    vsub2(v4, position[torsion->a1->index], position[torsion->aa->index]);
-    vsub2(v5, position[torsion->a2->index], position[torsion->ab->index]);
-    v2x(v1, v3, v4); // v3 x v4 is normal to 1-a-b plane
-    v2x(v2, v5, v3); // v5 x v3 is normal to a-b-2 plane
-    theta = (Pi / 180.0) * angleBetween(v1, v2);
-    BAILR(0.0);
+    vsub2(va, position[torsion->aa->index], position[torsion->a1->index]);
+    vsub2(vb, position[torsion->ab->index], position[torsion->aa->index]);
+    vsub2(vc, position[torsion->ab->index], position[torsion->a2->index]);
+    b = vlen(vb);
+    if (b < 1e-8) {
+      // This probably shouldn't happen anyway, as the aa-ab repulsion
+      // would be excessive.  We avoid division by zero later by just
+      // ignoring this torsion.
+      continue;
+    }
+    
+    v2x(bxc, vb, vc);
+    num = vdot(va, bxc) / b;
+    denom = vdot(va, vc) - (vdot(va, vb) * vdot(vb, vc) / (b * b));
+    theta = -atan2(num, denom);
 
     // cos(2 * theta) goes like theta^2 for small theta
     // so A is in aJ/rad^2
@@ -456,67 +464,226 @@ torsionPotentialPart(struct part *p, struct xyz *position)
 static void
 torsionGradientPart(struct part *p, struct xyz *position, struct xyz *force)
 {
+  int d;
+  int i;
   int j;
-  struct xyz v1;
-  struct xyz v2;
-  struct xyz v3;
-  struct xyz v4;
-  struct xyz v5;
+  struct xyz va;
+  struct xyz vb;
+  struct xyz vc;
+  double a;
+  double b;
+  double bb;
+  double c;
+  struct xyz bxc;
+  double F;
+  double G;
+  double H;
+  double J;
+  double K;
+  double L;
+  double M;
+  double Q;
+  double R;
+  double num;
+  double denom;
   double theta;
-  double ff;
+  double twoksintwotheta;
+  struct xyz a_p;
+  struct xyz b_p;
+  struct xyz c_p;
+  struct xyz va_p;
+  struct xyz vb_p;
+  struct xyz vc_p;
+  struct xyz bxc_p;
+  struct xyz bxc_p_tmp;
+  double F_p;
+  double G_p;
+  double H_p;
+  double J_p;
+  double K_p;
+  double bb_p;
+  double L_p;
+  double M_p;
+  double num_p;
+  double Q_p;
+  double R_p;
+  double theta_p;
   struct torsion *torsion;
-  double torque;
-  struct xyz q1;
-  struct xyz q2;
+  struct xyza gradients[4];
+  struct xyza *gradient;
+  struct xyz *grad;
     
   for (j=0; j<p->num_torsions; j++) {
     torsion = &p->torsions[j];
 
-    // v3: ab --- aa is central bond that the torsion is around
-    // v4 and v5 are are the two end bonds
-    vsub2(v3, position[torsion->ab->index], position[torsion->aa->index]);
-    vsub2(v4, position[torsion->a1->index], position[torsion->aa->index]);
-    vsub2(v5, position[torsion->a2->index], position[torsion->ab->index]);
-    v2x(v1, v3, v4); // v3 x v4 is normal to 1-a-b plane
-    v2x(v2, v5, v3); // v5 x v3 is normal to a-b-2 plane
-    // v1 and v2 point along the direction that a1 and a2 should move
-    theta = (Pi / 180.0) * angleBetween(v1, v2);
-    if (theta < 1e-10) {
+    vsub2(va, position[torsion->aa->index], position[torsion->a1->index]);
+    vsub2(vb, position[torsion->ab->index], position[torsion->aa->index]);
+    vsub2(vc, position[torsion->ab->index], position[torsion->a2->index]);
+    a = vlen(va);
+    bb = vdot(vb, vb);
+    b = sqrt(bb);
+    c = vlen(vc);
+    if (a < 1e-8 || b < 1e-8 || c < 1e-8) {
+      // This probably shouldn't happen anyway, as the repulsion would
+      // be excessive.  We avoid division by zero later by just
+      // ignoring this torsion.
       continue;
     }
-
-    q1 = uvec(v1); // unit vector along which force will be applied to a1
-    q2 = uvec(v2); // unit vector along which force will be applied to a2
-
-    // v1 dot v5 tells us the sign of the torque to apply
+    
+    v2x(bxc, vb, vc);
+    F = vdot(va, bxc);
+    L = 1.0 / b;
+    num = F * L;
+    G = vdot(va, vb);
+    H = vdot(vb, vc);
+    J = G * H;
+    K = vdot(va, vc);
+    M = 1.0 / bb;
+    Q = M * J;
+    denom = K - Q;
+    if (fabs(denom) < 1e-8) {
+      continue;
+    }
+    R = num / denom;
+    theta = -atan2(num, denom);
+    twoksintwotheta = -2.0 * 1e6 * torsion->A * sin(2.0 * theta);
       
-    // A is aJ/rad^2
-    // sin(2 * theta) = 2 * theta for small theta, so torque is aJ/rad
-    torque = (vdot(v1, v5) > 0.0 ? -torsion->A : torsion->A) * sin(2 * theta);
-    // vlen(v4) is pm/rad; ff is yJ/pm or pN
-    ff = 1e3 * torque / vlen(v4);
-    ff *= 2e3;
-    CHECKNAN(ff);
-    vmulc(q1, ff);
-    ff = 1e3 * torque / vlen(v5);
-    ff *= 2e3;
-    CHECKNAN(ff);
-    vmulc(q2, ff);
+    for (i=0; i<4; i++) {
+      // XXX There's a lot of simplification that can go on in here if
+      // we unroll the loops.  Not sure if gcc will do it
+      // automatically.
+      gradient = gradients + i;
+      switch (i) {
+      case 0:
+        // derivatives with respect to a1
+        vmul2c(a_p, va, -1.0/a);
+        vsetc(b_p, 0.0);
+        vsetc(c_p, 0.0);
+        break;
+      case 1:
+        // derivatives with respect to aa
+        vmul2c(a_p, va, 1.0/a);
+        vmul2c(b_p, va, -1.0/b);
+        vsetc(c_p, 0.0);
+        break;
+      case 2:
+        // derivatives with respect to ab
+        vsetc(a_p, 0.0);
+        vmul2c(b_p, va, 1.0/b);
+        vmul2c(c_p, va, -1.0/c);
+        break;
+      case 3:
+        // derivatives with respect to a2
+        vsetc(a_p, 0.0);
+        vsetc(b_p, 0.0);
+        vmul2c(c_p, va, 1.0/c);
+        break;
+      }
+      for (d=0; d<3; d++) {
+        vsetc(va_p, 0.0);
+        vsetc(vb_p, 0.0);
+        vsetc(vc_p, 0.0);
+        switch (i) {
+        case 0:
+          // derivatives with respect to a1
+          ((struct xyza *)&va_p)->a[d] = -1.0;
+          break;
+        case 1:
+          // derivatives with respect to aa
+          ((struct xyza *)&va_p)->a[d] = 1.0;
+          ((struct xyza *)&vb_p)->a[d] = -1.0;
+          break;
+        case 2:
+          // derivatives with respect to ab
+          ((struct xyza *)&vb_p)->a[d] = 1.0;
+          ((struct xyza *)&vc_p)->a[d] = 1.0;
+          break;
+        case 3:
+          // derivatives with respect to a2
+          ((struct xyza *)&vc_p)->a[d] = -1.0;
+          break;
+        }
+
+        // bxc = vb x vc
+        // bxc_p = vb x vc_p + vb_p x vc
+        v2x(bxc_p, vb, vc_p);
+        v2x(bxc_p_tmp, vb_p, vc);
+        vadd(bxc_p, bxc_p_tmp);
+
+        // F = va . bxc
+        // F_p = va . bxc_p + va_p . bxc
+        F_p = vdot(va, bxc_p) + vdot(va_p, bxc);
+
+        // G = va . vb
+        // G_p = va . vb_p + va_p . vb
+        G_p = vdot(va, vb_p) + vdot(va_p, vb);
+
+        // H = vb . vc
+        // H_p = vb . vc_p + vb_p . vc
+        H_p = vdot(vb, vc_p) + vdot(vb_p, vc);
+
+        // J = G H
+        // J_p = G H_p + G_p H
+        J_p = G * H_p + G_p * H;
+
+        // K = va . vc
+        // K_p = va . vc_p + va_p . vc
+        K_p = vdot(va, vc_p) + vdot(va_p, vc);
+
+        // bb = vb . vb
+        // b = sqrt(bb)
+        // bb_p = 2 vb . vb_p
+        bb_p = 2.0 * vdot(vb, vb_p);
       
-    vsub(force[torsion->aa->index], q1);
-    vadd(force[torsion->a1->index], q1);
-    vsub(force[torsion->ab->index], q2);
-    vadd(force[torsion->a2->index], q2);
+        // L = 1/b
+        //   = bb^(-1/2)
+        // L_p = (-1/2)bb^(-3/2)bb_p
+        // L_p = -bb_p / (2 b^3)
+        L_p = -(bb_p / (2.0 * bb * b));
+
+        // b_p = (1/2)bb^(-1/2)bb_p
+        //     = (vb . vb_p) b^(-1)
+        // M = b^(-2)
+        // M_p = (-2)b^(-3)b_p
+        //     = (-2)(vb . vb_p)b^(-4)
+        M_p = (-bb_p / (bb * bb));
+
+        // num = L F
+        num_p = L * F_p + L_p * F;
+
+        // Q = M J
+        Q_p = M * J_p + M_p * J;
+
+        // denom = K - Q
+        // R = num denom^-1
+        // R_p = num (-1) (K-Q)^-2 (K_p - Q_p) + num_p denom^-1
+        R_p = (-num * (K_p - Q_p) / (denom * denom)) + (num_p / denom);
+
+        // theta = -atan(R)
+        // theta_p = -R_p / (1 + R^2)
+        theta_p = -R_p / (1 + R * R);
+
+        // potential = k (1 - cos(2 theta)
+        // gradient = 2 k sin(2 theta) theta_p
+        gradient->a[d] = twoksintwotheta * theta_p;
+      }
+    }
+
+    grad = (struct xyz *)(gradients+0);
+    vadd(force[torsion->a1->index], *grad);
+    grad = (struct xyz *)(gradients+1);
+    vadd(force[torsion->aa->index], *grad);
+    grad = (struct xyz *)(gradients+2);
+    vadd(force[torsion->ab->index], *grad);
+    grad = (struct xyz *)(gradients+3);
+    vadd(force[torsion->a2->index], *grad);
       
     if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE_DETAIL)) { // -D5
-      writeSimpleForceVector(position, torsion->a1->index, &q1, 3, 1.0); // blue
-      vmulc(q1, -1.0);
-      writeSimpleForceVector(position, torsion->aa->index, &q1, 2, 1.0); // green
-      writeSimpleForceVector(position, torsion->a2->index, &q2, 3, 1.0); // blue
-      vmulc(q2, -1.0);
-      writeSimpleForceVector(position, torsion->ab->index, &q2, 2, 1.0); // green
+      writeSimpleForceVector(position, torsion->a1->index, (struct xyz *)(gradients+0), 3, 1.0); // blue
+      writeSimpleForceVector(position, torsion->aa->index, (struct xyz *)(gradients+1), 2, 1.0); // green
+      writeSimpleForceVector(position, torsion->ab->index, (struct xyz *)(gradients+2), 2, 1.0); // green
+      writeSimpleForceVector(position, torsion->a2->index, (struct xyz *)(gradients+3), 3, 1.0); // blue
     }
-    BAIL();
   }
 }
 
