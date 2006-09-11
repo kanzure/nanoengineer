@@ -420,6 +420,9 @@ class Font3D:
                         drawline(color, seq[i], seq[i+1])
             drawSequence(_font.get(str[i], _font_X))
 
+class ZeroLengthCylinder(Exception):
+    pass
+
 class CylindricalCoordinates:
     def __init__(self, point0, z, uhint, uhint2):
         # u and v and zn are unit vectors
@@ -428,10 +431,9 @@ class CylindricalCoordinates:
         self.p1 = point1 = point0 + z
         self.z = z
         zlen = vlen(z)
-        if zlen > 1.0e-6:
-            self.zinv = 1.0 / zlen
-        else:
-            self.zinv = 1.
+        if zlen < 1.0e-6:
+            raise ZeroLengthCylinder()
+        self.zinv = 1.0 / zlen
         self.zn = zn = norm(z)
         u = norm(uhint - (dot(uhint, z) / zlen**2) * z)
         if vlen(u) < 1.0e-4:
@@ -533,7 +535,29 @@ def drawLinearDimension(color,      # what color are we drawing this in
 
 def drawAngleDimension(color, right, up, bpos, p0, p1, p2, text, minR1=0.0, minR2=0.0, highlighted=False):
     z = cross(p0 - p1, p2 - p1)
-    csys = CylindricalCoordinates(p1, z, up, right)
+    try:
+        csys = CylindricalCoordinates(p1, z, up, right)
+    except ZeroLengthCylinder:
+        len0 = vlen(p1 - p0)
+        len2 = vlen(p1 - p2)
+        # make sure it's really a zero-degree angle
+        assert len0 > 1.0e-6
+        assert len2 > 1.0e-6
+        assert vlen(cross(p1 - p2, p1 - p0)) < 1.0e-6
+        # For an angle of zero degrees, there is no correct way to
+        # orient the text, so just draw a line segment
+        if len0 > len2:
+            L = len0
+            end = p0
+        else:
+            L = len2
+            end = p2
+        Lb = vlen(bpos - p1)
+        if Lb > L:
+            L = Lb
+            end = p1 + (Lb / L) * (end - p1)
+        drawline(color, p1, end)
+        return
     br, bt, bz = csys.rtz(bpos)
     theta1 = csys.rtz(p0)[1]
     theta2 = csys.rtz(p2)[1]
