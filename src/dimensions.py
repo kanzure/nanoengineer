@@ -439,6 +439,12 @@ class CylindricalCoordinates:
         v = cross(zn, u)
         self.u = u
         self.v = v
+    def __repr__(self):
+        def vecrepr(v):
+            return "[%g %g %g]" % tuple(v)
+        return ("<CylindricalCoordinates p0=%s p1=%s\n  z=%s u=%s v=%s>" %
+                (vecrepr(self.p0), vecrepr(self.p1), vecrepr(self.z),
+                 vecrepr(self.u), vecrepr(self.v)))
     def rtz(self, pt):
         d = pt - self.p0
         z = dot(d, self.zn)
@@ -465,7 +471,11 @@ class CylindricalCoordinates:
 
 THICKLINEWIDTH = 20
 
-def drawLinearDimension(color, right, up, bpos, p0, p1, text, highlighted=False):
+def drawLinearDimension(color,      # what color are we drawing this in
+                        right, up,  # screen directions mapped to xyz coordinates
+                        bpos,       # position of the handle for moving the text
+                        p0, p1,     # positions of the ends of the dimension
+                        text, highlighted=False):
     outOfScreen = cross(right, up)
     bdiff = bpos - 0.5 * (p0 + p1)
     csys = CylindricalCoordinates(p0, p1 - p0, bdiff, right)
@@ -494,17 +504,28 @@ def drawLinearDimension(color, right, up, bpos, p0, p1, text, highlighted=False)
     drawline(color, v1, arrow11)
     # draw the text for the numerical measurement, make
     # sure it goes from left to right
-    zflip = dot(csys.z, right) < 0
+    xflip = dot(csys.z, right) < 0
     # then make sure it's right side up
-    theoreticalRight = (zflip and -csys.z) or csys.z
+    theoreticalRight = (xflip and -csys.z) or csys.z
     theoreticalOutOfScreen = cross(theoreticalRight, bdiff)
-    xflip = dot(theoreticalOutOfScreen, outOfScreen) < 0
-    def fx(y, xflip=xflip):
-        if xflip: return br + 1.5 - y / (1. * HEIGHT)
-        else: return br + 0.5 + y / (1. * HEIGHT)
-    def fz(x, zflip=zflip):
-        if zflip: return 0.9 - csys.zinv * x / (1. * WIDTH)
-        else: return 0.1 + csys.zinv * x / (1. * WIDTH)
+    yflip = dot(theoreticalOutOfScreen, outOfScreen) < 0
+    if platform.atom_debug:
+        print "DEBUG INFO FROM drawLinearDimension"
+        print csys
+        print theoreticalRight, theoreticalOutOfScreen
+        print xflip, yflip
+    if yflip:
+        def fx(y):
+            return br + 1.5 - y / (1. * HEIGHT)
+    else:
+        def fx(y):
+            return br + 0.5 + y / (1. * HEIGHT)
+    if xflip:
+        def fz(x):
+            return 0.9 - csys.zinv * x / (1. * WIDTH)
+    else:
+        def fz(x):
+            return 0.1 + csys.zinv * x / (1. * WIDTH)
     def tfm(x, y, fx=fx, fz=fz):
         return csys.xyz((fx(y), 0, fz(x)))
     f3d = Font3D()
