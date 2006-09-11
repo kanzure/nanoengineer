@@ -25,6 +25,14 @@ GNU General Public License for more details.
 #define UNIMPLEMENTED
 #define UNTESTED
 
+static int WWARE_DEBUG;
+
+#define WWPRINTF(fmt...)   if (WWARE_DEBUG) { fprintf(stderr, "%s (%d) ", __FILE__, __LINE__); \
+                                              fprintf(stderr, ##fmt); }
+#define HERE()  WWPRINTF("\n")
+#define DD(z)   WWPRINTF("%s = %d\n", #z, z);
+#define XX(z)   WWPRINTF("%s = %08X\n", #z, z);
+
 static int atom_index = 1;
 static int bond_index = 1;
 
@@ -507,15 +515,16 @@ namespace OpenBabel
 	int resnum = 1;
 	int atoms_in_this_group = 0;  // we want the first NON-EMPTY group
 
+	WWARE_DEBUG = (getenv("WWARE_DEBUG") != NULL);
+	printf("WWARE_DEBUG = %d\n", WWARE_DEBUG);
+
 	mmpInfo.lineNumber = 1;
 	mmpInfo.charPosition = 1;
 	group_name[0] = '\0';
 
 	while ((tok = readToken(mmp, &mmpInfo)) != NULL) {
 
-#if 0
-	    fprintf(stderr, "TOKEN: \"%s\"\n", tok);
-#endif
+	    WWPRINTF("TOKEN: \"%s\"\n", tok);
 
 	    // atom atomNumber (element) (posx, posy, posz)
 	    // Identifies a new atom with the given element type and position.
@@ -669,8 +678,10 @@ namespace OpenBabel
     {
 
 	OBMol* pmol = dynamic_cast<OBMol*>(pOb);
-	if(pmol==NULL)
+	if(pmol==NULL) {
+	    WWPRINTF("ouch\n");
 	    return false;
+	}
 
 	//Define some references so we can use the old parameter names
 	istream &ifs = *pConv->GetInStream();
@@ -688,7 +699,9 @@ namespace OpenBabel
 	readMMP(mol, ifs);
 
 	// these two should be unnecessary for a MMP file, unless it's broken
+	HERE();
 	mol.ConnectTheDots();
+	HERE();
 	mol.PerceiveBondOrders();
 
 	// clean out remaining blank lines
@@ -696,13 +709,18 @@ namespace OpenBabel
 	      (ifs.peek() == '\n' || ifs.peek() == '\r'))
 	    ifs.getline(buffer,BUFF_SIZE);
 
+	HERE();
 	mol.EndModify();
 
+	HERE();
 	mol.SetAtomTypesPerceived();
+	HERE();
 	atomtyper.AssignImplicitValence(mol);
 
+	HERE();
 	if (!mol.NumAtoms())
 	    return(false);
+	HERE();
 	return(true);
     }
 
@@ -715,8 +733,10 @@ namespace OpenBabel
     {
 	extern void _mmp_write_atoms(OBMol& mol, ostream &ofs, int resnum);
 	OBMol* pmol = dynamic_cast<OBMol*>(pOb);
-	if(pmol==NULL)
+	if(pmol==NULL) {
+	    WWPRINTF("ouch\n");
 	    return false;
+	}
 
 	//Define some references so we can use the old parameter names
 	ostream &ofs = *pConv->GetOutStream();
@@ -727,6 +747,9 @@ namespace OpenBabel
 	char group_name[200];
 	int resnum = 1;
 	int residueIndex, previousResidueIndex = -1;
+
+	WWARE_DEBUG = (getenv("WWARE_DEBUG") != NULL);
+	printf("WWARE_DEBUG = %d\n", WWARE_DEBUG);
 
 	snprintf(buffer, BUFF_SIZE, "mmpformat 050920 required; 060421 preferred");
 	ofs << buffer << endl;
@@ -759,10 +782,13 @@ namespace OpenBabel
 	snprintf(buffer, BUFF_SIZE, "info opengroup open = True");
 	ofs << buffer << endl;
 
+	HERE();
 	if (mol.NumResidues() > 0) {
 	    OBResidue *residue;
 	    vector<OBResidue*>::iterator r;
+	    HERE();
 	    for (residue = mol.BeginResidue(r); residue; residue = mol.NextResidue(r)) {
+		HERE();
 		residueIndex = residue->GetIdx();
 		if (residueIndex != previousResidueIndex) {
 		    previousResidueIndex = residueIndex;
@@ -772,6 +798,7 @@ namespace OpenBabel
 		_mmp_write_atoms(mol, ofs, residueIndex);
 	    }
 	} else {
+	    HERE();
 	    snprintf(buffer, BUFF_SIZE, "mol (Chunk 1)");
 	    ofs << buffer << endl;
 	    _mmp_write_atoms(mol, ofs, -1);
@@ -791,8 +818,21 @@ namespace OpenBabel
     void _mmp_write_atoms(OBMol& mol, ostream &ofs, int resnum)
     {
 	for (int i = 1; i <= mol.NumAtoms(); i ++) {
+	    HERE();
 	    OBAtom *atom = mol.GetAtom(i);
+	    DD(resnum);
+	    XX(atom);
+	    if (atom != NULL) {
+		XX(atom->GetResidue());
+		if (atom->GetResidue() != NULL) {
+		    DD(atom->GetResidue()->GetIdx());
+		}
+	    }
 	    if (resnum == -1 || (atom->GetResidue() != NULL && atom->GetResidue()->GetIdx() == resnum)) {
+		DD(atom->GetAtomicNum());
+		DD((int) (1000.0 * atom->GetX()));
+		DD((int) (1000.0 * atom->GetY()));
+		DD((int) (1000.0 * atom->GetZ()));
 		snprintf(buffer, BUFF_SIZE, "atom %d (%d) (%d, %d, %d) def",
 			 atom->GetIdx(), atom->GetAtomicNum(),
 			 (int) (1000.0 * atom->GetX()),
@@ -804,6 +844,7 @@ namespace OpenBabel
 		for (int bondOrder = 1; bondOrder <= 5; bondOrder++) {
 		    int bondsOfThisOrder = 0;
 		    OBBond *bond;
+		    HERE();
 		    for (bond = atom->BeginBond(j); bond; bond = atom->NextBond(j)) {
 			if (bond->GetBO() == bondOrder) {
 			    OBAtom *atom2 = bond->GetNbrAtom(atom);
@@ -811,7 +852,9 @@ namespace OpenBabel
 				bondsOfThisOrder++;
 			}
 		    }
+		    HERE();
 		    if (bondsOfThisOrder > 0) {
+			WWPRINTF("Uncharted waters!\n");
 			UNTESTED; // test for aromatic, graphitic, carbomeric bonds
 			static char bondchars[] = " 123agc";
 			snprintf(buffer, BUFF_SIZE, "bond%c", bondchars[bondOrder]);
