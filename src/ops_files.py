@@ -213,7 +213,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         sfilter = QString("Protein Data Bank (*.pdb)")
 
         formats = \
-            "All Files (*.*);;"\
             "Alchemy format (*.alc);;"\
             "MSI BGF format (*.bgf);;"\
             "Dock 3.5 Box format (*.box);;"\
@@ -315,7 +314,6 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             # Its coverage of MMP files is imperfect so it makes mistakes, but
             # it would be good to use it enough to find those mistakes.
             import time
-            from qt import QStringList, QProcess
             dir, fil, ext = fileparse(fn)
             if platform.atom_debug:
                 linenum()
@@ -382,7 +380,13 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             outf.close()
         proc.setArguments(arguments)
         text = [ None ]
-        proc.start()
+        if platform.atom_debug:
+            debugvar = QStringList()
+            debugvar.append('WWARE_DEBUG=1')
+            print 'debugvar', str(debugvar)
+            proc.start(debugvar)
+        else:
+            proc.start()
         while 1:
             if proc.isRunning():
                 if platform.atom_debug:
@@ -393,11 +397,12 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
             else:
                 break
         exitStatus = proc.exitStatus()
-        stderr = str(proc.readLineStderr())
+        stderr = str(proc.readStderr())[:-1]
         if platform.atom_debug:
             print 'exit status', exitStatus
-            print 'stderr says', repr(stderr)
+            print 'stderr says', stderr
             print 'finish runBabel(%s, %s)' % (repr(infile), repr(outfile))
+        stderr = stderr.split(os.linesep)[-1]
         return exitStatus == 0 and stderr == "1 molecule converted"
 
     def fileInsert(self):
