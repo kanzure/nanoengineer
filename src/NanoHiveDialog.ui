@@ -1,437 +1,550 @@
-<ui version="4.0" stdsetdef="1" >
-  <author></author>
-  <comment></comment>
-  <exportmacro></exportmacro>
-  <class>NanoHiveDialog</class>
-  <widget class="QDialog" name="NanoHiveDialog" >
-    <property name="geometry" >
-      <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>355</width>
-        <height>648</height>
-      </rect>
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>NanoHiveDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>NanoHiveDialog</cstring>
     </property>
-    <property name="windowTitle" >
-      <string>Nano-Hive Setup</string>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>355</width>
+            <height>648</height>
+        </rect>
     </property>
-    <property name="windowIcon" >
-      <pixmap>image0</pixmap>
+    <property name="caption">
+        <string>Nano-Hive Setup</string>
     </property>
-    <property name="modal" >
-      <bool>true</bool>
+    <property name="icon">
+        <pixmap>image0</pixmap>
     </property>
-    <layout class="QGridLayout" >
-      <property name="spacing" >
-        <number>21</number>
-      </property>
-      <item row="0" column="0" >
-        <layout class="QHBoxLayout" >
-          <property name="margin" >
-            <number>0</number>
-          </property>
-          <item>
-            <layout class="QVBoxLayout" >
-              <property name="margin" >
-                <number>0</number>
-              </property>
-              <item>
-                <widget class="QLabel" name="namelbl" >
-                  <property name="text" >
-                    <string>Name :</string>
-                  </property>
-                  <property name="alignment" >
-                    <set>Qt::AlignVCenter|Qt::AlignRight</set>
-                  </property>
+    <property name="modal">
+        <bool>true</bool>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="spacing">
+            <number>21</number>
+        </property>
+        <widget class="QLayoutWidget" row="0" column="0">
+            <property name="name">
+                <cstring>layout46</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout40</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>namelbl</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Name :</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout38</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>desclbl</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Description :</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer31</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Vertical</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>20</width>
+                                            <height>16</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                            </vbox>
+                        </widget>
+                    </vbox>
                 </widget>
-              </item>
-              <item>
-                <layout class="QVBoxLayout" >
-                  <property name="margin" >
-                    <number>0</number>
-                  </property>
-                  <item>
-                    <widget class="QLabel" name="desclbl" >
-                      <property name="text" >
-                        <string>Description :</string>
-                      </property>
-                      <property name="alignment" >
-                        <set>Qt::AlignVCenter|Qt::AlignRight</set>
-                      </property>
-                    </widget>
-                  </item>
-                  <item>
-                    <spacer name="spacer31" >
-                      <property name="sizeHint" >
-                        <size>
-                          <width>20</width>
-                          <height>16</height>
-                        </size>
-                      </property>
-                      <property name="sizeType" >
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout45</cstring>
+                    </property>
+                    <vbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLineEdit">
+                            <property name="name">
+                                <cstring>name_linedit</cstring>
+                            </property>
+                            <property name="frameShape">
+                                <enum>LineEditPanel</enum>
+                            </property>
+                            <property name="frameShadow">
+                                <enum>Sunken</enum>
+                            </property>
+                            <property name="text">
+                                <string></string>
+                            </property>
+                        </widget>
+                        <widget class="QTextEdit">
+                            <property name="name">
+                                <cstring>description_textedit</cstring>
+                            </property>
+                            <property name="minimumSize">
+                                <size>
+                                    <width>0</width>
+                                    <height>0</height>
+                                </size>
+                            </property>
+                            <property name="textFormat">
+                                <enum>PlainText</enum>
+                            </property>
+                        </widget>
+                    </vbox>
+                </widget>
+            </hbox>
+        </widget>
+        <widget class="QGroupBox" row="1" column="0">
+            <property name="name">
+                <cstring>parms_grpbox</cstring>
+            </property>
+            <property name="title">
+                <string>Parameters</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget" row="0" column="0">
+                    <property name="name">
+                        <cstring>layout27</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout24</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel5</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Total Frames:</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Steps per Frame :</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel3</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Temperature :</string>
+                                    </property>
+                                    <property name="alignment">
+                                        <set>AlignVCenter|AlignRight</set>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout25</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QSpinBox">
+                                    <property name="name">
+                                        <cstring>nframes_spinbox</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>90000</number>
+                                    </property>
+                                    <property name="minValue">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="lineStep">
+                                        <number>15</number>
+                                    </property>
+                                    <property name="value">
+                                        <number>900</number>
+                                    </property>
+                                </widget>
+                                <widget class="QSpinBox">
+                                    <property name="name">
+                                        <cstring>stepsper_spinbox</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>99999</number>
+                                    </property>
+                                    <property name="minValue">
+                                        <number>1</number>
+                                    </property>
+                                    <property name="value">
+                                        <number>10</number>
+                                    </property>
+                                </widget>
+                                <widget class="QSpinBox">
+                                    <property name="name">
+                                        <cstring>temp_spinbox</cstring>
+                                    </property>
+                                    <property name="maxValue">
+                                        <number>99999</number>
+                                    </property>
+                                    <property name="value">
+                                        <number>300</number>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                        <widget class="QLayoutWidget">
+                            <property name="name">
+                                <cstring>layout26</cstring>
+                            </property>
+                            <vbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <spacer>
+                                    <property name="name">
+                                        <cstring>spacer4</cstring>
+                                    </property>
+                                    <property name="orientation">
+                                        <enum>Horizontal</enum>
+                                    </property>
+                                    <property name="sizeType">
+                                        <enum>Expanding</enum>
+                                    </property>
+                                    <property name="sizeHint">
+                                        <size>
+                                            <width>255</width>
+                                            <height>20</height>
+                                        </size>
+                                    </property>
+                                </spacer>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel2_2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>0.1 femtosecond</string>
+                                    </property>
+                                </widget>
+                                <widget class="QLabel">
+                                    <property name="name">
+                                        <cstring>textLabel3_2</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Kelvin</string>
+                                    </property>
+                                </widget>
+                            </vbox>
+                        </widget>
+                    </hbox>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QButtonGroup" row="2" column="0">
+            <property name="name">
+                <cstring>buttonGroup1</cstring>
+            </property>
+            <property name="title">
+                <string>Physical Interaction Plugins</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget" row="1" column="0">
+                    <property name="name">
+                        <cstring>layout43</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>MPQC_GD_checkbox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>MPQC - Gradient Dynamics</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>MPQC_GD_options_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Options...</string>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget" row="0" column="0">
+                    <property name="name">
+                        <cstring>layout44</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QCheckBox">
+                            <property name="name">
+                                <cstring>MPQC_ESP_checkbox</cstring>
+                            </property>
+                            <property name="text">
+                                <string>MPQC - ESP Plane</string>
+                            </property>
+                        </widget>
+                        <widget class="QComboBox">
+                            <item>
+                                <property name="text">
+                                    <string>(No ESP Image jigs)</string>
+                                </property>
+                            </item>
+                            <property name="name">
+                                <cstring>ESP_image_combox</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QCheckBox" row="2" column="0">
+                    <property name="name">
+                        <cstring>AIREBO_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>AIREBO</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QButtonGroup" row="3" column="0">
+            <property name="name">
+                <cstring>buttonGroup1_2</cstring>
+            </property>
+            <property name="title">
+                <string>Results Plugins</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>Measurements_to_File_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Measurement Set to File</string>
+                    </property>
+                </widget>
+                <widget class="QCheckBox">
+                    <property name="name">
+                        <cstring>POVRayVideo_checkbox</cstring>
+                    </property>
+                    <property name="text">
+                        <string>POV-Ray Video</string>
+                    </property>
+                </widget>
+            </vbox>
+        </widget>
+        <widget class="QGroupBox" row="4" column="0">
+            <property name="name">
+                <cstring>nh_instance_grpbox</cstring>
+            </property>
+            <property name="title">
+                <string>Nano-Hive Instance</string>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QComboBox" row="0" column="0">
+                    <item>
+                        <property name="text">
+                            <string>My Computer</string>
+                        </property>
+                    </item>
+                    <property name="name">
+                        <cstring>nh_instance_combox</cstring>
+                    </property>
+                </widget>
+                <spacer row="0" column="1">
+                    <property name="name">
+                        <cstring>spacer5</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
                         <enum>Expanding</enum>
-                      </property>
-                      <property name="orientation" >
-                        <enum>Vertical</enum>
-                      </property>
-                    </spacer>
-                  </item>
-                </layout>
-              </item>
-            </layout>
-          </item>
-          <item>
-            <layout class="QVBoxLayout" >
-              <property name="margin" >
-                <number>0</number>
-              </property>
-              <item>
-                <widget class="QLineEdit" name="name_linedit" >
-                  <property name="text" >
-                    <string/>
-                  </property>
-                </widget>
-              </item>
-              <item>
-                <widget class="Q3TextEdit" name="description_textedit" >
-                  <property name="minimumSize" >
-                    <size>
-                      <width>0</width>
-                      <height>0</height>
-                    </size>
-                  </property>
-                  <property name="textFormat" >
-                    <enum>Qt::PlainText</enum>
-                  </property>
-                </widget>
-              </item>
-            </layout>
-          </item>
-        </layout>
-      </item>
-      <item row="1" column="0" >
-        <widget class="Q3GroupBox" name="parms_grpbox" >
-          <property name="title" >
-            <string>Parameters</string>
-          </property>
-          <layout class="QGridLayout" >
-            <item row="0" column="0" >
-              <layout class="QHBoxLayout" >
-                <property name="margin" >
-                  <number>0</number>
-                </property>
-                <item>
-                  <layout class="QVBoxLayout" >
-                    <property name="margin" >
-                      <number>0</number>
                     </property>
-                    <item>
-                      <widget class="QLabel" name="textLabel5" >
-                        <property name="text" >
-                          <string>Total Frames:</string>
-                        </property>
-                        <property name="alignment" >
-                          <set>Qt::AlignVCenter|Qt::AlignRight</set>
-                        </property>
-                      </widget>
-                    </item>
-                    <item>
-                      <widget class="QLabel" name="textLabel2" >
-                        <property name="text" >
-                          <string>Steps per Frame :</string>
-                        </property>
-                        <property name="alignment" >
-                          <set>Qt::AlignVCenter|Qt::AlignRight</set>
-                        </property>
-                      </widget>
-                    </item>
-                    <item>
-                      <widget class="QLabel" name="textLabel3" >
-                        <property name="text" >
-                          <string>Temperature :</string>
-                        </property>
-                        <property name="alignment" >
-                          <set>Qt::AlignVCenter|Qt::AlignRight</set>
-                        </property>
-                      </widget>
-                    </item>
-                  </layout>
-                </item>
-                <item>
-                  <layout class="QVBoxLayout" >
-                    <property name="margin" >
-                      <number>0</number>
-                    </property>
-                    <item>
-                      <widget class="QSpinBox" name="nframes_spinbox" >
-                        <property name="maximum" >
-                          <number>90000</number>
-                        </property>
-                        <property name="minimum" >
-                          <number>1</number>
-                        </property>
-                        <property name="singleStep" >
-                          <number>15</number>
-                        </property>
-                        <property name="value" >
-                          <number>900</number>
-                        </property>
-                      </widget>
-                    </item>
-                    <item>
-                      <widget class="QSpinBox" name="stepsper_spinbox" >
-                        <property name="maximum" >
-                          <number>99999</number>
-                        </property>
-                        <property name="minimum" >
-                          <number>1</number>
-                        </property>
-                        <property name="value" >
-                          <number>10</number>
-                        </property>
-                      </widget>
-                    </item>
-                    <item>
-                      <widget class="QSpinBox" name="temp_spinbox" >
-                        <property name="maximum" >
-                          <number>99999</number>
-                        </property>
-                        <property name="value" >
-                          <number>300</number>
-                        </property>
-                      </widget>
-                    </item>
-                  </layout>
-                </item>
-                <item>
-                  <layout class="QVBoxLayout" >
-                    <property name="margin" >
-                      <number>0</number>
-                    </property>
-                    <item>
-                      <spacer name="spacer4" >
-                        <property name="sizeHint" >
-                          <size>
-                            <width>255</width>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
                             <height>20</height>
-                          </size>
-                        </property>
-                        <property name="sizeType" >
-                          <enum>Expanding</enum>
-                        </property>
-                        <property name="orientation" >
-                          <enum>Horizontal</enum>
-                        </property>
-                      </spacer>
-                    </item>
-                    <item>
-                      <widget class="QLabel" name="textLabel2_2" >
-                        <property name="text" >
-                          <string>0.1 femtosecond</string>
-                        </property>
-                      </widget>
-                    </item>
-                    <item>
-                      <widget class="QLabel" name="textLabel3_2" >
-                        <property name="text" >
-                          <string>Kelvin</string>
-                        </property>
-                      </widget>
-                    </item>
-                  </layout>
-                </item>
-              </layout>
-            </item>
-          </layout>
+                        </size>
+                    </property>
+                </spacer>
+            </grid>
         </widget>
-      </item>
-      <item row="2" column="0" >
-        <widget class="Q3ButtonGroup" name="buttonGroup1" >
-          <property name="title" >
-            <string>Physical Interaction Plugins</string>
-          </property>
-          <layout class="QGridLayout" >
-            <item row="1" column="0" >
-              <layout class="QHBoxLayout" >
-                <property name="margin" >
-                  <number>0</number>
-                </property>
-                <item>
-                  <widget class="QCheckBox" name="MPQC_GD_checkbox" >
-                    <property name="text" >
-                      <string>MPQC - Gradient Dynamics</string>
-                    </property>
-                  </widget>
-                </item>
-                <item>
-                  <widget class="QPushButton" name="MPQC_GD_options_btn" >
-                    <property name="enabled" >
-                      <bool>false</bool>
-                    </property>
-                    <property name="text" >
-                      <string>Options...</string>
-                    </property>
-                  </widget>
-                </item>
-              </layout>
-            </item>
-            <item row="0" column="0" >
-              <layout class="QHBoxLayout" >
-                <property name="margin" >
-                  <number>0</number>
-                </property>
-                <item>
-                  <widget class="QCheckBox" name="MPQC_ESP_checkbox" >
-                    <property name="text" >
-                      <string>MPQC - ESP Plane</string>
-                    </property>
-                  </widget>
-                </item>
-                <item>
-                  <widget class="QComboBox" name="ESP_image_combox" >
-                    <property name="enabled" >
-                      <bool>false</bool>
-                    </property>
-                    <item>
-                      <property name="text" >
-                        <string>(No ESP Image jigs)</string>
-                      </property>
-                    </item>
-                  </widget>
-                </item>
-              </layout>
-            </item>
-            <item row="2" column="0" >
-              <widget class="QCheckBox" name="AIREBO_checkbox" >
-                <property name="text" >
-                  <string>AIREBO</string>
-                </property>
-              </widget>
-            </item>
-          </layout>
-        </widget>
-      </item>
-      <item row="3" column="0" >
-        <widget class="Q3ButtonGroup" name="buttonGroup1_2" >
-          <property name="title" >
-            <string>Results Plugins</string>
-          </property>
-          <layout class="QVBoxLayout" >
-            <item>
-              <widget class="QCheckBox" name="Measurements_to_File_checkbox" >
-                <property name="text" >
-                  <string>Measurement Set to File</string>
-                </property>
-              </widget>
-            </item>
-            <item>
-              <widget class="QCheckBox" name="POVRayVideo_checkbox" >
-                <property name="text" >
-                  <string>POV-Ray Video</string>
-                </property>
-              </widget>
-            </item>
-          </layout>
-        </widget>
-      </item>
-      <item row="4" column="0" >
-        <widget class="Q3GroupBox" name="nh_instance_grpbox" >
-          <property name="title" >
-            <string>Nano-Hive Instance</string>
-          </property>
-          <layout class="QGridLayout" >
-            <item row="0" column="0" >
-              <widget class="QComboBox" name="nh_instance_combox" >
-                <item>
-                  <property name="text" >
-                    <string>My Computer</string>
-                  </property>
-                </item>
-              </widget>
-            </item>
-            <item row="0" column="1" >
-              <spacer name="spacer5" >
-                <property name="sizeHint" >
-                  <size>
-                    <width>40</width>
-                    <height>20</height>
-                  </size>
-                </property>
-                <property name="sizeType" >
-                  <enum>Expanding</enum>
-                </property>
-                <property name="orientation" >
-                  <enum>Horizontal</enum>
-                </property>
-              </spacer>
-            </item>
-          </layout>
-        </widget>
-      </item>
-      <item row="5" column="0" >
-        <spacer name="spacer6" >
-          <property name="sizeHint" >
-            <size>
-              <width>20</width>
-              <height>16</height>
-            </size>
-          </property>
-          <property name="sizeType" >
-            <enum>Expanding</enum>
-          </property>
-          <property name="orientation" >
-            <enum>Vertical</enum>
-          </property>
+        <spacer row="5" column="0">
+            <property name="name">
+                <cstring>spacer6</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Expanding</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>16</height>
+                </size>
+            </property>
         </spacer>
-      </item>
-      <item row="6" column="0" >
-        <layout class="QHBoxLayout" >
-          <property name="margin" >
-            <number>0</number>
-          </property>
-          <item>
-            <widget class="QPushButton" name="run_sim_btn" >
-              <property name="text" >
-                <string>Run Simulation</string>
-              </property>
-              <property name="default" >
-                <bool>true</bool>
-              </property>
-            </widget>
-          </item>
-          <item>
-            <widget class="QPushButton" name="cancel_btn" >
-              <property name="text" >
-                <string>Cancel</string>
-              </property>
-              <property name="default" >
-                <bool>false</bool>
-              </property>
-            </widget>
-          </item>
-        </layout>
-      </item>
-    </layout>
-  </widget>
-  <layoutdefault spacing="6" margin="11" />
-  <pixmapfunction></pixmapfunction>
-  <images>
-    <image name="image0" >
-      <data format="XPM.GZ" length="2336" >789c95945b4f5b490cc7dff91411f38656eeb95fb4da070aa5170a05da0265b50f336766028140209716aafdeefb3fb64354917d68263af2cfe399d87ffbe4d5d6e0fce860b0f56a633ab3b3ab6ed05dda87c1969f8fc78f7ffff3d7cf8dcd2c19e0db34836cf38f8d4dba1b740393f087f9abb2572e8453ab7c259c97ca8fc2e5323e17ae1be533e5286c8c70a3e7cdad709b2a3be54ccfcf85ed323f8db7cbf891b2febe192b078d9f083ba77caabcdc7f12f6b9f27be5657e5679195f0a8742795f59eb359d70d4fce883f2f27ead2f2ef5d27ca3ea43e7cc69562629df3751ae8429636e6c9134cc5f944be594b9457d2df3376617cac4f17dd2ef0edcf1fe67661f43e2993ff69c96be4d4b8e7f50b6c2b4cd6c63482df34dcf59eaf24cf2bb542e94ef856350e67e6575d76635f3b0e7bc8c2197fbdf30db2ecbe5fe1fccaecb73ce9f4e9823e223f36ecf45e1f3a2609ef55c26110572fe9e3903f3bc1b622e7c5a4afc7766d45f4afd9119f7977cbf61ae321f2a39cff55618878ae30dbf0f5500073e7fdd735dc450cbfdac5fdd82b91f66ca0cfd6aaecf04e600e6f346cec7d0d452df4218fbc26dcf0df46a44af63e62ac4a662ae85b12ffc8e193fd088de0973877de9ff4ecf2df46a65fe8e987dcc5bd1a361467eadd4c77ab631fa56f2e1f7c3629eade8bd508ecadc0f9b82659e793e2cf4b6727fc58cfbaddc7fd1b343bf9cfc3ff1fbe46cf44ef4e2ff03e7627432cf3c3f0ee79d9c3f608eb175d23f9ebf2e896d27f5bdedd9433f2ffaed31e3bc97f3af7b0ee85f90fe7d627660993fee5f407c90f8c39e23e63bca7cf3ff5b447d51eae3fe82b07a3e663d227f84c9605972585d6f1fcfd4d7b1cfb3ad6729d2902ee90a6b04eb9a63af618dd877032b3ec70e694cb774873581754f0f34a519ac09fbe6b086cfb10bfa4e3fe811eb09fe316dd36bda816f977d6f602d9e63f7e82dbda3f7581f681fcf8f744087f4898ed8778cddbde7d813fa4c5fe82bd6299de1794edfe882124ad99761f7646dbe399e05955451bd36df865ac8d27f2c9de2e94c67bc0926b28fa84584c69aa1b93457666446c8764c255b25a2af7bcbdc6077b85e3333ee2d33fe1fcd7e237695037ed52f7340c4fe9a1c56b54554e451d92d4a3a35f6656dbfe45043ad12aadd41bd75f9ae7a91a20317e6ce4c609fa1332f7bb1eaf1113a7b68eecd03ec7d74fc658f57b3b30b6b0793b3cd33f4b466767e9dc9194dcd1493b95edfdf98f57e997eb6c7662ea4be39fb16429bfffeb9f11feca22750</data>
+        <widget class="QLayoutWidget" row="6" column="0">
+            <property name="name">
+                <cstring>layout28</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>run_sim_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Run Simulation</string>
+                    </property>
+                    <property name="default">
+                        <bool>true</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>cancel_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </grid>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="2336">789c95945b4f5b490cc7dff91411f38656eeb95fb4da070aa5170a05da0265b50f336766028140209716aafdeefb3fb64354917d68263af2cfe399d87ffbe4d5d6e0fce860b0f56a633ab3b3ab6ed05dda87c1969f8fc78f7ffff3d7cf8dcd2c19e0db34836cf38f8d4dba1b740393f087f9abb2572e8453ab7c259c97ca8fc2e5323e17ae1be533e5286c8c70a3e7cdad709b2a3be54ccfcf85ed323f8db7cbf891b2febe192b078d9f083ba77caabcdc7f12f6b9f27be5657e5679195f0a8742795f59eb359d70d4fce883f2f27ead2f2ef5d27ca3ea43e7cc69562629df3751ae8429636e6c9134cc5f944be594b9457d2df3376617cac4f17dd2ef0edcf1fe67661f43e2993ff69c96be4d4b8e7f50b6c2b4cd6c63482df34dcf59eaf24cf2bb542e94ef856350e67e6575d76635f3b0e7bc8c2197fbdf30db2ecbe5fe1fccaecb73ce9f4e9823e223f36ecf45e1f3a2609ef55c26110572fe9e3903f3bc1b622e7c5a4afc7766d45f4afd9119f7977cbf61ae321f2a39cff55618878ae30dbf0f5500073e7fdd735dc450cbfdac5fdd82b91f66ca0cfd6aaecf04e600e6f346cec7d0d452df4218fbc26dcf0df46a44af63e62ac4a662ae85b12ffc8e193fd088de0973877de9ff4ecf2df46a65fe8e987dcc5bd1a361467eadd4c77ab631fa56f2e1f7c3629eade8bd508ecadc0f9b82659e793e2cf4b6727fc58cfbaddc7fd1b343bf9cfc3ff1fbe46cf44ef4e2ff03e7627432cf3c3f0ee79d9c3f608eb175d23f9ebf2e896d27f5bdedd9433f2ffaed31e3bc97f3af7b0ee85f90fe7d627660993fee5f407c90f8c39e23e63bca7cf3ff5b447d51eae3fe82b07a3e663d227f84c9605972585d6f1fcfd4d7b1cfb3ad6729d2902ee90a6b04eb9a63af618dd877032b3ec70e694cb774873581754f0f34a519ac09fbe6b086cfb10bfa4e3fe811eb09fe316dd36bda816f977d6f602d9e63f7e82dbda3f7581f681fcf8f744087f4898ed8778cddbde7d813fa4c5fe82bd6299de1794edfe882124ad99761f7646dbe399e05955451bd36df865ac8d27f2c9de2e94c67bc0926b28fa84584c69aa1b93457666446c8764c255b25a2af7bcbdc6077b85e3333ee2d33fe1fcd7e237695037ed52f7340c4fe9a1c56b54554e451d92d4a3a35f6656dbfe45043ad12aadd41bd75f9ae7a91a20317e6ce4c609fa1332f7bb1eaf1113a7b68eecd03ec7d74fc658f57b3b30b6b0793b3cd33f4b466767e9dc9194dcd1493b95edfdf98f57e997eb6c7662ea4be39fb16429bfffeb9f11feca22750</data>
     </image>
-  </images>
-  <connections>
+</images>
+<connections>
     <connection>
-      <sender>run_sim_btn</sender>
-      <signal>clicked()</signal>
-      <receiver>NanoHiveDialog</receiver>
-      <slot>accept()</slot>
+        <sender>run_sim_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>accept()</slot>
     </connection>
     <connection>
-      <sender>cancel_btn</sender>
-      <signal>clicked()</signal>
-      <receiver>NanoHiveDialog</receiver>
-      <slot>reject()</slot>
+        <sender>cancel_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>reject()</slot>
     </connection>
-  </connections>
-</ui>
+    <connection>
+        <sender>MPQC_ESP_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>update_ESP_window_combox()</slot>
+    </connection>
+    <connection>
+        <sender>MPQC_GD_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>update_MPQC_GD_options_btn()</slot>
+    </connection>
+    <connection>
+        <sender>ESP_image_combox</sender>
+        <signal>activated(int)</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>set_ESP_window()</slot>
+    </connection>
+    <connection>
+        <sender>MPQC_GD_options_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>NanoHiveDialog</receiver>
+        <slot>show_MPQC_GD_options_dialog()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>update_ESP_window_combox()</slot>
+    <slot>update_MPQC_GD_options_btn()</slot>
+    <slot>set_ESP_window()</slot>
+    <slot>show_MPQC_GD_options_dialog()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

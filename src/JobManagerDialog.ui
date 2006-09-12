@@ -1,263 +1,324 @@
-<ui version="4.0" stdsetdef="1" >
-  <author></author>
-  <comment></comment>
-  <exportmacro></exportmacro>
-  <class>JobManagerDialog</class>
-  <widget class="QDialog" name="JobManagerDialog" >
-    <property name="geometry" >
-      <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>1009</width>
-        <height>258</height>
-      </rect>
+<!DOCTYPE UI><UI version="3.2" stdsetdef="1">
+<class>JobManagerDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>JobManagerDialog</cstring>
     </property>
-    <property name="windowTitle" >
-      <string>NanoEngineer-1 Job Manager</string>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>1009</width>
+            <height>258</height>
+        </rect>
     </property>
-    <property name="windowIcon" >
-      <pixmap>image0</pixmap>
+    <property name="caption">
+        <string>NanoEngineer-1 Job Manager</string>
     </property>
-    <layout class="QVBoxLayout" >
-      <item>
-        <widget class="Q3GroupBox" name="groupBox1" >
-          <property name="title" >
-            <string>Jobs</string>
-          </property>
-          <layout class="QVBoxLayout" >
-            <item>
-              <widget class="Q3Table" name="job_table" >
-                <property name="numRows" >
-                  <number>1</number>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <vbox>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QGroupBox">
+            <property name="name">
+                <cstring>groupBox1</cstring>
+            </property>
+            <property name="title">
+                <string>Jobs</string>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
                 </property>
-                <property name="numCols" >
-                  <number>8</number>
-                </property>
-                <property name="sorting" >
-                  <bool>false</bool>
-                </property>
-                <property name="selectionMode" >
-                  <enum>SingleRow</enum>
-                </property>
-                <row>
-                  <property name="text" >
-                    <string>1</string>
-                  </property>
-                  <property name="pixmap" >
-                    <pixmap/>
-                  </property>
-                </row>
-                <column>
-                  <property name="text" >
-                    <string>Name</string>
-                  </property>
-                  <property name="pixmap" >
-                    <pixmap/>
-                  </property>
-                </column>
-                <column>
-                  <property name="text" >
-                    <string>Engine</string>
-                  </property>
-                  <property name="pixmap" >
-                    <pixmap/>
-                  </property>
-                </column>
-                <column>
-                  <property name="text" >
-                    <string>Calculation</string>
-                  </property>
-                  <property name="pixmap" >
-                    <pixmap/>
-                  </property>
-                </column>
-                <column>
-                  <property name="text" >
-                    <string>Description</string>
-                  </property>
-                  <property name="pixmap" >
-                    <pixmap/>
-                  </property>
-                </column>
-                <column>
-                  <property name="text" >
-                    <string>Status</string>
-                  </property>
-                  <property name="pixmap" >
-                    <pixmap/>
-                  </property>
-                </column>
-                <column>
-                  <property name="text" >
-                    <string>Server Id</string>
-                  </property>
-                  <property name="pixmap" >
-                    <pixmap/>
-                  </property>
-                </column>
-                <column>
-                  <property name="text" >
-                    <string>Job Id</string>
-                  </property>
-                  <property name="pixmap" >
-                    <pixmap/>
-                  </property>
-                </column>
-                <column>
-                  <property name="text" >
-                    <string>Time</string>
-                  </property>
-                  <property name="pixmap" >
-                    <pixmap/>
-                  </property>
-                </column>
-              </widget>
-            </item>
-            <item>
-              <layout class="QHBoxLayout" >
-                <property name="margin" >
-                  <number>0</number>
-                </property>
-                <item>
-                  <widget class="QPushButton" name="start_btn" >
-                    <property name="enabled" >
-                      <bool>false</bool>
+                <widget class="QTable">
+                    <column>
+                        <property name="text">
+                            <string>Name</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Engine</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Calculation</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Description</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Status</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Server Id</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Job Id</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
+                    </column>
+                    <column>
+                        <property name="text">
+                            <string>Time</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
+                    </column>
+                    <row>
+                        <property name="text">
+                            <string>1</string>
+                        </property>
+                        <property name="pixmap">
+                            <pixmap></pixmap>
+                        </property>
+                    </row>
+                    <property name="name">
+                        <cstring>job_table</cstring>
                     </property>
-                    <property name="text" >
-                      <string>Start</string>
+                    <property name="numRows">
+                        <number>1</number>
                     </property>
-                  </widget>
-                </item>
-                <item>
-                  <widget class="QPushButton" name="stop_btn" >
-                    <property name="enabled" >
-                      <bool>false</bool>
+                    <property name="numCols">
+                        <number>8</number>
                     </property>
-                    <property name="text" >
-                      <string>Stop</string>
+                    <property name="sorting">
+                        <bool>false</bool>
                     </property>
-                  </widget>
-                </item>
-                <item>
-                  <widget class="QPushButton" name="edit_btn" >
-                    <property name="enabled" >
-                      <bool>false</bool>
+                    <property name="selectionMode">
+                        <enum>SingleRow</enum>
                     </property>
-                    <property name="text" >
-                      <string>Edit</string>
+                </widget>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout6</cstring>
                     </property>
-                  </widget>
-                </item>
-                <item>
-                  <widget class="QPushButton" name="view_btn" >
-                    <property name="enabled" >
-                      <bool>false</bool>
-                    </property>
-                    <property name="text" >
-                      <string>View</string>
-                    </property>
-                  </widget>
-                </item>
-                <item>
-                  <widget class="QPushButton" name="delete_btn" >
-                    <property name="enabled" >
-                      <bool>false</bool>
-                    </property>
-                    <property name="text" >
-                      <string>Delete</string>
-                    </property>
-                  </widget>
-                </item>
-                <item>
-                  <widget class="QPushButton" name="move_btn" >
-                    <property name="enabled" >
-                      <bool>false</bool>
-                    </property>
-                    <property name="text" >
-                      <string>Move</string>
-                    </property>
-                  </widget>
-                </item>
-                <item>
-                  <spacer name="spacer1" >
-                    <property name="sizeHint" >
-                      <size>
-                        <width>280</width>
-                        <height>20</height>
-                      </size>
-                    </property>
-                    <property name="sizeType" >
-                      <enum>Expanding</enum>
-                    </property>
-                    <property name="orientation" >
-                      <enum>Horizontal</enum>
-                    </property>
-                  </spacer>
-                </item>
-              </layout>
-            </item>
-          </layout>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>start_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Start</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>stop_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Stop</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>edit_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Edit</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>view_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>View</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>delete_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Delete</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>move_btn</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>false</bool>
+                            </property>
+                            <property name="text">
+                                <string>Move</string>
+                            </property>
+                        </widget>
+                        <spacer>
+                            <property name="name">
+                                <cstring>spacer1</cstring>
+                            </property>
+                            <property name="orientation">
+                                <enum>Horizontal</enum>
+                            </property>
+                            <property name="sizeType">
+                                <enum>Expanding</enum>
+                            </property>
+                            <property name="sizeHint">
+                                <size>
+                                    <width>280</width>
+                                    <height>20</height>
+                                </size>
+                            </property>
+                        </spacer>
+                    </hbox>
+                </widget>
+            </vbox>
         </widget>
-      </item>
-      <item>
-        <layout class="QHBoxLayout" >
-          <property name="margin" >
-            <number>0</number>
-          </property>
-          <item>
-            <widget class="QPushButton" name="refresh_btn" >
-              <property name="text" >
-                <string>Refresh</string>
-              </property>
-            </widget>
-          </item>
-          <item>
-            <widget class="QPushButton" name="filter_btn" >
-              <property name="text" >
-                <string>Filter...</string>
-              </property>
-            </widget>
-          </item>
-          <item>
-            <spacer name="spacer2" >
-              <property name="sizeHint" >
-                <size>
-                  <width>40</width>
-                  <height>20</height>
-                </size>
-              </property>
-              <property name="sizeType" >
-                <enum>Expanding</enum>
-              </property>
-              <property name="orientation" >
-                <enum>Horizontal</enum>
-              </property>
-            </spacer>
-          </item>
-          <item>
-            <widget class="QPushButton" name="close_btn" >
-              <property name="text" >
-                <string>Close</string>
-              </property>
-            </widget>
-          </item>
-        </layout>
-      </item>
-    </layout>
-  </widget>
-  <layoutdefault spacing="6" margin="11" />
-  <pixmapfunction></pixmapfunction>
-  <images>
-    <image name="image0" >
-      <data format="XPM.GZ" length="797" >789ce5d1dd0a82301c05f07b9f62b83b89cc693a891ea1e832882ee63efc000bca2e227af73c4b094908a2bbce7fe87e1c1c037d8f6c372be2f9ceb9114d29892cc48978ea52d7d7dd7e79735cc648bb8276b913c79d1249d6c783c6be6af77466039620cb58c663908261122622057330621193f65b05ce190634606c62a31428c18463400d72cdb58ec00c4c030c2840610316a0b1b1171ecdd70d15991c46d1aed1da0c93f74d4e5f293065df546fe99b02793ebbd7e76624ff76daeffef67de13c00e3e5b952</data>
+        <widget class="QLayoutWidget">
+            <property name="name">
+                <cstring>layout2</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>refresh_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Refresh</string>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>filter_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Filter...</string>
+                    </property>
+                </widget>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>close_btn</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Close</string>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </vbox>
+</widget>
+<images>
+    <image name="image0">
+        <data format="XPM.GZ" length="797">789ce5d1dd0a82301c05f07b9f62b83b89cc693a891ea1e832882ee63efc000bca2e227af73c4b094908a2bbce7fe87e1c1c037d8f6c372be2f9ceb9114d29892cc48978ea52d7d7dd7e79735cc648bb8276b913c79d1249d6c783c6be6af77466039620cb58c663908261122622057330621193f65b05ce190634606c62a31428c18463400d72cdb58ec00c4c030c2840610316a0b1b1171ecdd70d15991c46d1aed1da0c93f74d4e5f293065df546fe99b02793ebbd7e76624ff76daeffef67de13c00e3e5b952</data>
     </image>
-  </images>
-  <connections>
+</images>
+<connections>
     <connection>
-      <sender>close_btn</sender>
-      <signal>clicked()</signal>
-      <receiver>JobManagerDialog</receiver>
-      <slot>close()</slot>
+        <sender>close_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>close()</slot>
     </connection>
-  </connections>
-</ui>
+    <connection>
+        <sender>job_table</sender>
+        <signal>clicked(int,int,int,const QPoint&amp;)</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>cell_clicked()</slot>
+    </connection>
+    <connection>
+        <sender>delete_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>delete_job()</slot>
+    </connection>
+    <connection>
+        <sender>refresh_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>refresh_job_table()</slot>
+    </connection>
+    <connection>
+        <sender>start_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>startJob()</slot>
+    </connection>
+    <connection>
+        <sender>stop_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>JobManagerDialog</receiver>
+        <slot>stopJob()</slot>
+    </connection>
+</connections>
+<slots>
+    <slot>cell_clicked()</slot>
+    <slot>delete_job()</slot>
+    <slot>refresh_job_table()</slot>
+    <slot>startJob()</slot>
+    <slot>stopJob()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

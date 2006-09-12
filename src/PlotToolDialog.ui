@@ -1,120 +1,165 @@
-<ui version="4.0" stdsetdef="1" >
-  <author></author>
-  <comment></comment>
-  <exportmacro></exportmacro>
-  <class>PlotToolDialog</class>
-  <widget class="QDialog" name="PlotToolDialog" >
-    <property name="geometry" >
-      <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>264</width>
-        <height>148</height>
-      </rect>
+<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
+<class>PlotToolDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>PlotToolDialog</cstring>
     </property>
-    <property name="windowTitle" >
-      <string>Make Graphs</string>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>264</width>
+            <height>148</height>
+        </rect>
     </property>
-    <layout class="QGridLayout" >
-      <item row="0" column="0" >
-        <layout class="QVBoxLayout" >
-          <property name="margin" >
-            <number>0</number>
-          </property>
-          <item>
-            <layout class="QGridLayout" >
-              <property name="margin" >
-                <number>0</number>
-              </property>
-              <item row="2" column="0" >
-                <layout class="QHBoxLayout" >
-                  <property name="margin" >
-                    <number>0</number>
-                  </property>
-                  <item>
-                    <widget class="QPushButton" name="plot_btn" >
-                      <property name="text" >
-                        <string>Make Graph</string>
-                      </property>
-                    </widget>
-                  </item>
-                  <item>
-                    <widget class="QPushButton" name="done_btn" >
-                      <property name="text" >
-                        <string>Done</string>
-                      </property>
-                    </widget>
-                  </item>
-                </layout>
-              </item>
-              <item row="1" column="0" >
-                <widget class="QComboBox" name="plot_combox" />
-              </item>
-              <item row="0" column="0" >
-                <widget class="QLabel" name="textLabel1" >
-                  <property name="text" >
-                    <string>Select jig to graph:</string>
-                  </property>
+    <property name="caption">
+        <string>Make Graphs</string>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <widget class="QLayoutWidget" row="0" column="0">
+            <property name="name">
+                <cstring>layout5</cstring>
+            </property>
+            <vbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout2</cstring>
+                    </property>
+                    <grid>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLayoutWidget" row="2" column="0">
+                            <property name="name">
+                                <cstring>layout1</cstring>
+                            </property>
+                            <hbox>
+                                <property name="name">
+                                    <cstring>unnamed</cstring>
+                                </property>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>plot_btn</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Make Graph</string>
+                                    </property>
+                                </widget>
+                                <widget class="QPushButton">
+                                    <property name="name">
+                                        <cstring>done_btn</cstring>
+                                    </property>
+                                    <property name="text">
+                                        <string>Done</string>
+                                    </property>
+                                </widget>
+                            </hbox>
+                        </widget>
+                        <widget class="QComboBox" row="1" column="0">
+                            <property name="name">
+                                <cstring>plot_combox</cstring>
+                            </property>
+                        </widget>
+                        <widget class="QLabel" row="0" column="0">
+                            <property name="name">
+                                <cstring>textLabel1</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Select jig to graph:</string>
+                            </property>
+                        </widget>
+                    </grid>
                 </widget>
-              </item>
-            </layout>
-          </item>
-          <item>
-            <spacer name="spacer2" >
-              <property name="sizeHint" >
-                <size>
-                  <width>20</width>
-                  <height>16</height>
-                </size>
-              </property>
-              <property name="sizeType" >
-                <enum>Expanding</enum>
-              </property>
-              <property name="orientation" >
-                <enum>Vertical</enum>
-              </property>
-            </spacer>
-          </item>
-          <item>
-            <layout class="QHBoxLayout" >
-              <property name="margin" >
-                <number>0</number>
-              </property>
-              <item>
-                <widget class="QPushButton" name="open_trace_file_btn" >
-                  <property name="text" >
-                    <string>Open Trace File</string>
-                  </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer2</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Vertical</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>20</width>
+                            <height>16</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QLayoutWidget">
+                    <property name="name">
+                        <cstring>layout6</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>open_trace_file_btn</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Open Trace File</string>
+                            </property>
+                        </widget>
+                        <widget class="QPushButton">
+                            <property name="name">
+                                <cstring>open_gnuplot_btn</cstring>
+                            </property>
+                            <property name="text">
+                                <string>Open GNUplot File</string>
+                            </property>
+                        </widget>
+                    </hbox>
                 </widget>
-              </item>
-              <item>
-                <widget class="QPushButton" name="open_gnuplot_btn" >
-                  <property name="text" >
-                    <string>Open GNUplot File</string>
-                  </property>
-                </widget>
-              </item>
-            </layout>
-          </item>
-        </layout>
-      </item>
-    </layout>
-  </widget>
-  <layoutdefault spacing="6" margin="11" />
-  <pixmapfunction>qPixmapFromMimeSource</pixmapfunction>
-  <tabstops>
+            </vbox>
+        </widget>
+    </grid>
+</widget>
+<connections>
+    <connection>
+        <sender>done_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>PlotToolDialog</receiver>
+        <slot>close()</slot>
+    </connection>
+    <connection>
+        <sender>plot_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>PlotToolDialog</receiver>
+        <slot>genPlot()</slot>
+    </connection>
+    <connection>
+        <sender>open_gnuplot_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>PlotToolDialog</receiver>
+        <slot>openGNUplotFile()</slot>
+    </connection>
+    <connection>
+        <sender>open_trace_file_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>PlotToolDialog</receiver>
+        <slot>openTraceFile()</slot>
+    </connection>
+</connections>
+<tabstops>
     <tabstop>plot_combox</tabstop>
     <tabstop>plot_btn</tabstop>
     <tabstop>done_btn</tabstop>
     <tabstop>open_trace_file_btn</tabstop>
     <tabstop>open_gnuplot_btn</tabstop>
-  </tabstops>
-  <connections>
-    <connection>
-      <sender>done_btn</sender>
-      <signal>clicked()</signal>
-      <receiver>PlotToolDialog</receiver>
-      <slot>close()</slot>
-    </connection>
-  </connections>
-</ui>
+</tabstops>
+<slots>
+    <slot>genPlot()</slot>
+    <slot>openTraceFile()</slot>
+    <slot>openGNUplotFile()</slot>
+</slots>
+<layoutdefaults spacing="6" margin="11"/>
+</UI>

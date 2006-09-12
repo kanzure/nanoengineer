@@ -1,1143 +1,1318 @@
-<ui version="4.0" stdsetdef="1" >
-  <author></author>
-  <comment></comment>
-  <exportmacro></exportmacro>
-  <class>ElementColorsDialog</class>
-  <widget class="QDialog" name="ElementColorsDialog" >
-    <property name="geometry" >
-      <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>230</width>
-        <height>548</height>
-      </rect>
+<!DOCTYPE UI>
+<UI stdsetdef="1" version="3.3">
+<class>ElementColorsDialog</class>
+<widget class="QDialog">
+    <property name="name">
+        <cstring>ElementColorsDialog</cstring>
     </property>
-    <property name="palette" >
-      <palette>
-        <active>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-          </color>
-          <color>
-            <red>230</red>
-            <green>231</green>
-            <blue>230</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>242</red>
-            <green>243</green>
-            <blue>242</blue>
-          </color>
-          <color>
-            <red>115</red>
-            <green>115</green>
-            <blue>115</blue>
-          </color>
-          <color>
-            <red>153</red>
-            <green>154</green>
-            <blue>153</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>230</red>
-            <green>231</green>
-            <blue>230</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>128</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-          </color>
-        </active>
-        <inactive>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-          </color>
-          <color>
-            <red>230</red>
-            <green>231</green>
-            <blue>230</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>115</red>
-            <green>115</green>
-            <blue>115</blue>
-          </color>
-          <color>
-            <red>153</red>
-            <green>154</green>
-            <blue>153</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>230</red>
-            <green>231</green>
-            <blue>230</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>128</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>0</green>
-            <blue>255</blue>
-          </color>
-        </inactive>
-        <disabled>
-          <color>
-            <red>128</red>
-            <green>128</green>
-            <blue>128</blue>
-          </color>
-          <color>
-            <red>230</red>
-            <green>231</green>
-            <blue>230</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>115</red>
-            <green>115</green>
-            <blue>115</blue>
-          </color>
-          <color>
-            <red>153</red>
-            <green>154</green>
-            <blue>153</blue>
-          </color>
-          <color>
-            <red>128</red>
-            <green>128</green>
-            <blue>128</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>128</red>
-            <green>128</green>
-            <blue>128</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>230</red>
-            <green>231</green>
-            <blue>230</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>0</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>128</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>255</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>0</red>
-            <green>0</green>
-            <blue>255</blue>
-          </color>
-          <color>
-            <red>255</red>
-            <green>0</green>
-            <blue>255</blue>
-          </color>
-        </disabled>
-      </palette>
+    <property name="geometry">
+        <rect>
+            <x>0</x>
+            <y>0</y>
+            <width>230</width>
+            <height>548</height>
+        </rect>
     </property>
-    <property name="windowTitle" >
-      <string>Element Color Settings</string>
+    <property name="palette">
+        <palette>
+            <active>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+                <color>
+                    <red>230</red>
+                    <green>231</green>
+                    <blue>230</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>242</red>
+                    <green>243</green>
+                    <blue>242</blue>
+                </color>
+                <color>
+                    <red>115</red>
+                    <green>115</green>
+                    <blue>115</blue>
+                </color>
+                <color>
+                    <red>153</red>
+                    <green>154</green>
+                    <blue>153</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>230</red>
+                    <green>231</green>
+                    <blue>230</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>128</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+            </active>
+            <disabled>
+                <color>
+                    <red>128</red>
+                    <green>128</green>
+                    <blue>128</blue>
+                </color>
+                <color>
+                    <red>230</red>
+                    <green>231</green>
+                    <blue>230</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>115</red>
+                    <green>115</green>
+                    <blue>115</blue>
+                </color>
+                <color>
+                    <red>153</red>
+                    <green>154</green>
+                    <blue>153</blue>
+                </color>
+                <color>
+                    <red>128</red>
+                    <green>128</green>
+                    <blue>128</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>128</red>
+                    <green>128</green>
+                    <blue>128</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>230</red>
+                    <green>231</green>
+                    <blue>230</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>128</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>0</green>
+                    <blue>255</blue>
+                </color>
+            </disabled>
+            <inactive>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+                <color>
+                    <red>230</red>
+                    <green>231</green>
+                    <blue>230</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>115</red>
+                    <green>115</green>
+                    <blue>115</blue>
+                </color>
+                <color>
+                    <red>153</red>
+                    <green>154</green>
+                    <blue>153</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>230</red>
+                    <green>231</green>
+                    <blue>230</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>0</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>128</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>255</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>0</red>
+                    <green>0</green>
+                    <blue>255</blue>
+                </color>
+                <color>
+                    <red>255</red>
+                    <green>0</green>
+                    <blue>255</blue>
+                </color>
+            </inactive>
+        </palette>
     </property>
-    <property name="windowIcon" >
-      <pixmap>image0</pixmap>
+    <property name="caption">
+        <string>Element Color Settings</string>
     </property>
-    <layout class="QGridLayout" >
-      <property name="margin" >
-        <number>2</number>
-      </property>
-      <property name="spacing" >
-        <number>4</number>
-      </property>
-      <item row="0" column="0" >
-        <widget class="Q3Frame" name="elementFrame" >
-          <property name="sizePolicy" >
-            <sizepolicy>
-              <hsizetype>5</hsizetype>
-              <vsizetype>1</vsizetype>
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-            </sizepolicy>
-          </property>
-          <property name="minimumSize" >
-            <size>
-              <width>0</width>
-              <height>150</height>
-            </size>
-          </property>
-          <property name="frameShape" >
-            <enum>Box</enum>
-          </property>
-          <property name="frameShadow" >
-            <enum>Raised</enum>
-          </property>
-        </widget>
-      </item>
-      <item row="1" column="0" >
-        <layout class="QGridLayout" >
-          <property name="margin" >
-            <number>0</number>
-          </property>
-          <item row="0" column="0" >
-            <layout class="QHBoxLayout" >
-              <property name="margin" >
-                <number>0</number>
-              </property>
-              <item>
-                <widget class="QLabel" name="textLabel2" >
-                  <property name="maximumSize" >
-                    <size>
-                      <width>40</width>
-                      <height>32767</height>
-                    </size>
-                  </property>
-                  <property name="text" >
-                    <string>Red:</string>
-                  </property>
-                  <property name="alignment" >
-                    <set>Qt::AlignVCenter|Qt::AlignRight</set>
-                  </property>
-                </widget>
-              </item>
-              <item>
-                <widget class="QSpinBox" name="redSpinBox" >
-                  <property name="enabled" >
-                    <bool>true</bool>
-                  </property>
-                  <property name="sizePolicy" >
-                    <sizepolicy>
-                      <hsizetype>1</hsizetype>
-                      <vsizetype>0</vsizetype>
-                      <horstretch>0</horstretch>
-                      <verstretch>0</verstretch>
-                    </sizepolicy>
-                  </property>
-                  <property name="focusPolicy" >
-                    <enum>Qt::ClickFocus</enum>
-                  </property>
-                  <property name="maximum" >
-                    <number>255</number>
-                  </property>
-                </widget>
-              </item>
-            </layout>
-          </item>
-          <item row="1" column="0" >
-            <layout class="QHBoxLayout" >
-              <property name="margin" >
-                <number>0</number>
-              </property>
-              <item>
-                <widget class="QLabel" name="textLabel2_2" >
-                  <property name="maximumSize" >
-                    <size>
-                      <width>40</width>
-                      <height>32767</height>
-                    </size>
-                  </property>
-                  <property name="text" >
-                    <string>Green:</string>
-                  </property>
-                  <property name="alignment" >
-                    <set>Qt::AlignVCenter|Qt::AlignRight</set>
-                  </property>
-                </widget>
-              </item>
-              <item>
-                <widget class="QSpinBox" name="greenSpinBox" >
-                  <property name="enabled" >
-                    <bool>true</bool>
-                  </property>
-                  <property name="focusPolicy" >
-                    <enum>Qt::ClickFocus</enum>
-                  </property>
-                  <property name="maximum" >
-                    <number>255</number>
-                  </property>
-                </widget>
-              </item>
-            </layout>
-          </item>
-          <item row="2" column="0" >
-            <layout class="QHBoxLayout" >
-              <property name="margin" >
-                <number>0</number>
-              </property>
-              <item>
-                <widget class="QLabel" name="textLabel2_3" >
-                  <property name="maximumSize" >
-                    <size>
-                      <width>40</width>
-                      <height>32767</height>
-                    </size>
-                  </property>
-                  <property name="text" >
-                    <string>Blue:</string>
-                  </property>
-                  <property name="alignment" >
-                    <set>Qt::AlignVCenter|Qt::AlignRight</set>
-                  </property>
-                </widget>
-              </item>
-              <item>
-                <widget class="QSpinBox" name="blueSpinBox" >
-                  <property name="enabled" >
-                    <bool>true</bool>
-                  </property>
-                  <property name="focusPolicy" >
-                    <enum>Qt::ClickFocus</enum>
-                  </property>
-                  <property name="maximum" >
-                    <number>255</number>
-                  </property>
-                </widget>
-              </item>
-            </layout>
-          </item>
-          <item row="2" column="1" >
-            <widget class="QSlider" name="blueSlider" >
-              <property name="enabled" >
-                <bool>true</bool>
-              </property>
-              <property name="sizePolicy" >
-                <sizepolicy>
-                  <hsizetype>5</hsizetype>
-                  <vsizetype>0</vsizetype>
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                </sizepolicy>
-              </property>
-              <property name="maximum" >
-                <number>255</number>
-              </property>
-              <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="tickInterval" >
-                <number>25</number>
-              </property>
-            </widget>
-          </item>
-          <item row="0" column="1" >
-            <widget class="QSlider" name="redSlider" >
-              <property name="enabled" >
-                <bool>true</bool>
-              </property>
-              <property name="sizePolicy" >
-                <sizepolicy>
-                  <hsizetype>5</hsizetype>
-                  <vsizetype>0</vsizetype>
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                </sizepolicy>
-              </property>
-              <property name="maximum" >
-                <number>255</number>
-              </property>
-              <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="tickInterval" >
-                <number>25</number>
-              </property>
-            </widget>
-          </item>
-          <item row="1" column="1" >
-            <widget class="QSlider" name="greenSlider" >
-              <property name="enabled" >
-                <bool>true</bool>
-              </property>
-              <property name="sizePolicy" >
-                <sizepolicy>
-                  <hsizetype>5</hsizetype>
-                  <vsizetype>0</vsizetype>
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                </sizepolicy>
-              </property>
-              <property name="maximum" >
-                <number>255</number>
-              </property>
-              <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="tickInterval" >
-                <number>25</number>
-              </property>
-            </widget>
-          </item>
-        </layout>
-      </item>
-      <item row="6" column="0" >
-        <spacer name="spacer4_2_2" >
-          <property name="sizeHint" >
-            <size>
-              <width>20</width>
-              <height>16</height>
-            </size>
-          </property>
-          <property name="sizeType" >
-            <enum>Fixed</enum>
-          </property>
-          <property name="orientation" >
-            <enum>Vertical</enum>
-          </property>
-        </spacer>
-      </item>
-      <item row="3" column="0" >
-        <widget class="Q3ButtonGroup" name="elementButtonGroup" >
-          <property name="minimumSize" >
-            <size>
-              <width>0</width>
-              <height>126</height>
-            </size>
-          </property>
-          <property name="title" >
-            <string/>
-          </property>
-          <property name="exclusive" >
-            <bool>true</bool>
-          </property>
-          <layout class="QGridLayout" >
-            <property name="margin" >
-              <number>2</number>
+    <property name="icon">
+        <pixmap>image0</pixmap>
+    </property>
+    <grid>
+        <property name="name">
+            <cstring>unnamed</cstring>
+        </property>
+        <property name="margin">
+            <number>2</number>
+        </property>
+        <property name="spacing">
+            <number>4</number>
+        </property>
+        <widget class="QFrame" column="0" row="0">
+            <property name="name">
+                <cstring>elementFrame</cstring>
             </property>
-            <property name="spacing" >
-              <number>0</number>
+            <property name="sizePolicy">
+                <sizepolicy>
+                    <hsizetype>5</hsizetype>
+                    <vsizetype>1</vsizetype>
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                </sizepolicy>
             </property>
-            <item row="1" column="1" >
-              <widget class="QToolButton" name="toolButton6" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>C</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>6</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Carbon</string>
-                </property>
-              </widget>
-            </item>
-            <item row="1" column="3" >
-              <widget class="QToolButton" name="toolButton8" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>O</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>8</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Oxygen</string>
-                </property>
-              </widget>
-            </item>
-            <item row="1" column="5" >
-              <widget class="QToolButton" name="toolButton10" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>Ne</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>10</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Neon</string>
-                </property>
-              </widget>
-            </item>
-            <item row="1" column="4" >
-              <widget class="QToolButton" name="toolButton9" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>F</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>9</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Fluorine</string>
-                </property>
-              </widget>
-            </item>
-            <item row="2" column="0" >
-              <widget class="QToolButton" name="toolButton13" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>Al</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>13</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Aluminum</string>
-                </property>
-              </widget>
-            </item>
-            <item row="2" column="4" >
-              <widget class="QToolButton" name="toolButton17" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>Cl</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>17</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Chlorine</string>
-                </property>
-              </widget>
-            </item>
-            <item row="1" column="0" >
-              <widget class="QToolButton" name="toolButton5" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>B</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>5</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Boron</string>
-                </property>
-              </widget>
-            </item>
-            <item row="2" column="5" >
-              <widget class="QToolButton" name="toolButton10_2" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>Ar</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>18</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Argon</string>
-                </property>
-              </widget>
-            </item>
-            <item row="2" column="2" >
-              <widget class="QToolButton" name="toolButton15" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>P</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>15</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Phosphorus</string>
-                </property>
-              </widget>
-            </item>
-            <item row="2" column="3" >
-              <widget class="QToolButton" name="toolButton16" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>S</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>16</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Sulfur</string>
-                </property>
-              </widget>
-            </item>
-            <item row="2" column="1" >
-              <widget class="QToolButton" name="toolButton14" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>Si</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>14</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Silicon</string>
-                </property>
-              </widget>
-            </item>
-            <item row="3" column="2" >
-              <widget class="QToolButton" name="toolButton33" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>As</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>33</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Arsenic</string>
-                </property>
-              </widget>
-            </item>
-            <item row="3" column="3" >
-              <widget class="QToolButton" name="toolButton34" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>Se</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>34</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Selenium</string>
-                </property>
-              </widget>
-            </item>
-            <item row="3" column="4" >
-              <widget class="QToolButton" name="toolButton35" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>Br</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>35</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Bromine</string>
-                </property>
-              </widget>
-            </item>
-            <item row="3" column="5" >
-              <widget class="QToolButton" name="toolButton36" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>Kr</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>36</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Krypton</string>
-                </property>
-              </widget>
-            </item>
-            <item row="3" column="1" >
-              <widget class="QToolButton" name="toolButton32" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>Ge</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>32</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Germanium</string>
-                </property>
-              </widget>
-            </item>
-            <item row="1" column="2" >
-              <widget class="QToolButton" name="toolButton7" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>N</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>7</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Nitrogen</string>
-                </property>
-              </widget>
-            </item>
-            <item row="0" column="5" >
-              <widget class="QToolButton" name="toolButton2" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>He</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>2</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Helium</string>
-                </property>
-              </widget>
-            </item>
-            <item row="0" column="4" >
-              <widget class="QToolButton" name="toolButton1" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>H</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>1</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Hydrogen</string>
-                </property>
-              </widget>
-            </item>
-            <item row="0" column="3" >
-              <widget class="QToolButton" name="toolButton0" >
-                <property name="minimumSize" >
-                  <size>
-                    <width>30</width>
-                    <height>30</height>
-                  </size>
-                </property>
-                <property name="text" >
-                  <string>X</string>
-                </property>
-                <property name="checkable" >
-                  <bool>true</bool>
-                </property>
-                <property name="buttonGroupId" >
-                  <number>0</number>
-                </property>
-                <property name="toolTip" stdset="0" >
-                  <string>Bondpoint</string>
-                </property>
-              </widget>
-            </item>
-          </layout>
-        </widget>
-      </item>
-      <item row="5" column="0" >
-        <layout class="QGridLayout" >
-          <property name="margin" >
-            <number>0</number>
-          </property>
-          <item row="0" column="1" >
-            <widget class="QPushButton" name="saveColorsPB" >
-              <property name="text" >
-                <string>Save Colors ...</string>
-              </property>
-              <property name="autoDefault" >
-                <bool>false</bool>
-              </property>
-              <property name="toolTip" stdset="0" >
-                <string>Save the current element color settings to a file</string>
-              </property>
-            </widget>
-          </item>
-          <item row="1" column="0" >
-            <widget class="QPushButton" name="defaultButton" >
-              <property name="text" >
-                <string>Restore Defaults</string>
-              </property>
-              <property name="autoDefault" >
-                <bool>false</bool>
-              </property>
-              <property name="toolTip" stdset="0" >
-                <string>Restore current element colors to the default colors.</string>
-              </property>
-            </widget>
-          </item>
-          <item row="0" column="0" >
-            <widget class="QPushButton" name="loadColorsPB" >
-              <property name="text" >
-                <string>Load Colors ...</string>
-              </property>
-              <property name="autoDefault" >
-                <bool>false</bool>
-              </property>
-              <property name="toolTip" stdset="0" >
-                <string>Load element colors from file</string>
-              </property>
-            </widget>
-          </item>
-          <item row="2" column="1" >
-            <widget class="QPushButton" name="cancelButton" >
-              <property name="text" >
-                <string>Cancel</string>
-              </property>
-              <property name="autoDefault" >
-                <bool>false</bool>
-              </property>
-            </widget>
-          </item>
-          <item row="1" column="1" >
-            <widget class="QPushButton" name="alterButton" >
-              <property name="text" >
-                <string>Set To Alternate</string>
-              </property>
-              <property name="autoDefault" >
-                <bool>false</bool>
-              </property>
-              <property name="toolTip" stdset="0" >
-                <string>Set element colors to the alternate color set</string>
-              </property>
-            </widget>
-          </item>
-          <item row="2" column="0" >
-            <widget class="QPushButton" name="okButton" >
-              <property name="text" >
-                <string>Ok</string>
-              </property>
-              <property name="autoDefault" >
-                <bool>false</bool>
-              </property>
-              <property name="default" >
-                <bool>false</bool>
-              </property>
-            </widget>
-          </item>
-        </layout>
-      </item>
-      <item row="4" column="0" >
-        <spacer name="spacer4_2_2_2" >
-          <property name="sizeHint" >
-            <size>
-              <width>20</width>
-              <height>20</height>
-            </size>
-          </property>
-          <property name="sizeType" >
-            <enum>Fixed</enum>
-          </property>
-          <property name="orientation" >
-            <enum>Vertical</enum>
-          </property>
-        </spacer>
-      </item>
-      <item row="2" column="0" >
-        <layout class="QHBoxLayout" >
-          <property name="margin" >
-            <number>0</number>
-          </property>
-          <item>
-            <spacer name="spacer3" >
-              <property name="sizeHint" >
+            <property name="minimumSize">
                 <size>
-                  <width>40</width>
-                  <height>20</height>
+                    <width>0</width>
+                    <height>150</height>
                 </size>
-              </property>
-              <property name="sizeType" >
-                <enum>Expanding</enum>
-              </property>
-              <property name="orientation" >
-                <enum>Horizontal</enum>
-              </property>
-            </spacer>
-          </item>
-          <item>
-            <widget class="QPushButton" name="previewPB" >
-              <property name="text" >
-                <string>Preview</string>
-              </property>
-              <property name="autoDefault" >
-                <bool>false</bool>
-              </property>
-            </widget>
-          </item>
-          <item>
-            <widget class="QPushButton" name="restorePB" >
-              <property name="text" >
-                <string>Restore</string>
-              </property>
-              <property name="autoDefault" >
-                <bool>false</bool>
-              </property>
-            </widget>
-          </item>
-        </layout>
-      </item>
-    </layout>
-  </widget>
-  <layoutdefault spacing="6" margin="11" />
-  <pixmapfunction></pixmapfunction>
-  <tabstops>
+            </property>
+            <property name="frameShape">
+                <enum>Box</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Raised</enum>
+            </property>
+        </widget>
+        <widget class="QLayoutWidget" column="0" row="1">
+            <property name="name">
+                <cstring>layout12</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QLayoutWidget" column="0" row="0">
+                    <property name="name">
+                        <cstring>layout10</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel2</cstring>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>40</width>
+                                    <height>32767</height>
+                                </size>
+                            </property>
+                            <property name="text">
+                                <string>Red:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>redSpinBox</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>true</bool>
+                            </property>
+                            <property name="sizePolicy">
+                                <sizepolicy>
+                                    <hsizetype>1</hsizetype>
+                                    <vsizetype>0</vsizetype>
+                                    <horstretch>0</horstretch>
+                                    <verstretch>0</verstretch>
+                                </sizepolicy>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>ClickFocus</enum>
+                            </property>
+                            <property name="maxValue">
+                                <number>255</number>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget" column="0" row="1">
+                    <property name="name">
+                        <cstring>layout10_2</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel2_2</cstring>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>40</width>
+                                    <height>32767</height>
+                                </size>
+                            </property>
+                            <property name="text">
+                                <string>Green:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>greenSpinBox</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>true</bool>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>ClickFocus</enum>
+                            </property>
+                            <property name="maxValue">
+                                <number>255</number>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QLayoutWidget" column="0" row="2">
+                    <property name="name">
+                        <cstring>layout10_3</cstring>
+                    </property>
+                    <hbox>
+                        <property name="name">
+                            <cstring>unnamed</cstring>
+                        </property>
+                        <widget class="QLabel">
+                            <property name="name">
+                                <cstring>textLabel2_3</cstring>
+                            </property>
+                            <property name="maximumSize">
+                                <size>
+                                    <width>40</width>
+                                    <height>32767</height>
+                                </size>
+                            </property>
+                            <property name="text">
+                                <string>Blue:</string>
+                            </property>
+                            <property name="alignment">
+                                <set>AlignVCenter|AlignRight</set>
+                            </property>
+                        </widget>
+                        <widget class="QSpinBox">
+                            <property name="name">
+                                <cstring>blueSpinBox</cstring>
+                            </property>
+                            <property name="enabled">
+                                <bool>true</bool>
+                            </property>
+                            <property name="focusPolicy">
+                                <enum>ClickFocus</enum>
+                            </property>
+                            <property name="maxValue">
+                                <number>255</number>
+                            </property>
+                        </widget>
+                    </hbox>
+                </widget>
+                <widget class="QSlider" column="1" row="2">
+                    <property name="name">
+                        <cstring>blueSlider</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>true</bool>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="paletteForegroundColor">
+                        <color>
+                            <red>0</red>
+                            <green>0</green>
+                            <blue>255</blue>
+                        </color>
+                    </property>
+                    <property name="maxValue">
+                        <number>255</number>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="tickmarks">
+                        <enum>Above</enum>
+                    </property>
+                    <property name="tickInterval">
+                        <number>25</number>
+                    </property>
+                </widget>
+                <widget class="QSlider" column="1" row="0">
+                    <property name="name">
+                        <cstring>redSlider</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>true</bool>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="paletteForegroundColor">
+                        <color>
+                            <red>255</red>
+                            <green>0</green>
+                            <blue>0</blue>
+                        </color>
+                    </property>
+                    <property name="maxValue">
+                        <number>255</number>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="tickmarks">
+                        <enum>Above</enum>
+                    </property>
+                    <property name="tickInterval">
+                        <number>25</number>
+                    </property>
+                </widget>
+                <widget class="QSlider" column="1" row="1">
+                    <property name="name">
+                        <cstring>greenSlider</cstring>
+                    </property>
+                    <property name="enabled">
+                        <bool>true</bool>
+                    </property>
+                    <property name="sizePolicy">
+                        <sizepolicy>
+                            <hsizetype>5</hsizetype>
+                            <vsizetype>0</vsizetype>
+                            <horstretch>0</horstretch>
+                            <verstretch>0</verstretch>
+                        </sizepolicy>
+                    </property>
+                    <property name="paletteForegroundColor">
+                        <color>
+                            <red>0</red>
+                            <green>255</green>
+                            <blue>0</blue>
+                        </color>
+                    </property>
+                    <property name="maxValue">
+                        <number>255</number>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="tickmarks">
+                        <enum>Above</enum>
+                    </property>
+                    <property name="tickInterval">
+                        <number>25</number>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <spacer column="0" row="6">
+            <property name="name">
+                <cstring>spacer4_2_2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Fixed</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>16</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QButtonGroup" column="0" row="3">
+            <property name="name">
+                <cstring>elementButtonGroup</cstring>
+            </property>
+            <property name="minimumSize">
+                <size>
+                    <width>0</width>
+                    <height>126</height>
+                </size>
+            </property>
+            <property name="frameShape">
+                <enum>StyledPanel</enum>
+            </property>
+            <property name="frameShadow">
+                <enum>Plain</enum>
+            </property>
+            <property name="lineWidth">
+                <number>1</number>
+            </property>
+            <property name="title">
+                <string/>
+            </property>
+            <property name="exclusive">
+                <bool>true</bool>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <property name="margin">
+                    <number>2</number>
+                </property>
+                <property name="spacing">
+                    <number>0</number>
+                </property>
+                <widget class="QToolButton" column="1" row="1">
+                    <property name="name">
+                        <cstring>toolButton6</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>C</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>6</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Carbon</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="3" row="1">
+                    <property name="name">
+                        <cstring>toolButton8</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>O</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>8</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Oxygen</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="5" row="1">
+                    <property name="name">
+                        <cstring>toolButton10</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Ne</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>10</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Neon</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="4" row="1">
+                    <property name="name">
+                        <cstring>toolButton9</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>F</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>9</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Fluorine</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="0" row="2">
+                    <property name="name">
+                        <cstring>toolButton13</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Al</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>13</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Aluminum</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="4" row="2">
+                    <property name="name">
+                        <cstring>toolButton17</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Cl</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>17</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Chlorine</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="0" row="1">
+                    <property name="name">
+                        <cstring>toolButton5</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>B</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>5</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Boron</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="5" row="2">
+                    <property name="name">
+                        <cstring>toolButton10_2</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Ar</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>18</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Argon</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="2" row="2">
+                    <property name="name">
+                        <cstring>toolButton15</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>P</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>15</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Phosphorus</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="3" row="2">
+                    <property name="name">
+                        <cstring>toolButton16</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>S</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>16</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Sulfur</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="1" row="2">
+                    <property name="name">
+                        <cstring>toolButton14</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Si</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>14</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Silicon</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="2" row="3">
+                    <property name="name">
+                        <cstring>toolButton33</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>As</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>33</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Arsenic</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="3" row="3">
+                    <property name="name">
+                        <cstring>toolButton34</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Se</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>34</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Selenium</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="4" row="3">
+                    <property name="name">
+                        <cstring>toolButton35</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Br</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>35</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Bromine</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="5" row="3">
+                    <property name="name">
+                        <cstring>toolButton36</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Kr</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>36</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Krypton</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="1" row="3">
+                    <property name="name">
+                        <cstring>toolButton32</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>Ge</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>32</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Germanium</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="2" row="1">
+                    <property name="name">
+                        <cstring>toolButton7</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>N</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>7</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Nitrogen</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="5" row="0">
+                    <property name="name">
+                        <cstring>toolButton2</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>He</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>2</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Helium</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="4" row="0">
+                    <property name="name">
+                        <cstring>toolButton1</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>H</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>1</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Hydrogen</string>
+                    </property>
+                </widget>
+                <widget class="QToolButton" column="3" row="0">
+                    <property name="name">
+                        <cstring>toolButton0</cstring>
+                    </property>
+                    <property name="minimumSize">
+                        <size>
+                            <width>30</width>
+                            <height>30</height>
+                        </size>
+                    </property>
+                    <property name="text">
+                        <string>X</string>
+                    </property>
+                    <property name="toggleButton">
+                        <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId">
+                        <number>0</number>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Bondpoint</string>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <widget class="QLayoutWidget" column="0" row="5">
+            <property name="name">
+                <cstring>layout12</cstring>
+            </property>
+            <grid>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <widget class="QPushButton" column="1" row="0">
+                    <property name="name">
+                        <cstring>saveColorsPB</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Save Colors ...</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Save the current element color settings to a file</string>
+                    </property>
+                    
+                </widget>
+                <widget class="QPushButton" column="0" row="1">
+                    <property name="name">
+                        <cstring>defaultButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Restore Defaults</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Restore current element colors to the default colors.</string>
+                    </property>
+                    
+                </widget>
+                <widget class="QPushButton" column="0" row="0">
+                    <property name="name">
+                        <cstring>loadColorsPB</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Load Colors ...</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Load element colors from file</string>
+                    </property>
+                    
+                </widget>
+                <widget class="QPushButton" column="1" row="2">
+                    <property name="name">
+                        <cstring>cancelButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Cancel</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton" column="1" row="1">
+                    <property name="name">
+                        <cstring>alterButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Set To Alternate</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="toolTip" stdset="0">
+                        <string>Set element colors to the alternate color set</string>
+                    </property>
+                    
+                </widget>
+                <widget class="QPushButton" column="0" row="2">
+                    <property name="name">
+                        <cstring>okButton</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Ok</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                    <property name="default">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </grid>
+        </widget>
+        <spacer column="0" row="4">
+            <property name="name">
+                <cstring>spacer4_2_2_2</cstring>
+            </property>
+            <property name="orientation">
+                <enum>Vertical</enum>
+            </property>
+            <property name="sizeType">
+                <enum>Fixed</enum>
+            </property>
+            <property name="sizeHint">
+                <size>
+                    <width>20</width>
+                    <height>20</height>
+                </size>
+            </property>
+        </spacer>
+        <widget class="QLayoutWidget" column="0" row="2">
+            <property name="name">
+                <cstring>layout7</cstring>
+            </property>
+            <hbox>
+                <property name="name">
+                    <cstring>unnamed</cstring>
+                </property>
+                <spacer>
+                    <property name="name">
+                        <cstring>spacer3</cstring>
+                    </property>
+                    <property name="orientation">
+                        <enum>Horizontal</enum>
+                    </property>
+                    <property name="sizeType">
+                        <enum>Expanding</enum>
+                    </property>
+                    <property name="sizeHint">
+                        <size>
+                            <width>40</width>
+                            <height>20</height>
+                        </size>
+                    </property>
+                </spacer>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>previewPB</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Preview</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+                <widget class="QPushButton">
+                    <property name="name">
+                        <cstring>restorePB</cstring>
+                    </property>
+                    <property name="text">
+                        <string>Restore</string>
+                    </property>
+                    <property name="autoDefault">
+                        <bool>false</bool>
+                    </property>
+                </widget>
+            </hbox>
+        </widget>
+    </grid>
+</widget>
+<images>
+    <image name="image0">
+        <data format="PNG" length="272">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000d749444154789ce593318a02411045df189b194de409fe69fa08e68666ca44665ec0c044336fe001b493a115410c84493cc180f137185856cc961676d91716d4afcf8382cc143f5992e4ac2d2499f66cdab325f97478f8747858927b592f01d9030bc8ebe4abe16094188c1200d7d99debec0ec07e1ed9cf2300abe6c2aab900d03f4ee81f27006c9691cd32be06666f988bcf399c8e23d371e7218440080180aa4c5465e7366d4bd2b6ece6b5a86a01ffdee11b92dcdc0a37b7c2925cd3baa6b5247b3db4d7c3ee67770bf7768bbffacbdff9a8cf5fc113dd3066f2af981f6d0000000049454e44ae426082</data>
+    </image>
+</images>
+<connections>
+    <connection>
+        <sender>okButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementColorsDialog</receiver>
+        <slot>ok()</slot>
+    </connection>
+    <connection>
+        <sender>loadColorsPB</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementColorsDialog</receiver>
+        <slot>read_element_rgb_table()</slot>
+    </connection>
+    <connection>
+        <sender>saveColorsPB</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementColorsDialog</receiver>
+        <slot>write_element_rgb_table()</slot>
+    </connection>
+    <connection>
+        <sender>cancelButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementColorsDialog</receiver>
+        <slot>reject()</slot>
+    </connection>
+    <connection>
+        <sender>defaultButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementColorsDialog</receiver>
+        <slot>loadDefaultProp()</slot>
+    </connection>
+    <connection>
+        <sender>alterButton</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementColorsDialog</receiver>
+        <slot>loadAlterProp()</slot>
+    </connection>
+    <connection>
+        <sender>elementButtonGroup</sender>
+        <signal>clicked(int)</signal>
+        <receiver>ElementColorsDialog</receiver>
+        <slot>setElementInfo(int)</slot>
+    </connection>
+    <connection>
+        <sender>previewPB</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementColorsDialog</receiver>
+        <slot>preview_color_change()</slot>
+    </connection>
+    <connection>
+        <sender>restorePB</sender>
+        <signal>clicked()</signal>
+        <receiver>ElementColorsDialog</receiver>
+        <slot>restore_current_color()</slot>
+    </connection>
+</connections>
+<tabstops>
     <tabstop>loadColorsPB</tabstop>
     <tabstop>saveColorsPB</tabstop>
     <tabstop>defaultButton</tabstop>
     <tabstop>alterButton</tabstop>
     <tabstop>okButton</tabstop>
     <tabstop>cancelButton</tabstop>
-  </tabstops>
-  <images>
-    <image name="image0" >
-      <data format="PNG" length="272" >89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000d749444154789ce593318a02411045df189b194de409fe69fa08e68666ca44665ec0c044336fe001b493a115410c84493cc180f137185856cc961676d91716d4afcf8382cc143f5992e4ac2d2499f66cdab325f97478f8747858927b592f01d9030bc8ebe4abe16094188c1200d7d99debec0ec07e1ed9cf2300abe6c2aab900d03f4ee81f27006c9691cd32be06666f988bcf399c8e23d371e7218440080180aa4c5465e7366d4bd2b6ece6b5a86a01ffdee11b92dcdc0a37b7c2925cd3baa6b5247b3db4d7c3ee67770bf7768bbffacbdff9a8cf5fc113dd3066f2af981f6d0000000049454e44ae426082</data>
-    </image>
-  </images>
-  <connections>
-    <connection>
-      <sender>cancelButton</sender>
-      <signal>clicked()</signal>
-      <receiver>ElementColorsDialog</receiver>
-      <slot>reject()</slot>
-    </connection>
-  </connections>
-</ui>
+</tabstops>
+<slots>
+    <slot>setElementInfo(int)</slot>
+    <slot>read_element_rgb_table()</slot>
+    <slot>write_element_rgb_table()</slot>
+    <slot>changeSliderBlue(int)</slot>
+    <slot>ok()</slot>
+    <slot>changeSpinRed(int)</slot>
+    <slot>changeSliderRed(int)</slot>
+    <slot>changeSpinBlue(int)</slot>
+    <slot>changeSpinGreen(int)</slot>
+    <slot>changeSliderGreen(int)</slot>
+    <slot>cancel()</slot>
+    <slot>loadDefaultProp()</slot>
+    <slot>loadAlterProp()</slot>
+    <slot>changeDisplayMode(int)</slot>
+    <slot>preview_color_change()</slot>
+    <slot>restore_current_color()</slot>
+</slots>
+<layoutdefaults margin="11" spacing="6"/>
+</UI>
