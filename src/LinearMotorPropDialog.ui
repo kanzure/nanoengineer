@@ -1,555 +1,427 @@
-<!DOCTYPE UI>
-<UI stdsetdef="1" version="3.3">
-<class>LinearMotorPropDialog</class>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>LinearMotorPropDialog</cstring>
+<ui version="4.0" stdsetdef="1" >
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>LinearMotorPropDialog</class>
+  <widget class="QDialog" name="LinearMotorPropDialog" >
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>277</width>
+        <height>315</height>
+      </rect>
     </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>277</width>
-            <height>315</height>
-        </rect>
+    <property name="windowTitle" >
+      <string>Linear Motor Properties</string>
     </property>
-    <property name="caption">
-        <string>Linear Motor Properties</string>
+    <property name="windowIcon" >
+      <pixmap>image0</pixmap>
     </property>
-    <property name="icon">
-        <pixmap>image0</pixmap>
+    <property name="sizeGripEnabled" >
+      <bool>true</bool>
     </property>
-    <property name="sizeGripEnabled">
-        <bool>true</bool>
-    </property>
-    <grid>
-        <property name="name">
-            <cstring>unnamed</cstring>
-        </property>
-        <widget class="QGroupBox" column="0" row="2">
-            <property name="name">
-                <cstring>groupBox3</cstring>
-            </property>
-            <property name="title">
-                <string>Size and Color</string>
-            </property>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
+    <layout class="QGridLayout" >
+      <item row="2" column="0" >
+        <widget class="Q3GroupBox" name="groupBox3" >
+          <property name="title" >
+            <string>Size and Color</string>
+          </property>
+          <layout class="QGridLayout" >
+            <item row="1" column="1" >
+              <widget class="QLineEdit" name="widthLineEdit" >
+                <property name="alignment" >
+                  <set>Qt::AlignLeft</set>
                 </property>
-                <widget class="QLineEdit" column="1" row="1">
-                    <property name="name">
-                        <cstring>widthLineEdit</cstring>
+              </widget>
+            </item>
+            <item row="0" column="2" >
+              <widget class="QLabel" name="textLabel3" >
+                <property name="text" >
+                  <string>Angstroms</string>
+                </property>
+              </widget>
+            </item>
+            <item row="2" column="1" >
+              <widget class="QLineEdit" name="sradiusLineEdit" >
+                <property name="alignment" >
+                  <set>Qt::AlignLeft</set>
+                </property>
+              </widget>
+            </item>
+            <item row="0" column="1" >
+              <widget class="QLineEdit" name="lengthLineEdit" >
+                <property name="alignment" >
+                  <set>Qt::AlignLeft</set>
+                </property>
+              </widget>
+            </item>
+            <item row="2" column="2" >
+              <widget class="QLabel" name="textLabel3_3" >
+                <property name="text" >
+                  <string>Angstroms</string>
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="2" >
+              <widget class="QLabel" name="textLabel3_2" >
+                <property name="text" >
+                  <string>Angstroms</string>
+                </property>
+              </widget>
+            </item>
+            <item rowspan="1" row="3" column="1" colspan="2" >
+              <layout class="QHBoxLayout" >
+                <property name="margin" >
+                  <number>0</number>
+                </property>
+                <item>
+                  <layout class="QHBoxLayout" >
+                    <property name="margin" >
+                      <number>0</number>
                     </property>
-                    <property name="frameShape">
-                        <enum>LineEditPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Sunken</enum>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignLeft</set>
-                    </property>
-                </widget>
-                <widget class="QLabel" column="2" row="0">
-                    <property name="name">
-                        <cstring>textLabel3</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Angstroms</string>
-                    </property>
-                </widget>
-                <widget class="QLineEdit" column="1" row="2">
-                    <property name="name">
-                        <cstring>sradiusLineEdit</cstring>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignLeft</set>
-                    </property>
-                </widget>
-                <widget class="QLineEdit" column="1" row="0">
-                    <property name="name">
-                        <cstring>lengthLineEdit</cstring>
-                    </property>
-                    <property name="frameShape">
-                        <enum>LineEditPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Sunken</enum>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignLeft</set>
-                    </property>
-                </widget>
-                <widget class="QLabel" column="2" row="2">
-                    <property name="name">
-                        <cstring>textLabel3_3</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Angstroms</string>
-                    </property>
-                </widget>
-                <widget class="QLabel" column="2" row="1">
-                    <property name="name">
-                        <cstring>textLabel3_2</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Angstroms</string>
-                    </property>
-                </widget>
-                <widget class="QLayoutWidget" colspan="2" column="1" row="3" rowspan="1">
-                    <property name="name">
-                        <cstring>layout76</cstring>
-                    </property>
-                    <hbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
+                    <item>
+                      <widget class="QLabel" name="jig_color_pixmap" >
+                        <property name="minimumSize" >
+                          <size>
+                            <width>40</width>
+                            <height>0</height>
+                          </size>
                         </property>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout75</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLabel">
-                                    <property name="name">
-                                        <cstring>jig_color_pixmap</cstring>
-                                    </property>
-                                    <property name="minimumSize">
-                                        <size>
-                                            <width>40</width>
-                                            <height>0</height>
-                                        </size>
-                                    </property>
-                                    <property name="paletteBackgroundColor">
-                                        <color>
-                                            <red>175</red>
-                                            <green>175</green>
-                                            <blue>175</blue>
-                                        </color>
-                                    </property>
-                                    <property name="scaledContents">
-                                        <bool>true</bool>
-                                    </property>
-                                </widget>
-                                <widget class="QPushButton">
-                                    <property name="name">
-                                        <cstring>choose_color_btn</cstring>
-                                    </property>
-                                    <property name="enabled">
-                                        <bool>true</bool>
-                                    </property>
-                                    <property name="text">
-                                        <string>Choose...</string>
-                                    </property>
-                                    <property name="autoDefault">
-                                        <bool>false</bool>
-                                    </property>
-                                </widget>
-                            </hbox>
-                        </widget>
-                        <spacer>
-                            <property name="name">
-                                <cstring>spacer5</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>46</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                    </hbox>
-                </widget>
-                <widget class="QLabel" column="0" row="0">
-                    <property name="name">
-                        <cstring>textLabel1_3</cstring>
+                        <property name="scaledContents" >
+                          <bool>true</bool>
+                        </property>
+                      </widget>
+                    </item>
+                    <item>
+                      <widget class="QPushButton" name="choose_color_btn" >
+                        <property name="enabled" >
+                          <bool>true</bool>
+                        </property>
+                        <property name="text" >
+                          <string>Choose...</string>
+                        </property>
+                        <property name="autoDefault" >
+                          <bool>false</bool>
+                        </property>
+                      </widget>
+                    </item>
+                  </layout>
+                </item>
+                <item>
+                  <spacer name="spacer5" >
+                    <property name="sizeHint" >
+                      <size>
+                        <width>46</width>
+                        <height>20</height>
+                      </size>
                     </property>
-                    <property name="text">
-                        <string>Motor Length:</string>
+                    <property name="sizeType" >
+                      <enum>Expanding</enum>
                     </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignRight</set>
+                    <property name="orientation" >
+                      <enum>Horizontal</enum>
                     </property>
-                </widget>
-                <widget class="QLabel" column="0" row="1">
-                    <property name="name">
-                        <cstring>textLabel1_2_2</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Motor Width:</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignRight</set>
-                    </property>
-                </widget>
-                <widget class="QLabel" column="0" row="2">
-                    <property name="name">
-                        <cstring>textLabel1_2_2_2</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Spoke Radius:</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignRight</set>
-                    </property>
-                </widget>
-                <widget class="QLabel" column="0" row="3">
-                    <property name="name">
-                        <cstring>colorTextLabel</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Color:</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignRight</set>
-                    </property>
-                </widget>
-            </grid>
+                  </spacer>
+                </item>
+              </layout>
+            </item>
+            <item row="0" column="0" >
+              <widget class="QLabel" name="textLabel1_3" >
+                <property name="text" >
+                  <string>Motor Length:</string>
+                </property>
+                <property name="alignment" >
+                  <set>Qt::AlignVCenter|Qt::AlignRight</set>
+                </property>
+              </widget>
+            </item>
+            <item row="1" column="0" >
+              <widget class="QLabel" name="textLabel1_2_2" >
+                <property name="text" >
+                  <string>Motor Width:</string>
+                </property>
+                <property name="alignment" >
+                  <set>Qt::AlignVCenter|Qt::AlignRight</set>
+                </property>
+              </widget>
+            </item>
+            <item row="2" column="0" >
+              <widget class="QLabel" name="textLabel1_2_2_2" >
+                <property name="text" >
+                  <string>Spoke Radius:</string>
+                </property>
+                <property name="alignment" >
+                  <set>Qt::AlignVCenter|Qt::AlignRight</set>
+                </property>
+              </widget>
+            </item>
+            <item row="3" column="0" >
+              <widget class="QLabel" name="colorTextLabel" >
+                <property name="text" >
+                  <string>Color:</string>
+                </property>
+                <property name="alignment" >
+                  <set>Qt::AlignVCenter|Qt::AlignRight</set>
+                </property>
+              </widget>
+            </item>
+          </layout>
         </widget>
-        <spacer column="0" row="3">
-            <property name="name">
-                <cstring>spacer6</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>20</width>
-                    <height>16</height>
-                </size>
-            </property>
+      </item>
+      <item row="3" column="0" >
+        <spacer name="spacer6" >
+          <property name="sizeHint" >
+            <size>
+              <width>20</width>
+              <height>16</height>
+            </size>
+          </property>
+          <property name="sizeType" >
+            <enum>Expanding</enum>
+          </property>
+          <property name="orientation" >
+            <enum>Vertical</enum>
+          </property>
         </spacer>
-        <widget class="QLayoutWidget" column="0" row="4">
-            <property name="name">
-                <cstring>layout45</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer7</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>40</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>ok_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;OK</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+O</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
-                    <property name="default">
-                        <bool>false</bool>
-                    </property>
+      </item>
+      <item row="4" column="0" >
+        <layout class="QHBoxLayout" >
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <item>
+            <spacer name="spacer7" >
+              <property name="sizeHint" >
+                <size>
+                  <width>40</width>
+                  <height>20</height>
+                </size>
+              </property>
+              <property name="sizeType" >
+                <enum>Expanding</enum>
+              </property>
+              <property name="orientation" >
+                <enum>Horizontal</enum>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QPushButton" name="ok_btn" >
+              <property name="text" >
+                <string>&amp;OK</string>
+              </property>
+              <property name="shortcut" >
+                <string>Alt+O</string>
+              </property>
+              <property name="autoDefault" >
+                <bool>false</bool>
+              </property>
+              <property name="default" >
+                <bool>false</bool>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="cancel_btn" >
+              <property name="text" >
+                <string>&amp;Cancel</string>
+              </property>
+              <property name="shortcut" >
+                <string>Alt+C</string>
+              </property>
+              <property name="autoDefault" >
+                <bool>false</bool>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+      <item row="0" column="0" >
+        <layout class="QHBoxLayout" >
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <item>
+            <layout class="QVBoxLayout" >
+              <property name="margin" >
+                <number>0</number>
+              </property>
+              <item>
+                <widget class="QLabel" name="nameTextLabel" >
+                  <property name="text" >
+                    <string>Name:</string>
+                  </property>
+                  <property name="alignment" >
+                    <set>Qt::AlignVCenter|Qt::AlignRight</set>
+                  </property>
                 </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>cancel_btn</cstring>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Cancel</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+C</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
+              </item>
+              <item>
+                <widget class="QLabel" name="textLabel1" >
+                  <property name="font" >
+                    <font>
+                      <family></family>
+                      <pointsize>0</pointsize>
+                      <weight>0</weight>
+                      <italic>false</italic>
+                      <bold>false</bold>
+                      <underline>false</underline>
+                      <strikeout>false</strikeout>
+                    </font>
+                  </property>
+                  <property name="text" >
+                    <string>Force:</string>
+                  </property>
+                  <property name="alignment" >
+                    <set>Qt::AlignVCenter|Qt::AlignRight</set>
+                  </property>
+                  <property name="buddy" stdset="0" >
+                    <cstring>lineEdit9</cstring>
+                  </property>
                 </widget>
-            </hbox>
-        </widget>
-        <widget class="QLayoutWidget" column="0" row="0">
-            <property name="name">
-                <cstring>layout21</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout19</cstring>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>nameTextLabel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Name:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>textLabel1</cstring>
-                            </property>
-                            <property name="font">
-                                <font>
-                                </font>
-                            </property>
-                            <property name="text">
-                                <string>Force:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                            <property name="buddy" stdset="0">
-                                <cstring>lineEdit9</cstring>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>textLabel1_2</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Stiffness:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                            <property name="buddy" stdset="0">
-                                <cstring>lineEdit9_2</cstring>
-                            </property>
-                        </widget>
-                    </vbox>
+              </item>
+              <item>
+                <widget class="QLabel" name="textLabel1_2" >
+                  <property name="text" >
+                    <string>Stiffness:</string>
+                  </property>
+                  <property name="alignment" >
+                    <set>Qt::AlignVCenter|Qt::AlignRight</set>
+                  </property>
+                  <property name="buddy" stdset="0" >
+                    <cstring>lineEdit9_2</cstring>
+                  </property>
                 </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout20</cstring>
-                    </property>
-                    <grid>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLineEdit" column="0" row="1">
-                            <property name="name">
-                                <cstring>forceLineEdit</cstring>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Simulations will begin with the motor's force set to this value.</string>
-                            </property>
-                            
-                        </widget>
-                        <widget class="QLabel" column="1" row="2">
-                            <property name="name">
-                                <cstring>textLabel2</cstring>
-                            </property>
-                            <property name="text">
-                                <string>N/m</string>
-                            </property>
-                        </widget>
-                        <widget class="QLabel" column="1" row="1">
-                            <property name="name">
-                                <cstring>textLabel1_4</cstring>
-                            </property>
-                            <property name="text">
-                                <string>pN</string>
-                            </property>
-                        </widget>
-                        <widget class="QLineEdit" colspan="2" column="0" row="0" rowspan="1">
-                            <property name="name">
-                                <cstring>nameLineEdit</cstring>
-                            </property>
-                            <property name="frameShape">
-                                <enum>LineEditPanel</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Sunken</enum>
-                            </property>
-                            <property name="text">
-                                <string/>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                            <property name="readOnly">
-                                <bool>false</bool>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Name of Linear Motor</string>
-                            </property>
-                            
-                        </widget>
-                        <widget class="QLineEdit" column="0" row="2">
-                            <property name="name">
-                                <cstring>stiffnessLineEdit</cstring>
-                            </property>
-                            <property name="frameShape">
-                                <enum>LineEditPanel</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Sunken</enum>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Simulations will begin with the motor's stiffness set to this value.</string>
-                            </property>
-                            
-                        </widget>
-                    </grid>
+              </item>
+            </layout>
+          </item>
+          <item>
+            <layout class="QGridLayout" >
+              <property name="margin" >
+                <number>0</number>
+              </property>
+              <item row="1" column="0" >
+                <widget class="QLineEdit" name="forceLineEdit" >
+                  <property name="alignment" >
+                    <set>Qt::AlignLeft</set>
+                  </property>
+                  <property name="toolTip" stdset="0" >
+                    <string>Simulations will begin with the motor's force set to this value.</string>
+                  </property>
                 </widget>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer10</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>40</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-            </hbox>
-        </widget>
-        <widget class="QLayoutWidget" column="0" row="1">
-            <property name="name">
-                <cstring>layout22</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLabel">
-                    <property name="name">
-                        <cstring>textLabel1_5</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Enable in Minimize (experimental) :</string>
-                    </property>
-                    <property name="alignment">
-                        <set>AlignVCenter|AlignRight</set>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>If checked, the force value is applied to the motor's atoms during minimization.</string>
-                    </property>
-                    
+              </item>
+              <item row="2" column="1" >
+                <widget class="QLabel" name="textLabel2" >
+                  <property name="text" >
+                    <string>N/m</string>
+                  </property>
                 </widget>
-                <widget class="QCheckBox">
-                    <property name="name">
-                        <cstring>enable_minimize_checkbox</cstring>
-                    </property>
-                    <property name="text">
-                        <string/>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>If checked, the force value is applied to the motor's atoms during minimization.</string>
-                    </property>
-                    
+              </item>
+              <item row="1" column="1" >
+                <widget class="QLabel" name="textLabel1_4" >
+                  <property name="text" >
+                    <string>pN</string>
+                  </property>
                 </widget>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer16</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
-                        <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>92</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-            </hbox>
-        </widget>
-    </grid>
-</widget>
-<images>
-    <image name="image0">
-        <data format="PNG" length="253">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000c449444154789ced94310e83300c453f155bb71ca3ca19b847d87b815c27376164448c882dea12a91b035166772911915a303463df9258b1bf235b36c040d58a00d0fbfc0d552b222232612413c65dd182a149268cd1b85f6f9b7117c60fe3fd691f897d9aac355cc1122bb88e5c4a001886218b9894326dca344d689a0652cacd40ef3d9c731f7dcbb558555549b63344412104dab645dff7d05aa3ebbaaf412104ccf30c6b2db4d6c95b018072d6307b978fc04abc3b7a4761092e23f75f5fe739b2be5ea37c718bd89f603f0000000049454e44ae426082</data>
-    </image>
-</images>
-<connections>
-    <connection>
-        <sender>cancel_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>reject()</slot>
-    </connection>
-    <connection>
-        <sender>ok_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>accept()</slot>
-    </connection>
-    <connection>
-        <sender>choose_color_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>change_jig_color()</slot>
-    </connection>
-    <connection>
-        <sender>lengthLineEdit</sender>
-        <signal>returnPressed()</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>change_motor_size()</slot>
-    </connection>
-    <connection>
-        <sender>widthLineEdit</sender>
-        <signal>returnPressed()</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>change_motor_size()</slot>
-    </connection>
-    <connection>
-        <sender>sradiusLineEdit</sender>
-        <signal>returnPressed()</signal>
-        <receiver>LinearMotorPropDialog</receiver>
-        <slot>change_motor_size()</slot>
-    </connection>
-</connections>
-<tabstops>
+              </item>
+              <item rowspan="1" row="0" column="0" colspan="2" >
+                <widget class="QLineEdit" name="nameLineEdit" >
+                  <property name="text" >
+                    <string/>
+                  </property>
+                  <property name="alignment" >
+                    <set>Qt::AlignLeft</set>
+                  </property>
+                  <property name="readOnly" >
+                    <bool>false</bool>
+                  </property>
+                  <property name="toolTip" stdset="0" >
+                    <string>Name of Linear Motor</string>
+                  </property>
+                </widget>
+              </item>
+              <item row="2" column="0" >
+                <widget class="QLineEdit" name="stiffnessLineEdit" >
+                  <property name="alignment" >
+                    <set>Qt::AlignLeft</set>
+                  </property>
+                  <property name="toolTip" stdset="0" >
+                    <string>Simulations will begin with the motor's stiffness set to this value.</string>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </item>
+          <item>
+            <spacer name="spacer10" >
+              <property name="sizeHint" >
+                <size>
+                  <width>40</width>
+                  <height>20</height>
+                </size>
+              </property>
+              <property name="sizeType" >
+                <enum>Expanding</enum>
+              </property>
+              <property name="orientation" >
+                <enum>Horizontal</enum>
+              </property>
+            </spacer>
+          </item>
+        </layout>
+      </item>
+      <item row="1" column="0" >
+        <layout class="QHBoxLayout" >
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <item>
+            <widget class="QLabel" name="textLabel1_5" >
+              <property name="text" >
+                <string>Enable in Minimize (experimental) :</string>
+              </property>
+              <property name="alignment" >
+                <set>Qt::AlignVCenter|Qt::AlignRight</set>
+              </property>
+              <property name="toolTip" stdset="0" >
+                <string>If checked, the force value is applied to the motor's atoms during minimization.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QCheckBox" name="enable_minimize_checkbox" >
+              <property name="text" >
+                <string/>
+              </property>
+              <property name="toolTip" stdset="0" >
+                <string>If checked, the force value is applied to the motor's atoms during minimization.</string>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <spacer name="spacer16" >
+              <property name="sizeHint" >
+                <size>
+                  <width>92</width>
+                  <height>20</height>
+                </size>
+              </property>
+              <property name="sizeType" >
+                <enum>Expanding</enum>
+              </property>
+              <property name="orientation" >
+                <enum>Horizontal</enum>
+              </property>
+            </spacer>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11" />
+  <pixmapfunction></pixmapfunction>
+  <tabstops>
     <tabstop>nameLineEdit</tabstop>
     <tabstop>forceLineEdit</tabstop>
     <tabstop>stiffnessLineEdit</tabstop>
@@ -560,10 +432,24 @@
     <tabstop>choose_color_btn</tabstop>
     <tabstop>ok_btn</tabstop>
     <tabstop>cancel_btn</tabstop>
-</tabstops>
-<slots>
-    <slot>change_jig_color()</slot>
-    <slot>change_motor_size()</slot>
-</slots>
-<layoutdefaults margin="11" spacing="6"/>
-</UI>
+  </tabstops>
+  <images>
+    <image name="image0" >
+      <data format="PNG" length="253" >89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000c449444154789ced94310e83300c453f155bb71ca3ca19b847d87b815c27376164448c882dea12a91b035166772911915a303463df9258b1bf235b36c040d58a00d0fbfc0d552b222232612413c65dd182a149268cd1b85f6f9b7117c60fe3fd691f897d9aac355cc1122bb88e5c4a001886218b9894326dca344d689a0652cacd40ef3d9c731f7dcbb558555549b63344412104dab645dff7d05aa3ebbaaf412104ccf30c6b2db4d6c95b018072d6307b978fc04abc3b7a4761092e23f75f5fe739b2be5ea37c718bd89f603f0000000049454e44ae426082</data>
+    </image>
+  </images>
+  <connections>
+    <connection>
+      <sender>cancel_btn</sender>
+      <signal>clicked()</signal>
+      <receiver>LinearMotorPropDialog</receiver>
+      <slot>reject()</slot>
+    </connection>
+    <connection>
+      <sender>ok_btn</sender>
+      <signal>clicked()</signal>
+      <receiver>LinearMotorPropDialog</receiver>
+      <slot>accept()</slot>
+    </connection>
+  </connections>
+</ui>

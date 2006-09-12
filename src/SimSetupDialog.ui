@@ -1,627 +1,465 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>SimSetupDialog</class>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>SimSetupDialog</cstring>
+<ui version="4.0" stdsetdef="1" >
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>SimSetupDialog</class>
+  <widget class="QDialog" name="SimSetupDialog" >
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>337</width>
+        <height>361</height>
+      </rect>
     </property>
-    <property name="geometry">
+    <property name="windowTitle" >
+      <string>Run Dynamics</string>
+    </property>
+    <property name="windowIcon" >
+      <pixmap>image0</pixmap>
+    </property>
+    <property name="modal" >
+      <bool>true</bool>
+    </property>
+    <property name="toolTip" stdset="0" >
+      <string>Run Dynamics Setup Dialog</string>
+    </property>
+    <widget class="Q3Frame" name="base_frame" >
+      <property name="geometry" >
         <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>337</width>
-            <height>361</height>
+          <x>0</x>
+          <y>0</y>
+          <width>336</width>
+          <height>304</height>
         </rect>
-    </property>
-    <property name="caption">
-        <string>Run Dynamics</string>
-    </property>
-    <property name="icon">
-        <pixmap>image0</pixmap>
-    </property>
-    <property name="modal">
-        <bool>true</bool>
-    </property>
-    <property name="toolTip" stdset="0">
-        <string>Run Dynamics Setup Dialog</string>
-    </property>
-    <spacer>
-        <property name="name">
-            <cstring>spacer17</cstring>
+      </property>
+      <property name="frameShape" >
+        <enum>StyledPanel</enum>
+      </property>
+      <property name="frameShadow" >
+        <enum>Raised</enum>
+      </property>
+      <widget class="Q3GroupBox" name="groupBox2" >
+        <property name="geometry" >
+          <rect>
+            <x>6</x>
+            <y>165</y>
+            <width>324</width>
+            <height>133</height>
+          </rect>
         </property>
-        <property name="orientation">
-            <enum>Vertical</enum>
+        <property name="title" >
+          <string/>
         </property>
-        <property name="sizeType">
-            <enum>Expanding</enum>
+        <layout class="QGridLayout" >
+          <property name="margin" >
+            <number>4</number>
+          </property>
+          <property name="spacing" >
+            <number>1</number>
+          </property>
+          <item row="0" column="0" >
+            <widget class="QLabel" name="sim_options_label" >
+              <property name="text" >
+                <string>Simulation Options</string>
+              </property>
+            </widget>
+          </item>
+          <item row="1" column="0" >
+            <widget class="Line" name="line2_4" >
+              <property name="frameShape" >
+                <enum>QFrame::HLine</enum>
+              </property>
+              <property name="frameShadow" >
+                <enum>QFrame::Sunken</enum>
+              </property>
+              <property name="midLineWidth" >
+                <number>0</number>
+              </property>
+            </widget>
+          </item>
+          <item row="2" column="0" >
+            <widget class="QCheckBox" name="watch_motion_checkbox" >
+              <property name="text" >
+                <string>Watch motion in real time</string>
+              </property>
+              <property name="checked" >
+                <bool>true</bool>
+              </property>
+              <property name="toolTip" stdset="0" >
+                <string>Enables real time graphical updates during simulation runs</string>
+              </property>
+            </widget>
+          </item>
+          <item row="3" column="0" >
+            <widget class="Q3ButtonGroup" name="update_btngrp" >
+              <property name="title" >
+                <string/>
+              </property>
+              <layout class="QGridLayout" >
+                <item row="1" column="1" >
+                  <widget class="QSpinBox" name="update_number_spinbox" >
+                    <property name="maximum" >
+                      <number>9999</number>
+                    </property>
+                    <property name="minimum" >
+                      <number>1</number>
+                    </property>
+                    <property name="value" >
+                      <number>1</number>
+                    </property>
+                    <property name="toolTip" stdset="0" >
+                      <string>Specify how often to update the screen during the simulation.</string>
+                    </property>
+                  </widget>
+                </item>
+                <item row="1" column="2" >
+                  <widget class="QComboBox" name="update_units_combobox" >
+                    <property name="toolTip" stdset="0" >
+                      <string>Specify how often to update the screen during the simulation.</string>
+                    </property>
+                    <item>
+                      <property name="text" >
+                        <string>frames</string>
+                      </property>
+                    </item>
+                    <item>
+                      <property name="text" >
+                        <string>seconds</string>
+                      </property>
+                    </item>
+                    <item>
+                      <property name="text" >
+                        <string>minutes</string>
+                      </property>
+                    </item>
+                    <item>
+                      <property name="text" >
+                        <string>hours</string>
+                      </property>
+                    </item>
+                  </widget>
+                </item>
+                <item row="1" column="3" >
+                  <spacer name="spacer2" >
+                    <property name="sizeHint" >
+                      <size>
+                        <width>16</width>
+                        <height>20</height>
+                      </size>
+                    </property>
+                    <property name="sizeType" >
+                      <enum>Expanding</enum>
+                    </property>
+                    <property name="orientation" >
+                      <enum>Horizontal</enum>
+                    </property>
+                  </spacer>
+                </item>
+                <item row="1" column="0" >
+                  <widget class="QRadioButton" name="update_every_rbtn" >
+                    <property name="text" >
+                      <string>Update every</string>
+                    </property>
+                    <property name="buttonGroupId" >
+                      <number>1</number>
+                    </property>
+                    <property name="toolTip" stdset="0" >
+                      <string>Specify how often to update the screen during the simulation.</string>
+                    </property>
+                  </widget>
+                </item>
+                <item rowspan="1" row="0" column="0" colspan="4" >
+                  <widget class="QRadioButton" name="update_asap_rbtn" >
+                    <property name="text" >
+                      <string>Update as fast as possible</string>
+                    </property>
+                    <property name="checked" >
+                      <bool>true</bool>
+                    </property>
+                    <property name="buttonGroupId" >
+                      <number>0</number>
+                    </property>
+                    <property name="toolTip" stdset="0" >
+                      <string>Update every 2 seconds, or faster if it doesn't slow simulation by more than 20%</string>
+                    </property>
+                  </widget>
+                </item>
+              </layout>
+            </widget>
+          </item>
+        </layout>
+      </widget>
+      <widget class="Q3GroupBox" name="parms_grpbox" >
+        <property name="geometry" >
+          <rect>
+            <x>6</x>
+            <y>8</y>
+            <width>324</width>
+            <height>150</height>
+          </rect>
         </property>
-        <property name="sizeHint">
-            <size>
-                <width>20</width>
-                <height>39</height>
-            </size>
+        <property name="title" >
+          <string/>
         </property>
-        <property name="geometry">
+        <widget class="QCheckBox" name="potential_energy_checkbox" >
+          <property name="geometry" >
             <rect>
-                <x>311</x>
-                <y>258</y>
-                <width>20</width>
-                <height>39</height>
+              <x>20</x>
+              <y>121</y>
+              <width>180</width>
+              <height>20</height>
             </rect>
-        </property>
-    </spacer>
-    <widget class="QFrame">
-        <property name="name">
-            <cstring>base_frame</cstring>
-        </property>
-        <property name="geometry">
-            <rect>
-                <x>0</x>
-                <y>0</y>
-                <width>336</width>
-                <height>304</height>
-            </rect>
-        </property>
-        <property name="frameShape">
-            <enum>StyledPanel</enum>
-        </property>
-        <property name="frameShadow">
-            <enum>Raised</enum>
-        </property>
-        <widget class="QGroupBox">
-            <property name="name">
-                <cstring>groupBox2</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>6</x>
-                    <y>165</y>
-                    <width>324</width>
-                    <height>133</height>
-                </rect>
-            </property>
-            <property name="frameShape">
-                <enum>StyledPanel</enum>
-            </property>
-            <property name="title">
-                <string></string>
-            </property>
-            <grid>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <property name="margin">
-                    <number>4</number>
-                </property>
-                <property name="spacing">
-                    <number>1</number>
-                </property>
-                <widget class="QLabel" row="0" column="0">
-                    <property name="name">
-                        <cstring>sim_options_label</cstring>
-                    </property>
-                    <property name="paletteForegroundColor">
-                        <color>
-                            <red>0</red>
-                            <green>0</green>
-                            <blue>255</blue>
-                        </color>
-                    </property>
-                    <property name="text">
-                        <string>Simulation Options</string>
-                    </property>
-                </widget>
-                <widget class="Line" row="1" column="0">
-                    <property name="name">
-                        <cstring>line2_4</cstring>
-                    </property>
-                    <property name="frameShape">
-                        <enum>HLine</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Sunken</enum>
-                    </property>
-                    <property name="midLineWidth">
-                        <number>0</number>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                </widget>
-                <widget class="QCheckBox" row="2" column="0">
-                    <property name="name">
-                        <cstring>watch_motion_checkbox</cstring>
-                    </property>
-                    <property name="text">
-                        <string>Watch motion in real time</string>
-                    </property>
-                    <property name="checked">
-                        <bool>true</bool>
-                    </property>
-                    <property name="toolTip" stdset="0">
-                        <string>Enables real time graphical updates during simulation runs</string>
-                    </property>
-                </widget>
-                <widget class="QButtonGroup" row="3" column="0">
-                    <property name="name">
-                        <cstring>update_btngrp</cstring>
-                    </property>
-                    <property name="frameShape">
-                        <enum>StyledPanel</enum>
-                    </property>
-                    <property name="frameShadow">
-                        <enum>Sunken</enum>
-                    </property>
-                    <property name="title">
-                        <string></string>
-                    </property>
-                    <grid>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QSpinBox" row="1" column="1">
-                            <property name="name">
-                                <cstring>update_number_spinbox</cstring>
-                            </property>
-                            <property name="maxValue">
-                                <number>9999</number>
-                            </property>
-                            <property name="minValue">
-                                <number>1</number>
-                            </property>
-                            <property name="value">
-                                <number>1</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Specify how often to update the screen during the simulation.</string>
-                            </property>
-                        </widget>
-                        <widget class="QComboBox" row="1" column="2">
-                            <item>
-                                <property name="text">
-                                    <string>frames</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>seconds</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>minutes</string>
-                                </property>
-                            </item>
-                            <item>
-                                <property name="text">
-                                    <string>hours</string>
-                                </property>
-                            </item>
-                            <property name="name">
-                                <cstring>update_units_combobox</cstring>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Specify how often to update the screen during the simulation.</string>
-                            </property>
-                        </widget>
-                        <spacer row="1" column="3">
-                            <property name="name">
-                                <cstring>spacer2</cstring>
-                            </property>
-                            <property name="orientation">
-                                <enum>Horizontal</enum>
-                            </property>
-                            <property name="sizeType">
-                                <enum>Expanding</enum>
-                            </property>
-                            <property name="sizeHint">
-                                <size>
-                                    <width>16</width>
-                                    <height>20</height>
-                                </size>
-                            </property>
-                        </spacer>
-                        <widget class="QRadioButton" row="1" column="0">
-                            <property name="name">
-                                <cstring>update_every_rbtn</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Update every</string>
-                            </property>
-                            <property name="buttonGroupId">
-                                <number>1</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Specify how often to update the screen during the simulation.</string>
-                            </property>
-                        </widget>
-                        <widget class="QRadioButton" row="0" column="0" rowspan="1" colspan="4">
-                            <property name="name">
-                                <cstring>update_asap_rbtn</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Update as fast as possible</string>
-                            </property>
-                            <property name="checked">
-                                <bool>true</bool>
-                            </property>
-                            <property name="buttonGroupId">
-                                <number>0</number>
-                            </property>
-                            <property name="toolTip" stdset="0">
-                                <string>Update every 2 seconds, or faster if it doesn't slow simulation by more than 20%</string>
-                            </property>
-                        </widget>
-                    </grid>
-                </widget>
-            </grid>
+          </property>
+          <property name="text" >
+            <string>Plot energy in tracefile</string>
+          </property>
         </widget>
-        <widget class="QGroupBox">
-            <property name="name">
-                <cstring>parms_grpbox</cstring>
-            </property>
-            <property name="geometry">
-                <rect>
-                    <x>6</x>
-                    <y>8</y>
-                    <width>324</width>
-                    <height>150</height>
-                </rect>
-            </property>
-            <property name="frameShape">
-                <enum>StyledPanel</enum>
-            </property>
-            <property name="title">
-                <string></string>
-            </property>
-            <widget class="QCheckBox">
-                <property name="name">
-                    <cstring>potential_energy_checkbox</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>20</x>
-                        <y>121</y>
-                        <width>180</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Plot energy in tracefile</string>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>parameters_label</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>4</x>
-                        <y>4</y>
-                        <width>316</width>
-                        <height>17</height>
-                    </rect>
-                </property>
-                <property name="paletteForegroundColor">
-                    <color>
-                        <red>0</red>
-                        <green>0</green>
-                        <blue>255</blue>
-                    </color>
-                </property>
-                <property name="text">
-                    <string>Parameters</string>
-                </property>
-            </widget>
-            <widget class="Line">
-                <property name="name">
-                    <cstring>line2_4_2</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>4</x>
-                        <y>21</y>
-                        <width>316</width>
-                        <height>2</height>
-                    </rect>
-                </property>
-                <property name="frameShape">
-                    <enum>HLine</enum>
-                </property>
-                <property name="frameShadow">
-                    <enum>Sunken</enum>
-                </property>
-                <property name="midLineWidth">
-                    <number>0</number>
-                </property>
-                <property name="orientation">
-                    <enum>Horizontal</enum>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>textLabel3_2</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>201</x>
-                        <y>89</y>
-                        <width>117</width>
-                        <height>23</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Kelvin</string>
-                </property>
-            </widget>
-            <widget class="QSpinBox">
-                <property name="name">
-                    <cstring>tempSB</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>131</x>
-                        <y>89</y>
-                        <width>62</width>
-                        <height>23</height>
-                    </rect>
-                </property>
-                <property name="maxValue">
-                    <number>99999</number>
-                </property>
-                <property name="value">
-                    <number>300</number>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>Temperature</string>
-                </property>
-            </widget>
-            <widget class="QSpinBox">
-                <property name="name">
-                    <cstring>nframesSB</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>131</x>
-                        <y>31</y>
-                        <width>62</width>
-                        <height>23</height>
-                    </rect>
-                </property>
-                <property name="maxValue">
-                    <number>90000</number>
-                </property>
-                <property name="minValue">
-                    <number>1</number>
-                </property>
-                <property name="lineStep">
-                    <number>15</number>
-                </property>
-                <property name="value">
-                    <number>900</number>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>Total Frames value</string>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>textLabel2</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>6</x>
-                        <y>60</y>
-                        <width>117</width>
-                        <height>23</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Steps per Frame :</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-            </widget>
-            <spacer>
-                <property name="name">
-                    <cstring>spacer4</cstring>
-                </property>
-                <property name="orientation">
-                    <enum>Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                    <enum>Expanding</enum>
-                </property>
-                <property name="sizeHint">
-                    <size>
-                        <width>117</width>
-                        <height>20</height>
-                    </size>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>201</x>
-                        <y>32</y>
-                        <width>117</width>
-                        <height>20</height>
-                    </rect>
-                </property>
-            </spacer>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>textLabel3</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>6</x>
-                        <y>89</y>
-                        <width>117</width>
-                        <height>23</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Temperature :</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-            </widget>
-            <widget class="QSpinBox">
-                <property name="name">
-                    <cstring>stepsperSB</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>131</x>
-                        <y>60</y>
-                        <width>62</width>
-                        <height>23</height>
-                    </rect>
-                </property>
-                <property name="maxValue">
-                    <number>99999</number>
-                </property>
-                <property name="minValue">
-                    <number>1</number>
-                </property>
-                <property name="value">
-                    <number>10</number>
-                </property>
-                <property name="toolTip" stdset="0">
-                    <string>Steps per Frame</string>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>textLabel2_2</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>201</x>
-                        <y>60</y>
-                        <width>117</width>
-                        <height>23</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>0.1 femtosecond</string>
-                </property>
-            </widget>
-            <widget class="QLabel">
-                <property name="name">
-                    <cstring>textLabel5</cstring>
-                </property>
-                <property name="geometry">
-                    <rect>
-                        <x>6</x>
-                        <y>31</y>
-                        <width>117</width>
-                        <height>23</height>
-                    </rect>
-                </property>
-                <property name="text">
-                    <string>Total Frames:</string>
-                </property>
-                <property name="alignment">
-                    <set>AlignVCenter|AlignRight</set>
-                </property>
-            </widget>
-        </widget>
-    </widget>
-    <widget class="QLayoutWidget">
-        <property name="name">
-            <cstring>layout20</cstring>
-        </property>
-        <property name="geometry">
+        <widget class="QLabel" name="parameters_label" >
+          <property name="geometry" >
             <rect>
-                <x>10</x>
-                <y>310</y>
-                <width>310</width>
-                <height>40</height>
+              <x>4</x>
+              <y>4</y>
+              <width>316</width>
+              <height>17</height>
             </rect>
-        </property>
-        <hbox>
-            <property name="name">
-                <cstring>unnamed</cstring>
-            </property>
-            <property name="margin">
-                <number>4</number>
-            </property>
-            <spacer>
-                <property name="name">
-                    <cstring>spacer18</cstring>
-                </property>
-                <property name="orientation">
-                    <enum>Horizontal</enum>
-                </property>
-                <property name="sizeType">
-                    <enum>Expanding</enum>
-                </property>
-                <property name="sizeHint">
-                    <size>
-                        <width>40</width>
-                        <height>20</height>
-                    </size>
-                </property>
-            </spacer>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>cancel_btn</cstring>
-                </property>
-                <property name="text">
-                    <string>Cancel</string>
-                </property>
-                <property name="default">
-                    <bool>false</bool>
-                </property>
-            </widget>
-            <widget class="QPushButton">
-                <property name="name">
-                    <cstring>run_sim_btn</cstring>
-                </property>
-                <property name="text">
-                    <string>Run Simulation</string>
-                </property>
-                <property name="default">
-                    <bool>true</bool>
-                </property>
-            </widget>
-        </hbox>
+          </property>
+          <property name="text" >
+            <string>Parameters</string>
+          </property>
+        </widget>
+        <widget class="Line" name="line2_4_2" >
+          <property name="geometry" >
+            <rect>
+              <x>4</x>
+              <y>21</y>
+              <width>316</width>
+              <height>2</height>
+            </rect>
+          </property>
+          <property name="frameShape" >
+            <enum>QFrame::HLine</enum>
+          </property>
+          <property name="frameShadow" >
+            <enum>QFrame::Sunken</enum>
+          </property>
+          <property name="midLineWidth" >
+            <number>0</number>
+          </property>
+        </widget>
+        <widget class="QLabel" name="textLabel3_2" >
+          <property name="geometry" >
+            <rect>
+              <x>201</x>
+              <y>89</y>
+              <width>117</width>
+              <height>23</height>
+            </rect>
+          </property>
+          <property name="text" >
+            <string>Kelvin</string>
+          </property>
+        </widget>
+        <widget class="QSpinBox" name="tempSB" >
+          <property name="geometry" >
+            <rect>
+              <x>131</x>
+              <y>89</y>
+              <width>62</width>
+              <height>23</height>
+            </rect>
+          </property>
+          <property name="maximum" >
+            <number>99999</number>
+          </property>
+          <property name="value" >
+            <number>300</number>
+          </property>
+          <property name="toolTip" stdset="0" >
+            <string>Temperature</string>
+          </property>
+        </widget>
+        <widget class="QSpinBox" name="nframesSB" >
+          <property name="geometry" >
+            <rect>
+              <x>131</x>
+              <y>31</y>
+              <width>62</width>
+              <height>23</height>
+            </rect>
+          </property>
+          <property name="maximum" >
+            <number>90000</number>
+          </property>
+          <property name="minimum" >
+            <number>1</number>
+          </property>
+          <property name="singleStep" >
+            <number>15</number>
+          </property>
+          <property name="value" >
+            <number>900</number>
+          </property>
+          <property name="toolTip" stdset="0" >
+            <string>Total Frames value</string>
+          </property>
+        </widget>
+        <widget class="QLabel" name="textLabel2" >
+          <property name="geometry" >
+            <rect>
+              <x>6</x>
+              <y>60</y>
+              <width>117</width>
+              <height>23</height>
+            </rect>
+          </property>
+          <property name="text" >
+            <string>Steps per Frame :</string>
+          </property>
+          <property name="alignment" >
+            <set>Qt::AlignVCenter|Qt::AlignRight</set>
+          </property>
+        </widget>
+        <widget class="QLabel" name="textLabel3" >
+          <property name="geometry" >
+            <rect>
+              <x>6</x>
+              <y>89</y>
+              <width>117</width>
+              <height>23</height>
+            </rect>
+          </property>
+          <property name="text" >
+            <string>Temperature :</string>
+          </property>
+          <property name="alignment" >
+            <set>Qt::AlignVCenter|Qt::AlignRight</set>
+          </property>
+        </widget>
+        <widget class="QSpinBox" name="stepsperSB" >
+          <property name="geometry" >
+            <rect>
+              <x>131</x>
+              <y>60</y>
+              <width>62</width>
+              <height>23</height>
+            </rect>
+          </property>
+          <property name="maximum" >
+            <number>99999</number>
+          </property>
+          <property name="minimum" >
+            <number>1</number>
+          </property>
+          <property name="value" >
+            <number>10</number>
+          </property>
+          <property name="toolTip" stdset="0" >
+            <string>Steps per Frame</string>
+          </property>
+        </widget>
+        <widget class="QLabel" name="textLabel2_2" >
+          <property name="geometry" >
+            <rect>
+              <x>201</x>
+              <y>60</y>
+              <width>117</width>
+              <height>23</height>
+            </rect>
+          </property>
+          <property name="text" >
+            <string>0.1 femtosecond</string>
+          </property>
+        </widget>
+        <widget class="QLabel" name="textLabel5" >
+          <property name="geometry" >
+            <rect>
+              <x>6</x>
+              <y>31</y>
+              <width>117</width>
+              <height>23</height>
+            </rect>
+          </property>
+          <property name="text" >
+            <string>Total Frames:</string>
+          </property>
+          <property name="alignment" >
+            <set>Qt::AlignVCenter|Qt::AlignRight</set>
+          </property>
+        </widget>
+      </widget>
     </widget>
-</widget>
-<images>
-    <image name="image0">
-        <data format="PNG" length="254">89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000c549444154789cb594bd0d83301484efd266023242a6c063f851672aeab0065bd045e9c204d4972641fc39820779928bb3e4cf3e5977948423e77428ed0bb4c2445256d8fee7468b92a4b26b54768d3e1ade45002abba6bfe076be4212dd96a3c55eb48f2786da3592102d0ac0c86e9ee72eeb2700a8ee1525b17db5008010c2e873a6faa7e5e9460841755d73a8b7c067c0296c2b7c041c1ede0a4fbed0035f055c03cf2e196609f3262295307adb86e462c2dc6d934cd89e22584a98db726afe53b047ce1b98ac42981b03f86f0000000049454e44ae426082</data>
+    <widget class="QWidget" name="layout20" >
+      <property name="geometry" >
+        <rect>
+          <x>10</x>
+          <y>310</y>
+          <width>310</width>
+          <height>40</height>
+        </rect>
+      </property>
+      <layout class="QHBoxLayout" >
+        <property name="margin" >
+          <number>4</number>
+        </property>
+        <item>
+          <spacer name="spacer18" >
+            <property name="sizeHint" >
+              <size>
+                <width>40</width>
+                <height>20</height>
+              </size>
+            </property>
+            <property name="sizeType" >
+              <enum>Expanding</enum>
+            </property>
+            <property name="orientation" >
+              <enum>Horizontal</enum>
+            </property>
+          </spacer>
+        </item>
+        <item>
+          <widget class="QPushButton" name="cancel_btn" >
+            <property name="text" >
+              <string>Cancel</string>
+            </property>
+            <property name="default" >
+              <bool>false</bool>
+            </property>
+          </widget>
+        </item>
+        <item>
+          <widget class="QPushButton" name="run_sim_btn" >
+            <property name="text" >
+              <string>Run Simulation</string>
+            </property>
+            <property name="default" >
+              <bool>true</bool>
+            </property>
+          </widget>
+        </item>
+      </layout>
+    </widget>
+  </widget>
+  <layoutdefault spacing="6" margin="11" />
+  <pixmapfunction></pixmapfunction>
+  <images>
+    <image name="image0" >
+      <data format="PNG" length="254" >89504e470d0a1a0a0000000d49484452000000140000001408060000008d891d0d000000c549444154789cb594bd0d83301484efd266023242a6c063f851672aeab0065bd045e9c204d4972641fc39820779928bb3e4cf3e5977948423e77428ed0bb4c2445256d8fee7468b92a4b26b54768d3e1ade45002abba6bfe076be4212dd96a3c55eb48f2786da3592102d0ac0c86e9ee72eeb2700a8ee1525b17db5008010c2e873a6faa7e5e9460841755d73a8b7c067c0296c2b7c041c1ede0a4fbed0035f055c03cf2e196609f3262295307adb86e462c2dc6d934cd89e22584a98db726afe53b047ce1b98ac42981b03f86f0000000049454e44ae426082</data>
     </image>
-</images>
-<connections>
+  </images>
+  <connections>
     <connection>
-        <sender>run_sim_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>SimSetupDialog</receiver>
-        <slot>createMoviePressed()</slot>
+      <sender>cancel_btn</sender>
+      <signal>clicked()</signal>
+      <receiver>SimSetupDialog</receiver>
+      <slot>close()</slot>
     </connection>
     <connection>
-        <sender>cancel_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>SimSetupDialog</receiver>
-        <slot>close()</slot>
+      <sender>watch_motion_checkbox</sender>
+      <signal>toggled(bool)</signal>
+      <receiver>update_btngrp</receiver>
+      <slot>setEnabled(bool)</slot>
     </connection>
-    <connection>
-        <sender>watch_motion_checkbox</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>update_btngrp</receiver>
-        <slot>setEnabled(bool)</slot>
-    </connection>
-</connections>
-<slots>
-    <slot>NumFramesValueChanged(int)</slot>
-    <slot>createMoviePressed()</slot>
-    <slot>StepsChanged(int)</slot>
-    <slot>TemperatureChanged(int)</slot>
-    <slot>TimeStepChanged(int)</slot>
-    <slot>saveFilePressed()</slot>
-    <slot>serverManager()</slot>
-</slots>
-<layoutdefaults spacing="6" margin="11"/>
-</UI>
+  </connections>
+</ui>

@@ -1,377 +1,317 @@
-<!DOCTYPE UI><UI version="3.3" stdsetdef="1">
-<class>ThermoPropDialog</class>
-<widget class="QDialog">
-    <property name="name">
-        <cstring>ThermoPropDialog</cstring>
+<ui version="4.0" stdsetdef="1" >
+  <author></author>
+  <comment></comment>
+  <exportmacro></exportmacro>
+  <class>ThermoPropDialog</class>
+  <widget class="QDialog" name="ThermoPropDialog" >
+    <property name="geometry" >
+      <rect>
+        <x>0</x>
+        <y>0</y>
+        <width>307</width>
+        <height>170</height>
+      </rect>
     </property>
-    <property name="geometry">
-        <rect>
-            <x>0</x>
-            <y>0</y>
-            <width>307</width>
-            <height>170</height>
-        </rect>
+    <property name="sizePolicy" >
+      <sizepolicy>
+        <hsizetype>7</hsizetype>
+        <vsizetype>7</vsizetype>
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+      </sizepolicy>
     </property>
-    <property name="sizePolicy">
-        <sizepolicy>
-            <hsizetype>7</hsizetype>
-            <vsizetype>7</vsizetype>
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-        </sizepolicy>
+    <property name="windowTitle" >
+      <string>Thermometer Properties</string>
     </property>
-    <property name="caption">
-        <string>Thermometer Properties</string>
+    <property name="windowIcon" >
+      <pixmap>image0</pixmap>
     </property>
-    <property name="icon">
-        <pixmap>image0</pixmap>
+    <property name="sizeGripEnabled" >
+      <bool>true</bool>
     </property>
-    <property name="sizeGripEnabled">
-        <bool>true</bool>
-    </property>
-    <vbox>
-        <property name="name">
-            <cstring>unnamed</cstring>
-        </property>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout89</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout91</cstring>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>nameTextLabel</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>5</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="text">
-                                <string>Name:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>molnameTextLabel</cstring>
-                            </property>
-                            <property name="sizePolicy">
-                                <sizepolicy>
-                                    <hsizetype>5</hsizetype>
-                                    <vsizetype>5</vsizetype>
-                                    <horstretch>0</horstretch>
-                                    <verstretch>0</verstretch>
-                                </sizepolicy>
-                            </property>
-                            <property name="text">
-                                <string>Attached to:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                        <widget class="QLabel">
-                            <property name="name">
-                                <cstring>colorTextLabel</cstring>
-                            </property>
-                            <property name="text">
-                                <string>Color:</string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignVCenter|AlignRight</set>
-                            </property>
-                        </widget>
-                    </vbox>
+    <layout class="QVBoxLayout" >
+      <item>
+        <layout class="QHBoxLayout" >
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <item>
+            <layout class="QVBoxLayout" >
+              <property name="margin" >
+                <number>0</number>
+              </property>
+              <item>
+                <widget class="QLabel" name="nameTextLabel" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>5</hsizetype>
+                      <vsizetype>5</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="text" >
+                    <string>Name:</string>
+                  </property>
+                  <property name="alignment" >
+                    <set>Qt::AlignVCenter|Qt::AlignRight</set>
+                  </property>
                 </widget>
-                <widget class="QLayoutWidget">
-                    <property name="name">
-                        <cstring>layout88</cstring>
-                    </property>
-                    <vbox>
-                        <property name="name">
-                            <cstring>unnamed</cstring>
-                        </property>
-                        <widget class="QLineEdit">
-                            <property name="name">
-                                <cstring>nameLineEdit</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>true</bool>
-                            </property>
-                            <property name="frameShape">
-                                <enum>LineEditPanel</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Sunken</enum>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                        </widget>
-                        <widget class="QLineEdit">
-                            <property name="name">
-                                <cstring>molnameLineEdit</cstring>
-                            </property>
-                            <property name="enabled">
-                                <bool>true</bool>
-                            </property>
-                            <property name="frameShape">
-                                <enum>LineEditPanel</enum>
-                            </property>
-                            <property name="frameShadow">
-                                <enum>Sunken</enum>
-                            </property>
-                            <property name="text">
-                                <string></string>
-                            </property>
-                            <property name="alignment">
-                                <set>AlignLeft</set>
-                            </property>
-                            <property name="readOnly">
-                                <bool>true</bool>
-                            </property>
-                        </widget>
-                        <widget class="QLayoutWidget">
-                            <property name="name">
-                                <cstring>layout87</cstring>
-                            </property>
-                            <hbox>
-                                <property name="name">
-                                    <cstring>unnamed</cstring>
-                                </property>
-                                <widget class="QLayoutWidget">
-                                    <property name="name">
-                                        <cstring>layout86</cstring>
-                                    </property>
-                                    <hbox>
-                                        <property name="name">
-                                            <cstring>unnamed</cstring>
-                                        </property>
-                                        <widget class="QLabel">
-                                            <property name="name">
-                                                <cstring>jig_color_pixmap</cstring>
-                                            </property>
-                                            <property name="sizePolicy">
-                                                <sizepolicy>
-                                                    <hsizetype>5</hsizetype>
-                                                    <vsizetype>5</vsizetype>
-                                                    <horstretch>1</horstretch>
-                                                    <verstretch>0</verstretch>
-                                                </sizepolicy>
-                                            </property>
-                                            <property name="minimumSize">
-                                                <size>
-                                                    <width>40</width>
-                                                    <height>0</height>
-                                                </size>
-                                            </property>
-                                            <property name="paletteBackgroundColor">
-                                                <color>
-                                                    <red>0</red>
-                                                    <green>0</green>
-                                                    <blue>0</blue>
-                                                </color>
-                                            </property>
-                                            <property name="scaledContents">
-                                                <bool>true</bool>
-                                            </property>
-                                        </widget>
-                                        <widget class="QPushButton">
-                                            <property name="name">
-                                                <cstring>choose_color_btn</cstring>
-                                            </property>
-                                            <property name="enabled">
-                                                <bool>true</bool>
-                                            </property>
-                                            <property name="sizePolicy">
-                                                <sizepolicy>
-                                                    <hsizetype>1</hsizetype>
-                                                    <vsizetype>0</vsizetype>
-                                                    <horstretch>0</horstretch>
-                                                    <verstretch>0</verstretch>
-                                                </sizepolicy>
-                                            </property>
-                                            <property name="text">
-                                                <string>Choose...</string>
-                                            </property>
-                                            <property name="autoDefault">
-                                                <bool>false</bool>
-                                            </property>
-                                            <property name="toolTip" stdset="0">
-                                                <string>Change color</string>
-                                            </property>
-                                        </widget>
-                                    </hbox>
-                                </widget>
-                                <spacer>
-                                    <property name="name">
-                                        <cstring>spacer19</cstring>
-                                    </property>
-                                    <property name="orientation">
-                                        <enum>Horizontal</enum>
-                                    </property>
-                                    <property name="sizeType">
-                                        <enum>Expanding</enum>
-                                    </property>
-                                    <property name="sizeHint">
-                                        <size>
-                                            <width>40</width>
-                                            <height>20</height>
-                                        </size>
-                                    </property>
-                                </spacer>
-                            </hbox>
-                        </widget>
-                    </vbox>
+              </item>
+              <item>
+                <widget class="QLabel" name="molnameTextLabel" >
+                  <property name="sizePolicy" >
+                    <sizepolicy>
+                      <hsizetype>5</hsizetype>
+                      <vsizetype>5</vsizetype>
+                      <horstretch>0</horstretch>
+                      <verstretch>0</verstretch>
+                    </sizepolicy>
+                  </property>
+                  <property name="text" >
+                    <string>Attached to:</string>
+                  </property>
+                  <property name="alignment" >
+                    <set>Qt::AlignVCenter|Qt::AlignRight</set>
+                  </property>
                 </widget>
-            </hbox>
-        </widget>
-        <spacer>
-            <property name="name">
-                <cstring>spacer6</cstring>
-            </property>
-            <property name="orientation">
-                <enum>Vertical</enum>
-            </property>
-            <property name="sizeType">
-                <enum>Expanding</enum>
-            </property>
-            <property name="sizeHint">
-                <size>
-                    <width>20</width>
-                    <height>25</height>
-                </size>
-            </property>
-        </spacer>
-        <widget class="QLayoutWidget">
-            <property name="name">
-                <cstring>layout67</cstring>
-            </property>
-            <hbox>
-                <property name="name">
-                    <cstring>unnamed</cstring>
-                </property>
-                <spacer>
-                    <property name="name">
-                        <cstring>spacer17</cstring>
-                    </property>
-                    <property name="orientation">
-                        <enum>Horizontal</enum>
-                    </property>
-                    <property name="sizeType">
+              </item>
+              <item>
+                <widget class="QLabel" name="colorTextLabel" >
+                  <property name="text" >
+                    <string>Color:</string>
+                  </property>
+                  <property name="alignment" >
+                    <set>Qt::AlignVCenter|Qt::AlignRight</set>
+                  </property>
+                </widget>
+              </item>
+            </layout>
+          </item>
+          <item>
+            <layout class="QVBoxLayout" >
+              <property name="margin" >
+                <number>0</number>
+              </property>
+              <item>
+                <widget class="QLineEdit" name="nameLineEdit" >
+                  <property name="enabled" >
+                    <bool>true</bool>
+                  </property>
+                  <property name="text" >
+                    <string/>
+                  </property>
+                  <property name="alignment" >
+                    <set>Qt::AlignLeft</set>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <widget class="QLineEdit" name="molnameLineEdit" >
+                  <property name="enabled" >
+                    <bool>true</bool>
+                  </property>
+                  <property name="text" >
+                    <string/>
+                  </property>
+                  <property name="alignment" >
+                    <set>Qt::AlignLeft</set>
+                  </property>
+                  <property name="readOnly" >
+                    <bool>true</bool>
+                  </property>
+                </widget>
+              </item>
+              <item>
+                <layout class="QHBoxLayout" >
+                  <property name="margin" >
+                    <number>0</number>
+                  </property>
+                  <item>
+                    <layout class="QHBoxLayout" >
+                      <property name="margin" >
+                        <number>0</number>
+                      </property>
+                      <item>
+                        <widget class="QLabel" name="jig_color_pixmap" >
+                          <property name="sizePolicy" >
+                            <sizepolicy>
+                              <hsizetype>5</hsizetype>
+                              <vsizetype>5</vsizetype>
+                              <horstretch>1</horstretch>
+                              <verstretch>0</verstretch>
+                            </sizepolicy>
+                          </property>
+                          <property name="minimumSize" >
+                            <size>
+                              <width>40</width>
+                              <height>0</height>
+                            </size>
+                          </property>
+                          <property name="scaledContents" >
+                            <bool>true</bool>
+                          </property>
+                        </widget>
+                      </item>
+                      <item>
+                        <widget class="QPushButton" name="choose_color_btn" >
+                          <property name="enabled" >
+                            <bool>true</bool>
+                          </property>
+                          <property name="sizePolicy" >
+                            <sizepolicy>
+                              <hsizetype>1</hsizetype>
+                              <vsizetype>0</vsizetype>
+                              <horstretch>0</horstretch>
+                              <verstretch>0</verstretch>
+                            </sizepolicy>
+                          </property>
+                          <property name="text" >
+                            <string>Choose...</string>
+                          </property>
+                          <property name="autoDefault" >
+                            <bool>false</bool>
+                          </property>
+                          <property name="toolTip" stdset="0" >
+                            <string>Change color</string>
+                          </property>
+                        </widget>
+                      </item>
+                    </layout>
+                  </item>
+                  <item>
+                    <spacer name="spacer19" >
+                      <property name="sizeHint" >
+                        <size>
+                          <width>40</width>
+                          <height>20</height>
+                        </size>
+                      </property>
+                      <property name="sizeType" >
                         <enum>Expanding</enum>
-                    </property>
-                    <property name="sizeHint">
-                        <size>
-                            <width>40</width>
-                            <height>20</height>
-                        </size>
-                    </property>
-                </spacer>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>ok_btn</cstring>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>0</width>
-                            <height>0</height>
-                        </size>
-                    </property>
-                    <property name="text">
-                        <string>&amp;OK</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+O</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
-                    <property name="default">
-                        <bool>false</bool>
-                    </property>
-                </widget>
-                <widget class="QPushButton">
-                    <property name="name">
-                        <cstring>cancel_btn</cstring>
-                    </property>
-                    <property name="minimumSize">
-                        <size>
-                            <width>0</width>
-                            <height>0</height>
-                        </size>
-                    </property>
-                    <property name="text">
-                        <string>&amp;Cancel</string>
-                    </property>
-                    <property name="accel">
-                        <string>Alt+C</string>
-                    </property>
-                    <property name="autoDefault">
-                        <bool>false</bool>
-                    </property>
-                    <property name="default">
-                        <bool>false</bool>
-                    </property>
-                </widget>
-            </hbox>
-        </widget>
-    </vbox>
-</widget>
-<images>
-    <image name="image0">
-        <data format="XPM.GZ" length="739">789cadcebd0ac23010c0f1bd4f119aad88fd205283f80882a3200e7797061dba681d447c777327488b89207864f9f323c79585da6d37aa28b3cb00c389141de1ac0a77edfbdbfeb0be6779d3a8f096aace67598e8a94aedbca572d27709ace58d3703a4ef0e000393527764828d971fadada56fe7ac9051a2b4a92be0ac3397f258f647426a201745c405e4c505e5c3029e93f7fdd469494e4b62f7f7edee680085c4418463492001dd3a7a0c0fb8689f884846d3ebe2d7d4120c4d1d58f55f604f6499d82</data>
-    </image>
-</images>
-<connections>
-    <connection>
-        <sender>cancel_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>ThermoPropDialog</receiver>
-        <slot>reject()</slot>
-    </connection>
-    <connection>
-        <sender>ok_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>ThermoPropDialog</receiver>
-        <slot>accept()</slot>
-    </connection>
-    <connection>
-        <sender>choose_color_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>ThermoPropDialog</receiver>
-        <slot>change_jig_color()</slot>
-    </connection>
-</connections>
-<tabstops>
+                      </property>
+                      <property name="orientation" >
+                        <enum>Horizontal</enum>
+                      </property>
+                    </spacer>
+                  </item>
+                </layout>
+              </item>
+            </layout>
+          </item>
+        </layout>
+      </item>
+      <item>
+        <spacer name="spacer6" >
+          <property name="sizeHint" >
+            <size>
+              <width>20</width>
+              <height>25</height>
+            </size>
+          </property>
+          <property name="sizeType" >
+            <enum>Expanding</enum>
+          </property>
+          <property name="orientation" >
+            <enum>Vertical</enum>
+          </property>
+        </spacer>
+      </item>
+      <item>
+        <layout class="QHBoxLayout" >
+          <property name="margin" >
+            <number>0</number>
+          </property>
+          <item>
+            <spacer name="spacer17" >
+              <property name="sizeHint" >
+                <size>
+                  <width>40</width>
+                  <height>20</height>
+                </size>
+              </property>
+              <property name="sizeType" >
+                <enum>Expanding</enum>
+              </property>
+              <property name="orientation" >
+                <enum>Horizontal</enum>
+              </property>
+            </spacer>
+          </item>
+          <item>
+            <widget class="QPushButton" name="ok_btn" >
+              <property name="minimumSize" >
+                <size>
+                  <width>0</width>
+                  <height>0</height>
+                </size>
+              </property>
+              <property name="text" >
+                <string>&amp;OK</string>
+              </property>
+              <property name="shortcut" >
+                <string>Alt+O</string>
+              </property>
+              <property name="autoDefault" >
+                <bool>false</bool>
+              </property>
+              <property name="default" >
+                <bool>false</bool>
+              </property>
+            </widget>
+          </item>
+          <item>
+            <widget class="QPushButton" name="cancel_btn" >
+              <property name="minimumSize" >
+                <size>
+                  <width>0</width>
+                  <height>0</height>
+                </size>
+              </property>
+              <property name="text" >
+                <string>&amp;Cancel</string>
+              </property>
+              <property name="shortcut" >
+                <string>Alt+C</string>
+              </property>
+              <property name="autoDefault" >
+                <bool>false</bool>
+              </property>
+              <property name="default" >
+                <bool>false</bool>
+              </property>
+            </widget>
+          </item>
+        </layout>
+      </item>
+    </layout>
+  </widget>
+  <layoutdefault spacing="6" margin="11" />
+  <pixmapfunction></pixmapfunction>
+  <tabstops>
     <tabstop>nameLineEdit</tabstop>
     <tabstop>molnameLineEdit</tabstop>
     <tabstop>choose_color_btn</tabstop>
     <tabstop>ok_btn</tabstop>
     <tabstop>cancel_btn</tabstop>
-</tabstops>
-<slots>
-    <slot>change_jig_color()</slot>
-</slots>
-<layoutdefaults spacing="6" margin="11"/>
-</UI>
+  </tabstops>
+  <images>
+    <image name="image0" >
+      <data format="XPM.GZ" length="739" >789cadcebd0ac23010c0f1bd4f119aad88fd205283f80882a3200e7797061dba681d447c777327488b89207864f9f323c79585da6d37aa28b3cb00c389141de1ac0a77edfbdbfeb0be6779d3a8f096aace67598e8a94aedbca572d27709ace58d3703a4ef0e000393527764828d971fadada56fe7ac9051a2b4a92be0ac3397f258f647426a201745c405e4c505e5c3029e93f7fdd469494e4b62f7f7edee680085c4418463492001dd3a7a0c0fb8689f884846d3ebe2d7d4120c4d1d58f55f604f6499d82</data>
+    </image>
+  </images>
+  <connections>
+    <connection>
+      <sender>cancel_btn</sender>
+      <signal>clicked()</signal>
+      <receiver>ThermoPropDialog</receiver>
+      <slot>reject()</slot>
+    </connection>
+    <connection>
+      <sender>ok_btn</sender>
+      <signal>clicked()</signal>
+      <receiver>ThermoPropDialog</receiver>
+      <slot>accept()</slot>
+    </connection>
+  </connections>
+</ui>
