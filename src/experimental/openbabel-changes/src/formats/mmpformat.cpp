@@ -16,6 +16,7 @@ GNU General Public License for more details.
 #include "obconversion.h"
 #include "obmolecformat.h"
 #include <errno.h>
+#include <stdarg.h>
 
 #include <vector>
 #include <map>
@@ -27,8 +28,23 @@ GNU General Public License for more details.
 
 static int WWARE_DEBUG;
 
+#if 0
 #define WWPRINTF(fmt...)   if (WWARE_DEBUG) { fprintf(stderr, "%s (%d) ", __FILE__, __LINE__); \
                                               fprintf(stderr, ##fmt); }
+#else
+static FILE *debugfile = NULL;
+static void __WWPRINTF(const char *file, const int linenum, const char *fmt, ...)
+{
+    va_list argp;
+    va_start(argp, fmt);
+    if (debugfile == NULL)
+	debugfile = fopen("babeldebug", "w");
+    fprintf(debugfile, "%s (%d) ", file, linenum);
+    vfprintf(debugfile, fmt, argp);
+}
+#define WWPRINTF(fmt...)  __WWPRINTF(__FILE__, __LINE__, ## fmt)
+#endif
+
 #define HERE()  WWPRINTF("\n")
 #define DD(z)   WWPRINTF("%s = %d\n", #z, z);
 #define XX(z)   WWPRINTF("%s = %08X\n", #z, z);
@@ -37,10 +53,8 @@ static int WWARE_DEBUG;
 static int atom_index = 1;
 static int bond_index = 1;
 
-#define ERROR(fmt) fprintf(stderr, "%s:%d ", __FILE__, __LINE__); fprintf(stderr, fmt)
-#define ERROR1(fmt,a) fprintf(stderr, "%s:%d ", __FILE__, __LINE__); fprintf(stderr, fmt, a)
-#define ERROR2(fmt,a,b) fprintf(stderr, "%s:%d ", __FILE__, __LINE__); fprintf(stderr, fmt, a, b)
-#define ERROR3(fmt,a,b,c) fprintf(stderr, "%s:%d ", __FILE__, __LINE__); fprintf(stderr, fmt, a, b, c)
+#define ERROR(fmt, a...) if (WWARE_DEBUG) { WWPRINTF(__FILE__, __LINE__, fmt, ## a); } else \
+   { fprintf(stderr, "%s:%d ", __FILE__, __LINE__); fprintf(stderr, fmt, ## a); }
 
 //#define OUCH()  throw
 #define OUCH()  fprintf(stderr, "TROUBLE %s %d\n", __FILE__, __LINE__)
@@ -193,7 +207,7 @@ namespace OpenBabel
 	    ret = !strcmp(tok, expected);
 	}
 	if (!ret) {
-	    ERROR2("expected \"%s\", got \"%s\"\n", expected ? expected : "EOF", tok ? tok : "EOF");
+	    ERROR("expected \"%s\", got \"%s\"\n", expected ? expected : "EOF", tok ? tok : "EOF");
 	    mmpParseError(mmpInfo);
 	}
 	return ret;
@@ -229,15 +243,15 @@ namespace OpenBabel
 	    errno = 0;
 	    val = strtol(tok, &end, 0);
 	    if (errno != 0) {
-		ERROR1("integer value out of range: \"%s\"\n", tok);
+		ERROR("integer value out of range: \"%s\"\n", tok);
 		mmpParseError(mmpInfo);
 	    }
 	    if (*end != '\0') {
-		ERROR1("expected int, got \"%s\"\n", tok);
+		ERROR("expected int, got \"%s\"\n", tok);
 		mmpParseError(mmpInfo);
 	    }
 	    if (val > INT_MAX || val < INT_MIN) {
-		ERROR1("integer value out of range: \"%s\"\n", tok);
+		ERROR("integer value out of range: \"%s\"\n", tok);
 		mmpParseError(mmpInfo);
 	    }
 	    *value = val;
@@ -279,11 +293,11 @@ namespace OpenBabel
 	    errno = 0;
 	    val = strtod(tok, &end);
 	    if (errno != 0) {
-		ERROR1("double value out of range: %s", tok);
+		ERROR("double value out of range: %s", tok);
 		mmpParseError(mmpInfo);
 	    }
 	    if (*end != '\0') {
-		ERROR1("expected double, got %s", tok);
+		ERROR("expected double, got %s", tok);
 		mmpParseError(mmpInfo);
 	    }
 	    *value = val;
@@ -407,7 +421,7 @@ namespace OpenBabel
 	    mmpParseError(mmpInfo);
 	}
 	if (expectedLength != 0 && expectedLength != index) {
-	    ERROR2("expected exactly %d atoms, got %d", expectedLength, index);
+	    ERROR("expected exactly %d atoms, got %d", expectedLength, index);
 	    mmpParseError(mmpInfo);
 	}
 	*length = index;
@@ -572,7 +586,7 @@ namespace OpenBabel
 			} else if (!strcmp(tok, "sp")) {
 			    hybridization = sp;
 			} else {
-			    ERROR1("unknown hybridization: %s", tok);
+			    ERROR("unknown hybridization: %s", tok);
 			    mmpParseError(&mmpInfo);
 			}
 			setAtomHybridization(mol, previousAtomID, hybridization);
