@@ -7,14 +7,14 @@ maintained at cvsdude.org.
 import os, sys, smtplib
 
 tarballURLs = {
-    "cad.tar.gz": "http://cvsdude.org/download.pl?id=xAWFjEtta9XaU",
-    "sim.tar.gz": "http://cvsdude.org/download.pl?id=nfOzBTt5Tc2SU",
-    "Distribution.tar.gz": "http://cvsdude.org/download.pl?id=exfgjuyj9e1afuck4tpdnsdebayfj30y",
+    "cad.tar.gz": "http://cvs2.cvsdude.com/download.pl?id=xAWFjEtta9XaU",
+    "sim.tar.gz": "http://cvs2.cvsdude.com/download.pl?id=nfOzBTt5Tc2SU",
+    "Distribution.tar.gz": "http://cvs2.cvsdude.com/download.pl?id=exfgjuyj9e1afuck4tpdnsdebayfj30y",
     "Bugzilla.tar.gz": "http://mirror1.cvsdude.com/download.pl?id=p3kowosctuqqfud82rzttmtfbey7ogb5"
     }
 fileList = tarballURLs.keys()
 
-WEBSERVER_DIR = "webserver2:/var/www/html/nanorex-tarballs"
+WEBSERVER_DIR = "webserver:/var/www/html/nanorex-tarballs"
 TMP_DIR = "/tmp/tarballs"
 ISOFILE = "/tmp/backupTarballs.iso"
 MYSELF = "Will Ware <wware@alum.mit.edu>"
