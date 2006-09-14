@@ -357,10 +357,14 @@ class fileSlotsMixin: #bruce 050907 moved these methods out of class MWsemantics
         import time
         from qt import QStringList, QProcess
         arguments = QStringList()
+        filePath = os.path.dirname(os.path.abspath(sys.argv[0]))
+        program = os.path.normpath(filePath + '/../bin/babel')
         if sys.platform == 'win32':
-            program = 'babel.exe'
-        else:
-            program = 'babel'
+            program += '.exe'
+        if not os.path.exists(program):
+            env.history.message(redmsg("The OpenBabel program [" + program
+                                       + "] is missing. Translation aborted."))
+            return False
         i = 0
         for arg in [program, infile, outfile]:
             if platform.atom_debug:
