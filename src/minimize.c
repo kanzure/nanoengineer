@@ -56,10 +56,6 @@ static char const rcsid[] = "$Id$";
 #define LINEAR_ITERATION_LIMIT 100
 #define EPSILON 1e-10
 
-static int allocationCount = 0;
-static int freeCount = 0;
-static int maxAllocation = 0;
-
 static struct configuration *PROBE = NULL;
 
 void
@@ -90,6 +86,9 @@ initializeFunctionDefinition(struct functionDefinition *fd,
         fd->message = "";
         fd->messageBufferLength = 0;
     }
+    fd->allocationCount = 0;
+    fd->freeCount = 0;
+    fd->maxAllocation = 0;
 }
 
 // Append a message to then end of the message buffer.  The buffer is
@@ -139,9 +138,9 @@ makeConfiguration(struct functionDefinition *fd)
     ret->extra = NULL;
     ret->functionValueValid = 0;
     ret->referenceCount = 1;
-    allocationCount++;
-    if (allocationCount - freeCount > maxAllocation) {
-	maxAllocation = allocationCount - freeCount;
+    fd->allocationCount++;
+    if (fd->allocationCount - fd->freeCount > fd->maxAllocation) {
+	fd->maxAllocation = fd->allocationCount - fd->freeCount;
     }
     return ret;
 }
@@ -149,7 +148,7 @@ makeConfiguration(struct functionDefinition *fd)
 void
 freeConfiguration(struct configuration *conf)
 {
-    freeCount++;
+    conf->functionDefinition->freeCount++;
     if (conf == PROBE) {
 	fprintf(stderr, "freeing PROBE\n");
 	return;
@@ -200,12 +199,13 @@ CheckReferenceCount(struct configuration *p, int rc, int line, char *name)
 }
 #endif
 
-#define Enter() int _used = allocationCount - freeCount
-#define Leave(name, count) LeaveRoutine(# name, count, _used)
+#define Enter(config) int _used = config->functionDefinition->allocationCount - config->functionDefinition->freeCount
+#define Leave(name, config, count) LeaveRoutine(# name, config, count, _used)
 static void
-LeaveRoutine(char *name, int count, int used)
+LeaveRoutine(char *name, struct configuration *config, int count, int used)
 {
-    int usedNow = allocationCount - freeCount;
+    struct functionDefinition *fd = config->functionDefinition;
+    int usedNow = fd->allocationCount - fd->freeCount;
 
     if (usedNow - used != count) {
 	fprintf(stderr, "%s allocated %d instead of %d\n", name, usedNow - used, count);
@@ -350,7 +350,7 @@ bracketMinimum(struct configuration **ap,
     double ulimit;
     double parameterLimit;
 
-    Enter();
+    Enter(p);
     SetConfiguration(&a, p);
     a->parameter = 0.0;
     evaluateGradient(p); // this lets (*dfunc)() set initial_parameter_guess
@@ -403,7 +403,7 @@ bracketMinimum(struct configuration **ap,
 		*bp = u;
 		*cp = c;
 		SetConfiguration(&a, NULL);
-		Leave(bracketMinimum, (p == *ap || p == *bp || p == *cp) ? 2 : 3);
+		Leave(bracketMinimum, p, (p == *ap || p == *bp || p == *cp) ? 2 : 3);
 		return;
 	    }
 	    if (evaluate(u) > evaluate(b)) { // success: (a, b, u) brackets
@@ -411,7 +411,7 @@ bracketMinimum(struct configuration **ap,
 		*bp = b;
 		*cp = u;
 		SetConfiguration(&c, NULL);
-		Leave(bracketMinimum, (p == *ap || p == *bp || p == *cp) ? 2 : 3);
+		Leave(bracketMinimum, p, (p == *ap || p == *bp || p == *cp) ? 2 : 3);
 		return;
 	    }
 	    // b, u, c monotonically decrease, u is useless.
@@ -462,7 +462,7 @@ bracketMinimum(struct configuration **ap,
 				       parameterLimit / (GOLDEN_RATIO + 1.0)));
         SetConfiguration(&c, NULL);
         SetConfiguration(&u, NULL);
-        Leave(bracketMinimum, 0);
+        Leave(bracketMinimum, p, 0);
         return;
     }
     if (EXCEPTION) {
@@ -472,7 +472,7 @@ bracketMinimum(struct configuration **ap,
         SetConfiguration(&b, NULL);
         SetConfiguration(&c, NULL);
         SetConfiguration(&u, NULL);
-        Leave(bracketMinimum, 0);
+        Leave(bracketMinimum, p, 0);
         return;
     }
         
@@ -481,7 +481,7 @@ bracketMinimum(struct configuration **ap,
     *bp = b;
     *cp = c;
     SetConfiguration(&u, NULL);
-    Leave(bracketMinimum, (p == *ap || p == *bp || p == *cp) ? 2 : 3);
+    Leave(bracketMinimum, p, (p == *ap || p == *bp || p == *cp) ? 2 : 3);
 }
 
 // Brent's method of inverse parabolic interpolation.
@@ -513,7 +513,7 @@ brent(struct configuration *parent,
     double maxp; // maximum coordinate in gradient, multiply parameters by this for tolerance testing
     int iteration;
 
-    Enter();
+    Enter(parent);
     SetConfiguration(&x, initial_b);
     SetConfiguration(&w, initial_b);
     SetConfiguration(&v, initial_b);
@@ -533,7 +533,7 @@ brent(struct configuration *parent,
 
     d = 0.0;
     e = 0.0;
-    Leave(brent_beforeLoop, 0);
+    Leave(brent_beforeLoop, parent, 0);
     for (iteration=1; iteration<=LINEAR_ITERATION_LIMIT && !Interrupted && !EXCEPTION; iteration++) {
 	xm = 0.5 * (a->parameter + b->parameter); // midpoint of bracketing interval
 	tol = tolerance * fabs(x->parameter) + TOLERANCE_AT_ZERO ;
@@ -552,7 +552,7 @@ brent(struct configuration *parent,
 	    SetConfiguration(&u, NULL);
 	    SetConfiguration(&v, NULL);
 	    SetConfiguration(&w, NULL);
-	    Leave(brent, (x == initial_b) ? 0 : 1);
+	    Leave(brent, parent, (x == initial_b) ? 0 : 1);
             DPRINT3(D_MINIMIZE, "leaving brent, parameter %e * %e == %e\n",
                    x->parameter, maxp, x->parameter * maxp);
 	    return x;
@@ -654,9 +654,9 @@ brent(struct configuration *parent,
     SetConfiguration(&v, NULL);
     SetConfiguration(&w, NULL);
     if (x == initial_b) {
-	Leave(brent, 0);
+	Leave(brent, parent, 0);
     } else {
-	Leave(brent, 1);
+	Leave(brent, parent, 1);
     }
     return x;
 }
@@ -676,7 +676,7 @@ linearMinimize(struct configuration *p,
     struct configuration *c = NULL;
     struct configuration *min = NULL;
 
-    Enter();
+    Enter(p);
     bracketMinimum(&a, &b, &c, p);
     BAILR(NULL);
     if (Interrupted) return b;
@@ -701,7 +701,7 @@ linearMinimize(struct configuration *p,
     if (DEBUG(D_MINIMIZE) && min == p) {
 	message(p->functionDefinition, "linearMinimize returning argument");
     }
-    Leave(linearMinimize, (min == p) ? 0 : 1);
+    Leave(linearMinimize, p, (min == p) ? 0 : 1);
     return min;
 }
 
@@ -748,7 +748,7 @@ minimize_one_tolerance(struct configuration *initial_p,
     struct configuration *q = NULL;
     int i;
 
-    Enter();
+    Enter(initial_p);
     NULLPTRR(initial_p, NULL);
     NULLPTRR(iteration, initial_p);
     fd = initial_p->functionDefinition;
@@ -769,7 +769,7 @@ minimize_one_tolerance(struct configuration *initial_p,
 	BAILR(q == NULL ? p : q);
         if ((fd->termination)(fd, p, q, tolerance)) {
 	    SetConfiguration(&p, NULL);
-	    Leave(minimize_one_tolerance, (q == initial_p) ? 0 :1);
+	    Leave(minimize_one_tolerance, initial_p, (q == initial_p) ? 0 :1);
 	    return q;
 	}
 	evaluateGradient(p); // should have been evaluated by linearMinimize already
@@ -798,7 +798,7 @@ minimize_one_tolerance(struct configuration *initial_p,
 		// is zero, so we must be done.
 		DPRINT(D_MINIMIZE, "gg==0 in minimize_one_tolerance\n");
 		SetConfiguration(&p, NULL);
-		Leave(minimize_one_tolerance, 1);
+		Leave(minimize_one_tolerance, initial_p, 1);
 		return q;
 	    }
 	    gamma = dgg / gg;
@@ -817,7 +817,7 @@ minimize_one_tolerance(struct configuration *initial_p,
         message(fd, "reached iteration limit");
     }
     SetConfiguration(&p, NULL);
-    Leave(minimize_one_tolerance, 1);
+    Leave(minimize_one_tolerance, initial_p, 1);
     return q;
 }
 
@@ -835,7 +835,7 @@ minimize(struct configuration *initial_p,
     int coarse_iter;
     int fine_iter;
 
-    Enter();
+    Enter(initial_p);
     NULLPTRR(initial_p, NULL);
     fd = initial_p->functionDefinition;
     NULLPTRR(fd, initial_p);
@@ -858,7 +858,7 @@ minimize(struct configuration *initial_p,
     }
     SetConfiguration(&intermediate, NULL);
     *iteration = coarse_iter + fine_iter;
-    Leave(minimize, (final == initial_p) ? 0 :1);
+    Leave(minimize, initial_p, (final == initial_p) ? 0 :1);
     // final probably shouldn't ever be NULL, but it's conceivable in
     // some exception processing cases.  If that happens, then we
     // haven't made any progress, so return initial_p.
@@ -930,10 +930,10 @@ testMinimize()
 	    fd.functionEvaluationCount,
 	    fd.gradientEvaluationCount);
     fprintf(stderr, "allocation: %d, free: %d, remaining: %d, maximum: %d\n",
-	    allocationCount,
-	    freeCount,
-	    allocationCount - freeCount,
-	    maxAllocation);
+	    fd->allocationCount,
+	    fd->freeCount,
+	    fd->allocationCount - fd->freeCount,
+	    fd->maxAllocation);
 }
 
 int

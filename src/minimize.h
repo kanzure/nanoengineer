@@ -119,6 +119,18 @@ struct functionDefinition
   // to zero to disable.
   char *message;
   int messageBufferLength;
+
+  // The total number of configurations allocated during the
+  // minimization so far.  Increases monotonically.  The current
+  // number of configurations in use is allocationCount - freeCount.
+  int allocationCount;
+
+  // The total number of calls to free for configurations.
+  int freeCount;
+
+  // The current high water mark for the number of configurations in
+  // use.
+  int maxAllocation;
 };
 
 enum minimizationAlgorithm {
