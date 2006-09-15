@@ -26,38 +26,37 @@ GNU General Public License for more details.
 #define UNIMPLEMENTED
 #define UNTESTED
 
-static int WWARE_DEBUG;
+// #define DEBUG
 
-#if 0
-#define WWPRINTF(fmt...)   if (WWARE_DEBUG) { fprintf(stderr, "%s (%d) ", __FILE__, __LINE__); \
-                                              fprintf(stderr, ##fmt); }
-#else
+#ifdef DEBUG
 static FILE *debugfile = NULL;
-static void __WWPRINTF(const char *file, const int linenum, const char *fmt, ...)
+static void dbgprintf(const char *file, const int linenum, const char *fmt, ...)
 {
     va_list argp;
     va_start(argp, fmt);
-    if (debugfile == NULL)
+    if (debugfile == NULL) {
+	fprintf(stderr, "OPENING DEBUG FILE babeldebug\n");
 	debugfile = fopen("babeldebug", "w");
+    }
     fprintf(debugfile, "%s (%d) ", file, linenum);
     vfprintf(debugfile, fmt, argp);
 }
-#define WWPRINTF(fmt...)  __WWPRINTF(__FILE__, __LINE__, ## fmt)
+#define DBGPRINTF(fmt...)  dbgprintf(__FILE__, __LINE__, ## fmt)
+#else
+#define DBGPRINTF(fmt...)  ((void *) 0)
 #endif
 
-#define HERE()  WWPRINTF("\n")
-#define DD(z)   WWPRINTF("%s = %d\n", #z, z);
-#define XX(z)   WWPRINTF("%s = %08X\n", #z, z);
-#define SS(z)   WWPRINTF("%s = \"%s\"\n", #z, z);
+#define HERE()  DBGPRINTF("\n")
+#define DD(z)   DBGPRINTF("%s = %d\n", #z, z);
+#define XX(z)   DBGPRINTF("%s = %08X\n", #z, z);
+#define SS(z)   DBGPRINTF("%s = \"%s\"\n", #z, z);
 
 static int atom_index = 1;
 static int bond_index = 1;
 
-#define ERROR(fmt, a...) if (WWARE_DEBUG) { WWPRINTF(__FILE__, __LINE__, fmt, ## a); } else \
-   { fprintf(stderr, "%s:%d ", __FILE__, __LINE__); fprintf(stderr, fmt, ## a); }
+#define ERROR(fmt, a...) DBGPRINTF(fmt, ## a)
 
-//#define OUCH()  throw
-#define OUCH()  fprintf(stderr, "TROUBLE %s %d\n", __FILE__, __LINE__)
+#define OUCH()  DBGPRINTF("TROUBLE\n")
 
 using namespace std;
 namespace OpenBabel
@@ -547,12 +546,10 @@ namespace OpenBabel
 		expectInt(mmp, &mmpInfo, &elementType, 0);
 		expectToken(mmp, &mmpInfo, ")");
 		position = expectXYZInts(mmp, &mmpInfo);
-		if (elementType != 0) {
-		    // hack: change singlets to hydrogen
-		    // if (elementType == 0) elementType=1;
-		    previousAtomID = atomID;
-		    makeAtom(mol, atomID, elementType, position, residue);
-		}
+		// hack: change singlets to hydrogen
+		if (elementType == 0) elementType=1;
+		previousAtomID = atomID;
+		makeAtom(mol, atomID, elementType, position, residue);
 		atoms_in_this_group++;
 		consumeRestOfLine(mmp, &mmpInfo);
 	    }
@@ -684,17 +681,14 @@ namespace OpenBabel
     MMPFormat theMMPFormat;
 
     static char buffer[BUFF_SIZE];
-
+    
     /////////////////////////////////////////////////////////////////
     bool MMPFormat::ReadMolecule(OBBase* pOb, OBConversion* pConv)
     {
 
-	WWARE_DEBUG = (getenv("WWARE_DEBUG") != NULL);
-	DD(WWARE_DEBUG);
-
 	OBMol* pmol = dynamic_cast<OBMol*>(pOb);
 	if(pmol==NULL) {
-	    WWPRINTF("ouch\n");
+	    DBGPRINTF("ouch\n");
 	    return false;
 	}
 
@@ -748,12 +742,9 @@ namespace OpenBabel
     {
 	extern void _mmp_write_atoms(OBMol& mol, ostream &ofs, int resnum);
 
-	WWARE_DEBUG = (getenv("WWARE_DEBUG") != NULL);
-	DD(WWARE_DEBUG);
-
 	OBMol* pmol = dynamic_cast<OBMol*>(pOb);
 	if(pmol==NULL) {
-	    WWPRINTF("ouch\n");
+	    DBGPRINTF("ouch\n");
 	    return false;
 	}
 
@@ -870,7 +861,7 @@ namespace OpenBabel
 		    }
 		    HERE();
 		    if (bondsOfThisOrder > 0) {
-			WWPRINTF("Uncharted waters!\n");
+			DBGPRINTF("Uncharted waters!\n");
 			UNTESTED; // test for aromatic, graphitic, carbomeric bonds
 			static char bondchars[] = " 123agc";
 			snprintf(buffer, BUFF_SIZE, "bond%c", bondchars[bondOrder]);
