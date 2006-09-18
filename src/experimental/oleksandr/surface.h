@@ -124,6 +124,13 @@ class Surface
   private:
           
 	//------------------------------------------------------------------------
+	// CleanQuads()
+	//
+	// delete duplicate quads
+	//
+	void CleanQuads();
+
+	//------------------------------------------------------------------------
 	// SurfaceNormals()
 	//
 	// calculate surface normals

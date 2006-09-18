@@ -288,7 +288,8 @@ void Surface::CreateSurface()
 	}
 	Duplicate();
 	SurfaceNormals();
-	int n = 4; // number of iterations
+	CleanQuads();
+	int n = 20; // number of iterations
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < mPoints.Size(); j++)
@@ -299,10 +300,10 @@ void Surface::CreateSurface()
 				n.Normalize();
 			double om = Predicate(p);
 			if (om < -1.0) om = -1.0;
-			mPoints[j] = p + 0.25 * om * n;
+			mPoints[j] = p + 0.1 * om * n;
 		}
+		SurfaceNormals();
 	}
-	SurfaceNormals();
 	delete mDT;
 }
 
@@ -395,3 +396,48 @@ void Surface::Duplicate()
     }
 }
 
+//------------------------------------------------------------------------
+// CleanQuads()
+//
+// delete duplicate quads
+//
+void Surface::CleanQuads()
+{
+	int ii,i,j,ip,n;
+	Container<int> extrapoints;
+	for (i = 0; i< mPoints.Size(); i++)
+	{
+		Triple n = mNormals[i];
+		if (n.Len2() < 0.5)
+			extrapoints.Add(i);
+	}
+	if (mType)
+	{
+		ii = 0;
+		n = mEntities.Size();
+		for (i = 0; i < n; i+=4)
+		{
+			int del = 0;
+			for (j = 0; j < 4; j++)
+			{
+				int ind = mEntities[i + j];
+				for (ip = 0; ip < extrapoints.Size(); ip++)
+				{
+					if (ind == extrapoints[ip])
+					{
+						del = 1;
+						break;
+					}
+				}
+				mEntities[ii + j] = ind;
+			}
+			if (del) continue;
+			ii+=4;
+		}
+		//    delete extra entities
+		for (i=0; i<n-ii; i++)
+		{
+			mEntities.DeleteLast();
+		}
+	}
+}
