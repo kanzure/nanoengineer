@@ -4,6 +4,9 @@
 
 static char const rcsid[] = "$Id$";
 
+#define COARSE_TOLERANCE 1e-3
+#define FINE_TOLERANCE 1e-8
+
 static int atomCount;
 static int allowScaling; // non-zero if a scale difference will be allowed
 
@@ -191,6 +194,22 @@ translateToCenterOfMass(struct xyz *pos, int atomCount)
   }
 }
 
+static int
+structCompareTermination(struct functionDefinition *fd,
+                            struct configuration *previous,
+                            struct configuration *current)
+{
+    int ret = defaultTermination(fd, previous, current);
+
+    if (ret && fd->tolerance == COARSE_TOLERANCE) {
+      fd->tolerance = FINE_TOLERANCE;
+      fd->algorithm = PolakRibiereConjugateGradient;
+      fd->linear_algorithm = LinearMinimize;
+      return 0;
+    }
+    return ret;
+}
+
 static struct functionDefinition structCompareFunctions;
 
 // Compare two structures to see if they are the same.  The atom
@@ -239,8 +258,10 @@ doStructureCompare(int numberOfAtoms,
 
   structCompareFunctions.gradient_delta = 1e-8;
   structCompareFunctions.freeExtra = structCompareFreeExtra;
-  structCompareFunctions.coarse_tolerance = 1e-3;
-  structCompareFunctions.fine_tolerance = 1e-8;
+  structCompareFunctions.termination = structCompareTermination;
+  structCompareFunctions.tolerance = COARSE_TOLERANCE;
+  structCompareFunctions.algorithm = SteepestDescent;
+  structCompareFunctions.linear_algorithm = LinearBracket;
   structCompareFunctions.initial_parameter_guess = 0.001;
 
   initial = makeConfiguration(&structCompareFunctions);

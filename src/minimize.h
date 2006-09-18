@@ -4,6 +4,17 @@
 
 #define RCSID_MINIMIZE_H  "$Id$"
 
+enum minimizationAlgorithm {
+  SteepestDescent,
+  PolakRibiereConjugateGradient,
+  FletcherReevesConjugateGradient
+};
+
+enum linearAlgorithm {
+  LinearBracket,
+  LinearMinimize
+};
+
 struct configuration 
 {
   // Value of the function at this configuration, the "potential
@@ -78,8 +89,7 @@ struct functionDefinition
   // tolerance is about the average value of the function.
   int (*termination)(struct functionDefinition *fd,
                      struct configuration *previous,
-                     struct configuration *current,
-                     double tolerance);
+                     struct configuration *current);
 
   // Called from gradientOffset after coordinates are updated to the
   // new values.  Used by callers to constrain coordinates in caller
@@ -87,10 +97,18 @@ struct functionDefinition
   void (*constraints)(struct configuration *p);
   
   // How close do we need to get to the minimum?  Should be no smaller
-  // than the square root of the machine precision.  First we minimize
-  // to coarse_tolerance, then to fine_tolerance.
-  double coarse_tolerance;
-  double fine_tolerance;
+  // than the square root of the machine precision.  Can be changed
+  // during minimization, by the termination function, for example.
+  double tolerance;
+
+  // Which algorithm do we use for the minimization?  Can be changed
+  // during minimization, by the termination function, for example.
+  enum minimizationAlgorithm algorithm;
+
+  // Which algorithm do we use for linear minimization?  Can be
+  // changed during minimization, by the termination function, for
+  // example.
+  enum linearAlgorithm linear_algorithm;
 
   // Step size for default calculation of gradient (only used if dfunc
   // is NULL).
@@ -133,12 +151,6 @@ struct functionDefinition
   int maxAllocation;
 };
 
-enum minimizationAlgorithm {
-  SteepestDescent,
-  PolakRibiereConjugateGradient,
-  FletcherReevesConjugateGradient
-};
-
 
 extern void initializeFunctionDefinition(struct functionDefinition *fd,
                                          void (*func)(struct configuration *p),
@@ -158,6 +170,10 @@ extern void evaluateGradientFromPotential(struct configuration *p);
 extern void evaluateGradient(struct configuration *p);
 
 extern struct configuration *gradientOffset(struct configuration *p, double q);
+
+extern int defaultTermination(struct functionDefinition *fd,
+                              struct configuration *previous,
+                              struct configuration *current);
 
 extern struct configuration *minimize(struct configuration *p, int *iteration, int iterationLimit);
 

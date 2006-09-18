@@ -70,8 +70,9 @@ initializeFunctionDefinition(struct functionDefinition *fd,
     fd->freeExtra = NULL;
     fd->termination = NULL;
     fd->constraints = NULL;
-    fd->coarse_tolerance = 1e-5;
-    fd->fine_tolerance = 1e-8;
+    fd->tolerance = 1e-8;
+    fd->algorithm = PolakRibiereConjugateGradient;
+    fd->linear_algorithm = LinearMinimize;
     fd->gradient_delta = 1e-8;
     fd->dimension = dimension;
     fd->initial_parameter_guess = 1.0;
@@ -669,7 +670,7 @@ brent(struct configuration *parent,
 static struct configuration *
 linearMinimize(struct configuration *p,
                double tolerance,
-               enum minimizationAlgorithm minimization_algorithm)
+               enum linearAlgorithm algorithm)
 {
     struct configuration *a = NULL;
     struct configuration *b = NULL;
@@ -689,7 +690,7 @@ linearMinimize(struct configuration *p,
                 evaluate(b), b->parameter,
                 evaluate(c), c->parameter);
     }
-    if (minimization_algorithm == SteepestDescent && b != p) {
+    if (algorithm == LinearBracket && b != p) {
 	SetConfiguration(&min, b);
     } else {
 	min = brent(p, a, b, c, tolerance);
@@ -705,14 +706,14 @@ linearMinimize(struct configuration *p,
     return min;
 }
 
-static int
+int
 defaultTermination(struct functionDefinition *fd,
                    struct configuration *previous,
-                   struct configuration *current,
-                   double tolerance)
+                   struct configuration *current)
 {
     double fp = evaluate(previous);
     double fq = evaluate(current);
+    double tolerance = fd->tolerance;
     
     DPRINT2(D_MINIMIZE, "delta %e, tol*avgVal %e\n",
             fabs(fq-fp), tolerance * (fabs(fq)+fabs(fp)+EPSILON)/2.0);
@@ -735,9 +736,7 @@ defaultTermination(struct functionDefinition *fd,
 static struct configuration *
 minimize_one_tolerance(struct configuration *initial_p,
                        int *iteration,
-                       int iterationLimit,
-                       double tolerance,
-                       enum minimizationAlgorithm minimization_algorithm)
+                       int iterationLimit)
 {
     struct functionDefinition *fd;
     double fp;
@@ -761,13 +760,13 @@ minimize_one_tolerance(struct configuration *initial_p,
     BAILR(initial_p);
     for ((*iteration)=0; (*iteration) < iterationLimit && !Interrupted; (*iteration)++) {
 	SetConfiguration(&q, NULL);
-	q = linearMinimize(p, tolerance, minimization_algorithm);
+	q = linearMinimize(p, fd->tolerance, fd->linear_algorithm);
         // If linearMinimize made some progress, but threw an
         // exception, then we want the best result, which is q.  If it
         // threw an exception and returned NULL, the best we can do
         // at this point is p.  Beyond this point, we can bail with q.
 	BAILR(q == NULL ? p : q);
-        if ((fd->termination)(fd, p, q, tolerance)) {
+        if ((fd->termination)(fd, p, q)) {
 	    SetConfiguration(&p, NULL);
 	    Leave(minimize_one_tolerance, initial_p, (q == initial_p) ? 0 :1);
 	    return q;
@@ -776,15 +775,15 @@ minimize_one_tolerance(struct configuration *initial_p,
 	BAILR(q);
 	evaluateGradient(q);
 	BAILR(q);
-	if (minimization_algorithm != SteepestDescent) {
+	if (fd->algorithm != SteepestDescent) {
 	    dgg = gg = 0.0;
-	    if (minimization_algorithm == PolakRibiereConjugateGradient) {
+	    if (fd->algorithm == PolakRibiereConjugateGradient) {
 		for (i=fd->dimension-1; i>=0; i--) {
 		    gg += p->gradient[i] * p->gradient[i];
 		    // following line implements Polak-Ribiere
 		    dgg += (q->gradient[i] + p->gradient[i]) * q->gradient[i] ;
 		}
-	    } else { // minimization_algorithm == FletcherReevesConjugateGradient
+	    } else { // fd->algorithm == FletcherReevesConjugateGradient
 		// NOTE: Polak-Ribiere may handle non-quadratic minima better
 		// than Fletcher-Reeves
 		for (i=fd->dimension-1; i>=0; i--) {
@@ -830,34 +829,16 @@ minimize(struct configuration *initial_p,
          int iterationLimit)
 {
     struct functionDefinition *fd;
-    struct configuration *intermediate;
     struct configuration *final = NULL;
-    int coarse_iter;
-    int fine_iter;
 
     Enter(initial_p);
     NULLPTRR(initial_p, NULL);
     fd = initial_p->functionDefinition;
     NULLPTRR(fd, initial_p);
     NULLPTRR(iteration, initial_p);
-    intermediate = minimize_one_tolerance(initial_p,
-					  &coarse_iter,
-					  iterationLimit * 0.8,
-					  fd->coarse_tolerance,
-					  SteepestDescent);
-    if (fd->fine_tolerance < fd->coarse_tolerance && !Interrupted && !EXCEPTION) {
-	DPRINT1(D_MINIMIZE, "cutover to fine tolerance at %d\n", coarse_iter);
-	message(fd, "cutover to fine tolerance at %d", coarse_iter);
-	final = minimize_one_tolerance(intermediate,
-				       &fine_iter,
-				       iterationLimit - coarse_iter,
-				       fd->fine_tolerance,
-				       PolakRibiereConjugateGradient);
-    } else {
-	SetConfiguration(&final, intermediate);
-    }
-    SetConfiguration(&intermediate, NULL);
-    *iteration = coarse_iter + fine_iter;
+    final = minimize_one_tolerance(initial_p,
+                                   iteration,
+                                   iterationLimit);
     Leave(minimize, initial_p, (final == initial_p) ? 0 :1);
     // final probably shouldn't ever be NULL, but it's conceivable in
     // some exception processing cases.  If that happens, then we

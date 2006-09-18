@@ -4,6 +4,9 @@
 
 static char const rcsid[] = "$Id$";
 
+#define COARSE_TOLERANCE 1e-8
+#define FINE_TOLERANCE 1e-10
+
 static struct part *Part;
 
 static void
@@ -118,6 +121,7 @@ minimizeStructureGradient(struct configuration *p)
     double plimit;
     struct xyz *forces;
     struct jig *jig;
+    struct functionDefinition *fd = p->functionDefinition;
 
 #ifdef PLOT_LINEAR_MINIMIZATION
     double parameter;
@@ -134,9 +138,9 @@ minimizeStructureGradient(struct configuration *p)
 
     updateVanDerWaals(Part, p, (struct xyz *)p->coordinate); BAIL();
     if (DEBUG(D_GRADIENT_FROM_POTENTIAL) || DEBUG(D_GRADIENT_COMPARISON)) { // -D10 || -D18
-        p->functionDefinition->gradient_delta = 1e-12; // pm
+        fd->gradient_delta = 1e-12; // pm
 	evaluateGradientFromPotential(p); BAIL();
-        for (i=p->functionDefinition->dimension-1; i>=0; i--) {
+        for (i=fd->dimension-1; i>=0; i--) {
             p->gradient[i] *= 1e6; // convert uN to pN
         }
         if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE) && DEBUG(D_GRADIENT_COMPARISON)) { // -D4
@@ -184,7 +188,7 @@ minimizeStructureGradient(struct configuration *p)
             break;
         }
     }
-    p->functionDefinition->parameter_limit = parameterLimit;
+    fd->parameter_limit = parameterLimit;
 
     // dynamics wants gradient pointing downhill, we want it uphill
     //for (i=0; i<3*Part->num_atoms; i++) {
@@ -201,14 +205,14 @@ minimizeStructureGradient(struct configuration *p)
     // evaluation counts also output with that debugging flag on.
     // Given that max_force is non-negative, the current form doesn't
     // need the upper range limit in the clamp.
-    p->functionDefinition->initial_parameter_guess = clamp(1e-20, 1e3,
-                                                           0.7 / (max_force + 1000.0) +
-                                                           0.1 / (max_force + 20.0));
+    fd->initial_parameter_guess = clamp(1e-20, 1e3,
+                                        0.7 / (max_force + 1000.0) +
+                                        0.1 / (max_force + 20.0));
 
 #ifdef PLOT_LINEAR_MINIMIZATION
-    for (parameter = -p->functionDefinition->initial_parameter_guess;
-         parameter < p->functionDefinition->initial_parameter_guess;
-         parameter += p->functionDefinition->initial_parameter_guess / 500) {
+    for (parameter = -fd->initial_parameter_guess;
+         parameter < fd->initial_parameter_guess;
+         parameter += fd->initial_parameter_guess / 500) {
         newLocation = gradientOffset(p, parameter);
         potential = evaluate(newLocation);
         position = (struct xyz *)newLocation->coordinate;
@@ -229,7 +233,7 @@ minimizeStructureGradient(struct configuration *p)
 #endif
     
     writeMinimizeMovieFrame(OutputFile, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++, 0,
-			    "gradient", p->functionDefinition->message, evaluate(p));
+			    fd->tolerance == COARSE_TOLERANCE ? "gradient" : "gradient-fine", fd->message, evaluate(p));
     if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
 	writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient, "gradient %e %e", rms_force, max_force);
     }
@@ -253,42 +257,39 @@ minimizeStructureGradient(struct configuration *p)
 static int
 minimizeStructureTermination(struct functionDefinition *fd,
                              struct configuration *previous,
-                             struct configuration *current,
-                             double tolerance)
+                             struct configuration *current)
 {
     double fp;
     double fq;
     double rms_force;
     double max_force;
+    double tolerance = fd->tolerance;
 
     fp = evaluate(previous); BAILR(0);
     fq = evaluate(current); BAILR(0);
-    // wware 060109  python exception handling
+
     evaluateGradient(current); BAILR(0);
     findRMSandMaxForce(current, &rms_force, &max_force); BAILR(0);
-    if (tolerance == fd->coarse_tolerance) {
-        if (rms_force < MinimizeThresholdCutoverRMS &&
-            max_force < MinimizeThresholdCutoverMax) {
-            return 1;
-        }
-    } else {
-        if (rms_force < MinimizeThresholdEndRMS &&
-            max_force < MinimizeThresholdEndMax) {
-            return 1;
-        }
+    if (tolerance == COARSE_TOLERANCE &&
+        rms_force < MinimizeThresholdCutoverRMS &&
+        max_force < MinimizeThresholdCutoverMax) {
+      fd->tolerance = FINE_TOLERANCE;
+      fd->algorithm = PolakRibiereConjugateGradient;
+      fd->linear_algorithm = LinearMinimize;
     }
-#define EPSILON 1e-10
-    
-    DPRINT2(D_MINIMIZE, "delta %e, tol*avgVal %e\n", // -D2
-            fabs(fq-fp), tolerance * (fabs(fq)+fabs(fp)+EPSILON)/2.0);
-    if (2.0 * fabs(fq-fp) <= tolerance * (fabs(fq)+fabs(fp)+EPSILON)) {
-        DPRINT5(D_MINIMIZE,
-                "fp: %e fq: %e || delta %e <= tolerance %e * averageValue %e",
-                fp, fq,
-                fabs(fq-fp), tolerance, (fabs(fq)+fabs(fp)+EPSILON)/2.0);
-        return 1;
+    if (tolerance == FINE_TOLERANCE &&
+        (rms_force > MinimizeThresholdCutoverRMS * 1.5 ||
+         max_force > MinimizeThresholdCutoverMax * 1.5)) {
+      fd->tolerance = COARSE_TOLERANCE;
+      fd->algorithm = SteepestDescent;
+      fd->linear_algorithm = LinearBracket;
     }
-    return 0;
+    if (rms_force < MinimizeThresholdEndRMS &&
+        max_force < MinimizeThresholdEndMax) {
+      return 1;
+    }
+
+    return defaultTermination(fd, previous, current);
 }
 
 static void
@@ -369,8 +370,9 @@ minimizeStructure(struct part *part)
     minimizeStructureFunctions.dfunc = minimizeStructureGradient;
     minimizeStructureFunctions.termination = minimizeStructureTermination;
     minimizeStructureFunctions.constraints = minimizeStructureConstraints;
-    minimizeStructureFunctions.coarse_tolerance = 1e-8;
-    minimizeStructureFunctions.fine_tolerance = 1e-10;
+    minimizeStructureFunctions.tolerance = COARSE_TOLERANCE;
+    minimizeStructureFunctions.algorithm = SteepestDescent;
+    minimizeStructureFunctions.linear_algorithm = LinearBracket;
     
     initial = makeConfiguration(&minimizeStructureFunctions);
     for (i=0, j=0; i<part->num_atoms; i++) {

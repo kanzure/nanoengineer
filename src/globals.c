@@ -118,9 +118,9 @@ reinit_globals(void)
     TimeReversal = 0;
     
     MinimizeThresholdCutoverRMS = 50.0; // pN
-    MinimizeThresholdCutoverMax = 250.0;
+    MinimizeThresholdCutoverMax = 0.0; // set by constrainGlobals, below
     MinimizeThresholdEndRMS = 1.0;
-    MinimizeThresholdEndMax = 5.0;
+    MinimizeThresholdEndMax = 0.0; // set by constrainGlobals, below
 
     VanDerWaalsCutoffFactor = 1.7;
     
