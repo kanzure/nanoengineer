@@ -8,8 +8,8 @@
         <rect>
             <x>0</x>
             <y>0</y>
-            <width>626</width>
-            <height>673</height>
+            <width>625</width>
+            <height>678</height>
         </rect>
     </property>
     <property name="caption">
@@ -39,7 +39,7 @@
                     </property>
                     <property name="sizeHint">
                         <size>
-                            <width>584</width>
+                            <width>509</width>
                             <height>20</height>
                         </size>
                     </property>
@@ -72,976 +72,243 @@
                     <property name="name">
                         <cstring>unnamed</cstring>
                     </property>
-                    <widget class="QLayoutWidget" row="0" column="0">
+                    <widget class="QGroupBox" row="0" column="0" rowspan="1" colspan="2">
                         <property name="name">
-                            <cstring>layout85</cstring>
+                            <cstring>groupBox7_2</cstring>
                         </property>
-                        <hbox>
-                            <property name="name">
-                                <cstring>unnamed</cstring>
-                            </property>
-                            <widget class="QGroupBox">
-                                <property name="name">
-                                    <cstring>groupBox7_2</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>Axes</string>
-                                </property>
-                                <vbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QCheckBox">
-                                        <property name="name">
-                                            <cstring>display_origin_axis_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Display Origin Axis</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Show/Hide Origin Axis</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QCheckBox">
-                                        <property name="name">
-                                            <cstring>display_pov_axis_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Display Point of View Axis</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Show/Hide Point of View Axis</string>
-                                        </property>
-                                    </widget>
-                                </vbox>
-                            </widget>
-                            <widget class="QGroupBox">
-                                <property name="name">
-                                    <cstring>groupBox17_2</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>Compass</string>
-                                </property>
-                                <vbox>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QCheckBox">
-                                        <property name="name">
-                                            <cstring>display_compass_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Display Compass</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Show/Hide Display Compass</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QCheckBox">
-                                        <property name="name">
-                                            <cstring>display_compass_labels_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Display Compass Labels</string>
-                                        </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Show/Hide Display Compass</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLayoutWidget">
-                                        <property name="name">
-                                            <cstring>layout70</cstring>
-                                        </property>
-                                        <hbox>
-                                            <property name="name">
-                                                <cstring>unnamed</cstring>
-                                            </property>
-                                            <widget class="QLabel">
-                                                <property name="name">
-                                                    <cstring>textLabel1_4</cstring>
-                                                </property>
-                                                <property name="text">
-                                                    <string>Location :</string>
-                                                </property>
-                                                <property name="alignment">
-                                                    <set>AlignVCenter|AlignRight</set>
-                                                </property>
-                                            </widget>
-                                            <widget class="QComboBox">
-                                                <item>
-                                                    <property name="text">
-                                                        <string>Upper Right</string>
-                                                    </property>
-                                                </item>
-                                                <item>
-                                                    <property name="text">
-                                                        <string>Upper Left</string>
-                                                    </property>
-                                                </item>
-                                                <item>
-                                                    <property name="text">
-                                                        <string>Lower Left</string>
-                                                    </property>
-                                                </item>
-                                                <item>
-                                                    <property name="text">
-                                                        <string>Lower Right</string>
-                                                    </property>
-                                                </item>
-                                                <property name="name">
-                                                    <cstring>compass_position_combox</cstring>
-                                                </property>
-                                            </widget>
-                                        </hbox>
-                                    </widget>
-                                </vbox>
-                            </widget>
-                            <widget class="QButtonGroup">
-                                <property name="name">
-                                    <cstring>default_projection_btngrp</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>Default Projection</string>
-                                </property>
-                                <property name="exclusive">
-                                    <bool>true</bool>
-                                </property>
-                                <property name="toolTip" stdset="0">
-                                    <string></string>
-                                </property>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>radioButton12</cstring>
-                                    </property>
-                                    <property name="geometry">
-                                        <rect>
-                                            <x>11</x>
-                                            <y>26</y>
-                                            <width>140</width>
-                                            <height>25</height>
-                                        </rect>
-                                    </property>
-                                    <property name="text">
-                                        <string>Perspective</string>
-                                    </property>
-                                    <property name="checked">
-                                        <bool>true</bool>
-                                    </property>
-                                </widget>
-                                <widget class="QRadioButton">
-                                    <property name="name">
-                                        <cstring>radioButton13</cstring>
-                                    </property>
-                                    <property name="geometry">
-                                        <rect>
-                                            <x>11</x>
-                                            <y>57</y>
-                                            <width>150</width>
-                                            <height>25</height>
-                                        </rect>
-                                    </property>
-                                    <property name="text">
-                                        <string>Orthographic</string>
-                                    </property>
-                                </widget>
-                            </widget>
-                        </hbox>
-                    </widget>
-                    <spacer row="1" column="1">
-                        <property name="name">
-                            <cstring>spacer58_4</cstring>
-                        </property>
-                        <property name="orientation">
-                            <enum>Horizontal</enum>
-                        </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>16</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QLayoutWidget" row="1" column="0">
-                        <property name="name">
-                            <cstring>layout110</cstring>
+                        <property name="title">
+                            <string>Axes</string>
                         </property>
                         <grid>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QGroupBox" row="0" column="1">
+                            <widget class="QCheckBox" row="1" column="0">
                                 <property name="name">
-                                    <cstring>groupBox8</cstring>
+                                    <cstring>display_origin_axis_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Display Origin</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Show/Hide Origin Axis</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox" row="0" column="0">
+                                <property name="name">
+                                    <cstring>display_pov_axis_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Display Point of View Axis</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Show/Hide Point of View Axis</string>
+                                </property>
+                            </widget>
+                            <widget class="QButtonGroup" row="2" column="0">
+                                <property name="name">
+                                    <cstring>update_originAxis_btngroup</cstring>
                                 </property>
                                 <property name="title">
-                                    <string>View Rotation</string>
+                                    <string></string>
+                                </property>
+                                <property name="exclusive">
+                                    <bool>true</bool>
                                 </property>
                                 <grid>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QLabel" row="1" column="0">
+                                    <widget class="QRadioButton" row="0" column="0">
                                         <property name="name">
-                                            <cstring>textLabel1_5</cstring>
-                                        </property>
-                                        <property name="sizePolicy">
-                                            <sizepolicy>
-                                                <hsizetype>1</hsizetype>
-                                                <vsizetype>5</vsizetype>
-                                                <horstretch>0</horstretch>
-                                                <verstretch>0</verstretch>
-                                            </sizepolicy>
+                                            <cstring>displayOriginAsSmallAxis_rbtn</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>View Animation Speed:</string>
-                                        </property>
-                                        <property name="scaledContents">
-                                            <bool>false</bool>
-                                        </property>
-                                        <property name="alignment">
-                                            <set>AlignVCenter|AlignRight</set>
-                                        </property>
-                                    </widget>
-                                    <spacer row="2" column="0">
-                                        <property name="name">
-                                            <cstring>spacer107_2_2</cstring>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
-                                        </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>189</width>
-                                                <height>20</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
-                                    <widget class="QLabel" row="3" column="0">
-                                        <property name="name">
-                                            <cstring>rotationSensitivity_txtlbl</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Mouse Speed During Rotation:</string>
-                                        </property>
-                                        <property name="alignment">
-                                            <set>AlignVCenter|AlignRight</set>
-                                        </property>
-                                        <property name="buddy" stdset="0">
-                                            <cstring>slider9</cstring>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="0" column="3">
-                                        <property name="name">
-                                            <cstring>textLabel3_4</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Fast</string>
-                                        </property>
-                                    </widget>
-                                    <spacer row="0" column="4">
-                                        <property name="name">
-                                            <cstring>spacer55_2</cstring>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
-                                        </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>27</width>
-                                                <height>20</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
-                                    <spacer row="0" column="2">
-                                        <property name="name">
-                                            <cstring>spacer107</cstring>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
-                                        </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>88</width>
-                                                <height>20</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
-                                    <widget class="QLabel" row="0" column="1">
-                                        <property name="name">
-                                            <cstring>textLabel2_3</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Slow</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QSlider" row="1" column="1" rowspan="1" colspan="3">
-                                        <property name="name">
-                                            <cstring>animation_speed_slider</cstring>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>-300</number>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>-25</number>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>View Animation Speed</string>
-                                        </property>
-                                    </widget>
-                                    <spacer row="1" column="4">
-                                        <property name="name">
-                                            <cstring>spacer55</cstring>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
-                                        </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>27</width>
-                                                <height>20</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
-                                    <widget class="QSlider" row="3" column="1" rowspan="1" colspan="3">
-                                        <property name="name">
-                                            <cstring>mouseSpeedDuringRotation_slider</cstring>
-                                        </property>
-                                        <property name="minValue">
-                                            <number>30</number>
-                                        </property>
-                                        <property name="maxValue">
-                                            <number>100</number>
-                                        </property>
-                                        <property name="value">
-                                            <number>50</number>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                    </widget>
-                                    <spacer row="2" column="2">
-                                        <property name="name">
-                                            <cstring>spacer107_3</cstring>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
-                                        </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>87</width>
-                                                <height>20</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
-                                    <widget class="QLabel" row="2" column="3">
-                                        <property name="name">
-                                            <cstring>textLabel3_4_2</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Fast</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QToolButton" row="3" column="4">
-                                        <property name="name">
-                                            <cstring>resetMouseSpeedDuringRotation_btn</cstring>
-                                        </property>
-                                        <property name="enabled">
-                                            <bool>false</bool>
-                                        </property>
-                                        <property name="text">
-                                            <string></string>
-                                        </property>
-                                        <property name="iconSet">
-                                            <iconset>image0</iconset>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Restore default value</string>
-                                        </property>
-                                    </widget>
-                                    <widget class="QLabel" row="2" column="1">
-                                        <property name="name">
-                                            <cstring>textLabel2_3_2</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Slow</string>
-                                        </property>
-                                    </widget>
-                                    <spacer row="2" column="4">
-                                        <property name="name">
-                                            <cstring>spacer55_3</cstring>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
-                                        </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>28</width>
-                                                <height>16</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
-                                    <widget class="QCheckBox" row="0" column="0">
-                                        <property name="name">
-                                            <cstring>animate_views_checkbox</cstring>
-                                        </property>
-                                        <property name="text">
-                                            <string>Animate between views</string>
+                                            <string>Small Axis</string>
                                         </property>
                                         <property name="checked">
                                             <bool>true</bool>
                                         </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Enable/disable animation between current view and a new view</string>
-                                        </property>
                                     </widget>
-                                </grid>
-                            </widget>
-                            <widget class="QGroupBox" row="0" column="0">
-                                <property name="name">
-                                    <cstring>bg_groupbox</cstring>
-                                </property>
-                                <property name="title">
-                                    <string>Background Color</string>
-                                </property>
-                                <grid>
-                                    <property name="name">
-                                        <cstring>unnamed</cstring>
-                                    </property>
-                                    <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+                                    <widget class="QRadioButton" row="0" column="1">
                                         <property name="name">
-                                            <cstring>layout69_2</cstring>
-                                        </property>
-                                        <hbox>
-                                            <property name="name">
-                                                <cstring>unnamed</cstring>
-                                            </property>
-                                            <widget class="QLayoutWidget">
-                                                <property name="name">
-                                                    <cstring>layout68_2</cstring>
-                                                </property>
-                                                <vbox>
-                                                    <property name="name">
-                                                        <cstring>unnamed</cstring>
-                                                    </property>
-                                                    <widget class="QLabel">
-                                                        <property name="name">
-                                                            <cstring>fill_type_lbl</cstring>
-                                                        </property>
-                                                        <property name="enabled">
-                                                            <bool>true</bool>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>Fill Type :</string>
-                                                        </property>
-                                                        <property name="alignment">
-                                                            <set>AlignVCenter|AlignRight</set>
-                                                        </property>
-                                                    </widget>
-                                                    <widget class="QLabel">
-                                                        <property name="name">
-                                                            <cstring>bg1_color_lbl</cstring>
-                                                        </property>
-                                                        <property name="text">
-                                                            <string>Color :</string>
-                                                        </property>
-                                                        <property name="alignment">
-                                                            <set>AlignVCenter|AlignRight</set>
-                                                        </property>
-                                                    </widget>
-                                                </vbox>
-                                            </widget>
-                                            <widget class="QLayoutWidget">
-                                                <property name="name">
-                                                    <cstring>layout67</cstring>
-                                                </property>
-                                                <vbox>
-                                                    <property name="name">
-                                                        <cstring>unnamed</cstring>
-                                                    </property>
-                                                    <widget class="QComboBox">
-                                                        <item>
-                                                            <property name="text">
-                                                                <string>Solid</string>
-                                                            </property>
-                                                        </item>
-                                                        <item>
-                                                            <property name="text">
-                                                                <string>Blue Sky</string>
-                                                            </property>
-                                                        </item>
-                                                        <property name="name">
-                                                            <cstring>fill_type_combox</cstring>
-                                                        </property>
-                                                        <property name="enabled">
-                                                            <bool>true</bool>
-                                                        </property>
-                                                        <property name="toolTip" stdset="0">
-                                                            <string>Background fill type</string>
-                                                        </property>
-                                                    </widget>
-                                                    <widget class="QLayoutWidget">
-                                                        <property name="name">
-                                                            <cstring>layout37</cstring>
-                                                        </property>
-                                                        <hbox>
-                                                            <property name="name">
-                                                                <cstring>unnamed</cstring>
-                                                            </property>
-                                                            <widget class="QFrame">
-                                                                <property name="name">
-                                                                    <cstring>bg1_color_frame</cstring>
-                                                                </property>
-                                                                <property name="minimumSize">
-                                                                    <size>
-                                                                        <width>25</width>
-                                                                        <height>0</height>
-                                                                    </size>
-                                                                </property>
-                                                                <property name="paletteBackgroundColor">
-                                                                    <color>
-                                                                        <red>170</red>
-                                                                        <green>255</green>
-                                                                        <blue>255</blue>
-                                                                    </color>
-                                                                </property>
-                                                                <property name="frameShape">
-                                                                    <enum>Box</enum>
-                                                                </property>
-                                                                <property name="frameShadow">
-                                                                    <enum>Plain</enum>
-                                                                </property>
-                                                            </widget>
-                                                            <widget class="QPushButton">
-                                                                <property name="name">
-                                                                    <cstring>choose_bg1_color_btn</cstring>
-                                                                </property>
-                                                                <property name="text">
-                                                                    <string>Choose...</string>
-                                                                </property>
-                                                                <property name="autoDefault">
-                                                                    <bool>false</bool>
-                                                                </property>
-                                                            </widget>
-                                                        </hbox>
-                                                    </widget>
-                                                </vbox>
-                                            </widget>
-                                        </hbox>
-                                    </widget>
-                                    <widget class="QPushButton" row="1" column="1">
-                                        <property name="name">
-                                            <cstring>restore_bgcolor_btn</cstring>
+                                            <cstring>displayOriginAsCrossWires_rbtn</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Restore Default Color</string>
-                                        </property>
-                                        <property name="autoDefault">
-                                            <bool>false</bool>
+                                            <string>Crosswires</string>
                                         </property>
                                     </widget>
-                                    <spacer row="1" column="0">
-                                        <property name="name">
-                                            <cstring>spacer7_2</cstring>
-                                        </property>
-                                        <property name="orientation">
-                                            <enum>Horizontal</enum>
-                                        </property>
-                                        <property name="sizeType">
-                                            <enum>Expanding</enum>
-                                        </property>
-                                        <property name="sizeHint">
-                                            <size>
-                                                <width>40</width>
-                                                <height>20</height>
-                                            </size>
-                                        </property>
-                                    </spacer>
                                 </grid>
                             </widget>
                         </grid>
                     </widget>
-                    <spacer row="3" column="0">
+                    <widget class="QGroupBox" row="0" column="2">
                         <property name="name">
-                            <cstring>spacer109</cstring>
+                            <cstring>groupBox17_2</cstring>
                         </property>
-                        <property name="orientation">
-                            <enum>Vertical</enum>
+                        <property name="title">
+                            <string>Compass</string>
                         </property>
-                        <property name="sizeType">
-                            <enum>Expanding</enum>
-                        </property>
-                        <property name="sizeHint">
-                            <size>
-                                <width>20</width>
-                                <height>20</height>
-                            </size>
-                        </property>
-                    </spacer>
-                    <widget class="QLayoutWidget" row="2" column="0">
-                        <property name="name">
-                            <cstring>layout111</cstring>
-                        </property>
-                        <hbox>
+                        <vbox>
                             <property name="name">
                                 <cstring>unnamed</cstring>
                             </property>
-                            <widget class="QGroupBox">
+                            <widget class="QCheckBox">
                                 <property name="name">
-                                    <cstring>groupBox14</cstring>
+                                    <cstring>display_compass_checkbox</cstring>
                                 </property>
-                                <property name="title">
-                                    <string>Settings for Adjust</string>
+                                <property name="text">
+                                    <string>Display Compass</string>
                                 </property>
-                                <grid>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Show/Hide Display Compass</string>
+                                </property>
+                            </widget>
+                            <widget class="QCheckBox">
+                                <property name="name">
+                                    <cstring>display_compass_labels_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Display Compass Labels</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Show/Hide Display Compass</string>
+                                </property>
+                            </widget>
+                            <widget class="QLayoutWidget">
+                                <property name="name">
+                                    <cstring>layout70</cstring>
+                                </property>
+                                <hbox>
                                     <property name="name">
                                         <cstring>unnamed</cstring>
                                     </property>
-                                    <widget class="QCheckBox" row="0" column="0">
+                                    <widget class="QLabel">
                                         <property name="name">
-                                            <cstring>watch_min_in_realtime_checkbox</cstring>
+                                            <cstring>textLabel1_4</cstring>
                                         </property>
                                         <property name="text">
-                                            <string>Watch motion in real time</string>
+                                            <string>Location :</string>
                                         </property>
-                                        <property name="checked">
-                                            <bool>true</bool>
-                                        </property>
-                                        <property name="toolTip" stdset="0">
-                                            <string>Enable/disable real time graphical updates for &lt;b&gt;Adjust All&lt;/b&gt; or &lt;b&gt;Adjust Selection&lt;/b&gt;</string>
+                                        <property name="alignment">
+                                            <set>AlignVCenter|AlignRight</set>
                                         </property>
                                     </widget>
-                                    <widget class="QGroupBox" row="2" column="0">
-                                        <property name="name">
-                                            <cstring>groupBox20</cstring>
-                                        </property>
-                                        <property name="title">
-                                            <string>Convergence Criteria</string>
-                                        </property>
-                                        <grid>
-                                            <property name="name">
-                                                <cstring>unnamed</cstring>
+                                    <widget class="QComboBox">
+                                        <item>
+                                            <property name="text">
+                                                <string>Upper Right</string>
                                             </property>
-                                            <widget class="QLayoutWidget" row="0" column="0">
-                                                <property name="name">
-                                                    <cstring>layout96</cstring>
-                                                </property>
-                                                <hbox>
-                                                    <property name="name">
-                                                        <cstring>unnamed</cstring>
-                                                    </property>
-                                                    <widget class="QLayoutWidget">
-                                                        <property name="name">
-                                                            <cstring>layout92</cstring>
-                                                        </property>
-                                                        <grid>
-                                                            <property name="name">
-                                                                <cstring>unnamed</cstring>
-                                                            </property>
-                                                            <widget class="QLayoutWidget" row="0" column="0" rowspan="2" colspan="1">
-                                                                <property name="name">
-                                                                    <cstring>layout88</cstring>
-                                                                </property>
-                                                                <vbox>
-                                                                    <property name="name">
-                                                                        <cstring>unnamed</cstring>
-                                                                    </property>
-                                                                    <widget class="QLabel">
-                                                                        <property name="name">
-                                                                            <cstring>endrms_lbl</cstring>
-                                                                        </property>
-                                                                        <property name="text">
-                                                                            <string>EndRMS :</string>
-                                                                        </property>
-                                                                        <property name="alignment">
-                                                                            <set>AlignVCenter|AlignRight</set>
-                                                                        </property>
-                                                                        <property name="toolTip" stdset="0">
-                                                                            <string>Target RMS force (pN)</string>
-                                                                        </property>
-                                                                    </widget>
-                                                                    <widget class="QLabel">
-                                                                        <property name="name">
-                                                                            <cstring>endmax_lbl</cstring>
-                                                                        </property>
-                                                                        <property name="text">
-                                                                            <string>EndMax :</string>
-                                                                        </property>
-                                                                        <property name="alignment">
-                                                                            <set>AlignVCenter|AlignRight</set>
-                                                                        </property>
-                                                                        <property name="toolTip" stdset="0">
-                                                                            <string>Target max force (pN)</string>
-                                                                        </property>
-                                                                    </widget>
-                                                                </vbox>
-                                                            </widget>
-                                                            <widget class="QLineEdit" row="1" column="1">
-                                                                <property name="name">
-                                                                    <cstring>endmax_linedit</cstring>
-                                                                </property>
-                                                                <property name="text">
-                                                                    <string>10.0</string>
-                                                                </property>
-                                                                <property name="toolTip" stdset="0">
-                                                                    <string>Target max force (pN)</string>
-                                                                </property>
-                                                            </widget>
-                                                            <widget class="QLineEdit" row="0" column="1">
-                                                                <property name="name">
-                                                                    <cstring>endrms_linedit</cstring>
-                                                                </property>
-                                                                <property name="frameShape">
-                                                                    <enum>LineEditPanel</enum>
-                                                                </property>
-                                                                <property name="frameShadow">
-                                                                    <enum>Sunken</enum>
-                                                                </property>
-                                                                <property name="text">
-                                                                    <string>1.0</string>
-                                                                </property>
-                                                                <property name="toolTip" stdset="0">
-                                                                    <string>Target RMS force (pN)</string>
-                                                                </property>
-                                                            </widget>
-                                                        </grid>
-                                                    </widget>
-                                                    <widget class="QLayoutWidget">
-                                                        <property name="name">
-                                                            <cstring>layout95</cstring>
-                                                        </property>
-                                                        <grid>
-                                                            <property name="name">
-                                                                <cstring>unnamed</cstring>
-                                                            </property>
-                                                            <widget class="QLayoutWidget" row="0" column="0">
-                                                                <property name="name">
-                                                                    <cstring>layout93</cstring>
-                                                                </property>
-                                                                <vbox>
-                                                                    <property name="name">
-                                                                        <cstring>unnamed</cstring>
-                                                                    </property>
-                                                                    <widget class="QLabel">
-                                                                        <property name="name">
-                                                                            <cstring>cutoverrms_lbl</cstring>
-                                                                        </property>
-                                                                        <property name="text">
-                                                                            <string>CutoverRMS :</string>
-                                                                        </property>
-                                                                        <property name="alignment">
-                                                                            <set>AlignVCenter|AlignRight</set>
-                                                                        </property>
-                                                                        <property name="toolTip" stdset="0">
-                                                                            <string>Cutover RMS force (pN)</string>
-                                                                        </property>
-                                                                    </widget>
-                                                                    <widget class="QLabel">
-                                                                        <property name="name">
-                                                                            <cstring>cutovermax_lbl</cstring>
-                                                                        </property>
-                                                                        <property name="text">
-                                                                            <string>CutoverMax :</string>
-                                                                        </property>
-                                                                        <property name="alignment">
-                                                                            <set>AlignVCenter|AlignRight</set>
-                                                                        </property>
-                                                                        <property name="toolTip" stdset="0">
-                                                                            <string>Cutover max force (pN)</string>
-                                                                        </property>
-                                                                    </widget>
-                                                                </vbox>
-                                                            </widget>
-                                                            <widget class="QLayoutWidget" row="0" column="1">
-                                                                <property name="name">
-                                                                    <cstring>layout94</cstring>
-                                                                </property>
-                                                                <vbox>
-                                                                    <property name="name">
-                                                                        <cstring>unnamed</cstring>
-                                                                    </property>
-                                                                    <widget class="QLineEdit">
-                                                                        <property name="name">
-                                                                            <cstring>cutoverrms_linedit</cstring>
-                                                                        </property>
-                                                                        <property name="text">
-                                                                            <string>50.0</string>
-                                                                        </property>
-                                                                        <property name="toolTip" stdset="0">
-                                                                            <string>Cutover RMS force (pN)</string>
-                                                                        </property>
-                                                                    </widget>
-                                                                    <widget class="QLineEdit">
-                                                                        <property name="name">
-                                                                            <cstring>cutovermax_linedit</cstring>
-                                                                        </property>
-                                                                        <property name="text">
-                                                                            <string>300.0</string>
-                                                                        </property>
-                                                                        <property name="toolTip" stdset="0">
-                                                                            <string>Cutover max force (pN)</string>
-                                                                        </property>
-                                                                    </widget>
-                                                                </vbox>
-                                                            </widget>
-                                                        </grid>
-                                                    </widget>
-                                                </hbox>
-                                            </widget>
-                                        </grid>
-                                    </widget>
-                                    <widget class="QButtonGroup" row="1" column="0">
-                                        <property name="name">
-                                            <cstring>update_btngrp</cstring>
-                                        </property>
-                                        <property name="frameShape">
-                                            <enum>StyledPanel</enum>
-                                        </property>
-                                        <property name="frameShadow">
-                                            <enum>Sunken</enum>
-                                        </property>
-                                        <property name="title">
-                                            <string></string>
-                                        </property>
-                                        <grid>
-                                            <property name="name">
-                                                <cstring>unnamed</cstring>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>Upper Left</string>
                                             </property>
-                                            <widget class="QSpinBox" row="1" column="1">
-                                                <property name="name">
-                                                    <cstring>update_number_spinbox</cstring>
-                                                </property>
-                                                <property name="maxValue">
-                                                    <number>9999</number>
-                                                </property>
-                                                <property name="minValue">
-                                                    <number>1</number>
-                                                </property>
-                                                <property name="value">
-                                                    <number>1</number>
-                                                </property>
-                                                <property name="toolTip" stdset="0">
-                                                    <string>Specify how often to update the screen during adjustments</string>
-                                                </property>
-                                            </widget>
-                                            <widget class="QComboBox" row="1" column="2">
-                                                <item>
-                                                    <property name="text">
-                                                        <string>frames</string>
-                                                    </property>
-                                                </item>
-                                                <item>
-                                                    <property name="text">
-                                                        <string>seconds</string>
-                                                    </property>
-                                                </item>
-                                                <item>
-                                                    <property name="text">
-                                                        <string>minutes</string>
-                                                    </property>
-                                                </item>
-                                                <item>
-                                                    <property name="text">
-                                                        <string>hours</string>
-                                                    </property>
-                                                </item>
-                                                <property name="name">
-                                                    <cstring>update_units_combobox</cstring>
-                                                </property>
-                                                <property name="toolTip" stdset="0">
-                                                    <string>Specify how often to update the screen during adjustments</string>
-                                                </property>
-                                            </widget>
-                                            <widget class="QRadioButton" row="1" column="0">
-                                                <property name="name">
-                                                    <cstring>update_every_rbtn</cstring>
-                                                </property>
-                                                <property name="text">
-                                                    <string>Update every</string>
-                                                </property>
-                                                <property name="buttonGroupId">
-                                                    <number>1</number>
-                                                </property>
-                                                <property name="toolTip" stdset="0">
-                                                    <string>Specify how often to update the screen during adjustments</string>
-                                                </property>
-                                            </widget>
-                                            <widget class="QRadioButton" row="0" column="0" rowspan="1" colspan="3">
-                                                <property name="name">
-                                                    <cstring>update_asap_rbtn</cstring>
-                                                </property>
-                                                <property name="text">
-                                                    <string>Update as fast as possible</string>
-                                                </property>
-                                                <property name="checked">
-                                                    <bool>true</bool>
-                                                </property>
-                                                <property name="buttonGroupId">
-                                                    <number>0</number>
-                                                </property>
-                                                <property name="toolTip" stdset="0">
-                                                    <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
-                                                </property>
-                                            </widget>
-                                            <spacer row="1" column="3">
-                                                <property name="name">
-                                                    <cstring>spacer2</cstring>
-                                                </property>
-                                                <property name="orientation">
-                                                    <enum>Horizontal</enum>
-                                                </property>
-                                                <property name="sizeType">
-                                                    <enum>Expanding</enum>
-                                                </property>
-                                                <property name="sizeHint">
-                                                    <size>
-                                                        <width>170</width>
-                                                        <height>20</height>
-                                                    </size>
-                                                </property>
-                                            </spacer>
-                                        </grid>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>Lower Left</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>Lower Right</string>
+                                            </property>
+                                        </item>
+                                        <property name="name">
+                                            <cstring>compass_position_combox</cstring>
+                                        </property>
                                     </widget>
-                                </grid>
+                                </hbox>
                             </widget>
-                            <spacer>
+                        </vbox>
+                    </widget>
+                    <widget class="QButtonGroup" row="0" column="3" rowspan="1" colspan="2">
+                        <property name="name">
+                            <cstring>default_projection_btngrp</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Default Projection</string>
+                        </property>
+                        <property name="exclusive">
+                            <bool>true</bool>
+                        </property>
+                        <property name="toolTip" stdset="0">
+                            <string></string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QRadioButton" row="1" column="0">
                                 <property name="name">
-                                    <cstring>spacer62</cstring>
+                                    <cstring>radioButton13</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Orthographic</string>
+                                </property>
+                            </widget>
+                            <widget class="QRadioButton" row="0" column="0">
+                                <property name="name">
+                                    <cstring>radioButton12</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Perspective</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <widget class="QGroupBox" row="1" column="1" rowspan="1" colspan="4">
+                        <property name="name">
+                            <cstring>groupBox8</cstring>
+                        </property>
+                        <property name="title">
+                            <string>View Rotation</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLabel" row="1" column="0">
+                                <property name="name">
+                                    <cstring>textLabel1_5</cstring>
+                                </property>
+                                <property name="sizePolicy">
+                                    <sizepolicy>
+                                        <hsizetype>1</hsizetype>
+                                        <vsizetype>5</vsizetype>
+                                        <horstretch>0</horstretch>
+                                        <verstretch>0</verstretch>
+                                    </sizepolicy>
+                                </property>
+                                <property name="text">
+                                    <string>View Animation Speed:</string>
+                                </property>
+                                <property name="scaledContents">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
+                                </property>
+                            </widget>
+                            <spacer row="2" column="0">
+                                <property name="name">
+                                    <cstring>spacer107_2_2</cstring>
                                 </property>
                                 <property name="orientation">
                                     <enum>Horizontal</enum>
@@ -1051,13 +318,712 @@
                                 </property>
                                 <property name="sizeHint">
                                     <size>
-                                        <width>140</width>
+                                        <width>189</width>
                                         <height>20</height>
                                     </size>
                                 </property>
                             </spacer>
-                        </hbox>
+                            <widget class="QLabel" row="3" column="0">
+                                <property name="name">
+                                    <cstring>rotationSensitivity_txtlbl</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Mouse Speed During Rotation:</string>
+                                </property>
+                                <property name="alignment">
+                                    <set>AlignVCenter|AlignRight</set>
+                                </property>
+                                <property name="buddy" stdset="0">
+                                    <cstring>slider9</cstring>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="0" column="3">
+                                <property name="name">
+                                    <cstring>textLabel3_4</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Fast</string>
+                                </property>
+                            </widget>
+                            <spacer row="0" column="4">
+                                <property name="name">
+                                    <cstring>spacer55_2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>28</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <spacer row="0" column="2">
+                                <property name="name">
+                                    <cstring>spacer107</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>60</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QLabel" row="0" column="1">
+                                <property name="name">
+                                    <cstring>textLabel2_3</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Slow</string>
+                                </property>
+                            </widget>
+                            <widget class="QSlider" row="1" column="1" rowspan="1" colspan="3">
+                                <property name="name">
+                                    <cstring>animation_speed_slider</cstring>
+                                </property>
+                                <property name="minValue">
+                                    <number>-300</number>
+                                </property>
+                                <property name="maxValue">
+                                    <number>-25</number>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>View Animation Speed</string>
+                                </property>
+                            </widget>
+                            <widget class="QSlider" row="3" column="1" rowspan="1" colspan="3">
+                                <property name="name">
+                                    <cstring>mouseSpeedDuringRotation_slider</cstring>
+                                </property>
+                                <property name="minValue">
+                                    <number>30</number>
+                                </property>
+                                <property name="maxValue">
+                                    <number>100</number>
+                                </property>
+                                <property name="value">
+                                    <number>50</number>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                            </widget>
+                            <spacer row="2" column="2">
+                                <property name="name">
+                                    <cstring>spacer107_3</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>60</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QLabel" row="2" column="3">
+                                <property name="name">
+                                    <cstring>textLabel3_4_2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Fast</string>
+                                </property>
+                            </widget>
+                            <widget class="QToolButton" row="3" column="4">
+                                <property name="name">
+                                    <cstring>resetMouseSpeedDuringRotation_btn</cstring>
+                                </property>
+                                <property name="enabled">
+                                    <bool>false</bool>
+                                </property>
+                                <property name="text">
+                                    <string></string>
+                                </property>
+                                <property name="iconSet">
+                                    <iconset>image0</iconset>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Restore default value</string>
+                                </property>
+                            </widget>
+                            <widget class="QLabel" row="2" column="1">
+                                <property name="name">
+                                    <cstring>textLabel2_3_2</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Slow</string>
+                                </property>
+                            </widget>
+                            <spacer row="2" column="4">
+                                <property name="name">
+                                    <cstring>spacer55_3</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>28</width>
+                                        <height>16</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                            <widget class="QCheckBox" row="0" column="0">
+                                <property name="name">
+                                    <cstring>animate_views_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Animate between views</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Enable/disable animation between current view and a new view</string>
+                                </property>
+                            </widget>
+                            <spacer row="1" column="4">
+                                <property name="name">
+                                    <cstring>spacer55</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>28</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </grid>
                     </widget>
+                    <widget class="QGroupBox" row="1" column="0">
+                        <property name="name">
+                            <cstring>bg_groupbox</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Background Color</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QLayoutWidget" row="0" column="0" rowspan="1" colspan="2">
+                                <property name="name">
+                                    <cstring>layout69_2</cstring>
+                                </property>
+                                <hbox>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout68_2</cstring>
+                                        </property>
+                                        <vbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>fill_type_lbl</cstring>
+                                                </property>
+                                                <property name="enabled">
+                                                    <bool>true</bool>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Fill Type :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLabel">
+                                                <property name="name">
+                                                    <cstring>bg1_color_lbl</cstring>
+                                                </property>
+                                                <property name="text">
+                                                    <string>Color :</string>
+                                                </property>
+                                                <property name="alignment">
+                                                    <set>AlignVCenter|AlignRight</set>
+                                                </property>
+                                            </widget>
+                                        </vbox>
+                                    </widget>
+                                    <widget class="QLayoutWidget">
+                                        <property name="name">
+                                            <cstring>layout67</cstring>
+                                        </property>
+                                        <vbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QComboBox">
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Solid</string>
+                                                    </property>
+                                                </item>
+                                                <item>
+                                                    <property name="text">
+                                                        <string>Blue Sky</string>
+                                                    </property>
+                                                </item>
+                                                <property name="name">
+                                                    <cstring>fill_type_combox</cstring>
+                                                </property>
+                                                <property name="enabled">
+                                                    <bool>true</bool>
+                                                </property>
+                                                <property name="toolTip" stdset="0">
+                                                    <string>Background fill type</string>
+                                                </property>
+                                            </widget>
+                                            <widget class="QLayoutWidget">
+                                                <property name="name">
+                                                    <cstring>layout37</cstring>
+                                                </property>
+                                                <hbox>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QFrame">
+                                                        <property name="name">
+                                                            <cstring>bg1_color_frame</cstring>
+                                                        </property>
+                                                        <property name="minimumSize">
+                                                            <size>
+                                                                <width>25</width>
+                                                                <height>0</height>
+                                                            </size>
+                                                        </property>
+                                                        <property name="paletteBackgroundColor">
+                                                            <color>
+                                                                <red>170</red>
+                                                                <green>255</green>
+                                                                <blue>255</blue>
+                                                            </color>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>Box</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Plain</enum>
+                                                        </property>
+                                                    </widget>
+                                                    <widget class="QPushButton">
+                                                        <property name="name">
+                                                            <cstring>choose_bg1_color_btn</cstring>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>Choose...</string>
+                                                        </property>
+                                                        <property name="autoDefault">
+                                                            <bool>false</bool>
+                                                        </property>
+                                                    </widget>
+                                                </hbox>
+                                            </widget>
+                                        </vbox>
+                                    </widget>
+                                </hbox>
+                            </widget>
+                            <widget class="QPushButton" row="1" column="1">
+                                <property name="name">
+                                    <cstring>restore_bgcolor_btn</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Restore Default Color</string>
+                                </property>
+                                <property name="autoDefault">
+                                    <bool>false</bool>
+                                </property>
+                            </widget>
+                            <spacer row="1" column="0">
+                                <property name="name">
+                                    <cstring>spacer7_2</cstring>
+                                </property>
+                                <property name="orientation">
+                                    <enum>Horizontal</enum>
+                                </property>
+                                <property name="sizeType">
+                                    <enum>Expanding</enum>
+                                </property>
+                                <property name="sizeHint">
+                                    <size>
+                                        <width>36</width>
+                                        <height>20</height>
+                                    </size>
+                                </property>
+                            </spacer>
+                        </grid>
+                    </widget>
+                    <widget class="QGroupBox" row="2" column="0" rowspan="1" colspan="4">
+                        <property name="name">
+                            <cstring>groupBox14</cstring>
+                        </property>
+                        <property name="title">
+                            <string>Settings for Adjust</string>
+                        </property>
+                        <grid>
+                            <property name="name">
+                                <cstring>unnamed</cstring>
+                            </property>
+                            <widget class="QCheckBox" row="0" column="0">
+                                <property name="name">
+                                    <cstring>watch_min_in_realtime_checkbox</cstring>
+                                </property>
+                                <property name="text">
+                                    <string>Watch motion in real time</string>
+                                </property>
+                                <property name="checked">
+                                    <bool>true</bool>
+                                </property>
+                                <property name="toolTip" stdset="0">
+                                    <string>Enable/disable real time graphical updates for &lt;b&gt;Adjust All&lt;/b&gt; or &lt;b&gt;Adjust Selection&lt;/b&gt;</string>
+                                </property>
+                            </widget>
+                            <widget class="QGroupBox" row="2" column="0">
+                                <property name="name">
+                                    <cstring>groupBox20</cstring>
+                                </property>
+                                <property name="title">
+                                    <string>Convergence Criteria</string>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QLayoutWidget" row="0" column="0">
+                                        <property name="name">
+                                            <cstring>layout96</cstring>
+                                        </property>
+                                        <hbox>
+                                            <property name="name">
+                                                <cstring>unnamed</cstring>
+                                            </property>
+                                            <widget class="QLayoutWidget">
+                                                <property name="name">
+                                                    <cstring>layout92</cstring>
+                                                </property>
+                                                <grid>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QLayoutWidget" row="0" column="0" rowspan="2" colspan="1">
+                                                        <property name="name">
+                                                            <cstring>layout88</cstring>
+                                                        </property>
+                                                        <vbox>
+                                                            <property name="name">
+                                                                <cstring>unnamed</cstring>
+                                                            </property>
+                                                            <widget class="QLabel">
+                                                                <property name="name">
+                                                                    <cstring>endrms_lbl</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>EndRMS :</string>
+                                                                </property>
+                                                                <property name="alignment">
+                                                                    <set>AlignVCenter|AlignRight</set>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Target RMS force (pN)</string>
+                                                                </property>
+                                                            </widget>
+                                                            <widget class="QLabel">
+                                                                <property name="name">
+                                                                    <cstring>endmax_lbl</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>EndMax :</string>
+                                                                </property>
+                                                                <property name="alignment">
+                                                                    <set>AlignVCenter|AlignRight</set>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Target max force (pN)</string>
+                                                                </property>
+                                                            </widget>
+                                                        </vbox>
+                                                    </widget>
+                                                    <widget class="QLineEdit" row="1" column="1">
+                                                        <property name="name">
+                                                            <cstring>endmax_linedit</cstring>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>LineEditPanel</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Sunken</enum>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>10.0</string>
+                                                        </property>
+                                                        <property name="toolTip" stdset="0">
+                                                            <string>Target max force (pN)</string>
+                                                        </property>
+                                                    </widget>
+                                                    <widget class="QLineEdit" row="0" column="1">
+                                                        <property name="name">
+                                                            <cstring>endrms_linedit</cstring>
+                                                        </property>
+                                                        <property name="frameShape">
+                                                            <enum>LineEditPanel</enum>
+                                                        </property>
+                                                        <property name="frameShadow">
+                                                            <enum>Sunken</enum>
+                                                        </property>
+                                                        <property name="text">
+                                                            <string>1.0</string>
+                                                        </property>
+                                                        <property name="toolTip" stdset="0">
+                                                            <string>Target RMS force (pN)</string>
+                                                        </property>
+                                                    </widget>
+                                                </grid>
+                                            </widget>
+                                            <widget class="QLayoutWidget">
+                                                <property name="name">
+                                                    <cstring>layout95</cstring>
+                                                </property>
+                                                <grid>
+                                                    <property name="name">
+                                                        <cstring>unnamed</cstring>
+                                                    </property>
+                                                    <widget class="QLayoutWidget" row="0" column="0">
+                                                        <property name="name">
+                                                            <cstring>layout93</cstring>
+                                                        </property>
+                                                        <vbox>
+                                                            <property name="name">
+                                                                <cstring>unnamed</cstring>
+                                                            </property>
+                                                            <widget class="QLabel">
+                                                                <property name="name">
+                                                                    <cstring>cutoverrms_lbl</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>CutoverRMS :</string>
+                                                                </property>
+                                                                <property name="alignment">
+                                                                    <set>AlignVCenter|AlignRight</set>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Cutover RMS force (pN)</string>
+                                                                </property>
+                                                            </widget>
+                                                            <widget class="QLabel">
+                                                                <property name="name">
+                                                                    <cstring>cutovermax_lbl</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>CutoverMax :</string>
+                                                                </property>
+                                                                <property name="alignment">
+                                                                    <set>AlignVCenter|AlignRight</set>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Cutover max force (pN)</string>
+                                                                </property>
+                                                            </widget>
+                                                        </vbox>
+                                                    </widget>
+                                                    <widget class="QLayoutWidget" row="0" column="1">
+                                                        <property name="name">
+                                                            <cstring>layout94</cstring>
+                                                        </property>
+                                                        <vbox>
+                                                            <property name="name">
+                                                                <cstring>unnamed</cstring>
+                                                            </property>
+                                                            <widget class="QLineEdit">
+                                                                <property name="name">
+                                                                    <cstring>cutoverrms_linedit</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>50.0</string>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Cutover RMS force (pN)</string>
+                                                                </property>
+                                                            </widget>
+                                                            <widget class="QLineEdit">
+                                                                <property name="name">
+                                                                    <cstring>cutovermax_linedit</cstring>
+                                                                </property>
+                                                                <property name="text">
+                                                                    <string>300.0</string>
+                                                                </property>
+                                                                <property name="toolTip" stdset="0">
+                                                                    <string>Cutover max force (pN)</string>
+                                                                </property>
+                                                            </widget>
+                                                        </vbox>
+                                                    </widget>
+                                                </grid>
+                                            </widget>
+                                        </hbox>
+                                    </widget>
+                                </grid>
+                            </widget>
+                            <widget class="QButtonGroup" row="1" column="0">
+                                <property name="name">
+                                    <cstring>update_btngrp</cstring>
+                                </property>
+                                <property name="frameShape">
+                                    <enum>StyledPanel</enum>
+                                </property>
+                                <property name="frameShadow">
+                                    <enum>Sunken</enum>
+                                </property>
+                                <property name="title">
+                                    <string></string>
+                                </property>
+                                <grid>
+                                    <property name="name">
+                                        <cstring>unnamed</cstring>
+                                    </property>
+                                    <widget class="QSpinBox" row="1" column="1">
+                                        <property name="name">
+                                            <cstring>update_number_spinbox</cstring>
+                                        </property>
+                                        <property name="maxValue">
+                                            <number>9999</number>
+                                        </property>
+                                        <property name="minValue">
+                                            <number>1</number>
+                                        </property>
+                                        <property name="value">
+                                            <number>1</number>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Specify how often to update the screen during adjustments</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QComboBox" row="1" column="2">
+                                        <item>
+                                            <property name="text">
+                                                <string>frames</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>seconds</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>minutes</string>
+                                            </property>
+                                        </item>
+                                        <item>
+                                            <property name="text">
+                                                <string>hours</string>
+                                            </property>
+                                        </item>
+                                        <property name="name">
+                                            <cstring>update_units_combobox</cstring>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Specify how often to update the screen during adjustments</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="1" column="0">
+                                        <property name="name">
+                                            <cstring>update_every_rbtn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Update every</string>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>1</number>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Specify how often to update the screen during adjustments</string>
+                                        </property>
+                                    </widget>
+                                    <widget class="QRadioButton" row="0" column="0" rowspan="1" colspan="3">
+                                        <property name="name">
+                                            <cstring>update_asap_rbtn</cstring>
+                                        </property>
+                                        <property name="text">
+                                            <string>Update as fast as possible</string>
+                                        </property>
+                                        <property name="checked">
+                                            <bool>true</bool>
+                                        </property>
+                                        <property name="buttonGroupId">
+                                            <number>0</number>
+                                        </property>
+                                        <property name="toolTip" stdset="0">
+                                            <string>Update every 2 seconds, or faster if it doesn't slow adjustments by more than 20%</string>
+                                        </property>
+                                    </widget>
+                                    <spacer row="1" column="3">
+                                        <property name="name">
+                                            <cstring>spacer2</cstring>
+                                        </property>
+                                        <property name="orientation">
+                                            <enum>Horizontal</enum>
+                                        </property>
+                                        <property name="sizeType">
+                                            <enum>Expanding</enum>
+                                        </property>
+                                        <property name="sizeHint">
+                                            <size>
+                                                <width>170</width>
+                                                <height>20</height>
+                                            </size>
+                                        </property>
+                                    </spacer>
+                                </grid>
+                            </widget>
+                        </grid>
+                    </widget>
+                    <spacer row="2" column="4">
+                        <property name="name">
+                            <cstring>spacer62</cstring>
+                        </property>
+                        <property name="orientation">
+                            <enum>Horizontal</enum>
+                        </property>
+                        <property name="sizeType">
+                            <enum>Expanding</enum>
+                        </property>
+                        <property name="sizeHint">
+                            <size>
+                                <width>117</width>
+                                <height>20</height>
+                            </size>
+                        </property>
+                    </spacer>
                 </grid>
             </widget>
             <widget class="QWidget">
@@ -4984,6 +4950,12 @@
         <slot>change_element_colors()</slot>
     </connection>
     <connection>
+        <sender>choose_bg1_color_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_bg1_color()</slot>
+    </connection>
+    <connection>
         <sender>compass_position_combox</sender>
         <signal>activated(int)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -5003,15 +4975,15 @@
     </connection>
     <connection>
         <sender>cpk_scale_factor_slider</sender>
-        <signal>sliderReleased()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>save_cpk_scale_factor()</slot>
-    </connection>
-    <connection>
-        <sender>cpk_scale_factor_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_cpk_scale_factor()</slot>
+    </connection>
+    <connection>
+        <sender>cpk_scale_factor_slider</sender>
+        <signal>sliderReleased()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>save_cpk_scale_factor()</slot>
     </connection>
     <connection>
         <sender>current_height_spinbox</sender>
@@ -5062,6 +5034,18 @@
         <slot>display_compass()</slot>
     </connection>
     <connection>
+        <sender>dynamicToolTipAtomDistancePrecision_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_dynamicToolTipAtomDistancePrecision()</slot>
+    </connection>
+    <connection>
+        <sender>dynamicToolTipBendAnglePrecision_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_dynamicToolTipBendAnglePrecision()</slot>
+    </connection>
+    <connection>
         <sender>endmax_linedit</sender>
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -5072,6 +5056,12 @@
         <signal>textChanged(const QString&amp;)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_endrms()</slot>
+    </connection>
+    <connection>
+        <sender>fill_type_combox</sender>
+        <signal>activated(const QString&amp;)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_fill_type()</slot>
     </connection>
     <connection>
         <sender>gamess_checkbox</sender>
@@ -5092,6 +5082,12 @@
         <slot>change_high_order_bond_display()</slot>
     </connection>
     <connection>
+        <sender>historyHeight_spinbox</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_historyHeight()</slot>
+    </connection>
+    <connection>
         <sender>hotspot_color_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -5105,15 +5101,15 @@
     </connection>
     <connection>
         <sender>light_ambient_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light_ambient_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_ambient_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light_checkbox</sender>
@@ -5135,27 +5131,27 @@
     </connection>
     <connection>
         <sender>light_diffuse_slider</sender>
-        <signal>sliderReleased()</signal>
+        <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>save_lighting()</slot>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light_diffuse_slider</sender>
-        <signal>valueChanged(int)</signal>
+        <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
-    </connection>
-    <connection>
-        <sender>light_specularity_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_lighting()</slot>
+        <slot>save_lighting()</slot>
     </connection>
     <connection>
         <sender>light_specularity_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>save_lighting()</slot>
+    </connection>
+    <connection>
+        <sender>light_specularity_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_lighting()</slot>
     </connection>
     <connection>
         <sender>light_x_linedit</sender>
@@ -5194,6 +5190,12 @@
         <slot>set_megapov_path()</slot>
     </connection>
     <connection>
+        <sender>mouseSpeedDuringRotation_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_mouseSpeedDuringRotation()</slot>
+    </connection>
+    <connection>
         <sender>ms_brightness_slider</sender>
         <signal>sliderReleased()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -5201,15 +5203,15 @@
     </connection>
     <connection>
         <sender>ms_brightness_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_brightness()</slot>
-    </connection>
-    <connection>
-        <sender>ms_brightness_slider</sender>
         <signal>sliderPressed()</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_material_brightness_start()</slot>
+    </connection>
+    <connection>
+        <sender>ms_brightness_slider</sender>
+        <signal>valueChanged(int)</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_brightness()</slot>
     </connection>
     <connection>
         <sender>ms_finish_slider</sender>
@@ -5243,15 +5245,15 @@
     </connection>
     <connection>
         <sender>ms_shininess_slider</sender>
-        <signal>sliderPressed()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_material_shininess_start()</slot>
-    </connection>
-    <connection>
-        <sender>ms_shininess_slider</sender>
         <signal>valueChanged(int)</signal>
         <receiver>UserPrefsDialog</receiver>
         <slot>change_material_shininess()</slot>
+    </connection>
+    <connection>
+        <sender>ms_shininess_slider</sender>
+        <signal>sliderPressed()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>change_material_shininess_start()</slot>
     </connection>
     <connection>
         <sender>nanohive_checkbox</sender>
@@ -5320,6 +5322,18 @@
         <slot>reset_cpk_scale_factor()</slot>
     </connection>
     <connection>
+        <sender>resetMouseSpeedDuringRotation_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>reset_mouseSpeedDuringRotation()</slot>
+    </connection>
+    <connection>
+        <sender>restore_bgcolor_btn</sender>
+        <signal>clicked()</signal>
+        <receiver>UserPrefsDialog</receiver>
+        <slot>restore_default_bgcolor()</slot>
+    </connection>
+    <connection>
         <sender>restore_saved_size_btn</sender>
         <signal>clicked()</signal>
         <receiver>UserPrefsDialog</receiver>
@@ -5368,52 +5382,16 @@
         <slot>setEnabled(bool)</slot>
     </connection>
     <connection>
-        <sender>fill_type_combox</sender>
-        <signal>activated(const QString&amp;)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_fill_type()</slot>
+        <sender>display_origin_axis_checkbox</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>update_originAxis_btngroup</receiver>
+        <slot>setEnabled(bool)</slot>
     </connection>
     <connection>
-        <sender>restore_bgcolor_btn</sender>
-        <signal>clicked()</signal>
+        <sender>displayOriginAsSmallAxis_rbtn</sender>
+        <signal>toggled(bool)</signal>
         <receiver>UserPrefsDialog</receiver>
-        <slot>restore_default_bgcolor()</slot>
-    </connection>
-    <connection>
-        <sender>choose_bg1_color_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_bg1_color()</slot>
-    </connection>
-    <connection>
-        <sender>dynamicToolTipAtomDistancePrecision_spinbox</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_dynamicToolTipAtomDistancePrecision()</slot>
-    </connection>
-    <connection>
-        <sender>dynamicToolTipBendAnglePrecision_spinbox</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_dynamicToolTipBendAnglePrecision()</slot>
-    </connection>
-    <connection>
-        <sender>historyHeight_spinbox</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_historyHeight()</slot>
-    </connection>
-    <connection>
-        <sender>mouseSpeedDuringRotation_slider</sender>
-        <signal>valueChanged(int)</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>change_mouseSpeedDuringRotation()</slot>
-    </connection>
-    <connection>
-        <sender>resetMouseSpeedDuringRotation_btn</sender>
-        <signal>clicked()</signal>
-        <receiver>UserPrefsDialog</receiver>
-        <slot>reset_mouseSpeedDuringRotation()</slot>
+        <slot>change_displayOriginAsSmallAxis()</slot>
     </connection>
 </connections>
 <tabstops>
@@ -5604,6 +5582,7 @@
     <slot>change_historyHeight()</slot>
     <slot>change_mouseSpeedDuringRotation()</slot>
     <slot>reset_mouseSpeedDuringRotation()</slot>
+    <slot>change_displayOriginAsSmallAxis()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

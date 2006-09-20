@@ -484,8 +484,20 @@ class UserPrefs(UserPrefsDialog):
             self.resetMouseSpeedDuringRotation_btn.setEnabled(1)
             
         self.mouseSpeedDuringRotation_slider.setValue(mouseSpeedDuringRotation) # generates signal
+        
+        self.update_originAxis_btngroup.setEnabled(env.prefs[displayOriginAxis_prefs_key]) #ninad060920
+        
+        #@@@ ninad060920 In the dialog box, I have made the axis related radio buttons exclusive
+        #but still I need to supply the following condition , otherwise, if the Small Axis Radio button is False
+        #and user restarts the session, both the radio buttons are set to false.  Not sure why this is happening
+        if env.prefs[displayOriginAsSmallAxis_prefs_key ]:
+            self.displayOriginAsSmallAxis_rbtn.setChecked(True)
+        else:
+            self.displayOriginAsCrossWires_rbtn.setChecked(True) 
+            
                
         self.update_btngrp.setEnabled(env.prefs[Adjust_watchRealtimeMinimization_prefs_key])
+        
 
         # [WARNING: bruce 060705 copied this into MinimizeEnergyProp.py]        
         self.endrms = get_pref_or_optval(Adjust_endRMS_prefs_key, -1.0, '')
@@ -891,6 +903,16 @@ class UserPrefs(UserPrefsDialog):
         # set the pref
         env.prefs[defaultProjection_prefs_key] = projection
         self.glpane.setViewProjection(projection)
+        print " in set_default_projection: Projection is: ", projection
+        
+    def change_displayOriginAsSmallAxis(self, value):
+        "this sets the preference to view origin as small axis so that it is sticky across sessions"
+        #set the preference
+        env.prefs[displayOriginAsSmallAxis_prefs_key] = value
+         #niand060920 This condition might not be necessary as we are disabling the btn_grp 
+         #for the oridin axis radiobuttons
+        if env.prefs[displayOriginAxis_prefs_key]:
+            self.glpane.gl_update()
     
     def change_high_quality_graphics(self, state): #mark 060315.
         """Enable/disable high quality graphics during view animations.

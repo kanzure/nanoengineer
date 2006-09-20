@@ -66,6 +66,7 @@ backgroundColor_prefs_key = 'A9/Background Color' # Mark 060814.
 backgroundGradient_prefs_key = 'A9/Background Gradient' # Mark 060814.
 defaultDisplayMode_prefs_key = 'A9/Default Display Mode' # Mark 060815.
 mouseSpeedDuringRotation_prefs_key = 'A9/Mouse Speed During Rotation' #Ninad 060906
+displayOriginAsSmallAxis_prefs_key = 'A9/Display Origin As Small Axis' #Ninad 060920
 
 #ToolTip Prefs
 dynamicToolTipWakeUpDelay_prefs_key = 'A9/DynamicToolTip Wake Up Delay'
@@ -284,6 +285,8 @@ prefs_table = (
     ('background_gradient', 'int', backgroundGradient_prefs_key, 1), # 1 = Sky Blue . Mark 060814.
     ('default_display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Mark 060815.
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
+    ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
+    
 
     # Minimize prefs (some are in General prefs pane, some are in dialogs)
     # [mark 060627, revised & extended by bruce 060628, 060705 for A8]

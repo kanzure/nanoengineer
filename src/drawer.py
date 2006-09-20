@@ -1748,98 +1748,88 @@ def drawaxes(n,point,coloraxes=False):
     glEnable(GL_LIGHTING)
     glPopMatrix()
     return
-############################
-#@@@ninad 060831 is experimenting the following. Not used anywhere yet
-def drawSmallAxes(n, point, coloraxes = False):
+
+
+def drawOriginAsSmallAxis(n, point):
     '''Draw a smaller version of origin (a point (0,0,0) and 3 small axes)'''
-    #ninad060831 : Issues: 
-    #1) at the beginning, the POV axis is not shown because of the use of 'if coloraxes' condition
-    #2) I need to make the 'origin axis' immune to zoom (but it should still respond to pan and rotate ops) 
-    #3) drawing arrowheads implemented on 060918
+    #ninad060831 : Issue:
+    #1. I need to make the 'origin axis' immune to zoom (but it should still respond to pan and rotate ops) 
+    #Perhaps we should split this method into smaller methods? ninad060920
+    #others
+    #2 drawing arrowheads implemented on 060918
     
     from constants import blue, red, darkgreen, black
-    x1, y1, z1 = n*0.02, n*0.02, n*0.02
+    x1, y1, z1 = n*0.015, n*0.015, n*0.015
     xEnd, yEnd, zEnd = n*0.08, n*0.18, n*0.05
-    if coloraxes:
-        glPushMatrix()
-        glTranslate(point[0], point[1], point[2])
-        glDisable(GL_LIGHTING)
-        glBegin(GL_LINES)
-        #glColor3f(black[0], black[1], black[2])
-        glColor3f(blue[0], blue[1], blue[2])
-        #start draw origin
-        glVertex(-x1,0.0,0.0)
-        glVertex(x1,0.0,0.0)
-        glVertex(0.0, -y1, 0.0)
-        glVertex(0.0, y1, 0.0)
-        glVertex(-x1,y1,z1)
-        glVertex(x1, -y1, -z1)    
-        glVertex(x1, y1, z1)
-        glVertex(-x1, -y1,- z1)    
-        glVertex(x1, y1, -z1)
-        glVertex(-x1, -y1, z1)    
-        glVertex(-x1, y1, -z1)
-        glVertex(x1, -y1, z1)   
-        #end draw origin
-        #start draw colored axes (small axes)
-        #glColor3f(red[0], red[1], red[2])
-        glColor3f(blue[0], blue[1], blue[2])
-        glVertex(xEnd,0.0,0.0)
-        glVertex(0.0,0.0,0.0)
-        #glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
-        glColor3f(blue[0], blue[1], blue[2])
-        glVertex(0.0,yEnd,0.0)
-        glVertex(0.0,0.0,0.0)
-        glColor3f(blue[0], blue[1], blue[2])
-        glVertex(0.0,0.0,zEnd)
-        glVertex(0.0,0.0,0.0)
-        glEnd() #end draw lines
-        glPopMatrix() # end push matrix for drawing various lines in the origin and axes
+
+    glPushMatrix()
+    glTranslate(point[0], point[1], point[2])
+    glDisable(GL_LIGHTING)
+    glLineWidth(1.5)
+    glBegin(GL_LINES)
+    #glColor3f(black[0], black[1], black[2])
+    glColor3f(blue[0], blue[1], blue[2])
+    
+    #start draw a point at origin 
+    glVertex(-x1,0.0,0.0)
+    glVertex(x1,0.0,0.0)
+    glVertex(0.0, -y1, 0.0)
+    glVertex(0.0, y1, 0.0)
+    glVertex(-x1,y1,z1)
+    glVertex(x1, -y1, -z1)    
+    glVertex(x1, y1, z1)
+    glVertex(-x1, -y1,- z1)    
+    glVertex(x1, y1, -z1)
+    glVertex(-x1, -y1, z1)    
+    glVertex(-x1, y1, -z1)
+    glVertex(x1, -y1, z1)   
+    #end draw a point at origin 
+    
+    #start draw small origin axes
+    #glColor3f(red[0], red[1], red[2])
+    glColor3f(blue[0], blue[1], blue[2])
+    glVertex(xEnd,0.0,0.0)
+    glVertex(0.0,0.0,0.0)
+    #glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
+    glColor3f(blue[0], blue[1], blue[2])
+    glVertex(0.0,yEnd,0.0)
+    glVertex(0.0,0.0,0.0)
+    glColor3f(blue[0], blue[1], blue[2])
+    glVertex(0.0,0.0,zEnd)
+    glVertex(0.0,0.0,0.0)
+    glEnd() #end draw lines
+    glLineWidth(1.0)
+    glPopMatrix() # end push matrix for drawing various lines in the origin and axes
         
-        #start drawing solid arrow heads  for  X , Y and Z axes
-        glPushMatrix() 
-        glDisable(GL_CULL_FACE)
-        #glColor3f(red[0], red[1], red[2])
-        glColor3f(blue[0], blue[1], blue[2])
-        glTranslatef(xEnd,0.0,0.0)
-        glRotatef(90,0.0,1.0,0.0)
-        glut.glutSolidCone(n*0.009,n*0.035,10,10)
-        glPopMatrix()
+    #start draw solid arrow heads  for  X , Y and Z axes
+    glPushMatrix() 
+    glDisable(GL_CULL_FACE)
+    #glColor3f(red[0], red[1], red[2])
+    glColor3f(blue[0], blue[1], blue[2])
+    glTranslatef(xEnd,0.0,0.0)
+    glRotatef(90,0.0,1.0,0.0)
+    glut.glutSolidCone(n*0.009*1.25,n*0.035*1.5,10,10)
+    glPopMatrix()
         
-        glPushMatrix()
-        #glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
-        glColor3f(blue[0], blue[1], blue[2])
-        glTranslatef(0.0,yEnd,0.0)
-        glRotatef(-90,1.0,0.0,0.0)
-        glut.glutSolidCone(n*0.009,n*0.035,10,10)
-        glPopMatrix()
+    glPushMatrix()
+    #glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
+    glColor3f(blue[0], blue[1], blue[2])
+    glTranslatef(0.0,yEnd,0.0)
+    glRotatef(-90,1.0,0.0,0.0)
+    glut.glutSolidCone(n*0.009*1.25,n*0.035*1.25,10,10)
+    glPopMatrix()
         
-        glPushMatrix()
-        glColor3f(blue[0], blue[1], blue[2])
-        glTranslatef(0.0,0.0,zEnd)
-        glut.glutSolidCone(n*0.009,n*0.035,10,10)
-        glEnable(GL_CULL_FACE)
-        glEnable(GL_LIGHTING)
-        glPopMatrix() #end draw draw small axes
-        
-    else:                
-        glPushMatrix()
-        glTranslate(point[0], point[1], point[2])
-        glDisable(GL_LIGHTING)
-        glBegin(GL_LINES)
-        #Code to draw POV axes
-        glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
-        glVertex(n,0,0)
-        glVertex(-n,0,0)
-        glVertex(0,n,0)
-        glVertex(0,-n,0)
-        glVertex(0,0,n)
-        glVertex(0,0,-n)
-        glEnd()
-        glEnable(GL_LIGHTING)
-        glPopMatrix()
+    glPushMatrix()
+    glColor3f(blue[0], blue[1], blue[2])
+    glTranslatef(0.0,0.0,zEnd)
+    glut.glutSolidCone(n*0.009*1.25,n*0.035*1.25,10,10)
+    glEnable(GL_CULL_FACE)
+    glEnable(GL_LIGHTING)
+    glPopMatrix() 
+    #end draw solid arrow heads  for  X , Y and Z axes
+    
     return
-###################    
+
 
 def findCell(pt, latticeType):
     """Return the cell which contains the point <pt> """

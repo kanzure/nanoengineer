@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Sep 7 12:27:40 2006
+# Created: Wed Sep 20 16:43:56 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -39,7 +39,7 @@ class UserPrefsDialog(QDialog):
         UserPrefsDialogLayout = QGridLayout(self,1,1,11,6,"UserPrefsDialogLayout")
 
         layout108 = QHBoxLayout(None,0,6,"layout108")
-        spacer7 = QSpacerItem(584,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        spacer7 = QSpacerItem(509,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         layout108.addItem(spacer7)
 
         self.ok_btn = QPushButton(self,"ok_btn")
@@ -53,23 +53,43 @@ class UserPrefsDialog(QDialog):
         self.tab = QWidget(self.prefs_tab,"tab")
         tabLayout = QGridLayout(self.tab,1,1,11,6,"tabLayout")
 
-        layout85 = QHBoxLayout(None,0,6,"layout85")
-
         self.groupBox7_2 = QGroupBox(self.tab,"groupBox7_2")
         self.groupBox7_2.setColumnLayout(0,Qt.Vertical)
         self.groupBox7_2.layout().setSpacing(6)
         self.groupBox7_2.layout().setMargin(11)
-        groupBox7_2Layout = QVBoxLayout(self.groupBox7_2.layout())
+        groupBox7_2Layout = QGridLayout(self.groupBox7_2.layout())
         groupBox7_2Layout.setAlignment(Qt.AlignTop)
 
         self.display_origin_axis_checkbox = QCheckBox(self.groupBox7_2,"display_origin_axis_checkbox")
         self.display_origin_axis_checkbox.setChecked(1)
-        groupBox7_2Layout.addWidget(self.display_origin_axis_checkbox)
+
+        groupBox7_2Layout.addWidget(self.display_origin_axis_checkbox,1,0)
 
         self.display_pov_axis_checkbox = QCheckBox(self.groupBox7_2,"display_pov_axis_checkbox")
         self.display_pov_axis_checkbox.setChecked(1)
-        groupBox7_2Layout.addWidget(self.display_pov_axis_checkbox)
-        layout85.addWidget(self.groupBox7_2)
+
+        groupBox7_2Layout.addWidget(self.display_pov_axis_checkbox,0,0)
+
+        self.update_originAxis_btngroup = QButtonGroup(self.groupBox7_2,"update_originAxis_btngroup")
+        self.update_originAxis_btngroup.setExclusive(1)
+        self.update_originAxis_btngroup.setColumnLayout(0,Qt.Vertical)
+        self.update_originAxis_btngroup.layout().setSpacing(6)
+        self.update_originAxis_btngroup.layout().setMargin(11)
+        update_originAxis_btngroupLayout = QGridLayout(self.update_originAxis_btngroup.layout())
+        update_originAxis_btngroupLayout.setAlignment(Qt.AlignTop)
+
+        self.displayOriginAsSmallAxis_rbtn = QRadioButton(self.update_originAxis_btngroup,"displayOriginAsSmallAxis_rbtn")
+        self.displayOriginAsSmallAxis_rbtn.setChecked(1)
+
+        update_originAxis_btngroupLayout.addWidget(self.displayOriginAsSmallAxis_rbtn,0,0)
+
+        self.displayOriginAsCrossWires_rbtn = QRadioButton(self.update_originAxis_btngroup,"displayOriginAsCrossWires_rbtn")
+
+        update_originAxis_btngroupLayout.addWidget(self.displayOriginAsCrossWires_rbtn,0,1)
+
+        groupBox7_2Layout.addWidget(self.update_originAxis_btngroup,2,0)
+
+        tabLayout.addMultiCellWidget(self.groupBox7_2,0,0,0,1)
 
         self.groupBox17_2 = QGroupBox(self.tab,"groupBox17_2")
         self.groupBox17_2.setColumnLayout(0,Qt.Vertical)
@@ -95,24 +115,27 @@ class UserPrefsDialog(QDialog):
         self.compass_position_combox = QComboBox(0,self.groupBox17_2,"compass_position_combox")
         layout70.addWidget(self.compass_position_combox)
         groupBox17_2Layout.addLayout(layout70)
-        layout85.addWidget(self.groupBox17_2)
+
+        tabLayout.addWidget(self.groupBox17_2,0,2)
 
         self.default_projection_btngrp = QButtonGroup(self.tab,"default_projection_btngrp")
         self.default_projection_btngrp.setExclusive(1)
-
-        self.radioButton12 = QRadioButton(self.default_projection_btngrp,"radioButton12")
-        self.radioButton12.setGeometry(QRect(11,26,140,25))
-        self.radioButton12.setChecked(1)
+        self.default_projection_btngrp.setColumnLayout(0,Qt.Vertical)
+        self.default_projection_btngrp.layout().setSpacing(6)
+        self.default_projection_btngrp.layout().setMargin(11)
+        default_projection_btngrpLayout = QGridLayout(self.default_projection_btngrp.layout())
+        default_projection_btngrpLayout.setAlignment(Qt.AlignTop)
 
         self.radioButton13 = QRadioButton(self.default_projection_btngrp,"radioButton13")
-        self.radioButton13.setGeometry(QRect(11,57,150,25))
-        layout85.addWidget(self.default_projection_btngrp)
 
-        tabLayout.addLayout(layout85,0,0)
-        spacer58_4 = QSpacerItem(16,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        tabLayout.addItem(spacer58_4,1,1)
+        default_projection_btngrpLayout.addWidget(self.radioButton13,1,0)
 
-        layout110 = QGridLayout(None,1,1,0,6,"layout110")
+        self.radioButton12 = QRadioButton(self.default_projection_btngrp,"radioButton12")
+        self.radioButton12.setChecked(1)
+
+        default_projection_btngrpLayout.addWidget(self.radioButton12,0,0)
+
+        tabLayout.addMultiCellWidget(self.default_projection_btngrp,0,0,3,4)
 
         self.groupBox8 = QGroupBox(self.tab,"groupBox8")
         self.groupBox8.setColumnLayout(0,Qt.Vertical)
@@ -138,9 +161,9 @@ class UserPrefsDialog(QDialog):
         self.textLabel3_4 = QLabel(self.groupBox8,"textLabel3_4")
 
         groupBox8Layout.addWidget(self.textLabel3_4,0,3)
-        spacer55_2 = QSpacerItem(27,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        spacer55_2 = QSpacerItem(28,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         groupBox8Layout.addItem(spacer55_2,0,4)
-        spacer107 = QSpacerItem(88,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        spacer107 = QSpacerItem(60,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         groupBox8Layout.addItem(spacer107,0,2)
 
         self.textLabel2_3 = QLabel(self.groupBox8,"textLabel2_3")
@@ -153,8 +176,6 @@ class UserPrefsDialog(QDialog):
         self.animation_speed_slider.setOrientation(QSlider.Horizontal)
 
         groupBox8Layout.addMultiCellWidget(self.animation_speed_slider,1,1,1,3)
-        spacer55 = QSpacerItem(27,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        groupBox8Layout.addItem(spacer55,1,4)
 
         self.mouseSpeedDuringRotation_slider = QSlider(self.groupBox8,"mouseSpeedDuringRotation_slider")
         self.mouseSpeedDuringRotation_slider.setMinValue(30)
@@ -163,7 +184,7 @@ class UserPrefsDialog(QDialog):
         self.mouseSpeedDuringRotation_slider.setOrientation(QSlider.Horizontal)
 
         groupBox8Layout.addMultiCellWidget(self.mouseSpeedDuringRotation_slider,3,3,1,3)
-        spacer107_3 = QSpacerItem(87,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        spacer107_3 = QSpacerItem(60,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         groupBox8Layout.addItem(spacer107_3,2,2)
 
         self.textLabel3_4_2 = QLabel(self.groupBox8,"textLabel3_4_2")
@@ -186,8 +207,10 @@ class UserPrefsDialog(QDialog):
         self.animate_views_checkbox.setChecked(1)
 
         groupBox8Layout.addWidget(self.animate_views_checkbox,0,0)
+        spacer55 = QSpacerItem(28,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        groupBox8Layout.addItem(spacer55,1,4)
 
-        layout110.addWidget(self.groupBox8,0,1)
+        tabLayout.addMultiCellWidget(self.groupBox8,1,1,1,4)
 
         self.bg_groupbox = QGroupBox(self.tab,"bg_groupbox")
         self.bg_groupbox.setColumnLayout(0,Qt.Vertical)
@@ -237,16 +260,10 @@ class UserPrefsDialog(QDialog):
         self.restore_bgcolor_btn.setAutoDefault(0)
 
         bg_groupboxLayout.addWidget(self.restore_bgcolor_btn,1,1)
-        spacer7_2 = QSpacerItem(40,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        spacer7_2 = QSpacerItem(36,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
         bg_groupboxLayout.addItem(spacer7_2,1,0)
 
-        layout110.addWidget(self.bg_groupbox,0,0)
-
-        tabLayout.addLayout(layout110,1,0)
-        spacer109 = QSpacerItem(20,20,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        tabLayout.addItem(spacer109,3,0)
-
-        layout111 = QHBoxLayout(None,0,6,"layout111")
+        tabLayout.addWidget(self.bg_groupbox,1,0)
 
         self.groupBox14 = QGroupBox(self.tab,"groupBox14")
         self.groupBox14.setColumnLayout(0,Qt.Vertical)
@@ -284,6 +301,8 @@ class UserPrefsDialog(QDialog):
         layout92.addMultiCellLayout(layout88,0,1,0,0)
 
         self.endmax_linedit = QLineEdit(self.groupBox20,"endmax_linedit")
+        self.endmax_linedit.setFrameShape(QLineEdit.LineEditPanel)
+        self.endmax_linedit.setFrameShadow(QLineEdit.Sunken)
 
         layout92.addWidget(self.endmax_linedit,1,1)
 
@@ -357,11 +376,10 @@ class UserPrefsDialog(QDialog):
         update_btngrpLayout.addItem(spacer2,1,3)
 
         groupBox14Layout.addWidget(self.update_btngrp,1,0)
-        layout111.addWidget(self.groupBox14)
-        spacer62 = QSpacerItem(140,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout111.addItem(spacer62)
 
-        tabLayout.addLayout(layout111,2,0)
+        tabLayout.addMultiCellWidget(self.groupBox14,2,2,0,3)
+        spacer62 = QSpacerItem(117,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        tabLayout.addItem(spacer62,2,4)
         self.prefs_tab.insertTab(self.tab,QString.fromLatin1(""))
 
         self.TabPage = QWidget(self.prefs_tab,"TabPage")
@@ -1530,7 +1548,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(626,673).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(625,678).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -1543,11 +1561,12 @@ class UserPrefsDialog(QDialog):
         self.connect(self.bondpoint_hilite_color_btn,SIGNAL("clicked()"),self.change_bondpoint_hilite_color)
         self.connect(self.caption_fullpath_checkbox,SIGNAL("stateChanged(int)"),self.set_caption_fullpath)
         self.connect(self.change_element_colors_btn,SIGNAL("clicked()"),self.change_element_colors)
+        self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
         self.connect(self.compass_position_combox,SIGNAL("activated(int)"),self.set_compass_position)
         self.connect(self.cpk_atom_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_ballstick_atom_radius)
         self.connect(self.cpk_cylinder_rad_spinbox,SIGNAL("valueChanged(int)"),self.change_ballstick_cylinder_radius)
-        self.connect(self.cpk_scale_factor_slider,SIGNAL("sliderReleased()"),self.save_cpk_scale_factor)
         self.connect(self.cpk_scale_factor_slider,SIGNAL("valueChanged(int)"),self.change_cpk_scale_factor)
+        self.connect(self.cpk_scale_factor_slider,SIGNAL("sliderReleased()"),self.save_cpk_scale_factor)
         self.connect(self.current_height_spinbox,SIGNAL("valueChanged(int)"),self.change_window_size)
         self.connect(self.current_width_spinbox,SIGNAL("valueChanged(int)"),self.change_window_size)
         self.connect(self.cutovermax_linedit,SIGNAL("textChanged(const QString&)"),self.change_cutovermax)
@@ -1556,38 +1575,43 @@ class UserPrefsDialog(QDialog):
         self.connect(self.default_mode_combox,SIGNAL("activated(int)"),self.change_default_mode)
         self.connect(self.default_projection_btngrp,SIGNAL("clicked(int)"),self.set_default_projection)
         self.connect(self.display_compass_checkbox,SIGNAL("stateChanged(int)"),self.display_compass)
+        self.connect(self.dynamicToolTipAtomDistancePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipAtomDistancePrecision)
+        self.connect(self.dynamicToolTipBendAnglePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipBendAnglePrecision)
         self.connect(self.endmax_linedit,SIGNAL("textChanged(const QString&)"),self.change_endmax)
         self.connect(self.endrms_linedit,SIGNAL("textChanged(const QString&)"),self.change_endrms)
+        self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.change_fill_type)
         self.connect(self.gamess_checkbox,SIGNAL("toggled(bool)"),self.enable_gamess)
         self.connect(self.gamess_choose_btn,SIGNAL("clicked()"),self.set_gamess_path)
         self.connect(self.high_order_bond_display_btngrp,SIGNAL("clicked(int)"),self.change_high_order_bond_display)
+        self.connect(self.historyHeight_spinbox,SIGNAL("valueChanged(int)"),self.change_historyHeight)
         self.connect(self.hotspot_color_btn,SIGNAL("clicked()"),self.change_hotspot_color)
         self.connect(self.level_of_detail_combox,SIGNAL("activated(int)"),self.change_level_of_detail)
-        self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_ambient_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_ambient_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_checkbox,SIGNAL("toggled(bool)"),self.toggle_light)
         self.connect(self.light_color_btn,SIGNAL("clicked()"),self.change_light_color)
         self.connect(self.light_combobox,SIGNAL("activated(int)"),self.change_active_light)
-        self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light_diffuse_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
-        self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
+        self.connect(self.light_diffuse_slider,SIGNAL("sliderReleased()"),self.save_lighting)
         self.connect(self.light_specularity_slider,SIGNAL("sliderReleased()"),self.save_lighting)
+        self.connect(self.light_specularity_slider,SIGNAL("valueChanged(int)"),self.change_lighting)
         self.connect(self.light_x_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.light_y_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.light_z_linedit,SIGNAL("returnPressed()"),self.save_lighting)
         self.connect(self.lighting_restore_defaults_btn,SIGNAL("clicked()"),self.restore_default_lighting)
         self.connect(self.megapov_checkbox,SIGNAL("toggled(bool)"),self.enable_megapov)
         self.connect(self.megapov_choose_btn,SIGNAL("clicked()"),self.set_megapov_path)
+        self.connect(self.mouseSpeedDuringRotation_slider,SIGNAL("valueChanged(int)"),self.change_mouseSpeedDuringRotation)
         self.connect(self.ms_brightness_slider,SIGNAL("sliderReleased()"),self.change_material_brightness_stop)
-        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
         self.connect(self.ms_brightness_slider,SIGNAL("sliderPressed()"),self.change_material_brightness_start)
+        self.connect(self.ms_brightness_slider,SIGNAL("valueChanged(int)"),self.change_material_brightness)
         self.connect(self.ms_finish_slider,SIGNAL("valueChanged(int)"),self.change_material_finish)
         self.connect(self.ms_finish_slider,SIGNAL("sliderReleased()"),self.change_material_finish_stop)
         self.connect(self.ms_finish_slider,SIGNAL("sliderPressed()"),self.change_material_finish_start)
         self.connect(self.ms_on_checkbox,SIGNAL("toggled(bool)"),self.toggle_material_specularity)
         self.connect(self.ms_shininess_slider,SIGNAL("sliderReleased()"),self.change_material_shininess_stop)
-        self.connect(self.ms_shininess_slider,SIGNAL("sliderPressed()"),self.change_material_shininess_start)
         self.connect(self.ms_shininess_slider,SIGNAL("valueChanged(int)"),self.change_material_shininess)
+        self.connect(self.ms_shininess_slider,SIGNAL("sliderPressed()"),self.change_material_shininess_start)
         self.connect(self.nanohive_checkbox,SIGNAL("toggled(bool)"),self.enable_nanohive)
         self.connect(self.nanohive_choose_btn,SIGNAL("clicked()"),self.set_nanohive_path)
         self.connect(self.ok_btn,SIGNAL("clicked()"),self.accept)
@@ -1599,6 +1623,8 @@ class UserPrefsDialog(QDialog):
         self.connect(self.reset_atom_colors_btn,SIGNAL("clicked()"),self.reset_atom_colors)
         self.connect(self.reset_bond_colors_btn,SIGNAL("clicked()"),self.reset_bond_colors)
         self.connect(self.reset_cpk_scale_factor_btn,SIGNAL("clicked()"),self.reset_cpk_scale_factor)
+        self.connect(self.resetMouseSpeedDuringRotation_btn,SIGNAL("clicked()"),self.reset_mouseSpeedDuringRotation)
+        self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
         self.connect(self.restore_saved_size_btn,SIGNAL("clicked()"),self.restore_saved_size)
         self.connect(self.save_current_btn,SIGNAL("clicked()"),self.save_current_win_pos_and_size)
         self.connect(self.show_bond_labels_checkbox,SIGNAL("toggled(bool)"),self.change_bond_labels)
@@ -1607,14 +1633,8 @@ class UserPrefsDialog(QDialog):
         self.connect(self.undo_stack_memory_limit_spinbox,SIGNAL("valueChanged(int)"),self.change_undo_stack_memory_limit)
         self.connect(self.update_number_spinbox,SIGNAL("valueChanged(int)"),self.update_number_spinbox_valueChanged)
         self.connect(self.watch_min_in_realtime_checkbox,SIGNAL("toggled(bool)"),self.update_btngrp.setEnabled)
-        self.connect(self.fill_type_combox,SIGNAL("activated(const QString&)"),self.change_fill_type)
-        self.connect(self.restore_bgcolor_btn,SIGNAL("clicked()"),self.restore_default_bgcolor)
-        self.connect(self.choose_bg1_color_btn,SIGNAL("clicked()"),self.change_bg1_color)
-        self.connect(self.dynamicToolTipAtomDistancePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipAtomDistancePrecision)
-        self.connect(self.dynamicToolTipBendAnglePrecision_spinbox,SIGNAL("valueChanged(int)"),self.change_dynamicToolTipBendAnglePrecision)
-        self.connect(self.historyHeight_spinbox,SIGNAL("valueChanged(int)"),self.change_historyHeight)
-        self.connect(self.mouseSpeedDuringRotation_slider,SIGNAL("valueChanged(int)"),self.change_mouseSpeedDuringRotation)
-        self.connect(self.resetMouseSpeedDuringRotation_btn,SIGNAL("clicked()"),self.reset_mouseSpeedDuringRotation)
+        self.connect(self.display_origin_axis_checkbox,SIGNAL("toggled(bool)"),self.update_originAxis_btngroup.setEnabled)
+        self.connect(self.displayOriginAsSmallAxis_rbtn,SIGNAL("toggled(bool)"),self.change_displayOriginAsSmallAxis)
 
         self.setTabOrder(self.prefs_tab,self.display_origin_axis_checkbox)
         self.setTabOrder(self.display_origin_axis_checkbox,self.display_pov_axis_checkbox)
@@ -1729,10 +1749,13 @@ class UserPrefsDialog(QDialog):
         self.setCaption(self.__tr("Preferences"))
         self.ok_btn.setText(self.__tr("OK"))
         self.groupBox7_2.setTitle(self.__tr("Axes"))
-        self.display_origin_axis_checkbox.setText(self.__tr("Display Origin Axis"))
+        self.display_origin_axis_checkbox.setText(self.__tr("Display Origin"))
         QToolTip.add(self.display_origin_axis_checkbox,self.__tr("Show/Hide Origin Axis"))
         self.display_pov_axis_checkbox.setText(self.__tr("Display Point of View Axis"))
         QToolTip.add(self.display_pov_axis_checkbox,self.__tr("Show/Hide Point of View Axis"))
+        self.update_originAxis_btngroup.setTitle(QString.null)
+        self.displayOriginAsSmallAxis_rbtn.setText(self.__tr("Small Axis"))
+        self.displayOriginAsCrossWires_rbtn.setText(self.__tr("Crosswires"))
         self.groupBox17_2.setTitle(self.__tr("Compass"))
         self.display_compass_checkbox.setText(self.__tr("Display Compass"))
         QToolTip.add(self.display_compass_checkbox,self.__tr("Show/Hide Display Compass"))
@@ -1746,8 +1769,8 @@ class UserPrefsDialog(QDialog):
         self.compass_position_combox.insertItem(self.__tr("Lower Right"))
         self.default_projection_btngrp.setTitle(self.__tr("Default Projection"))
         QToolTip.add(self.default_projection_btngrp,QString.null)
-        self.radioButton12.setText(self.__tr("Perspective"))
         self.radioButton13.setText(self.__tr("Orthographic"))
+        self.radioButton12.setText(self.__tr("Perspective"))
         self.groupBox8.setTitle(self.__tr("View Rotation"))
         self.textLabel1_5.setText(self.__tr("View Animation Speed:"))
         self.rotationSensitivity_txtlbl.setText(self.__tr("Mouse Speed During Rotation:"))
@@ -2239,6 +2262,9 @@ class UserPrefsDialog(QDialog):
 
     def reset_mouseSpeedDuringRotation(self):
         print "UserPrefsDialog.reset_mouseSpeedDuringRotation(): Not implemented yet"
+
+    def change_displayOriginAsSmallAxis(self):
+        print "UserPrefsDialog.change_displayOriginAsSmallAxis(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("UserPrefsDialog",s,c)
