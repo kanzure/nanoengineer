@@ -209,9 +209,9 @@ main(int argc, char **argv)
     double potentialEnergy;
     int dump_part = 0;
     char *printPotential = NULL;
-    double printPotentialInitial = 1; // pm
-    double printPotentialIncrement = 1; // pm
-    double printPotentialLimit = 200; // pm
+    double printPotentialInitial = -1; // pm
+    double printPotentialIncrement = -1; // pm
+    double printPotentialLimit = -1; // pm
     char *fileNameTemplate = NULL;
     char *outputFilename = NULL;
 	

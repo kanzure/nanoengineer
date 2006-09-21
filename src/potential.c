@@ -76,6 +76,11 @@ stretchPotential(struct part *p, struct stretch *stretch, struct bondStretch *st
 
   struct interpolationTable *iTable;
 
+  if (QuadraticStretchPotential) {
+    potential = stretchType->ks * 5e-7 * (r - stretchType->r0) * (r - stretchType->r0);
+    return potential;
+  }
+
   // table lookup equivalent to: potential = potentialLippincottMorse(rSquared);
   iTable = &stretchType->LippincottMorse;
   start = iTable->start;
@@ -152,6 +157,11 @@ stretchGradient(struct part *p, struct stretch *stretch, struct bondStretch *str
 
   struct interpolationTable *iTable;
 
+  if (QuadraticStretchPotential) {
+    gradient = stretchType->ks * (r - stretchType->r0);
+    return gradient;
+  }
+  
   // table lookup equivalent to: gradient = gradientLippincottMorse(r);
   // Note:  this points uphill, toward higher potential values.
   iTable = &stretchType->LippincottMorse;

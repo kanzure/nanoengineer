@@ -573,6 +573,16 @@ printBondPAndG(char *bondName, double initial, double increment, double limit)
   printf("# r in pm, potentials in aJ, gradients in pN\n");
   printf("#        r            interp potential    interp gradient     direct potential    direct gradient   extension potential  extention gradient  d(interp potential) k\n");
 
+  if (initial < 0) {
+    initial = start;
+  }
+  if (limit < initial) {
+    limit = TABLEN * scale + start;
+  }
+  if (increment < 0) {
+    increment = (limit - initial) / 1000.0;
+  }
+
   interpolated_potential = stretchPotential(NULL, NULL, stretch, initial);
   for (r=initial; r<limit; r+=increment) {
     k = (int)((r - start) / scale);
@@ -657,6 +667,15 @@ printVdWPAndG(char *vdwName, double initial, double increment, double limit)
          vdw->rvdW * 0.4,
          vdw->rvdW * VanDerWaalsCutoffFactor);
 
+  if (initial < 0) {
+    initial = vdw->rvdW * 0.4;
+  }
+  if (limit < initial) {
+    limit = vdw->rvdW * VanDerWaalsCutoffFactor;
+  }
+  if (increment < 0) {
+    increment = (limit - initial) / 1000.0;
+  }
   interpolated_potential = vanDerWaalsPotential(NULL, NULL, vdw, initial);
   for (r=initial; r<limit; r+=increment) {
     lip = interpolated_potential;
