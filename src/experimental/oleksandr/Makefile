@@ -20,7 +20,6 @@ CXXFLAGS = -O3 $(CFLAGS)
 LDFLAGS=-L. -L"C:/Dev-Cpp/lib" -L"C:/Python$(PYVER)/libs"
 TARGET=psurface.dll
 PYREXC=python c:/Python$(PYVER)/Scripts/pyrexc.py
-BINDIR=bindir_msdos
 #---------------------------------------- End of Windows stuff
 else
 #---------------------------------------- Start Unix/Mac stuff
@@ -42,7 +41,6 @@ PYBASE:=$(shell which python | sed "s%/bin/python%%")
 CFLAGS+=-I$(PYBASE)/include/python$(PYDVER)
 LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
-BINDIR=bindir_unix
 #---------------------------------------- End of Unix
 endif
 PYREXC=$(shell python -c "import findpyrex; print findpyrex.find_pyrexc()")
@@ -65,19 +63,12 @@ OBJS = cppsurface.o \
 
 all: $(TARGET)
 
-install: $(TARGET) $(BINDIR)
+install: $(TARGET)
+	mkdir -p ../../../bin
 	cp $(TARGET) ../../../bin
 
 clean:
 	rm -f *~ *.o *.pyc psurface.c *.so *.dll psurface.def
-
-bindir_msdos:
-	if exists ../../../bin goto bindir_ok
-	mkdir ../../../bin
-	:bindir_ok
-
-bindir_unix:
-	mkdir -p ../../../bin
 
 libpython$(PYVER).a: libpython$(PYVER).a.gz
 	gunzip < libpython$(PYVER).a.gz > libpython$(PYVER).a
