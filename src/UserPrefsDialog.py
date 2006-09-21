@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Sep 21 10:14:07 2006
+# Created: Thu Sep 21 11:24:04 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -541,7 +541,7 @@ class UserPrefsDialog(QDialog):
         self.reset_cpk_scale_factor_btn.setIconSet(QIconSet(self.image0))
         layout75.addWidget(self.reset_cpk_scale_factor_btn)
         layout86.addLayout(layout75)
-        spacer11 = QSpacerItem(20,30,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        spacer11 = QSpacerItem(20,198,QSizePolicy.Minimum,QSizePolicy.Expanding)
         layout86.addItem(spacer11)
 
         TabPageLayout.addLayout(layout86,0,0)
@@ -819,6 +819,20 @@ class UserPrefsDialog(QDialog):
         self.TabPage_4 = QWidget(self.prefs_tab,"TabPage_4")
         TabPageLayout_3 = QGridLayout(self.TabPage_4,1,1,11,6,"TabPageLayout_3")
 
+        layout505 = QHBoxLayout(None,0,6,"layout505")
+        spacer57 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout505.addItem(spacer57)
+
+        self.lighting_restore_defaults_btn = QPushButton(self.TabPage_4,"lighting_restore_defaults_btn")
+        self.lighting_restore_defaults_btn.setAutoDefault(0)
+        layout505.addWidget(self.lighting_restore_defaults_btn)
+
+        TabPageLayout_3.addLayout(layout505,1,0)
+
+        layout73 = QHBoxLayout(None,0,6,"layout73")
+
+        layout71 = QVBoxLayout(None,0,6,"layout71")
+
         self.groupBox8_2 = QGroupBox(self.TabPage_4,"groupBox8_2")
         self.groupBox8_2.setEnabled(1)
         self.groupBox8_2.setColumnLayout(0,Qt.Vertical)
@@ -975,20 +989,12 @@ class UserPrefsDialog(QDialog):
         layout559.addLayout(layout61)
 
         groupBox8_2Layout.addLayout(layout559,0,1)
+        layout71.addWidget(self.groupBox8_2)
+        spacer54_2 = QSpacerItem(20,140,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout71.addItem(spacer54_2)
+        layout73.addLayout(layout71)
 
-        TabPageLayout_3.addMultiCellWidget(self.groupBox8_2,0,2,0,0)
-
-        layout505 = QHBoxLayout(None,0,6,"layout505")
-        spacer57 = QSpacerItem(20,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
-        layout505.addItem(spacer57)
-
-        self.lighting_restore_defaults_btn = QPushButton(self.TabPage_4,"lighting_restore_defaults_btn")
-        self.lighting_restore_defaults_btn.setAutoDefault(0)
-        layout505.addWidget(self.lighting_restore_defaults_btn)
-
-        TabPageLayout_3.addLayout(layout505,2,1)
-        spacer345 = QSpacerItem(20,30,QSizePolicy.Minimum,QSizePolicy.Expanding)
-        TabPageLayout_3.addItem(spacer345,1,1)
+        layout72 = QVBoxLayout(None,0,6,"layout72")
 
         self.groupBox9_2 = QGroupBox(self.TabPage_4,"groupBox9_2")
         self.groupBox9_2.setEnabled(1)
@@ -1122,8 +1128,14 @@ class UserPrefsDialog(QDialog):
         layout54.addWidget(self.ms_brightness_slider)
 
         groupBox9_2Layout.addLayout(layout54,0,2)
+        layout72.addWidget(self.groupBox9_2)
+        spacer345 = QSpacerItem(20,67,QSizePolicy.Minimum,QSizePolicy.Expanding)
+        layout72.addItem(spacer345)
+        layout73.addLayout(layout72)
+        spacer55_4 = QSpacerItem(44,20,QSizePolicy.Expanding,QSizePolicy.Minimum)
+        layout73.addItem(spacer55_4)
 
-        TabPageLayout_3.addWidget(self.groupBox9_2,0,1)
+        TabPageLayout_3.addLayout(layout73,0,0)
         self.prefs_tab.insertTab(self.TabPage_4,QString.fromLatin1(""))
 
         self.TabPage_5 = QWidget(self.prefs_tab,"TabPage_5")
@@ -1213,46 +1225,46 @@ class UserPrefsDialog(QDialog):
 
         file_locations_grpLayout.addWidget(self.nanohive_choose_btn,0,3)
 
-        layout71 = QHBoxLayout(None,0,6,"layout71")
+        layout71_2 = QHBoxLayout(None,0,6,"layout71_2")
 
         self.nanohive_checkbox = QCheckBox(self.file_locations_grp,"nanohive_checkbox")
         self.nanohive_checkbox.setEnabled(1)
-        layout71.addWidget(self.nanohive_checkbox)
+        layout71_2.addWidget(self.nanohive_checkbox)
 
         self.nanohive_lbl = QLabel(self.file_locations_grp,"nanohive_lbl")
         self.nanohive_lbl.setEnabled(1)
         self.nanohive_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.nanohive_lbl.sizePolicy().hasHeightForWidth()))
         self.nanohive_lbl.setMinimumSize(QSize(60,0))
         self.nanohive_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout71.addWidget(self.nanohive_lbl)
+        layout71_2.addWidget(self.nanohive_lbl)
 
-        file_locations_grpLayout.addLayout(layout71,0,0)
+        file_locations_grpLayout.addLayout(layout71_2,0,0)
 
-        layout72 = QHBoxLayout(None,0,6,"layout72")
+        layout72_2 = QHBoxLayout(None,0,6,"layout72_2")
 
         self.povray_checkbox = QCheckBox(self.file_locations_grp,"povray_checkbox")
-        layout72.addWidget(self.povray_checkbox)
+        layout72_2.addWidget(self.povray_checkbox)
 
         self.povray_lbl = QLabel(self.file_locations_grp,"povray_lbl")
         self.povray_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.povray_lbl.sizePolicy().hasHeightForWidth()))
         self.povray_lbl.setMinimumSize(QSize(60,0))
         self.povray_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout72.addWidget(self.povray_lbl)
+        layout72_2.addWidget(self.povray_lbl)
 
-        file_locations_grpLayout.addLayout(layout72,1,0)
+        file_locations_grpLayout.addLayout(layout72_2,1,0)
 
-        layout73 = QHBoxLayout(None,0,6,"layout73")
+        layout73_2 = QHBoxLayout(None,0,6,"layout73_2")
 
         self.megapov_checkbox = QCheckBox(self.file_locations_grp,"megapov_checkbox")
-        layout73.addWidget(self.megapov_checkbox)
+        layout73_2.addWidget(self.megapov_checkbox)
 
         self.megapov_lbl = QLabel(self.file_locations_grp,"megapov_lbl")
         self.megapov_lbl.setSizePolicy(QSizePolicy(QSizePolicy.Minimum,QSizePolicy.Preferred,0,0,self.megapov_lbl.sizePolicy().hasHeightForWidth()))
         self.megapov_lbl.setMinimumSize(QSize(60,0))
         self.megapov_lbl.setAlignment(QLabel.AlignVCenter | QLabel.AlignRight)
-        layout73.addWidget(self.megapov_lbl)
+        layout73_2.addWidget(self.megapov_lbl)
 
-        file_locations_grpLayout.addLayout(layout73,2,0)
+        file_locations_grpLayout.addLayout(layout73_2,2,0)
 
         layout74_2 = QHBoxLayout(None,0,6,"layout74_2")
 
@@ -1551,7 +1563,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(625,678).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(625,618).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)
@@ -1920,6 +1932,7 @@ class UserPrefsDialog(QDialog):
         self.buildmode_highlighting_checkbox.setText(self.__tr("Highlighting"))
         QToolTip.add(self.buildmode_highlighting_checkbox,self.__tr("Build mode's default setting for Highlighting at startup (enabled/disabled)"))
         self.prefs_tab.changeTab(self.TabPage_3,self.__tr("Modes"))
+        self.lighting_restore_defaults_btn.setText(self.__tr("Restore Defaults"))
         self.groupBox8_2.setTitle(self.__tr("Directional Light Properties"))
         self.light_label.setText(self.__tr("Light :"))
         self.on_label.setText(self.__tr("On :"))
@@ -1936,7 +1949,6 @@ class UserPrefsDialog(QDialog):
         self.light_combobox.insertItem(self.__tr("3 (Off)"))
         self.light_checkbox.setText(QString.null)
         self.light_color_btn.setText(self.__tr("Choose..."))
-        self.lighting_restore_defaults_btn.setText(self.__tr("Restore Defaults"))
         self.groupBox9_2.setTitle(self.__tr("Material Specular Properties"))
         self.ms_on_label.setText(self.__tr("On :"))
         self.ms_finish_label.setText(self.__tr("Finish :"))
