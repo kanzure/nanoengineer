@@ -903,7 +903,6 @@ class UserPrefs(UserPrefsDialog):
         # set the pref
         env.prefs[defaultProjection_prefs_key] = projection
         self.glpane.setViewProjection(projection)
-        print " in set_default_projection: Projection is: ", projection
         
     def change_displayOriginAsSmallAxis(self, value):
         "this sets the preference to view origin as small axis so that it is sticky across sessions"

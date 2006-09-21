@@ -2,7 +2,7 @@
 
 # Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Wed Sep 20 16:43:56 2006
+# Created: Thu Sep 21 10:14:07 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -127,11 +127,14 @@ class UserPrefsDialog(QDialog):
         default_projection_btngrpLayout.setAlignment(Qt.AlignTop)
 
         self.radioButton13 = QRadioButton(self.default_projection_btngrp,"radioButton13")
+        self.radioButton13.setChecked(1)
+        self.default_projection_btngrp.insert( self.radioButton13,1)
 
         default_projection_btngrpLayout.addWidget(self.radioButton13,1,0)
 
         self.radioButton12 = QRadioButton(self.default_projection_btngrp,"radioButton12")
-        self.radioButton12.setChecked(1)
+        self.radioButton12.setChecked(0)
+        self.default_projection_btngrp.insert( self.radioButton12,0)
 
         default_projection_btngrpLayout.addWidget(self.radioButton12,0,0)
 
