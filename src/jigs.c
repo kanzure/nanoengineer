@@ -482,8 +482,8 @@ jigThermostat(struct jig *jig, double deltaTframe, struct xyz *position, struct 
         v1 = vdif(new_position[a1],position[a1]);
         ff = vdot(v1, v1) * mass;
 
-        vmulc(v1,1.0-Gamma);
-        v2= gxyz(G1*therm);
+        vmulc(v1, 1.0 - ThermostatGamma);
+        v2= gxyz(ThermostatG1 * therm);
         vadd(v1, v2);
         vadd2(new_position[a1],position[a1],v1);
 

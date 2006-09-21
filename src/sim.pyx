@@ -44,6 +44,7 @@ cdef extern from "simhelp.c":
     double MinimizeThresholdEndRMS
     double MinimizeThresholdEndMax
     double VanDerWaalsCutoffFactor
+    double ThermostatGamma
     char *IDKey
     char *BaseFileName
     char *InputFileName
@@ -142,6 +143,8 @@ cdef class BaseSimulator:
             return MinimizeThresholdEndMax
         elif strcmp(key, "VanDerWaalsCutoffFactor") == 0:
             return VanDerWaalsCutoffFactor
+        elif strcmp(key, "ThermostatGamma") == 0:
+            return ThermostatGamma
         elif strcmp(key, "IDKey") == 0:
             return IDKey
         elif strcmp(key, "baseFilename") == 0:
@@ -228,6 +231,9 @@ cdef class BaseSimulator:
         elif strcmp(key, "VanDerWaalsCutoffFactor") == 0:
             global VanDerWaalsCutoffFactor
             VanDerWaalsCutoffFactor = value
+        elif strcmp(key, "ThermostatGamma") == 0:
+            global ThermostatGamma
+            ThermostatGamma = value
         elif strcmp(key, "IDKey") == 0:
             global IDKey
             IDKey = value

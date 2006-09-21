@@ -43,6 +43,8 @@ usage(void)
                     used with -D4 and -D5 to scale length of force vectors.\n\
    -n<int>, --num-atoms=<int>\n\
                     expect this many atoms (ignored)\n\
+   --thermostat-gamma=<float>\n\
+                    control time constant for thermostat coupling, default=0.01\n\
    -m, --minimize\n\
                     minimize the structure\n\
    --min-threshold-cutover-rms=<float>\n\
@@ -142,6 +144,7 @@ set_py_exc_str(const char *filename,
 #define OPT_MIN_THRESH_END_MAX  LONG_OPT (12)
 #define OPT_VDW_CUTOFF_FACTOR   LONG_OPT (13)
 #define OPT_TIME_REVERSAL     LONG_OPT (14)
+#define OPT_THERMOSTAT_GAMMA  LONG_OPT (15)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
@@ -159,6 +162,7 @@ static const struct option option_vec[] = {
     { "min-threshold-end-max", required_argument, NULL, OPT_MIN_THRESH_END_MAX},
     { "vdw-cutoff-factor", required_argument, NULL, OPT_VDW_CUTOFF_FACTOR},
     { "time-reversal", no_argument, NULL, OPT_TIME_REVERSAL},
+    { "thermostat-gamma", required_argument, NULL, OPT_THERMOSTAT_GAMMA},
     { "num-atoms", required_argument, NULL, 'n' },
     { "minimize", no_argument, NULL, 'm' },
     { "print-energy", no_argument, NULL, 'E' },
@@ -270,6 +274,9 @@ main(int argc, char **argv)
             break;
         case OPT_TIME_REVERSAL:
             TimeReversal = 1;
+            break;
+        case OPT_THERMOSTAT_GAMMA:
+            ThermostatGamma = atof(optarg);
             break;
 	case 'n':
 	    // ignored

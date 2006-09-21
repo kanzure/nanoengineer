@@ -42,6 +42,8 @@ extern double MinimizeThresholdEndRMS;
 extern double MinimizeThresholdEndMax;
 extern double VanDerWaalsCutoffFactor;
 extern int TimeReversal;
+extern double ThermostatGamma;
+extern double ThermostatG1;
 
 extern FILE *OutputFile;
 extern FILE *TraceFile;
@@ -72,10 +74,6 @@ extern const double Boltz;	/* k, in J/K */
 extern const double Pi;
 
 extern double totClipped;  // internal thermostat for numerical stability
-
-extern const double Gamma; // for Langevin thermostats
-
-extern const double G1;
 
 extern void reinit_globals(void);
 

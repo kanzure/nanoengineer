@@ -52,6 +52,8 @@ double MinimizeThresholdCutoverMax;
 double MinimizeThresholdEndRMS;
 double MinimizeThresholdEndMax;
 int TimeReversal;
+double ThermostatGamma;
+double ThermostatG1;
 
 // multiple of rvdW where interpolation table ends, and van der Waals
 // force is considered exactly zero beyond this point.
@@ -84,12 +86,6 @@ const double Pi = 3.14159265358979323846;
 
 double totClipped;  // internal thermostat for numerical stability
 
-const double Gamma = 0.01; // for Langevin thermostats
-//    double Gamma = 0.1;  // for Langevin thermostats
-
-const double G1=(1.01-0.27*0.01)*1.4*0.1;
-//    double G1=(1.01-0.27*0.1)*1.4*0.31623;
-//    double G1=(1.01-0.27*Gamma)*1.4*sqrt(Gamma);
 
 void
 reinit_globals(void)
@@ -118,6 +114,7 @@ reinit_globals(void)
     QualityWarningLevel = 5;
     SimpleMovieForceScale = 1.0;
     TimeReversal = 0;
+    ThermostatGamma = 0.01;
     
     MinimizeThresholdCutoverRMS = 50.0; // pN
     MinimizeThresholdCutoverMax = 0.0; // set by constrainGlobals, below
@@ -164,6 +161,8 @@ constrainGlobals()
     if (VanDerWaalsCutoffFactor > 10.0) {
         VanDerWaalsCutoffFactor = 10.0;
     }
+
+    ThermostatG1 = (1.01 - 0.27 * ThermostatGamma) * 1.4 * sqrt(ThermostatGamma);
 }
 
 void
@@ -188,6 +187,7 @@ printGlobals()
         write_traceline("# MinimizeThresholdEndMax: %f\n", MinimizeThresholdEndMax);
     }
     write_traceline("# VanDerWaalsCutoffFactor: %f\n", VanDerWaalsCutoffFactor);
+    write_traceline("# ThermostatGamma: %f\n", ThermostatGamma);
     write_traceline("#\n");
 }
 
