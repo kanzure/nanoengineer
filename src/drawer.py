@@ -1729,13 +1729,23 @@ def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
     glEnable(GL_LIGHTING)
     return
 
-def drawaxes(n,point,coloraxes=False):
+def drawaxes(n,point,coloraxes=False, dashEnabled = False):
     from constants import blue, red, darkgreen
     glPushMatrix()
     glTranslate(point[0], point[1], point[2])
     glDisable(GL_LIGHTING)
-    if coloraxes: glColor3f(red[0], red[1], red[2])
-    else: glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
+    
+    if coloraxes: 
+        glColor3f(red[0], red[1], red[2])
+        if dashEnabled:
+             #ninad060921 Note that we will only support dotted oridin axis (hidden lines)
+            #but not POV axis. (as it could be annoying)
+            glLineStipple(5, 0xAAAA)
+            glEnable(GL_LINE_STIPPLE)
+            glDisable(GL_DEPTH_TEST)
+    else:
+        glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
+        
     glBegin(GL_LINES)
     glVertex(n,0,0)
     glVertex(-n,0,0)
@@ -1747,49 +1757,47 @@ def drawaxes(n,point,coloraxes=False):
     glVertex(0,0,n)
     glVertex(0,0,-n)
     glEnd()
+    
+    if coloraxes:
+        if dashEnabled:
+            glDisable(GL_LINE_STIPPLE)
+            glEnable(GL_DEPTH_TEST)
+            
     glEnable(GL_LIGHTING)
     glPopMatrix()
     return
 
 
-def drawOriginAsSmallAxis(n, point, glpane):
+def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     '''Draw a smaller version of origin (a point (0,0,0) and 3 small axes)'''
     #ninad060831 : Issue:
-    #1. I need to make the 'origin axis' immune to zoom (but it should still respond to pan and rotate ops) 
+    #1. I need to make the 'origin axis' immune to zoom (but it should still respond
+    # to pan and rotate ops) 
+    #i.e. it should always rescale itself somehow during zoom op
     #Perhaps we should split this method into smaller methods? ninad060920
-    #others
+    #Notes:
     #2 drawing arrowheads implemented on 060918
+    #ninad060921 Show the origin axes as dotted if behind the mode. NIY for 
+    #arrow heads. We will come up with something better for those
     
     from constants import blue, red, darkgreen, black
     x1, y1, z1 = n*0.015, n*0.015, n*0.015
     xEnd, yEnd, zEnd = n*0.08, n*0.18, n*0.05
-    
 
-    glMatrixMode(GL_PROJECTION)
     glPushMatrix()
-    glLoadIdentity()
 
-    #glPushMatrix()
-    
-    glOrtho(-10, 10, -10, 10, -1, 500)
-    
-    glMatrixMode(GL_MODELVIEW)
-    glPushMatrix()
-    glLoadIdentity()
-    
-  
-    #@@@@test 060921
-    q = glpane.quat
-    glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
-    #@@@end test060921
-    
-    #glTranslate(point[0], point[1], point[2])
-    
-    #glDepthRange(-4, 100)
-    
+    glTranslate(point[0], point[1], point[2])
     glDisable(GL_LIGHTING)
     glLineWidth(1.5)
+    
+    #Code to show hidden lines of the origin if some model obscures it  ninad060921
+    if dashEnabled:
+        glLineStipple(2, 0xAAAA)
+        glEnable(GL_LINE_STIPPLE)
+        glDisable(GL_DEPTH_TEST)
+
     glBegin(GL_LINES)
+
     #glColor3f(black[0], black[1], black[2])
     glColor3f(blue[0], blue[1], blue[2])
     
@@ -1822,28 +1830,33 @@ def drawOriginAsSmallAxis(n, point, glpane):
     glVertex(0.0,0.0,0.0)
     glEnd() #end draw lines
     glLineWidth(1.0)
-    #glPopMatrix() # end push matrix for drawing various lines in the origin and axes
     
-    #@@@@test 060921
-    glMatrixMode(GL_PROJECTION)
-    glPopMatrix()
-    glMatrixMode(GL_MODELVIEW)
-    glPopMatrix()
-    #@@@@test 060921
-    """
+    #make sure to Disable line stipple and Enable Depth test
+    if dashEnabled:
+        glLineStipple(1, 0xAAAA)
+        glDisable(GL_LINE_STIPPLE)
+        glEnable(GL_DEPTH_TEST)
+        
+        
+    glPopMatrix() # end push matrix for drawing various lines in the origin and axes
+    
+    """if dashEnabled:
+        glEnable(GL_LIGHTING)
+        return # don't draw the arrow heads for the dashed lines"""
+        
     #start draw solid arrow heads  for  X , Y and Z axes
     glPushMatrix() 
     glDisable(GL_CULL_FACE)
-    glColor3f(darkred[0], darkred[1], darkred[2])
-    #glColor3f(blue[0], blue[1], blue[2])
+    #glColor3f(darkred[0], darkred[1], darkred[2])
+    glColor3f(blue[0], blue[1], blue[2])
     glTranslatef(xEnd,0.0,0.0)
     glRotatef(90,0.0,1.0,0.0)
     glut.glutSolidCone(n*0.009*1.25,n*0.035*1.5,10,10)
     glPopMatrix()
         
     glPushMatrix()
-    glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
-    #glColor3f(blue[0], blue[1], blue[2])
+    #glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
+    glColor3f(blue[0], blue[1], blue[2])
     glTranslatef(0.0,yEnd,0.0)
     glRotatef(-90,1.0,0.0,0.0)
     glut.glutSolidCone(n*0.009*1.25,n*0.035*1.25,10,10)
@@ -1857,9 +1870,8 @@ def drawOriginAsSmallAxis(n, point, glpane):
     glEnable(GL_LIGHTING)
     glPopMatrix() 
     #end draw solid arrow heads  for  X , Y and Z axes
-    """
-    
     return
+
 
 
 def findCell(pt, latticeType):

@@ -802,7 +802,9 @@ class basicMode(anyMode):
         # Draw the Origin axis.
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]: #ninad060920
-                drawer.drawOriginAsSmallAxis(5, (0.0,0.0,0.0), self.o)
+                drawer.drawOriginAsSmallAxis(5, (0.0,0.0,0.0))
+                #ninad060921: note: we are also drawing a dotted origin displayed only when 
+                #the solid origin is hidden. See def standard_repaint_0 in GLPane.py
             else:
                 drawer.drawaxes(5, (0.0,0.0,0.0), coloraxes=True)
             

@@ -2222,6 +2222,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # draw coordinate-orientation arrows at upper right corner of glpane
         if env.prefs[displayCompass_prefs_key]:
             self.drawcompass(aspect) #bruce 050608 moved this here, and rewrote it to behave then
+        
+        #ninad060921 The following draws a dotted origin axis if the correct preferece is checked. 
+        #The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
+        #it will just draw it as dotted line (Remember that we are drawing 2 origins superimposed over each other
+        #the dotted will be displayed only when the solid origin is obsucured by a model in front of it. 
+        if env.prefs[displayOriginAxis_prefs_key]:
+            if env.prefs[displayOriginAsSmallAxis_prefs_key]:
+                drawer.drawOriginAsSmallAxis(5, (0.0,0.0,0.0), dashEnabled = True)
+            else:
+                drawer.drawaxes(5, (0.0,0.0,0.0), coloraxes=True, dashEnabled = True)
 
         glMatrixMode(GL_MODELVIEW) #bruce 050707 precaution in case drawing code outside of paintGL forgets to do this
             # (see discussion in bug 727, which was caused by that)
