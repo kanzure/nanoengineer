@@ -802,7 +802,7 @@ class basicMode(anyMode):
         # Draw the Origin axis.
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]: #ninad060920
-                drawer.drawOriginAsSmallAxis(5, (0.0,0.0,0.0))
+                drawer.drawOriginAsSmallAxis(5, (0.0,0.0,0.0), self.o)
             else:
                 drawer.drawaxes(5, (0.0,0.0,0.0), coloraxes=True)
             
