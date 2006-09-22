@@ -45,6 +45,7 @@ static char *
 readToken(struct mmpStream *mmp)
 {
   char *s = tokenBuffer;
+  char c;
 
   if (feof(mmp->f) || ferror(mmp->f)) {
     return NULL;
@@ -62,9 +63,16 @@ readToken(struct mmpStream *mmp)
     case '\n':
     case '\0':
       if (s == tokenBuffer) {
-        // XXX line numbering is off by a factor of 2 for files with
-        // \r\n line termination
         if (*s == '\n' || *s == '\r') {
+          c = fgetc(mmp->f);
+          if (c == '\n' || c == '\r') {
+            if (c == *s) {
+              ungetc(c, mmp->f);
+            }
+            *s = '\n';
+          } else {
+            ungetc(c, mmp->f);
+          }
           mmp->lineNumber++;
           mmp->charPosition = 1;
         }

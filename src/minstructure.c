@@ -441,15 +441,19 @@ bond1 3
     SetConfiguration(&initial, NULL);
     SetConfiguration(&final, NULL);
     if (model_energy > 0.25) {
-	done("Final forces: rms %f pN, high %f pN, model energy: %.3f aJ",
+	done("Final forces: rms %f pN, high %f pN, model energy: %.3f aJ evals: %d,%d",
 	     rms_force,
 	     max_force,
-	     model_energy);
+	     model_energy,
+             minimizeStructureFunctions.functionEvaluationCount,
+             minimizeStructureFunctions.gradientEvaluationCount);
     } else {
-	done("Final forces: rms %f pN, high %f pN, model energy: %.3e aJ",
+	done("Final forces: rms %f pN, high %f pN, model energy: %.3e aJ evals: %d,%d",
 	     rms_force,
 	     max_force,
-	     model_energy);
+	     model_energy,
+             minimizeStructureFunctions.functionEvaluationCount,
+             minimizeStructureFunctions.gradientEvaluationCount);
     }
 }
 
