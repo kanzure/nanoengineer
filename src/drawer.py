@@ -1731,6 +1731,8 @@ def drawAxis(color, pos1, pos2, width = 2): #Ninad 060907
 
 def drawaxes(n,point,coloraxes=False, dashEnabled = False):
     from constants import blue, red, darkgreen
+    
+    n *= 0.5
     glPushMatrix()
     glTranslate(point[0], point[1], point[2])
     glDisable(GL_LIGHTING)
@@ -1770,25 +1772,29 @@ def drawaxes(n,point,coloraxes=False, dashEnabled = False):
 
 def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     '''Draw a smaller version of origin (a point (0,0,0) and 3 small axes)'''
-    #ninad060831 : Issue:
-    #1. I need to make the 'origin axis' immune to zoom (but it should still respond
-    # to pan and rotate ops) 
-    #i.e. it should always rescale itself somehow during zoom op
     #Perhaps we should split this method into smaller methods? ninad060920
     #Notes:
-    #2 drawing arrowheads implemented on 060918
-    #ninad060921 Show the origin axes as dotted if behind the mode. NIY for 
-    #arrow heads. We will come up with something better for those
+    #1. drawing arrowheads implemented on 060918
+    #2. ninad060921 Show the origin axes as dotted if behind the mode. 
+    #NIY for arrow heads (always rendered as solid arrowheads. We will come up 
+    #with something better for those
+    #3.Making origin non-zoomable is acheived by passing replacing 
+    #hardcoded 'n' with glpane's scale - ninad060922
     
-    from constants import blue, red, darkgreen, black
-    x1, y1, z1 = n*0.015, n*0.015, n*0.015
-    xEnd, yEnd, zEnd = n*0.08, n*0.18, n*0.05
+    from constants import blue, red, darkgreen, black, lightblue
+    
+    #ninad060922 in future , the following could be user preferences. 
+    x1, y1, z1 = n*0.01, n*0.01, n*0.01
+    xEnd, yEnd, zEnd = n*0.04, n*0.09, n*0.025
+    arrowBase = n*0.0075
+    arrowHeight = n*0.035
+    lineWidth = 1.0
 
     glPushMatrix()
 
     glTranslate(point[0], point[1], point[2])
     glDisable(GL_LIGHTING)
-    glLineWidth(1.5)
+    glLineWidth(lineWidth)
     
     #Code to show hidden lines of the origin if some model obscures it  ninad060921
     if dashEnabled:
@@ -1798,10 +1804,12 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
 
     glBegin(GL_LINES)
 
-    #glColor3f(black[0], black[1], black[2])
-    glColor3f(blue[0], blue[1], blue[2])
+    #glColor3f(black)
+    glColor3fv(lightblue)
+
+    #start draw a point at origin . 
+    #ninad060922 is thinking about using GL_POINTS here
     
-    #start draw a point at origin 
     glVertex(-x1,0.0,0.0)
     glVertex(x1,0.0,0.0)
     glVertex(0.0, -y1, 0.0)
@@ -1817,55 +1825,54 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     #end draw a point at origin 
 
     #start draw small origin axes
-    #glColor3f(darkred[0], darkred[1], darkred[2])
-    glColor3f(blue[0], blue[1], blue[2])
+    #glColor3fv(darkred)
+    glColor3fv(lightblue)
     glVertex(xEnd,0.0,0.0)
     glVertex(0.0,0.0,0.0)
     #glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
-    glColor3f(blue[0], blue[1], blue[2])
+    glColor3fv(lightblue)
     glVertex(0.0,yEnd,0.0)
     glVertex(0.0,0.0,0.0)
-    glColor3f(blue[0], blue[1], blue[2])
+    #glColor3f(blue[0], blue[1], blue[2])
+    glColor3fv(lightblue)
     glVertex(0.0,0.0,zEnd)
     glVertex(0.0,0.0,0.0)
     glEnd() #end draw lines
     glLineWidth(1.0)
     
-    #make sure to Disable line stipple and Enable Depth test
+
+        
+        
+    glPopMatrix() # end push matrix for drawing various lines in the origin and axes
+            
+    #start draw solid arrow heads  for  X , Y and Z axes
+    glPushMatrix() 
+    glDisable(GL_CULL_FACE)
+    #glColor3fv(darkred)
+    glColor3fv(lightblue)
+    glTranslatef(xEnd,0.0,0.0)
+    glRotatef(90,0.0,1.0,0.0)
+    glut.glutSolidCone(arrowBase,arrowHeight,10,10)
+    glPopMatrix()
+        
+    glPushMatrix()
+    #glColor3f(darkgreen)
+    glColor3fv(lightblue)
+    glTranslatef(0.0,yEnd,0.0)
+    glRotatef(-90,1.0,0.0,0.0)
+    glut.glutSolidCone(arrowBase,arrowHeight,10,10)
+    glPopMatrix()
+        
+    glPushMatrix()
+    glColor3fv(lightblue)
+    glTranslatef(0.0,0.0,zEnd)
+    glut.glutSolidCone(arrowBase,arrowHeight,10,10)
+    
+    #Disable line stipple and Enable Depth test
     if dashEnabled:
         glLineStipple(1, 0xAAAA)
         glDisable(GL_LINE_STIPPLE)
         glEnable(GL_DEPTH_TEST)
-        
-        
-    glPopMatrix() # end push matrix for drawing various lines in the origin and axes
-    
-    """if dashEnabled:
-        glEnable(GL_LIGHTING)
-        return # don't draw the arrow heads for the dashed lines"""
-        
-    #start draw solid arrow heads  for  X , Y and Z axes
-    glPushMatrix() 
-    glDisable(GL_CULL_FACE)
-    #glColor3f(darkred[0], darkred[1], darkred[2])
-    glColor3f(blue[0], blue[1], blue[2])
-    glTranslatef(xEnd,0.0,0.0)
-    glRotatef(90,0.0,1.0,0.0)
-    glut.glutSolidCone(n*0.009*1.25,n*0.035*1.5,10,10)
-    glPopMatrix()
-        
-    glPushMatrix()
-    #glColor3f(darkgreen[0], darkgreen[1], darkgreen[2])
-    glColor3f(blue[0], blue[1], blue[2])
-    glTranslatef(0.0,yEnd,0.0)
-    glRotatef(-90,1.0,0.0,0.0)
-    glut.glutSolidCone(n*0.009*1.25,n*0.035*1.25,10,10)
-    glPopMatrix()
-        
-    glPushMatrix()
-    glColor3f(blue[0], blue[1], blue[2])
-    glTranslatef(0.0,0.0,zEnd)
-    glut.glutSolidCone(n*0.009*1.25,n*0.035*1.25,10,10)
     glEnable(GL_CULL_FACE)
     glEnable(GL_LIGHTING)
     glPopMatrix() 

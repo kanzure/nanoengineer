@@ -802,26 +802,27 @@ class basicMode(anyMode):
         # Draw the Origin axis.
         if env.prefs[displayOriginAxis_prefs_key]:
             if env.prefs[displayOriginAsSmallAxis_prefs_key]: #ninad060920
-                drawer.drawOriginAsSmallAxis(5, (0.0,0.0,0.0))
+                drawer.drawOriginAsSmallAxis(self.o.scale, (0.0,0.0,0.0))
                 #ninad060921: note: we are also drawing a dotted origin displayed only when 
                 #the solid origin is hidden. See def standard_repaint_0 in GLPane.py
+                #ninad060922 passing self.o.scale makes sure that the origin / pov axes are not zoomable
             else:
-                drawer.drawaxes(5, (0.0,0.0,0.0), coloraxes=True)
+                drawer.drawaxes(self.o.scale, (0.0,0.0,0.0), coloraxes=True)
             
         if env.prefs[displayPOVAxis_prefs_key]:
-            drawer.drawaxes(5, -self.o.pov)
+            drawer.drawaxes(self.o.scale, -self.o.pov)
         
         # Draw the Point of View axis unless it is at the origin (0,0,0) AND draw origin as cross wire is true ninad060920
         if env.prefs[displayPOVAxis_prefs_key]:
             if not env.prefs[displayOriginAsSmallAxis_prefs_key]:
                 if vlen(self.o.pov):
-                    drawer.drawaxes(5, -self.o.pov)
+                    drawer.drawaxes(self.o.scale, -self.o.pov)
                 else:
                     # POV is at the origin (0,0,0).  Draw it if the Origin axis is not drawn. Fixes bug 735.
                     if not env.prefs[displayOriginAxis_prefs_key]:
-                        drawer.drawaxes(5, -self.o.pov)
+                        drawer.drawaxes(self.o.scale, -self.o.pov)
             else:
-                drawer.drawaxes(5, -self.o.pov)
+                drawer.drawaxes(self.o.scale, -self.o.pov)
                 
             
         # bruce 040929/041103 debug code -- for developers who enable this
