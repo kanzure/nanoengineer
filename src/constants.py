@@ -133,6 +133,8 @@ navy =   (0.0, 0.09, 0.44)
 darkred = (0.6, 0.0, 0.2) 
 violet = (0.6, 0.1, 0.9) # Will change this to purple later.  Mark 050730
 
+lightblue = ave_colors(0.03, white, blue) #ninad060922 using it while drawing origin axis
+
 bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
 
 LEDoff = (0.8, 0.0, 0.0)
