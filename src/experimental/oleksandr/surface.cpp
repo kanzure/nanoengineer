@@ -274,22 +274,27 @@ double Surface::Predicate(
 void Surface::CreateSurface()
 {
 	mDT = new DistanceTransform(mCenters,mRadiuses);
+	int n;
+	double step;
 	switch (mM)
 	{
 	case 0:
         SphereTriangles();
+		n = 4;
+		step = 0.25;
 		break;
 	case 1:
 		TorusRectangles();
 		break;
 	case 2:
 		OmegaRectangles(); 
+		n = 10;
+		step = 0.1;
 		break;
 	}
 	Duplicate();
 	SurfaceNormals();
 	CleanQuads();
-	int n = 20; // number of iterations
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < mPoints.Size(); j++)
@@ -300,10 +305,14 @@ void Surface::CreateSurface()
 				n.Normalize();
 			double om = Predicate(p);
 			if (om < -1.0) om = -1.0;
-			mPoints[j] = p + 0.1 * om * n;
+			mPoints[j] = p + step * om * n;
 		}
-		SurfaceNormals();
+		if (mM)
+		{
+			SurfaceNormals();
+		}
 	}
+	SurfaceNormals();
 	delete mDT;
 }
 
