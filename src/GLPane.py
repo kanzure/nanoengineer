@@ -1698,14 +1698,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # Test shows that works; but I don't yet understand why I needed to move cov in the opposite direction as I assumed.
         # But I worry about whether it will work if more than one Wheel event occurs between redraws (which rewrite depth buffer).
         # [bruce 060829]
-        self.rescaleValue = (factor - 1) * (point - (-self.pov)) #ninad060922 to be used to make origin axis immune to zoom changes
         self.pov += (factor - 1) * (point - (-self.pov))
         return
-        
-    def getRescaleValueDuringZoom(self):
-        """return the value by which self.pov is changed during zoom operationof the origin axes such that it is not affected by the zoom factor (its size should remain the same) """
-        return self.rescaleValue
-        
             
     def gl_update_duration(self, new_part=False):
         '''Redraw GLPane and update the repaint duration variable <self._repaint_duration>
