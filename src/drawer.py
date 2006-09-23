@@ -1776,10 +1776,12 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     #Notes:
     #1. drawing arrowheads implemented on 060918
     #2. ninad060921 Show the origin axes as dotted if behind the mode. 
-    #NIY for arrow heads (always rendered as solid arrowheads. We will come up 
-    #with something better for those
+    #3. ninad060922 The arrow heads are drawn as wireframe cones if behind the object
+    # the arrowhead size is slightly smaller (otherwise some portion of the 
+    # the wireframe arrow shows up!
     #3.Making origin non-zoomable is acheived by passing replacing 
     #hardcoded 'n' with glpane's scale - ninad060922
+
     
     from constants import blue, red, darkgreen, black, lightblue
     
@@ -1801,7 +1803,7 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
         glLineStipple(2, 0xAAAA)
         glEnable(GL_LINE_STIPPLE)
         glDisable(GL_DEPTH_TEST)
-
+        
     glBegin(GL_LINES)
 
     #glColor3f(black)
@@ -1852,7 +1854,9 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glColor3fv(lightblue)
     glTranslatef(xEnd,0.0,0.0)
     glRotatef(90,0.0,1.0,0.0)
-    glut.glutSolidCone(arrowBase,arrowHeight,10,10)
+    
+    if dashEnabled: glut.glutWireCone(arrowBase*0.9,arrowHeight*0.9,10,10)
+    else: glut.glutSolidCone(arrowBase,arrowHeight,10,10)
     glPopMatrix()
         
     glPushMatrix()
@@ -1860,13 +1864,18 @@ def drawOriginAsSmallAxis(n, point, dashEnabled = False):
     glColor3fv(lightblue)
     glTranslatef(0.0,yEnd,0.0)
     glRotatef(-90,1.0,0.0,0.0)
-    glut.glutSolidCone(arrowBase,arrowHeight,10,10)
+    
+    if dashEnabled: glut.glutWireCone(arrowBase*0.9,arrowHeight*0.9,10,10)
+    else: glut.glutSolidCone(arrowBase,arrowHeight,10,10)
+    
     glPopMatrix()
         
     glPushMatrix()
     glColor3fv(lightblue)
     glTranslatef(0.0,0.0,zEnd)
-    glut.glutSolidCone(arrowBase,arrowHeight,10,10)
+    
+    if dashEnabled: glut.glutWireCone(arrowBase*0.9,arrowHeight*0.9,10,10)
+    else: glut.glutSolidCone(arrowBase,arrowHeight,10,10)
     
     #Disable line stipple and Enable Depth test
     if dashEnabled:
