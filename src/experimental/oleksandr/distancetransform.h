@@ -161,19 +161,31 @@ inline void DistanceTransform::Index(const Triple & p)
     mI = (int)mU;
     mU -= mI;
 	if ( mI < 0) mI = 0;
-	if ( mI >= mL) mI = mL - 1;
+	if ( mI >= mL) 
+	{
+		mI = mL - 1;
+		mU = 1;
+	}
 
     mV = (mM * (p.Y() + 1) / 2);
     mJ = (int)mV;
     mV -= mJ;
 	if ( mJ < 0) mJ = 0;
-	if ( mJ >= mM) mJ = mM - 1;
+	if ( mJ >= mM) 
+	{
+		mJ = mM - 1;
+		mV = 1;
+	}
 
     mW = (mN * (p.Z() + 1) / 2);
     mK = (int)mW;
     mW -= mK;
 	if ( mK < 0) mK = 0;
-	if ( mK >= mN) mK = mN - 1;
+	if ( mK >= mN) 
+	{
+		mK = mN - 1;
+		mW = 1;
+	}
 }
 
 //------------------------------------------------------------------------

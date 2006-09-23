@@ -87,7 +87,7 @@ void DistanceTransform::Omega(const Container<Triple> & centers, const Container
                 double om = 0;
                 if (mA[i][j][k] > 0)
                 {
-					om = - mA[i][j][k];
+					om = - 1.0 / mL;
                 }
                 else
                 {
@@ -125,7 +125,7 @@ void DistanceTransform::Distance(const Container<Triple> & centers, const Contai
     {
 
         Index(centers[ii]);
-        int d = (int)(radiuses[ii] * mL / 2 + 4);
+        int d = (int)(radiuses[ii] * mL / 2 + 3);
         int ic = mI;
         int jc = mJ;
         int kc = mK;
@@ -136,17 +136,17 @@ void DistanceTransform::Distance(const Container<Triple> & centers, const Contai
         int ib = ic - d;
         if (ib < 0) ib = 0;
         int ie = ic + d;
-        if (ie >= mL) ie = mL - 1;
+        if (ie >= mL) ie = mL;
 
         int jb = jc - d;
         if (jb < 0) jb = 0;
         int je = jc + d;
-        if (je >= mM) je = mM - 1;
+        if (je >= mM) je = mM;
 
         int kb = kc - d;
         if (kb < 0) kb = 0;
         int ke = kc + d;
-        if (ke >= mN) ke = mN - 1;
+        if (ke >= mN) ke = mN;
 
         for (int i = ib; i <= ie; i++)
         {
