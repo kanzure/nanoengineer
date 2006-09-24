@@ -393,7 +393,9 @@ class MMKit(MMKitDialog):
             return
         
         mmpfile = str(item.getFileObj())
-        self.newModel = assembly(self.w, "assembly 1")
+        #self.newModel = assembly(self.w, "assembly 1")
+        self.newModel = assembly(self.w, os.path.normpath(mmpfile)) #ninad060924 to fix bug 1164
+        
         self.newModel.o = self.elemGLPane ## Make it looks "assembly" used by glpane.
         readmmp(self.newModel, mmpfile)
 

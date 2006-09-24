@@ -1010,7 +1010,10 @@ class depositMode(selectAtomsMode):
 ##                stuff.append(newMol)
 ##            pass
         self.o.assy.update_parts() #bruce 051227 see if this fixes the atom_debug exception in checkparts
-        return stuff, "deposited library part" ####@@@@ should revise this message (stub is by bruce 051227)
+        
+        msg = greenmsg("deposited library part: ") + " [" + str(newPart.name) + "]"  #ninad060924 fix bug 1164 
+        
+        return stuff, msg  ####@@@@ should revise this message (stub is by bruce 051227)
 
 # == LMB event handling methods ====================================
         
