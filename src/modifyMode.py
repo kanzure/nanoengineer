@@ -438,7 +438,10 @@ class modifyMode(selectMolsMode): # changed superclass from basicMode to selectM
         
         self.dragdist += vlen(deltaMouse)
         self.o.SaveMouse(event)
+        self.o.assy.changed() #ninad060924 fixed bug 2278
         self.o.gl_update()
+        
+        
     
     
     def leftShiftUp(self, event):
