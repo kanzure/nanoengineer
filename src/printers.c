@@ -122,7 +122,7 @@ void traceHeader(struct part *part)
     
     ncols = 0;
     if (PrintPotentialEnergy) {
-	ncols += 2;
+	ncols += 3;
     }
     
     for (i=0; i<part->num_jigs; i++) {
@@ -173,6 +173,7 @@ void traceHeader(struct part *part)
     }    
     if (PrintPotentialEnergy) {
 	write_traceline("# Structure: potential energy (attojoules)\n");
+	write_traceline("# Structure: kinetic energy (attojoules)\n");
 	write_traceline("# Structure: total energy (attojoules)\n");
     }
     write_traceline("#\n");
@@ -220,6 +221,7 @@ void traceJigHeader(struct part *part) {
     }
     if (PrintPotentialEnergy) {
 	__p += sprintf(__p, " %-15.15s", "P.Energy");
+	__p += sprintf(__p, " %-15.15s", "K.Energy");
 	__p += sprintf(__p, " %-15.15s", "T.Energy");
     }
     sprintf(__p, "\n");
@@ -230,7 +232,7 @@ void traceJigHeader(struct part *part) {
 }
 
 
-void traceJigData(struct part *part) {
+void traceJigData(struct part *part, struct xyz *positions) {
     double x;
     int i;
     struct jig *j;
@@ -270,9 +272,12 @@ void traceJigData(struct part *part) {
 	}
     }
     if (PrintPotentialEnergy) {
-	double potential_energy = calculatePotential(part, part->positions);
-	__p += sprintf(__p, " %15.3f", potential_energy);
-	__p += sprintf(__p, " %15.3f", potential_energy + calculateKinetic(part));
+        double potential_energy = calculatePotential(part, positions);
+        double kinetic_energy = calculateKinetic(part);
+        
+	__p += sprintf(__p, " %15.6f", potential_energy);
+	__p += sprintf(__p, " %15.6f", kinetic_energy);
+	__p += sprintf(__p, " %15.6f", potential_energy + kinetic_energy);
     }
     sprintf(__p, "\n"); // each snapshot is one line
     write_traceline(__line);

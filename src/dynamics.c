@@ -275,7 +275,7 @@ dynamicsMovieRun(struct part *part,
 		vsub2(part->velocities[j], (*pPositions)[j], (*pOldPositions)[j]);
 	    }
 	}
-	writeDynamicsMovieFrame(OutputFile, i, part, averagePositions, i == NumFrames-1);
+	writeDynamicsMovieFrame(OutputFile, i, part, averagePositions, i == NumFrames-1, *pPositions);
         if (DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) {
             writeSimpleMovieFrame(part, *pNewPositions, force, "");
         }

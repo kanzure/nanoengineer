@@ -57,8 +57,10 @@ usage(void)
                     ...when max force is below this level.\n\
    --vdw-cutoff-factor=<float>\n\
                     maximum range of vdw force, as multiple of rvdW.\n\
-   -E, --print-energy\n\
+   -E, --print-structure-energy\n\
                     print structure potential energy\n\
+   --print-energies\n\
+                    print potential, kinetic, and total energies for each dynamics frame\n\
    --time-reversal\n\
                     Run dynamics forward, then backwards, to check for conservation of energy\n\
    -i<int>, --iters-per-frame=<num>\n\
@@ -66,7 +68,7 @@ usage(void)
    -f<int>, --num-frames=<int>\n\
                     number of frames\n\
    -s<float>, --time-step=<float>\n\
-                    time step\n\
+                    time step in seconds, default 1e-16\n\
    -t<float>, --temperature=<float>\n\
                     temperature\n\
    -x, --dump-as-text\n\
@@ -145,6 +147,7 @@ set_py_exc_str(const char *filename,
 #define OPT_VDW_CUTOFF_FACTOR   LONG_OPT (13)
 #define OPT_TIME_REVERSAL     LONG_OPT (14)
 #define OPT_THERMOSTAT_GAMMA  LONG_OPT (15)
+#define OPT_PRINT_ENERGIES    LONG_OPT (16)
 
 static const struct option option_vec[] = {
     { "help", no_argument, NULL, 'h' },
@@ -163,9 +166,10 @@ static const struct option option_vec[] = {
     { "vdw-cutoff-factor", required_argument, NULL, OPT_VDW_CUTOFF_FACTOR},
     { "time-reversal", no_argument, NULL, OPT_TIME_REVERSAL},
     { "thermostat-gamma", required_argument, NULL, OPT_THERMOSTAT_GAMMA},
+    { "print-energies", no_argument, NULL, OPT_PRINT_ENERGIES},
     { "num-atoms", required_argument, NULL, 'n' },
     { "minimize", no_argument, NULL, 'm' },
-    { "print-energy", no_argument, NULL, 'E' },
+    { "print-structure-energy", no_argument, NULL, 'E' },
     { "iters-per-frame", required_argument, NULL, 'i' },
     { "num-frames", required_argument, NULL, 'f' },
     { "time-step", required_argument, NULL, 's' },
@@ -210,8 +214,8 @@ main(int argc, char **argv)
 {
     struct part *part;
     int opt, n;
-    double potentialEnergy;
     int dump_part = 0;
+    int printStructurePotentialEnergy = 0;
     char *printPotential = NULL;
     double printPotentialInitial = -1; // pm
     double printPotentialIncrement = -1; // pm
@@ -278,6 +282,9 @@ main(int argc, char **argv)
         case OPT_THERMOSTAT_GAMMA:
             ThermostatGamma = atof(optarg);
             break;
+        case OPT_PRINT_ENERGIES:
+            PrintPotentialEnergy = 1;
+            break;
 	case 'n':
 	    // ignored
 	    break;
@@ -285,7 +292,7 @@ main(int argc, char **argv)
 	    ToMinimize=1;
 	    break;
 	case 'E':
-	    PrintPotentialEnergy=1;
+	    printStructurePotentialEnergy=1;
 	    break;
 	case 'i':
 	    IterPerFrame = atoi(optarg);
@@ -428,9 +435,9 @@ main(int argc, char **argv)
     generateTorsions(part);
     generateOutOfPlanes(part);
 
-    if (PrintPotentialEnergy) {
+    if (printStructurePotentialEnergy) {
         struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
-        potentialEnergy = calculatePotential(part, part->positions);
+        double potentialEnergy = calculatePotential(part, part->positions);
         calculateGradient(part, part->positions, force);
         printf("%e %e %e %e (Potential energy in aJ, gradient of atom 1)\n", potentialEnergy, force[1].x, force[1].y, force[1].z);
         exit(0);

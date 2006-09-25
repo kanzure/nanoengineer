@@ -566,7 +566,7 @@ writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forc
 
 /**
  */
-void writeDynamicsMovieFrame(FILE *outf, int n, struct part *part, struct xyz *pos, int last_frame)
+void writeDynamicsMovieFrame(FILE *outf, int n, struct part *part, struct xyz *pos, int last_frame, struct xyz *currentPositions)
 {
     if (DEBUG(D_DYNAMICS_SIMPLE_MOVIE)) { // -D15
         return;
@@ -585,7 +585,7 @@ void writeDynamicsMovieFrame(FILE *outf, int n, struct part *part, struct xyz *p
 	    writeNewFrame(outf, part, pos);
 	    break;
 	}
-	traceJigData(part);
+	traceJigData(part, currentPositions);
 	flushOutputFile(OutputFile);
     }
     // fprintf(stderr, "found Ke = %e\n",FoundKE);

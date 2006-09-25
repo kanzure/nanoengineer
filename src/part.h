@@ -36,8 +36,8 @@ struct atom
     unsigned char vdwBucketInvalid;    
     struct atom *vdwPrev;
     struct atom *vdwNext;
-    double mass;
-    double inverseMass;
+    double mass;               // yg, or yoctograms, or 1e-24 g
+    double inverseMass;        // Dt*Dt / (mass * 1e-27)
     //double charge;
     
     // non-zero if this atom is in any ground jigs

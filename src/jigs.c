@@ -446,13 +446,20 @@ jigThermometer(struct jig *jig, double deltaTframe, struct xyz *position, struct
     int k;
     struct xyz f;
 
+    // average(m * v * v / 2) == 3 * k * T / 2
+    
     z = deltaTframe / (3 * jig->num_atoms);
     ff=0.0;
     for (k=0; k<jig->num_atoms; k++) {
 	a1 = jig->atoms[k]->index;
+        // f is pm/fs (actually Dt/Dx)
 	f = vdif(position[a1],new_position[a1]);
+        // mass in yg (1e-24 g)
+        // ff in yg Dt*Dt/Dx*Dx
 	ff += vdot(f, f) * jig->atoms[k]->mass;
     }
+    // Boltz is in J/K
+    // ff in 1e3 g m m K / s s J   or K
     ff *= Dx*Dx/(Dt*Dt) * 1e-27 / Boltz;
     jig->data += ff*z;
 }

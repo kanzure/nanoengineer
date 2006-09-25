@@ -10,7 +10,7 @@ extern void traceHeader(struct part *part);
 
 extern void traceJigHeader(struct part *part);
 
-extern void traceJigData(struct part *part);
+extern void traceJigData(struct part *part, struct xyz *positions);
 
 extern void printError(const char *file, int line, int error_type,
 		       int doPerror, const char *format, ...);

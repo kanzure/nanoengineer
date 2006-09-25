@@ -22,7 +22,7 @@ extern void writeSimpleStressVector(struct xyz *positions, int a1, int a2, int a
 
 extern void writeSimpleMovieFrame(struct part *part, struct xyz *positions, struct xyz *forces, const char *format, ...);
 
-extern void writeDynamicsMovieFrame(FILE *f, int n, struct part *part, struct xyz *pos, int last_frame);
+extern void writeDynamicsMovieFrame(FILE *f, int n, struct part *part, struct xyz *pos, int last_frame, struct xyz *currentPositions);
 
 extern int writeMinimizeMovieFrame(FILE *f, struct part *part, int final, struct xyz *pos, double rms, double max_force, int frameNumber, int last_frame, char *callLocation, char *message, double potential);
 

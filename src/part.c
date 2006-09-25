@@ -1264,17 +1264,19 @@ calculateKinetic(struct part *p)
     int j;
     for (j=0; j<p->num_atoms; j++) {
 	struct atom *a = p->atoms[j];
+        // v in pm/Dt
 	double v = vlen(velocities[a->index]);
+        // mass in yg (1e-24 g)
 	// save the factor of 1/2 for later, to keep this loop fast
 	total += a->mass * v * v;
     }
     // We want energy in attojoules to be consistent with potential energy
-    // mass is in units of Dmass kilograms
+    // mass is in units of Dmass kilograms (Dmass = 1e-27, for mass in yg)
     // velocity is in picometers per Dt seconds
     // total is in units of 1e-24*(Dmass/Dt^2) joules
-    // we want attojoules or 1e-18 joules, so we need to multiply by 1e6*Dt^2/Dmass
+    // we want attojoules or 1e-18 joules, so we need to multiply by 1e-6
     // and we need the factor of 1/2 that we left out of the atom loop
-    return 5e5 * (Dt * Dt / Dmass) * total;
+    return total * 0.5 * 1e-6 * Dmass / (Dt * Dt);
 }
 
 
