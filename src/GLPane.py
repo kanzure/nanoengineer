@@ -1698,8 +1698,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # Test shows that works; but I don't yet understand why I needed to move cov in the opposite direction as I assumed.
         # But I worry about whether it will work if more than one Wheel event occurs between redraws (which rewrite depth buffer).
         # [bruce 060829]
-        self.pov += (factor - 1) * (point - (-self.pov))
-        return
+        
+        if not zoomToScreenCenter_prefs_key: # ninad 060924 Zoom to screen center is disabled by default
+            self.pov += (factor - 1) * (point - (-self.pov))
+            return
             
     def gl_update_duration(self, new_part=False):
         '''Redraw GLPane and update the repaint duration variable <self._repaint_duration>
