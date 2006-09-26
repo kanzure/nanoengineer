@@ -38,6 +38,13 @@ class DistanceTransform
 	inline double Omega(int i, int j, int k);
 
 	//------------------------------------------------------------------------
+	// Omega()
+	//
+	//  calculate predicate for all spheres
+	//
+	void Omega(const Container<Triple> & centers, const Container<double> & radiuses);
+	
+	//------------------------------------------------------------------------
 	// L()
 	//
 	// returns size x 
@@ -67,13 +74,6 @@ class DistanceTransform
 	//
 	inline void Index(const Triple & p);
 
-	//------------------------------------------------------------------------
-	// Omega()
-	//
-	//  calculate predicate for all spheres
-	//
-	void Omega(const Container<Triple> & centers, const Container<double> & radiuses);
-	
 	//------------------------------------------------------------------------
 	// Distance()
 	//

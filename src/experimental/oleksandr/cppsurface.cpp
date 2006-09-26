@@ -10,9 +10,9 @@
 
 Surface * s;
 
-void cppAdd(double x, double y, double z, double r)
+void cppAdd(double x, double y, double z, double r, int p)
 {
-	s->Add(x,y,z,r);
+	s->Add(x,y,z,r,p);
 }
 void cppCreateSurface()
 {
@@ -33,6 +33,10 @@ int cppNp()
 int cppNt()
 {
     return s->Nt();
+}
+int cppNc()
+{
+    return s->Nc();
 }
 double cppPx(int i)
 {
@@ -57,6 +61,18 @@ double cppNy(int i)
 double cppNz(int i)
 {
     return s->Nz(i);
+}
+double cppCr(int i)
+{
+    return s->Cr(i);
+}
+double cppCg(int i)
+{
+    return s->Cg(i);
+}
+double cppCb(int i)
+{
+    return s->Cb(i);
 }
 int cppI(int i)
 {

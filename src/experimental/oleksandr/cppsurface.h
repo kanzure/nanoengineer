@@ -12,18 +12,22 @@
 extern "C" {
 #endif
 
-void cppAdd(double x, double y, double z, double r);
+void cppAdd(double x, double y, double z, double r, int p);
 void cppCreateSurface();
 void cppAllocate();
 void cppFree();
 int cppNp();
 int cppNt();
+int cppNc();
 double cppPx(int i);
 double cppPy(int i);
 double cppPz(int i);
 double cppNx(int i);
 double cppNy(int i);
 double cppNz(int i);
+double cppCr(int i);
+double cppCg(int i);
+double cppCb(int i);
 int cppI(int i);
 void cppLevel(int i);
 int cppType();

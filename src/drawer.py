@@ -2488,30 +2488,40 @@ def drawsurface_wireframe(color, pos, radius, tm, nm):
     return
 
 def renderSurface(surfaceEntities, surfaceNormals):
-    (entityIndex, surfacePoints) = surfaceEntities
+    (entityIndex, surfacePoints, surfaceColors) = surfaceEntities
     e0 = entityIndex[0]
     n = len(e0)
+    nc = len(surfaceColors)
+    if nc > 0 : glDisable(GL_LIGHTING)
     if n == 3:
 	glBegin(GL_TRIANGLES)
 	for entity in entityIndex:
 	    glNormal3fv(surfaceNormals[entity[0]])
 	    glVertex3fv(surfacePoints[entity[0]])
+	    if nc > 0 : glColor3fv(surfaceColors[entity[0]])
 	    glNormal3fv(surfaceNormals[entity[1]])
 	    glVertex3fv(surfacePoints[entity[1]])
+	    if nc > 0 : glColor3fv(surfaceColors[entity[1]])
 	    glNormal3fv(surfaceNormals[entity[2]])
 	    glVertex3fv(surfacePoints[entity[2]])
+	    if nc > 0 : glColor3fv(surfaceColors[entity[2]])
 	glEnd()
     else:	
 	glBegin(GL_QUADS)
 	for entity in entityIndex:
 	    glNormal3fv(surfaceNormals[entity[0]])
 	    glVertex3fv(surfacePoints[entity[0]])
+	    if nc > 0 : glColor3fv(surfaceColors[entity[0]])
 	    glNormal3fv(surfaceNormals[entity[1]])
 	    glVertex3fv(surfacePoints[entity[1]])
+	    if nc > 0 : glColor3fv(surfaceColors[entity[1]])
 	    glNormal3fv(surfaceNormals[entity[2]])
 	    glVertex3fv(surfacePoints[entity[2]])
+	    if nc > 0 : glColor3fv(surfaceColors[entity[2]])
 	    glNormal3fv(surfaceNormals[entity[3]])
 	    glVertex3fv(surfacePoints[entity[3]])
+	    if nc > 0 : glColor3fv(surfaceColors[entity[3]])
 	glEnd()
+    if nc > 0 : glEnable(GL_LIGHTING)
 
 #end

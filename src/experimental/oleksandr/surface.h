@@ -54,9 +54,9 @@ class Surface
 	//------------------------------------------------------------------------
 	// Add()
 	//
-	// add centers and radiuses
+	// add centers and radiuses and properties
 	//
-	inline void Add(double x, double y, double z, double r);
+	inline void Add(double x, double y, double z, double r, int p);
 
 	//------------------------------------------------------------------------
 	// Np()
@@ -71,6 +71,13 @@ class Surface
 	// get size of trias
 	//
 	inline int Nt();
+
+	//------------------------------------------------------------------------
+	// Nc()
+	//
+	// get size of properties
+	//
+	inline int Nc();
 
 	//------------------------------------------------------------------------
 	// Px()
@@ -115,6 +122,27 @@ class Surface
 	inline double Nz(int i);
 
 	//------------------------------------------------------------------------
+	// Cr()
+	//
+	// get red color component
+	//
+	inline double Cr(int i);
+
+	//------------------------------------------------------------------------
+	// Cg()
+	//
+	// get green color component
+	//
+	inline double Cg(int i);
+
+	//------------------------------------------------------------------------
+	// Cb()
+	//
+	// get blue color component
+	//
+	inline double Cb(int i);
+
+	//------------------------------------------------------------------------
 	// I()
 	//
 	// get trias index
@@ -136,6 +164,13 @@ class Surface
 	// calculate surface normals
 	//
 	void SurfaceNormals();
+
+	//------------------------------------------------------------------------
+	// SurfaceColors()
+	//
+	// calculate surface colors
+	//
+	void SurfaceColors();
 
 	//------------------------------------------------------------------------
 	// Duplicate()
@@ -219,6 +254,11 @@ class Surface
     Container<double> mRadiuses;     // array for radiuses                                          
              
 	//------------------------------------------------------------------------
+	// mProperties
+
+    Container<int> mProperties;     // array for properties                                          
+             
+	//------------------------------------------------------------------------
 	// mType
 
 	int mType;						// type of entity (tria, quad)
@@ -247,6 +287,11 @@ class Surface
 	// mNormals
 
     Container<Triple> mNormals;      // array for normals to surface                                          
+             
+	//------------------------------------------------------------------------
+	// mColors
+
+    Container<Triple> mColors;      // array for colors on surface                                          
              
 	//------------------------------------------------------------------------
 	// mEntities
@@ -299,12 +344,14 @@ inline void Surface::Method(int m)
 //------------------------------------------------------------------------
 // Add()
 //
-// add centers and radiuses
+// add centers and radiuses and properties
 //
-inline void Surface::Add(double x, double y, double z, double r)
+inline void Surface::Add(double x, double y, double z, double r, int p)
 {
 	mCenters.Add(Triple(x, y, z));
 	mRadiuses.Add(r);
+	if (p)
+		mProperties.Add(p);
 }
 
 //------------------------------------------------------------------------
@@ -325,6 +372,16 @@ inline int Surface::Np()
 inline int Surface::Nt()
 {
 	return mEntities.Size();
+}
+
+//------------------------------------------------------------------------
+// Nc()
+//
+// get size of properties
+//
+inline int Surface::Nc()
+{
+	return mProperties.Size();
 }
 
 //------------------------------------------------------------------------
@@ -385,6 +442,36 @@ inline double Surface::Ny(int i)
 inline double Surface::Nz(int i)
 {
 	return mNormals[i].Z();
+}
+
+//------------------------------------------------------------------------
+// Cr()
+//
+// get red color component
+//
+inline double Surface::Cr(int i)
+{
+	return mColors[i].X();
+}
+
+//------------------------------------------------------------------------
+// Cg()
+//
+// get green color component
+//
+inline double Surface::Cg(int i)
+{
+	return mColors[i].Y();
+}
+
+//------------------------------------------------------------------------
+// Cb()
+//
+// get blue color component
+//
+inline double Surface::Cb(int i)
+{
+	return mColors[i].Z();
 }
 
 //------------------------------------------------------------------------

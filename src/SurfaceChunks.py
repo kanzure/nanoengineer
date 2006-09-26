@@ -287,6 +287,7 @@ class Surface:
     
     def SurfaceTriangles(self, trias):
         """make projection all points onto molecula"""
+	self.colors = []
 	self.points = []
 	self.trias = []
 	self.Duplicate(trias)
@@ -302,7 +303,7 @@ class Surface:
             if om < -2.0 : om = -2.0
             pn = pt - 0.5 * om * nt
             self.points[j] = (pn.x, pn.y, pn.z) 
-        return (self.trias, self.points)        
+        return (self.trias, self.points, self.colors)        
 
     def Duplicate(self, trias):
         """delete duplicate points"""
@@ -541,7 +542,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	    for i in range(len(spheres)):
 		st = spheres[i] / radius
 		rt = radiuses[i] / radius
-		cspheres.append((st[0],st[1],st[2],rt))
+		cspheres.append((st[0],st[1],st[2],rt,0))
 	    color = chunk.color
 	    if color is None:
 		color = V(0.5,0.5,0.5)

@@ -10,9 +10,9 @@
 
 #include "cppsurface.h"
 
-void cAdd(double x, double y, double z, double r)
+void cAdd(double x, double y, double z, double r, int p)
 {
-	cppAdd(x,y,z,r);
+	cppAdd(x,y,z,r,p);
 }
 void cCreateSurface()
 {
@@ -33,6 +33,10 @@ int cNp()
 int cNt()
 {
 	return cppNt();
+}
+int cNc()
+{
+	return cppNc();
 }
 double cPx(int i)
 {
@@ -57,6 +61,18 @@ double cNy(int i)
 double cNz(int i)
 {
 	return cppNz(i);
+}
+double cCr(int i)
+{
+	return cppCr(i);
+}
+double cCg(int i)
+{
+	return cppCg(i);
+}
+double cCb(int i)
+{
+	return cppCb(i);
 }
 int cI(int i)
 {

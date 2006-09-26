@@ -313,6 +313,7 @@ void Surface::CreateSurface()
 		}
 	}
 	SurfaceNormals();
+	SurfaceColors();
 	delete mDT;
 }
 
@@ -352,6 +353,27 @@ void Surface::SurfaceNormals()
 			mNormals[mEntities[i]] += n;
 			mNormals[mEntities[i + 1]] += n;
 			mNormals[mEntities[i + 2]] += n;
+		}
+	}
+}
+
+//------------------------------------------------------------------------
+// SurfaceColors()
+//
+// calculate surface colors
+//
+void Surface::SurfaceColors()
+{
+	if (mProperties.Size())
+	{
+		int i;
+		mColors.Empty();
+		for (i = 0; i< mPoints.Size(); i++)
+		{
+			double cx = (mPoints[i].X()+1)/2;
+			double cy = (mPoints[i].Y()+1)/2;
+			double cz = (mPoints[i].Z()+1)/2;
+			mColors.Add(Triple(cx,cy,cz));
 		}
 	}
 }

@@ -19,6 +19,9 @@ DistanceTransform::DistanceTransform(const Container<Triple> & centers, const Co
 		if (r < mR) mR = r;
 	}
 	
+    //double f = 40 * mR + 2;
+    //int n = (int)(f  / mR);
+
 	int n = 20; 
 	if (mR < 0.1) n = 30;
 	if (mR < 0.07) n = 40;
@@ -87,7 +90,7 @@ void DistanceTransform::Omega(const Container<Triple> & centers, const Container
                 double om = 0;
                 if (mA[i][j][k] > 0)
                 {
-					om = - 1.0 / mL;
+					om = - mA[i][j][k];
                 }
                 else
                 {
