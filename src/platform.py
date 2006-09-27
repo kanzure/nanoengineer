@@ -632,6 +632,24 @@ def fix_plurals(text, between = 1):
         print """fyi, possible cosmetic bug: fix_plurals(%r) got text with no "(s)", has no effect""" % (text,)
     return " ".join(words)
 
+def th_st_nd_rd(val): # mark 060927 wrote this. bruce 060927 split it out of its caller & wrote docstring.
+    """Return the correct suffix (th, st, nd, or rd) to append to any nonnegative integer in decimal,
+    to make an abbreviation such as 0th, 1st, 2nd, 3rd, or 4th.
+    """
+    suffix = "th"
+    ones = val % 10
+    tens = val % 100
+    if ones == 1:
+        if tens == 1 or tens > 20:
+            suffix = "st"
+    elif ones == 2:
+        if tens == 2 or tens > 20:
+            suffix = "nd"
+    elif ones == 3:
+        if tens == 3 or tens > 20:
+            suffix = "rd"
+    return suffix
+
 def hhmmss_str(secs):
     """Given the number of seconds, return the elapsed time as a string in hh:mm:ss format"""
     # [bruce 050415 comment: this is sometimes called from external code

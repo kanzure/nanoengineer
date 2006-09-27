@@ -1486,22 +1486,10 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     # movieMode when I decide to create do_what_MainWindowUI_should_do().
     # NFR requested by Damian. Mark 060927.
 
-
-    def updateSkipSuffix(self, val):
+    def updateSkipSuffix(self, val): # mark 060927 wrote this & bruce split it into two functions.
         """Update the suffix of the skip spinbox on the Movie Player dashboard"""
-        suffix = "th frame"
-        ones = val % 10
-        tens = val % 100
-        if ones == 1:
-            if tens == 1 or tens > 20:
-                suffix = "st frame"
-        elif ones == 2:
-            if tens == 2 or tens > 20:
-                suffix = "nd frame"
-        elif ones == 3:
-            if tens == 3 or tens > 20:
-                suffix = "rd frame"
-
+        from platform import th_st_nd_rd
+        suffix = "%s frame" % th_st_nd_rd(val)
         self.skipSB.setSuffix(suffix)
 
 #######  Load IconSets #########################################
