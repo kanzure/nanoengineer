@@ -539,10 +539,12 @@ class SurfaceChunks(ChunkDisplayMode):
 	    rad = sqrt(rad)
 	    radius = rad + margin
 	    cspheres = []
+            from debug_prefs import debug_pref, Choice_boolean_True
+            use_colors = debug_pref("surface: use colors?", Choice_boolean_True) #bruce 060927 (old code had 0 for use_colors)
 	    for i in range(len(spheres)):
 		st = spheres[i] / radius
 		rt = radiuses[i] / radius
-		cspheres.append((st[0],st[1],st[2],rt,0))
+		cspheres.append((st[0],st[1],st[2],rt,use_colors))
 	    color = chunk.color
 	    if color is None:
 		color = V(0.5,0.5,0.5)

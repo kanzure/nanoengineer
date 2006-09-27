@@ -2488,40 +2488,57 @@ def drawsurface_wireframe(color, pos, radius, tm, nm):
     return
 
 def renderSurface(surfaceEntities, surfaceNormals):
+    ####@@@@ bruce 060927 comments:
+    # - The color needs to come before the vertex. I fixed that, but left a debug_pref that can change it
+    #   so you can see the effect of that bug before it was fixed. (Same for the normal, but it already did come before.)
+    # - I suspect normals are not used (when nc > 0) due to lighting being off. But if it's on, colors are not used.
+    #   I saw that problem before, and we had to use apply_material instead, to set color; I'm not sure why,
+    #   it might just be due to specific OpenGL settings we make for other purposes. So I'll use drawer.apply_material(color)
+    #   (again with a debug pref to control that).
+    # The effect of the default debug_pref settings is that it now works properly with color -- but only for the 2nd chunk,
+    # if you create two, and not at all if you create only one. I don't know why it doesn't work for the first chunk.
     (entityIndex, surfacePoints, surfaceColors) = surfaceEntities
     e0 = entityIndex[0]
     n = len(e0)
     nc = len(surfaceColors)
-    if nc > 0 : glDisable(GL_LIGHTING)
+    if 1:
+        ### bruce 060927 debug code; when done debugging, we can change them to constants & simplify the code that uses them.
+        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+        disable_lighting = debug_pref("surface: disable lighting?", Choice_boolean_False)
+        if nc:
+            color_first = debug_pref("surface: color before vertex?", Choice_boolean_True)
+            use_apply_material = debug_pref("surface: use apply_material?", Choice_boolean_True)
+    ## old code was equivalent to disable_lighting = (nc > 0)
+    def use_color(color): #bruce 060927 split this out, so we can change how we apply color in a single place in the code
+        if use_apply_material:
+            apply_material(color) # This makes the colors visible even when lighting is enabled.
+        else:
+            glColor3fv(color) # Old code did this. These colors are only visible when lighting is not enabled.
+        return
+    def onevert(vertex_index): #bruce 060927 split this out, for code clarity, and so debug prefs are used in only one place
+        glNormal3fv(surfaceNormals[vertex_index])
+	if nc > 0 and color_first: use_color(surfaceColors[vertex_index]) # this needs to be done before glVertex3fv
+        glVertex3fv(surfacePoints[vertex_index])
+        if nc > 0 and not color_first: use_color(surfaceColors[vertex_index]) # old code did it here -- used wrong colors sometimes
+        return
+    ## if nc > 0 : glDisable(GL_LIGHTING)
+    if disable_lighting: glDisable(GL_LIGHTING)
     if n == 3:
 	glBegin(GL_TRIANGLES)
 	for entity in entityIndex:
-	    glNormal3fv(surfaceNormals[entity[0]])
-	    glVertex3fv(surfacePoints[entity[0]])
-	    if nc > 0 : glColor3fv(surfaceColors[entity[0]])
-	    glNormal3fv(surfaceNormals[entity[1]])
-	    glVertex3fv(surfacePoints[entity[1]])
-	    if nc > 0 : glColor3fv(surfaceColors[entity[1]])
-	    glNormal3fv(surfaceNormals[entity[2]])
-	    glVertex3fv(surfacePoints[entity[2]])
-	    if nc > 0 : glColor3fv(surfaceColors[entity[2]])
+	    onevert(entity[0])
+	    onevert(entity[1])
+	    onevert(entity[2])
 	glEnd()
     else:	
 	glBegin(GL_QUADS)
 	for entity in entityIndex:
-	    glNormal3fv(surfaceNormals[entity[0]])
-	    glVertex3fv(surfacePoints[entity[0]])
-	    if nc > 0 : glColor3fv(surfaceColors[entity[0]])
-	    glNormal3fv(surfaceNormals[entity[1]])
-	    glVertex3fv(surfacePoints[entity[1]])
-	    if nc > 0 : glColor3fv(surfaceColors[entity[1]])
-	    glNormal3fv(surfaceNormals[entity[2]])
-	    glVertex3fv(surfacePoints[entity[2]])
-	    if nc > 0 : glColor3fv(surfaceColors[entity[2]])
-	    glNormal3fv(surfaceNormals[entity[3]])
-	    glVertex3fv(surfacePoints[entity[3]])
-	    if nc > 0 : glColor3fv(surfaceColors[entity[3]])
+	    onevert(entity[0])
+	    onevert(entity[1])
+	    onevert(entity[2])
+	    onevert(entity[3])
 	glEnd()
-    if nc > 0 : glEnable(GL_LIGHTING)
+    if disable_lighting: glEnable(GL_LIGHTING)
+    return
 
-#end
+# end
