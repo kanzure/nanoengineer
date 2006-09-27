@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Atom\cad\src\MainWindowUI.ui'
+# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\MainWindowUI.ui'
 #
-# Created: Thu Sep 7 12:27:45 2006
+# Created: Tue Sep 26 23:36:54 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -6719,14 +6719,14 @@ class MainWindow(QMainWindow):
         self.fileToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.fileToolbar.setEnabled(1)
-        self.fileToolbar.setGeometry(QRect(0,0,71,29))
+        self.fileToolbar.setGeometry(QRect(0,0,70,29))
         self.fileToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.fileOpenAction.addTo(self.fileToolbar)
         self.fileSaveAction.addTo(self.fileToolbar)
         self.editToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.editToolbar.setEnabled(1)
-        self.editToolbar.setGeometry(QRect(71,0,211,29))
+        self.editToolbar.setGeometry(QRect(70,0,210,29))
         self.editToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.editMakeCheckpointAction.addTo(self.editToolbar)
         self.editUndoAction.addTo(self.editToolbar)
@@ -6738,7 +6738,7 @@ class MainWindow(QMainWindow):
         self.viewToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.viewToolbar.setEnabled(1)
-        self.viewToolbar.setGeometry(QRect(282,0,599,29))
+        self.viewToolbar.setGeometry(QRect(280,0,598,29))
         self.viewToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.setViewHomeAction.addTo(self.viewToolbar)
         self.setViewFitToWindowAction.addTo(self.viewToolbar)
@@ -6767,7 +6767,7 @@ class MainWindow(QMainWindow):
         self.molecularDispToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.molecularDispToolbar.setEnabled(1)
-        self.molecularDispToolbar.setGeometry(QRect(0,29,239,29))
+        self.molecularDispToolbar.setGeometry(QRect(0,29,238,29))
         self.molecularDispToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.dispDefaultAction.addTo(self.molecularDispToolbar)
         self.dispInvisAction.addTo(self.molecularDispToolbar)
@@ -6780,7 +6780,7 @@ class MainWindow(QMainWindow):
         self.selectToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.selectToolbar.setEnabled(1)
-        self.selectToolbar.setGeometry(QRect(239,29,211,29))
+        self.selectToolbar.setGeometry(QRect(238,29,210,29))
         self.selectToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.selectAllAction.addTo(self.selectToolbar)
         self.selectNoneAction.addTo(self.selectToolbar)
@@ -6792,34 +6792,34 @@ class MainWindow(QMainWindow):
         self.helpToolbar = QToolBar(QString(""),self,Qt.DockTop)
 
         self.helpToolbar.setEnabled(1)
-        self.helpToolbar.setGeometry(QRect(450,29,43,29))
+        self.helpToolbar.setGeometry(QRect(448,29,42,29))
         self.helpToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.helpWhatsThisAction.addTo(self.helpToolbar)
         self.selectAtomsDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.selectAtomsDashboard.setEnabled(1)
-        self.selectAtomsDashboard.setGeometry(QRect(0,0,98,22))
+        self.selectAtomsDashboard.setGeometry(QRect(0,0,94,19))
         self.selectAtomsDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel2_2 = QLabel(self.selectAtomsDashboard,"textLabel2_2")
         self.cookieCutterDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.cookieCutterDashboard.setEnabled(1)
-        self.cookieCutterDashboard.setGeometry(QRect(98,0,104,22))
+        self.cookieCutterDashboard.setGeometry(QRect(94,0,95,19))
         self.cookieCutterDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.ccLabel = QLabel(self.cookieCutterDashboard,"ccLabel")
         self.moveChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moveChunksDashboard.setEnabled(1)
-        self.moveChunksDashboard.setGeometry(QRect(202,0,103,22))
+        self.moveChunksDashboard.setGeometry(QRect(189,0,96,19))
         self.moveChunksDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1 = QLabel(self.moveChunksDashboard,"textLabel1")
         self.moviePlayerDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.moviePlayerDashboard.setEnabled(1)
-        self.moviePlayerDashboard.setGeometry(QRect(0,22,1107,29))
+        self.moviePlayerDashboard.setGeometry(QRect(0,19,1115,29))
         self.moviePlayerDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_4 = QLabel(self.moviePlayerDashboard,"textLabel1_4")
@@ -6837,10 +6837,9 @@ class MainWindow(QMainWindow):
         self.movieMoveToEndAction.addTo(self.moviePlayerDashboard)
         self.moviePlayerDashboard.addSeparator()
 
-        self.skipTL = QLabel(self.moviePlayerDashboard,"skipTL")
-
         self.skipSB = QSpinBox(self.moviePlayerDashboard,"skipSB")
         self.skipSB.setMaxValue(9999)
+        self.skipSB.setMinValue(1)
         self.moviePlayerDashboard.addSeparator()
 
         self.frameLabel = QLabel(self.moviePlayerDashboard,"frameLabel")
@@ -6873,7 +6872,7 @@ class MainWindow(QMainWindow):
         self.selectMolDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.selectMolDashboard.setEnabled(1)
-        self.selectMolDashboard.setGeometry(QRect(0,51,160,29))
+        self.selectMolDashboard.setGeometry(QRect(0,48,156,29))
         self.selectMolDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_2 = QLabel(self.selectMolDashboard,"textLabel1_2")
@@ -6882,7 +6881,7 @@ class MainWindow(QMainWindow):
         self.zoomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.zoomDashboard.setEnabled(1)
-        self.zoomDashboard.setGeometry(QRect(160,51,119,29))
+        self.zoomDashboard.setGeometry(QRect(156,48,115,29))
         self.zoomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.zoomTextLabel = QLabel(self.zoomDashboard,"zoomTextLabel")
@@ -6891,7 +6890,7 @@ class MainWindow(QMainWindow):
         self.panDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.panDashboard.setEnabled(1)
-        self.panDashboard.setGeometry(QRect(279,51,106,29))
+        self.panDashboard.setGeometry(QRect(271,48,104,29))
         self.panDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.panTextLabel = QLabel(self.panDashboard,"panTextLabel")
@@ -6900,7 +6899,7 @@ class MainWindow(QMainWindow):
         self.rotateDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.rotateDashboard.setEnabled(1)
-        self.rotateDashboard.setGeometry(QRect(385,51,123,29))
+        self.rotateDashboard.setGeometry(QRect(375,48,120,29))
         self.rotateDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.rotateTextLabel = QLabel(self.rotateDashboard,"rotateTextLabel")
@@ -6909,19 +6908,19 @@ class MainWindow(QMainWindow):
         self.fuseChunksDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.fuseChunksDashboard.setEnabled(1)
-        self.fuseChunksDashboard.setGeometry(QRect(508,51,96,29))
+        self.fuseChunksDashboard.setGeometry(QRect(495,48,92,29))
         self.fuseChunksDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
 
         self.textLabel1_3 = QLabel(self.fuseChunksDashboard,"textLabel1_3")
         self.depositAtomDashboard = QToolBar(QString(""),self,Qt.DockBottom)
 
         self.depositAtomDashboard.setEnabled(1)
-        self.depositAtomDashboard.setGeometry(QRect(604,51,20,29))
+        self.depositAtomDashboard.setGeometry(QRect(587,48,19,29))
         self.depositAtomDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.cookieSelectDashboard = QToolBar(QString(""),self,Qt.DockRight)
 
         self.cookieSelectDashboard.setEnabled(1)
-        self.cookieSelectDashboard.setGeometry(QRect(0,0,30,258))
+        self.cookieSelectDashboard.setGeometry(QRect(0,0,30,257))
         self.cookieSelectDashboard.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.DefaultSelAction.addTo(self.cookieSelectDashboard)
         self.LassoSelAction.addTo(self.cookieSelectDashboard)
@@ -6935,7 +6934,7 @@ class MainWindow(QMainWindow):
         self.modifyToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
         self.modifyToolbar.setEnabled(1)
-        self.modifyToolbar.setGeometry(QRect(0,258,30,339))
+        self.modifyToolbar.setGeometry(QRect(0,257,30,338))
         self.modifyToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.modifyAdjustSelAction.addTo(self.modifyToolbar)
         self.modifyAdjustAllAction.addTo(self.modifyToolbar)
@@ -6952,7 +6951,7 @@ class MainWindow(QMainWindow):
         self.modesToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
         self.modesToolbar.setEnabled(1)
-        self.modesToolbar.setGeometry(QRect(0,597,30,183))
+        self.modesToolbar.setGeometry(QRect(0,595,30,182))
         self.modesToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.toolsDepositAtomAction.addTo(self.modesToolbar)
         self.toolsSelectMoleculesAction.addTo(self.modesToolbar)
@@ -6964,7 +6963,7 @@ class MainWindow(QMainWindow):
         self.simToolbar = QToolBar(QString(""),self,Qt.DockRight)
 
         self.simToolbar.setEnabled(1)
-        self.simToolbar.setGeometry(QRect(0,780,30,123))
+        self.simToolbar.setGeometry(QRect(0,777,30,122))
         self.simToolbar.setBackgroundOrigin(QToolBar.WidgetOrigin)
         self.simMinimizeEnergyAction.addTo(self.simToolbar)
         self.simSetupAction.addTo(self.simToolbar)
@@ -6976,7 +6975,7 @@ class MainWindow(QMainWindow):
         self.MenuBar = QMenuBar(self,"MenuBar")
 
         self.MenuBar.setEnabled(1)
-        self.MenuBar.setGeometry(QRect(0,0,1115,35))
+        self.MenuBar.setGeometry(QRect(0,0,1115,33))
         self.MenuBar.setBackgroundOrigin(QMenuBar.WidgetOrigin)
 
         self.fileMenu = QPopupMenu(self)
@@ -7144,8 +7143,10 @@ class MainWindow(QMainWindow):
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.ccAddLayerAction,SIGNAL("activated()"),self.toolsCCAddLayer)
-        self.connect(self.dispBGColorAction,SIGNAL("activated()"),self.dispBGColor)
         self.connect(self.dispBallAction,SIGNAL("activated()"),self.dispBall)
+        self.connect(self.dispBGColorAction,SIGNAL("activated()"),self.dispBGColor)
+        self.connect(self.dispCPKAction,SIGNAL("activated()"),self.dispCPK)
+        self.connect(self.dispCylinderAction,SIGNAL("activated()"),self.dispCylinder)
         self.connect(self.dispDefaultAction,SIGNAL("activated()"),self.dispDefault)
         self.connect(self.dispElementColorSettingsAction,SIGNAL("activated()"),self.dispElementColorSettings)
         self.connect(self.dispInvisAction,SIGNAL("activated()"),self.dispInvis)
@@ -7155,8 +7156,8 @@ class MainWindow(QMainWindow):
         self.connect(self.dispResetAtomsDisplayAction,SIGNAL("activated()"),self.dispResetAtomsDisplay)
         self.connect(self.dispResetChunkColorAction,SIGNAL("activated()"),self.dispResetChunkColor)
         self.connect(self.dispShowInvisAtomsAction,SIGNAL("activated()"),self.dispShowInvisAtoms)
+        self.connect(self.dispSurfaceAction,SIGNAL("activated()"),self.dispSurface)
         self.connect(self.dispTubesAction,SIGNAL("activated()"),self.dispTubes)
-        self.connect(self.dispCPKAction,SIGNAL("activated()"),self.dispCPK)
         self.connect(self.editAutoCheckpointingAction,SIGNAL("toggled(bool)"),self.editAutoCheckpointing)
         self.connect(self.editClearUndoStackAction,SIGNAL("activated()"),self.editClearUndoStack)
         self.connect(self.editCopyAction,SIGNAL("activated()"),self.editCopy)
@@ -7171,7 +7172,9 @@ class MainWindow(QMainWindow):
         self.connect(self.fileClearAction,SIGNAL("activated()"),self.fileClear)
         self.connect(self.fileCloseAction,SIGNAL("activated()"),self.fileClose)
         self.connect(self.fileExitAction,SIGNAL("activated()"),self.close)
+        self.connect(self.fileExportAction,SIGNAL("activated()"),self.fileExport)
         self.connect(self.fileImageAction,SIGNAL("activated()"),self.fileImage)
+        self.connect(self.fileImportAction,SIGNAL("activated()"),self.fileImport)
         self.connect(self.fileInsertAction,SIGNAL("activated()"),self.fileInsert)
         self.connect(self.fileOpenAction,SIGNAL("activated()"),self.fileOpen)
         self.connect(self.fileOpenMovieAction,SIGNAL("activated()"),self.fileOpenMovie)
@@ -7188,10 +7191,11 @@ class MainWindow(QMainWindow):
         self.connect(self.helpKeyboardShortcutsAction,SIGNAL("activated()"),self.helpKeyboardShortcuts)
         self.connect(self.helpMouseControlsAction,SIGNAL("activated()"),self.helpMouseControls)
         self.connect(self.helpWhatsThisAction,SIGNAL("activated()"),self.helpWhatsThis)
-        self.connect(self.insertDnaAction,SIGNAL("activated()"),self.insertDna)
         self.connect(self.insertCommentAction,SIGNAL("activated()"),self.insertComment)
-        self.connect(self.insertNanotubeAction,SIGNAL("activated()"),self.insertNanotube)
+        self.connect(self.insertDnaAction,SIGNAL("activated()"),self.insertDna)
         self.connect(self.insertGrapheneAction,SIGNAL("activated()"),self.insertGraphene)
+        self.connect(self.insertNanotubeAction,SIGNAL("activated()"),self.insertNanotube)
+        self.connect(self.insertPovraySceneAction,SIGNAL("activated()"),self.insertPovrayScene)
         self.connect(self.jigsAnchorAction,SIGNAL("activated()"),self.makeAnchor)
         self.connect(self.jigsAngleAction,SIGNAL("activated()"),self.makeMeasureAngle)
         self.connect(self.jigsAtomSetAction,SIGNAL("activated()"),self.makeAtomSet)
@@ -7209,6 +7213,8 @@ class MainWindow(QMainWindow):
         self.connect(self.jigsSpringAction,SIGNAL("activated()"),self.makeSpring)
         self.connect(self.jigsStatAction,SIGNAL("activated()"),self.makeStat)
         self.connect(self.jigsThermoAction,SIGNAL("activated()"),self.makeThermo)
+        self.connect(self.modifyAdjustAllAction,SIGNAL("activated()"),self.modifyAdjustAll)
+        self.connect(self.modifyAdjustSelAction,SIGNAL("activated()"),self.modifyAdjustSel)
         self.connect(self.modifyAlignCommonAxisAction,SIGNAL("activated()"),self.modifyAlignCommonAxis)
         self.connect(self.modifyCenterCommonAxisAction,SIGNAL("activated()"),self.modifyCenterCommonAxis)
         self.connect(self.modifyDehydrogenateAction,SIGNAL("activated()"),self.modifyDehydrogenate)
@@ -7216,8 +7222,7 @@ class MainWindow(QMainWindow):
         self.connect(self.modifyHydrogenateAction,SIGNAL("activated()"),self.modifyHydrogenate)
         self.connect(self.modifyInvertAction,SIGNAL("activated()"),self.modifyInvert)
         self.connect(self.modifyMergeAction,SIGNAL("activated()"),self.modifyMerge)
-        self.connect(self.modifyAdjustAllAction,SIGNAL("activated()"),self.modifyAdjustAll)
-        self.connect(self.modifyAdjustSelAction,SIGNAL("activated()"),self.modifyAdjustSel)
+        self.connect(self.modifyMirrorAction,SIGNAL("activated()"),self.modifyMirror)
         self.connect(self.modifyMMKitAction,SIGNAL("activated()"),self.modifyMMKit)
         self.connect(self.modifyPassivateAction,SIGNAL("activated()"),self.modifyPassivate)
         self.connect(self.modifySeparateAction,SIGNAL("activated()"),self.modifySeparate)
@@ -7250,6 +7255,7 @@ class MainWindow(QMainWindow):
         self.connect(self.setViewFrontAction,SIGNAL("activated()"),self.setViewFront)
         self.connect(self.setViewHomeAction,SIGNAL("activated()"),self.setViewHome)
         self.connect(self.setViewHomeToCurrentAction,SIGNAL("activated()"),self.setViewHomeToCurrent)
+        self.connect(self.setViewIsometricAction,SIGNAL("activated()"),self.setViewIsometric)
         self.connect(self.setViewLeftAction,SIGNAL("activated()"),self.setViewLeft)
         self.connect(self.setViewMinus90Action,SIGNAL("activated()"),self.setViewMinus90)
         self.connect(self.setViewNormalToAction,SIGNAL("activated()"),self.setViewNormalTo)
@@ -7261,7 +7267,9 @@ class MainWindow(QMainWindow):
         self.connect(self.setViewRecenterAction,SIGNAL("activated()"),self.setViewRecenter)
         self.connect(self.setViewRightAction,SIGNAL("activated()"),self.setViewRight)
         self.connect(self.setViewTopAction,SIGNAL("activated()"),self.setViewTop)
+        self.connect(self.setViewZoomtoSelectionAction,SIGNAL("activated()"),self.setViewZoomToSelection)
         self.connect(self.simJobManagerAction,SIGNAL("activated()"),self.JobManager)
+        self.connect(self.simMinimizeEnergyAction,SIGNAL("activated()"),self.simMinimizeEnergy)
         self.connect(self.simMoviePlayerAction,SIGNAL("activated()"),self.simMoviePlayer)
         self.connect(self.simNanoHiveAction,SIGNAL("activated()"),self.simNanoHive)
         self.connect(self.simPlotToolAction,SIGNAL("activated()"),self.simPlot)
@@ -7289,17 +7297,9 @@ class MainWindow(QMainWindow):
         self.connect(self.toolsSelectAtomsAction,SIGNAL("activated()"),self.toolsSelectAtoms)
         self.connect(self.toolsSelectMoleculesAction,SIGNAL("activated()"),self.toolsSelectMolecules)
         self.connect(self.toolsStartOverAction,SIGNAL("activated()"),self.toolsStartOver)
-        self.connect(self.zoomToolAction,SIGNAL("toggled(bool)"),self.zoomTool)
         self.connect(self.viewRaytraceSceneAction,SIGNAL("activated()"),self.viewRaytraceScene)
-        self.connect(self.insertPovraySceneAction,SIGNAL("activated()"),self.insertPovrayScene)
-        self.connect(self.dispSurfaceAction,SIGNAL("activated()"),self.dispSurface)
-        self.connect(self.dispCylinderAction,SIGNAL("activated()"),self.dispCylinder)
-        self.connect(self.simMinimizeEnergyAction,SIGNAL("activated()"),self.simMinimizeEnergy)
-        self.connect(self.fileImportAction,SIGNAL("activated()"),self.fileImport)
-        self.connect(self.fileExportAction,SIGNAL("activated()"),self.fileExport)
-        self.connect(self.setViewIsometricAction,SIGNAL("activated()"),self.setViewIsometric)
-        self.connect(self.modifyMirrorAction,SIGNAL("activated()"),self.modifyMirror)
-        self.connect(self.setViewZoomtoSelectionAction,SIGNAL("activated()"),self.setViewZoomToSelection)
+        self.connect(self.zoomToolAction,SIGNAL("toggled(bool)"),self.zoomTool)
+        self.connect(self.skipSB,SIGNAL("valueChanged(int)"),self.updateSkipSuffix)
 
 
     def languageChange(self):
@@ -7785,7 +7785,9 @@ class MainWindow(QMainWindow):
         self.textLabel1.setText(self.__tr("Move Chunks"))
         self.moviePlayerDashboard.setLabel(self.__tr("Movie Player Dashboard"))
         self.textLabel1_4.setText(self.__tr("Movie Player"))
-        self.skipTL.setText(self.__tr("Skip:"))
+        self.skipSB.setPrefix(self.__tr("Show every "))
+        self.skipSB.setSuffix(self.__tr("th frame"))
+        self.skipSB.setSpecialValueText(self.__tr("Show every frame"))
         self.frameLabel.setText(self.__tr("Frame (500 total):"))
         self.frameNumberSB.setPrefix(QString.null)
         self.movieLoop_checkbox.setText(self.__tr("Loop"))
@@ -8388,6 +8390,9 @@ class MainWindow(QMainWindow):
 
     def setViewZoomToSelection(self):
         print "MainWindow.setViewZoomToSelection(): Not implemented yet"
+
+    def updateSkipSuffix(self):
+        print "MainWindow.updateSkipSuffix(): Not implemented yet"
 
     def __tr(self,s,c = None):
         return qApp.translate("MainWindow",s,c)

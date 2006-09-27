@@ -1480,6 +1480,30 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
     def validateThickness(self, s):
         if self.vd.validate( s, 0 )[0] != 2: self.ccLayerThicknessLineEdit.setText(s[:-1])
 
+    ####### Movie Player slots ######################################
+
+    # This is a temporary home for a single slot. This will need to be moved to
+    # movieMode when I decide to create do_what_MainWindowUI_should_do().
+    # NFR requested by Damian. Mark 060927.
+
+
+    def updateSkipSuffix(self, val):
+        """Update the suffix of the skip spinbox on the Movie Player dashboard"""
+        suffix = "th frame"
+        ones = val % 10
+        tens = val % 100
+        if ones == 1:
+            if tens == 1 or tens > 20:
+                suffix = "st frame"
+        elif ones == 2:
+            if tens == 2 or tens > 20:
+                suffix = "nd frame"
+        elif ones == 3:
+            if tens == 3 or tens > 20:
+                suffix = "rd frame"
+
+        self.skipSB.setSuffix(suffix)
+
 #######  Load IconSets #########################################
     def load_icons_to_iconsets(self):
         '''Load additional icons to QAction icon sets that are used in MainWindow toolbars and menus.

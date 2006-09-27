@@ -887,7 +887,7 @@ class Movie:
             # (Unless the surrounding code fails to check currentFrame well enough... I'm not sure! ###k)
             # We only need to worry about whether we reach fnum or not.
             
-            skip_n = self.win.skipSB.value()
+            skip_n = self.win.skipSB.value() - 1 # Mark 060927
             if not self.showEachFrame:
                 #bruce 050428 adding this to see if it speeds up "forward to end"
                 ###e potential optim: increase skip, as long as time passed will not be too bad

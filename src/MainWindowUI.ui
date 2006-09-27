@@ -40,7 +40,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>35</height>
+            <height>33</height>
         </rect>
     </property>
     <property name="backgroundOrigin">
@@ -206,7 +206,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>71</width>
+                <width>70</width>
                 <height>29</height>
             </rect>
         </property>
@@ -228,9 +228,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>71</x>
+                <x>70</x>
                 <y>0</y>
-                <width>211</width>
+                <width>210</width>
                 <height>29</height>
             </rect>
         </property>
@@ -257,9 +257,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>282</x>
+                <x>280</x>
                 <y>0</y>
-                <width>599</width>
+                <width>598</width>
                 <height>29</height>
             </rect>
         </property>
@@ -305,7 +305,7 @@
             <rect>
                 <x>0</x>
                 <y>29</y>
-                <width>239</width>
+                <width>238</width>
                 <height>29</height>
             </rect>
         </property>
@@ -333,9 +333,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>239</x>
+                <x>238</x>
                 <y>29</y>
-                <width>211</width>
+                <width>210</width>
                 <height>29</height>
             </rect>
         </property>
@@ -362,9 +362,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>450</x>
+                <x>448</x>
                 <y>29</y>
-                <width>43</width>
+                <width>42</width>
                 <height>29</height>
             </rect>
         </property>
@@ -387,8 +387,8 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>98</width>
-                <height>22</height>
+                <width>94</width>
+                <height>19</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -415,10 +415,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>98</x>
+                <x>94</x>
                 <y>0</y>
-                <width>104</width>
-                <height>22</height>
+                <width>95</width>
+                <height>19</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -445,10 +445,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>202</x>
+                <x>189</x>
                 <y>0</y>
-                <width>103</width>
-                <height>22</height>
+                <width>96</width>
+                <height>19</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -476,8 +476,8 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>22</y>
-                <width>1107</width>
+                <y>19</y>
+                <width>1115</width>
                 <height>29</height>
             </rect>
         </property>
@@ -508,20 +508,24 @@
         <action name="moviePlayActiveAction"/>
         <action name="movieMoveToEndAction"/>
         <separator/>
-        <widget class="QLabel">
-            <property name="name">
-                <cstring>skipTL</cstring>
-            </property>
-            <property name="text">
-                <string>Skip:</string>
-            </property>
-        </widget>
         <widget class="QSpinBox">
             <property name="name">
                 <cstring>skipSB</cstring>
             </property>
+            <property name="prefix">
+                <string>Show every </string>
+            </property>
+            <property name="suffix">
+                <string>th frame</string>
+            </property>
+            <property name="specialValueText">
+                <string>Show every frame</string>
+            </property>
             <property name="maxValue">
                 <number>9999</number>
+            </property>
+            <property name="minValue">
+                <number>1</number>
             </property>
         </widget>
         <separator/>
@@ -652,8 +656,8 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>51</y>
-                <width>160</width>
+                <y>48</y>
+                <width>156</width>
                 <height>29</height>
             </rect>
         </property>
@@ -683,9 +687,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>160</x>
-                <y>51</y>
-                <width>119</width>
+                <x>156</x>
+                <y>48</y>
+                <width>115</width>
                 <height>29</height>
             </rect>
         </property>
@@ -715,9 +719,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>279</x>
-                <y>51</y>
-                <width>106</width>
+                <x>271</x>
+                <y>48</y>
+                <width>104</width>
                 <height>29</height>
             </rect>
         </property>
@@ -747,9 +751,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>385</x>
-                <y>51</y>
-                <width>123</width>
+                <x>375</x>
+                <y>48</y>
+                <width>120</width>
                 <height>29</height>
             </rect>
         </property>
@@ -779,9 +783,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>508</x>
-                <y>51</y>
-                <width>96</width>
+                <x>495</x>
+                <y>48</y>
+                <width>92</width>
                 <height>29</height>
             </rect>
         </property>
@@ -809,9 +813,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>604</x>
-                <y>51</y>
-                <width>20</width>
+                <x>587</x>
+                <y>48</y>
+                <width>19</width>
                 <height>29</height>
             </rect>
         </property>
@@ -834,7 +838,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>30</width>
-                <height>258</height>
+                <height>257</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -863,9 +867,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>258</y>
+                <y>257</y>
                 <width>30</width>
-                <height>339</height>
+                <height>338</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -897,9 +901,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>597</y>
+                <y>595</y>
                 <width>30</width>
-                <height>183</height>
+                <height>182</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -926,9 +930,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>780</y>
+                <y>777</y>
                 <width>30</width>
-                <height>123</height>
+                <height>122</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -4536,16 +4540,28 @@
         <slot>toolsCCAddLayer()</slot>
     </connection>
     <connection>
+        <sender>dispBallAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispBall()</slot>
+    </connection>
+    <connection>
         <sender>dispBGColorAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>dispBGColor()</slot>
     </connection>
     <connection>
-        <sender>dispBallAction</sender>
+        <sender>dispCPKAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>dispBall()</slot>
+        <slot>dispCPK()</slot>
+    </connection>
+    <connection>
+        <sender>dispCylinderAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispCylinder()</slot>
     </connection>
     <connection>
         <sender>dispDefaultAction</sender>
@@ -4602,16 +4618,16 @@
         <slot>dispShowInvisAtoms()</slot>
     </connection>
     <connection>
+        <sender>dispSurfaceAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>dispSurface()</slot>
+    </connection>
+    <connection>
         <sender>dispTubesAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>dispTubes()</slot>
-    </connection>
-    <connection>
-        <sender>dispCPKAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>dispCPK()</slot>
     </connection>
     <connection>
         <sender>editAutoCheckpointingAction</sender>
@@ -4698,10 +4714,22 @@
         <slot>close()</slot>
     </connection>
     <connection>
+        <sender>fileExportAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileExport()</slot>
+    </connection>
+    <connection>
         <sender>fileImageAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>fileImage()</slot>
+    </connection>
+    <connection>
+        <sender>fileImportAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>fileImport()</slot>
     </connection>
     <connection>
         <sender>fileInsertAction</sender>
@@ -4800,16 +4828,22 @@
         <slot>helpWhatsThis()</slot>
     </connection>
     <connection>
+        <sender>insertCommentAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>insertComment()</slot>
+    </connection>
+    <connection>
         <sender>insertDnaAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>insertDna()</slot>
     </connection>
     <connection>
-        <sender>insertCommentAction</sender>
+        <sender>insertGrapheneAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>insertComment()</slot>
+        <slot>insertGraphene()</slot>
     </connection>
     <connection>
         <sender>insertNanotubeAction</sender>
@@ -4818,10 +4852,10 @@
         <slot>insertNanotube()</slot>
     </connection>
     <connection>
-        <sender>insertGrapheneAction</sender>
+        <sender>insertPovraySceneAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>insertGraphene()</slot>
+        <slot>insertPovrayScene()</slot>
     </connection>
     <connection>
         <sender>jigsAnchorAction</sender>
@@ -4926,6 +4960,18 @@
         <slot>makeThermo()</slot>
     </connection>
     <connection>
+        <sender>modifyAdjustAllAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyAdjustAll()</slot>
+    </connection>
+    <connection>
+        <sender>modifyAdjustSelAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>modifyAdjustSel()</slot>
+    </connection>
+    <connection>
         <sender>modifyAlignCommonAxisAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -4968,16 +5014,10 @@
         <slot>modifyMerge()</slot>
     </connection>
     <connection>
-        <sender>modifyAdjustAllAction</sender>
+        <sender>modifyMirrorAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
-        <slot>modifyAdjustAll()</slot>
-    </connection>
-    <connection>
-        <sender>modifyAdjustSelAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>modifyAdjustSel()</slot>
+        <slot>modifyMirror()</slot>
     </connection>
     <connection>
         <sender>modifyMMKitAction</sender>
@@ -5172,6 +5212,12 @@
         <slot>setViewHomeToCurrent()</slot>
     </connection>
     <connection>
+        <sender>setViewIsometricAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewIsometric()</slot>
+    </connection>
+    <connection>
         <sender>setViewLeftAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
@@ -5238,10 +5284,22 @@
         <slot>setViewTop()</slot>
     </connection>
     <connection>
+        <sender>setViewZoomtoSelectionAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>setViewZoomToSelection()</slot>
+    </connection>
+    <connection>
         <sender>simJobManagerAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>JobManager()</slot>
+    </connection>
+    <connection>
+        <sender>simMinimizeEnergyAction</sender>
+        <signal>activated()</signal>
+        <receiver>MainWindow</receiver>
+        <slot>simMinimizeEnergy()</slot>
     </connection>
     <connection>
         <sender>simMoviePlayerAction</sender>
@@ -5406,70 +5464,22 @@
         <slot>toolsStartOver()</slot>
     </connection>
     <connection>
-        <sender>zoomToolAction</sender>
-        <signal>toggled(bool)</signal>
-        <receiver>MainWindow</receiver>
-        <slot>zoomTool()</slot>
-    </connection>
-    <connection>
         <sender>viewRaytraceSceneAction</sender>
         <signal>activated()</signal>
         <receiver>MainWindow</receiver>
         <slot>viewRaytraceScene()</slot>
     </connection>
     <connection>
-        <sender>insertPovraySceneAction</sender>
-        <signal>activated()</signal>
+        <sender>zoomToolAction</sender>
+        <signal>toggled(bool)</signal>
         <receiver>MainWindow</receiver>
-        <slot>insertPovrayScene()</slot>
+        <slot>zoomTool()</slot>
     </connection>
     <connection>
-        <sender>dispSurfaceAction</sender>
-        <signal>activated()</signal>
+        <sender>skipSB</sender>
+        <signal>valueChanged(int)</signal>
         <receiver>MainWindow</receiver>
-        <slot>dispSurface()</slot>
-    </connection>
-    <connection>
-        <sender>dispCylinderAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>dispCylinder()</slot>
-    </connection>
-    <connection>
-        <sender>simMinimizeEnergyAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>simMinimizeEnergy()</slot>
-    </connection>
-    <connection>
-        <sender>fileImportAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>fileImport()</slot>
-    </connection>
-    <connection>
-        <sender>fileExportAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>fileExport()</slot>
-    </connection>
-    <connection>
-        <sender>setViewIsometricAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>setViewIsometric()</slot>
-    </connection>
-    <connection>
-        <sender>modifyMirrorAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>modifyMirror()</slot>
-    </connection>
-    <connection>
-        <sender>setViewZoomtoSelectionAction</sender>
-        <signal>activated()</signal>
-        <receiver>MainWindow</receiver>
-        <slot>setViewZoomToSelection()</slot>
+        <slot>updateSkipSuffix()</slot>
     </connection>
 </connections>
 <slots>
@@ -5660,6 +5670,7 @@
     <slot>setViewIsometric()</slot>
     <slot>modifyMirror()</slot>
     <slot>setViewZoomToSelection()</slot>
+    <slot>updateSkipSuffix()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>
