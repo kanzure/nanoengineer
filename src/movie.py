@@ -510,6 +510,8 @@ class Movie:
 #        self.win.movieProgressBar.setProgress(self.currentFrame)
 
         self.win.frameNumberSB.setMaxValue(self.totalFramesActual)
+        
+        self.win.skipSB.setMaxValue(self.totalFramesActual) #ninad060928 fixed bug 2285
 
         self.update_dashboard_currentFrame()
 
