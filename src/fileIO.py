@@ -69,7 +69,8 @@ def writepovfile(part, glpane, filename): #bruce 050927 replaced assy argument w
             vdist = cdist / aspect
     eyePos = vdist * glpane.scale*glpane.out-glpane.pov
     
-    f.write("\ncamera {\n  location " + povpoint(eyePos)  +
+    f.write("#declare cameraPosition = "+ povpoint(eyePos)  + ";\n" +
+            "\ncamera {\n  location cameraPosition"  +
             "\n  up " + povpoint(up) +
             "\n  right " + povpoint(right) +
             "\n  sky " + povpoint(glpane.up) +
@@ -158,12 +159,20 @@ def writepovlighting(f, glpane):
      # The ambient values of only the enabled lights are summed up. 
     # 'ambient' is used in the 'Atomic' finish record. It can have a value
     # over 1.0 (and makes a difference).
-    ambient = 0.25 # Add 0.25; matches better with nE-1 default lighting.
+    ambient = 0.25 # Add 0.25; matches better with NE1 default lighting.
     
     # The diffuse values of only the enabled lights are summed up. 
     # 'diffuse' is used in the 'Atomic' finish record. It can have a value
     # over 1.0 (and makes a difference).
     diffuse = 0.0
+    
+    f.write( "\n// Light #0 (Camera Light)" +
+                "\nlight_source {" +
+                "\n  cameraPosition" + 
+                "\n  color <0.3, 0.3, 0.3>" +
+                "\n  parallel" +
+                "\n  point_at <0.0, 0.0, 0.0>" +
+                "\n}\n")
     
     if e0: # Light 1 is On
         ambient += a0
@@ -224,7 +233,7 @@ def writepovlighting(f, glpane):
 
     f.write( "\n#declare Atomic =" +
                 "\nfinish {" +
-                "\n    ambient " + str(ambient) +
+                "\n    ambient 0.1" + # str(ambient) + # Mark 060929
                 "\n    diffuse " + str(diffuse) +
                 "\n    phong " + str(phong) +
                 "\n    phong_size " + str(phong_size) +
