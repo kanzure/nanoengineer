@@ -12,12 +12,16 @@ ifeq ($(OS),Windows_NT)
 # One dollar sign for DOS and two for Cygwin
 UNAME_A=$(shell ver)
 # UNAME_A=$$(shell ver)   # Cygwin: but in this case use 'uname -a' anyway
-CC = "C:/Dev-Cpp/bin/gcc.exe"
-CFLAGS=-g -I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
-LDFLAGS=-L"C:/Dev-Cpp/lib"
+# Location of the MinGW compiler
+CCDIR = "C:/MinGW"
+#CCDIR = "C:/Dev-Cpp"
+CC = "$(CCDIR)/bin/gcc.exe"
+CFLAGS=-g -I"$(CCDIR)/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
+LDFLAGS=-L"$(CCDIR)/lib"
 PYREXTARGET=sim.dll
 STDC99=
-SIMTARGET=simulator.exe
+#SIMTARGET=simulator.exe
+SIMTARGET=sim.dll
 PYREXC=python c:/Python$(PYVER)/Scripts/pyrexc.py
 #---------------------------------------- End of Windows stuff
 else
@@ -168,7 +172,6 @@ $(SIMTARGET): $(SIMOBJS) version.h
 testminimize: minimize.c allocate.o
 	$(CC) -o testminimize.o $(CFLAGS) -DTEST -c minimize.c
 	$(CC) -o testminimize $(LDFLAGS) testminimize.o allocate.o
-
 teststructcompare: structcompare.c minimize.o allocate.o lin-alg.o
 	$(CC) -o teststructcompare.o $(CFLAGS) -DTEST -c structcompare.c
 	$(CC) -o teststructcompare $(LDFLAGS) teststructcompare.o minimize.o allocate.o lin-alg.o
