@@ -1699,7 +1699,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # But I worry about whether it will work if more than one Wheel event occurs between redraws (which rewrite depth buffer).
         # [bruce 060829]
         
-        if not env.prefs[zoomToScreenCenter_prefs_key]: # ninad 060924 Zoom to screen center is disabled by default
+        if not env.prefs[zoomAboutScreenCenter_prefs_key]: # ninad 060924 Zoom about screen center is disabled by default
             self.pov += (factor - 1) * (point - (-self.pov))
             return
             

@@ -40,7 +40,7 @@
             <x>0</x>
             <y>0</y>
             <width>1115</width>
-            <height>33</height>
+            <height>35</height>
         </rect>
     </property>
     <property name="backgroundOrigin">
@@ -83,6 +83,7 @@
         <action name="setViewZoomtoSelectionAction"/>
         <action name="zoomToolAction"/>
         <action name="panToolAction"/>
+        <action name="viewZoomAboutScreenCenterAction"/>
         <separator/>
         <action name="setViewPerspecAction"/>
         <action name="setViewOrthoAction"/>
@@ -206,7 +207,7 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>70</width>
+                <width>71</width>
                 <height>29</height>
             </rect>
         </property>
@@ -228,9 +229,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>70</x>
+                <x>71</x>
                 <y>0</y>
-                <width>210</width>
+                <width>211</width>
                 <height>29</height>
             </rect>
         </property>
@@ -257,9 +258,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>280</x>
+                <x>282</x>
                 <y>0</y>
-                <width>598</width>
+                <width>599</width>
                 <height>29</height>
             </rect>
         </property>
@@ -305,7 +306,7 @@
             <rect>
                 <x>0</x>
                 <y>29</y>
-                <width>238</width>
+                <width>239</width>
                 <height>29</height>
             </rect>
         </property>
@@ -333,9 +334,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>238</x>
+                <x>239</x>
                 <y>29</y>
-                <width>210</width>
+                <width>211</width>
                 <height>29</height>
             </rect>
         </property>
@@ -362,9 +363,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>448</x>
+                <x>450</x>
                 <y>29</y>
-                <width>42</width>
+                <width>43</width>
                 <height>29</height>
             </rect>
         </property>
@@ -387,8 +388,8 @@
             <rect>
                 <x>0</x>
                 <y>0</y>
-                <width>94</width>
-                <height>19</height>
+                <width>98</width>
+                <height>22</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -415,10 +416,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>94</x>
+                <x>98</x>
                 <y>0</y>
-                <width>95</width>
-                <height>19</height>
+                <width>104</width>
+                <height>22</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -445,10 +446,10 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>189</x>
+                <x>202</x>
                 <y>0</y>
-                <width>96</width>
-                <height>19</height>
+                <width>103</width>
+                <height>22</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -476,7 +477,7 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>19</y>
+                <y>22</y>
                 <width>1115</width>
                 <height>29</height>
             </rect>
@@ -656,8 +657,8 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>48</y>
-                <width>156</width>
+                <y>51</y>
+                <width>160</width>
                 <height>29</height>
             </rect>
         </property>
@@ -687,9 +688,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>156</x>
-                <y>48</y>
-                <width>115</width>
+                <x>160</x>
+                <y>51</y>
+                <width>119</width>
                 <height>29</height>
             </rect>
         </property>
@@ -719,9 +720,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>271</x>
-                <y>48</y>
-                <width>104</width>
+                <x>279</x>
+                <y>51</y>
+                <width>106</width>
                 <height>29</height>
             </rect>
         </property>
@@ -751,9 +752,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>375</x>
-                <y>48</y>
-                <width>120</width>
+                <x>385</x>
+                <y>51</y>
+                <width>123</width>
                 <height>29</height>
             </rect>
         </property>
@@ -783,9 +784,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>495</x>
-                <y>48</y>
-                <width>92</width>
+                <x>508</x>
+                <y>51</y>
+                <width>96</width>
                 <height>29</height>
             </rect>
         </property>
@@ -813,9 +814,9 @@
         </property>
         <property name="geometry">
             <rect>
-                <x>587</x>
-                <y>48</y>
-                <width>19</width>
+                <x>604</x>
+                <y>51</y>
+                <width>20</width>
                 <height>29</height>
             </rect>
         </property>
@@ -838,7 +839,7 @@
                 <x>0</x>
                 <y>0</y>
                 <width>30</width>
-                <height>257</height>
+                <height>258</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -867,9 +868,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>257</y>
+                <y>258</y>
                 <width>30</width>
-                <height>338</height>
+                <height>339</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -901,9 +902,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>595</y>
+                <y>597</y>
                 <width>30</width>
-                <height>182</height>
+                <height>183</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -930,9 +931,9 @@
         <property name="geometry">
             <rect>
                 <x>0</x>
-                <y>777</y>
+                <y>780</y>
                 <width>30</width>
-                <height>122</height>
+                <height>123</height>
             </rect>
         </property>
         <property name="backgroundOrigin">
@@ -4076,6 +4077,20 @@
             <string>Zoom to Selected Chunks and Jigs</string>
         </property>
     </action>
+    <action>
+        <property name="name">
+            <cstring>viewZoomAboutScreenCenterAction</cstring>
+        </property>
+        <property name="toggleAction">
+            <bool>true</bool>
+        </property>
+        <property name="on">
+            <bool>false</bool>
+        </property>
+        <property name="text">
+            <string>Zoom About Screen Center</string>
+        </property>
+    </action>
 </actions>
 <images>
     <image name="image0">
@@ -5481,6 +5496,12 @@
         <receiver>MainWindow</receiver>
         <slot>updateSkipSuffix()</slot>
     </connection>
+    <connection>
+        <sender>viewZoomAboutScreenCenterAction</sender>
+        <signal>toggled(bool)</signal>
+        <receiver>MainWindow</receiver>
+        <slot>changeZoomBehavior()</slot>
+    </connection>
 </connections>
 <slots>
     <slot>fileNew()</slot>
@@ -5671,6 +5692,7 @@
     <slot>modifyMirror()</slot>
     <slot>setViewZoomToSelection()</slot>
     <slot>updateSkipSuffix()</slot>
+    <slot>changeZoomBehavior()</slot>
 </slots>
 <layoutdefaults spacing="6" margin="11"/>
 </UI>

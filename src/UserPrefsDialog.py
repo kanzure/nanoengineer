@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Documents and Settings\Mark\My Documents\ne1 sandbox\cad\src\UserPrefsDialog.ui'
+# Form implementation generated from reading ui file 'C:\Atom\cad\src\UserPrefsDialog.ui'
 #
-# Created: Thu Sep 21 11:24:04 2006
+# Created: Tue Oct 3 15:38:51 2006
 #      by: The PyQt User Interface Compiler (pyuic) 3.14.1
 #
 # WARNING! All changes made in this file will be lost!
@@ -66,7 +66,7 @@ class UserPrefsDialog(QDialog):
         groupBox7_2Layout.addWidget(self.display_origin_axis_checkbox,1,0)
 
         self.display_pov_axis_checkbox = QCheckBox(self.groupBox7_2,"display_pov_axis_checkbox")
-        self.display_pov_axis_checkbox.setChecked(1)
+        self.display_pov_axis_checkbox.setChecked(0)
 
         groupBox7_2Layout.addWidget(self.display_pov_axis_checkbox,0,0)
 
@@ -1563,7 +1563,7 @@ class UserPrefsDialog(QDialog):
 
         self.languageChange()
 
-        self.resize(QSize(625,618).expandedTo(self.minimumSizeHint()))
+        self.resize(QSize(625,658).expandedTo(self.minimumSizeHint()))
         self.clearWState(Qt.WState_Polished)
 
         self.connect(self.animation_speed_slider,SIGNAL("sliderReleased()"),self.change_view_animation_speed)

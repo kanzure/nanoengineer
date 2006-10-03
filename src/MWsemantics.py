@@ -249,6 +249,9 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         self.uprefs.enable_nanohive(env.prefs[nanohive_enabled_prefs_key])
         self.uprefs.enable_gamess(env.prefs[gamess_enabled_prefs_key])
         
+        #Zoom behavior setting  (View > Zoom About Screen Center)
+        self.viewZoomAboutScreenCenterAction.setOn(env.prefs[zoomAboutScreenCenter_prefs_key])
+        
         #Huaicai 9/14/05: Initialization for the 'Recently opened files' feature
         from qt import QSettings, QWhatsThis
         menuIndex = self.RECENT_FILES_MENU_INDEX

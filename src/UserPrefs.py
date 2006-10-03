@@ -1078,6 +1078,18 @@ class UserPrefs(UserPrefsDialog):
         else:
             self.bg_solid_setup()
             
+    def changeZoomBehaviorPreference(self):
+        '''Changes the zoom behavior based on the user preference (zoom about 
+        the GLPane's center). as of 061003, this preference is implemented as
+         View > Zoom About Screen Center (and not in Edit > Preferences)'''
+        #ninad061003 : Also, we may need to change the wording 'Zoom About Screen Center' 
+        #to 'Zoom About 3D workspace center'  or something similar
+        if self.w.viewZoomAboutScreenCenterAction.isOn():
+            env.prefs[zoomAboutScreenCenter_prefs_key] = True
+        else:
+            env.prefs[zoomAboutScreenCenter_prefs_key] = False
+            
+            
     ########## End of slot methods for "General" page widgets ###########
     
     ########## Slot methods for "Atoms" page widgets ################

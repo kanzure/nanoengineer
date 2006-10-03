@@ -67,7 +67,7 @@ backgroundGradient_prefs_key = 'A9/Background Gradient' # Mark 060814.
 defaultDisplayMode_prefs_key = 'A9/Default Display Mode' # Mark 060815.
 mouseSpeedDuringRotation_prefs_key = 'A9/Mouse Speed During Rotation' #Ninad 060906
 displayOriginAsSmallAxis_prefs_key = 'A9/Display Origin As Small Axis' #Ninad 060920
-zoomToScreenCenter_prefs_key = 'A9/Zoom To Screen Center' #Ninad 060926
+zoomAboutScreenCenter_prefs_key = 'A9/Zoom To Screen Center' #Ninad 060926
 
 #ToolTip Prefs
 dynamicToolTipWakeUpDelay_prefs_key = 'A9/DynamicToolTip Wake Up Delay'
@@ -277,7 +277,7 @@ prefs_table = (
     ('display_compass_labels', 'boolean', displayCompassLabels_prefs_key, True),
     ('display_position', 'int', compassPosition_prefs_key, UPPER_RIGHT),
     ('display_origin_axis', 'boolean', displayOriginAxis_prefs_key, True),
-    ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, True),
+    ('display_pov_axis', 'boolean', displayPOVAxis_prefs_key, False),
     ('default_projection', 'int', defaultProjection_prefs_key, ORTHOGRAPHIC), # Changed to Ortho. Mark 051029.
     ('animate_high_quality', 'boolean', animateHighQualityGraphics_prefs_key, True), # Mark 060315. NIY.
     ('animate_std_views', 'boolean', animateStandardViews_prefs_key, True), # Mark 051110.
@@ -288,7 +288,7 @@ prefs_table = (
     ('default_display_mode', 'int', defaultDisplayMode_prefs_key, diTUBES), # Mark 060815.
     ('mouse_speed_during_rotation', 'float', mouseSpeedDuringRotation_prefs_key, 0.6), # Ninad 060906. 
     ('display origin as small axis', 'boolean', displayOriginAsSmallAxis_prefs_key, True), #Ninad 060920
-    ('zoom to screen center', 'boolean', zoomToScreenCenter_prefs_key, False), # Ninad 060924
+    ('zoom to screen center', 'boolean', zoomAboutScreenCenter_prefs_key, False), # Ninad 060924
     
 
     # Minimize prefs (some are in General prefs pane, some are in dialogs)
