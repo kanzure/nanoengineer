@@ -148,11 +148,13 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
         jigs = self.assy.getSelectedJigs()
         atoms = self.assy.selatoms_list()
         
-        if len(chunks) == 1 and len(atoms) == 0:
+        #following fixes bug 1748 ninad 061003. 
+        if len(chunks) > 0 and len(atoms) == 0:
             # Even though chunks have an axis, it is not necessarily the same
             # axis attr stored in the chunk.  Get the chunks atoms and let
             # compute_heuristic_axis() recompute them.
-            atoms = chunks[0].atoms.values()
+            for c in range(len(chunks)):
+                atoms += chunks[c].atoms.values()
         elif len(jigs) == 1 and len(atoms) == 0:
             # Warning: RectGadgets have no atoms.  We handle this special case below.
             atoms = jigs[0].atoms 
@@ -160,6 +162,7 @@ class viewSlotsMixin: #mark 060120 moved these methods out of class MWsemantics
             # There is a problem when allowing only 2 selected atoms. 
             # Changing requirement to 3 atoms fixes bug 1418. mark 060322
             msg = redmsg("Please select some atoms, jigs, and/or chunks, covering at least 3 atoms")
+            print "ops_view.py len(atoms) = ", len(atoms)
             env.history.message(cmd + msg)
             return
         
