@@ -718,6 +718,8 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         if self.assy and self.assy.selatoms:
             # Fixes bug 2005. Mark 060702.
             env.history.message(cmd + "Selected atoms cannot have their display mode set to Cylinder.")
+            return #ninad 061003  fixed bug 2286... Note: Once atoms and chunks are allowed to be sel at the same 
+            #time , this fix might need further mods. 
         self.setDisplay(diCYLINDER)
         
     def dispSurface(self):
@@ -725,6 +727,7 @@ class MWsemantics( fileSlotsMixin, viewSlotsMixin, movieDashboardSlotsMixin, Mai
         if self.assy and self.assy.selatoms:
             # Fixes bug 2005. Mark 060702.
             env.history.message(cmd + "Selected atoms cannot have their display mode set to Surface.")
+            return #ninad 061003 fixed bug 2286
         self.setDisplay(diSURFACE)
 
     def setDisplay(self, form, default_display=False):
