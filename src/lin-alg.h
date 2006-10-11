@@ -35,6 +35,8 @@ extern double vang(struct xyz v, struct xyz w);
 
 extern struct xyz vx(struct xyz v, struct xyz w);
 
+extern void printMatrix3(FILE *f, double *m);
+
 extern void matrixRotateX(double *m, double theta);
 
 extern void matrixRotateY(double *m, double theta);
@@ -48,6 +50,8 @@ extern void matrixMultiply(double *prod, double *a, double *b);
 extern void matrixTransform(struct xyz *out, double *m, struct xyz *in);
 
 extern void matrixInverseTransform(struct xyz *out, double *m, struct xyz *in);
+
+extern int matrixInvert3(double *inverse, double *m);
 
 
 /** vector addition (incremental: add src to dest) */

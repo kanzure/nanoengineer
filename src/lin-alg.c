@@ -72,6 +72,14 @@ struct xyz vx(struct xyz v, struct xyz w) {
 	return u;
 }
 
+void
+printMatrix3(FILE *f, double *m) 
+{
+  fprintf(f, "(%13.6f %13.6f %13.6f)\n", m[0], m[1], m[2]);
+  fprintf(f, "(%13.6f %13.6f %13.6f)\n", m[3], m[4], m[5]);
+  fprintf(f, "(%13.6f %13.6f %13.6f)\n", m[6], m[7], m[8]);
+}
+
 // a rotation matrix is organized like this:
 //
 // 0 1 2
@@ -193,6 +201,67 @@ matrixInverseTransform(struct xyz *out, double *m, struct xyz *in)
   out->y = in->x * m[1] + in->y * m[4] + in->z * m[7];
   out->z = in->x * m[2] + in->y * m[5] + in->z * m[8];
 }
+
+// minor(i, j) is the determinant of the matrix with row i and column
+// j deleted
+static double
+matrixMinor3(double *m, int i, int j)
+{
+  double submatrix[4];
+  int ii;
+  int jj;
+  int k = 0;
+
+  // create submatrix by deleting row i and column j:
+  for (ii=0; ii<3; ii++) {
+    if (ii != i) {
+      for (jj=0; jj<3; jj++) {
+        if (jj != j) {
+          submatrix[k++] = m[ii*3 + jj];
+        }
+      }
+    }
+  }
+  // 2x2 determinant of submatrix:
+  return submatrix[0] * submatrix[3] - submatrix[1] * submatrix[2];
+}
+
+// determinant of a 3x3 matrix
+static double
+matrixDeterminant3(double *m)
+{
+  return
+      m[0] * matrixMinor3(m, 0, 0)
+    - m[1] * matrixMinor3(m, 0, 1)
+    + m[2] * matrixMinor3(m, 0, 2);
+}
+
+// invert a 3x3 matrix
+// returns zero if the matrix has no inverse
+int
+matrixInvert3(double *inverse, double *m)
+{
+  double det = matrixDeterminant3(m);
+
+  if (fabs(det) < 1e-15) {
+    return 0;
+  }
+  // cofactorMatrix = minor with alternating signs
+  // inverse = transpose(cofactorMatrix) / det
+  inverse[0] = +matrixMinor3(m, 0, 0) / det;
+  inverse[1] = -matrixMinor3(m, 1, 0) / det;
+  inverse[2] = +matrixMinor3(m, 2, 0) / det;
+
+  inverse[3] = -matrixMinor3(m, 0, 1) / det;
+  inverse[4] = +matrixMinor3(m, 1, 1) / det;
+  inverse[5] = -matrixMinor3(m, 2, 1) / det;
+
+  inverse[6] = +matrixMinor3(m, 0, 2) / det;
+  inverse[7] = -matrixMinor3(m, 1, 2) / det;
+  inverse[8] = +matrixMinor3(m, 2, 2) / det;
+  return 1;
+}
+
 
 
 

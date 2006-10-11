@@ -304,7 +304,8 @@ dynamicsMovie(struct part *part)
     double elapsedSeconds;
     char timebuffer[256];
 #endif
-    
+
+    setThermalVelocities(part, Temperature);
     for (i = 0; i < part->num_atoms; i++) {
 	vset(positions[i], part->positions[i]);
 	vsub2(oldPositions[i], positions[i], part->velocities[i]);

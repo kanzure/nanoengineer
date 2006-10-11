@@ -238,11 +238,6 @@ struct part
     // allocate.c) will generate invalid indexes.
     int *atom_id_to_index_plus_one;
     
-    double totalMass;
-    double totalKineticEnergy;
-    struct xyz centerOfGravity;
-    struct xyz totalMomentum;
-    
     int num_atoms;
     struct atom **atoms;
     
@@ -294,6 +289,8 @@ extern void generateTorsions(struct part *p);
 extern void generateOutOfPlanes(struct part *p);
 
 extern void updateVanDerWaals(struct part *p, void *validity, struct xyz *positions);
+
+extern void setThermalVelocities(struct part *p, double temperature);
 
 extern void makeAtom(struct part *p, int externalID, int elementType, struct xyz position);
 

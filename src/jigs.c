@@ -444,11 +444,18 @@ jigThermometer(struct jig *jig, double deltaTframe, struct xyz *position, struct
     double ff;
     int a1;
     int k;
+    int dof; // degrees of freedom
     struct xyz f;
 
+    dof = 3 * jig->num_atoms;
+
     // average(m * v * v / 2) == 3 * k * T / 2
-    
-    z = deltaTframe / (3 * jig->num_atoms);
+
+    // This divides out both the number of iterations (to average one
+    // frame), and the number of degrees of freedom.  DOF = 3N-3 if
+    // translation has been cancelled, and 3N-6 if rotation has been
+    // cancelled as well.
+    z = deltaTframe / ((double)dof);
     ff=0.0;
     for (k=0; k<jig->num_atoms; k++) {
 	a1 = jig->atoms[k]->index;
@@ -460,7 +467,7 @@ jigThermometer(struct jig *jig, double deltaTframe, struct xyz *position, struct
     }
     // Boltz is in J/K
     // ff in 1e3 g m m K / s s J   or K
-    ff *= Dx*Dx/(Dt*Dt) * 1e-27 / Boltz;
+    ff *= Dmass * Dx * Dx / (Dt * Dt * Boltz);
     jig->data += ff*z;
 }
 

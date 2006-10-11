@@ -222,12 +222,6 @@ addBondsToAtoms(struct part *p)
 struct part *
 endPart(struct part *p)
 {
-    int i;
-    struct xyz mm1;
-    struct xyz totalMomentum;
-    struct xyz driftVelocity;
-    double totalMass;
-
     p->parseError = &defaultParseError;
     p->stream = p;
     p->num_vanDerWaals = p->num_static_vanDerWaals;
@@ -235,20 +229,6 @@ endPart(struct part *p)
     // XXX realloc any accumulators
     
     addBondsToAtoms(p);
-
-    // force a net momentum of zero
-    vsetc(totalMomentum, 0.0);
-    totalMass = 0.0;
-    for (i=0; i < p->num_atoms; i++) {
-	double mass = 1.0 / p->atoms[i]->inverseMass;
-	totalMass += mass;
-	vmul2c(mm1, p->velocities[i], mass);
-	vadd(totalMomentum, mm1);
-    }
-    vmul2c(driftVelocity, totalMomentum, 1.0 / totalMass);
-    for (i=0; i < p->num_atoms; i++) {
-	vsub(p->velocities[i], driftVelocity);
-    }
 
     // other routines should:
     // build stretchs, bends, and torsions
@@ -1082,10 +1062,13 @@ translateAtomID(struct part *p, int atomID)
     return p->atoms[atomIndex];
 }
 
-// gavss() and gxyz() are also used by the thermostat jig...
+// gaussianDistribution() and gxyz() are also used by the thermostat jig...
 
+// generate a random number with a gaussian distribution
+//
+// see Knuth, Vol 2, 3.4.1.C
 static double
-part_gavss(double v)
+gaussianDistribution(double mean, double stddev)
 {
     double v0,v1, rSquared;
     
@@ -1097,19 +1080,318 @@ part_gavss(double v)
     } while (rSquared>=1.0 || rSquared==0.0);
     // v0 and v1 are uniformly distributed within a unit circle
     // (excluding the origin)
-    return v*v0*sqrt(-2.0*log(rSquared)/rSquared);
+    return mean + stddev * v0 * sqrt(-2.0 * log(rSquared) / rSquared);
+}
+
+// Generates a gaussian distributed random velocity for a range of
+// atoms, scaled by 1/sqrt(mass).  The result array must be
+// preallocated by the caller.
+static void
+generateRandomVelocities(struct part *p, struct xyz *velocity, int firstAtom, int lastAtom)
+{
+    int i;
+    double stddev;
+    
+    for (i=firstAtom; i<=lastAtom; i++) {
+        stddev = sqrt(2.0 * Boltz * Temperature / (p->atoms[i]->mass * 1e-27)) * Dt / Dx;
+        velocity[i].x = gaussianDistribution(0.0, stddev);
+        velocity[i].y = gaussianDistribution(0.0, stddev);
+        velocity[i].z = gaussianDistribution(0.0, stddev);
+    }
+}
+
+// Find the center of mass of a range of atoms in the part.
+static struct xyz
+findCenterOfMass(struct part *p, struct xyz *position, int firstAtom, int lastAtom)
+{
+    struct xyz com;
+    struct xyz a;
+    double mass;
+    double totalMass = 0.0;
+    int i;
+
+    vsetc(com, 0.0);
+    for (i=firstAtom; i<=lastAtom; i++) {
+        mass = p->atoms[i]->mass;
+        vmul2c(a, position[i], mass);
+        vadd(com, a);
+        totalMass += mass;
+    }
+    if (fabs(totalMass) > 1e-20) {
+        vmulc(com, 1.0/totalMass);
+    }
+    return com;
+}
+
+static double
+findTotalMass(struct part *p, int firstAtom, int lastAtom)
+{
+    double mass = 0.0;
+    int i;
+
+    for (i=firstAtom; i<=lastAtom; i++) {
+        mass += p->atoms[i]->mass;
+    }
+    return mass;
 }
 
 static struct xyz
-part_gxyz(double v)
+findAngularMomentum(struct part *p, struct xyz center, struct xyz *position, struct xyz *velocity, int firstAtom, int lastAtom)
 {
-    struct xyz g;
+    int i;
+    struct xyz total_angular_momentum;
+    struct xyz ap;
+    struct xyz r;
+    double mass;
     
-    g.x=part_gavss(v);
-    g.y=part_gavss(v);
-    g.z=part_gavss(v);
-    return g;
+    vsetc(total_angular_momentum, 0.0);
+    for (i=firstAtom; i<=lastAtom; i++) {
+        mass = p->atoms[i]->mass;
+        vsub2(r, position[i], center);
+        v2x(ap, r, velocity[i]);         // ap = r x (velocity * mass)
+        vmulc(ap, mass);
+        vadd(total_angular_momentum, ap);
+    }
+    return total_angular_momentum;
 }
+
+static struct xyz
+findLinearMomentum(struct part *p, struct xyz *velocity, int firstAtom, int lastAtom)
+{
+    int i;
+    struct xyz total_momentum;
+    struct xyz momentum;
+    double mass;
+    
+    vsetc(total_momentum, 0.0);
+    for (i=firstAtom; i<=lastAtom; i++) {
+        mass = p->atoms[i]->mass;
+        vmul2c(momentum, velocity[i], mass);
+        vadd(total_momentum, momentum);
+    }
+    return total_momentum;
+}
+
+static double
+findMomentOfInertiaTensorComponent(struct part *p,
+                                   struct xyz *position,
+                                   struct xyz com,
+                                   int axis1,
+                                   int axis2,
+                                   int firstAtom,
+                                   int lastAtom)
+{
+    int i;
+    struct xyza *com_a = (struct xyza *)(&com);
+    struct xyza *position_a = (struct xyza *)position;
+    double delta_axis1;
+    double delta_axis2;
+    double mass;
+    double ret = 0.0;
+    
+    if (axis1 == axis2) {
+        // I_xx = sum(m * (y^2 + z^2))
+        axis1 = (axis1 + 1) % 3;
+        axis2 = (axis2 + 2) % 3;
+        for (i=firstAtom; i<=lastAtom; i++) {
+            mass = p->atoms[i]->mass;
+            delta_axis1 = position_a[i].a[axis1] - com_a->a[axis1];
+            delta_axis2 = position_a[i].a[axis2] - com_a->a[axis2];
+            ret += mass * (delta_axis1 * delta_axis1 + delta_axis2 * delta_axis2);
+        }
+    } else {
+        // I_xy = -sum(m * x * y)
+        for (i=firstAtom; i<=lastAtom; i++) {
+            mass = p->atoms[i]->mass;
+            delta_axis1 = position_a[i].a[axis1] - com_a->a[axis1];
+            delta_axis2 = position_a[i].a[axis2] - com_a->a[axis2];
+            ret -= mass * delta_axis1 * delta_axis2;
+        }
+    }
+    return ret;
+}
+
+
+static void
+findMomentOfInertiaTensor(struct part *p,
+                          struct xyz *position,
+                          struct xyz com,
+                          double *inertia_tensor,
+                          int firstAtom,
+                          int lastAtom)
+{
+    inertia_tensor[0] = findMomentOfInertiaTensorComponent(p, position, com, 0, 0, firstAtom, lastAtom); // xx
+    inertia_tensor[1] = findMomentOfInertiaTensorComponent(p, position, com, 0, 1, firstAtom, lastAtom); // xy
+    inertia_tensor[2] = findMomentOfInertiaTensorComponent(p, position, com, 0, 2, firstAtom, lastAtom); // xz
+
+    inertia_tensor[3] = inertia_tensor[1]; // yx = xy
+    inertia_tensor[4] = findMomentOfInertiaTensorComponent(p, position, com, 1, 1, firstAtom, lastAtom); // yy
+    inertia_tensor[5] = findMomentOfInertiaTensorComponent(p, position, com, 1, 2, firstAtom, lastAtom); // yz
+
+    inertia_tensor[6] = inertia_tensor[2]; // zx = xz
+    inertia_tensor[7] = inertia_tensor[5]; // zy = yz
+    inertia_tensor[8] = findMomentOfInertiaTensorComponent(p, position, com, 2, 2, firstAtom, lastAtom); // zz
+}
+
+static void
+addAngularVelocity(struct xyz center,
+                   struct xyz dav,
+                   struct xyz *position,
+                   struct xyz *velocity,
+                   int firstAtom,
+                   int lastAtom)
+{
+    int i;
+    struct xyz r;
+    struct xyz davxr;
+        
+    for (i=firstAtom; i<=lastAtom; i++) {
+        vsub2(r, position[i], center);
+        v2x(davxr, dav, r);
+        vadd(velocity[i], davxr);
+    }
+}
+
+static void
+addLinearVelocity(struct xyz dv,
+                  struct xyz *velocity,
+                  int firstAtom,
+                  int lastAtom)
+{
+    int i;
+    
+    for (i=firstAtom; i<=lastAtom; i++) {
+        vadd(velocity[i], dv);
+    }
+}
+
+#if 0
+static void
+printPositionVelocity(struct xyz *position, struct xyz *velocity, int firstAtom, int lastAtom)
+{
+    int i;
+    
+    for (i=firstAtom; i<=lastAtom; i++) {
+        printf("%d: (%7.3f, %7.3f, %7.3f) (%7.3f, %7.3f, %7.3f)\n",
+               i,
+               position[i].x,
+               position[i].y,
+               position[i].z,
+               velocity[i].x,
+               velocity[i].y,
+               velocity[i].z);
+    }
+    printf("\n");
+}
+
+static void
+printMomenta(struct part *p, struct xyz *position, struct xyz *velocity, int firstAtom, int lastAtom)
+{
+    struct xyz com;
+    struct xyz total_linear_momentum;
+    struct xyz total_angular_momentum;
+    
+    com = findCenterOfMass(p, position, firstAtom, lastAtom);
+    printf("center of mass: (%f, %f, %f)\n", com.x, com.y, com.z);
+    total_linear_momentum = findLinearMomentum(p, velocity, firstAtom, lastAtom);
+    printf("total_linear_momentum: (%f, %f, %f)\n", total_linear_momentum.x, total_linear_momentum.y, total_linear_momentum.z);
+
+    total_angular_momentum = findAngularMomentum(p, com, position, velocity, firstAtom, lastAtom);
+    printf("total_angular_momentum: (%f, %f, %f)\n", total_angular_momentum.x, total_angular_momentum.y, total_angular_momentum.z);
+    printPositionVelocity(position, velocity, firstAtom, lastAtom);
+}
+#endif
+
+// Alter the given velocities for a range of atoms to remove any
+// translational motion, and any rotation around their center of mass.
+static void
+neutralizeMomentum(struct part *p, struct xyz *position, struct xyz *velocity, int firstAtom, int lastAtom)
+{
+    struct xyz total_linear_momentum;
+    struct xyz total_angular_momentum;
+    struct xyz com;
+    struct xyz dv;
+    struct xyz dav;
+    double inverseTotalMass;
+    double momentOfInertiaTensor[9];
+    double momentOfInertiaTensorInverse[9];
+
+    com = findCenterOfMass(p, position, firstAtom, lastAtom);
+    inverseTotalMass = 1.0 / findTotalMass(p, firstAtom, lastAtom);
+
+    total_angular_momentum = findAngularMomentum(p, com, position, velocity, firstAtom, lastAtom);
+    findMomentOfInertiaTensor(p, position, com, momentOfInertiaTensor, firstAtom, lastAtom);
+    if (matrixInvert3(momentOfInertiaTensorInverse, momentOfInertiaTensor)) {
+        matrixTransform(&dav, momentOfInertiaTensorInverse, &total_angular_momentum);
+        vmulc(dav, -1.0);
+        addAngularVelocity(com, dav, position, velocity, firstAtom, lastAtom);
+    }
+
+    total_linear_momentum = findLinearMomentum(p, velocity, firstAtom, lastAtom);
+    vmul2c(dv, total_linear_momentum, -inverseTotalMass);
+    addLinearVelocity(dv, velocity, firstAtom, lastAtom);
+}
+
+// Change the given velocities of a range of atoms so that their
+// kinetic energies are scaled by the given factor.
+static void
+scaleKinetic(struct xyz *velocity, double factor, int firstAtom, int lastAtom)
+{
+    int i;
+    double velocity_factor = sqrt(factor);
+
+    // ke_old = m v_old^2 / 2
+    // ke_new = m v_new^2 / 2 = factor ke_old = factor (m v_old^2 / 2)
+    // m v_new^2 = factor m v_old^2
+    // v_new^2 = factor v_old^2
+    // v_new = sqrt(factor) v_old
+    
+    for (i=firstAtom; i<=lastAtom; i++) {
+        vmulc(velocity[i], velocity_factor);
+    }
+}
+
+void
+setThermalVelocities(struct part *p, double temperature)
+{
+    int firstAtom = 0;
+    int lastAtom = p->num_atoms-1;
+    int dof; // degrees of freedom
+    int i = 0;
+    double initial_temp;
+
+    if (p->num_atoms == 1) {
+        return;
+    }
+    // probably should be 3N-6, but the thermometer doesn't know that
+    // the linear and angular momentum have been cancelled.
+    dof = 3 * p->num_atoms;
+    if (dof < 1) {
+        dof = 1;
+    }
+
+    initial_temp = 0.0;
+    while (fabs(initial_temp) < 1e-8) {
+        generateRandomVelocities(p, p->velocities, firstAtom, lastAtom);
+        neutralizeMomentum(p, p->positions, p->velocities, firstAtom, lastAtom);
+
+        // kinetic = 3 k T / 2
+        // T = kinetic 2 / 3 k
+        // calculateKinetic() returns aJ (1e-18 J), so we get Kelvins:
+
+        initial_temp = calculateKinetic(p) * 2.0 * 1e-18 / (Boltz * ((double)dof));
+        if (++i > 10) {
+            ERROR("unable to set initial temperature");
+            return;
+        }
+    }
+
+    // We scale to get to twice the target temperature, because we're
+    // assuming the part has been minimized, and the energy will be
+    // divided between kinetic and potential energy.
+    scaleKinetic(p->velocities, 2.0 * temperature / initial_temp, firstAtom, lastAtom);
+}
+
 
 // Add an atom to the part.  ExternalID is the atom number as it
 // appears in (for example) an mmp file.  ElementType is the number of
@@ -1118,11 +1400,7 @@ void
 makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
 {
     double mass;
-    double therm;
     struct atom *a;
-    struct xyz velocity;
-    struct xyz moment;
-    struct xyz momentum;
     
     if (externalID < 0) {
 	ERROR1("atom ID %d must be >= 0", externalID);
@@ -1178,23 +1456,6 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     mass = a->type->mass * 1e-27;
     a->mass = a->type->mass;
     a->inverseMass = Dt * Dt / mass;
-    
-    // XXX break this out into another routine
-    therm = sqrt(2.0 * (Boltz * Temperature) / mass) * Dt / Dx;
-    velocity = part_gxyz(therm);
-    vset(p->velocities[a->index], velocity);
-    
-    // we should probably have a separate routine that calculates this
-    // based on velocities
-    p->totalKineticEnergy += Boltz*Temperature*1.5;
-    
-    p->totalMass += mass;
-    
-    vmul2c(moment, position, mass);
-    vadd(p->centerOfGravity, moment);
-    
-    vmul2c(momentum, velocity, mass);
-    vadd(p->totalMomentum, momentum);
 }
 
 void
@@ -1272,11 +1533,11 @@ calculateKinetic(struct part *p)
     }
     // We want energy in attojoules to be consistent with potential energy
     // mass is in units of Dmass kilograms (Dmass = 1e-27, for mass in yg)
-    // velocity is in picometers per Dt seconds
-    // total is in units of 1e-24*(Dmass/Dt^2) joules
-    // we want attojoules or 1e-18 joules, so we need to multiply by 1e-6
+    // velocity is in Dx meters per Dt seconds
+    // total is in units of (Dmass Dx^2/Dt^2) joules
+    // we want attojoules or 1e-18 joules, so we need to multiply by 1e18
     // and we need the factor of 1/2 that we left out of the atom loop
-    return total * 0.5 * 1e-6 * Dmass / (Dt * Dt);
+    return total * 0.5 * 1e18 * Dmass * Dx * Dx / (Dt * Dt);
 }
 
 
