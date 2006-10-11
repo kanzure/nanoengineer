@@ -644,7 +644,7 @@ class Movie:
         # Writes the POV-Ray series starting at the current frame until the last frame, 
         # skipping frames if "Skip" (on the dashboard) is != 0.  Mark 050908
         nfiles = 0
-        for i in range(self.currentFrame, self.totalFramesActual+1, self.win.skipSB.value()+1):
+        for i in range(self.currentFrame, self.totalFramesActual+1, self.win.skipSB.value()):
             self.alist_and_moviefile.play_frame(i)
             filename = "%s.%06d.pov" % (name,i)
             # For 100s of files, printing a history message for each file is undesired. 
