@@ -1,0 +1,4 @@
+Note: this directory cad/src/exprs will someday become a python package in NE1,
+but for now, it's still experimental, never used by default, and perhaps not all its
+source files have been committed, and the files don't yet have proper file headers or
+copyright info. It's entirely owned by Bruce. [061011]

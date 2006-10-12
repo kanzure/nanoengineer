@@ -1,0 +1,120 @@
+from basic import * # autoreload of basic is done before we're imported
+
+from constants import ave_colors # (weight, color1, color2) # weight is of color1 i think
+
+from constants import white, blue, red, green, black
+
+from OpenGL.GL import *
+
+# == geometry
+
+ORIGIN = V(0,0,0)
+DX = V(1,0,0)
+DY = V(0,1,0)
+DZ = V(0,0,1)
+
+ORIGIN2 = V(0.0, 0.0)
+D2X = V(1.0, 0.0)
+D2Y = V(0.0, 1.0)
+
+
+# == colors
+
+lightblue = ave_colors( 0.2, blue, white)
+lightgreen = ave_colors( 0.2, green, white)
+halfblue = ave_colors( 0.5, blue, white)
+purple = ave_colors(0.5, red, blue)
+
+def translucent_color(color, opacity = 0.5): #e refile with ave_colors
+    """Make color (a 3- or 4-tuple of floats) have the given opacity (default 0.5, might be revised);
+    if it was already translucent, this multiplies the opacity it had.
+    """
+    if len(color) == 3:
+        c1, c2, c3 = color
+        c4 = 1.0
+    else:
+        c1, c2, c3, c4 = color
+    return (c1, c2, c3, c4 * opacity)
+
+trans_blue = translucent_color(halfblue)
+trans_red = translucent_color(red)
+trans_green = translucent_color(green)
+
+
+# == new LL drawing helpers
+
+def draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy):
+    """Fill a spatial rect defined by the 3d points (origin, dx, dy)
+    with the 2d-texture subrect defined by the 2d points (tex_origin, tex_dx, tex_dy)
+    in the currently bound texture object.
+    """
+    glEnable(GL_TEXTURE_2D) 
+    glBegin(GL_QUADS)
+    glTexCoord2fv(tex_origin) # tex coords have to come before vertices, I think! ###k
+    glVertex3fv(origin)
+    glTexCoord2fv(tex_origin + tex_dx)
+    glVertex3fv(origin + dx)
+    glTexCoord2fv(tex_origin + tex_dx + tex_dy)
+    glVertex3fv(origin + dx + dy)
+    glTexCoord2fv(tex_origin + tex_dy)
+    glVertex3fv(origin + dy)
+    glEnd()
+    glDisable(GL_TEXTURE_2D)
+
+# Ideally we'd modularize the following to separate the fill/color info from the shape-info. (And optimize them.)
+# For now they're just demos that might be useful.
+
+def draw_filled_rect(origin, dx, dy, color):
+##    print 'draw_filled_rect',(origin, dx, dy, color) #####@@@@@
+    glDisable(GL_LIGHTING) # this allows the specified color to work. Otherwise it doesn't work (I always get dark blue). Why???
+     # guess: if i want lighting, i have to specify a materialcolor, not just a regular color. (and vertex normals)
+    if len(color) == 4:
+        glColor4fv(color)
+        if 0 and color[3] != 1.0:
+            print "color has alpha",color ####@@@@
+    else:
+        glColor3fv(color)
+##    glRectfv(origin, origin + dx + dy) # won't work for most coords! also, ignores Z. color still not working.
+    glBegin(GL_QUADS)
+    glVertex3fv(origin)
+    #glColor3fv(white)#
+    glVertex3fv(origin + dx)
+    # glColor3fv(white) # hack, see if works - yes!
+    #glColor3fv(color)#
+    glVertex3fv(origin + dx + dy)
+    #glColor3fv(white)#
+    glVertex3fv(origin + dy)
+    glEnd()
+    glEnable(GL_LIGHTING) # should be outside of glEnd! when inside, i got infloop! (not sure that was why; quit/reran after that)
+
+def draw_filled_triangle(origin, dx, dy, color):
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+    glBegin(GL_TRIANGLES)
+    glVertex3fv(origin)
+    glVertex3fv(origin + dx)
+    glVertex3fv(origin + dy)
+    glEnd()
+    glEnable(GL_LIGHTING)
+
+def draw_filled_rect_frame(origin, dx, dy, thickness, color):
+    "draw something that looks like a picture frame of a single filled color."
+    tx = thickness * norm(dx)
+    ty = thickness * norm(dy)
+    glColor3fv(color)
+    glDisable(GL_LIGHTING)
+    glBegin(GL_QUAD_STRIP)
+    glVertex3fv(origin)
+    glVertex3fv(origin + tx + ty)
+    glVertex3fv(origin + dx)
+    glVertex3fv(origin + dx - tx + ty)
+    glVertex3fv(origin + dx + dy)
+    glVertex3fv(origin + dx + dy - tx - ty)
+    glVertex3fv(origin + dy)
+    glVertex3fv(origin + dy + tx - ty)
+    glVertex3fv(origin)
+    glVertex3fv(origin + tx + ty)
+    glEnd()
+    glEnable(GL_LIGHTING)
+
+# end

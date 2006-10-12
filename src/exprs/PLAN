@@ -1,0 +1,38 @@
+plan for the files in here:
+
+will be cannibalized for useful parts:
+
+testdraw1_cannib.py [copy is above]
+testdraw2_cannib.py [copy is above]
+NewInval.py
+scratch5.py
+
+will be removed someday, since copies of the above, but for now are used as ne1 glue into here:
+
+../testdraw.py
+../testdraw2.py
+
+will survive upstairs as debug code, for awhile:
+
+../testmode.py
+
+junk:
+
+scratch.py
+scratch4.py
+scratch_cubemath.py
+
+will be maintained:
+
+__init__.py
+test.py
+
+will be added:
+
+a regression test file, or more than one
+
+classes (names unclear): Env, RawExpr, UnderstoodExpr, Instance...
+
+not sure if RawExpr, UnderstoodExpr are different; HelperClass seems to be both...
+
+... and some .py files already added...
