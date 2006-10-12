@@ -12,20 +12,32 @@ pt = print_compact_traceback
 #e these Exprs will need a way to notice when they get deep enough (in attrs or calls) that they ought to have a value already...
 # maybe just default "compiling rules" for that in the env? so they'll need to autocompile selves as they build... but in what env??
 
-class Expr:
-    "abstract class for symbolic expressions that python parser can build for us, from Symbols and operations including x.a and x(a)"
-    def __init__(self, *args):
-        self._e_args = args ###@@@ was __args -- do we need/want this __? maybe _e_ would be better? yes, change it.
-        self._e_init()
-    def __getattr__(self, attr):
-        if attr.startswith('__') or attr.startswith('_e_'):
-            raise AttributeError, attr 
-        return getattr_Expr(self, attr)
+class Expr: # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable
+    """abstract class for symbolic expressions that python parser can build for us,
+    from Symbols and operations including x.a and x(a);
+    also used as superclass for WidgetExpr helper classes,
+    though those don't yet usually require the operation-building facility,
+    and I'm not positive that kluge can last forever.
+       All Exprs have in common an ability to:
+    - replace lexical variables in themselves with other exprs,
+    in some cases retaining their link to the more general unreplaced form (so some memo data can be shared through it),
+    tracking usage of lexical replacements so a caller can know whether or not the result is specific to a replacement
+    or can be shared among all replaced versions of an unreplaced form;
+    ###@@@ details?
+    - be customized by being "called" on new arg/option lists; ###@@@
+    - and (after enough replacement to be fully defined, and after being "placed" in a specific mutable environment)
+    to evaluate themselves as formulas, in the current state of their environment,
+    tracking usage of env attrs so an external system can know when the return value becomes invalid;
+    - 
+    """
+    def __init__(self, *args, **kws):
+        assert 0, "subclass of Expr must implement this"
     def __call__(self, *args, **kws):
-        # print '__call__ of %r with:' % self,args,kws###@@@
-        return call_Expr(self, args, kws)
+        assert 0, "subclass of Expr must implement this"
+
     def __repr__(self):
-        return str(self) #k can this cause infrecur?? 
+        return str(self) #k can this cause infrecur??
+    # ==
     def __rmul__( self, lhs ):
         """operator b * a"""
         return mul_Expr(lhs, self)
@@ -53,6 +65,7 @@ class Expr:
     def __neg__( self):
         """operator -a"""
         return neg_Expr(self)
+    # == not sure where these end up
     def __float__( self):
         """operator float(a)"""
         print "kluge: float(expr) -> 17.0"####@@@@
@@ -69,52 +82,26 @@ class Expr:
         return self.__class__(*modargs)
     pass
 
-class getattr_Expr(Expr):
+class SymbolicExpr(Expr): # Symbol or OpExpr
     def __call__(self, *args, **kws):
-        print '__call__ of %r with:' % self,args,kws###@@@
-        assert 0, "getattr exprs are not callable [ok??]"
-    def _e_init(self):
-        assert len(self._e_args) == 2 #e kind of useless and slow #e should also check types?
-    def __str__(self):
-        return str(self._e_args[0]) + '.' + self._e_args[1] #e need parens?
+        # print '__call__ of %r with:' % self,args,kws###@@@
+        return call_Expr(self, args, kws)
+    def __getattr__(self, attr):###
+        if attr.startswith('__') or attr.startswith('_e_'):
+            raise AttributeError, attr 
+        return getattr_Expr(self, attr)
     pass
 
-class mul_Expr(Expr):
+class OpExpr(SymbolicExpr):
+    "Any expression formed by an operation (treated symbolically) between exprs, or exprs and constants"
+    def __init__(self, *args):
+        self._e_args = args
+        self._e_init()
     def _e_init(self):
-        assert len(self._e_args) == 2
-    def __str__(self):
-        return "%s * %s" % self._e_args #e need parens?
+        assert 0, "subclass of OpExpr must implement this"
     pass
 
-class div_Expr(Expr):
-    def _e_init(self):
-        assert len(self._e_args) == 2
-    def __str__(self):
-        return "%s / %s" % self._e_args #e need parens?
-    pass
-
-class add_Expr(Expr):
-    def _e_init(self):
-        assert len(self._e_args) == 2
-    def __str__(self):
-        return "%s + %s" % self._e_args #e need parens?
-    pass
-
-class sub_Expr(Expr):
-    def _e_init(self):
-        assert len(self._e_args) == 2
-    def __str__(self):
-        return "%s - %s" % self._e_args #e need parens?
-    pass
-
-class neg_Expr(Expr):
-    def _e_init(self):
-        assert len(self._e_args) == 1
-    def __str__(self):
-        return "- %s" % self._e_args #e need parens?
-    pass
-
-class call_Expr(Expr):
+class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even though it can be produced by SymbolicExpr.__call__
     def _e_init(self):
         assert len(self._e_args) == 3
         self._e_callee, self._e_call_args, self._e_call_kws = self._e_args
@@ -126,21 +113,115 @@ class call_Expr(Expr):
             return "%s%r" % (self._e_callee, self._e_call_args)
         else:
             return "%s%r" % (self._e_callee, self._e_call_args) # works the same i hope
+    def _e_eval(self, env):
+        print "how do we eval a call? as a call, or by looking up a rule?"###e
     pass
 
-class Symbol(Expr):
+class getattr_Expr(OpExpr):
+    def __call__(self, *args, **kws):
+        print '__call__ of %r with:' % self,args,kws###@@@
+        assert 0, "getattr exprs are not callable [ok??]"
     def _e_init(self):
-        if len(self._e_args) == 0:
-            self._e_name = "?%s" % compact_stack(skip_innermost_n = 3).split()[-1] # kluge - show line where it's defined
-        else:
-            (self._e_name,) = self._e_args
+        assert len(self._e_args) == 2 #e kind of useless and slow #e should also check types?
+    def __str__(self):
+        return str(self._e_args[0]) + '.' + self._e_args[1] #e need parens?
+    def _e_eval(self, env):
+        return getattr(env._e_eval_expr(self._e_args[0]), env._e_eval_expr(self._e_args[1])) ###k correct, or do usage tracking? probably correct, obj does tracking...
+    pass
+
+class mul_Expr(OpExpr):
+    def _e_init(self):
+        assert len(self._e_args) == 2
+    def __str__(self):
+        return "%s * %s" % self._e_args #e need parens?
+    def _e_eval(self, env):
+        return env._e_eval_expr(self._e_args[0]) * env._e_eval_expr(self._e_args[1])
+    pass
+
+class div_Expr(OpExpr):
+    def _e_init(self):
+        assert len(self._e_args) == 2
+    def __str__(self):
+        return "%s / %s" % self._e_args #e need parens?
+    pass
+
+class add_Expr(OpExpr):
+    def _e_init(self):
+        assert len(self._e_args) == 2
+    def __str__(self):
+        return "%s + %s" % self._e_args #e need parens?
+    def _e_eval(self, env):
+        return env._e_eval_expr(self._e_args[0]) + env._e_eval_expr(self._e_args[1])
+    pass
+
+class sub_Expr(OpExpr):
+    def _e_init(self):
+        assert len(self._e_args) == 2
+    def __str__(self):
+        return "%s - %s" % self._e_args #e need parens?
+    pass
+
+class neg_Expr(OpExpr):
+    def _e_init(self):
+        assert len(self._e_args) == 1
+    def __str__(self):
+        return "- %s" % self._e_args #e need parens?
+    pass
+
+class If_expr(OpExpr): # so we can use If in formulas
+    pass
+# see also class If_ in testdraw.py
+## def If(): pass
+
+# ==
+
+class Symbol(SymbolicExpr):
+    def __init__(self, name = None):
+        if name is None:
+            name = "?%s" % compact_stack(skip_innermost_n = 3).split()[-1] # kluge - show line where it's defined
+        self._e_name = name
         return
     def __str__(self):
         return self._e_name
     def __repr__(self):
         ## return 'Symbol(%r)' % self._e_name
         return 'S.%s' % self._e_name
+    def _e_eval(self, env):
+        print "how do we eval a symbol? some sort of env lookup ..."
+        ## -- in the object (env i guess) or lexenv(?? or is that replacement??) which is which?
+        # maybe: replacement is for making things to instantiate (uses widget expr lexenv), eval is for using them (uses env & state)
+        # env (drawing_env) will let us grab attrs/opts in object, or things from dynenv as passed to any lexcontaining expr, i think...
+        return env._e_eval_symbol(self) # note: cares mainly or only about self._e_name
     pass
+
+# ==
+
+class Drawable(Expr): # like Rect or Color or If
+    """Instances of subclasses of this can be unplaced or placed (aka "instantiated");
+    if placed, they might be formulas (dependent on aspects of drawing-env state)
+    for appearance and behavior (justifying the name Drawable),
+    or for some value used in that (e.g. a color, vector, string).
+       Specific subclasses, e.g. Rect, contain code which will be used in placed instances (mainly drawing code)
+    unless the env provided an overriding expansion for exprs headed by that subclass.
+    If it did, the instance created by placing such an expr will (usually) have some other class.
+    """
+    def __init__(self, *args, **kws):
+        # decide whether to fill, customize, or (private access) copy or place; same for init and call, I think
+        _place = kws.pop('_place', False)
+        _call = kws.pop('_call', False)
+        pass
+    def __call__(self, *args, **kws):
+        self.__class__(self, args, kws, _call = True)
+    
+    pass
+
+class Widget(Drawable): # also used as a typename for NamedLambda -- ok?? #####@@@@@
+    pass
+
+class Color(Drawable):
+    pass
+
+# etc
 
 # ==
 
@@ -287,6 +368,7 @@ Boxed = NamedLambda(
     'Boxed',
     ((thing, Widget),), # arglist
     dict(gap = 8 * pixels, border = 4 * pixels, color = white), # option defaults list, one poss form (not ordered, not general lhses)
+        ### I think I'd rather say 8 * pixelwidth or 8 * pixelsize or 8 * pixel, not 8 * pixels
 ##    gap,#?
 ##    border,#?
 ##    color,#? or have a way to pass in arb RectFrame options, like this one? and like border?
@@ -302,7 +384,14 @@ Boxed = NamedLambda(
         )
     ))
 
-#print Boxed
+#print Boxed - above is WRONG in some ways: [060911, recalled, analyzed on paper some days ago]
+# - we want to instantiate thing, then modify its interface with outside, altering bbox and adding drawing code, leaving rest same
+#   - but not by thing(width = width + extra), since that risks internally modifying thing; we're more like Column in how we use thing;
+#     i suppose we need "scenegraph prims" to draw by drawing various things at various places -- but Overlay is enough.
+#     So the only hard issue is how we access bbox parts of thing instance, and let those differ for ourselves.
+#     - How do we name that (bbox aspect of interface), for thing and for self, so we can set up the desired formula?
+#     - And how do we say "instantiate thing"? (as opposed to using it as a widget expr, to make more than one subwidget.) Resolve??
+# - thing.width can only work if thing is an instance -- do we say that in our arglist, or assume it somehow?
 
 # == some rules - obs stubs
 
@@ -375,4 +464,103 @@ class Overlay_try2(DelegatingWidget2D): # this means, I think, Widget2D with arg
         pass
     pass
 
+Point = Stub
+from __Symbols__ import p1, p2 #k ok but not yet defined in this module, need to fix that
+class Cylinder(WidgetExpr):
+    ###e digr, wrong class, i mean things that have an axis-segment, hmm maybe cyl is the prototype; they need perp dir too;
+    # one way it will often be called is for the edges in some kind of 3d network or polyhedron...
+    # we'll pass (to such a network iterator) WEs for each type of part (vertex, edge, face, cell)... note that Table & Column
+    # are special cases!! (And we might well want display/event bindings on inter-cell edges of those, as well as in cells.) #####@@@@@
+    arglist = ((p1, Point), (p2, Point))###k more... actually the args could just as well be an edge, and need an alignment too...
+    pass
+
+# ==
+
+class drawing_env:
+    def __init__(self, glpane):
+        #e needs what args? glpane; place to store stuff (assy or part, and transient state); initial state defaults or decls...
+        pass
+    def make(self, expr, tstateplace):
+        #e look for rules
+        #e Q: is this memoized? does it allocate anything like a state index, or was that already done by customizing this env?
+        print "making",expr#####@@@@@
+        return expr.make_in(self, tstateplace) #####@@@@@@ IMPLEM, see class xxx below
+    def _e_eval_expr(self, expr):
+        ###e look for _e_eval method; test for simple py type
+        assert 0, "nim"####@@@@
+    def _e_eval_symbol(self, expr):
+        assert 0, "nim"####@@@@
+    pass
+
+class xxx: # widget expr head helper class, a kind of expr
+    def make_in(self, tstateplace, env):
+        return self.__class__(self, tstateplace, env, _make_in = True) #####@@@@@ tell __init__ about this
+            # note: _make_in causes all args to be interpreted specially
+    def __init__(self): ##### or merge with the one in Expr, same for __call__
+        pass
+    pass
+
+class Rect_try3(xxx):
+    def draw(self): ###e see comments in _try2;
+        ##e need to fix: fix_color, and attr decls used here, which need rules from self's option formulas and arg formulas or exprs
+        fix_color = self.env.fix_color # guess
+        glDisable(GL_CULL_FACE)
+        draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, fix_color(self.color))
+        glEnable(GL_CULL_FACE)
+    pass
+
+#e above:
+# code for a formula expr, to eval it in an env and object, to a definite value (number or widget or widget expr),
+# which no longer depends on env (since nothing in env is symbolic)
+# but doing this might well use attrs stored in env or rules/values stored in object, and we track usage of those, for two reasons:
+# - the ones in env might change over time
+# - the ones in the object might turn out to be general to some class object is in, thus the result might be sharable with others in it.
+# so we have eval methods on expr subclasses, with env and object as args, or some similar equiv arg.
+
+testexpr_new = Column(Rect(black,1,1),Rect(black,1,1))
+
+class Column_try4orso(xxx):
+    # kids
+    # layoutboxes combine up, then cumulate down to make coord systems, each defined in terms of prior one (unless indices nest)
+    # ie coords[i] = coords[i-1] translated down a bit
+    pass
+
+    kids = [] # kluge for import
+    for kid in kids: # note, if we want, these can be "our view of the kids" so they have extra attrs like our index
+        kp = prior(kid)
+        kid.index
+        kid.parent
+        kid.coords
+        kid.lbox.height
+        kid.coords = kp.coords.translate(DY * kp.height)
+
+    def _compute_kid_coords(self, kidi):
+        kid = self.kids[kidi]
+        kp = prior(kid)
+        kid.coords = kp.coords.translate(DY * kp.height)
+
+        # it might be easier if things like coords are attrs of inter-kid objects, not of kids,
+        # so rule for every kid is same (use input coords, define output coords)
+        # e.g. for kid, kid.after.coords = kid.before.coords + kid.height
+    pass
+
+RandomPoints2D = Stub
+
+class yyy:# drawable instance
+    def _compute_delegate(self):
+        #e look at arglist decl, compile from args [assuming there's a head and args, i guess] [also applies to options]
+        self.expr.arglist_decl
+            ### do all exprs have this??? do they have only one?
+            # don't we really "eval the expr in this place", which does this for us, and does it even for helper-class exprs?
+        #e expand rule body or instantiate helper class -- this too is part of evalling the expr
+        return eval_expr( self.expr, self.place) # but why do i say "eval" since we don't yet assume formulas have curvals, do we?
+            # maybe we do... it's that the retval is the drawable object's class and init data... we didn't need to descend inside...
+            # if the class itself depended on curvals, we use curvals and record usage like with anything. [is this true? yes.]
+    def draw(self):
+        self.delegate.draw() # but it might be more common to forward, by callers using this value and depending on it... not sure
+
+    kidpoints = [] ### kluge for import, should be RandomPoints2D(10, selfavoiding = True)
+    for kidpoint in kidpoints:
+        self.makekid(Line( _2dto3d(kidpoint), _2dto3d(kidpoint) + DZ * RandomFloatInRange(1,2), color = RandomColor)) # arb index
+    
 # end

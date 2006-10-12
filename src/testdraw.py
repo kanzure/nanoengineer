@@ -196,7 +196,7 @@ def Draw(self, glpane, super): # called by testmode.Draw
     vv.counter += 1
     glPushMatrix()
     try:
-        drawtest0(glpane) # this puts some of our special drawing into a display list
+        drawtest0(glpane) # this does all our special drawing, and sometimes puts some of it into a display list
         # [no point in putting the main model drawing into it, for now -- but when we can know when to inval, there might be]
     except:
         print_compact_traceback("exc ignored: ")
@@ -327,7 +327,7 @@ def ensure_courierfile_loaded(): #e rename to reflect binding too
 
 timing_data = {} # ok to zap on reload, code might change anyway (later, might be better to just mark entries as "old" then)
 
-def drawtest2(glpane): # never in displist
+def drawtest2(glpane): # last stuff drawn, never put into global displist [for redraw stats]
     # draw some more useful and pretty text [used to show me redraw stats]
     #e should be more flexible text, at an abs location on screen; warning: slow if lots of text
 
@@ -367,7 +367,8 @@ def drawtest2(glpane): # never in displist
         print_compact_traceback("exc ignored: ")
     pass
 
-def drawtest1(glpane): # in displist (if flag for that is set)
+def drawtest1(glpane):
+    # main special drawing; if a global flag is set, it's all put into a global displist by caller (tho it doesn't all work there)
 
     vv.when_drawtest1_last_ran = env.redraw_counter # so we see when displist gets updated
     
@@ -426,9 +427,21 @@ def drawtest1(glpane): # in displist (if flag for that is set)
     
     # draw 1 copy of testexpr, our test widget expr defined at end of file
     
-    for i in range(1):
-        glTranslatef( 0, -4, 0 )
+    glTranslatef( 0, -4, 0 )
+    if debug_pref("drawtest in old way", Choice_boolean_True, prefs_key = True):
         testexpr.draw() # it worked almost the first time!
+    else:
+        if 0:
+            #e should memoize this:
+            glpane #####@@@@@@ 
+            some_env = drawing_env(glpane) #####@@@@@@ IMPLEM some args
+            inst = some_env.make(testexpr_new or testexpr) #e pass in glpane, place to store transient state, ref to model state
+            inst.draw()
+        else:
+            from exprs import test
+            reload(test)
+            from exprs.test import drawtest1_innards
+            drawtest1_innards(glpane)
     glTranslatef( 0, -8, -1 )
 
     return # drawtest1 #e rename
@@ -1301,10 +1314,24 @@ class Row(WidgetExpr):
                 # but then a Row needs to subscribe to arg widths, or if it can't, needs to always recompute. (use a Property)
                 # this is wrong: we want a0.rightwidth() + a1.leftwidth(). (bbox elements; assuming origin inside)
         glPopMatrix()
+    def move_whole_to_argi_coords(self, i): #k experiment, not intended to be actually called for now, 060830; args numbered from 0
+        gap = self.kws.get('gap',0)
+        pa = None
+        dx = 0
+        for a in self.args[i:]:
+            if a is None:
+                continue
+            if pa is not None:
+                dx += pa.bright + a.bleft + gap
+            pa = a
+            continue
+        if dx:
+            glTranslate(dx,0,0)
+        return
     def _get_width(self): # inefficient, need inval/update
         if not len(self.args):
-            return 0
-        w = self.kws.get('gap',0) * (len(self.args) - 1) # wrong if no args!
+            return 0 ###e or would -gap be better, in case we're included in a larger Row with the same gap??
+        w = self.kws.get('gap',0) * (len(self.args) - 1) # wrong if no args! (unless we decide to use the -gap idea then)
         for a in self.args:
             w += a.width
         return w
