@@ -32,11 +32,11 @@ testexpr_2 = Column( testexpr_1, Rect(1.5, color = blue)) # test Column
 
 testexpr_3 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
-textexpr_4 = TestIterator( testexpr_3 ) # test an iterator
+testexpr_4 = TestIterator( testexpr_3 ) # test an iterator
 
-# == the textexpr to use right now
+# == the testexpr to use right now
 
-textexpr = textexpr_1 
+testexpr = testexpr_1 
 
 # == per-frame drawing code
 
@@ -45,7 +45,7 @@ def drawtest1_innards(glpane):
     print "got 5 glpane = %r" % (glpane,)
     return
 
-if 1:
+if 0:####@@@@
     glpane
     some_env = drawing_env(glpane) #####@@@@@@ IMPLEM some args
 

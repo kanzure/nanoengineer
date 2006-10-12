@@ -18,8 +18,6 @@ from widget2d import Widget2D ###e rename module, to same caps?
 
 # === old code for Rect
 
-## class WidgetExpr: pass
-
 class Rect(Widget2D): #e example, not general enough to be a good use of this name
     "Rect(width, height, color) renders as a filled rect of that color, origin on bottomleft"
     def init(self):
@@ -47,7 +45,7 @@ class Rect(Widget2D): #e example, not general enough to be a good use of this na
 # class Rect, copied from testdraw.py -- could things like this "just work", getting built into Exprs but knowing default implem?
 # but what about these attrnames they define -- methods with ordinary names? the expr version needs those as formulas, for data attrs,
 # and as call-exprs or method-exprs, I suppose, for methods. Hmm... guess: define a helper class, not the Expr subclass itself. ###@@@
-class Rect_obs_eg(WidgetExpr): #e example, not general enough to be a good use of this name
+class Rect_obs_eg(Widget2D): #e example, not general enough to be a good use of this name
     "Rect(width, height, color) renders as a filled rect of that color, origin on bottomleft"
     def init(self):
         self.bright = self.args[0]

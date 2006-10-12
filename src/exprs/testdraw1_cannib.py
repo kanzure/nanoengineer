@@ -663,53 +663,7 @@ class DragHandler:
 
 # == widget exprs
 
-class WidgetExpr(InvalMixin):
-        # InvalMixin is for _get_ methods -- replace later with getter/setter properties in each one,
-        # or maybe make those from _get_ methods once per class
-##    bleft = 0
-##    bbottom = 0
-##    bright = 1 # reasonable default??
-##    btop = 1
-        # bright is bbox size on right, bleft on left (both positive or zero) #e rename, bright is a word
-    def _get_bleft(self):
-        return 0
-    def _get_bbottom(self):
-        return 0
-    def _get_bright(self): # default is a _get_ method (formula) so it's overridable by another _get_ method
-        return 1 # reasonable default??
-    def _get_btop(self):
-        return 1
-    def __init__(self, *args, **kws):
-        self.args = args #####@@@@@ maybe don't do this, but pass them to init, let it do it instead, into self.__args instead
-        self.kws = kws
-        try:
-            self.init()
-        except:
-            print "info about exception in %r.init method: args = %r, kws = %r" % ( self, args, kws) #e use safe_repr for self
-            raise
-        return
-    def init(self):
-        pass
-    def _get_width(self):
-        return self.bright + self.bleft
-    #e _get_height
-
-    # helper methods (some really belong on other objects)
-    def disable_color(self): ### really should be a glpane method
-        "don't draw color pixels (but keep drawing depth pixels, if you were)"
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE)
-        pass
-    def enable_color(self):
-        # nested ones would break, due to this in the inner one -- could be fixed by a counter, if we used them in matched pairs
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE)
-        pass
-    def push_saved_names(self): # truer args would be: both glpane and transient_state object
-        for glname in self.saved_glnames:
-            glPushName(glname)
-    def pop_saved_names(self):
-        for glname in self.saved_glnames: # wrong order, but only the total number matters
-            glPopName()
-    pass
+### WidgetExpr moved to widget2d.py
 
 class DelegatingWidgetExpr(Delegator, WidgetExpr):
     def __init__(self, *args, **kws):

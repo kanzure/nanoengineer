@@ -20,7 +20,7 @@ from Exprs import Expr
 
 class Instance: pass # call _init_instance, etc; rename? Instance, FormulaInstance... note also Expr, ExprHelper can be instances
 
-class InstanceOrExpr(Instance, Expr): pass ####@@@@ guess; act like one or other depending on how inited, whether args are insts
+class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depending on how inited, whether args are insts
     ### WARNING: instantiate normally lets parent env determine kid env... if arg is inst this seems reversed...
     # may only be ok if parent doesn't want to modify lexenv for kid.
     def __init__(self, *args, **kws):

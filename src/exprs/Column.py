@@ -1,5 +1,5 @@
 '''
-Column.py
+Column.py  [module might be renamed if we add Row, etc, to same file]
 
 $Id$
 '''
@@ -16,8 +16,10 @@ reload_once(instance_helpers)
 
 from instance_helpers import InstanceWrapper, Instance
 
+from widget2d import Widget2D #####@@@@@ replace with layout, make reloadable
 
 
+# ==
 
 # Column-specific stuff below here
 
@@ -221,7 +223,7 @@ class CW_scratch:
 #  does it no longer have any two-way interfaces anywhere??
 # missing from recent coding: fill in inval stubs; anything about make, lexenv.
 
-class LayoutWidget2D: pass #####@@@@@ get from layout.py
+class LayoutWidget2D(Widget2D): pass #####@@@@@ get from layout.py
 
 class Column(LayoutWidget2D):
     """Column(w1, w2, w3) arranges one or more widgets in a vertical column, aligned by their drawing-origins,
@@ -239,6 +241,8 @@ class Column(LayoutWidget2D):
     # we work by using helper functions CL, CW, CLE...
     pass ### CLE(list(self.args))
 
+
+# == junk or scratch below here
 
 # understand understood -- only a big comment, NewInval.py: 275: # env + expr -> understood expr (in that env), an obj with attrs (oresmic?)
 
