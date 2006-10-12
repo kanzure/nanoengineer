@@ -1209,10 +1209,17 @@ def overridden_attrs( class1, instance1 ): #bruce 050108
 
 # ==
 
-def reload_once_per_event(module):
+def reload_once_per_event(module, always_print = False, never_again = True):
     """Reload module (given as object or as name),
     but at most once per user-event or redraw, and only if platform.atom_debug.
     Assumes w/o checking that this is a module it's ok to reload.
+       If always_print is True, print a console message on every reload, not just the first one per module.
+       If never_again is False, refrain from preventing all further reload attempts for a module, after one reload fails for it.
+       Usage note: this function is intended for use by developers who might modify
+    a module's source code and want to test the new code in the same session.
+    But the default values of options are designed for safety in production code,
+    more than for highest developer convenience. OTOH, it never reloads at all unless
+    ATOM_DEBUG is set, so it might be better to revise the defaults.
     """
     import platform
     if not platform.atom_debug:
@@ -1233,16 +1240,19 @@ def reload_once_per_event(module):
     module.redraw_counter_when_reloaded = now # do first in case of exceptions in this or below
     if old == -1:
         print "reloading",module.__name__
-        print "  (and will do so up to once per redraw w/o saying so again)"
+        if not always_print:
+            print "  (and will do so up to once per redraw w/o saying so again)"
+    elif always_print:
+        print "reloading",module.__name__
     try:
         reload(module)
     except:
         #bruce 060304 added try/except in case someone sets ATOM_DEBUG in an end-user version
         # in which reload is not supported. We could check for "enabling developer features",
         # but maybe some end-user versions do support reload, and for them we might as well do it here.
-        # Note: the except clause (and its 'never again' feature) is untested.
         print_compact_traceback("reload failed (not supported in this version?); continuing: ")
-        module.redraw_counter_when_reloaded = 'never again'
+        if never_again:
+            module.redraw_counter_when_reloaded = 'never again'
     return
 
 # ==
