@@ -297,7 +297,7 @@ def _usage_tracker_stack_changed( usage_tracker, infodict): #bruce 050804
 usage_tracker = begin_end_matcher( None, _usage_tracker_stack_changed )
     # constructor None means obj must be passed to each begin
 
-class SubUsageTrackingMixin: #bruce 050804
+class SubUsageTrackingMixin: #bruce 050804 [note, 060926: this doesn't use self at all. Does it need to be a mixin??]
     """###doc - for doing usagetracking in whatever code we call when we remake a value, and handling results of that
     """
     def begin_tracking_usage(self): #e there's a docstring for this in an outtakes file, if one is needed
@@ -305,6 +305,12 @@ class SubUsageTrackingMixin: #bruce 050804
         match_checking_code = usage_tracker.begin( obj)
             # don't store match_checking_code in self -- that would defeat the error-checking
             # for bugs in how self's other code matches up these begin and end methods
+            # [later, 060926: would it be good to combine id(self) into the match-checking code,
+            #  thereby enforcing that the same object calls the matching begin & end methods?
+            #  I doubt it's needed, since the match_checking_code is already unique,
+            #  and it's hard to see how the correct one could be passed by accident
+            #  (except by code written to use some bad kluge, which might need that kluge).
+            #  And it might be legitimate. So don't add a restriction like that.]
         return match_checking_code
     def end_tracking_usage(self, match_checking_code, invalidator):
         obj = usage_tracker.end( match_checking_code)
@@ -314,9 +320,24 @@ class SubUsageTrackingMixin: #bruce 050804
         return
     pass
 
-class usage_tracker_obj: #bruce 050804
+class usage_tracker_obj: #bruce 050804; docstring added 060927
     """###doc [private to SubUsageTrackingMixin, mostly]
+    This object corresponds to one formula being evaluated,
+    or to one occurrence of some other action which needs to know what it uses
+    during a defined period of time while it calculates something.
+       At the start of that action, the client should create it and make it accessible within env
+    so that when a trackable thing is used, its inval-subslist is passed to self.track.
+       At the end of that action, the client should make it inaccessible
+    (restoring whatever tracker was active previously, if any),
+    then call self.standard_end(invalidator) with a function it wants called
+    the next time one of the things it used becomes invalid. This object lives on
+    as a record of the set of those subscriptions, and the recipient of invalidation-signals from them,
+    which go to self.standard_inval, which removes the other subscriptions before calling invalidator.
+    (Removing them is the only reason this object needs to live on, or that the inval signal needs to be something
+    other than invalidator itself. Perhaps this could be fixed in the future, using weak pointers somehow. #e)
     """
+    # [note, 060926: for some purposes, we might need to record the order of first seeing the used things,
+    #  and perhaps their values or value-version-counters ###e]
     def begin(self):
         self.data = {}
     def track(self, subslist): 
@@ -332,15 +353,21 @@ class usage_tracker_obj: #bruce 050804
     def end(self):
         pass # let the caller think about self.data.values() (eg filter or compress them) before subscribing to them
     def standard_end(self, invalidator):
-        "some callers will find this useful to call, shortly after self.end gets called"
+        "some callers will find this useful to call, shortly after self.end gets called; see class docstring for more info"
         self.invalidator = invalidator # this will be called only by our own standard_inval
         whatweused = self.whatweused = self.data.values() # this list is saved for use in other methods called later
         self.last_sub_invalidator = inval = self.standard_inval # make sure to save the exact copy of this object which we use now
+            # note: that's a self-referential value, which would cause a memory leak, except that it gets deleted
+            # in standard_inval (so it's ok). [060927 comment]
         for subslist in whatweused:
             subslist.subscribe( inval ) #e could save retvals to help with unsub, if we wanted
         self.data = 222 # make further calls of self.track() illegal [#e do this in self.end()??]
         return
     def standard_inval(self):
+        """This is used to receive the invalidation signal, and call self.invalidator after some bookkeeping.
+        See class docstring for more info.
+        It also removes all cyclic or large attrs of self, to prevent memory leaks.
+        """
         # this needs to remove every subs except the one which is being fulfilled by calling it.
         # But it doesn't know which subs that is! So it has to remove them all, even that one,
         # so it has to call a remove method which is ok to call even for a subs that was already fulfilled.
