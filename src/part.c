@@ -1360,7 +1360,7 @@ setThermalVelocities(struct part *p, double temperature)
     int i = 0;
     double initial_temp;
 
-    if (p->num_atoms == 1) {
+    if (p->num_atoms == 1 || temperature < 1e-8) {
         return;
     }
     // probably should be 3N-6, but the thermometer doesn't know that
@@ -1427,6 +1427,7 @@ makeAtom(struct part *p, int externalID, int elementType, struct xyz position)
     a->atomID = externalID;
     
     vset(p->positions[a->index], position);
+    vsetc(p->velocities[a->index], 0.0);
     
     if (elementType < 0 || elementType > MAX_ELEMENT) {
 	ERROR1("Invalid element type: %d", elementType);
