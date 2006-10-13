@@ -13,15 +13,14 @@ ifeq ($(OS),Windows_NT)
 UNAME_A=$(shell ver)
 # UNAME_A=$$(shell ver)   # Cygwin: but in this case use 'uname -a' anyway
 # Location of the MinGW compiler
-CCDIR = "C:/MinGW"
-#CCDIR = "C:/Dev-Cpp"
+CCDIR = C:/MinGW
+#CCDIR = C:/Dev-Cpp
 CC = "$(CCDIR)/bin/gcc.exe"
 CFLAGS=-g -I"$(CCDIR)/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
 LDFLAGS=-L"$(CCDIR)/lib"
 PYREXTARGET=sim.dll
 STDC99=
-#SIMTARGET=simulator.exe
-SIMTARGET=sim.dll
+SIMTARGET=simulator.exe
 PYREXC=python c:/Python$(PYVER)/Scripts/pyrexc.py
 #---------------------------------------- End of Windows stuff
 else
