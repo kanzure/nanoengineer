@@ -233,7 +233,7 @@ minimizeStructureGradient(struct configuration *p)
 #endif
     
     writeMinimizeMovieFrame(OutputFile, Part, 0, (struct xyz *)p->coordinate, rms_force, max_force, Iteration++, 0,
-			    fd->tolerance == COARSE_TOLERANCE ? "gradient" : "gradient-fine", fd->message, evaluate(p));
+			    fd->tolerance == COARSE_TOLERANCE ? "gradient" : "gradient fine", fd->message, evaluate(p));
     if (DEBUG(D_MINIMIZE_GRADIENT_MOVIE)) { // -D4
 	writeSimpleMovieFrame(Part, (struct xyz *)p->coordinate, (struct xyz *)p->gradient, "gradient %e %e", rms_force, max_force);
     }
