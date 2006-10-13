@@ -16,35 +16,6 @@ pt = print_compact_traceback
 
 # ==
 
-class Drawable(Expr): # like Rect or Color or If
-    """Instances of subclasses of this can be unplaced or placed (aka "instantiated");
-    if placed, they might be formulas (dependent on aspects of drawing-env state)
-    for appearance and behavior (justifying the name Drawable),
-    or for some value used in that (e.g. a color, vector, string).
-       Specific subclasses, e.g. Rect, contain code which will be used in placed instances (mainly drawing code)
-    unless the env provided an overriding expansion for exprs headed by that subclass.
-    If it did, the instance created by placing such an expr will (usually) have some other class.
-    """
-    def __init__(self, *args, **kws):
-        # decide whether to fill, customize, or (private access) copy or place; same for init and call, I think
-        _place = kws.pop('_place', False)
-        _call = kws.pop('_call', False)
-        pass
-    def __call__(self, *args, **kws):
-        self.__class__(self, args, kws, _call = True)
-    
-    pass
-
-class Widget(Drawable): # also used as a typename for NamedLambda -- ok?? #####@@@@@
-    pass
-
-class Color(Drawable):
-    pass
-
-# etc
-
-# ==
-
 # support for "import __Symbols__" (necessary since we depend on python parser; even so it'll be a pain to define them all)
 
 class FakeModule:

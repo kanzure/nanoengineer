@@ -3,7 +3,7 @@ widget2d.py
 
 $Id$
 '''
-###e rename module, to same caps?
+###e rename module, to same caps? hmm, maybe just to widget, since it has that class too? or move that class?
 
 from basic import * # autoreload of basic is done before we're imported
 
@@ -14,15 +14,43 @@ from instance_helpers import InstanceOrExpr
 
 # ==
 
-class Widget2D(InstanceOrExpr):
-    """1. superclass for widget instances with 2D layout boxes. Also an expr-forming helper class, in this role.
+class Widget(InstanceOrExpr):
+    # Widget can also be used as a typename for NamedLambda -- ok??
+    # I guess it just means it can be used to coerce things... see docstring-comment in Widget2D. #####@@@@@
+    """Class whose Instances will be drawable. [#doc more]"""
+    def fix_color(self, color):
+        """Return the given color, suitably formatted for passing to low-level drawing code for the current drawing medium.
+        The color is assumed to be evaluated (i.e. no longer a formula), but perhaps in some general data format
+        and perhaps needing to be subjected to global color transformations stored transiently in the drawing medium object
+        (e.g. a color warp or constant alpha, stored in the glpane).
+        [#e If it proves unworkable for this method to know the current drawing medium,
+         it will probably be replaced with more specific methods, eg fix_color_GL and fix_color_POVRay.]
+        [#e Will we have to have variants of _GL for returning 3 tuples or 4 tuples as the color?]
+        [#e Will we have to worry about material properties?]
+        """
+        return color ### stub
+            ###e guess: it comes from the glpane as a method on it. the glpane is in our env.
+            # self.env.glpane.fix_color
+        ### fix_color is a method on self, I guess, or maybe on env (and env may either be self.env or an arg to this method -- guess, arg)
+        # or maybe it has contribs from env, class, and glpane -- glpane to know what kind of color it needs,
+        # env or glpane to know about warps or alphas to apply, class maybe, and something to know about resolving formulas (env?)
+        ### we'll have fix_ for the dims too, handling their units, perhaps in a way specific to this class
+        ### we'll have memoization code for all these attrs
+        ### and we'll need better control of gl state like GL_CULL_FACE, if we can run this while it's already disabled
+    pass
+
+class Widget2D(Widget):
+    """1. superclass for widget instances with 2D layout boxes.
+    Also an expr-forming helper class, in this role
+    (as is any InstanceOrExpr).
     2. can coerce most drawable instances into (1).
-    I DON'T YET KNOW IF THOSE TWO ROLES ARE COMPATIBLE.
+    WARNING: I DON'T YET KNOW IF THOSE TWO ROLES ARE COMPATIBLE.
     """
     pass ### make sure it has .btop. .bbottom, etc -- i.e. a layout box
 
 DelegatingWidget2D = Widget2D
-    #####@@@@@ this means, I think, Widget2D with arg1 used for layout... sort of like a "WidgetDecorator"
+    #####@@@@@ this means, I think, Widget2D with arg1 used for layout... sort of like a "WidgetDecorator"...
+    #e should we have a DelegatingMixin instead?
 
 # ==
 

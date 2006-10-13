@@ -15,4 +15,7 @@ from py_utils import *
 
 #e maybe also the color names?
 
+def stub(*args, **kws):
+    assert 0, "stub called"
+
 # end

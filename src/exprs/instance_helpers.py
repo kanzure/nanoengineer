@@ -18,7 +18,10 @@ from Exprs import Expr
 
 # ==
 
-class Instance: pass # call _init_instance, etc; rename? Instance, FormulaInstance... note also Expr, ExprHelper can be instances
+class Instance:
+    #e call _init_instance, etc;
+    # rename? Instance, FormulaInstance... note also Expr, ExprHelper can be instances
+    pass
 
 class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depending on how inited, whether args are insts
     ### WARNING: instantiate normally lets parent env determine kid env... if arg is inst this seems reversed...
@@ -28,6 +31,41 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         print "InstanceOrExpr.__init__ nim, class %r" % self.__class__.__name__
         return
     pass
+
+##### CANNIBALIZE THESE RELATED SNIPPETS to fill in InstanceOrExpr:
+
+    # _init_instance(self):
+    # done when we instantiate, producing self -- is this done in __init__, or later, or does that depend on args?? ####@@@@
+
+    
+class xxx_obs: # widget expr head helper class, a kind of expr 
+    def make_in(self, tstateplace, env):
+        return self.__class__(self, tstateplace, env, _make_in = True) #####@@@@@ tell __init__ about this
+            # note: _make_in causes all args to be interpreted specially
+    def __init__(self): ##### or merge with the one in Expr, same for __call__
+        pass
+    pass
+
+class Drawable_obs(Expr): # like Rect or Color or If
+    """Instances of subclasses of this can be unplaced or placed (aka "instantiated");
+    if placed, they might be formulas (dependent on aspects of drawing-env state)
+    for appearance and behavior (justifying the name Drawable),
+    or for some value used in that (e.g. a color, vector, string).
+       Specific subclasses, e.g. Rect, contain code which will be used in placed instances (mainly drawing code)
+    unless the env provided an overriding expansion for exprs headed by that subclass.
+    If it did, the instance created by placing such an expr will (usually) have some other class.
+    """
+    def __init__(self, *args, **kws):
+        # decide whether to fill, customize, or (private access) copy or place; same for init and call, I think
+        _place = kws.pop('_place', False)
+        _call = kws.pop('_call', False)
+        pass
+    def __call__(self, *args, **kws):
+        self.__class__(self, args, kws, _call = True)
+    
+    pass
+
+# ===
 
 # these all need revision of how they're divided, and also, think about whether they are InstanceOrExpr things... ####@@@@
 

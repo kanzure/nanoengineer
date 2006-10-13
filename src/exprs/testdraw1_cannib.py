@@ -326,9 +326,9 @@ def drawtest1(glpane):
     else:
         #e should memoize this:
         glpane #####@@@@@@ 
-        some_env = drawing_env(glpane) #####@@@@@@ IMPLEM some args
-        inst = some_env.make(testexpr_new or testexpr) #e pass in glpane, place to store transient state, ref to model state
-        inst.draw()
+##        some_env = drawing_env(glpane) #####@@@@@@ IMPLEM some args
+##        inst = some_env.make(testexpr_new or testexpr) #e pass in glpane, place to store transient state, ref to model state
+##        inst.draw()
     glTranslatef( 0, -8, -1 )
 
     return # drawtest1 #e rename

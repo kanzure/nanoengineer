@@ -86,11 +86,9 @@ class CW(DelegatingInstance):
 
 
 class CL(Instance):
-    def _init_instance(self): #####@@@@@ is this the right time to do this? btw name might better be instance_init or _init_instance
-        # done when we instantiate, producing self -- is this done in __init__, or later, or does that depend on args?? ####@@@@
+    def _init_instance(self):
         self.cles = map(CLE, self.args)
-    # gap formulas, coords/scenegraph/indices/env/spacers/empty
-    #####@@@@@ DOTHIS NEXT = WHERE I AM 308pm 061004
+    #e gap formulas, coords/scenegraph/indices/env/spacers/empty
     pass
 
 class CL(Instance):
