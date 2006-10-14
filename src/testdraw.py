@@ -1939,9 +1939,9 @@ WE_for_dragging_strands_within_cyls = Stub(
     )
 )
 
-import testdraw2
-reload(testdraw2)
-from testdraw2 import *
+##import testdraw2
+##reload(testdraw2)
+##from testdraw2 import *
 
 # the code snippets need names for:
 # - built ins
