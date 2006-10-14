@@ -21,16 +21,21 @@ from widget2d import Widget2D ###e rename module, to same caps?
 coerce_to_color = stub
 
 class Rect(Widget2D):
-    "Rect(width, height, color) renders as a filled rect of that color, origin on bottomleft"
+    """Rect(width, height, color) renders as a filled x/y-aligned rectangle
+    of the given dimensions and color, with the origin on bottomleft,
+    and a layout box equal to its size (no margin).
+       If color is not given, it will be black [#e should be a default attrval from env].
+       If height is not given, it will be a square (even if width is a formula and/or random).
+       See also: RectFrame, ...
+    """
     #e declare arg/option types and defaults, similar to NamedLambda -- ###K NOT SURE THE FOLLOWING IS A GOOD WAY
     def _init_args(self, width, height = None, color = None): ####@@@@ CALL ME
         self.opts.width = float(width) # float() serves as a type decl -- it can still make a formula, not forcing eval yet
         if height is None:
-            height = width
+            height = width #### WRONG -- the real situation is, default formula for height is width.
+            # ie the formula ends up like f.height = f.width, NOT f.height = same formula that f.width is. ####@@@@ FIX THIS.
+            # maybe this means self.formulas and self.opts are the same thing??
         self.opts.height = float(height)
-            ###k is it possible for width to have randomness, and if so, do we want this to be indep??
-            #e if not, which is my guess, then we need to save None here, and do this rule in the eval stage.
-            # ignore this for now.
         if color is None:
             color = black #####e better would be to grab a default Rect.color from the rule-env... which we don't have yet.
             # GENERAL PROBLEM: we don't usually want to type-coerce until we instantiate... tho we might record it now...
@@ -40,7 +45,7 @@ class Rect(Widget2D):
         return
     ###e set up formulas for bright and btop in terms of width & height
     # basically: bright = width, btop = height
-    def _init_formulas(self): ####@@@@ CALL ME, or maybe this is part of _init_instance
+    def _init_formulas(self): ####@@@@ CALL ME, or maybe this code should just be part of _init_instance
         f = self.formulas
         f.bright = f.width # automatically inherits from opts.width [or should those opts store right into formulas? I doubt it.]
         f.btop = f.height
