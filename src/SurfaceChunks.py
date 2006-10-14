@@ -528,7 +528,18 @@ class SurfaceChunks(ChunkDisplayMode):
 	    margin = 0
 	    radiuses = []
 	    spheres = []
+	    atoms = []
 	    for a in chunk.atoms.values():
+		col = a.element.color
+		ac = 0;
+		if a.element.symbol == "X": ac = 1; 
+		if a.element.symbol == "H": ac = 2; 
+		if a.element.symbol == "C": ac = 3; 
+		if a.element.symbol == "N": ac = 4; 
+		if a.element.symbol == "O": ac = 5; 
+		if a.element.symbol == "Si": ac = 6; 
+		if a.element.symbol == "S": ac = 7; 
+		atoms.append(ac)
 		dispjunk, ra = a.howdraw(diTrueCPK)
 		if ra > margin : margin = ra
 		radiuses.append(ra)
@@ -544,7 +555,9 @@ class SurfaceChunks(ChunkDisplayMode):
 	    for i in range(len(spheres)):
 		st = spheres[i] / radius
 		rt = radiuses[i] / radius
-		cspheres.append((st[0],st[1],st[2],rt,use_colors))
+		cspheres.append((st[0],st[1],st[2],rt,atoms[i]))
+	    #cspheres.append((-0.3,0,0,0.3,1))
+	    #cspheres.append((0.3,0,0,0.3,2))
 	    color = chunk.color
 	    if color is None:
 		color = V(0.5,0.5,0.5)
@@ -555,8 +568,24 @@ class SurfaceChunks(ChunkDisplayMode):
 	    # 0 - sphere triangles
 	    # 1 - torus rectangles
 	    # 2 - omega rectangles
-	    method = 0
-	    (tm, nm) = ps.CreateSurface(cspheres, level, method)
+	    method = 2
+	    ((em,pm,am), nm) = ps.CreateSurface(cspheres, level, method)
+	    cm = []
+	    if True: # True for color
+		for i in range(len(am)):
+		    if am[i] == 0: cm.append((0.5,0.5,0.5))  
+		    if am[i] == 0: cm.append((0.5,0.5,0.5))  
+		    if am[i] == 1: cm.append((0.79,0,0))  
+		    if am[i] == 2: cm.append((0.77,0.77,0.77))  
+		    if am[i] == 3: cm.append((0.38,0.38,0.38))  
+		    if am[i] == 4: cm.append((0.12,0.12,0.39))  
+		    if am[i] == 5: cm.append((0.5,0,0))  
+		    if am[i] == 6: cm.append((0.16,0.16,0.16))  
+		    if am[i] == 7: cm.append((0.85,0.58,0))  
+	    else:
+		for i in range(len(am)):
+		    cm.append((0.5,0.5,0.5))
+	    tm = (em,pm,cm)
 	else : # python surface stuff
 	    center = chunk.center
 	    bcenter = chunk.abs_to_base(center)

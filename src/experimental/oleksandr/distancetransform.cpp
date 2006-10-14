@@ -10,7 +10,7 @@
 //----------------------------------------------------------------------------
 // Constructor
 
-DistanceTransform::DistanceTransform(const Container<Triple> & centers, const Container<double> & radiuses)
+DistanceTransform::DistanceTransform(const Container<Triple> & centers, const Container<double> & radiuses, const Container<int> & properties)
 {
 	mR = 1;
 	for (int ir = 0; ir < radiuses.Size(); ir++)
@@ -19,14 +19,14 @@ DistanceTransform::DistanceTransform(const Container<Triple> & centers, const Co
 		if (r < mR) mR = r;
 	}
 	
-    //double f = 40 * mR + 2;
+    //double f = 20 * mR + 2;
     //int n = (int)(f  / mR);
 
-	int n = 20; 
-	if (mR < 0.1) n = 30;
-	if (mR < 0.07) n = 40;
-	if (mR < 0.05) n = 50;
-	if (mR < 0.03) n = 60;
+	int n = 30; 
+	if (mR < 0.1) n = 40;
+	if (mR < 0.07) n = 50;
+	if (mR < 0.05) n = 60;
+	if (mR < 0.03) n = 70;
 	if (mR < 0.02) n = 80;
 	int m = n;
 	int l = n;
@@ -35,20 +35,29 @@ DistanceTransform::DistanceTransform(const Container<Triple> & centers, const Co
 	mL = l;
 	//  memory for omega function
 	mC = new double[(l+1)*(m+1)*(n+1)];
+	mCc = new int[(l+1)*(m+1)*(n+1)];
 	mB = new double*[(l+1)*(m+1)];
+	mBc = new int*[(l+1)*(m+1)];
 	mA = new double**[l+1];
+	mAc = new int**[l+1];
 	double* c = mC; 
+	int* cc = mCc; 
 	double** b = mB;
+	int** bc = mBc;
 	int i, j;
 	for (i = 0; i <= l; i++)
 	{
 		for (j = 0; j <= m; j++)
 		{
 			b[j] = c;
+			bc[j] = cc;
 			c += (n+1);
+			cc += (n+1);
 		}
 		mA[i] = b;
+		mAc[i] = bc;
 		b += (m+1);
+		bc += (m+1);
 	}
     mU = 0;
     mV = 0;
@@ -63,11 +72,11 @@ DistanceTransform::DistanceTransform(const Container<Triple> & centers, const Co
             for (int k = 0; k <= mN; k++)
             {
                 mA[i][j][k] = 255;
+                mAc[i][j][k] = 0; 
             }
         }
     }
-	Distance(centers, radiuses);
-	Omega(centers, radiuses);
+	Distance(centers, radiuses, properties);
 }
 
 //------------------------------------------------------------------------
@@ -87,13 +96,9 @@ void DistanceTransform::Omega(const Container<Triple> & centers, const Container
             {
 				double z = 2.0 * k / mN - 1.0;
 
-                double om = 0;
-                if (mA[i][j][k] > 0)
+                if (mA[i][j][k] > -6.5)
                 {
-					om = - mA[i][j][k];
-                }
-                else
-                {
+	                double om = 0;
 					Triple p(x, y, z);
                     for (int ii = 0; ii < centers.Size(); ii++)
                     {
@@ -109,8 +114,8 @@ void DistanceTransform::Omega(const Container<Triple> & centers, const Container
                             om = s;
                         }
                     }
+					mA[i][j][k] = om;
                 }
-                mA[i][j][k] = om;
             }
         }
     }
@@ -121,14 +126,15 @@ void DistanceTransform::Omega(const Container<Triple> & centers, const Container
 //
 //  calculate distance transform
 //
-void DistanceTransform::Distance(const Container<Triple> & centers, const Container<double> & radiuses)
+void DistanceTransform::Distance(const Container<Triple> & centers, const Container<double> & radiuses, const Container<int> & properties)
 {
     //  put centers into the array
     for (int ii = 0; ii < centers.Size(); ii++)
     {
 
         Index(centers[ii]);
-        int d = (int)(radiuses[ii] * mL / 2 + 3);
+        int d = (int)(radiuses[ii] * mL / 2 + 1);
+		if (d < 0) d = 0;
         int ic = mI;
         int jc = mJ;
         int kc = mK;
@@ -163,6 +169,7 @@ void DistanceTransform::Distance(const Container<Triple> & centers, const Contai
                     double r = sqrt(x * x + y * y + z * z);
                     if (r <= d)
 						mA[i][j][k] = 0;
+						mAc[i][j][k] = properties[ii];
                 }
             }
         }
@@ -241,6 +248,16 @@ void DistanceTransform::Distance(const Container<Triple> & centers, const Contai
     for (int k = 1; k <= mN; k++)
     {
         mA[0][0][k] = mA[0][1][k] + 1;
+    }
+    for (int i = 0; i <= mL; i++)
+    {
+        for (int j = 0; j <= mM; j++)
+        {
+            for (int k = 0; k <= mN; k++)
+            {
+                mA[i][j][k] = -mA[i][j][k];
+            }
+        }
     }
 }
 	

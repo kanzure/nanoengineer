@@ -34,10 +34,6 @@ int cNt()
 {
 	return cppNt();
 }
-int cNc()
-{
-	return cppNc();
-}
 double cPx(int i)
 {
 	return cppPx(i);
@@ -62,17 +58,9 @@ double cNz(int i)
 {
 	return cppNz(i);
 }
-double cCr(int i)
+int cC(int i) 
 {
-	return cppCr(i);
-}
-double cCg(int i)
-{
-	return cppCg(i);
-}
-double cCb(int i)
-{
-	return cppCb(i);
+	return cppC(i);
 }
 int cI(int i)
 {

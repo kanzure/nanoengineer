@@ -21,7 +21,7 @@ class DistanceTransform
 	//
 	//  distancetrasform
 	//
-	DistanceTransform(const Container<Triple> & centers, const Container<double> & radiuses);
+	DistanceTransform(const Container<Triple> & centers, const Container<double> & radiuses, const Container<int> & properties);
 	
 	//------------------------------------------------------------------------
 	// Omega()
@@ -29,6 +29,13 @@ class DistanceTransform
 	// calculate omega function
 	//
 	inline double Omega(const Triple & p);
+
+	//------------------------------------------------------------------------
+	// Property()
+	//
+	// calculate property
+	//
+	inline int Property(const Triple & p);
 
 	//------------------------------------------------------------------------
 	// Omega()
@@ -79,7 +86,7 @@ class DistanceTransform
 	//
 	//  calculate distance transform
 	//
-	void Distance(const Container<Triple> & centers, const Container<double> & radiuses);
+	void Distance(const Container<Triple> & centers, const Container<double> & radiuses, const Container<int> & properties);
 	
 	//------------------------------------------------------------------------
 	// mI
@@ -140,6 +147,21 @@ class DistanceTransform
 	// mC
 
     double * mC;					// array for omega                                          
+             
+	//------------------------------------------------------------------------
+	// mAc
+
+    int *** mAc;					// array for color                                          
+             
+	//------------------------------------------------------------------------
+	// mBc
+
+    int ** mBc;						// array for color                                          
+             
+	//------------------------------------------------------------------------
+	// mCc
+
+    int * mCc;						// array for color                                          
              
 	//------------------------------------------------------------------------
 	// mR
@@ -207,6 +229,24 @@ double DistanceTransform::Omega(const Triple & p)
         mU * mV * mW * mA[mI + 1][mJ + 1][mK + 1] +
         (1 - mU) * mV * mW * mA[mI][mJ + 1][mK + 1];
     return om;
+}
+
+//------------------------------------------------------------------------
+// Property()
+//
+// calculate property
+//
+int DistanceTransform::Property(const Triple & p)
+{
+	//  calculate property
+    Index(p);
+    int ic = mI;
+    int jc = mJ;
+    int kc = mK;
+    if (mW > 0.5) kc++;
+    if (mV > 0.5) jc++;
+    if (mU > 0.5) ic++;
+	return mAc[ic][jc][kc];
 }
 
 //------------------------------------------------------------------------

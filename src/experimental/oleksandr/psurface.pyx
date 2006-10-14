@@ -5,16 +5,13 @@ cdef extern from "csurface.h":
     void cFree()
     int cNp()
     int cNt()
-    int cNc()
     double cPx(int i)
     double cPy(int i)
     double cPz(int i)
     double cNx(int i)
     double cNy(int i)
     double cNz(int i)
-    double cCr(int i)
-    double cCg(int i)
-    double cCb(int i)
+    int cC(int i)
     int cI(int i)
     void cLevel(int i)
     int cType()
@@ -32,8 +29,7 @@ def CreateSurface(spheres,level,method):
     for i in range(cNp()):
         points.append((cPx(i),cPy(i),cPz(i)))
         normals.append((cNx(i),cNy(i),cNz(i)))
-        if cNc() != 0:
-            colors.append((cCr(i),cCg(i),cCb(i)))
+        colors.append(cC(i)) 
     entities = []
     if cType() == 0 :
         for i in range(cNt() / 3):

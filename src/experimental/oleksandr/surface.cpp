@@ -188,7 +188,8 @@ void Surface::OmegaRectangles()
                 switch (flag)
                 {
                     default:
-
+/*
+						//  external rectangles
                         if (w0 < 0 && w1 < 0 && w3 < 0 && w2 < 0)
                         {
                             Quad(p0, p1, p3, p2);
@@ -212,6 +213,33 @@ void Surface::OmegaRectangles()
                         if (w1 < 0 && w5 < 0 && w7 < 0 && w3 < 0)
                         {
                             Quad(p1, p5, p7, p3);
+                        }
+*/
+
+						//  internal rectangles
+                        if (w0 >= 0 && w1 >= 0 && w3 >= 0 && w2 >= 0)
+                        {
+                            Quad(p0, p2, p3, p1);
+                        }
+                        if (w4 >= 0 && w6 >= 0 && w7 >= 0 && w5 >= 0)
+                        {
+                            Quad(p4, p5, p7, p6);
+                        }
+                        if (w0 >= 0 && w4 >= 0 && w5 >= 0 && w1 >= 0)
+                        {
+                            Quad(p0, p1, p5, p4);
+                        }
+                        if (w2 >= 0 && w3 >= 0 && w7 >= 0 && w6 >= 0)
+                        {
+                            Quad(p2, p6, p7, p3);
+                        }
+                        if (w0 >= 0 && w2 >= 0 && w6 >= 0 && w4 >= 0)
+                        {
+                            Quad(p0, p4, p6, p2);
+                        }
+                        if (w1 >= 0 && w5 >= 0 && w7 >= 0 && w3 >= 0)
+                        {
+                            Quad(p1, p3, p7, p5);
                         }
 
                         break;
@@ -273,9 +301,10 @@ double Surface::Predicate(
 //
 void Surface::CreateSurface()
 {
-	mDT = new DistanceTransform(mCenters,mRadiuses);
+	mDT = new DistanceTransform(mCenters,mRadiuses,mProperties);
 	int n;
 	double step;
+	double h = 1.0 / mDT->L();
 	switch (mM)
 	{
 	case 0:
@@ -288,23 +317,27 @@ void Surface::CreateSurface()
 		break;
 	case 2:
 		OmegaRectangles(); 
-		n = 10;
-		step = 0.1;
+		n = 40;
+		step = 0.05;
 		break;
 	}
 	Duplicate();
 	SurfaceNormals();
+	SurfaceColors();
+	mDT->Omega(mCenters,mRadiuses);
 	CleanQuads();
 	for (int i = 0; i < n; i++)
 	{
+        double w = 0;
 		for (int j = 0; j < mPoints.Size(); j++)
 		{
 			Triple p = mPoints[j];
 			Triple n = mNormals[j];
 			if (n.Len2() > 0)
 				n.Normalize();
-			double om = Predicate(p);
-			if (om < -1.0) om = -1.0;
+			double om = Predicate(p) + h;
+			if (om < -1) om = -1;
+            w += fabs(om);
 			mPoints[j] = p + step * om * n;
 		}
 		if (mM)
@@ -313,7 +346,6 @@ void Surface::CreateSurface()
 		}
 	}
 	SurfaceNormals();
-	SurfaceColors();
 	delete mDT;
 }
 
@@ -364,17 +396,12 @@ void Surface::SurfaceNormals()
 //
 void Surface::SurfaceColors()
 {
-	if (mProperties.Size())
+	int i;
+	mColors.Empty();
+	for (i = 0; i< mPoints.Size(); i++)
 	{
-		int i;
-		mColors.Empty();
-		for (i = 0; i< mPoints.Size(); i++)
-		{
-			double cx = (mPoints[i].X()+1)/2;
-			double cy = (mPoints[i].Y()+1)/2;
-			double cz = (mPoints[i].Z()+1)/2;
-			mColors.Add(Triple(cx,cy,cz));
-		}
+		int c = mDT->Property(mPoints[i]);
+		mColors.Add(c);
 	}
 }
 
