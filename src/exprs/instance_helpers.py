@@ -26,17 +26,123 @@ class Instance:
 class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depending on how inited, whether args are insts
     ### WARNING: instantiate normally lets parent env determine kid env... if arg is inst this seems reversed...
     # may only be ok if parent doesn't want to modify lexenv for kid.
+    is_instance = False # usually overridden in certain python instances, not in subclasses
+    has_args = False # ditto
+    args = () # convenient default
     def __init__(self, *args, **kws):
         ###e does place (instanceness) come in from kws or any args?
-        print "InstanceOrExpr.__init__ nim, class %r" % self.__class__.__name__
+##        val = kws.pop('_destructive_customize', None)
+##        if val:
+##            assert not args and not kws
+##            self._destructive_customize(val)
+##            return
+        # initialize attrs of self to an owned empty state for an expr
+        self._e_formula_dict = {}
+        # handle special keywords (assume they all want self to be initialized as we just did above)
+        val = kws.pop('_copy_of', None)
+        if val:
+            assert not args and not kws
+            self._destructive_copy(val)
+            return
+        #e
+        # assume no special keywords remain
+        self._destructive_init(args, kws)
         return
-    pass
+    def __call__(self, *args, **kws):
+        new = self._copy()
+        new._destructive_init(args, kws)
+        return new
+
+    # copy methods (used by __call__)
+    def _copy(self):
+        return self.__class__(_copy_of = self) # this calls _destructive_copy on the new instance
+    def _destructive_copy(self, old):
+        """[private]
+        Modify self to be a copy of old, an expr of the same class.
+        """
+        assert not self.is_instance
+        # self has to own its own mutable copies of the expr data in old, or own objects which inherit from them on demand.
+        self._e_formula_dict = dict(old._e_formula_dict) ###k too simple, but might work at first; make it a FormulaSet object??
+        self.args = old.args # not mutable, needn't copy; always present even if not self.has_args (for convenience, here & in replace)
+        self.has_args = old.has_args
+        return
+
+    # common private submethods of __init__ and __call__
+    def _destructive_init(self, args, kws):
+        """[private, called by __init__ or indirectly by __call__]
+        Modify self to give it optional args and optional ordinary keyword args.
+        """
+        for kw in kws:
+            if kw.startswith('_'):
+                print "warning or error: this kw is being treated normally:", kw ###@@@ is this always an error?
+        if kws:
+            self._destructive_customize(kws)
+        if args or not kws:
+            self._destructive_supply_args(args)
+        return
+    def _destructive_customize(self, kws):
+        """[private]
+        Destructively modify self, an expr, customizing it with the formulas represented by the given keyword arguments.
+        """
+        assert not self.is_instance
+        self._e_formula_dict.update(kws) # this dict is owned (inefficient?)
+        return
+    def _destructive_supply_args(self, args):
+        """[private]
+        Destructively modify self, an expr, supplying it with the given argument formulas.
+        """
+        assert not self.is_instance
+        assert not self.has_args
+        self.has_args = True # useful in case args is (), though hasattr(self, 'args') might be good enough too #e
+        self.args = args
+        #e when do we fill in defaults for missing args, and type-coerce all args? For now, I guess we'll wait til instantiation.
+        # this scheme needs some modification once we have exprs that can accept multiple arglists...
+        # one way would be for the above assert to change to an if, which stashed the old args somewhere else,
+        # and made sure to ask instantiation if that was ok; but better is to have a typedecl, checked now, which knows if it is. ###@@@
+        return
+
+    # instantiation methods
+    def _make_in(self, env):
+        "Instantiate self in env."
+        # no need to copy the formulas or args, since they're shared among all instances, so don't call self._copy.
+        # instead, make a new instance in a similar way.
+        return self.__class__(_make_in = (self,env)) # this calls _destructive_make_in on the new instance
+    def _destructive_make_in(self, data):
+        """[private]
+        This is the main instantiation method.
+        For old, env = data, modify self to be an instance of old, in the given env.
+        """
+        old, env = data
+        assert not self.is_instance
+        self.is_instance = True
+
+        self.env = env #k ok, or does it need modification of some kind? btw is a state index passed in separately? set self.index??
+        ####@@@@
+        
+        # set up self.args and self.opts
+        self._e_class = old # for access to _e_formula_dict and args #k needed?
+        assert old.has_args # we might allow exceptions to this later, based on type decl
+        self.has_args = old.has_args #k ??
+        self.args = old.args # for convenient access
+        nim ##### SHOULD MODIFY ARGS BY ADDING DEFAULTS AND TYPE COERCERS
+        ### AND set up self.opts to access old._e_formula_dict, also perhaps adding effect of type coercers
+        ### AND have some way to get defaults from env
+        ### AND take care of rules in env -- now is the time to decide this is not the right implem class -- or did caller do that?
+        ### and did caller perhaps also handle adding of type coercers, using our decl??
+
+        # set up state refs
+        ####
+        nim
+
+        # call subclass-specific instantiation code
+        self._init_instance()
+        return
+    def _init_instance(self): #e move to Instance superclass?
+        "[subclasses should replace this]"
+        pass
+    pass # end of class InstanceOrExpr
 
 ##### CANNIBALIZE THESE RELATED SNIPPETS to fill in InstanceOrExpr:
-
-    # _init_instance(self):
-    # done when we instantiate, producing self -- is this done in __init__, or later, or does that depend on args?? ####@@@@
-
     
 class xxx_obs: # widget expr head helper class, a kind of expr 
     def make_in(self, tstateplace, env):
@@ -77,7 +183,7 @@ class _ObjectMapper(Instance): # renamed from GlueCodeMemoizer; aka MemoizingObj
     ###e redoc -- more general? how is it not itself just the LvalDict?
     # i mean, what value does it add to that? just being a superclass??
     # well, it does transform _c_helper to _make_formula -- maybe it should turn into a trivial helper function calling LvalDict??
-    def _init_instance( self): ### what about env? already in self.env? need Instance superclass?
+    def _init_instance( self): ### what about env? already in self.env? YES. need Instance superclass?
         self._dict_of_lvals = LvalDict( self._make_formula)
             ##e pass arg to warn if any usage gets tracked (since i think none will be)??
             # actually this depends on the subclass's _c_helper method.

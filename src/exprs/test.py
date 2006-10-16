@@ -16,7 +16,9 @@ from debug import reload_once_per_event
 # == local imports with reload
 
 import basic
-reload_once_per_event(basic, always_print = True, never_again = False) # similar code is in basic.py
+# similar code is in basic.py
+from testdraw import vv
+reload_once_per_event(basic, always_print = True, never_again = False, counter = vv.reload_counter, check_modtime = True) 
     # we do this before all other imports, so they don't have to -- because we're an overall entry point!
 from basic import * # including reload_once
 

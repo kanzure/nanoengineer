@@ -18,7 +18,9 @@ from widget2d import Widget2D ###e rename module, to same caps?
 
 # == class Rect
 
-coerce_to_color = stub
+def coerce_to_color(color):#e refile; stub
+    print 'used stub coerce_to_color on',color ####@@@@
+    return color
 
 class Rect(Widget2D):
     """Rect(width, height, color) renders as a filled x/y-aligned rectangle
