@@ -1,9 +1,5 @@
 from basic import * # autoreload of basic is done before we're imported
 
-from constants import ave_colors # (weight, color1, color2) # weight is of color1 i think
-
-from constants import white, blue, red, green, black
-
 from OpenGL.GL import *
 
 # == geometry
@@ -16,30 +12,6 @@ DZ = V(0,0,1)
 ORIGIN2 = V(0.0, 0.0)
 D2X = V(1.0, 0.0)
 D2Y = V(0.0, 1.0)
-
-
-# == colors
-
-lightblue = ave_colors( 0.2, blue, white)
-lightgreen = ave_colors( 0.2, green, white)
-halfblue = ave_colors( 0.5, blue, white)
-purple = ave_colors(0.5, red, blue)
-
-def translucent_color(color, opacity = 0.5): #e refile with ave_colors
-    """Make color (a 3- or 4-tuple of floats) have the given opacity (default 0.5, might be revised);
-    if it was already translucent, this multiplies the opacity it had.
-    """
-    if len(color) == 3:
-        c1, c2, c3 = color
-        c4 = 1.0
-    else:
-        c1, c2, c3, c4 = color
-    return (c1, c2, c3, c4 * opacity)
-
-trans_blue = translucent_color(halfblue)
-trans_red = translucent_color(red)
-trans_green = translucent_color(green)
-
 
 # == new LL drawing helpers
 

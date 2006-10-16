@@ -438,9 +438,10 @@ def drawtest1(glpane):
             inst = some_env.make(testexpr_new or testexpr) #e pass in glpane, place to store transient state, ref to model state
             inst.draw()
         else:
-            from exprs import test
-            reload(test)
-            from exprs.test import drawtest1_innards
+            from exprs import basic, test
+            basic.reload_once(basic)
+            basic.reload_once(test)
+            from exprs.test import drawtest1_innards #k will this properly catch a reloaded version?
             drawtest1_innards(glpane)
     glTranslatef( 0, -8, -1 )
 

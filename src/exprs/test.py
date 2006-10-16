@@ -3,23 +3,23 @@ current bugs [061013]:
 
 - reload_once does it too often -- should be only when i do the reload effect from testmode/testdraw in cad/src
   (ie base it on that counter, not the redraw counter, but be sure that counter incrs before any imports)
-- lots of things are nim
+- lots of things are nim, including drawtest1_innards
 
 $Id$
 '''
 
+#e during devel, see drawtest1_innards for main entry point from testdraw.py
 
 # == imports from parent directory
 
-from debug import reload_once_per_event
+# (none yet)
 
 # == local imports with reload
 
 import basic
-# similar code is in basic.py
-from testdraw import vv
-reload_once_per_event(basic, always_print = True, never_again = False, counter = vv.reload_counter, check_modtime = True) 
-    # we do this before all other imports, so they don't have to -- because we're an overall entry point!
+basic.reload_once(basic)
+del basic
+
 from basic import * # including reload_once
 
 import Rect
@@ -36,9 +36,7 @@ ToggleShow = TestIterator = Column
 
 # == testexprs
 
-from draw_utils import black, blue
-
-testexpr_1 = Rect(1, color = black) # test basic leaf primitives
+testexpr_1 = Rect(10,16, color = purple) # test basic leaf primitives
 print "testexpr_1 is %r" % testexpr_1
 
 testexpr_2 = Column( testexpr_1, Rect(1.5, color = blue)) # test Column
@@ -55,7 +53,7 @@ testexpr = testexpr_1
 
 def drawtest1_innards(glpane):
     "entry point from ../testdraw.py"
-    print "got 5 glpane = %r" % (glpane,)
+    print "got glpane = %r, doing nothing for now" % (glpane,)
     return
 
 if 0:####@@@@
