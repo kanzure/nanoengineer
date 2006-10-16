@@ -1,4 +1,8 @@
-# symbols to be imported by every module in this package
+'''
+basic.py -- define things to be imported by every module in this package (using import *)
+
+$Id$
+'''
 
 from VQT import V, A, Q
 
@@ -19,5 +23,7 @@ from py_utils import *
 
 def stub(*args, **kws):
     assert 0, "stub called"
+
+from __Symbols__ import _self
 
 # end

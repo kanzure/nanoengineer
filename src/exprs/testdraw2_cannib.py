@@ -1,7 +1,5 @@
-'''testdraw2.py - testdraw.py was getting too big to edit conveniently
+'''testdraw2_cannib.py - being cannibalized
 '''
-
-#e needs cvs add, file header
 
 from testdraw import *
 from debug import print_compact_traceback
@@ -12,34 +10,7 @@ pt = print_compact_traceback
 #e these Exprs will need a way to notice when they get deep enough (in attrs or calls) that they ought to have a value already...
 # maybe just default "compiling rules" for that in the env? so they'll need to autocompile selves as they build... but in what env??
 
-### Exprs.py
-
-# ==
-
-# support for "import __Symbols__" (necessary since we depend on python parser; even so it'll be a pain to define them all)
-
-class FakeModule:
-    #e when working stably, i could make it stable across reloads -- if Symbol (passed in) is also stable; so option should decide
-    # make sure all of our private attrs or methods start with '__' (name-mangling is ok, so they needn't end with '__')
-    def __init__(self, name, getattr_func):
-        ## self.__name__ = name #k ok? not yet needed, anyway
-        self.__path__ = "fakepath/" + name #k ok? maybe not, it might be some sort of dotted import path -- better look it up ####@@@@
-        #e __file__?
-        self.__getattr_func = getattr_func
-    def __getattr__(self, attr):
-        if attr.startswith('_'):
-            print "fyi: fakemodule getattr got",attr # e.g. __path__
-            if attr.startswith('__'):
-                raise AttributeError, attr
-            pass # let single-underscore names work normally as symbols, even though we warn about them for now
-        # print "fyi: fakemodule getattr will make Symbol for",attr # this works
-        res = self.__getattr_func(attr)
-        setattr(self, attr, res) # don't ask me about this attr again!
-        return res
-    pass
-
-import sys
-sys.modules['__Symbols__'] = FakeModule('__Symbols__', Symbol)
+### Exprs.py, __Symbols__.py
 
 # ==
 

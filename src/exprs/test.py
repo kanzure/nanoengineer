@@ -38,8 +38,8 @@ ToggleShow = TestIterator = Column
 
 from draw_utils import black, blue
 
-print 'Rect is', Rect
 testexpr_1 = Rect(1, color = black) # test basic leaf primitives
+print "testexpr_1 is %r" % testexpr_1
 
 testexpr_2 = Column( testexpr_1, Rect(1.5, color = blue)) # test Column
 

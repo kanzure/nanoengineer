@@ -28,7 +28,10 @@ class Expr: # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs
         assert 0, "subclass %r of Expr must implement __call__" % self.__class__.__name__
 
     def __repr__(self):
-        return str(self) #k can this cause infrecur??
+        ## return str(self) #k can this cause infrecur?? yes, at least for testexpr1 (a Rect) on 061016
+        return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())
+    def __str__(self):
+        return "??"
     # ==
     def __rmul__( self, lhs ):
         """operator b * a"""
@@ -168,6 +171,7 @@ class If_expr(OpExpr): # so we can use If in formulas
 # ==
 
 class Symbol(SymbolicExpr):
+    "A kind of Expr that is just a symbol with a given name. Often used via the __Symbols__ module."
     def __init__(self, name = None):
         if name is None:
             name = "?%s" % compact_stack(skip_innermost_n = 3).split()[-1] # kluge - show line where it's defined
