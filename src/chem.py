@@ -1150,7 +1150,7 @@ class Atom(AtomBase, InvalMixin, StateMixin):
         #bruce 041206, to avoid need for changeapp() when selatom changes
         # (fyi, as of 041206 the color arg is not used)
         if self.element is Singlet:
-            color = LEDon
+            color = pink
         else:
             color = orange
         pos = self.baseposn() # note, this is for use in the mol's coordinate system

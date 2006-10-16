@@ -223,7 +223,7 @@ _abandoned_prefs_keys = [
 
 _default_HICOLOR_real_atom = yellow
 _default_HICOLOR_real_bond = yellow
-_default_HICOLOR_bondpoint = LEDon ## pink
+_default_HICOLOR_bondpoint = pink
 
 
 _default_toolong_color = ave_colors( 0.8, red, black) #bruce 050727 changed this from pure red; 050805 even for lines mode

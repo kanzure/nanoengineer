@@ -132,13 +132,16 @@ gray =   (0.5, 0.5, 0.5)
 navy =   (0.0, 0.09, 0.44)
 darkred = (0.6, 0.0, 0.2) 
 violet = (0.6, 0.1, 0.9) # Will change this to purple later.  Mark 050730
+purple = violet #bruce 061016, just so this color name is defined -- if you have better rgb values, feel free to modify it
+pink = (0.8, 0.4, 0.4) #bruce 050610 darkened this and called it 'pink'; old value was (1.0, 0.5, 0.5), called LEDon
 
 lightblue = ave_colors(0.03, white, blue) #ninad060922 using it while drawing origin axis
 
 bluesky = (0.9, 0.9, 0.9), (0.9, 0.9, 0.9), (0.33, 0.73, 1.0), (0.33, 0.73, 1.0) # GLPane "Blue Sky" gradient
 
-LEDoff = (0.8, 0.0, 0.0)
-LEDon = pink = (0.8, 0.4, 0.4) ##bruce 050610 darkened this and added the name 'pink'; old value was (1.0, 0.5, 0.5)
+###bruce 061016 removed these, changed remaining uses of LEDon to pink:
+##LEDoff = (0.8, 0.0, 0.0)
+##LEDon = pink
 
 PickedColor = (0.0, 0.0, 1.0)
 ErrorPickedColor = (1.0, 0.0, 0.0) #bruce 041217 (used to indicate atoms with wrong valence, etc)

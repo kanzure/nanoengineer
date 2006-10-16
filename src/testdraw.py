@@ -114,7 +114,7 @@ from constants import ave_colors # (weight, color1, color2) # weight is of color
 lightblue = ave_colors( 0.2, blue, white)
 lightgreen = ave_colors( 0.2, green, white)
 halfblue = ave_colors( 0.5, blue, white)
-purple = ave_colors(0.5, red, blue)
+##purple = ave_colors(0.5, red, blue)
 
 def translucent_color(color, opacity = 0.5): #e refile with ave_colors
     """Make color (a 3- or 4-tuple of floats) have the given opacity (default 0.5, might be revised);
