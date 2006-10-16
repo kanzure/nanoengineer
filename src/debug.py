@@ -1209,17 +1209,32 @@ def overridden_attrs( class1, instance1 ): #bruce 050108
 
 # ==
 
-def reload_once_per_event(module, always_print = False, never_again = True):
+debug_reload_once_per_event = False # do not commit with true
+
+def reload_once_per_event(module, always_print = False, never_again = True, counter = None, check_modtime = False):
     """Reload module (given as object or as name),
     but at most once per user-event or redraw, and only if platform.atom_debug.
     Assumes w/o checking that this is a module it's ok to reload.
        If always_print is True, print a console message on every reload, not just the first one per module.
        If never_again is False, refrain from preventing all further reload attempts for a module, after one reload fails for it.
+       If counter is supplied, use changes to its value (rather than to env.redraw_counter) to decide when to reload.
+       If check_modtime is True, the conditions for deciding when to reload are used, instead, to decide when to check
+    the module's source file's modtime, and the actual reload only occurs if that has changed. (If the source file can't
+    be found, a warning is printed, and reload is only attempted if never_again is False.)
+       WARNING about proper use of check_modtime:
+    if module A imports module B, and A and B are only imported after this function is called on them
+    with check_modtime = True, and the counter increases and B's source file has been modified,
+    then the developer probably wishes both A and B would be reloaded -- but nothing will be reloaded,
+    since A has not been modified and that's what this function checks. When A is later modified, both will be reloaded.
+       To fix this, the caller would need to make sure that, before any import of A, this function is called on both A and B
+    (either order is ok, I think). We might someday extend this function to make that task easier, by having it record
+    sub-imports it handles. We might use facilities in the exprs module (not currently finished) as part of that. #e
        Usage note: this function is intended for use by developers who might modify
     a module's source code and want to test the new code in the same session.
-    But the default values of options are designed for safety in production code,
-    more than for highest developer convenience. OTOH, it never reloads at all unless
-    ATOM_DEBUG is set, so it might be better to revise the defaults.
+    But the default values of options are designed more for safety in production code,
+    than for highest developer convenience. OTOH, it never reloads at all unless
+    ATOM_DEBUG is set, so it might be better to revise the defaults to make them more convenient for developers.
+    See cad/src/exprs/basic.py for an example of a call optimized for developers.
     """
     import platform
     if not platform.atom_debug:
@@ -1227,17 +1242,56 @@ def reload_once_per_event(module, always_print = False, never_again = True):
     if type(module) == type(""):
         # also support module names
         module = sys.modules[module]
-    now = env.redraw_counter
+    if counter is None:
+        now = env.redraw_counter
+    else:
+        now = counter
     try:
-        old = module.redraw_counter_when_reloaded
+        old = module.__redraw_counter_when_reloaded__
     except AttributeError:
         old = -1
-    if old == now:
+    if old == now: 
         return
+    # after this, if debug_reload_once_per_event, print something every time
+    if debug_reload_once_per_event:
+        print "reload_once_per_event(%r)" % (module,)
     if old == 'never again': #bruce 060304
         return
     assert sys.modules[module.__name__] is module
-    module.redraw_counter_when_reloaded = now # do first in case of exceptions in this or below
+    module.__redraw_counter_when_reloaded__ = now # do first in case of exceptions in this or below, and to avoid checking modtime too often
+    if check_modtime:
+        ok = False # we'll set this to whether it's ok to check the modtime,
+            # and if we set it True, put the modtime in our_mtime,
+            # or if we set it False, print something
+        try:
+            ff = module.__file__
+            if ff.endswith('.pyc'):
+                ff = ff[:-1]
+            ok = ff.endswith('.py') and os.path.isfile(ff)
+            if ok:
+                # check modtime
+                our_mtime = os.stat(ff).st_mtime
+            else:
+                print "not ok to check modtime of source file of %r: " % (module,)
+        except:
+            print_compact_traceback("problem checking modtime of source file of %r: " % (module,) )
+            ok = False
+        if ok:
+            old_mtime = getattr(module, '__modtime_when_reloaded__', -1) # use -1 rather than None for ease of printing in debug msg
+            # only reload if modtime has changed since last reload
+            want_reload = (old_mtime != our_mtime)
+            setattr(module, '__modtime_when_reloaded__', our_mtime)
+            if debug_reload_once_per_event:
+                print "old_mtime %s, our_mtime %s, want_reload = %s" % \
+                      (time.asctime(time.localtime(old_mtime)), time.asctime(time.localtime(our_mtime)), want_reload)
+            pass 
+        else:
+            want_reload = not never_again
+            if debug_reload_once_per_event:
+                print "want_reload = %s" % want_reload
+        if not want_reload:
+            return
+        pass
     if old == -1:
         print "reloading",module.__name__
         if not always_print:
@@ -1252,7 +1306,7 @@ def reload_once_per_event(module, always_print = False, never_again = True):
         # but maybe some end-user versions do support reload, and for them we might as well do it here.
         print_compact_traceback("reload failed (not supported in this version?); continuing: ")
         if never_again:
-            module.redraw_counter_when_reloaded = 'never again'
+            module.__redraw_counter_when_reloaded__ = 'never again'
     return
 
 # ==
