@@ -529,17 +529,18 @@ class SurfaceChunks(ChunkDisplayMode):
 	    radiuses = []
 	    spheres = []
 	    atoms = []
+            coltypes = []
 	    for a in chunk.atoms.values():
 		col = a.element.color
-		ac = 0;
-		if a.element.symbol == "X": ac = 1; 
-		if a.element.symbol == "H": ac = 2; 
-		if a.element.symbol == "C": ac = 3; 
-		if a.element.symbol == "N": ac = 4; 
-		if a.element.symbol == "O": ac = 5; 
-		if a.element.symbol == "Si": ac = 6; 
-		if a.element.symbol == "S": ac = 7; 
-		atoms.append(ac)
+		ii = 0 
+		for ic in range(len(coltypes)):
+		    ct = coltypes[ic]
+		    if ct == col:
+			break;
+		    ii += 1
+		if ii >= len(coltypes):
+		    coltypes.append(col);
+		atoms.append(ii)
 		dispjunk, ra = a.howdraw(diTrueCPK)
 		if ra > margin : margin = ra
 		radiuses.append(ra)
@@ -573,15 +574,7 @@ class SurfaceChunks(ChunkDisplayMode):
 	    cm = []
 	    if True: # True for color
 		for i in range(len(am)):
-		    if am[i] == 0: cm.append((0.5,0.5,0.5))  
-		    if am[i] == 0: cm.append((0.5,0.5,0.5))  
-		    if am[i] == 1: cm.append((0.79,0,0))  
-		    if am[i] == 2: cm.append((0.77,0.77,0.77))  
-		    if am[i] == 3: cm.append((0.38,0.38,0.38))  
-		    if am[i] == 4: cm.append((0.12,0.12,0.39))  
-		    if am[i] == 5: cm.append((0.5,0,0))  
-		    if am[i] == 6: cm.append((0.16,0.16,0.16))  
-		    if am[i] == 7: cm.append((0.85,0.58,0))  
+		    cm.append(coltypes[am[i]])
 	    else:
 		for i in range(len(am)):
 		    cm.append((0.5,0.5,0.5))
