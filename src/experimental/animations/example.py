@@ -189,8 +189,8 @@ def cross_fade(real_seconds, from_filespec, to_filespec, start=0, avg=10):
 ####################################################################
 # Slow simulation: 23 real seconds, 6900 subframes, 138 psecs
 
-z = slow_cpk_with_title('Titles_22_Sep_2006/1SmallBearingPage-17.gif', 8, start=0)
-z = slow_cpk_with_title('Titles_22_Sep_2006/2SmallBearingPage-17.gif', 15, start=z)
+z = slow_cpk_with_title('Titles_22_Sep_2006/1SmallBearingPages-17.gif', 8, start=0)
+z = slow_cpk_with_title('Titles_22_Sep_2006/2SmallBearingPages-17.gif', 15, start=z)
 
 ####################################################################
 # Slow animation: 10.5 real seconds, 3150 subframes, 63 psecs
@@ -202,28 +202,28 @@ z = slow_tubes(5, start=z)
 ####################################################################
 # Fast simulation: 18 seconds, 540 subframes, 2.7 psecs
 
-z = fast_tubes_with_title('Titles_22_Sep_2006/3SmallBearingPage-17.gif', 8, start=0)
+z = fast_tubes_with_title('Titles_22_Sep_2006/3SmallBearingPages-17.gif', 8, start=0)
 z = fast_tubes(10, start=z)
 
 ####################################################################
 # Fast simulation: 18 real seconds, 2160 subframes, 10.8 psecs
 
-z = medium_tubes_with_title('Titles_22_Sep_2006/4SmallBearingPage-17.gif', 8, start=0)
+z = medium_tubes_with_title('Titles_22_Sep_2006/4SmallBearingPages-17.gif', 8, start=0)
 z = medium_tubes(10, start=z)
 
 ####################################################################
 # Slow simulation: 18 real seconds, 5400 subframes, 108 psecs
 
-z = slow_tubes_with_title('Titles_22_Sep_2006/5SmallBearingPage-17.gif', 8, start=0)
+z = slow_tubes_with_title('Titles_22_Sep_2006/5SmallBearingPages-17.gif', 8, start=0)
 z = slow_tubes(10, start=z)
 
 ####################################################################
 # Slow animation: 25 real seconds, 7500 subframes, 150 psecs
 # Jumpy with explanation of jumpiness
 
-z = slow_tubes_with_title('Titles_22_Sep_2006/6SmallBearingPage-17.gif', 15, start=0, avg=1)
-z = slow_tubes_with_title('Titles_22_Sep_2006/7SmallBearingPage-17.gif', 5, start=z, avg=1)
-z = slow_tubes_with_title('Titles_22_Sep_2006/8SmallBearingPage-17.gif', 5, start=z, avg=1)
+z = slow_tubes_with_title('Titles_22_Sep_2006/6SmallBearingPages-17.gif', 15, start=0, avg=1)
+z = slow_tubes_with_title('Titles_22_Sep_2006/7SmallBearingPages-17.gif', 5, start=z, avg=1)
+z = slow_tubes_with_title('Titles_22_Sep_2006/8SmallBearingPages-17.gif', 5, start=z, avg=1)
 
 ####################################################################
 # Slow simulation: 10.5 real seconds, 3150 subframes, 63 psecs
@@ -236,7 +236,7 @@ z = slow_cpk(5, start=z, avg=1)
 ####################################################################
 # Slow simulation: 27 real seconds, 8100 subframes, 162 psecs
 
-z = slow_cpk_with_title('Titles_22_Sep_2006/9SmallBearingPage-17.gif', 12, start=0)
-z = slow_cpk_with_title('Titles_22_Sep_2006/10SmallBearingPage-17.gif', 15, start=z)
+z = slow_cpk_with_title('Titles_22_Sep_2006/9SmallBearingPages-17.gif', 12, start=0)
+z = slow_cpk_with_title('Titles_22_Sep_2006/10SmallBearingPages-17.gif', 15, start=z)
 
 m.encode()
