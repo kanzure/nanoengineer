@@ -134,7 +134,7 @@ def slow_cpk_with_title(titleImage, real_seconds, start=0, avg=10):
                         start=start, incr=10, frames=real_seconds*m.SECOND, avg=avg,
                         titleImage=titleImage)
 
-def slow_cpk(real_seconds, start=0):
+def slow_cpk(real_seconds, start=0, avg=10):
     # Background animation with title, 6 ps/s blurred CPK
     # Use "avg=1" to make it jumpy
     return m.motionBlur(SLOW_CPK,
