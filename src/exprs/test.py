@@ -54,14 +54,14 @@ testexpr = testexpr_1
 def drawtest1_innards(glpane):
     "entry point from ../testdraw.py"
     print "got glpane = %r, doing nothing for now" % (glpane,)
-    return
 
-if 0:####@@@@
-    glpane
-    some_env = drawing_env(glpane) #####@@@@@@ IMPLEM some args
+    if 0:####@@@@
+        #e should memoize this:
+        glpane
+        some_env = drawing_env(glpane) #####@@@@@@ IMPLEM some args
 
-    inst = some_env.make(testexpr) #e pass in glpane, place to store transient state, ref to model state
-    inst.draw()
+        inst = some_env.make(testexpr) #e pass in glpane, place to store transient state, ref to model state
+        inst.draw()
 
 class drawing_env: ###e cannibalize this; only used just above
     def __init__(self, glpane):

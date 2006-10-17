@@ -260,78 +260,6 @@ def drawtest2(glpane): # last stuff drawn, never put into global displist [for r
         print_compact_traceback("exc ignored: ")
     pass
 
-def drawtest1(glpane):
-    # main special drawing; if a global flag is set, it's all put into a global displist by caller (tho it doesn't all work there)
-
-    vv.when_drawtest1_last_ran = env.redraw_counter # so we see when displist gets updated
-    
-    glTranslatef(-9, 7, 0)
-    dy = - 0.5
-
-    # draw some lines
-    
-    ## drawline(color, pos1, pos2, dashEnabled = False, width = 1)
-    drawline(red,   V(0,0,0),V(1,0,0),width = 2)
-    glTranslatef( 0, dy, 0)
-    drawline(green, V(0,0,0),V(2,0,0),width = 2)
-    glTranslatef( 0, dy, 0)
-    drawline(yellow,V(0,0,0),V(1,0,0),width = 2)
-
-    # draw some text using builtin facility for that # MAYBE SLOW
-    dothis = 0 # don't draw it - this speeds it up 
-    
-    ## def drawtext(text, color, pt, size, glpane)
-    glTranslatef( 0, dy, 0)
-    if dothis:
-        drawtext("hi! (@[fg])", blue, V(0,0,0), 12, glpane)
-    glTranslatef( 0, dy, 0)
-    if dothis:
-        drawtext("hi Mom...", white, V(0,0,0), 24, glpane) # ugly, but readable
-    #drawtext("<b>hi Mom</b>", blue, V(0,0,0), 24, glpane) # html doesn't work, as expected
-    # even \n doesn't work -- \n is a rectangle, \r is nothing, \t is single space.
-
-    glTranslatef( 0, dy, 0.002) # 0.002 is enough to obscure the yellow line; 0.001 is not enough.
-
-    # this used to be here:
-        ##    # load the texture for the courier bitmap font; params incl tex_name are in vv
-        ##    ensure_courierfile_loaded()
-
-    # draw the whole font-texture??
-    
-    origin = ORIGIN
-    dx = DX * 2
-    dy = DY * 2
-    # using a subrect eliminates the funny edges: tex_origin, tex_dx, tex_dy = V(0.1, 0.1), D2X * 0.8, D2Y * 0.8
-    tex_origin, tex_dx, tex_dy = ORIGIN2, D2X, D2Y
-    draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy)
-##    ### what are coords in following??? replace it with better calls...
-##    width = 32
-##    textureReady = True
-##    opacity = 1.0
-##    drawPlane(blue, width, width, textureReady, opacity, SOLID=True, pickCheckOnly=False)
-
-    if 0:
-        # draw a blue rect for some reason [might obscure the text]
-        draw_filled_rect(origin + 0.2*DZ + DX, dx, dy, halfblue) # note, it matters that dx/dy is right-handed.
-
-##    Rect(1,1,red).draw() ####@@@@ not working
-##    print "is it an Expr?",Rect(1,1,red),Rect(1,1,red).draw
-##    return #####@@@@@@
-    
-    # draw 1 copy of testexpr, our test widget expr defined at end of file
-    
-    glTranslatef( 0, -4, 0 )
-    if debug_pref("drawtest in old way", Choice_boolean_True, prefs_key = True):
-        testexpr.draw() # it worked almost the first time!
-    else:
-        #e should memoize this:
-        glpane #####@@@@@@ 
-##        some_env = drawing_env(glpane) #####@@@@@@ IMPLEM some args
-##        inst = some_env.make(testexpr_new or testexpr) #e pass in glpane, place to store transient state, ref to model state
-##        inst.draw()
-    glTranslatef( 0, -8, -1 )
-
-    return # drawtest1 #e rename
 
 #e put these into an object for a texture font!
 tex_width = 6 # pixel width in texture of 1 char
@@ -1692,9 +1620,6 @@ WE_for_dragging_strands_within_cyls = Stub(
     )
 )
 
-import testdraw2
-reload(testdraw2)
-from testdraw2 import *
 
 # the code snippets need names for:
 # - built ins

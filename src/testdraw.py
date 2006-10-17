@@ -425,24 +425,19 @@ def drawtest1(glpane):
 ##    print "is it an Expr?",Rect(1,1,red),Rect(1,1,red).draw
 ##    return #####@@@@@@
     
-    # draw 1 copy of testexpr, our test widget expr defined at end of file
+    # draw a test widget expr
     
     glTranslatef( 0, -4, 0 )
     if debug_pref("drawtest in old way", Choice_boolean_True, prefs_key = True):
-        testexpr.draw() # it worked almost the first time!
+        # draw 1 copy of testexpr, our test widget expr defined at end of file
+        testexpr.draw()
     else:
-        if 0:
-            #e should memoize this:
-            glpane #####@@@@@@ 
-            some_env = drawing_env(glpane) #####@@@@@@ IMPLEM some args
-            inst = some_env.make(testexpr_new or testexpr) #e pass in glpane, place to store transient state, ref to model state
-            inst.draw()
-        else:
-            from exprs import basic, test
-            basic.reload_once(basic)
-            basic.reload_once(test)
-            from exprs.test import drawtest1_innards #k will this properly catch a reloaded version?
-            drawtest1_innards(glpane)
+        # let the exprs module do it
+        from exprs import basic, test
+        basic.reload_once(basic)
+        basic.reload_once(test)
+        from exprs.test import drawtest1_innards
+        drawtest1_innards(glpane)
     glTranslatef( 0, -8, -1 )
 
     return # drawtest1 #e rename

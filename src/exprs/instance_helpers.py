@@ -112,7 +112,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         This is the main instantiation method.
         For old, env = data, modify self to be an instance of old, in the given env.
         """
-        old, env = data
+        old, env = data ###@@@ might need more: ipath, and/or split env into rules & place
         assert not self.is_instance
         self.is_instance = True
 
@@ -134,7 +134,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         ####
         nim
 
-        # call subclass-specific instantiation code
+        # call subclass-specific instantiation code (it should make kids, perhaps lazily; anything else?? ###@@@)
         self._init_instance()
         return
     def _init_instance(self): #e move to Instance superclass?
