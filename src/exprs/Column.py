@@ -18,45 +18,9 @@ from instance_helpers import InstanceWrapper, Instance
 
 from widget2d import Widget2D #####@@@@@ replace with layout, make reloadable
 
-
 # ==
 
-# Column-specific stuff below here
-
-
-##class index_scratch:
-##    def move(self, i1, i2):
-##        """move between the given gap indices, which refer to the coords at the bottom of that gap
-##        (first & last gaps are 0-height, and so is any gap just below an empty element... not so fast,
-##        even a gap below a full elt should be 0-height if all elts below are empty... hmm,
-##        to decide the gap to not draw at the end, we have to check all elts from bottom to first full one!
-##        So, the gaps we draw are the ones with nonempty elts on both sides?? not so simple... hmm,
-##        we have a complex formula to decide what gaps to draw -- above elt is nonempty, some below elt nonempty.
-##        """
-##        def amount_to_move(i1, i2): #e make this public?
-##            "only valid if i1 <= i2"
-##            h = 0
-##            for elti in range(i1,i2):
-##                h += self.elts[elti].height
-##                gapi_below = elti + 1
-##                gap = self.gaps[gapi_below] ### what kind of object is this, exactly?
-##                # do we have to give self.gaps proper set of keys so we can iter over it? (that would be nice, tho not needed right here)
-##                if gap.drawme: # defined separately somehow
-##                    h += gap.height
-##            return h
-##        if i1 < i2:
-##            h = amount_to_move(i1, i2)
-##        elif i1 > i2:
-##            h = - amount_to_move(i2, i1)
-##        # return this much, for some purposes?
-##        # or do the motion?
-##    # above makes sense as methods of CL, more than of some other object, i think.
-##    # IOW CL prefers to be its own scenegraph-index-type.
-
-# ==
-
-
-class CLE(InstanceWrapper):
+class CLE(InstanceWrapper): # not reviewed recently
     """Column list element:
     - handles 0 or more actual rows, perhaps varying in time, as described by one formula arg to Column
     - for each instance that formula evals to, this adds type-specific glue code (memoized for that instance) and delegates to it,
@@ -85,7 +49,7 @@ class CW(DelegatingInstance):
     pass
 
 
-class CL(Instance):
+class CL(Instance): ###e needs merge into below
     def _init_instance(self):
         self.cles = map(CLE, self.args)
     #e gap formulas, coords/scenegraph/indices/env/spacers/empty
@@ -96,41 +60,48 @@ class CL(Instance):
     Handle a List expr instance given to Column, directly or indirectly in its nested-list argument values.
     Specifically, use CLE to treat list elements as contributing sometimes-empty sequences of column elements.
     """
-    # == define the kids
-    ### syntax guess:
-    def _CK_kids(self): # compute the set of kid-keys
+    # == define the kids [note: the attrname 'kids' is just a convention, i think #e]
+    def _CK_kids(self): # compute the set of kid-keys -- in order (required in this class, though not in general)
         return range(len(self.args))
-    def _CV_kids(self, i): # compute the kid value for a given kid-key in self._keys_for_kids or whatever... hmm, _C_KEYS_kids, compute self.KEYS_kids?
-        stub
-        pass
-    # or: define a dict, self.kids, like this -- but how does this imply the type, dict, and this way of making it from keyseq and valfunc??
-    def _in_kids_C_keys(self):
-        return range(len(self.args))
-    def _in_kids_i_C_value(self, i):
-        return CLE(self.instantiate(self.args[i])) ###k self.instantiate(expr) -> instance, env defaults to self.env... but what index? NEED TO PASS INDEX.
-        ### IMPLEM self.instantiate
+            # if you want to access a memoized version of this, try self.kids.keys() -- but will it be in order?? #####k
+            #e implem dictlike.keys_in_order() for that? note: not always the same (in general) as .keys_sorted()!
+    def _CV_kids(self, i): # compute the kid value for a given kid-key
+        ###WRONG: needs index, and CLE is really _arg or _kid [061018]
+        return CLE(self.instantiate(self.args[i]))
+            ###k self.instantiate(expr) -> instance, env defaults to self.env... but what index? NEED TO PASS INDEX.
+        # about fixing this -- do we understand the arg, and use it, seply? understand in filled expr, use in instance...
+        # self.understand(expr)?? or code in _init_expr? or self.arg_expr[i] defined as understood self.arg[i]??
+        # what about optval exprs? what about locally constructed exprs, with CLE or Overlay... do we understand whole or arg-part?
+
+    # self.elts is a list of all kids, in order
+    #e [optim, someday: make it a lazy-element list, or revise above to define one directly]
     def _C_elts(self):
-        return dict_ordered_values(self.kids) ###e this seems a bit indirect, compared to map(CLE, self.arg_instances) or so...
-    #e
+        return [self.kids[i] for i in self._CK_kids()] #e or, dictmap(self.kids, range(len(self.args))) -- assuming result is a list!
+            # WARNING: only works since _CK_kids retval is properly ordered, though it needn't be for its defined use (to help make self.kids).
+            # Note: this scheme as a whole is overkill, but as an example for more complex widget expr kidsets, it's useful.
+
+    # == figure out what to draw,
+    # based on which elements need gaps inserted between them;
+
+    # the main result is self.drawables (the recomputable ordered list of nonempty elements and gaps to draw);
     
-    
-    ### or, older/simpler but less general:
-    def _C_elts(self): #k assert it never gets recomputed??
-        return map(CLE, self.args)
-            #### THIS REFERS TO ARG INSTANCES -- WHERE DO THEY COME FROM?? Can it even be correct -- are all args always instantiated?
-            # I think they are, though it ought to be done lazily... not sure if this makes sense re an index for them,
-            # for state... what about iterators which instantiate them more than once? Maybe we need self.arg_instances
-            # and not everyone needs to use it... maybe only LayoutWidgets have it.... ####@@@@
-            # could also have self.kids[(...args, incl index and expr...)], oresmic lvals but also iterable, with compute func for the set of keys...
-    # == figure out what to draw, based on which elements need gaps inserted between them;
-    # the main result is the recomputable ordered list of nonempty elements and gaps to draw, self.drawables
+    # the main input is self.elts, a list (not dict) of element-instances,
+    # whose values (as determined by the code above) are fixed CLE instances, one per CL argument.
+
+    # (The only reason it can't be a dict is that we use the list-subsequence syntax on it, self.elts[i1:i2],
+    #  when we want to move from one place in it to another.
+    #  We also might like to use "map" to create it, above... but index is needed, so maybe that's not relevant...
+    #  but we might use list extension... OTOH, to be lazy, we might like a compute rule for set of indices, and for kid-code...)
     def nonempty_elts(self, i1 = 0, i2 = -1):
         """Return the current list of nonempty elts, out of the list of all elts
         between the given between-elt indices (but i2 = -1 means include all elts)"""
-        if i2 == -1: # we use -1, since 0 could be legal, getting an empty list. WARNING: meaning would differ if i2 = -1 was an elt index.
+        if i2 == -1:
+            # we use -1, since 0 could be legal, getting an empty list.
+            # WARNING: meaning would differ if i2 = -1 was an elt index --
+            # in that case, -1 would be equivalent to len - 1, not len.
             i2 = len(self.elts)
-        # if elts know their own indices, or (better?) if gaps depend on their id not index, we can just grab & filter the elts themselves:
-        ## so instead of this: for i in range(i1, i2): elt = self.elts[i]
+        # if elts know their own indices, or (better?) if gaps depend on their id not index,
+        # we can just grab & filter the elts themselves:
         return filter(lambda elt: elt.nonempty, self.elts[i1:i2])
     def insert_gaps(self, elts):
         "Given a list of 0 or more of our elts, return a new list with appropriate gap objects inserted between the elements."
@@ -166,16 +137,6 @@ class CL(Instance):
         return not not self.drawable_elts
     def _get_empty(self):
         return not self.nonempty
-##    # WAIT, we need to understand how to use this, since gaps do exist below the last elt asked about...
-##    def height_from_to(self, i1, i2):
-##        "how much to move down, to cover all we'd draw from between-index i1 to (just before) i2? WARNING: only valid if i1 <= i2."
-##        return sum([d.height for d in self.insert_gaps(self.nonempty_elts(i1, i2))])
-##    def amount_to_move(self, i1, i2):
-##        if i1 < i2:
-##            return self.height_from_to(i1,i2) ###### MAYBE WRONG re last gap, after i2...
-##        rest_nim
-##    def move(self, i1, i2):
-##        nim
     # == relative coordinates, for redrawing specific parts
     def move_from_top_to_kidindex(self, i2): ###@@@ CALL ME? not quite sure how this is called... esp due to its top-dependence...
         # i2 is an elt-index of an elt we drew, and we want to move from top, to top of that elt; needn't be fast.
@@ -206,7 +167,7 @@ class CL(Instance):
         for d in self.drawables:
             d.draw_from_top_to_bottom()
         return
-    pass
+    pass # end of class CL
 
 class CW_scratch:
     empty = False
