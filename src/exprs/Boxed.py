@@ -54,8 +54,8 @@ def Boxed_try1(thing, **opts):
         #  In other words, we're turning right into a "python coded" rather than "expr-described" structure,
         # just because we needed an arg thing, and needed access to its per-instance interface.
         # But we can still use a high-level expr to describe the equivalent form.
-    ww = thing.width + 2 * gap * 2 * borderthickness # a formula... but where do the symbols come from?
-    hh = thing.height + 2 * gap * 2 * borderthickness
+    ww = thing.width + 2 * gap + 2 * borderthickness # a formula... but where do the symbols come from?
+    hh = thing.height + 2 * gap + 2 * borderthickness
     # how do the option symbols in the following get bound to their values, which are formulas? They need an 'xxx.' prefix.
     return Overlay( RectFrame(ww, hh, thickness = borderthickness, color = bordercolor), thing, align = Center )
 
@@ -91,7 +91,7 @@ class Boxed_try2(Widget2D):
     # internal computations
     
     #e the following doesn't work, due to namespace needed for rhs symbols:
-    _formulas = dict( ww = thing.width + 2 * gap * 2 * borderthickness, hh = thing.height + 2 * gap * 2 * borderthickness )
+    _formulas = dict( ww = thing.width + 2 * gap + 2 * borderthickness, hh = thing.height + 2 * gap + 2 * borderthickness )
     # so try this:
     o = self._options_symbol ###k not so fast -- no such thing as "self" yet!
         # (Should I use _self as a symbol for the instance, once it exists?)
@@ -108,7 +108,7 @@ class Boxed_try2(Widget2D):
     borderthickness
     bordercolor
     
-    _formulas = dict( ww = thing.width + 2 * gap * 2 * borderthickness, hh = thing.height + 2 * gap * 2 * borderthickness )
+    _formulas = dict( ww = thing.width + 2 * gap + 2 * borderthickness, hh = thing.height + 2 * gap + 2 * borderthickness )
 
     ww = _self.ww
     hh = _self.hh
@@ -168,7 +168,7 @@ class Boxed_try4(Widget2D):
     "#doc is above"
     # arguments
     _args = ('thing')
-    _ARGTYPE_thing = Widget2D
+    _TYPE_thing = Widget2D
     #k resolve this arg? ###@@@
     ###e say Widget2D.instance as the type??
     # options (name, maybe default, maybe type)
@@ -178,16 +178,52 @@ class Boxed_try4(Widget2D):
     # what is left to do after this?
     # - make thing an instance
     #   - specify its index, for transient state & perhaps other decoration (the Cube eg is a much harder test of how we do this)
-    # - compute ww and hh from that instance:
+    # + compute ww and hh from that instance:
     #   - create formulas at class-def time,
     #   - which instantiate when self does
     #   - and which do inval/update per-frame or less often
-    # - define equivalent value (for drawing in OpenGL or POVRay; in other contexts, for all uses, e.g. simulation):
+    # + define equivalent value (for drawing in OpenGL or POVRay; in other contexts, for all uses, e.g. simulation):
     #   - _value = Overlay( RectFrame(ww, hh, thickness = borderthickness, color = bordercolor), thing, align = Center )
     #   - needs to grab those rhs values as attrs from some object -- maybe _self or self depending on when we do it
 
     # decisions re above: do these things in per-instance methods, compute methods, or per-class methods or constants?
+
+    # make thing an instance of our arg.
+    #####@@@@@@@ PROBLEM: doesn't this contradict the arg decl above, which already assigns to self.thing? #####@@@@@
+    # Thus we seem to need to specify a code-wrapper around that value, sort of like a type decl...
+    # Can we use as the type, Instance(Widget2D)?
+    # Or does Widget2D *imply* Instance? Is that how it works for types like Color & Width? (can you even tell?) ####@@@@
+    # Not exactly, I think... hard to say, since an instance is around somewhere, but the direct attr is just the current value.
+    # I suppose the current value can *be* an instance, for widgets, even though it has time-varying contents...
+    # If that's the system, then how do we say to pass in a Widget Expr rather than a Widget (which is an Instance by implication)??
     
+    ###@@@ how hard would it be to make thing an instance in the same way Column does for its elements?
+    _CK_kids = (1,) # a formula -- can you tell? (what if it's callable?? this one isn't...) ####@@@@
+    _CV_kids = 'pseudocode: instantiate thing' ###k this is normally a method taking an index arg... can it too be a formula?? ####k
+    _C_thing = _self.kids[1] # (a formula which indexes a getattr)
+    ##e another way would be to use _init_instance to assign self.thing,
+    ##e or to let _C_thing directly instantiate thing, as formula or method:
+    _C_thing = bla # superseded by above worry about conflict with _TYPE_thing
+    
+    
+    # internal formulas, using new notation in Rect.py.
+    # A problem with that notation -- the constrast between _C_ and _self. which seem like they refer to the same thing.
+    # Maybe they can be made more similar, and _self shorter... but they can't be identical (one has a '.').
+    # Also should _C_ for compute be _F_ for formula, or maybe _S_ for self?
+    # I think the method version should be the same prefix, so one overrides the other.
+    # Note also that formulas (or compute methods) might come more dynamically from FormulaSet objects or delegates... ###@@@
+    _C_extra = 2 * _self.gap + 2 * _self.borderthickness
+    _C_ww = _self.thing.width  + _self.extra
+    _C_hh = _self.thing.height + _self.extra
+
+    # equivalent value for all uses
+    #####@@@@@ should this be a _C_ formula? Guess: yes, at least if it can vary.... and if self.value works to grab current ref obj.
+    ###@@@ kluges: _S means _self
+    _value = Overlay( RectFrame( _S.ww, _S.hh, thickness = _S.borderthickness, color = _S.bordercolor),
+                      _S.thing,
+                      align = Center )
+    pass # end of class Boxed
+
 # ==
 
 # Would it be useful to try to define several simple things all at once?

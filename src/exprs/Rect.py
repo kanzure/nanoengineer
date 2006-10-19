@@ -18,42 +18,32 @@ from widget2d import Widget2D ###e rename module, to same caps?
 
 # == class Rect
 
-def coerce_to_color(color):#e refile; stub
-    print 'used stub coerce_to_color on',color ####@@@@
-    return color
+Width = Color = stub ###@@@
 
 class Rect(Widget2D):
     """Rect(width, height, color) renders as a filled x/y-aligned rectangle
     of the given dimensions and color, with the origin on bottomleft,
     and a layout box equal to its size (no margin).
-       If color is not given, it will be black [#e should be a default attrval from env].
+       If color is not given, it will be gray [#e should be a default attrval from env].
        If height is not given, it will be a square (even if width is a formula and/or random).
        See also: RectFrame, ...
     """
-    #e declare arg/option types and defaults, similar to NamedLambda -- ###K NOT SURE THE FOLLOWING IS A GOOD WAY
-    def _init_args(self, width, height = None, color = None): ####@@@@ CALL ME
-        self.opts.width = float(width) # float() serves as a type decl -- it can still make a formula, not forcing eval yet
-        if height is None:
-            height = width #### WRONG -- the real situation is, default formula for height is width.
-            # ie the formula ends up like f.height = f.width, NOT f.height = same formula that f.width is. ####@@@@ FIX THIS.
-            # maybe this means self.formulas and self.opts are the same thing??
-        self.opts.height = float(height)
-        if color is None:
-            color = black #####e better would be to grab a default Rect.color from the rule-env... which we don't have yet.
-            # GENERAL PROBLEM: we don't usually want to type-coerce until we instantiate... tho we might record it now...
-            # or do it at the formula level... hmm....
-            # QUESTIONS: if env has a rule, should it be used AFTER we coerce args, and supply defaults, incl height = width?
-        self.opts.color = coerce_to_color(color)
-        return
-    ###e set up formulas for bright and btop in terms of width & height
-    # basically: bright = width, btop = height
-    def _init_formulas(self): ####@@@@ CALL ME, or maybe this code should just be part of _init_instance
-        f = self.formulas
-        f.bright = f.width # automatically inherits from opts.width [or should those opts store right into formulas? I doubt it.]
-        f.btop = f.height
-        f.bbottom = 0 # same as default
-        f.bleft = 0
-        return
+    # arguments (order, type, defaults)
+    _args = ('width', 'height', 'color')
+    _TYPE_width = _TYPE_height = Width # renamed ARGTYPE to TYPE since it needn't only apply to args, but to any named computed attr
+    _TYPE_color = Color
+    _DEFAULT_color = gray #e (in future, these defaults can be overridden by the rule env)
+    _DEFAULT_height = _self.width # (a formula involving attrs of _self)
+    _DEFAULT_width = 10 # pixels (??)
+    
+    # set up formulas for layout box attrs bright and btop in terms of width & height
+    # (basically: bright = width, btop = height)
+    _C_bright = _self.width # _C_attr can either be a method (compute rule), or a formula on _self (like here)
+    _C_btop = _self.height
+    # fyi, these are not needed (same as the defaults in Widget2D):
+    _C_bbottom = 0
+    _C_bleft = 0
+    
     def draw(self):
         glDisable(GL_CULL_FACE)
         draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.fix_color(self.color)) #e move fix_color into draw_filled_rect? 
@@ -61,6 +51,13 @@ class Rect(Widget2D):
     pass
 
 # == comment snippets from other variants of Rect
+
+#obs comments here, but might be relevant elsewhere:
+## - self.opts.width = float(width) # float() serves as a type decl -- it can still make a formula, not forcing eval yet
+## - ... the real situation is, default formula for height is width.
+##   ie the formula ends up like f.height = f.width, NOT f.height = same formula that f.width is. ####@@@@ FIX THIS.
+##   maybe this means self.formulas and self.opts are the same thing??
+## - QUESTIONS: if env has a rule, should it be used AFTER we coerce args, and supply defaults, incl height = width?    
 
 #e let arg 2 or 3 be more drawable stuff, to center in the rect?
 #e if color None, don't draw it, just the stuff?
