@@ -122,16 +122,19 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         """
         expr, env, ipath = data ###@@@ might want to split env into rules (incl lexenv) & place (incl staterefs, glpane)
         assert not self.is_instance
+        assert not expr.is_instance
         self.is_instance = True
 
         self.env = env #k ok, or does it need modification of some kind? btw is a state index passed in separately? set self.index??
         ####@@@@
+        self.ipath = ipath ###e does this need mixing into self.env somehow?
         
         # set up self.args and self.opts
-        self._e_class = expr # for access to _e_formula_dict and args #k needed?
+        self._e_class = expr # for access to _e_formula_dict and args #k needed? #e rename: self.expr?? nah. well, not sure.
         assert expr.has_args # we might allow exceptions to this later, based on type decl
         self.has_args = expr.has_args #k ??
-        self.args = expr.args # for convenient access
+        self.args = expr.args # for convenient access ### is it ok that we're putting the bare ones here? Don't we want to hide those?
+        # or can we do the type & instancing on these exprs, to get the declared specific args?
         nim ##### SHOULD MODIFY ARGS BY ADDING DEFAULTS AND TYPE COERCERS
         ### AND set up self.opts to access old._e_formula_dict, also perhaps adding effect of type coercers
         ### AND have some way to get defaults from env
