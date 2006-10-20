@@ -222,7 +222,7 @@ class KidMakingUtilsMixin:
     def make_kid(self, expr, index, lexmods = None):
         "for use in certain kinds of compute rules for kids"
         understood_expr = self.env.understand_expr(expr, lexmods = lexmods) # ideally the caller would split this out, if making several kids from this
-            ###e to faciliate that, do we offer autoprefixes for understood versions of kid-expr attrs (usually args)? no, too weird to be worth it.
+            ###e to facilitate that, do we offer autoprefixes for understood versions of kid-expr attrs (usually args)? no, too weird to be worth it.
             # or just self.understand? probably. someday, a better formula notation so it's easy to set these things up per-use.
         return understood_expr.make_in(self.env, index)
     # standard compute rules for kids - set up set of kid indices, and func from index to code (aka expr), lexmods. let recompute rules do the rest.

@@ -4,7 +4,8 @@ Rect.py   [likely to be pulled into a larger file once it's done]
 $Id$
 '''
 
-from basic import * # autoreload of basic is done before we're imported
+from basic import *
+from basic import _self
 
 import draw_utils
 reload_once(draw_utils)

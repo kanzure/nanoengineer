@@ -44,6 +44,11 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
             assert not args and not kws
             self._destructive_copy(val)
             return
+        val = kws.pop('_make_in', None)
+        if val:
+            assert not args and not kws
+            self._destructive_make_in(val)
+            return
         #e
         # assume no special keywords remain
         self._destructive_init(args, kws)
@@ -55,6 +60,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
 
     # copy methods (used by __call__)
     def _copy(self):
+        assert not self.is_instance ## ??? [061019]
         return self.__class__(_copy_of = self) # this calls _destructive_copy on the new instance
     def _destructive_copy(self, old):
         """[private]
@@ -102,17 +108,19 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         return
 
     # instantiation methods
-    def _make_in(self, env):
-        "Instantiate self in env."
+    def _make_in(self, env, ipath):
+        "Instantiate self in env, at the given index-path."
         # no need to copy the formulas or args, since they're shared among all instances, so don't call self._copy.
         # instead, make a new instance in a similar way.
-        return self.__class__(_make_in = (self,env)) # this calls _destructive_make_in on the new instance
+        assert not self.is_instance
+        return self.__class__(_make_in = (self,env,ipath)) # this calls _destructive_make_in on the new instance
     def _destructive_make_in(self, data):
         """[private]
-        This is the main instantiation method.
-        For old, env = data, modify self to be an instance of old, in the given env.
+        This is the main internal instantiation-helper method.
+        For expr, env, ipath = data, modify self to be an instance of expr, in the given env, at the given index-path.
+        Called only from __init__, when self knows nothing except its class.
         """
-        old, env = data ###@@@ might need more: ipath, and/or split env into rules & place
+        expr, env, ipath = data ###@@@ might want to split env into rules (incl lexenv) & place (incl staterefs, glpane)
         assert not self.is_instance
         self.is_instance = True
 
@@ -120,10 +128,10 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         ####@@@@
         
         # set up self.args and self.opts
-        self._e_class = old # for access to _e_formula_dict and args #k needed?
-        assert old.has_args # we might allow exceptions to this later, based on type decl
-        self.has_args = old.has_args #k ??
-        self.args = old.args # for convenient access
+        self._e_class = expr # for access to _e_formula_dict and args #k needed?
+        assert expr.has_args # we might allow exceptions to this later, based on type decl
+        self.has_args = expr.has_args #k ??
+        self.args = expr.args # for convenient access
         nim ##### SHOULD MODIFY ARGS BY ADDING DEFAULTS AND TYPE COERCERS
         ### AND set up self.opts to access old._e_formula_dict, also perhaps adding effect of type coercers
         ### AND have some way to get defaults from env
@@ -137,9 +145,23 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         # call subclass-specific instantiation code (it should make kids, perhaps lazily; anything else?? ###@@@)
         self._init_instance()
         return
-    def _init_instance(self): #e move to Instance superclass?
-        "[subclasses should replace this]"
+    
+    def _init_class(self): #e move to Instance superclass? ###@@@ CALL ME
+        """called once per directly-instantiated python class, when its first python instance is created
+        [subclasses should replace this]
+        """
         pass
+    def _init_expr(self): #e move to Instance superclass? ###@@@ CALL ME
+        """called once per Expr when it gets its args [details unclear, maybe not yet needed]
+        [subclasses should replace this]
+        """
+        pass
+    def _init_instance(self): #e move to Instance superclass?
+        """called once per python instance, but only when it represents a semantic Instance ###doc -- explain better
+        [subclasses should replace this]
+        """
+        pass
+    
     pass # end of class InstanceOrExpr
 
 ##### CANNIBALIZE THESE RELATED SNIPPETS to fill in InstanceOrExpr:

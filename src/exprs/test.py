@@ -30,6 +30,10 @@ import Column
 reload_once(Column)
 from Column import Column
 
+import Boxed
+reload_once(Boxed)
+from Boxed import Boxed
+
 # == stubs
 
 ToggleShow = TestIterator = Column
@@ -38,6 +42,9 @@ ToggleShow = TestIterator = Column
 
 testexpr_1 = Rect(10,16, color = purple) # test basic leaf primitives
 print "testexpr_1 is %r" % testexpr_1
+
+testexpr_1b = Boxed(testexpr_1)
+print "testexpr_1b is %r" % testexpr_1b
 
 testexpr_2 = Column( testexpr_1, Rect(1.5, color = blue)) # test Column
 

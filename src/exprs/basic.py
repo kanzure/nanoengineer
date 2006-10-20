@@ -15,14 +15,16 @@ def reload_once(module):
       reload_once(module)
 
     Warning: not all modules support runtime reload. Those that don't should say so in their docstrings.
+    
     Warning: this system does not yet properly handle indirect imports, when only the inner module has
     been modified. See code comments for details, especially the docstring of debug.reload_once_per_event().
+    As a workaround, if A imports B and you edit B.py, also edit A.py in order to trigger the desired runtime reload of B.py.
+    
     Note: this function's module (exprs.basic itself) is fast and harmless enough to reload that it can be
     reloaded on every use, without bothering to use reload_once. Therefore, external callers of anything
     in the exprs package can always "import basic;reload(basic)" first, and if they do, all modules within
     exprs can just start with "from basic import *". But for clarity, some of them call reload_once on basic too.
     """
-    # similar code is in test.py
     from testdraw import vv
     reload_once_per_event(module, always_print = True, never_again = False, counter = vv.reload_counter, check_modtime = True)
 
@@ -74,5 +76,7 @@ def stub(*args, **kws):
     assert 0, "stub called"
 
 from __Symbols__ import _self # (__Symbols__ module doesn't support reload)
+
+### PROBLEM: _self is not imported by import *. For now, just import it manually as needed... later, not sure.
 
 # end
