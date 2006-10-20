@@ -62,29 +62,14 @@ def drawtest1_innards(glpane):
     "entry point from ../testdraw.py"
     print "got glpane = %r, doing nothing for now" % (glpane,)
 
-    if 0:####@@@@
+    if 1:####@@@@
         #e should memoize this:
         glpane
-        some_env = drawing_env(glpane) #####@@@@@@ IMPLEM some args
+        some_env = widget_env(glpane) #####@@@@@@ IMPLEM more args, etc, and import it
 
         inst = some_env.make(testexpr) #e pass in glpane, place to store transient state, ref to model state
         inst.draw()
 
-class drawing_env: ###e cannibalize this; only used just above
-    def __init__(self, glpane):
-        #e needs what args? glpane; place to store stuff (assy or part, and transient state); initial state defaults or decls...
-        pass
-    def make(self, expr, tstateplace):
-        #e look for rules
-        #e Q: is this memoized? does it allocate anything like a state index, or was that already done by customizing this env?
-        print "making",expr#####@@@@@
-        return expr.make_in(self, tstateplace) #####@@@@@@ IMPLEM, see class xxx below
-    def _e_eval_expr(self, expr):
-        ###e look for _e_eval method; test for simple py type
-        assert 0, "nim"####@@@@
-    def _e_eval_symbol(self, expr):
-        assert 0, "nim"####@@@@
-    pass
 
 
 # upon reload, we'll make a new env (someday we'll find it, it only depends on glpane & staterefs),
@@ -116,3 +101,4 @@ per_reload_state = {}
 
 # also per_frame_state, per_drag_state ... maybe state.per_frame.xxx, state.per_drag.xxx...
 
+# end
