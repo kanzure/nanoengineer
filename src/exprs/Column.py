@@ -14,20 +14,20 @@ from draw_utils import *
 import instance_helpers
 reload_once(instance_helpers)
 
-from instance_helpers import InstanceWrapper, Instance
+from instance_helpers import GlueCodeMemoizer, Instance, DelegatingInstance
 
 from widget2d import Widget2D #####@@@@@ replace with layout, make reloadable
 
 # ==
 
-class CLE(InstanceWrapper): # not reviewed recently
+class CLE(GlueCodeMemoizer): # not reviewed recently
     """Column list element:
     - handles 0 or more actual rows, perhaps varying in time, as described by one formula arg to Column
     - for each instance that formula evals to, this adds type-specific glue code (memoized for that instance) and delegates to it,
       also making the result available as the value of self.delegate
     - also contains the type-specific glue code ### as methods or classes?
     """
-    def _c_helper(self, fixed_type_instance): # _c_ means "informal compute method" (not called in standard way)
+    def _make_wrapped_obj(self, fixed_type_instance): # _c_ means "informal compute method" (not called in standard way)
         "make a new helper object for any fixed_type_instance, based on its type"
         ###e note, the only real "meat" here is a map from .type to the wrapper class CW/CL (and maybe an error value or None value),
         # so we might want an easier way, so you can just give a dict of types -> classes, or so
@@ -38,8 +38,6 @@ class CLE(InstanceWrapper): # not reviewed recently
             helper = CW(fixed_type_instance) ###stub, also handle None, error
         return helper
     pass
-
-class DelegatingInstance: pass ######@@@@@@ what does this do??
 
 class CW(DelegatingInstance):
     #e make sure arg has a layout box -- can't we do this by some sort of type coercion? for now, just assume it does.
@@ -230,3 +228,5 @@ class KidMakingUtilsMixin:
         # get code, get lexmods, call make_kid...
         pass
     pass
+
+# end

@@ -18,12 +18,25 @@ from Exprs import Expr
 
 # ==
 
-class Instance:
+class Instance(InvalidatableAttrsMixin):
+    "support all behavior needed by pure instances #[doc better] (which may or may not also be Exprs)"
+    # WARNING: much of the code in InstanceOrExpr might belong here. OTOH it might not make sense to split this out,
+    # since no method here can assume self is not a noninstance expr, even a method of this class, since self might be InstanceOrExpr.
     #e call _init_instance, etc;
     # rename? Instance, FormulaInstance... note also Expr, ExprHelper can be instances
     pass
 
 class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depending on how inited, whether args are insts
+    """Main superclass for specific kinds of "exprs and instances", e.g. Column, Rect, If, etc. See elsewhere for general explanation [#nim].
+    Kluges:
+    - We act like an Expr or an Instance depending on self.is_instance,
+    which is constant after initialization, but not just after __init__, since caller of __init__ also does some initialization.
+    Many methods either assert a specific state for self.is_instance, or branch on it.
+    The reason is not obviously good enough to justify the bug risk and unclarity; it's to permit the same class
+    (with one nice name in the global module namespace) to both contain the default instance implem code for an exprhead
+    (with that code written as if self was the instance, and (to avoid unpleasant surprises) with that being true),
+    and to serve as the expr constructor for that exprhead. 
+    """
     ### WARNING: instantiate normally lets parent env determine kid env... if arg is inst this seems reversed...
     # may only be ok if parent doesn't want to modify lexenv for kid.
     is_instance = False # usually overridden in certain python instances, not in subclasses
@@ -159,7 +172,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         [subclasses should replace this]
         """
         pass
-    def _init_instance(self): #e move to Instance superclass?
+    def _init_instance(self): #e move to Instance superclass? let it be name-mangled, and call in mro order?
         """called once per python instance, but only when it represents a semantic Instance ###doc -- explain better
         [subclasses should replace this]
         """
@@ -198,72 +211,74 @@ class Drawable_obs(Expr): # like Rect or Color or If
 
 # ===
 
-# these all need revision of how they're divided, and also, think about whether they are InstanceOrExpr things... ####@@@@
-
-# next two are only used in this file, will get revised completely
-
-class _ObjectMapper(Instance): # renamed from GlueCodeMemoizer; aka MemoizingObjectMapper; ObjectMapper; not useful alone
-    #e rename this superclass; it memoizes helper objects made from arg objects (in lvals, so it can remake them if needed)
-    "maintain an auto-extending dict (self._dict_of_lvals) of lvals of mapped objects, indexed by whatever objects are used as keys"
-    ###e redoc -- more general? how is it not itself just the LvalDict?
-    # i mean, what value does it add to that? just being a superclass??
-    # well, it does transform _c_helper to _make_formula -- maybe it should turn into a trivial helper function calling LvalDict??
-    def _init_instance( self): ### what about env? already in self.env? YES. need Instance superclass?
-        self._dict_of_lvals = LvalDict( self._make_formula)
-            ##e pass arg to warn if any usage gets tracked (since i think none will be)??
-            # actually this depends on the subclass's _c_helper method.
-            # More generally -- we want schemes for requesting warnings if invals occur more often than they would
-            # if we depended only on a given set of values. #e
-            ####@@@@
-        #######@@@@@@@@ why is this an lval? if it used env, should it be?
-            ## was: MemoDict( self._make_lval_and_its_formula )
-    def _make_formula( self, fixed_type_instance ): 
-        """called when we need a new lval to hold the helper instance wrapped around some fixed_type_instance,
-        to return formula_callable to make helper, which stores fixed_type_instance inside it
-        """
-        def formula_callable(_guard_ = None, fixed_type_instance = fixed_type_instance):
-            assert _guard_ is None
-            return self._c_helper( fixed_type_instance)
-        return formula_callable
-    pass
-
-
-class DelegateToComputedDelegate(InvalidatableAttrsMixin): ##e client also must be an Instance... is this a mixin or a base class?
-    "#doc: delegator, but self.delegate is recomputed by InvalidatableAttrsMixin using _C_delegate as defined by subclass"
-    #e rename, ComputedDelegateInstance ?
-    #e can subclass ever also be a "helper class", ie subclass of Expr?
+class DelegatingInstanceOrExpr(InstanceOrExpr): #061020
+    "#doc: like Delegator, but self.delegate is recomputable from _C_delegate as defined by subclass"
     def _C_delegate(self):
         assert 0, "must be overridden by subclass to return object to delegate to at the moment"
-    ###e delegate all attrs to self.delegate, w/o caching --
-    ###  WAIT, how is that compatible with __getattr__ handling compute methods? hmm...
-    ###e worst case - mix delegator functionality into InvalidatableAttrsMixin somehow.
-    # but maybe it's easy - just use theirs, and if it fails, ours.
     def __getattr__(self, attr):
-        if attr.startswith('_'):
-            raise AttributeError, attr # not just an optim -- we don't want to delegate these.
         try:
-            return InvalidatableAttrsMixin.__getattr__(self, attr) # handles _C_ methods
+            return InstanceOrExpr.__getattr__(self, attr) # handles _C_ methods via InvalidatableAttrsMixin
+                # note, _C__attr for _attr starting with _ is permitted.
         except AttributeError:
-            return getattr(self.delegate, attr)
+            if attr.startswith('_'):
+                raise AttributeError, attr # not just an optim -- we don't want to delegate these.
+            return getattr(self.delegate, attr) # here is where we delegate.
     pass
 
-####@@@@e revision guess: following should come from InstanceOrExpr, subclass DelegatingInstanceOrExpr (computed delegate),
-# then subclass for how its computed, corr to _ObjectMapper, using a new dictlike util if desired.
-class InstanceWrapper(_ObjectMapper, DelegateToComputedDelegate): ####e also inherit InstanceOrExpr somehow
-    # renamed from DelegatingObjectMapper -- Wrapper? WrapAdder? Dynamic Wrapper? GlueCodeAdder? InstanceWrapper!
+DelegatingInstance = DelegatingInstanceOrExpr #k ok? (for when you don't need the expr behavior, but (i hope) don't mind it either)
+
+
+class GlueCodeMemoizer( DelegatingInstanceOrExpr): ##e rename WrapperMemoizer? WrappedObjectMemoizer? WrappedInstanceMemoizer? probably yes [061020]
     """Superclass for an InstanceOrExpr which maps instances to memoized wrapped versions of themselves,
-    constructed according to the method ###xxx in each subclass, and delegates to the wrapped versions.
+    constructed according to the method ###xxx (_make_wrapped_obj?) in each subclass, and delegates to the wrapped versions.
     """
-    ###e 061009 -- should be a single class, and renamed; known uses: CLE, value-type-coercers in general (but not all reasonable uses are coercers)
+    # renamed to InstanceWrapper from DelegatingObjectMapper -- Wrapper? WrapAdder? Dynamic Wrapper? GlueCodeAdder? InstanceWrapper!
+    # but [061020] I keep remembering it as GlueCodeMapper or GlueCodeMemoizer, and GlueCodeMemoizer was an old name for a private superclass!
+    # So I'll rename again, to GlueCodeMemoizer for now.
+    ###e 061009 -- should be a single class, and renamed;
+    # known uses: CLE, value-type-coercers in general (but not all reasonable uses are coercers);
+    # in fact [061020], should it be the usual way to find all kids? maybe not, e.g. CL does not use this pattern, it puts CLE around non-fixed arginsts.
     def _C_delegate(self): # renamed from _eval_my_arg
         arg = self.args[0] # formula instance
         argval = arg.eval() ###k might need something passed to it (but prob not, it's an instance, it has an env)
+        ####@@@@ might be arg.value instead; need to understand how it relates to _value in Boxed [061020]
             #### isn't this just get_value? well, not really, since it needs to do usage tracking into the env...
-            # maybe that does if we don't pass another place?? or call its compute_value method??
+            # maybe that does, if we don't pass another place?? or call its compute_value method??
             # argval might be arg, btw; it's an instance with a fixed type (or perhaps a python constant data value, e.g. None)
         #e might look at type now, be special if not recognized or for None, depending on memo policy for those funny types
         lval = self._dict_of_lvals[argval]
         return lval.get_value()
+    def _C__dict_of_lvals(self): #e rename self._dict_of_lvals -- it holds lvals for recomputing/memoizing our glue objects, keyed by inner objects
+        ##e assert the value we're about to return will never need recomputing?
+        # this method is just a way to init this constant (tho mutable) attr, without overriding _init_instance.
+        assert self.is_instance
+        return LvalDict( self._recomputer_for_wrapped_version_of_one_instance) #e make a variant of LvalDict that accepts _make_wrapped_obj directly??
+            ##e pass arg to warn if any usage gets tracked within these lvals (since i think none will be)??
+            # actually this depends on the subclass's _make_wrapped_obj method.
+            # More generally -- we want schemes for requesting warnings if invals occur more often than they would
+            # if we depended only on a given set of values. #e
+            ####@@@@
+    def _make_wrapped_obj( self, fixed_type_instance ):
+        """Given an Instance of fixed type, wrap it with appropriate glue code."""
+        assert 0, "subclass must implement this"
+    def _recomputer_for_wrapped_version_of_one_instance( self, instance):
+        """[private]
+        This is what we do to _make_wrapped_obj so we can pass it to LvalDict, which wants us to return a recomputer that knows all its args.
+        We return something that wants no args when called, but contains instance and can pass it to self._make_wrapped_obj.
+        """
+        # We use the lambda kluge always needed for closures in Python, with a guard to assert it is never passed any arguments.
+        def _wrapped_recomputer(_guard_ = None, instance = instance):
+            assert _guard_ is None
+            return self._make_wrapped_obj( fixed_type_instance) # _make_wrapped_obj comes from subclass of GlueCodeMemoizer
+        return _wrapped_recomputer
+    # obs comments about whether _make_wrapped_obj and LvalDict should be packaged into a helper function or class:
+    "maintain an auto-extending dict (self._dict_of_lvals) of lvals of mapped objects, indexed by whatever objects are used as keys"
+    ###e redoc -- more general? how is it not itself just the LvalDict?
+    # i mean, what value does it add to that? just being a superclass??
+    # well, it does transform _make_wrapped_obj to _recomputer_for_wrapped_version_of_one_instance --
+    # maybe it should turn into a trivial helper function calling LvalDict?? ie to the variant of LvalDict mentioned above??
     pass
 
 # HelperClass, LayoutWidget2D, etc -- some might be in another file if drawing-specific -- widgetexprs.py ? layout.py? widget2d.py?
+
+# end

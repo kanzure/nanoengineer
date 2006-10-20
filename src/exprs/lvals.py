@@ -47,7 +47,7 @@ class Lval:
         return val
     pass
 
-class InvalidatableAttrsMixin: ### (object) needed, for property to work??
+class InvalidatableAttrsMixin: ### (object) needed, for property to work?? WORSE -- a property in self's dict is not noticed.
     "cause _C_xxx methods to work, in client class, using class Lval"
     def __getattr__(self, attr):
         # return quickly for __repr__, __eq__, __add__, etc
@@ -88,7 +88,7 @@ class InvalidatableAttrsMixin: ### (object) needed, for property to work??
             #e could the lval itself serve in this role? not a good idea, probably, re direct access to lval.
             # property(getter, setter, deler, doc) -- later might want to make del act like inval??
         setattr(self, attr, getter_property)
-
+        assert nim, "the above won't work, see comment at top of func"#061020 ####@@@@
         # no need to use it yet, since we have val
         return val
     pass
@@ -96,13 +96,19 @@ class InvalidatableAttrsMixin: ### (object) needed, for property to work??
 # ==
 
 def LvalDict(wayfunc, lvalclass = Lval): #e option to not memoize for certain types of keys (like trivials or errors)?? this or Memo?
-    """Act like a dict of lvals of the given class, whose values are recomputed from dict key using wayfunc(key)(),
-    which CAN use usage-tracked things;
-    if it does, their invalidation will cause specific lvals in this dict to become invalid (so they'll be recomputed when next needed).
+    """An extensible dict of lvals of the given lval class, whose memoized values will be recomputed from dict key using wayfunc(key)().
+    It's an error (reported #nim in MemoDict) for computation of wk = wayfunc(key) to use any external usage-tracked lvalues,
+    but it's ok if wk() does; subsequent inval of those lvals causes the lval created here to recompute and memoize wk() on demand.
+    This is more useful than if the entire dict had to be recomputed (i.e. if a _C_ rule told how to recompute the whole thing),
+    since only the specific items that become invalid need to be.
        Design note: DO WE RETURN THE LVALS or their values??
     For now, WE RETURN THE LVALS (partly since implem is easier, partly since it's more generally useful);
     this might be less convenient for the user.
     """
-    return MemoDict( lambda key: lvalclass( FormulaFromCallable( wayfunc(key) )))
+    #k Note:
+    # I'm only 90% sure the "wayfunc = wayfunc, lvalclass = lvalclass" lambda closure kluge is still needed in Python, in this case.
+    # I know it's needed in some cases, but maybe only when they are variables??
+    # More likely, whenever the lambda is used outside their usual scope, as it is in this case.
+    return MemoDict( lambda key, wayfunc = wayfunc, lvalclass = lvalclass: lvalclass( FormulaFromCallable( wayfunc(key))) )
 
 # end

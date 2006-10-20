@@ -45,8 +45,11 @@ class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibled
         try:
             return dict.__getitem__(self, key)
         except KeyError:
+            begin_disallowing_usage_tracking()  ####IMPLEM #e pass explanation for use in error messages
             val = self._way(key)
                 #e assert no usage gets tracked? for efficiency, do it by checking a counter before & after? or tmp hide tracker?
+                # yes, temporarily delete the global dict seen when usage tracking, so whoever tries it will get an error! ####IMPLEM
+            end_disallowing_usage_tracking() ####IMPLEM; note, it needs to be legal for something during the above to reallow it for itself
             dict.__setitem__(self, key, val)
             return val
     pass
