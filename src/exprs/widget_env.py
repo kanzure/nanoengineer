@@ -14,6 +14,11 @@ class widget_env:
         self.glpane = glpane
         self.staterefs = staterefs ###k
         pass
+    def understand_expr(self, expr, lexmods = None):
+        "#doc; retval contains env + lexmods, and can be trusted to understand itself."
+        # only the "rules" in self are needed for this, not the glpane & staterefs! so put this method in a subobject! #e
+        assert not lexmods, "lexmods are nim" ###@@@
+        return expr ####@@@@ STUB but might sometimes work
     pass
 
 # semi end

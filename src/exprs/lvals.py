@@ -48,7 +48,14 @@ class Lval:
     pass
 
 class InvalidatableAttrsMixin: ### (object) needed, for property to work?? WORSE -- a property in self's dict is not noticed.
-    "cause _C_xxx methods to work, in client class, using class Lval"
+    """Mixin class, for supporting "standard compute methods" in any client class.
+    We support two kinds of compute methods:
+    - _C_xxx methods, for recomputing values of individual attrs like self.xxx;
+    - pairs of _CK_xxx and _CV_xxx methods, for recomputing the set of keys, and individual values, within dictlike attrs self.xxx.
+    [Details to be explained. Features to be added: let client determine lval classes.]
+    WARNING: entirely NIM or buggy as of 061020.
+    """
+    # totally nim: '_CK_' '_CV_' ###@@@
     def __getattr__(self, attr):
         # return quickly for __repr__, __eq__, __add__, etc
         if attr.startswith('_'):
