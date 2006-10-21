@@ -7,6 +7,7 @@
 
 #include "surface.h"
 #include "bucket.h"
+#include "boxtree.h"
 
 //------------------------------------------------------------------------
 // Subdivide()
@@ -421,10 +422,33 @@ void Surface::Duplicate()
 		ia[i] = i + 1;
 	}
 	//  find and mark duplicate points
-	int nb = 17;
-	Bucket bd(nb, nb, nb);
-	bd.Add(mPoints);
-	bd.Duplicate(mPoints, ia);
+	if (1)
+	{
+		BoxTree bt;
+		Container<Box> boxes;
+		for (i = 0; i < n; i++)
+		{
+			Box b;
+			b.Enclose(mPoints[i]);
+			boxes.Add(b);
+		}
+		for (i = 0; i < n; i++)
+		{
+			bt.Add(&boxes[i]);
+		}
+		bt.Number = 1;
+		bt.Base = &boxes[0];
+		bt.BuildTree();
+		bt.Duplicate(ia);
+	}
+	else
+	{
+		int nb = 17;
+		Bucket bd(nb, nb, nb);
+		bd.Add(mPoints);
+		bd.Duplicate(mPoints, ia);
+	}
+
 	int k = 0;
     //    change array for points & normals
     //    change index
