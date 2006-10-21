@@ -47,7 +47,7 @@ class Lval:
         return val
     pass
 
-class InvalidatableAttrsMixin: ### (object) needed, for property to work?? WORSE -- a property in self's dict is not noticed.
+class InvalidatableAttrsMixin(object): # object superclass is needed, to make this a new-style class, so a python property will work.
     """Mixin class, for supporting "standard compute methods" in any client class.
     We support two kinds of compute methods:
     - _C_xxx methods, for recomputing values of individual attrs like self.xxx;
@@ -57,11 +57,33 @@ class InvalidatableAttrsMixin: ### (object) needed, for property to work?? WORSE
     """
     # totally nim: '_CK_' '_CV_' ###@@@
     def __getattr__(self, attr):
-        # return quickly for __repr__, __eq__, __add__, etc
-        if attr.startswith('_'):
-            raise AttributeError, attr # must be fast ##e could use endswith if we also want to handle e.g. _lvaldict_...
+        # return quickly for attrs that can't have compute rules
+        if attr.startswith('__') or attr.startswith('_C'):
+            raise AttributeError, attr # must be fast for __repr__, __eq__, __add__, etc
+            # Notes:
+            # - We only catch __xx here, not _xx, since _xx is permitted to have compute rules, e.g. _C__xx.
+            #   Btw, __xx will only exist if it's really __xx__, since otherwise it would be name-mangled to _<classname>__xx.
+            # - We exclude _Cxx so that no one tries to define a compute rule for a compute rule (hard to support, not very useful).
 
-        # look for _C_ (aka or formerly, _compute_) method
+        # look for a compute method for attr, either _C_attr (used alone) or _CK_attr and/or _CV_attr (used together),
+        # in self.__class__; if found, create and save a property in the class (so this only happens once per attr and class).
+        if _compile_compute_rule( self.__class__, attr, '_C_', _C_rule ) or \
+           _compile_compute_rule( self.__class__, attr, '_CV_', _CV_rule ):
+            # One of the above calls of _compile_compute_rule defined a property in self.__class__ for attr.
+            # Use it now! [This will cause infrecur if the function said it's there and it's not! Fix sometime. #e]
+            return getattr(self, attr)
+
+        raise AttributeError, attr
+    pass # end of class InvalidatableAttrsMixin
+
+def _compile_compute_rule( clas, attr, prefix, propclass ):
+    """[private helper function]
+    Try to create a compute rule for accessing attr in clas (which needs to inherit from object for this to be possible),
+    based on a method named (prefix + attr) found in clas (if one is there).
+    If you find that method, store a property (or similar object -- I forget the general name for them ###doc)
+    implementing the compute rule in clas.attr, created by propclass(...), and return True. Otherwise return False.
+    """
+        # (if this works, it won't happen again on the same class
         try:
             compute_method = getattr(self, '_C_' + attr)
             ###e unlike InvalMixin, this method is not allowed to directly set the attr, or other attrs! Can we detect that error? ###

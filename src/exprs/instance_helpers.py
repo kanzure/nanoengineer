@@ -148,7 +148,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         self.has_args = expr.has_args #k ??
         self.args = expr.args # for convenient access ### is it ok that we're putting the bare ones here? Don't we want to hide those?
         # or can we do the type & instancing on these exprs, to get the declared specific args?
-        nim ##### SHOULD MODIFY ARGS BY ADDING DEFAULTS AND TYPE COERCERS
+        assert 0, "nim make in %r" % self ##### SHOULD MODIFY ARGS BY ADDING DEFAULTS AND TYPE COERCERS
         ### AND set up self.opts to access old._e_formula_dict, also perhaps adding effect of type coercers
         ### AND have some way to get defaults from env
         ### AND take care of rules in env -- now is the time to decide this is not the right implem class -- or did caller do that?
