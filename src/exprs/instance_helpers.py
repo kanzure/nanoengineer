@@ -253,7 +253,9 @@ class GlueCodeMemoizer( DelegatingInstanceOrExpr): ##e rename WrapperMemoizer? W
         ##e assert the value we're about to return will never need recomputing?
         # this method is just a way to init this constant (tho mutable) attr, without overriding _init_instance.
         assert self.is_instance
-        return LvalDict( self._recomputer_for_wrapped_version_of_one_instance) #e make a variant of LvalDict that accepts _make_wrapped_obj directly??
+        return LvalDict( self._recomputer_for_wrapped_version_of_one_instance)
+            #e make a variant of LvalDict that accepts _make_wrapped_obj directly?? I think I did, LvalDict2 -- try it here ####@@@@
+        ## try this: return LvalDict2( self._make_wrapped_obj ) # then zap _recomputer_for_wrapped_version_of_one_instance ####e
             ##e pass arg to warn if any usage gets tracked within these lvals (since i think none will be)??
             # actually this depends on the subclass's _make_wrapped_obj method.
             # More generally -- we want schemes for requesting warnings if invals occur more often than they would

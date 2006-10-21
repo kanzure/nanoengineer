@@ -9,7 +9,7 @@ from basic import *
 
 # ==
 
-class Lval: ####@@@@ most inval behavior is nim
+class Lval: ####@@@@ most inval behavior is nim; it needs to be integrated with the env.prefs usage tracking in changes.py
     """Lval(formula) -> standard lval for that formula, has .get_value(), .set_formula,
     does inval flag/subs/propogate, tracks own usage
     """
@@ -214,26 +214,59 @@ class _CV_rule(object):
     
     pass # end of class _CV_rule
 
-class DictFromKeysAndFunction(object): #e refile in py_utils
-    """Imitate a read-only dict with a fixed set of keys (computed from a supplied function when first needed;
-    if func is not supplied, all keys are permitted and iteration over this dict is not supported),
+class DictFromKeysAndFunction(InvalidatableAttrsMixin): #e refile in py_utils? not sure -- recursive import problem re superclass?
+    """Act like a read-only dict with a fixed set of keys (computed from a supplied function when first needed;
+    if that func is not supplied, all keys are permitted and iteration over this dict is not supported),
     and with all values computed by another supplied function (not necessarily constant, thus not cached).
     """
-    def __init__(self, compute_value_at_key, compute_key_sequence = None):
+    def __init__(self, compute_value_at_key, compute_key_sequence = None, validate_keys = False):
         self.compute_value_at_key = compute_value_at_key
-        self.compute_key_sequence = compute_key_sequence
-        unfinished ###@@@
-    pass
-        
-class RecomputableDict(Delegator): ###@@@ dashed off, not reviewed well
-    def __init__(self, compute_methodV, compute_methodK = None):
+        self.compute_key_sequence = compute_key_sequence # warning: might be None
+        self.validate_keys = validate_keys
+    def _C_key_sequence(self):
+        # called at most once, when self.key_sequence is first accessed
+        assert self.compute_key_sequence, "iteration not supported in %r, since compute_key_sequence was not supplied" % self
+        return self.compute_key_sequence()
+    def _C_key_set(self):
+        return dict([(key,key) for key in self.key_sequence])
+    def __getitem__(self, key):
+        if self.validate_keys: #e [if this is usually False, it'd be possible to optim by skipping this check somehow]
+            if not key in self.key_set:
+                raise KeyError, key
+        return self.compute_value_at_key(key) # not cached in self
+    # dict methods, only supported when compute_key_sequence was supplied
+    def keys(self):
+        "note: unlike for an ordinary dict, this is ordered, if compute_key_sequence retval is ordered"
+        return self.key_sequence
+    iterkeys = keys
+    def values(self):
+        "note: unlike for an ordinary dict, this is ordered, if compute_key_sequence retval is ordered"
+        compval = self.compute_value_at_key
+        return map( compval, self.key_sequence )
+    itervalues = values
+    def items(self):
+        "note: unlike for an ordinary dict, this is ordered, if compute_key_sequence retval is ordered"
+        compval = self.compute_value_at_key
+        return [(key, compval(key)) for key in self.key_sequence]
+    iteritems = items
+    pass # end of class DictFromKeysAndFunction
+
+from idlelib.Delegator import Delegator
+
+class RecomputableDict(Delegator):
+    """Act like a read-only dict with variable (invalidatable/recomputable) values,
+    and a fixed key sequence used only to support iteration
+    (with iteration not supported if the key sequence compute function is not supplied).
+       If validate_keys is True, every __getitem__ verifies the supplied key is in the specified key sequence.
+       #e Someday, self.lvaldict might be a public attr -- not sure if this is needed;
+    main use is "iterate over values defined so far".
+    """
+    def __init__(self, compute_methodV, compute_methodK = None, validate_keys = False):
         self.lvaldict = LvalDict2(compute_methodV)
-        self.set_delegate( DictFromKeysAndFunction( self.compute_value_at_key, compute_methodK)) ##k
+        Delegator.__init__( self, DictFromKeysAndFunction( self.compute_value_at_key, compute_methodK, validate_keys = validate_keys))
         return
     def compute_value_at_key(self, key):
         return self.lvaldict[key].get_value()
     pass
-    
-
-    
+        
 # end
