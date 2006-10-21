@@ -10,6 +10,7 @@ Maybe someday we'll split these parts.
 #e rename module?? possible names: expr_env, instance_env, widget_env, drawing_env -- or something plural?
 
 class widget_env:
+    "represent an environment for the instantiation and use of widget exprs (with rules and staterefs)"
     def __init__(self, glpane, staterefs): #e rename glpane? type of staterefs? rules/lexenv too? ipath??
         self.glpane = glpane
         self.staterefs = staterefs ###k
@@ -19,6 +20,16 @@ class widget_env:
         # only the "rules" in self are needed for this, not the glpane & staterefs! so put this method in a subobject! #e
         assert not lexmods, "lexmods are nim" ###@@@
         return expr ####@@@@ STUB but might sometimes work
+    def make(self, expr, ipath): #k args?? ####@@@@
+        """Make and return an instance of the given expr (understood or not) in self.
+        The instance should store its state under the index-path ipath [#doc format].
+        """
+        #e ipath guess: a list of 2 or 3 elts, linked list inner first, maybe append an interning of it
+        #e look for rules; check if understood;
+        #e Q: is this memoized? does it allocate anything like a state obj ref, or was that already done by customizing this env?
+        print "making",expr,ipath#####@@@@@
+        # assume it's an understood expr at this point
+        return expr._make_in(self, ipath) #####@@@@@@ IMPLEM
     pass
 
 # semi end
@@ -30,11 +41,8 @@ class drawing_env: ###e cannibalize this above; only used in test.py, obs now
     def __init__(self, glpane):
         #e needs what args? glpane; place to store stuff (assy or part, and transient state); initial state defaults or decls...
         pass
-    def make(self, expr, tstateplace):
-        #e look for rules
-        #e Q: is this memoized? does it allocate anything like a state index, or was that already done by customizing this env?
-        print "making",expr#####@@@@@
-        return expr.make_in(self, tstateplace) #####@@@@@@ IMPLEM, see class xxx below
+    
+        
     def _e_eval_expr(self, expr):
         ###e look for _e_eval method; test for simple py type
         assert 0, "nim"####@@@@

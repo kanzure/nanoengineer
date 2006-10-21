@@ -34,9 +34,20 @@ import Boxed
 reload_once(Boxed)
 from Boxed import Boxed
 
+import widget_env
+reload_once(widget_env)
+from widget_env import widget_env
+
 # == stubs
 
 ToggleShow = TestIterator = Column
+
+# == make some "persistent state"
+
+try:
+    _state
+except:
+    _state = {}
 
 # == testexprs
 
@@ -58,17 +69,21 @@ testexpr = testexpr_1
 
 # == per-frame drawing code
 
+NullIpath = None ###STUB, refile
+
 def drawtest1_innards(glpane):
     "entry point from ../testdraw.py"
     print "got glpane = %r, doing nothing for now" % (glpane,)
 
-    if 1:####@@@@
-        #e should memoize this:
-        glpane
-        some_env = widget_env(glpane) #####@@@@@@ IMPLEM more args, etc, and import it
+    glpane
+    staterefs = _state ##e is this really a stateplace? or do we need a few, named by layers for state?
+        #e it has: place to store transient state, ref to model state
+    some_env = widget_env(glpane, staterefs) #####@@@@@@ IMPLEM more args, etc, and import it
 
-        inst = some_env.make(testexpr) #e pass in glpane, place to store transient state, ref to model state
-        inst.draw()
+    inst = some_env.make(testexpr, NullIpath) # should memoize this, severe optim not to, but at least it ought to work this way
+    inst.draw()
+    print "drew"
+    return
 
 
 

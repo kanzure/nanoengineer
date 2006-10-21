@@ -199,25 +199,16 @@ class Cylinder(WidgetExpr):
 
 # ==
 
-class Column_try4orso(xxx):
+class Column_try4orso(Stub):
     # kids
     # layoutboxes combine up, then cumulate down to make coord systems, each defined in terms of prior one (unless indices nest)
     # ie coords[i] = coords[i-1] translated down a bit
     pass
 
     kids = [] # kluge for import
-    for kid in kids: # note, if we want, these can be "our view of the kids" so they have extra attrs like our index
-        kp = prior(kid)
-        kid.index
-        kid.parent
-        kid.coords
-        kid.lbox.height
-        kid.coords = kp.coords.translate(DY * kp.height)
+    
+    # [obs stuff removed]
 
-    def _compute_kid_coords(self, kidi):
-        kid = self.kids[kidi]
-        kp = prior(kid)
-        kid.coords = kp.coords.translate(DY * kp.height)
 
         # it might be easier if things like coords are attrs of inter-kid objects, not of kids,
         # so rule for every kid is same (use input coords, define output coords)

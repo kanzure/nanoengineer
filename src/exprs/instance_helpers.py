@@ -134,7 +134,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         Called only from __init__, when self knows nothing except its class.
         """
         expr, env, ipath = data ###@@@ might want to split env into rules (incl lexenv) & place (incl staterefs, glpane)
-        assert not self.is_instance
+        assert not self.is_instance #e remove when works
         assert not expr.is_instance
         self.is_instance = True
 
@@ -154,11 +154,20 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         ### AND take care of rules in env -- now is the time to decide this is not the right implem class -- or did caller do that?
         ### and did caller perhaps also handle adding of type coercers, using our decl??
 
+        # 061020 hopes:
+        # maybe we can work for all, incl OpExprs & iterators, by only setting up RULES to instantiate,
+        # which if not used, never happen. self.kids.<index/attr path> has to come from some self.arg or self.opt...
+        # index always comes from <index/attr path> and *not* from which arg or opt, i think... sometimes they correspond,
+        # and some predeclared members of kids could access those for you, e.g. self.kids.args or just self.args for short...
+        # we could even say _e_args for the raw ones, .args for the cooked ones.
+
         # set up state refs
         ####
         nim
 
-        # call subclass-specific instantiation code (it should make kids, perhaps lazily; anything else?? ###@@@)
+        #e call _init_class and/or _init_expr if needed [here or more likely earlier]
+        
+        # call subclass-specific instantiation code (it should make kids, perhaps lazily, if above didn't; anything else?? ###@@@)
         self._init_instance()
         return
     
@@ -180,15 +189,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
     
     pass # end of class InstanceOrExpr
 
-##### CANNIBALIZE THESE RELATED SNIPPETS to fill in InstanceOrExpr:
-    
-class xxx_obs: # widget expr head helper class, a kind of expr 
-    def make_in(self, tstateplace, env):
-        return self.__class__(self, tstateplace, env, _make_in = True) #####@@@@@ tell __init__ about this
-            # note: _make_in causes all args to be interpreted specially
-    def __init__(self): ##### or merge with the one in Expr, same for __call__
-        pass
-    pass
+##### CANNIBALIZE THESE RELATED SNIPPETS to fill in InstanceOrExpr: Drawable_obs, old class xxx
 
 class Drawable_obs(Expr): # like Rect or Color or If
     """Instances of subclasses of this can be unplaced or placed (aka "instantiated");

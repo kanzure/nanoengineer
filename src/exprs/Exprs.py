@@ -150,16 +150,17 @@ class add_Expr(OpExpr):
     # maybe, 061016: ####@@@@ [current issues: args to _make_in, for normals & Ops; symbol lookup; when shared exprs ref same instance]
     def _C_value(self):
         return self.kids[0].value + self.kids[1].value
-    def _make_in(self, place, ipath):
-        ###WRONG args (maybe), and defined in wrong class (common to all OpExprs or exprs with fixed kids arrays),
+    def _make_in(self, place, ipath): #### WRONG (see below), really more like _init_instance, called by common _destructive_make_in
+        ###WRONG args (maybe -- place -> env??), and defined in wrong class (common to all OpExprs or exprs with fixed kids arrays),
         ###and attrs used here (kids, args, maybe even is_instance) might need _e_ (??),
         ### and maybe OpExprs never need ipath or place, just env
         ###    (for symbol lookup when they include symbols? or did replacement already happen to make self understood??)
         ### and WORST OF ALL, it's actually a destructive make -- maybe it's _init_instance, called by common _destructive_make_in .
         assert not self.is_instance ###@@@ need to be in InstanceOrExpr superclass for this
-        ##self.kids = map(place.make_in, self.args.items()) # hmm, items have index->expr already -- but this leaves out ipath
+        # following says place._make_in but probably means env.make! [061020 guess]
+        ##self.kids = map(place._make_in, self.args.items()) # hmm, items have index->expr already -- but this leaves out ipath
         args = self._e_args
-        self.kids = [place.make_in(args[i], [i, ipath]) for i in range(len(args))]
+        self.kids = [place._make_in(args[i], [i, ipath]) for i in range(len(args))]
             # note (proposed): [i, ipath] is an inlined sub_index(i,ipath); [] leaves room for intern = append
     pass
 
