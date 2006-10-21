@@ -54,6 +54,9 @@ CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
 endif
 
 OBJS = cppsurface.o \
+	box.o \
+	interval.o \
+	boxtree.o \
 	surface.o \
 	container.o \
 	bucket.o \
@@ -81,6 +84,15 @@ psurface.o: psurface.c
 
 cppsurface.o: cppsurface.cpp cppsurface.h
 	g++ -c cppsurface.cpp -o cppsurface.o $(CXXFLAGS)
+
+box.o: box.cpp box.h
+	g++ -c box.cpp -o box.o $(CXXFLAGS)
+
+interval.o: interval.cpp interval.h
+	g++ -c interval.cpp -o interval.o $(CXXFLAGS)
+
+boxtree.o: boxtree.cpp boxtree.h
+	g++ -c boxtree.cpp -o boxtree.o $(CXXFLAGS)
 
 surface.o: surface.cpp surface.h
 	g++ -c surface.cpp -o surface.o $(CXXFLAGS)
@@ -115,6 +127,8 @@ depend:
 # BEGIN DEPENDENCIES
 # DO NOT DELETE
 
+box.o: interval.h triple.h
+boxtree.o: container.h box.h
 bucket.o: container.h triple.h
 distancetransform.o: container.h triple.h
 csurface.o: cppsurface.h
