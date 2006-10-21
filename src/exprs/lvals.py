@@ -1,14 +1,22 @@
-from basic import * # autoreload of basic is done before we're imported
+'''
+lvals.py - various kinds of "lvalue" objects (slots for holding attribute values)
+with special behavior such as usage-tracking and invalidation/update.
 
+$Id$
+'''
 
-# Lval(formula) -> standard lval for that formula, has .value, maybe has .set_formula, does inval flag/subs/propogate, tracks own usage
-# may just do this by having a single attr .value that works like any standard invalidatable attr, plus set_formula used indirectly
+from basic import *
 
-class Lval:
+# ==
+
+class Lval: ####@@@@ most inval behavior is nim
+    """Lval(formula) -> standard lval for that formula, has .get_value(), .set_formula,
+    does inval flag/subs/propogate, tracks own usage
+    """
     valid = False
     def __init__(self, formula = None):
         """For now, formula is either None (meaning no formula is set yet -- error to use),
-        or any callable [?? or thing taking compute_value method?? ####]
+        or any callable [WRONG i think] [?? or thing taking compute_value method?? ####]
         which does usage-tracking of whatever it uses into its dynenv in the standard way,
         and returns its value (perhaps None or another callable, treated as any other value).
         Note that unlike InvalMixin _recompute_ methods, it can't work by setting the value instead.
@@ -31,7 +39,8 @@ class Lval:
         if not self.valid:
             self._value = self._C_value()
             self.valid = True
-        ###e do standard usage tracking into env -- compatible with env.prefs (i forget if i have to bugfix that)
+        ###e do standard usage tracking into env -- compatible with env.prefs
+            # (i forget if the needed bugfix in changes.py for propogating invals applies to that)
         return self._value
     def _C_value(self):
         """compute our value, tracking what it uses, subscribing our inval method to that.
@@ -47,6 +56,33 @@ class Lval:
         return val
     pass
 
+def LvalDict(wayfunc, lvalclass = Lval): #e option to not memoize for certain types of keys (like trivials or errors)?? this or Memo?
+    """An extensible dict of lvals of the given lval class, whose memoized values will be recomputed from dict key using wayfunc(key)().
+    It's an error (reported #nim in MemoDict) for computation of wk = wayfunc(key) to use any external usage-tracked lvalues,
+    but it's ok if wk() does; subsequent inval of those lvals causes the lval created here to recompute and memoize wk() on demand.
+    This is more useful than if the entire dict had to be recomputed (i.e. if a _C_ rule told how to recompute the whole thing),
+    since only the specific items that become invalid need to be.
+       Design note: DO WE RETURN THE LVALS or their values??
+    For now, WE RETURN THE LVALS (partly since implem is easier, partly since it's more generally useful);
+    this might be less convenient for the user.
+    """
+    #k Note:
+    # I'm only 90% sure the "wayfunc = wayfunc, lvalclass = lvalclass" lambda closure kluge is still needed in Python, in this case.
+    # I know it's needed in some cases, but maybe only when they are variables??
+    # More likely, whenever the lambda is used outside their usual scope, as it is in this case.
+    return MemoDict( lambda key, wayfunc = wayfunc, lvalclass = lvalclass:
+                     lvalclass( FormulaFromCallable( wayfunc(key))) )
+
+def LvalDict2(valfunc, lvalclass = Lval):
+    """Like LvalDict but uses a different recompute-function API, which might be easier for most callers to supply;
+    if it's always better, it'll replace LvalDict.
+    In this variant, just pass valfunc, which will be applied to key in order to recompute the value at key.
+    """
+    return MemoDict( lambda key, valfunc = valfunc, lvalclass = lvalclass:
+                     lvalclass( FormulaFromCallable( lambda valfunc=valfunc, key=key: valfunc(key))) )
+
+# ==
+
 class InvalidatableAttrsMixin(object): # object superclass is needed, to make this a new-style class, so a python property will work.
     """Mixin class, for supporting "standard compute methods" in any client class.
     We support two kinds of compute methods:
@@ -55,7 +91,6 @@ class InvalidatableAttrsMixin(object): # object superclass is needed, to make th
     [Details to be explained. Features to be added: let client determine lval classes.]
     WARNING: entirely NIM or buggy as of 061020.
     """
-    # totally nim: '_CK_' '_CV_' ###@@@
     def __getattr__(self, attr):
         # return quickly for attrs that can't have compute rules
         if attr.startswith('__') or attr.startswith('_C'):
@@ -96,91 +131,109 @@ def _compile_compute_rule( clas, attr, prefix, propclass ):
         return False
     # assume prop is a suitable property object for use in a new-style class    
     setattr( clas, attr, prop)
+    ###e improved design: propclass should instead be an object which can store a list of new properties (descriptors)
+    # on a list of corresponding attrs;
+    # that way it could know the prefixes itself, know how to look for the unbound methods,
+    # and support the definition of more than one attr-descriptor, e.g. one for attr and one for associated values
+    # like direct access to an LvalDict associated with a _CV_rule attr. When we need the latter, revise the design like that.
     return True
 
-class _C_rule(object):
-    "act like a property that implements a recompute rule using a _C_attr compute method"
+class _C_rule(object): ###e rename, since this is not a compute method? #e give it and _CV_rule a common superclass?
+    "act like a property that implements a recompute rule using an Lval made from a _C_attr compute method"
     def __init__(self, clas, attr, unbound_method, prefix):
         assert prefix == '_C_' and unbound_method == getattr( clas, prefix + attr) # a sign of bad API design of _compile_compute_rule?
         #e store stuff
         self.attr = attr
-
-        ### PROBLEM: we need to create one Lval object per instance!!! #####@@@@@@ so below is WRONG.
-
-        
-        # create lval object, passing our compute method as its formula.
-        # (MEMORY LEAK: circular ref to self via bound method compute_method;
-        #  someday might not be needed, if getter could pass it;
-        #  maybe easiest fast solution is a C-coded metaclass;
-        #  alternatively, this __getattr__ could serve as the getter,
-        #  and pass the compute method each time, memoizing only the lval's usage & invalsubs records. ###e)
-        self.lval = Lval(FormulaFromCallable(compute_method))
+        self.prefix = prefix
         return
     def __get__(self, instance, owner):
         if instance is None:
             # we're being accessed directly from class
             return self
-        ###e do usage tracking -- or is there an Lval object to do this for us? yes, that's what we want... ###@@@
-        ###e recompute value if it's invalid
-        ###e after compute method runs, check if it did its own setattr -- we might even be able to make that work!
-        # but, would it call __set__ below? I think so! So at least, the __set__ below detects that error. Good for now.
-        return self.value
+        # find the Lval object for our attr in instance
+        attr = self.attr
+        try:
+            lval = instance.__dict__[attr]
+        except KeyError:
+            # make a new Lval object from the compute_method (happens once per attr per instance)
+            mname = self.prefix + attr
+            compute_method = getattr(instance, mname) # should always work
+            lval = instance.__dict__[attr] = Lval(FormulaFromCallable(compute_method))
+        return lval.get_value() # this does usage tracking, validation-checking, recompute if needed
+            # Notes:
+            # - There's a reference cycle between compute_method and instance, which is a memory leak.
+            # This could be fixed by using a special Lval (stored in self, not instance, but with data stored in instance)
+            # which we'd pass instance to on each use. (Or maybe a good solution is a C-coded metaclass, for making instance?)
+            # - The __set__ below detects the error of the compute method setting the attr itself. Good enough for now.
+            # Someday, if we use a special Lval object that is passed self and enough into to notice that itself,
+            # then we could permit compute objects to do that, if desired. But the motivation to permit that is low.
+            # - There is no provision for direct access to the Lval object (e.g. to directly call its .set_formula method).
+            # We could add one if needed, but I don't know the best way. Maybe find this property (self) and use a get_lval method,
+            # which is passed the instance? Or, setattr(instance, '_lval_' + attr, lval).
     def __set__(self, instance, val):
         #e can instance be None here??
         assert 0, "not allowed to set attr %r in %r" % (self.attr, instance)
     #e could make __delete__ do an inval... should we?? ###
-    pass
-        
-        
-    # return property(fget, fset, fdel, doc)
+    pass # end of class _C_rule
 
-    
-
-
-
-
-    # use it for the first time -- is this ok, before we've set up the getter, etc?
-    # doing this now makes it easier to detect an error below.
-    val = lval.get_value() # this causes client code to track usage of this lval's value, and lval to track usage within its formula
-    assert not self.__dict__.has_key('attr'), "error: compute method for %r apparently stored a direct value in %r" % (attr, self)
-        # this would be an error any time we call compute_method, but it's only convenient to test for it the first time, but that's usually enough
-
-    # store lval for direct access (usually never needed)
-    assert not hasattr(self, '_lval_' + attr)
-    setattr(self, '_lval_' + attr, lval)
-    
-    # create getter property which accesses lval
-    getter_property = property(lval.get_value)
-        #e could the lval itself serve in this role? not a good idea, probably, re direct access to lval.
-        # property(getter, setter, deler, doc) -- later might want to make del act like inval??
-    setattr(self, attr, getter_property)
-    assert nim, "the above won't work, see comment at top of func"#061020 ####@@@@
-    # no need to use it yet, since we have val
-    return val
-    pass
-
-        ###e unlike InvalMixin, this method is not allowed to directly set the attr, or other attrs! Can we detect that error? ###
-        # we'd have to check each time (or, first time, maybe good enough).
-        # reason: we can't let the attr val be stored directly, since we have to track all uses of it and alert dynenv to them,
-        # pointing it to us (the lval) so it can subscribe to our invals. This is another reason for a definite lval object.
-
-
-# ==
-
-def LvalDict(wayfunc, lvalclass = Lval): #e option to not memoize for certain types of keys (like trivials or errors)?? this or Memo?
-    """An extensible dict of lvals of the given lval class, whose memoized values will be recomputed from dict key using wayfunc(key)().
-    It's an error (reported #nim in MemoDict) for computation of wk = wayfunc(key) to use any external usage-tracked lvalues,
-    but it's ok if wk() does; subsequent inval of those lvals causes the lval created here to recompute and memoize wk() on demand.
-    This is more useful than if the entire dict had to be recomputed (i.e. if a _C_ rule told how to recompute the whole thing),
-    since only the specific items that become invalid need to be.
-       Design note: DO WE RETURN THE LVALS or their values??
-    For now, WE RETURN THE LVALS (partly since implem is easier, partly since it's more generally useful);
-    this might be less convenient for the user.
+class _CV_rule(object):
+    """Act like a property that implements a per-item recompute rule for a dictlike object
+    stored at instance.attr, using an LvalDict made from a _CV_attr compute method for item values,
+    and an optional _CK_attr compute method for the complete list of keys.
+       If the _CK_attr method is not present, the set of keys is undefined and the dictlike object
+    (value of instance.attr) will not support iteration over keys, items, or values.
+       Whether or not iteration is supported, direct access to the LvalDict is provided [how? ###e, nim],
+    which makes it possible to iterate over the dict items created so far.
     """
-    #k Note:
-    # I'm only 90% sure the "wayfunc = wayfunc, lvalclass = lvalclass" lambda closure kluge is still needed in Python, in this case.
-    # I know it's needed in some cases, but maybe only when they are variables??
-    # More likely, whenever the lambda is used outside their usual scope, as it is in this case.
-    return MemoDict( lambda key, wayfunc = wayfunc, lvalclass = lvalclass: lvalclass( FormulaFromCallable( wayfunc(key))) )
+    def __init__(self, clas, attr, unbound_method, prefix):
+        assert prefix == '_CV_' and unbound_method == getattr( clas, prefixV + attr)
+        self.attr = attr
+        self.prefixV = prefix
+        self.prefixK = '_CK_'
+        self.has_CK = not not getattr( clas, prefixK + attr, False)
+        return
+    def __get__(self, instance, owner):
+        if instance is None:
+            # we're being accessed directly from class
+            return self
+        # find the RecomputableDict object for our attr in instance
+        attr = self.attr
+        try:
+            obj = instance.__dict__[attr]
+            print "warning: obj was not found directly, but it should have been, since this is a non-data descriptor", self #e more?
+        except KeyError:
+            # make a new object from the compute_methods (happens once per attr per instance) 
+            compute_methodV = getattr(instance, self.prefixV + attr) # should always work
+            compute_methodK = getattr(instance, self.prefixK + attr, None) # optional method
+            obj = instance.__dict__[attr] = RecomputableDict(compute_methodV, compute_methodK)
+        return obj
+    # we have no __set__ method, so in theory, once we've stored obj in instance.__dict__ above, it will be gotten directly
+    # without going through __get__. We print a warning above if that fails.
 
+    # note: similar comments about memory leaks apply, as for _C_rule.
+    
+    pass # end of class _CV_rule
+
+class DictFromKeysAndFunction(object): #e refile in py_utils
+    """Imitate a read-only dict with a fixed set of keys (computed from a supplied function when first needed;
+    if func is not supplied, all keys are permitted and iteration over this dict is not supported),
+    and with all values computed by another supplied function (not necessarily constant, thus not cached).
+    """
+    def __init__(self, compute_value_at_key, compute_key_sequence = None):
+        self.compute_value_at_key = compute_value_at_key
+        self.compute_key_sequence = compute_key_sequence
+        unfinished ###@@@
+    pass
+        
+class RecomputableDict(Delegator): ###@@@ dashed off, not reviewed well
+    def __init__(self, compute_methodV, compute_methodK = None):
+        self.lvaldict = LvalDict2(compute_methodV)
+        self.set_delegate( DictFromKeysAndFunction( self.compute_value_at_key, compute_methodK)) ##k
+        return
+    def compute_value_at_key(self, key):
+        return self.lvaldict[key].get_value()
+    pass
+    
+
+    
 # end
