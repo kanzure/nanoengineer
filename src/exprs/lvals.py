@@ -67,8 +67,9 @@ class InvalidatableAttrsMixin(object): # object superclass is needed, to make th
 
         # look for a compute method for attr, either _C_attr (used alone) or _CK_attr and/or _CV_attr (used together),
         # in self.__class__; if found, create and save a property in the class (so this only happens once per attr and class).
+        # (#e should we grab the prefix out of the rule constructor, since it needs to know it anyway?)
         if _compile_compute_rule( self.__class__, attr, '_C_', _C_rule ) or \
-           _compile_compute_rule( self.__class__, attr, '_CV_', _CV_rule ):
+           _compile_compute_rule( self.__class__, attr, '_CV_', _CV_rule ): # also incorporates _CK_ for same attr, if it exists
             # One of the above calls of _compile_compute_rule defined a property in self.__class__ for attr.
             # Use it now! [This will cause infrecur if the function said it's there and it's not! Fix sometime. #e]
             return getattr(self, attr)
@@ -79,20 +80,33 @@ class InvalidatableAttrsMixin(object): # object superclass is needed, to make th
 def _compile_compute_rule( clas, attr, prefix, propclass ):
     """[private helper function]
     Try to create a compute rule for accessing attr in clas (which needs to inherit from object for this to be possible),
-    based on a method named (prefix + attr) found in clas (if one is there).
-    If you find that method, store a property (or similar object -- I forget the general name for them ###doc)
+    using a compute method named (prefix + attr) found in clas (if one is there).
+       If you find that method, store a property (or similar object -- I forget the general name for them ###doc)
     implementing the compute rule in clas.attr, created by propclass(...), and return True. Otherwise return False.
     """
-        # (if this works, it won't happen again on the same class
-        try:
-            compute_method = getattr(self, '_C_' + attr)
-            ###e unlike InvalMixin, this method is not allowed to directly set the attr, or other attrs! Can we detect that error? ###
-            # we'd have to check each time (or, first time, maybe good enough).
-            # reason: we can't let the attr val be stored directly, since we have to track all uses of it and alert dynenv to them,
-            # pointing it to us (the lval) so it can subscribe to our invals. This is another reason for a definite lval object.
-        except AttributeError:
-            #e also check for _get_ method? maybe not needed, just have client use getters instead?
-            raise AttributeError, attr
+    assert isinstance( clas, object), "compute rules are only supported on new-style classes, not %r" % clas
+    try:
+        unbound_method = getattr( clas, prefix + attr)
+    except AttributeError:
+        return False
+    assert callable(unbound_method), "prefix %r is reserved for use on compute methods, but .%s is not callable on %r" % \
+           (prefix, prefix + attr, clas)
+    prop = propclass( clas, attr, unbound_method, prefix ) # on error, this can raise an exception; or it can return None
+    if prop is None:
+        return False
+    # assume prop is a suitable property object for use in a new-style class    
+    setattr( clas, attr, prop)
+    return True
+
+class _C_rule(object):
+    "act like a property that implements a recompute rule using a _C_attr compute method"
+    def __init__(self, clas, attr, unbound_method, prefix):
+        assert prefix == '_C_' and unbound_method == getattr( clas, prefix + attr) # a sign of bad API design of _compile_compute_rule?
+        #e store stuff
+        self.attr = attr
+
+        ### PROBLEM: we need to create one Lval object per instance!!! #####@@@@@@ so below is WRONG.
+
         
         # create lval object, passing our compute method as its formula.
         # (MEMORY LEAK: circular ref to self via bound method compute_method;
@@ -100,27 +114,56 @@ def _compile_compute_rule( clas, attr, prefix, propclass ):
         #  maybe easiest fast solution is a C-coded metaclass;
         #  alternatively, this __getattr__ could serve as the getter,
         #  and pass the compute method each time, memoizing only the lval's usage & invalsubs records. ###e)
-        lval = Lval(FormulaFromCallable(compute_method))
-
-        # use it for the first time -- is this ok, before we've set up the getter, etc?
-        # doing this now makes it easier to detect an error below.
-        val = lval.get_value() # this causes client code to track usage of this lval's value, and lval to track usage within its formula
-        assert not self.__dict__.has_key('attr'), "error: compute method for %r apparently stored a direct value in %r" % (attr, self)
-            # this would be an error any time we call compute_method, but it's only convenient to test for it the first time, but that's usually enough
-
-        # store lval for direct access (usually never needed)
-        assert not hasattr(self, '_lval_' + attr)
-        setattr(self, '_lval_' + attr, lval)
-        
-        # create getter property which accesses lval
-        getter_property = property(lval.get_value)
-            #e could the lval itself serve in this role? not a good idea, probably, re direct access to lval.
-            # property(getter, setter, deler, doc) -- later might want to make del act like inval??
-        setattr(self, attr, getter_property)
-        assert nim, "the above won't work, see comment at top of func"#061020 ####@@@@
-        # no need to use it yet, since we have val
-        return val
+        self.lval = Lval(FormulaFromCallable(compute_method))
+        return
+    def __get__(self, instance, owner):
+        if instance is None:
+            # we're being accessed directly from class
+            return self
+        ###e do usage tracking -- or is there an Lval object to do this for us? yes, that's what we want... ###@@@
+        ###e recompute value if it's invalid
+        ###e after compute method runs, check if it did its own setattr -- we might even be able to make that work!
+        # but, would it call __set__ below? I think so! So at least, the __set__ below detects that error. Good for now.
+        return self.value
+    def __set__(self, instance, val):
+        #e can instance be None here??
+        assert 0, "not allowed to set attr %r in %r" % (self.attr, instance)
+    #e could make __delete__ do an inval... should we?? ###
     pass
+        
+        
+    # return property(fget, fset, fdel, doc)
+
+    
+
+
+
+
+    # use it for the first time -- is this ok, before we've set up the getter, etc?
+    # doing this now makes it easier to detect an error below.
+    val = lval.get_value() # this causes client code to track usage of this lval's value, and lval to track usage within its formula
+    assert not self.__dict__.has_key('attr'), "error: compute method for %r apparently stored a direct value in %r" % (attr, self)
+        # this would be an error any time we call compute_method, but it's only convenient to test for it the first time, but that's usually enough
+
+    # store lval for direct access (usually never needed)
+    assert not hasattr(self, '_lval_' + attr)
+    setattr(self, '_lval_' + attr, lval)
+    
+    # create getter property which accesses lval
+    getter_property = property(lval.get_value)
+        #e could the lval itself serve in this role? not a good idea, probably, re direct access to lval.
+        # property(getter, setter, deler, doc) -- later might want to make del act like inval??
+    setattr(self, attr, getter_property)
+    assert nim, "the above won't work, see comment at top of func"#061020 ####@@@@
+    # no need to use it yet, since we have val
+    return val
+    pass
+
+        ###e unlike InvalMixin, this method is not allowed to directly set the attr, or other attrs! Can we detect that error? ###
+        # we'd have to check each time (or, first time, maybe good enough).
+        # reason: we can't let the attr val be stored directly, since we have to track all uses of it and alert dynenv to them,
+        # pointing it to us (the lval) so it can subscribe to our invals. This is another reason for a definite lval object.
+
 
 # ==
 
