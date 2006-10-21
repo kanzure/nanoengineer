@@ -106,21 +106,21 @@ def textlist_6ps(framenumber):
     nsecs = framenumber * 200.0e-6
     return [
         '%.4f nanoseconds' % nsecs,
-        '%.4f rotations' % (nsecs / 0.2)
+        '%.3f rotations' % (nsecs / 0.2)
         ]
 
 def textlist_0_6ps(framenumber):
     nsecs = framenumber * 20.0e-6
     return [
         '%.4f nanoseconds' % nsecs,
-        '%.4f rotations' % (nsecs / 0.2)
+        '%.3f rotations' % (nsecs / 0.2)
         ]
 
 def textlist_0_15ps(framenumber):
     nsecs = framenumber * 5.0e-6
     return [
         '%.4f nanoseconds' % nsecs,
-        '%.4f rotations' % (nsecs / 0.2)
+        '%.3f rotations' % (nsecs / 0.2)
         ]
 
 SLOW_CPK = os.path.join(animate.mpeg_dir, 'slow_cpk_jpeg/' + struct_name + '.%06d.jpg')
@@ -179,25 +179,24 @@ def fast_tubes(real_seconds, start=0):
                         start=start, incr=1, frames=real_seconds*m.SECOND, avg=1,
                         textlist=textlist_0_15ps)
 
-def cross_fade(real_seconds, from_filespec, to_filespec, start=0, avg=10):
-    # We only do cross-fades at 6 ps/sec
+def cross_fade(real_seconds, from_filespec, to_filespec, start=0, avg=10, textlist=textlist_6ps):
+    # We only do cross-fades at 0.6 and 6 ps/sec
     return m.motionBlur(from_filespec,
-                        start=start, incr=10, frames=real_seconds*m.SECOND,
-                        avg=avg, textlist=textlist_6ps,
-                        fadeTo=to_filespec)
+                        start=start, incr=avg, frames=real_seconds*m.SECOND,
+                        avg=avg, textlist=textlist, fadeTo=to_filespec)
 
 ####################################################################
 # Slow simulation: 23 real seconds, 6900 subframes, 138 psecs
 
-z = slow_cpk_with_title('Titles_22_Sep_2006/1SmallBearingPages-17.gif', 8, start=0)
-z = slow_cpk_with_title('Titles_22_Sep_2006/2SmallBearingPages-17.gif', 15, start=z)
+z = medium_cpk_with_title('Titles_22_Sep_2006/1SmallBearingPages-17.gif', 8, start=0)
+z = medium_cpk_with_title('Titles_22_Sep_2006/2SmallBearingPages-17.gif', 15, start=z)
 
 ####################################################################
 # Slow animation: 10.5 real seconds, 3150 subframes, 63 psecs
 
-z = slow_cpk(5, start=0)
-z = cross_fade(0.5, SLOW_CPK, SLOW_TUBES, start=z)
-z = slow_tubes(5, start=z)
+z = medium_cpk(5, start=0)
+z = cross_fade(0.5, FAST_CPK, FAST_TUBES, start=z, avg=4, textlist=textlist_0_6ps)
+z = medium_tubes(5, start=z)
 
 ####################################################################
 # Fast simulation: 18 seconds, 540 subframes, 2.7 psecs
