@@ -9,10 +9,23 @@ from basic import *
 
 # ==
 
-class Lval: ####@@@@ most inval behavior is nim; it needs to be integrated with the env.prefs usage tracking in changes.py
+from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
+
+# ==
+
+class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
     """Lval(formula) -> standard lval for that formula, has .get_value(), .set_formula,
-    does inval flag/subs/propogate, tracks own usage
+    does inval flag/subs/propogate, tracks own usage. [#doc better]
     """
+    ####@@@@ most inval behavior is nim... incorp of mixins is just started, not at all done.
+    # Notes:
+    # - The mixins provide these methods, for internal use:
+    #   - SelfUsageTrackingMixin: track_use, track_change == track_inval --
+    #       for tracking how our value is used, is changed, is indirectly invalled.
+    #   - SubUsageTrackingMixin: begin_tracking_usage, end_tracking_usage -- for tracking which values we use when we recompute.
+    # They're the same mixins used for displists used by chunk/GLPane and defined in chunk, and for changes to env.prefs, 
+    # so these Lvals will work with those except for chunk not yet propogating invals or tracking changes to its display list.
+    # - See comments near those methods in changes.py for ways they'll someday need extension/optimization for this use.
     valid = False
     def __init__(self, formula = None):
         """For now, formula is either None (meaning no formula is set yet -- error to use),
@@ -32,9 +45,17 @@ class Lval: ####@@@@ most inval behavior is nim; it needs to be integrated with 
         self._formula = formula
         self.inval() ###e only if different??
     def inval(self):
+        """Advise us (and whoever used our value) that our value might be different if it was recomputed now.
+        Repeated redundant calls are ok, and are optimized to avoid redundantly advising whoever used our value
+        about its invalidation.
+           Note that this does not recompute the value, and it might even be called at a time
+        when recomputing the value would be illegal. Therefore, users of the value should not (in general)
+        recompute it in their own inval routines, but only when something next needs it. 
+        """
         if self.valid:
             self.valid = False
-            ###e then propogate, but only if we were valid before this, I think
+            # propogate inval to whoever used our value
+            self.track_inval() # (defined in SelfUsageTrackingMixin)
     def get_value(self):
         if not self.valid:
             self._value = self._C_value()
