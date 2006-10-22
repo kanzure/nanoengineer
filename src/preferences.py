@@ -281,6 +281,7 @@ def _tracker_for_pkey(pkey):
     pass
 
 def _get_pkey_key(pkey, key): #bruce 050804 split this out of __getitem__ so I can also use it in get (both methods)
+    "[#doc better; note: pkey and key args are redundant; they're both provided just for this implem's convenience]"
     _track_use(pkey) # note, this is done even if we raise KeyError below (which is good)
     try:
         return _cache[pkey]

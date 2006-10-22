@@ -4,7 +4,7 @@ changes.py
 
 Utilities for tracking changes, usage, nested events, etc.
 
-[This module is owned by Bruce until further notice.]
+[This module is owned by Bruce until further notice. Unsigned comments are by Bruce.]
 
 $Id$
 
@@ -13,6 +13,8 @@ History:
 original features were stubs and have mostly been removed.
 
 bruce 050803 new features to help with graphics updates when preferences are changed.
+
+bruce 061022 soon some of this will be used in the new exprs module. Later it will need optimization for that use.
 
 """
 __author__ = "Bruce"
@@ -26,7 +28,7 @@ from state_utils import same_vals #bruce 060306
 
 # == Usage tracking.
 
-class OneTimeSubsList: #bruce 050804
+class OneTimeSubsList: #bruce 050804; as of 061022, it looks ok to use it in the new exprs module
     """This object corresponds to (one momentary value of) some variable or aspect whose uses can be tracked
     (causing a ref to this object to get added to a set of used things).
        What the value-user can do to this object, found in its list of things used during some computation,
@@ -87,12 +89,15 @@ class OneTimeSubsList: #bruce 050804
             if platform.atom_debug:
                 print_compact_traceback("atom_debug: exception ignored by %r from %r: " % (self, sub1) )
         return        
-    def remove_subs(self, func): # this might not ever be used
+    def remove_subs(self, func): # note: this has never been used as of long before 061022, and looks potentially unsafe (see below)
         """Make sure (one subscribed instance of) func will never be fulfilled.
         WARNING: calling this on a subs (a specific instance of func) that was already fulfilled is an UNDETECTED ERROR.
         But it's ok to subscribe the same func eg 5 times, let 2 of those be fulfilled, and remove the other 3.
         """
         # optimize by assuming it's there -- if not, various exceptions are possible.
+        # [Note, bruce 061022: this assumption looks like a bug, in light of the use of remove_all_instances.
+        # At least, it would be an error to use both of them on the same sublis within self,
+        # which means in practice that it would be hard to safely use both of them on the same OneTimeSubsList object.]
         self._subs[id(func)].pop()
             # (this can create a 0-length list which remains in the dict. seems ok provided self is not recycled.)
         return
@@ -110,13 +115,13 @@ class OneTimeSubsList: #bruce 050804
                 # since our recipient is too lazy to only remove its other subs when one gets fulfilled --
                 # it just removes all the subs it had, including the one that got fulfilled.
         except:
-            # this detected the following bug during development (since fixed):
+            # this detected the following bug during development (subsequently fixed):
             # bug: self._subs is None: exceptions.TypeError: object does not support item deletion
             print_compact_traceback("bug: self._subs is %r: " % (self._subs,) )
         return
     pass # end of class OneTimeSubsList
 
-class SelfUsageTrackingMixin: #bruce 050804
+class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class molecule and (via UsageTracker) in preferences.py
     """You can mix this into classes which need to let all other code track uses and changes
     of their "main value" (what value that means is up to them).
     (If they need to permit tracking of more than one value or aspect they own,
@@ -126,7 +131,7 @@ class SelfUsageTrackingMixin: #bruce 050804
     - self.track_use() to track that that value is being used [must be called on every use, not just first one after a change];
     - self.track_change() to tell everything which noticed that it used our prior value
       (and which then subscribed to this event) that our prior value is no longer current.
-       Note: this needs to track not just changes, but invalidations, of our current value. ###e so rename it? not sure.
+       Note: this needs to track not just changes, but invalidations, of our current value. ###e so rename it to track_inval? not sure.
     WARNING: The way Formula uses track_change only works when it comes after new value is available,
     but when using it to report an invalidation, that's not possible!
     ####@@@@ this design flaw needs to be corrected somehow. See also comments near one of preferences.py's uses of track_change.
@@ -134,7 +139,7 @@ class SelfUsageTrackingMixin: #bruce 050804
     if a use after that is theoretically possible (which is usually the case, since bugs in callers can cause that),
     and if a use after that would have a different effect because it had been killed.
     (I think it's always safe to call it then, and not even an anti-optimization, but I'm not 100% sure.)
-    (Typically, other changes occur when something is killed which themselves call track_change(),
+    (Typically, other changes, which themselves call track_change(), occur when something is killed,
      so whether it's called directly doesn't matter anyway.)
     """
     def track_use(self):
@@ -156,11 +161,14 @@ class SelfUsageTrackingMixin: #bruce 050804
             # - is it right that the name of this function doesn't imply it's specific to usage-tracking?
             #   can it be used for tracking other things too?? [guess: no and no -- rename it ###@@@.]
             # - (Wouldn't it be faster to save self, not self.__subslist, and then at the end to create and use the subslist?
-            #    Yes, but it would be wrong, since one self has several subslists in succession as its value changes!)
+            #    Yes, but it would be wrong, since one self has several subslists in succession as its value changes!
+            #    [addendum 061022: i'm suspicious of that reasoning -- doesn't it happen too soon for the subslist to change??])
             # - Maybe some callers can inline this method using essentially only a line like this:
             #     env.used_value_sublists[id(subslist)] = subslist
         return
-    def track_change(self): #e add args? e.g. "why" (for debugging), nature of change (for optims), etc...
+    def track_change(self): #e rename to track_inval?? see class docstring
+        "[also call on invals being propogated -- see class docstring]"
+        #e add args? e.g. "why" (for debugging), nature of change (for optims), etc...
         # ... or args about inval vs change-is-done (see comments in class's docstring)
         try:
             subslist = self.__subslist
@@ -168,10 +176,13 @@ class SelfUsageTrackingMixin: #bruce 050804
             return # optimization (there were no uses of the current value, or, they were already invalidated)
         del self.__subslist
         subslist.fulfill_all()
+    track_inval = track_change #bruce 061022 added this to API, though I don't know if it ever needs to have a different implem
     pass # end of class SelfUsageTrackingMixin
 
 class UsageTracker( SelfUsageTrackingMixin): #bruce 050804 #e rename?
     "Ownable version of that mixin class, for owners that have more than one aspect whose usage can be tracked."
+    # note: as of 061022 this is used only in _tracker_for_pkey (preferences.py);
+    # this or its superclass might soon be used in exprs/lvals.py
     pass
 
 # ==
@@ -297,8 +308,10 @@ def _usage_tracker_stack_changed( usage_tracker, infodict): #bruce 050804
 usage_tracker = begin_end_matcher( None, _usage_tracker_stack_changed )
     # constructor None means obj must be passed to each begin
 
-class SubUsageTrackingMixin: #bruce 050804 [note, 060926: this doesn't use self at all. Does it need to be a mixin??]
-    """###doc - for doing usagetracking in whatever code we call when we remake a value, and handling results of that
+class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class molecule, class GLPane, class Formula
+    # [note, 060926: this doesn't use self at all. Does it need to be a mixin?? addendum 061022: maybe for inval propogation??]
+    """###doc - for doing usagetracking in whatever code we call when we remake a value, and handling results of that;
+    see class usage_tracker_obj for a related docstring
     """
     def begin_tracking_usage(self): #e there's a docstring for this in an outtakes file, if one is needed
         obj = usage_tracker_obj()
@@ -336,8 +349,19 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
     (Removing them is the only reason this object needs to live on, or that the inval signal needs to be something
     other than invalidator itself. Perhaps this could be fixed in the future, using weak pointers somehow. #e)
     """
-    # [note, 060926: for some purposes, we might need to record the order of first seeing the used things,
+    # [note, 060926: for some purposes, namely optim of recompute when inputs don't change [#doc - need ref to explanation of why],
+    #  we might need to record the order of first seeing the used things,
     #  and perhaps their values or value-version-counters ###e]
+    # 061022 review re possible use in exprs/lvals.py:
+    # - a needed decision is whether inval propogation is the responsibility of each invalidator, or this general system.
+    # - it seems like SubUsageTrackingMixin might need self to tie it to SelfUsageTrackingMixin for inval propogation. (guess)
+    #   - which might mean we need variants of that, perhaps varying in this class, usage_tracker_obj:
+    #     - a variant to propogate invals;
+    #     - a variant to track in order (see below);
+    #     - a variant to immediately signal an error (by raising an exception) if any usage gets tracked; used to assert none does.
+    # - as mentioned above, one variant will need to keep an order of addition of new items, in self.track.
+    # - and self.track is called extremely often and eventually needs to be optimized (and perhaps recoded in C).
+    # Other than that, it can probably be used directly, with the invalidator (from client code) responsible for inval propogation.
     def begin(self):
         self.data = {}
     def track(self, subslist): 
