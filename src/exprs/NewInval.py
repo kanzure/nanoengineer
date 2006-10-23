@@ -2,39 +2,47 @@
 NewInval.py [to be cannibalized, mainly just for displist code]
 
 $Id$
+
+Reviewing situation of lvals for displists, 061023:
+
+- What's interesting about draw methods in general, vs ordinary "compute methods":
+  - they return their main value in the form of side effects
+  - there are really two values they implicitly return, and the set of things used by these (re usage tracking for inval) differs!
+    - the set of OpenGL commands they emit -- inval of this means any display list containing these commands needs rewriting
+    - the effects on the current frame buffers of running those OpenGL commands -- this also depends on some of the GL state,
+      including the content of certain display lists which they call (directly or indirectly, but only direct calls should be recorded,
+       since the set of indirect calls might change due only to changes in content of directly called displists).
+  - if drawing commands affect other OpenGL state, is their effect on each aspect of that state another thing that needs tracking?
+    If so, the above two things are special cases:
+    - effect on content of displist currently being compiled
+    - effect on framebuffer contents, assuming no displisp is being compiled, *or* at a future time when current one is run.
+  - complete tracking of these things would have to consider how OpenGL commands can *move* state between aspects of GL context state.
+    I think we can ignore that now, since we're not compiling such general OpenGL into display lists.
+    (Except in coordinate systems, if we compile a translation... which we can handle in a specialcase way.)
+  - it may be that, in general, we need to generalize "track usage" to "track usage, and what state it affects",
+    so anything we do (that gets usage-tracked) could say "I used this to affect that", where "that" is e.g. a specific display list,
+    or the opengl commands being emitted.
+  - a Q that needs answering, and leads to the above: if several kinds of usage are tracked, which one is tracked "normally"
+    and which in special ways? I thought it was "displist calls are tracked specially, not variable accesses", but I'm having
+    trouble explaining this rationally within the above framework.
+     But, ordinary variable access, if it affects anything, affects both things we're tracking our effect on,
+    since it affects our output of OpenGL. Display lists we call are the only things with a different effect on each one.
+    This justifies tracking variable access in usual way, and called displists specially, but these *don't* correspond directly
+    to the two things we can affect. It's as if we tracked usage in two parallel but independent worlds (python vars and opengl state)
+    and "in the end" know how to combine them: drawing effect depends on both, opengl output depends on only one.
+
+Preliminary conclusions:
+- draw methods do track two different things... and ordinary var access tracking can be totally standard,
+unaffected by the parallel tracking of calls of displists. Not sure yet about tracking effects on other OpenGL state,
+esp if they use other OpenGL state. (Should we track an effective function we're applying to OpenGL state, via state = f(state)??)
+- we do need a special kind of Lval whose value is the OpenGL commands issued into a display list;
+and maybe another one, whose value is the OpenGL commands issued by any draw method. The latter is special re side effect output
+and need for a version number (when we need to store inputs to whoever used it, for diff old and new in them);
+the former is also special in the concern about which displists were called, and corresponds to an op on draw methods,
+one is "run a displist" and the inner one is "emit its contents when compiling it". Maybe this means two special lval classes,
+each having one inval flag, rather than one, handling two flags? ####@@@@
+
 '''
-
-class NewInval:
-    def __getattr__(self, attr):
-        if attr.startswith('_'):
-            raise AttributeError, attr
-        # begin tracking?
-        try:
-            method = getattr(self, '_c_' + attr)
-            # this might recompute the method!
-            # now, the method might need to be passed some indices. how does that work? we need a dict like object, not this!
-            res = method()
-
-        except:
-            pass
-
-class InvalDict(UserDict):
-    def __getitem__(self, key):
-        try:
-            return self.data[key]
-        except:
-            self.data[key] = res = self.computefunc(key)
-            return res
-        pass
-    pass
-
-# then set up these things, depend on other things like themselves
-
-if 1:
-    for i, kid in ikids:
-        pi = prior(i) # prior is specific to the index-set, might even be an attr (dictlike) itself
-        # or is it an attr of our idea of the kid, which points to our idea of prior kid, and also knows index?
-
 
 class GLPaneProxy: #######@@@@@@@ WRONG and/or OBS
     compiling_displist = 0
@@ -67,9 +75,6 @@ class GLPaneProxy: #######@@@@@@@ WRONG and/or OBS
         glCallList(listname)
         return
     pass
-
-class ComputeRuleMixin: pass
-    ### superclass to use _compute_ rules... not sure what usage tracking it does in general; does it ask main class what to do?
 
 ######@@@@@@ Q: do we separate the object to own a displist, below, and the one to represent various Drawables,
 # like one for DisplistChunk and one for defining a displist-subroutine?
@@ -191,6 +196,7 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
     # == old, some obs or wrong
     def draw(self): ######@@@@@@ prob wrong name, see above; also, wrong code
         # need to make sure we have a list allocated -- this is implicit in grabbing its opengl listname from self.displist
+        self.displist
         assert self.displist
         if 'self.thing draw effects changed': #####@@@@@ how to find out? not in usual way, that would draw it right now!
             ### or can we say, that would return a routine to draw it???
@@ -243,31 +249,6 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
 # ==
 
 
-class StandardInvalidatable: # scratch
-    "One invalidatable value of the most standard kind."
-    def inval(self):
-        self.valid = 0
-    def get_value(self):
-        if not self.valid:
-            self._recompute()
-        return self._value
-    def set_formula(self, formula):
-        self.formula = formula
-        self.inval()
-    def _recompute(self):
-        "[private; only call this when not valid]"
-        #e do layer-prep things, like propogating inval signals from changedicts
-        #e set up usage track
-        # recompute (protect from exceptions?)
-        newval = self.formula(self) # ??? have formula also report usage? who decides where to memo? is it a formula inst (owned)?
-            # to decide -- what kinds of formulas can be ortho to kinds of invalidatable lvalues?
-        #e end usage track
-        #e diff old & new?
-        #e send up-signals?
-        self._value = newval
-        return
-    pass
-
 class DisplistInvalidatable:
     pass ###
 # several levels: opengl; invalidating a rewritable external subroutine; inval per se
@@ -314,16 +295,8 @@ class _Lval: ####@@@@ compare to later version in scratch5.py
     _memoized_value = None
     _version_counter = 1 ###k ??
     
-    def __init__(self):
-        pass
-    def invalidate(self):
-        if not self._invalid:
-            self._invalid = True
-            ### also propogate?? yes, we have subscribers to inval... grab code from env.prefs system, changes.py i think #####@@@@@
-    def __getattr__(self, attr):
-        if attr == 'value':
-            return self.get_value() ### use a property
-        raise AttributeError, attr
+    # ... [usual stuff removed]
+    
     def get_value(self, args_each_time = None): # args_each_time can only be passed if you call this method explicitly
         "called whether or not we have the value"
         if self._invalid:

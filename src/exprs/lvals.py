@@ -14,7 +14,8 @@ from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
 # ==
 
 class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
-    """Lval(formula) -> standard lval for that formula, has .get_value(), .set_formula,
+    """One invalidatable value of the most standard kind.
+    Lval(formula) -> standard lval for that formula, has .get_value(), .set_formula,
     does inval flag/subs/propogate, tracks own usage. [#doc better]
     """
     ####@@@@ most inval behavior is nim... incorp of mixins is just started, not at all done.
@@ -73,7 +74,24 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         NOTE: does not yet handle diffing of prior values of what was used, or the "tracking in order of use" needed for that.
         Maybe a sister class (another kind of Lval) will do that.
         """
-        #####@@@@@ need to decide whether we or the formula should do usage tracking and subscribe self.inval to what we use. 
+        #####@@@@@ need to decide whether we or the formula should do usage tracking and subscribe self.inval to what we use.
+            # to decide -- what kinds of formulas can be ortho to kinds of invalidatable lvalues?
+            # do we memo in formula or here? who decides? do we own formula? what does it have, other than ability to recompute?
+            # how often is it made by FormulaFromCallable -- always? yes, ie in both _C_rule and _CV_rule (using LvalDict 1 or 2).
+            # - The differentest kind of lval is the one for displists; it represents a pair of virtual values, the displist direct
+            # contents and the effect of calling it (only the latter includes sublist effects), both represented by version numbers
+            # which is what "diff old and new" would use. Instead of get_value we have emit_value i.e. draw. For inval propogation
+            # it needs to separate the two virtual values. Maybe it could use two Lval objects.... [latest code for it is in NewInval.py]
+            #   - It has to work with draw methods, which also emit side effects, have version numbers... do they, too,
+            # distinguish between two virtual values, what OpenGL they emit vs what that will do when it runs??
+            # - The other big issue is formulas with no storage of their own, and not owned. (E.g. those coded using _self.)
+            #   - The biggest change in that is wanting to call its compute method with an arg, for use in grabbing attrs when evalling
+            #     and for knowing where to store usage (tho latter could be in dynenv in usual way, and should be).
+            # - Note that what I often call a formula is just an expr, and a formula instance is an expr instance, class InstanceOrExpr,
+            # even if it's an OpExpr. That thing has its own memo, implemented by this class Lval. So all it provides us is a
+            # compute method. This is suggesting that our _formula should be merely a compute method. Does that fit in displist case??
+            # 
+            # ###
         
         #e handle various kinds of formulas, or objs that should be coerced into them -- make_formula(formula_arg)?
         assert self._formula is not None, "our formula is not yet set: %r" % self
@@ -82,7 +100,12 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         ###@@@e subscribe self.inval to members of self._usage_record
         #e optim (finalize) if that's empty (only if set_formula or direct inval won't be called; how do we know?)
         return val
-    pass
+
+        #e future: _compute_value might also:
+        # - do layer-prep things, like propogating inval signals from changedicts
+        # - diff old & new
+
+    pass # end of class Lval
 
 def LvalDict(wayfunc, lvalclass = Lval): #e option to not memoize for certain types of keys (like trivials or errors)?? this or Memo?
     """An extensible dict of lvals of the given lval class, whose memoized values will be recomputed from dict key using wayfunc(key)().

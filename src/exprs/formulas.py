@@ -1,3 +1,11 @@
+'''
+formulas.py -- various kinds of Formula objects [#doc]
+
+Currently used, but might be merged into lvals.py
+
+$Id$
+'''
+
 # Formulas - on request, they (re)compute something for a client (perhaps using args passed each time by client),
 # and store usage (record of what's used by that recomputation) in client;
 # different kinds (subclasses of FormulaSuperclass) might accept different kinds of formulas
