@@ -27,6 +27,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
     # so these Lvals will work with those except for chunk not yet propogating invals or tracking changes to its display list.
     # - See comments near those methods in changes.py for ways they'll someday need extension/optimization for this use.
     valid = False
+    # no need to have default values for _value or _formula, unless we add code to compare new values to old
     def __init__(self, formula = None):
         """For now, formula is either None (meaning no formula is set yet -- error to use),
         or any callable [WRONG i think] [?? or thing taking compute_value method?? ####]
@@ -43,7 +44,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         self.set_formula(formula)
     def set_formula(self, formula):
         self._formula = formula
-        self.inval() ###e only if different??
+        self.inval() ###e only if new formula is different??
     def inval(self):
         """Advise us (and whoever used our value) that our value might be different if it was recomputed now.
         Repeated redundant calls are ok, and are optimized to avoid redundantly advising whoever used our value
@@ -57,17 +58,23 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # propogate inval to whoever used our value
             self.track_inval() # (defined in SelfUsageTrackingMixin)
     def get_value(self):
+        """This is the only public method for getting the current value;
+        it always usage-tracks the access, and recomputes the value if necessary.
+        """
         if not self.valid:
-            self._value = self._C_value()
+            self._value = self._compute_value()
             self.valid = True
-        ###e do standard usage tracking into env -- compatible with env.prefs
-            # (i forget if the needed bugfix in changes.py for propogating invals applies to that)
+        # do standard usage tracking into env -- compatible with env.prefs
+        self.track_use() # (defined in SelfUsageTrackingMixin)
         return self._value
-    def _C_value(self):
-        """compute our value, tracking what it uses, subscribing our inval method to that.
-        NOTE: does not yet handle diffing of prior values of what was used, or the "tracking in order" needed for that.
+    def _compute_value(self):
+        """[private]
+        Compute (or recompute) our value, tracking what it uses, subscribing our inval method to that.
+        NOTE: does not yet handle diffing of prior values of what was used, or the "tracking in order of use" needed for that.
         Maybe a sister class (another kind of Lval) will do that.
         """
+        #####@@@@@ need to decide whether we or the formula should do usage tracking and subscribe self.inval to what we use. 
+        
         #e handle various kinds of formulas, or objs that should be coerced into them -- make_formula(formula_arg)?
         assert self._formula is not None, "our formula is not yet set: %r" % self
         self._usage_record.clear() #k needed?
