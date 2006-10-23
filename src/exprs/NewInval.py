@@ -194,11 +194,16 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
 
 
     # == old, some obs or wrong
-    def draw(self): ######@@@@@@ prob wrong name, see above; also, wrong code
+    def draw(self): ######@@@@@@ prob wrong name, see above; also, wrong code.
+        # 061023 comments: analogous to Lval.get_value, both in .draw always being such, and in what's happening in following code.
+        #
         # need to make sure we have a list allocated -- this is implicit in grabbing its opengl listname from self.displist
         self.displist
         assert self.displist
-        if 'self.thing draw effects changed': #####@@@@@ how to find out? not in usual way, that would draw it right now!
+        if 'self.thing.draw() total effects changed': #####@@@@@ how to find out? not in usual way, that would draw it right now!
+            # maybe: if self.thing.draw_effects_version_counter > ... -- do we have to store version that got drawn, to make each
+            # displist we call it in? no, just assume any inval tells us to remake it. inval propogate is enough, no counter needed,
+            # i bet.
             ### or can we say, that would return a routine to draw it???
             ## also what need we do, to say that we've updated to use this info? will running thing.draw revalidate it?
             # not in all contexts, just this one! will it incr a counter, so we can look and see which draw effects are latest
@@ -207,11 +212,23 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
             #####@@@@
             if self.glpane.compiling_displist:
                 self.call_our_displist()
-                self.ensure_our_displist_gets_recompiled_asap()
+                self.ensure_our_displist_gets_recompiled_asap() # this schedules something which will soon, but not now, call thing.draw
                     # (asap means before drawing the one being compiled, eg before any immediate mode drawing)
+                    # WRONG [061023 comments]: just because total effects changed, doesn't mean gl commands changed.
+                    # What is right is: recompile of this one (or each one in the tree of diplist calls) might not be needed;
+                    # instead, visit the entire tree, but recomp only the ones that got an inval, and that does revise
+                    # their list of kids in the tree (really a dag; don't recomp one twice -- inval flag reset handles that),
+                    # then (using list of kids, and only first time hit, via transclose), look at list of kids.
+                    # So each one stores the list of kids, and uses it two ways: subs to total effects inval, and scan them.
+                    # This is stored next to "an lval for a displist's total effects". Maybe that points to "lval for dlist contents".
+                    # In other words, two new lval classes: Lval for a displist effects, Lval for opengl coming out of a draw method.
+                    # Another issue - intermediate levels in a formula might need no lval objs, only ordinary compute calls,
+                    # unless they have something to memoize or inval at that level... do ordinary draw methods, when shared,
+                    # need this (their own capturing of inval flag, one for opengl and one for total effect,
+                    # and their own pair of usage lists too, one of called lists which can be scanned)??
             else:
                 # immediate mode - don't call it until it's remade!
-                ###E also need to recompile any lists listed in self.glpane.displists_needing_recompile_asap!!! i thnk..
+                ###e also need to recompile any lists listed in self.glpane.displists_needing_recompile_asap!!! i think...
                 if 'oneway':
                     self.recompile_our_displist()
                     self.glpane.recompile_displists_that_need_it() # might do more lists than before prior statement added some ###
@@ -242,7 +259,7 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
         self.glpane.glCallList(self.displist)
         return
     def ensure_our_displist_gets_recompiled_asap(self):
-        self.glpane.displists_needing_recompile_asap[self.displist] = self
+        self.glpane.displists_needing_recompile_asap[ self.displist] = self
         return
     pass
 

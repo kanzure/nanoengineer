@@ -3,6 +3,46 @@ lvals.py - various kinds of "lvalue" objects (slots for holding attribute values
 with special behavior such as usage-tracking and invalidation/update.
 
 $Id$
+
+Ways in which lval classes need to differ:
+
+- how the value they represent is "delivered" (on request of a caller, calling a get_value method or the like):
+
+  - (e.g. as a return value, or as an externally stored value, or as side effects)
+
+  - (e.g. with or without a version-counter)
+
+- how the fact of their value's usage is recorded in the dynamic environment, and what kind of usage is recorded
+
+  - kinds of usage:
+    calls of display lists,
+    uses of other external objects (qt widgets, opengl state),
+    uses of ordinary usage-tracked variables
+
+  (but if dynamic env wants to record usage in order of occurrence, I think it can do that without affecting the track_use API)
+
+- how the decision of what needs recomputing is made
+
+  - e.g. what kinds of inval flags, whether to diff input values before deciding, whether to do partial or incremental recomputes
+
+- with what API the recomputing is accomplished (e.g. call a supplied function, perhaps with certain args)
+
+- how invals of the current value can/should be propogated to previous users of the current value
+
+Other differences, that should *not* be reflected directly in lval classes
+(but that might have specific helper functions in this module):
+
+- the specific formula being recomputed (whether expressed a python compute method, an interpreted HL math expr, or a draw method)
+
+- whether some of the storage implied above (eg value caches, usage lists and their subs records, inval flags and their user lists)
+  is stored separately from formula instances (to permit sharing of formulas) --
+  because if it is, then just make an lval class that calls a different kind of formula (passing it more args when it runs),
+  but let the lval class itself be per-storage-instance
+
+- whether the lvalues reside in a single object-attr, or a dict of them -- just make an attr or dict of lvals,
+  and have the owning class access them differently.
+
+For examples, see the classes herein whose names contain Lval.
 '''
 
 from basic import *
@@ -68,6 +108,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # do standard usage tracking into env -- compatible with env.prefs
         self.track_use() # (defined in SelfUsageTrackingMixin)
         return self._value
+    # WRONG/nim after this point, as of 061023:
     def _compute_value(self):
         """[private]
         Compute (or recompute) our value, tracking what it uses, subscribing our inval method to that.
@@ -104,8 +145,37 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #e future: _compute_value might also:
         # - do layer-prep things, like propogating inval signals from changedicts
         # - diff old & new
-
     pass # end of class Lval
+
+# ==
+
+####@@@@
+
+class LvalForDrawingCode(Lval): #stub -- do we need this, or just pass an appropriate lambda to Lval? ##e
+    """[deal with get_value returning side effects? or using .draw instead -- just internally?]
+    """
+    pass
+
+class LvalForUsingASharedFormula(Lval): #stub -- do we need this? for a formula on _self shared among several instances
+    """[pass _self to _compute_value?]
+    """
+    pass
+
+class LvalForDisplistEffects(Lval): #stub -- see NewInval.py and paper notes; might put this in another file since it depends on OpenGL
+    """Lval variant, for when the value in question is the total drawing effect of calling an OpenGL display list
+    (which depends not only on the OpenGL commands in that display list, but on those in all display lists it calls,
+    directly or indirectly).
+       [The basic issues are the same as if the effect was of running an external subroutine, in a set of external subrs
+    whose code we get to maintain, some of which call others. But there are a lot of OpenGL-specific details which affect
+    the implementation. The analogous things (external Qt widgets, POV-Ray macros) are like that too, so it's unlikely
+    a common superclass LvalForThingsLikeExternalSubroutines would be useful.]
+    """
+    def _compute_value(self):
+        "[unlike in superclass Lval, we first make sure all necessary display list contents are up to date]"
+        pass
+    pass
+
+# ==
 
 def LvalDict(wayfunc, lvalclass = Lval): #e option to not memoize for certain types of keys (like trivials or errors)?? this or Memo?
     """An extensible dict of lvals of the given lval class, whose memoized values will be recomputed from dict key using wayfunc(key)().
