@@ -249,6 +249,7 @@ def _compile_compute_rule( clas, attr, prefix, propclass ):
 
 class _C_rule(object): ###e rename, since this is not a compute method? #e give it and _CV_rule a common superclass?
     "act like a property that implements a recompute rule using an Lval made from a _C_attr compute method"
+    # note: the superclass "object" is required, for Python to recognize this as a descriptor.
     def __init__(self, clas, attr, unbound_method, prefix):
         assert prefix == '_C_' and unbound_method == getattr( clas, prefix + attr) # a sign of bad API design of _compile_compute_rule?
         #e store stuff
@@ -257,9 +258,11 @@ class _C_rule(object): ###e rename, since this is not a compute method? #e give 
         return
     def __get__(self, instance, owner):
         if instance is None:
-            # we're being accessed directly from class
+            # we're being accessed directly from clas
             return self
-        # find the Lval object for our attr in instance
+        # find the Lval object for our attr, which we store in instance.__dict__[attr]
+        # (though in theory, we could store it anywhere, as long as we'd find a
+        #  different one for each instance, and delete it when instance got deleted)
         attr = self.attr
         try:
             lval = instance.__dict__[attr]
@@ -267,6 +270,11 @@ class _C_rule(object): ###e rename, since this is not a compute method? #e give 
             # make a new Lval object from the compute_method (happens once per attr per instance)
             mname = self.prefix + attr
             compute_method = getattr(instance, mname) # should always work
+            # permit not only bound methods, but formulas on _self, and perhaps constants or _UNSET_ (TBD ####)
+            compute_method = unbound_compute_method_to_callable( compute_method,
+                                                                 formula_symbols = (_self,),
+                                                                 constants = True,
+                                                                 unset_values = (_UNSET_,) )
             lval = instance.__dict__[attr] = Lval(FormulaFromCallable(compute_method))
         return lval.get_value() # this does usage tracking, validation-checking, recompute if needed
             # Notes:
@@ -280,7 +288,9 @@ class _C_rule(object): ###e rename, since this is not a compute method? #e give 
             # We could add one if needed, but I don't know the best way. Maybe find this property (self) and use a get_lval method,
             # which is passed the instance? Or, setattr(instance, '_lval_' + attr, lval).
     def __set__(self, instance, val):
-        #e can instance be None here??
+        # Note: the existence of this method means that this descriptor is recognized by Python as a "data descriptor",
+        # and it overrides instance.__dict__ (that is, it's used for get, set, or del, even if instance.__dict__ contains a value).
+        #k Q: can instance be None here??
         assert 0, "not allowed to set attr %r in %r" % (self.attr, instance)
     #e could make __delete__ do an inval... should we?? ###
     pass # end of class _C_rule
@@ -334,10 +344,11 @@ class _CV_rule(object):
             assert compute_methodK is not None, "compute_methodK is None, a constant, but legal values are sequences. Did you mean _UNSET_?"
             obj = instance.__dict__[attr] = RecomputableDict(compute_methodV, compute_methodK)
         return obj
-    # we have no __set__ method, so in theory, once we've stored obj in instance.__dict__ above, it will be gotten directly
+    # Note: we have no __set__ method, so in theory (since Python will recognize us as a non-data descriptor),
+    # once we've stored obj in instance.__dict__ above, it will be gotten directly
     # without going through __get__. We print a warning above if that fails.
 
-    # note: similar comments about memory leaks apply, as for _C_rule.
+    # Note: similar comments about memory leaks apply, as for _C_rule.
     
     pass # end of class _CV_rule
 
