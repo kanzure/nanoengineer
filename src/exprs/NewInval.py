@@ -182,13 +182,33 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
         assert type(self.displist) in (type(1), type(1L)) and self.displist
         return
 
-    def _ensure_self_updated(self):
+    def _ensure_self_updated(self): #e rename, and revise to not run or not be called when only kidlists need remaking
         """[private]
         Ensure updatedness of our displist's contents
         and of our record of its direct kids (other displists it directly calls).
+        [if necessary, sets or updates self._direct_sublists_dict]
+        [might be called while compiling a displist, other or ours, or not?? ###k]
         """
         self._direct_sublists_dict = 3 # intentional error if this value is taken seriously
+        ###e what's needed [061023 guess]:
+        # set up self._direct_sublists_dict in the dynenv or glpane, so that calls to displists are recorded in it.
+        # BTW it might be good for glpane to have a dict from allocated dlist names to their owning objects.
+        # Could we use displist names as keys, for that purpose?
+        new_sublists_dict = {}
+        glpane ###
+        old = glpane.begin_tracking_displist_calls(new_sublists_dict) ###IMPLEM
+        try:
+            self.recompile_our_displist() # render our contents into our displist using glNewList
+        except:
+            print_compact_traceback()
+            pass
+        glpane.end_tracking_displist_calls(old)
+        self._direct_sublists_dict = new_sublists_dict
+        ### now, subscribe something to inval of those, but not sure if we do that right here
+        ### also unsub whatever was subbed to the last set of them -- is that ever needed? what about in ordinary lvals?? ####@@@@
+        ### also our caller will use them for its scanning alg
         assert 0, 'nim' #######@@@@@@@
+        return
         
     def call_in_immediate_mode(self):
         self.ensure_ready_for_immediate_mode_call() ### change to external helper func, since it works on many objs of this class? yes.
@@ -264,7 +284,7 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
     def ensure_our_displist_gets_recompiled_asap(self):
         self.glpane.displists_needing_recompile_asap[ self.displist] = self
         return
-    pass
+    pass # end of class DisplistChunkInstance #e misnamed
 
 # ==
 
