@@ -6,6 +6,8 @@ $Id$
 
 from lvals import Lval ##reloadable
 
+##e during devel -- see also some comments in lvals-outtakes.py (not in cvs)
+
 class LvalForDisplistEffects(Lval): #stub -- see NewInval.py and paper notes; might put this in another file since it depends on OpenGL
     """Lval variant, for when the value in question is the total drawing effect of calling an OpenGL display list
     (which depends not only on the OpenGL commands in that display list, but on those in all display lists it calls,

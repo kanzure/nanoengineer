@@ -44,7 +44,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         '''
         if obj is None:
             return self
-        print "__get__ is nim in", self, "assigned to some attr in", obj ####@@@@ NIM; see above for how [061023]
+        print "__get__ is nim in", self, "assigned to some attr in", obj ####@@@@ NIM; see above for how [061023 or 24]
         return
     def __repr__(self):
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect) on 061016

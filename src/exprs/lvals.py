@@ -4,7 +4,9 @@ with special behavior such as usage-tracking and invalidation/update.
 
 $Id$
 
-Ways in which lval classes need to differ:
+===
+
+Ways in which lval classes need to differ from each other:
 
 - how the value they represent is "delivered" (on request of a caller, calling a get_value method or the like):
 
@@ -45,6 +47,8 @@ Other differences, that should *not* be reflected directly in lval classes
 For examples, see the classes herein whose names contain Lval.
 '''
 
+###e Note: a few non-lval things in this file should probably be moved into a different file.
+
 from basic import *
 
 # ==
@@ -54,45 +58,69 @@ from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
 # ==
 
 class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
-    """One invalidatable value of the most standard kind.
-    Lval(formula) -> standard lval for that formula, has .get_value(), .set_formula,
-    does inval flag/subs/propogate, tracks own usage. [#doc better]
+    """One invalidatable value of the most standard kind,
+    containing its own fully bound compute method, passed to the constructor.
+       Get the current value using .get_value() (this tells the dynenv that this value was used).
+    Contains inval flag, subs to what it used to compute, recomputes as needed on access, propogates invals,
+    all in standard ways. [#doc better]
+    Change the compute method using .set_compute_method.
     """
-    ####@@@@ most inval behavior is nim... incorp of mixins is just started, not at all done.
-    # Notes:
+    # Implem notes:
+    #
+    # - This object can't be a Python descriptor (in a useful way), because its storage has to be per-instance.
+    #   [I suppose we could separate it from its storage, and then that might not be true.
+    #    But it's simpler this way, especially since we sometimes store one in a visibly-indexed dict rather than an object-attr.]
+    # - If a descriptor (which has to be per-class) uses one of these, it has to look up the one to use in each instance.
+    #   So the only reason not to provide this Lval with a bound recompute method would be to avoid cyclic references.
+    #   At the moment, that's not crucial.
+    # - When we want that, this still has the storage, but it can be given an owner obj each time it runs.
+    #   It could just as well be given the compute method each time; for either one, the owner has to give the same one each time
+    #   or the inval flag etc won't be correct.
+    # - The compute method it's given (once or each time) could be a bound instance method (from a _C_attr method),
+    #   or something created from a formula on _self, also bound to a value for _self. Whatever it is, we don't care how it's made,
+    #   so we might as well accept any callable. It might be made in various ways, by descriptors or helper functions like LvalDict.
+    #
     # - The mixins provide these methods, for internal use:
     #   - SelfUsageTrackingMixin: track_use, track_change == track_inval --
     #       for tracking how our value is used, is changed, is indirectly invalled.
     #   - SubUsageTrackingMixin: begin_tracking_usage, end_tracking_usage -- for tracking which values we use when we recompute.
-    # They're the same mixins used for displists used by chunk/GLPane and defined in chunk, and for changes to env.prefs, 
-    # so these Lvals will work with those except for chunk not yet propogating invals or tracking changes to its display list.
-    # - See comments near those methods in changes.py for ways they'll someday need extension/optimization for this use.
+    #   - They're the same mixins used for displists used by chunk/GLPane and defined in chunk, and for changes to env.prefs, 
+    #     so these Lvals will work with those (except for chunk not yet propogating invals or tracking changes to its display list).
+    #   - See comments near those methods in changes.py for ways they'll someday need extension/optimization for this use.
     valid = False
-    # no need to have default values for _value or _formula, unless we add code to compare new values to old
-    def __init__(self, formula = None):
-        """For now, formula is either None (meaning no formula is set yet -- error to use),
-        or any callable [WRONG i think] [?? or thing taking compute_value method?? ####]
-        which does usage-tracking of whatever it uses into its dynenv in the standard way,
-        and returns its value (perhaps None or another callable, treated as any other value).
-        Note that unlike InvalMixin _recompute_ methods, it can't work by setting the value instead.
-           In future, other special kinds of formulas might be permitted, and used differently.
-           [WARNING: if we try to generalize by letting formula be a python value used as a constant,
-        we'll have an ambiguity if that value happens to be callable, so we'd need a ConstantFormula constructor instead --
-        or fix this by not passing a callable, but a Formula object with a compute_value method,
-        and having a way to make one of those from a callable, when desired, and change the client call of Lval(compute_method). ###e]
+    # no need to have default values for _value, unless we add code to compare new values to old,
+    # or for _compute_method, due to __init__
+    def __init__(self, compute_method = None): #e rename compute_method -> recomputer?? prob not.
+        """For now, compute_method is either None (meaning no compute_method is set yet -- error to try to use it until it's set),
+        or any callable which computes a value when called with no args,
+        which does usage-tracking of whatever it uses into its dynenv in the standard way
+        (which depends mainly on what the callable uses, rather than on how the callable itself is constructed),
+        and which returns its computed value (perhaps None or another callable, treated as any other value).
+        Note that unlike the old InvalMixin's _recompute_ methods, compute_method is not allowed to use setattr
+        (like the one we plan to imitate for it) instead of returning a value. (The error of it doing that is detected. ###k verify)
+           In future, other special kinds of compute_methods might be permitted, and used differently,
+        but for now, we assume that the caller will convert whatever it has into this simple kind of compute_method.
+           [Note: if we try to generalize by letting compute_method be a python value used as a constant,
+        we'll have an ambiguity if that value happens to be callable, so it's better to just make clients pass lambda:val instead.]
         """
-        self._usage_record = {} # or use begin_tracking_usage??
-        self.set_formula(formula)
-    def set_formula(self, formula):
-        self._formula = formula
-        self.inval() ###e only if new formula is different??
+        ## optim of self.set_compute_method( compute_method), only ok in __init__:
+        self._compute_method = compute_method
+    def set_compute_method(self, compute_method): # might be untested since might not be presently used
+        old = self._compute_method
+        self._compute_method = compute_method # always, even if equal, since different objects
+        if old != compute_method:
+            self.inval()
     def inval(self):
-        """Advise us (and whoever used our value) that our value might be different if it was recomputed now.
+        """This can be called by the client, and is also subscribed internally to all invalidatable/usage-tracked lvalues
+        we use to recompute our value (often not the same set of lvals each time, btw).
+           Advise us (and whoever used our value) that our value might be different if it was recomputed now.
         Repeated redundant calls are ok, and are optimized to avoid redundantly advising whoever used our value
         about its invalidation.
            Note that this does not recompute the value, and it might even be called at a time
         when recomputing the value would be illegal. Therefore, users of the value should not (in general)
-        recompute it in their own inval routines, but only when something next needs it. 
+        recompute it in their own inval routines, but only when something next needs it. (This principle is not currently
+        obeyed by the Formula object in changes.py. That object should probably be fixed (to register itself for
+        a recompute later in the same user event handler) or deprecated. ###e)
         """
         if self.valid:
             self.valid = False
@@ -103,48 +131,35 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         it always usage-tracks the access, and recomputes the value if necessary.
         """
         if not self.valid:
-            self._value = self._compute_value()
+            self._value = self._compute_value() # this catches exceptions in our compute_method
             self.valid = True
-        # do standard usage tracking into env -- compatible with env.prefs
-        self.track_use() # (defined in SelfUsageTrackingMixin)
+        # do standard usage tracking into env (whether or not it was invalid & recomputed) -- API is compatible with env.prefs
+        # [do it after recomputing, in case the tracking wants to record _value immediately(?)]
+        self.track_use() # (defined in SelfUsageTrackingMixin) ###e note: this will need optimization
         return self._value
-    # WRONG/nim after this point, as of 061023:
     def _compute_value(self):
         """[private]
-        Compute (or recompute) our value, tracking what it uses, subscribing our inval method to that.
+        Compute (or recompute) our value, using our compute_method but protecting ourselves from exceptions in it,
+        tracking what it uses, subscribing our inval method to that.
         NOTE: does not yet handle diffing of prior values of what was used, or the "tracking in order of use" needed for that.
         Maybe a sister class (another kind of Lval) will do that.
         """
-        #####@@@@@ need to decide whether we or the formula should do usage tracking and subscribe self.inval to what we use.
-            # to decide -- what kinds of formulas can be ortho to kinds of invalidatable lvalues?
-            # do we memo in formula or here? who decides? do we own formula? what does it have, other than ability to recompute?
-            # how often is it made by FormulaFromCallable -- always? yes, ie in both _C_rule and _CV_rule (using LvalDict 1 or 2).
-            # - The differentest kind of lval is the one for displists; it represents a pair of virtual values, the displist direct
-            # contents and the effect of calling it (only the latter includes sublist effects), both represented by version numbers
-            # which is what "diff old and new" would use. Instead of get_value we have emit_value i.e. draw. For inval propogation
-            # it needs to separate the two virtual values. Maybe it could use two Lval objects.... [latest code for it is in NewInval.py]
-            #   - It has to work with draw methods, which also emit side effects, have version numbers... do they, too,
-            # distinguish between two virtual values, what OpenGL they emit vs what that will do when it runs??
-            # - The other big issue is formulas with no storage of their own, and not owned. (E.g. those coded using _self.)
-            #   - The biggest change in that is wanting to call its compute method with an arg, for use in grabbing attrs when evalling
-            #     and for knowing where to store usage (tho latter could be in dynenv in usual way, and should be).
-            # - Note that what I often call a formula is just an expr, and a formula instance is an expr instance, class InstanceOrExpr,
-            # even if it's an OpExpr. That thing has its own memo, implemented by this class Lval. So all it provides us is a
-            # compute method. This is suggesting that our _formula should be merely a compute method. Does that fit in displist case??
-            # 
-            # ###
-        
-        #e handle various kinds of formulas, or objs that should be coerced into them -- make_formula(formula_arg)?
-        assert self._formula is not None, "our formula is not yet set: %r" % self
-        self._usage_record.clear() #k needed?
-        val = self._formula.get_value( self._usage_record) ###e who checks for exceptions in this, it or us? it does.
-        ###@@@e subscribe self.inval to members of self._usage_record
-        #e optim (finalize) if that's empty (only if set_formula or direct inval won't be called; how do we know?)
-        return val
-
         #e future: _compute_value might also:
         # - do layer-prep things, like propogating inval signals from changedicts
         # - diff old & new
+        assert self._compute_method is not None, "our compute_method is not yet set: %r" % self #e remove, as optim (redundant)
+        match_checking_code = self.begin_tracking_usage()
+        try:
+            val = self._compute_method()
+        except:
+            print_compact_traceback("exception in _compute_value ignored: ")
+            val = None
+        self.end_tracking_usage( match_checking_code, self.inval )
+            # that subscribes self.inval to lvals we used, and unsubs them before calling self.inval [###k verify that]
+            #e optim (finalize) if set of used lvals is empty
+            # (only if set_compute_method or direct inval won't be called; how do we know? we'd need client to "finalize" that for us.)
+        # note: caller stores val and sets self.valid
+        return val
     pass # end of class Lval
 
 # ==
@@ -180,7 +195,7 @@ def LvalDict(wayfunc, lvalclass = Lval): #e option to not memoize for certain ty
     # I know it's needed in some cases, but maybe only when they are variables??
     # More likely, whenever the lambda is used outside their usual scope, as it is in this case.
     return MemoDict( lambda key, wayfunc = wayfunc, lvalclass = lvalclass:
-                     lvalclass( FormulaFromCallable( wayfunc(key))) )
+                     lvalclass( wayfunc(key)) )
 
 def LvalDict2(valfunc, lvalclass = Lval):
     """Like LvalDict but uses a different recompute-function API, which might be easier for most callers to supply;
@@ -188,11 +203,12 @@ def LvalDict2(valfunc, lvalclass = Lval):
     In this variant, just pass valfunc, which will be applied to key in order to recompute the value at key.
     """
     return MemoDict( lambda key, valfunc = valfunc, lvalclass = lvalclass:
-                     lvalclass( FormulaFromCallable( lambda valfunc=valfunc, key=key: valfunc(key))) )
+                     lvalclass( lambda valfunc=valfunc, key=key: valfunc(key)) )
 
 # ==
 
 class InvalidatableAttrsMixin(object): # object superclass is needed, to make this a new-style class, so a python property will work.
+    ####@@@@ This class's behavior is likely to be merged into ExprsMeta.
     """Mixin class, for supporting "standard compute methods" in any client class.
     We support two kinds of compute methods:
     - _C_xxx methods, for recomputing values of individual attrs like self.xxx;
@@ -275,7 +291,7 @@ class _C_rule(object): ###e rename, since this is not a compute method? #e give 
             compute_method = bound_compute_method_to_callable( compute_method,
                                                                  formula_symbols = (_self,),
                                                                  constants = True )
-            lval = instance.__dict__[attr] = Lval(FormulaFromCallable(compute_method))
+            lval = instance.__dict__[attr] = Lval(compute_method)
         return lval.get_value() # this does usage tracking, validation-checking, recompute if needed
             # Notes:
             # - There's a reference cycle between compute_method and instance, which is a memory leak.

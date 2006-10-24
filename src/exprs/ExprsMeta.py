@@ -1,11 +1,33 @@
 '''
-ExprsMeta.py
+ExprsMeta.py -- one metaclass, to take care of whatever is best handled using a metaclass,
+and intended to be used for all or most classes in this module.
 
 $Id$
+
+===
+
+Reasons we needed a metaclass:
+
+- If there are ways of defining how self.attr behaves using different class attributes (e.g. attr or _C_attr or _CV_attr),
+overriding by subclasses would not normally work as intended if subclasses tried to override different attrs
+than the ones providing the superclass behavior. ExprsMeta solves this problem by detecting each class's contributions
+to defining attr from any class attributes (attr or _xxx_attr), and encoding them as descriptors on attr itself.
+
+- Some objects assigned to attr in a class don't have enough info to act well as descriptors, and/or might be shared
+inappropriately on multiple attrs in the same or different classes. (Formulas on _self, assigned to attr, have both problems.)
+ExprsMeta replaces such objects with unshared wrapped versions which know attr. (Note that it only does this in the class
+in which they are defined -- they might still be used from either that class or a subclass of it, and if they replace
+themselves again when used, they should worry about that. Python probably copies refs to them into each class's dict,
+but these copies are all shared.)
+
+What ExprsMeta handles specifically:
+
+- ###doc
+
+
 '''
 
-
-
+###e nim or wrong as of 061024, also not yet used ####@@@@
 
 #e imports
 
