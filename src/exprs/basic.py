@@ -28,19 +28,27 @@ def reload_once(module):
     from testdraw import vv
     reload_once_per_event(module, always_print = True, never_again = False, counter = vv.reload_counter, check_modtime = True)
 
-# ==
+
+# == imports from cad/src
 
 from VQT import V, A, Q
 
-from state_utils import _UNSET_ # warning: not included in "import *"
 from state_utils import transclose
 
-# ==
+# (but color constants are imported lower down)
+
+## not yet needed: from state_utils import _UNSET_ # warning: not included in "import *"
+
+
+# == imports from this exprs package
 
 import py_utils
 reload_once(py_utils)
 
 from py_utils import *
+
+from __Symbols__ import _self # (__Symbols__ module doesn't support reload) # warning: not included in "import *"
+
 
 # == colors (constants and simple functions; import them everywhere to discourage name conflicts that show up only later)
 
@@ -73,13 +81,10 @@ trans_blue = translucent_color(halfblue)
 trans_red = translucent_color(red)
 trans_green = translucent_color(green)
 
-# ==
+
+# == local defs
 
 def stub(*args, **kws):
     assert 0, "stub called"
-
-from __Symbols__ import _self # (__Symbols__ module doesn't support reload) # warning: not included in "import *"
-
-### PROBLEM: _self is not imported by import *. For now, just import it manually as needed... later, not sure. Same with _UNSET_.
 
 # end

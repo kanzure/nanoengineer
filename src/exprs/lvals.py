@@ -270,11 +270,11 @@ class _C_rule(object): ###e rename, since this is not a compute method? #e give 
             # make a new Lval object from the compute_method (happens once per attr per instance)
             mname = self.prefix + attr
             compute_method = getattr(instance, mname) # should always work
-            # permit not only bound methods, but formulas on _self, and perhaps constants or _UNSET_ (TBD ####)
-            compute_method = unbound_compute_method_to_callable( compute_method,
+            # permit not only bound methods, but formulas on _self, or constants
+            # (but formulas and constants will also be permitted directly on attr; see ExprsMeta for more info)
+            compute_method = bound_compute_method_to_callable( compute_method,
                                                                  formula_symbols = (_self,),
-                                                                 constants = True,
-                                                                 unset_values = (_UNSET_,) )
+                                                                 constants = True )
             lval = instance.__dict__[attr] = Lval(FormulaFromCallable(compute_method))
         return lval.get_value() # this does usage tracking, validation-checking, recompute if needed
             # Notes:
@@ -323,25 +323,18 @@ class _CV_rule(object):
         except KeyError:
             # make a new object from the compute_methods (happens once per attr per instance) 
             compute_methodV = getattr(instance, self.prefixV + attr) # should always work
-            compute_methodV = unbound_compute_method_to_callable( compute_methodV,
+            compute_methodV = bound_compute_method_to_callable( compute_methodV,
                                                                   formula_symbols = (_self, _i), ###IMPLEM _i
-                                                                  constants = True,
-                                                                  unset_values = (_UNSET_,) )###IMPORT
-                # also permit formulas in _self and _i, or constants; the listed unset_values all convert to None -- NO, ambiguous w/ constant!
-                # (note: None might be interpreted as a constant [#nim, undecided, but true in the helper call above];
-                #  should we use _UNSET_ to disable an inherited one from a superclass?? [also nim, but true in call above] ####@@@@)
-            assert compute_methodV is None or callable(compute_methodV)
-            if compute_methodV is None:
-                assert 0, "i don't think caller can handle this -- need to check for it earlier" ####@@@@@
-                return None
-            compute_methodK = getattr(instance, self.prefixK + attr, _UNSET_)
-                # optional method or formula or constant (None is a constant, and an error, since legal constant values are sequences)
-            compute_methodK = unbound_compute_method_to_callable( compute_methodK,
-                                                                  formula_symbols = (_self,),
-                                                                  constants = True,
-                                                                  unset_values = (_UNSET_,) )
-            assert compute_methodK is _UNSET_ or callable(compute_methodK)
-            assert compute_methodK is not None, "compute_methodK is None, a constant, but legal values are sequences. Did you mean _UNSET_?"
+                                                                  constants = True )
+                # also permit formulas in _self and _i, or constants (either will be converted to a callable)
+            assert callable(compute_methodV)
+            compute_methodK = getattr(instance, self.prefixK + attr, None)
+                # optional method or formula or constant (None can mean missing, since legal constant values are sequences)
+            if compute_methodK is not None:
+                compute_methodK = bound_compute_method_to_callable( compute_methodK,
+                                                                    formula_symbols = (_self,),
+                                                                    constants = True )
+                assert callable(compute_methodK)
             obj = instance.__dict__[attr] = RecomputableDict(compute_methodV, compute_methodK)
         return obj
     # Note: we have no __set__ method, so in theory (since Python will recognize us as a non-data descriptor),

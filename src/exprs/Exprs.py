@@ -4,7 +4,7 @@ Exprs.py
 $Id$
 '''
 
-class Expr: # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs
+class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs  ####@@@@ MERGE with InstanceOrExpr, or super it
     """abstract class for symbolic expressions that python parser can build for us,
     from Symbols and operations including x.a and x(a);
     also used as superclass for WidgetExpr helper classes,
@@ -27,6 +27,25 @@ class Expr: # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs
     def __call__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __call__" % self.__class__.__name__
 
+    def __get__(self, obj, cls = None):
+        """The presence of this method makes every Expr a Python descriptor. This is so an expr which is a formula in _self
+        can be assigned to cls._C_attr for some attr (assuming cls inherits from InvalidatableAttrsMixin),
+        and will be used as a "compute method" to evaluate obj.attr. The default implementation creates some sort of Lval object
+        with its own inval flag and subscriptions, but sharing the _self-formula, which recomputes by evaluating the formula
+        with _self representing obj.
+        """
+        ''' more on the implem:
+        It stores this Lval object in obj.__dict__[attr], finding attr by scanning cls.__dict__
+        the first time. (If it finds itself at more than one attr, this needs to work! Is that possible? Yes -- replace each
+        ref to the formula by a copy which knows attr... but maybe that has to be done when class is created?
+        Easiest way is first-use-of-class-detection in the default implem. (Metaclass is harder, for a mixin being who needs it.)
+         Ah, easier way: just store descriptors on the real attrs that know what to do... as we're in the middle of doing
+        in the code that runs when we didn't, namely _C_rule or _CV_rule. ###)
+        '''
+        if obj is None:
+            return self
+        print "__get__ is nim in", self, "assigned to some attr in", obj ####@@@@ NIM; see above for how [061023]
+        return
     def __repr__(self):
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect) on 061016
         return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())

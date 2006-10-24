@@ -29,9 +29,9 @@ class Boxed(Widget2D):
     # internal formulas
     _ = _self #e can this be done globally, or will it mess up certain IDE debuggers? Guess: it won't, since they'll do it only in __main__. ##k
     #k do i like this _.xxx syntax? Not much...
-    _C_extra = 2 * _.gap + 2 * _.borderthickness
-    _C_ww = _.thing.width  + _.extra
-    _C_hh = _.thing.height + _.extra
+    extra = 2 * _.gap + 2 * _.borderthickness
+    ww = _.thing.width  + _.extra
+    hh = _.thing.height + _.extra
     # equivalent value for all uses
     _value = Overlay( RectFrame( _.ww, _.hh, thickness = _.borderthickness, color = _.bordercolor),
                       _.thing,
