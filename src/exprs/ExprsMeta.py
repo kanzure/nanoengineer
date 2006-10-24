@@ -22,7 +22,12 @@ but these copies are all shared.)
 
 What ExprsMeta handles specifically:
 
-- ###doc
+- ###doc; primary: attr formula, _C_, _CV_, as modified (lazily, not in here, due to inheritance, back and forward) _CK_,
+  _TYPE_, _DEFAULT_
+
+- what about _args and _options? Both of them are able to do things to attrs... ####k
+
+- explain the problem w/ inheritance, back and forward; assert processed descriptors are class-unique whenever used ####DOIT
 
 
 '''
