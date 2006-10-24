@@ -161,19 +161,7 @@ class LvalForUsingASharedFormula(Lval): #stub -- do we need this? for a formula 
     """
     pass
 
-class LvalForDisplistEffects(Lval): #stub -- see NewInval.py and paper notes; might put this in another file since it depends on OpenGL
-    """Lval variant, for when the value in question is the total drawing effect of calling an OpenGL display list
-    (which depends not only on the OpenGL commands in that display list, but on those in all display lists it calls,
-    directly or indirectly).
-       [The basic issues are the same as if the effect was of running an external subroutine, in a set of external subrs
-    whose code we get to maintain, some of which call others. But there are a lot of OpenGL-specific details which affect
-    the implementation. The analogous things (external Qt widgets, POV-Ray macros) are like that too, so it's unlikely
-    a common superclass LvalForThingsLikeExternalSubroutines would be useful.]
-    """
-    def _compute_value(self):
-        "[unlike in superclass Lval, we first make sure all necessary display list contents are up to date]"
-        pass
-    pass
+## class LvalForDisplistEffects -- see DisplistChunk.py
 
 # ==
 
