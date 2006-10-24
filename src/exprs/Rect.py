@@ -37,9 +37,13 @@ class Rect(Widget2D):
     _DEFAULT_height = _self.width # (a formula involving attrs of _self)
     _DEFAULT_width = 10 # pixels (??)
     
-    # set up formulas for layout box attrs bright and btop in terms of width & height
+    # set up formulas for layout box attrs (bright and btop) in terms of width & height
     # (basically: bright = width, btop = height)
     _C_bright = _self.width # _C_attr can either be a method (compute rule), or a formula on _self (like here)
+        ####@@@@ _C_attr being formula is nim; if it's a py constant like 0 below (a degenerate formula), is that ambiguous?
+        # If so, maybe wrap it with something when it's a formula? (or when it's a callable but not a compute method?)
+        # related: if it's a callable, do we say it's a constant callable or do we treat that callable as the compute method?
+        # also related (but a digr): to denote a formula sin(_self.xx), can we replace sin with something.sin?
     _C_btop = _self.height
     # fyi, these are not needed (same as the defaults in Widget2D):
     _C_bbottom = 0

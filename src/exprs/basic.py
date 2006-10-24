@@ -32,6 +32,9 @@ def reload_once(module):
 
 from VQT import V, A, Q
 
+from state_utils import _UNSET_ # warning: not included in "import *"
+from state_utils import transclose
+
 # ==
 
 import py_utils
@@ -75,8 +78,8 @@ trans_green = translucent_color(green)
 def stub(*args, **kws):
     assert 0, "stub called"
 
-from __Symbols__ import _self # (__Symbols__ module doesn't support reload)
+from __Symbols__ import _self # (__Symbols__ module doesn't support reload) # warning: not included in "import *"
 
-### PROBLEM: _self is not imported by import *. For now, just import it manually as needed... later, not sure.
+### PROBLEM: _self is not imported by import *. For now, just import it manually as needed... later, not sure. Same with _UNSET_.
 
 # end

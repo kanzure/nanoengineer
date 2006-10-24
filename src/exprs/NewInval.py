@@ -84,8 +84,6 @@ class GLPaneProxy: #######@@@@@@@ WRONG and/or OBS
 #   overridden by them (just a flag on the name which matters when it's interpreted).])
 # If we do, is the class below even a Drawable with a draw method? (I doubt it. I bet it's an internal displist-owner helper object.)
 
-from state_utils import transclose
-
 # singleton object - layer of displist proxies
 
 def ensure_ready_to_call( dlist_owner_1 ):
