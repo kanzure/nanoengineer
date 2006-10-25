@@ -6,6 +6,8 @@ $Id$
 simple utility functions for python built-in types
 '''
 
+# note: basic.py imports * from here.
+
 def interleave(elts, gaps):
     """Return an interleaved list of the given elements and gaps --
     e.g. elt[0] gap[0] elt[1] gap[1] elt[2], for 3 elts and 2 gaps.
@@ -31,6 +33,18 @@ def dict_ordered_values(d1):
     items.sort()
     return [v for (k,v) in items]
 
+def printonce(msg, msg2 = None): #e refile
+    """print msg (which should be a constant), but only once per session.
+    If msg is *not* a constant, pass its constant part (a nonempty string --
+    not checked, bad errors if violated) in msg2.
+       WARNING: If you pass nonconstant msg and forget to pass msg2, or if msg2 is nonconstant or false,
+    this might print msg on every call!
+    """
+    constpart = msg2 or msg
+    from env import seen_before
+    if not seen_before(constpart):
+        print msg
+    return
 
 class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibledict?? -- it doesn't have to memoize exactly...
     """Act like a transparently extensible dict,
@@ -45,11 +59,12 @@ class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibled
         try:
             return dict.__getitem__(self, key)
         except KeyError:
-            begin_disallowing_usage_tracking()  ####IMPLEM #e pass explanation for use in error messages
+            printonce("developer note: begin_disallowing_usage_tracking is still a stub")
+            # begin_disallowing_usage_tracking()  ####IMPLEM #e pass explanation for use in error messages
             val = self._way(key)
                 #e assert no usage gets tracked? for efficiency, do it by checking a counter before & after? or tmp hide tracker?
                 # yes, temporarily delete the global dict seen when usage tracking, so whoever tries it will get an error! ####IMPLEM
-            end_disallowing_usage_tracking() ####IMPLEM; note, it needs to be legal for something during the above to reallow it for itself
+            # end_disallowing_usage_tracking() ####IMPLEM; note, it needs to be legal for something during the above to reallow it for itself
             dict.__setitem__(self, key, val)
             return val
     pass

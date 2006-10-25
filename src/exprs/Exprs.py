@@ -27,7 +27,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
     def __call__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __call__" % self.__class__.__name__
 
-    def __get__(self, obj, cls = None):
+    def __get__(self, obj, cls):
         """The presence of this method makes every Expr a Python descriptor. This is so an expr which is a formula in _self
         can be assigned to cls._C_attr for some attr (assuming cls inherits from InvalidatableAttrsMixin),
         and will be used as a "compute method" to evaluate obj.attr. The default implementation creates some sort of Lval object
