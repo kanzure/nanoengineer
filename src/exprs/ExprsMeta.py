@@ -6,33 +6,66 @@ $Id$
 
 ===
 
-Reasons we needed a metaclass:
+Reasons we needed a metaclass, and some implementation subtleties:
 
 - If there are ways of defining how self.attr behaves using different class attributes (e.g. attr or _C_attr or _CV_attr),
 overriding by subclasses would not normally work as intended if subclasses tried to override different attrs
-than the ones providing the superclass behavior. ExprsMeta solves this problem by detecting each class's contributions
-to defining attr from any class attributes (attr or _xxx_attr), and encoding them as descriptors on attr itself.
+than the ones providing the superclass behavior. (E.g., defining _C_attr in a subclass would not override a formula or constant
+assigned directly to attr in a superclass.)
+
+ExprsMeta solves this problem by detecting each class's contributions to the intended definition of attr (for any attr)
+from any class attributes related to attr (e.g. attr or _xxx_attr), and encoding these as descriptors on attr itself.
+
+(Those descriptors might later replace themselves when first used in a given class, but only with descriptors on the same attr.)
 
 - Some objects assigned to attr in a class don't have enough info to act well as descriptors, and/or might be shared
-inappropriately on multiple attrs in the same or different classes. (Formulas on _self, assigned to attr, have both problems.)
-ExprsMeta replaces such objects with unshared wrapped versions which know attr. (Note that it only does this in the class
-in which they are defined -- they might still be used from either that class or a subclass of it, and if they replace
-themselves again when used, they should worry about that. Python probably copies refs to them into each class's dict,
-but these copies are all shared.)
+inappropriately on multiple attrs in the same or different classes. (Formulas on _self, assigned to attr, can have both problems.)
+
+ExprsMeta replaces such objects with unshared, wrapped versions which know the attr they're assigned to.
+
+Note that it only does this in the class in which they are syntactically defined -- they might be used from either that class
+or a subclass of it, and if they replace themselves again when used, they should worry about that. Python probably copies refs
+to them into each class's __dict__, but these copies are all shared. This means they should not modify themselves in ways which
+depend on which subclass they're used from.
+
+For example, if a descriptor assigned by ExprsMeta makes use of other attributes besides its main definining attribute,
+those other attributes might be overridden independently of the main one, which means their values need to be looked for
+independently in each class the descriptor is used in. This means two things:
+
+1. The descriptor needs to cache its knowledge about how to work in a specific class, in that class, not in itself
+(not even if it's already attached to that class, since it might be attached to both a class and its subclass).
+It should do this by creating a new descriptor (containing that class-specific knowledge) and assigning it only into one class.
+
+2. In case I'm wrong about Python copying superclass __dict__ refs into subclass __dicts__, or in case this behavior changes,
+or in case Python does this copying lazily rather than at class-definition time, each class-specific descriptor should verify
+it's used from the correct class each time. If it wants to work correctly when that fails (rather than just assertfailing),
+it should act just like a non-class-specific descriptor and create a new class-specific copy assigned to the subclass it's used from.
+
+Note that the simplest scheme combines points 1 and 2 by making each of these descriptors the same -- it caches info for being used
+from the class it's initially assigned to, but always checks this and creates a subclass-specific descriptor (and delegates that
+use to it) if used from a subclass. All we lose by fully merging those points is the check on my beliefs about Python.
+
+
+
+(as _CV_ makes use of _CK_, or various things
+make use of _TYPE_attr or _DEFAULT_attr declarations), those  definining attribute
 
 What ExprsMeta handles specifically:
 
-- ###doc; primary: attr formula, _C_, _CV_, as modified (lazily, not in here, due to inheritance, back and forward) _CK_,
-  _TYPE_, _DEFAULT_
+- formulas on _self assigned directly to attr (in a class)
 
-- what about _args and _options? Both of them are able to do things to attrs... ####k
+- _C_attr methods (or formulas??), making use of optional _TYPE_attr or _DEFAULT_attr declarations (#k can those decls be formulas??)
 
-- explain the problem w/ inheritance, back and forward; assert processed descriptors are class-unique whenever used ####DOIT
+- _CV_attr methods (or formulas??), making use of optional _CK_attr methods (or formulas??), and/or other sorts of decls as above
 
-
+- not sure: what about _args and _options? Both of them are able to do things to attrs... ####k
 '''
 
 ###e nim or wrong as of 061024, also not yet used ####@@@@
+
+# plan: create some general descriptor classes corresponding to the general scheme described above, then fill them in
+
+# ==
 
 #e imports
 
