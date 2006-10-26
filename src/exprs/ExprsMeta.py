@@ -6,6 +6,74 @@ $Id$
 
 ===
 
+####### need to insert improved text for the following, drafted 061025 in notesfile: ######@@@@@@
+
+here it is, not quite done, but i might still edit it in the text file, and/or wikify it
+
+==
+
+Python provides several ways for class attributes to determine how instance attributes are computed.
+To summarize: the class attributes can be constants, functions, or other descriptors,
+with corresponding instance attribute accesses resulting in constants, bound methods, or fairly arbitrary behavior.
+
+We want to add a few specific ways of our own:
+
+- class attributes which are formulas in _self, 
+  for which instance.attr should be a read-only per-instance memoized invalidatable/recomputable value
+  computed by the formula
+
+- class attributes which are like a "descriptor expression", but with the "descriptor" knowing the class and attr
+it was assigned to (which ordinary ones don't know):
+
+  - for example, resulting in instance.attr acting like a dict of individually invalidatable/recomputable values,
+  defined by a method or formula on the key, extensible as new keys are used,
+  with the permitted keys either unlimited, fitting some type or pattern, or listed explicitly by a
+  once-computable method or formula
+  
+  [###e (details unclear -- does this mean all exprs include details of what gets memoized, at what level inside??)]
+
+- specially-named methods, assigned to _prefix_attr rather than directly to attr, which nonetheless control what
+instance.attr does (similarly to one of the ways mentioned above), with subclasses able to override superclasses
+about attr even if they define its behavior by assigning to different class attributes (one to attr itself, 
+one to _prefix1_attr, one to _prefix2_attr). (This way is most convenient when you want to express the behavior using
+Python code rather than as formulas.)
+
+We find a metaclass to be the simplest way of achieving certain key aspects of those desires:
+
+- Descriptor exprs might be shared among attrs or between classes -- they don't know their cls/attr location,
+and it's not even unique (meaning they'd be wrong to cache cls/attr info inside themselves, even if they knew it).
+
+A metaclass can wrap descriptors (or the like) with this location info, with the resulting wrapped exprs
+being unique (so they can be allowed to cache data which depends on this location info). Effectively, it can
+wrap things that follow our own descriptor protocol to produce things that follow Python's.
+
+- Overriding of attr assignments doesn't normally affect related attrs; if some class defines contradicting
+values for attr and _prefix1_attr and _prefix2_attr, all meant to control instance.attr in different ways,
+the defn to follow should be the one defined in the innermost class, but you can't easily tell which one that is.
+(If Python copies superclass dicts into subclass dicts, maybe you can't tell at all, absent metaclasses, except by
+something as klugy as comparing line numbers found inside function code objects and their classes.)
+
+  - We could solve this just by recording the class and attr of each def, as we'll do to solve the prior problem...
+  ### could we really use that info to solve this? should we?
+  
+  - But what we actually do is have the metaclass create something directly on the attr, 
+  which says how it's supposed to be 
+  defined in that class (and is a descriptor which causes that to actually happen in the right way). 
+  
+  This scheme has the advantage of dispensing with any need for __getattr__ (I think).
+  
+  (Note, it could also do it by creating a special prefix attr saying
+   which other prefix attr controls the def. Should it?? ####)
+
+The actual creation of the class/attr-specific descriptor for runtime use is best done lazily, 
+on first use of that attr in an instance. This lets it more safely import code, more easily
+access inherited class attrs, etc... and lets most of the system be more similar to non-metaclass-based code.
+
+The metaclass just records enough info, and makes it active in the right places, to allow this to happen properly.
+
+
+======= old text, not sure it's all obs/redundant now:
+
 Reasons we needed a metaclass, and some implementation subtleties:
 
 - If there are ways of defining how self.attr behaves using different class attributes (e.g. attr or _C_attr or _CV_attr),
