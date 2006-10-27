@@ -4,8 +4,6 @@ scratch6.py
 $Id$
 '''
 
-# for now, not in cvs and only on g4
-
 # [061025; exploring a graph-editing eg, gets into interesting comments about
 # exprs for behaviors, actions, events, potential & actual, command offers,
 # and pattern syntax and semantics.]
