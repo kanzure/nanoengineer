@@ -273,7 +273,7 @@ def display_list_helper(self, glpane, drawfunc):
             if printdraw: print "drawfunc (redraw %d)" % env.redraw_counter
             drawfunc()
         except:
-            print_compact_traceback("exception ignored: ")
+            print_compact_traceback("exception in testdraw.py's drawfunc call ignored: ")
 
         if wantlist:
 ##            ColorSorter.finish() # grantham 20051205
@@ -433,7 +433,8 @@ def drawtest1(glpane):
         testexpr.draw()
     else:
         # let the exprs module do it
-        from exprs import basic, test
+        from exprs import basic
+        from exprs import test
         basic.reload_once(basic)
         basic.reload_once(test)
         from exprs.test import drawtest1_innards
