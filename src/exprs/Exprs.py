@@ -3,7 +3,21 @@ Exprs.py
 
 $Id$
 '''    
-        
+
+try:
+    _reload_ok
+except:
+    _reload_ok = False # can be redefined at runtime from a debugger, but reload will probably lead to bugs.
+    # this will prevent reload_once from actually reloading it ###IMPLEM
+else:
+    assert _reload_ok, "Exprs module is not allowed to be reloaded, since we test for isinstance(val, Expr) while other modules get imported!"
+    
+# kluge to avoid recursive import problem (done in modules which are imported by basic -- is this one?? maybe import basic ok??):
+def printnim(*args):
+    import basic
+    basic.printnim(*args)
+    return
+
 class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs  ####@@@@ MERGE with InstanceOrExpr, or super it
     """abstract class for symbolic expressions that python parser can build for us,
     from Symbols and operations including x.a and x(a);
@@ -112,11 +126,11 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
             # (could it be a formula, but with a boolean value too, stored independently???)
             return self
         return self.__class__(*modargs)
-    def _e_free_in(self, sym):
+    def _e_free_in(self, sym): #e name is confusing, sounds like "free of" which is the opposite -- rename to "contains_free"??
         """Return True if self contains sym (Symbol or its name) as a free variable, in some arg or option value.
         [some subclasses override this]
         """
-        for arg in self._e_args: ####k not sure this is defined in all exprs!
+        for arg in self._e_args: ####k not sure this is defined in all exprs! indeed, not in a Widget2D python instance... ####@@@@
             if arg._e_free_in(sym):
                 return True
         printnim("_e_free_in is nim for option vals")###@@@
@@ -136,7 +150,7 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
 class OpExpr(SymbolicExpr):
     "Any expression formed by an operation (treated symbolically) between exprs, or exprs and constants"
     def __init__(self, *args):
-        self._e_args = args
+        self._e_args = map(canon_expr, args)
         self._e_init()
     def _e_init(self):
         assert 0, "subclass of OpExpr must implement this"
@@ -228,6 +242,31 @@ class If_expr(OpExpr): # so we can use If in formulas
     pass
 # see also class If_ in testdraw.py
 ## def If(): pass
+
+class ConstantExpr(Expr): ###k super is not quite right -- we want some things in it, like isinstance Expr, but not the __add__ defs
+    def __init__(self, val):
+        self._e_constant_value = val ####USE ME, by defining _e_eval?
+        self._e_args = () # allows super _e_free_in to be correct
+    pass
+
+def canon_expr(subexpr):###CALL ME; a comment in Column.py says that env.understand_expr should call this...
+    "Make subexpr an Expr, if it's not"
+    if isinstance(subexpr, Expr):
+        return subexpr
+    elif isinstance(subexpr, type([])):
+        return ListExpr(*subexpr) ###IMPLEM; btw is this always correct? or only in certain contexts??
+            # could be always ok if ListExpr is smart enough to revert back to a list sometimes.
+        #e analogous things for tuple and/or dict? not sure. or for other classes which mark themselves somehow??
+    else:
+        # assert it's not various common errors, like expr classes or not-properly-reloaded exprs
+        assert not hasattr(subexpr, '_e_compute_method'), "subexpr seems bad: %r" % (subexpr,) ###e better choice of method to look for?
+        #e more checks?
+        # assume it's a python constant
+        #e later add checks for its type, sort of like we'd use in same_vals or so... in fact, how about this?
+        from state_utils import same_vals
+        assert same_vals(subexpr, subexpr)
+        return ConstantExpr(subexpr)
+    pass
 
 # ==
 

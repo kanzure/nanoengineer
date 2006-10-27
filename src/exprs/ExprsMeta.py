@@ -145,7 +145,7 @@ from debug import print_compact_traceback
 # from this exprs package in cad/src
 from lvals import Lval, LvalDict2 ### make reloadable? I'm not sure if *this* module supports reload. ##k
 
-# kluge to avoid recursive import problem:
+# kluge to avoid recursive import problem (done in modules which are imported by basic):
 def printnim(*args):
     import basic
     basic.printnim(*args)
@@ -167,7 +167,7 @@ class ClassAttrSpecific_NonDataDescriptor(object):
     override it), we encourage them to not redefine __init__, but to rely on our implem of __init__
     which stores all its arguments in fixed attrs of self, namely clsname, attr, args, and kws,
     and then calls self._init1(). [self.cls itself is not yet known, but must be set before first use,
-    by calling set_cls.]
+    by calling _ExprsMeta__set_cls.]
     """
     __copycount = 0
     cls = None
@@ -185,13 +185,16 @@ class ClassAttrSpecific_NonDataDescriptor(object):
     def _init1(self):
         "subclasses can override this"
         pass
-    def set_cls(self, cls): #####@@@@@ CALL ME
+    def _ExprsMeta__set_cls(self, cls):
+        "[private method for ExprsMeta to call when it knows the defining class]"
         self.cls = cls
         assert self.clsname == cls.__name__ #k
+        #e should we store only the class id and name, to avoid ref cycles? Not very important since classes are not freed too often.
+        return
     def check(self, cls2):
         ###e remove all calls of this when it works (need to optim)
         cls = self.cls
-        assert cls is not None # need to call set_cls before now
+        assert cls is not None # need to call _ExprsMeta__set_cls before now
         assert self.clsname == cls.__name__ # make sure no one changed this since we last checked
         attr = self.attr
         assert cls.__dict__[attr] is self
@@ -436,9 +439,11 @@ def attr_prefix(attr): # needn't be fast
     return ''
 
 def val_is_special(val):
-    "val is special if it's a formula in _self, i.e. derives from InstanceOrExpr, and contains _self as a free variable."
-    return hasattr(val, '_e_compute_method')  and val._e_free_in('_self')
+    "val is special if it's a formula in _self, i.e. is an instance (not subclass!) of Expr, and contains _self as a free variable."
+    from Exprs import Expr # let's hope it's reloaded by now, if it's going to be ... hmm, we run during import so we can't assume that.
+    return isinstance(val, Expr) and val._e_free_in('_self')
         ## outtake: and val.has_args [or more likely, and val._e_has_args]
+        ## outtake: hasattr(val, '_e_compute_method') # this was also true for classes
 
 # ==
     
@@ -478,7 +483,10 @@ class ExprsMeta(type):
         # handle _args [not sure if this is the right place to do that]
         _args = ns.pop('_args', None)
         if _args is not None:
-            assert type(_args) is type(())
+            ## assert type(_args) is type(()),
+            if not (type(_args) is type(())):
+                # note: printed only once per value of _args (which might be lots of times, but not as many as for each error)
+                printnim( "_args should have type(()) but doesn't; its value is %r" % (_args,) ) ## 'thing' -- WHY?? ###@@@
             printnim("_args is nim in ExprsMeta")###@@@ actually we'll handle them when we instantiate, much later, other file
         for attr, val in ns.iteritems():
             # If attr has a special prefix, or val has a special value, run attr-prefix-specific code
@@ -545,11 +553,19 @@ class ExprsMeta(type):
         assert res.__name__ == name #k
         for thing in processed_vals:
             try:
-                thing.set_cls(res)
+                if hasattr(thing, '_ExprsMeta__set_cls'):
+                    # (note: that's a tolerable test, since name is owned by this class, but not sure if this scheme is best --
+                    #  could we test for it at the time of processing, and only append to processed_vals then??
+                    #  OTOH, what better way to indicate the desire for this info at this time, than to have this method? #k)
+                    thing.__set_cls(res)
             except:
                 print "data for following exception: res,thing =",res,thing
+                    # fixed by testing for __set_cls presence:
+                    ## res,thing = <class 'exprs.Rect.Rect'> (0.5, 0.5, 0.5)
+                    ## AttributeError: 'tuple' object has no attribute 'set_cls' [when it had a different name, non-private]
                 raise
-        return res
+        return res # from __new__ in ExprsMeta
+    pass # end of class ExprsMeta
 
 # ==
 
