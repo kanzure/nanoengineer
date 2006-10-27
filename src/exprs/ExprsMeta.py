@@ -145,6 +145,12 @@ from debug import print_compact_traceback
 # from this exprs package in cad/src
 from lvals import Lval, LvalDict2 ### make reloadable? I'm not sure if *this* module supports reload. ##k
 
+# kluge to avoid recursive import problem:
+def printnim(*args):
+    import basic
+    basic.printnim(*args)
+    return
+
 # ==
 
 def remove_prefix(str1, prefix):#e refile
@@ -384,31 +390,43 @@ def choose_CV_rule_for_val(clsname, attr, val):
 
 # ==
 
-# prefix_X_ routines process attr,val on clsname, where attr has prefix _X_, and return processed (attr0, val0)
+# prefix_X_ routines process attr0, val on clsname, where attr was prefix _X_ plus attr0, and return val0
 # where val0 can be directly assigned to attr0 in cls (not yet known); nothing else from defining cls should be assigned to it.
 
-def prefix_C_(clsname, attr, val):
-    prefix = '_C_'
-    assert attr.startswith(prefix)
-    attr0 = remove_prefix(attr, prefix)
+def prefix_C_(clsname, attr0, val):
     val0 = choose_C_rule_for_val(clsname, attr0, val)
-    return attr0, val0
+    return val0
 
-def prefix_CV_(clsname, attr, val):
-    prefix = '_CV_'
-    assert attr.startswith(prefix)
-    attr0 = remove_prefix(attr, prefix)
+def prefix_CV_(clsname, attr0, val):
     val0 = choose_CV_rule_for_val(clsname, attr0, val)
-    return attr0, val0
+    return val0
 
-def prefix_nothing(clsname, attr, val):
-    attr0 = attr
+def prefix_nothing(clsname, attr0, val):
     # assume we're only called for a formula
-    assert hasattr(val, '_e_compute_method')
+    ## assert hasattr(val, '_e_compute_method')
+    assert val_is_special(val), "why is this val not special? clsname %r, attr0 %r, val %r" % (clsname, attr0, val)
+        #e rename val_is_special
     val0 = choose_C_rule_for_val(clsname, attr0, val)
-    return attr0, val0
+    return val0
 
-prefix_map = {'':prefix_nothing, '_C_':prefix_C_, '_CV_':prefix_CV_}
+def prefix_DEFAULT_(clsname, attr0, val):
+    "WARNING: caller has to also know something about _DEFAULT_, since it declares attr0 as an option"
+    if not hasattr(val, '_e_compute_method'): ###e improve condition
+        # if val is not a formula or any sort of expr, it can just be a constant. e.g. _DEFAULT_color = gray
+        # what if it's a method?? that issue is ignored for now. (bug symptom: bound method might show up as the value. not sure.)
+        # what if it's a "constant classname" for an expr? that's also ignored. that won't be in this condition...
+        # (the bug symptom for that would be a complaint that it's not special (since it doesn't have _self).)
+        # Q: if it's a formula or expr, not free in _self, should we just let that expr itself be the value??
+        # This might make sense... it ought to mean, the value doesn't depend on self (unless it's a bound method, also ok maybe).
+        #####@@@@@
+        return val
+    return prefix_nothing(clsname, attr0, val)
+
+prefix_map = {'':prefix_nothing,
+              '_C_':prefix_C_,
+              '_DEFAULT_': prefix_DEFAULT_,
+              '_CV_':prefix_CV_,
+              }
     #e this could be more modular, less full of duplicated prefix constants and glue code
 
 def attr_prefix(attr): # needn't be fast
@@ -418,7 +436,9 @@ def attr_prefix(attr): # needn't be fast
     return ''
 
 def val_is_special(val):
-    return hasattr(val, '_e_compute_method')
+    "val is special if it's a formula in _self, i.e. derives from InstanceOrExpr, and contains _self as a free variable."
+    return hasattr(val, '_e_compute_method')  and val._e_free_in('_self')
+        ## outtake: and val.has_args [or more likely, and val._e_has_args]
 
 # ==
     
@@ -432,7 +452,34 @@ class ExprsMeta(type):
         # - But we know which class is being defined, since we have its name in the argument <name>.
         data_for_attr = {}
         processed_vals = []
-        orig_ns_keys = ns.keys() # only used for debugging
+        orig_ns_keys = ns.keys() # only used in exception text, for debugging
+        # handle _options
+        _options = ns.pop('_options', None)
+        if _options is not None:
+            assert type(_options) is type({})
+            for optname, optval in _options.items():
+                # _DEFAULT_optname = optval
+                attr = '_DEFAULT_' + optname
+                assert not ns.has_key(attr), \
+                       "error: can't define %r both as %r and inside _options in the same class %r (since ExprsMeta is its metaclass); ns contained %r" % \
+                       ( optname, attr, name, orig_ns_keys )
+                ns[attr] = optval
+                # no need to check for ns[optname] here -- this will be caught below -- but the error message will be misleading
+                # since it will pretend you defined it using _DEFAULT_; so we'll catch that case here, at least
+                # (though this doesn't catch a conflict with some other way of defining optname; that'll still have misleading error
+                #  msg below).
+                assert not ns.has_key(optname), \
+                       "error: can't define %r directly and inside _options in the same class %r (since ExprsMeta is its metaclass); ns contained %r" % \
+                       ( optname, name, orig_ns_keys )
+                del attr
+                continue
+            del optname, optval
+        del _options
+        # handle _args [not sure if this is the right place to do that]
+        _args = ns.pop('_args', None)
+        if _args is not None:
+            assert type(_args) is type(())
+            printnim("_args is nim in ExprsMeta")###@@@ actually we'll handle them when we instantiate, much later, other file
         for attr, val in ns.iteritems():
             # If attr has a special prefix, or val has a special value, run attr-prefix-specific code
             # for defining what value to actually store on attr-without-its-prefix. Error if we are told
@@ -459,17 +506,23 @@ class ExprsMeta(type):
                 ok = True
                 if not prefix and attr.startswith('_'):
                     # note: this scheme doesn't yet handle special vals on "helper prefixes" such as the following:
-                    for helper_prefix in ('_CK_', '_TYPE_', '_DEFAULT_'):
+                    for helper_prefix in ('_CK_', '_TYPE_'):
                         ## assert not attr.startswith(helper_prefix), "special val not yet supported for %r: %r" % (attr, val)
                         if attr.startswith(helper_prefix):
                             print "WARNING: special val not yet supported for %r: %r" % (attr, val)
                                 # this one we need to support:
-                                #   _DEFAULT_height = _self.width
+                                #   _DEFAULT_height = _self.width [now it's in prefix_map]
                                 # this one is a bug in my condition for detecting a formula:
                                 #   _TYPE_thing = <class 'exprs.widget2d.Widget2D'>
                             ok = False
                             break
                         continue
+                if prefix == '_DEFAULT_':
+                    printnim("_DEFAULT_ needs to be handled differently before it will let named options override it")###@@@
+                    # _DEFAULT_ needs to declare attr0 as an option, ie let it be overridden by named options
+                    ### how we'll do this: leave it sitting there in the namespace, DON'T COPY IT TO ATTR (that's WRONG),
+                    # instead make the DEFAULT thing a rule of its own, but also do the decl
+                    # and also set up a rule on attr which grabs it from options and DEFAULT in the proper way.
                 if ok:
                     lis = data_for_attr.setdefault(attr0, [])
                     lis.append((prefix, val))
@@ -485,14 +538,17 @@ class ExprsMeta(type):
             prefix, val = lis[0]
             # prefix might be anything in prefix_map (including ''), and should control how val gets processed for assignment to attr0.
             processor = prefix_map[prefix]
-            attr00, val0 = processor(name, prefix + attr0, val)
-            assert attr00 == attr0 #e some code cleanup would be useful here (processor should receive prefix & attr0, not return attr0)
+            val0 = processor(name, attr0, val) #e does it also need prefix?
             ns[attr0] = val0
             processed_vals.append(val0)
         res = super(ExprsMeta, cls).__new__(cls, name, bases, ns)
         assert res.__name__ == name #k
         for thing in processed_vals:
-            thing.set_cls(res)
+            try:
+                thing.set_cls(res)
+            except:
+                print "data for following exception: res,thing =",res,thing
+                raise
         return res
 
 # ==

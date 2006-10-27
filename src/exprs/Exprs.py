@@ -22,6 +22,11 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
     tracking usage of env attrs so an external system can know when the return value becomes invalid;
     - 
     """
+    _e_has_args = False # subclass __init__ or other methods must set this True when it's correct... ###nim, not sure well-defined
+        # (though it might be definable as whether any __init__ or __call__ had nonempty args or empty kws)
+        # (but bare symbols don't need args so they would have this True as well)
+        # see also InstanceOrExpr .has_args -- if this survives, that should be renamed so it's the same thing
+        # (the original use for this, val_is_special, doesn't need it -- the check for _self is enough) [061027]
     def __init__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __init__" % self.__class__.__name__
     def __call__(self, *args, **kws):
@@ -99,6 +104,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
     def _e_replace(self, reps):
         "perform replacements (reps) in self, and return the result [same as self if possible?] [some subclasses override this]"
         # for most kinds of exprs, just replace in the args, and in the option values [####@@@@ NIM].
+        printnim("_e_replace is nim for option vals")###@@@
         args = self._e_args
         modargs = tuple(map(reps, args)) ##k reps is callable??
         if args == modargs:
@@ -106,6 +112,15 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
             # (could it be a formula, but with a boolean value too, stored independently???)
             return self
         return self.__class__(*modargs)
+    def _e_free_in(self, sym):
+        """Return True if self contains sym (Symbol or its name) as a free variable, in some arg or option value.
+        [some subclasses override this]
+        """
+        for arg in self._e_args: ####k not sure this is defined in all exprs!
+            if arg._e_free_in(sym):
+                return True
+        printnim("_e_free_in is nim for option vals")###@@@
+        return False
     pass
 
 class SymbolicExpr(Expr): # Symbol or OpExpr
@@ -234,4 +249,10 @@ class Symbol(SymbolicExpr):
         # maybe: replacement is for making things to instantiate (uses widget expr lexenv), eval is for using them (uses env & state)
         # env (drawing_env) will let us grab attrs/opts in object, or things from dynenv as passed to any lexcontaining expr, i think...
         return env._e_eval_symbol(self) # note: cares mainly or only about self._e_name
+    def _e_free_in(self, sym):
+        """General case: Return True if Expr self contains sym (Symbol or its name) as a free variable, in some arg or option value.
+        For this class Symbol, that means: Return True if sym is self or self's name.
+        [overrides super version]
+        """
+        return (sym is self) or (sym == self._e_name)
     pass

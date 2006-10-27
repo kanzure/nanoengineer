@@ -89,4 +89,8 @@ trans_green = translucent_color(green)
 def stub(*args, **kws):
     assert 0, "stub called"
 
+def printnim(msg):
+    printonce("nim reminder: " + msg)
+    return
+
 # end
