@@ -51,6 +51,13 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         "Return a compute method version of this formula, which will use instance as the value of _self."
         #####@@@@@ WRONG API in a few ways: name, scope of behavior, need for env in _e_eval, lack of replacement due to env w/in self.
         return lambda self = self: self._e_eval( _self = instance) #e assert no args received by this lambda?
+        # TypeError: _e_eval() got an unexpected keyword argument '_self'
+        ####@@@@ 061026 have to decide: are OpExprs mixed with ordinary exprs? even instances? do they need env, or just _self?
+        # what about ipath? if embedded instances, does that force whole thing to be instantiated? (or no need?)
+        # wait, embedded instances cuold not even be produced w/o whole ting instantiating... so i mean,
+        # embedded things that *need to* instantiate. I guess we need to mark exprs re that...
+        # (this might prevent need for ipath here, if pure opexprs can't need that path)
+        # if so, who scans the expr to see if it's pure (no need for ipath or full env)? does expr track this as we build it?
     def __repr__(self):
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect) on 061016
         return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())

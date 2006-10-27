@@ -190,7 +190,8 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         attr = self.attr
         assert cls.__dict__[attr] is self
         if cls2 is not None: #k can that ever fail??
-            assert isinstance(cls2, cls)
+            assert issubclass(cls2, cls), "cls2 should be subclass of cls (or same class): %r subclass of %r" % (cls2, cls)
+        return
     def __get__(self, obj, cls):
         "subclasses should NOT override this -- override get_for_our_cls instead"
         self.check(cls) #e remove when works (need to optim)
@@ -272,10 +273,19 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
         assert 0, "subclass should implement this"
     pass # end of class C_rule
 
+# what could cause the exception listed in the last line of the following? It looks like Python printed it while freeing a C_rule...
+# could there be some problem with freeing things made using my metaclass??
+'''
+reloading exprs.Exprs
+exception in testdraw.py's drawfunc call ignored: exceptions.NameError: global name 'args' is not defined
+  [testdraw.py:274] [testdraw.py:308] [testdraw.py:437] [test.py:25] [Rect.py:15] [widget2d.py:10] [instance_helpers.py:222] [ExprsMeta.py:467] [ExprsMeta.py:384] [ExprsMeta.py:298] [ExprsMeta.py:177] [ExprsMeta.py:278]
+Exception exceptions.AssertionError: <exceptions.AssertionError instance at 0xd487dc8> in <bound method C_rule_for_method.__del__ of <exprs.ExprsMeta.C_rule_for_method object at 0xd499d70>> ignored
+'''
+
 class C_rule_for_method(C_rule):
     def _init1(self):
         ## () = self.args is a syntax error!
-        assert len(args) == 0
+        assert len(self.args) == 0
     def make_compute_method_for_instance(self, instance):
         return getattr(instance, '_C_' + self.attr) # kluge, slightly, but it's the simplest and most efficient way
         ###e maybe a better way is to grab the function from cls.__dict__ and call its __get__?
@@ -416,12 +426,13 @@ class ExprsMeta(type):
     # follows 'MyMeta' metaclass example from http://starship.python.net/crew/mwh/hacks/oop-after-python22-1.txt
     def __new__(cls, name, bases, ns):
         # Notes:
-        # - this code runs once per class, so it needn't be fast at all.
+        # - this code runs once per class, so it needn't be fast.
         # - cls is NOT the class object being defined -- that doesn't exist yet, since it's our job to create it and return it!
         #   (It's the class ExprsMeta.)
         # - But we know which class is being defined, since we have its name in the argument <name>.
         data_for_attr = {}
         processed_vals = []
+        orig_ns_keys = ns.keys() # only used for debugging
         for attr, val in ns.iteritems():
             # If attr has a special prefix, or val has a special value, run attr-prefix-specific code
             # for defining what value to actually store on attr-without-its-prefix. Error if we are told
@@ -436,34 +447,46 @@ class ExprsMeta(type):
             prefix = attr_prefix(attr)
             if prefix:
                 attr0 = remove_prefix(attr, prefix)
-                assert not ns.has_key(attr), \
-                       "error: can't define both %r and %r in the same class %r (when ExprsMeta is its metaclass)" % \
-                       ( attr0, attr, name )
+                assert not ns.has_key(attr0), \
+                       "error: can't define both %r and %r in the same class %r (since ExprsMeta is its metaclass); ns contained %r" % \
+                       ( attr0, attr, name, orig_ns_keys )
                     #e change that to a less harmless warning?
                     # note: it's not redundant with the similar assert below, except when *both* prefix and val_is_special(val).
+                    # note: ns contains just the symbols defined in class's scope in the source code, plus __doc__ and __module__.
             else:
                 attr0 = attr
             if prefix or val_is_special(val):
+                ok = True
                 if not prefix and attr.startswith('_'):
-                    # note: this scheme doesn't yet handle special vals on "helper prefixes" like _CK_, _TYPE_, _DEFAULT_.
-                    assert not attr.startswith('_CK_')
-                    assert not attr.startswith('_TYPE_')
-                    assert not attr.startswith('_DEFAULT_')
-                lis = data_for_attr.setdefault(attr0, [])
-                lis.append((prefix, attr0, val))
+                    # note: this scheme doesn't yet handle special vals on "helper prefixes" such as the following:
+                    for helper_prefix in ('_CK_', '_TYPE_', '_DEFAULT_'):
+                        ## assert not attr.startswith(helper_prefix), "special val not yet supported for %r: %r" % (attr, val)
+                        if attr.startswith(helper_prefix):
+                            print "WARNING: special val not yet supported for %r: %r" % (attr, val)
+                                # this one we need to support:
+                                #   _DEFAULT_height = _self.width
+                                # this one is a bug in my condition for detecting a formula:
+                                #   _TYPE_thing = <class 'exprs.widget2d.Widget2D'>
+                            ok = False
+                            break
+                        continue
+                if ok:
+                    lis = data_for_attr.setdefault(attr0, [])
+                    lis.append((prefix, val))
+                pass
             continue
-        for attr00, lis in data_for_attr.items():
-            assert len(lis) == 1, "error: can't define %r and %r in the same class %r (when ExprsMeta is its metaclass)" % \
-                       ( lis[0][0] + lis[0][1],
-                         lis[1][0] + lis[1][1],
-                         name )
+        del attr, val
+        for attr0, lis in data_for_attr.items():
+            assert len(lis) == 1, "error: can't define %r and %r in the same class %r (when ExprsMeta is its metaclass); ns contained %r" % \
+                       ( lis[0][0] + attr0,
+                         lis[1][0] + attr0,
+                         name, orig_ns_keys )
                 #e change that to a less harmless warning?
-            prefix, attr0, val = lis[0]
-            assert attr00 == attr0
+            prefix, val = lis[0]
             # prefix might be anything in prefix_map (including ''), and should control how val gets processed for assignment to attr0.
             processor = prefix_map[prefix]
-            attr000, val0 = processor(name, prefix + attr0, val)
-            assert attr000 == attr0 # yes, some code cleanup would be useful here
+            attr00, val0 = processor(name, prefix + attr0, val)
+            assert attr00 == attr0 #e some code cleanup would be useful here (processor should receive prefix & attr0, not return attr0)
             ns[attr0] = val0
             processed_vals.append(val0)
         res = super(ExprsMeta, cls).__new__(cls, name, bases, ns)

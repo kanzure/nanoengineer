@@ -159,7 +159,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         try:
             val = self._compute_method()
         except:
-            print_compact_traceback("exception in _compute_value ignored: ")
+            print_compact_traceback("exception in %r._compute_method ignored: " % self)
             val = None
         self.end_tracking_usage( match_checking_code, self.inval )
             # that subscribes self.inval to lvals we used, and unsubs them before calling self.inval [###k verify that]
