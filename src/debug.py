@@ -1214,7 +1214,8 @@ debug_reload_once_per_event = False # do not commit with true
 def reload_once_per_event(module, always_print = False, never_again = True, counter = None, check_modtime = False):
     """Reload module (given as object or as name),
     but at most once per user-event or redraw, and only if platform.atom_debug.
-    Assumes w/o checking that this is a module it's ok to reload.
+    Assumes w/o checking that this is a module it's ok to reload, unless the module defines _reload_ok as False,
+    in which case, all other reload tests are done, but a warning is printed rather than actually reloading it.
        If always_print is True, print a console message on every reload, not just the first one per module.
        If never_again is False, refrain from preventing all further reload attempts for a module, after one reload fails for it.
        If counter is supplied, use changes to its value (rather than to env.redraw_counter) to decide when to reload.
@@ -1257,6 +1258,7 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
         print "reload_once_per_event(%r)" % (module,)
     if old == 'never again': #bruce 060304
         return
+    # now we will try to reload it (unless prevented by modtime check or _reload_ok == False)
     assert sys.modules[module.__name__] is module
     module.__redraw_counter_when_reloaded__ = now # do first in case of exceptions in this or below, and to avoid checking modtime too often
     if check_modtime:
@@ -1292,14 +1294,28 @@ def reload_once_per_event(module, always_print = False, never_again = True, coun
         if not want_reload:
             return
         pass
+    # check for _reload_ok = False, but what it affects is lower down, by setting flags about what we do and what we print.
+    # the point is to isolate the effect conditions here, ensuring what we do and print matches,
+    # but to not print anything unless we would have without this flag being False.
+    _reload_ok = getattr(module, '_reload_ok', True)
+    if _reload_ok:
+        def doit(module):
+            reload(module)
+        reloading = "reloading"
+    else:
+        def doit(module):
+            pass 
+        reloading = "NOT reloading (since module._reload_ok = False)"
+    del _reload_ok
+    # now we will definitely try to reload it (or not, due to _reload_ok), and in some cases print what we're doing
     if old == -1:
-        print "reloading",module.__name__
+        print reloading, module.__name__
         if not always_print:
             print "  (and will do so up to once per redraw w/o saying so again)"
     elif always_print:
-        print "reloading",module.__name__
+        print reloading, module.__name__
     try:
-        reload(module)
+        doit(module)
     except:
         #bruce 060304 added try/except in case someone sets ATOM_DEBUG in an end-user version
         # in which reload is not supported. We could check for "enabling developer features",
