@@ -2,8 +2,8 @@
 Exprs.py
 
 $Id$
-'''
-
+'''    
+        
 class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs  ####@@@@ MERGE with InstanceOrExpr, or super it
     """abstract class for symbolic expressions that python parser can build for us,
     from Symbols and operations including x.a and x(a);
@@ -44,8 +44,13 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         '''
         if obj is None:
             return self
-        print "__get__ is nim in", self, "assigned to some attr in", obj ####@@@@ NIM; see above for how [061023 or 24]
+        print "__get__ is nim in the Expr", self, ", which is assigned to some attr in", obj ####@@@@ NIM; see above for how [061023 or 24]
+        print "this formula needed wrapping by ExprsMeta to become a compute rule..." ####@@@@
         return
+    def _e_compute_method(self, instance):
+        "Return a compute method version of this formula, which will use instance as the value of _self."
+        #####@@@@@ WRONG API in a few ways: name, scope of behavior, need for env in _e_eval, lack of replacement due to env w/in self.
+        return lambda self = self: self._e_eval( _self = instance) #e assert no args received by this lambda?
     def __repr__(self):
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect) on 061016
         return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())

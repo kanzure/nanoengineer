@@ -21,10 +21,10 @@ class FakeModule:
         self.__getattr_func = getattr_func
     def __getattr__(self, attr):
         if attr.startswith('_'):
-            print "fyi: fakemodule getattr warns about initial underscores:",attr # e.g. __path__
+            ## too common, e.g. _self: print "fyi: fakemodule getattr warns about initial underscores:",attr # e.g. __path__
             if attr.startswith('__'):
                 raise AttributeError, attr
-            pass # let single-underscore names work normally as symbols, even though we warn about them for now
+            pass # let single-underscore names work normally as symbols, even though we [used to] warn about them for now
         # print "fyi: fakemodule getattr will make Symbol for",attr # this works
         res = self.__getattr_func(attr)
         setattr(self, attr, res) # don't ask me about this attr again!

@@ -47,6 +47,8 @@ reload_once(py_utils)
 
 from py_utils import *
 
+from ExprsMeta import * ###e can this support autoreload??
+
 from __Symbols__ import _self # (__Symbols__ module doesn't support reload) # warning: not included in "import *"
 
 

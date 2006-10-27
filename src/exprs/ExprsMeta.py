@@ -126,6 +126,8 @@ What ExprsMeta handles specifically:
 - not sure: what about _args and _options? Both of them are able to do things to attrs... ####k
 '''
 
+__all__ = ['remove_prefix', 'ExprsMeta', 'ConstantComputeMethodMixin', 'DictFromKeysAndFunction', 'RecomputableDict']
+
 # don't misspell it ExprMeta!
 ###e nim or wrong as of 061024, also not yet used ####@@@@
 
@@ -144,9 +146,6 @@ from debug import print_compact_traceback
 from lvals import Lval, LvalDict2 ### make reloadable? I'm not sure if *this* module supports reload. ##k
 
 # ==
-## _special_prefixes = ('_C_', '_CV_', '_CK_', ) #e get these from their wrapper-making classes, and make them point to those
-
-_prefixes_and_handlers = {} # extended below ###DOIT ####@@@@
 
 def remove_prefix(str1, prefix):#e refile
     "if str1 starts with prefix, remove it (and return the result), else return str1 unchanged"
@@ -158,12 +157,20 @@ class ClassAttrSpecific_NonDataDescriptor(object):
     """Abstract class for descriptors which cache class- and attr- specific info
     (according to the scheme described in the ExprsMeta module's docstring).
        Actually, there's a pair of abstract classes, one each for Data and NonData descriptors.
+       To make our implem of self.copy_for_subclass() correct in our subclasses (so they needn't
+    override it), we encourage them to not redefine __init__, but to rely on our implem of __init__
+    which stores all its arguments in fixed attrs of self, namely clsname, attr, args, and kws,
+    and then calls self._init1(). [self.cls itself is not yet known, but must be set before first use,
+    by calling set_cls.]
     """
     __copycount = 0
-    def __init__(self, cls, attr, *args, **kws):
+    cls = None
+    def __init__(self, clsname, attr, *args, **kws):
+        # to simplify
         #e perhaps this got called from a subclass init method, which stored some additional info of its own,
         # but most subclasses can just let us store args/kws and use that, and not need to override copy_for_subclass. [#k]
-        self.cls = cls # assume this is the class we'll be assigned into (though we might be used from it or any subclass)
+        self.clsname = clsname #######@@@@@@ fix for this in CV_rule too
+        ## self.cls = cls # assume this is the class we'll be assigned into (though we might be used from it or any subclass)
         self.attr = attr # assume this is the attr of that class we'll be assigned into
         self.args = args
         self.kws = kws
@@ -172,8 +179,14 @@ class ClassAttrSpecific_NonDataDescriptor(object):
     def _init1(self):
         "subclasses can override this"
         pass
+    def set_cls(self, cls): #####@@@@@ CALL ME
+        self.cls = cls
+        assert self.clsname == cls.__name__ #k
     def check(self, cls2):
+        ###e remove all calls of this when it works (need to optim)
         cls = self.cls
+        assert cls is not None # need to call set_cls before now
+        assert self.clsname == cls.__name__ # make sure no one changed this since we last checked
         attr = self.attr
         assert cls.__dict__[attr] is self
         if cls2 is not None: #k can that ever fail??
@@ -221,8 +234,9 @@ class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
 # ==
 
 class C_rule(ClassAttrSpecific_DataDescriptor):
-    """One of these should be stored by ExprsMeta when it finds a _C_attr compute method,
-    formula (if supported #k), or constant.
+    """One of these should be stored on attr by ExprsMeta when it finds a _C_attr compute method,
+    formula (if supported #k), or constant,
+    or when it finds a formula directly on attr.
     """
     # implem note: this class has to be a data descriptor, because it wants to store info of its own in instance.__dict__[attr],
     # without that info being retrieved as the value of instance.attr. If it would be less lazy (and probably less efficient too)
@@ -259,14 +273,31 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
     pass # end of class C_rule
 
 class C_rule_for_method(C_rule):
+    def _init1(self):
+        ## () = self.args is a syntax error!
+        assert len(args) == 0
     def make_compute_method_for_instance(self, instance):
         return getattr(instance, '_C_' + self.attr) # kluge, slightly, but it's the simplest and most efficient way
+        ###e maybe a better way is to grab the function from cls.__dict__ and call its __get__?
     pass
 
-##class C_rule_for_formula(C_rule):
-##    def make_compute_method_for_instance(self, instance):
-##        assert 0, "we don't need to support this class, i think"
-##    pass
+class C_rule_for_formula(C_rule):
+    def _init1(self):
+        (self.formula,) = self.args
+    def make_compute_method_for_instance(self, instance):
+        return self.formula._e_compute_method(instance)
+    pass
+
+def choose_C_rule_for_val(clsname, attr, val):
+    "return the correct one of C_rule_for_method or C_rule_for_formula, depending on val"
+    if hasattr(val, '_e_compute_method'):
+        # assume val is a formula on _self
+        return C_rule_for_formula(clsname, attr, val)
+    #e support constant val?? not for now.
+    else:
+        return C_rule_for_method(clsname, attr)
+        ###KLUGE (should change): they get val as a bound method directly from cls, knowing it came from _C_attr
+    pass
 
 # ==
 
@@ -329,46 +360,117 @@ class CV_rule(ClassAttrSpecific_NonDataDescriptor):
     
     pass # end of class CV_rule
 
-# ==
-    
-def _wrapit(v,k):
-    nim
+def choose_CV_rule_for_val(clsname, attr, val):
+    "return an appropriate CV_rule object, depending on val"
+    if hasattr(val, '_e_compute_method'):
+        assert 0, "formulas on _CV_attr are not yet supported"
+        # when they are, we'll need _self and _i both passed to _e_compute_method
+    else:
+        # constants are not supported either, for now
+        # so val is a python compute method (as a function)
+        ###KLUGE: CV_rule gets val as a bound method, like C_rule does
+        return CV_rule_for_val(clsname, attr)
+    pass
 
-#e main nim thing is what goes between ExprsMeta and the rules above... ####@@@@
+# ==
+
+# prefix_X_ routines process attr,val on clsname, where attr has prefix _X_, and return processed (attr0, val0)
+# where val0 can be directly assigned to attr0 in cls (not yet known); nothing else from defining cls should be assigned to it.
+
+def prefix_C_(clsname, attr, val):
+    prefix = '_C_'
+    assert attr.startswith(prefix)
+    attr0 = remove_prefix(attr, prefix)
+    val0 = choose_C_rule_for_val(clsname, attr0, val)
+    return attr0, val0
+
+def prefix_CV_(clsname, attr, val):
+    prefix = '_CV_'
+    assert attr.startswith(prefix)
+    attr0 = remove_prefix(attr, prefix)
+    val0 = choose_CV_rule_for_val(clsname, attr0, val)
+    return attr0, val0
+
+def prefix_nothing(clsname, attr, val):
+    attr0 = attr
+    # assume we're only called for a formula
+    assert hasattr(val, '_e_compute_method')
+    val0 = choose_C_rule_for_val(clsname, attr0, val)
+    return attr0, val0
+
+prefix_map = {'':prefix_nothing, '_C_':prefix_C_, '_CV_':prefix_CV_}
+    #e this could be more modular, less full of duplicated prefix constants and glue code
+
+def attr_prefix(attr): # needn't be fast
+    for prefix in prefix_map: #.keys()
+        if prefix and attr.startswith(prefix):
+            return prefix
+    return ''
+
+def val_is_special(val):
+    return hasattr(val, '_e_compute_method')
+
+# ==
     
 class ExprsMeta(type):
     # follows 'MyMeta' metaclass example from http://starship.python.net/crew/mwh/hacks/oop-after-python22-1.txt
     def __new__(cls, name, bases, ns):
+        # Notes:
+        # - this code runs once per class, so it needn't be fast at all.
+        # - cls is NOT the class object being defined -- that doesn't exist yet, since it's our job to create it and return it!
+        #   (It's the class ExprsMeta.)
+        # - But we know which class is being defined, since we have its name in the argument <name>.
         data_for_attr = {}
-        for k, v in ns.iteritems():
-            # If v has a special value, or k has a special prefix, let them run code
-            # which might create new items in this namespace (either replacing ns[k],
-            # or adding or wrapping ns[f(k)] for f(k) being k without its prefix).
+        processed_vals = []
+        for attr, val in ns.iteritems():
+            # If attr has a special prefix, or val has a special value, run attr-prefix-specific code
+            # for defining what value to actually store on attr-without-its-prefix. Error if we are told
+            # to store more than one value on attr.
+
+            #obs?:
+            # which might create new items in this namespace (either replacing ns[attr],
+            # or adding or wrapping ns[f(attr)] for f(attr) being attr without its prefix).
             # (If more than one object here wants to control the same descriptor,
             #  complain for now; later we might run them in a deterministic order somehow.)
 
-            # Note: this code runs once per class, so it needn't be fast at all.
-            if hasattr(v, __wrapme__): # __wrapme__ is ExprsMeta's extension to Python's descriptor protocol, more or less #e rename
-                v = _wrapit(v, k) # even if k has a special prefix -- we'll process that below, perhaps for the same now-wrapped v
-                ns[k] = v ###k verify allowed by iteritems
-            for prefix, handler in _prefixes_and_handlers.iteritems():
-                if k.startswith(prefix):
-                    attr = remove_prefix(k, prefix)
-                    lis = data_for_attr.setdefault(attr, [])
-                    lis.append((prefix, handler, v))
-                    break
+            prefix = attr_prefix(attr)
+            if prefix:
+                attr0 = remove_prefix(attr, prefix)
+                assert not ns.has_key(attr), \
+                       "error: can't define both %r and %r in the same class %r (when ExprsMeta is its metaclass)" % \
+                       ( attr0, attr, name )
+                    #e change that to a less harmless warning?
+                    # note: it's not redundant with the similar assert below, except when *both* prefix and val_is_special(val).
+            else:
+                attr0 = attr
+            if prefix or val_is_special(val):
+                if not prefix and attr.startswith('_'):
+                    # note: this scheme doesn't yet handle special vals on "helper prefixes" like _CK_, _TYPE_, _DEFAULT_.
+                    assert not attr.startswith('_CK_')
+                    assert not attr.startswith('_TYPE_')
+                    assert not attr.startswith('_DEFAULT_')
+                lis = data_for_attr.setdefault(attr0, [])
+                lis.append((prefix, attr0, val))
             continue
-        same_handler = None
-        for attr, (prefix, handler, v) in data_for_attr.items():
-            # error unless they all have the same handler
-            if same_handler is None:
-                same_handler = handler
-            assert handler is same_handler, "illegal for more than one special prefix to try to control one attr"
-                ### problem: this doesn't treat '' as a special prefix, for special v sitting there!!
-                # sometimes we like the cooperation (formula in _C_, constant in _C_), but sometimes not (compute method in _C_
-                #  should bump against formula in attr). Hmm. ######@@@@@@
-            nim ####@@@@ tell handler to deal with prefix and v, setting ns[attr]
-        return super(ExprsMeta, cls).__new__(cls, name, bases, ns)
+        for attr00, lis in data_for_attr.items():
+            assert len(lis) == 1, "error: can't define %r and %r in the same class %r (when ExprsMeta is its metaclass)" % \
+                       ( lis[0][0] + lis[0][1],
+                         lis[1][0] + lis[1][1],
+                         name )
+                #e change that to a less harmless warning?
+            prefix, attr0, val = lis[0]
+            assert attr00 == attr0
+            # prefix might be anything in prefix_map (including ''), and should control how val gets processed for assignment to attr0.
+            processor = prefix_map[prefix]
+            attr000, val0 = processor(name, prefix + attr0, val)
+            assert attr000 == attr0 # yes, some code cleanup would be useful here
+            ns[attr0] = val0
+            processed_vals.append(val0)
+        res = super(ExprsMeta, cls).__new__(cls, name, bases, ns)
+        assert res.__name__ == name #k
+        for thing in processed_vals:
+            thing.set_cls(res)
+        return res
 
 # ==
 

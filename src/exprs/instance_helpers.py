@@ -9,7 +9,7 @@ from basic import * # autoreload of basic is done before we're imported
 import lvals
 reload_once(lvals)
 
-from lvals import InvalidatableAttrsMixin, LvalDict
+from lvals import LvalDict
 
 import Exprs
 reload_once(Exprs)
@@ -18,7 +18,7 @@ from Exprs import Expr
 
 # ==
 
-class Instance(InvalidatableAttrsMixin):
+class Instance:#k super? meta?
     "support all behavior needed by pure instances #[doc better] (which may or may not also be Exprs)"
     # WARNING: much of the code in InstanceOrExpr might belong here. OTOH it might not make sense to split this out,
     # since no method here can assume self is not a noninstance expr, even a method of this class, since self might be InstanceOrExpr.
@@ -37,6 +37,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
     (with that code written as if self was the instance, and (to avoid unpleasant surprises) with that being true),
     and to serve as the expr constructor for that exprhead. 
     """
+    __metaclass__ = ExprsMeta
     ### WARNING: instantiate normally lets parent env determine kid env... if arg is inst this seems reversed...
     # may only be ok if parent doesn't want to modify lexenv for kid.
     is_instance = False # usually overridden in certain python instances, not in subclasses
@@ -148,7 +149,13 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         self.has_args = expr.has_args #k ??
         self.args = expr.args # for convenient access ### is it ok that we're putting the bare ones here? Don't we want to hide those?
         # or can we do the type & instancing on these exprs, to get the declared specific args?
-        assert 0, "nim make in %r" % self ##### SHOULD MODIFY ARGS BY ADDING DEFAULTS AND TYPE COERCERS
+
+        ## print "fyi my metaclass is",self.__metaclass__ # <class 'exprs.ExprsMeta.ExprsMeta'>
+
+        printonce("nim make in %r" % self.__class__)#####@@@@@
+        ## assert 0, "nim make in %r" % self ##### SHOULD MODIFY ARGS BY ADDING DEFAULTS AND TYPE COERCERS
+
+
         ### AND set up self.opts to access old._e_formula_dict, also perhaps adding effect of type coercers
         ### AND have some way to get defaults from env
         ### AND take care of rules in env -- now is the time to decide this is not the right implem class -- or did caller do that?
@@ -163,7 +170,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
 
         # set up state refs
         ####
-        nim
+        printonce("setup state refs is nim in instance_helpers")#####@@@@@
 
         #e call _init_class and/or _init_expr if needed [here or more likely earlier]
         
