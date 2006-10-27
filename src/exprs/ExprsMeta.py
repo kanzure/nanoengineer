@@ -484,9 +484,15 @@ class ExprsMeta(type):
         _args = ns.pop('_args', None)
         if _args is not None:
             ## assert type(_args) is type(()),
+            if type(_args) is type(""):
+                # permit this special case for convenience
+                _args = (_args,)
             if not (type(_args) is type(())):
                 # note: printed only once per value of _args (which might be lots of times, but not as many as for each error)
-                printnim( "_args should have type(()) but doesn't; its value is %r" % (_args,) ) ## 'thing' -- WHY?? ###@@@
+                printnim( "_args should have type(()) but doesn't; its value is %r" % (_args,) )
+                    # this once happened since I said ('thing') when I meant ('thing',). Should the first case be allowed,
+                    # as a special case for convenience? Probably yes, since the values have to be strings.
+                    # We could even canonicalize it here.
             printnim("_args is nim in ExprsMeta")###@@@ actually we'll handle them when we instantiate, much later, other file
         for attr, val in ns.iteritems():
             # If attr has a special prefix, or val has a special value, run attr-prefix-specific code

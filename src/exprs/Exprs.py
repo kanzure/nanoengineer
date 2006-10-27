@@ -130,7 +130,15 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         """Return True if self contains sym (Symbol or its name) as a free variable, in some arg or option value.
         [some subclasses override this]
         """
-        for arg in self._e_args: ####k not sure this is defined in all exprs! indeed, not in a Widget2D python instance... ####@@@@
+        try:
+            _e_args = self._e_args
+            #k not sure this is defined in all exprs! indeed, not in a Widget2D python instance... ####@@@@
+        except AttributeError:
+            ## warning: following is slow, even when it doesn't print -- needs optim ####@@@@
+            from basic import printonce
+            printonce("debug note: _e_free_in False since no _e_args in %r" % self) # print once per self
+            return False ###k guess -- correct? #####@@@@@
+        for arg in _e_args: 
             if arg._e_free_in(sym):
                 return True
         printnim("_e_free_in is nim for option vals")###@@@

@@ -69,4 +69,34 @@ class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibled
             return val
     pass
 
+def union(A,B): #k does this override anything that's standard in python? if so, rename it, perhaps to dict_union
+    #note: presumably useful, but not yet used; may never end up being used.
+    """Union, for sets represented as dicts from k to k,
+    or (if you prefer) from k to f(k), for any pure function f 
+    (which need not be deterministic, and can even be entirely arbitrary).
+       For even more general uses, we guarantee: 
+    when k occurs in both inputs, the value f(k) comes from B.
+    But we might remove this guarantee as an optim, someday, so uses should comment if they depend on it
+    (or should use an alias to this function, which carries a permanent guarantee #e).
+       [It would be good if we could use some form of hashable (finalized or immutable) dict... #e]
+    """
+    # note: we might use this for tracking sets of free variables in exprs.
+    if A:
+        if B:
+            #e is it worth optimizing for both len 1 and same key? note, it reduces memory usage w/o interning.
+            #e relatedly: we could order them by len, check for subsetness.
+            res = dict(A)
+            res.update(B)
+            #e intern res? this could help in making these sets hashable (usable as dict keys),
+            # esp. if the result of interning was just a number, able to be looked up to get the dict...
+            # it could be a serno, or actually a bitmap of the elements, permitting bitwise Or as union
+            # (for uses in which the universe of all elements used in any set is very small,
+            #  as will often be true for "free variables in exprs").
+            return res
+        else:
+            return A
+    else:
+        return B
+    pass
+
 # end
