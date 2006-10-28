@@ -9,11 +9,18 @@ Maybe someday we'll split these parts.
 
 #e rename module?? possible names: expr_env, instance_env, widget_env, drawing_env -- or something plural?
 
-class widget_env:
+from idlelib.Delegator import Delegator
+
+class widget_env(Delegator):
     "represent an environment for the instantiation and use of widget exprs (with rules and staterefs)"
-    def __init__(self, glpane, staterefs): #e rename glpane? type of staterefs? rules/lexenv too? ipath??
+    def __init__(self, glpane, staterefs, delegate = None, lexmods = {}):
+        #e rename glpane? type of staterefs? rules/lexenv too? ipath??
         self.glpane = glpane
         self.staterefs = staterefs ###k
+        ###KLUGES, explained below [061028]:
+        Delegator.__init__(self, delegate)
+        for k,v in lexmods.iteritems():
+            setattr(self, k,v) # worst part of the kluge -- dangerous if symnames overlap method names
         pass
     def understand_expr(self, expr, lexmods = None):
         "#doc; retval contains env + lexmods, and can be trusted to understand itself."
@@ -30,6 +37,18 @@ class widget_env:
         print "making",expr,ipath#####@@@@@
         # assume it's an understood expr at this point
         return expr._make_in(self, ipath) #####@@@@@@ IMPLEM
+    def with_literal_lexmods(self, **lexmods):
+        "Return a new rule-env inheriting from this one, different in the lexmods expressed as keyword arguments"
+        return self.with_lexmods(lexmods)
+    def with_lexmods(self, lexmods):
+        "Return a new rule-env inheriting from this one, different in the given lexmods"
+        ###e need to know if env vars are accessed by attr, key, or private access function only, like _e_eval_symbol;
+        # and whether glpane is a lexvar like the rest (and if so, its toplevel symbol name);
+        # and about staterefs.
+        # For now, to make tests work, it's enough if there's some way to grab syms with inheritance...
+        # use Delegator? it caches, that's undesirable, and it uses attr not key, which seems wrong... otoh it's easy to try.
+        # So I'll try it temporarily, but not depend on attr access to syms externally. [061028]
+        return self.__class__(self.glpane, self.staterefs, delegate = self, lexmods = lexmods)
     pass
 
 # semi end
