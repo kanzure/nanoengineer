@@ -207,7 +207,7 @@ if 0:
  understood_expr = env.understand_expr(expr, lexmods = None) # retval contains env + lexmods. we do this inside another understood expr... expr itself has no env.
     # understand_expr can be done by anything with an env (it's delegated to that env), and it's done by a portion of the env, the expr-understander,
     # which includes the lexenv.
-    # btw this also handles kluges like [x,y] -> ListExpr(x,y). it might wrap nonobvious python constants with ConstantExpr.
+    # btw this also handles kluges like [x,y] -> list_Expr(x,y). it might wrap nonobvious python constants with constant_Expr.
     # btw it also does replacements, or binds in enough info to do them lazily.
     
  ## understood_expr._make_in(env.place, index)

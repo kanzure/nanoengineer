@@ -69,7 +69,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
     def _e_compute_method(self, instance):
         "Return a compute method version of this formula, which will use instance as the value of _self."
         #####@@@@@ WRONG API in a few ways: name, scope of behavior, need for env in _e_eval, lack of replacement due to env w/in self.
-        return lambda self = self: self._e_eval( _self = instance) #e assert no args received by this lambda?
+        ##return lambda self = self: self._e_eval( _self = instance) #e assert no args received by this lambda?
         # TypeError: _e_eval() got an unexpected keyword argument '_self'
         ####@@@@ 061026 have to decide: are OpExprs mixed with ordinary exprs? even instances? do they need env, or just _self?
         # what about ipath? if embedded instances, does that force whole thing to be instantiated? (or no need?)
@@ -77,6 +77,15 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         # embedded things that *need to* instantiate. I guess we need to mark exprs re that...
         # (this might prevent need for ipath here, if pure opexprs can't need that path)
         # if so, who scans the expr to see if it's pure (no need for ipath or full env)? does expr track this as we build it?
+
+        # try 2 061027 late:
+        env0 = instance.env
+        env = env0.with_literal_lexmods(_self = instance) ###IMPLEM
+        ipath0 = instance.ipath ####k not yet defined i bet
+        index = 'stub' ###should be the attr of self we're coming from, i think!
+        printnim("_e_compute_method needs to be passed an index")
+        ipath = (index, ipath0)
+        return lambda self=self, env=env, ipath=ipath: self._e_eval( env, ipath ) #e assert no args received by this lambda?
     def __repr__(self):
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect) on 061016
         return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())
@@ -185,8 +194,8 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
             return "%s%r" % (self._e_callee, self._e_call_args)
         else:
             return "%s%r" % (self._e_callee, self._e_call_args) # works the same i hope
-    def _e_eval(self, env):
-        print "how do we eval a call? as a call, or by looking up a rule?"###e
+    def _e_eval(self, env, ipath):
+        print "how do we eval a call? as a call, or by looking up a rule?"###e -- i guess by instantiating, then taking .value [061027]
     pass
 
 class getattr_Expr(OpExpr):
@@ -227,8 +236,6 @@ class add_Expr(OpExpr):
     def __str__(self):
         return "%s + %s" % self._e_args #e need parens?
     _e_eval_function = lambda x,y:x+y 
-##    def _e_eval(self, env):
-##        return env._e_eval_expr(self._e_args[0]) + env._e_eval_expr(self._e_args[1])
 ##    # maybe, 061016: ####@@@@ [current issues: args to _make_in, for normals & Ops; symbol lookup; when shared exprs ref same instance]
 ##    def _C_value(self):
 ##        return self.kids[0].value + self.kids[1].value
@@ -262,26 +269,39 @@ class neg_Expr(OpExpr):
     _e_eval_function = lambda x:-x 
     pass
 
+class list_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in 0-arg case
+    #aka ListExpr, but we want it not uppercase by convention for most OpExprs
+    def _e_init(self):
+        pass
+    def __str__(self):
+        return "%s" % (list(self._e_args),) #e need parens?
+    _e_eval_function = lambda *args:list(args) #k syntax?
+    pass
+
 class If_expr(OpExpr): # so we can use If in formulas
     pass
 # see also class If_ in testdraw.py
 ## def If(): pass
 
-class ConstantExpr(Expr): ###k super is not quite right -- we want some things in it, like isinstance Expr, but not the __add__ defs
+class constant_Expr(Expr): ###k super is not quite right -- we want some things in it, like isinstance Expr, but not the __add__ defs
+    #k does this need to be renamed lowercase to fit convention of not binding _self? doesn't matter much...
+    # ok, I'll do it, ConstantExpr -> constant_Expr
     def __init__(self, val):
-        self._e_constant_value = val ####USE ME, by defining _e_eval?
+        self._e_constant_value = val
         self._e_args = () # allows super _e_free_in to be correct
+    def __str__(self):
+        return "%s" % (self._e_constant_value,) #e need parens?
     def _e_eval(self, *args):
         return self._e_constant_value
     pass
 
-def canon_expr(subexpr):###CALL ME; a comment in Column.py says that env.understand_expr should call this...
-    "Make subexpr an Expr, if it's not"
+def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py says that env.understand_expr should call this...
+    "Make subexpr an Expr, if it's not already. (In future, we might also intern it.)"
     if isinstance(subexpr, Expr):
         return subexpr
     elif isinstance(subexpr, type([])):
-        return ListExpr(*subexpr) ###IMPLEM; btw is this always correct? or only in certain contexts??
-            # could be always ok if ListExpr is smart enough to revert back to a list sometimes.
+        return list_Expr(*subexpr) ###k is this always correct? or only in certain contexts??
+            # could be always ok if list_Expr is smart enough to revert back to a list sometimes.
         #e analogous things for tuple and/or dict? not sure. or for other classes which mark themselves somehow??
     else:
         # assert it's not various common errors, like expr classes or not-properly-reloaded exprs
@@ -291,7 +311,7 @@ def canon_expr(subexpr):###CALL ME; a comment in Column.py says that env.underst
         #e later add checks for its type, sort of like we'd use in same_vals or so... in fact, how about this?
         from state_utils import same_vals
         assert same_vals(subexpr, subexpr)
-        return ConstantExpr(subexpr)
+        return constant_Expr(subexpr)
     pass
 
 # ==
@@ -310,6 +330,19 @@ class Symbol(SymbolicExpr):
         return 'S.%s' % self._e_name
     def _e_eval(self, env, ipath):
         print "how do we eval a symbol? some sort of env lookup ..."
+        #[later 061027: if lookup gets instance, do we need ipath? does instance have it already? (not same one, for sure -- this is
+        # like replacement). If lookup gets expr, do we instantiate it here? For now, just make _self work -- pretend expr was already
+        # instantiated and in the place of _self it had an instance. So, when we hit an instance with _e_eval, what happens?
+        # If we believe that getattr_Expr, it returns a value which is "self" which is exactly the same instance --
+        # i.e. Thing instance evals to itself. This is not like OpExpr instance which evals to a value. I suppose If also evals
+        # to not itself.... this is related to what CLE wanted to do, which is eval something to a "fixed instance" -- let's review
+        # the API it proposed to use for calling that utility.... that's in GlueCodeMemoizer, it does instance.eval() but I knew it
+        # might be misnamed, but I did think no point in passing it args (instance already knows them). I know some instances define
+        # _value (like Boxed), maybe .eval() would go into it... probably it would. BTW, What if ._value is an expr (not Instance)?
+        # What if we call it _e_value and it's defined on some expr?? ####@@@@
+        # Summary guess: look up sym, then eval result with same args. If instance, they have a method which looks for _value,
+        # defaults to self. This method might be _e_eval itself... or have some other name.]
+        #older comments:
         ## -- in the object (env i guess) or lexenv(?? or is that replacement??) which is which?
         # maybe: replacement is for making things to instantiate (uses widget expr lexenv), eval is for using them (uses env & state)
         # env (drawing_env) will let us grab attrs/opts in object, or things from dynenv as passed to any lexcontaining expr, i think...
