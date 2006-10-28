@@ -162,6 +162,15 @@ class OpExpr(SymbolicExpr):
         self._e_init()
     def _e_init(self):
         assert 0, "subclass of OpExpr must implement this"
+    def _e_argval(self, i, env,ipath):
+        "Return the value (evaluated each time, never cached, usage-tracked by caller) of our arg[i], in env and at (i,ipath)."
+         ##e consider swapping argorder to 0,ipath,env or (0,ipath),env
+        return self._e_args[i]._e_eval(env, (i,ipath))
+    def _e_eval(self, env,ipath):
+        """Return the value (evaluated each time, never cached, usage-tracked by caller) of self, in env and at ipath.
+        [subclasses should either define _e_eval_function for use in this method implem, or redefine this method.]
+        """
+        return apply(self._e_eval_function, [self._e_argval(i,env,ipath) for i in range(len(self._e_args))])
     pass
 
 class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even though it can be produced by SymbolicExpr.__call__
@@ -188,8 +197,12 @@ class getattr_Expr(OpExpr):
         assert len(self._e_args) == 2 #e kind of useless and slow #e should also check types?
     def __str__(self):
         return str(self._e_args[0]) + '.' + self._e_args[1] #e need parens?
-    def _e_eval(self, env):
-        return getattr(env._e_eval_expr(self._e_args[0]), env._e_eval_expr(self._e_args[1])) ###k correct, or do usage tracking? probably correct, obj does tracking...
+    _e_eval_function = getattr
+    # fyi that's equivalent to:
+##    def _e_eval(self, env, ipath):
+##        val0 = self._e_argval(0,env,ipath)
+##        val1 = self._e_argval(1,env,ipath)
+##        return getattr(val0, val1)
     pass
 
 class mul_Expr(OpExpr):
@@ -197,8 +210,7 @@ class mul_Expr(OpExpr):
         assert len(self._e_args) == 2
     def __str__(self):
         return "%s * %s" % self._e_args #e need parens?
-    def _e_eval(self, env):
-        return env._e_eval_expr(self._e_args[0]) * env._e_eval_expr(self._e_args[1])
+    _e_eval_function = lambda x,y:x*y # does this have a builtin name? see operators module ###k
     pass
 
 class div_Expr(OpExpr):
@@ -206,6 +218,7 @@ class div_Expr(OpExpr):
         assert len(self._e_args) == 2
     def __str__(self):
         return "%s / %s" % self._e_args #e need parens?
+    _e_eval_function = lambda x,y:x/y 
     pass
 
 class add_Expr(OpExpr):
@@ -213,12 +226,13 @@ class add_Expr(OpExpr):
         assert len(self._e_args) == 2
     def __str__(self):
         return "%s + %s" % self._e_args #e need parens?
-    def _e_eval(self, env):
-        return env._e_eval_expr(self._e_args[0]) + env._e_eval_expr(self._e_args[1])
-    # maybe, 061016: ####@@@@ [current issues: args to _make_in, for normals & Ops; symbol lookup; when shared exprs ref same instance]
-    def _C_value(self):
-        return self.kids[0].value + self.kids[1].value
-    def _make_in(self, place, ipath): #### WRONG (see below), really more like _init_instance, called by common _destructive_make_in
+    _e_eval_function = lambda x,y:x+y 
+##    def _e_eval(self, env):
+##        return env._e_eval_expr(self._e_args[0]) + env._e_eval_expr(self._e_args[1])
+##    # maybe, 061016: ####@@@@ [current issues: args to _make_in, for normals & Ops; symbol lookup; when shared exprs ref same instance]
+##    def _C_value(self):
+##        return self.kids[0].value + self.kids[1].value
+    def _make_in_WRONG(self, place, ipath): #### WRONG (see below), really more like _init_instance, called by common _destructive_make_in
         ###WRONG args (maybe -- place -> env??), and defined in wrong class (common to all OpExprs or exprs with fixed kids arrays),
         ###and attrs used here (kids, args, maybe even is_instance) might need _e_ (??),
         ### and maybe OpExprs never need ipath or place, just env
@@ -237,6 +251,7 @@ class sub_Expr(OpExpr):
         assert len(self._e_args) == 2
     def __str__(self):
         return "%s - %s" % self._e_args #e need parens?
+    _e_eval_function = lambda x,y:x-y 
     pass
 
 class neg_Expr(OpExpr):
@@ -244,6 +259,7 @@ class neg_Expr(OpExpr):
         assert len(self._e_args) == 1
     def __str__(self):
         return "- %s" % self._e_args #e need parens?
+    _e_eval_function = lambda x:-x 
     pass
 
 class If_expr(OpExpr): # so we can use If in formulas
@@ -255,6 +271,8 @@ class ConstantExpr(Expr): ###k super is not quite right -- we want some things i
     def __init__(self, val):
         self._e_constant_value = val ####USE ME, by defining _e_eval?
         self._e_args = () # allows super _e_free_in to be correct
+    def _e_eval(self, *args):
+        return self._e_constant_value
     pass
 
 def canon_expr(subexpr):###CALL ME; a comment in Column.py says that env.understand_expr should call this...
@@ -290,7 +308,7 @@ class Symbol(SymbolicExpr):
     def __repr__(self):
         ## return 'Symbol(%r)' % self._e_name
         return 'S.%s' % self._e_name
-    def _e_eval(self, env):
+    def _e_eval(self, env, ipath):
         print "how do we eval a symbol? some sort of env lookup ..."
         ## -- in the object (env i guess) or lexenv(?? or is that replacement??) which is which?
         # maybe: replacement is for making things to instantiate (uses widget expr lexenv), eval is for using them (uses env & state)
