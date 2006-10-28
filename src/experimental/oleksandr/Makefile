@@ -54,6 +54,8 @@ CFLAGS+=-fno-strict-aliasing -DNDEBUG -g -Wall -Wmissing-prototypes \
 endif
 
 OBJS = cppsurface.o \
+	rotationmatrix.o \
+	hierarchy.o \
 	box.o \
 	interval.o \
 	boxtree.o \
@@ -62,6 +64,7 @@ OBJS = cppsurface.o \
 	bucket.o \
 	distancetransform.o \
 	triple.o \
+	couple.o \
 	psurface.o
 
 all: $(TARGET)
@@ -84,6 +87,12 @@ psurface.o: psurface.c
 
 cppsurface.o: cppsurface.cpp cppsurface.h
 	g++ -c cppsurface.cpp -o cppsurface.o $(CXXFLAGS)
+
+rotationmatrix.o: rotationmatrix.cpp rotationmatrix.h
+	g++ -c rotationmatrix.cpp -o rotationmatrix.o $(CXXFLAGS)
+
+hierarchy.o: hierarchy.cpp hierarchy.h
+	g++ -c hierarchy.cpp -o hierarchy.o $(CXXFLAGS)
 
 box.o: box.cpp box.h
 	g++ -c box.cpp -o box.o $(CXXFLAGS)
@@ -109,6 +118,9 @@ distancetransform.o: distancetransform.cpp distancetransform.h
 triple.o: triple.cpp triple.h
 	g++ -c triple.cpp -o triple.o $(CXXFLAGS)
 
+couple.o: couple.cpp couple.h
+	g++ -c couple.cpp -o couple.o $(CXXFLAGS)
+
 # Windows
 psurface.dll: psurface.c $(OBJS) libpython$(PYVER).a
 	g++ -shared -o psurface.dll $(OBJS) \
@@ -127,6 +139,9 @@ depend:
 # BEGIN DEPENDENCIES
 # DO NOT DELETE
 
+couple.o: triple.h
+rotationmatrix.o: triple.h
+hierarchy.o: box.h boxtree.h container.h rotationmatrix.h
 box.o: interval.h triple.h
 boxtree.o: container.h box.h
 bucket.o: container.h triple.h
