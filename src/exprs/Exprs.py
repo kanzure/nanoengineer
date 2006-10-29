@@ -80,8 +80,8 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
 
         # try 2 061027 late:
         env0 = instance.env
-        env = env0.with_literal_lexmods(_self = instance) ###IMPLEM
-        ipath0 = instance.ipath ####k not yet defined i bet
+        env = env0.with_literal_lexmods(_self = instance)
+        ipath0 = instance.ipath ####k not yet defined i bet... funny, it didn't seem to crash from this -- did i really test it??
         index = 'stub' ###should be the attr of self we're coming from, i think!
         printnim("_e_compute_method needs to be passed an index")
         ipath = (index, ipath0)

@@ -263,8 +263,16 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
         try:
             lval = instance.__dict__[attr]
         except KeyError:
-            # make a new Lval object from the compute_method (happens once per attr per instance)
-            compute_method = self.make_compute_method_for_instance(instance)
+            # (this happens once per attr per instance)
+            # Make a compute method for instance.attr, letting instance have first dibs (in case it's customized this attr),
+            # otherwise using self's default method.
+            compute_method = self.compute_method_from_customized_instance(instance)
+            if compute_method:
+                printnim("custom override should only work for _DEFAULT_! not private attr formulas")#but we don't know prefix here
+                #k when we do know prefix here, should we decide _DEFAULT_ is special here, or pass to above method to ask instance??
+            if not compute_method:
+                compute_method = self.make_compute_method_for_instance(instance)
+            # make a new Lval object from the compute_method 
             lval = instance.__dict__[attr] = Lval(compute_method)
         return lval.get_value() # this does usage tracking, validation-checking, recompute if needed
             # Notes:
@@ -278,6 +286,13 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
             # - There is no provision for direct access to the Lval object (e.g. to directly call its .set_formula method).
             # We could add one if needed, but I don't know the best way. Maybe find this property (self) and use a get_lval method,
             # which is passed the instance? Or, setattr(instance, '_lval_' + attr, lval).
+    def compute_method_from_customized_instance(self, instance):
+        "See if instance has customized self.attr's formula, and if so, return a compute method from that; else return None."
+        try:
+            instance.custom_compute_method # defined e.g. by InstanceOrExpr
+        except AttributeError:
+            return None
+        return instance.custom_compute_method(self.attr) # a method or None
     def make_compute_method_for_instance(self, instance):
         assert 0, "subclass should implement this"
     pass # end of class C_rule

@@ -51,7 +51,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
 ##            self._destructive_customize(val)
 ##            return
         # initialize attrs of self to an owned empty state for an expr
-        self._e_formula_dict = {}
+        self._e_formula_dict = {} ####k is there some reason I can't rename this self.opts??
         # handle special keywords (assume they all want self to be initialized as we just did above)
         val = kws.pop('_copy_of', None)
         if val:
@@ -72,6 +72,16 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         new._destructive_init(args, kws)
         return new
 
+    # public access to self._e_formula_dict
+    def custom_compute_method(self, attr):
+        "#doc; return a compute method or None"
+        try:
+            formula = self._e_formula_dict[attr]
+        except KeyError:
+            return None
+        printnim("assume it's a formula in _self; someday optim for when it's a constant, and/or support other symbols in it")
+        return formula._e_compute_method(self)
+    
     # copy methods (used by __call__)
     def _copy(self):
         assert not self.is_instance ## ??? [061019]
