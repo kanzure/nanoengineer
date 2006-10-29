@@ -193,7 +193,11 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         [subclasses should replace this]
         """
         pass
-    
+
+    def _e_eval(self, env, ipath):
+        assert self.is_instance, "%r._e_eval asserts it's an Instance... not sure this is an error, it's just unexpected" % self ###@@@
+        printnim("Instance eval doesn't yet handle _value or If") ###@@@
+        return self # true for most of them, false for the ones that have _value (like Boxed) or for If ####@@@@
     pass # end of class InstanceOrExpr
 
 ##### CANNIBALIZE THESE RELATED SNIPPETS to fill in InstanceOrExpr: Drawable_obs, old class xxx

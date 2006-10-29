@@ -328,8 +328,12 @@ class Symbol(SymbolicExpr):
     def __repr__(self):
         ## return 'Symbol(%r)' % self._e_name
         return 'S.%s' % self._e_name
+    def __eq__(self, other): #k probably not needed, since symbols are interned as they're made
+        return self.__class__ is other.__class__ and self._e_name == other._e_name
+    def __ne__(self, other):
+        return not (self == other)
     def _e_eval(self, env, ipath):
-        print "how do we eval a symbol? some sort of env lookup ..."
+        ## print "how do we eval a symbol? some sort of env lookup ..."
         #[later 061027: if lookup gets instance, do we need ipath? does instance have it already? (not same one, for sure -- this is
         # like replacement). If lookup gets expr, do we instantiate it here? For now, just make _self work -- pretend expr was already
         # instantiated and in the place of _self it had an instance. So, when we hit an instance with _e_eval, what happens?
@@ -346,7 +350,13 @@ class Symbol(SymbolicExpr):
         ## -- in the object (env i guess) or lexenv(?? or is that replacement??) which is which?
         # maybe: replacement is for making things to instantiate (uses widget expr lexenv), eval is for using them (uses env & state)
         # env (drawing_env) will let us grab attrs/opts in object, or things from dynenv as passed to any lexcontaining expr, i think...
-        return env._e_eval_symbol(self) # note: cares mainly or only about self._e_name
+        val = env.lexval_of_symbol(self) # note: cares mainly or only about self._e_name; renamed _e_eval_symbol -> lexval_of_symbol
+            # but I'm not sure it's really more lexenv than dynenv, at least as seen w/in env... [061028] ####@@@@
+        # val is an intermediate value, needs further eval
+        if self == val:
+            print "warning: Symbol(%r) evals to itself" % self._e_name
+            return self 
+        return val._e_eval(env, ipath)
     def _e_free_in(self, sym):
         """General case: Return True if Expr self contains sym (Symbol or its name) as a free variable, in some arg or option value.
         For this class Symbol, that means: Return True if sym is self or self's name.

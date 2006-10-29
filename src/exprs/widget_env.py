@@ -34,21 +34,30 @@ class widget_env(Delegator):
         #e ipath guess: a list of 2 or 3 elts, linked list inner first, maybe append an interning of it
         #e look for rules; check if understood;
         #e Q: is this memoized? does it allocate anything like a state obj ref, or was that already done by customizing this env?
-        print "making",expr,ipath#####@@@@@
+        ## print "making",expr,ipath
         # assume it's an understood expr at this point
-        return expr._make_in(self, ipath) #####@@@@@@ IMPLEM
+        return expr._make_in(self, ipath)
     def with_literal_lexmods(self, **lexmods):
         "Return a new rule-env inheriting from this one, different in the lexmods expressed as keyword arguments"
         return self.with_lexmods(lexmods)
     def with_lexmods(self, lexmods):
         "Return a new rule-env inheriting from this one, different in the given lexmods"
-        ###e need to know if env vars are accessed by attr, key, or private access function only, like _e_eval_symbol;
+        ###e need to know if env vars are accessed by attr, key, or private access function only, like lexval_of_symbol;
         # and whether glpane is a lexvar like the rest (and if so, its toplevel symbol name);
         # and about staterefs.
         # For now, to make tests work, it's enough if there's some way to grab syms with inheritance...
         # use Delegator? it caches, that's undesirable, and it uses attr not key, which seems wrong... otoh it's easy to try.
         # So I'll try it temporarily, but not depend on attr access to syms externally. [061028]
         return self.__class__(self.glpane, self.staterefs, delegate = self, lexmods = lexmods)
+    def lexval_of_symbol(self, sym):
+        # renamed _e_eval_symbol -> lexval_of_symbol
+        # but I'm not sure it's really more lexenv than dynenv, at least as seen w/in env... [061028] ####@@@@
+        # btw, so far this is probably only used for _self.
+        name = sym._e_name
+        if name != '_self':
+            printnim("fyi: lexval_of_symbol other than _self: %s" % (name,) )
+        # kluge:
+        return getattr(self, name, sym)
     pass
 
 # semi end
@@ -64,8 +73,6 @@ class drawing_env: ###e cannibalize this above; only used in test.py, obs now
         
     def _e_eval_expr(self, expr):
         ###e look for _e_eval method; test for simple py type
-        assert 0, "nim"####@@@@
-    def _e_eval_symbol(self, expr):
         assert 0, "nim"####@@@@
     pass
 

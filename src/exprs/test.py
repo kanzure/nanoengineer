@@ -73,16 +73,17 @@ NullIpath = None ###STUB, refile
 
 def drawtest1_innards(glpane):
     "entry point from ../testdraw.py"
-    print "got glpane = %r, doing nothing for now" % (glpane,)
+    ## print "got glpane = %r, doing nothing for now" % (glpane,)
 
     glpane
     staterefs = _state ##e is this really a stateplace? or do we need a few, named by layers for state?
         #e it has: place to store transient state, ref to model state
     some_env = widget_env(glpane, staterefs) #####@@@@@@ IMPLEM more args, etc, and import it
 
-    inst = some_env.make(testexpr, NullIpath) # should memoize this, severe optim not to, but at least it ought to work this way
+    inst = some_env.make(testexpr, NullIpath) # should memoize this, severe anti-optim not to, but at least it ought to work this way
     inst.draw()
-    print "drew"
+    import env
+    print "drew", env.redraw_counter
     return
 
 
