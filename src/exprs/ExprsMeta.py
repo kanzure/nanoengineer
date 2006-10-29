@@ -123,7 +123,8 @@ What ExprsMeta handles specifically:
 
 - _CV_attr methods (or formulas??), making use of optional _CK_attr methods (or formulas??), and/or other sorts of decls as above
 
-- not sure: what about _args and _options? Both of them are able to do things to attrs... ####k
+- _options (abbrev for multiple _DEFAULT_), but not _args
+
 '''
 
 __all__ = ['remove_prefix', 'ExprsMeta', 'ConstantComputeMethodMixin', 'DictFromKeysAndFunction', 'RecomputableDict']
@@ -495,20 +496,6 @@ class ExprsMeta(type):
                 continue
             del optname, optval
         del _options
-        # handle _args [not sure if this is the right place to do that]
-        _args = ns.pop('_args', None)
-        if _args is not None:
-            ## assert type(_args) is type(()),
-            if type(_args) is type(""):
-                # permit this special case for convenience
-                _args = (_args,)
-            if not (type(_args) is type(())):
-                # note: printed only once per value of _args (which might be lots of times, but not as many as for each error)
-                printnim( "_args should have type(()) but doesn't; its value is %r" % (_args,) )
-                    # this once happened since I said ('thing') when I meant ('thing',). Should the first case be allowed,
-                    # as a special case for convenience? Probably yes, since the values have to be strings.
-                    # We could even canonicalize it here.
-            printnim("_args is nim in ExprsMeta")###@@@ actually we'll handle them when we instantiate, much later, other file
         for attr, val in ns.iteritems():
             # If attr has a special prefix, or val has a special value, run attr-prefix-specific code
             # for defining what value to actually store on attr-without-its-prefix. Error if we are told

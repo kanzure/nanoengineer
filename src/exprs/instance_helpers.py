@@ -125,6 +125,25 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         assert not self.has_args
         self.has_args = True # useful in case args is (), though hasattr(self, 'args') might be good enough too #e
         self.args = args
+
+        # also store the args in equivalent options, according to self._args declaration [wrong place!???]
+        _args = getattr(self, '_args', ()) #e make a class attr default for _args
+        if _args:
+            if type(_args) is type(""):
+                # permit this special case for convenience
+                _args = (_args,)
+            if not (type(_args) is type(())):
+                # note: printed only once per value of _args (which might be lots of times, but not as many as for each error)
+                printnim( "_args should have type(()) but doesn't; its value is %r" % (_args,) )
+                    # this once happened since I said ('thing') when I meant ('thing',). Should the first case be allowed,
+                    # as a special case for convenience? Probably yes, since the values have to be strings.
+                    # We could even canonicalize it here.
+            ###e also extend the decl format for equiv of * or **, and rename it _argnames or something else (see small paper note)
+            ###e more -- but this is wrong place, do it when we instantiate i think -- need to decide this ##########@@@@@@@@@@@
+            # one aspect of decision: can you customize by option, an arg you already supplied? yes, noop, or detected error?
+            printnim("store args in opts accd to _args -- needed for Rect to use its args (guess)")
+
+        
         #e when do we fill in defaults for missing args, and type-coerce all args? For now, I guess we'll wait til instantiation.
         # this scheme needs some modification once we have exprs that can accept multiple arglists...
         # one way would be for the above assert to change to an if, which stashed the old args somewhere else,
