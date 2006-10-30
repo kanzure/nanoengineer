@@ -54,7 +54,7 @@ DelegatingWidget2D = Widget2D
 
 # ==
 
-class WidgetExpr:##(InvalMixin): ###@@@ to become part of Widget2D, obs now, grabbed from testdraw1
+class WidgetExpr_OBS:##(InvalMixin): ###@@@ to become part of Widget2D, obs now, grabbed from testdraw1
         # InvalMixin is for _get_ methods -- replace later with getter/setter properties in each one,
         # or maybe make those from _get_ methods once per class
 ##    bleft = 0

@@ -75,6 +75,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
     # public access to self._e_formula_dict
     def custom_compute_method(self, attr):
         "#doc; return a compute method or None"
+        print"custom_compute_method for",attr###########@@@@@@@@@@@@@ why not for color?
         try:
             formula = self._e_formula_dict[attr]
         except KeyError:
@@ -126,8 +127,14 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         self.has_args = True # useful in case args is (), though hasattr(self, 'args') might be good enough too #e
         self.args = args
 
-        # also store the args in equivalent options, according to self._args declaration [wrong place!???]
-        _args = getattr(self, '_args', ()) #e make a class attr default for _args
+        # also store the args in equivalent options, according to self._args declaration
+        # Q: Should we do this on instantiation instead?
+        # A: Probably not -- if you supply an option by positional arg, then later (i.e. in a later __call__) by named option,
+        # maybe it should work (as it does now in the following code), or maybe it should be an error,
+        # but it probably shouldn't be silently ignored.
+        #  Note: right now, since internal & public options are not distinguished, you could do funny things like
+        # customize the value of _args itself! That might even make sense, if documented.
+        _args = getattr(self, '_args', None) #e make a class attr default for _args
         if _args:
             if type(_args) is type(""):
                 # permit this special case for convenience
@@ -139,14 +146,26 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
                     # as a special case for convenience? Probably yes, since the values have to be strings.
                     # We could even canonicalize it here.
             ###e also extend the decl format for equiv of * or **, and rename it _argnames or something else (see small paper note)
-            ###e more -- but this is wrong place, do it when we instantiate i think -- need to decide this ##########@@@@@@@@@@@
-            # one aspect of decision: can you customize by option, an arg you already supplied? yes, noop, or detected error?
-            printnim("store args in opts accd to _args -- needed for Rect to use its args (guess)")
-
+            args = self.args
+            argnames = _args
+            for i in range(min(len(argnames), len(args))):
+                name = argnames[i]
+                val = args[i]
+                assert type(name) is type("")
+                self._e_formula_dict[name] = val
+                continue
+            pass
         
-        #e when do we fill in defaults for missing args, and type-coerce all args? For now, I guess we'll wait til instantiation.
-        # this scheme needs some modification once we have exprs that can accept multiple arglists...
-        # one way would be for the above assert to change to an if, which stashed the old args somewhere else,
+        # Q. Wwhen do we fill in defaults for missing args? A. We don't -- the above code + options code effectively handles that,
+        # PROVIDED we access them by name, not by position in self.args. (Is it reasonable to require that?? ###k)
+        # Q. When do we type-coerce all args? For now, I guess we'll wait til instantiation. [And it's nim.]
+        printnim("type coercion of args & optvals is nim")
+        printnim("so is provision for multiple arglists,")
+        printnim("so is * or ** argdecls,")
+        printnim("so is checking for optnames being legal,or not internal attrnames")
+        # Note: this scheme needs some modification once we have exprs that can accept multiple arglists...
+        # one way would be for the above assert [which one? I guess the not self.has_args]
+        # to change to an if, which stashed the old args somewhere else,
         # and made sure to ask instantiation if that was ok; but better is to have a typedecl, checked now, which knows if it is. ###@@@
         return
 
@@ -186,6 +205,13 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
 
 
         ### AND set up self.opts to access old._e_formula_dict, also perhaps adding effect of type coercers
+        ## print "compare self #formulas %d vs expr #formulas %d" % (len(self._e_formula_dict), len( expr._e_formula_dict)) # 0,3
+        self._e_formula_dict = expr._e_formula_dict # kluge, no protection from bug that modifies it, but nothing is supposed to
+        print "self._e_formula_dict =",self._e_formula_dict # guess: need canon_expr #####@@@@@
+##        for k,v in self._e_formula_dict.items():
+##            printnim("##HORRIBLE KLUGE just for testing - canon_expr every time")#######@@@@@@@@
+##            from Exprs import canon_expr
+##            self._e_formula_dict[k] = canon_expr(v)
         ### AND have some way to get defaults from env
         ### AND take care of rules in env -- now is the time to decide this is not the right implem class -- or did caller do that?
         ### and did caller perhaps also handle adding of type coercers, using our decl??

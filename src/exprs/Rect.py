@@ -56,6 +56,12 @@ class Rect(Widget2D):
         glEnable(GL_CULL_FACE)
     pass
 
+print "dir(Rect) is:",dir(Rect) #####@@@@@@
+for n1 in dir(Rect):
+    if not n1.startswith('_'):
+        print "Rect.%s =" % n1, getattr(Rect,n1)
+    pass
+
 # == comment snippets from other variants of Rect
 
 #obs comments here, but might be relevant elsewhere:

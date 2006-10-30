@@ -267,6 +267,10 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
             # (this happens once per attr per instance)
             # Make a compute method for instance.attr, letting instance have first dibs (in case it's customized this attr),
             # otherwise using self's default method.
+            # NOTE: this would not work for constant formulas like _DEFAULT_color = gray, except for the call of canon_expr (to be added)
+            # on all _DEFAULT_attr values -- otherwise instance.attr would just grab gray, never going through this code which
+            # looks for an override. In this way alone, _DEFAULT_attr is more powerful than an ordinary (private) attr.
+            # Beware -- this may seem to mask the bug in which private attrs can also be overridden by customizing option values.
             compute_method = self.compute_method_from_customized_instance(instance)
             if compute_method:
                 printnim("custom override should only work for _DEFAULT_! not private attr formulas")#but we don't know prefix here
@@ -430,16 +434,25 @@ def prefix_nothing(clsname, attr0, val):
 
 def prefix_DEFAULT_(clsname, attr0, val):
     "WARNING: caller has to also know something about _DEFAULT_, since it declares attr0 as an option"
-    if not hasattr(val, '_e_compute_method'): ###e improve condition
-        # if val is not a formula or any sort of expr, it can just be a constant. e.g. _DEFAULT_color = gray
-        # what if it's a method?? that issue is ignored for now. (bug symptom: bound method might show up as the value. not sure.)
-        # what if it's a "constant classname" for an expr? that's also ignored. that won't be in this condition...
-        # (the bug symptom for that would be a complaint that it's not special (since it doesn't have _self).)
-        # Q: if it's a formula or expr, not free in _self, should we just let that expr itself be the value??
-        # This might make sense... it ought to mean, the value doesn't depend on self (unless it's a bound method, also ok maybe).
-        #####@@@@@
-        return val
+    from Exprs import canon_expr #k ok this early, w/o recursive import problem? guess yes, guess this module already deps on Exprs.#k
+    val = canon_expr(val) # needed even for constant val, so instance rules will detect overrides in those instances
+        ##e could optim somehow, for instances of exprs that didn't do an override for attr0
+    assert hasattr(val, '_e_compute_method') # make sure old code would now always do the following, as we do for now:
+    printnim("here is one place we could put in code to disallow override except for _DEFAULT_")
+    #####e: pass an arg to following, which tells it to look for overrides in this _DEFAULT_ case, not in the nothing case.
     return prefix_nothing(clsname, attr0, val)
+
+# old code before 061029 837p:
+##    if not hasattr(val, '_e_compute_method'): ###e improve condition
+##        # if val is not a formula or any sort of expr, it can just be a constant. e.g. _DEFAULT_color = gray
+##        # what if it's a method?? that issue is ignored for now. (bug symptom: bound method might show up as the value. not sure.)
+##        # what if it's a "constant classname" for an expr? that's also ignored. that won't be in this condition...
+##        # (the bug symptom for that would be a complaint that it's not special (since it doesn't have _self).)
+##        # Q: if it's a formula or expr, not free in _self, should we just let that expr itself be the value??
+##        # This might make sense... it ought to mean, the value doesn't depend on self (unless it's a bound method, also ok maybe).
+##        #####@@@@@
+##        return val
+##    return prefix_nothing(clsname, attr0, val)
 
 prefix_map = {'':prefix_nothing,
               '_C_':prefix_C_,
@@ -533,12 +546,12 @@ class ExprsMeta(type):
                             ok = False
                             break
                         continue
-                if prefix == '_DEFAULT_':
-                    printnim("_DEFAULT_ needs to be handled differently before it will let named options override it")###@@@
-                    # _DEFAULT_ needs to declare attr0 as an option, ie let it be overridden by named options
-                    ### how we'll do this: leave it sitting there in the namespace, DON'T COPY IT TO ATTR (that's WRONG),
-                    # instead make the DEFAULT thing a rule of its own, but also do the decl
-                    # and also set up a rule on attr which grabs it from options and DEFAULT in the proper way.
+##                if prefix == '_DEFAULT_':
+##                    printnim("_DEFAULT_ needs to be handled differently before it will let named options override it")###@@@
+##                    # _DEFAULT_ needs to declare attr0 as an option, ie let it be overridden by named options
+##                    ### how we'll do this: leave it sitting there in the namespace, DON'T COPY IT TO ATTR (that's WRONG),
+##                    # instead make the DEFAULT thing a rule of its own, but also do the decl
+##                    # and also set up a rule on attr which grabs it from options and DEFAULT in the proper way.
                 if ok:
                     lis = data_for_attr.setdefault(attr0, [])
                     lis.append((prefix, val))

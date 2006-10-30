@@ -79,7 +79,8 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         # if so, who scans the expr to see if it's pure (no need for ipath or full env)? does expr track this as we build it?
 
         # try 2 061027 late:
-        env0 = instance.env
+        assert instance.is_instance, "compute method asked for on non-instance %r" % (instance,) # happens if a kid is non-instantiated(?)
+        env0 = instance.env # fyi: AttributeError for a pure expr (ie a non-instance)
         env = env0.with_literal_lexmods(_self = instance)
         ipath0 = instance.ipath ####k not yet defined i bet... funny, it didn't seem to crash from this -- did i really test it??
         index = 'stub' ###should be the attr of self we're coming from, i think!
@@ -179,7 +180,13 @@ class OpExpr(SymbolicExpr):
         """Return the value (evaluated each time, never cached, usage-tracked by caller) of self, in env and at ipath.
         [subclasses should either define _e_eval_function for use in this method implem, or redefine this method.]
         """
-        return apply(self._e_eval_function, [self._e_argval(i,env,ipath) for i in range(len(self._e_args))])
+        debug = 1 ############@@@@@@@@@@@@@@@
+        if debug:
+            print "eval",self
+        res = apply(self._e_eval_function, [self._e_argval(i,env,ipath) for i in range(len(self._e_args))])
+        if debug:
+            print "res =",res
+        return res
     pass
 
 class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even though it can be produced by SymbolicExpr.__call__

@@ -38,6 +38,10 @@ import widget_env
 reload_once(widget_env)
 from widget_env import widget_env
 
+import instance_helpers
+reload_once(instance_helpers)
+from instance_helpers import DelegatingInstance
+
 # == stubs
 
 ToggleShow = TestIterator = Column
@@ -49,9 +53,27 @@ try:
 except:
     _state = {}
 
+# == debug code #e refile
+
+class DebugPrintAttrs(DelegatingInstance): # won't work until we make self.args autoinstantiated -- search for "nim make_in" ####@@@@
+    def draw(self, *args): #e or do this in some init routine?
+        guy = self.args[0] ##### will this be an instance?? i doubt it
+        print "guy = %r, guy.is_instance = %r" % (guy, guy.is_instance)
+        for name in self.args[1:]:
+            print "guy.%s is" % name, getattr(guy,name,"<unassigned>")
+        ##DelegatingInstance.draw(self, *args) # this fails... is it working to del to guy, but that (not being instance) has no .draw??
+        printnim("bug: why doesn't DelegatingInstance delegate to guy?") # since guy does have a draw
+        # let's try it more directly:
+        
+        guy.draw(*args) ### fails, wrong # args, try w/o self
+    pass
+
 # == testexprs
 
-testexpr_1 = Rect(10,16, color = purple) # test basic leaf primitives
+# test basic leaf primitives
+testexpr_1 = Rect(10,16, color = purple) # doesn't work, uses default color, default (or other fixed) sizes
+##testexpr_1 = DebugPrintAttrs(Rect(1,1,blue), 'color') # doesn't work yet
+
 print "testexpr_1 is %r" % testexpr_1
 
 testexpr_1b = Boxed(testexpr_1)
