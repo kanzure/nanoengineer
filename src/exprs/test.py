@@ -87,7 +87,7 @@ testexpr_4 = TestIterator( testexpr_3 ) # test an iterator
 
 # == the testexpr to use right now
 
-testexpr = testexpr_2
+testexpr = testexpr_1b
 
 # == per-frame drawing code
 
@@ -102,7 +102,9 @@ def drawtest1_innards(glpane):
         #e it has: place to store transient state, ref to model state
     some_env = widget_env(glpane, staterefs) #####@@@@@@ IMPLEM more args, etc, and import it
 
-    inst = some_env.make(testexpr, NullIpath) # should memoize this, severe anti-optim not to, but at least it ought to work this way
+    inst = some_env.make(testexpr, NullIpath)
+    from basic import printnim
+    printnim("severe anti-optim not to memoize some_env.make result in draw") ###e but at least it ought to work this way
     inst.draw()
     import env
     print "drew", env.redraw_counter
