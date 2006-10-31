@@ -121,7 +121,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         from Exprs import canon_expr
         # don't do this, since we need canon_expr:
         ## self._e_formula_dict.update(kws)
-        for k,v in kws:
+        for k,v in kws.iteritems():
             self._e_formula_dict[k] = canon_expr(v)
         return
     def _destructive_supply_args(self, args):

@@ -8,7 +8,7 @@ try:
     _reload_ok
 except:
     _reload_ok = False # can be redefined at runtime from a debugger, but reload will probably lead to bugs.
-    # this will prevent reload_once from actually reloading it ###IMPLEM
+    # this will prevent reload_once from actually reloading it
 else:
     assert _reload_ok, "Exprs module is not allowed to be reloaded, since we test for isinstance(val, Expr) while other modules get imported!"
     
@@ -314,6 +314,9 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
     "Make subexpr an Expr, if it's not already. (In future, we might also intern it.)"
     if isinstance(subexpr, Expr):
         return subexpr
+    ## elif issubclass(subexpr, Expr): # TypeError: issubclass() arg 1 must be a class
+    elif isinstance(subexpr, type) and issubclass(subexpr, Expr):
+        return subexpr # for _TYPE_xxx = Widget2D, etc -- is it ever not ok? ####k
     elif isinstance(subexpr, type([])):
         return list_Expr(*subexpr) ###k is this always correct? or only in certain contexts??
             # could be always ok if list_Expr is smart enough to revert back to a list sometimes.

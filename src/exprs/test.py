@@ -71,7 +71,7 @@ class DebugPrintAttrs(DelegatingInstance): # won't work until we make self.args 
 # == testexprs
 
 # test basic leaf primitives
-testexpr_1 = Rect(10,16, color = purple) # doesn't work, uses default color, default (or other fixed) sizes
+testexpr_1 = Rect(7,16, color = purple) # doesn't work, uses default color, default (or other fixed) sizes
 ##testexpr_1 = DebugPrintAttrs(Rect(1,1,blue), 'color') # doesn't work yet
 
 print "testexpr_1 is %r" % testexpr_1
