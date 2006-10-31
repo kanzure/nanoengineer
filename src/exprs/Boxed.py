@@ -67,7 +67,7 @@ class Boxed(Widget2D):
             # note, you'd still have to declare the order, unless we kluged that by having Arg remember the order of exec,
             # which might be tolerable -- why not?
             # (For super inheritance, we'd keep order of old args, add new at end. We'd permit _argorder to revise the order.)
-        borderthickness = Option(4) #k can default imply type like this? or can we just let type be missing?
+        borderthickness = Option(4) #k can default imply type like this? or can we just let type be missing? type vs default as arg?
         gap = Option(4)
         bordercolor = Option(white)
         extra = 2 * gap + 2 * borderthickness
@@ -80,7 +80,28 @@ class Boxed(Widget2D):
         # - We might let things like this work in some cases: thing = Arg(number) + 1.
         # I think it's unambiguous since positional means input-only;
         # for Options it won't work (inside/outside vals would need to differ, but can't, I think).
-
+    if 0:
+        # actually we'd better include a type on all of them, I think --
+        # not sure, can we relax that for simple ints or other numbers??
+        # args (order matters)
+        thing = Arg(Widget2D)
+        # silly example of a producer-typed arg, not sensible for Boxed:
+        edge = Arg(ProducerOf(Widget2D)) # is the edge fed to the producer (yes), and if so how, and is that reflected in the type?
+            #e should caller pass lambda edge: <pyexpr for a Widget2D using edge>?
+            #e (Or let them pass a plain W2D or Pof(it) if edge is not used in it... eg if it's implicitly used re layout bounds.)
+        # options
+        borderthickness = Option(int, 4)
+        gap = Option(int, 4)
+        bordercolor = Option(Color, white)
+        # internal formulas
+        thingalias = thing ### is this ok?? problem: later use of 'thing' could be thingalias... maybe it just defaults to first one??
+        extra = 2 * gap + 2 * borderthickness
+        ww = thing.width  + extra
+        hh = thing.height + extra
+        # value (even this gets to be simpler -- no need for _self)
+        _value = Overlay( RectFrame( ww, hh, thickness = borderthickness, color = bordercolor),                          
+                          thing,
+                          align = Center )
     # equivalent value for all uses (like a macro expansion for Boxed(widget, opts))
     _value = Overlay( RectFrame( _.ww, _.hh, thickness = _.borderthickness, color = _.bordercolor),
                       _.thing, ##e is it ok that the alignment of thing will be lost, re the outside? it's not ideal. how to fix??

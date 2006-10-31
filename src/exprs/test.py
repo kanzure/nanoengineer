@@ -76,7 +76,7 @@ testexpr_1 = Rect(7,16, color = purple) # works as of 061030
 
 print "testexpr_1 is %r" % testexpr_1
 
-testexpr_1b = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay)
+testexpr_1b = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay, attrerror: draw)
 print "testexpr_1b is %r" % testexpr_1b
 
 testexpr_2 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
