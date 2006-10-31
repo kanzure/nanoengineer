@@ -184,7 +184,7 @@ class OpExpr(SymbolicExpr):
         """Return the value (evaluated each time, never cached, usage-tracked by caller) of self, in env and at ipath.
         [subclasses should either define _e_eval_function for use in this method implem, or redefine this method.]
         """
-        debug = 1 ############@@@@@@@@@@@@@@@
+        debug = False
         if debug:
             print "eval",self
         res = apply(self._e_eval_function, [self._e_argval(i,env,ipath) for i in range(len(self._e_args))])

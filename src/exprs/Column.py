@@ -196,7 +196,14 @@ class Column(LayoutWidget2D):
        ###e TBD: options for gapfunc or spacing. options for alignment, or for wrapping all elts with something.
     """
     # we work by using helper functions CL, CW, CLE...
-    pass ### CLE(list(self.args))
+    def _init_instance(self):
+        self._value = CLE(list(self.args))
+            #k do we need to instantiate this, or is that automatic somehow? guess: we do, though a class assignment of it would not.
+        self._value = self.make(self._value)
+        #### might be better to assign expr to self._E__value (or _C__value??), letting self._value be automade from that --
+        # then it can include '_value' as relative index, too.
+        ###e Now we have to make self.draw work, here or in CLE.
+    pass
 
 
 # == junk or scratch below here

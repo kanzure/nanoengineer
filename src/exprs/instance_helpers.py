@@ -75,7 +75,6 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
     # public access to self._e_formula_dict
     def custom_compute_method(self, attr):
         "#doc; return a compute method or None"
-        print"custom_compute_method for",attr###########@@@@@@@@@@@@@ why not for color?
         try:
             formula = self._e_formula_dict[attr]
         except KeyError:
@@ -210,13 +209,13 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         ## print "fyi my metaclass is",self.__metaclass__ # <class 'exprs.ExprsMeta.ExprsMeta'>
 
         printonce("nim make in %r" % self.__class__)#####@@@@@
-        ## assert 0, "nim make in %r" % self ##### SHOULD MODIFY ARGS BY ADDING DEFAULTS AND TYPE COERCERS
+        ## assert 0, "nim make in %r" % self ##### SHOULD MODIFY ARGS BY ADDING TYPE COERCERS
 
 
         ### AND set up self.opts to access old._e_formula_dict, also perhaps adding effect of type coercers
         ## print "compare self #formulas %d vs expr #formulas %d" % (len(self._e_formula_dict), len( expr._e_formula_dict)) # 0,3
         self._e_formula_dict = expr._e_formula_dict # kluge, no protection from bug that modifies it, but nothing is supposed to
-        print "self._e_formula_dict =",self._e_formula_dict # guess: need canon_expr #####@@@@@
+        ## print "self._e_formula_dict =",self._e_formula_dict
 ##        for k,v in self._e_formula_dict.items():
 ##            printnim("##HORRIBLE KLUGE just for testing - canon_expr every time")#######@@@@@@@@
 ##            from Exprs import canon_expr

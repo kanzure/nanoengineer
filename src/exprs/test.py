@@ -71,15 +71,15 @@ class DebugPrintAttrs(DelegatingInstance): # won't work until we make self.args 
 # == testexprs
 
 # test basic leaf primitives
-testexpr_1 = Rect(7,16, color = purple) # doesn't work, uses default color, default (or other fixed) sizes
-##testexpr_1 = DebugPrintAttrs(Rect(1,1,blue), 'color') # doesn't work yet
+testexpr_1 = Rect(7,16, color = purple) # works as of 061030
+##testexpr_1 = DebugPrintAttrs(Rect(1,1,blue), 'color') # doesn't work yet (instantiation)
 
 print "testexpr_1 is %r" % testexpr_1
 
-testexpr_1b = Boxed(testexpr_1)
+testexpr_1b = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay)
 print "testexpr_1b is %r" % testexpr_1b
 
-testexpr_2 = Column( testexpr_1, Rect(1.5, color = blue)) # test Column
+testexpr_2 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
 
 testexpr_3 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
@@ -87,7 +87,7 @@ testexpr_4 = TestIterator( testexpr_3 ) # test an iterator
 
 # == the testexpr to use right now
 
-testexpr = testexpr_1 
+testexpr = testexpr_2
 
 # == per-frame drawing code
 
