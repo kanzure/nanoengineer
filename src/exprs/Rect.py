@@ -39,6 +39,9 @@ class Rect(Widget2D):
     
     # set up formulas for layout box attrs (bright and btop) in terms of width & height
     # (basically: bright = width, btop = height)
+
+    #####@@@@@ make these _DEFAULT_ so Rect can be customized to make them differ? #e If so, what's notation for pre-custom value?
+    
     bright = _self.width # a _C_attr can either be a method (compute rule), or a formula on _self (like here) --
         # but if it's a formula, it can just be stored on the attr itself, as a descriptor! See notesfile 061024 for discussion.
         ####@@@@ _C_attr being formula is nim; if it's a py constant like 0 below (a degenerate formula), is that ambiguous?
@@ -56,11 +59,11 @@ class Rect(Widget2D):
         glEnable(GL_CULL_FACE)
     pass
 
-print "dir(Rect) is:",dir(Rect) #####@@@@@@
-for n1 in dir(Rect):
-    if not n1.startswith('_'):
-        print "Rect.%s =" % n1, getattr(Rect,n1)
-    pass
+##print "dir(Rect) is:",dir(Rect) #####@@@@@@
+##for n1 in dir(Rect):
+##    if not n1.startswith('_'):
+##        print "Rect.%s =" % n1, getattr(Rect,n1)
+##    pass
 
 # == comment snippets from other variants of Rect
 

@@ -116,7 +116,13 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         Destructively modify self, an expr, customizing it with the formulas represented by the given keyword arguments.
         """
         assert not self.is_instance
-        self._e_formula_dict.update(kws) # this dict is owned (inefficient?)
+        # self._e_formula_dict dict is owned by every non-instance customized expr (inefficient?)
+        # but it's shared by Instances and their expr templates
+        from Exprs import canon_expr
+        # don't do this, since we need canon_expr:
+        ## self._e_formula_dict.update(kws)
+        for k,v in kws:
+            self._e_formula_dict[k] = canon_expr(v)
         return
     def _destructive_supply_args(self, args):
         """[private]
@@ -125,6 +131,9 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         assert not self.is_instance
         assert not self.has_args
         self.has_args = True # useful in case args is (), though hasattr(self, 'args') might be good enough too #e
+
+        from Exprs import canon_expr
+        args = tuple(map(canon_expr, args))
         self.args = args
 
         # also store the args in equivalent options, according to self._args declaration
@@ -156,7 +165,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
                 continue
             pass
         
-        # Q. Wwhen do we fill in defaults for missing args? A. We don't -- the above code + options code effectively handles that,
+        # Q. When do we fill in defaults for missing args? A. We don't -- the above code + options code effectively handles that,
         # PROVIDED we access them by name, not by position in self.args. (Is it reasonable to require that?? ###k)
         # Q. When do we type-coerce all args? For now, I guess we'll wait til instantiation. [And it's nim.]
         printnim("type coercion of args & optvals is nim")

@@ -427,7 +427,10 @@ def prefix_CV_(clsname, attr0, val):
 def prefix_nothing(clsname, attr0, val):
     # assume we're only called for a formula
     ## assert hasattr(val, '_e_compute_method')
-    assert val_is_special(val), "why is this val not special? clsname %r, attr0 %r, val %r" % (clsname, attr0, val)
+    if not val_is_special(val):
+        print "why is this val not special? (in clsname %r, attr0 %r) val = %r" % (clsname, attr0, val)
+        #kluge 061030: i changed this to a warning due to its effect on ConstantExpr(10),
+        # tho the proper fix is different -- entirely change how _DEFAULT_ works. (see notesfile). ####@@@@
         #e rename val_is_special
     val0 = choose_C_rule_for_val(clsname, attr0, val)
     return val0

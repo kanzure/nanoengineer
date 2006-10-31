@@ -87,11 +87,13 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         printnim("_e_compute_method needs to be passed an index")
         ipath = (index, ipath0)
         return lambda self=self, env=env, ipath=ipath: self._e_eval( env, ipath ) #e assert no args received by this lambda?
-    def __repr__(self):
+    def __repr__(self): # class Expr
+        "[often overridden by subclasses; __str__ can depend on __repr__ but not vice versa(?) (as python itself does by default(??))]"
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect) on 061016
-        return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())
-    def __str__(self):
-        return "??"
+        ## return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())
+        return "<%s at %#x>" % (self.__class__.__name__, id(self))
+##    def __str__(self):
+##        return "??"
     # ==
     def __rmul__( self, lhs ):
         """operator b * a"""
@@ -168,10 +170,12 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
 class OpExpr(SymbolicExpr):
     "Any expression formed by an operation (treated symbolically) between exprs, or exprs and constants"
     def __init__(self, *args):
-        self._e_args = map(canon_expr, args)
+        self._e_args = tuple(map(canon_expr, args)) # tuple is required, so _e_args works directly for a format string of same length
         self._e_init()
     def _e_init(self):
         assert 0, "subclass of OpExpr must implement this"
+    def __repr__(self): # class OpExpr
+        return "<%s at %#x:%r>"% (self.__class__.__name__, id(self), self._e_args,)
     def _e_argval(self, i, env,ipath):
         "Return the value (evaluated each time, never cached, usage-tracked by caller) of our arg[i], in env and at (i,ipath)."
          ##e consider swapping argorder to 0,ipath,env or (0,ipath),env
@@ -211,8 +215,10 @@ class getattr_Expr(OpExpr):
         assert 0, "getattr exprs are not callable [ok??]"
     def _e_init(self):
         assert len(self._e_args) == 2 #e kind of useless and slow #e should also check types?
+        attr = self._e_args[1]
+        assert attr #e and assert that it's a python identifier string
     def __str__(self):
-        return str(self._e_args[0]) + '.' + self._e_args[1] #e need parens?
+         return "%s.%s" % self._e_args #e need parens? need quoting of 2nd arg? Need to not say '.' if 2nd arg not a py-ident string?
     _e_eval_function = getattr
     # fyi that's equivalent to:
 ##    def _e_eval(self, env, ipath):
@@ -296,6 +302,8 @@ class constant_Expr(Expr): ###k super is not quite right -- we want some things 
     def __init__(self, val):
         self._e_constant_value = val
         self._e_args = () # allows super _e_free_in to be correct
+    def __repr__(self): # class constant_Expr
+        return "<%s at %#x:%r>"% (self.__class__.__name__, id(self), self._e_constant_value,)
     def __str__(self):
         return "%s" % (self._e_constant_value,) #e need parens?
     def _e_eval(self, *args):
@@ -334,6 +342,7 @@ class Symbol(SymbolicExpr):
         return self._e_name
     def __repr__(self):
         ## return 'Symbol(%r)' % self._e_name
+        ##e should only use following form when name looks like a Python identifier!
         return 'S.%s' % self._e_name
     def __eq__(self, other): #k probably not needed, since symbols are interned as they're made
         return self.__class__ is other.__class__ and self._e_name == other._e_name
