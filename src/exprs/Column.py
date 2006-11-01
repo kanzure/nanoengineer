@@ -8,15 +8,11 @@ from basic import * # autoreload of basic is done before we're imported
 
 import draw_utils
 reload_once(draw_utils)
-
 from draw_utils import *
 
 import instance_helpers
 reload_once(instance_helpers)
-
 from instance_helpers import GlueCodeMemoizer, Instance, DelegatingInstance
-
-from widget2d import Widget2D #####@@@@@ replace with layout, make reloadable
 
 # ==
 

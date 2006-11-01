@@ -6,20 +6,7 @@ $Id$
 
 from basic import *
 
-from widget2d import Widget2D #####@@@@@ make reloadable
-
-## Overlay = RectFrame = stub # doesn't work, they get called when we import
-Stub = Widget2D
-Overlay = RectFrame = Center = Stub###@@@
-Color = Stub
-
-from Exprs import Symbol
-
-def Arg(type1 = None, dflt = None):
-    return Symbol('_some_Arg')#stub
-
-Option = Arg #stub
-#e Instance too, for internal use? Arg & Option instantiate by default (lazily).
+#e later import Overlay, RectFrame, Center, when they're not stubs
 
 # ==
 

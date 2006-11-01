@@ -129,11 +129,6 @@ What ExprsMeta handles specifically:
 
 __all__ = ['remove_prefix', 'ExprsMeta', 'ConstantComputeMethodMixin', 'DictFromKeysAndFunction', 'RecomputableDict']
 
-# don't misspell it ExprMeta!
-###e nim or wrong as of 061024, also not yet used ####@@@@
-
-# plan: create some general descriptor classes corresponding to the general scheme described above, then fill them in
-
 # == imports
 
 # from python library
@@ -471,7 +466,7 @@ def attr_prefix(attr): # needn't be fast
             return prefix
     return ''
 
-def val_is_special(val):
+def val_is_special(val): #e rename... or, maybe it'll be obs soon?
     "val is special if it's a formula in _self, i.e. is an instance (not subclass!) of Expr, and contains _self as a free variable."
     from Exprs import Expr # let's hope it's reloaded by now, if it's going to be ... hmm, we run during import so we can't assume that.
     return isinstance(val, Expr) and val._e_free_in('_self')

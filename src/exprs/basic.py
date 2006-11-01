@@ -93,4 +93,34 @@ def printnim(msg):
     printonce("nim reminder: " + msg)
     return
 
+# == lower-level stubs ###@@@
+
+NullIpath = None ###STUB, refile, rename
+
+# types
+Width = Color = stub
+
+def Arg(type1 = None, dflt = None):
+    from Exprs import Symbol
+    return Symbol('_some_Arg')
+
+Option = Arg #stub
+ArgOrOption = Arg #stub, means it can be given positionally or using its attrname
+#e Instance too, for internal use? Arg & Option instantiate by default (lazily), so does Instance in same way (fewer other effects).
+#e ProducerOf? ExprFor?
+
+# == higher-level defs, common enough to import for everything
+# [will there be recursive import problems? if so, split basic into 2 modules at this point]
+
+import widget2d
+reload_once(widget2d)
+from widget2d import Widget2D, Widget
+
+# == higher-level stubs
+
+# lowercase stub doesn't work for the following, since they get called during import, so use uppercase Stub
+Stub = Widget2D
+Overlay = RectFrame = Center = Stub###@@@
+ToggleShow = TestIterator = Stub
+
 # end

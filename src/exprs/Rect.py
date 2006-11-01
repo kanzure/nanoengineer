@@ -5,21 +5,13 @@ $Id$
 '''
 
 from basic import *
-from basic import _self
+from basic import _self #k not needed in Rect2
 
 import draw_utils
 reload_once(draw_utils)
-
 from draw_utils import *
 
-import widget2d
-reload_once(widget2d)
-
-from widget2d import Widget2D ###e rename module, to same caps?
-
 # == class Rect
-
-Width = Color = stub ###@@@
 
 class Rect(Widget2D):
     """Rect(width, height, color) renders as a filled x/y-aligned rectangle
@@ -59,6 +51,27 @@ class Rect(Widget2D):
         glEnable(GL_CULL_FACE)
     pass
 
+class Rect2(Widget2D): # this is Rect in a newer syntax, not yet working as of 061031
+    "#doc - grab from above"
+    # args
+    width = Arg(Width, 10)
+    height = Arg(Width, width)
+    color = ArgOrOption(Color, gray)
+    # formulas
+    bright = width
+    btop = height
+    # fyi, these are not needed (same as the defaults in Widget2D):
+    bbottom = 0
+    bleft = 0
+    
+    def draw(self): # same as in class Rect
+        glDisable(GL_CULL_FACE)
+        draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.fix_color(self.color)) #e move fix_color into draw_filled_rect? 
+        glEnable(GL_CULL_FACE)
+    pass
+    
+    
+    
 ##print "dir(Rect) is:",dir(Rect) #####@@@@@@
 ##for n1 in dir(Rect):
 ##    if not n1.startswith('_'):

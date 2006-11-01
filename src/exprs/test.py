@@ -20,11 +20,11 @@ import basic
 basic.reload_once(basic)
 del basic
 
-from basic import * # including reload_once
+from basic import * # including reload_once, and some stubs
 
 import Rect
 reload_once(Rect)
-from Rect import Rect
+from Rect import Rect, Rect2
 
 import Column
 reload_once(Column)
@@ -41,10 +41,6 @@ from widget_env import widget_env
 import instance_helpers
 reload_once(instance_helpers)
 from instance_helpers import DelegatingInstance
-
-# == stubs
-
-ToggleShow = TestIterator = Column
 
 # == make some "persistent state"
 
@@ -72,9 +68,10 @@ class DebugPrintAttrs(DelegatingInstance): # won't work until we make self.args 
 
 # test basic leaf primitives
 testexpr_1 = Rect(7,16, color = purple) # works as of 061030
-##testexpr_1 = DebugPrintAttrs(Rect(1,1,blue), 'color') # doesn't work yet (instantiation)
+testexpr_1x = DebugPrintAttrs(Rect(4,7,blue), 'color') # doesn't work yet (instantiation)
 
-print "testexpr_1 is %r" % testexpr_1
+testexpr_1a = Rect2(7,16, color = purple)
+print "testexpr_1a is %r" % testexpr_1a
 
 testexpr_1b = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay, attrerror: draw)
 print "testexpr_1b is %r" % testexpr_1b
@@ -87,11 +84,9 @@ testexpr_4 = TestIterator( testexpr_3 ) # test an iterator
 
 # == the testexpr to use right now
 
-testexpr = testexpr_1b
+testexpr = testexpr_1a
 
 # == per-frame drawing code
-
-NullIpath = None ###STUB, refile
 
 def drawtest1_innards(glpane):
     "entry point from ../testdraw.py"
@@ -111,6 +106,7 @@ def drawtest1_innards(glpane):
     return
 
 
+# old comments:
 
 # upon reload, we'll make a new env (someday we'll find it, it only depends on glpane & staterefs),
 # make an instance of testexpr in it, set up to draw that instance.
