@@ -141,11 +141,7 @@ from debug import print_compact_traceback
 # from this exprs package in cad/src
 from lvals import Lval, LvalDict2 ### make reloadable? I'm not sure if *this* module supports reload. ##k
 
-# kluge to avoid recursive import problem (done in modules which are imported by basic):
-def printnim(*args):
-    import basic
-    basic.printnim(*args)
-    return
+from basic import printnim # this is a recursive import -- most things in basic are not defined yet
 
 # ==
 

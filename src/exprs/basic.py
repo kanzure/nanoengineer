@@ -4,6 +4,45 @@ basic.py -- define things to be imported by every module in this package (using 
 $Id$
 '''
 
+# Import order issues --
+# This module basic gets imported first, and it will be imported at the beginning of most modules.
+# But it wants to define things of general interest to all modules.
+#
+# This can lead to recursive import problems. Here is how we will resolve them:
+# - If a high-level def should be included here, import it last.
+#   Then when it imports basic, it will find what it needs already defined in basic.
+# - When we import several high-level defs, they should be lowest-level first; higher ones will find lower ones
+#   defined in basic when they import it, but not vice versa (but they shouldn't need to find them).
+# - When we import symbols like Expr or define symbols like Arg, also do this in order of level, in terms of import dependency.
+#
+# Note that this means we can't put all our import statements first --
+# we have to interleave them with local defs, based on level.
+#
+# Specific problems:
+# - ExprsMeta knows about special cases for some symbols defined in modules which have to import ExprsMeta for its metaclass.
+#   Solution: ExprsMeta should only import those special-case symbols at runtime.
+#   (And it should do so using reload_once, so their own modules can support runtime reload.)
+#
+# Approximate order of imports:
+# - Python and debug utilities (especially the ones needed by ExprsMeta), including those defined outside this exprs package
+# - ExprsMeta (needed as a metaclass by many classes we'll define)
+# - abstract classes like Expr and Instance
+# - widget classes, in order of lowest to highest level (most of them don't need to be imported by this module at all)
+
+
+# == imports from cad/src
+
+from VQT import V, A, Q
+
+from state_utils import transclose
+
+# (but color constants are imported lower down)
+
+## not yet needed: from state_utils import _UNSET_ # warning: not included in "import *"
+
+
+# == Python and debug utilities, and low-level local defs
+
 from debug import reload_once_per_event, print_compact_traceback
 
 def reload_once(module):
@@ -28,26 +67,19 @@ def reload_once(module):
     from testdraw import vv
     reload_once_per_event(module, always_print = True, never_again = False, counter = vv.reload_counter, check_modtime = True)
 
+def stub(*args, **kws): #e rename to stubfunc (too hard to search for 'stub', common in comments)
+    assert 0, "stub called"
 
-# == imports from cad/src
-
-from VQT import V, A, Q
-
-from state_utils import transclose
-
-# (but color constants are imported lower down)
-
-## not yet needed: from state_utils import _UNSET_ # warning: not included in "import *"
-
-
-# == imports from this exprs package
+# == low-level imports from this exprs package
 
 import py_utils
 reload_once(py_utils)
+from py_utils import * # includes printnim
 
-from py_utils import *
 
-from ExprsMeta import * ###e can this support autoreload??
+# == ExprsMeta #e and whatever it requires
+
+from ExprsMeta import * ###e can this support autoreload?? ###e note -- this imports a few other modules - list those here ##doc
 
 from __Symbols__ import _self # (__Symbols__ module doesn't support reload) # warning: not included in "import *"
 
@@ -84,16 +116,7 @@ trans_red = translucent_color(red)
 trans_green = translucent_color(green)
 
 
-# == local defs
-
-def stub(*args, **kws):
-    assert 0, "stub called"
-
-def printnim(msg):
-    printonce("nim reminder: " + msg)
-    return
-
-# == lower-level stubs ###@@@
+# == lower-level stubs -- these will probably be refiled when they are no longer stubs ###@@@
 
 NullIpath = None ###STUB, refile, rename
 
@@ -109,8 +132,8 @@ ArgOrOption = Arg #stub, means it can be given positionally or using its attrnam
 #e Instance too, for internal use? Arg & Option instantiate by default (lazily), so does Instance in same way (fewer other effects).
 #e ProducerOf? ExprFor?
 
-# == higher-level defs, common enough to import for everything
-# [will there be recursive import problems? if so, split basic into 2 modules at this point]
+
+# === higher-level defs, common enough to import for everything
 
 import widget2d
 reload_once(widget2d)
@@ -122,5 +145,15 @@ from widget2d import Widget2D, Widget
 Stub = Widget2D
 Overlay = RectFrame = Center = Stub###@@@
 ToggleShow = TestIterator = Stub
+
+# == modules that may have been already imported above, but whose symbols were not needed in basic at that time [#e move up anyway?]
+
+import Exprs
+reload_once(Exprs) # doesn't support reload, for now, so this is a noop
+from Exprs import Expr, canon_expr, Symbol
+
+import instance_helpers
+reload_once(instance_helpers)
+from instance_helpers import InstanceOrExpr, GlueCodeMemoizer
 
 # end

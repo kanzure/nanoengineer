@@ -6,7 +6,7 @@ $Id$
 simple utility functions for python built-in types
 '''
 
-# note: basic.py imports * from here.
+# note: the module basic.py imports * from this module.
 
 def interleave(elts, gaps):
     """Return an interleaved list of the given elements and gaps --
@@ -33,17 +33,25 @@ def dict_ordered_values(d1):
     items.sort()
     return [v for (k,v) in items]
 
-def printonce(msg, msg2 = None): #e refile
+from env import seen_before # public in this module
+
+def printonce(msg, constpart = None):
     """print msg (which should be a constant), but only once per session.
     If msg is *not* a constant, pass its constant part (a nonempty string --
-    not checked, bad errors if violated) in msg2.
-       WARNING: If you pass nonconstant msg and forget to pass msg2, or if msg2 is nonconstant or false,
+    not checked, bad errors if violated) in constpart.
+       WARNING: If you pass nonconstant msg and forget to pass constpart, or if constpart is nonconstant or false,
     this might print msg on every call!
+       WARNING: Nonconstant args can be a slowdown, due to the time to evaluate them before every call.
+    Passing constpart can't help with this (of course), since all args are always evaluated.
+    Consider direct use of env.seen_before instead.
     """
-    constpart = msg2 or msg
-    from env import seen_before
+    constpart = constpart or msg
     if not seen_before(constpart):
         print msg
+    return
+
+def printnim(msg, constpart = None):
+    printonce("nim reminder: " + msg, constpart)
     return
 
 class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibledict?? -- it doesn't have to memoize exactly...
@@ -59,7 +67,7 @@ class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibled
         try:
             return dict.__getitem__(self, key)
         except KeyError:
-            printonce("developer note: begin_disallowing_usage_tracking is still a stub")
+            printnim("begin_disallowing_usage_tracking is still a stub")
             # begin_disallowing_usage_tracking()  ####IMPLEM #e pass explanation for use in error messages
             val = self._way(key)
                 #e assert no usage gets tracked? for efficiency, do it by checking a counter before & after? or tmp hide tracker?

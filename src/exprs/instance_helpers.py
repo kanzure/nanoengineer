@@ -27,6 +27,7 @@ class Instance:#k super? meta?
     pass
 
 class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depending on how inited, whether args are insts
+    #e rename: ExprOrInstance? PatternOrThing? 
     """Main superclass for specific kinds of "exprs and instances", e.g. Column, Rect, If, etc. See elsewhere for general explanation [#nim].
     Kluges:
     - We act like an Expr or an Instance depending on self.is_instance,

@@ -11,12 +11,8 @@ except:
     # this will prevent reload_once from actually reloading it
 else:
     assert _reload_ok, "Exprs module is not allowed to be reloaded, since we test for isinstance(val, Expr) while other modules get imported!"
-    
-# kluge to avoid recursive import problem (done in modules which are imported by basic -- is this one?? maybe import basic ok??):
-def printnim(*args):
-    import basic
-    basic.printnim(*args)
-    return
+
+from basic import printnim # this may be a recursive import (with most things in basic not yet defined)
 
 class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs  ####@@@@ MERGE with InstanceOrExpr, or super it
     """abstract class for symbolic expressions that python parser can build for us,
@@ -146,9 +142,9 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
             _e_args = self._e_args
             #k not sure this is defined in all exprs! indeed, not in a Widget2D python instance... ####@@@@
         except AttributeError:
-            ## warning: following is slow, even when it doesn't print -- needs optim ####@@@@
+            #####@@@@ warning: following is slow, even when it doesn't print -- NEEDS OPTIM ####@@@@
             from basic import printonce
-            printonce("debug note: _e_free_in False since no _e_args in %r" % self) # print once per self
+            printonce("debug note: _e_free_in is False since no _e_args attr in %r" % self) # print once per self
             return False ###k guess -- correct? #####@@@@@
         for arg in _e_args: 
             if arg._e_free_in(sym):
