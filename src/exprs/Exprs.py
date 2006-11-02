@@ -308,7 +308,7 @@ class constant_Expr(Expr): ###k super is not quite right -- we want some things 
 
 def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py says that env.understand_expr should call this...
     "Make subexpr an Expr, if it's not already. (In future, we might also intern it.)"
-    if isinstance(subexpr, Expr):
+    if isinstance(subexpr, Expr): #### see also is_formula in ExprsMeta -- should we just use that here?? guess yes. #####@@@@@
         return subexpr
     ## elif issubclass(subexpr, Expr): # TypeError: issubclass() arg 1 must be a class
     elif isinstance(subexpr, type) and issubclass(subexpr, Expr):

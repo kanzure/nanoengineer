@@ -172,6 +172,13 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         self.attr = attr # assume this is the attr of that class we'll be assigned into
         self.args = args
         self.kws = kws
+            ###e Q: If self (in subclass methods) needs to compute things which copy_for_subclass should copy
+            # into a copy of self made for a subclass of self.cls, rather than recomputing on its own,
+            # should they be stored by self into self.kws,
+            # then detected in copy.kws by copy._init1?
+            # (Or, kept in copy.kws, and used directly from there by copy's other methods)??
+            # Example: our formula-handling subclass might need to modify its arg val from the one it gets passed.
+            # (Or it might turn out that's done before calling it, so this issue might not come up for that example.)
         self._init1()
         #e super init?
     def _init1(self):
@@ -197,6 +204,8 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         "subclasses should NOT override this -- override get_for_our_cls instead"
         self.check(cls) #e remove when works (need to optim)
         if obj is None:
+            print_compact_stack("fyi, __get__ direct from class of attr %r in obj %r: " % (self.attr, self)) ####@@@@ ever happens?
+                # what this is about -- see long comment near printnim in FormulaScanner far below [061101]
             return self
         assert cls is not None, "I don't know if this ever happens, or what it means if it does, or how to handle it" #k in py docs
             #e remove when works (need to optim)
@@ -262,10 +271,11 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
             # on all _DEFAULT_attr values -- otherwise instance.attr would just grab gray, never going through this code which
             # looks for an override. In this way alone, _DEFAULT_attr is more powerful than an ordinary (private) attr.
             # Beware -- this may seem to mask the bug in which private attrs can also be overridden by customizing option values.
+            # (As of 061101 that bug is fixed, except it was never tested for either before or after the fix.)
             compute_method = self.compute_method_from_customized_instance(instance)
-            if compute_method:
-                printnim("custom override should only work for _DEFAULT_! not private attr formulas")#but we don't know prefix here
-                #k when we do know prefix here, should we decide _DEFAULT_ is special here, or pass to above method to ask instance??
+##            if compute_method:
+##                printnim("custom override should only work for _DEFAULT_! not private attr formulas")#but we don't know prefix here
+##                #k when we do know prefix here, should we decide _DEFAULT_ is special here, or pass to above method to ask instance??
             if not compute_method:
                 compute_method = self.make_compute_method_for_instance(instance)
             # make a new Lval object from the compute_method 
@@ -283,13 +293,19 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
             # We could add one if needed, but I don't know the best way. Maybe find this property (self) and use a get_lval method,
             # which is passed the instance? Or, setattr(instance, '_lval_' + attr, lval).
     def compute_method_from_customized_instance(self, instance):
-        "See if instance has customized self.attr's formula, and if so, return a compute method from that; else return None."
+        """See if we permit instance to customize self.attr's formula, and if instance has done so;
+        if so, return a compute method from that; else return None.
+        """
+        permit_override = self.kws.get('permit_override', False) #e do in __init__ with pop, so we can check for unknown options?
+        if not permit_override:
+            return None
         try:
             instance.custom_compute_method # defined e.g. by InstanceOrExpr
         except AttributeError:
             return None
         return instance.custom_compute_method(self.attr) # a method or None
     def make_compute_method_for_instance(self, instance):
+        "#doc; doesn't consider per-instance customized compute methods."
         assert 0, "subclass should implement this"
     pass # end of class C_rule
 
@@ -306,6 +322,7 @@ class C_rule_for_method(C_rule):
     def _init1(self):
         ## () = self.args is a syntax error!
         assert len(self.args) == 0
+        #e could/should we assert no unknown kws??
     def make_compute_method_for_instance(self, instance):
         return getattr(instance, '_C_' + self.attr) # kluge, slightly, but it's the simplest and most efficient way
         ###e maybe a better way is to grab the function from cls.__dict__ and call its __get__?
@@ -314,18 +331,23 @@ class C_rule_for_method(C_rule):
 class C_rule_for_formula(C_rule):
     def _init1(self):
         (self.formula,) = self.args
+        #e could/should we assert no unknown kws??
     def make_compute_method_for_instance(self, instance):
         return self.formula._e_compute_method(instance)
     pass
 
-def choose_C_rule_for_val(clsname, attr, val):
-    "return the correct one of C_rule_for_method or C_rule_for_formula, depending on val"
-    if hasattr(val, '_e_compute_method'):
+def choose_C_rule_for_val(clsname, attr, val, **kws):
+    "return a new object made from the correct one of C_rule_for_method or C_rule_for_formula, depending on val"
+    if is_formula(val):
         # assume val is a formula on _self
-        return C_rule_for_formula(clsname, attr, val)
+        # first scan it for subformulas that need replacement, and return replaced version, also recording info in scanner
+        scanner = kws.pop('formula_scanner', None)
+        if scanner:
+            val = scanner.scan(val, attr) #e more args?
+        return C_rule_for_formula(clsname, attr, val, **kws)
     #e support constant val?? not for now.
     else:
-        return C_rule_for_method(clsname, attr)
+        return C_rule_for_method(clsname, attr, **kws)
         ###KLUGE (should change): they get val as a bound method directly from cls, knowing it came from _C_attr
     pass
 
@@ -392,7 +414,7 @@ class CV_rule(ClassAttrSpecific_NonDataDescriptor):
 
 def choose_CV_rule_for_val(clsname, attr, val):
     "return an appropriate CV_rule object, depending on val"
-    if hasattr(val, '_e_compute_method'):
+    if is_formula(val):
         assert 0, "formulas on _CV_attr are not yet supported"
         # when they are, we'll need _self and _i both passed to _e_compute_method
     else:
@@ -407,35 +429,40 @@ def choose_CV_rule_for_val(clsname, attr, val):
 # prefix_X_ routines process attr0, val on clsname, where attr was prefix _X_ plus attr0, and return val0
 # where val0 can be directly assigned to attr0 in cls (not yet known); nothing else from defining cls should be assigned to it.
 
-def prefix_C_(clsname, attr0, val):
-    val0 = choose_C_rule_for_val(clsname, attr0, val)
+def prefix_C_(clsname, attr0, val, **kws): ###k **kws is suspicious but needed at the moment - kluge?? [061101]
+    val0 = choose_C_rule_for_val(clsname, attr0, val, **kws)
     return val0
 
-def prefix_CV_(clsname, attr0, val):
-    val0 = choose_CV_rule_for_val(clsname, attr0, val)
+def prefix_CV_(clsname, attr0, val, **kws):
+    val0 = choose_CV_rule_for_val(clsname, attr0, val) ###k even worse, needed in call but not ok here -- worse kluge?? [061101]
     return val0
 
-def prefix_nothing(clsname, attr0, val):
+def prefix_nothing(clsname, attr0, val, **kws):
     # assume we're only called for a formula
-    ## assert hasattr(val, '_e_compute_method')
-    if not val_is_special(val):
+    ## assert is_formula(val)
+    permit_override = kws.get('permit_override', False) # kluge to know about this here
+    if not permit_override and not val_is_special(val):
         ## print "why is this val not special? (in clsname %r, attr0 %r) val = %r" % (clsname, attr0, val)
-        printnim("not val_is_special(val) [assert can be restored once _DEFAULT_ is handled properly]")
+        printnim("not val_is_special(val)")
         #kluge 061030: i changed this to a warning, then to printnim since common, due to its effect on ConstantExpr(10),
-        # tho the proper fix is different -- entirely change how _DEFAULT_ works. (see notesfile). ####@@@@
+        # tho the proper fix is different -- entirely change how _DEFAULT_ works. (see notesfile).
+        # But on 061101 we fixed _DEFAULT_ differently so this is still an issue -- it's legit to turn formulas
+        # on _DEFAULT_attr into e.g. ConstantExpr(10) which doesn't contain _self.
+        # Guess: in that case it implicitly DOES contain it! kluge for now: ignore test when permitting override. ###@@@
         #e rename val_is_special
-    val0 = choose_C_rule_for_val(clsname, attr0, val)
+    val0 = choose_C_rule_for_val(clsname, attr0, val, **kws)
     return val0
 
-def prefix_DEFAULT_(clsname, attr0, val):
+def prefix_DEFAULT_(clsname, attr0, val, **kws):
     "WARNING: caller has to also know something about _DEFAULT_, since it declares attr0 as an option"
     from Exprs import canon_expr #k ok this early, w/o recursive import problem? guess yes, guess this module already deps on Exprs.#k
     val = canon_expr(val) # needed even for constant val, so instance rules will detect overrides in those instances
         ##e could optim somehow, for instances of exprs that didn't do an override for attr0
-    assert hasattr(val, '_e_compute_method') # make sure old code would now always do the following, as we do for now:
-    printnim("here is one place we could put in code to disallow override except for _DEFAULT_")
-    #####e: pass an arg to following, which tells it to look for overrides in this _DEFAULT_ case, not in the nothing case.
-    return prefix_nothing(clsname, attr0, val)
+    assert is_formula(val) # make sure old code would now always do the following, as we do for now:
+    ## did this 061101 -- printnim("here is one place we could put in code to disallow override except for _DEFAULT_")
+    ## return prefix_nothing(clsname, attr0, val, permit_override = True, **kws) ###k GUESS this is bad syntax
+    kws['permit_override'] = True
+    return prefix_nothing(clsname, attr0, val, **kws)
 
 # old code before 061029 837p:
 ##    if not hasattr(val, '_e_compute_method'): ###e improve condition
@@ -468,6 +495,14 @@ def val_is_special(val): #e rename... or, maybe it'll be obs soon?
     return isinstance(val, Expr) and val._e_free_in('_self')
         ## outtake: and val.has_args [or more likely, and val._e_has_args]
         ## outtake: hasattr(val, '_e_compute_method') # this was also true for classes
+    ##e 061101: we'll probably call val to ask it in a fancier way... not sure... Instance/Arg/Option might not need this
+    # if they *turn into* a _self expr! See other comments with this date [i hope they have it anyway]
+
+def is_formula(val):
+    return hasattr(val, '_e_compute_method')
+        ###e improve? this is like isinstance(val, Expr) or issubclass(val, Expr) but works even if Expr reloaded; maybe ok
+        ### don't I have that very code this is like, somewhere? Yes, see issubclass in canon_expr,
+        # but note it has to do a pretest before calling that!
 
 # ==
     
@@ -482,9 +517,10 @@ class ExprsMeta(type):
         data_for_attr = {}
         processed_vals = []
         orig_ns_keys = ns.keys() # only used in exception text, for debugging
-        # handle _options
+        # handle _options [deprecated since 061101] by turning it into equivalent _DEFAULT_ decls
         _options = ns.pop('_options', None)
         if _options is not None:
+            print "_options (defined in class %s) is deprecated, since a later formula rhs won't see attr in namespace" % name
             assert type(_options) is type({})
             for optname, optval in _options.items():
                 # _DEFAULT_optname = optval
@@ -504,6 +540,8 @@ class ExprsMeta(type):
                 continue
             del optname, optval
         del _options
+        # look for special vals, or vals assigned to special prefixes, in the new class object's original namespace
+        # (since we will modify these in the namespace we'll actually use to create it)
         for attr, val in ns.iteritems():
             # If attr has a special prefix, or val has a special value, run attr-prefix-specific code
             # for defining what value to actually store on attr-without-its-prefix. Error if we are told
@@ -553,6 +591,12 @@ class ExprsMeta(type):
                 pass
             continue
         del attr, val
+        # process the vals assigned to certain attrs, and assign them to the correct attrs even if they were prefixed
+        scanner = FormulaScanner() # this processes formulas by fixing them up where their source refers directly to an attr
+            # defined by another (earlier) formula in the same class, or (#nim, maybe) in a superclass (by supername.attr).
+            # It replaces a direct ref to attr (which it sees as a ref to its assigned formula value, in unprocessed form,
+            # since python eval turns it into that before we see it) with the formula _self.attr (which can also be used directly).
+            # Maybe it will replace supername.attr as described in a comment inside FormulaScanner. #e
         for attr0, lis in data_for_attr.items():
             assert len(lis) == 1, "error: can't define %r and %r in the same class %r (when ExprsMeta is its metaclass); ns contained %r" % \
                        ( lis[0][0] + attr0,
@@ -562,18 +606,22 @@ class ExprsMeta(type):
             prefix, val = lis[0]
             # prefix might be anything in prefix_map (including ''), and should control how val gets processed for assignment to attr0.
             processor = prefix_map[prefix]
-            val0 = processor(name, attr0, val) #e does it also need prefix?
+            val0 = processor(name, attr0, val, formula_scanner_DISABLED = scanner) # note, this creates a C_rule (or the like) for each formula
+            printnim("enable formula_scanner") # by removing that _DISABLED [061101]
             ns[attr0] = val0
-            processed_vals.append(val0)
+            processed_vals.append(val0) # (for use with __set_cls below)
+        # create the new class object
         res = super(ExprsMeta, cls).__new__(cls, name, bases, ns)
         assert res.__name__ == name #k
+        # tell the processed vals what class object they're in
         for thing in processed_vals:
             try:
                 if hasattr(thing, '_ExprsMeta__set_cls'):
                     # (note: that's a tolerable test, since name is owned by this class, but not sure if this scheme is best --
                     #  could we test for it at the time of processing, and only append to processed_vals then??
                     #  OTOH, what better way to indicate the desire for this info at this time, than to have this method? #k)
-                    thing.__set_cls(res)
+                    thing._ExprsMeta__set_cls(res)
+                        # style point: __set_cls is name-mangled manually, since the method defs are all outside this class
             except:
                 print "data for following exception: res,thing =",res,thing
                     # fixed by testing for __set_cls presence:
@@ -583,6 +631,86 @@ class ExprsMeta(type):
         return res # from __new__ in ExprsMeta
     pass # end of class ExprsMeta
 
+class FormulaScanner: #061101  ##e should it also add the attr to the arglist of Arg and Option if it finds them? [061101]
+    def __init__(self):
+        self.replacements = {}
+    def scan(self, formula, attr):
+        """Scan the given formula (which might be or contain a C_rule object from a superclass) .... #doc
+        Return a modified copy in which replacements were done, .... #doc
+        """
+        printnim("several serious issues remain about C_rules from superclasses in ExprsMeta; see code comment") ####@@@@
+            # namely: if a C_rule (the value of a superclass attrname) is seen in place of a formula in ExprsMeta:
+            # - will it notice it as val_is_special?
+            # - will it do the right thing when using it (same as it does when making one for a subclass)?
+            # - does C_rule need OpExpr methods for letting source code say e.g. thing.width on it?
+            # - if so, does it need renaming of its own methods and attrs (especially args/kws) to start with _e_?
+            # Idea to help with these: like a function making an unbound method, C_rule can modify its retval when
+            # accessed from its class, not only when accessed from its instance. Can it actually return a "formula in _self"
+            # for accessing its attr? This would do our replacement for us in the present context, but I'm not sure its good
+            # if some *other* code accesses an attr in the class. OTOH, I can't think of any other code needing to do that,
+            # unless it thinks it'll get an unbound method that way -- but for instance var attrs, it won't think that --
+            # if anything it'll think it should get a "default value". (Or perhaps it might want the formula passed into the C_rule.)
+            # Note, the C_rule remains available in the class's __dict__ if needed.
+            #   Related Qs: what if a class formula accidentally passes a superclass attrname directly to a Python function?
+            # If it does this for one in the same class, it passes the formula or expr assigned to that one in the source code,
+            # before processing by FormulaScanner. This will generally fail... and needn't be specifically supported, I think.
+            #   A test shows that I was wrong: you can't access superclass namespace directly, in the first place!
+            # You have to say superclassname.attr (like for using unbound methods in Python, even as rhs of an assignment
+            # directly in subclass, not in a def in there, I now realize). If someone said this in our system, they would NOT
+            # want _self.attr, if they had redefined (or were going to redefine) attr! They'd want either the formula assigned
+            # to attr in the superclass, or something like _self._superclassname__attr with that formula assigned forever to that attr
+            # (in the superclass). BTW, they'd probably want the processed formula, that is, if the formula they got had source
+            # saying "attr2" (which had evalled to some unprocessed formula assigned to attr2) they'd want that to become _self.attr2.
+            # Does access from a class happen when a subclass internally caches things? Does subclass __dict__ have everything?
+            # Should find out... for now, just print_compact_stack whenever access from class happens, in a def __get__ far above.
+            #    Guess: best soln is for class access to return either _self.attr or (much better, semantically) the processed formula;
+            # I think that solves all issues listed above, except that it would be supoptimal (maybe very) if the same super formula
+            # was used multiple times (since no sharing of cached recompute results). If that matters, return _self._class__attr
+            # and plop that formula on _class__attr in that class. BUT I haven't designed how Arg or Option work
+            # or thought this through at all re them; maybe this scanner handles them too... s##e
+            # [061101]
+        #e if not a formula or C_rule, asfail or do nothing
+        res = self.replacement_subexpr(formula)
+        # register formula to be replaced if found later in the same class definition [#e only if it's the right type??]
+        if formula in self.replacements:
+            print "warning: formula %r already in replacements -- error?" % (formula,)
+            # maybe not error (tho if smth uses it after this, that might deserve a warning) --
+            # in any case, don't replace it with a new replacement
+        else:
+            from __Symbols__ import _self 
+            self.replacements[formula] = getattr(_self, attr)
+                # don't do this before calling self.replacement_subexpr above, or it'll find this replacement immediately!
+        return res
+    def replacement_subexpr(self, subexpr):
+        """Map a subexpr found in a formula (perhaps a C_rule from a superclass, if that can happen and is supported)
+        into its replacement, which is usually the same subexpr.
+        """
+        assert not isinstance(subexpr, ClassAttrSpecific_NonDataDescriptor), "formula containing super C_rule is nim" #e more info
+        if subexpr in self.replacements: # looked up by id(), I hope ###k
+            return self.replacements[subexpr]
+        ###e can we find an Instance here?? assume no, for now.
+        assert not getattr(subexpr, 'is_instance', False) # Exprs don't have this attr at all
+        printnim("I bet InstanceOrExpr is going to need arb getattr when Expr, and _e_ before all methodnames.... see code cmt")
+            #### PROBLEM re that printnim:
+            # attr1 = Rect(...); attr2 = attr1.width -- this does a getattr that will fail in current code --
+            # or might return something like a bound method (or C_rule or whatever it returns).
+            # [###e C_rule better detect this error, when is_instance false in it -- i bet it does...
+            #  yes, it does it inside _e_compute_method.]
+            # BUT it might be illegal anyway, if we needed to say instead attr1 = Instance(Rect(...)) for that to work,
+            # with Instance (or Arg or Option) effectively returning something like a Symbol
+            # (representing a _self-specific instance, like _self does) -- in fact [061101],
+            # Instance(expr) might immediately return something like
+            # _self._instances( relindex-incl-attr-and-formula-subexpr-index, expr )
+            # or maybe that relindex can itself just be a symbol, so it can be put in easily and replaced later in a simple way.
+            
+        # otherwise assume it's a formula
+        ###e special case for a formula headed by Arg or Option etc? just ask the expr if it wants to know attr,
+        # ie if it's a macro which wants that, and if so, copy it with a new keyword or so, before replacing it as below.
+        printnim("need special replacement for Arg etc which needs to know attr and formula-subexpr-index?")
+        # do replacements in the parts
+        return subexpr._e_replace_using_subexpr_filter( self.replacement_subexpr ) ###IMPLEM in Expr #k does API survive lexscoping??
+    pass # end of class FormulaScanner
+            
 # ==
 
 # helpers for CV_rule
@@ -663,5 +791,8 @@ class RecomputableDict(Delegator):
     def compute_value_at_key(self, key):
         return self.lvaldict[key].get_value()
     pass
+
+###e tests needed:
+# - make sure customization of attr formulas doesn't work unless they were defined using _DEFAULT_
 
 # end
