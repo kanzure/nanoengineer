@@ -379,3 +379,106 @@ class Symbol(SymbolicExpr):
         """
         return (sym is self) or (sym == self._e_name)
     pass
+
+# ==
+
+def is_expr(expr):
+    """Is the argument an Expr (class or python instance), but not an Instance?"""
+    printnim("merge is_expr with is_formula and any uses of issubclass or isinstance for Expr; review non-Instance aspect")
+    assert 0, "nim"####@@@@
+    return False
+
+# ==
+
+_self = Symbol('_self') # is it ok if this is done more than once, or does only the __Symbols__ module cache them??
+
+_self2 = Symbol('_self')
+assert _self2 is _self # i bet this will fail; if so, just import __Symbols__ right here
+
+from __Symbols__ import _attr
+
+# some essential macros:
+def Instance(expr, index_or_its_sym = _attr):
+    """Assuming the arg is an expr (not yet checked?), turn into the expr _self._instances(_attr, expr),
+    which is free in the symbols _self and _attr. [#e _attr might be changed to _index, or otherwise revised.]
+    """
+    global _self # not needed, just fyi
+    return _self._instances( index_or_its_sym, expr)
+
+_arg_order_counter = 0
+
+##e problems w/ Arg etc as implem - they need an expr, which can be simplified as soon as an instance is known,
+# but we don't really have smth like that, unless we make a new Instance class to support it.
+# they need it to calc the index to use, esp for ArgOrOption if it depends on how the arg was supplied
+# (unless we implem that using an If or using default expr saying "look in the option" -- consider those!)
+
+def Arg( type_expr, dflt_expr = None):
+    """To declare an Instance-argument in an expr class,
+    use an assignment like this, directly in the class namespace:
+          attr = Arg( type, optional default value )
+       Order matters (specifically, execution order of the Arg macros while Python
+    is executing a given class definition, before the metaclass's __new__ runs);
+    those which are not already defined as args in superclasses
+    are appended to the inherited arglist).
+       The index of the instance made from this optional argument
+    will be its position in the arglist (whether or not the arg was supplied
+    or the default value was used).
+       If the default value is needed and not supplied, it comes from the type.
+    """
+    global _arg_order_counter, _self
+    _arg_order_counter += 1
+
+    type_expr = canon_type( type_expr)
+
+    arg_order_expr = _arg_order_counter #stub; btw, this value is not really an expr, but canon_expr would fix that
+    printnim("arg_order_expr is stub")
+
+    attr_expr = None # since _attr doesn't affect index
+
+    if dflt_expr is None:
+        dflt_expr = default_expr_from_type_expr( type_expr) ###IMPLEM
+
+    grabarg_expr = _self._grabarg(       attr_expr, arg_order_expr, dflt_expr )
+    index_expr   = _self._grabarg_index( attr_expr, arg_order_expr )
+
+    return Instance( type_expr( grabarg_expr), index_or_its_sym = index_expr )
+
+def Option( type_expr, dflt_expr = None): ###e the body should be merged with that of Arg macro, it's very similar
+    """To declare a named optional argument in an expr class,
+    use an assignment like this, directly in the class namespace,
+    and (by convention only?) after all the Arg macros:
+          attr = Option( type, optional default value)
+       Order probably doesn't matter.
+       The index of the instance made from this optional argument
+    will be attr (the attribute name).
+       If the default value is needed and not supplied, it comes from the type.
+    """
+    global _self, _attr
+    
+    type_expr = canon_type( type_expr)
+
+    arg_order_expr = None
+    attr_expr = _attr
+    
+    if dflt_expr is None:
+        dflt_expr = default_expr_from_type_expr( type_expr)
+
+    grabarg_expr = _self._grabarg(       attr_expr, arg_order_expr, dflt_expr )
+    index_expr   = _self._grabarg_index( attr_expr, arg_order_expr )
+
+    return Instance( type_expr( grabarg_expr), index_or_its_sym = index_expr )
+
+ArgOrOption = stub # code this only after the above two are merged
+
+def canon_type(type_expr):#stub
+    "Return a symbolic expr representing a type for coercion"
+    printnim("canon_type is a stub; got %r" % type_expr)
+    assert is_expr(type_expr)
+    return type_expr #stub; needs to work for builtin types like int, or helper classes that are types like Widget (or Rect??)
+    # note that the retval will get called to build an expr, thus needs to be in SymbolicExpr -- will that be true of eg CLE?
+    # if not, then some InstanceOrExpr objs need __call__ too, or constructor needs to return a SymbolicExpr, or so.
+
+default_expr_from_type_expr = stub
+
+# end
+
