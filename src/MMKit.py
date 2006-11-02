@@ -509,7 +509,7 @@ class MMKit(MMKitDialog):
         else:
             self.rootDir = None
             from HistoryWidget import redmsg
-            env.history.message(redmsg("The part library directory: %s doesn't exists." %libDir))
+            env.history.message(redmsg("The part library directory: %s doesn't exist." %libDir))
 
             
     def browseDirectories(self):
