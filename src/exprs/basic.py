@@ -150,7 +150,7 @@ ToggleShow = TestIterator = Stub
 
 import Exprs
 reload_once(Exprs) # doesn't support reload, for now, so this is a noop
-from Exprs import Expr, canon_expr, Symbol
+from Exprs import * # Expr, lots of predicates, maybe Arg & Option(??#k)
 
 import instance_helpers
 reload_once(instance_helpers)

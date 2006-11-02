@@ -54,7 +54,7 @@ except:
 class DebugPrintAttrs(DelegatingInstance): # won't work until we make self.args autoinstantiated -- search for "nim make_in" ####@@@@
     def draw(self, *args): #e or do this in some init routine?
         guy = self.args[0] ##### will this be an instance?? i doubt it
-        print "guy = %r, guy.is_instance = %r" % (guy, guy.is_instance)
+        print "guy = %r, guy._e_is_instance = %r" % (guy, guy._e_is_instance)
         for name in self.args[1:]:
             print "guy.%s is" % name, getattr(guy,name,"<unassigned>")
         ##DelegatingInstance.draw(self, *args) # this fails... is it working to del to guy, but that (not being instance) has no .draw??

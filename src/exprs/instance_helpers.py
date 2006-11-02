@@ -8,13 +8,11 @@ from basic import * # autoreload of basic is done before we're imported
 
 import lvals
 reload_once(lvals)
-
 from lvals import LvalDict
 
 import Exprs
 reload_once(Exprs)
-
-from Exprs import Expr
+from Exprs import * # at least Expr; note, basic now does this anyway
 
 # ==
 
@@ -30,9 +28,9 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
     #e rename: ExprOrInstance? PatternOrThing? 
     """Main superclass for specific kinds of "exprs and instances", e.g. Column, Rect, If, etc. See elsewhere for general explanation [#nim].
     Kluges:
-    - We act like an Expr or an Instance depending on self.is_instance,
+    - We act like an Expr or an Instance depending on self._e_is_instance,
     which is constant after initialization, but not just after __init__, since caller of __init__ also does some initialization.
-    Many methods either assert a specific state for self.is_instance, or branch on it.
+    Many methods either assert a specific state for self._e_is_instance, or branch on it.
     The reason is not obviously good enough to justify the bug risk and unclarity; it's to permit the same class
     (with one nice name in the global module namespace) to both contain the default instance implem code for an exprhead
     (with that code written as if self was the instance, and (to avoid unpleasant surprises) with that being true),
@@ -41,7 +39,8 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
     __metaclass__ = ExprsMeta
     ### WARNING: instantiate normally lets parent env determine kid env... if arg is inst this seems reversed...
     # may only be ok if parent doesn't want to modify lexenv for kid.
-    is_instance = False # usually overridden in certain python instances, not in subclasses
+    ## _e_is_instance = False # now done in class Expr # usually overridden in certain python instances, not in subclasses
+    nim # replace w/ _e_is_instance
     has_args = False # ditto
     args = () # convenient default
     def __init__(self, *args, **kws):
@@ -85,13 +84,13 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
     
     # copy methods (used by __call__)
     def _copy(self):
-        assert not self.is_instance ## ??? [061019]
+        assert not self._e_is_instance ## ??? [061019]
         return self.__class__(_copy_of = self) # this calls _destructive_copy on the new instance
     def _destructive_copy(self, old):
         """[private]
         Modify self to be a copy of old, an expr of the same class.
         """
-        assert not self.is_instance
+        assert not self._e_is_instance
         # self has to own its own mutable copies of the expr data in old, or own objects which inherit from them on demand.
         self._e_formula_dict = dict(old._e_formula_dict) ###k too simple, but might work at first; make it a FormulaSet object??
         self.args = old.args # not mutable, needn't copy; always present even if not self.has_args (for convenience, here & in replace)
@@ -115,7 +114,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         """[private]
         Destructively modify self, an expr, customizing it with the formulas represented by the given keyword arguments.
         """
-        assert not self.is_instance
+        assert not self._e_is_instance
         # self._e_formula_dict dict is owned by every non-instance customized expr (inefficient?)
         # but it's shared by Instances and their expr templates
         from Exprs import canon_expr
@@ -128,7 +127,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         """[private]
         Destructively modify self, an expr, supplying it with the given argument formulas.
         """
-        assert not self.is_instance
+        assert not self._e_is_instance
         assert not self.has_args
         self.has_args = True # useful in case args is (), though hasattr(self, 'args') might be good enough too #e
 
@@ -183,7 +182,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         "Instantiate self in env, at the given index-path."
         # no need to copy the formulas or args, since they're shared among all instances, so don't call self._copy.
         # instead, make a new instance in a similar way.
-        assert not self.is_instance
+        assert not self._e_is_instance
         return self.__class__(_make_in = (self,env,ipath)) # this calls _destructive_make_in on the new instance
     def _destructive_make_in(self, data):
         """[private]
@@ -192,9 +191,9 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         Called only from __init__, when self knows nothing except its class.
         """
         expr, env, ipath = data ###@@@ might want to split env into rules (incl lexenv) & place (incl staterefs, glpane)
-        assert not self.is_instance #e remove when works
-        assert not expr.is_instance
-        self.is_instance = True
+        assert not self._e_is_instance #e remove when works
+        assert not expr._e_is_instance
+        self._e_is_instance = True
 
         self.env = env #k ok, or does it need modification of some kind? btw is a state index passed in separately? set self.index??
         ####@@@@
@@ -259,7 +258,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         pass
 
     def _e_eval(self, env, ipath):
-        assert self.is_instance, "%r._e_eval asserts it's an Instance... not sure this is an error, it's just unexpected" % self ###@@@
+        assert self._e_is_instance, "%r._e_eval asserts it's an Instance... not sure this is an error, it's just unexpected" % self ###@@@
         printnim("Instance eval doesn't yet handle _value or If") ###@@@
         return self # true for most of them, false for the ones that have _value (like Boxed) or for If ####@@@@
     pass # end of class InstanceOrExpr
@@ -327,7 +326,7 @@ class GlueCodeMemoizer( DelegatingInstanceOrExpr): ##e rename WrapperMemoizer? W
     def _C__dict_of_lvals(self): #e rename self._dict_of_lvals -- it holds lvals for recomputing/memoizing our glue objects, keyed by inner objects
         ##e assert the value we're about to return will never need recomputing?
         # this method is just a way to init this constant (tho mutable) attr, without overriding _init_instance.
-        assert self.is_instance
+        assert self._e_is_instance
         return LvalDict( self._recomputer_for_wrapped_version_of_one_instance)
             #e make a variant of LvalDict that accepts _make_wrapped_obj directly?? I think I did, LvalDict2 -- try it here ####@@@@
         ## try this: return LvalDict2( self._make_wrapped_obj ) # then zap _recomputer_for_wrapped_version_of_one_instance ####e

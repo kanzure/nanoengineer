@@ -139,9 +139,14 @@ from env import seen_before
 from debug import print_compact_traceback
 
 # from this exprs package in cad/src
-from lvals import Lval, LvalDict2 ### make reloadable? I'm not sure if *this* module supports reload. ##k
+###e make reloadable? I'm not sure if *this* module supports reload. ##k
+#e if it does, we should make all but basic reloadable here.
+
+from lvals import Lval, LvalDict2 
 
 from basic import printnim # this is a recursive import -- most things in basic are not defined yet
+
+from Exprs import * # we need a handful of things, but no harm in grabbing them all.
 
 # ==
 
@@ -338,13 +343,16 @@ class C_rule_for_formula(C_rule):
 
 def choose_C_rule_for_val(clsname, attr, val, **kws):
     "return a new object made from the correct one of C_rule_for_method or C_rule_for_formula, depending on val"
-    if is_formula(val):
+    if is_pure_expr(val):
         # assume val is a formula on _self
         # first scan it for subformulas that need replacement, and return replaced version, also recording info in scanner
         scanner = kws.pop('formula_scanner', None)
         if scanner:
             val = scanner.scan(val, attr) #e more args?
         return C_rule_for_formula(clsname, attr, val, **kws)
+    elif is_expr(val):
+        printnim("Instance case needs review in choose_C_rule_for_val") # does this ever happen? in theory, it can... (dep on is_special)
+        return val ###k not sure caller can take this
     #e support constant val?? not for now.
     else:
         return C_rule_for_method(clsname, attr, **kws)
@@ -455,7 +463,6 @@ def prefix_nothing(clsname, attr0, val, **kws):
 
 def prefix_DEFAULT_(clsname, attr0, val, **kws):
     "WARNING: caller has to also know something about _DEFAULT_, since it declares attr0 as an option"
-    from Exprs import canon_expr #k ok this early, w/o recursive import problem? guess yes, guess this module already deps on Exprs.#k
     val = canon_expr(val) # needed even for constant val, so instance rules will detect overrides in those instances
         ##e could optim somehow, for instances of exprs that didn't do an override for attr0
     assert is_formula(val) # make sure old code would now always do the following, as we do for now:
@@ -491,18 +498,14 @@ def attr_prefix(attr): # needn't be fast
 
 def val_is_special(val): #e rename... or, maybe it'll be obs soon?
     "val is special if it's a formula in _self, i.e. is an instance (not subclass!) of Expr, and contains _self as a free variable."
-    from Exprs import Expr # let's hope it's reloaded by now, if it's going to be ... hmm, we run during import so we can't assume that.
-    return isinstance(val, Expr) and val._e_free_in('_self')
+    return is_Expr_pyinstance(val) and val._e_free_in('_self')
         ## outtake: and val.has_args [or more likely, and val._e_has_args]
         ## outtake: hasattr(val, '_e_compute_method') # this was also true for classes
     ##e 061101: we'll probably call val to ask it in a fancier way... not sure... Instance/Arg/Option might not need this
     # if they *turn into* a _self expr! See other comments with this date [i hope they have it anyway]
 
-def is_formula(val):
-    return hasattr(val, '_e_compute_method')
-        ###e improve? this is like isinstance(val, Expr) or issubclass(val, Expr) but works even if Expr reloaded; maybe ok
-        ### don't I have that very code this is like, somewhere? Yes, see issubclass in canon_expr,
-        # but note it has to do a pretest before calling that!
+
+is_formula = is_Expr #####e review these -- a lot of them need more cases anyway
 
 # ==
     
@@ -670,6 +673,10 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             # or thought this through at all re them; maybe this scanner handles them too... s##e
             # [061101]
         #e if not a formula or C_rule, asfail or do nothing
+        if 1:
+            new_order = expr_serno(formula)
+            assert new_order > self.seen_order, 'you have to sort them before calling me'
+            self.seen_order = new_order
         res = self.replacement_subexpr(formula)
         # register formula to be replaced if found later in the same class definition [#e only if it's the right type??]
         if formula in self.replacements:
@@ -689,12 +696,12 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
         if subexpr in self.replacements: # looked up by id(), I hope ###k
             return self.replacements[subexpr]
         ###e can we find an Instance here?? assume no, for now.
-        assert not getattr(subexpr, 'is_instance', False) # Exprs don't have this attr at all
+        assert not expr_is_Instance(subexpr)
         printnim("I bet InstanceOrExpr is going to need arb getattr when Expr, and _e_ before all methodnames.... see code cmt")
             #### PROBLEM re that printnim:
             # attr1 = Rect(...); attr2 = attr1.width -- this does a getattr that will fail in current code --
             # or might return something like a bound method (or C_rule or whatever it returns).
-            # [###e C_rule better detect this error, when is_instance false in it -- i bet it does...
+            # [###e C_rule better detect this error, when _e_is_instance false in it -- i bet it does...
             #  yes, it does it inside _e_compute_method.]
             # BUT it might be illegal anyway, if we needed to say instead attr1 = Instance(Rect(...)) for that to work,
             # with Instance (or Arg or Option) effectively returning something like a Symbol

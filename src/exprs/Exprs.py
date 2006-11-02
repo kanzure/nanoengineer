@@ -1,18 +1,70 @@
 '''
-Exprs.py
+Exprs.py -- class Expr, and related subclasses and utilities, other than those involving Instances
 
 $Id$
 '''    
 
-try:
-    _reload_ok
-except:
-    _reload_ok = False # can be redefined at runtime from a debugger, but reload will probably lead to bugs.
-    # this will prevent reload_once from actually reloading it
-else:
-    assert _reload_ok, "Exprs module is not allowed to be reloaded, since we test for isinstance(val, Expr) while other modules get imported!"
+# note: this module should not import ExprsMeta, though its InstanceOrExpr subclass needs to (in another module).
+# instead, it is probably fully imported by ExprsMeta, and certainly by basic.
+
+#e want __all__? would contain most of it.
+
+# as of 061102 this module is probably reloadable:
+##try:
+##    _reload_ok
+##except:
+##    _reload_ok = False # can be redefined at runtime from a debugger, but reload will probably lead to bugs.
+##    # this will prevent reload_once from actually reloading it
+##else:
+##    ###@@@ #k maybe no longer needed soon? [061102]
+##    assert _reload_ok, "Exprs module is not allowed to be reloaded, since we test for isinstance(val, Expr) while other modules get imported!"
 
 from basic import printnim # this may be a recursive import (with most things in basic not yet defined)
+
+# == serial numbers (along with code in Expr.__init__)
+
+_next_e_serno = 1 # incremented after being used in each new Expr instance (whether or not _e_is_instance is true for it)
+    ###e should we make it allocated in Expr subclasses too, by ExprsMeta, and unique in them?
+
+def expr_serno(expr):
+    """Return the unique serial number of any Expr (except that Expr python subclasses all return 0).
+    Non-Exprs all return -1.
+    """
+    try:
+        return expr._e_serno # what if expr is a class? is this 0 for all of those?? yes for now. ###k
+    except:
+        assert not is_Expr(expr)
+        printnim("Maybe this never happens -- non-Expr in expr_serno")
+        #e assert(0)??
+        return -1
+    pass
+
+# == predicates
+
+def is_Expr(expr):
+    "is expr an Expr -- meaning, a subclass or instance of class Expr? (Can be true even if it's also considered an Instance.)"
+    return hasattr(expr, '_e_serno')
+
+def is_pure_expr(expr):
+    "is expr an Expr (py class or py instance), but not an Instance?" 
+    return is_Expr(expr) and not expr_is_Instance(expr)
+
+def expr_is_Instance(expr):
+    "is an Expr an Instance?"
+    res = expr._e_is_instance
+    assert res is False or res is True
+    return res
+
+def is_Expr_pyinstance(expr):
+    """Is expr an Expr python instance (not an Expr subclass)?
+    (This is necessary to be sure you can safely call Expr methods on it.) 
+    [Use this instead of isinstance(Expr) in case Expr module was reloaded.]
+    """
+    return is_Expr(expr) and is_Expr(expr.__class__)
+
+# ==
+
+printnim("Expr __init__ and __call__ need serno handling")####@@@@
 
 class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs  ####@@@@ MERGE with InstanceOrExpr, or super it
     """abstract class for symbolic expressions that python parser can build for us,
@@ -32,6 +84,8 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
     tracking usage of env attrs so an external system can know when the return value becomes invalid;
     - 
     """
+    _e_is_instance = False # override in certain subclasses or instances ###IMPLEM
+    _e_serno = 0 ###k guess; since Expr subclasses count as exprs, they all have a serno of 0 (I hope this is ok)
     _e_has_args = False # subclass __init__ or other methods must set this True when it's correct... ###nim, not sure well-defined
         # (though it might be definable as whether any __init__ or __call__ had nonempty args or empty kws)
         # (but bare symbols don't need args so they would have this True as well)
@@ -75,7 +129,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         # if so, who scans the expr to see if it's pure (no need for ipath or full env)? does expr track this as we build it?
 
         # try 2 061027 late:
-        assert instance.is_instance, "compute method asked for on non-instance %r" % (instance,) # happens if a kid is non-instantiated(?)
+        assert instance._e_is_instance, "compute method asked for on non-Instance %r" % (instance,) # happens if a kid is non-instantiated(?)
         env0 = instance.env # fyi: AttributeError for a pure expr (ie a non-instance)
         env = env0.with_literal_lexmods(_self = instance)
         ipath0 = instance.ipath ####k not yet defined i bet... funny, it didn't seem to crash from this -- did i really test it??
@@ -250,11 +304,11 @@ class add_Expr(OpExpr):
 ##        return self.kids[0].value + self.kids[1].value
     def _make_in_WRONG(self, place, ipath): #### WRONG (see below), really more like _init_instance, called by common _destructive_make_in
         ###WRONG args (maybe -- place -> env??), and defined in wrong class (common to all OpExprs or exprs with fixed kids arrays),
-        ###and attrs used here (kids, args, maybe even is_instance) might need _e_ (??),
+        ###and attrs used here (kids, args, maybe even _e_is_instance) might need _e_ (??),
         ### and maybe OpExprs never need ipath or place, just env
         ###    (for symbol lookup when they include symbols? or did replacement already happen to make self understood??)
         ### and WORST OF ALL, it's actually a destructive make -- maybe it's _init_instance, called by common _destructive_make_in .
-        assert not self.is_instance ###@@@ need to be in InstanceOrExpr superclass for this
+        assert not self._e_is_instance ###@@@ need to be in InstanceOrExpr superclass for this [obs cmt??061102]
         # following says place._make_in but probably means env.make! [061020 guess]
         ##self.kids = map(place._make_in, self.args.items()) # hmm, items have index->expr already -- but this leaves out ipath
         args = self._e_args
@@ -308,18 +362,17 @@ class constant_Expr(Expr): ###k super is not quite right -- we want some things 
 
 def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py says that env.understand_expr should call this...
     "Make subexpr an Expr, if it's not already. (In future, we might also intern it.)"
-    if isinstance(subexpr, Expr): #### see also is_formula in ExprsMeta -- should we just use that here?? guess yes. #####@@@@@
-        return subexpr
-    ## elif issubclass(subexpr, Expr): # TypeError: issubclass() arg 1 must be a class
-    elif isinstance(subexpr, type) and issubclass(subexpr, Expr):
-        return subexpr # for _TYPE_xxx = Widget2D, etc -- is it ever not ok? ####k
+    if is_Expr(subexpr):
+        return subexpr # true for Instances too -- ok??
+##    ## elif issubclass(subexpr, Expr): # TypeError: issubclass() arg 1 must be a class
+##    elif isinstance(subexpr, type) and issubclass(subexpr, Expr):
+##        return subexpr # for _TYPE_xxx = Widget2D, etc -- is it ever not ok? ####k
     elif isinstance(subexpr, type([])):
         return list_Expr(*subexpr) ###k is this always correct? or only in certain contexts??
             # could be always ok if list_Expr is smart enough to revert back to a list sometimes.
         #e analogous things for tuple and/or dict? not sure. or for other classes which mark themselves somehow??
     else:
-        # assert it's not various common errors, like expr classes or not-properly-reloaded exprs
-        assert not hasattr(subexpr, '_e_compute_method'), "subexpr seems bad: %r" % (subexpr,) ###e better choice of method to look for?
+        #e assert it's not various common errors, like expr classes or not-properly-reloaded exprs
         #e more checks?
         # assume it's a python constant
         #e later add checks for its type, sort of like we'd use in same_vals or so... in fact, how about this?
@@ -379,14 +432,6 @@ class Symbol(SymbolicExpr):
         """
         return (sym is self) or (sym == self._e_name)
     pass
-
-# ==
-
-def is_expr(expr):
-    """Is the argument an Expr (class or python instance), but not an Instance?"""
-    printnim("merge is_expr with is_formula and any uses of issubclass or isinstance for Expr; review non-Instance aspect")
-    assert 0, "nim"####@@@@
-    return False
 
 # ==
 
@@ -473,7 +518,7 @@ ArgOrOption = stub # code this only after the above two are merged
 def canon_type(type_expr):#stub
     "Return a symbolic expr representing a type for coercion"
     printnim("canon_type is a stub; got %r" % type_expr)
-    assert is_expr(type_expr)
+    assert is_pure_expr(type_expr)
     return type_expr #stub; needs to work for builtin types like int, or helper classes that are types like Widget (or Rect??)
     # note that the retval will get called to build an expr, thus needs to be in SymbolicExpr -- will that be true of eg CLE?
     # if not, then some InstanceOrExpr objs need __call__ too, or constructor needs to return a SymbolicExpr, or so.
