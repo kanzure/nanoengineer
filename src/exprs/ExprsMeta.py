@@ -697,17 +697,17 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             new_order = expr_serno(formula)
             assert new_order >= self.seen_order, 'you have to sort vals before calling me'
             if new_order == self.seen_order > 0:
-                error_if_Arg_or_Option = True #doc ###IMPLEM its effect; is it really just an error about _attr?? not sure.
+                error_if_Arg_or_Option = True #doc ###IMPLEM its effect; is it really just an error about _E_ATTR?? not sure.
             self.seen_order = new_order
             pass
-        from __Symbols__ import _attr ###e rename to more private name, like _E_attr or _E_ATTR_?
-        self.replacements[_attr] = constant_Expr(attr) # this allows formulas created by Option to find out the attr they're on
+        from __Symbols__ import _E_ATTR 
+        self.replacements[_E_ATTR] = constant_Expr(attr) # this allows formulas created by Option to find out the attr they're on
         printnim("we need some scheme to detect two attrs with the same val, if that val contains an Arg or Option subexpr")
             # once vals are sorted, these are easy to see (they're successive)... we exploit that above, to set error_if_Arg_or_Option
         if error_if_Arg_or_Option:
-            del self.replacements[_attr] ###KLUGE -- at least this ought to cause an error, eventually & hard to understand
+            del self.replacements[_E_ATTR] ###KLUGE -- at least this ought to cause an error, eventually & hard to understand
                 # but under the right conditions... #e instead we need to put in a "replacement it's an error to use".
-                ###WRONG since Arg doesn't put in the symbol _attr, I think... what's ambiguous for it is, ref same arg, or another Arg?
+                ###WRONG since Arg doesn't put in the symbol _E_ATTR, I think... what's ambiguous for it is, ref same arg, or another Arg?
                 ##e to fix, use a scheme we need anyway -- a thing in the expr which runs code when we scan it, to get its replace-val.
                 # (Can that be an effect of doing constant-folding if replace-vals are constants, incl funcs being called on args??)
         res = self.replacement_subexpr(formula)
@@ -740,7 +740,7 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             # with Instance (or Arg or Option) effectively returning something like a Symbol
             # (representing a _self-specific instance, like _self does) -- in fact [061101],
             # Instance(expr) might immediately return something like
-            # _self._instances( relindex-incl-attr-and-formula-subexpr-index, expr )
+            # _self._i_instances( relindex-incl-attr-and-formula-subexpr-index, expr )
             # or maybe that relindex can itself just be a symbol, so it can be put in easily and replaced later in a simple way.
             
         # otherwise assume it's a formula

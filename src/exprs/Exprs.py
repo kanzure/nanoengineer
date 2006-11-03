@@ -151,6 +151,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         '''
         if obj is None:
             return self
+        #e following error message text needs clarification -- when it comes out of the blue it's hard to understand
         print "__get__ is nim in the Expr", self, ", which is assigned to some attr in", obj ####@@@@ NIM; see above for how [061023 or 24]
         print "this formula needed wrapping by ExprsMeta to become a compute rule..." ####@@@@
         return
@@ -249,8 +250,11 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
     def __call__(self, *args, **kws):
         # print '__call__ of %r with:' % self,args,kws###@@@
         return call_Expr(self, *args, **kws)
-    def __getattr__(self, attr):###
-        if attr.startswith('__') or attr.startswith('_e_'):
+    def __getattr__(self, attr):
+        if attr.startswith('__') or attr.startswith('_e_') or attr.startswith('_i_'):
+            # We won't pretend to find special python attrs like __repr__,
+            # or Expr methods/attrs starting _e_ (also used in Instances),
+            # or Instance ones starting _i_.
             raise AttributeError, attr 
         return getattr_Expr(self, attr)
     pass
@@ -515,17 +519,20 @@ _self.attr1.attr2
 ##assert _self2 is _self # i bet this will fail; if so, just import __Symbols__ right here [but make it work someday ##e]
 
 del _self
-from __Symbols__ import _self, _attr, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
+
+# Symbols for public & private use
+from __Symbols__ import _self
+from __Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
     # this imports this Exprs module recursively, but requires nothing below this point in this module, so it should be ok
 
 # some essential macros: Instance, Arg, Option, ArgOrOption
 
-def Instance(expr, index_or_its_sym = _attr):
-    """Assuming the arg is an expr (not yet checked?), turn into the expr _self._instances(_attr, expr),
-    which is free in the symbols _self and _attr. [#e _attr might be changed to _index, or otherwise revised.]
+def Instance(expr, index_or_its_sym = _E_ATTR):
+    """Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instances(_E_ATTR, expr),
+    which is free in the symbols _self and _E_ATTR. [#e _E_ATTR might be changed to _E_INDEX, or otherwise revised.]
     """
     global _self # not needed, just fyi
-    return call_Expr( _self._instances, index_or_its_sym, expr)
+    return call_Expr( _self._i_instances, index_or_its_sym, expr)
 
 _arg_order_counter = 0
 
@@ -534,7 +541,7 @@ _arg_order_counter = 0
 # they need it to calc the index to use, esp for ArgOrOption if it depends on how the arg was supplied
 # (unless we implem that using an If or using default expr saying "look in the option" -- consider those!)
 
-def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM _E_REQUIRED_ARG_ - do we tell _instances somehow?
+def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM _E_REQUIRED_ARG_ - do we tell _i_instances somehow?
     """To declare an Instance-argument in an expr class,
     use an assignment like this, directly in the class namespace:
           attr = Arg( type, optional default value )
@@ -555,21 +562,21 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM 
         ##e what it ought to be: a special thing to be noticed by the FormulaScanner and replaced with the actual order
         # within that class (but the same within any single attr). It can do that by scanning values in order.
         # it has to worry about two vals the same, since then two attrs have equal claim... 
-    attr_expr = _attr_expr # None by default, since _attr doesn't affect index for Arg
+    attr_expr = _attr_expr # None by default, since _E_ATTR (the attr we're on) shouldn't affect the index for Arg
     return _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr)
 
-def _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr ):###IMPLEM _grabarg, _grabarg_index, _attr, _instances
+def _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr ):###IMPLEM _i_grabarg, _i_grabarg_index, _E_ATTR, _i_instances
     "[private helper for Arg, Option, and maybe ArgOrOption]"
     global _self # fyi
     type_expr = canon_type( type_expr)
     if dflt_expr is _E_DFLT_FROM_TYPE_:
         dflt_expr = default_expr_from_type_expr( type_expr)
-    ## grabarg_expr = _self._grabarg(       attr_expr, arg_order_expr, dflt_expr )
+    ## grabarg_expr = _self._i_grabarg(       attr_expr, arg_order_expr, dflt_expr )
         ## AssertionError: getattr exprs are not callable [ok??] [yes, it catches errors that would be hard to diagnose otherwise]
-    ##e do we rename _instances & _grabarg to start _i_, since only defined on Instances, make _i_ also specialcase in __getattr__,
+    ##e do we rename _i_instances & _i_grabarg to start _i_, since only defined on Instances, make _i_ also specialcase in __getattr__,
     # and thus need to use getattr_Expr here for them? guess: yes. renaming is easy [but nim], rest can wait.
-    grabarg_expr = call_Expr( _self._grabarg,       attr_expr, arg_order_expr, dflt_expr )
-    index_expr   = call_Expr( _self._grabarg_index, attr_expr, arg_order_expr )
+    grabarg_expr = call_Expr( _self._i_grabarg,       attr_expr, arg_order_expr, dflt_expr )
+    index_expr   = call_Expr( _self._i_grabarg_index, attr_expr, arg_order_expr )
     return Instance( type_expr( grabarg_expr), index_or_its_sym = index_expr )
 
 def Option( type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
@@ -582,15 +589,15 @@ def Option( type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
     will be attr (the attribute name).
        If the default value is needed and not supplied, it comes from the type.
     """
-    global _attr # fyi
+    global _E_ATTR # fyi
     arg_order_expr = None
-    attr_expr = _attr
+    attr_expr = _E_ATTR
     return _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr)    
 
 def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
     "#doc; index contains both attr and argpos; error to use plain Arg after this in same class (maybe not detected)"
-    global _attr # fyi
-    attr_expr = _attr
+    global _E_ATTR # fyi
+    attr_expr = _E_ATTR
     return Arg( type_expr, dflt_expr, _attr_expr = attr_expr)
 
 def canon_type(type_expr):###stub

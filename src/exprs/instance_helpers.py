@@ -16,7 +16,7 @@ from Exprs import * # at least Expr; note, basic now does this anyway
 
 # ==
 
-class Instance:#k super? meta?
+class Instance:#k super? meta? [#obs -- as of 061103 i am guessing this will completely disappear -- but i'm not sure]
     "support all behavior needed by pure instances #[doc better] (which may or may not also be Exprs)"
     # WARNING: much of the code in InstanceOrExpr might belong here. OTOH it might not make sense to split this out,
     # since no method here can assume self is not a noninstance expr, even a method of this class, since self might be InstanceOrExpr.
@@ -24,19 +24,39 @@ class Instance:#k super? meta?
     # rename? Instance, FormulaInstance... note also Expr, ExprHelper can be instances
     pass
 
-class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depending on how inited, whether args are insts
-    #e rename: ExprOrInstance? PatternOrThing? 
-    """Main superclass for specific kinds of "exprs and instances", e.g. Column, Rect, If, etc. See elsewhere for general explanation [#nim].
-    Kluges:
-    - We act like an Expr or an Instance depending on self._e_is_instance,
-    which is constant after initialization, but not just after __init__, since caller of __init__ also does some initialization.
-    Many methods either assert a specific state for self._e_is_instance, or branch on it.
-    The reason is not obviously good enough to justify the bug risk and unclarity; it's to permit the same class
-    (with one nice name in the global module namespace) to both contain the default instance implem code for an exprhead
-    (with that code written as if self was the instance, and (to avoid unpleasant surprises) with that being true),
-    and to serve as the expr constructor for that exprhead. 
+class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basic kluge of using one class for both
+    """Main superclass for specific kinds of Instance classes whose python instances can be either Instances or Exprs,
+    and (more importantly for the user) whose use as a constructor usually constructs an Expr.
+    Used (for example) for Column, Rect, If, Widget2D, etc. See elsewhere for general explanation [#nim].
+       The rest of this docstring discusses some fine points of the class semantics and implementation,
+    and possible changes to them.
+       Kluge: the same class is used to represent both Exprs and Instances of the same type; the difference is encoded
+    in self._e_is_instance, and is constant throughout one python-instance's lifetime (after it's fully constructed,
+    which means, after __init__ and perhaps after immediately subsequent private methods in another Expr which created it).
+    Many methods either assert a specific state for self._e_is_instance, or branch on it (or ought to #e).
+       Pro: developer can create and use just one class, e.g. Rect, needing no other setup/registration except defining it,
+    to both hold the Rect Instance methods, and serve as the Rect Expr constructor. The Instance methods can be written
+    (after an initial assertion) as if self is the Instance (as opposed to self.instance, or some argument they receive),
+    and (to avoid unpleasant surprises) that's actually true. And the class as constructor always constructs a Python instance
+    of itself, as one would expect.
+       Con: the Instance methods could be accidently requested in an Expr version, or vice versa; their very presence
+    might mess up some semantics, since it's generally bad if expr.attr does anything except construct a getattr_Expr.
+    The motivations above are not obviously good enough to justify the bug risk and internal-method unclarity.
+       Possible issues in present implem: constant_Expr(10) is in some sense both an Expr *and* an Instance. The predicates
+    don't yet account for this. And logic bugs in the whole scheme may yet show up.
+       Possible alternative: these classes could represent only Instances, but still be usable as Expr constructors,
+    by having __new__ create a separate (nim) ExprForInstanceOrExpr object which is not a subclass of this class,
+    but which knows which subclass of this class to create when it needs to make Instances from itself. If this was done,
+    much of the code in this specific class InstanceOrExpr would be moved to ExprForInstanceOrExpr, which might be renamed
+    to be more general since it would really apply to any Expr which can be called, remaining an Expr but having its
+    option formulas customized or its arg formulas supplied, and can then later be instantiated in an env to produce
+    a specific Instance based on those formulas.
     """
     __metaclass__ = ExprsMeta
+    #e rename to: ExprOrInstance?
+    #  [maybe, until i rename Instance, if i do... con side: most methods in each one are mainly for Instance, except arg decls,
+    #   and even they can be thought of mostly as per-instance-evalled formulas. So when coding it, think Instance first.]
+    # PatternOrThing?[no]
     ### WARNING: instantiate normally lets parent env determine kid env... if arg is inst this seems reversed...
     # may only be ok if parent doesn't want to modify lexenv for kid.
     ## _e_is_instance = False # now done in class Expr # usually overridden in certain python instances, not in subclasses
@@ -243,6 +263,8 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         printonce("setup state refs is nim in instance_helpers")#####@@@@@
 
         #e call _init_class and/or _init_expr if needed [here or more likely earlier]
+
+        self._i_instance_exprs = {}
         
         # call subclass-specific instantiation code (it should make kids, perhaps lazily, if above didn't; anything else?? ###@@@)
         self._init_instance()
@@ -268,6 +290,43 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         assert self._e_is_instance, "%r._e_eval asserts it's an Instance... not sure this is an error, it's just unexpected" % self ###@@@
         printnim("Instance eval doesn't yet handle _value or If") ###@@@
         return self # true for most of them, false for the ones that have _value (like Boxed) or for If ####@@@@
+
+    # kid-instantiation, to support use of Arg, Option, Instance, etc
+    #k (not sure this is not needed in some other classes too, but all known needs are here)
+    ###IMPLEM _i_instance, _i_grabarg, _i_grabarg_index -- or the like -- i bet the index will be computed properly for _i_grabarg
+    # by a lambda evalled by FormulaScanner; grabarg just finds arg expr in _e_args or _e_kws, caller does it and passes expr
+    # to _i_instance, or Instance macro passes expr directly
+    
+    def _i_instance( self, expr, index ): ##k args
+        """[semi-private; used by macros like Instance, Arg, Option]
+        Find or create (or perhaps recompute if invalid, but only the latest version is memoized) (and return)
+        an Instance of expr, contained in self, at the given relative index, and in the same env [#e generalize env later?].
+           Error (perhaps not detected) if called with same index and different other args;
+        when a cached instance is returned, the other args are not used except perhaps to check for this error.
+        (When an instance is recomputed, if this error happens, are new args used? undefined.)
+        (#e Should we change this to make the expr effectively part of the index, for caching? Probably not; not sure.)
+        (#e Should we change this to make it legal to pass a new expr? Probably not... hard for subsequent callers to be consistent...)
+        """
+        # hmm, calling Instance macro evals the expr first... can't it turn out that it changes over time?
+        # I think yes... not only that, a lot of change in it should be buried inside the instance! (if it's in an arg formula)
+        # as if we need to "instantiate the expr" before actually passing it... hmm, if so this is a SERIOUS LOGIC BUG. ####@@@@
+        # WAIT -- can it be that the expr never changes? only its value does? and that we should pass the unevaluated expr? YES.
+        # But i forgot, eval of an expr is that expr! I get confused since _e_eval evals an implicit instance -- rename it soon! ###@@@
+        oldexpr = self._i_instance_exprs.get(index, None) # see above comment
+        if oldexpr is not expr:
+            if oldexpr is not None:
+                print "bug: expr for instance changed",self,index,expr #e more info? i think this is an error and should not happen normally
+                #e if it does happen, should we inval that instance? yes, if this ever happens without error.
+            self._i_instance_exprs[index] = expr
+        return self._i_instances_CVdict[index] # takes care of invals in making process? or are they impossible? ##k
+    def _CV__i_instances_CVdict(self, index):
+        "[private] value recompute function for self._i_instances_CVdict"
+        # fyi: the glue code added by _CV_ from self._i_instances_CVdict to this method (by ExprsMeta) uses LvalDict2
+        # to cache values computed by this method, and recompute them if needed (which may never happen, I'm not sure).
+        # Note: the access to self._i_instance_exprs[index] is not usage tracked;
+        # thus if we change it above w/o error, an inval is needed.
+        nim stub, and where i am
+        self._i_instance_exprs[index]
     pass # end of class InstanceOrExpr
 
 ##### CANNIBALIZE THESE RELATED SNIPPETS to fill in InstanceOrExpr: Drawable_obs, old class xxx
