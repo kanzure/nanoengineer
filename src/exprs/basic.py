@@ -120,12 +120,13 @@ trans_green = translucent_color(green)
 
 NullIpath = None ###STUB, refile, rename
 
-def Arg(type1 = None, dflt = None):
-    from Exprs import Symbol
-    return Symbol('_some_Arg')
+##def Arg(type1 = None, dflt = None):
+##    from Exprs import Symbol
+##    return Symbol('_some_Arg')
+##
+##Option = Arg #stub
+##ArgOrOption = Arg #stub, means it can be given positionally or using its attrname
 
-Option = Arg #stub
-ArgOrOption = Arg #stub, means it can be given positionally or using its attrname
 #e Instance too, for internal use? Arg & Option instantiate by default (lazily), so does Instance in same way (fewer other effects).
 #e ProducerOf? ExprFor?
 

@@ -609,24 +609,28 @@ class ExprsMeta(type):
                          name, orig_ns_keys )
                 #e change that to a less harmless warning?
             prefix, val = lis[0]
-            newitems.append( (expr_serno(val), prefix, val) )
-            del prefix, val
+            newitems.append( (expr_serno(val), prefix, attr0, val) )
+            del prefix, val, attr0, lis
         del data_for_attr
         # sort vals by their expr_serno
         newitems.sort()
+        ## print "newitems for class %s:" % name, newitems # this can print a lot, since single Expr vals can have long reprs
         # process the vals assigned to certain attrs, and assign them to the correct attrs even if they were prefixed
         scanner = FormulaScanner() # this processes formulas by fixing them up where their source refers directly to an attr
             # defined by another (earlier) formula in the same class, or (#nim, maybe) in a superclass (by supername.attr).
             # It replaces a direct ref to attr (which it sees as a ref to its assigned formula value, in unprocessed form,
             # since python eval turns it into that before we see it) with the formula _self.attr (which can also be used directly).
             # Maybe it will replace supername.attr as described in a comment inside FormulaScanner. #e
-        for junk, prefix, val in newitems:            
+        for junk, prefix, attr0, val in newitems:
+            del junk
             # prefix might be anything in prefix_map (including ''), and should control how val gets processed for assignment to attr0.
             processor = prefix_map[prefix]
             val0 = processor(name, attr0, val, formula_scanner_DISABLED = scanner) # note, this creates a C_rule (or the like) for each formula
             printnim("enable formula_scanner") # by removing that _DISABLED [061101]
             ns[attr0] = val0
             processed_vals.append(val0) # (for use with __set_cls below)
+            del prefix, attr0, val
+        del newitems
         # create the new class object
         res = super(ExprsMeta, cls).__new__(cls, name, bases, ns)
         assert res.__name__ == name #k

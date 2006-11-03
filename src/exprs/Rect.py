@@ -23,23 +23,14 @@ class Rect(Widget2D):
     """
     # arguments (order, type, defaults)
     _args = ('width', 'height', 'color')
-    _TYPE_width = _TYPE_height = Width # renamed ARGTYPE to TYPE since it needn't only apply to args, but to any named computed attr
+    _TYPE_width = _TYPE_height = Width
     _TYPE_color = Color
     _DEFAULT_color = gray #e (in future, these defaults can be overridden by the rule env)
     _DEFAULT_height = _self.width # (a formula involving attrs of _self)
     _DEFAULT_width = 10 # pixels (??)
     
-    # set up formulas for layout box attrs (bright and btop) in terms of width & height
-    # (basically: bright = width, btop = height)
-
-    #####@@@@@ make these _DEFAULT_ so Rect can be customized to make them differ? #e If so, what's notation for pre-custom value?
-    
-    bright = _self.width # a _C_attr can either be a method (compute rule), or a formula on _self (like here) --
-        # but if it's a formula, it can just be stored on the attr itself, as a descriptor! See notesfile 061024 for discussion.
-        ####@@@@ _C_attr being formula is nim; if it's a py constant like 0 below (a degenerate formula), is that ambiguous?
-        # If so, maybe wrap it with something when it's a formula? (or when it's a callable but not a compute method?)
-        # related: if it's a callable, do we say it's a constant callable or do we treat that callable as the compute method?
-        # also related (but a digr): to denote a formula sin(_self.xx), can we replace sin with something.sin?
+    # formulas for layout box attrs
+    bright = _self.width 
     btop = _self.height
     # fyi, these are not needed (same as the defaults in Widget2D):
     bbottom = 0
@@ -58,7 +49,11 @@ class Rect2(Widget2D): # this is Rect in a newer syntax, not yet working as of 0
     height = Arg(Width, width)
     color = ArgOrOption(Color, gray)
     # formulas
-    bright = width
+    bright = width ######@@@@@ PROBLEM: in ns, width and bright will have same value, no ordering possible -- how can it tell
+        # which one should be used to name the arg? It can't, so it'll need to detect this error and make you use _self. prefix.
+        # (in theory, if it could scan source code, or turn on debugging during class imports, it could figure this out...
+        #  or you could put the argname in Arg or have an _args decl... but I think just using _self.attr in these cases is simpler.)
+    printnim("make sure it complains about bright and width here")
     btop = height
     # fyi, these are not needed (same as the defaults in Widget2D):
     bbottom = 0
@@ -69,9 +64,20 @@ class Rect2(Widget2D): # this is Rect in a newer syntax, not yet working as of 0
         draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.fix_color(self.color)) #e move fix_color into draw_filled_rect? 
         glEnable(GL_CULL_FACE)
     pass
-    
-    
-    
+
+
+# old comments from Rect:
+#
+# a _C_attr can either be a method (compute rule), or a formula on _self (like here) --
+# but if it's a formula, it can just be stored on the attr itself, as a descriptor! See notesfile 061024 for discussion.
+####@@@@ _C_attr being formula is nim; if it's a py constant like 0 below (a degenerate formula), is that ambiguous?
+# If so, maybe wrap it with something when it's a formula? (or when it's a callable but not a compute method?)
+# related: if it's a callable, do we say it's a constant callable or do we treat that callable as the compute method?
+# also related (but a digr): to denote a formula sin(_self.xx), can we replace sin with something.sin?
+#
+# [about layout box attrs:]
+#####@@@@@ make these _DEFAULT_ so Rect can be customized to make them differ? #e If so, what's notation for pre-custom value?
+
 ##print "dir(Rect) is:",dir(Rect) #####@@@@@@
 ##for n1 in dir(Rect):
 ##    if not n1.startswith('_'):

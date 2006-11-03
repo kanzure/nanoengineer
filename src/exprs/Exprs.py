@@ -21,6 +21,16 @@ $Id$
 
 from basic import printnim, stub # this may be a recursive import (with most things in basic not yet defined)
 
+# == utilities #e refile
+
+def map_dictvals(func, dict1):
+    """This does to a dict's values what map does to lists --
+    i.e. it makes a new dict whose values v are replaced by func(v).
+    [#e If you wish func also depended on k, consider writing map_dictitems,
+     but you'll have to decide what to do about newly duplicated keys.]
+    """
+    return dict([(k,func(v)) for k,v in dict1.iteritems()])
+
 # == serial numbers (along with code in Expr.__init__)
 
 _next_e_serno = 1 # incremented after being used in each new Expr instance (whether or not _e_is_instance is true for it)
@@ -95,7 +105,11 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
     def __init__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __init__" % self.__class__.__name__
     def _init_e_serno_(self):
-        """[private -- all subclasses must call this; the error of not doing so is not directly detected]
+        """[private -- all subclasses must call this; the error of not doing so is not directly detected --
+         but if they call canon_expr on their args, they should call this AFTER that, so self._e_serno
+         will be higher than that of self's args! This may not be required for ExprsMeta sorting to work,
+         but we want it to be true anyway, and I'm not 100% sure it's not required. (Tentative proof that it's not required:
+         if you ignore serno of whatever canon_expr makes, prob only constant_Expr, then whole serno > part serno anyway.)]
         Assign a unique serial number, in order of construction of any Expr.
         FYI: This is used to sort exprs in ExprsMeta, and it's essential that the order
         matches that of the Expr constructors in the source code of the classes created by ExprsMeta
@@ -157,7 +171,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         "[often overridden by subclasses; __str__ can depend on __repr__ but not vice versa(?) (as python itself does by default(??))]"
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect) on 061016
         ## return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())
-        return "<%s at %#x>" % (self.__class__.__name__, id(self))
+        return "<%s#%d at %#x>" % (self.__class__.__name__, self._e_serno, id(self))
 ##    def __str__(self):
 ##        return "??"
     # ==
@@ -236,13 +250,13 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
 class OpExpr(SymbolicExpr):
     "Any expression formed by an operation (treated symbolically) between exprs, or exprs and constants"
     def __init__(self, *args):
-        Expr._init_e_serno_(self)
         self._e_args = tuple(map(canon_expr, args)) # tuple is required, so _e_args works directly for a format string of same length
+        Expr._init_e_serno_(self) # call this AFTER canon_expr (for sake of _e_serno order)
         self._e_init()
     def _e_init(self):
         assert 0, "subclass of OpExpr must implement this"
     def __repr__(self): # class OpExpr
-        return "<%s at %#x:%r>"% (self.__class__.__name__, id(self), self._e_args,)
+        return "<%s#%d: %r>"% (self.__class__.__name__, self._e_serno, self._e_args,)
     def _e_argval(self, i, env,ipath):
         "Return the value (evaluated each time, never cached, usage-tracked by caller) of our arg[i], in env and at (i,ipath)."
          ##e consider swapping argorder to 0,ipath,env or (0,ipath),env
@@ -262,9 +276,9 @@ class OpExpr(SymbolicExpr):
 
 class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even though it can be produced by SymbolicExpr.__call__
     def __init__(self, callee, *callargs, **kws):
-        # need to extend OpExpr. __init__ so we can have kws, and canon them
-        self._e_kws = map_dictvals(canon_expr, kws)
-        OpExpr.__init__(self, callee, *callargs)
+        # need to extend OpExpr.__init__ so we can have kws, and canon them
+        self._e_kws = map_dictvals(canon_expr, kws) ###e optim: precede by "kws and"
+        OpExpr.__init__(self, callee, *callargs) # call this AFTER you call canon_expr above (for sake of _e_serno order)
     def _e_init(self):
         ## obs: assert len(self._e_args) == 3
         ## obs: self._e_callee, self._e_call_args, self._e_call_kws = self._e_args
@@ -290,7 +304,10 @@ class getattr_Expr(OpExpr):
     def _e_init(self):
         assert len(self._e_args) == 2 #e kind of useless and slow #e should also check types?
         attr = self._e_args[1]
-        assert attr #e and assert that it's a python identifier string
+        assert attr #e and assert that it's a python identifier string? Note, it's actually a constant_Expr containing a string!
+            # And in theory it's allowed to be some other expr which evals to a string,
+            # though I don't know if we ever call it that way
+            # (and we might want to represent or print it more compactly when we don't).
     def __str__(self):
          return "%s.%s" % self._e_args #e need parens? need quoting of 2nd arg? Need to not say '.' if 2nd arg not a py-ident string?
     _e_eval_function = getattr
@@ -378,7 +395,7 @@ class constant_Expr(Expr): ###k super is not quite right -- we want some things 
         self._e_constant_value = val
         self._e_args = () # allows super _e_free_in to be correct
     def __repr__(self): # class constant_Expr
-        return "<%s at %#x:%r>"% (self.__class__.__name__, id(self), self._e_constant_value,)
+        return "<%s#%d: %r>"% (self.__class__.__name__, self._e_serno, self._e_constant_value,)
     def __str__(self):
         return "%s" % (self._e_constant_value,) #e need parens?
     def _e_eval(self, *args):
@@ -470,15 +487,17 @@ _self.attr1.attr2
 ##assert _self2 is _self # i bet this will fail; if so, just import __Symbols__ right here [but make it work someday ##e]
 
 del _self
-from __Symbols__ import _self, _attr # this imports Exprs recursively, but uses nothing below here, so should be ok
+from __Symbols__ import _self, _attr, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
+    # this imports this Exprs module recursively, but requires nothing below this point in this module, so it should be ok
 
-# some essential macros:
+# some essential macros: Instance, Arg, Option, ArgOrOption
+
 def Instance(expr, index_or_its_sym = _attr):
     """Assuming the arg is an expr (not yet checked?), turn into the expr _self._instances(_attr, expr),
     which is free in the symbols _self and _attr. [#e _attr might be changed to _index, or otherwise revised.]
     """
     global _self # not needed, just fyi
-    return _self._instances( index_or_its_sym, expr)
+    return call_Expr( _self._instances, index_or_its_sym, expr)
 
 _arg_order_counter = 0
 
@@ -487,7 +506,7 @@ _arg_order_counter = 0
 # they need it to calc the index to use, esp for ArgOrOption if it depends on how the arg was supplied
 # (unless we implem that using an If or using default expr saying "look in the option" -- consider those!)
 
-def Arg( type_expr, dflt_expr = None):
+def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM _E_REQUIRED_ARG_
     """To declare an Instance-argument in an expr class,
     use an assignment like this, directly in the class namespace:
           attr = Arg( type, optional default value )
@@ -498,31 +517,29 @@ def Arg( type_expr, dflt_expr = None):
        The index of the instance made from this optional argument
     will be its position in the arglist (whether or not the arg was supplied
     or the default value was used).
-       If the default value is needed and not supplied, it comes from the type.
+       If the default value is not supplied, there is no default value (i.e. the arg is required).
+       [_attr_expr is a private option for use by ArgOrOption.]
     """
-    global _arg_order_counter, _self
+    global _arg_order_counter
     _arg_order_counter += 1
-
-    type_expr = canon_type( type_expr)
-
     arg_order_expr = _arg_order_counter #stub; btw, this value is not really an expr, but canon_expr would fix that
     printnim("arg_order_expr is stub")
+    attr_expr = _attr_expr # None by default, since _attr doesn't affect index for Arg
+    return _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr)
 
-    attr_expr = None # since _attr doesn't affect index
-
-    if dflt_expr is None:
-        dflt_expr = default_expr_from_type_expr( type_expr) ###IMPLEM
-
+def _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr ):###IMPLEM _grabarg, _grabarg_index, _attr, _instances
+    "[private helper for Arg, Option, and maybe ArgOrOption]"
+    global _self # fyi
+    type_expr = canon_type( type_expr)
+    if dflt_expr is _E_DFLT_FROM_TYPE_:
+        dflt_expr = default_expr_from_type_expr( type_expr)
     ## grabarg_expr = _self._grabarg(       attr_expr, arg_order_expr, dflt_expr )
         ## AssertionError: getattr exprs are not callable [ok??] [yes, it catches errors that would be hard to diagnose otherwise]
-    ## index_expr   = _self._grabarg_index( attr_expr, arg_order_expr )
-    
     grabarg_expr = call_Expr( _self._grabarg,       attr_expr, arg_order_expr, dflt_expr )    
     index_expr   = call_Expr( _self._grabarg_index, attr_expr, arg_order_expr )
-
     return Instance( type_expr( grabarg_expr), index_or_its_sym = index_expr )
 
-def Option( type_expr, dflt_expr = None): ###e the body should be merged with that of Arg macro, it's very similar, also its WRONG now
+def Option( type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
     """To declare a named optional argument in an expr class,
     use an assignment like this, directly in the class namespace,
     and (by convention only?) after all the Arg macros:
@@ -532,32 +549,33 @@ def Option( type_expr, dflt_expr = None): ###e the body should be merged with th
     will be attr (the attribute name).
        If the default value is needed and not supplied, it comes from the type.
     """
-    global _self, _attr
-    
-    type_expr = canon_type( type_expr)
-
+    global _attr # fyi
     arg_order_expr = None
     attr_expr = _attr
-    
-    if dflt_expr is None:
-        dflt_expr = default_expr_from_type_expr( type_expr)
+    return _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr)    
 
-    grabarg_expr = _self._grabarg(       attr_expr, arg_order_expr, dflt_expr )
-    index_expr   = _self._grabarg_index( attr_expr, arg_order_expr )
+def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
+    "#doc; index contains both attr and argpos; error to use plain Arg after this in same class (maybe not detected)"
+    global _attr # fyi
+    attr_expr = _attr
+    return Arg( type_expr, dflt_expr, _attr_expr = attr_expr)
 
-    return Instance( type_expr( grabarg_expr), index_or_its_sym = index_expr )
-
-ArgOrOption = stub # code this only after the above two are merged
-
-def canon_type(type_expr):#stub
+def canon_type(type_expr):###stub
     "Return a symbolic expr representing a type for coercion"
-    printnim("canon_type is a stub; got %r" % type_expr)
-    assert is_pure_expr(type_expr)
-    return type_expr #stub; needs to work for builtin types like int, or helper classes that are types like Widget (or Rect??)
-    # note that the retval will get called to build an expr, thus needs to be in SymbolicExpr -- will that be true of eg CLE?
-    # if not, then some InstanceOrExpr objs need __call__ too, or constructor needs to return a SymbolicExpr, or so.
+    printnim("canon_type is a stub; got %r" % type_expr) ## so far: Widget2D, int
+    return lambda x:x #stub
+##    # special cases [nim]
+##    for k,v in {int:Int, float:Float, str:String}.iteritems():
+##        if type_expr is k:
+##            type_expr = v
+##            break
+##    ### not sure if for Widget2D or Color or Width we return that, or TypeCoercer(that), or something else
+##    assert is_pure_expr(type_expr)
+##    return type_expr #stub; needs to work for builtin types like int, or helper classes that are types like Widget (or Rect??)
+##    # note that the retval will get called to build an expr, thus needs to be in SymbolicExpr -- will that be true of eg CLE?
+##    # if not, then some InstanceOrExpr objs need __call__ too, or constructor needs to return a SymbolicExpr, or so.
 
-default_expr_from_type_expr = stub
+default_expr_from_type_expr = stub ###IMPLEM
 
 # end
 
