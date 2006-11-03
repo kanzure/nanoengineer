@@ -220,7 +220,7 @@ class ClassAttrSpecific_NonDataDescriptor(object):
             cls.__dict__[attr] = copy
             return copy.__get__(obj, cls)
         return self.get_for_our_cls(obj)
-    # we have no __set__ or __del__ methods, since we need to be a non-data descriptor.
+    # we have no __set__ or __delete__ methods, since we need to be a non-data descriptor.
     def get_for_our_cls(self, obj):
         "Subclass should implement -- do the __get__ for our class (initializing our class-specific info if necessary)"
         return None
@@ -234,7 +234,7 @@ class ClassAttrSpecific_NonDataDescriptor(object):
     pass # end of class ClassAttrSpecific_NonDataDescriptor
 
 class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
-    """Like our superclass, but has __set__ and __del__ methods so as to be a data descriptor.
+    """Like our superclass, but has __set__ and __delete__ methods so as to be a data descriptor.
     Our implems just assert 0; subclasses can override them, to work or not, but don't need to.
        WARNING: if subclasses did intend to override them, most likely they'd need overhead code like our superclass has in __get__,
     so in practice such overriding is not yet supported.
@@ -243,9 +243,9 @@ class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
     """
     def __set__(self, *args):
         assert 0, "__set__ is not yet supported in this abstract class"
-    def __del__(self, *args): ### I bet this should be __delete__ or something ###@@@@
-        print "ClassAttrSpecific_DataDescriptor.__del__ is about to assert 0 -- could this be causing those weird exceptions?" ####@@@@ did i name the method correctly? guess: no.
-        assert 0, "__del__ is not yet supported in this abstract class"
+    def __delete__(self, *args): # note: descriptor protocol wants __delete__, not __del__!
+        print "note: ClassAttrSpecific_DataDescriptor.__delete__ is about to assert 0"
+        assert 0, "__delete__ is not yet supported in this abstract class"
     pass
 
 # ==
@@ -317,6 +317,7 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
 
 # what could cause the exception listed in the last line of the following? It looks like Python printed it while freeing a C_rule...
 # could there be some problem with freeing things made using my metaclass?? [but a C_rule itself is not made using one...]
+# ... eventually I understood: descriptors don't want __del__, they want __delete__.
 '''
 reloading exprs.Exprs
 exception in testdraw.py's drawfunc call ignored: exceptions.NameError: global name 'args' is not defined
