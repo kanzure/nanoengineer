@@ -34,9 +34,11 @@ def expr_serno(expr):
         return expr._e_serno # what if expr is a class? is this 0 for all of those?? yes for now. ###k
     except:
         assert not is_Expr(expr)
-        printnim("Maybe this never happens -- non-Expr in expr_serno: %r" % (expr,)) ####@@@@ it does...
-            # e.g. for <function _C_delegate at 0xf3f55f0>, or func _C__dict_of_lvals, and maybe a tuple??
-        #e assert(0)??
+        # for now, this happens a lot, since ExprsMeta calls us on non-expr vals such as compute method functions,
+        # and even sometimes on ordinary Python constants.
+##        printnim("Maybe this never happens -- non-Expr in expr_serno: %r" % (expr,)) ####@@@@ it does...
+##            # e.g. for <function _C_delegate at 0xf3f55f0>, or func _C__dict_of_lvals, and maybe a tuple??
+##        #e assert(0)??
         return -1
     pass
 
