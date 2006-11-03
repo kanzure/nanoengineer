@@ -120,9 +120,6 @@ trans_green = translucent_color(green)
 
 NullIpath = None ###STUB, refile, rename
 
-# types
-Width = Color = stub
-
 def Arg(type1 = None, dflt = None):
     from Exprs import Symbol
     return Symbol('_some_Arg')
@@ -145,6 +142,8 @@ from widget2d import Widget2D, Widget
 Stub = Widget2D
 Overlay = RectFrame = Center = Stub###@@@
 ToggleShow = TestIterator = Stub
+# types
+Width = Color = Stub
 
 # == modules that may have been already imported above, but whose symbols were not needed in basic at that time [#e move up anyway?]
 

@@ -19,7 +19,7 @@ $Id$
 ##    ###@@@ #k maybe no longer needed soon? [061102]
 ##    assert _reload_ok, "Exprs module is not allowed to be reloaded, since we test for isinstance(val, Expr) while other modules get imported!"
 
-from basic import printnim # this may be a recursive import (with most things in basic not yet defined)
+from basic import printnim, stub # this may be a recursive import (with most things in basic not yet defined)
 
 # == serial numbers (along with code in Expr.__init__)
 
@@ -34,7 +34,8 @@ def expr_serno(expr):
         return expr._e_serno # what if expr is a class? is this 0 for all of those?? yes for now. ###k
     except:
         assert not is_Expr(expr)
-        printnim("Maybe this never happens -- non-Expr in expr_serno")
+        printnim("Maybe this never happens -- non-Expr in expr_serno: %r" % (expr,)) ####@@@@ it does...
+            # e.g. for <function _C_delegate at 0xf3f55f0>, or func _C__dict_of_lvals, and maybe a tuple??
         #e assert(0)??
         return -1
     pass
@@ -64,8 +65,6 @@ def is_Expr_pyinstance(expr):
 
 # ==
 
-printnim("Expr __init__ and __call__ need serno handling")####@@@@
-
 class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs  ####@@@@ MERGE with InstanceOrExpr, or super it
     """abstract class for symbolic expressions that python parser can build for us,
     from Symbols and operations including x.a and x(a);
@@ -88,11 +87,26 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
     _e_serno = 0 ###k guess; since Expr subclasses count as exprs, they all have a serno of 0 (I hope this is ok)
     _e_has_args = False # subclass __init__ or other methods must set this True when it's correct... ###nim, not sure well-defined
         # (though it might be definable as whether any __init__ or __call__ had nonempty args or empty kws)
-        # (but bare symbols don't need args so they would have this True as well)
-        # see also InstanceOrExpr .has_args -- if this survives, that should be renamed so it's the same thing
+        # (but bare symbols don't need args so they should have this True as well, similar for OpExpr -- all NIM)
+        # see also InstanceOrExpr .has_args -- if this survives, that should be renamed so it's the same thing [done now, 061102]
         # (the original use for this, val_is_special, doesn't need it -- the check for _self is enough) [061027]
     def __init__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __init__" % self.__class__.__name__
+    def _init_e_serno_(self):
+        """[private -- all subclasses must call this; the error of not doing so is not directly detected]
+        Assign a unique serial number, in order of construction of any Expr.
+        FYI: This is used to sort exprs in ExprsMeta, and it's essential that the order
+        matches that of the Expr constructors in the source code of the classes created by ExprsMeta
+        (for reasons explained therein, near its expr_serno calls).
+        """
+        #e Probably this should be called by __init__ and our subclasses should call that,
+        # but the above assert is useful in some form.
+        # Note that this needn't be called by __call__ in InstanceOrExpr,
+        # but only because that ends up calling __init__ on the new expr anyway.
+        global _next_e_serno
+        self._e_serno = _next_e_serno
+        _next_e_serno += 1
+        return
     def __call__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __call__" % self.__class__.__name__
 
@@ -210,7 +224,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
 class SymbolicExpr(Expr): # Symbol or OpExpr
     def __call__(self, *args, **kws):
         # print '__call__ of %r with:' % self,args,kws###@@@
-        return call_Expr(self, args, kws)
+        return call_Expr(self, *args, **kws)
     def __getattr__(self, attr):###
         if attr.startswith('__') or attr.startswith('_e_'):
             raise AttributeError, attr 
@@ -220,6 +234,7 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
 class OpExpr(SymbolicExpr):
     "Any expression formed by an operation (treated symbolically) between exprs, or exprs and constants"
     def __init__(self, *args):
+        Expr._init_e_serno_(self)
         self._e_args = tuple(map(canon_expr, args)) # tuple is required, so _e_args works directly for a format string of same length
         self._e_init()
     def _e_init(self):
@@ -244,13 +259,20 @@ class OpExpr(SymbolicExpr):
     pass
 
 class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even though it can be produced by SymbolicExpr.__call__
+    def __init__(self, callee, *callargs, **kws):
+        # need to extend OpExpr. __init__ so we can have kws, and canon them
+        self._e_kws = map_dictvals(canon_expr, kws)
+        OpExpr.__init__(self, callee, *callargs)
     def _e_init(self):
-        assert len(self._e_args) == 3
-        self._e_callee, self._e_call_args, self._e_call_kws = self._e_args
+        ## obs: assert len(self._e_args) == 3
+        ## obs: self._e_callee, self._e_call_args, self._e_call_kws = self._e_args
+        self._e_callee = self._e_args[0]
+        self._e_call_args = self._e_args[1:]
+        self._e_call_kws = self._e_kws #e could use cleanup below to not need this alias
         #e might be useful to record line number, at least for some heads like NamedLambda; see Symbol compact_stack call for how
     def __str__(self):
         if self._e_call_kws:
-            return "%s(*%r, **%r)" % self._e_args #e need parens?
+            return "%s(*%r, **%r)" % (self._e_callee, self._e_call_args, self._e_call_kws) #e need parens?
         elif self._e_call_args:
             return "%s%r" % (self._e_callee, self._e_call_args)
         else:
@@ -350,6 +372,7 @@ class constant_Expr(Expr): ###k super is not quite right -- we want some things 
     #k does this need to be renamed lowercase to fit convention of not binding _self? doesn't matter much...
     # ok, I'll do it, ConstantExpr -> constant_Expr
     def __init__(self, val):
+        Expr._init_e_serno_(self)
         self._e_constant_value = val
         self._e_args = () # allows super _e_free_in to be correct
     def __repr__(self): # class constant_Expr
@@ -386,6 +409,7 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
 class Symbol(SymbolicExpr):
     "A kind of Expr that is just a symbol with a given name. Often used via the __Symbols__ module."
     def __init__(self, name = None):
+        Expr._init_e_serno_(self)
         if name is None:
             name = "?%s" % compact_stack(skip_innermost_n = 3).split()[-1] # kluge - show line where it's defined
         self._e_name = name
@@ -437,10 +461,14 @@ class Symbol(SymbolicExpr):
 
 _self = Symbol('_self') # is it ok if this is done more than once, or does only the __Symbols__ module cache them??
 
-_self2 = Symbol('_self')
-assert _self2 is _self # i bet this will fail; if so, just import __Symbols__ right here
+# does this work? at least no exception from it -- good, but why not? ###k
+_self.attr1.attr2
 
-from __Symbols__ import _attr
+##_self2 = Symbol('_self')
+##assert _self2 is _self # i bet this will fail; if so, just import __Symbols__ right here [but make it work someday ##e]
+
+del _self
+from __Symbols__ import _self, _attr # this imports Exprs recursively, but uses nothing below here, so should be ok
 
 # some essential macros:
 def Instance(expr, index_or_its_sym = _attr):
@@ -483,12 +511,16 @@ def Arg( type_expr, dflt_expr = None):
     if dflt_expr is None:
         dflt_expr = default_expr_from_type_expr( type_expr) ###IMPLEM
 
-    grabarg_expr = _self._grabarg(       attr_expr, arg_order_expr, dflt_expr )
-    index_expr   = _self._grabarg_index( attr_expr, arg_order_expr )
+    ## grabarg_expr = _self._grabarg(       attr_expr, arg_order_expr, dflt_expr )
+        ## AssertionError: getattr exprs are not callable [ok??] [yes, it catches errors that would be hard to diagnose otherwise]
+    ## index_expr   = _self._grabarg_index( attr_expr, arg_order_expr )
+    
+    grabarg_expr = call_Expr( _self._grabarg,       attr_expr, arg_order_expr, dflt_expr )    
+    index_expr   = call_Expr( _self._grabarg_index, attr_expr, arg_order_expr )
 
     return Instance( type_expr( grabarg_expr), index_or_its_sym = index_expr )
 
-def Option( type_expr, dflt_expr = None): ###e the body should be merged with that of Arg macro, it's very similar
+def Option( type_expr, dflt_expr = None): ###e the body should be merged with that of Arg macro, it's very similar, also its WRONG now
     """To declare a named optional argument in an expr class,
     use an assignment like this, directly in the class namespace,
     and (by convention only?) after all the Arg macros:

@@ -243,7 +243,8 @@ class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
     """
     def __set__(self, *args):
         assert 0, "__set__ is not yet supported in this abstract class"
-    def __del__(self, *args):
+    def __del__(self, *args): ### I bet this should be __delete__ or something ###@@@@
+        print "ClassAttrSpecific_DataDescriptor.__del__ is about to assert 0 -- could this be causing those weird exceptions?" ####@@@@ did i name the method correctly? guess: no.
         assert 0, "__del__ is not yet supported in this abstract class"
     pass
 
@@ -315,12 +316,14 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
     pass # end of class C_rule
 
 # what could cause the exception listed in the last line of the following? It looks like Python printed it while freeing a C_rule...
-# could there be some problem with freeing things made using my metaclass??
+# could there be some problem with freeing things made using my metaclass?? [but a C_rule itself is not made using one...]
 '''
 reloading exprs.Exprs
 exception in testdraw.py's drawfunc call ignored: exceptions.NameError: global name 'args' is not defined
-  [testdraw.py:274] [testdraw.py:308] [testdraw.py:437] [test.py:25] [Rect.py:15] [widget2d.py:10] [instance_helpers.py:222] [ExprsMeta.py:467] [ExprsMeta.py:384] [ExprsMeta.py:298] [ExprsMeta.py:177] [ExprsMeta.py:278]
-Exception exceptions.AssertionError: <exceptions.AssertionError instance at 0xd487dc8> in <bound method C_rule_for_method.__del__ of <exprs.ExprsMeta.C_rule_for_method object at 0xd499d70>> ignored
+  [testdraw.py:274] [testdraw.py:308] [testdraw.py:437] [test.py:25] [Rect.py:15] [widget2d.py:10] [instance_helpers.py:222]
+    [ExprsMeta.py:467] [ExprsMeta.py:384] [ExprsMeta.py:298] [ExprsMeta.py:177] [ExprsMeta.py:278]
+Exception exceptions.AssertionError: <exceptions.AssertionError instance at 0xd487dc8> in
+  <bound method C_rule_for_method.__del__ of <exprs.ExprsMeta.C_rule_for_method object at 0xd499d70>> ignored
 '''
 
 class C_rule_for_method(C_rule):
@@ -350,7 +353,7 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
         if scanner:
             val = scanner.scan(val, attr) #e more args?
         return C_rule_for_formula(clsname, attr, val, **kws)
-    elif is_expr(val):
+    elif is_Expr(val):
         printnim("Instance case needs review in choose_C_rule_for_val") # does this ever happen? in theory, it can... (dep on is_special)
         return val ###k not sure caller can take this
     #e support constant val?? not for now.
@@ -499,7 +502,7 @@ def attr_prefix(attr): # needn't be fast
 def val_is_special(val): #e rename... or, maybe it'll be obs soon?
     "val is special if it's a formula in _self, i.e. is an instance (not subclass!) of Expr, and contains _self as a free variable."
     return is_Expr_pyinstance(val) and val._e_free_in('_self')
-        ## outtake: and val.has_args [or more likely, and val._e_has_args]
+        ## outtake: and val.has_args [now would be val._e_has_args]
         ## outtake: hasattr(val, '_e_compute_method') # this was also true for classes
     ##e 061101: we'll probably call val to ask it in a fancier way... not sure... Instance/Arg/Option might not need this
     # if they *turn into* a _self expr! See other comments with this date [i hope they have it anyway]
@@ -594,19 +597,29 @@ class ExprsMeta(type):
                 pass
             continue
         del attr, val
-        # process the vals assigned to certain attrs, and assign them to the correct attrs even if they were prefixed
-        scanner = FormulaScanner() # this processes formulas by fixing them up where their source refers directly to an attr
-            # defined by another (earlier) formula in the same class, or (#nim, maybe) in a superclass (by supername.attr).
-            # It replaces a direct ref to attr (which it sees as a ref to its assigned formula value, in unprocessed form,
-            # since python eval turns it into that before we see it) with the formula _self.attr (which can also be used directly).
-            # Maybe it will replace supername.attr as described in a comment inside FormulaScanner. #e
-        for attr0, lis in data_for_attr.items():
+        # extract from each lis its sole (prefix, val), element (could be removed if we cleaned up code to not need lis at all),
+        # and prepare those for sorting by expr_serno(val)
+        # [needed so we process val1 before val2 if val1 is included in val2 -- assumed by FormulaScanner]
+        newitems = []
+        for attr0, lis in data_for_attr.iteritems():
             assert len(lis) == 1, "error: can't define %r and %r in the same class %r (when ExprsMeta is its metaclass); ns contained %r" % \
                        ( lis[0][0] + attr0,
                          lis[1][0] + attr0,
                          name, orig_ns_keys )
                 #e change that to a less harmless warning?
             prefix, val = lis[0]
+            newitems.append( (expr_serno(val), prefix, val) )
+            del prefix, val
+        del data_for_attr
+        # sort vals by their expr_serno
+        newitems.sort()
+        # process the vals assigned to certain attrs, and assign them to the correct attrs even if they were prefixed
+        scanner = FormulaScanner() # this processes formulas by fixing them up where their source refers directly to an attr
+            # defined by another (earlier) formula in the same class, or (#nim, maybe) in a superclass (by supername.attr).
+            # It replaces a direct ref to attr (which it sees as a ref to its assigned formula value, in unprocessed form,
+            # since python eval turns it into that before we see it) with the formula _self.attr (which can also be used directly).
+            # Maybe it will replace supername.attr as described in a comment inside FormulaScanner. #e
+        for junk, prefix, val in newitems:            
             # prefix might be anything in prefix_map (including ''), and should control how val gets processed for assignment to attr0.
             processor = prefix_map[prefix]
             val0 = processor(name, attr0, val, formula_scanner_DISABLED = scanner) # note, this creates a C_rule (or the like) for each formula
@@ -637,6 +650,7 @@ class ExprsMeta(type):
 class FormulaScanner: #061101  ##e should it also add the attr to the arglist of Arg and Option if it finds them? [061101]
     def __init__(self):
         self.replacements = {}
+        self.seen_order = -1 # this class knows about retvals of expr_serno (possible ones, possible non-unique ones)
     def scan(self, formula, attr):
         """Scan the given formula (which might be or contain a C_rule object from a superclass) .... #doc
         Return a modified copy in which replacements were done, .... #doc
@@ -675,7 +689,7 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
         #e if not a formula or C_rule, asfail or do nothing
         if 1:
             new_order = expr_serno(formula)
-            assert new_order > self.seen_order, 'you have to sort them before calling me'
+            assert new_order > self.seen_order or (0 >= new_order == self.seen_order), 'you have to sort vals before calling me'
             self.seen_order = new_order
         res = self.replacement_subexpr(formula)
         # register formula to be replaced if found later in the same class definition [#e only if it's the right type??]

@@ -40,10 +40,10 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
     ### WARNING: instantiate normally lets parent env determine kid env... if arg is inst this seems reversed...
     # may only be ok if parent doesn't want to modify lexenv for kid.
     ## _e_is_instance = False # now done in class Expr # usually overridden in certain python instances, not in subclasses
-    nim # replace w/ _e_is_instance
-    has_args = False # ditto
+    ## _e_has_args = False # ditto
     args = () # convenient default
     def __init__(self, *args, **kws):
+        Expr._init_e_serno_(self)
         ###e does place (instanceness) come in from kws or any args?
 ##        val = kws.pop('_destructive_customize', None)
 ##        if val:
@@ -93,8 +93,8 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         assert not self._e_is_instance
         # self has to own its own mutable copies of the expr data in old, or own objects which inherit from them on demand.
         self._e_formula_dict = dict(old._e_formula_dict) ###k too simple, but might work at first; make it a FormulaSet object??
-        self.args = old.args # not mutable, needn't copy; always present even if not self.has_args (for convenience, here & in replace)
-        self.has_args = old.has_args
+        self.args = old.args # not mutable, needn't copy; always present even if not self._e_has_args (for convenience, here & in replace)
+        self._e_has_args = old._e_has_args
         return
 
     # common private submethods of __init__ and __call__
@@ -128,8 +128,8 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         Destructively modify self, an expr, supplying it with the given argument formulas.
         """
         assert not self._e_is_instance
-        assert not self.has_args
-        self.has_args = True # useful in case args is (), though hasattr(self, 'args') might be good enough too #e
+        assert not self._e_has_args
+        self._e_has_args = True # useful in case args is (), though hasattr(self, 'args') might be good enough too #e
 
         from Exprs import canon_expr
         args = tuple(map(canon_expr, args))
@@ -172,7 +172,7 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         printnim("so is * or ** argdecls,")
         printnim("so is checking for optnames being legal,or not internal attrnames")
         # Note: this scheme needs some modification once we have exprs that can accept multiple arglists...
-        # one way would be for the above assert [which one? I guess the not self.has_args]
+        # one way would be for the above assert [which one? I guess the not self._e_has_args]
         # to change to an if, which stashed the old args somewhere else,
         # and made sure to ask instantiation if that was ok; but better is to have a typedecl, checked now, which knows if it is. ###@@@
         return
@@ -201,8 +201,8 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         
         # set up self.args and self.opts
         self._e_class = expr # for access to _e_formula_dict and args #k needed? #e rename: self.expr?? nah. well, not sure.
-        assert expr.has_args # we might allow exceptions to this later, based on type decl
-        self.has_args = expr.has_args #k ??
+        assert expr._e_has_args # we might allow exceptions to this later, based on type decl
+        self._e_has_args = expr._e_has_args #k ??
         self.args = expr.args # for convenient access ### is it ok that we're putting the bare ones here? Don't we want to hide those?
         # or can we do the type & instancing on these exprs, to get the declared specific args?
 
