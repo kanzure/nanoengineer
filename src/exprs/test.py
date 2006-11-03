@@ -70,7 +70,7 @@ class DebugPrintAttrs(DelegatingInstance): # won't work until we make self.args 
 testexpr_1 = Rect(7,6, color = purple) # works as of 061030
 testexpr_1x = DebugPrintAttrs(Rect(4,7,blue), 'color') # doesn't work yet (instantiation)
 
-testexpr_1a = Rect2(7,16, color = purple)
+testexpr_1a = Rect2(7,6, color = purple)
 print "testexpr_1a is %r" % testexpr_1a
 
 testexpr_1b = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay, attrerror: draw)
@@ -84,7 +84,7 @@ testexpr_4 = TestIterator( testexpr_3 ) # test an iterator
 
 # == the testexpr to use right now
 
-testexpr = testexpr_1
+testexpr = testexpr_1a
 
 # == per-frame drawing code
 

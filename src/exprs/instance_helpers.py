@@ -43,7 +43,8 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
     ## _e_has_args = False # ditto
     args = () # convenient default
     def __init__(self, *args, **kws):
-        Expr._init_e_serno_(self)
+        # note: just before any return herein, we must call self._init_e_serno_(), so it's called after any canon_expr we do;
+        # also, the caller (if a private method in us) can then do one inside us; see comment where this is handled in __call__
         ###e does place (instanceness) come in from kws or any args?
 ##        val = kws.pop('_destructive_customize', None)
 ##        if val:
@@ -57,19 +58,25 @@ class InstanceOrExpr(Instance, Expr): ####@@@@ guess; act like one or other depe
         if val:
             assert not args and not kws
             self._destructive_copy(val)
+            self._init_e_serno_()
             return
         val = kws.pop('_make_in', None)
         if val:
             assert not args and not kws
             self._destructive_make_in(val)
+            self._init_e_serno_()
             return
         #e
         # assume no special keywords remain
         self._destructive_init(args, kws)
+        self._init_e_serno_()
         return
     def __call__(self, *args, **kws):
         new = self._copy()
         new._destructive_init(args, kws)
+        new._init_e_serno_()
+            # note, this "wastes a serno" by allocating a newer one that new.__init__ did;
+            # this is necessary to make serno newer than any exprs produced by canon_expr during _destructive_init
         return new
 
     # public access to self._e_formula_dict

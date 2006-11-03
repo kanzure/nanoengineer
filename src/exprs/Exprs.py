@@ -26,10 +26,18 @@ from basic import printnim, stub # this may be a recursive import (with most thi
 def map_dictvals(func, dict1):
     """This does to a dict's values what map does to lists --
     i.e. it makes a new dict whose values v are replaced by func(v).
-    [#e If you wish func also depended on k, consider writing map_dictitems,
-     but you'll have to decide what to do about newly duplicated keys.]
+    [If you wish func also depended on k, see map_dictitems.]
     """
     return dict([(k,func(v)) for k,v in dict1.iteritems()])
+
+def map_dictitems(func, dict1):
+    """This does to a dict's items what map does to lists --
+    i.e. it makes a new dict whose items are f(item) from the old dict's items.
+    Func should take 1 argument, a pair (k,v), and return a new pair (k2, v2).
+    Often k2 is k, but this is not required.
+    If the new items have overlapping keys, the result is... I don't know what. #k
+    """
+    return dict(map(func, dict1.iteritems()))
 
 # == serial numbers (along with code in Expr.__init__)
 
@@ -251,7 +259,7 @@ class OpExpr(SymbolicExpr):
     "Any expression formed by an operation (treated symbolically) between exprs, or exprs and constants"
     def __init__(self, *args):
         self._e_args = tuple(map(canon_expr, args)) # tuple is required, so _e_args works directly for a format string of same length
-        Expr._init_e_serno_(self) # call this AFTER canon_expr (for sake of _e_serno order)
+        self._init_e_serno_() # call this AFTER canon_expr (for sake of _e_serno order)
         self._e_init()
     def _e_init(self):
         assert 0, "subclass of OpExpr must implement this"
@@ -261,6 +269,9 @@ class OpExpr(SymbolicExpr):
         "Return the value (evaluated each time, never cached, usage-tracked by caller) of our arg[i], in env and at (i,ipath)."
          ##e consider swapping argorder to 0,ipath,env or (0,ipath),env
         return self._e_args[i]._e_eval(env, (i,ipath))
+    def _e_kwval(self, k, env,ipath):
+        "Like _e_argval, but return the value of our keywordarg[k], assuming we have an _e_kws attribute. [Should all Exprs??###e #k]"
+        return self._e_kws[k]._e_eval(env, (k,ipath))
     def _e_eval(self, env,ipath):
         """Return the value (evaluated each time, never cached, usage-tracked by caller) of self, in env and at ipath.
         [subclasses should either define _e_eval_function for use in this method implem, or redefine this method.]
@@ -272,7 +283,7 @@ class OpExpr(SymbolicExpr):
         if debug:
             print "res =",res
         return res
-    pass
+    pass # end of class OpExpr
 
 class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even though it can be produced by SymbolicExpr.__call__
     def __init__(self, callee, *callargs, **kws):
@@ -294,7 +305,18 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
         else:
             return "%s%r" % (self._e_callee, self._e_call_args) # works the same i hope
     def _e_eval(self, env, ipath):
-        print "how do we eval a call? as a call, or by looking up a rule?"###e -- i guess by instantiating, then taking .value [061027]
+##        print "how do we eval a call? as a call, or by looking up a rule?"
+##        print "the call_Expr we need to eval is:", self
+            ###e -- i guess by instantiating, then taking .value [061027]
+            #e 061102: we do this by imagining we've done the replacements in env (e.g. for _self) to get an instance of the expr,
+            # and then using ordinary eval rules on that, which include forwarding to _value for some Instances,
+            # but typically result in an Instance or a python data object.
+            # So, just eval it as a call, I think.
+        argvals = [self._e_argval(i,env,ipath) for i in range(len(self._e_args))] # includes value of callee as argvals[0]
+        # the following assumes _e_call_kws is a subset of (or the same as) _e_kws (with its items using the same keys).
+        kwvals = map_dictitems( lambda (k,v): (k,self._e_kwval(k,env,ipath)), self._e_call_kws )
+        printnim('    ###e optim: precede by "self._e_call_kws and"') # in 2 places
+        return argvals[0] ( *argvals[1:], **kwvals )
     pass
 
 class getattr_Expr(OpExpr):
@@ -391,7 +413,13 @@ class constant_Expr(Expr): ###k super is not quite right -- we want some things 
     #k does this need to be renamed lowercase to fit convention of not binding _self? doesn't matter much...
     # ok, I'll do it, ConstantExpr -> constant_Expr
     def __init__(self, val):
-        Expr._init_e_serno_(self)
+        ## Expr._init_e_serno_(self)
+            # Following exception is weird -- does this mean there was some sort of reload-related problem?
+            # (Since a constant_Expr instance *is* an Expr instance, unless Expr got reloaded in between.)
+            # Anyway we can avoid it by changing this to a bound method call.
+            ## TypeError: unbound method _init_e_serno_() must be called with Expr instance as first argument
+            ## (got constant_Expr instance instead)
+        self._init_e_serno_()
         self._e_constant_value = val
         self._e_args = () # allows super _e_free_in to be correct
     def __repr__(self): # class constant_Expr
@@ -428,7 +456,7 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
 class Symbol(SymbolicExpr):
     "A kind of Expr that is just a symbol with a given name. Often used via the __Symbols__ module."
     def __init__(self, name = None):
-        Expr._init_e_serno_(self)
+        self._init_e_serno_()
         if name is None:
             name = "?%s" % compact_stack(skip_innermost_n = 3).split()[-1] # kluge - show line where it's defined
         self._e_name = name
@@ -506,7 +534,7 @@ _arg_order_counter = 0
 # they need it to calc the index to use, esp for ArgOrOption if it depends on how the arg was supplied
 # (unless we implem that using an If or using default expr saying "look in the option" -- consider those!)
 
-def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM _E_REQUIRED_ARG_
+def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM _E_REQUIRED_ARG_ - do we tell _instances somehow?
     """To declare an Instance-argument in an expr class,
     use an assignment like this, directly in the class namespace:
           attr = Arg( type, optional default value )
@@ -524,6 +552,9 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM 
     _arg_order_counter += 1
     arg_order_expr = _arg_order_counter #stub; btw, this value is not really an expr, but canon_expr would fix that
     printnim("arg_order_expr is stub")
+        ##e what it ought to be: a special thing to be noticed by the FormulaScanner and replaced with the actual order
+        # within that class (but the same within any single attr). It can do that by scanning values in order.
+        # it has to worry about two vals the same, since then two attrs have equal claim... 
     attr_expr = _attr_expr # None by default, since _attr doesn't affect index for Arg
     return _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr)
 
@@ -535,7 +566,9 @@ def _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr ):###IMPL
         dflt_expr = default_expr_from_type_expr( type_expr)
     ## grabarg_expr = _self._grabarg(       attr_expr, arg_order_expr, dflt_expr )
         ## AssertionError: getattr exprs are not callable [ok??] [yes, it catches errors that would be hard to diagnose otherwise]
-    grabarg_expr = call_Expr( _self._grabarg,       attr_expr, arg_order_expr, dflt_expr )    
+    ##e do we rename _instances & _grabarg to start _i_, since only defined on Instances, make _i_ also specialcase in __getattr__,
+    # and thus need to use getattr_Expr here for them? guess: yes. renaming is easy [but nim], rest can wait.
+    grabarg_expr = call_Expr( _self._grabarg,       attr_expr, arg_order_expr, dflt_expr )
     index_expr   = call_Expr( _self._grabarg_index, attr_expr, arg_order_expr )
     return Instance( type_expr( grabarg_expr), index_or_its_sym = index_expr )
 

@@ -625,8 +625,8 @@ class ExprsMeta(type):
             del junk
             # prefix might be anything in prefix_map (including ''), and should control how val gets processed for assignment to attr0.
             processor = prefix_map[prefix]
-            val0 = processor(name, attr0, val, formula_scanner_DISABLED = scanner) # note, this creates a C_rule (or the like) for each formula
-            printnim("enable formula_scanner") # by removing that _DISABLED [061101]
+            val0 = processor(name, attr0, val, formula_scanner = scanner) # note, this creates a C_rule (or the like) for each formula
+            ##printonce("fyi: formula_scanner is enabled") # by removing _DISABLED from formula_scanner_DISABLED [061101]
             ns[attr0] = val0
             processed_vals.append(val0) # (for use with __set_cls below)
             del prefix, attr0, val
@@ -692,10 +692,24 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             # or thought this through at all re them; maybe this scanner handles them too... s##e
             # [061101]
         #e if not a formula or C_rule, asfail or do nothing
+        error_if_Arg_or_Option = False
         if 1:
             new_order = expr_serno(formula)
-            assert new_order > self.seen_order or (0 >= new_order == self.seen_order), 'you have to sort vals before calling me'
+            assert new_order >= self.seen_order, 'you have to sort vals before calling me'
+            if new_order == self.seen_order > 0:
+                error_if_Arg_or_Option = True #doc ###IMPLEM its effect; is it really just an error about _attr?? not sure.
             self.seen_order = new_order
+            pass
+        from __Symbols__ import _attr ###e rename to more private name, like _E_attr or _E_ATTR_?
+        self.replacements[_attr] = constant_Expr(attr) # this allows formulas created by Option to find out the attr they're on
+        printnim("we need some scheme to detect two attrs with the same val, if that val contains an Arg or Option subexpr")
+            # once vals are sorted, these are easy to see (they're successive)... we exploit that above, to set error_if_Arg_or_Option
+        if error_if_Arg_or_Option:
+            del self.replacements[_attr] ###KLUGE -- at least this ought to cause an error, eventually & hard to understand
+                # but under the right conditions... #e instead we need to put in a "replacement it's an error to use".
+                ###WRONG since Arg doesn't put in the symbol _attr, I think... what's ambiguous for it is, ref same arg, or another Arg?
+                ##e to fix, use a scheme we need anyway -- a thing in the expr which runs code when we scan it, to get its replace-val.
+                # (Can that be an effect of doing constant-folding if replace-vals are constants, incl funcs being called on args??)
         res = self.replacement_subexpr(formula)
         # register formula to be replaced if found later in the same class definition [#e only if it's the right type??]
         if formula in self.replacements:
