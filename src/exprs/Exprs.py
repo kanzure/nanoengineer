@@ -532,7 +532,7 @@ def Instance(expr, index_or_its_sym = _E_ATTR):
     which is free in the symbols _self and _E_ATTR. [#e _E_ATTR might be changed to _E_INDEX, or otherwise revised.]
     """
     global _self # not needed, just fyi
-    return call_Expr( _self._i_instances, index_or_its_sym, expr)
+    return call_Expr( getattr_Expr(_self, '_i_instances'), index_or_its_sym, expr)
 
 _arg_order_counter = 0
 
@@ -574,9 +574,9 @@ def _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr ):###IMPL
     ## grabarg_expr = _self._i_grabarg(       attr_expr, arg_order_expr, dflt_expr )
         ## AssertionError: getattr exprs are not callable [ok??] [yes, it catches errors that would be hard to diagnose otherwise]
     ##e do we rename _i_instances & _i_grabarg to start _i_, since only defined on Instances, make _i_ also specialcase in __getattr__,
-    # and thus need to use getattr_Expr here for them? guess: yes. renaming is easy [but nim], rest can wait.
-    grabarg_expr = call_Expr( _self._i_grabarg,       attr_expr, arg_order_expr, dflt_expr )
-    index_expr   = call_Expr( _self._i_grabarg_index, attr_expr, arg_order_expr )
+    # and thus need to use getattr_Expr here for them? guess: yes. done, so #doc improve comment.
+    grabarg_expr = call_Expr( getattr_Expr(_self, '_i_grabarg'),       attr_expr, arg_order_expr, dflt_expr )
+    index_expr   = call_Expr( getattr_Expr(_self, '_i_grabarg_index'), attr_expr, arg_order_expr )
     return Instance( type_expr( grabarg_expr), index_or_its_sym = index_expr )
 
 def Option( type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):

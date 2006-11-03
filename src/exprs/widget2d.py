@@ -18,7 +18,7 @@ class Widget(InstanceOrExpr):
     # Widget can also be used as a typename for NamedLambda -- ok??
     # I guess it just means it can be used to coerce things... see docstring-comment in Widget2D. #####@@@@@
     """Class whose Instances will be drawable. [#doc more]"""
-    def fix_color(self, color):
+    def fix_color(self, color): #e move to glpane??
         """Return the given color, suitably formatted for passing to low-level drawing code for the current drawing medium.
         The color is assumed to be evaluated (i.e. no longer a formula), but perhaps in some general data format
         and perhaps needing to be subjected to global color transformations stored transiently in the drawing medium object
@@ -40,12 +40,19 @@ class Widget(InstanceOrExpr):
     pass
 
 class Widget2D(Widget):
-    """1. superclass for widget instances with 2D layout boxes.
+    """1. superclass for widget instances with 2D layout boxes (with default layout-box formulas).
     Also an expr-forming helper class, in this role
     (as is any InstanceOrExpr).
     2. can coerce most drawable instances into (1).
     WARNING: I DON'T YET KNOW IF THOSE TWO ROLES ARE COMPATIBLE.
     """
+    # default layout-box formulas; for now i think these need _DEFAULT_ so they're overridable by customization, but later they won't
+    printnim("Widget2D formulas won't need _DEFAULT_, soon")
+    # in fact, they don't now, if they're internal not public re customization -- ####@@@@ [061103]
+    _DEFAULT_bright = 0
+    _DEFAULT_btop = 0
+    _DEFAULT_bleft = 0
+    _DEFAULT_bbottom = 0    
     pass ### make sure it has .btop. .bbottom, etc -- i.e. a layout box
 
 DelegatingWidget2D = Widget2D

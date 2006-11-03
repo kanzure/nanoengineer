@@ -320,13 +320,36 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
             self._i_instance_exprs[index] = expr
         return self._i_instances_CVdict[index] # takes care of invals in making process? or are they impossible? ##k
     def _CV__i_instances_CVdict(self, index):
-        "[private] value recompute function for self._i_instances_CVdict"
-        # fyi: the glue code added by _CV_ from self._i_instances_CVdict to this method (by ExprsMeta) uses LvalDict2
-        # to cache values computed by this method, and recompute them if needed (which may never happen, I'm not sure).
-        # Note: the access to self._i_instance_exprs[index] is not usage tracked;
-        # thus if we change it above w/o error, an inval is needed.
-        nim stub, and where i am
-        self._i_instance_exprs[index]
+        """[private] value-recomputing function for self._i_instances_CVdict.
+        Before calling this, the caller must store an expr for this instance
+        into self._i_instance_exprs[index] (an ordinary dict).
+           If it's permitted for that expr to change with time (which I doubt, but don't know yet for sure #k),
+        then whenever the caller changes it (other than when initially setting it), the caller must invalidate
+        the entry with the same key (our index arg) in the LvalDict2 that implements self._i_instances_CVdict
+        (but the API for the caller to do that is not yet worked out #e).
+           (Implem note: _CV_ stands for "compute value" to ExprsMeta, which implements the LvalDict2 associated with this.
+        This method needs no corresponding _CK_ keylist function, since any key (instance index) asked for is assumed valid.)
+        """
+        print "fyi in %r, computing _i_instance(index = %r)" % (self, index)###@@@
+        assert self._e_is_instance
+        # This method needs to create a new instance, by instantiating expr and giving it index.
+        # Implem notes:
+        # - the glue code added by _CV_ from self._i_instances_CVdict to this method (by ExprsMeta) uses LvalDict2
+        #   to cache values computed by this method, and recompute them if needed (which may never happen, I'm not sure).
+        # - the access to self._i_instance_exprs[index] is not usage tracked;
+        #   thus if we change it above w/o error, an inval is needed.
+        expr = self._i_instance_exprs[index]
+        print "fyi, using kid expr %r" % expr ###@@@
+        # three increasingly strict asserts:
+        assert expr is not None
+        assert is_Expr(expr)
+        assert is_pure_expr(expr) ###k?? what if someone passes an instance -- is that permitted, but a noop for instantiation??
+        # also assume expr is "canonicalized" and even "understood" -- not sure if this is justified
+        printnim("don't we need understand_expr somewhere in here? (before kidmaking in IorE)") ###@@@
+        env = self.env #e with lexmods?
+        index_path = (index, self.ipath)
+        return expr._make_in(env, index_path)
+    
     pass # end of class InstanceOrExpr
 
 ##### CANNIBALIZE THESE RELATED SNIPPETS to fill in InstanceOrExpr: Drawable_obs, old class xxx

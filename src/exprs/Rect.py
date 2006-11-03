@@ -32,9 +32,11 @@ class Rect(Widget2D):
     # formulas for layout box attrs
     bright = _self.width 
     btop = _self.height
-    # fyi, these are not needed (same as the defaults in Widget2D):
-    bbottom = 0
-    bleft = 0
+    # fyi, these are not needed (same as the defaults in Widget2D): let's prove that by leaving them out, 061103 144p:
+    # also I bet they need _DEFAULT_ or they won't be customizable! test sometime. #k
+    # hmm, maybe they don't need to be customizable? decide sometime. that is, if they're "internal" then they shouldn't be custable.
+##    bbottom = 0
+##    bleft = 0
     
     def draw(self):
         glDisable(GL_CULL_FACE)
@@ -55,9 +57,9 @@ class Rect2(Widget2D): # this is Rect in a newer syntax, not yet working as of 0
         #  or you could put the argname in Arg or have an _args decl... but I think just using _self.attr in these cases is simpler.)
     printnim("make sure it complains about bright and width here")
     btop = height
-    # fyi, these are not needed (same as the defaults in Widget2D):
-    bbottom = 0
-    bleft = 0
+##    # fyi, these are not needed (same as the defaults in Widget2D):
+##    bbottom = 0
+##    bleft = 0
     
     def draw(self): # same as in class Rect
         glDisable(GL_CULL_FACE)

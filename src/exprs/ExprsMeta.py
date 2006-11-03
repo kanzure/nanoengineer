@@ -225,6 +225,7 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         "Subclass should implement -- do the __get__ for our class (initializing our class-specific info if necessary)"
         return None
     def copy_for_subclass(self, cls):
+        printnim("fyi (not nim): copy_for_subclass from %r to %r" % (self.cls.__name__, cls.__name__))###@@@, also #e printfyi
         copy = self.__class__(cls, self.attr, *self.args, **self.kws)
         copy.__copycount = self.__copycount + 1
         if copy.__copycount > 1:
@@ -423,6 +424,8 @@ class CV_rule(ClassAttrSpecific_NonDataDescriptor):
     # Note: similar comments about memory leaks apply, as for C_rule.
     
     pass # end of class CV_rule
+
+class CV_rule_for_val(CV_rule):pass ####k guess off top of head, much later than the code was written [061103]
 
 def choose_CV_rule_for_val(clsname, attr, val):
     "return an appropriate CV_rule object, depending on val"
@@ -625,8 +628,17 @@ class ExprsMeta(type):
             del junk
             # prefix might be anything in prefix_map (including ''), and should control how val gets processed for assignment to attr0.
             processor = prefix_map[prefix]
-            val0 = processor(name, attr0, val, formula_scanner = scanner) # note, this creates a C_rule (or the like) for each formula
-            ##printonce("fyi: formula_scanner is enabled") # by removing _DISABLED from formula_scanner_DISABLED [061101]
+            if 0:
+                # new code, not yet working [061103]
+                printnim("fyi (not nim): formula_scanner is enabled")
+                val0 = processor(name, attr0, val, formula_scanner = scanner)
+                    # note, this creates a C_rule (or the like) for each formula
+            else:
+                # old code, working (usually), ok for Rect aka Rect1, but obsolete [061103]
+                printnim("NOTE: formula_scanner is temporarily disabled")
+                val0 = processor(name, attr0, val)
+                    # note, this creates a C_rule (or the like) for each formula
+                pass
             ns[attr0] = val0
             processed_vals.append(val0) # (for use with __set_cls below)
             del prefix, attr0, val
