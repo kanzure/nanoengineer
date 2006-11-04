@@ -310,6 +310,7 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
             instance.custom_compute_method # defined e.g. by InstanceOrExpr
         except AttributeError:
             return None
+        printnim("I think compute_method_from_customized_instance is deprecated since _DEFAULT_ is (once Arg works)") #####k 061103
         return instance.custom_compute_method(self.attr) # a method or None
     def make_compute_method_for_instance(self, instance):
         "#doc; doesn't consider per-instance customized compute methods."
@@ -668,10 +669,14 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
     def __init__(self):
         self.replacements = {}
         self.seen_order = -1 # this class knows about retvals of expr_serno (possible ones, possible non-unique ones)
+        self.linecounter = 0 # this must be unique for each separate formula we scan, and be defined while we scan it
+        self.argposns = {} # attr -> arg position ##e fix for superclass args
+        self.next_argpos = 0 # next arg position to allocate ##e fix for superclass args
     def scan(self, formula, attr):
         """Scan the given formula (which might be or contain a C_rule object from a superclass) .... #doc
         Return a modified copy in which replacements were done, .... #doc
         """
+        self.linecounter += 1
         printnim("several serious issues remain about C_rules from superclasses in ExprsMeta; see code comment") ####@@@@
             # namely: if a C_rule (the value of a superclass attrname) is seen in place of a formula in ExprsMeta:
             # - will it notice it as val_is_special?
@@ -740,6 +745,10 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
         assert not isinstance(subexpr, ClassAttrSpecific_NonDataDescriptor), "formula containing super C_rule is nim" #e more info
         if subexpr in self.replacements: # looked up by id(), I hope ###k
             return self.replacements[subexpr]
+        elif hasattr(subexpr, '_e_override_replace') and is_expr_pyinstance(subexpr):
+            # It wants to do it itself, perhaps using private knowledge about the methods & internal attrs in this scanner.
+            # (This is used by special subexprs which call self.argpos in order to allocate argument positions.)
+            return subexpr._e_override_replace( self )
         ###e can we find an Instance here?? assume no, for now.
         assert not expr_is_Instance(subexpr)
         printnim("I bet InstanceOrExpr is going to need arb getattr when Expr, and _e_ before all methodnames.... see code cmt")
@@ -752,7 +761,7 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             # with Instance (or Arg or Option) effectively returning something like a Symbol
             # (representing a _self-specific instance, like _self does) -- in fact [061101],
             # Instance(expr) might immediately return something like
-            # _self._i_instances( relindex-incl-attr-and-formula-subexpr-index, expr )
+            # _self._i_instances( expr, relindex-incl-attr-and-formula-subexpr-index )
             # or maybe that relindex can itself just be a symbol, so it can be put in easily and replaced later in a simple way.
             
         # otherwise assume it's a formula
@@ -761,6 +770,26 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
         printnim("need special replacement for Arg etc which needs to know attr and formula-subexpr-index?")
         # do replacements in the parts
         return subexpr._e_replace_using_subexpr_filter( self.replacement_subexpr ) ###IMPLEM in Expr #k does API survive lexscoping??
+    def argpos(self, attr, required):
+        """An Arg or ArgOrOption macro has just been seen for attr, in the source line identified by self.linecounter.
+        (It is a required arg iff required is true.)
+        (In the future, if a superclass defines args, this might be one of those or a new one.)
+        What argument position (numbered 0, 1, 2, etc) does this arg correspond to? Return the answer, and record it.
+           NIM: ASSUME NO ARGUMENTS COME FROM THE SUPERCLASSES. To fix that, we'll need to find out what they were,
+        then see if these are in that list (if so return old number), or not (and start new numbers after end of that list).
+        Behavior when superclass has optional args and this class then defines required ones is not decided (might be an error).
+           NIM: any decl to override this, like _args.
+        """
+        try:
+            return self.argposns[attr]
+        except KeyError:
+            # new argument
+            pos = self.next_argpos
+            self.next_argpos += 1
+            self.argposns[attr] = pos
+            ###e also record whether it's required, and assert that once they stop being required, new ones are also not required
+            # (do we also need to record their names? well, we're doing that. Do we need to record whether their names are public? #e)
+            return pos
     pass # end of class FormulaScanner
             
 # ==

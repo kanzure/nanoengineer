@@ -408,24 +408,38 @@ class list_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in
     _e_eval_function = lambda *args:list(args) #k syntax?
     pass
 
+class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in 0-arg case
+    def _e_init(self):
+        pass
+    def __str__(self):
+        return "%s" % (tuple(self._e_args),) #e need parens?
+    _e_eval_function = lambda *args:tuple(args) #k syntax? ###e optim: args are probably already a tuple
+    pass
+
 class If_expr(OpExpr): # so we can use If in formulas
     pass
 # see also class If_ in testdraw.py
 ## def If(): pass
 
-class constant_Expr(Expr): ###k super is not quite right -- we want some things in it, like isinstance Expr, but not the __add__ defs
-    #k does this need to be renamed lowercase to fit convention of not binding _self? doesn't matter much...
-    # ok, I'll do it, ConstantExpr -> constant_Expr
-    def __init__(self, val):
-        ## Expr._init_e_serno_(self)
-            # Following exception is weird -- does this mean there was some sort of reload-related problem?
-            # (Since a constant_Expr instance *is* an Expr instance, unless Expr got reloaded in between.)
-            # Anyway we can avoid it by changing this to a bound method call.
-            ## TypeError: unbound method _init_e_serno_() must be called with Expr instance as first argument
-            ## (got constant_Expr instance instead)
+class internal_Expr(Expr):
+    "Abstract class for various kinds of low-level exprs for internal use that have no visible subexprs."
+    _e_args = () # this is only for expr args; its presence allows super _e_free_in to be correct
+    _e_kws = ()  # ditto, for kws
+    def __init__(self, *args, **kws):
+        "store args & kws but don't canon_expr them -- assume they are not exprs"
+        self.args = args # not sure if the non-_e_ name is ok... if not, try _e_data_args or so? ###k
+        self.kws = kws
+        self._internal_Expr_init() # subclasses should do their init in here 
         self._init_e_serno_()
-        self._e_constant_value = val
-        self._e_args = () # allows super _e_free_in to be correct
+        return
+    def _internal_Expr_init(self):
+        assert 0, "subclass must implem"
+    pass
+    
+class constant_Expr(internal_Expr):
+    ###k super may not be quite right -- we want some things in it, like isinstance Expr, but not the __add__ defs [not sure, actually]
+    def _internal_Expr_init(self):
+        (self._e_constant_value,) = self.args
     def __repr__(self): # class constant_Expr
         return "<%s#%d: %r>"% (self.__class__.__name__, self._e_serno, self._e_constant_value,)
     def __str__(self):
@@ -527,12 +541,13 @@ from __Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
 
 # some essential macros: Instance, Arg, Option, ArgOrOption
 
-def Instance(expr, index_or_its_sym = _E_ATTR):
-    """Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instances(_E_ATTR, expr),
+def Instance(expr, _index_expr = _E_ATTR):
+    """Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instances(expr, _E_ATTR),
     which is free in the symbols _self and _E_ATTR. [#e _E_ATTR might be changed to _E_INDEX, or otherwise revised.]
     """
+    printnim("review: same index is used for a public Option and a private Instance on an attr; maybe ok if no overlap possible???")##e
     global _self # not needed, just fyi
-    return call_Expr( getattr_Expr(_self, '_i_instances'), index_or_its_sym, expr)
+    return call_Expr( getattr_Expr(_self, '_i_instances'), expr, _index_expr)
 
 _arg_order_counter = 0
 
@@ -545,10 +560,12 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM 
     """To declare an Instance-argument in an expr class,
     use an assignment like this, directly in the class namespace:
           attr = Arg( type, optional default value )
-       Order matters (specifically, execution order of the Arg macros while Python
-    is executing a given class definition, before the metaclass's __new__ runs);
-    those which are not already defined as args in superclasses
-    are appended to the inherited arglist).
+       Order matters (specifically, execution order of the Arg macros, or maybe only
+    of the exprs containing them, while Python is executing a given class definition,
+    before the metaclass's __new__ runs); those attrs which are not already defined
+    as args in superclasses are appended to the inherited arglist, whose positions
+    are counted from 0.
+       (Handling anything about args in superclasses is NIM. ##e)
        The index of the instance made from this optional argument
     will be its position in the arglist (whether or not the arg was supplied
     or the default value was used).
@@ -557,27 +574,108 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM 
     """
     global _arg_order_counter
     _arg_order_counter += 1
-    arg_order_expr = _arg_order_counter #stub; btw, this value is not really an expr, but canon_expr would fix that
-    printnim("arg_order_expr is stub")
-        ##e what it ought to be: a special thing to be noticed by the FormulaScanner and replaced with the actual order
-        # within that class (but the same within any single attr). It can do that by scanning values in order.
-        # it has to worry about two vals the same, since then two attrs have equal claim... 
-    attr_expr = _attr_expr # None by default, since _E_ATTR (the attr we're on) shouldn't affect the index for Arg
-    return _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr)
+    required = (dflt_expr is _E_REQUIRED_ARG_)
+    argpos_expr = _thing_that_gets_replaced_with_argpos_for_current_attr( _arg_order_counter, required )
+        # Implem note:
+        # _thing_that_gets_replaced_with_argpos_for_current_attr(...) makes a special thing to be noticed by the FormulaScanner
+        # and replaced with the actual arg order within the class (but the same within any single attr).
+        # ExprsMeta can do that by scanning values in order of Expr construction.
+        # But it has to worry about two vals the same, since then two attrs have equal claim...
+        # it does that by asserting that a given _arg_order_counter corresponds to only one attr. ########@@@@@@@nim
+        # FYI, the other possible use for _arg_order_counter would be to assert that it only increases,
+        # but this is not obviously true (or useful) in undoc but presently supported cases like
+        #    attr = If(cond, Arg(type1), Arg(type2))
+        # (which the present code treats as alternative type decls for the same arg position).
+    ##printnim("asserting that a given _arg_order_counter corresponds to only one attr -- in a better way than ive_seen kluge below")####@@@@@
+    attr_expr = _attr_expr # what about current attr to use in index for arg instance and/or
+        # in finding the arg expr in an instance (the replacement instance for _self) --
+        # this is None by default, since _E_ATTR (the attr we're on) shouldn't affect the index,
+        # in this Arg macro. When we're used by other macros they can pass something else for that.
+    return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr)
 
-def _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr ):###IMPLEM _i_grabarg, _i_grabarg_index, _E_ATTR, _i_instances
-    "[private helper for Arg, Option, and maybe ArgOrOption]"
+def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
+    """[private helper for Arg, Option, and maybe ArgOrOption]
+    attr_expr should be None, or some sort of expr (in practice always _E_ATTR so far)
+      that will get replaced by a constant_Expr for the current attr (in ExprsMeta's FormulaScanner),
+      according to whether the current attr should be part of the index and a public option-name for supplying the arg
+      (we make sure those conditions are the same). [#e Note that if someday we wanted to include f(attr) in the index,
+      but still use attr alone as an option name, we'd have to modify this to permit both f(attr) (or f) and attr to be passed.]
+    argpos_expr should similarly be None, or some sort of expr (in practice a private subclass of internal_Expr)
+      that will get replaced by a constant_Expr for the argument position (an int) that should be allocated to the current attr's arg
+      (determined in ExprsMeta's FormulaScanner by allocating posns 0,1,2,etc to newly seen arg-attrs, whether or not the attr itself
+      is public for that arg).
+    type_expr ###doc, passed herein to canon_type
+    dflt_expr ###doc, can also be _E_DFLT_FROM_TYPE_ or _E_REQUIRED_ARG_
+    """
     global _self # fyi
     type_expr = canon_type( type_expr)
     if dflt_expr is _E_DFLT_FROM_TYPE_:
         dflt_expr = default_expr_from_type_expr( type_expr)
-    ## grabarg_expr = _self._i_grabarg(       attr_expr, arg_order_expr, dflt_expr )
-        ## AssertionError: getattr exprs are not callable [ok??] [yes, it catches errors that would be hard to diagnose otherwise]
-    ##e do we rename _i_instances & _i_grabarg to start _i_, since only defined on Instances, make _i_ also specialcase in __getattr__,
-    # and thus need to use getattr_Expr here for them? guess: yes. done, so #doc improve comment.
-    grabarg_expr = call_Expr( getattr_Expr(_self, '_i_grabarg'),       attr_expr, arg_order_expr, dflt_expr )
-    index_expr   = call_Expr( getattr_Expr(_self, '_i_grabarg_index'), attr_expr, arg_order_expr )
-    return Instance( type_expr( grabarg_expr), index_or_its_sym = index_expr )
+    # Note: we have to use explicit call_Expr & getattr_Expr below, to construct Exprs like _self._i_grabarg( attr_expr, ...),
+    # only to work around safety features which normally detect that kind of Expr-formation (getattr on _i_* or _e_*,
+    # or getattr then call) as a likely error. These safety features are very important, catching errors that would often lead
+    # to hard-to-diagnose bugs (when our code has an Expr but thinks it has an Instance), so it's worth the trouble.
+    grabarg_expr = call_Expr( getattr_Expr(_self, '_i_grabarg'), attr_expr, argpos_expr, dflt_expr )
+    if attr_expr is not None and argpos_expr is not None:
+        # for ArgOrOption, use a tuple of a string and int (attr and argpos) as the index
+        index_expr = tuple_Expr( attr_expr, argpos_expr )
+    elif attr_expr is None and argpos_expr is None:
+        assert 0, "attr_expr is None and argpos_expr is None ..."
+    elif attr_expr is not None:
+        # for Option, use a plain attr string as the index
+        index_expr = attr_expr
+    else:
+        assert argpos_expr is not None
+        # for Arg, use a plain int as the index
+        # (note: ExprsMeta replaces argpos_expr with that int wrapped in constant_Expr, but later eval pulls out the raw int)
+        index_expr = argpos_expr
+    #### obs: index_expr   = call_Expr( getattr_Expr(_self, '_i_grabarg_index'), attr_expr, argpos_expr )
+    return Instance( type_expr( grabarg_expr), _index_expr = index_expr )
+
+##class _thing_that_gets_replaced_with_argpos_for_current_attr_OBS(OpExpr):
+##    # kluge (choice of superclass, etc; it does need to be an Expr; maybe one that doesn't canon_expr its args is better??) 
+##    def _e_init(self):
+##        self._e__arg_order_counter, self._e_is_required = self._e_args # note: these have been canon_expr'd
+##            # not presently used
+##        self.attrs_ive_seen = {}
+##    def _e_override_replace(self, scanner):
+##        """This gets called by a formula scanner when it hits this object in an expr...
+##        it knows lots of private stuff about FormulaScanner.
+##        """
+##        attr = scanner.replacements[_E_ATTR] # a constant_Expr, or an indication of error if this happens (maybe missing then?)
+##        attr = attr._e_constant_value
+##        if 1:
+##            printnim("improve quick & dirty check for two attrs claiming one arg (it may not even work)")###e
+##            self.attrs_ive_seen[attr] = 1
+##            assert len(self.attrs_ive_seen) <= 1, "these attrs claim the same arg: %r" % self.attrs_ive_seen.keys()
+##        required = self._e_is_required._e_constant_value
+##        pos = scanner.argpos(attr, required)
+##        return constant_Expr(pos) # this gets included in the scanner's processed expr
+##    pass
+
+class _thing_that_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten
+    def _internal_Expr_init(self):
+        (self._e__arg_order_counter, self._e_is_required,) = self.args
+            # first arg not presently used, might be obs here and even in caller ##k
+        self.attrs_ive_seen = {}
+    def _e_override_replace(self, scanner):
+        """This gets called by a formula scanner when it hits this object in an expr...
+        it knows lots of private stuff about FormulaScanner.
+        """
+        attr = scanner.replacements[_E_ATTR] # a constant_Expr, or an indication of error if this happens (maybe missing then?)
+        attr = attr._e_constant_value
+        if 1:
+            # quick & dirty check for two attrs claiming one arg... come to think of it, is this wrong re inclusion?
+            # no, as long as overall replace (of this) happens before this gets called, it'll be ok.
+            # but, a better check & better errmsg can be done in scanner if we pass our own args to it.
+            # WAIT, i bet this won't actually catch the error, since the replace would actually occur... have to do it in the scanner.
+            printnim("improve quick & dirty check for two attrs claiming one arg (it may not even work)")###e
+            self.attrs_ive_seen[attr] = 1
+            assert len(self.attrs_ive_seen) <= 1, "these attrs claim the same arg: %r" % self.attrs_ive_seen.keys()
+        required = self._e_is_required
+        pos = scanner.argpos(attr, required)
+        return constant_Expr(pos) # this gets included in the scanner's processed expr
+    pass
 
 def Option( type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
     """To declare a named optional argument in an expr class,
@@ -590,9 +688,9 @@ def Option( type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
        If the default value is needed and not supplied, it comes from the type.
     """
     global _E_ATTR # fyi
-    arg_order_expr = None
+    argpos_expr = None
     attr_expr = _E_ATTR
-    return _ArgOption_helper( attr_expr, arg_order_expr, type_expr, dflt_expr)    
+    return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr)    
 
 def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
     "#doc; index contains both attr and argpos; error to use plain Arg after this in same class (maybe not detected)"

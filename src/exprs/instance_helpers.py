@@ -197,12 +197,12 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         printnim("type coercion of args & optvals is nim")
         printnim("so is provision for multiple arglists,")
         printnim("so is * or ** argdecls,")
-        printnim("so is checking for optnames being legal,or not internal attrnames")
+        printnim("so is checking for optnames being legal, or not internal attrnames")
         # Note: this scheme needs some modification once we have exprs that can accept multiple arglists...
         # one way would be for the above assert [which one? I guess the not self._e_has_args]
         # to change to an if, which stashed the old args somewhere else,
         # and made sure to ask instantiation if that was ok; but better is to have a typedecl, checked now, which knows if it is. ###@@@
-        return
+        return # from _destructive_supply_args
 
     # instantiation methods
     def _make_in(self, env, ipath):
@@ -268,7 +268,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         
         # call subclass-specific instantiation code (it should make kids, perhaps lazily, if above didn't; anything else?? ###@@@)
         self._init_instance()
-        return
+        return # from _destructive_make_in
     
     def _init_class(self): #e move to Instance superclass? ###@@@ CALL ME
         """called once per directly-instantiated python class, when its first python instance is created
@@ -293,11 +293,11 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
 
     # kid-instantiation, to support use of Arg, Option, Instance, etc
     #k (not sure this is not needed in some other classes too, but all known needs are here)
-    ###IMPLEM _i_instance, _i_grabarg, _i_grabarg_index -- or the like -- i bet the index will be computed properly for _i_grabarg
+    ###IMPLEM _i_instance, _i_grabarg -- or the like -- i bet the index will be computed properly for _i_grabarg
     # by a lambda evalled by FormulaScanner; grabarg just finds arg expr in _e_args or _e_kws, caller does it and passes expr
     # to _i_instance, or Instance macro passes expr directly
     
-    def _i_instance( self, expr, index ): ##k args
+    def _i_instance( self, expr, index ):
         """[semi-private; used by macros like Instance, Arg, Option]
         Find or create (or perhaps recompute if invalid, but only the latest version is memoized) (and return)
         an Instance of expr, contained in self, at the given relative index, and in the same env [#e generalize env later?].
@@ -349,6 +349,50 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         env = self.env #e with lexmods?
         index_path = (index, self.ipath)
         return expr._make_in(env, index_path)
+
+    def _i_grabarg( self, attr, argpos, dflt):
+        "#doc, especially the special values for some of these args"
+        assert self._e_is_instance
+        if not self._e_has_args:
+            print "warning: possible bug: not self._e_has_args in _i_grabarg" ###k #e more info
+        assert attr is None or isinstance(attr, str)
+        assert argpos is None or (isinstance(argpos, int) and argpos >= 0)
+        # i think dflt can be _E_REQUIRED_ARG_, or any sort of python object
+        from __Symbols__ import _E_REQUIRED_ARG_
+        if dflt is _E_REQUIRED_ARG_:
+            required = True
+        else:
+            required = False
+            assert not isinstance(dflt, _E_REQUIRED_ARG_.__class__)
+                # kluge sanity check -- not a Symbol #e remove when works, probably not even justified in general
+                #e or replace with "not a Symbol whose name starts _E_" ??
+        if attr is not None and argpos is not None:
+            printnim("assert an arg is not provided in both ways")###e
+        if attr is not None:
+            # try to find it in _e_kws; I suppose the cond is an optim or for clarity, since None won't be a key of _e_kws
+            try:
+                return self._e_kws[attr]
+            except KeyError:
+                pass
+        if argpos is not None:
+            try:
+                return self._e_args[argpos]
+            except ValueError:
+                pass
+        # arg was not provided -- error or use dflt.
+        if required:
+            print "error: required arg not provided. Instance maker should have complained! Using None."
+            return None ###k NOT canon_expr -- we're dealing in values, which needn't be exprs, tho they might be.
+        else:
+            ## ANTI_OPTIM OR BUG -- we were provided directly with dflt, not dflt_expr, due to semantics of call_Expr, etc.
+            # ought to make the macro wrap it so it's not evalled... maybe even stick it on an attr to be memoized?
+            # nah, the decision to use it is constant per instance! but OTOH, nothing memoizes what we return!
+            # So we should in fact do that here, iff we ever compute it.
+            printnim("don't eval dflt if not needed! and memoize it if needed.")
+            #e and eval it here in that case
+            printnim("isn't there an issue with exprs for making, shouldn't be evalled... or not, if eval is themselves... ???")###k
+            return dflt
+        pass 
     
     pass # end of class InstanceOrExpr
 
