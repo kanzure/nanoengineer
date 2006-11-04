@@ -55,6 +55,7 @@ endif
 
 OBJS = cppsurface.o \
 	rotationmatrix.o \
+	intersection.o \
 	hierarchy.o \
 	box.o \
 	interval.o \
@@ -90,6 +91,9 @@ cppsurface.o: cppsurface.cpp cppsurface.h
 
 rotationmatrix.o: rotationmatrix.cpp rotationmatrix.h
 	g++ -c rotationmatrix.cpp -o rotationmatrix.o $(CXXFLAGS)
+
+intersection.o: intersection.cpp intersection.h
+	g++ -c intersection.cpp -o intersection.o $(CXXFLAGS)
 
 hierarchy.o: hierarchy.cpp hierarchy.h
 	g++ -c hierarchy.cpp -o hierarchy.o $(CXXFLAGS)
@@ -140,6 +144,7 @@ depend:
 # DO NOT DELETE
 
 couple.o: triple.h
+intersection.o: couple.h
 rotationmatrix.o: triple.h
 hierarchy.o: box.h boxtree.h container.h rotationmatrix.h
 box.o: interval.h triple.h
