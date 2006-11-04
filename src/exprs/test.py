@@ -98,7 +98,7 @@ def drawtest1_innards(glpane):
     some_env = widget_env(glpane, staterefs) #####@@@@@@ IMPLEM more args, etc, and import it
 
     inst = some_env.make(testexpr, NullIpath)
-    from basic import printnim
+    from basic import printnim, printfyi
     printnim("severe anti-optim not to memoize some_env.make result in draw") ###e but at least it ought to work this way
     inst.draw()
     import env

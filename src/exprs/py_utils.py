@@ -54,6 +54,10 @@ def printnim(msg, constpart = None):
     printonce("nim reminder: " + msg, constpart)
     return
 
+def printfyi(msg, constpart = None):
+    printonce("fyi (printonce): " + msg, constpart)
+    return
+
 class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibledict?? -- it doesn't have to memoize exactly...
     """Act like a transparently extensible dict,
     given a way to compute a new element (which we'll memoize) from the dict key;

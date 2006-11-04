@@ -144,7 +144,7 @@ from debug import print_compact_traceback
 
 from lvals import Lval, LvalDict2 
 
-from basic import printnim # this is a recursive import -- most things in basic are not defined yet
+from basic import printnim, printfyi # this is a recursive import -- most things in basic are not defined yet
 
 from Exprs import * # we need a handful of things, but no harm in grabbing them all.
 
@@ -198,7 +198,9 @@ class ClassAttrSpecific_NonDataDescriptor(object):
     def check(self, cls2):
         ###e remove all calls of this when it works (need to optim)
         cls = self.cls
-        assert cls is not None # need to call _ExprsMeta__set_cls before now
+        assert cls is not None, "self.cls None in check, self.clsname = %r, self.attr = %r" % \
+               (self.clsname, self.attr)
+               # need to call _ExprsMeta__set_cls before now
         assert self.clsname == cls.__name__ # make sure no one changed this since we last checked
         attr = self.attr
         assert cls.__dict__[attr] is self
@@ -215,9 +217,29 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         assert cls is not None, "I don't know if this ever happens, or what it means if it does, or how to handle it" #k in py docs
             #e remove when works (need to optim)
         if cls is not self.cls:
-            copy = self.copy_for_subclass(cls)
+            copy = self.copy_for_subclass(cls) # e.g. from 'InstanceOrExpr' to 'Rect2'
             attr = self.attr
-            cls.__dict__[attr] = copy
+            ## cls.__dict__[attr] = copy # oops, this doesn't work: TypeError: object does not support item assignment
+            # turns out it's a dictproxy object (created on the fly, like unbound methods are), as (I guess) is any new style
+            # class's __dict__. Guess: this is so you can't violate a descriptor's ability to control what set/del does.
+            # You can still modify the actual class dict using setattr -- if the descriptor permits.
+            # So, what to do? Can I get my descriptor to permit this? Depends which kind it is! *This* class can't handle it
+            # (no __set__ method), but which one do I actually use? (And for that matter, would they both even work re my
+            # assumptions about access order when I wrote them? #####k)
+            # Hmm -- CV_rule uses a nondata desc (no __set__, problem), but C_rule uses a data desc. Why is that?
+            # C_rule comment says it has to be a data descriptor. CV_rule likes to be overridden by an instance it makes,
+            # so likes to be non-data (though it does have code to not require this). Conclusion: simplest fix is to
+            # use only the subclass that has __set__, and make that __set__ sometimes work, and change the above code to use it.
+            # I will try this for now [061103 830p], then look for a better fix someday, e.g. not needing this copy at all
+            # (I forget why I needed it). ... wait, the suggestion fails -- it would get into __set__, but then what could that do
+            # to actually change the class dict? It could store something in the instance but not in the class!!
+            # Does that mean it's reversed -- without __set__ I'm ok since I can use setattr? If so, I can fix this by
+            # changing C_rule to not store into same attr in instance.__dict__ so it can use a non-data descriptor.
+            # But WAIT AGAIN, the descriptor will gate access to the instance, not necessarily to the class -- we'll have to try it.
+            setattr( cls, attr, copy) # this might fail in the DataDescriptor subclass used in C_rule, but I don't know. ###k
+            print "setattr( cls, attr, copy) worked for supporting %r from %r for attr %r in %r" % \
+                  (cls , self.cls, attr, self) ####@@@@ self is relevant so we see which kind of descriptor it worked for
+            # btw it also might "succeed but not have the desired effect". What's the predicted bug if it silently has no effect? ##k
             return copy.__get__(obj, cls)
         return self.get_for_our_cls(obj)
     # we have no __set__ or __delete__ methods, since we need to be a non-data descriptor.
@@ -225,11 +247,12 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         "Subclass should implement -- do the __get__ for our class (initializing our class-specific info if necessary)"
         return None
     def copy_for_subclass(self, cls):
-        printnim("fyi (not nim): copy_for_subclass from %r to %r" % (self.cls.__name__, cls.__name__))###@@@, also #e printfyi
-        copy = self.__class__(cls, self.attr, *self.args, **self.kws)
+        printfyi("copy_for_subclass from %r to %r" % (self.cls.__name__, cls.__name__))###@@@
+        copy = self.__class__(cls.__name__, self.attr, *self.args, **self.kws)
+        copy._ExprsMeta__set_cls(cls)
         copy.__copycount = self.__copycount + 1
         if copy.__copycount > 1:
-            if not seen_before("ClassAttrSpecific_NonDataDescriptor copied again"):
+            if not seen_before("ClassAttrSpecific_{Non,}DataDescriptor copied again"):
                 print "once-per-session developer warning: this copy got copied again:", self
         return copy
     pass # end of class ClassAttrSpecific_NonDataDescriptor
@@ -244,6 +267,7 @@ class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
     """
     def __set__(self, *args):
         assert 0, "__set__ is not yet supported in this abstract class"
+        #e see comment above [061103 830p] for why we have to change this... oops, never mind, we can't change it as needed after all.
     def __delete__(self, *args): # note: descriptor protocol wants __delete__, not __del__!
         print "note: ClassAttrSpecific_DataDescriptor.__delete__ is about to assert 0"
         assert 0, "__delete__ is not yet supported in this abstract class"
@@ -371,6 +395,8 @@ class CV_rule(ClassAttrSpecific_NonDataDescriptor):
     """One of these should be stored by ExprsMeta when it finds a _CV_attr compute method,
     formula (if supported #k), or constant (if supported #k).
     """
+    prefixV = '_CV_'
+    prefixK = '_CK_'
     def get_for_our_cls(self, instance):
         attr = self.attr
         # Make sure cls-specific info is present -- we might have some, in the form of _TYPE_ decls around compute rule?? not sure. ##e
@@ -403,6 +429,7 @@ class CV_rule(ClassAttrSpecific_NonDataDescriptor):
         # ditto for C_rule -- say so there... wait, i might be wrong for C_rule and for _CV_ here,
         # since self is remade for each one, but not for _CK_ (since indeply overridden) if that
         # needn't match _CV_ in type. hmm. #####@@@@@
+        attr = self.attr
         compute_methodV = getattr(instance, self.prefixV + attr) # should always work
 ##        compute_methodV = bound_compute_method_to_callable( compute_methodV,
 ##                                                              formula_symbols = (_self, _i), ###IMPLEM _i
@@ -471,8 +498,11 @@ def prefix_nothing(clsname, attr0, val, **kws):
 
 def prefix_DEFAULT_(clsname, attr0, val, **kws):
     "WARNING: caller has to also know something about _DEFAULT_, since it declares attr0 as an option"
-    val = canon_expr(val) # needed even for constant val, so instance rules will detect overrides in those instances
-        ##e could optim somehow, for instances of exprs that didn't do an override for attr0
+    if 'kluge061103':
+        assert val is canon_expr(val)
+    else:
+        val = canon_expr(val) # needed even for constant val, so instance rules will detect overrides in those instances
+            ##e could optim somehow, for instances of exprs that didn't do an override for attr0
     assert is_formula(val) # make sure old code would now always do the following, as we do for now:
     ## did this 061101 -- printnim("here is one place we could put in code to disallow override except for _DEFAULT_")
     ## return prefix_nothing(clsname, attr0, val, permit_override = True, **kws) ###k GUESS this is bad syntax
@@ -613,12 +643,22 @@ class ExprsMeta(type):
                          name, orig_ns_keys )
                 #e change that to a less harmless warning?
             prefix, val = lis[0]
+            if 'kluge061103':
+                # we have to make sure canon_expr happens before sorting, not in the processor after the sort,
+                # or the sort is in the wrong order:
+                if prefix == '_DEFAULT_':
+                    printnim("should de-kluge061103: val = canon_expr(val) for _DEFAULT_ before sorting")
+                    val = canon_expr(val)
             newitems.append( (expr_serno(val), prefix, attr0, val) )
             del prefix, val, attr0, lis
         del data_for_attr
         # sort vals by their expr_serno
         newitems.sort()
         ## print "newitems for class %s:" % name, newitems # this can print a lot, since single Expr vals can have long reprs
+##        if 'debugging' 'kluge061103':
+##            print "newitems for class %s:" % name
+##            for junk, prefix, attr0, val in newitems:
+##                print prefix, attr0, expr_serno(val), val.__class__ 
         # process the vals assigned to certain attrs, and assign them to the correct attrs even if they were prefixed
         scanner = FormulaScanner() # this processes formulas by fixing them up where their source refers directly to an attr
             # defined by another (earlier) formula in the same class, or (#nim, maybe) in a superclass (by supername.attr).
@@ -631,7 +671,7 @@ class ExprsMeta(type):
             processor = prefix_map[prefix]
             if 1:
                 # new code, not yet working [061103]
-                printnim("fyi (not nim): formula_scanner is enabled")
+                printfyi("formula_scanner is enabled")
                 val0 = processor(name, attr0, val, formula_scanner = scanner)
                     # note, this creates a C_rule (or the like) for each formula
             else:
@@ -714,7 +754,9 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             new_order = expr_serno(formula)
             assert new_order >= self.seen_order, 'you have to sort vals before calling me, but I got order %r, then %r in %r' % \
                    (self.seen_order, new_order, formula) #### this is failing, so print the exprs it gets:
-            print "fyi here is a formula for worrying about that sort order bug: %r" % formula ########@@@@@@@@@
+##            print "fyi here is a formula for worrying about that sort order bug: %r" % formula
+##                # the bug is that we sort it as 10, but see it here as constant_Expr(10) -- but who does that?
+##                # Turns out it was done in prefix_DEFAULT_, so in 'kluge061103' we predo that before sorting.
             if new_order == self.seen_order > 0:
                 error_if_Arg_or_Option = True #doc ###IMPLEM its effect; is it really just an error about _E_ATTR?? not sure.
             self.seen_order = new_order
@@ -729,10 +771,16 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
                 ###WRONG since Arg doesn't put in the symbol _E_ATTR, I think... what's ambiguous for it is, ref same arg, or another Arg?
                 ##e to fix, use a scheme we need anyway -- a thing in the expr which runs code when we scan it, to get its replace-val.
                 # (Can that be an effect of doing constant-folding if replace-vals are constants, incl funcs being called on args??)
+            printnim("should test that above kluge (del at _E_ATTR) detects thing = thing2 = Option(...) even if not Arg()")##e
+            
+            # current status by test 061103 8pm - for bright = width, and bheight = top, that warning gets printed,
+            # but nothing else seems to detect the error (if it is an error, I forget, but I think it is). #####@@@@@
+            
         res = self.replacement_subexpr(formula)
         # register formula to be replaced if found later in the same class definition [#e only if it's the right type??]
         if formula in self.replacements:
-            print "warning: formula %r already in replacements -- error?" % (formula,)
+            print "warning: formula %r already in replacements -- error?? its rhs is %r; new rhs would be for attr %r" % \
+                  (formula, self.replacements[formula], attr)
             # maybe not error (tho if smth uses it after this, that might deserve a warning) --
             # in any case, don't replace it with a new replacement
         else:
@@ -747,7 +795,7 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
         assert not isinstance(subexpr, ClassAttrSpecific_NonDataDescriptor), "formula containing super C_rule is nim" #e more info
         if subexpr in self.replacements: # looked up by id(), I hope ###k
             return self.replacements[subexpr]
-        elif hasattr(subexpr, '_e_override_replace') and is_expr_pyinstance(subexpr):
+        elif hasattr(subexpr, '_e_override_replace') and is_Expr_pyinstance(subexpr):
             # It wants to do it itself, perhaps using private knowledge about the methods & internal attrs in this scanner.
             # (This is used by special subexprs which call self.argpos in order to allocate argument positions.)
             return subexpr._e_override_replace( self )

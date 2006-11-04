@@ -19,7 +19,8 @@ $Id$
 ##    ###@@@ #k maybe no longer needed soon? [061102]
 ##    assert _reload_ok, "Exprs module is not allowed to be reloaded, since we test for isinstance(val, Expr) while other modules get imported!"
 
-from basic import printnim, stub # this may be a recursive import (with most things in basic not yet defined)
+from basic import printnim, printfyi, stub # this may be a recursive import (with most things in basic not yet defined)
+from debug import print_compact_stack
 
 # == utilities #e refile
 
@@ -103,6 +104,10 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
     tracking usage of env attrs so an external system can know when the return value becomes invalid;
     - 
     """
+    _e_args = () # this is a tuple of the expr's args (processed by canon_expr), whenever those args are always all exprs.
+    _e_kws = {} # this is a dict of the expr's kw args (processed by canon_expr), whenever all kwargs are exprs.
+        # note: all Expr subclasses should store either all or none of their necessary data for copy in _e_args and _e_kws,
+        # or they should override methods including copy(?) and replace(?) which make that assumption. ##k [061103]
     _e_is_instance = False # override in certain subclasses or instances ###IMPLEM
     _e_serno = 0 ###k guess; since Expr subclasses count as exprs, they all have a serno of 0 (I hope this is ok)
     _e_has_args = False # subclass __init__ or other methods must set this True when it's correct... ###nim, not sure well-defined
@@ -434,8 +439,6 @@ class If_expr(OpExpr): # so we can use If in formulas
 
 class internal_Expr(Expr):
     "Abstract class for various kinds of low-level exprs for internal use that have no visible subexprs."
-    _e_args = () # this is only for expr args; its presence allows super _e_free_in to be correct
-    _e_kws = ()  # ditto, for kws
     def __init__(self, *args, **kws):
         "store args & kws but don't canon_expr them -- assume they are not exprs"
         self.args = args # not sure if the non-_e_ name is ok... if not, try _e_data_args or so? ###k
@@ -455,8 +458,25 @@ class constant_Expr(internal_Expr):
         return "<%s#%d: %r>"% (self.__class__.__name__, self._e_serno, self._e_constant_value,)
     def __str__(self):
         return "%s" % (self._e_constant_value,) #e need parens?
-    def _e_eval(self, *args):
-        return self._e_constant_value
+    def _e_eval(self, env, ipath):
+        if '061103 kluge2':
+            maybe = env.lexval_of_symbol(_self) #e suppress the print from this
+            instantiating = (maybe is not _self)
+        if instantiating:
+            res = self._e_constant_value
+        else:
+            res = self
+        if self._e_constant_value == 10:
+            print_compact_stack("is this eval of %r to %r (instantiating = %r) justified? : " % (self, res, instantiating) )
+                ####@@@@ 061103 9pm i suspect it wasn't when we still went to 10 even though not instantiating,
+                # at least when used to grab an expr by _i_grabarg to pass to _i_instances. [where i am]
+                # I think it's the confusing two-kinds-of-eval -- if this was "eval an instance of this at this _self" it would be ok.
+                # So the above kluge might fix this, and if it does we'll have to support make_in here I guess.
+                # but that might be an issue... where do we put what we make? well, nowhere, we just return it as 10. ###e
+                # PROBLEM: everytime i hit this it's from Rect line 66 with instantiating = True... so I don't yet see
+                # how the existing code is calling it this way -- why is grabarg using a compute method at all?
+                # Is it somehow happening right inside the CV thing? I guess so... why?!?
+        return res
     pass
 
 def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py says that env.understand_expr should call this...
@@ -535,15 +555,15 @@ class Symbol(SymbolicExpr):
 
 # ==
 
-_self = Symbol('_self') # is it ok if this is done more than once, or does only the __Symbols__ module cache them??
-
-# does this work? at least no exception from it -- good, but why not? ###k
-_self.attr1.attr2
-
-##_self2 = Symbol('_self')
-##assert _self2 is _self # i bet this will fail; if so, just import __Symbols__ right here [but make it work someday ##e]
-
-del _self
+##_self = Symbol('_self') # is it ok if this is done more than once, or does only the __Symbols__ module cache them??
+##
+### does this work? at least no exception from it -- good, but why not? ###k
+##_self.attr1.attr2
+##
+####_self2 = Symbol('_self')
+####assert _self2 is _self # i bet this will fail; if so, just import __Symbols__ right here [but make it work someday ##e]
+##
+##del _self
 
 # Symbols for public & private use
 from __Symbols__ import _self

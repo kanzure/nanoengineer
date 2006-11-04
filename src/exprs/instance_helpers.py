@@ -339,7 +339,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         print "fyi, using kid expr %r" % expr ###@@@
         # three increasingly strict asserts:
         assert expr is not None
-        assert is_Expr(expr)
+        assert is_Expr(expr), "not is_Expr: %r" % (expr,)
         assert is_pure_expr(expr) ###k?? what if someone passes an instance -- is that permitted, but a noop for instantiation??
         # also assume expr is "canonicalized" and even "understood" -- not sure if this is justified
         printnim("don't we need understand_expr somewhere in here? (before kidmaking in IorE)") ###@@@
@@ -374,18 +374,18 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         if argpos is not None:
             try:
                 return self._e_args[argpos]
-            except ValueError:
+            except IndexError: # "tuple index out of range"
                 pass
         # arg was not provided -- error or use dflt.
         if required:
-            print "error: required arg not provided. Instance maker should have complained! Using None."
+            printnim( "error: required arg not provided. Instance maker should have complained! Using None.")
             return None ###k NOT canon_expr -- we're dealing in values, which needn't be exprs, tho they might be.
         else:
             ## ANTI_OPTIM OR BUG -- we were provided directly with dflt, not dflt_expr, due to semantics of call_Expr, etc.
             # ought to make the macro wrap it so it's not evalled... maybe even stick it on an attr to be memoized?
             # nah, the decision to use it is constant per instance! but OTOH, nothing memoizes what we return!
             # So we should in fact do that here, iff we ever compute it.
-            printnim("don't eval dflt if not needed! and memoize it if needed.")
+            printnim("don't eval dflt if not needed! and memoize it if needed. (Maybe required optim or bugfix.)")
             #e and eval it here in that case
             printnim("isn't there an issue with exprs for making, shouldn't be evalled... or not, if eval is themselves... ???")###k
             return dflt
