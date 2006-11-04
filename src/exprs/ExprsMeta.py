@@ -629,7 +629,7 @@ class ExprsMeta(type):
             del junk
             # prefix might be anything in prefix_map (including ''), and should control how val gets processed for assignment to attr0.
             processor = prefix_map[prefix]
-            if 0:
+            if 1:
                 # new code, not yet working [061103]
                 printnim("fyi (not nim): formula_scanner is enabled")
                 val0 = processor(name, attr0, val, formula_scanner = scanner)
@@ -712,7 +712,9 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
         error_if_Arg_or_Option = False
         if 1:
             new_order = expr_serno(formula)
-            assert new_order >= self.seen_order, 'you have to sort vals before calling me'
+            assert new_order >= self.seen_order, 'you have to sort vals before calling me, but I got order %r, then %r in %r' % \
+                   (self.seen_order, new_order, formula) #### this is failing, so print the exprs it gets:
+            print "fyi here is a formula for worrying about that sort order bug: %r" % formula ########@@@@@@@@@
             if new_order == self.seen_order > 0:
                 error_if_Arg_or_Option = True #doc ###IMPLEM its effect; is it really just an error about _E_ATTR?? not sure.
             self.seen_order = new_order

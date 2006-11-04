@@ -49,10 +49,18 @@ class Widget2D(Widget):
     # default layout-box formulas; for now i think these need _DEFAULT_ so they're overridable by customization, but later they won't
     printnim("Widget2D formulas won't need _DEFAULT_, soon")
     # in fact, they don't now, if they're internal not public re customization -- ####@@@@ [061103]
-    _DEFAULT_bright = 0
-    _DEFAULT_btop = 0
-    _DEFAULT_bleft = 0
-    _DEFAULT_bbottom = 0    
+    if 1:
+        _DEFAULT_bright = 0
+        _DEFAULT_btop = 0
+        _DEFAULT_bleft = 0
+        _DEFAULT_bbottom = 0
+    else:
+        # try just to see if it works - it did seem to work (didn't test customizability either way tho)
+        printnim("lbox defaults are not customizable -- wrong??")
+        bright = 0
+        btop = 0
+        bleft = 0
+        bbottom = 0    
     pass ### make sure it has .btop. .bbottom, etc -- i.e. a layout box
 
 DelegatingWidget2D = Widget2D

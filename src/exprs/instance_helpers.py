@@ -293,11 +293,8 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
 
     # kid-instantiation, to support use of Arg, Option, Instance, etc
     #k (not sure this is not needed in some other classes too, but all known needs are here)
-    ###IMPLEM _i_instance, _i_grabarg -- or the like -- i bet the index will be computed properly for _i_grabarg
-    # by a lambda evalled by FormulaScanner; grabarg just finds arg expr in _e_args or _e_kws, caller does it and passes expr
-    # to _i_instance, or Instance macro passes expr directly
     
-    def _i_instance( self, expr, index ):
+    def _i_instances( self, expr, index ):
         """[semi-private; used by macros like Instance, Arg, Option]
         Find or create (or perhaps recompute if invalid, but only the latest version is memoized) (and return)
         an Instance of expr, contained in self, at the given relative index, and in the same env [#e generalize env later?].
@@ -330,7 +327,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
            (Implem note: _CV_ stands for "compute value" to ExprsMeta, which implements the LvalDict2 associated with this.
         This method needs no corresponding _CK_ keylist function, since any key (instance index) asked for is assumed valid.)
         """
-        print "fyi in %r, computing _i_instance(index = %r)" % (self, index)###@@@
+        print "fyi in %r, computing _i_instances(index = %r)" % (self, index)###@@@
         assert self._e_is_instance
         # This method needs to create a new instance, by instantiating expr and giving it index.
         # Implem notes:

@@ -219,7 +219,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
     def _e_replace(self, reps):
         "perform replacements (reps) in self, and return the result [same as self if possible?] [some subclasses override this]"
         # for most kinds of exprs, just replace in the args, and in the option values [####@@@@ NIM].
-        printnim("_e_replace is nim for option vals")###@@@
+        printnim("_e_replace is nim for option vals")###@@@ is this ever called? it might be obs [061103 comment]
         args = self._e_args
         modargs = tuple(map(reps, args)) ##k reps is callable??
         if args == modargs:
@@ -227,6 +227,17 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
             # (could it be a formula, but with a boolean value too, stored independently???)
             return self
         return self.__class__(*modargs)
+    def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
+        args = self._e_args
+        kws = self._e_kws
+        if not args and not kws: ###k this will break until all exprs define these... put dflt defs in Expr??
+            return self # optim
+        modargs = tuple(map(func, args))
+        modkws = map_dictvals(func, kws)
+        if modargs == args and modkws == kws:
+            return self # helps prevent memory leaks (by avoiding needless reconstruction of equal exprs); might help serno too??
+        printnim("replace would be wrong for an expr with subexprs but also other data -- do we have any such? ##k")##k
+        return self.__class__(*modargs, **modkws)
     def _e_free_in(self, sym): #e name is confusing, sounds like "free of" which is the opposite -- rename to "contains_free"??
         """Return True if self contains sym (Symbol or its name) as a free variable, in some arg or option value.
         [some subclasses override this]
@@ -575,9 +586,9 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM 
     global _arg_order_counter
     _arg_order_counter += 1
     required = (dflt_expr is _E_REQUIRED_ARG_)
-    argpos_expr = _thing_that_gets_replaced_with_argpos_for_current_attr( _arg_order_counter, required )
+    argpos_expr = _this_gets_replaced_with_argpos_for_current_attr( _arg_order_counter, required )
         # Implem note:
-        # _thing_that_gets_replaced_with_argpos_for_current_attr(...) makes a special thing to be noticed by the FormulaScanner
+        # _this_gets_replaced_with_argpos_for_current_attr(...) makes a special thing to be noticed by the FormulaScanner
         # and replaced with the actual arg order within the class (but the same within any single attr).
         # ExprsMeta can do that by scanning values in order of Expr construction.
         # But it has to worry about two vals the same, since then two attrs have equal claim...
@@ -632,28 +643,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
     #### obs: index_expr   = call_Expr( getattr_Expr(_self, '_i_grabarg_index'), attr_expr, argpos_expr )
     return Instance( type_expr( grabarg_expr), _index_expr = index_expr )
 
-##class _thing_that_gets_replaced_with_argpos_for_current_attr_OBS(OpExpr):
-##    # kluge (choice of superclass, etc; it does need to be an Expr; maybe one that doesn't canon_expr its args is better??) 
-##    def _e_init(self):
-##        self._e__arg_order_counter, self._e_is_required = self._e_args # note: these have been canon_expr'd
-##            # not presently used
-##        self.attrs_ive_seen = {}
-##    def _e_override_replace(self, scanner):
-##        """This gets called by a formula scanner when it hits this object in an expr...
-##        it knows lots of private stuff about FormulaScanner.
-##        """
-##        attr = scanner.replacements[_E_ATTR] # a constant_Expr, or an indication of error if this happens (maybe missing then?)
-##        attr = attr._e_constant_value
-##        if 1:
-##            printnim("improve quick & dirty check for two attrs claiming one arg (it may not even work)")###e
-##            self.attrs_ive_seen[attr] = 1
-##            assert len(self.attrs_ive_seen) <= 1, "these attrs claim the same arg: %r" % self.attrs_ive_seen.keys()
-##        required = self._e_is_required._e_constant_value
-##        pos = scanner.argpos(attr, required)
-##        return constant_Expr(pos) # this gets included in the scanner's processed expr
-##    pass
-
-class _thing_that_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten
+class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten
     def _internal_Expr_init(self):
         (self._e__arg_order_counter, self._e_is_required,) = self.args
             # first arg not presently used, might be obs here and even in caller ##k
@@ -675,6 +665,8 @@ class _thing_that_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e r
         required = self._e_is_required
         pos = scanner.argpos(attr, required)
         return constant_Expr(pos) # this gets included in the scanner's processed expr
+    def _e_eval(self, *args):
+        assert 0, "this %r should never get evalled unless you forgot to enable formula scanning (I think)" % self ##k
     pass
 
 def Option( type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):

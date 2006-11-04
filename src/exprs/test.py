@@ -84,7 +84,7 @@ testexpr_4 = TestIterator( testexpr_3 ) # test an iterator
 
 # == the testexpr to use right now
 
-testexpr = testexpr_1
+testexpr = testexpr_1a
 
 # == per-frame drawing code
 
