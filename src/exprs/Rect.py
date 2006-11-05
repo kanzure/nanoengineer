@@ -5,7 +5,7 @@ $Id$
 '''
 
 from basic import *
-from basic import _self #k not needed in Rect2
+from basic import _self
 
 import draw_utils
 reload_once(draw_utils)
@@ -51,12 +51,18 @@ class Rect2(Widget2D): # this is Rect in a newer syntax, not yet working as of 0
     height = Arg(Width, width)
     color = ArgOrOption(Color, gray)
     # formulas
-    bright = width ######@@@@@ PROBLEM: in ns, width and bright will have same value, no ordering possible -- how can it tell
-        # which one should be used to name the arg? It can't, so it'll need to detect this error and make you use _self. prefix.
-        # (in theory, if it could scan source code, or turn on debugging during class imports, it could figure this out...
-        #  or you could put the argname in Arg or have an _args decl... but I think just using _self.attr in these cases is simpler.)
-    printnim("make sure it complains about bright and width here")
-    btop = height
+    if 0:
+        # use this to test whatever scheme we use to detect this error, once we put one in [disabled 061105 until other things work]
+        bright = width ######@@@@@ PROBLEM: in ns, width and bright will have same value, no ordering possible -- how can it tell
+            # which one should be used to name the arg? It can't, so it'll need to detect this error and make you use _self. prefix.
+            # (in theory, if it could scan source code, or turn on debugging during class imports, it could figure this out...
+            #  or you could put the argname in Arg or have an _args decl... but I think just using _self.attr in these cases is simpler.)
+        printnim("make sure it complains about bright and width here")
+        btop = height
+    else:
+        printfyi("not yet trying to trigger the error warning for 'bright = width'")
+        bright = _self.width
+        btop = _self.height
 ##    # fyi, these are not needed (same as the defaults in Widget2D):
 ##    bbottom = 0
 ##    bleft = 0

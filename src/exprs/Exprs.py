@@ -224,7 +224,8 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
     def _e_replace(self, reps):
         "perform replacements (reps) in self, and return the result [same as self if possible?] [some subclasses override this]"
         # for most kinds of exprs, just replace in the args, and in the option values [####@@@@ NIM].
-        printnim("_e_replace is nim for option vals")###@@@ is this ever called? it might be obs [061103 comment]
+        assert 0, "###@@@ is _e_replace ever called? it might be obs"# [061103 comment]
+        printnim("_e_replace is nim for option vals")
         args = self._e_args
         modargs = tuple(map(reps, args)) ##k reps is callable??
         if args == modargs:
@@ -286,22 +287,38 @@ class OpExpr(SymbolicExpr):
     def __repr__(self): # class OpExpr
         return "<%s#%d: %r>"% (self.__class__.__name__, self._e_serno, self._e_args,)
     def _e_argval(self, i, env,ipath):
-        "Return the value (evaluated each time, never cached, usage-tracked by caller) of our arg[i], in env and at (i,ipath)."
+        """Under the same assumptions as _e_eval (see its docstring),
+        compute and return the current value of an implicit kid-instance made from self._e_args[i], at relative index i,
+        doing usage-tracking into caller (i.e. doing no memoization or caching of our own).
+        """
          ##e consider swapping argorder to 0,ipath,env or (0,ipath),env
         return self._e_args[i]._e_eval(env, (i,ipath))
     def _e_kwval(self, k, env,ipath):
-        "Like _e_argval, but return the value of our keywordarg[k], assuming we have an _e_kws attribute. [Should all Exprs??###e #k]"
+        "Like _e_argval, but return the current value of our implicit-kid-instance of self._e_kws[k], rel index k."
         return self._e_kws[k]._e_eval(env, (k,ipath))
     def _e_eval(self, env,ipath):
-        """Return the value (evaluated each time, never cached, usage-tracked by caller) of self, in env and at ipath.
-        [subclasses should either define _e_eval_function for use in this method implem, or redefine this method.]
+        """Considering ourself implicitly instantiated by the replacements (especially _self_) in env,
+        or more precisely, instantiated as a formula residing in env's _self, after replacement by env's other replacements,
+        with that implicit instance using the index-path given as ipath
+        (and perhaps finding explicit sub-instances using that ipath, if we ever need those),
+        compute and return our current value,
+        doing usage-tracking into caller (i.e. doing no memoization or caching of our own).
+           Note that an expr's current value might be any Python object;
+        if it happens to be an Instance or Expr or special symbol,
+        we should not notice that or do any special cases based on that
+        (otherwise we'll cause bugs for uses of _e_eval on internal formulas like the ones made by the Arg macro).
+           Most subclasses can use this implem, by defining an _e_eval_function which is applied to their arg values.
+        If they have other data, or even kws, and/or if they don't want to always evaluate all args (like If or an InstanceOrExpr),
+        they should redefine this method. [We're not presently in InstanceOrExpr at all, but that might change,
+        though this implem won't work there since those want to never eval their args now. 061105]
         """
+        assert not self._e_kws #e remove when done with devel -- just checks that certain subclasses overrode us -- or, generalize this
         debug = False
         if debug:
-            print "eval",self
+            print "eval %r" % self
         res = apply(self._e_eval_function, [self._e_argval(i,env,ipath) for i in range(len(self._e_args))])
         if debug:
-            print "res =",res
+            print "res = %r" % (res,) # could be anything
         return res
     pass # end of class OpExpr
 
@@ -325,17 +342,18 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
         else:
             return "%s%r" % (self._e_callee, self._e_call_args) # works the same i hope
     def _e_eval(self, env, ipath):
-##        print "how do we eval a call? as a call, or by looking up a rule?"
-##        print "the call_Expr we need to eval is:", self
-            ###e -- i guess by instantiating, then taking .value [061027]
-            #e 061102: we do this by imagining we've done the replacements in env (e.g. for _self) to get an instance of the expr,
-            # and then using ordinary eval rules on that, which include forwarding to _value for some Instances,
-            # but typically result in an Instance or a python data object.
-            # So, just eval it as a call, I think.
+        """[the only reason the super method is not good enough is that we have _e_kws too, I think;
+            maybe also the distinction of that to self._e_call_kws, but I doubt that distinction is needed -- 061105]
+        """
+        # 061102: we do this (_e_eval in general)
+        # by imagining we've done the replacements in env (e.g. for _self) to get an instance of the expr,
+        # and then using ordinary eval rules on that, which include forwarding to _value for some Instances,
+        # but typically result is an Instance or a python data object.
+        # So, just eval it as a call, I think.
         argvals = [self._e_argval(i,env,ipath) for i in range(len(self._e_args))] # includes value of callee as argvals[0]
         # the following assumes _e_call_kws is a subset of (or the same as) _e_kws (with its items using the same keys).
         kwvals = map_dictitems( lambda (k,v): (k,self._e_kwval(k,env,ipath)), self._e_call_kws )
-        printnim('    ###e optim: precede by "self._e_call_kws and"') # in 2 places
+        printnim('###e optim: precede by "self._e_call_kws and"') # in 2 places
         return argvals[0] ( *argvals[1:], **kwvals )
     pass
 
@@ -353,11 +371,6 @@ class getattr_Expr(OpExpr):
     def __str__(self):
          return "%s.%s" % self._e_args #e need parens? need quoting of 2nd arg? Need to not say '.' if 2nd arg not a py-ident string?
     _e_eval_function = getattr
-    # fyi that's equivalent to:
-##    def _e_eval(self, env, ipath):
-##        val0 = self._e_argval(0,env,ipath)
-##        val1 = self._e_argval(1,env,ipath)
-##        return getattr(val0, val1)
     pass
 
 class mul_Expr(OpExpr):
@@ -462,11 +475,15 @@ class constant_Expr(internal_Expr):
         if '061103 kluge2':
             maybe = env.lexval_of_symbol(_self) #e suppress the print from this
             instantiating = (maybe is not _self)
+            assert instantiating, "no _self rep in _e_eval of %r" % self # turns out _e_eval always has to implicitly instantiate [061105]
         if instantiating:
             res = self._e_constant_value
         else:
+            assert 0
+            ## this can be what _e_simplify does, when we have that (for constant-folding an related optims)
             res = self
         if self._e_constant_value == 10:
+            # keep this for now, since i still don't know where 10 came from -- maybe someone called eval that shouldn't have? [061105]
             print_compact_stack("is this eval of %r to %r (instantiating = %r) justified? : " % (self, res, instantiating) )
                 ####@@@@ 061103 9pm i suspect it wasn't when we still went to 10 even though not instantiating,
                 # at least when used to grab an expr by _i_grabarg to pass to _i_instances. [where i am]
@@ -521,6 +538,21 @@ class Symbol(SymbolicExpr):
     def __ne__(self, other):
         return not (self == other)
     def _e_eval(self, env, ipath):
+        """As with super _e_eval, our job is:
+        Imagine that env's replacements should be done in self,
+        and that the resulting modified self should be instantiated within the object which is env's replacement for _self.
+        Then evaluate the result at the current time.
+           For self a symbol other than _self, that just means, do the replacement, worrying about symbols inside that value
+        (in terms of repeated replacement if any), then evaluate the result. I am not sure what context the replacements are in,
+        whether this can ever be used to create an expr result, whether _self is a special case, etc, so for now,
+        print warnings (or maybe asfail) if any of those cases arise.
+           For self the symbol _self, this happens all the time with env's value for _self being an instance,
+        and what we want to return is that very instance. This may mean that technically env's value should be a constant expr
+        which we should eval here, *or* that we should have a special case for _self here, *or* that we should never be
+        recursively evaluating replacements here. For now, I'll handle this by not recursively evaluating,
+        warning if _self doesn't get an Instance, and warning if self is not _self. [061105]
+        """
+        #pre-061105 comments, probably obs & wrong:
         ## print "how do we eval a symbol? some sort of env lookup ..."
         #[later 061027: if lookup gets instance, do we need ipath? does instance have it already? (not same one, for sure -- this is
         # like replacement). If lookup gets expr, do we instantiate it here? For now, just make _self work -- pretend expr was already
@@ -540,11 +572,19 @@ class Symbol(SymbolicExpr):
         # env (drawing_env) will let us grab attrs/opts in object, or things from dynenv as passed to any lexcontaining expr, i think...
         val = env.lexval_of_symbol(self) # note: cares mainly or only about self._e_name; renamed _e_eval_symbol -> lexval_of_symbol
             # but I'm not sure it's really more lexenv than dynenv, at least as seen w/in env... [061028] ####@@@@
-        # val is an intermediate value, needs further eval
+        # val is an intermediate value, needs further eval [this old comment might be wrong; see docstring -- 061105]
         if self == val:
+            if self is not val:
+                print "warning: %r and %r are two different Symbols with same name, thus equal" % (self,val)
             print "warning: Symbol(%r) evals to itself" % self._e_name
-            return self 
-        return val._e_eval(env, ipath)
+            return self
+        if self._e_name != '_self':
+            print "warning: _e_eval of a symbol other than _self is not well-reviewed or yet well-understood"
+                # e.g. what should be in env? what if it's an expr with free vars incl _self -- are they in proper context?
+                # see docstring for more info [061105]
+        ## pre-061105 code did: return val._e_eval(env, ipath)
+        # and that might be needed for other syms -- not sure yet [061105]
+        return val
     def _e_free_in(self, sym):
         """General case: Return True if Expr self contains sym (Symbol or its name) as a free variable, in some arg or option value.
         For this class Symbol, that means: Return True if sym is self or self's name.

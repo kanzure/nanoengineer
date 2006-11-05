@@ -304,6 +304,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         (#e Should we change this to make the expr effectively part of the index, for caching? Probably not; not sure.)
         (#e Should we change this to make it legal to pass a new expr? Probably not... hard for subsequent callers to be consistent...)
         """
+        assert is_pure_expr(expr) #k guess 061105
         # hmm, calling Instance macro evals the expr first... can't it turn out that it changes over time?
         # I think yes... not only that, a lot of change in it should be buried inside the instance! (if it's in an arg formula)
         # as if we need to "instantiate the expr" before actually passing it... hmm, if so this is a SERIOUS LOGIC BUG. ####@@@@
