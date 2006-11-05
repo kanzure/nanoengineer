@@ -509,10 +509,13 @@ class constant_Expr(internal_Expr):
 class debug_evals_of_Expr(internal_Expr):#061105
     "wrap a subexpr with me in order to get its evals printed (by print_compact_stack), with (I hope) no other effect"
     def _internal_Expr_init(self):
-        (self._e_the_expr,) = self.args
+        ## (self._e_the_expr,) = self.args
+        self._e_args = self.args # so replace sees the args
+        assert len(self.args) == 1
     def _e_eval(self, env, ipath):
-        res = self._e_the_expr._e_eval(env, ipath)
-        print_compact_stack("debug_evals_of_Expr(%r) evals it to %r at: " % (self._e_the_expr, res)) 
+        the_expr = self._e_args[0] ## self._e_the_expr
+        res = the_expr._e_eval(env, ipath)
+        print_compact_stack("debug_evals_of_Expr(%r) evals it to %r at: " % (the_expr, res)) #k does this ever happen?
         return res
     pass
     
@@ -650,7 +653,7 @@ _arg_order_counter = 0
 def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM _E_REQUIRED_ARG_ - do we tell _i_instance somehow?
     """To declare an Instance-argument in an expr class,
     use an assignment like this, directly in the class namespace:
-          attr = Arg( type, optional default value )
+          attr = Arg( type, optional default value expr )
        Order matters (specifically, execution order of the Arg macros, or maybe only
     of the exprs containing them, while Python is executing a given class definition,
     before the metaclass's __new__ runs); those attrs which are not already defined
@@ -659,8 +662,11 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM 
        (Handling anything about args in superclasses is NIM. ##e)
        The index of the instance made from this optional argument
     will be its position in the arglist (whether or not the arg was supplied
-    or the default value was used).
-       If the default value is not supplied, there is no default value (i.e. the arg is required).
+    or the default value expr was used).
+       If the default value expr is not supplied, there is no default value (i.e. the arg is required).
+    If it is supplied, it is processed through canon_expr (as if Arg was an Expr constructor),
+    unless it's one of the special case symbols (meant only for private use by this family of macros)
+    _E_REQUIRED_ARG_ or the other _E_ one.##doc
        [_attr_expr is a private option for use by ArgOrOption.]
     """
     global _arg_order_counter
@@ -696,12 +702,19 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
       (determined in ExprsMeta's FormulaScanner by allocating posns 0,1,2,etc to newly seen arg-attrs, whether or not the attr itself
       is public for that arg).
     type_expr ###doc, passed herein to canon_type
-    dflt_expr ###doc, can also be _E_DFLT_FROM_TYPE_ or _E_REQUIRED_ARG_
+    dflt_expr ###doc, can also be _E_DFLT_FROM_TYPE_ or _E_REQUIRED_ARG_;
+        will be asserted not None (kluge, since canon_expr could accept None), then passed through canon_expr
     """
     global _self # fyi
     type_expr = canon_type( type_expr)
     if dflt_expr is _E_DFLT_FROM_TYPE_:
         dflt_expr = default_expr_from_type_expr( type_expr)
+        assert is_pure_expr(dflt_expr) #k guess 061105
+    else:
+        assert dflt_expr is not None # see docstring
+        dflt_expr = canon_expr(dflt_expr) # hopefully this finally will fix dflt 10 bug, 061105 guesshope ###k
+        assert is_pure_expr(dflt_expr) # not sure this is redundant, since not sure if canon_expr checks for Instance ###k
+        printnim("not sure if canon_expr checks for Instance")
     # Note: we have to use explicit call_Expr & getattr_Expr below, to construct Exprs like _self._i_grabarg( attr_expr, ...),
     # only to work around safety features which normally detect that kind of Expr-formation (getattr on _i_* or _e_*,
     # or getattr then call) as a likely error. These safety features are very important, catching errors that would often lead
@@ -711,7 +724,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
         # by the time _i_grabarg sees it (the eval is done when the call_Expr evals its args before doing the call).
         # So if we wanted _i_grabarg to want None rather than _E_REQUIRED_ARG_ as a special case, we could change to that (there & here).
     if "debug more":
-        print("using debug_evals_of_Expr on held_dflt_expr %r, will it work?" % held_dflt_expr)#####@@@@@
+        ## print("using debug_evals_of_Expr on held_dflt_expr %r, will it work?" % held_dflt_expr)#####@@@@@
         held_dflt_expr = debug_evals_of_Expr(held_dflt_expr)
     grabarg_expr = call_Expr( getattr_Expr(_self, '_i_grabarg'), attr_expr, argpos_expr, held_dflt_expr )
     if attr_expr is not None and argpos_expr is not None:
