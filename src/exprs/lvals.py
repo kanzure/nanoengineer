@@ -161,6 +161,15 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         except:
             print_compact_traceback("exception in %r._compute_method ignored: " % self)
             val = None
+            if 1:
+                printfyi("exiting right after lval exception, to see if it makes my errors more readable") ###k 061105; review
+                ## import sys
+                ## sys.exit(1) # doesn't work, just raises SystemExit which gets caught in the same way (tho not infrecur):
+                import sys
+                sys.stderr.flush() #k prob not needed
+                sys.stdout.flush() #k prob needed
+                import os
+                os._exit(1) # from python doc for built-in exceptions, SystemExit
         self.end_tracking_usage( match_checking_code, self.inval )
             # that subscribes self.inval to lvals we used, and unsubs them before calling self.inval [###k verify that]
             #e optim (finalize) if set of used lvals is empty

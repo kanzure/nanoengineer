@@ -785,10 +785,10 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             # in any case, don't replace it with a new replacement
         else:
             from __Symbols__ import _self 
-            self.replacements[formula] = getattr(_self, attr)
+            self.replacements[formula] = getattr(_self, attr) # this creates a getattr_Expr [#e clearer to just use that directly?]
                 # don't do this before calling self.replacement_subexpr above, or it'll find this replacement immediately!
         return res
-    def replacement_subexpr(self, subexpr):
+    def replacement_subexpr(self, subexpr): ###e arg to preclude replacing entire thing, to help detect a1=a2=Arg() error
         """Map a subexpr found in a formula (perhaps a C_rule from a superclass, if that can happen and is supported)
         into its replacement, which is usually the same subexpr.
         """
@@ -811,7 +811,7 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
             # with Instance (or Arg or Option) effectively returning something like a Symbol
             # (representing a _self-specific instance, like _self does) -- in fact [061101],
             # Instance(expr) might immediately return something like
-            # _self._i_instances( expr, relindex-incl-attr-and-formula-subexpr-index )
+            # _self._i_instance( expr, relindex-incl-attr-and-formula-subexpr-index )
             # or maybe that relindex can itself just be a symbol, so it can be put in easily and replaced later in a simple way.
             
         # otherwise assume it's a formula

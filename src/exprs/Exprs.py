@@ -234,6 +234,10 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
             return self
         return self.__class__(*modargs)
     def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
+        if not isinstance(self, (OpExpr, constant_Expr)):#k syntax
+            printfyi("_e_replace_using_subexpr_filter called on class %s" % self.__class__.__name__)
+                 ####k ever on an InstanceOrExpr?? might be wrong then, just as _e_eval should not go inside -- not sure!
+                 # more likely, it needs to go in but in a lexcontext-modified way! [061105 guess] ###@@@
         args = self._e_args
         kws = self._e_kws
         if not args and not kws: ###k this will break until all exprs define these... put dflt defs in Expr??
@@ -272,7 +276,10 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
             # We won't pretend to find special python attrs like __repr__,
             # or Expr methods/attrs starting _e_ (also used in Instances),
             # or Instance ones starting _i_.
-            raise AttributeError, attr 
+            raise AttributeError, attr
+        if 1 and attr.startswith('_i_'): ###e slow, remove when devel is done
+            printnim("slow, remove when devel is done: _i_ noninstance check")
+            assert self._e_is_instance #k not positive this is ok, we'll see [061105]
         return getattr_Expr(self, attr)
     pass
 
@@ -453,10 +460,12 @@ class If_expr(OpExpr): # so we can use If in formulas
 class internal_Expr(Expr):
     "Abstract class for various kinds of low-level exprs for internal use that have no visible subexprs."
     def __init__(self, *args, **kws):
-        "store args & kws but don't canon_expr them -- assume they are not exprs"
+        """store args & kws but don't canon_expr them -- assume they are not necessarily exprs
+        (and even if they are, that they should be treated inertly)
+        """
         self.args = args # not sure if the non-_e_ name is ok... if not, try _e_data_args or so? ###k
         self.kws = kws
-        self._internal_Expr_init() # subclasses should do their init in here 
+        self._internal_Expr_init() # subclasses should override this method to do their init
         self._init_e_serno_()
         return
     def _internal_Expr_init(self):
@@ -470,7 +479,8 @@ class constant_Expr(internal_Expr):
     def __repr__(self): # class constant_Expr
         return "<%s#%d: %r>"% (self.__class__.__name__, self._e_serno, self._e_constant_value,)
     def __str__(self):
-        return "%s" % (self._e_constant_value,) #e need parens?
+        return "%r" % (self._e_constant_value,) #e need parens?
+            #k 061105 changed %s to %r w/o reviewing calls (guess: only affects debugging)
     def _e_eval(self, env, ipath):
         if '061103 kluge2':
             maybe = env.lexval_of_symbol(_self) #e suppress the print from this
@@ -486,7 +496,7 @@ class constant_Expr(internal_Expr):
             # keep this for now, since i still don't know where 10 came from -- maybe someone called eval that shouldn't have? [061105]
             print_compact_stack("is this eval of %r to %r (instantiating = %r) justified? : " % (self, res, instantiating) )
                 ####@@@@ 061103 9pm i suspect it wasn't when we still went to 10 even though not instantiating,
-                # at least when used to grab an expr by _i_grabarg to pass to _i_instances. [where i am]
+                # at least when used to grab an expr by _i_grabarg to pass to _i_instance. [where i am]
                 # I think it's the confusing two-kinds-of-eval -- if this was "eval an instance of this at this _self" it would be ok.
                 # So the above kluge might fix this, and if it does we'll have to support make_in here I guess.
                 # but that might be an issue... where do we put what we make? well, nowhere, we just return it as 10. ###e
@@ -496,6 +506,16 @@ class constant_Expr(internal_Expr):
         return res
     pass
 
+class debug_evals_of_Expr(internal_Expr):#061105
+    "wrap a subexpr with me in order to get its evals printed (by print_compact_stack), with (I hope) no other effect"
+    def _internal_Expr_init(self):
+        (self._e_the_expr,) = self.args
+    def _e_eval(self, env, ipath):
+        res = self._e_the_expr._e_eval(env, ipath)
+        print_compact_stack("debug_evals_of_Expr(%r) evals it to %r at: " % (self._e_the_expr, res)) 
+        return res
+    pass
+    
 def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py says that env.understand_expr should call this...
     "Make subexpr an Expr, if it's not already. (In future, we might also intern it.)"
     if is_Expr(subexpr):
@@ -613,12 +633,12 @@ from __Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
 # some essential macros: Instance, Arg, Option, ArgOrOption
 
 def Instance(expr, _index_expr = _E_ATTR):
-    """Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instances(expr, _E_ATTR),
+    """Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instance(expr, _E_ATTR),
     which is free in the symbols _self and _E_ATTR. [#e _E_ATTR might be changed to _E_INDEX, or otherwise revised.]
     """
     printnim("review: same index is used for a public Option and a private Instance on an attr; maybe ok if no overlap possible???")##e
     global _self # not needed, just fyi
-    return call_Expr( getattr_Expr(_self, '_i_instances'), expr, _index_expr)
+    return call_Expr( getattr_Expr(_self, '_i_instance'), expr, _index_expr)
 
 _arg_order_counter = 0
 
@@ -627,7 +647,7 @@ _arg_order_counter = 0
 # they need it to calc the index to use, esp for ArgOrOption if it depends on how the arg was supplied
 # (unless we implem that using an If or using default expr saying "look in the option" -- consider those!)
 
-def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM _E_REQUIRED_ARG_ - do we tell _i_instances somehow?
+def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM _E_REQUIRED_ARG_ - do we tell _i_instance somehow?
     """To declare an Instance-argument in an expr class,
     use an assignment like this, directly in the class namespace:
           attr = Arg( type, optional default value )
@@ -686,7 +706,14 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
     # only to work around safety features which normally detect that kind of Expr-formation (getattr on _i_* or _e_*,
     # or getattr then call) as a likely error. These safety features are very important, catching errors that would often lead
     # to hard-to-diagnose bugs (when our code has an Expr but thinks it has an Instance), so it's worth the trouble.
-    grabarg_expr = call_Expr( getattr_Expr(_self, '_i_grabarg'), attr_expr, argpos_expr, dflt_expr )
+    held_dflt_expr = constant_Expr(dflt_expr) # 061105 bugfix (not merely an optim as some recent comments seemed to think)
+        # Note, this gets evalled back into dflt_expr (treated as inert, may or may not be an expr depending on what it is right here)
+        # by the time _i_grabarg sees it (the eval is done when the call_Expr evals its args before doing the call).
+        # So if we wanted _i_grabarg to want None rather than _E_REQUIRED_ARG_ as a special case, we could change to that (there & here).
+    if "debug more":
+        print("using debug_evals_of_Expr on held_dflt_expr %r, will it work?" % held_dflt_expr)#####@@@@@
+        held_dflt_expr = debug_evals_of_Expr(held_dflt_expr)
+    grabarg_expr = call_Expr( getattr_Expr(_self, '_i_grabarg'), attr_expr, argpos_expr, held_dflt_expr )
     if attr_expr is not None and argpos_expr is not None:
         # for ArgOrOption, use a tuple of a string and int (attr and argpos) as the index
         index_expr = tuple_Expr( attr_expr, argpos_expr )

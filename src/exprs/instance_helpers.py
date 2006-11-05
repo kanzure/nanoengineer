@@ -294,7 +294,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
     # kid-instantiation, to support use of Arg, Option, Instance, etc
     #k (not sure this is not needed in some other classes too, but all known needs are here)
     
-    def _i_instances( self, expr, index ):
+    def _i_instance( self, expr, index ):
         """[semi-private; used by macros like Instance, Arg, Option]
         Find or create (or perhaps recompute if invalid, but only the latest version is memoized) (and return)
         an Instance of expr, contained in self, at the given relative index, and in the same env [#e generalize env later?].
@@ -304,7 +304,9 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         (#e Should we change this to make the expr effectively part of the index, for caching? Probably not; not sure.)
         (#e Should we change this to make it legal to pass a new expr? Probably not... hard for subsequent callers to be consistent...)
         """
-        assert is_pure_expr(expr) #k guess 061105
+        assert is_pure_expr(expr), "who passed non-pure-expr %r to _i_instance? index %r, self %r, _e_args %r" % \
+               (expr, index, self, self._e_args)
+            #k guess 061105
         # hmm, calling Instance macro evals the expr first... can't it turn out that it changes over time?
         # I think yes... not only that, a lot of change in it should be buried inside the instance! (if it's in an arg formula)
         # as if we need to "instantiate the expr" before actually passing it... hmm, if so this is a SERIOUS LOGIC BUG. ####@@@@
@@ -316,23 +318,23 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
                 print "bug: expr for instance changed",self,index,expr #e more info? i think this is an error and should not happen normally
                 #e if it does happen, should we inval that instance? yes, if this ever happens without error.
             self._i_instance_exprs[index] = expr
-        return self._i_instances_CVdict[index] # takes care of invals in making process? or are they impossible? ##k
-    def _CV__i_instances_CVdict(self, index):
-        """[private] value-recomputing function for self._i_instances_CVdict.
+        return self._i_instance_CVdict[index] # takes care of invals in making process? or are they impossible? ##k
+    def _CV__i_instance_CVdict(self, index):
+        """[private] value-recomputing function for self._i_instance_CVdict.
         Before calling this, the caller must store an expr for this instance
         into self._i_instance_exprs[index] (an ordinary dict).
            If it's permitted for that expr to change with time (which I doubt, but don't know yet for sure #k),
         then whenever the caller changes it (other than when initially setting it), the caller must invalidate
-        the entry with the same key (our index arg) in the LvalDict2 that implements self._i_instances_CVdict
+        the entry with the same key (our index arg) in the LvalDict2 that implements self._i_instance_CVdict
         (but the API for the caller to do that is not yet worked out #e).
            (Implem note: _CV_ stands for "compute value" to ExprsMeta, which implements the LvalDict2 associated with this.
         This method needs no corresponding _CK_ keylist function, since any key (instance index) asked for is assumed valid.)
         """
-        print "fyi in %r, computing _i_instances(index = %r)" % (self, index)###@@@
+        print "fyi in %r, computing _i_instance(index = %r)" % (self, index)###@@@
         assert self._e_is_instance
         # This method needs to create a new instance, by instantiating expr and giving it index.
         # Implem notes:
-        # - the glue code added by _CV_ from self._i_instances_CVdict to this method (by ExprsMeta) uses LvalDict2
+        # - the glue code added by _CV_ from self._i_instance_CVdict to this method (by ExprsMeta) uses LvalDict2
         #   to cache values computed by this method, and recompute them if needed (which may never happen, I'm not sure).
         # - the access to self._i_instance_exprs[index] is not usage tracked;
         #   thus if we change it above w/o error, an inval is needed.
@@ -348,8 +350,11 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         index_path = (index, self.ipath)
         return expr._make_in(env, index_path)
 
-    def _i_grabarg( self, attr, argpos, dflt):
+    def _i_grabarg( self, attr, argpos, dflt): 
         "#doc, especially the special values for some of these args"
+        #k below should not _e_eval or canon_expr without review -- should return an arg or dflt expr, not its value
+        # (tho for now it also can return None on error -- probably causing bugs in callers)
+        assert is_pure_expr(dflt), "_i_grabarg dflt should be an expr, not %r" % (dflt,) #061105 - or use canon_expr?
         assert self._e_is_instance
         if not self._e_has_args:
             print "warning: possible bug: not self._e_has_args in _i_grabarg" ###k #e more info
@@ -390,7 +395,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
             #e and eval it here in that case
             printnim("isn't there an issue with exprs for making, shouldn't be evalled... or not, if eval is themselves... ???")###k
             return dflt
-        pass 
+        pass # above should not _e_eval or canon_expr without review -- should return an arg or dflt expr, not its value
     
     pass # end of class InstanceOrExpr
 
