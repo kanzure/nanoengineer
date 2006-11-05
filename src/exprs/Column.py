@@ -213,8 +213,8 @@ if 0:
     # btw this also handles kluges like [x,y] -> list_Expr(x,y). it might wrap nonobvious python constants with constant_Expr.
     # btw it also does replacements, or binds in enough info to do them lazily.
     
- ## understood_expr._make_in(env.place, index)
- understood_expr._make_in(env, index_path)
+ ## understood_expr._e_make_in(env.place, index)
+ understood_expr._e_make_in(env, index_path)
  #k - where to make things -- a portion of env says that; and how (glp vs pov) -- ditto [ambig with understanding it??];
     # but we also have to supply a local-where, ie an index. 
     # and i forget if the various *kinds* of places (datalayers), which use index indeply & could be revised indeply, should be in one env.place thing...
@@ -227,7 +227,7 @@ class KidMakingUtilsMixin:
         understood_expr = self.env.understand_expr(expr, lexmods = lexmods) # ideally the caller would split this out, if making several kids from this
             ###e to facilitate that, do we offer autoprefixes for understood versions of kid-expr attrs (usually args)? no, too weird to be worth it.
             # or just self.understand? probably. someday, a better formula notation so it's easy to set these things up per-use.
-        return understood_expr._make_in(self.env, index_path)
+        return understood_expr._e_make_in(self.env, index_path)
     # standard compute rules for kids - set up set of kid indices, and func from index to code (aka expr), lexmods. let recompute rules do the rest.
     def _in_kids_i_C_val(self, i): ##???
         # get code, get lexmods, call make_kid...

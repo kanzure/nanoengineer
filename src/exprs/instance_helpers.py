@@ -205,7 +205,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         return # from _destructive_supply_args
 
     # instantiation methods
-    def _make_in(self, env, ipath):
+    def _e_make_in(self, env, ipath):
         "Instantiate self in env, at the given index-path."
         # no need to copy the formulas or args, since they're shared among all instances, so don't call self._copy.
         # instead, make a new instance in a similar way.
@@ -340,6 +340,13 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         #   thus if we change it above w/o error, an inval is needed.
         expr = self._i_instance_exprs[index]
         print "fyi, using kid expr %r" % expr ###@@@
+            # Note, this expr can be very simplifiable, if it came from an Arg macro,
+            # but present code [061105] reevals the full macro expansion each time -- suboptimal.
+            # To fix, we'd need an "expr simplify", whether we used it only once or not...
+            # the reason to use it more than once is if it becomes partly final at some later point than when it starts out.
+            # The simplify implem would need decls about finality of, e.g., getting of some bound methods and (determinism of)
+            # their retvals -- namely (for Arg macro etc) for _i_instance and _i_grabarg and maybe more.
+            # Feasible but not simple; worthwhile optim someday but not right away. ##e
         # three increasingly strict asserts:
         assert expr is not None
         assert is_Expr(expr), "not is_Expr: %r" % (expr,)
@@ -348,7 +355,12 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         printnim("don't we need understand_expr somewhere in here? (before kidmaking in IorE)") ###@@@
         env = self.env #e with lexmods?
         index_path = (index, self.ipath)
-        return expr._make_in(env, index_path)
+        ####e: is _e_eval actually needing to be different from _e_make_in?? yes, _e_eval needs to be told _self
+        # and the other needs to make one... no wait, wrong, different selves --
+        # the _self told to eval is the one _make_in *should make something inside of*! (ie should make a kid of)
+        # So it may be that these are actually the same thing. (See paper notes from today for more about this.)
+        # For now, tho, we'll define _e_make_in on OpExpr to use eval. [not done, where i am]
+        return expr._e_make_in(env, index_path)
 
     def _i_grabarg( self, attr, argpos, dflt): 
         "#doc, especially the special values for some of these args"

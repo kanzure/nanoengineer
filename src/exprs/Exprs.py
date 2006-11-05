@@ -272,11 +272,13 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
         # print '__call__ of %r with:' % self,args,kws###@@@
         return call_Expr(self, *args, **kws)
     def __getattr__(self, attr):
-        if attr.startswith('__') or attr.startswith('_e_') or attr.startswith('_i_'):
-            # We won't pretend to find special python attrs like __repr__,
-            # or Expr methods/attrs starting _e_ (also used in Instances),
-            # or Instance ones starting _i_.
+        if attr.startswith('__'):
+            # be very fast at not finding special python attrs like __repr__
             raise AttributeError, attr
+        if attr.startswith('_e_') or attr.startswith('_i_'):
+            # We won't pretend to find Expr methods/attrs starting _e_ (also used in Instances),
+            # or Instance ones starting _i_ -- but do reveal which class we didn't find them in.
+            raise AttributeError, "no attr %r in %r" % (attr, self.__class__) #e safe_repr for class
         if 1 and attr.startswith('_i_'): ###e slow, remove when devel is done
             printnim("slow, remove when devel is done: _i_ noninstance check")
             assert self._e_is_instance #k not positive this is ok, we'll see [061105]
@@ -402,7 +404,7 @@ class add_Expr(OpExpr):
     def __str__(self):
         return "%s + %s" % self._e_args #e need parens?
     _e_eval_function = lambda x,y:x+y 
-##    # maybe, 061016: ####@@@@ [current issues: args to _make_in, for normals & Ops; symbol lookup; when shared exprs ref same instance]
+##    # maybe, 061016: ####@@@@ [current issues: args to _e_make_in, for normals & Ops; symbol lookup; when shared exprs ref same instance]
 ##    def _C_value(self):
 ##        return self.kids[0].value + self.kids[1].value
     def _make_in_WRONG(self, place, ipath): #### WRONG (see below), really more like _init_instance, called by common _destructive_make_in
@@ -492,7 +494,7 @@ class constant_Expr(internal_Expr):
             assert 0
             ## this can be what _e_simplify does, when we have that (for constant-folding an related optims)
             res = self
-        if self._e_constant_value == 10:
+        if 0 and self._e_constant_value == 10: # if 0 since that 'dflt 10' bug is finally fixed, 061105
             # keep this for now, since i still don't know where 10 came from -- maybe someone called eval that shouldn't have? [061105]
             print_compact_stack("is this eval of %r to %r (instantiating = %r) justified? : " % (self, res, instantiating) )
                 ####@@@@ 061103 9pm i suspect it wasn't when we still went to 10 even though not instantiating,
@@ -504,9 +506,13 @@ class constant_Expr(internal_Expr):
                 # how the existing code is calling it this way -- why is grabarg using a compute method at all?
                 # Is it somehow happening right inside the CV thing? I guess so... why?!?
         return res
+    def _e_make_in(self, env, ipath):
+        "Instantiate self in env, at the given index-path."
+        #e also a method of InstanceOrExpr, guess we'll add to OpExpr and maybe more, not yet in Expr tho, not sure needed in all exprs
+        return self._e_constant_value # thought to be completely correct, 061105
     pass
 
-class debug_evals_of_Expr(internal_Expr):#061105
+class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for debugging
     "wrap a subexpr with me in order to get its evals printed (by print_compact_stack), with (I hope) no other effect"
     def _internal_Expr_init(self):
         ## (self._e_the_expr,) = self.args
@@ -723,7 +729,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
         # Note, this gets evalled back into dflt_expr (treated as inert, may or may not be an expr depending on what it is right here)
         # by the time _i_grabarg sees it (the eval is done when the call_Expr evals its args before doing the call).
         # So if we wanted _i_grabarg to want None rather than _E_REQUIRED_ARG_ as a special case, we could change to that (there & here).
-    if "debug more":
+    if 0 and "debug that 'dflt 10' bug":
         ## print("using debug_evals_of_Expr on held_dflt_expr %r, will it work?" % held_dflt_expr)#####@@@@@
         held_dflt_expr = debug_evals_of_Expr(held_dflt_expr)
     grabarg_expr = call_Expr( getattr_Expr(_self, '_i_grabarg'), attr_expr, argpos_expr, held_dflt_expr )

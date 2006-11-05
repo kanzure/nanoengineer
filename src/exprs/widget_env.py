@@ -36,7 +36,7 @@ class widget_env(Delegator):
         #e Q: is this memoized? does it allocate anything like a state obj ref, or was that already done by customizing this env?
         ## print "making",expr,ipath
         # assume it's an understood expr at this point
-        return expr._make_in(self, ipath)
+        return expr._e_make_in(self, ipath)
     def with_literal_lexmods(self, **lexmods):
         "Return a new rule-env inheriting from this one, different in the lexmods expressed as keyword arguments"
         return self.with_lexmods(lexmods)
