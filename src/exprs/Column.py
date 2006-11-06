@@ -23,6 +23,7 @@ class CLE(GlueCodeMemoizer): # not reviewed recently
       also making the result available as the value of self.delegate
     - also contains the type-specific glue code ### as methods or classes?
     """
+    printnim("CLE not reviewed recently")###k
     def _make_wrapped_obj(self, fixed_type_instance): # _c_ means "informal compute method" (not called in standard way)
         "make a new helper object for any fixed_type_instance, based on its type"
         ###e note, the only real "meat" here is a map from .type to the wrapper class CW/CL (and maybe an error value or None value),
@@ -43,37 +44,26 @@ class CW(DelegatingInstance):
     pass
 
 
-class CL(Instance): ###e needs merge into below
-    def _init_instance(self):
-        self.cles = map(CLE, self.args)
-    #e gap formulas, coords/scenegraph/indices/env/spacers/empty
-    pass
-
 class CL(Instance):
     """[private to Column]
     Handle a List expr instance given to Column, directly or indirectly in its nested-list argument values.
     Specifically, use CLE to treat list elements as contributing sometimes-empty sequences of column elements.
     """
-    # == define the kids [note: the attrname 'kids' is just a convention, i think #e]
-    def _CK_kids(self): # compute the set of kid-keys -- in order (required in this class, though not in general)
-        return range(len(self.args))
-            # if you want to access a memoized version of this, try self.kids.keys() -- but will it be in order?? #####k
-            #e implem dictlike.keys_in_order() for that? note: not always the same (in general) as .keys_sorted()!
-    def _CV_kids(self, i): # compute the kid value for a given kid-key
-        ###WRONG: needs index, and CLE is really _arg or _kid [061018]
-        return CLE(self.instantiate(self.args[i]))
-            ###k self.instantiate(expr) -> instance, env defaults to self.env... but what index? NEED TO PASS INDEX.
-        # about fixing this -- do we understand the arg, and use it, seply? understand in filled expr, use in instance...
-        # self.understand(expr)?? or code in _init_expr? or self.arg_expr[i] defined as understood self.arg[i]??
-        # what about optval exprs? what about locally constructed exprs, with CLE or Overlay... do we understand whole or arg-part?
+    # 061106 possible newer version of the self.elts definition of instantiated args (moved to an outtakes file):
+    # related macros:
+    # - Instance(expr, optional index) # default index is attr we assign it to, you can replace or extend that (only replace is implem)
+    # - InstanceDict(value-expr, optional key-set or key-sequence, optional key-to-index-func) # these exprs can be in _i/_key by default
+    # - InstanceList(value-expr, number-of-elts, optional key-to-index-func)
+    ## digr: a reason i try to say "range" for "domain" is the use of Python range to create the list of domain indices!
+    # - Arg variants of those - replace expr with type, inferring expr as type(arg[i]) for i inferred as for Instance,
+    #   but also come in an order that matters; so:
+    # - Arg(type, optional default-value expr)
+    # - ArgList(type-expr) # applies to the remaining args; index should be (attr, posn in this list), I think
+    # - ArgDict would apply to the remaining kwargs... not sure we'll ever want this
+    # 
+    elts = ArgList( CLE) # can it be that simple? and can this replace all references herein to self.args or self.kids? I think so. ####k
 
-    # self.elts is a list of all kids, in order
-    #e [optim, someday: make it a lazy-element list, or revise above to define one directly]
-    def _C_elts(self):
-        return [self.kids[i] for i in self._CK_kids()] #e or, dictmap(self.kids, range(len(self.args))) -- assuming result is a list!
-            # WARNING: only works since _CK_kids retval is properly ordered, though it needn't be for its defined use (to help make self.kids).
-            # Note: this scheme as a whole is overkill, but as an example for more complex widget expr kidsets, it's useful.
-
+    
     # == figure out what to draw,
     # based on which elements need gaps inserted between them;
 
@@ -193,7 +183,10 @@ class Column(LayoutWidget2D):
     """
     # we work by using helper functions CL, CW, CLE...
     def _init_instance(self):
-        self._value = CLE(list(self.args))
+        self._value = CLE(list(self._e_args)) # 061106 educated guess: self.args -> self._e_args, assuming _value is auto-instantiated
+            # or that the below does that -- not reviewed now. #####@@@@@
+        printnim("Column _vlaue instantiation not reviewed")
+        
             #k do we need to instantiate this, or is that automatic somehow? guess: we do, though a class assignment of it would not.
         self._value = self.make(self._value)
         #### might be better to assign expr to self._E__value (or _C__value??), letting self._value be automade from that --

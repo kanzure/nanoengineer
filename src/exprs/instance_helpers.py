@@ -304,9 +304,12 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         (#e Should we change this to make the expr effectively part of the index, for caching? Probably not; not sure.)
         (#e Should we change this to make it legal to pass a new expr? Probably not... hard for subsequent callers to be consistent...)
         """
+        assert self._e_is_instance
         assert is_pure_expr(expr), "who passed non-pure-expr %r to _i_instance? index %r, self %r, _e_args %r" % \
                (expr, index, self, self._e_args)
             #k guess 061105
+        print "_i_instance called, expr %r, index %r, self %r, _e_args %r" % \
+               (expr, index, self, self._e_args) #######@@@@@@@ 061106 to solve tuple-extraness bug, also check on args
         # hmm, calling Instance macro evals the expr first... can't it turn out that it changes over time?
         # I think yes... not only that, a lot of change in it should be buried inside the instance! (if it's in an arg formula)
         # as if we need to "instantiate the expr" before actually passing it... hmm, if so this is a SERIOUS LOGIC BUG. ####@@@@
