@@ -135,6 +135,8 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         global _next_e_serno
         self._e_serno = _next_e_serno
         _next_e_serno += 1
+        if 'debug' and self._e_serno == 149: #k hope not too early for %r to work
+            print_compact_stack("just made expr 149, %r, at: " % self)
         return
     def __call__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __call__" % self.__class__.__name__
