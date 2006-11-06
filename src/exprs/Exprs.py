@@ -506,7 +506,7 @@ class constant_Expr(internal_Expr):
                 # how the existing code is calling it this way -- why is grabarg using a compute method at all?
                 # Is it somehow happening right inside the CV thing? I guess so... why?!?
         return res
-    def _e_make_in(self, env, ipath):
+    def _e_make_in(self, env, ipath): ###e equiv to _e_eval? see comment in _CV__i_instance_CVdict [061105]
         "Instantiate self in env, at the given index-path."
         #e also a method of InstanceOrExpr, guess we'll add to OpExpr and maybe more, not yet in Expr tho, not sure needed in all exprs
         return self._e_constant_value # thought to be completely correct, 061105

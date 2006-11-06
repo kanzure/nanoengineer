@@ -355,12 +355,19 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         printnim("don't we need understand_expr somewhere in here? (before kidmaking in IorE)") ###@@@
         env = self.env #e with lexmods?
         index_path = (index, self.ipath)
-        ####e: is _e_eval actually needing to be different from _e_make_in?? yes, _e_eval needs to be told _self
+        ####e:  [061105] is _e_eval actually needing to be different from _e_make_in?? yes, _e_eval needs to be told _self
         # and the other needs to make one... no wait, wrong, different selves --
         # the _self told to eval is the one _make_in *should make something inside of*! (ie should make a kid of)
         # So it may be that these are actually the same thing. (See paper notes from today for more about this.)
         # For now, tho, we'll define _e_make_in on OpExpr to use eval. [not done, where i am]
-        return expr._e_make_in(env, index_path)
+        # actually this is even faster -- review sometime (note, in constant_Expr they're both there & equiv #k): ###@@@
+        if hasattr(expr, '_e_make_in'):
+            printfyi("used _e_make_in case")
+            res = expr._e_make_in(env, index_path)
+        else:
+            printfyi("used _e_eval case")
+            res = expr._e_eval(env, index_path)
+        return res
 
     def _i_grabarg( self, attr, argpos, dflt): 
         "#doc, especially the special values for some of these args"
