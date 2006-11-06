@@ -800,7 +800,7 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
         assert not isinstance(subexpr, ClassAttrSpecific_NonDataDescriptor), "formula containing super C_rule is nim" #e more info
         if subexpr in self.replacements: # looked up by id(), I hope ###k
             res = self.replacements[subexpr]
-            print "replacing %r by %r" % (subexpr,res)
+##            print "replacing %r by %r" % (subexpr,res)
             return res 
         elif hasattr(subexpr, '_e_override_replace') and is_Expr_pyinstance(subexpr):
             # It wants to do it itself, perhaps using private knowledge about the methods & internal attrs in this scanner.

@@ -419,7 +419,7 @@ class add_Expr(OpExpr):
         ### and WORST OF ALL, it's actually a destructive make -- maybe it's _init_instance, called by common _destructive_make_in .
         assert not self._e_is_instance ###@@@ need to be in InstanceOrExpr superclass for this [obs cmt??061102]
         # following says place._make_in but probably means env.make! [061020 guess]
-        ##self.kids = map(place._make_in, self.args.items()) # hmm, items have index->expr already -- but this leaves out ipath
+        ##self.kids = map(place._make_in, self._e_args_dict.items()) # hmm, items have index->expr already -- but this leaves out ipath
         args = self._e_args
         self.kids = [place._make_in(args[i], [i, ipath]) for i in range(len(args))]
             # note (proposed): [i, ipath] is an inlined sub_index(i,ipath); [] leaves room for intern = append
@@ -812,6 +812,12 @@ def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
     global _E_ATTR # fyi
     attr_expr = _E_ATTR
     return Arg( type_expr, dflt_expr, _attr_expr = attr_expr)
+
+# stubs:
+Anything = "anything-stub"
+def ArgStub(*args): return Arg(Anything)
+ArgList = ArgStub
+InstanceList = InstanceDict = ArgStub
 
 def canon_type(type_expr):###stub
     "Return a symbolic expr representing a type for coercion"

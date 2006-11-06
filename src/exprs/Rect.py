@@ -108,7 +108,7 @@ class Rect2(Widget2D): # this is Rect in a newer syntax, not yet working as of 0
 
 ### Widget2D gives us defaults for bright etc, and rules like width = bright + bleft
 
-##        print "drawing Rect",self.args
+##        print "drawing Rect",self.xxxargs
 ### -- what could we print to indicate *which subexpr* we're drawing? esp which DebugDraw subexpr?
 # once we have a drawing env, it should have an attr for whether to print debug info like this
 # and its "address" or other sort of "posn in state".

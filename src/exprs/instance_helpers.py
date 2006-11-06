@@ -61,7 +61,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
     # may only be ok if parent doesn't want to modify lexenv for kid.
     ## _e_is_instance = False # now done in class Expr # usually overridden in certain python instances, not in subclasses
     ## _e_has_args = False # ditto
-    args = () # convenient default
+##    args = () # convenient default
     def __init__(self, *args, **kws):
         # note: just before any return herein, we must call self._init_e_serno_(), so it's called after any canon_expr we do;
         # also, the caller (if a private method in us) can then do one inside us; see comment where this is handled in __call__
@@ -120,7 +120,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         assert not self._e_is_instance
         # self has to own its own mutable copies of the expr data in old, or own objects which inherit from them on demand.
         self._e_formula_dict = dict(old._e_formula_dict) ###k too simple, but might work at first; make it a FormulaSet object??
-        self.args = old.args # not mutable, needn't copy; always present even if not self._e_has_args (for convenience, here & in replace)
+        self._e_args = old._e_args # not mutable, needn't copy; always present even if not self._e_has_args (for convenience, here & in replace)
         self._e_has_args = old._e_has_args
         return
 
@@ -156,11 +156,11 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         """
         assert not self._e_is_instance
         assert not self._e_has_args
-        self._e_has_args = True # useful in case args is (), though hasattr(self, 'args') might be good enough too #e
+        self._e_has_args = True # needed in case args are supplied as ()
 
         from Exprs import canon_expr
         args = tuple(map(canon_expr, args))
-        self.args = args
+        self._e_args = args
 
         # also store the args in equivalent options, according to self._args declaration
         # Q: Should we do this on instantiation instead?
@@ -171,6 +171,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         # customize the value of _args itself! That might even make sense, if documented.
         _args = getattr(self, '_args', None) #e make a class attr default for _args
         if _args:
+            printfyi( "_args is deprecated, but supported for now; in %r it's %r" % (self.__class__, _args) )#061106
             if type(_args) is type(""):
                 # permit this special case for convenience
                 _args = (_args,)
@@ -181,7 +182,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
                     # as a special case for convenience? Probably yes, since the values have to be strings.
                     # We could even canonicalize it here.
             ###e also extend the decl format for equiv of * or **, and rename it _argnames or something else (see small paper note)
-            args = self.args
+            args = self._e_args
             argnames = _args
             for i in range(min(len(argnames), len(args))):
                 name = argnames[i]
@@ -192,12 +193,13 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
             pass
         
         # Q. When do we fill in defaults for missing args? A. We don't -- the above code + options code effectively handles that,
-        # PROVIDED we access them by name, not by position in self.args. (Is it reasonable to require that?? ###k)
+        # PROVIDED we access them by name, not by position in self._e_args. (Is it reasonable to require that?? ###k)
         # Q. When do we type-coerce all args? For now, I guess we'll wait til instantiation. [And it's nim.]
-        printnim("type coercion of args & optvals is nim")
-        printnim("so is provision for multiple arglists,")
-        printnim("so is * or ** argdecls,")
-        printnim("so is checking for optnames being legal, or not internal attrnames")
+        # [later 061106: handled by Arg macro.]
+##        printnim("type coercion of args & optvals")
+        printnim("provision for multiple arglists,")
+        printnim("* or ** argdecls,")
+        printnim("checking for optnames being legal, or not internal attrnames")
         # Note: this scheme needs some modification once we have exprs that can accept multiple arglists...
         # one way would be for the above assert [which one? I guess the not self._e_has_args]
         # to change to an if, which stashed the old args somewhere else,
@@ -226,12 +228,15 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         ####@@@@
         self.ipath = ipath ###e does this need mixing into self.env somehow?
         
-        # set up self.args and self.opts
+        # set up self._e_args etc
         self._e_class = expr # for access to _e_formula_dict and args #k needed? #e rename: self.expr?? nah. well, not sure.
         assert expr._e_has_args # we might allow exceptions to this later, based on type decl
         self._e_has_args = expr._e_has_args #k ??
-        self.args = expr.args # for convenient access ### is it ok that we're putting the bare ones here? Don't we want to hide those?
-        # or can we do the type & instancing on these exprs, to get the declared specific args?
+        # copy references to _e_args & _e_kws;
+        # subclass-specific code will (sometimes) do the type & instancing on these exprs, to get the declared specific args
+        self._e_args = expr._e_args
+        self._e_kws = expr._e_kws
+        printnim("need to replace _e_formula_dict with _e_kws")#####@@@@@ 061106
 
         ## print "fyi my metaclass is",self.__metaclass__ # <class 'exprs.ExprsMeta.ExprsMeta'>
 
@@ -251,9 +256,9 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         ### AND take care of rules in env -- now is the time to decide this is not the right implem class -- or did caller do that?
         ### and did caller perhaps also handle adding of type coercers, using our decl??
 
-        # 061020 hopes:
+        # 061020 hopes [rejargoned but not updated, 061106]:
         # maybe we can work for all, incl OpExprs & iterators, by only setting up RULES to instantiate,
-        # which if not used, never happen. self.kids.<index/attr path> has to come from some self.arg or self.opt...
+        # which if not used, never happen. self.kids.<index/attr path> has to come from some self._e_args or self._e_kws member...
         # index always comes from <index/attr path> and *not* from which arg or opt, i think... sometimes they correspond,
         # and some predeclared members of kids could access those for you, e.g. self.kids.args or just self.args for short...
         # we could even say _e_args for the raw ones, .args for the cooked ones.
@@ -264,7 +269,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
 
         #e call _init_class and/or _init_expr if needed [here or more likely earlier]
 
-        self._i_instance_exprs = {}
+        self._i_instance_exprs = {} # private storage for self._i_instance method
         
         # call subclass-specific instantiation code (it should make kids, perhaps lazily, if above didn't; anything else?? ###@@@)
         self._init_instance()
@@ -471,6 +476,7 @@ class GlueCodeMemoizer( DelegatingInstanceOrExpr): ##e rename WrapperMemoizer? W
     # known uses: CLE, value-type-coercers in general (but not all reasonable uses are coercers);
     # in fact [061020], should it be the usual way to find all kids? maybe not, e.g. CL does not use this pattern, it puts CLE around non-fixed arginsts.
     def _C_delegate(self): # renamed from _eval_my_arg
+        printnim("self.args[0] needs review for _e_args or setup, in GlueCodeMemoizer; see DelegatingMixin in another file")###e 061106
         arg = self.args[0] # formula instance
         argval = arg.eval() ###k might need something passed to it (but prob not, it's an instance, it has an env)
         ####@@@@ might be arg.value instead; need to understand how it relates to _value in Boxed [061020]

@@ -1,7 +1,13 @@
+'''
+$Id$
+'''
+
+# as of 061106 the setup looks obs, but it might as well be revived and tested before Column is worked on much
+
 class TestIterator(HelperClass):
     "simple iterator which makes two instances of the same WE arg"
     def _make(self, place):
-        arg = self.args[0]
+        arg = self._e_args[0] # 061106 args -> _e_args (guess)
         self._define_kid(1, arg) # lexenvfunc can be default (identity), I think
         self._define_kid(2, arg)
         #####@@@@@ what about drawing coords? and layout? layout can be stubbed, but coords should differ.
