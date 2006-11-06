@@ -378,7 +378,12 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
         # first scan it for subformulas that need replacement, and return replaced version, also recording info in scanner
         scanner = kws.pop('formula_scanner', None)
         if scanner:
+##            val0 = val # debug msg only
             val = scanner.scan(val, attr) #e more args?
+##            if val0 is not val:
+##                print "scanner replaces %r by %r" % (val0, val)
+##            else:
+##                print "scanner leaves unchanged %r" % (val0,)
         return C_rule_for_formula(clsname, attr, val, **kws)
     elif is_Expr(val):
         printnim("Instance case needs review in choose_C_rule_for_val") # does this ever happen? in theory, it can... (dep on is_special)

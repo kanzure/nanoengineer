@@ -86,6 +86,8 @@ def is_Expr_pyinstance(expr):
 
 # ==
 
+_debug_expr_serno = -1 # set to the serno of an expr you want to watch #k untested since revised
+
 class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs  ####@@@@ MERGE with InstanceOrExpr, or super it
     """abstract class for symbolic expressions that python parser can build for us,
     from Symbols and operations including x.a and x(a);
@@ -135,8 +137,8 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         global _next_e_serno
         self._e_serno = _next_e_serno
         _next_e_serno += 1
-        if 'debug' and self._e_serno == 149: #k hope not too early for %r to work
-            print_compact_stack("just made expr 149, %r, at: " % self)
+        if self._e_serno == _debug_expr_serno: #k hope not too early for %r to work
+            print_compact_stack("just made expr %d, %r, at: " % (_debug_expr_serno,self))
         return
     def __call__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __call__" % self.__class__.__name__
@@ -514,6 +516,17 @@ class constant_Expr(internal_Expr):
         return self._e_constant_value # thought to be completely correct, 061105
     pass
 
+class constantReplacementAcceptingExpr_Expr(constant_Expr):
+    "like constant_Expr, but (1) value has to be an expr, (2) replacements occur in value."
+    def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
+        printfyi("_e_replace_using_subexpr_filter called on class %s" % self.__class__.__name__)
+        arg = self._e_constant_value
+        modarg = func(arg)
+        if modarg == arg:
+            return self
+        return self.__class__(modarg)
+    pass
+
 class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for debugging
     "wrap a subexpr with me in order to get its evals printed (by print_compact_stack), with (I hope) no other effect"
     def _internal_Expr_init(self):
@@ -727,7 +740,8 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
     # only to work around safety features which normally detect that kind of Expr-formation (getattr on _i_* or _e_*,
     # or getattr then call) as a likely error. These safety features are very important, catching errors that would often lead
     # to hard-to-diagnose bugs (when our code has an Expr but thinks it has an Instance), so it's worth the trouble.
-    held_dflt_expr = constant_Expr(dflt_expr) # 061105 bugfix (not merely an optim as some recent comments seemed to think)
+    ## held_dflt_expr = constant_Expr(dflt_expr) # 061105 bugfix (not merely an optim as some recent comments seemed to think)
+    held_dflt_expr = constantReplacementAcceptingExpr_Expr(dflt_expr) #k does this help? (might be right but still a guess) 061105 ###@@@
         # Note, this gets evalled back into dflt_expr (treated as inert, may or may not be an expr depending on what it is right here)
         # by the time _i_grabarg sees it (the eval is done when the call_Expr evals its args before doing the call).
         # So if we wanted _i_grabarg to want None rather than _E_REQUIRED_ARG_ as a special case, we could change to that (there & here).

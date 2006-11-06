@@ -365,8 +365,12 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
             printfyi("used _e_make_in case")
             res = expr._e_make_in(env, index_path)
         else:
-            printfyi("used _e_eval case")
-            res = expr._e_eval(env, index_path)
+            printfyi("used _e_eval case (via _e_compute_method)")
+            printnim("(which needs index_path to be passable-in)") ##e
+            ## res = expr._e_eval(env, index_path)
+            # problem with this is lack of _self... let's add it, like _e_compute_method does
+            # note: this redundantly grabs env from self ###e needs index_path to be passable-in
+            res = expr._e_compute_method(self)() # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10'
         return res
 
     def _i_grabarg( self, attr, argpos, dflt): 
