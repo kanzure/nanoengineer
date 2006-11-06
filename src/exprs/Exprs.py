@@ -752,6 +752,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
     if attr_expr is not None and argpos_expr is not None:
         # for ArgOrOption, use a tuple of a string and int (attr and argpos) as the index
         index_expr = tuple_Expr( attr_expr, argpos_expr )
+        print "that tuple_Expr is %r" % index_expr ######@@@@@@k compare
     elif attr_expr is None and argpos_expr is None:
         assert 0, "attr_expr is None and argpos_expr is None ..."
     elif attr_expr is not None:

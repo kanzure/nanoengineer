@@ -373,24 +373,26 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
             res = expr._e_compute_method(self)() # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10'
         return res
 
-    def _i_grabarg( self, attr, argpos, dflt): 
+    def _i_grabarg( self, attr, argpos, dflt_expr): 
         "#doc, especially the special values for some of these args"
-        #k below should not _e_eval or canon_expr without review -- should return an arg or dflt expr, not its value
+        print "_i_grabarg called with ( self %r, attr %r, argpos %r, dflt_expr %r)" % (self, attr, argpos, dflt_expr) #####@@@@@
+        print " and the data it grabs from is _e_kws = %r, _e_args = %r" % (self._e_kws, self._e_args)
+        #k below should not _e_eval or canon_expr without review -- should return an arg expr or dflt expr, not its value
         # (tho for now it also can return None on error -- probably causing bugs in callers)
-        assert is_pure_expr(dflt), "_i_grabarg dflt should be an expr, not %r" % (dflt,) #061105 - or use canon_expr?
+        assert is_pure_expr(dflt_expr), "_i_grabarg dflt_expr should be an expr, not %r" % (dflt_expr,) #061105 - or use canon_expr?
         assert self._e_is_instance
         if not self._e_has_args:
             print "warning: possible bug: not self._e_has_args in _i_grabarg" ###k #e more info
         assert attr is None or isinstance(attr, str)
         assert argpos is None or (isinstance(argpos, int) and argpos >= 0)
-        # i think dflt can be _E_REQUIRED_ARG_, or any sort of python object
+        # i think dflt_expr can be _E_REQUIRED_ARG_, or any (other) expr
         from __Symbols__ import _E_REQUIRED_ARG_
-        if dflt is _E_REQUIRED_ARG_:
+        if dflt_expr is _E_REQUIRED_ARG_:
             required = True
         else:
             required = False
-            assert not isinstance(dflt, _E_REQUIRED_ARG_.__class__)
-                # kluge sanity check -- not a Symbol #e remove when works, probably not even justified in general
+            assert not isinstance(dflt_expr, _E_REQUIRED_ARG_.__class__)
+                # kluge sanity check -- not a Symbol #e remove when works, probably not even justified in general (eg _self??)
                 #e or replace with "not a Symbol whose name starts _E_" ??
         if attr is not None and argpos is not None:
             printnim("assert an arg is not provided in both ways")###e
@@ -405,19 +407,12 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
                 return self._e_args[argpos]
             except IndexError: # "tuple index out of range"
                 pass
-        # arg was not provided -- error or use dflt.
+        # arg was not provided -- error or use dflt_expr
         if required:
             printnim( "error: required arg not provided. Instance maker should have complained! Using None.")
             return None ###k NOT canon_expr -- we're dealing in values, which needn't be exprs, tho they might be.
         else:
-            ## ANTI_OPTIM OR BUG -- we were provided directly with dflt, not dflt_expr, due to semantics of call_Expr, etc.
-            # ought to make the macro wrap it so it's not evalled... maybe even stick it on an attr to be memoized?
-            # nah, the decision to use it is constant per instance! but OTOH, nothing memoizes what we return!
-            # So we should in fact do that here, iff we ever compute it.
-            printnim("don't eval dflt if not needed! and memoize it if needed. (Maybe required optim or bugfix.)")
-            #e and eval it here in that case
-            printnim("isn't there an issue with exprs for making, shouldn't be evalled... or not, if eval is themselves... ???")###k
-            return dflt
+            return dflt_expr
         pass # above should not _e_eval or canon_expr without review -- should return an arg or dflt expr, not its value
     
     pass # end of class InstanceOrExpr
