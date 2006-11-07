@@ -72,7 +72,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
 ##            self._destructive_customize(val)
 ##            return
         # initialize attrs of self to an owned empty state for an expr
-        self._e_formula_dict = {} ####k is there some reason I can't rename this self.opts??
+        self._e_formula_dict = {} ####k is there some reason I can't rename this self.opts?? [yes, slated to be _e_kws if the same]
         # handle special keywords (assume they all want self to be initialized as we just did above)
         val = kws.pop('_copy_of', None)
         if val:
