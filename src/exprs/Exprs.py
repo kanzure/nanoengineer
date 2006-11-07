@@ -74,15 +74,22 @@ def is_pure_expr(expr):
 def expr_is_Instance(expr):
     "is an Expr an Instance?"
     res = expr._e_is_instance
-    assert res is False or res is True
+    assert res is False or res is True ###e hmm, might fail for classes, need to fix
     return res
 
 def is_Expr_pyinstance(expr):
-    """Is expr an Expr python instance (not an Expr subclass)?
+    """Is expr an Expr, and also a python instance (not an Expr subclass)?
     (This is necessary to be sure you can safely call Expr methods on it.) 
+    (Note: If so, it might or might not be an Instance.)
     [Use this instead of isinstance(Expr) in case Expr module was reloaded.]
     """
     return is_Expr(expr) and is_Expr(expr.__class__)
+
+def is_Expr_pyclass(expr):
+    """Is expr (assumed known is_Expr) a python class (ie a subclass of Expr)?
+    [This is easier to use than issubclass, since that has an exception on non-classes.]
+    """
+    return is_Expr(expr) and not is_Expr(expr.__class__)
 
 # ==
 
@@ -108,6 +115,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
     """
     _e_args = () # this is a tuple of the expr's args (processed by canon_expr), whenever those args are always all exprs.
     _e_kws = {} # this is a dict of the expr's kw args (processed by canon_expr), whenever all kwargs are exprs.
+        # note: all expr subclasses which use this should reassign to it, so this shared version remains empty.
         # note: all Expr subclasses should store either all or none of their necessary data for copy in _e_args and _e_kws,
         # or they should override methods including copy(?) and replace(?) which make that assumption. ##k [061103]
     _e_is_instance = False # override in certain subclasses or instances ###IMPLEM

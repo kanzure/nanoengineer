@@ -826,6 +826,9 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
         # ie if it's a macro which wants that, and if so, copy it with a new keyword or so, before replacing it as below.
         printnim("need special replacement for Arg etc which needs to know attr and formula-subexpr-index?")
         # do replacements in the parts
+        if is_Expr_pyclass(subexpr):
+            # it's a python class -- has no replaceable parts
+            return subexpr
         return subexpr._e_replace_using_subexpr_filter( self.replacement_subexpr ) ###IMPLEM in Expr #k does API survive lexscoping??
     def argpos(self, attr, required):
         """An Arg or ArgOrOption macro has just been seen for attr, in the source line identified by self.linecounter.

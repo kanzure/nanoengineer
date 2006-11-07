@@ -72,7 +72,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
 ##            self._destructive_customize(val)
 ##            return
         # initialize attrs of self to an owned empty state for an expr
-        self._e_formula_dict = {} ####k is there some reason I can't rename this self.opts?? [yes, slated to be _e_kws if the same]
+        self._e_kws = {} # need a fresh dict, since we own it and alter it during subsequent parts of init (??)
         # handle special keywords (assume they all want self to be initialized as we just did above)
         val = kws.pop('_copy_of', None)
         if val:
@@ -99,14 +99,15 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
             # this is necessary to make serno newer than any exprs produced by canon_expr during _destructive_init
         return new
 
-    # public access to self._e_formula_dict
+    # deprecated public access to self._e_kws -- used by _DEFAULT_ decls
     def custom_compute_method(self, attr):
         "#doc; return a compute method or None"
         try:
-            formula = self._e_formula_dict[attr]
+            formula = self._e_kws[attr]
         except KeyError:
             return None
         printnim("assume it's a formula in _self; someday optim for when it's a constant, and/or support other symbols in it")
+        printfyi("something made use of deprecated _DEFAULT_ feature on attr %r" % (attr,)) ###e deprecated - remove uses, gradually
         return formula._e_compute_method(self)
     
     # copy methods (used by __call__)
@@ -119,7 +120,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         """
         assert not self._e_is_instance
         # self has to own its own mutable copies of the expr data in old, or own objects which inherit from them on demand.
-        self._e_formula_dict = dict(old._e_formula_dict) ###k too simple, but might work at first; make it a FormulaSet object??
+        self._e_kws = dict(old._e_kws) ###k too simple, but might work at first; make it a FormulaSet object??
         self._e_args = old._e_args # not mutable, needn't copy; always present even if not self._e_has_args (for convenience, here & in replace)
         self._e_has_args = old._e_has_args
         return
@@ -142,13 +143,13 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         Destructively modify self, an expr, customizing it with the formulas represented by the given keyword arguments.
         """
         assert not self._e_is_instance
-        # self._e_formula_dict dict is owned by every non-instance customized expr (inefficient?)
+        # self._e_kws dict is owned by every non-instance customized expr (inefficient?)
         # but it's shared by Instances and their expr templates
         from Exprs import canon_expr
         # don't do this, since we need canon_expr:
-        ## self._e_formula_dict.update(kws)
+        ## self._e_kws.update(kws)
         for k,v in kws.iteritems():
-            self._e_formula_dict[k] = canon_expr(v)
+            self._e_kws[k] = canon_expr(v)
         return
     def _destructive_supply_args(self, args):
         """[private]
@@ -188,7 +189,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
                 name = argnames[i]
                 val = args[i]
                 assert type(name) is type("")
-                self._e_formula_dict[name] = val
+                self._e_kws[name] = val
                 continue
             pass
         
@@ -229,29 +230,21 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         self.ipath = ipath ###e does this need mixing into self.env somehow?
         
         # set up self._e_args etc
-        self._e_class = expr # for access to _e_formula_dict and args #k needed? #e rename: self.expr?? nah. well, not sure.
+        self._e_class = expr # for access to _e_kws and args #k needed? #e rename: self._e_expr? not sure. #k not yet used
         assert expr._e_has_args # we might allow exceptions to this later, based on type decl
         self._e_has_args = expr._e_has_args #k ??
-        # copy references to _e_args & _e_kws;
-        # subclass-specific code will (sometimes) do the type & instancing on these exprs, to get the declared specific args
+        # copy references to _e_args & _e_kws
+        # note: exprs passed to specific args or kws can be lazily type-coerced and instantiated by Arg or Option decls in subclasses
         self._e_args = expr._e_args
-        self._e_kws = expr._e_kws
-        printnim("need to replace _e_formula_dict with _e_kws")#####@@@@@ 061106
+        self._e_kws = expr._e_kws # replaces _e_formula_dict as of 061106
 
         ## print "fyi my metaclass is",self.__metaclass__ # <class 'exprs.ExprsMeta.ExprsMeta'>
 
-        printonce("nim make in %r" % self.__class__)#####@@@@@
-        ## assert 0, "nim make in %r" % self ##### SHOULD MODIFY ARGS BY ADDING TYPE COERCERS
-
-
+        #semi-obs cmts:
         ### AND set up self.opts to access old._e_formula_dict, also perhaps adding effect of type coercers
         ## print "compare self #formulas %d vs expr #formulas %d" % (len(self._e_formula_dict), len( expr._e_formula_dict)) # 0,3
-        self._e_formula_dict = expr._e_formula_dict # kluge, no protection from bug that modifies it, but nothing is supposed to
+##        self._e_formula_dict = expr._e_formula_dict # kluge, no protection from bug that modifies it, but nothing is supposed to
         ## print "self._e_formula_dict =",self._e_formula_dict
-##        for k,v in self._e_formula_dict.items():
-##            printnim("##HORRIBLE KLUGE just for testing - canon_expr every time")#######@@@@@@@@
-##            from Exprs import canon_expr
-##            self._e_formula_dict[k] = canon_expr(v)
         ### AND have some way to get defaults from env
         ### AND take care of rules in env -- now is the time to decide this is not the right implem class -- or did caller do that?
         ### and did caller perhaps also handle adding of type coercers, using our decl??
@@ -264,8 +257,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         # we could even say _e_args for the raw ones, .args for the cooked ones.
 
         # set up state refs
-        ####
-        printonce("setup state refs is nim in instance_helpers")#####@@@@@
+        printnim("instance_helpers needs setup state refs, init_class call, init_expr call")#####@@@@@
 
         #e call _init_class and/or _init_expr if needed [here or more likely earlier]
 
