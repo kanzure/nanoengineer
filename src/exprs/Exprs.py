@@ -247,7 +247,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         return self.__class__(*modargs)
     def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
         if not isinstance(self, (OpExpr, constant_Expr)):#k syntax
-            printfyi("_e_replace_using_subexpr_filter called on class %s" % self.__class__.__name__)
+            printfyi("_e_replace_using_subexpr_filter called on pyinstance of class %s" % self.__class__.__name__)
                  ####k ever on an InstanceOrExpr?? might be wrong then, just as _e_eval should not go inside -- not sure!
                  # more likely, it needs to go in but in a lexcontext-modified way! [061105 guess] ###@@@
         args = self._e_args
@@ -524,10 +524,11 @@ class constant_Expr(internal_Expr):
         return self._e_constant_value # thought to be completely correct, 061105
     pass
 
-class constantReplacementAcceptingExpr_Expr(constant_Expr):
+class hold_expr(constant_Expr): #renamed from constantReplacementAcceptingExpr_Expr to hold_expr (based on what we use it for)
+    #e might be further renamed to something like no_eval, or we might even revise call_Expr to not always eval its args... not sure
     "like constant_Expr, but (1) value has to be an expr, (2) replacements occur in value."
     def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
-        printfyi("_e_replace_using_subexpr_filter called on class %s" % self.__class__.__name__)
+        printfyi("_e_replace_using_subexpr_filter called on pyinstance of class %s" % self.__class__.__name__)
         arg = self._e_constant_value
         modarg = func(arg)
         if modarg == arg:
@@ -667,12 +668,17 @@ from __Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
 # some essential macros: Instance, Arg, Option, ArgOrOption
 
 def Instance(expr, _index_expr = _E_ATTR):
-    """Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instance(expr, _E_ATTR),
+    """This macro is assigned to a class attr to declare that its value should be a lazily-instantiated Instance of expr. 
+    Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instance(expr, _E_ATTR), [##k with expr held??]
     which is free in the symbols _self and _E_ATTR. [#e _E_ATTR might be changed to _E_INDEX, or otherwise revised.]
+       This function is also used internally to help implement the Arg and Option macros;
+    for their use only, it has a private _index_expr option, giving an index expr other than _E_ATTR for the new Instance.
     """
     printnim("review: same index is used for a public Option and a private Instance on an attr; maybe ok if no overlap possible???")##e
     global _self # not needed, just fyi
-    return call_Expr( getattr_Expr(_self, '_i_instance'), expr, _index_expr)
+    printnim("why is the expr in the _i_instance call not held??? ##k -- it's %r" % (expr,) )#####@@@@@ see what exprs get printed
+        #guess: it should be, but we didn't notice since canon_expr fixes it. question: is it ever a replace-me-in-scan thing??
+    return call_Expr( getattr_Expr(_self, '_i_instance'), hold_expr(expr), _index_expr) 
 
 _arg_order_counter = 0
 
@@ -751,7 +757,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
     # or getattr then call) as a likely error. These safety features are very important, catching errors that would often lead
     # to hard-to-diagnose bugs (when our code has an Expr but thinks it has an Instance), so it's worth the trouble.
     ## held_dflt_expr = constant_Expr(dflt_expr) # 061105 bugfix (not merely an optim as some recent comments seemed to think)
-    held_dflt_expr = constantReplacementAcceptingExpr_Expr(dflt_expr) #k does this help? (might be right but still a guess) 061105 ###@@@
+    held_dflt_expr = hold_expr(dflt_expr) #k does this help? (might be right but still a guess) 061105 ###@@@
         # Note, this gets evalled back into dflt_expr (treated as inert, may or may not be an expr depending on what it is right here)
         # by the time _i_grabarg sees it (the eval is done when the call_Expr evals its args before doing the call).
         # So if we wanted _i_grabarg to want None rather than _E_REQUIRED_ARG_ as a special case, we could change to that (there & here).
@@ -798,7 +804,9 @@ class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename?
             assert len(self.attrs_ive_seen) <= 1, "these attrs claim the same arg: %r" % self.attrs_ive_seen.keys()
         required = self._e_is_required
         pos = scanner.argpos(attr, required)
-        return constant_Expr(pos) # this gets included in the scanner's processed expr
+        res = constant_Expr(pos) # this gets included in the scanner's processed expr
+        print "%r replacing itself with %r" % (self,res)####@@@@
+        return res
     def _e_eval(self, *args):
         assert 0, "this %r should never get evalled unless you forgot to enable formula scanning (I think)" % self ##k
     pass

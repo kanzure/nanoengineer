@@ -367,6 +367,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         # So it may be that these are actually the same thing. (See paper notes from today for more about this.)
         # For now, tho, we'll define _e_make_in on OpExpr to use eval. [not done, where i am]
         # actually this is even faster -- review sometime (note, in constant_Expr they're both there & equiv #k): ###@@@
+        ## this is just the kid expr: print "_CV__i_instance_CVdict needs to make expr %r" % (expr,)
         if hasattr(expr, '_e_make_in'):
             printfyi("used _e_make_in case")
             res = expr._e_make_in(env, index_path)
@@ -377,11 +378,16 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
             # problem with this is lack of _self... let's add it, like _e_compute_method does
             # note: this redundantly grabs env from self ###e needs index_path to be passable-in
             res = expr._e_compute_method(self)() # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10'
-        return res
+        print "_CV__i_instance_CVdict returning %r" % (res,)
+            #### the kid expr needs to be evalled to get the grabbed arg, which is the expr we need to make,
+            # so two levels of eval might be needed. hmm. this is a LOGIC BUG which just showed up when a hold bug was fixed,
+            # and which is seemingly indep of tuple,color,2 bug but is blocking work on it [061108 149p].
+        return res # from _CV__i_instance_CVdict
 
     def _i_grabarg( self, attr, argpos, dflt_expr): 
         "#doc, especially the special values for some of these args"
-        print "_i_grabarg called with ( self %r, attr %r, argpos %r, dflt_expr %r)" % (self, attr, argpos, dflt_expr) #####@@@@@
+        print_compact_stack( "_i_grabarg called with ( self %r, attr %r, argpos %r, dflt_expr %r): " % \
+                             (self, attr, argpos, dflt_expr) ) #####@@@@@
         print " and the data it grabs from is _e_kws = %r, _e_args = %r" % (self._e_kws, self._e_args)
         #k below should not _e_eval or canon_expr without review -- should return an arg expr or dflt expr, not its value
         # (tho for now it also can return None on error -- probably causing bugs in callers)
@@ -391,6 +397,12 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
             print "warning: possible bug: not self._e_has_args in _i_grabarg" ###k #e more info
         assert attr is None or isinstance(attr, str)
         assert argpos is None or (isinstance(argpos, int) and argpos >= 0)
+        res = self._i_grabarg_0(attr, argpos, dflt_expr)
+        print "_i_grabarg returns %r" % (res,)
+        return res
+
+    def _i_grabarg_0( self, attr, argpos, dflt_expr):
+        "[private helper for _i_grabarg]"
         # i think dflt_expr can be _E_REQUIRED_ARG_, or any (other) expr
         from __Symbols__ import _E_REQUIRED_ARG_
         if dflt_expr is _E_REQUIRED_ARG_:
@@ -416,7 +428,9 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         # arg was not provided -- error or use dflt_expr
         if required:
             printnim( "error: required arg not provided. Instance maker should have complained! Using None.")
-            return None ###k NOT canon_expr -- we're dealing in values, which needn't be exprs, tho they might be.
+            return None
+            #k I don't understand the following comment, seems backwards: [061108]
+            ###k NOT canon_expr -- we're dealing in values, which needn't be exprs, tho they might be.
         else:
             return dflt_expr
         pass # above should not _e_eval or canon_expr without review -- should return an arg or dflt expr, not its value
