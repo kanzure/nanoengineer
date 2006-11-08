@@ -45,6 +45,8 @@ def map_dictitems(func, dict1):
 _next_e_serno = 1 # incremented after being used in each new Expr instance (whether or not _e_is_instance is true for it)
     ###e should we make it allocated in Expr subclasses too, by ExprsMeta, and unique in them?
 
+_debug_e_serno = 193 ## normally -1 # set to the serno of an expr you want to watch #k untested since revised
+
 def expr_serno(expr):
     """Return the unique serial number of any Expr (except that Expr python subclasses all return 0).
     Non-Exprs all return -1.
@@ -92,8 +94,6 @@ def is_Expr_pyclass(expr):
     return is_Expr(expr) and not is_Expr(expr.__class__)
 
 # ==
-
-_debug_expr_serno = -1 # set to the serno of an expr you want to watch #k untested since revised
 
 class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs  ####@@@@ MERGE with InstanceOrExpr, or super it
     """abstract class for symbolic expressions that python parser can build for us,
@@ -145,8 +145,8 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         global _next_e_serno
         self._e_serno = _next_e_serno
         _next_e_serno += 1
-        if self._e_serno == _debug_expr_serno: #k hope not too early for %r to work
-            print_compact_stack("just made expr %d, %r, at: " % (_debug_expr_serno,self))
+        if self._e_serno == _debug_e_serno: #k hope not too early for %r to work
+            print_compact_stack("just made expr %d, %r, at: " % (_debug_e_serno,self))
         return
     def __call__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __call__" % self.__class__.__name__
@@ -551,6 +551,8 @@ class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for d
 def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py says that env.understand_expr should call this...
     "Make subexpr an Expr, if it's not already. (In future, we might also intern it.)"
     if is_Expr(subexpr):
+        if subexpr._e_serno == _debug_e_serno:
+            print_compact_stack( "_debug_e_serno %d seen as arg %r to canon_expr, at: " % (_debug_e_serno, subexpr))
         return subexpr # true for Instances too -- ok??
 ##    ## elif issubclass(subexpr, Expr): # TypeError: issubclass() arg 1 must be a class
 ##    elif isinstance(subexpr, type) and issubclass(subexpr, Expr):
@@ -772,6 +774,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
         # (note: ExprsMeta replaces argpos_expr with that int wrapped in constant_Expr, but later eval pulls out the raw int)
         index_expr = argpos_expr
     #### obs: index_expr   = call_Expr( getattr_Expr(_self, '_i_grabarg_index'), attr_expr, argpos_expr )
+    print "passing _index_expr = %r" % (index_expr,) ###061106 tuple index bug
     return Instance( type_expr( grabarg_expr), _index_expr = index_expr )
 
 class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten

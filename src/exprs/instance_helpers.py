@@ -307,6 +307,12 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
             #k guess 061105
         print "_i_instance called, expr %r, index %r, self %r, _e_args %r" % \
                (expr, index, self, self._e_args) #######@@@@@@@ 061106 to solve tuple-extraness bug, also check on args
+## _i_instance called,
+## expr <constant_Expr#500: (0.59999999999999998, 0.10000000000000001, 0.90000000000000002)>,
+## index (<tuple_Expr#193: (<constant_Expr#189: 'color'>, <constant_Expr#192: 2>)>, 'color', 2),
+## self <Rect2#512 at 0x103d9f70>,
+## _e_args (<constant_Expr#501: 8>, <constant_Expr#502: 6>)
+
         # hmm, calling Instance macro evals the expr first... can't it turn out that it changes over time?
         # I think yes... not only that, a lot of change in it should be buried inside the instance! (if it's in an arg formula)
         # as if we need to "instantiate the expr" before actually passing it... hmm, if so this is a SERIOUS LOGIC BUG. ####@@@@
