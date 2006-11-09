@@ -337,7 +337,12 @@ class OpExpr(SymbolicExpr):
         debug = False
         if debug:
             print "eval %r" % self
-        res = apply(self._e_eval_function, [self._e_argval(i,env,ipath) for i in range(len(self._e_args))])
+        func = self._e_eval_function
+        print "this is self._e_eval_function from %r: %r" % (self, func) ####k correct, or bound method? presumably used in getattr##k
+        ## getattr_Expr -> <built-in function getattr> (that's what I wanted, but why does it work? Seemingly just an accident... #k)
+        ## tuple_Expr -> <bound method tuple_Expr.<lambda> of <tuple_Expr#217: (<constant_Expr#211: 'color'>, <constant_Expr#216: 2>)>>
+        # that explains the tuple_Expr bug, finally. Not yet fixed.
+        res = apply(func, [self._e_argval(i,env,ipath) for i in range(len(self._e_args))])
         if debug:
             print "res = %r" % (res,) # could be anything
         return res
@@ -469,18 +474,31 @@ class list_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in
     _e_eval_function = lambda *args:list(args) #k syntax?
     pass
 
-def printfunc(arg, prefix = ''): #e refile, maybe rename dprint; compare to same-named *cannib*.py func
-    print "printfunc %s: %r" % (prefix, arg)
-    return arg
+##def printfunc(*args, prefix = ''): ##k invalid syntax [why?]
+##    print "printfunc %s: %r" % (prefix, args)
+##    return args[0]
+def printfunc(*args, **kws): #e refile, maybe rename dprint; compare to same-named *cannib*.py func
+    prefix = kws.pop('prefix', '')
+    assert not kws
+    print "printfunc %s: %r" % (prefix, args)
+    return args[0]
 
 class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in 0-arg case
     def _e_init(self):
+        print "this tuple_Expr %r has %d args" % (self, len(self._e_args))####@@@@
         pass
     def __str__(self):
         return "%s" % (tuple(self._e_args),) #e need parens?
     ## _e_eval_function = lambda *args:tuple(args)
         #k syntax? ###e optim: args are probably already a tuple
-    _e_eval_function = lambda *args:printfunc(tuple(args), prefix="tupleeval") #####k correct? NO, this is the tuple_Expr bug.
+    _e_eval_function = lambda *args:printfunc(tuple(args), len(args), prefix="tupleeval") #####k correct? NO, this is the tuple_Expr bug.
+    ## printfunc tupleeval: (<tuple_Expr#217: (<constant_Expr#211: 'color'>, <constant_Expr#216: 2>)>, 'color', 2)
+    # this is a function, as a class constant -- when we pull it out of the object,
+    # does it become a bound method? That doesn't fit well the other _e_eval_functions, but check -- print the args here,
+    # and print the _e_eval_function elsewhere. Yes, that's the cause, tho for some reason it didn't mess up getattr.
+    ## <bound method tuple_Expr.<lambda> of ...>
+    ## printfunc tupleeval: ((<tuple_Expr#217: (<constant_Expr#211: 'color'>, <constant_Expr#216: 2>)>, 'color', 2), 3)
+    printnim("tuple_Expr bug is not yet fixed (ditto for other OpExpr _e_eval_function assignments)")#####@@@@@
     pass
 
 class If_expr(OpExpr): # so we can use If in formulas
