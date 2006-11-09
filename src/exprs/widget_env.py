@@ -73,7 +73,7 @@ class drawing_env: ###e cannibalize this above; only used in test.py, obs now
         
     def _e_eval_expr(self, expr):
         ###e look for _e_eval method; test for simple py type
-        assert 0, "nim"####@@@@
+        assert 0, "nim"####@@@@ maybe obs too [guess 061108]
     pass
 
 # things in the env:

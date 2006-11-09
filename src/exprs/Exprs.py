@@ -45,7 +45,7 @@ def map_dictitems(func, dict1):
 _next_e_serno = 1 # incremented after being used in each new Expr instance (whether or not _e_is_instance is true for it)
     ###e should we make it allocated in Expr subclasses too, by ExprsMeta, and unique in them?
 
-_debug_e_serno = 193 ## normally -1 # set to the serno of an expr you want to watch #k untested since revised
+_debug_e_serno = -1 ## normally -1 # set to the serno of an expr you want to watch #k untested since revised
 
 def expr_serno(expr):
     """Return the unique serial number of any Expr (except that Expr python subclasses all return 0).
@@ -304,7 +304,7 @@ class OpExpr(SymbolicExpr):
         self._init_e_serno_() # call this AFTER canon_expr (for sake of _e_serno order)
         self._e_init()
     def _e_init(self):
-        assert 0, "subclass of OpExpr must implement this"
+        assert 0, "subclass of OpExpr must implement _e_init"
     def __repr__(self): # class OpExpr
         return "<%s#%d: %r>"% (self.__class__.__name__, self._e_serno, self._e_args,)
     def _e_argval(self, i, env,ipath):
@@ -345,16 +345,26 @@ class OpExpr(SymbolicExpr):
 
 class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even though it can be produced by SymbolicExpr.__call__
     def __init__(self, callee, *callargs, **kws):
-        # need to extend OpExpr.__init__ so we can have kws, and canon them
+        # we extend OpExpr.__init__ so we can have kws, and canon them
         self._e_kws = map_dictvals(canon_expr, kws) ###e optim: precede by "kws and"
         OpExpr.__init__(self, callee, *callargs) # call this AFTER you call canon_expr above (for sake of _e_serno order)
     def _e_init(self):
-        ## obs: assert len(self._e_args) == 3
-        ## obs: self._e_callee, self._e_call_args, self._e_call_kws = self._e_args
+        # Store some args under more convenient names.
+        # Note: this does NOT hide them from (nondestructive) _e_replace* methods,
+        # since those find the original args, modify them, and construct a new expr from them.
+        ##WRONG: printnim("it's probably a bug that call_Expr hides its args in places hidden from replace")##k not sure if it shows up yet tho
         self._e_callee = self._e_args[0]
         self._e_call_args = self._e_args[1:]
         self._e_call_kws = self._e_kws #e could use cleanup below to not need this alias
         #e might be useful to record line number, at least for some heads like NamedLambda; see Symbol compact_stack call for how
+##    def _e_check(self):#WRONG
+##        "check for bugs"
+##        if self._e_callee != self._e_args[0]: print "bug0" #k why never printed? aha -- args are not destructively modified.
+##        if self._e_call_args != self._e_args[1:]: print "bug1"
+##        if self._e_call_kws != self._e_kws: print "bug2"
+##        if self._e_callee is not self._e_args[0]: print "bug0a"
+##        if self._e_call_args is not self._e_args[1:]: print "bug1a" # this HAS TO BE printed... yes, it is. no others are.
+##        if self._e_call_kws is not self._e_kws: print "bug2a"
     def __str__(self):
         if self._e_call_kws:
             return "%s(*%r, **%r)" % (self._e_callee, self._e_call_args, self._e_call_kws) #e need parens?
@@ -366,6 +376,7 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
         """[the only reason the super method is not good enough is that we have _e_kws too, I think;
             maybe also the distinction of that to self._e_call_kws, but I doubt that distinction is needed -- 061105]
         """
+##        self._e_check()#WRONG
         # 061102: we do this (_e_eval in general)
         # by imagining we've done the replacements in env (e.g. for _self) to get an instance of the expr,
         # and then using ordinary eval rules on that, which include forwarding to _value for some Instances,
@@ -458,12 +469,18 @@ class list_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in
     _e_eval_function = lambda *args:list(args) #k syntax?
     pass
 
+def printfunc(arg, prefix = ''): #e refile, maybe rename dprint; compare to same-named *cannib*.py func
+    print "printfunc %s: %r" % (prefix, arg)
+    return arg
+
 class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in 0-arg case
     def _e_init(self):
         pass
     def __str__(self):
         return "%s" % (tuple(self._e_args),) #e need parens?
-    _e_eval_function = lambda *args:tuple(args) #k syntax? ###e optim: args are probably already a tuple
+    ## _e_eval_function = lambda *args:tuple(args)
+        #k syntax? ###e optim: args are probably already a tuple
+    _e_eval_function = lambda *args:printfunc(tuple(args), prefix="tupleeval") #####k correct? NO, this is the tuple_Expr bug.
     pass
 
 class If_expr(OpExpr): # so we can use If in formulas
@@ -524,16 +541,35 @@ class constant_Expr(internal_Expr):
         return self._e_constant_value # thought to be completely correct, 061105
     pass
 
-class hold_expr(constant_Expr): #renamed from constantReplacementAcceptingExpr_Expr to hold_expr (based on what we use it for)
+class hold_Expr(constant_Expr): #renamed from constantReplacementAcceptingExpr_Expr to hold_Expr (based on what we use it for)
     #e might be further renamed to something like no_eval, or we might even revise call_Expr to not always eval its args... not sure
-    "like constant_Expr, but (1) value has to be an expr, (2) replacements occur in value."
+    """Like constant_Expr, but (1) value has to be an expr, (2) replacements occur in value.
+    Used internally to prevent eval of args to call_Expr.
+    """
     def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
         printfyi("_e_replace_using_subexpr_filter called on pyinstance of class %s" % self.__class__.__name__)
-        arg = self._e_constant_value
+        arg = self._e_constant_value #e another implem, maybe cleaner: store this data in _e_args; possible problems not reviewed
         modarg = func(arg)
         if modarg == arg:
             return self
         return self.__class__(modarg)
+    pass
+
+class eval_Expr(OpExpr):
+    """An "eval operator", more or less. For internal use only [if not, indices need to be generalized].
+    Used when you need to put an expr0 inside some other expr1 where it will be evalled later,
+    but you have, instead of expr0, expr00 which will eval to expr0. In such cases, you can put eval_Expr(expr00)
+    in the place where you were supposed to put expr0, and when the time comes to eval that, expr00 will be evalled twice,
+    in the same env and with appropriately differing indices.
+    """
+    def _e_init(self):
+        pass
+    def _e_eval(self, env,ipath):
+        (arg,) = self._e_args
+        argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
+        res = argval._e_eval(env, ipath)
+        ## print "eval_Expr eval goes from %r to %r to %r" % (arg, argval, res) ###
+        return res
     pass
 
 class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for debugging
@@ -669,16 +705,18 @@ from __Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
 
 def Instance(expr, _index_expr = _E_ATTR):
     """This macro is assigned to a class attr to declare that its value should be a lazily-instantiated Instance of expr. 
-    Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instance(expr, _E_ATTR), [##k with expr held??]
+    Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instance(hold_Expr(expr), _E_ATTR),
     which is free in the symbols _self and _E_ATTR. [#e _E_ATTR might be changed to _E_INDEX, or otherwise revised.]
        This function is also used internally to help implement the Arg and Option macros;
     for their use only, it has a private _index_expr option, giving an index expr other than _E_ATTR for the new Instance.
+    Note that they may have handy, not expr itself, but a "grabarg" expr which needs to be evaluated (with _self bound)
+    to produce that expr. What should they pass?? eval_Expr of the expr they have. [#doc - reword this]
     """
     printnim("review: same index is used for a public Option and a private Instance on an attr; maybe ok if no overlap possible???")##e
     global _self # not needed, just fyi
-    printnim("why is the expr in the _i_instance call not held??? ##k -- it's %r" % (expr,) )#####@@@@@ see what exprs get printed
+    ##printnim("why is the expr in the _i_instance call not held??? ##k -- it's %r" % (expr,) )#####@@@@@ see what exprs get printed
         #guess: it should be, but we didn't notice since canon_expr fixes it. question: is it ever a replace-me-in-scan thing??
-    return call_Expr( getattr_Expr(_self, '_i_instance'), hold_expr(expr), _index_expr) 
+    return call_Expr( getattr_Expr(_self, '_i_instance'), hold_Expr(expr), _index_expr) 
 
 _arg_order_counter = 0
 
@@ -757,7 +795,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
     # or getattr then call) as a likely error. These safety features are very important, catching errors that would often lead
     # to hard-to-diagnose bugs (when our code has an Expr but thinks it has an Instance), so it's worth the trouble.
     ## held_dflt_expr = constant_Expr(dflt_expr) # 061105 bugfix (not merely an optim as some recent comments seemed to think)
-    held_dflt_expr = hold_expr(dflt_expr) #k does this help? (might be right but still a guess) 061105 ###@@@
+    held_dflt_expr = hold_Expr(dflt_expr) #k does this help? (might be right but still a guess) 061105 ###@@@
         # Note, this gets evalled back into dflt_expr (treated as inert, may or may not be an expr depending on what it is right here)
         # by the time _i_grabarg sees it (the eval is done when the call_Expr evals its args before doing the call).
         # So if we wanted _i_grabarg to want None rather than _E_REQUIRED_ARG_ as a special case, we could change to that (there & here).
@@ -768,7 +806,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
     if attr_expr is not None and argpos_expr is not None:
         # for ArgOrOption, use a tuple of a string and int (attr and argpos) as the index
         index_expr = tuple_Expr( attr_expr, argpos_expr )
-        print "that tuple_Expr is %r" % index_expr ######@@@@@@k compare
+        print "that tuple_Expr is %r" % (index_expr,) ######@@@@@@k compare
     elif attr_expr is None and argpos_expr is None:
         assert 0, "attr_expr is None and argpos_expr is None ..."
     elif attr_expr is not None:
@@ -780,8 +818,9 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
         # (note: ExprsMeta replaces argpos_expr with that int wrapped in constant_Expr, but later eval pulls out the raw int)
         index_expr = argpos_expr
     #### obs: index_expr   = call_Expr( getattr_Expr(_self, '_i_grabarg_index'), attr_expr, argpos_expr )
-    print "passing _index_expr = %r" % (index_expr,) ###061106 tuple index bug
-    return Instance( type_expr( grabarg_expr), _index_expr = index_expr )
+    print "passing _index_expr = %r into Instance macro" % (index_expr,) ###061106 tuple index bug
+    ## print "is this the Instance macro? %r" % (Instance,) #k as opposed to "class Instance" (name conflict)? yes, it is.
+    return Instance( eval_Expr( type_expr( grabarg_expr)), _index_expr = index_expr )
 
 class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten
     def _internal_Expr_init(self):
@@ -805,7 +844,7 @@ class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename?
         required = self._e_is_required
         pos = scanner.argpos(attr, required)
         res = constant_Expr(pos) # this gets included in the scanner's processed expr
-        print "%r replacing itself with %r" % (self,res)####@@@@
+        ##print "%r replacing itself with %r" % (self,res)
         return res
     def _e_eval(self, *args):
         assert 0, "this %r should never get evalled unless you forgot to enable formula scanning (I think)" % self ##k

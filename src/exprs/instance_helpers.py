@@ -372,7 +372,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
             printfyi("used _e_make_in case")
             res = expr._e_make_in(env, index_path)
         else:
-            printfyi("used _e_eval case (via _e_compute_method)")
+            printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108
             printnim("(which needs index_path to be passable-in)") ##e
             ## res = expr._e_eval(env, index_path)
             # problem with this is lack of _self... let's add it, like _e_compute_method does
