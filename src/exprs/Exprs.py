@@ -415,7 +415,7 @@ class mul_Expr(OpExpr):
         assert len(self._e_args) == 2
     def __str__(self):
         return "%s * %s" % self._e_args #e need parens?
-    _e_eval_function = lambda x,y:x*y # does this have a builtin name? see operators module ###k
+    _e_eval_function = staticmethod(lambda x,y:x*y) # does this have a builtin name? see operators module ###k
     pass
 
 class div_Expr(OpExpr):
@@ -491,7 +491,11 @@ class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. i
         return "%s" % (tuple(self._e_args),) #e need parens?
     ## _e_eval_function = lambda *args:tuple(args)
         #k syntax? ###e optim: args are probably already a tuple
-    _e_eval_function = lambda *args:printfunc(tuple(args), len(args), prefix="tupleeval") #####k correct? NO, this is the tuple_Expr bug.
+    _e_eval_function = staticmethod(lambda *args:printfunc(tuple(args), len(args), prefix="tupleeval")) # works now!
+        ## this is self._e_eval_function from <tuple_Expr#217: ...>: <function <lambda> at 0xefe6bb0>
+        ## computing _i_instance(index = ('color', 2))
+    # older:
+    #####k correct? NO, this is the tuple_Expr bug.
     ## printfunc tupleeval: (<tuple_Expr#217: (<constant_Expr#211: 'color'>, <constant_Expr#216: 2>)>, 'color', 2)
     # this is a function, as a class constant -- when we pull it out of the object,
     # does it become a bound method? That doesn't fit well the other _e_eval_functions, but check -- print the args here,
