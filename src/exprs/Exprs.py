@@ -10,14 +10,6 @@ $Id$
 #e want __all__? would contain most of it.
 
 # as of 061102 this module is probably reloadable:
-##try:
-##    _reload_ok
-##except:
-##    _reload_ok = False # can be redefined at runtime from a debugger, but reload will probably lead to bugs.
-##    # this will prevent reload_once from actually reloading it
-##else:
-##    ###@@@ #k maybe no longer needed soon? [061102]
-##    assert _reload_ok, "Exprs module is not allowed to be reloaded, since we test for isinstance(val, Expr) while other modules get imported!"
 
 from basic import printnim, printfyi, stub # this may be a recursive import (with most things in basic not yet defined)
 from debug import print_compact_stack
@@ -54,12 +46,9 @@ def expr_serno(expr):
     try:
         return expr._e_serno # what if expr is a class? is this 0 for all of those?? yes for now. ###k
     except:
-        assert not is_Expr(expr)
-        # for now, this happens a lot, since ExprsMeta calls us on non-expr vals such as compute method functions,
+        # for now, this case happens a lot, since ExprsMeta calls us on non-expr vals such as compute method functions,
         # and even sometimes on ordinary Python constants.
-##        printnim("Maybe this never happens -- non-Expr in expr_serno: %r" % (expr,)) ####@@@@ it does...
-##            # e.g. for <function _C_delegate at 0xf3f55f0>, or func _C__dict_of_lvals, and maybe a tuple??
-##        #e assert(0)??
+        assert not is_Expr(expr)
         return -1
     pass
 
@@ -198,8 +187,6 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect) on 061016
         ## return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())
         return "<%s#%d at %#x>" % (self.__class__.__name__, self._e_serno, id(self))
-##    def __str__(self):
-##        return "??"
     # ==
     def __rmul__( self, lhs ):
         """operator b * a"""
@@ -233,18 +220,6 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         """operator float(a)"""
         print "kluge: float(expr) -> 17.0"####@@@@ need float_Expr
         return 17.0
-    def _e_replace(self, reps):
-        "perform replacements (reps) in self, and return the result [same as self if possible?] [some subclasses override this]"
-        # for most kinds of exprs, just replace in the args, and in the option values [####@@@@ NIM].
-        assert 0, "###@@@ is _e_replace ever called? it might be obs"# [061103 comment]
-        printnim("_e_replace is nim for option vals")
-        args = self._e_args
-        modargs = tuple(map(reps, args)) ##k reps is callable??
-        if args == modargs:
-            ##k requires fast == on Expr, which unlike other ops is not meant as a formula
-            # (could it be a formula, but with a boolean value too, stored independently???)
-            return self
-        return self.__class__(*modargs)
     def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
         if not isinstance(self, (OpExpr, constant_Expr)):#k syntax
             printfyi("_e_replace_using_subexpr_filter called on pyinstance of class %s" % self.__class__.__name__)
@@ -252,13 +227,17 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
                  # more likely, it needs to go in but in a lexcontext-modified way! [061105 guess] ###@@@
         args = self._e_args
         kws = self._e_kws
-        if not args and not kws: ###k this will break until all exprs define these... put dflt defs in Expr??
+        if not args and not kws:
             return self # optim
         modargs = tuple(map(func, args))
         modkws = map_dictvals(func, kws)
         if modargs == args and modkws == kws:
+            # Note: requires fast == on Expr -- currently we let Python use 'is' by default. [#k in py doc, verify that's what happens]
+            # Note: '==' (unlike other ops) is not meant as a formula.
+            # (Could it be a formula, but with a boolean value too, stored independently??)
             return self # helps prevent memory leaks (by avoiding needless reconstruction of equal exprs); might help serno too??
         printnim("replace would be wrong for an expr with subexprs but also other data -- do we have any such? ##k")##k
+            #k (wouldn't it also be wrong for expr w/ other data, even if no args/kws??)
         return self.__class__(*modargs, **modkws)
     def _e_free_in(self, sym): #e name is confusing, sounds like "free of" which is the opposite -- rename to "contains_free"??
         """Return True if self contains sym (Symbol or its name) as a free variable, in some arg or option value.
@@ -281,7 +260,6 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
 
 class SymbolicExpr(Expr): # Symbol or OpExpr
     def __call__(self, *args, **kws):
-        # print '__call__ of %r with:' % self,args,kws###@@@
         return call_Expr(self, *args, **kws)
     def __getattr__(self, attr):
         if attr.startswith('__'):
@@ -334,17 +312,13 @@ class OpExpr(SymbolicExpr):
         though this implem won't work there since those want to never eval their args now. 061105]
         """
         assert not self._e_kws #e remove when done with devel -- just checks that certain subclasses overrode us -- or, generalize this
-        debug = False
-        if debug:
-            print "eval %r" % self
         func = self._e_eval_function
-        print "this is self._e_eval_function from %r: %r" % (self, func) ####k correct, or bound method? presumably used in getattr##k
-        ## getattr_Expr -> <built-in function getattr> (that's what I wanted, but why does it work? Seemingly just an accident... #k)
-        ## tuple_Expr -> <bound method tuple_Expr.<lambda> of <tuple_Expr#217: (<constant_Expr#211: 'color'>, <constant_Expr#216: 2>)>>
-        # that explains the tuple_Expr bug, finally. Not yet fixed.
+            # Note: these functions would turn into bound methods here,
+            # if we didn't wrap them with staticmethod when assigning them.
+            # Not doing that caused the "tuple_Expr bug" (see cvs for details).
+            # Another solution would have been to grab the funcs only out of
+            # the class's __dict__. Using staticmethod seems clearer.
         res = apply(func, [self._e_argval(i,env,ipath) for i in range(len(self._e_args))])
-        if debug:
-            print "res = %r" % (res,) # could be anything
         return res
     pass # end of class OpExpr
 
@@ -357,19 +331,10 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
         # Store some args under more convenient names.
         # Note: this does NOT hide them from (nondestructive) _e_replace* methods,
         # since those find the original args, modify them, and construct a new expr from them.
-        ##WRONG: printnim("it's probably a bug that call_Expr hides its args in places hidden from replace")##k not sure if it shows up yet tho
         self._e_callee = self._e_args[0]
         self._e_call_args = self._e_args[1:]
         self._e_call_kws = self._e_kws #e could use cleanup below to not need this alias
         #e might be useful to record line number, at least for some heads like NamedLambda; see Symbol compact_stack call for how
-##    def _e_check(self):#WRONG
-##        "check for bugs"
-##        if self._e_callee != self._e_args[0]: print "bug0" #k why never printed? aha -- args are not destructively modified.
-##        if self._e_call_args != self._e_args[1:]: print "bug1"
-##        if self._e_call_kws != self._e_kws: print "bug2"
-##        if self._e_callee is not self._e_args[0]: print "bug0a"
-##        if self._e_call_args is not self._e_args[1:]: print "bug1a" # this HAS TO BE printed... yes, it is. no others are.
-##        if self._e_call_kws is not self._e_kws: print "bug2a"
     def __str__(self):
         if self._e_call_kws:
             return "%s(*%r, **%r)" % (self._e_callee, self._e_call_args, self._e_call_kws) #e need parens?
@@ -381,7 +346,6 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
         """[the only reason the super method is not good enough is that we have _e_kws too, I think;
             maybe also the distinction of that to self._e_call_kws, but I doubt that distinction is needed -- 061105]
         """
-##        self._e_check()#WRONG
         # 061102: we do this (_e_eval in general)
         # by imagining we've done the replacements in env (e.g. for _self) to get an instance of the expr,
         # and then using ordinary eval rules on that, which include forwarding to _value for some Instances,
@@ -396,7 +360,7 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
 
 class getattr_Expr(OpExpr):
     def __call__(self, *args, **kws):
-        print '__call__ of %r with:' % self,args,kws###@@@
+        print 'bug: __call__ of %r with:' % self,args,kws
         assert 0, "getattr exprs are not callable [ok??]"
     def _e_init(self):
         assert len(self._e_args) == 2 #e kind of useless and slow #e should also check types?
@@ -407,7 +371,7 @@ class getattr_Expr(OpExpr):
             # (and we might want to represent or print it more compactly when we don't).
     def __str__(self):
          return "%s.%s" % self._e_args #e need parens? need quoting of 2nd arg? Need to not say '.' if 2nd arg not a py-ident string?
-    _e_eval_function = getattr
+    _e_eval_function = getattr # this doesn't need staticmethod, maybe since <built-in function getattr> has different type than lambda
     pass
 
 class mul_Expr(OpExpr):
@@ -415,7 +379,7 @@ class mul_Expr(OpExpr):
         assert len(self._e_args) == 2
     def __str__(self):
         return "%s * %s" % self._e_args #e need parens?
-    _e_eval_function = staticmethod(lambda x,y:x*y) # does this have a builtin name? see operators module ###k
+    _e_eval_function = staticmethod( lambda x,y:x*y ) # does this have a builtin name? see operators module ###k
     pass
 
 class div_Expr(OpExpr):
@@ -423,7 +387,7 @@ class div_Expr(OpExpr):
         assert len(self._e_args) == 2
     def __str__(self):
         return "%s / %s" % self._e_args #e need parens?
-    _e_eval_function = lambda x,y:x/y 
+    _e_eval_function = staticmethod( lambda x,y:x/y )
     pass
 
 class add_Expr(OpExpr):
@@ -431,7 +395,7 @@ class add_Expr(OpExpr):
         assert len(self._e_args) == 2
     def __str__(self):
         return "%s + %s" % self._e_args #e need parens?
-    _e_eval_function = lambda x,y:x+y 
+    _e_eval_function = staticmethod( lambda x,y:x+y )
 ##    # maybe, 061016: ####@@@@ [current issues: args to _e_make_in, for normals & Ops; symbol lookup; when shared exprs ref same instance]
 ##    def _C_value(self):
 ##        return self.kids[0].value + self.kids[1].value
@@ -454,7 +418,7 @@ class sub_Expr(OpExpr):
         assert len(self._e_args) == 2
     def __str__(self):
         return "%s - %s" % self._e_args #e need parens?
-    _e_eval_function = lambda x,y:x-y 
+    _e_eval_function = staticmethod( lambda x,y:x-y )
     pass
 
 class neg_Expr(OpExpr):
@@ -462,7 +426,7 @@ class neg_Expr(OpExpr):
         assert len(self._e_args) == 1
     def __str__(self):
         return "- %s" % self._e_args #e need parens?
-    _e_eval_function = lambda x:-x 
+    _e_eval_function = staticmethod( lambda x:-x )
     pass
 
 class list_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in 0-arg case
@@ -471,12 +435,9 @@ class list_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in
         pass
     def __str__(self):
         return "%s" % (list(self._e_args),) #e need parens?
-    _e_eval_function = lambda *args:list(args) #k syntax?
+    _e_eval_function = staticmethod( lambda *args:list(args) )
     pass
 
-##def printfunc(*args, prefix = ''): ##k invalid syntax [why?]
-##    print "printfunc %s: %r" % (prefix, args)
-##    return args[0]
 def printfunc(*args, **kws): #e refile, maybe rename dprint; compare to same-named *cannib*.py func
     prefix = kws.pop('prefix', '')
     assert not kws
@@ -485,24 +446,10 @@ def printfunc(*args, **kws): #e refile, maybe rename dprint; compare to same-nam
 
 class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in 0-arg case
     def _e_init(self):
-        print "this tuple_Expr %r has %d args" % (self, len(self._e_args))####@@@@
         pass
     def __str__(self):
         return "%s" % (tuple(self._e_args),) #e need parens?
-    ## _e_eval_function = lambda *args:tuple(args)
-        #k syntax? ###e optim: args are probably already a tuple
-    _e_eval_function = staticmethod(lambda *args:printfunc(tuple(args), len(args), prefix="tupleeval")) # works now!
-        ## this is self._e_eval_function from <tuple_Expr#217: ...>: <function <lambda> at 0xefe6bb0>
-        ## computing _i_instance(index = ('color', 2))
-    # older:
-    #####k correct? NO, this is the tuple_Expr bug.
-    ## printfunc tupleeval: (<tuple_Expr#217: (<constant_Expr#211: 'color'>, <constant_Expr#216: 2>)>, 'color', 2)
-    # this is a function, as a class constant -- when we pull it out of the object,
-    # does it become a bound method? That doesn't fit well the other _e_eval_functions, but check -- print the args here,
-    # and print the _e_eval_function elsewhere. Yes, that's the cause, tho for some reason it didn't mess up getattr.
-    ## <bound method tuple_Expr.<lambda> of ...>
-    ## printfunc tupleeval: ((<tuple_Expr#217: (<constant_Expr#211: 'color'>, <constant_Expr#216: 2>)>, 'color', 2), 3)
-    printnim("tuple_Expr bug is not yet fixed (ditto for other OpExpr _e_eval_function assignments)")#####@@@@@
+    _e_eval_function = staticmethod( lambda *args:args )
     pass
 
 class If_expr(OpExpr): # so we can use If in formulas
@@ -590,7 +537,7 @@ class eval_Expr(OpExpr):
         (arg,) = self._e_args
         argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
         res = argval._e_eval(env, ipath)
-        ## print "eval_Expr eval goes from %r to %r to %r" % (arg, argval, res) ###
+        ## print "eval_Expr eval goes from %r to %r to %r" % (arg, argval, res)
         return res
     pass
 
@@ -708,16 +655,6 @@ class Symbol(SymbolicExpr):
 
 # ==
 
-##_self = Symbol('_self') # is it ok if this is done more than once, or does only the __Symbols__ module cache them??
-##
-### does this work? at least no exception from it -- good, but why not? ###k
-##_self.attr1.attr2
-##
-####_self2 = Symbol('_self')
-####assert _self2 is _self # i bet this will fail; if so, just import __Symbols__ right here [but make it work someday ##e]
-##
-##del _self
-
 # Symbols for public & private use
 from __Symbols__ import _self
 from __Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
@@ -816,19 +753,14 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
     # only to work around safety features which normally detect that kind of Expr-formation (getattr on _i_* or _e_*,
     # or getattr then call) as a likely error. These safety features are very important, catching errors that would often lead
     # to hard-to-diagnose bugs (when our code has an Expr but thinks it has an Instance), so it's worth the trouble.
-    ## held_dflt_expr = constant_Expr(dflt_expr) # 061105 bugfix (not merely an optim as some recent comments seemed to think)
-    held_dflt_expr = hold_Expr(dflt_expr) #k does this help? (might be right but still a guess) 061105 ###@@@
+    held_dflt_expr = hold_Expr(dflt_expr) 
         # Note, this gets evalled back into dflt_expr (treated as inert, may or may not be an expr depending on what it is right here)
         # by the time _i_grabarg sees it (the eval is done when the call_Expr evals its args before doing the call).
         # So if we wanted _i_grabarg to want None rather than _E_REQUIRED_ARG_ as a special case, we could change to that (there & here).
-    if 0 and "debug that 'dflt 10' bug":
-        ## print("using debug_evals_of_Expr on held_dflt_expr %r, will it work?" % held_dflt_expr)#####@@@@@
-        held_dflt_expr = debug_evals_of_Expr(held_dflt_expr)
     grabarg_expr = call_Expr( getattr_Expr(_self, '_i_grabarg'), attr_expr, argpos_expr, held_dflt_expr )
     if attr_expr is not None and argpos_expr is not None:
         # for ArgOrOption, use a tuple of a string and int (attr and argpos) as the index
         index_expr = tuple_Expr( attr_expr, argpos_expr )
-        print "that tuple_Expr is %r" % (index_expr,) ######@@@@@@k compare
     elif attr_expr is None and argpos_expr is None:
         assert 0, "attr_expr is None and argpos_expr is None ..."
     elif attr_expr is not None:
@@ -839,9 +771,8 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
         # for Arg, use a plain int as the index
         # (note: ExprsMeta replaces argpos_expr with that int wrapped in constant_Expr, but later eval pulls out the raw int)
         index_expr = argpos_expr
-    #### obs: index_expr   = call_Expr( getattr_Expr(_self, '_i_grabarg_index'), attr_expr, argpos_expr )
-    print "passing _index_expr = %r into Instance macro" % (index_expr,) ###061106 tuple index bug
     ## print "is this the Instance macro? %r" % (Instance,) #k as opposed to "class Instance" (name conflict)? yes, it is.
+    printnim("clean up \"class Instance\" vs Instance macro name conflict") ###e
     return Instance( eval_Expr( type_expr( grabarg_expr)), _index_expr = index_expr )
 
 class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten
@@ -866,7 +797,6 @@ class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename?
         required = self._e_is_required
         pos = scanner.argpos(attr, required)
         res = constant_Expr(pos) # this gets included in the scanner's processed expr
-        ##print "%r replacing itself with %r" % (self,res)
         return res
     def _e_eval(self, *args):
         assert 0, "this %r should never get evalled unless you forgot to enable formula scanning (I think)" % self ##k

@@ -1,8 +1,8 @@
-'''
+"""
 instance_helpers.py
 
 $Id$
-'''
+"""
 
 from basic import * # autoreload of basic is done before we're imported
 
@@ -305,14 +305,11 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         assert is_pure_expr(expr), "who passed non-pure-expr %r to _i_instance? index %r, self %r, _e_args %r" % \
                (expr, index, self, self._e_args)
             #k guess 061105
-        print "_i_instance called, expr %r, index %r, self %r, _e_args %r" % \
-               (expr, index, self, self._e_args) #######@@@@@@@ 061106 to solve tuple-extraness bug, also check on args
-## _i_instance called,
-## expr <constant_Expr#500: (0.59999999999999998, 0.10000000000000001, 0.90000000000000002)>,
-## index (<tuple_Expr#193: (<constant_Expr#189: 'color'>, <constant_Expr#192: 2>)>, 'color', 2),
-## self <Rect2#512 at 0x103d9f70>,
-## _e_args (<constant_Expr#501: 8>, <constant_Expr#502: 6>)
+        if 0:
+            print "_i_instance called, expr %r, index %r, self %r, _e_args %r" % \
+                   (expr, index, self, self._e_args)
 
+        # [#k review whether this comment is still needed/correct]
         # hmm, calling Instance macro evals the expr first... can't it turn out that it changes over time?
         # I think yes... not only that, a lot of change in it should be buried inside the instance! (if it's in an arg formula)
         # as if we need to "instantiate the expr" before actually passing it... hmm, if so this is a SERIOUS LOGIC BUG. ####@@@@
@@ -336,7 +333,6 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
            (Implem note: _CV_ stands for "compute value" to ExprsMeta, which implements the LvalDict2 associated with this.
         This method needs no corresponding _CK_ keylist function, since any key (instance index) asked for is assumed valid.)
         """
-        print "fyi in %r, computing _i_instance(index = %r)" % (self, index)###@@@
         assert self._e_is_instance
         # This method needs to create a new instance, by instantiating expr and giving it index.
         # Implem notes:
@@ -345,7 +341,8 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         # - the access to self._i_instance_exprs[index] is not usage tracked;
         #   thus if we change it above w/o error, an inval is needed.
         expr = self._i_instance_exprs[index]
-        print "fyi, using kid expr %r" % expr ###@@@
+        ## print "fyi, using kid expr %r" % expr
+        # (these tend to be longish, and start with eval_Expr -- what we'd rather print is the result of the first eval it does)
             # Note, this expr can be very simplifiable, if it came from an Arg macro,
             # but present code [061105] reevals the full macro expansion each time -- suboptimal.
             # To fix, we'd need an "expr simplify", whether we used it only once or not...
@@ -374,21 +371,16 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         else:
             printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108
             printnim("(which needs index_path to be passable-in)") ##e
-            ## res = expr._e_eval(env, index_path)
-            # problem with this is lack of _self... let's add it, like _e_compute_method does
             # note: this redundantly grabs env from self ###e needs index_path to be passable-in
             res = expr._e_compute_method(self)() # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10'
-        print "_CV__i_instance_CVdict returning %r" % (res,)
-            #### the kid expr needs to be evalled to get the grabbed arg, which is the expr we need to make,
-            # so two levels of eval might be needed. hmm. this is a LOGIC BUG which just showed up when a hold bug was fixed,
-            # and which is seemingly indep of tuple,color,2 bug but is blocking work on it [061108 149p].
         return res # from _CV__i_instance_CVdict
 
     def _i_grabarg( self, attr, argpos, dflt_expr): 
         "#doc, especially the special values for some of these args"
-        print_compact_stack( "_i_grabarg called with ( self %r, attr %r, argpos %r, dflt_expr %r): " % \
-                             (self, attr, argpos, dflt_expr) ) #####@@@@@
-        print " and the data it grabs from is _e_kws = %r, _e_args = %r" % (self._e_kws, self._e_args)
+        if 0:
+            print_compact_stack( "_i_grabarg called with ( self %r, attr %r, argpos %r, dflt_expr %r): " % \
+                                 (self, attr, argpos, dflt_expr) )
+            print " and the data it grabs from is _e_kws = %r, _e_args = %r" % (self._e_kws, self._e_args)
         #k below should not _e_eval or canon_expr without review -- should return an arg expr or dflt expr, not its value
         # (tho for now it also can return None on error -- probably causing bugs in callers)
         assert is_pure_expr(dflt_expr), "_i_grabarg dflt_expr should be an expr, not %r" % (dflt_expr,) #061105 - or use canon_expr?
@@ -398,7 +390,8 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         assert attr is None or isinstance(attr, str)
         assert argpos is None or (isinstance(argpos, int) and argpos >= 0)
         res = self._i_grabarg_0(attr, argpos, dflt_expr)
-        print "_i_grabarg returns %r" % (res,)
+        if 0:
+            print "_i_grabarg returns %r" % (res,)
         return res
 
     def _i_grabarg_0( self, attr, argpos, dflt_expr):
@@ -413,7 +406,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
                 # kluge sanity check -- not a Symbol #e remove when works, probably not even justified in general (eg _self??)
                 #e or replace with "not a Symbol whose name starts _E_" ??
         if attr is not None and argpos is not None:
-            printnim("assert an arg is not provided in both ways")###e
+            printnim("should assert that no expr gets same arg twice (positionally and as named option)")###e
         if attr is not None:
             # try to find it in _e_kws; I suppose the cond is an optim or for clarity, since None won't be a key of _e_kws
             try:
@@ -429,7 +422,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         if required:
             printnim( "error: required arg not provided. Instance maker should have complained! Using None.")
             return None
-            #k I don't understand the following comment, seems backwards: [061108]
+            #k I don't understand the following comment -- it seems backwards: [061108]
             ###k NOT canon_expr -- we're dealing in values, which needn't be exprs, tho they might be.
         else:
             return dflt_expr

@@ -1,8 +1,8 @@
-'''
+"""
 Rect.py   [likely to be pulled into a larger file once it's done]
 
 $Id$
-'''
+"""
 
 from basic import *
 from basic import _self
@@ -69,8 +69,6 @@ class Rect2(Widget2D): # this is Rect in a newer syntax, not yet working as of 0
     
     def draw(self): # same as in class Rect
         glDisable(GL_CULL_FACE)
-        print "Rect draw: self.color = %r" % (self.color,) ###bug, guess it's a constant expr
-        print "Rect draw again: self.color = %r" % (self.color,)
         draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.fix_color(self.color)) #e move fix_color into draw_filled_rect? 
         glEnable(GL_CULL_FACE)
     pass
