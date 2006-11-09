@@ -16,15 +16,15 @@ from Exprs import * # at least Expr; note, basic now does this anyway
 
 # ==
 
-class Instance:#k super? meta? [#obs -- as of 061103 i am guessing this will completely disappear -- but i'm not sure]
-    "support all behavior needed by pure instances #[doc better] (which may or may not also be Exprs)"
+class InstanceClass:#k super? meta? [#obs -- as of 061103 i am guessing this will completely disappear -- but i'm not sure]
+    "support all behavior needed by pure Expr Instances #[doc better] (which may or may not also be Exprs)"
     # WARNING: much of the code in InstanceOrExpr might belong here. OTOH it might not make sense to split this out,
     # since no method here can assume self is not a noninstance expr, even a method of this class, since self might be InstanceOrExpr.
     #e call _init_instance, etc;
-    # rename? Instance, FormulaInstance... note also Expr, ExprHelper can be instances
+    # rename? Instance [no, it's a macro], FormulaInstance... note also Expr, ExprHelper can be instances
     pass
 
-class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basic kluge of using one class for both
+class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the basic kluge of using one class for both
     """Main superclass for specific kinds of Instance classes whose python instances can be either Instances or Exprs,
     and (more importantly for the user) whose use as a constructor usually constructs an Expr.
     Used (for example) for Column, Rect, If, Widget2D, etc. See elsewhere for general explanation [#nim].
@@ -54,7 +54,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
     """
     __metaclass__ = ExprsMeta
     #e rename to: ExprOrInstance?
-    #  [maybe, until i rename Instance, if i do... con side: most methods in each one are mainly for Instance, except arg decls,
+    #  [maybe, until i rename the term Instance, if i do... con side: most methods in each one are mainly for Instance, except arg decls,
     #   and even they can be thought of mostly as per-instance-evalled formulas. So when coding it, think Instance first.]
     # PatternOrThing?[no]
     ### WARNING: instantiate normally lets parent env determine kid env... if arg is inst this seems reversed...
@@ -267,17 +267,17 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         self._init_instance()
         return # from _destructive_make_in
     
-    def _init_class(self): #e move to Instance superclass? ###@@@ CALL ME
+    def _init_class(self): #e move to InstanceClass superclass? ###@@@ CALL ME
         """called once per directly-instantiated python class, when its first python instance is created
         [subclasses should replace this]
         """
         pass
-    def _init_expr(self): #e move to Instance superclass? ###@@@ CALL ME
+    def _init_expr(self): #e move to InstanceClass superclass? ###@@@ CALL ME
         """called once per Expr when it gets its args [details unclear, maybe not yet needed]
         [subclasses should replace this]
         """
         pass
-    def _init_instance(self): #e move to Instance superclass? let it be name-mangled, and call in mro order?
+    def _init_instance(self): #e move to InstanceClass superclass? let it be name-mangled, and call in mro order?
         """called once per python instance, but only when it represents a semantic Instance ###doc -- explain better
         [subclasses should replace this]
         """
@@ -288,7 +288,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
         printnim("Instance eval doesn't yet handle _value or If") ###@@@
         return self # true for most of them, false for the ones that have _value (like Boxed) or for If ####@@@@
 
-    # kid-instantiation, to support use of Arg, Option, Instance, etc
+    # kid-instantiation, to support use of the macros Arg, Option, Instance, etc
     #k (not sure this is not needed in some other classes too, but all known needs are here)
     
     def _i_instance( self, expr, index ):
@@ -420,7 +420,7 @@ class InstanceOrExpr(Instance, Expr): # see docstring for discussion of the basi
                 pass
         # arg was not provided -- error or use dflt_expr
         if required:
-            printnim( "error: required arg not provided. Instance maker should have complained! Using None.")
+            printnim( "error: required arg not provided. Instance-maker should have complained! Using None.")
             return None
             #k I don't understand the following comment -- it seems backwards: [061108]
             ###k NOT canon_expr -- we're dealing in values, which needn't be exprs, tho they might be.

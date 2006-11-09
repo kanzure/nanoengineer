@@ -12,7 +12,7 @@ from draw_utils import *
 
 import instance_helpers
 reload_once(instance_helpers)
-from instance_helpers import GlueCodeMemoizer, Instance, DelegatingInstance
+from instance_helpers import GlueCodeMemoizer, DelegatingInstance
 
 # ==
 
@@ -44,23 +44,12 @@ class CW(DelegatingInstance):
     pass
 
 
-class CL(Instance):
+class CL(InstanceOrExpr):
     """[private to Column]
     Handle a List expr instance given to Column, directly or indirectly in its nested-list argument values.
     Specifically, use CLE to treat list elements as contributing sometimes-empty sequences of column elements.
     """
-    # 061106 possible newer version of the self.elts definition of instantiated args (moved to an outtakes file):
-    # related macros:
-    # - Instance(expr, optional index) # default index is attr we assign it to, you can replace or extend that (only replace is implem)
-    # - InstanceDict(value-expr, optional key-set or key-sequence, optional key-to-index-func) # these exprs can be in _i/_key by default
-    # - InstanceList(value-expr, number-of-elts, optional key-to-index-func)
-    ## digr: a reason i try to say "range" for "domain" is the use of Python range to create the list of domain indices!
-    # - Arg variants of those - replace expr with type, inferring expr as type(arg[i]) for i inferred as for Instance,
-    #   but also come in an order that matters; so:
-    # - Arg(type, optional default-value expr)
-    # - ArgList(type-expr) # applies to the remaining args; index should be (attr, posn in this list), I think
-    # - ArgDict would apply to the remaining kwargs... not sure we'll ever want this
-    # 
+    # 061106 possible newer version of the self.elts definition of instantiated args (older one moved to an outtakes file):
     elts = ArgList( CLE) # can it be that simple? and can this replace all references herein to self.args or self.kids? I think so. ####k
 
     

@@ -26,7 +26,7 @@ $Id$
 # Approximate order of imports:
 # - Python and debug utilities (especially the ones needed by ExprsMeta), including those defined outside this exprs package
 # - ExprsMeta (needed as a metaclass by many classes we'll define)
-# - abstract classes like Expr and Instance
+# - abstract classes like Expr and InstanceOrExpr
 # - widget classes, in order of lowest to highest level (most of them don't need to be imported by this module at all)
 
 
@@ -119,17 +119,6 @@ trans_green = translucent_color(green)
 # == lower-level stubs -- these will probably be refiled when they are no longer stubs ###@@@
 
 NullIpath = None ###STUB, refile, rename
-
-##def Arg(type1 = None, dflt = None):
-##    from Exprs import Symbol
-##    return Symbol('_some_Arg')
-##
-##Option = Arg #stub
-##ArgOrOption = Arg #stub, means it can be given positionally or using its attrname
-
-#e Instance too, for internal use? Arg & Option instantiate by default (lazily), so does Instance in same way (fewer other effects).
-#e ProducerOf? ExprFor?
-
 
 # === higher-level defs, common enough to import for everything
 

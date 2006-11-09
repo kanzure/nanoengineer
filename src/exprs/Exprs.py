@@ -771,8 +771,6 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
         # for Arg, use a plain int as the index
         # (note: ExprsMeta replaces argpos_expr with that int wrapped in constant_Expr, but later eval pulls out the raw int)
         index_expr = argpos_expr
-    ## print "is this the Instance macro? %r" % (Instance,) #k as opposed to "class Instance" (name conflict)? yes, it is.
-    printnim("clean up \"class Instance\" vs Instance macro name conflict") ###e
     return Instance( eval_Expr( type_expr( grabarg_expr)), _index_expr = index_expr )
 
 class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten
@@ -818,7 +816,9 @@ def Option( type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
     return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr)    
 
 def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
-    "#doc; index contains both attr and argpos; error to use plain Arg after this in same class (maybe not detected)"
+    """means it can be given positionally or using its attrname [#doc better]
+    index contains both attr and argpos; error to use plain Arg after this in same class (maybe not detected)
+    """
     global _E_ATTR # fyi
     attr_expr = _E_ATTR
     return Arg( type_expr, dflt_expr, _attr_expr = attr_expr)
@@ -828,6 +828,19 @@ Anything = "anything-stub"
 def ArgStub(*args): return Arg(Anything)
 ArgList = ArgStub
 InstanceList = InstanceDict = ArgStub
+
+#e ProducerOf? ExprFor?
+
+#e related macros:
+# - Instance(expr, optional index) # default index is attr we assign it to, you can replace or extend that (only replace is implem)
+# - InstanceDict(value-expr, optional key-set or key-sequence, optional key-to-index-func) # these exprs can be in _i/_key by default
+# - InstanceList(value-expr, number-of-elts, optional key-to-index-func)
+## digr: a reason i try to say "range" for "domain" is the use of Python range to create the list of domain indices!
+# - Arg variants of those - replace expr with type, inferring expr as type(arg[i]) for i inferred as for Instance,
+#   but also come in an order that matters; so:
+# - Arg(type, optional default-value expr)
+# - ArgList(type-expr) # applies to the remaining args; index should be (attr, posn in this list), I think
+# - ArgDict would apply to the remaining kwargs... not sure we'll ever want this
 
 def canon_type(type_expr):###stub
     "Return a symbolic expr representing a type for coercion"
