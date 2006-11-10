@@ -504,6 +504,9 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
                 ##k reviewing this 061109, I'm not sure this is viable; maybe we'll need to exclude only __ or _i_ or _e_,
                 # or maybe even some of those need delegation sometimes -- we'll see.
                 #e Maybe the subclass will need to declare what attrs we exclude, or what _attrs we include!
+            if '061110 debug':
+                if attr == 'thing':
+                    print 'attr is thing, is it in self %r?' % (self,) ####@@@@
             return getattr(self.delegate, attr) # here is where we delegate.
             #k Should it be silently tolerated if delegate is None? Probably no need -- None won't usually have the attr,
             # so it will raise the same exception we would. Are there confusing cases where None *does* have the attr??
