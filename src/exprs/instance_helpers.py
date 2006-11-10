@@ -333,7 +333,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         oldexpr = self._i_instance_exprs.get(index, None) # see above comment
         if oldexpr is not expr:
             if oldexpr is not None:
-                print "bug: expr for instance changed",self,index,expr #e more info? i think this is an error and should not happen normally
+                print "bug: expr for instance changed: self = %r, index = %r, new expr = %r, old expr = %r" % \
+                      (self,index,expr,oldexpr) #e more info? i think this is an error and should not happen normally
                 #e if it does happen, should we inval that instance? yes, if this ever happens without error.
             self._i_instance_exprs[index] = expr
         return self._i_instance_CVdict[index] # takes care of invals in making process? or are they impossible? ##k
@@ -480,6 +481,7 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
         # - we might want to revise this, since it won't work w/o ExprsMeta and _C_ is deprecated even within that;
         # OTOH, it's not really needed (it just changes the error message from AttributeError on self.delegate),
         # so this def causes no harm.
+        # [But it might fail to prevent infrecur on undefined self.delegate in classes not understanding _C_! #k]
         # - in spite of assert text, the subclass needn't override _C_delegate if it has some other way
         # to make sure self.delegate is defined.
         assert 0, "must be overridden by subclass to return object to delegate to at the moment"
@@ -489,6 +491,15 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
                 # note, _C__attr for _attr starting with _ is permitted, so we can't check whether attr starts '_' before doing this.
         except AttributeError:
             if attr.startswith('_'):
+                if not attr.startswith('__'):
+                    # additional test hasattr(self.delegate, attr) doesn't work: AssertionError: compute method asked for on non-Instance
+                    # we need that test but I don't know how to add it easily. __dict__ won't work, the attr might be defined on any class.
+                    # maybe look in __dict__ of both self and its class?? #e
+                    print "warning: not delegating missing attr %r in %r (don't know if defined in delegate)" % \
+                          (attr, self)#061110 - have to leave out ', tho it's defined in delegate %r'
+                        # before hasattr check, this happens for _args, _e_override_replace, _CK__i_instance_CVdict
+                        # (in notyetworking Boxed test, 061110 142p).
+                        #e could revise to only report if present in delegate... hard to do, see above.
                 raise AttributeError, attr # not just an optim -- we don't want to delegate any attrs that start with '_'.
                 ##k reviewing this 061109, I'm not sure this is viable; maybe we'll need to exclude only __ or _i_ or _e_,
                 # or maybe even some of those need delegation sometimes -- we'll see.

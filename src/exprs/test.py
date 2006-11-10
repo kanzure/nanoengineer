@@ -128,7 +128,7 @@ printnim("the error of Color as Width in Rect(1.5, white) ought to be detected i
 testexpr_4c = Rect(1.5, color = white) # works
 testexpr_4d = Overlay( Rect(2), Rect(1, color = white) ) # works!
 
-testexpr_5 = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay, attrerror: draw)
+testexpr_5 = Boxed( Rect(2,3,green)) # doesn't work yet (gets attrerror: draw, as predicted until _value works)
 
 testexpr_6 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
 
@@ -138,7 +138,7 @@ testexpr_8 = TestIterator( testexpr_3 ) # test an iterator
 
 # == set the testexpr to use right now
 
-testexpr = testexpr_4d
+testexpr = testexpr_5
 
 print "using testexpr %r" % testexpr
 for name in dir():
