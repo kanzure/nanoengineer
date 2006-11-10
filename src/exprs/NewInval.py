@@ -76,13 +76,13 @@ class GLPaneProxy: #######@@@@@@@ WRONG and/or OBS
         return
     pass
 
-######@@@@@@ Q: do we separate the object to own a displist, below, and the one to represent various Drawables,
+######@@@@@@ Q: do we separate the object to own a displist, below, and the one to represent various Instances,
 # like one for DisplistChunk and one for defining a displist-subroutine?
 # (Do these even differ? [062023 addendum: One way they differ: whether highlighting treats their instances as separate objects.
 #   But it might turn out this is just a matter of whether we use a DisplistChunk inside something for highlighting
 #   which pushes its own glname for everything inside it, crossing it with whatever ones are inside it rather than being
 #   overridden by them (just a flag on the name which matters when it's interpreted).])
-# If we do, is the class below even a Drawable with a draw method? (I doubt it. I bet it's an internal displist-owner helper object.)
+# If we do, is the class below even an Instance with a draw method? (I doubt it. I bet it's an internal displist-owner helper object.)
 
 # singleton object - layer of displist proxies
 

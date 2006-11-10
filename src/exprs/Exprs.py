@@ -84,7 +84,7 @@ def is_Expr_pyclass(expr):
 
 # ==
 
-class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###obs  ####@@@@ MERGE with InstanceOrExpr, or super it
+class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), InstanceOrExpr
     """abstract class for symbolic expressions that python parser can build for us,
     from Symbols and operations including x.a and x(a);
     also used as superclass for WidgetExpr helper classes,
@@ -184,7 +184,7 @@ class Expr(object): # subclasses: SymbolicExpr (OpExpr or Symbol), Drawable###ob
         return lambda self=self, env=env, ipath=ipath: self._e_eval( env, ipath ) #e assert no args received by this lambda?
     def __repr__(self): # class Expr
         "[often overridden by subclasses; __str__ can depend on __repr__ but not vice versa(?) (as python itself does by default(??))]"
-        ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect) on 061016
+        ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect_old) on 061016
         ## return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())
         return "<%s#%d at %#x>" % (self.__class__.__name__, self._e_serno, id(self))
     # ==
@@ -490,28 +490,18 @@ class constant_Expr(internal_Expr):
             res = self._e_constant_value
         else:
             assert 0
-            ## this can be what _e_simplify does, when we have that (for constant-folding an related optims)
+            ##e this can be what _e_simplify does, when we have that (for constant-folding and related optims)
             res = self
-        if 0 and self._e_constant_value == 10: # if 0 since that 'dflt 10' bug is finally fixed, 061105
-            # keep this for now, since i still don't know where 10 came from -- maybe someone called eval that shouldn't have? [061105]
-            print_compact_stack("is this eval of %r to %r (instantiating = %r) justified? : " % (self, res, instantiating) )
-                ####@@@@ 061103 9pm i suspect it wasn't when we still went to 10 even though not instantiating,
-                # at least when used to grab an expr by _i_grabarg to pass to _i_instance. [where i am]
-                # I think it's the confusing two-kinds-of-eval -- if this was "eval an instance of this at this _self" it would be ok.
-                # So the above kluge might fix this, and if it does we'll have to support make_in here I guess.
-                # but that might be an issue... where do we put what we make? well, nowhere, we just return it as 10. ###e
-                # PROBLEM: everytime i hit this it's from Rect line 66 with instantiating = True... so I don't yet see
-                # how the existing code is calling it this way -- why is grabarg using a compute method at all?
-                # Is it somehow happening right inside the CV thing? I guess so... why?!?
         return res
     def _e_make_in(self, env, ipath): ###e equiv to _e_eval? see comment in _CV__i_instance_CVdict [061105]
         "Instantiate self in env, at the given index-path."
-        #e also a method of InstanceOrExpr, guess we'll add to OpExpr and maybe more, not yet in Expr tho, not sure needed in all exprs
+        #e also a method of InstanceOrExpr, tho not yet of any common superclass --
+        # I guess we'll add to OpExpr and maybe more -- maybe Expr, but not sure needed in all exprs
         return self._e_constant_value # thought to be completely correct, 061105
     pass
 
-class hold_Expr(constant_Expr): #renamed from constantReplacementAcceptingExpr_Expr to hold_Expr (based on what we use it for)
-    #e might be further renamed to something like no_eval, or we might even revise call_Expr to not always eval its args... not sure
+class hold_Expr(constant_Expr):
+    #e might be renamed to something like no_eval, or we might even revise call_Expr to not always eval its args... not sure
     """Like constant_Expr, but (1) value has to be an expr, (2) replacements occur in value.
     Used internally to prevent eval of args to call_Expr.
     """
@@ -853,7 +843,8 @@ def canon_type(type_expr):###stub
 ##            break
 ##    ### not sure if for Widget2D or Color or Width we return that, or TypeCoercer(that), or something else
 ##    assert is_pure_expr(type_expr)
-##    return type_expr #stub; needs to work for builtin types like int, or helper classes that are types like Widget (or Rect??)
+##    return type_expr #stub; needs to work for builtin types like int,
+##        # and for InstanceOrExpr subclasses that are types (like Widget -- or maybe even Rect??)
 ##    # note that the retval will get called to build an expr, thus needs to be in SymbolicExpr -- will that be true of eg CLE?
 ##    # if not, then some InstanceOrExpr objs need __call__ too, or constructor needs to return a SymbolicExpr, or so.
 

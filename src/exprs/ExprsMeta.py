@@ -217,7 +217,7 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         assert cls is not None, "I don't know if this ever happens, or what it means if it does, or how to handle it" #k in py docs
             #e remove when works (need to optim)
         if cls is not self.cls:
-            copy = self.copy_for_subclass(cls) # e.g. from 'InstanceOrExpr' to 'Rect2'
+            copy = self.copy_for_subclass(cls) # e.g. from 'InstanceOrExpr' to 'Rect'
             attr = self.attr
             ## cls.__dict__[attr] = copy # oops, this doesn't work: TypeError: object does not support item assignment
             # turns out it's a dictproxy object (created on the fly, like unbound methods are), as (I guess) is any new style
@@ -334,24 +334,12 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
             instance.custom_compute_method # defined e.g. by InstanceOrExpr
         except AttributeError:
             return None
-        printnim("I think compute_method_from_customized_instance is deprecated since _DEFAULT_ is (once Arg works)") #####k 061103
+        printfyi("DEPRECATED: I think compute_method_from_customized_instance is deprecated since _DEFAULT_ is (once Arg works)") ##k 061103
         return instance.custom_compute_method(self.attr) # a method or None
     def make_compute_method_for_instance(self, instance):
         "#doc; doesn't consider per-instance customized compute methods."
         assert 0, "subclass should implement this"
     pass # end of class C_rule
-
-# what could cause the exception listed in the last line of the following? It looks like Python printed it while freeing a C_rule...
-# could there be some problem with freeing things made using my metaclass?? [but a C_rule itself is not made using one...]
-# ... eventually I understood: descriptors don't want __del__, they want __delete__.
-'''
-reloading exprs.Exprs
-exception in testdraw.py's drawfunc call ignored: exceptions.NameError: global name 'args' is not defined
-  [testdraw.py:274] [testdraw.py:308] [testdraw.py:437] [test.py:25] [Rect.py:15] [widget2d.py:10] [instance_helpers.py:222]
-    [ExprsMeta.py:467] [ExprsMeta.py:384] [ExprsMeta.py:298] [ExprsMeta.py:177] [ExprsMeta.py:278]
-Exception exceptions.AssertionError: <exceptions.AssertionError instance at 0xd487dc8> in
-  <bound method C_rule_for_method.__del__ of <exprs.ExprsMeta.C_rule_for_method object at 0xd499d70>> ignored
-'''
 
 class C_rule_for_method(C_rule):
     def _init1(self):
@@ -680,7 +668,7 @@ class ExprsMeta(type):
                 val0 = processor(name, attr0, val, formula_scanner = scanner)
                     # note, this creates a C_rule (or the like) for each formula
             else:
-                # old code, working (usually), ok for Rect aka Rect1, but obsolete [061103]
+                # old code, working (usually), ok for Rect_old, but obsolete [061103]
                 printnim("NOTE: formula_scanner is temporarily disabled")
                 val0 = processor(name, attr0, val)
                     # note, this creates a C_rule (or the like) for each formula

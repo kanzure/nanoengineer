@@ -11,9 +11,9 @@ import draw_utils
 reload_once(draw_utils)
 from draw_utils import *
 
-# == class Rect
+# == class Rect_old (obs, remove soon)
 
-class Rect(Widget2D):
+class Rect_old(Widget2D):
     """Rect(width, height, color) renders as a filled x/y-aligned rectangle
     of the given dimensions and color, with the origin on bottomleft,
     and a layout box equal to its size (no margin).
@@ -44,7 +44,7 @@ class Rect(Widget2D):
         glEnable(GL_CULL_FACE)
     pass
 
-class Rect2(Widget2D): # this is Rect in a newer syntax, not yet working as of 061031
+class Rect(Widget2D): # this is Rect_old in a newer syntax, finally working as of 061106
     "#doc - grab from above"
     # args
     width = Arg(Width, 10)
@@ -67,14 +67,13 @@ class Rect2(Widget2D): # this is Rect in a newer syntax, not yet working as of 0
 ##    bbottom = 0
 ##    bleft = 0
     
-    def draw(self): # same as in class Rect
+    def draw(self): # same as in class Rect_old
         glDisable(GL_CULL_FACE)
         draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.fix_color(self.color)) #e move fix_color into draw_filled_rect? 
         glEnable(GL_CULL_FACE)
     pass
 
-
-# old comments from Rect:
+# old comments from Rect_old:
 #
 # a _C_attr can either be a method (compute rule), or a formula on _self (like here) --
 # but if it's a formula, it can just be stored on the attr itself, as a descriptor! See notesfile 061024 for discussion.

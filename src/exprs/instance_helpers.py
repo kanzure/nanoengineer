@@ -24,6 +24,17 @@ class InstanceClass:#k super? meta? [#obs -- as of 061103 i am guessing this wil
     # rename? Instance [no, it's a macro], FormulaInstance... note also Expr, ExprHelper can be instances
     pass
 
+# maybe merge this into InstanceOrExpr docstring:
+# like Rect or Color or If
+"""Instances of subclasses of this can be unplaced or placed (aka "instantiated");
+if placed, they might be formulas (dependent on aspects of drawing-env state)
+for appearance and behavior (justifying the name Drawable),
+or for some value used in that (e.g. a color, vector, string).
+   Specific subclasses, e.g. Rect, contain code which will be used in placed instances (mainly drawing code)
+unless the env provided an overriding expansion for exprs headed by that subclass.
+If it did, the instance created by placing such an expr will (usually) have some other class.
+"""
+
 class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the basic kluge of using one class for both
     """Main superclass for specific kinds of Instance classes whose python instances can be either Instances or Exprs,
     and (more importantly for the user) whose use as a constructor usually constructs an Expr.
@@ -430,27 +441,6 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     
     pass # end of class InstanceOrExpr
 
-##### CANNIBALIZE THESE RELATED SNIPPETS to fill in InstanceOrExpr: Drawable_obs, old class xxx
-
-class Drawable_obs(Expr): # like Rect or Color or If
-    """Instances of subclasses of this can be unplaced or placed (aka "instantiated");
-    if placed, they might be formulas (dependent on aspects of drawing-env state)
-    for appearance and behavior (justifying the name Drawable),
-    or for some value used in that (e.g. a color, vector, string).
-       Specific subclasses, e.g. Rect, contain code which will be used in placed instances (mainly drawing code)
-    unless the env provided an overriding expansion for exprs headed by that subclass.
-    If it did, the instance created by placing such an expr will (usually) have some other class.
-    """
-    def __init__(self, *args, **kws):
-        # decide whether to fill, customize, or (private access) copy or place; same for init and call, I think
-        _place = kws.pop('_place', False)
-        _call = kws.pop('_call', False)
-        pass
-    def __call__(self, *args, **kws):
-        self.__class__(self, args, kws, _call = True)
-    
-    pass
-
 # ===
 
 class DelegatingInstanceOrExpr(InstanceOrExpr): #061020
@@ -523,7 +513,5 @@ class GlueCodeMemoizer( DelegatingInstanceOrExpr): ##e rename WrapperMemoizer? W
     # well, it does transform _make_wrapped_obj to _recomputer_for_wrapped_version_of_one_instance --
     # maybe it should turn into a trivial helper function calling LvalDict?? ie to the variant of LvalDict mentioned above??
     pass
-
-# HelperClass, LayoutWidget2D, etc -- some might be in another file if drawing-specific -- widgetexprs.py ? layout.py? widget2d.py?
 
 # end

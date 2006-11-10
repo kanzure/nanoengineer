@@ -24,7 +24,7 @@ from basic import * # including reload_once, and some stubs
 
 import Rect
 reload_once(Rect)
-from Rect import Rect, Rect2
+from Rect import Rect_old, Rect
 
 import Column
 reload_once(Column)
@@ -57,7 +57,7 @@ class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106
     """delegate to our only arg, but whenever we're drawn, before drawing that arg,
     print its attrvalues listed in our other args
     """ #k guess 061106
-    #e obscmt: won't work until we make self.args autoinstantiated -- search for "nim make_in" ####@@@@
+    #e obscmt: won't work until we make self.args autoinstantiated [obs since now they can be, using Arg or Instance...]
     delegate = Arg(Anything) #k guess 061106 ###IMPLEM Anything
         #k when it said Arg(Widget): is this typedecl safe, re extensions of that type it might have, like Widget2D?
         #k should we leave out the type, thus using whatever the arg expr uses? I think yes, so I changed the type to Anything.
@@ -79,25 +79,50 @@ class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106
 
 # == testexprs
 
-# test basic leaf primitives
-testexpr_1 = Rect(7,6, color = purple) # works as of 061030
-testexpr_1x = DebugPrintAttrs(Rect(4,7,blue), 'color') # doesn't work yet (instantiation)
+# === test basic leaf primitives
+testexpr_1 = Rect_old(7,5, color = green) # works as of 061030
+testexpr_1x = DebugPrintAttrs(Rect_old(4,7,blue), 'color') # doesn't work yet (instantiation)
 
-testexpr_1a = Rect2(8,6, color = purple)
-print "testexpr_1a is %r" % testexpr_1a
+testexpr_2 = Rect(8,6, color = purple) # works as of 061106
 
-testexpr_1b = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay, attrerror: draw)
-print "testexpr_1b is %r" % testexpr_1b
+testexpr_2a = Rect(8,5, color = trans_red) # fails, since appears fully red ###BUG in translucent color support
 
-testexpr_2 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+# test not supplying all the args
 
-testexpr_3 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
+testexpr_2b = Rect(4, color = purple) # works [061109]
+testexpr_2c = Rect(color = purple) # asfail - guess, not has_args since this is just a customization 061109 ###BUG (make it work?)
+testexpr_2d = Rect() # works, except default size is too big, since 10 makes sense for pixels but current units are more like "little"
+testexpr_2e = Rect(4, 5, white) # works
 
-testexpr_4 = TestIterator( testexpr_3 ) # test an iterator
+# test non-int args
+testexpr_2f = Rect(4, 2.6, blue) # works
 
-# == the testexpr to use right now
+#e test some error detection (nonunderstood option name, color supplied in two ways -- problem is, detecting those is nim)
 
-testexpr = testexpr_1a
+#e test some formulas? e.g. a rect whose width depends on redraw_counter??
+
+#e testexpr_2a = RectFrame(...)
+
+# === test more complex things
+
+#e testexpr_3 = Overlay( Rect(2), Rect(1, white) )
+
+testexpr_4 = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay, attrerror: draw)
+
+testexpr_5 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+
+testexpr_6 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
+
+testexpr_7 = TestIterator( testexpr_3 ) # test an iterator
+
+# == set the testexpr to use right now
+
+testexpr = testexpr_2f
+
+print "using testexpr %r" % testexpr
+for name in dir():
+    if name.startswith('testexpr') and name != 'testexpr' and eval(name) is testexpr:
+        print "(which is probably %s)" % name
 
 # == per-frame drawing code
 
