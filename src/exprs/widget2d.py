@@ -1,16 +1,12 @@
-'''
+"""
 widget2d.py
 
 $Id$
-'''
+"""
 ###e rename module, to same caps? hmm, maybe just to widget, since it has that class too? or move that class?
 
 from basic import * # autoreload of basic is done before we're imported
-
-import instance_helpers
-reload_once(instance_helpers)
-
-from instance_helpers import InstanceOrExpr
+from basic import _self
 
 # ==
 
@@ -69,17 +65,28 @@ class Widget2D(Widget):
     # but we might end up defining DelegatingWidget2D for convenience, if we have a standard name for instantiated args
     # (either in general or in that class)
 
-class DelegatingWidget2D(Widget2D, DelegatingMixin): # test, then generalize
+class DelegatingWidget2D(Widget2D, DelegatingMixin): # 061110; test, then generalize
     "#doc"
+    # devel-scratch comments, 061110:
     # Provide a standard place to find arg-instances, but without precluding the client from declaring args itself...
     # hmm, that doesn't seem possible, if client would redeclare the first one.
     # So at least for now, we either declare them all (lazily, in case client class doesn't want some of them),
     # or just declare the first one and let the client declare more.
     # We'll do the latter, since ArgList doesn't work yet ###k.
-    # Limitations in ExprsMeta or Arg or both mean that the client can't easily declare more args... making this not very useful yet.###e
+    # Bug: Limitations in ExprsMeta or Arg or both mean that the client can't easily declare
+    # more args... making this not very useful yet.###e
     # (Note that if the client wants its own access to an instance of _e_args[0],
     #  it would presumably want the same instance of that arg, not another instance of it.)
-    delegate = Arg(Widget2D)
+    ## delegate = Arg(Widget2D)
+    # ... wait, it's ok to ask for the same instance twice if you use the same index and expr...
+    # so if we just ask for the delegate using a "standard index", it should be compatible with separate arg decls
+    # (which will overlap this use of arg[0]).
+    # The following is what we want, but we'll have to form the exprs manually until we decide on a toplevel way to make the
+    # pure-expr args accessible:
+    ## delegate = Instance( _self._e_args[0], 0 )
+    # needs _self, Instance, getattr_Expr
+    delegate = Instance( getattr_Expr(_self, '_e_args')[0], 0 )
+    pass
 
 # ==
 

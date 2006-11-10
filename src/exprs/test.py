@@ -30,6 +30,10 @@ import Column
 reload_once(Column)
 from Column import Column
 
+import Overlay
+reload_once(Overlay)
+from Overlay import Overlay
+
 import Boxed
 reload_once(Boxed)
 from Boxed import Boxed
@@ -113,7 +117,16 @@ testexpr_3x = DebugPrintAttrs(Rect(4,7,blue), 'color') # works now! late 061109 
 
 # === test more complex things
 
-#e testexpr_4 = Overlay( Rect(2), Rect(1, white) ) ###nim -- where i am next day is to make this work; requires ArgList
+# Overlay (as of 061110 only implemented with exactly two args)
+
+# these all work as expected, now that I know why Rect(1, white) doesn't work. After the commit I can clean it up. #e
+testexpr_4 = Overlay( Rect(2), Rect(1, white) ) # might work since exactly two args; requires ArgList for more ###k test 061110
+    # appears to work except that the white rect does not show; that's a bug, but for now, try a less ambiguous test:
+testexpr_4a = Overlay( Rect(2,1), Rect(1, 2, white) ) # works; white rect is in front, but that didn't happen in test 4!! ####???
+testexpr_4b = Rect(1.5, white) # could this be the problem? white is probably interpreted as a Width! (as 1) why no error?? ###e
+printnim("the error of Color as Width in Rect(1.5, white) ought to be detected in draw_utils even before type coercion works")
+testexpr_4c = Rect(1.5, color = white) # works
+testexpr_4d = Overlay( Rect(2), Rect(1, color = white) ) # works!
 
 testexpr_5 = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay, attrerror: draw)
 
@@ -125,7 +138,7 @@ testexpr_8 = TestIterator( testexpr_3 ) # test an iterator
 
 # == set the testexpr to use right now
 
-testexpr = testexpr_3x
+testexpr = testexpr_4d
 
 print "using testexpr %r" % testexpr
 for name in dir():

@@ -7,8 +7,18 @@ $Id$
 from basic import *
 from basic import _self
 
-class Overlay(DelegatingWidget2D):
+class Overlay(DelegatingWidget2D): #e remove '2D' so it can work in 3D too? if so, need type inference that also delegates??
     "Overlay has the size of its first arg, but draws all its args in the same place, with the same origin."
+    # stub, work only with exactly two args:
+    arg0 = Arg(Widget2D)
+    arg1 = Arg(Widget2D)
+    args = list_Expr(arg0, arg1) # not sure if [arg0, arg1] would work, but I doubt it --
+        ###e should make it work sometime, if possible (e.g. by delving inside all literal list ns-values in ExprsMeta)
+    #e add an option to make each element slightly closer, maybe just as a depth increment? makes hover highlighting more complicated...
+    def _init_instance(self):
+        super(Overlay, self)._init_instance()
+        if not ( len(self._e_args) == 2):
+            print("Overlay is a stub which only works with exactly two args")
     def draw(self):
         for a in self.args[::-1]:
             #e We'd like this to work properly for little filled polys drawn over big ones.
@@ -18,6 +28,7 @@ class Overlay(DelegatingWidget2D):
             # Callers can kluge it using Closer, though that's imperfect in perspective mode (or when viewpoint is rotated).
             # But for now, let's just try drawing in the wrong order and see if that helps... yep!
             if a is None:
+                printfyi("some Overlay arg is None") #k I guess this is possible; when type coercion works, decide if it should be
                 continue # even for first arg -- but that being None would fail in other ways, since it'd be our delegate
             a.draw() #e try/except
     pass # Overlay

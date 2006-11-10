@@ -123,22 +123,7 @@ PIXELS = 0.05 #k guess #e will probably change
 
 NullIpath = None ###STUB, refile, rename
 
-# === higher-level defs, common enough to import for everything
-
-import widget2d
-reload_once(widget2d)
-from widget2d import Widget2D, Widget
-
-# == higher-level stubs
-
-# lowercase stub doesn't work for the following, since they get called during import, so use uppercase Stub
-Stub = Widget2D
-Overlay = Center = Stub###@@@
-ToggleShow = TestIterator = Stub
-# types
-Width = Color = Stub
-
-# == modules that may have been already imported above, but whose symbols were not needed in basic at that time [#e move up anyway?]
+# == fundamental defs
 
 import Exprs
 reload_once(Exprs) # doesn't support reload, for now, so this is a noop
@@ -146,6 +131,22 @@ from Exprs import * # Expr, lots of predicates, maybe Arg & Option(??#k)
 
 import instance_helpers
 reload_once(instance_helpers)
-from instance_helpers import InstanceOrExpr, GlueCodeMemoizer
+from instance_helpers import InstanceOrExpr, DelegatingMixin, GlueCodeMemoizer
 
-# end
+# === higher-level defs, common enough to import for everything
+
+import widget2d
+reload_once(widget2d)
+from widget2d import Widget, Widget2D, DelegatingWidget2D
+
+# == higher-level stubs
+
+# lowercase stub doesn't work for the following, since they get called during import, so use uppercase Stub
+Stub = Widget2D
+Center = Stub
+ToggleShow = TestIterator = Stub
+
+# types
+Width = Color = Stub
+
+# == end

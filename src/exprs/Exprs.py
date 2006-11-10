@@ -139,6 +139,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         return
     def __call__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __call__" % self.__class__.__name__
+    # note: for __getattr__, see also the subclasses; for __getitem__ see below
 
     def __get__(self, obj, cls):
         """The presence of this method makes every Expr a Python descriptor. This is so an expr which is a formula in _self
@@ -215,6 +216,12 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
     def __neg__( self):
         """operator -a"""
         return neg_Expr(self)
+
+    def __getitem__( self, index): #k not reviewed for slices, unlikely they'll work fully
+        """ operator a[b]"""
+        #e will Instances extend this to return their kids??
+        return getitem_Expr(self, index)
+    
     # == not sure where these end up
     def __float__( self):
         """operator float(a)"""
@@ -372,6 +379,15 @@ class getattr_Expr(OpExpr):
     def __str__(self):
          return "%s.%s" % self._e_args #e need parens? need quoting of 2nd arg? Need to not say '.' if 2nd arg not a py-ident string?
     _e_eval_function = getattr # this doesn't need staticmethod, maybe since <built-in function getattr> has different type than lambda
+    pass
+
+class getitem_Expr(OpExpr): #061110
+    def _e_init(self):
+        assert len(self._e_args) == 2 #e kind of useless and slow??
+        # note, _e_args[1] is often constant_Expr(<an int as list-index> or <an attrname as dict key>), but could be anything
+    def __str__(self):
+         return "%s[%s]" % self._e_args #e need parens?
+    _e_eval_function = staticmethod( lambda x,y:x[y] )
     pass
 
 class mul_Expr(OpExpr):

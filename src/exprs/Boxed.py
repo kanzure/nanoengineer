@@ -7,8 +7,9 @@ $Id$
 from basic import *
 
 from Rect import RectFrame
+from Overlay import Overlay
 
-#e later import Overlay, Center, when they're not stubs
+#e later import Center, when not a stub
 
 # ==
 
