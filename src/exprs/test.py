@@ -40,7 +40,7 @@ from widget_env import widget_env
 
 import instance_helpers
 reload_once(instance_helpers)
-from instance_helpers import DelegatingInstance
+from instance_helpers import DelegatingInstance_obs, DelegatingMixin
 
 # == make some "persistent state"
 
@@ -51,27 +51,30 @@ except:
 
 # == debug code #e refile
 
-class DelegatingMixin: pass ##stub
-
-class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106
+class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106; revised 061109, maybe it works now?
     """delegate to our only arg, but whenever we're drawn, before drawing that arg,
     print its attrvalues listed in our other args
     """ #k guess 061106
     #e obscmt: won't work until we make self.args autoinstantiated [obs since now they can be, using Arg or Instance...]
-    delegate = Arg(Anything) #k guess 061106 ###IMPLEM Anything
+    delegate = Arg(Anything) #k guess 061106
         #k when it said Arg(Widget): is this typedecl safe, re extensions of that type it might have, like Widget2D?
         #k should we leave out the type, thus using whatever the arg expr uses? I think yes, so I changed the type to Anything.
-    attrs = ArgList(str)
+    attrs = ArgList(str) # as of 061109 this is a stub equal to Arg(Anything)
     def draw(self, *args): #e or do this in some init routine?
         ## guy = self.args[0] ##### will this be an instance?? i doubt it
         guy = self.delegate
         print "guy = %r, guy._e_is_instance = %r" % (guy, guy._e_is_instance)
         ## attrs = self.args[1:]
         attrs = self.attrs
+        if type(attrs) == type("kluge"):
+            attrs = [attrs]
+            printnim("need to unstub ArgList in DebugPrintAttrs")
+        else:
+            printfyi("seems like ArgList may have worked in DebugPrintAttrs")
         for name in attrs:
             print "guy.%s is" % name, getattr(guy,name,"<unassigned>")
-##        ##DelegatingInstance.draw(self, *args) # this fails... is it working to del to guy, but that (not being instance) has no .draw??
-##        printnim("bug: why doesn't DelegatingInstance delegate to guy?") # since guy does have a draw
+##        ##DelegatingInstance_obs.draw(self, *args) # this fails... is it working to del to guy, but that (not being instance) has no .draw??
+##        printnim("bug: why doesn't DelegatingInstance_obs delegate to guy?") # since guy does have a draw
 ##        # let's try it more directly:
         # super draw, I guess:
         return guy.draw(*args) ### [obs cmt?] fails, wrong # args, try w/o self
@@ -81,7 +84,6 @@ class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106
 
 # === test basic leaf primitives
 testexpr_1 = Rect_old(7,5, color = green) # works as of 061030
-testexpr_1x = DebugPrintAttrs(Rect_old(4,7,blue), 'color') # doesn't work yet (instantiation)
 
 testexpr_2 = Rect(8,6, color = purple) # works as of 061106
 
@@ -106,9 +108,12 @@ testexpr_3a = RectFrame(6,4,color=blue) # works
 testexpr_3b = RectFrame(6,4,thickness=5*PIXELS) # works
 testexpr_3c = RectFrame(6,4,5*PIXELS,red) # works
 
+# test DebugPrintAttrs and DelegatingMixin
+testexpr_3x = DebugPrintAttrs(Rect(4,7,blue), 'color') # works now! late 061109 (won't yet work with more than one attrname)
+
 # === test more complex things
 
-#e testexpr_4 = Overlay( Rect(2), Rect(1, white) )
+#e testexpr_4 = Overlay( Rect(2), Rect(1, white) ) ###nim -- where i am next day is to make this work; requires ArgList
 
 testexpr_5 = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay, attrerror: draw)
 
@@ -120,7 +125,7 @@ testexpr_8 = TestIterator( testexpr_3 ) # test an iterator
 
 # == set the testexpr to use right now
 
-testexpr = testexpr_3
+testexpr = testexpr_3x
 
 print "using testexpr %r" % testexpr
 for name in dir():

@@ -12,7 +12,7 @@ from draw_utils import *
 
 import instance_helpers
 reload_once(instance_helpers)
-from instance_helpers import GlueCodeMemoizer, DelegatingInstance
+from instance_helpers import GlueCodeMemoizer, DelegatingInstance_obs
 
 # ==
 
@@ -36,7 +36,7 @@ class CLE(GlueCodeMemoizer): # not reviewed recently
         return helper
     pass
 
-class CW(DelegatingInstance):
+class CW(DelegatingInstance_obs):
     #e make sure arg has a layout box -- can't we do this by some sort of type coercion? for now, just assume it does.
     # that means it'll have height, since all lboxes have that even if it's not fundamental.
     # all we might need to add is empty = False.

@@ -63,9 +63,11 @@ class Widget2D(Widget):
         bbottom = 0    
     pass ### make sure it has .btop. .bbottom, etc -- i.e. a layout box
 
-DelegatingWidget2D = Widget2D
+DelegatingWidget2D = Widget2D ###STUB, needs DelegatingMixin too
     #####@@@@@ this means, I think, Widget2D with arg1 used for layout... sort of like a "WidgetDecorator"...
-    #e should we have a DelegatingMixin instead?
+    #e should we have a DelegatingMixin instead? yes, making one elsewhere 061109...
+    # but we might end up defining DelegatingWidget2D for convenience, if we have a standard name for instantiated args
+    # (either in general or in that class)
 
 # ==
 

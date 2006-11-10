@@ -4,9 +4,10 @@ Overlay.py
 $Id$
 """
 
-##NIM
+from basic import *
+from basic import _self
 
-class Overlay(DelegatingWidgetExpr):
+class Overlay(DelegatingWidget2D):
     "Overlay has the size of its first arg, but draws all its args in the same place, with the same origin."
     def draw(self):
         for a in self.args[::-1]:

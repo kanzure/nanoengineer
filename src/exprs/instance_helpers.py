@@ -295,9 +295,13 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         pass
 
     def _e_eval(self, env, ipath):
-        assert self._e_is_instance, "%r._e_eval asserts it's an Instance... not sure this is an error, it's just unexpected" % self ###@@@
+##        printfyi("I suspect Instance _e_eval was wrong, trying new way") # yes, new way works! not sure it always will tho... ###k
         printnim("Instance eval doesn't yet handle _value or If") ###@@@
-        return self # true for most of them, false for the ones that have _value (like Boxed) or for If ####@@@@
+        return self._e_make_in(env, ipath)
+##        ### old way [pre late-061109]
+##        assert self._e_is_instance, "%r._e_eval asserts it's an Instance... not sure this is an error, it's just unexpected" % self ###@@@
+##        printnim("Instance eval doesn't yet handle _value or If") ###@@@
+##        return self # true for most of them, false for the ones that have _value (like Boxed) or for If ####@@@@
 
     # kid-instantiation, to support use of the macros Arg, Option, Instance, etc
     #k (not sure this is not needed in some other classes too, but all known needs are here)
@@ -443,7 +447,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
 
 # ===
 
-class DelegatingInstanceOrExpr(InstanceOrExpr): #061020
+class DelegatingInstanceOrExpr_obs(InstanceOrExpr): #061020; as of 061109 this looks obs since the _C_ prefix is deprecated
     "#doc: like Delegator, but self.delegate is recomputable from _C_delegate as defined by subclass"
     def _C_delegate(self):
         assert 0, "must be overridden by subclass to return object to delegate to at the moment"
@@ -457,10 +461,46 @@ class DelegatingInstanceOrExpr(InstanceOrExpr): #061020
             return getattr(self.delegate, attr) # here is where we delegate.
     pass
 
-DelegatingInstance = DelegatingInstanceOrExpr #k ok? (for when you don't need the expr behavior, but (i hope) don't mind it either)
+DelegatingInstance_obs = DelegatingInstanceOrExpr_obs #k ok? (for when you don't need the expr behavior, but (i hope) don't mind it either)
 
+#e use, instead, DelegatingMixin combined with formula on self.delegate
 
-class GlueCodeMemoizer( DelegatingInstanceOrExpr): ##e rename WrapperMemoizer? WrappedObjectMemoizer? WrappedInstanceMemoizer? probably yes [061020]
+class DelegatingMixin(object): #e refile?
+    """#doc: like Delegator (with no caching, in case the delegate varies over time),
+    but self.delegate should be defined by the subclass
+    (e.g. it might be recomputable from a formula or _C_delegate method handled by ExprsMeta, or assigned in __init__).
+    """
+    def _C_delegate(self):
+        """[subclasses must either replace this method and use ExprsMeta metaclass,
+        or in some other way make sure self.delegate is set or always retrievable]
+        """
+        # Notes:
+        # - we might want to revise this, since it won't work w/o ExprsMeta and _C_ is deprecated even within that;
+        # OTOH, it's not really needed (it just changes the error message from AttributeError on self.delegate),
+        # so this def causes no harm.
+        # - in spite of assert text, the subclass needn't override _C_delegate if it has some other way
+        # to make sure self.delegate is defined.
+        assert 0, "must be overridden by subclass to return object to delegate to at the moment"
+    def __getattr__(self, attr):
+        try:
+            return super(DelegatingMixin,self).__getattr__(attr)###k need to verify super args in python docs, and lack of self in __getattr__
+                # note, _C__attr for _attr starting with _ is permitted, so we can't check whether attr starts '_' before doing this.
+        except AttributeError:
+            if attr.startswith('_'):
+                raise AttributeError, attr # not just an optim -- we don't want to delegate any attrs that start with '_'.
+                ##k reviewing this 061109, I'm not sure this is viable; maybe we'll need to exclude only __ or _i_ or _e_,
+                # or maybe even some of those need delegation sometimes -- we'll see.
+                #e Maybe the subclass will need to declare what attrs we exclude, or what _attrs we include!
+            return getattr(self.delegate, attr) # here is where we delegate.
+            #k Should it be silently tolerated if delegate is None? Probably no need -- None won't usually have the attr,
+            # so it will raise the same exception we would. Are there confusing cases where None *does* have the attr??
+            # I doubt it (since we're excluding _attrs).
+        pass
+    pass # end of class DelegatingMixin
+
+# ==
+
+class GlueCodeMemoizer( DelegatingInstanceOrExpr_obs): ##e rename WrapperMemoizer? WrappedObjectMemoizer? WrappedInstanceMemoizer? probably yes [061020]
     """Superclass for an InstanceOrExpr which maps instances to memoized wrapped versions of themselves,
     constructed according to the method ###xxx (_make_wrapped_obj?) in each subclass, and delegates to the wrapped versions.
     """
@@ -471,7 +511,7 @@ class GlueCodeMemoizer( DelegatingInstanceOrExpr): ##e rename WrapperMemoizer? W
     # known uses: CLE, value-type-coercers in general (but not all reasonable uses are coercers);
     # in fact [061020], should it be the usual way to find all kids? maybe not, e.g. CL does not use this pattern, it puts CLE around non-fixed arginsts.
     def _C_delegate(self): # renamed from _eval_my_arg
-        printnim("self.args[0] needs review for _e_args or setup, in GlueCodeMemoizer; see DelegatingMixin in another file")###e 061106
+        printnim("self.args[0] needs review for _e_args or setup, in GlueCodeMemoizer; see DelegatingMixin")###e 061106
         arg = self.args[0] # formula instance
         argval = arg.eval() ###k might need something passed to it (but prob not, it's an instance, it has an env)
         ####@@@@ might be arg.value instead; need to understand how it relates to _value in Boxed [061020]
