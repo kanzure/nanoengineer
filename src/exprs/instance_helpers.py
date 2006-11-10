@@ -447,8 +447,11 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
 
 # ===
 
-class DelegatingInstanceOrExpr_obs(InstanceOrExpr): #061020; as of 061109 this looks obs since the _C_ prefix is deprecated
-    "#doc: like Delegator, but self.delegate is recomputable from _C_delegate as defined by subclass"
+class DelegatingInstanceOrExpr_obs(InstanceOrExpr): #061020; as of 061109 this looks obs since the _C_ prefix is deprecated;
+    #e use, instead, DelegatingMixin combined with formula on self.delegate
+    """#doc: like Delegator, but self.delegate is recomputable from _C_delegate as defined by subclass.
+    This is obsolete; use DelegatingMixin instead. [#e need to rewrite GlueCodeMemoizer to not use this; only other uses are stubs.]
+    """
     def _C_delegate(self):
         assert 0, "must be overridden by subclass to return object to delegate to at the moment"
     def __getattr__(self, attr):
@@ -463,9 +466,8 @@ class DelegatingInstanceOrExpr_obs(InstanceOrExpr): #061020; as of 061109 this l
 
 DelegatingInstance_obs = DelegatingInstanceOrExpr_obs #k ok? (for when you don't need the expr behavior, but (i hope) don't mind it either)
 
-#e use, instead, DelegatingMixin combined with formula on self.delegate
 
-class DelegatingMixin(object): #e refile?
+class DelegatingMixin(object): #e refile? # 061109, apparently works (only tested in DebugPrintAttrs so far)
     """#doc: like Delegator (with no caching, in case the delegate varies over time),
     but self.delegate should be defined by the subclass
     (e.g. it might be recomputable from a formula or _C_delegate method handled by ExprsMeta, or assigned in __init__).
@@ -500,6 +502,7 @@ class DelegatingMixin(object): #e refile?
 
 # ==
 
+#e rewrite this to use DelegatingMixin
 class GlueCodeMemoizer( DelegatingInstanceOrExpr_obs): ##e rename WrapperMemoizer? WrappedObjectMemoizer? WrappedInstanceMemoizer? probably yes [061020]
     """Superclass for an InstanceOrExpr which maps instances to memoized wrapped versions of themselves,
     constructed according to the method ###xxx (_make_wrapped_obj?) in each subclass, and delegates to the wrapped versions.

@@ -63,11 +63,23 @@ class Widget2D(Widget):
         bbottom = 0    
     pass ### make sure it has .btop. .bbottom, etc -- i.e. a layout box
 
-DelegatingWidget2D = Widget2D ###STUB, needs DelegatingMixin too
+## DelegatingWidget2D = Widget2D ###STUB, needs DelegatingMixin too
     #####@@@@@ this means, I think, Widget2D with arg1 used for layout... sort of like a "WidgetDecorator"...
     #e should we have a DelegatingMixin instead? yes, making one elsewhere 061109...
     # but we might end up defining DelegatingWidget2D for convenience, if we have a standard name for instantiated args
     # (either in general or in that class)
+
+class DelegatingWidget2D(Widget2D, DelegatingMixin): # test, then generalize
+    "#doc"
+    # Provide a standard place to find arg-instances, but without precluding the client from declaring args itself...
+    # hmm, that doesn't seem possible, if client would redeclare the first one.
+    # So at least for now, we either declare them all (lazily, in case client class doesn't want some of them),
+    # or just declare the first one and let the client declare more.
+    # We'll do the latter, since ArgList doesn't work yet ###k.
+    # Limitations in ExprsMeta or Arg or both mean that the client can't easily declare more args... making this not very useful yet.###e
+    # (Note that if the client wants its own access to an instance of _e_args[0],
+    #  it would presumably want the same instance of that arg, not another instance of it.)
+    delegate = Arg(Widget2D)
 
 # ==
 

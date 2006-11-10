@@ -51,7 +51,7 @@ except:
 
 # == debug code #e refile
 
-class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106; revised 061109, maybe it works now?
+class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106; revised 061109, works now (except for ArgList kluge)
     """delegate to our only arg, but whenever we're drawn, before drawing that arg,
     print its attrvalues listed in our other args
     """ #k guess 061106
@@ -108,7 +108,7 @@ testexpr_3a = RectFrame(6,4,color=blue) # works
 testexpr_3b = RectFrame(6,4,thickness=5*PIXELS) # works
 testexpr_3c = RectFrame(6,4,5*PIXELS,red) # works
 
-# test DebugPrintAttrs and DelegatingMixin
+# test DebugPrintAttrs (and thereby DelegatingMixin)
 testexpr_3x = DebugPrintAttrs(Rect(4,7,blue), 'color') # works now! late 061109 (won't yet work with more than one attrname)
 
 # === test more complex things
