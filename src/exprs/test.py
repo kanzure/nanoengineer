@@ -24,7 +24,7 @@ from basic import * # including reload_once, and some stubs
 
 import Rect
 reload_once(Rect)
-from Rect import Rect_old, Rect
+from Rect import Rect_old, Rect, RectFrame
 
 import Column
 reload_once(Column)
@@ -101,23 +101,26 @@ testexpr_2f = Rect(4, 2.6, blue) # works
 
 #e test some formulas? e.g. a rect whose width depends on redraw_counter??
 
-#e testexpr_2a = RectFrame(...)
+testexpr_3 = RectFrame(6,4) # works
+testexpr_3a = RectFrame(6,4,color=blue) # works
+testexpr_3b = RectFrame(6,4,thickness=5*PIXELS) # works
+testexpr_3c = RectFrame(6,4,5*PIXELS,red) # works
 
 # === test more complex things
 
-#e testexpr_3 = Overlay( Rect(2), Rect(1, white) )
+#e testexpr_4 = Overlay( Rect(2), Rect(1, white) )
 
-testexpr_4 = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay, attrerror: draw)
+testexpr_5 = Boxed(testexpr_1) # not tested yet, couldn't work yet (_value, instantiation, Overlay, attrerror: draw)
 
-testexpr_5 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+testexpr_6 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
 
-testexpr_6 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
+testexpr_7 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
-testexpr_7 = TestIterator( testexpr_3 ) # test an iterator
+testexpr_8 = TestIterator( testexpr_3 ) # test an iterator
 
 # == set the testexpr to use right now
 
-testexpr = testexpr_2f
+testexpr = testexpr_3
 
 print "using testexpr %r" % testexpr
 for name in dir():

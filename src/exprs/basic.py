@@ -32,7 +32,7 @@ $Id$
 
 # == imports from cad/src
 
-from VQT import V, A, Q
+from VQT import V, A, Q, norm, vlen
 
 from state_utils import transclose
 
@@ -115,6 +115,9 @@ trans_blue = translucent_color(halfblue)
 trans_red = translucent_color(red)
 trans_green = translucent_color(green)
 
+# == other constants
+
+PIXELS = 0.05 #k guess #e will probably change
 
 # == lower-level stubs -- these will probably be refiled when they are no longer stubs ###@@@
 
@@ -130,7 +133,7 @@ from widget2d import Widget2D, Widget
 
 # lowercase stub doesn't work for the following, since they get called during import, so use uppercase Stub
 Stub = Widget2D
-Overlay = RectFrame = Center = Stub###@@@
+Overlay = Center = Stub###@@@
 ToggleShow = TestIterator = Stub
 # types
 Width = Color = Stub

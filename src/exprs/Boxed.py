@@ -6,7 +6,9 @@ $Id$
 
 from basic import *
 
-#e later import Overlay, RectFrame, Center, when they're not stubs
+from Rect import RectFrame
+
+#e later import Overlay, Center, when they're not stubs
 
 # ==
 

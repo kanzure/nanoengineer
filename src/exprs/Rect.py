@@ -44,10 +44,12 @@ class Rect_old(Widget2D):
         glEnable(GL_CULL_FACE)
     pass
 
+# ==
+
 class Rect(Widget2D): # this is Rect_old in a newer syntax, finally working as of 061106
     "#doc - grab from above"
     # args
-    width = Arg(Width, 10)
+    width = Arg(Width, 5) # changed 10 to 5 late on 061109
     height = Arg(Width, width)
     color = ArgOrOption(Color, gray)
     # formulas
@@ -72,6 +74,28 @@ class Rect(Widget2D): # this is Rect_old in a newer syntax, finally working as o
         draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.fix_color(self.color)) #e move fix_color into draw_filled_rect? 
         glEnable(GL_CULL_FACE)
     pass
+
+# ==
+
+class RectFrame(Widget2D):
+    """RectFrame(width, height, thickness, color) is an empty rect (of the given outer dims)
+    with a filled border of the given thickness (like a picture frame with nothing inside).
+    """
+    # args
+    width = Arg(Width, 10)
+    height = Arg(Width, width)
+    thickness = ArgOrOption(Width, 4 * PIXELS)
+    color = ArgOrOption(Color, white)
+    # layout formulas
+    bright = _self.width
+    btop = _self.height
+    def draw(self):
+        glDisable(GL_CULL_FACE)
+        draw_filled_rect_frame(ORIGIN, DX * self.width, DY * self.height, self.thickness, self.fix_color(self.color))
+        glEnable(GL_CULL_FACE)
+    pass
+
+# == only comments after this point
 
 # old comments from Rect_old:
 #
