@@ -228,9 +228,14 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     def _destructive_make_in(self, data):
         """[private]
         This is the main internal instantiation-helper method.
-        For expr, env, ipath = data, modify self to be an instance of expr, in the given env, at the given index-path.
+        For expr, env, ipath = data, modify self (which initially knows nothing)
+        to be an instance of expr, in the given env, at the given index-path.
         Called only from __init__, when self knows nothing except its class.
         """
+        printnim("make_in needs to replace _self in customization formulas with _self from env")#061110 313p
+        printnim("should make_in worry about finding an existing instance at the same index?")
+            # guess: no, it'd be obsolete; not sure. #061110 313p
+        
         expr, env, ipath = data ###@@@ might want to split env into rules (incl lexenv) & place (incl staterefs, glpane)
         assert not self._e_is_instance #e remove when works
         assert not expr._e_is_instance
