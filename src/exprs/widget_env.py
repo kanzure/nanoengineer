@@ -3,7 +3,8 @@ widget_env.py -- an environment for the instantiation and use of widget exprs
 
 $Id$
 
-The environment is used for instantiation and then for "use/residence" (running & drawing & holding state).
+The environment is used for lexical replacement & instantiation,
+and then for "use/residence" (running & drawing & holding state).
 Maybe someday we'll split these parts.
 '''
 
@@ -18,10 +19,14 @@ class widget_env(Delegator):
         self.glpane = glpane
         self.staterefs = staterefs ###k
         ###KLUGES, explained below [061028]:
-        Delegator.__init__(self, delegate)
+        Delegator.__init__(self, delegate) # this will be None or the parent env
         for k,v in lexmods.iteritems():
             setattr(self, k,v) # worst part of the kluge -- dangerous if symnames overlap method names
+            # next worse part: special methods like __repr__ end up delegating
         pass
+    def __repr__(self): # without this, Delegator delegates __repr__ ultimately to None, so "%r" % self == "None"!!!
+        return "<widget_env at %#x>" % id(self)
+    __str__ = __repr__ #k guess: might be needed for same reason as __repr__
     def understand_expr(self, expr, lexmods = None):
         "#doc; retval contains env + lexmods, and can be trusted to understand itself."
         # only the "rules" in self are needed for this, not the glpane & staterefs! so put this method in a subobject! #e

@@ -93,7 +93,14 @@ class RectFrame(Widget2D):
     btop = _self.height
     if '061110 debug':
         def _e_eval(self, *args):
-            print_compact_stack( "fyi: %r._e_eval%r (_self in env is %r): " % (self, args, '??'))
+            env = args[0]
+            assert env #061110 seems to be a pyinstance whose %r is "None" but which is boolean true!
+            print "### env.__class__ = %r" % (env.__class__,) # widget_env - it's a Delegator, guess delegates __repr__ to None!
+            print "id(env) = %r, type(env) = %r, id(None) = %r, None = %r, env is None = %r" % \
+                  (id(env), type(env), id(None), None, env is None)
+            print "### env is %r" % (env,) # says None in the following print!
+            print_compact_stack( "### fyi: %r._e_eval%r (_self in env is %r): " % (self, args, '??'))
+            ## assert None - asfails as expected
             ## fyi: <RectFrame#805 at 0xd6f31f0>._e_eval(None, ('stub', ('stub', None))) (_self in env is '??')
             # why is env None?
             return super(RectFrame, self)._e_eval(*args)

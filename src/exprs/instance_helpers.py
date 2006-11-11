@@ -221,6 +221,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     # instantiation methods
     def _e_make_in(self, env, ipath):
         "Instantiate self in env, at the given index-path."
+        assert env #061110
         # no need to copy the formulas or args, since they're shared among all instances, so don't call self._copy.
         # instead, make a new instance in a similar way.
         assert not self._e_is_instance
@@ -237,6 +238,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # guess: no, it'd be obsolete; not sure. #061110 313p
         
         expr, env, ipath = data ###@@@ might want to split env into rules (incl lexenv) & place (incl staterefs, glpane)
+        assert env #061110
         assert not self._e_is_instance #e remove when works
         assert not expr._e_is_instance
         self._e_is_instance = True

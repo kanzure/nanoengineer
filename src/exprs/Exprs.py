@@ -319,6 +319,7 @@ class OpExpr(SymbolicExpr):
         they should redefine this method. [We're not presently in InstanceOrExpr at all, but that might change,
         though this implem won't work there since those want to never eval their args now. 061105]
         """
+        assert env #061110
         assert not self._e_kws #e remove when done with devel -- just checks that certain subclasses overrode us -- or, generalize this
         func = self._e_eval_function
             # Note: these functions would turn into bound methods here,
@@ -354,6 +355,7 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
         """[the only reason the super method is not good enough is that we have _e_kws too, I think;
             maybe also the distinction of that to self._e_call_kws, but I doubt that distinction is needed -- 061105]
         """
+        assert env #061110
         # 061102: we do this (_e_eval in general)
         # by imagining we've done the replacements in env (e.g. for _self) to get an instance of the expr,
         # and then using ordinary eval rules on that, which include forwarding to _value for some Instances,
@@ -499,6 +501,7 @@ class constant_Expr(internal_Expr):
         return "%r" % (self._e_constant_value,) #e need parens?
             #k 061105 changed %s to %r w/o reviewing calls (guess: only affects debugging)
     def _e_eval(self, env, ipath):
+        assert env #061110
         if '061103 kluge2':
             maybe = env.lexval_of_symbol(_self) #e suppress the print from this
             instantiating = (maybe is not _self)
@@ -541,6 +544,7 @@ class eval_Expr(OpExpr):
     def _e_init(self):
         pass
     def _e_eval(self, env,ipath):
+        assert env #061110
         (arg,) = self._e_args
         argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
         res = argval._e_eval(env, ipath)
@@ -555,6 +559,7 @@ class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for d
         self._e_args = self.args # so replace sees the args
         assert len(self.args) == 1
     def _e_eval(self, env, ipath):
+        assert env #061110
         the_expr = self._e_args[0] ## self._e_the_expr
         res = the_expr._e_eval(env, ipath)
         print_compact_stack("debug_evals_of_Expr(%r) evals it to %r at: " % (the_expr, res)) #k does this ever happen?
