@@ -558,8 +558,9 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         newenv = self._e_env0
         newenv_self = getattr(newenv, '_self', None) ####e change newenv._self to give this answer! [intention soon, 061110 very late]
         if env._self is not newenv_self:
-            printfyi("env._self is not newenv._self: a %s is not a %s (tho it may or may not be in same class)" % \
-                     (env._self.__class__.__name__, newenv_self.__class__.__name__))
+            if 0:
+                printfyi("env._self is not newenv._self: a %s is not a %s (tho it may or may not be in same class)" % \
+                         (env._self.__class__.__name__, newenv_self.__class__.__name__))
         else:
             printfyi("### env._self IS newenv._self (surprising)")
         return self._e_expr0._e_eval(newenv, ipath)

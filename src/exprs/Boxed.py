@@ -67,8 +67,8 @@ class Boxed(InstanceMacro): ##e supers of (Widget2D, InstanceMacro) might be bes
     # args
     thing = Arg(Widget2D)
     # options
-    borderthickness = Option(int, 4)
-    gap = Option(int, 4)
+    borderthickness = Option(Width, 4 * PIXELS)
+    gap = Option(Width, 4 * PIXELS)
     bordercolor = Option(Color, white)
     # internal formulas
     extra = 2 * gap + 2 * borderthickness

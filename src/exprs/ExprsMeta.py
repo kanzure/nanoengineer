@@ -237,8 +237,9 @@ class ClassAttrSpecific_NonDataDescriptor(object):
             # changing C_rule to not store into same attr in instance.__dict__ so it can use a non-data descriptor.
             # But WAIT AGAIN, the descriptor will gate access to the instance, not necessarily to the class -- we'll have to try it.
             setattr( cls, attr, copy) # this might fail in the DataDescriptor subclass used in C_rule, but I don't know. ###k
-            print "setattr( cls, attr, copy) worked for supporting %r from %r for attr %r in %r" % \
-                  (cls , self.cls, attr, self) ####@@@@ self is relevant so we see which kind of descriptor it worked for
+            if 0:
+                print "setattr( cls, attr, copy) worked for supporting %r from %r for attr %r in %r" % \
+                      (cls , self.cls, attr, self) ####@@@@ self is relevant so we see which kind of descriptor it worked for
             # btw it also might "succeed but not have the desired effect". What's the predicted bug if it silently has no effect? ##k
             return copy.__get__(obj, cls)
         return self.get_for_our_cls(obj)
@@ -247,7 +248,8 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         "Subclass should implement -- do the __get__ for our class (initializing our class-specific info if necessary)"
         return None
     def copy_for_subclass(self, cls):
-        printfyi("copy_for_subclass from %r to %r" % (self.cls.__name__, cls.__name__))###@@@
+        if 0:
+            printfyi("copy_for_subclass from %r to %r" % (self.cls.__name__, cls.__name__))###@@@
         copy = self.__class__(cls.__name__, self.attr, *self.args, **self.kws)
         copy._ExprsMeta__set_cls(cls)
         copy.__copycount = self.__copycount + 1

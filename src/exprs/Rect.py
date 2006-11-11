@@ -91,29 +91,29 @@ class RectFrame(Widget2D):
     # layout formulas
     bright = _self.width
     btop = _self.height
-    if '061110 debug':
-        def _e_eval(self, *args):
-            env = args[0]
-            assert env #061110 it's a widget_env
-            ##print_compact_stack
-            print( "### fyi: %r._e_eval%r (_self in env %r is %r): " % (self, args, env, env._self)) # env._self is kluge
-            ## older print: ipath is ('stub', ('stub', None))
-            # now ipath is (0, ('$_value', None))
-            # hoping to see _self being a Boxed, but it's <Overlay#1060 at 0xe37d990>, but maybe I know why & it'll be Boxed
-            # when make_in replaces _self.
-            # After lexenv_Expr created and used, now it's Boxed!
-            if 'debug more':
-                env2 = env
-                while env2:
-                    ##e could add 'and env2.delegate' to prevent use of the initial null env which has no _self,
-                    # since asking it for _self gets an attrerror from None. Instead, use getattr below.
-                    ## print "env2.__class__ is %r" % (env2.__class__,)
-                    print "%r._self is %r" % (env2, getattr(env2, '_self', '<missing>')) # hope to see: Overlay, Boxed... good, I do.
-                        # After lexenv_Expr, hope to just see Boxed; I see Boxed, then crash, not yet understood why [now it is],
-                        # seems weird like the __repr__ delegation was weird, since it's as if env2 is None here. #####@@@@@
-                    env2 = env2.delegate
-                pass
-            return super(RectFrame, self)._e_eval(*args)
+##    if '061110 debug':
+##        def _e_eval(self, *args):
+##            env = args[0]
+##            assert env #061110 it's a widget_env
+##            ##print_compact_stack
+##            print( "### fyi: %r._e_eval%r (_self in env %r is %r): " % (self, args, env, env._self)) # env._self is kluge
+##            ## older print: ipath is ('stub', ('stub', None))
+##            # now ipath is (0, ('$_value', None))
+##            # hoping to see _self being a Boxed, but it's <Overlay#1060 at 0xe37d990>, but maybe I know why & it'll be Boxed
+##            # when make_in replaces _self.
+##            # After lexenv_Expr created and used, now it's Boxed!
+##            if 'debug more':
+##                env2 = env
+##                while env2:
+##                    ##e could add 'and env2.delegate' to prevent use of the initial null env which has no _self,
+##                    # since asking it for _self gets an attrerror from None. Instead, use getattr below.
+##                    ## print "env2.__class__ is %r" % (env2.__class__,)
+##                    print "%r._self is %r" % (env2, getattr(env2, '_self', '<missing>')) # hope to see: Overlay, Boxed... good, I do.
+##                        # After lexenv_Expr, hope to just see Boxed; I see Boxed, then crash, not yet understood why [now it is],
+##                        # seems weird like the __repr__ delegation was weird, since it's as if env2 is None here. #####@@@@@
+##                    env2 = env2.delegate
+##                pass
+##            return super(RectFrame, self)._e_eval(*args)
     def draw(self):
         glDisable(GL_CULL_FACE)
         draw_filled_rect_frame(ORIGIN, DX * self.width, DY * self.height, self.thickness, self.fix_color(self.color))
