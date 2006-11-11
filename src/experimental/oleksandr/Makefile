@@ -57,6 +57,7 @@ OBJS = cppsurface.o \
 	rotationmatrix.o \
 	intersection.o \
 	hierarchy.o \
+	collisiondetector.o \
 	box.o \
 	interval.o \
 	boxtree.o \
@@ -97,6 +98,9 @@ intersection.o: intersection.cpp intersection.h
 
 hierarchy.o: hierarchy.cpp hierarchy.h
 	g++ -c hierarchy.cpp -o hierarchy.o $(CXXFLAGS)
+
+collisiondetector.o: collisiondetector.cpp collisiondetector.h 
+	g++ -c collisiondetector.cpp -o collisiondetector.o $(CXXFLAGS)
 
 box.o: box.cpp box.h
 	g++ -c box.cpp -o box.o $(CXXFLAGS)
@@ -147,6 +151,7 @@ couple.o: triple.h
 intersection.o: couple.h
 rotationmatrix.o: triple.h
 hierarchy.o: box.h boxtree.h container.h rotationmatrix.h
+collisiondetector.o: boxtree.h triple.h hierarchy.h rotationmatrix.h
 box.o: interval.h triple.h
 boxtree.o: container.h box.h
 bucket.o: container.h triple.h
