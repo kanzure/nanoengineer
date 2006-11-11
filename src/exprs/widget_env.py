@@ -68,12 +68,10 @@ class widget_env(Delegator):
 class drawing_env: ###e cannibalize this above; only used in test.py, obs now
     def __init__(self, glpane):
         #e needs what args? glpane; place to store stuff (assy or part, and transient state); initial state defaults or decls...
-        pass
-    
-        
-    def _e_eval_expr(self, expr):
-        ###e look for _e_eval method; test for simple py type
-        assert 0, "nim"####@@@@ maybe obs too [guess 061108]
+        pass  
+##    def _e_eval_expr(self, expr):
+##        ###e look for _e_eval method; test for simple py type
+##        assert 0, "nim"####@@@@ maybe obs too [guess 061108]
     pass
 
 # things in the env:

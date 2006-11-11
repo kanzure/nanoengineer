@@ -11,6 +11,8 @@ import draw_utils
 reload_once(draw_utils)
 from draw_utils import *
 
+from debug import print_compact_stack
+
 # == class Rect_old (obs, remove soon)
 
 class Rect_old(Widget2D):
@@ -89,6 +91,12 @@ class RectFrame(Widget2D):
     # layout formulas
     bright = _self.width
     btop = _self.height
+    if '061110 debug':
+        def _e_eval(self, *args):
+            print_compact_stack( "fyi: %r._e_eval%r (_self in env is %r): " % (self, args, '??'))
+            ## fyi: <RectFrame#805 at 0xd6f31f0>._e_eval(None, ('stub', ('stub', None))) (_self in env is '??')
+            # why is env None?
+            return super(RectFrame, self)._e_eval(*args)
     def draw(self):
         glDisable(GL_CULL_FACE)
         draw_filled_rect_frame(ORIGIN, DX * self.width, DY * self.height, self.thickness, self.fix_color(self.color))

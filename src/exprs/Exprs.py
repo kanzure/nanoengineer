@@ -178,6 +178,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         assert instance._e_is_instance, "compute method asked for on non-Instance %r" % (instance,) # happens if a kid is non-instantiated(?)
         env0 = instance.env # fyi: AttributeError for a pure expr (ie a non-instance)
         env = env0.with_literal_lexmods(_self = instance)
+        assert env #061110
         ipath0 = instance.ipath ####k not yet defined i bet... funny, it didn't seem to crash from this -- did i really test it??
         index = 'stub' ###should be the attr of self we're coming from, i think!
         printnim("_e_compute_method needs to be passed an index")
