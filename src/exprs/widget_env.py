@@ -12,8 +12,12 @@ Maybe someday we'll split these parts.
 
 from idlelib.Delegator import Delegator
 
+from basic import printnim
+
 class widget_env(Delegator):
     "represent an environment for the instantiation and use of widget exprs (with rules and staterefs)"
+    # I intend to add this soon here (default value): _self = None
+    printnim("SOON I need to add _self = None to class widget_env")#####@@@@@
     def __init__(self, glpane, staterefs, delegate = None, lexmods = {}):
         #e rename glpane? type of staterefs? rules/lexenv too? ipath??
         self.glpane = glpane

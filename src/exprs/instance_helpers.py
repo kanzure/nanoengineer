@@ -112,12 +112,15 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
 
     # deprecated public access to self._e_kws -- used by _DEFAULT_ decls
     def custom_compute_method(self, attr):
-        "#doc; return a compute method or None"
+        "return a compute method using our custom formula for attr, or None if we don't have one"
         try:
             formula = self._e_kws[attr]
         except KeyError:
+            # caller will have to use the default case [#k i think]
             return None
+        printnim("custom_compute_method likely BUG: uses wrong env for _self") # could fix by passing flag or env to _e_compute_method?
         printnim("assume it's a formula in _self; someday optim for when it's a constant, and/or support other symbols in it")
+        #k guess: following printnim is wrong, should be in return None case -- verify then fix (or remove this entire feature)
         printfyi("something made use of deprecated _DEFAULT_ feature on attr %r" % (attr,)) ###e deprecated - remove uses, gradually
         return formula._e_compute_method(self, '@' + attr) #k index arg is a guess, 061110
     
@@ -220,10 +223,25 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
 
     # instantiation methods
     def _e_make_in(self, env, ipath):
-        "Instantiate self in env, at the given index-path."
+        """Instantiate self in env, at the given index-path.
+        [Note: as of some time before 061110, this is usually called via _e_eval;
+         and as of 061110 it's probably always called that way;
+         probably they'll be merged at some point, unless some subtle difference
+         is discovered (e.g. related to finding memoized instances).]
+        """
         assert env #061110
-        # no need to copy the formulas or args, since they're shared among all instances, so don't call self._copy.
+        # no need to copy the formulas or args, since they're shared among all instances, so don't call self._copy. [###k still true?]
         # instead, make a new instance in a similar way.
+        printnim("_e_make_in needs to replace _self with env._self in our externally-sourced formulas") #####@@@@@ 061110
+            # or could it do this when running them, eg by having a different env to run them in? not sure, they might get further
+            # modified when we get customized... but my guess is this would work... come to think of it, the env they need is the
+            # one passed here, and what goes wrong is that we run them in a modified env with new self stored as _self,
+            # btu that's only appropriate for the built-in formulas, not the passed ones, for which the passed env is the best.
+            # but we have some formulas that combine builtin & passed parts...
+            # should we just wrap these outside formulas by something to drop one layer from env,
+            # knowing we always modify it by adding _self? Better would just be something to replace env.
+            # Note I could store them shared, and wrap them as I retrieve them, I think -- in _i_grabarg.
+            # BTW is it desirable for everything in env, or just _self? what about ipath? #####@@@@@
         assert not self._e_is_instance
         return self.__class__(_make_in = (self,env,ipath)) # this calls _destructive_make_in on the new instance
     def _destructive_make_in(self, data):
@@ -243,9 +261,11 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         assert not expr._e_is_instance
         self._e_is_instance = True
 
-        self.env = env #k ok, or does it need modification of some kind? btw is a state index passed in separately? set self.index??
+        self.env = env #k ok, or does it need modification of some kind?
+            #e in fact we mod it every time with _self, in _e_compute_method -- can we cache that?
         ####@@@@
         self.ipath = ipath ###e does this need mixing into self.env somehow?
+        #e also set self.index??
         
         # set up self._e_args etc
         self._e_class = expr # for access to _e_kws and args #k needed? #e rename: self._e_expr? not sure. #k not yet used
@@ -413,7 +433,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             print "warning: possible bug: not self._e_has_args in _i_grabarg" ###k #e more info
         assert attr is None or isinstance(attr, str)
         assert argpos is None or (isinstance(argpos, int) and argpos >= 0)
-        res = self._i_grabarg_0(attr, argpos, dflt_expr)
+        res0 = self._i_grabarg_0(attr, argpos, dflt_expr)
+        res = lexenv_Expr(self.env, res0) ##k guess, 061110 late
         if 0:
             print "_i_grabarg returns %r" % (res,)
         return res
@@ -499,15 +520,16 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
                 # note, _C__attr for _attr starting with _ is permitted, so we can't check whether attr starts '_' before doing this.
         except AttributeError:
             if attr.startswith('_'):
-                if not attr.startswith('__'):
-                    # additional test hasattr(self.delegate, attr) doesn't work: AssertionError: compute method asked for on non-Instance
-                    # we need that test but I don't know how to add it easily. __dict__ won't work, the attr might be defined on any class.
-                    # maybe look in __dict__ of both self and its class?? #e
-                    print "warning: not delegating missing attr %r in %r (don't know if defined in delegate)" % \
-                          (attr, self)#061110 - have to leave out ', tho it's defined in delegate %r'
-                        # before hasattr check, this happens for _args, _e_override_replace, _CK__i_instance_CVdict
-                        # (in notyetworking Boxed test, 061110 142p).
-                        #e could revise to only report if present in delegate... hard to do, see above.
+# useful debug code -- commented out, but keep around for now [061110]:
+##                if not attr.startswith('__'):
+##                    # additional test hasattr(self.delegate, attr) doesn't work: AssertionError: compute method asked for on non-Instance
+##                    # we need that test but I don't know how to add it easily. __dict__ won't work, the attr might be defined on any class.
+##                    # maybe look in __dict__ of both self and its class?? #e
+##                    print "warning: not delegating missing attr %r in %r (don't know if defined in delegate)" % \
+##                          (attr, self)#061110 - have to leave out ', tho it's defined in delegate %r'
+##                        # before hasattr check, this happens for _args, _e_override_replace, _CK__i_instance_CVdict
+##                        # (in notyetworking Boxed test, 061110 142p).
+##                        #e could revise to only report if present in delegate... hard to do, see above.
                 raise AttributeError, attr # not just an optim -- we don't want to delegate any attrs that start with '_'.
                 ##k reviewing this 061109, I'm not sure this is viable; maybe we'll need to exclude only __ or _i_ or _e_,
                 # or maybe even some of those need delegation sometimes -- we'll see.

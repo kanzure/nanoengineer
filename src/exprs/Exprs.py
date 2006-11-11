@@ -182,7 +182,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         # try 2 061027 late:
         assert instance._e_is_instance, "compute method asked for on non-Instance %r" % (instance,) # happens if a kid is non-instantiated(?)
         env0 = instance.env # fyi: AttributeError for a pure expr (ie a non-instance)
-        env = env0.with_literal_lexmods(_self = instance)
+        env = env0.with_literal_lexmods(_self = instance) ###e could be memoized in instance, except for cyclic ref issue
         assert env #061110
         ipath0 = instance.ipath ####k not yet defined i bet... funny, it didn't seem to crash from this -- did i really test it??
         ## index = 'stub' ###should be the attr of self we're coming from, i think!
@@ -508,22 +508,26 @@ class constant_Expr(internal_Expr):
             #k 061105 changed %s to %r w/o reviewing calls (guess: only affects debugging)
     def _e_eval(self, env, ipath):
         assert env #061110
-        if '061103 kluge2':
-            maybe = env.lexval_of_symbol(_self) #e suppress the print from this
-            instantiating = (maybe is not _self)
-            assert instantiating, "no _self rep in _e_eval of %r" % self # turns out _e_eval always has to implicitly instantiate [061105]
-        if instantiating:
-            res = self._e_constant_value
-        else:
-            assert 0
-            ##e this can be what _e_simplify does, when we have that (for constant-folding and related optims)
-            res = self
-        return res
-    def _e_make_in(self, env, ipath): ###e equiv to _e_eval? see comment in _CV__i_instance_CVdict [061105]
-        "Instantiate self in env, at the given index-path."
-        #e also a method of InstanceOrExpr, tho not yet of any common superclass --
-        # I guess we'll add to OpExpr and maybe more -- maybe Expr, but not sure needed in all exprs
-        return self._e_constant_value # thought to be completely correct, 061105
+        ## env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]
+        # that failed (with the misleading AttrError from None due to Delegator),
+        # but it's legit to fail now, since the constant can easily be in a lexenv with no binding for _self.
+        return self._e_constant_value
+##        if '061103 kluge2':
+##            maybe = env.lexval_of_symbol(_self) #e suppress the print from this
+##            instantiating = (maybe is not _self)
+##            assert instantiating, "no _self rep in _e_eval of %r" % self # turns out _e_eval always has to implicitly instantiate [061105]
+##        if instantiating:
+##            res = self._e_constant_value
+##        else:
+##            assert 0
+##            ##e this can be what _e_simplify does, when we have that (for constant-folding and related optims)
+##            res = self
+##        return res
+##    def _e_make_in(self, env, ipath): ###e equiv to _e_eval? see comment in _CV__i_instance_CVdict [061105]
+##        "Instantiate self in env, at the given index-path."
+##        #e also a method of InstanceOrExpr, tho not yet of any common superclass --
+##        # I guess we'll add to OpExpr and maybe more -- maybe Expr, but not sure needed in all exprs
+##        return self._e_constant_value # thought to be completely correct, 061105 [and still, 061110, but zapping since redundant]
     pass
 
 class hold_Expr(constant_Expr):
@@ -539,6 +543,26 @@ class hold_Expr(constant_Expr):
             return self
         return self.__class__(modarg)
     pass
+
+class lexenv_Expr(internal_Expr): ##k guess, 061110 late
+    """lexenv_Expr(env, expr) evals expr inside env, regardless of the passed env, but without altering the passed ipath.
+    It is opaque to replacement -- even by ExprsMeta, so it should never appear inside a class-attr value [##e should enforce that].
+    """
+    def _internal_Expr_init(self):
+        (self._e_env0, self._e_expr0) = self.args
+    def __repr__(self): # class constant_Expr
+        return "<%s#%d: %r, %r>"% (self.__class__.__name__, self._e_serno, self._e_env0, self._e_expr0,)
+    def _e_eval(self, env, ipath):
+        assert env #061110
+        env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]
+        newenv = self._e_env0
+        newenv_self = getattr(newenv, '_self', None) ####e change newenv._self to give this answer! [intention soon, 061110 very late]
+        if env._self is not newenv_self:
+            printfyi("env._self is not newenv._self: a %s is not a %s (tho it may or may not be in same class)" % \
+                     (env._self.__class__.__name__, newenv_self.__class__.__name__))
+        else:
+            printfyi("### env._self IS newenv._self (surprising)")
+        return self._e_expr0._e_eval(newenv, ipath)
 
 class eval_Expr(OpExpr):
     """An "eval operator", more or less. For internal use only [if not, indices need to be generalized].

@@ -49,7 +49,7 @@ from Overlay import Overlay
 class InstanceMacro(InstanceOrExpr, DelegatingMixin): #e refile if kept
     "#doc -- supports _value"
     #e might not work together with use by the macro of DelegatingMixin in its own way, if that's even possible
-    delegate = Instance( _self._value, '$_value') #k guess: this might eval it once too many times... ####k
+    delegate = Instance( _self._value, '!_value') #k guess: this might eval it once too many times... ####k
         #k note: I worried that using '_value' itself, as index, could collide with an index used to eval the expr version of _value,
         # in future examples which do that (though varying expr is not presently supported by Instance, I think -- OTOH
         # there can be two evals inside _i_instance due to eval_Expr, so the problem might arise that way, dep on what it does with
