@@ -138,7 +138,7 @@ testexpr_8 = TestIterator( testexpr_3 ) # test an iterator
 
 # == set the testexpr to use right now
 
-testexpr = testexpr_5
+testexpr = testexpr_4a # usually testexpr_5
 
 print "using testexpr %r" % testexpr
 for name in dir():

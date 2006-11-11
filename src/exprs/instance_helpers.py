@@ -119,7 +119,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             return None
         printnim("assume it's a formula in _self; someday optim for when it's a constant, and/or support other symbols in it")
         printfyi("something made use of deprecated _DEFAULT_ feature on attr %r" % (attr,)) ###e deprecated - remove uses, gradually
-        return formula._e_compute_method(self)
+        return formula._e_compute_method(self, '@' + attr) #k index arg is a guess, 061110
     
     # copy methods (used by __call__)
     def _copy(self):
@@ -379,8 +379,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         assert is_pure_expr(expr) ###k?? what if someone passes an instance -- is that permitted, but a noop for instantiation??
         # also assume expr is "canonicalized" and even "understood" -- not sure if this is justified
         printnim("don't we need understand_expr somewhere in here? (before kidmaking in IorE)") ###@@@
-        env = self.env #e with lexmods?
-        index_path = (index, self.ipath)
+##        env = self.env #e with lexmods?
+##        index_path = (index, self.ipath)
         ####e:  [061105] is _e_eval actually needing to be different from _e_make_in?? yes, _e_eval needs to be told _self
         # and the other needs to make one... no wait, wrong, different selves --
         # the _self told to eval is the one _make_in *should make something inside of*! (ie should make a kid of)
@@ -389,13 +389,14 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         # actually this is even faster -- review sometime (note, in constant_Expr they're both there & equiv #k): ###@@@
         ## this is just the kid expr: print "_CV__i_instance_CVdict needs to make expr %r" % (expr,)
         if hasattr(expr, '_e_make_in'):
-            printfyi("used _e_make_in case")
-            res = expr._e_make_in(env, index_path)
-        else:
-            printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108
-            printnim("(which needs index_path to be passable-in)") ##e
-            # note: this redundantly grabs env from self ###e needs index_path to be passable-in
-            res = expr._e_compute_method(self)() # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10'
+            printfyi("REJECTED using _e_make_in case, on a pyinstance of class %s" % expr.__class__.__name__)
+            ## res = expr._e_make_in(env, index_path)
+                #k we might have to fix bugs caused by not using this case, by defining (or modifying?) defs of _e_eval on some classes
+        if 1:
+            printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108 -- now always, 061110
+            # note: this (used-to-be-redundantly) grabs env from self
+            res = expr._e_compute_method(self, index)() ##e optim someday: inline this
+                # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10' 
         return res # from _CV__i_instance_CVdict
 
     def _i_grabarg( self, attr, argpos, dflt_expr): 

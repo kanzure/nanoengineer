@@ -22,7 +22,7 @@ class widget_env(Delegator):
         Delegator.__init__(self, delegate) # this will be None or the parent env
         for k,v in lexmods.iteritems():
             setattr(self, k,v) # worst part of the kluge -- dangerous if symnames overlap method names
-            # next worse part: special methods like __repr__ end up delegating
+            # next worst part: special methods like __repr__ end up delegating
         pass
     def __repr__(self): # without this, Delegator delegates __repr__ ultimately to None, so "%r" % self == "None"!!!
         return "<widget_env at %#x>" % id(self)

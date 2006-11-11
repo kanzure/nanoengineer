@@ -162,8 +162,13 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         print "__get__ is nim in the Expr", self, ", which is assigned to some attr in", obj ####@@@@ NIM; see above for how [061023 or 24]
         print "this formula needed wrapping by ExprsMeta to become a compute rule..." ####@@@@
         return
-    def _e_compute_method(self, instance):
-        "Return a compute method version of this formula, which will use instance as the value of _self."
+    def _e_compute_method(self, instance, index = 'stubi'):
+        """Return a compute method version of this formula, which will use instance as the value of _self,
+        at the given index relative to instance. (The index should always be passed, tho at the moment it has a default value.)
+           Example index [#k guess 061110]: the attrname where self was found in instance (as an attrvalue),
+        or if self was found inside some attrval (but not equal to the whole),
+        a tuple containing the attrname and something encoding where self occurred in the attrval.
+        """
         #####@@@@@ WRONG API in a few ways: name, scope of behavior, need for env in _e_eval, lack of replacement due to env w/in self.
         ##return lambda self = self: self._e_eval( _self = instance) #e assert no args received by this lambda?
         # TypeError: _e_eval() got an unexpected keyword argument '_self'
@@ -180,8 +185,9 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         env = env0.with_literal_lexmods(_self = instance)
         assert env #061110
         ipath0 = instance.ipath ####k not yet defined i bet... funny, it didn't seem to crash from this -- did i really test it??
-        index = 'stub' ###should be the attr of self we're coming from, i think!
-        printnim("_e_compute_method needs to be passed an index")
+        ## index = 'stub' ###should be the attr of self we're coming from, i think!
+        if index == 'stubi':
+            printnim("_e_compute_method needs to always be passed an index")
         ipath = (index, ipath0)
         return lambda self=self, env=env, ipath=ipath: self._e_eval( env, ipath ) #e assert no args received by this lambda?
     def __repr__(self): # class Expr
