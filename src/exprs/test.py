@@ -38,6 +38,10 @@ import Boxed
 reload_once(Boxed)
 from Boxed import Boxed
 
+import Center
+reload_once(Center)
+from Center import Center
+
 import widget_env
 reload_once(widget_env)
 from widget_env import widget_env
@@ -128,7 +132,10 @@ printnim("the error of Color as Width in Rect(1.5, white) ought to be detected i
 testexpr_4c = Rect(1.5, color = white) # works
 testexpr_4d = Overlay( Rect(2), Rect(1, color = white) ) # works!
 
-testexpr_5 = Boxed( Rect(2,3.5,green)) # doesn't work yet (gets attrerror: draw, as predicted until _value works)
+testexpr_5 = Boxed( Rect(2,3.5,green)) # works as of 061110 late,
+    # except for non-centering (and known nims re inclusion in bigger things), I think on 061111
+
+testexpr_5a = Boxed( Center( Rect(2,3.5,green)))
 
 testexpr_6 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
 
@@ -138,7 +145,7 @@ testexpr_8 = TestIterator( testexpr_3 ) # test an iterator
 
 # == set the testexpr to use right now
 
-testexpr = testexpr_5 # usually testexpr_5
+testexpr = testexpr_5a # usually testexpr_5
 
 print "using testexpr %r" % testexpr
 for name in dir():

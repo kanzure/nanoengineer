@@ -232,7 +232,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
     # == not sure where these end up
     def __float__( self):
         """operator float(a)"""
-        print "kluge: float(expr) -> 17.0"####@@@@ need float_Expr
+        print_compact_stack( "kluge: float(expr) -> 17.0: " )####@@@@ need float_Expr
         return 17.0
     def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
         if not isinstance(self, (OpExpr, constant_Expr)):#k syntax
@@ -610,6 +610,10 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
         return list_Expr(*subexpr) ###k is this always correct? or only in certain contexts??
             # could be always ok if list_Expr is smart enough to revert back to a list sometimes.
         #e analogous things for tuple and/or dict? not sure. or for other classes which mark themselves somehow??
+    elif isinstance(subexpr, type(())):
+        return tuple_Expr(*subexpr) ###e should optim when it's entirely constant, like (2,3)
+            # [needed for (dx,dy) in Translate(thing, (dx,dy)) in Center.py, 061111]
+    ### we might need to handle things like V(dx,dy) too... is that possible (i mean will V even accept exprs?) ###k
     else:
         #e assert it's not various common errors, like expr classes or not-properly-reloaded exprs
         #e more checks?
@@ -617,6 +621,9 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
         #e later add checks for its type, sort of like we'd use in same_vals or so... in fact, how about this?
         from state_utils import same_vals
         assert same_vals(subexpr, subexpr)
+        ###e at first i thought: we should delve into it and assert you don't find Exprs... but delve in what way, exactly?
+        # if you have a way, you understand the type, and then just handle it instead of checking for the unmet need to handle it.
+        # we could let data objects tell us their subobjs like they do for Undo (I forget the details, some way of scanning kids)
         return constant_Expr(subexpr)
     pass
 
