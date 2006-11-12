@@ -128,7 +128,7 @@ printnim("the error of Color as Width in Rect(1.5, white) ought to be detected i
 testexpr_4c = Rect(1.5, color = white) # works
 testexpr_4d = Overlay( Rect(2), Rect(1, color = white) ) # works!
 
-testexpr_5 = Boxed( Rect(2,3,green)) # doesn't work yet (gets attrerror: draw, as predicted until _value works)
+testexpr_5 = Boxed( Rect(2,3.5,green)) # doesn't work yet (gets attrerror: draw, as predicted until _value works)
 
 testexpr_6 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
 

@@ -79,9 +79,8 @@ class Boxed(InstanceMacro): ##e supers of (Widget2D, InstanceMacro) might be bes
                       thing,
                       align = Center )
     pass
-
-##e see cvs rev 1.7 (or Boxed-outtakes.py, not in cvs), and a notesfile (not in cvs)
-# for how-to-devel comments about the above Arg/Option notation (implem, extensions).
+   
+# ==
 
 # more possibilities:
 if 0:
