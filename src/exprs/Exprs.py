@@ -499,7 +499,9 @@ def asfail(msg): #e refile #e rename
     """
     assert 0, msg
 
-class format_Expr(OpExpr): #061113
+class format_Expr(OpExpr): #061113, seems to work
+    #k (tho no test yet proved it defers eval til when it needs to -- hmm, same for *all* OpExprs, until we implem statemods?
+    #   no -- once something can access redraw_counter, that should provide a good enough test, for any OpExpr we make depend on that.)
     """Make an expr for producing the results of <format_string> % <*args>.
     (See also mod_Expr [nim ##e], for exprs based on numeric uses of the % operator. Maybe they can be expressed using % directly?)
     Note, unlike __mod__ (sp??), this is varargs, not two args.

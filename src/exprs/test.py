@@ -59,7 +59,7 @@ basic.reload_once(basic)
 del basic
 
 from basic import * # including reload_once, and some stubs
-from basic import _self
+from basic import _self, _this
 
 import Rect
 reload_once(Rect)
@@ -197,8 +197,9 @@ testexpr_6b = TextRect("line 3\netc", 2) # works except for wrong default ncols
 testexpr_6c = TextRect("line 4\n...") # works except for wrong defaults
 
 testexpr_6d = TextRect("%r" % _self.ipath) # bug: Expr doesn't intercept this operation -- can it?? should it?? not for strings. ######
-# todo after next commit:
-## testexpr_6e = TextRect(format_Expr("%r", _self.ipath))
+testexpr_6e = TextRect(format_Expr("%r", _self.ipath),4,60) # incorrect test: _self is not valid unless we're assigned in some pyclass
+    # (so what it does is just print the expr's repr text -- we can consider it a test for that behavior)
+testexpr_6f = TextRect(format_Expr("%r", _this(TextRect).ipath),4,60)
     ###e also figure out how to access id(something), or env.redraw_counter, or in general a lambda of _self
 
 # TestIterator
@@ -214,9 +215,10 @@ testexpr_9 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_6d
+testexpr = testexpr_6e
     # latest stable test: testexpr_5d
-    # currently under devel: testexpr_6 and 7
+    # currently under devel: testexpr_6 and 7; _6e works but is useless; _6f needs to work, but _this is nim as of 061113 239p
+    # where i am 061113 239p: looking at how _self lexreplace works (using lexenv_Expr), to decide when/how to replace _this(class)
 
 
 # buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice

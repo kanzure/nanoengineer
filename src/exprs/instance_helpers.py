@@ -250,7 +250,16 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         to be an instance of expr, in the given env, at the given index-path.
         Called only from __init__, when self knows nothing except its class.
         """
-        printnim("make_in needs to replace _self in customization formulas with _self from env")#061110 313p
+        ## printnim("make_in needs to replace _self in customization formulas with _self from env")#061110 313p
+            # 061113 Q: what's the status of this? does _e_eval or _e_compute_method do it somehow, making this obs?? 
+            # or is it truly nim -- but if so, how does _self work in args inside _value in Boxed? oh, that's not customized,
+            # rel to Boxed -- but it is, rel to the exprs in _value, which is what counts. hmm...
+            # now I'm recalling something about lexenv_Expr fixing this (& it's dated later same day, 061110)...
+            # yes, that fixes it inside grabarg; I am guessing it can be optimized to once per instance once we have
+            # simplify to do that to most of grabarg; that scheme means instances of custom exprs can share formulas.
+            # A: so I'll comment out this printnim.
+            # Q: where & how should we replace _this(class) with the lexically innermost object of that class? ####@@@@
+            
         printnim("should make_in worry about finding an existing instance at the same index?")
             # guess: no, it'd be obsolete; not sure. #061110 313p
         
