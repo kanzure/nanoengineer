@@ -131,7 +131,7 @@ from Exprs import * # Expr, lots of predicates, maybe Arg & Option(??#k)
 
 import instance_helpers
 reload_once(instance_helpers)
-from instance_helpers import InstanceOrExpr, DelegatingMixin, GlueCodeMemoizer
+from instance_helpers import InstanceOrExpr, DelegatingMixin, InstanceMacro, GlueCodeMemoizer
 
 # === higher-level defs, common enough to import for everything
 
@@ -143,10 +143,12 @@ from widget2d import Widget, Widget2D, DelegatingWidget2D
 
 # lowercase stub doesn't work for the following, since they get called during import, so use uppercase Stub
 Stub = Widget2D
-Center = Stub
-ToggleShow = TestIterator = Stub
 
 # types
-Width = Color = Stub
+Width = Color = Vector = Stub
+
+# layout prims and the like
+##Center = Stub
+ToggleShow = TestIterator = Stub
 
 # == end

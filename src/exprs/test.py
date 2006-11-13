@@ -136,7 +136,7 @@ testexpr_5 = Boxed( Rect(2,3.5,green)) # works as of 061110 late,
     # except for non-centering (and known nims re inclusion in bigger things), I think on 061111
 
 testexpr_5a = Boxed( Center( Rect(2,3.5,green))) # sort of works, but alignment is wrong as expected [still as of 061112]
-testexpr_5b = CenterBoxedKluge( Rect(2,3.5,yellow)) # fails, weird exceptions re ww and super, 061112 744p
+testexpr_5b = CenterBoxedKluge( Rect(2,3.5,yellow)) # works, 061112 827p
 
 
 testexpr_6 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
@@ -148,6 +148,10 @@ testexpr_8 = TestIterator( testexpr_3 ) # test an iterator
 # == set the testexpr to use right now
 
 testexpr = testexpr_5b # usually testexpr_5
+
+# buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice
+# for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
+# once goes over the green rect or the displist text (after each reload)? not sure.
 
 print "using testexpr %r" % testexpr
 for name in dir():

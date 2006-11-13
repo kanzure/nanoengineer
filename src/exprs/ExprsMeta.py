@@ -139,13 +139,18 @@ from env import seen_before
 from debug import print_compact_traceback
 
 # from this exprs package in cad/src
+
 ###e make reloadable? I'm not sure if *this* module supports reload. ##k
 #e if it does, we should make all but basic reloadable here.
 
+from basic import printnim, printfyi, reload_once # this is a recursive import -- most things in basic are not defined yet
+
+import lvals
+reload_once(lvals)
 from lvals import Lval, LvalDict2 
 
-from basic import printnim, printfyi # this is a recursive import -- most things in basic are not defined yet
-
+import Exprs
+reload_once(Exprs)
 from Exprs import * # we need a handful of things, but no harm in grabbing them all.
 
 # ==

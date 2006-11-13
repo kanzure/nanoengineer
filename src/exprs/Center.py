@@ -9,18 +9,16 @@ see also Rotated and Closer in testdraw1, for sample opengl code, showing how si
 (except that makes no provision for highlighting, which i need to do using move methods or the equiv)
 """
 
-## DelegatingWidget ###IMPLEM, we have only 2D so far, and it doesn't work yet to actually delegate,
-# e.g. I don't think using an Overlay inside another one would work right now
+##k [obs cmt, or not? guess not:] it doesn't work yet to actually delegate, eg for lbox attrs,
+# so I don't think using an Overlay inside another one would work right now
 
 from basic import *
 from basic import _self
-## Vec2or3 = Stub
-Vector = Stub
 
-from Boxed import InstanceMacro ##e get from basic, import it there, refile from Boxed anyway
-from OpenGL.GL import glTranslatef #k
+from OpenGL.GL import glTranslatef ###e later do this thru glpane object
 
-###e these vec routines are not best.. what's best is to turn into (not away from) numeric arrays, for their convenience.
+###e [semiobs cmt:]
+# these vec routines are not best.. what's best is to turn into (not away from) numeric arrays, for their convenience.
 # guess: convention should be to always pass 3dim numeric arrays, and keep 3dim bboxes.
 # let 2d routines not use z but still have it, that way same code can do 2d & 3d stuff, no constant checks for len 2 vecs, etc.
 # but the above is nim in this code.
@@ -51,7 +49,6 @@ class Translate(Widget, DelegatingMixin):
         #e we might decide to only bother defining the i is None cases, in the API for this, only required for highlighting;
         # OTOH if we use it internally we might need both cases here
         x,y,z = tuple3_from_vec(self.vec)
-        print "xyz %r" % ((x,y,z),)####@@@@ bug: why are they exprs??
         if i is None and j == 0:
             glTranslatef(x,y,z)
         elif i == 0 and j is None:
