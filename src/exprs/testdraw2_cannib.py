@@ -1,4 +1,4 @@
-'''testdraw2_cannib.py - being cannibalized
+'''testdraw2_cannib.py - being cannibalized 
 '''
 
 from testdraw import *
