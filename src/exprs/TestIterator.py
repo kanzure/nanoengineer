@@ -2,9 +2,24 @@
 $Id$
 '''
 
+# not reviewed recently, was part of NewInval
 # as of 061106 the setup looks obs, but it might as well be revived and tested before Column is worked on much
+# revived 061113, see below
 
-class TestIterator(HelperClass):
+from basic import *
+
+import Overlay
+reload_once(Overlay)
+from Overlay import Overlay
+
+import Center
+reload_once(Center)
+from Center import Translate
+
+# == obs:
+
+HelperClass = Widget2D
+class TestIterator_old_nevertried(HelperClass):
     "simple iterator which makes two instances of the same WE arg"
     def _make(self, place):
         arg = self._e_args[0] # 061106 args -> _e_args (guess)
@@ -34,10 +49,37 @@ class TestIterator(HelperClass):
         return
     pass
 
-goal1 = TestIterator(Rect(1,1,black))
+# ==
 
-goal2 = TestIterator(If(_enclosing_If.index[0] == 1, Rect(1,1,black), Rect(1,1,red))) #####@@@@@ _enclosing_If IMPLEM, part of lexenv
+# real, but needs:
+# - Maker or so
+# - review Instance
+# - imports
+# - not sure if w1.width is always defined
 
-goal3 = TestIterator(ToggleShow(Rect(1,1,red))) # with a def for ToggleShow
+Maker = Stub # won't work, since Arg instantiates (unless several bugs conspire to make it work wrongly, eg with 1 shared instance)
 
-# not reviewed recently, was part of NewInval
+class TestIterator(InstanceMacro):
+    "simple iterator which makes two instances of the same arg"
+    #e for debug, we should make args to pass to this which show their ipaths as text!
+    thing = Arg(Maker(Widget)) # Maker? ExprFor? ProducerOf? Producer? Expr?
+    w1 = Instance(thing)
+        #k is number of evals correct in principle? internal uses of Instance assumed the expr was literal, were they wrong?
+    w2 = Instance(thing)
+    # kluge since we don't have Row yet:
+    _value = Overlay( w1, Translate(w2, V_expr(w1.width + 4 * PIXELS, 0,0)))
+    pass 
+
+#k not reviewed:
+if 0: # Rect etc not imported yet
+    goal1 = TestIterator(Rect(1,1,black))
+
+    goal2 = TestIterator(If(_enclosing_If.index[0] == 1, Rect(1,1,black), Rect(1,1,red))) #####@@@@@ _enclosing_If IMPLEM, part of lexenv
+
+    goal3 = TestIterator(ToggleShow(Rect(1,1,red))) # with a def for ToggleShow
+
+
+
+# - iterator
+#   - Cube, Checkerboard (and fancier: Table)
+# see also, in its context elsewhere, a common use for iterators "for the edges in some kind of 3d network or polyhedron..."

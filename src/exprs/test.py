@@ -1,4 +1,4 @@
-'''
+"""
 current bugs [061013]:
 
 - reload_once does it too often -- should be only when i do the reload effect from testmode/testdraw in cad/src
@@ -6,9 +6,43 @@ current bugs [061013]:
 - lots of things are nim, including drawtest1_innards
 
 $Id$
-'''
+"""
 
 #e during devel, see drawtest1_innards for main entry point from testdraw.py
+
+
+# and old todo-list, still perhaps useful:
+#
+# Would it be useful to try to define several simple things all at once?
+
+# Boxed, Rect, Cube, ToggleShow, Column/Row
+
+# classify them:
+# - 2d layout:
+#   - Column/Row, Boxed, Checkerboard
+# - has kids:
+#   - Column
+#   - all macros (since _value is a kid, perhaps of null or constant index)
+#   - If [and its kids have to be lazy]
+#   - Cube, Checkerboard
+# - macro:
+#   - ToggleShow, Boxed, MT
+# - has state:
+#   - ToggleShow
+# - simple leaf:
+#   - Rect
+# - complicated options:
+#   - Grid
+# - complicated visible structure
+#   - Cube, Grid, Checkerboard, MT
+# - 3d layout
+#   - Cube
+# - iterator
+#   - Cube, Checkerboard (and fancier: Table)
+
+# first: Column, Boxed, Rect, If
+
+
 
 # == imports from parent directory
 
@@ -42,13 +76,19 @@ import Center
 reload_once(Center)
 from Center import Center
 
+import TestIterator
+reload_once(TestIterator)
+from TestIterator import TestIterator
+
+# == @@@
+
 import widget_env
 reload_once(widget_env)
 from widget_env import widget_env
 
 import instance_helpers
 reload_once(instance_helpers)
-from instance_helpers import DelegatingInstance_obs, DelegatingMixin
+from instance_helpers import DelegatingInstance_obs, DelegatingMixin # needed only in DebugPrintAttrs, which i should refile
 
 # == make some "persistent state"
 
@@ -59,7 +99,7 @@ except:
 
 # == debug code #e refile
 
-class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106; revised 061109, works now (except for ArgList kluge)
+class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106; revised 061109, works now (except for ArgList kluge), ##e refile
     """delegate to our only arg, but whenever we're drawn, before drawing that arg,
     print its attrvalues listed in our other args
     """ #k guess 061106
@@ -140,16 +180,17 @@ testexpr_5b = CenterBoxedKluge( Rect(2,3.5,yellow)) # works, 061112 827p
 testexpr_5c_exits = CenterBoxedKluge_try1( Rect(2,3.5,orange)) # 061113 morn - fails (infrecur in lval -> immediate exit), won't be fixed soon
 testexpr_5d = Boxed( Rect(2,3.5,purple)) # 061113 morn - works; this should become the official Boxed, tho its internal code is unclear
 
+testexpr_6 = TestIterator( testexpr_3 ) # test an iterator - next up, 061113
 
-testexpr_6 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+testexpr_7 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
 
-testexpr_7 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
-
-testexpr_8 = TestIterator( testexpr_3 ) # test an iterator
+testexpr_8 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # == set the testexpr to use right now
 
-testexpr = testexpr_5d # usually testexpr_5
+testexpr = testexpr_6
+    # latest stable test: testexpr_5d
+    # currently under devel: testexpr_6
 
 # buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice
 # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse

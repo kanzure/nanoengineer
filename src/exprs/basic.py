@@ -147,8 +147,8 @@ Stub = Widget2D
 # types
 Width = Color = Vector = Stub
 
-# layout prims and the like
-##Center = Stub
-ToggleShow = TestIterator = Stub
+# layout prims and the like (but for the most part, layout prims probably won't be defined in basic.py at all)
+ToggleShow = Stub
+##TestIterator = Stub
 
 # == end
