@@ -79,6 +79,28 @@ class Boxed(InstanceMacro): ##e supers of (Widget2D, InstanceMacro) might be bes
                       thing,
                       align = Center )
     pass
+
+##class CenterBoxedKluge(Boxed): #e 061112 just for testing - fails, weird exceptions re ww and super
+##    _value = Overlay( Center(RectFrame( ww, hh, thickness = borderthickness, color = bordercolor)),                          
+##                      Center(thing) )
+##    pass
+
+class CenterBoxedKluge(InstanceMacro): #e 061112 just for testing -- lots of dup code
+    # args
+    thing = Arg(Widget2D)
+    # options
+    borderthickness = Option(Width, 4 * PIXELS)
+    gap = Option(Width, 4 * PIXELS)
+    bordercolor = Option(Color, white)
+    # internal formulas
+    extra = 2 * gap + 2 * borderthickness
+    ww = thing.width  + extra
+    hh = thing.height + extra
+    # value
+    _value = Overlay( Center( RectFrame( ww, hh, thickness = borderthickness, color = bordercolor) ),                          
+                      Center( thing ),
+                       )
+    pass
    
 # ==
 

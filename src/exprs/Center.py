@@ -14,7 +14,8 @@ see also Rotated and Closer in testdraw1, for sample opengl code, showing how si
 
 from basic import *
 from basic import _self
-Vec2or3 = Stub
+## Vec2or3 = Stub
+Vector = Stub
 
 from Boxed import InstanceMacro ##e get from basic, import it there, refile from Boxed anyway
 from OpenGL.GL import glTranslatef #k
@@ -43,7 +44,7 @@ class Translate(Widget, DelegatingMixin):
     # lbox effect might be nim
     thing = Arg(Widget)
     delegate = _self.thing
-    vec = Arg(Vec2or3)
+    vec = Arg(Vector)
     # methods needed by all layout primitives: move & draw (see Column) & maybe kid (needed for highlighting, maybe not yet called)
     def move(self, i, j):
         "move from i to j, where both indices are encoded as None = self and 0 = self.thing"
@@ -78,7 +79,8 @@ class Center(InstanceMacro):
     dx = (thing.bright - thing.bleft)/2.0
     dy = (thing.btop - thing.bbottom)/2.0
     # value
-    _value = Translate(thing, (dx,dy)) # this translates both thing and [nim] its layout box
+    ###k for now, use V_expr instead of V when it has expr args... not sure we can get around this (maybe redef of V will be ok??)
+    _value = Translate(thing, -V_expr(dx,dy,0)) # this translates both thing and [nim] its layout box ###k might not work with V(expr...)
     pass
 
 # status of Center, 061111:

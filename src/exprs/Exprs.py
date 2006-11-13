@@ -1,8 +1,8 @@
-'''
+"""
 Exprs.py -- class Expr, and related subclasses and utilities, other than those involving Instances
 
 $Id$
-'''    
+"""
 
 # note: this module should not import ExprsMeta, though its InstanceOrExpr subclass needs to (in another module).
 # instead, it is probably fully imported by ExprsMeta, and certainly by basic.
@@ -477,6 +477,22 @@ class tuple_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. i
     _e_eval_function = staticmethod( lambda *args:args )
     pass
 
+from VQT import V as _V # don't use the name V itself, in case we redefine V for public use
+
+class V_expr(OpExpr):
+    """Make an expr for a Numeric array of floats. Called like VQT.py's V macro.
+    [Note: the name contains 'expr', not 'Expr', since it's more public than the
+    typical class named op_Expr (official reason) and since it looks better in
+    contrast with V (real reason).]
+    """
+    
+    def _e_init(self):
+        pass
+    def __str__(self):
+        return "V_expr%s" % (tuple(self._e_args),) #e need parens?
+    _e_eval_function = staticmethod( lambda *args: _V(*args) ) #e could inline as optim
+    pass
+
 class If_expr(OpExpr): # so we can use If in formulas
     pass
 # see also class If_ in testdraw.py
@@ -596,7 +612,12 @@ class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for d
         print_compact_stack("debug_evals_of_Expr(%r) evals it to %r at: " % (the_expr, res)) #k does this ever happen?
         return res
     pass
-    
+
+##from VQT import V ###e replace with a type constant -- probably there's one already in state_utils
+##V_expr = tuple_Expr ### kluge; even once this is defined, in formulas you may have to use V_expr instead of V,
+    # unless we redefine V to not try to use float() on exprs inside it -- right now it's def V(*v): return array(v, Float)
+    ##e (maybe we could make a new V def try to use old def, make __float__ asfail so that would fail, then use V_expr if any expr arg)
+
 def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py says that env.understand_expr should call this...
     "Make subexpr an Expr, if it's not already. (In future, we might also intern it.)"
     if is_Expr(subexpr):
@@ -613,7 +634,12 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
     elif isinstance(subexpr, type(())):
         return tuple_Expr(*subexpr) ###e should optim when it's entirely constant, like (2,3)
             # [needed for (dx,dy) in Translate(thing, (dx,dy)) in Center.py, 061111]
-    ### we might need to handle things like V(dx,dy) too... is that possible (i mean will V even accept exprs?) ###k
+##    elif isinstance(subexpr, type(V(1,1.0))): ###e
+##        # try to handle things like V(dx,dy) too... turns out this is not yet supportable, probably never.
+##        # so this is more harmful than good -- a real V() is a constant, since it can't contain exprs anyway --
+##        # if we redefine V to not require floats, we might as well go all the way to V_expr inside it.
+##        printnim("kluge: turning V(expr...) into a tuple_Expr for now!") #####@@@@@
+##        return tuple_Expr(*subexpr) #e replace with NumericArray_expr or V_expr or so
     else:
         #e assert it's not various common errors, like expr classes or not-properly-reloaded exprs
         #e more checks?
