@@ -5,6 +5,10 @@ current bugs [061013]:
   (ie base it on that counter, not the redraw counter, but be sure that counter incrs before any imports)
 - lots of things are nim, including drawtest1_innards
 
+061113:
+- auto reload is not working (even after touch *.py) when another file is modified and this one isn't, or so -- not sure when
+but I think it used to be working...
+
 $Id$
 """
 
@@ -55,6 +59,7 @@ basic.reload_once(basic)
 del basic
 
 from basic import * # including reload_once, and some stubs
+from basic import _self
 
 import Rect
 reload_once(Rect)
@@ -79,6 +84,10 @@ from Center import Center
 import TestIterator
 reload_once(TestIterator)
 from TestIterator import TestIterator
+
+import TextRect
+reload_once(TextRect)
+from TextRect import TextRect
 
 # == @@@
 
@@ -172,6 +181,7 @@ printnim("the error of Color as Width in Rect(1.5, white) ought to be detected i
 testexpr_4c = Rect(1.5, color = white) # works
 testexpr_4d = Overlay( Rect(2), Rect(1, color = white) ) # works!
 
+# Boxed
 testexpr_5 = Boxed_old( Rect(2,3.5,green)) # works as of 061110 late,
     # except for non-centering (and known nims re inclusion in bigger things), I think on 061111
 
@@ -180,21 +190,39 @@ testexpr_5b = CenterBoxedKluge( Rect(2,3.5,yellow)) # works, 061112 827p
 testexpr_5c_exits = CenterBoxedKluge_try1( Rect(2,3.5,orange)) # 061113 morn - fails (infrecur in lval -> immediate exit), won't be fixed soon
 testexpr_5d = Boxed( Rect(2,3.5,purple)) # 061113 morn - works; this should become the official Boxed, tho its internal code is unclear
 
-testexpr_6 = TestIterator( testexpr_3 ) # test an iterator - next up, 061113
+# TextRect
+testexpr_6a = TextRect("line 1\nline 2", 2,8) # works
+    # note, nlines/ncols seems like the right order, even though height/width goes the other way
+testexpr_6b = TextRect("line 3\netc", 2) # works except for wrong default ncols
+testexpr_6c = TextRect("line 4\n...") # works except for wrong defaults
 
-testexpr_7 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+testexpr_6d = TextRect("%r" % _self.ipath) # bug: Expr doesn't intercept this operation -- can it?? should it?? not for strings. ######
+# todo after next commit:
+## testexpr_6e = TextRect(format_Expr("%r", _self.ipath))
+    ###e also figure out how to access id(something), or env.redraw_counter, or in general a lambda of _self
 
-testexpr_8 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
+# TestIterator
+testexpr_7 = TestIterator( testexpr_3 ) # test an iterator - next up, 061113
 
-# == set the testexpr to use right now
+# Column
+testexpr_8 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
 
-testexpr = testexpr_6
+# ToggleShow
+testexpr_9 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
+
+
+
+# === set the testexpr to use right now   @@@
+
+testexpr = testexpr_6d
     # latest stable test: testexpr_5d
-    # currently under devel: testexpr_6
+    # currently under devel: testexpr_6 and 7
+
 
 # buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice
 # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
 # once goes over the green rect or the displist text (after each reload)? not sure.
+
 
 print "using testexpr %r" % testexpr
 for name in dir():

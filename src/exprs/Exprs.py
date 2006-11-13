@@ -481,17 +481,45 @@ from VQT import V as _V # don't use the name V itself, in case we redefine V for
 
 class V_expr(OpExpr):
     """Make an expr for a Numeric array of floats. Called like VQT.py's V macro.
-    [Note: the name contains 'expr', not 'Expr', since it's more public than the
-    typical class named op_Expr (official reason) and since it looks better in
-    contrast with V (real reason).]
     """
-    
+    # Note: the name contains 'expr', not 'Expr', since it's more public than the
+    # typical class named op_Expr (official reason) and since it looks better in
+    # contrast with V (real reason). Note that the real reason, but not the official one,
+    # explains why we later used 'E' in format_Expr.]
     def _e_init(self):
         pass
     def __str__(self):
         return "V_expr%s" % (tuple(self._e_args),) #e need parens?
     _e_eval_function = staticmethod( lambda *args: _V(*args) ) #e could inline as optim
     pass
+
+def asfail(msg): #e refile #e rename
+    """Raise an AssertionError with msg, but be a function, so we're usable in lambdas.
+    Typical usage: cond and result or asfail("error-description" % args).
+    """
+    assert 0, msg
+
+class format_Expr(OpExpr): #061113
+    """Make an expr for producing the results of <format_string> % <*args>.
+    (See also mod_Expr [nim ##e], for exprs based on numeric uses of the % operator. Maybe they can be expressed using % directly?)
+    Note, unlike __mod__ (sp??), this is varargs, not two args.
+    It would be nice to be able to say the latter directly,
+    but it's hard to do without dangerously interfering with debug prints of exprs in the code
+    (though it might be possible someday -- see code comments for details).
+       We might rename this to sprintf or format (not printf, since that implies a side effect on stdout).
+    """
+    def _e_init(self):
+        assert len(self._e_args) >= 2 #e later, change to >=1, since just 1 arg is legal -- I guess.
+            # For now, >= 2 is usefully stricter for debugging.
+        #e could assert arg0 is a string, but (1) not required until runtime, (2) hard to say anyway.
+        pass
+    def __str__(self):
+        return "format_Expr%s" % (tuple(self._e_args),) #e need parens?
+    _e_eval_function = staticmethod( lambda arg1, *args:
+                                     ((type(arg1) is str) and (arg1 % args))
+                                     or asfail("format_Expr got non-string format %r" % arg1)
+                                ) #e accept unicode arg1 too; python2.2 has an official way to express that (using the name string??)
+    pass # format_Expr
 
 class If_expr(OpExpr): # so we can use If in formulas
     pass
