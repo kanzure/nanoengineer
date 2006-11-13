@@ -448,7 +448,9 @@ tex_width = 6 # pixel width in texture of 1 char
 tex_height = 10 # guess (pixel height)
 
 def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpattern = False):
-    """draws a rect of chars using vv's font texture, in a klugy way;
+    """draws a rect of chars (dimensions given as char counts: charwidth x charheight [#e those args are misnamed])
+    using vv's font texture [later 061113: assumed currently bound, i think -- see ensure_courierfile_loaded()],
+    in a klugy way;
     msg gives the chars to draw (lines must be shorter than charwidth or they will be truncated)
     """
     # adjust these guessed params (about the specific font image we're using as a texture) until they work right:
@@ -1084,7 +1086,7 @@ class Rect(WidgetExpr): #e example, not general enough to be a good use of this 
         glEnable(GL_CULL_FACE)
     pass
 
-class TextRect(WidgetExpr):
+class TextRect(WidgetExpr): # [later 061113: I plan to make a new version of this in exprs module, still using drawfont2 from here]
     "TextRect(width, height, msg_func) renders as a rect of width by height chars taken from msg_func(env), origin on bottomleft"
     def init(self):
         self.dims = width, height = self.args[0], self.args[1]
