@@ -36,7 +36,7 @@ from Overlay import Overlay
 
 import Boxed
 reload_once(Boxed)
-from Boxed import Boxed, CenterBoxedKluge
+from Boxed import Boxed_old, CenterBoxedKluge, CenterBoxedKluge_try1, Boxed
 
 import Center
 reload_once(Center)
@@ -132,11 +132,13 @@ printnim("the error of Color as Width in Rect(1.5, white) ought to be detected i
 testexpr_4c = Rect(1.5, color = white) # works
 testexpr_4d = Overlay( Rect(2), Rect(1, color = white) ) # works!
 
-testexpr_5 = Boxed( Rect(2,3.5,green)) # works as of 061110 late,
+testexpr_5 = Boxed_old( Rect(2,3.5,green)) # works as of 061110 late,
     # except for non-centering (and known nims re inclusion in bigger things), I think on 061111
 
-testexpr_5a = Boxed( Center( Rect(2,3.5,green))) # sort of works, but alignment is wrong as expected [still as of 061112]
+testexpr_5a = Boxed_old( Center( Rect(2,3.5,green))) # sort of works, but alignment is wrong as expected [still as of 061112]
 testexpr_5b = CenterBoxedKluge( Rect(2,3.5,yellow)) # works, 061112 827p
+testexpr_5c_exits = CenterBoxedKluge_try1( Rect(2,3.5,orange)) # 061113 morn - fails (infrecur in lval -> immediate exit), won't be fixed soon
+testexpr_5d = Boxed( Rect(2,3.5,purple)) # 061113 morn - works; this should become the official Boxed, tho its internal code is unclear
 
 
 testexpr_6 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
@@ -147,7 +149,7 @@ testexpr_8 = TestIterator( testexpr_3 ) # test an iterator
 
 # == set the testexpr to use right now
 
-testexpr = testexpr_5b # usually testexpr_5
+testexpr = testexpr_5d # usually testexpr_5
 
 # buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice
 # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse

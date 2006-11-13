@@ -320,14 +320,9 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         """
         pass
 
-    def _e_eval(self, env, ipath):
-##        printfyi("I suspect Instance _e_eval was wrong, trying new way") # yes, new way works! not sure it always will tho... ###k
-        printnim("Instance eval doesn't yet handle _value or If") ###@@@
+    def _e_eval(self, env, ipath): # implem/behavior totally revised, late-061109; works - not sure it always will tho... ###k
+        printnim("Instance eval doesn't yet handle If") ###@@@ or _value, but for now, I'm doing that at higher level only -- see InstanceMacro
         return self._e_make_in(env, ipath)
-##        ### old way [pre late-061109]
-##        assert self._e_is_instance, "%r._e_eval asserts it's an Instance... not sure this is an error, it's just unexpected" % self ###@@@
-##        printnim("Instance eval doesn't yet handle _value or If") ###@@@
-##        return self # true for most of them, false for the ones that have _value (like Boxed) or for If ####@@@@
 
     # kid-instantiation, to support use of the macros Arg, Option, Instance, etc
     #k (not sure this is not needed in some other classes too, but all known needs are here)
@@ -545,7 +540,7 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
 
 # ==
 
-# Implem notes for _value [061110, written in Boxed.py]:
+# Implem notes for _value [061110, written when this was in Boxed.py]:
 # - Q: make it have an implicit Instance, I think -- or use a convention of adding one explicitly?
 #   A: the convention, so it can work with other formulas too? no, they'd also need instantiation to work... not sure actually.###@@@
 #   - BTW that might mean we get in trouble trying to pure-eval (which is what?) an Expr made from InstanceOrExpr, e.g. for a formula
@@ -564,14 +559,16 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
 #
 # let's try an explicit experiment, InstanceMacro:
 
-class InstanceMacro(InstanceOrExpr, DelegatingMixin): # note: refiled from Boxed.py
-    "#doc -- supports _value"
-    #e might not work together with use by the macro of DelegatingMixin in its own way, if that's even possible [later: huh?]
+class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110
+    """Superclass for "macros" -- they should define a formula for _value which they should always look like."""
+    #e might not work together with use by the macro of DelegatingMixin in its own way, if that's even possible [later: not sure what this comment means]
     delegate = Instance( _self._value, '!_value') #k guess: this might eval it once too many times... ####k
-        #k note: I worried that using '_value' itself, as index, could collide with an index used to eval the expr version of _value,
+        # [later, as of 061113 -- it works, but this point of too many evals has never been fully understood,
+        #  so for all i now, it happens but causes no obvious harm in these examples -- should check sometime. ##e]
+        #k Note: I used '!_value' as index, because I worried that using '_value' itself could collide with an index used to eval the expr version of _value,
         # in future examples which do that (though varying expr is not presently supported by Instance, I think -- OTOH
         # there can be two evals inside _i_instance due to eval_Expr, so the problem might arise that way, dep on what it does with
-        # indices itself)
+        # indices itself).
     pass
 
 # ==
