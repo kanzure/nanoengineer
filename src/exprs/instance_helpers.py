@@ -640,11 +640,14 @@ class _this(SymbolicExpr): # it needs to be symbolic to support automatic getatt
     def __repr__(self): # class constant_Expr
         return "<%s#%d: %r>" % (self.__class__.__name__, self._e_serno, self._e_class,)
     def _e_eval(self, env, ipath):
-        return env.lexval_of_symbolname( self._e_thisname )
+        dflt = None ## 'stub default for ' + self._e_thisname #####e fix
+        res = env.lexval_of_symbolname( self._e_thisname, dflt )
             # I don't think we need to do more eval and thus pass ipath;
             # indeed, the value is an Instance but not necessarily an expr
             # (at least not except by coincidence of how _this is defined).
             # Caller/client could arrange another eval if it needed to. [061114 guess]
+        assert res, "_this failed to find referent for %r" % self._e_thisname ##e improve
+        return res
     pass # end of class _this   
 
 # ==

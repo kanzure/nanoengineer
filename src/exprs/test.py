@@ -217,11 +217,12 @@ testexpr_6g = TextRect(format_Expr( "%r", _this(TextRect) ),4,60)
     # no need to be an InstanceOrExpr, I think.
     ###### try it, but see also below
 testexpr_6h = TextRect(format_Expr( "%r", _this(TextRect)._e_is_instance ),4,60) # BUG - prints False.
+        # [still this bug, 061114noon -- but i guess it's unsupportable -- try making the getattr_Expr by hand! #####tryit - where i am]
     # Guess for this one -- it never even forms a getattr_Expr, rather it evals to False immediately during expr parsing.
     # Solution: maybe don't support this kind of attr, which means make people use an explicit getattr_Expr
     # (which would not work now since it would grab the attr on the _this instance -- so it would only pretend to work),
     # or maybe make the intermediate pure_expr version super-symbolic (dubious -- I'll guess it's unsafe & not do it).
-testexpr_6i = TextRect(format_Expr( "%r", _this(TextRect).delegate ),4,60)
+## testexpr_6i = TextRect(format_Expr( "%r", _this(TextRect).delegate ),4,60) # attrerror, expected now
 
 
     #e more kinds of useful TextRect msg-formulae we'd like to know how to do: 
@@ -240,7 +241,7 @@ testexpr_9 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_6i
+testexpr = testexpr_6f
     # latest stable test: testexpr_5d, and _6a thru _6e (note that _6e works but is useless)
     # currently under devel [061113 937p]: testexpr_6f et al (see BUG comments above);
     # when it works, continue impleming _7

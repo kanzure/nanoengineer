@@ -64,12 +64,13 @@ class widget_env(Delegator):
         # btw, so far this is probably only used for _self.
         # As of 061114, also for _this_whatever -- no, that uses our helper lexval_of_symbolname. 
         name = sym._e_name
-        return self.lexval_of_symbolname(name)
-    def lexval_of_symbolname(self, name):
+        return self.lexval_of_symbolname(name, sym)
+    def lexval_of_symbolname(self, name, dflt):
+        #e default for dflt? used to be the sym, even now could be an imported (so identical) sym
         if name != '_self' and not name.startswith('_this_'):
             printnim("fyi: lexval_of_symbolname other than _self or _this_xxx: %s" % (name,) )
         # kluge:
-        return getattr(self, name, sym)
+        return getattr(self, name, dflt)
     pass
 
 def thisname_of_class(clas):
