@@ -15,6 +15,10 @@ import Exprs
 reload_once(Exprs)
 from Exprs import * # at least Expr; note, basic now does this anyway
 
+import widget_env
+reload_once(widget_env)
+from widget_env import thisname_of_class #e refile import?? or make it an env method??
+
 # ==
 
 class InstanceClass:#k super? meta? [#obs -- as of 061103 i am guessing this will completely disappear -- but i'm not sure]
@@ -464,8 +468,6 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     def _C_env_for_args(self):###NAMECONFLICT? i.e. an attr whose name doesn't start with _ (let alone __ _i_ or _e_) in some exprs
         "#doc"
         lexmods = {} # lexmods for the args, relative to our env
-
-        from widget_env import thisname_of_class ##e refile import
         thisname = thisname_of_class(self.__class__) ##e someday make it safe for duplicate-named classes
             # (Direct use of Symbol('_this_Xxx') will work now, but is pretty useless since those symbols need to be created/imported.
             #  The preferred way to do the same is _this(class), which for now [061114] evals to the same thing that symbol would,
@@ -625,16 +627,20 @@ class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110
 
 # ==
 
-class _this(internal_Expr):
+class _this(SymbolicExpr): # it needs to be symbolic to support automatic getattr_Expr
     """_this(class) refers to the instance of the innermost lexically enclosing expr with the same name(?) as class.
     """
-    def _internal_Expr_init(self):
-        (self._e_class,) = self.args
-        self.thisname = thisname_of_class( self._e_class)
+    #k will replacement in _e_args be ok? at first it won't matter, I think.
+    def __init__(self, clas):
+        assert is_Expr_pyclass(clas) #k
+        self._e_class = clas
+        self._e_thisname = thisname_of_class( self._e_class)
+        return
+    #e __str__ ?
     def __repr__(self): # class constant_Expr
-        return "<%s#%d: %r>"% (self.__class__.__name__, self._e_serno, self._e_class,)
+        return "<%s#%d: %r>" % (self.__class__.__name__, self._e_serno, self._e_class,)
     def _e_eval(self, env, ipath):
-        return env.lexval_of_symbolname( self.thisname )
+        return env.lexval_of_symbolname( self._e_thisname )
             # I don't think we need to do more eval and thus pass ipath;
             # indeed, the value is an Instance but not necessarily an expr
             # (at least not except by coincidence of how _this is defined).

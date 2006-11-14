@@ -275,7 +275,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         for arg in _e_args: 
             if arg._e_free_in(sym):
                 return True
-        printnim("_e_free_in is nim for option vals")###@@@
+        printnim("_e_free_in is nim for option vals")###@@@ btw 061114 do we still use _e_free_in at all? see if this gets printed.
         return False
     pass
 
