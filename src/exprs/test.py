@@ -191,23 +191,34 @@ testexpr_5b = CenterBoxedKluge( Rect(2,3.5,yellow)) # works, 061112 827p
 testexpr_5c_exits = CenterBoxedKluge_try1( Rect(2,3.5,orange)) # 061113 morn - fails (infrecur in lval -> immediate exit), won't be fixed soon
 testexpr_5d = Boxed( Rect(2,3.5,purple)) # 061113 morn - works; this should become the official Boxed, tho its internal code is unclear
 
-# TextRect
+# TextRect, and _this
 testexpr_6a = TextRect("line 1\nline 2", 2,8) # works
     # note, nlines/ncols seems like the right order, even though height/width goes the other way
 testexpr_6b = TextRect("line 3\netc", 2) # works except for wrong default ncols
 testexpr_6c = TextRect("line 4\n...") # works except for wrong defaults
 
-testexpr_6d = TextRect("%r" % _self.ipath) # bug: Expr doesn't intercept this operation -- can it?? should it?? not for strings. ######
+testexpr_6d = TextRect("%r" % _self.ipath) # bug: Expr doesn't intercept __mod__(sp?) -- can it?? should it?? not for strings. ######
 testexpr_6e = TextRect(format_Expr("%r", _self.ipath),4,60) # incorrect test: _self is not valid unless we're assigned in some pyclass
     # (so what it does is just print the expr's repr text -- we can consider it a test for that behavior)
-testexpr_6f = TextRect(format_Expr("%r", _this(TextRect).ipath),4,60)
+    # (note: it tells us there's a problem by printing "warning: Symbol('_self') evals to itself")
+
+testexpr_6f = TextRect(format_Expr( "%r", _this(TextRect).ipath ),4,60) # PRETENDS TO WORK but it must be the wrong thing's ipath,
+    # since we didn't yet implem finding the right thing in _this!! [061113 934p]
+    # Guess at the bug's cause: I wanted this to be delegated, but that won't work since it's defined in the proxy (the _this object)
+    # so __getattr__ will never run, and will never look for the delegate. This problem exists for any attr normally found
+    # in an InstanceOrExpr. Solution: make it instantiate/eval to some other class, not cluttered with attrs.
+    # Make that class not prevent delegating _e_, so things like ._e_is_instance (below) work ok.
+    ######e [where i am 061113 948p -- do this]
+testexpr_6g = TextRect(format_Expr( "%r", _this(TextRect) ),4,60) # BUG - as suspected, prints a _this object itself.
+testexpr_6h = TextRect(format_Expr( "%r", _this(TextRect)._e_is_instance ),4,60) # BUG - prints False
+    
     ###e also figure out how to access id(something), or env.redraw_counter, or in general a lambda of _self
 
 # TestIterator
 testexpr_7 = TestIterator( testexpr_3 ) # test an iterator - next up, 061113
 
 # Column
-testexpr_8 = Column( testexpr_1, Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+testexpr_8 = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
 
 # ToggleShow
 testexpr_9 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
@@ -216,10 +227,11 @@ testexpr_9 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_6e
-    # latest stable test: testexpr_5d
-    # currently under devel: testexpr_6 and 7; _6e works but is useless; _6f needs to work, but _this is nim as of 061113 239p
-    # where i am 061113 239p: looking at how _self lexreplace works (using lexenv_Expr), to decide when/how to replace _this(class)
+testexpr = testexpr_6h
+    # latest stable test: testexpr_5d, and _6a thru _6e (note that _6e works but is useless)
+    # currently under devel [061113 937p]: testexpr_6f et al (see BUG comments above);
+    # when it works, continue impleming _7
+    # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e
 
 
 # buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice

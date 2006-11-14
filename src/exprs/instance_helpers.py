@@ -184,8 +184,15 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         #  Note: right now, since internal & public options are not distinguished, you could do funny things like
         # customize the value of _args itself! That might even make sense, if documented.
         _args = getattr(self, '_args', None) #e make a class attr default for _args
+        if _args and 'kluge 061113':
+            if self._e_is_symbolic:
+                # happens to _this when constructing _this(class) (I think) --
+                # not yet sure whether/how to fix it in SymbolicExpr.__getattr__,
+                # so fix it like this for now [061113 late]:
+                printnim("better fix for _args when _e_is_symbolic??")##e
+                _args = None
         if _args:
-            printfyi( "_args is deprecated, but supported for now; in %r it's %r" % (self.__class__, _args) )#061106
+            printfyi( "_args is deprecated, but supported for now; in a pyinstance of %r it's %r" % (self.__class__, _args) )#061106
             if type(_args) is type(""):
                 # permit this special case for convenience
                 _args = (_args,)
@@ -264,7 +271,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # display mode customizations to refer to things in which our instances will be contained? If so, do instances
             # know their parents?
             # For initial uses, we might not care about these "details"! Possible initial kluge implem: let _this(class)
-            # turn into an instance itself, which figures out at runtime what to delegate to.
+            # turn into an instance itself, which figures out at runtime what to delegate to. Doing this below, "class _this".
             
         printnim("should make_in worry about finding an existing instance at the same index?")
             # guess: no, it'd be obsolete; not sure. #061110 313p
@@ -510,6 +517,7 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
     """#doc: like Delegator (with no caching, in case the delegate varies over time),
     but self.delegate should be defined by the subclass
     (e.g. it might be recomputable from a formula or _C_delegate method handled by ExprsMeta, or assigned in __init__).
+    Also, doesn't start delegating until self is an Instance. [##e For now, prints fyi when asked to, tho that's not an error.]
     """
     def _C_delegate(self):
         """[subclasses must either replace this method and use ExprsMeta metaclass,
@@ -543,13 +551,22 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
                 ##k reviewing this 061109, I'm not sure this is viable; maybe we'll need to exclude only __ or _i_ or _e_,
                 # or maybe even some of those need delegation sometimes -- we'll see.
                 #e Maybe the subclass will need to declare what attrs we exclude, or what _attrs we include!
-            if '061110 debug':
-                if attr == 'thing':
-                    print 'attr is thing, is it in self %r?' % (self,) ####@@@@
-            return getattr(self.delegate, attr) # here is where we delegate.
-            #k Should it be silently tolerated if delegate is None? Probably no need -- None won't usually have the attr,
-            # so it will raise the same exception we would. Are there confusing cases where None *does* have the attr??
-            # I doubt it (since we're excluding _attrs).
+            if attr == 'delegate':
+                # not sure if this is ever ok
+                printfyi("note: attr == 'delegate' in DelegatingMixin -- not sure if ever ok")###k 
+            if expr_is_Instance(self):
+##                try:
+##                    delegate = self.delegate
+##                except:
+##                    #e what can we do? print attr? too much printing if infrecur.
+##                    raise
+                delegate = self.delegate
+                return getattr(delegate, attr) # here is where we delegate. It's normal for this to raise AttributeError (I think).
+                #k Should it be silently tolerated if delegate is None? Probably no need -- None won't usually have the attr,
+                # so it will raise the same exception we would. Are there confusing cases where None *does* have the attr??
+                # I doubt it (since we're excluding _attrs).
+            printfyi("DelegatingMixin: too early to delegate %r, still a pure Expr" % (attr,)) ###e remove someday, not an error
+            raise AttributeError, attr
         pass
     pass # end of class DelegatingMixin
 
@@ -588,53 +605,75 @@ class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110
 
 # ==
 
-class _this(InstanceOrExpr, DelegatingMixin):
-    "#doc -- see comments in InstanceOrExpr"
-    clas = Arg(Anything) ### need to prevent instantiation?? maybe don't use Arg macro at all? #e rename attr?
+class SymbolicInstanceOrExpr(SymbolicExpr, InstanceOrExpr): # see also SymbolicExpr (whether or not we inherit from it)
+    "[for now, private helper for _this, tho would be useful for other symbol-like InstanceOrExprs]"
+    pass # the combo of supers is enough
+
+class _this(SymbolicInstanceOrExpr, DelegatingMixin): #061113; might work for now, prob not ok in the long run
+    # nim: unlikely to work re use of Arg; actually comparing env_self to clas
+    "#doc -- see comments in InstanceOrExpr. WARNING: not sure if lexical or dynamic or some mixture of both."
+    if 0:
+        clas = Arg(Anything) ### need to prevent instantiation?? maybe don't use Arg macro at all? #e rename attr?
+        # This has a weird bug I don't understand yet, when we run the "clas = self.clas" inside _C_delegate:
+        ##exception in <exprs.lvals.Lval instance at 0xe9d91e8>._compute_method ignored:
+        ##    exceptions.AssertionError: compute method asked for on non-Instance <_this#2189 at 0xe9db110>
+        ##  [lvals.py:160] [instance_helpers.py:601] [ExprsMeta.py:250] [ExprsMeta.py:318] [ExprsMeta.py:366] [Exprs.py:183]
+        # (Maybe there is some weirdness when trying to instantiate or _e_eval a bare class like TextRect.)
+        # But, I thought this code would be wrong anyway, so I don't need to spend the time to understand the bug right now.
+    else:
+        pass # look at the arg inside _C_delegate
     ###e btw [digr, refile:] does anything warn if too many args are passed?
     ###e Does ExprsMeta need to compile an "arglist terminator" if no ArgList used?
     
     def _C_delegate(self):
         # in the chain of parents (found how? #k), find the innermost instance belonging to clas -- NO! do it lexically, in env chain.
         # (at least I'm guessing that ends up being lexical -- need to verify ###k)
-        clas = self.clas
-            #k if that fails, just grab it from _e_args and require it to not need eval
-        assert is_Expr(clas) and not is_pyinstance(clas), "_this() argument must be class, not %r" % (clas,) ###k
-        env = self.env
+
+        # sanity checks
+        assert is_Expr_pyinstance(self) # probably can't fail
+        print_compact_stack("this is who first wants a _this's .delegate: ")#######[where i am, sometime on 061113 eve]
+        assert expr_is_Instance(self) # does fail -- who wants our delegate while we're an expr? maybe DelegatingMixin
+            # should be inactive til we're an instance? or error if not? let's find out who wants this -- print_compact_stack above.
+        if 0:
+            # this went with "clas = Arg(Anything)" above, and is the line which raised the exception:
+            clas = self.clas
+        else:
+            # just grab it from _e_args and doc for callers to not pass an expr which needs eval; 
+            # i.e. do something like clas = de-canon-expr(self._e_args[0]) except that the only de-canon-expr we have is eval... hmm.
+            # wait, one of these classes is unchanged by canon_expr so no need to de-canon-expr after all. ok.
+            clas = self._e_args[0]
+        assert is_Expr_pyclass(clas), "_this() argument must be a pyclass, not %r" % (clas,) ###k
+        print "got clas %r in _this" % clas ####
+        ## env = self.env # infrecur! Q: why?
+            # A: because we delegate this to self.delegate in DelegatingMixin, and that's what we're trying to compute here!
+            # Need to:
+            # - prevent chance of infrecur for any access to self.delegate, until we compute it -- can we tell DelegatingMixin
+            #   we're not ready to delegate yet, until this method is about to return? Or, assert it doesn't recurse on delegate?
+            # - find out why self.env is not set at this point -- maybe those sanity checks above will help.
+            # [this is where i am, 061113 818p]
+        env = self.__dict__['env'] # prevent any chance of infrecur through self.delegate
         while env:
-            env_self = getattr(env, '_self', None) # where is that newenv_self code this reminds me of? #####
+            env_self = getattr(env, '_self', None) # where is that newenv_self code this reminds me of? in lexenv_Expr.
             if not env_self:
                 break # can't find an answer
-            print "_this: see if %r is the answer for %r" % (env_self,clas) #####e if we find it, return it (and memoize it too? this does)
+            print "_this: see if %r is the answer for %r" % (env_self,clas)
+            #####e if we find it, return it (and memoize it too? this does)
+            if 0:
+                # found it in res (pretend)
+                res
+                return res
             # keep looking
-            env = env_self.env #k can this ever fail? I don't think so.
+            if 0:
+                # one way, seems wrong now but maybe compare it sometime
+                env = env_self.env #k can this ever fail? I don't think so.
+            else:
+                # a way more likely to be lexical, not sure tho
+                env = env.delegate
             continue
-        # no answer was found
-        assert 0, "_this(%r) failed" % (clas,)
-        pass
-    
-    
-            assert env #061110 it's a widget_env
-            ##print_compact_stack
-            print( "### fyi: %r._e_eval%r (_self in env %r is %r): " % (self, args, env, env._self)) # env._self is kluge
-            ## older print: ipath is ('stub', ('stub', None))
-            # now ipath is (0, ('$_value', None))
-            # hoping to see _self being a Boxed, but it's <Overlay#1060 at 0xe37d990>, but maybe I know why & it'll be Boxed
-            # when make_in replaces _self.
-            # After lexenv_Expr created and used, now it's Boxed!
-            if 'debug more':
-                env2 = env
-                while env2:
-                    ##e could add 'and env2.delegate' to prevent use of the initial null env which has no _self,
-                    # since asking it for _self gets an attrerror from None. Instead, use getattr below.
-                    ## print "env2.__class__ is %r" % (env2.__class__,)
-                    print "%r._self is %r" % (env2, getattr(env2, '_self', '<missing>')) # hope to see: Overlay, Boxed... good, I do.
-                        # After lexenv_Expr, hope to just see Boxed; I see Boxed, then crash, not yet understood why [now it is],
-                        # seems weird like the __repr__ delegation was weird, since it's as if env2 is None here. #####@@@@@
-                    env2 = env2.delegate
-                pass
-            return super(RectFrame, self)._e_eval(*args)
-
+        # no answer was found (note, there are two ways we can get here, not sure which one is normal, whether both are possible)
+        assert 0, "_this(%r) failed; env is %r" % (clas,env) # env being present or None are the two ways mentioned above
+        pass # end of def _C_delegate
+    pass # end of class _this
 
 # ==
 

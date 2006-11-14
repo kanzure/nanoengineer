@@ -43,7 +43,8 @@ from state_utils import transclose
 
 # == Python and debug utilities, and low-level local defs
 
-from debug import reload_once_per_event, print_compact_traceback
+from debug import reload_once_per_event, print_compact_traceback, print_compact_stack
+
 
 def reload_once(module):
     """This function is used to support automatic runtime reloading of modules within this package,
@@ -81,7 +82,7 @@ from py_utils import * # includes printnim
 
 from ExprsMeta import * ###e can this support autoreload?? ###e note -- this imports a few other modules - list those here ##doc
 
-from __Symbols__ import _self, _this # (__Symbols__ module doesn't support reload) # warning: not included in "import *"
+from __Symbols__ import _self # (__Symbols__ module doesn't support reload) # warning: not included in "import *"
 
 
 # == colors (constants and simple functions; import them everywhere to discourage name conflicts that show up only later)
@@ -131,7 +132,7 @@ from Exprs import * # Expr, lots of predicates, maybe Arg & Option(??#k)
 
 import instance_helpers
 reload_once(instance_helpers)
-from instance_helpers import InstanceOrExpr, DelegatingMixin, InstanceMacro, GlueCodeMemoizer
+from instance_helpers import InstanceOrExpr, DelegatingMixin, InstanceMacro, _this, GlueCodeMemoizer
 
 # === higher-level defs, common enough to import for everything
 

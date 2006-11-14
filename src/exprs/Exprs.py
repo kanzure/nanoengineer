@@ -12,7 +12,7 @@ $Id$
 # as of 061102 this module is probably reloadable:
 
 from basic import printnim, printfyi, stub # this may be a recursive import (with most things in basic not yet defined)
-from debug import print_compact_stack
+from basic import print_compact_stack, print_compact_traceback
 
 # == utilities #e refile
 
@@ -68,7 +68,7 @@ def expr_is_Instance(expr):
     assert res is False or res is True ###e hmm, might fail for classes, need to fix
     return res
 
-def is_Expr_pyinstance(expr):
+def is_Expr_pyinstance(expr): ##e make sure we check this before calling _e_eval / _e_compute_method / _e_make_in on an expr
     """Is expr an Expr, and also a python instance (not an Expr subclass)?
     (This is necessary to be sure you can safely call Expr methods on it.) 
     (Note: If so, it might or might not be an Instance.)
@@ -77,7 +77,7 @@ def is_Expr_pyinstance(expr):
     return is_Expr(expr) and is_Expr(expr.__class__)
 
 def is_Expr_pyclass(expr):
-    """Is expr (assumed known is_Expr) a python class (ie a subclass of Expr)?
+    """Is expr an Expr and a python class (i.e. is it a subclass of Expr)?
     [This is easier to use than issubclass, since that has an exception on non-classes.]
     """
     return is_Expr(expr) and not is_Expr(expr.__class__)
@@ -102,6 +102,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
     tracking usage of env attrs so an external system can know when the return value becomes invalid;
     - 
     """
+    _e_is_symbolic = False #061113
     _e_args = () # this is a tuple of the expr's args (processed by canon_expr), whenever those args are always all exprs.
     _e_kws = {} # this is a dict of the expr's kw args (processed by canon_expr), whenever all kwargs are exprs.
         # note: all expr subclasses which use this should reassign to it, so this shared version remains empty.
@@ -224,6 +225,12 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         """operator -a"""
         return neg_Expr(self)
 
+    #e __mod__? (only ok if not used for print formatting -- otherwise we'd break debug prints like "%r" % expr)
+    #e __len__? (might be ok, except lack of it catches bugs every so often, so I guess it's not a good idea)
+    #e various type coercers...
+    # but some special methodnames are impossible to support safely, like __str__, __eq__, etc...
+    #e unless we have a special expr wrapper to give it the power to support all those too, but only if used right away. [061113]
+
     def __getitem__( self, index): #k not reviewed for slices, unlikely they'll work fully
         """ operator a[b]"""
         #e will Instances extend this to return their kids??
@@ -272,20 +279,35 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         return False
     pass
 
-class SymbolicExpr(Expr): # Symbol or OpExpr
+class SymbolicExpr(Expr): # Symbol or OpExpr; see also SymbolicInstanceOrExpr (in another file)
+    _e_is_symbolic = True #061113
     def __call__(self, *args, **kws):
+        assert not self._e_is_instance # added 061113 for sake of SymbolicInstanceOrExpr Instances (should never happen I think)
         return call_Expr(self, *args, **kws)
     def __getattr__(self, attr):
         if attr.startswith('__'):
             # be very fast at not finding special python attrs like __repr__
             raise AttributeError, attr
+        if 1 and attr.startswith('_i_'): ###e slow, remove when devel is done
+            ### WAIT A MINUTE, this was masked by the prior condition [now below] -- was it ever active?
+            # guess: yes, before was-prior cond extended.
+            # so, move it up, see what happens. [061113]
+            printnim("slow, remove when devel is done: _i_ noninstance check")
+            assert self._e_is_instance #k not positive this is ok, we'll see [061105]
+            # note: self._e_is_instance is defined in all pyinstance exprs, not only InstanceOrExpr.
         if attr.startswith('_e_') or attr.startswith('_i_'):
             # We won't pretend to find Expr methods/attrs starting _e_ (also used in Instances),
             # or Instance ones starting _i_ -- but do reveal which class we didn't find them in.
             raise AttributeError, "no attr %r in %r" % (attr, self.__class__) #e safe_repr for class
-        if 1 and attr.startswith('_i_'): ###e slow, remove when devel is done
-            printnim("slow, remove when devel is done: _i_ noninstance check")
-            assert self._e_is_instance #k not positive this is ok, we'll see [061105]
+        if self._e_is_instance:
+            # this case added 061113 for sake of SymbolicInstanceOrExpr Instances (e.g. _this(class)) which lack attr
+            ## raise AttributeError, attr
+            printfyi("will look for super(SymbolicExpr,self).__getattr__(attr): self.__class__ %r, attr %r" % \
+                     (self.__class__, attr) )
+            return super(SymbolicExpr,self).__getattr__(attr) # e.g. let DelegatingMixin.__getattr__ handle it
+                ####k will this work even if we *don't* inherit from DelegatingMixin or someone else with a __getattr__??
+                # if not, and __getattr__ method not found, raise attrerror.
+                # (don't bother trying a soln using getattr as opposed to __getattr__, i doubt there is one)
         return getattr_Expr(self, attr)
     pass
 
@@ -604,6 +626,7 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         newenv = self._e_env0
         newenv_self = getattr(newenv, '_self', None) ####e change newenv._self to give this answer! [intention soon, 061110 very late]
         if env._self is not newenv_self:
+            # usual case (in fact, always true AFAIK)
             if 0:
                 printfyi("env._self is not newenv._self: a %s is not a %s (tho it may or may not be in same class)" % \
                          (env._self.__class__.__name__, newenv_self.__class__.__name__))

@@ -136,7 +136,7 @@ from idlelib.Delegator import Delegator
 
 # from modules in cad/src
 from env import seen_before
-from debug import print_compact_traceback
+from debug import print_compact_traceback, print_compact_stack
 
 # from this exprs package in cad/src
 

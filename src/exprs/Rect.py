@@ -14,8 +14,6 @@ import draw_utils
 reload_once(draw_utils)
 from draw_utils import *
 
-from debug import print_compact_stack
-
 class Rect(Widget2D): # finally working as of 061106
     """Rect(width, height, color) renders as a filled x/y-aligned rectangle
     of the given dimensions and color, with the origin on bottomleft,
