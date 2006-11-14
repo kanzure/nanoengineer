@@ -259,6 +259,12 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # simplify to do that to most of grabarg; that scheme means instances of custom exprs can share formulas.
             # A: so I'll comment out this printnim.
             # Q: where & how should we replace _this(class) with the lexically innermost object of that class? ####@@@@
+            # Can it be computed at runtime, so we can turn it into a macro? Does the debug code to print selfs of outer envs
+            # do the right thing, or would that be too dynamic? Do we *want* it to be dynamic, so we can use it when writing
+            # display mode customizations to refer to things in which our instances will be contained? If so, do instances
+            # know their parents?
+            # For initial uses, we might not care about these "details"! Possible initial kluge implem: let _this(class)
+            # turn into an instance itself, which figures out at runtime what to delegate to.
             
         printnim("should make_in worry about finding an existing instance at the same index?")
             # guess: no, it'd be obsolete; not sure. #061110 313p
@@ -579,6 +585,56 @@ class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110
         # there can be two evals inside _i_instance due to eval_Expr, so the problem might arise that way, dep on what it does with
         # indices itself).
     pass
+
+# ==
+
+class _this(InstanceOrExpr, DelegatingMixin):
+    "#doc -- see comments in InstanceOrExpr"
+    clas = Arg(Anything) ### need to prevent instantiation?? maybe don't use Arg macro at all? #e rename attr?
+    ###e btw [digr, refile:] does anything warn if too many args are passed?
+    ###e Does ExprsMeta need to compile an "arglist terminator" if no ArgList used?
+    
+    def _C_delegate(self):
+        # in the chain of parents (found how? #k), find the innermost instance belonging to clas -- NO! do it lexically, in env chain.
+        # (at least I'm guessing that ends up being lexical -- need to verify ###k)
+        clas = self.clas
+            #k if that fails, just grab it from _e_args and require it to not need eval
+        assert is_Expr(clas) and not is_pyinstance(clas), "_this() argument must be class, not %r" % (clas,) ###k
+        env = self.env
+        while env:
+            env_self = getattr(env, '_self', None) # where is that newenv_self code this reminds me of? #####
+            if not env_self:
+                break # can't find an answer
+            print "_this: see if %r is the answer for %r" % (env_self,clas) #####e if we find it, return it (and memoize it too? this does)
+            # keep looking
+            env = env_self.env #k can this ever fail? I don't think so.
+            continue
+        # no answer was found
+        assert 0, "_this(%r) failed" % (clas,)
+        pass
+    
+    
+            assert env #061110 it's a widget_env
+            ##print_compact_stack
+            print( "### fyi: %r._e_eval%r (_self in env %r is %r): " % (self, args, env, env._self)) # env._self is kluge
+            ## older print: ipath is ('stub', ('stub', None))
+            # now ipath is (0, ('$_value', None))
+            # hoping to see _self being a Boxed, but it's <Overlay#1060 at 0xe37d990>, but maybe I know why & it'll be Boxed
+            # when make_in replaces _self.
+            # After lexenv_Expr created and used, now it's Boxed!
+            if 'debug more':
+                env2 = env
+                while env2:
+                    ##e could add 'and env2.delegate' to prevent use of the initial null env which has no _self,
+                    # since asking it for _self gets an attrerror from None. Instead, use getattr below.
+                    ## print "env2.__class__ is %r" % (env2.__class__,)
+                    print "%r._self is %r" % (env2, getattr(env2, '_self', '<missing>')) # hope to see: Overlay, Boxed... good, I do.
+                        # After lexenv_Expr, hope to just see Boxed; I see Boxed, then crash, not yet understood why [now it is],
+                        # seems weird like the __repr__ delegation was weird, since it's as if env2 is None here. #####@@@@@
+                    env2 = env2.delegate
+                pass
+            return super(RectFrame, self)._e_eval(*args)
+
 
 # ==
 

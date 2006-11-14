@@ -63,7 +63,7 @@ from basic import _self, _this
 
 import Rect
 reload_once(Rect)
-from Rect import Rect_old, Rect, RectFrame
+from Rect import Rect, RectFrame
 
 import Column
 reload_once(Column)
@@ -140,7 +140,8 @@ class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106; revised 061109, 
 # == testexprs
 
 # === test basic leaf primitives
-testexpr_1 = Rect_old(7,5, color = green) # works as of 061030
+## testexpr_1 = Rect_old(7,5, color = green) # works as of 061030
+    # [but Rect_old is obs, so I removed it 061113, tho it's probably the only test of _DEFAULT_ and _args, also obs]
 
 testexpr_2 = Rect(8,6, color = purple) # works as of 061106
 
