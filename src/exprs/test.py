@@ -79,7 +79,7 @@ from Boxed import Boxed_old, CenterBoxedKluge, CenterBoxedKluge_try1, Boxed
 
 import Center
 reload_once(Center)
-from Center import Center
+from Center import Center, Translate
 
 import TestIterator
 reload_once(TestIterator)
@@ -202,28 +202,33 @@ testexpr_6e = TextRect(format_Expr("%r", _self.ipath),4,60) # incorrect test: _s
     # (so what it does is just print the expr's repr text -- we can consider it a test for that behavior)
     # (note: it tells us there's a problem by printing "warning: Symbol('_self') evals to itself")
 
-testexpr_6f = TextRect(format_Expr( "%r", _this(TextRect).ipath ),4,60) # PRETENDS TO WORK but it must be the wrong thing's ipath,
+testexpr_6f = TextRect(format_Expr( "%r", _this(TextRect).ipath ),4,60) # printed ipath is probably right: 'NullIPath' ###k verify
+    # obs cmt (correct but old, pre-061114):
+    # PRETENDS TO WORK but it must be the wrong thing's ipath,
     # since we didn't yet implem finding the right thing in _this!! [061113 934p]
-    # Guess at the bug's cause: I wanted this to be delegated, but that won't work since it's defined in the proxy (the _this object)
+    # Guess at the cause: I wanted this to be delegated, but that won't work since it's defined in the proxy (the _this object)
     # so __getattr__ will never run, and will never look for the delegate. This problem exists for any attr normally found
-    # in an InstanceOrExpr. Solution: make it instantiate/eval to some other class, not cluttered with attrs.
-    # Make that class not prevent delegating _e_, so things like ._e_is_instance (below) work ok.
-    ######e [where i am 061113 948p -- do this... no, see better idea below.]
-testexpr_6g = TextRect(format_Expr( "%r", _this(TextRect) ),4,60)
-    # BUG - as suspected, prints a _this object itself. wait, why's that a bug? what else could it do?? Not a bug in present design.
-    # But, if it was lexically replaced rather than delegated, it would work! But replaced when? On instantiation of the testexpr?
-    # Which really means, on instantiation of the _this? I think so -- so why not have it return a different thing when instantiated?
-    # Not a specialized proxy, but the referred-to object itself! While an expr, it can be more like an internal_Expr or OpExpr --
-    # no need to be an InstanceOrExpr, I think.
-    ###### try it, but see also below
-testexpr_6h = TextRect(format_Expr( "%r", _this(TextRect)._e_is_instance ),4,60) # BUG - prints False.
-        # [still this bug, 061114noon -- but i guess it's unsupportable -- try making the getattr_Expr by hand! #####tryit - where i am]
-    # Guess for this one -- it never even forms a getattr_Expr, rather it evals to False immediately during expr parsing.
-    # Solution: maybe don't support this kind of attr, which means make people use an explicit getattr_Expr
-    # (which would not work now since it would grab the attr on the _this instance -- so it would only pretend to work),
-    # or maybe make the intermediate pure_expr version super-symbolic (dubious -- I'll guess it's unsafe & not do it).
-## testexpr_6i = TextRect(format_Expr( "%r", _this(TextRect).delegate ),4,60) # attrerror, expected now
+    # in an InstanceOrExpr. Solution: make it instantiate/eval to some other class, not cluttered with attrs. [done now, 061114]
+    # 
+    # update 061114: now it works differently and does find right thing, but the printed ipath looks wrong [WRONG - it's not wrong]
+    # Is it ipath of the pure expr (evalled too soon),
+    # or is the ipath (of the right instance) wrong? Or are we asking too early, before the right one is set?
+    # How can I find out? [061114 152p]
+    # A: it wasn't wrong, it was the top expr so of course it was None -- now I redefined it to  'NullIPath'.
+    # But a good test is for an expr in which it's not None, so try this, which will also verify ipaths are different:
+testexpr_6f2 = Overlay(testexpr_6f, Translate(testexpr_6f, (0,-2))) # works!
+    
+testexpr_6g = TextRect(format_Expr( "%r", _this(TextRect) ),4,60) # seems to work, 061114
+testexpr_6g2 = TextRect(format_Expr( "%r", (_this(TextRect),_this(TextRect)) ),4,60) # should be the same instance - works (best test)
 
+testexpr_6h = TextRect(format_Expr( "%r", _this(TextRect)._e_is_instance ),4,60) # unsupported.
+    # prints False; wrong but not a bug -- ._e_* is unsupportable on any symbolic expr.
+    # Reason (not confirmed by test, but sound):
+    # it never even forms a getattr_Expr, rather it evals to False immediately during expr parsing.
+testexpr_6h2 = TextRect(format_Expr( "%r", getattr_Expr(_this(TextRect),'_e_is_instance') ),4,60) # works (prints True)
+## testexpr_6i = TextRect(format_Expr( "%r", _this(TextRect).delegate ),4,60) # attrerror, not a bug since TextRects don't have it
+
+testexpr_6j = TextRect(format_Expr( "%r", (_this(TextRect),_this(TextRect).ncols) ),4,60) # works: prints (<textrect...>, 60)
 
     #e more kinds of useful TextRect msg-formulae we'd like to know how to do: 
     #e how to access id(something), or env.redraw_counter, or in general a lambda of _self
@@ -241,11 +246,11 @@ testexpr_9 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_6f
+testexpr = testexpr_6f2
     # latest stable test: testexpr_5d, and _6a thru _6e (note that _6e works but is useless)
     # currently under devel [061113 937p]: testexpr_6f et al (see BUG comments above);
     # when it works, continue impleming _7
-    # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e
+    # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e, and 061114 6g*, 6h*
 
 
 # buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice

@@ -2,36 +2,12 @@
 $Id$
 """
 
-# == fyi: old version of this from cad/src/drawtest.py, still in use up there:
+# WARNING: there is an old version of this (same name TextRect) from cad/src/drawtest.py, still in use up there.
 
-# note: it uses fixed size for text on screen, regardless of depth -- will need to revise this someday
+# Note: this uses fixed size for text on screen, regardless of depth -- we'll need to revise this someday. #e
 
 
 from basic import *
-
-
-WidgetExpr = Stub
-
-class TextRect_upstairs(WidgetExpr):
-    # [later 061113: I plan to make a new version of this in exprs module, still using drawfont2 from here]
-    "TextRect(width, height, msg_func) renders as a rect of width by height chars taken from msg_func(env), origin on bottomleft"
-    def init(self):
-        self.dims = width, height = self.args[0], self.args[1]
-        self.bright = width * tex_width # global constant
-        self.btop = height * tex_height
-        ### those are in the wrong units, not pixelwidth, so we need to kluge them for now
-        self.bright = self.btop = 1 ########@@@@@@@@ WRONG
-        self.msg_func = self.args[2]
-    def draw(self):
-        glpane = _kluge_glpane()
-        width, height = self.dims
-        msg = resolve_callables( self.msg_func, 'fakeenv')
-        glPushMatrix() ####k guess
-        drawfont2(glpane, msg, width, height)
-        glPopMatrix()
-    pass
-
-# == new version
 
 # Plan: make this just good enough for use as a debugging tool -- e.g. to make instances that show their own ipath.
 # It still uses utility funcs and an assumed-bound-texture from cad/src/drawtest.py.
@@ -46,7 +22,7 @@ class TextRect(Widget2D):
     ncols defaults to cols in msg, limited by option max_cols, default 16.
     #doc textsize issues, lbox issues
     """
-    from testdraw import tex_width, tex_height # constants (#e shouldn't be, see comments at source)
+    from testdraw import tex_width, tex_height # constants (#e shouldn't be; see comments where they're defined)
     # args
     msg = Arg(str)
     nlines = Arg(int, 6) # related to height, but comes first anyway (renamed from nrows) ###e try default of _self.msg_lines, etc

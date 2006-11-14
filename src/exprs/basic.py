@@ -122,7 +122,9 @@ PIXELS = 0.05 #k guess #e will probably change
 
 # == lower-level stubs -- these will probably be refiled when they are no longer stubs ###@@@
 
-NullIpath = None ###STUB, refile, rename
+## NullIpath = None ###STUB, refile, rename
+NullIpath = 'NullIpath' ##k ok that it's not None? maybe not, we might test for None... seems to work for now tho.
+    #e make it different per reload?
 
 # == fundamental defs
 

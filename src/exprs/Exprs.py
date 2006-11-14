@@ -195,7 +195,20 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         "[often overridden by subclasses; __str__ can depend on __repr__ but not vice versa(?) (as python itself does by default(??))]"
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect_old) on 061016
         ## return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())
-        return "<%s#%d at %#x>" % (self.__class__.__name__, self._e_serno, id(self))
+        return "<%s#%d%s at %#x>" % (self.__class__.__name__, self._e_serno, self._e_repr_info(), id(self))
+    def _e_repr_info(self):#061114
+        "[private helper for __repr__]"
+        if self._e_has_args:
+            if self._e_is_instance:
+                return '(i)'
+            else:
+                return '(a)'
+        else:
+            if self._e_is_instance:
+                return '(i w/o a)' # an error, i think, at least for now
+            else:
+                return ''
+        pass
     # ==
     def __rmul__( self, lhs ):
         """operator b * a"""
@@ -323,7 +336,7 @@ class OpExpr(SymbolicExpr):
     def _e_init(self):
         assert 0, "subclass of OpExpr must implement _e_init"
     def __repr__(self): # class OpExpr
-        return "<%s#%d: %r>"% (self.__class__.__name__, self._e_serno, self._e_args,)
+        return "<%s#%d%s: %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_args,)
     def _e_argval(self, i, env,ipath):
         """Under the same assumptions as _e_eval (see its docstring),
         compute and return the current value of an implicit kid-instance made from self._e_args[i], at relative index i,
@@ -573,7 +586,7 @@ class constant_Expr(internal_Expr):
     def _internal_Expr_init(self):
         (self._e_constant_value,) = self.args
     def __repr__(self): # class constant_Expr
-        return "<%s#%d: %r>"% (self.__class__.__name__, self._e_serno, self._e_constant_value,)
+        return "<%s#%d%s: %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_constant_value,)
     def __str__(self):
         return "%r" % (self._e_constant_value,) #e need parens?
             #k 061105 changed %s to %r w/o reviewing calls (guess: only affects debugging)
@@ -621,8 +634,8 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
     """
     def _internal_Expr_init(self):
         (self._e_env0, self._e_expr0) = self.args
-    def __repr__(self): # class constant_Expr
-        return "<%s#%d: %r, %r>"% (self.__class__.__name__, self._e_serno, self._e_env0, self._e_expr0,)
+    def __repr__(self):
+        return "<%s#%d%s: %r, %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_env0, self._e_expr0,)
     def _e_eval(self, env, ipath):
         assert env #061110
         env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]

@@ -293,6 +293,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             #e in fact we mod it every time with _self, in _e_compute_method -- can we cache that?
         ####@@@@
         self.ipath = ipath ###e does this need mixing into self.env somehow?
+        ## print "assigned %r.ipath = %r" % (self,ipath) #061114 -- note, repr looks funny since fields it prints are not yet inited
         #e also set self.index??
         
         # set up self._e_args etc
@@ -637,8 +638,8 @@ class _this(SymbolicExpr): # it needs to be symbolic to support automatic getatt
         self._e_thisname = thisname_of_class( self._e_class)
         return
     #e __str__ ?
-    def __repr__(self): # class constant_Expr
-        return "<%s#%d: %r>" % (self.__class__.__name__, self._e_serno, self._e_class,)
+    def __repr__(self):
+        return "<%s#%d%s: %r>" % (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_class,)
     def _e_eval(self, env, ipath):
         dflt = None ## 'stub default for ' + self._e_thisname #####e fix
         res = env.lexval_of_symbolname( self._e_thisname, dflt )
