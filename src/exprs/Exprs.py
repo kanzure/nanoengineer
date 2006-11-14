@@ -279,7 +279,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         return False
     pass
 
-class SymbolicExpr(Expr): # Symbol or OpExpr; see also SymbolicInstanceOrExpr (in another file)
+class SymbolicExpr(Expr): # Symbol or OpExpr; see also SymbolicInstanceOrExpr (in another file, obs as of 061114)
     _e_is_symbolic = True #061113
     def __call__(self, *args, **kws):
         assert not self._e_is_instance # added 061113 for sake of SymbolicInstanceOrExpr Instances (should never happen I think)
@@ -302,8 +302,11 @@ class SymbolicExpr(Expr): # Symbol or OpExpr; see also SymbolicInstanceOrExpr (i
         if self._e_is_instance:
             # this case added 061113 for sake of SymbolicInstanceOrExpr Instances (e.g. _this(class)) which lack attr
             ## raise AttributeError, attr
-            printfyi("will look for super(SymbolicExpr,self).__getattr__(attr): self.__class__ %r, attr %r" % \
-                     (self.__class__, attr) )
+            print("will look for super(SymbolicExpr,self).__getattr__(attr): self.__class__ %r, attr %r" % \
+                     (self.__class__, attr) ) # use printfyi if this case doesn't asfail
+            if 1:
+                # as of 061114 I don't think this case will still occur, so printfyi -> print above, and do this assert:
+                assert 0, "I think this case is obs, we'll see -- see prior print about super(SymbolicExpr,self) for details"
             return super(SymbolicExpr,self).__getattr__(attr) # e.g. let DelegatingMixin.__getattr__ handle it
                 ####k will this work even if we *don't* inherit from DelegatingMixin or someone else with a __getattr__??
                 # if not, and __getattr__ method not found, raise attrerror.

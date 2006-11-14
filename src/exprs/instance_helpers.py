@@ -112,7 +112,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         return new
 
     # deprecated public access to self._e_kws -- used by _DEFAULT_ decls
-    def custom_compute_method(self, attr):
+    def custom_compute_method(self, attr):###NAMECONFLICT?
         "return a compute method using our custom formula for attr, or None if we don't have one"
         try:
             formula = self._e_kws[attr]
@@ -186,10 +186,12 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         _args = getattr(self, '_args', None) #e make a class attr default for _args
         if _args and 'kluge 061113':
             if self._e_is_symbolic:
-                # happens to _this when constructing _this(class) (I think) --
+                # as of 061113 late: happens to _this when constructing _this(class) (I think) --
                 # not yet sure whether/how to fix it in SymbolicExpr.__getattr__,
-                # so fix it like this for now [061113 late]:
+                # so fix it like this for now...
+                # as of 061114 I think it will never happen, so also assert 0.
                 printnim("better fix for _args when _e_is_symbolic??")##e
+                assert 0 # see above comment
                 _args = None
         if _args:
             printfyi( "_args is deprecated, but supported for now; in a pyinstance of %r it's %r" % (self.__class__, _args) )#061106
@@ -272,6 +274,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # know their parents?
             # For initial uses, we might not care about these "details"! Possible initial kluge implem: let _this(class)
             # turn into an instance itself, which figures out at runtime what to delegate to. Doing this below, "class _this".
+            # WRONG, next day 061114 I'm doing it differently: _this(class) turns into an internal_Expr. Still found as "class _this".
             
         printnim("should make_in worry about finding an existing instance at the same index?")
             # guess: no, it'd be obsolete; not sure. #061110 313p
@@ -450,10 +453,27 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         assert attr is None or isinstance(attr, str)
         assert argpos is None or (isinstance(argpos, int) and argpos >= 0)
         res0 = self._i_grabarg_0(attr, argpos, dflt_expr)
-        res = lexenv_Expr(self.env, res0) ##k guess, 061110 late
+        res = lexenv_Expr(self.env_for_args, res0) ##k lexenv_Expr is guess, 061110 late, seems confirmed; env_for_args 061114
+            #e possible good optim: use self.env instead, unless res0 contains a use of _this;
+            # or we could get a similar effect (slower when this runs, but better when the arg instance is used) by simplifying res,
+            # so that only the used parts of the env provided by lexenv_Expr remained (better due to other effects of simplify)
         if 0:
             print "_i_grabarg returns %r" % (res,)
         return res
+
+    def _C_env_for_args(self):###NAMECONFLICT? i.e. an attr whose name doesn't start with _ (let alone __ _i_ or _e_) in some exprs
+        "#doc"
+        lexmods = {} # lexmods for the args, relative to our env
+
+        from widget_env import thisname_of_class ##e refile import
+        thisname = thisname_of_class(self.__class__) ##e someday make it safe for duplicate-named classes
+            # (Direct use of Symbol('_this_Xxx') will work now, but is pretty useless since those symbols need to be created/imported.
+            #  The preferred way to do the same is _this(class), which for now [061114] evals to the same thing that symbol would,
+            #  namely, to what we store here in lexmods for thisname. See "class _this".)
+        
+        lexmods[thisname] = self
+            # WARNING: this creates a cyclic ref, from each child whose env contains lexmods, to self, to each child self still knows.
+        return self.env.with_lexmods(lexmods)
 
     def _i_grabarg_0( self, attr, argpos, dflt_expr):
         "[private helper for _i_grabarg]"
@@ -605,75 +625,38 @@ class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110
 
 # ==
 
-class SymbolicInstanceOrExpr(SymbolicExpr, InstanceOrExpr): # see also SymbolicExpr (whether or not we inherit from it)
-    "[for now, private helper for _this, tho would be useful for other symbol-like InstanceOrExprs]"
-    pass # the combo of supers is enough
+class _this(internal_Expr):
+    """_this(class) refers to the instance of the innermost lexically enclosing expr with the same name(?) as class.
+    """
+    def _internal_Expr_init(self):
+        (self._e_class,) = self.args
+        self.thisname = thisname_of_class( self._e_class)
+    def __repr__(self): # class constant_Expr
+        return "<%s#%d: %r>"% (self.__class__.__name__, self._e_serno, self._e_class,)
+    def _e_eval(self, env, ipath):
+        return env.lexval_of_symbolname( self.thisname )
+            # I don't think we need to do more eval and thus pass ipath;
+            # indeed, the value is an Instance but not necessarily an expr
+            # (at least not except by coincidence of how _this is defined).
+            # Caller/client could arrange another eval if it needed to. [061114 guess]
+    pass # end of class _this   
 
-class _this(SymbolicInstanceOrExpr, DelegatingMixin): #061113; might work for now, prob not ok in the long run
-    # nim: unlikely to work re use of Arg; actually comparing env_self to clas
-    "#doc -- see comments in InstanceOrExpr. WARNING: not sure if lexical or dynamic or some mixture of both."
-    if 0:
-        clas = Arg(Anything) ### need to prevent instantiation?? maybe don't use Arg macro at all? #e rename attr?
-        # This has a weird bug I don't understand yet, when we run the "clas = self.clas" inside _C_delegate:
-        ##exception in <exprs.lvals.Lval instance at 0xe9d91e8>._compute_method ignored:
-        ##    exceptions.AssertionError: compute method asked for on non-Instance <_this#2189 at 0xe9db110>
-        ##  [lvals.py:160] [instance_helpers.py:601] [ExprsMeta.py:250] [ExprsMeta.py:318] [ExprsMeta.py:366] [Exprs.py:183]
-        # (Maybe there is some weirdness when trying to instantiate or _e_eval a bare class like TextRect.)
-        # But, I thought this code would be wrong anyway, so I don't need to spend the time to understand the bug right now.
-    else:
-        pass # look at the arg inside _C_delegate
-    ###e btw [digr, refile:] does anything warn if too many args are passed?
-    ###e Does ExprsMeta need to compile an "arglist terminator" if no ArgList used?
-    
-    def _C_delegate(self):
-        # in the chain of parents (found how? #k), find the innermost instance belonging to clas -- NO! do it lexically, in env chain.
-        # (at least I'm guessing that ends up being lexical -- need to verify ###k)
+# ==
 
-        # sanity checks
-        assert is_Expr_pyinstance(self) # probably can't fail
-        print_compact_stack("this is who first wants a _this's .delegate: ")#######[where i am, sometime on 061113 eve]
-        assert expr_is_Instance(self) # does fail -- who wants our delegate while we're an expr? maybe DelegatingMixin
-            # should be inactive til we're an instance? or error if not? let's find out who wants this -- print_compact_stack above.
-        if 0:
-            # this went with "clas = Arg(Anything)" above, and is the line which raised the exception:
-            clas = self.clas
-        else:
-            # just grab it from _e_args and doc for callers to not pass an expr which needs eval; 
-            # i.e. do something like clas = de-canon-expr(self._e_args[0]) except that the only de-canon-expr we have is eval... hmm.
-            # wait, one of these classes is unchanged by canon_expr so no need to de-canon-expr after all. ok.
-            clas = self._e_args[0]
-        assert is_Expr_pyclass(clas), "_this() argument must be a pyclass, not %r" % (clas,) ###k
-        print "got clas %r in _this" % clas ####
-        ## env = self.env # infrecur! Q: why?
-            # A: because we delegate this to self.delegate in DelegatingMixin, and that's what we're trying to compute here!
-            # Need to:
-            # - prevent chance of infrecur for any access to self.delegate, until we compute it -- can we tell DelegatingMixin
-            #   we're not ready to delegate yet, until this method is about to return? Or, assert it doesn't recurse on delegate?
-            # - find out why self.env is not set at this point -- maybe those sanity checks above will help.
-            # [this is where i am, 061113 818p]
-        env = self.__dict__['env'] # prevent any chance of infrecur through self.delegate
-        while env:
-            env_self = getattr(env, '_self', None) # where is that newenv_self code this reminds me of? in lexenv_Expr.
-            if not env_self:
-                break # can't find an answer
-            print "_this: see if %r is the answer for %r" % (env_self,clas)
-            #####e if we find it, return it (and memoize it too? this does)
-            if 0:
-                # found it in res (pretend)
-                res
-                return res
-            # keep looking
-            if 0:
-                # one way, seems wrong now but maybe compare it sometime
-                env = env_self.env #k can this ever fail? I don't think so.
-            else:
-                # a way more likely to be lexical, not sure tho
-                env = env.delegate
-            continue
-        # no answer was found (note, there are two ways we can get here, not sure which one is normal, whether both are possible)
-        assert 0, "_this(%r) failed; env is %r" % (clas,env) # env being present or None are the two ways mentioned above
-        pass # end of def _C_delegate
-    pass # end of class _this
+# obs code for _this:
+##class SymbolicInstanceOrExpr_obs(SymbolicExpr, InstanceOrExpr): # see also SymbolicExpr (whether or not we inherit from it)
+##    "[for now, private helper for _this [obs for that as of 061114], tho would be useful for other symbol-like InstanceOrExprs]"
+##    # the reason it's obs (probably forever, not just for _this for now) is that an InstanceOrExpr has too many actual attrs
+##    # that interfere with using it as symbolic, for which they should create getattr_Expr when accessed, meaning they have
+##    # to not exist at all on the pure expr pyinstance form. It might be handlable with enough trouble, but it's not worth
+##    # the trouble. (Just if(instance) tests in __getattr__ would not be enough, since that never runs if the attr is there,
+##    # so no such attrs can be methods, or can have class defaults, unless those are fancy descriptors of some kind,
+##    # or can have values set in __init__. It might work if attrprefix determined handling, but even that can't work for _this
+##    # since it needs to be able to refer to specially-prefixed attrs for debugging.)
+##    pass # the combo of supers is enough
+##
+##class _this(SymbolicInstanceOrExpr_obs, DelegatingMixin): #061113; might work for now, prob not ok in the long run
+#e [see an outtakes file, or cvs rev 1.57, for more of this obs code for _this, which might be useful someday]
 
 # ==
 

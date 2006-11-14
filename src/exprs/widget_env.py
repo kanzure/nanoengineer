@@ -50,7 +50,7 @@ class widget_env(Delegator):
         "Return a new rule-env inheriting from this one, different in the lexmods expressed as keyword arguments"
         return self.with_lexmods(lexmods)
     def with_lexmods(self, lexmods):
-        "Return a new rule-env inheriting from this one, different in the given lexmods"
+        "Return a new rule-env inheriting from this one, different in the given lexmods (a dict from symbolnames to values)"
         ###e need to know if env vars are accessed by attr, key, or private access function only, like lexval_of_symbol;
         # and whether glpane is a lexvar like the rest (and if so, its toplevel symbol name);
         # and about staterefs.
@@ -62,14 +62,24 @@ class widget_env(Delegator):
         # renamed _e_eval_symbol -> lexval_of_symbol
         # but I'm not sure it's really more lexenv than dynenv, at least as seen w/in env... [061028] ####@@@@
         # btw, so far this is probably only used for _self.
+        # As of 061114, also for _this_whatever -- no, that uses our helper lexval_of_symbolname. 
         name = sym._e_name
-        if name != '_self':
-            printnim("fyi: lexval_of_symbol other than _self: %s" % (name,) )
+        return self.lexval_of_symbolname(name)
+    def lexval_of_symbolname(self, name):
+        if name != '_self' and not name.startswith('_this_'):
+            printnim("fyi: lexval_of_symbolname other than _self or _this_xxx: %s" % (name,) )
         # kluge:
         return getattr(self, name, sym)
     pass
 
-# semi end
+def thisname_of_class(clas):
+    thisname = "_this_%s" % clas.__name__ ##e [comment also in our caller:] someday make it safe for duplicate-named classes
+            # (Direct use of Symbol('_this_Xxx') will work now, but is pretty useless since those symbols need to be created/imported.
+            #  The preferred way to do the same is _this(class), which for now [061114] evals to the same thing that symbol would,
+            #  namely, to what we store here in lexmods for thisname. See "class _this".)
+    return thisname
+
+# == end, except for obs code and maybe-not-obs comments
 
 ##
 # drawing_env
