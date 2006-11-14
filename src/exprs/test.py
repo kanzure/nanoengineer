@@ -208,11 +208,24 @@ testexpr_6f = TextRect(format_Expr( "%r", _this(TextRect).ipath ),4,60) # PRETEN
     # so __getattr__ will never run, and will never look for the delegate. This problem exists for any attr normally found
     # in an InstanceOrExpr. Solution: make it instantiate/eval to some other class, not cluttered with attrs.
     # Make that class not prevent delegating _e_, so things like ._e_is_instance (below) work ok.
-    ######e [where i am 061113 948p -- do this]
-testexpr_6g = TextRect(format_Expr( "%r", _this(TextRect) ),4,60) # BUG - as suspected, prints a _this object itself.
-testexpr_6h = TextRect(format_Expr( "%r", _this(TextRect)._e_is_instance ),4,60) # BUG - prints False
-    
-    ###e also figure out how to access id(something), or env.redraw_counter, or in general a lambda of _self
+    ######e [where i am 061113 948p -- do this... no, see better idea below.]
+testexpr_6g = TextRect(format_Expr( "%r", _this(TextRect) ),4,60)
+    # BUG - as suspected, prints a _this object itself. wait, why's that a bug? what else could it do?? Not a bug in present design.
+    # But, if it was lexically replaced rather than delegated, it would work! But replaced when? On instantiation of the testexpr?
+    # Which really means, on instantiation of the _this? I think so -- so why not have it return a different thing when instantiated?
+    # Not a specialized proxy, but the referred-to object itself! While an expr, it can be more like an internal_Expr or OpExpr --
+    # no need to be an InstanceOrExpr, I think.
+    ###### try it, but see also below
+testexpr_6h = TextRect(format_Expr( "%r", _this(TextRect)._e_is_instance ),4,60) # BUG - prints False.
+    # Guess for this one -- it never even forms a getattr_Expr, rather it evals to False immediately during expr parsing.
+    # Solution: maybe don't support this kind of attr, which means make people use an explicit getattr_Expr
+    # (which would not work now since it would grab the attr on the _this instance -- so it would only pretend to work),
+    # or maybe make the intermediate pure_expr version super-symbolic (dubious -- I'll guess it's unsafe & not do it).
+testexpr_6i = TextRect(format_Expr( "%r", _this(TextRect).delegate ),4,60)
+
+
+    #e more kinds of useful TextRect msg-formulae we'd like to know how to do: 
+    #e how to access id(something), or env.redraw_counter, or in general a lambda of _self
 
 # TestIterator
 testexpr_7 = TestIterator( testexpr_3 ) # test an iterator - next up, 061113
@@ -227,7 +240,7 @@ testexpr_9 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_6h
+testexpr = testexpr_6i
     # latest stable test: testexpr_5d, and _6a thru _6e (note that _6e works but is useless)
     # currently under devel [061113 937p]: testexpr_6f et al (see BUG comments above);
     # when it works, continue impleming _7
