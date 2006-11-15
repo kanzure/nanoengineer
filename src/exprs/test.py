@@ -248,6 +248,9 @@ testexpr_8b = SimpleColumn( Rect(1,1,blue), Rect(1,1,red), pixelgap = 1 ) # work
 testexpr_8c = SimpleColumn( Rect(1,1,blue), None, Rect(1,1,orange), pixelgap = 1 ) # None-removal works, gap is not fooled
 
 testexpr_8d = SimpleRow( Rect(1,1,blue), None, Rect(1,1,orange), pixelgap = 1 ) # works
+testexpr_8e = SimpleRow( Rect(1,1,blue), Rect(2,2,orange), pixelgap = 1 ) # works
+testexpr_8f = SimpleRow(SimpleColumn(testexpr_8e, testexpr_8e, Rect(1,1,green)),Rect(1,1,gray)) # works
+
 
 # [don't forget that we skipped TestIterator above]
 
@@ -261,7 +264,7 @@ testexpr_10 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_8d
+testexpr = testexpr_8f
     # latest stable test: testexpr_5d, and testexpr_6f2
     # currently under devel [061113 937p]: testexpr_6f et al (see BUG comments above);
     # when it works, continue impleming _7
