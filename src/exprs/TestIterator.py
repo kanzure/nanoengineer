@@ -12,9 +12,9 @@ import Overlay
 reload_once(Overlay)
 from Overlay import Overlay
 
-import Center
-reload_once(Center)
-from Center import Translate
+import transforms
+reload_once(transforms)
+from transforms import Translate
 
 # == obs:
 

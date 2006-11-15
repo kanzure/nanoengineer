@@ -710,7 +710,7 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
         #e analogous things for tuple and/or dict? not sure. or for other classes which mark themselves somehow??
     elif isinstance(subexpr, type(())):
         return tuple_Expr(*subexpr) ###e should optim when it's entirely constant, like (2,3)
-            # [needed for (dx,dy) in Translate(thing, (dx,dy)) in Center.py, 061111]
+            # [needed for (dx,dy) in Translate(thing, (dx,dy)), 061111]
 ##    elif isinstance(subexpr, type(V(1,1.0))): ###e
 ##        # try to handle things like V(dx,dy) too... turns out this is not yet supportable, probably never.
 ##        # so this is more harmful than good -- a real V() is a constant, since it can't contain exprs anyway --

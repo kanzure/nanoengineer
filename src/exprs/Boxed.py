@@ -15,9 +15,13 @@ import Overlay
 reload_once(Overlay)
 from Overlay import Overlay
 
+import transforms
+reload_once(transforms)
+from transforms import Translate
+
 import Center
 reload_once(Center)
-from Center import Center, Translate
+from Center import Center
 
 # 061110 now that Overlay works with 2 args, what remains for this to work?
 # - Overlay with align option

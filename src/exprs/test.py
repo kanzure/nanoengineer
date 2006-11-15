@@ -77,9 +77,13 @@ import Boxed
 reload_once(Boxed)
 from Boxed import Boxed_old, CenterBoxedKluge, CenterBoxedKluge_try1, Boxed
 
+import transforms
+reload_once(transforms)
+from transforms import Translate
+
 import Center
 reload_once(Center)
-from Center import Center, Translate
+from Center import Center
 
 import TestIterator
 reload_once(TestIterator)
@@ -269,7 +273,7 @@ testexpr_10 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_7
+testexpr = testexpr_8f
     # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*
     # currently under devel: ...
 
