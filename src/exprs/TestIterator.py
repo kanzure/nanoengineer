@@ -72,13 +72,13 @@ class TestIterator(InstanceMacro):
         # , but it's not what I seem to be seeing, which is w1.width below running on either a non-instance
         # or something with a non-instance inside it. The non-instance is Translate, w1 should be a Boxed, so maybe that's consistent
         # if there's an error in Boxed. So I'm adding sanity checks to zome of: Boxed, Overlay, InstanceMacro, Translate. ###DOIT
-    print "w1 before ExprsMeta = %r" % (w1,) ###
+##    print "w1 before ExprsMeta = %r" % (w1,) ###
     w2 = Instance(thing)
     # kluge since we don't have Row yet:
     _value = Overlay( w1, Translate(w2, V_expr(w1.width + 4 * PIXELS, 0,0)))
     pass 
 
-print "w1 after ExprsMeta = %r" % (TestIterator.__dict__['w1'],) ###
+##print "w1 after ExprsMeta = %r" % (TestIterator.__dict__['w1'],) ###
  
 #k not reviewed:
 if 0: # Rect etc not imported yet

@@ -7,6 +7,7 @@ $Id$
 from basic import *
 from basic import _self
 
+## to fix: DelegatingMixin, Widget2D
 class Overlay(DelegatingWidget2D): #e remove '2D' so it can work in 3D too? if so, need type inference that also delegates??
     "Overlay has the size of its first arg, but draws all its args in the same place, with the same origin."
     # stub, work only with exactly two args (though we could make them optional, add 3 more, and then it would be useful enough)
@@ -20,10 +21,11 @@ class Overlay(DelegatingWidget2D): #e remove '2D' so it can work in 3D too? if s
         if not ( len(self._e_args) == 2):
             print("Overlay is a stub which only works with exactly two args")
         # sanity checks 061114
-        assert self.arg0._e_is_instance
+        ##[tmp disabled to ensure old bug comes back when I do -- yes! See explan in Boxed._init_instance comment, rev 1.20.]
+##        assert self.arg0._e_is_instance
         assert self.arg1._e_is_instance
-        assert self.args[0] is self.arg0
-        assert self.args[1] is self.arg1
+##        assert self.args[0] is self.arg0
+##        assert self.args[1] is self.arg1
         return
     def draw(self):
         for a in self.args[::-1]:

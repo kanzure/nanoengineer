@@ -111,13 +111,21 @@ class Boxed(InstanceMacro):
                                  - V_expr( thing.bleft + extra1, thing.bbottom + extra1) ), #e can't we clarify this somehow?
                       thing)
     def _init_instance(self): # needed solely for sanity check asserts, 061114
-        super(Overlay, self)._init_instance()
+        super(Boxed, self)._init_instance()
         if not ( len(self._e_args) == 1):
             print("Boxed requires exactly one arg") #e need a more general mechanism for this; it's inferrable from the Arg decls
         # sanity checks 061114
         assert self.thing._e_is_instance
-        print "%r._value is %r" % (self, self._value) # computing this now might change behavior, but only if there are bugs, I think
-            ### is this going to be a pure expr or an instance? which *should* it be?
+        ## print "%r._value is %r" % (self, self._value) # computing this now might change behavior, but only if there are bugs, I think
+            ## <Boxed#0(i) at 0xe4a6550>._value is <Overlay#2497(i) at 0xe4a6510>
+            ## bug: expr for instance changed: self = <Overlay#2497(i) at 0xe4a6510>, index = 0, ...
+            ##   [so it *did* change behavior, i.e. by printing that -- presumably due to logic bug in DelegatingWidget2D;
+            ##    I saw & understood that same bug in some other test a few days ago. Not clear if it changed behavior in other ways
+            ##    in testexpr_7a... I guess it did since I don't see the delegating to non-instance warning anymore.
+            ##     I guess I know why -- we stored the new expr but didn't inval the _i_instance_CVdict entry, so it used the old instance
+            ##    which it made with a different expr, due to this debug code! Thus I'll disable the code and verify I still have the old bug,
+            ##    since I want to try out the other sanity checks I added [061114 953p]. Oops, the code to disable is in Overlay, not (only) here!]
+            ### is self._value going to be a pure expr or an instance? which *should* it be?
             # guess: orig intent was expr, but as realized days ago, for consistency it needs to be an instance,
             # and the diff of using the instance macro is in assigning a diff index,
             # and *might be* in holdness of its expr arg, and if so, that might be good or bad, it's not yet understood clearly.

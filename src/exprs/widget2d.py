@@ -65,6 +65,7 @@ class Widget2D(Widget):
     # but we might end up defining DelegatingWidget2D for convenience, if we have a standard name for instantiated args
     # (either in general or in that class)
 
+# this seems to have a logic bug it's not obviously possible to fix... so obs it; use DelegatingMixin directly instead. 061114
 class DelegatingWidget2D(Widget2D, DelegatingMixin): # 061110; test, then generalize
     "#doc"
     # devel-scratch comments, 061110:
