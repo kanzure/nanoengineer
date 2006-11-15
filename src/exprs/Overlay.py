@@ -16,7 +16,9 @@ class Overlay(InstanceOrExpr, DelegatingMixin):
     #  version of DelegatingMixin), if you don't find the attr in self.delegate, look in Widget2D).
     # See also comments in InstanceMacro, about the same issue for it.
     #
-    # Note: stub; works only with exactly two args (though we could make them optional, add 3 more, and then it would be useful enough)
+    # Note: stub; works only with exactly two args
+    # (though we could make them optional, add 3 more, and then it would be useful enough --
+    #  see SimpleColumn, which does this already)
     arg0 = Arg(Widget2D)
     delegate = _self.arg0 # needed by DelegatingMixin
     arg1 = Arg(Widget2D)

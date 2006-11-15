@@ -173,6 +173,13 @@ testexpr_3c = RectFrame(6,4,5*PIXELS,red) # works
 # test DebugPrintAttrs (and thereby DelegatingMixin)
 testexpr_3x = DebugPrintAttrs(Rect(4,7,blue), 'color') # works now! late 061109 (won't yet work with more than one attrname)
 
+def FilledSquare(fillcolor, bordercolor, size = 0.5, thickness_ratio = 0.05): # 061115 direct copy from cad/src/testdraw.py
+    return Overlay( Rect(size, size, fillcolor),
+                    RectFrame(size, size, size * thickness_ratio, bordercolor)
+    )
+
+testexpr_3y = FilledSquare(purple, blue) # works, except top border quantized to 0 pixels thick, others to 1 (not surprising)
+
 # === test more complex things
 
 # Overlay (as of 061110 only implemented with exactly two args)
@@ -273,7 +280,7 @@ testexpr_10 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_8f
+testexpr = testexpr_3y
     # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*
     # currently under devel: ...
 

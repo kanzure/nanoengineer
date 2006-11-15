@@ -22,8 +22,13 @@ from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef ##e revise later
 # until the real one works.
 # (It might turn out to be useful example code for CL (below), too. #k)
 
-class SimpleColumn(Widget2D): # or InstanceMacro?
-    a0 = Arg(Widget2D) # note: this probably doesn't preclude caller from passing None, and even if it does, nothing enforces that yet
+class SimpleColumn(Widget2D): #061115
+    #e or use InstanceMacro using Overlay & Translate? Could work, but slower and not needed... might help in CL with fancier gaps.
+    a0 = Arg(Widget2D) # note: this probably doesn't preclude caller from passing None, and even if it does, nothing enforces that yet;
+        # if caller does pass None (to this or to Overlay), best thing is probably to replace this with Pass = Rect(0,0,white)
+        # and use it as a drawable, but have special case to use no gap under it -- or the equiv, as a simple change
+        # to our btop formula so it's 0 if not a0 -- which is already done, so maybe there's no need to worry about a0 = None.
+        # Maybe it should be an optional arg like the others. [061115]
     a1 = Arg(Widget2D, None)
     a2 = Arg(Widget2D, None)
     a3 = Arg(Widget2D, None)
