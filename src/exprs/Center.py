@@ -62,27 +62,11 @@ class Translate(Widget, DelegatingMixin):
     #  and setting those up here, perhaps in _init_instance (tho this scheme would need optims to move it
     #  at least as far (in being shared between instances) as into _init_expr).
     # ]
-    def _C_debugfactor(self):
-        "make dx wiggle back and forth as we redraw, but only for use in computing our externally seen layout box"
-        # only for debugging -- remove when works except as eg code
-        ##e usage tracking to inval this as needed is nim -- shouldn't matter yet,
-        # since we make new instances every frame anyway [061115]
-        import env
-        c = env.redraw_counter
-        where = c % 20
-        if where > 10: where = 20 - where # sawtooth, 0 to 10 and back
-        res = weighted_ave(where / 10.0, 1.0, -1.0) # start at 1 (presumed correct, tho as I write this, it prob has a sign bug)
-        print "computing df in %r, ipath %r, c = %r, res = %r" % (self, self.ipath, c, res)
-            # make sure it happens in both nested Boxes in textexpr_7c; use ipath since ids differ each frame;
-            ### BUG -- only happens in the first Translate of the two we draw each frame. WRONG - it's only supposed to happen
-            # in the inner one, while drawing the outer one, as debug prints show happens, since it's only used to compute lbox.
-            # not a bug after all. correct value turns out to be -1.
-        return res
-    # if I call it directly, will it work around my bug? this made no different (useful to know); that bug was not a bug (see above).
-    dfac2 = call_Expr(_self._C_debugfactor)
-    ## dx = vec[0] * _self.debugfactor # fyi: _self is required, since name 'debugfactor' is not defined, since I used a _C_ method
-    dx = vec[0] * dfac2
-    dy = vec[1]
+    ## for useful debug/example code, _C_debugfactor and call_Expr(_self._C_debugfactor), see rev 1.6:
+    ## "_C_debugfactor - temporary eg of debug code, counter-dependent drawing, mixing _C_ and formulae"
+
+    dx = vec[0] * -1 ###k why is this -1 correct??
+    dy = vec[1] * -1 
     bleft = thing.bleft + dx
     bright = thing.bright + dx
     bbottom = thing.bbottom + dy
@@ -105,14 +89,14 @@ class Translate(Widget, DelegatingMixin):
     ###e note: as said in notesfile, the indices for these drawn kids *could differ* from these arg indices if I wanted...
     # or I could instead define a dict...
     def draw(self):
-        print "start drawing in %r, ipath %r" % (self, self.ipath,)
+##        print "start drawing in %r, ipath %r" % (self, self.ipath,)
         assert self._e_is_instance
         self.move(None, 0)
         self.thing.draw()
             # draw kid number 0 -- ##k but how did we at some point tell that kid that it's number 0, so it knows its ipath??
             ##k is it worth adding index or ipath as a draw-arg? (I doubt it, seems inefficient for repeated drawing)
         self.move(0, None)
-        print "done drawing in %r, ipath %r" % (self, self.ipath,)
+##        print "done drawing in %r, ipath %r" % (self, self.ipath,)
         return
     pass # end of class Translate
 
