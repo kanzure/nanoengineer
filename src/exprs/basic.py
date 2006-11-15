@@ -119,7 +119,10 @@ trans_green = translucent_color(green)
 # == other constants
 
 PIXELS = 0.035 #k guess; 0.05->0.035 061114, re testexpr_7b (which shows true value is between 0.035 and 0.034)
-    #e this implem will be obs someday, since true value depends on depth, but can be set to any desired constant in a given plane 
+    #e Note: this implem will be obs someday, since true value depends on depth, but can be set to any desired constant in a given plane.
+    # WARNING: in present implem, correct value depends not only on depth but on glpane window size!
+    # 0.035 was best for my usual g4 setup. ###e A useful temporary kluge would be to compute the correct value
+    # for the cov plane, much like drawfont2 probably does internally, perhaps using mymousepoints.
 
 # == lower-level stubs -- these will probably be refiled when they are no longer stubs ###@@@
 

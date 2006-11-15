@@ -36,6 +36,13 @@ def tuple2_from_vec(vec):
     x,y,z = tuple3_from_vec(vec)
     return x,y
 
+def weighted_ave(t, t0, t1): #e refile to py_utils?
+    """return the weighted average of t0 and t1 using t (i.e. t0 * (1-t) + t1 * t),
+    which is t0 for t == 0, and t1 for t == 1. No requirement that 0 <= t <= 1,
+    though that's typically true.
+    """
+    return t0 * (1-t) + t1 * t
+
 class Translate(Widget, DelegatingMixin):
     "Translate(thing, vec) translates thing (and its bounding box, 2D or 3D) by vec (2 or 3 components)."
     # 3D aspect might be nim
@@ -43,32 +50,71 @@ class Translate(Widget, DelegatingMixin):
     thing = Arg(Widget)
     delegate = _self.thing
     vec = Arg(Vector)
+    # translation of layout box
+    # [#e This should be handled differently later, since the current approach requires knowing
+    #  all attrs/methods that take or return geometric info in the object's local coords!
+    #     A better way might be to have object-local methods to turn number-coords into Points etc, and vice versa,
+    #  with Points knowing their coords and their coord-frame identifier. Subtleties include the semantics
+    #  of time-variable coord-frames -- it matters which frame a Point is understood to be relative to,
+    #  to know whether it moves or not when it doesn't change in value.
+    #     If that's too hard to work out, another better way might be to query the object, or our
+    #  understanding of its API-type, for type-signatures of methods/attrs needing geometric transformations,
+    #  and setting those up here, perhaps in _init_instance (tho this scheme would need optims to move it
+    #  at least as far (in being shared between instances) as into _init_expr).
+    # ]
+    def _C_debugfactor(self):
+        "make dx wiggle back and forth as we redraw, but only for use in computing our externally seen layout box"
+        # only for debugging -- remove when works except as eg code
+        ##e usage tracking to inval this as needed is nim -- shouldn't matter yet,
+        # since we make new instances every frame anyway [061115]
+        import env
+        c = env.redraw_counter
+        where = c % 20
+        if where > 10: where = 20 - where # sawtooth, 0 to 10 and back
+        res = weighted_ave(where / 10.0, 1.0, -1.0) # start at 1 (presumed correct, tho as I write this, it prob has a sign bug)
+        print "computing df in %r, ipath %r, c = %r, res = %r" % (self, self.ipath, c, res)
+            # make sure it happens in both nested Boxes in textexpr_7c; use ipath since ids differ each frame;
+            ### BUG -- only happens in the first Translate of the two we draw each frame. WRONG - it's only supposed to happen
+            # in the inner one, while drawing the outer one, as debug prints show happens, since it's only used to compute lbox.
+            # not a bug after all. correct value turns out to be -1.
+        return res
+    # if I call it directly, will it work around my bug? this made no different (useful to know); that bug was not a bug (see above).
+    dfac2 = call_Expr(_self._C_debugfactor)
+    ## dx = vec[0] * _self.debugfactor # fyi: _self is required, since name 'debugfactor' is not defined, since I used a _C_ method
+    dx = vec[0] * dfac2
+    dy = vec[1]
+    bleft = thing.bleft + dx
+    bright = thing.bright + dx
+    bbottom = thing.bbottom + dy
+    btop = thing.btop + dy
     # methods needed by all layout primitives: move & draw (see Column) & maybe kid (needed for highlighting, maybe not yet called)
-    def move(self, i, j):
+    def move(self, i, j): # note: this separate move/draw API is obsolete, but still used, tho only locally (see paper notes circa 091113)
         "move from i to j, where both indices are encoded as None = self and 0 = self.thing"
         #e we might decide to only bother defining the i is None cases, in the API for this, only required for highlighting;
         # OTOH if we use it internally we might need both cases here
         assert self._e_is_instance
         x,y,z = tuple3_from_vec(self.vec)
         if i is None and j == 0:
-            glTranslatef(x,y,z)
+            glTranslatef(x,y,z) ##e we should inline this method (leaving only this statement) into draw, before thing.draw ...
         elif i == 0 and j is None:
-            glTranslatef(-x, -y, -z)
+            glTranslatef(-x, -y, -z) ##e ... and leaving only this statement, after thing.draw
         return
-    def kid(self, i):
+    def kid(self, i): # never called, but (for nim hover highlighting) i forget whether it's obs (see paper notes circa 091113)
         assert i == 0
         return self.thing
     ###e note: as said in notesfile, the indices for these drawn kids *could differ* from these arg indices if I wanted...
     # or I could instead define a dict...
     def draw(self):
+        print "start drawing in %r, ipath %r" % (self, self.ipath,)
         assert self._e_is_instance
         self.move(None, 0)
         self.thing.draw()
             # draw kid number 0 -- ##k but how did we at some point tell that kid that it's number 0, so it knows its ipath??
             ##k is it worth adding index or ipath as a draw-arg? (I doubt it, seems inefficient for repeated drawing)
         self.move(0, None)
+        print "done drawing in %r, ipath %r" % (self, self.ipath,)
         return
-    pass
+    pass # end of class Translate
 
 class Center(InstanceMacro):
     "Center(thing) draws as thing (a Widget2D [#e should make work for 3D too]), but is centered on the origin"
