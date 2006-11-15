@@ -547,19 +547,29 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
     but self.delegate should be defined by the subclass
     (e.g. it might be recomputable from a formula or _C_delegate method handled by ExprsMeta, or assigned in __init__).
     Also, doesn't start delegating until self is an Instance. [##e For now, prints fyi when asked to, tho that's not an error.]
+       Note that the Instance-related semantics mean it's only useful for Exprs.
+    [##e Maybe we could generalize it to use a more general way of asking the pyinstance whether to delegate yet,
+     like some other optional flag attr or method.
+     (But probably not just by testing self.delegate is None, since the point is to avoid running a compute method
+      for self.delegate too early.)]
     """
-    def _C_delegate(self):
-        """[subclasses must either replace this method and use ExprsMeta metaclass,
-        or in some other way make sure self.delegate is set or always retrievable]
-        """
-        # Notes:
-        # - we might want to revise this, since it won't work w/o ExprsMeta and _C_ is deprecated even within that;
-        # OTOH, it's not really needed (it just changes the error message from AttributeError on self.delegate),
-        # so this def causes no harm.
-        # [But it might fail to prevent infrecur on undefined self.delegate in classes not understanding _C_! #k]
-        # - in spite of assert text, the subclass needn't override _C_delegate if it has some other way
-        # to make sure self.delegate is defined.
-        assert 0, "must be overridden by subclass to return object to delegate to at the moment"
+##    def _C_delegate(self):
+##        """[subclasses must either replace this method and use ExprsMeta metaclass,
+##        or in some other way make sure self.delegate is set or always retrievable]
+##        """
+##        # Notes:
+##        # - we might want to revise this, since it won't work w/o ExprsMeta and _C_ is deprecated even within that;
+##        # OTOH, it's not really needed (it just changes the error message from AttributeError on self.delegate),
+##        # so this def causes no harm.
+##        # [But it might fail to prevent infrecur on undefined self.delegate in classes not understanding _C_! #k]
+##        # - in spite of assert text, the subclass needn't override _C_delegate if it has some other way
+##        # to make sure self.delegate is defined.
+##        # - THIS DOESN'T SEEM TO WORK AT ALL: tried it in class Overlay(Widget2D, DelegatingMixin) but forgot to define delegate,
+##        # got infrecur (trying to delegate the attr 'delegate') instead of this assert. Guess: this would only work if *this class*
+##        # (DelegatingMixin) used ExprsMeta metaclass, which only covers _C_ methods in classes whose namespaces it processes,
+##        # not in their superclasses.
+##        assert 0, "must be overridden by subclass to return object to delegate to at the moment"
+    ##e optim: do this instead of the assert about attr: delegate = None # safer default -- prevent infrecur
     def __getattr__(self, attr):
         try:
             return super(DelegatingMixin,self).__getattr__(attr)###k need to verify super args in python docs, and lack of self in __getattr__
@@ -580,9 +590,10 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
                 ##k reviewing this 061109, I'm not sure this is viable; maybe we'll need to exclude only __ or _i_ or _e_,
                 # or maybe even some of those need delegation sometimes -- we'll see.
                 #e Maybe the subclass will need to declare what attrs we exclude, or what _attrs we include!
-            if attr == 'delegate':
-                # not sure if this is ever ok
-                printfyi("note: attr == 'delegate' in DelegatingMixin -- not sure if ever ok")###k 
+            assert attr != 'delegate', "DelegatingMixin refuses to delegate self.delegate (which would infrecur) in %r" % self 
+##            if attr == 'delegate':
+##                # not sure if this is ever ok
+##                printfyi("note: attr == 'delegate' in DelegatingMixin -- not sure if ever ok")###k 
             if expr_is_Instance(self):
 ##                try:
 ##                    delegate = self.delegate

@@ -6,12 +6,12 @@ $Id$
 
 from basic import *
 from basic import _self
-
-## to fix: DelegatingMixin, Widget2D
-class Overlay(DelegatingWidget2D): #e remove '2D' so it can work in 3D too? if so, need type inference that also delegates??
+ 
+class Overlay(Widget2D, DelegatingMixin): #e remove '2D' so it can work in 3D too? if so, need type inference that also delegates??
     "Overlay has the size of its first arg, but draws all its args in the same place, with the same origin."
     # stub, work only with exactly two args (though we could make them optional, add 3 more, and then it would be useful enough)
     arg0 = Arg(Widget2D)
+    delegate = _self.arg0 # needed by DelegatingMixin
     arg1 = Arg(Widget2D)
     args = list_Expr(arg0, arg1) # not sure if [arg0, arg1] would work, but I doubt it --
         ###e should make it work sometime, if possible (e.g. by delving inside all literal list ns-values in ExprsMeta)

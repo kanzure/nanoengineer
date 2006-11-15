@@ -140,7 +140,7 @@ from instance_helpers import InstanceOrExpr, DelegatingMixin, InstanceMacro, _th
 
 import widget2d
 reload_once(widget2d)
-from widget2d import Widget, Widget2D, DelegatingWidget2D
+from widget2d import Widget, Widget2D
 
 # == higher-level stubs
 

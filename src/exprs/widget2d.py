@@ -66,30 +66,30 @@ class Widget2D(Widget):
     # (either in general or in that class)
 
 # this seems to have a logic bug it's not obviously possible to fix... so obs it; use DelegatingMixin directly instead. 061114
-class DelegatingWidget2D(Widget2D, DelegatingMixin): # 061110; test, then generalize
-    "#doc"
-    # devel-scratch comments, 061110:
-    # Provide a standard place to find arg-instances, but without precluding the client from declaring args itself...
-    # hmm, that doesn't seem possible, if client would redeclare the first one.
-    # So at least for now, we either declare them all (lazily, in case client class doesn't want some of them),
-    # or just declare the first one and let the client declare more.
-    # We'll do the latter, since ArgList doesn't work yet ###k.
-    # Bug: Limitations in ExprsMeta or Arg or both mean that the client can't easily declare
-    # more args... making this not very useful yet.###e
-    # (Note that if the client wants its own access to an instance of _e_args[0],
-    #  it would presumably want the same instance of that arg, not another instance of it.)
-    ## delegate = Arg(Widget2D)
-    # ... wait, it's ok to ask for the same instance twice if you use the same index and expr...
-    # so if we just ask for the delegate using a "standard index", it should be compatible with separate arg decls
-    # (which will overlap this use of arg[0]).
-    # The following is what we want, but we'll have to form the exprs manually until we decide on a toplevel way to make the
-    # pure-expr args accessible:
-    ## delegate = Instance( _self._e_args[0], 0 )
-    # needs _self, Instance, getattr_Expr
-    delegate = Instance( getattr_Expr(_self, '_e_args')[0], 0 )
-        #### I SUSPECT THIS IS WRONG and returns a non-instance delegate. This might be causing my weird bugs 061114 430p.
-        # It's only used in Overlay, who is apparently delegating to uninstantiated Translate.
-    pass
+##class DelegatingWidget2D(Widget2D, DelegatingMixin): # 061110; test, then generalize
+##    "#doc"
+##    # devel-scratch comments, 061110:
+##    # Provide a standard place to find arg-instances, but without precluding the client from declaring args itself...
+##    # hmm, that doesn't seem possible, if client would redeclare the first one.
+##    # So at least for now, we either declare them all (lazily, in case client class doesn't want some of them),
+##    # or just declare the first one and let the client declare more.
+##    # We'll do the latter, since ArgList doesn't work yet ###k.
+##    # Bug: Limitations in ExprsMeta or Arg or both mean that the client can't easily declare
+##    # more args... making this not very useful yet.###e
+##    # (Note that if the client wants its own access to an instance of _e_args[0],
+##    #  it would presumably want the same instance of that arg, not another instance of it.)
+##    ## delegate = Arg(Widget2D)
+##    # ... wait, it's ok to ask for the same instance twice if you use the same index and expr...
+##    # so if we just ask for the delegate using a "standard index", it should be compatible with separate arg decls
+##    # (which will overlap this use of arg[0]).
+##    # The following is what we want, but we'll have to form the exprs manually until we decide on a toplevel way to make the
+##    # pure-expr args accessible:
+##    ## delegate = Instance( _self._e_args[0], 0 )
+##    # needs _self, Instance, getattr_Expr
+##    delegate = Instance( getattr_Expr(_self, '_e_args')[0], 0 )
+##        #### I SUSPECT THIS IS WRONG and returns a non-instance delegate. This might be causing my weird bugs 061114 430p.
+##        # It's only used in Overlay, who is apparently delegating to uninstantiated Translate.
+##    pass
 
 # ==
 
