@@ -95,8 +95,7 @@ class CenterBoxedKluge(InstanceMacro): #e 061112 try 2 -- just for testing (lots
                        )
     pass # CenterBoxedKluge
 
-### try this with better superclass!
-class Boxed(InstanceMacro): #e lots of dup code -- variant of Boxed that doesn't translate its arg1 -- works, will become official version
+class Boxed(InstanceMacro):
     # args
     thing = Arg(Widget2D)
     # options
@@ -105,12 +104,25 @@ class Boxed(InstanceMacro): #e lots of dup code -- variant of Boxed that doesn't
     bordercolor = Option(Color, white)
     # internal formulas
     extra1 = gap + borderthickness
-    ww = thing.width  + 2 * extra1
+    ww = thing.width  + 2 * extra1 #k I'm not sure that all Widget2Ds have width -- if not, make it so ##e [061114]
     hh = thing.height + 2 * extra1
     # value
     _value = Overlay( Translate( RectFrame( ww, hh, thickness = borderthickness, color = bordercolor),
                                  - V_expr( thing.bleft + extra1, thing.bbottom + extra1) ), #e can't we clarify this somehow?
                       thing)
+    def _init_instance(self): # needed solely for sanity check asserts, 061114
+        super(Overlay, self)._init_instance()
+        if not ( len(self._e_args) == 1):
+            print("Boxed requires exactly one arg") #e need a more general mechanism for this; it's inferrable from the Arg decls
+        # sanity checks 061114
+        assert self.thing._e_is_instance
+        print "%r._value is %r" % (self, self._value) # computing this now might change behavior, but only if there are bugs, I think
+            ### is this going to be a pure expr or an instance? which *should* it be?
+            # guess: orig intent was expr, but as realized days ago, for consistency it needs to be an instance,
+            # and the diff of using the instance macro is in assigning a diff index,
+            # and *might be* in holdness of its expr arg, and if so, that might be good or bad, it's not yet understood clearly.
+            # but guess is that Instance(Rect()) should work, but if self.xx is a producer, Instance(xx) is unclear to me. [061114]
+        return
     pass # Boxed
 
 # ==

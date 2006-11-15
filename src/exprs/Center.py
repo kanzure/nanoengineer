@@ -48,6 +48,7 @@ class Translate(Widget, DelegatingMixin):
         "move from i to j, where both indices are encoded as None = self and 0 = self.thing"
         #e we might decide to only bother defining the i is None cases, in the API for this, only required for highlighting;
         # OTOH if we use it internally we might need both cases here
+        assert self._e_is_instance
         x,y,z = tuple3_from_vec(self.vec)
         if i is None and j == 0:
             glTranslatef(x,y,z)
@@ -60,6 +61,7 @@ class Translate(Widget, DelegatingMixin):
     ###e note: as said in notesfile, the indices for these drawn kids *could differ* from these arg indices if I wanted...
     # or I could instead define a dict...
     def draw(self):
+        assert self._e_is_instance
         self.move(None, 0)
         self.thing.draw()
             # draw kid number 0 -- ##k but how did we at some point tell that kid that it's number 0, so it knows its ipath??

@@ -439,8 +439,14 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         if 1:
             printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108 -- now always, 061110
             # note: this (used-to-be-redundantly) grabs env from self
-            res = expr._e_compute_method(self, index)() ##e optim someday: inline this
-                # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10' 
+            try:
+                res = expr._e_compute_method(self, index)() ##e optim someday: inline this
+                    # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10'
+            except:
+                # we expect caller to exit now, so we might as well print this first: [061114]
+                print "following exception concerns self = %r, index = %r in _CV__i_instance_CVdict calling _e_compute_method" % \
+                      (self, index)
+                raise
         return res # from _CV__i_instance_CVdict
 
     def _i_grabarg( self, attr, argpos, dflt_expr): 
@@ -583,12 +589,24 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
 ##                except:
 ##                    #e what can we do? print attr? too much printing if infrecur.
 ##                    raise
-                delegate = self.delegate
-                return getattr(delegate, attr) # here is where we delegate. It's normal for this to raise AttributeError (I think).
+                delegate = self.delegate ##e could check that delegate is not None, is an Instance (??), etc (could print it if not)
                 #k Should it be silently tolerated if delegate is None? Probably no need -- None won't usually have the attr,
                 # so it will raise the same exception we would. Are there confusing cases where None *does* have the attr??
-                # I doubt it (since we're excluding _attrs).
-            printfyi("DelegatingMixin: too early to delegate %r, still a pure Expr" % (attr,)) ###e remove someday, not an error
+                # I doubt it (since we're excluding _attrs). But it's worth giving more info about likely errors, so I'm printing some.
+                if delegate is None or is_pure_expr(delegate): ##k is None in fact unlikely to be valid?
+                    print_compact_stack( "likely-invalid delegate %r for %r in self = %r: " % (delegate, attr, self)) #061114
+                try:
+                    return getattr(delegate, attr) # here is where we delegate. It's normal for this to raise AttributeError (I think).
+                except AttributeError:
+                    #### catching this is too expensive for routine use (since I think it's often legitimate and maybe common -- not sure),
+                    # but it's useful for debugging -- so leave it in for now. 061114
+                    printnim("too expensive for routine use")
+                    raise AttributeError, "no attr %r in delegate %r of self = %r" % (attr, delegate, self)
+            ##printfyi("DelegatingMixin: too early to delegate %r, still a pure Expr" % (attr,)) ###e remove someday, not an error?
+                # OTOH maybe it is an error and I should print self and delegate, and always print. ####e try it:
+            print "DelegatingMixin: too early to delegate %r from %r, which is still a pure Expr" % (attr, self)###
+                # might be an error to try computing self.delegate this early, so don't print it even if you can compute it
+                # (don't even try, in case it runs a compute method too early)
             raise AttributeError, attr
         pass
     pass # end of class DelegatingMixin
@@ -620,10 +638,19 @@ class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110
     delegate = Instance( _self._value, '!_value') #k guess: this might eval it once too many times... ####k
         # [later, as of 061113 -- it works, but this point of too many evals has never been fully understood,
         #  so for all i now, it happens but causes no obvious harm in these examples -- should check sometime. ##e]
+        
+        # [much later, 061114: i think I know why it works -- Instance indeed does an eval, but it's the eval from _self._value
+        #  to what's stored in self._value, which is *already* an Instance because evaling the rule makes one!
+        #  see other comments about this in Boxed _init_instance dated today. as they say, it's all wrong and will probably change.
+        #  in fact, if I said here delegate = _self._value, I think it ought to work fine! Try it sometime. ######TRYIT]
+        
         #k Note: I used '!_value' as index, because I worried that using '_value' itself could collide with an index used to eval the expr version of _value,
         # in future examples which do that (though varying expr is not presently supported by Instance, I think -- OTOH
         # there can be two evals inside _i_instance due to eval_Expr, so the problem might arise that way, dep on what it does with
         # indices itself).
+        
+    ##e could add sanity check that self.delegate and self._value are instances
+    # (probably the same one, tho not intended by orig code, and won't remain true when Instance is fixed) [061114]
     pass
 
 # ==

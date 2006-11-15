@@ -50,8 +50,11 @@ def printonce(msg, constpart = None):
         print msg
     return
 
+printnim_enabled = False # 061114 -> False; turn on again when I feel like cleaning a lot of them up
+
 def printnim(msg, constpart = None):
-    printonce("nim reminder: " + msg, constpart)
+    if printnim_enabled:
+        printonce("nim reminder: " + msg, constpart)
     return
 
 def printfyi(msg, constpart = None):

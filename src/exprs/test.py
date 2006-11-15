@@ -233,8 +233,11 @@ testexpr_6j = TextRect(format_Expr( "%r", (_this(TextRect),_this(TextRect).ncols
     #e more kinds of useful TextRect msg-formulae we'd like to know how to do: 
     #e how to access id(something), or env.redraw_counter, or in general a lambda of _self
 
-# TestIterator
-testexpr_7 = TestIterator( testexpr_3 ) # test an iterator - next up, 061113
+# TestIterator (test an iterator - next up, 061113/14)
+testexpr_7 = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
+# note: each testexpr_6f prints an ipath
+testexpr_7a = TestIterator( Boxed(testexpr_6f) ) # crashes 
+testexpr_7b = Boxed(testexpr_6f) ###
 
 # Column
 testexpr_8 = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
@@ -246,8 +249,8 @@ testexpr_9 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_6f2
-    # latest stable test: testexpr_5d, and _6a thru _6e (note that _6e works but is useless)
+testexpr = testexpr_7a
+    # latest stable test: testexpr_5d, and testexpr_6f2
     # currently under devel [061113 937p]: testexpr_6f et al (see BUG comments above);
     # when it works, continue impleming _7
     # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e, and 061114 6g*, 6h*

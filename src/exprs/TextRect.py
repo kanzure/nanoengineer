@@ -41,6 +41,8 @@ class TextRect(Widget2D):
         glpane = self.env.glpane
         msg = str(self.msg) #k str() won't always be needed, maybe isn't now ##e guess: need __mod__ in Expr
         width = self.ncols # in chars
+            # WARNING: we might give every Widget2D a width in native Width units; this would mess that up if assigned to self
+            # (or as a class formula), so don't do that.
         height = self.nlines # in chars
 
         if 1:

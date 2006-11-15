@@ -19,6 +19,12 @@ class Overlay(DelegatingWidget2D): #e remove '2D' so it can work in 3D too? if s
         super(Overlay, self)._init_instance()
         if not ( len(self._e_args) == 2):
             print("Overlay is a stub which only works with exactly two args")
+        # sanity checks 061114
+        assert self.arg0._e_is_instance
+        assert self.arg1._e_is_instance
+        assert self.args[0] is self.arg0
+        assert self.args[1] is self.arg1
+        return
     def draw(self):
         for a in self.args[::-1]:
             #e We'd like this to work properly for little filled polys drawn over big ones.

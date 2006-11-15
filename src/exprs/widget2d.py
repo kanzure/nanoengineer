@@ -86,6 +86,8 @@ class DelegatingWidget2D(Widget2D, DelegatingMixin): # 061110; test, then genera
     ## delegate = Instance( _self._e_args[0], 0 )
     # needs _self, Instance, getattr_Expr
     delegate = Instance( getattr_Expr(_self, '_e_args')[0], 0 )
+        #### I SUSPECT THIS IS WRONG and returns a non-instance delegate. This might be causing my weird bugs 061114 430p.
+        # It's only used in Overlay, who is apparently delegating to uninstantiated Translate.
     pass
 
 # ==
