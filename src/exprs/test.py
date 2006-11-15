@@ -238,7 +238,8 @@ testexpr_7 = TestIterator( testexpr_3 ) # looks right, but it must be faking it 
 # note: each testexpr_6f prints an ipath
 testexpr_7a = TestIterator( Boxed(testexpr_6f) ) # crashes 
 testexpr_7b = Boxed(testexpr_6f) # works (and led to an adjustment of PIXELS to 0.035 -- still not precisely right -- not important)
-testexpr_7c = Boxed(testexpr_7b) # BUG: apparently Boxed thinks it has zero size -- why?
+testexpr_7c = Boxed(testexpr_7b) # BUG: apparently Boxed thinks it has zero size -- why? Fixed now, in Overlay, but now I guess
+    # Translate failed to affect lbox (known bug) which makes nested Boxing share overlapping ll corner, so still BUG.
 
 # Column
 testexpr_8 = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)

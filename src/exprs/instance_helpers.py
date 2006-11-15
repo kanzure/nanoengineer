@@ -644,7 +644,15 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
 # let's try an explicit experiment, InstanceMacro:
 
 class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110
-    """Superclass for "macros" -- they should define a formula for _value which they should always look like."""
+    """Superclass for "macros" -- they should define a formula for _value which they should always look like.
+    # WARNING: a defect in InstanceMacro means no local defs in its client class
+    # (e.g. thing, ww in Boxed) will be delegated to _value;
+    # so be careful what you name them! This is also perhaps a feature
+    # (permitting you to override some of the otherwise-delegated attrs, e.g. bright or width),
+    # tho at one time I thought delegate should let you do that, _value should not,
+    # and this would be a useful distinction. I don't yet know how to make _value not do it,
+    # nor whether that's desirable if possible, nor whether it's well-defined. ###@@@ [061114]
+    """
     #e might not work together with use by the macro of DelegatingMixin in its own way, if that's even possible [later: not sure what this comment means]
     delegate = Instance( _self._value, '!_value') #k guess: this might eval it once too many times... ####k
         # [later, as of 061113 -- it works, but this point of too many evals has never been fully understood,

@@ -7,9 +7,16 @@ $Id$
 from basic import *
 from basic import _self
  
-class Overlay(Widget2D, DelegatingMixin): #e remove '2D' so it can work in 3D too? if so, need type inference that also delegates??
+class Overlay(InstanceOrExpr, DelegatingMixin):
     "Overlay has the size of its first arg, but draws all its args in the same place, with the same origin."
-    # stub, work only with exactly two args (though we could make them optional, add 3 more, and then it would be useful enough)
+    # Note: we can't inherit from Widget2D, or we'd fail to delegate
+    # e.g. bright to self.delegate, and pick up the default value instead!
+    # I'm not yet sure whether the proper fix is to handle those defaults in some other way
+    # (e.g. as a last-resort delegate of some sort -- maybe we could say right here (to a fancier
+    #  version of DelegatingMixin), if you don't find the attr in self.delegate, look in Widget2D).
+    # See also comments in InstanceMacro, about the same issue for it.
+    #
+    # Note: stub; works only with exactly two args (though we could make them optional, add 3 more, and then it would be useful enough)
     arg0 = Arg(Widget2D)
     delegate = _self.arg0 # needed by DelegatingMixin
     arg1 = Arg(Widget2D)
@@ -41,4 +48,6 @@ class Overlay(Widget2D, DelegatingMixin): #e remove '2D' so it can work in 3D to
             a.draw() #e try/except
     pass # Overlay
 
+# obs cmt from when we mistakenly inherited from Widget2D:
+# #e remove '2D' so it can work in 3D too? if so, need type inference that also delegates??
 #e see also FilledSquare
