@@ -235,15 +235,19 @@ testexpr_6j = TextRect(format_Expr( "%r", (_this(TextRect),_this(TextRect).ncols
 
 # TestIterator (test an iterator - next up, 061113/14)
 testexpr_7 = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
-# note: each testexpr_6f prints an ipath
-testexpr_7a = TestIterator( Boxed(testexpr_6f) ) # crashes [hmm, what does it do as of 061114? not sure, maybe not tested recently]
-testexpr_7b = Boxed(testexpr_6f) # works (and led to an adjustment of PIXELS to 0.035 -- still not precisely right -- not important)
-testexpr_7c = Boxed(testexpr_7b) # works as of 061114 noon or so.
-testexpr_7d = Boxed(testexpr_7c) # works (3 nested Boxeds).
+testexpr_7a = TestIterator( Boxed(testexpr_6f) )
+    ### BUG: shows (by same ipaths) that TestIterator is indeed wrongly sharing an instance
+    # [first test that succeeds in showing this rather than crashing is 061115 -- required fixing bugs in Boxed and what it uses]
+    # note: each testexpr_6f prints an ipath
 
-# SimpleColumn [tho TestIterator doesn't work yet, only nested Boxed does, from testexpr_7*]
-testexpr_8 = SimpleColumn( testexpr_7c, testexpr_7b ) # might work, but gap looks too large -- guess ###BUG in lbox of Boxed
-testexpr_8a = SimpleColumn( testexpr_7c, testexpr_7c, pixelgap = 0 ) # gap is too large -- ###BUG, ditto
+# Boxed
+testexpr_7b = Boxed(testexpr_6f) # works (and led to an adjustment of PIXELS to 0.035 -- still not precisely right -- not important)
+testexpr_7c = Boxed(testexpr_7b) # works as of 061114 noon or so. (2 nested Boxeds)
+testexpr_7d = Boxed(testexpr_7c) # works (3 nested Boxeds)
+
+# SimpleColumn & SimpleRow [tho out of testexpr_7*, TestIterator doesn't work yet, only nested Boxed does]
+testexpr_8 = SimpleColumn( testexpr_7c, testexpr_7b ) # works (gap is ok after Translate lbox fixed)
+testexpr_8a = SimpleColumn( testexpr_7c, testexpr_7c, pixelgap = 0 ) # works (gap is ok after Translate lbox fixed)
 testexpr_8b = SimpleColumn( Rect(1,1,blue), Rect(1,1,red), pixelgap = 1 ) # works (with pixelgap 2,1,0,-1)
 testexpr_8c = SimpleColumn( Rect(1,1,blue), None, Rect(1,1,orange), pixelgap = 1 ) # None-removal works, gap is not fooled
 
@@ -251,8 +255,9 @@ testexpr_8d = SimpleRow( Rect(1,1,blue), None, Rect(1,1,orange), pixelgap = 1 ) 
 testexpr_8e = SimpleRow( Rect(1,1,blue), Rect(2,2,orange), pixelgap = 1 ) # works
 testexpr_8f = SimpleRow(SimpleColumn(testexpr_8e, testexpr_8e, Rect(1,1,green)),Rect(1,1,gray)) # works
 
-
-# [don't forget that we skipped TestIterator above]
+# [don't forget that we skipped TestIterator above -- I think I can safely leave iterators unsolved, and fancy Column unfinished,
+#  while I work on state, highlighting, etc, as needed for ToggleShow and MT-in-GLPane [061115]]
+# [warning: some commits today in various files probably say 061114 but mean 061115]
 
 # Column
 testexpr_9 = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
@@ -264,16 +269,16 @@ testexpr_10 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_8f
-    # latest stable test: testexpr_5d, and testexpr_6f2
-    # currently under devel [061113 937p]: testexpr_6f et al (see BUG comments above);
-    # when it works, continue impleming _7
+testexpr = testexpr_7
+    # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*
+    # currently under devel: ...
+
+    # some history:
     # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e, and 061114 6g*, 6h*
 
-
-# buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice
-# for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
-# once goes over the green rect or the displist text (after each reload)? not sure.
+    # buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice
+    # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
+    # once goes over the green rect or the displist text (after each reload)? not sure.
 
 
 print "using testexpr %r" % testexpr

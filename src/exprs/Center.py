@@ -65,11 +65,13 @@ class Translate(Widget, DelegatingMixin):
     ## for useful debug/example code, _C_debugfactor and call_Expr(_self._C_debugfactor), see rev 1.6:
     ## "_C_debugfactor - temporary eg of debug code, counter-dependent drawing, mixing _C_ and formulae"
 
-    dx = vec[0] * -1 ###k why is this -1 correct??
-    dy = vec[1] * -1 
-    bleft = thing.bleft + dx
+    dx = vec[0]
+    dy = vec[1]
+        #k Interesting Q: would it work here to say dx, dy = vec? I doubt it, since len(vec) (an expr) is not defined.
+        # (Besides (an academic point), its length when defined is 3, so we'd need to include dz even if we don't use it.)
+    bleft = thing.bleft - dx # might become negative; probably ok, but origin outside lbox will affect Column layout, etc ##e ok?
     bright = thing.bright + dx
-    bbottom = thing.bbottom + dy
+    bbottom = thing.bbottom - dy # might become negative; see comment above
     btop = thing.btop + dy
     # methods needed by all layout primitives: move & draw (see Column) & maybe kid (needed for highlighting, maybe not yet called)
     def move(self, i, j): # note: this separate move/draw API is obsolete, but still used, tho only locally (see paper notes circa 091113)
