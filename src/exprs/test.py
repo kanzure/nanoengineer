@@ -237,7 +237,8 @@ testexpr_6j = TextRect(format_Expr( "%r", (_this(TextRect),_this(TextRect).ncols
 testexpr_7 = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
 # note: each testexpr_6f prints an ipath
 testexpr_7a = TestIterator( Boxed(testexpr_6f) ) # crashes 
-testexpr_7b = Boxed(testexpr_6f) ###
+testexpr_7b = Boxed(testexpr_6f) # works (and led to an adjustment of PIXELS to 0.035 -- still not precisely right -- not important)
+testexpr_7c = Boxed(testexpr_7b) # BUG: apparently Boxed thinks it has zero size -- why?
 
 # Column
 testexpr_8 = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
@@ -249,7 +250,7 @@ testexpr_9 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_7a
+testexpr = testexpr_7c
     # latest stable test: testexpr_5d, and testexpr_6f2
     # currently under devel [061113 937p]: testexpr_6f et al (see BUG comments above);
     # when it works, continue impleming _7

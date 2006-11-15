@@ -341,7 +341,7 @@ class C_rule(ClassAttrSpecific_DataDescriptor):
             instance.custom_compute_method # defined e.g. by InstanceOrExpr
         except AttributeError:
             return None
-        printfyi("DEPRECATED: I think compute_method_from_customized_instance is deprecated since _DEFAULT_ is (once Arg works)") ##k 061103
+        printfyi("DEPRECATED: compute_method_from_customized_instance (since _DEFAULT_ is); attr %r" % (self.attr,)) ##k 061103
         return instance.custom_compute_method(self.attr) # a method or None
     def make_compute_method_for_instance(self, instance):
         "#doc; doesn't consider per-instance customized compute methods."

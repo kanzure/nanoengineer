@@ -255,10 +255,11 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         print_compact_stack( "kluge: float(expr) -> 17.0: " )####@@@@ need float_Expr
         return 17.0
     def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
-        if not isinstance(self, (OpExpr, constant_Expr)):#k syntax
-            printfyi("_e_replace_using_subexpr_filter called on pyinstance of class %s" % self.__class__.__name__)
-                 ####k ever on an InstanceOrExpr?? might be wrong then, just as _e_eval should not go inside -- not sure!
-                 # more likely, it needs to go in but in a lexcontext-modified way! [061105 guess] ###@@@
+# zapped 061114 since common and so far always ok:
+##        if not isinstance(self, (OpExpr, constant_Expr)):#k syntax
+##            printfyi("_e_replace_using_subexpr_filter called on pyinstance of class %s" % self.__class__.__name__)
+##                 ####k ever on an InstanceOrExpr?? might be wrong then, just as _e_eval should not go inside -- not sure!
+##                 # more likely, it needs to go in but in a lexcontext-modified way! [061105 guess] ###@@@
         args = self._e_args
         kws = self._e_kws
         if not args and not kws:
@@ -620,7 +621,8 @@ class hold_Expr(constant_Expr):
     Used internally to prevent eval of args to call_Expr.
     """
     def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
-        printfyi("_e_replace_using_subexpr_filter called on pyinstance of class %s" % self.__class__.__name__)
+# zapped 061114 since common and so far always ok:
+##        printfyi("_e_replace_using_subexpr_filter called on pyinstance of class %s" % self.__class__.__name__)
         arg = self._e_constant_value #e another implem, maybe cleaner: store this data in _e_args; possible problems not reviewed
         modarg = func(arg)
         if modarg == arg:

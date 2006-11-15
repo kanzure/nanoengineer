@@ -45,7 +45,7 @@ class Widget2D(Widget):
     # default layout-box formulas; for now i think these need _DEFAULT_ so they're overridable by customization, but later they won't
     printnim("Widget2D formulas won't need _DEFAULT_, soon")
     # in fact, they don't now, if they're internal not public re customization -- ####@@@@ [061103]
-    if 1:
+    if 0: # 1->0 061114 late
         _DEFAULT_bright = 0
         _DEFAULT_btop = 0
         _DEFAULT_bleft = 0
@@ -56,7 +56,10 @@ class Widget2D(Widget):
         bright = 0
         btop = 0
         bleft = 0
-        bbottom = 0    
+        bbottom = 0
+    if 1: #061114 more defaults
+        width =  _self.bleft   + _self.bright
+        height = _self.bbottom + _self.btop
     pass ### make sure it has .btop. .bbottom, etc -- i.e. a layout box
 
 ## DelegatingWidget2D = Widget2D ###STUB, needs DelegatingMixin too

@@ -24,6 +24,7 @@ class Rect(Widget2D): # finally working as of 061106
     """
     # args
     width = Arg(Width, 5) # changed 10 to 5 late on 061109
+        # Note: Widget2D defines width & height, making this seem circular, but it's ok (see comment in RectFrame)
     height = Arg(Width, width)
     color = ArgOrOption(Color, gray)
     # formulas
@@ -36,7 +37,7 @@ class Rect(Widget2D): # finally working as of 061106
         printnim("make sure it complains about bright and width here")
         btop = height
     else:
-        printfyi("not yet trying to trigger the error warning for 'bright = width'")
+        printfyi("not yet trying to trigger the error warning for 'bright = width'") # (since it's nim, even as of 061114 i think)
         bright = _self.width
         btop = _self.height
 ##    # fyi, these are not needed (same as the defaults in Widget2D):
@@ -57,6 +58,9 @@ class RectFrame(Widget2D):
     """
     # args
     width = Arg(Width, 10)
+        # NOTE: Widget2D now [061114] defines width from bright & bleft (risking circularity), & similarly height;
+        # I think that's ok, since we zap that def here, so the set of active defs is not circular
+        # (and they're consistent in relations they produce, too, as it happens); a test (_7b) shows no problem.
     height = Arg(Width, width)
     thickness = ArgOrOption(Width, 4 * PIXELS)
     color = ArgOrOption(Color, white)
