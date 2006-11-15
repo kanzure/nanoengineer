@@ -14,6 +14,81 @@ import instance_helpers
 reload_once(instance_helpers)
 from instance_helpers import GlueCodeMemoizer, DelegatingInstance_obs
 
+from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef ##e revise later
+
+# ==
+
+# A simple Column to tide us over for testing other things
+# until the real one works.
+# (It might turn out to be useful example code for CL (below), too. #k)
+
+class SimpleColumn(Widget2D): # or InstanceMacro?
+    a0 = Arg(Widget2D) # note: this probably doesn't preclude caller from passing None, and even if it does, nothing enforces that yet
+    a1 = Arg(Widget2D, None)
+    a2 = Arg(Widget2D, None)
+    a3 = Arg(Widget2D, None)
+    a4 = Arg(Widget2D, None)
+    args = list_Expr(a0,a1,a2,a3,a4)
+    
+    ## gap = Option(Width, 3 * PIXELS)
+    pixelgap = Option(int, 3)
+    gap = pixelgap * PIXELS
+    
+    drawables = call_Expr(lambda args: filter(None, args) , args)
+    empty = not drawables ###e BUG: needs more Expr support, I bet; as it is, likely to silently be a constant False; not used internally
+    bleft = call_Expr(lambda drawables: max([arg.bleft for arg in drawables] + [0]) , drawables)
+    bright = call_Expr(lambda drawables: max([arg.bright for arg in drawables] + [0]) , drawables)
+    height = call_Expr(lambda drawables, gap: sum([arg.height for arg in drawables]) + gap * max(len(drawables)-1,0) , drawables, gap)
+    btop = a0 and a0.btop or 0
+    bbottom = height - btop
+    def draw(self):
+        glPushMatrix()
+        prior = None
+        for a in self.drawables:
+            if prior:
+                # move from prior to a
+                dy = prior.bbottom + self.gap + a.btop
+                glTranslatef(0,-dy,0) # positive is up, but Column progresses down
+            prior = a
+            a.draw()
+        glPopMatrix()
+        return
+    pass
+
+class SimpleRow(Widget2D):
+    # copy of SimpleColumn, but bbottom <-> bright, btop <-> bleft, width <- height, and 0,-dy -> dx,0, basically
+    a0 = Arg(Widget2D) 
+    a1 = Arg(Widget2D, None)
+    a2 = Arg(Widget2D, None)
+    a3 = Arg(Widget2D, None)
+    a4 = Arg(Widget2D, None)
+    args = list_Expr(a0,a1,a2,a3,a4)
+    
+    pixelgap = Option(int, 3)
+    gap = pixelgap * PIXELS
+    
+    drawables = call_Expr(lambda args: filter(None, args) , args)
+    empty = not drawables
+    btop = call_Expr(lambda drawables: max([arg.btop for arg in drawables] + [0]) , drawables)
+    bbottom = call_Expr(lambda drawables: max([arg.bbottom for arg in drawables] + [0]) , drawables)
+    width = call_Expr(lambda drawables, gap: sum([arg.width for arg in drawables]) + gap * max(len(drawables)-1,0) , drawables, gap)
+    bleft = a0 and a0.bleft or 0
+    bright = width - bleft
+    def draw(self):
+        glPushMatrix()
+        prior = None
+        for a in self.drawables:
+            if prior:
+                # move from prior to a
+                dx = prior.bright + self.gap + a.bleft
+                glTranslatef(dx,0,0) # positive is right, and Row progresses right
+            prior = a
+            a.draw()
+        glPopMatrix()
+        return
+    pass
+
+
 # ==
 
 class CLE(GlueCodeMemoizer): # not reviewed recently

@@ -67,7 +67,7 @@ from Rect import Rect, RectFrame
 
 import Column
 reload_once(Column)
-from Column import Column
+from Column import Column, SimpleColumn, SimpleRow
 
 import Overlay
 reload_once(Overlay)
@@ -236,22 +236,32 @@ testexpr_6j = TextRect(format_Expr( "%r", (_this(TextRect),_this(TextRect).ncols
 # TestIterator (test an iterator - next up, 061113/14)
 testexpr_7 = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
 # note: each testexpr_6f prints an ipath
-testexpr_7a = TestIterator( Boxed(testexpr_6f) ) # crashes 
+testexpr_7a = TestIterator( Boxed(testexpr_6f) ) # crashes [hmm, what does it do as of 061114? not sure, maybe not tested recently]
 testexpr_7b = Boxed(testexpr_6f) # works (and led to an adjustment of PIXELS to 0.035 -- still not precisely right -- not important)
 testexpr_7c = Boxed(testexpr_7b) # works as of 061114 noon or so.
 testexpr_7d = Boxed(testexpr_7c) # works (3 nested Boxeds).
 
+# SimpleColumn [tho TestIterator doesn't work yet, only nested Boxed does, from testexpr_7*]
+testexpr_8 = SimpleColumn( testexpr_7c, testexpr_7b ) # might work, but gap looks too large -- guess ###BUG in lbox of Boxed
+testexpr_8a = SimpleColumn( testexpr_7c, testexpr_7c, pixelgap = 0 ) # gap is too large -- ###BUG, ditto
+testexpr_8b = SimpleColumn( Rect(1,1,blue), Rect(1,1,red), pixelgap = 1 ) # works (with pixelgap 2,1,0,-1)
+testexpr_8c = SimpleColumn( Rect(1,1,blue), None, Rect(1,1,orange), pixelgap = 1 ) # None-removal works, gap is not fooled
+
+testexpr_8d = SimpleRow( Rect(1,1,blue), None, Rect(1,1,orange), pixelgap = 1 ) # works
+
+# [don't forget that we skipped TestIterator above]
+
 # Column
-testexpr_8 = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+testexpr_9 = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
 
 # ToggleShow
-testexpr_9 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
+testexpr_10 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_7d
+testexpr = testexpr_8d
     # latest stable test: testexpr_5d, and testexpr_6f2
     # currently under devel [061113 937p]: testexpr_6f et al (see BUG comments above);
     # when it works, continue impleming _7

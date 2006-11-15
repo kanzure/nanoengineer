@@ -690,7 +690,13 @@ class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for d
     ##e (maybe we could make a new V def try to use old def, make __float__ asfail so that would fail, then use V_expr if any expr arg)
 
 def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py says that env.understand_expr should call this...
-    "Make subexpr an Expr, if it's not already. (In future, we might also intern it.)"
+    """Make subexpr an Expr, if it's not already.
+       Simple Python data (e.g. ints, floats, or None, and perhaps most Python class instances)
+    will be wrapped with constant_Expr.
+       Python lists or tuples (or dicts?##e) can contain exprs, and will become their own kind of exprs,
+    or (as a future optim #e) will also be wrapped with constant_Expr if they don't contain exprs.
+       (In future, we might also intern the resulting expr or the input expr. #e)
+    """
     if is_Expr(subexpr):
         if subexpr._e_serno == _debug_e_serno:
             print_compact_stack( "_debug_e_serno %d seen as arg %r to canon_expr, at: " % (_debug_e_serno, subexpr))
@@ -883,8 +889,8 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
       (determined in ExprsMeta's FormulaScanner by allocating posns 0,1,2,etc to newly seen arg-attrs, whether or not the attr itself
       is public for that arg).
     type_expr ###doc, passed herein to canon_type
-    dflt_expr ###doc, can also be _E_DFLT_FROM_TYPE_ or _E_REQUIRED_ARG_;
-        will be asserted not None (kluge, since canon_expr could accept None), then passed through canon_expr
+    dflt_expr ###doc, can also be _E_DFLT_FROM_TYPE_ or [handled in caller i think, but survives here unmatteringly] _E_REQUIRED_ARG_;
+        will be passed through canon_expr
     """
     global _self # fyi
     type_expr = canon_type( type_expr)
@@ -892,8 +898,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
         dflt_expr = default_expr_from_type_expr( type_expr)
         assert is_pure_expr(dflt_expr) #k guess 061105
     else:
-        assert dflt_expr is not None # see docstring
-        dflt_expr = canon_expr(dflt_expr) # hopefully this finally will fix dflt 10 bug, 061105 guesshope ###k
+        dflt_expr = canon_expr(dflt_expr) # hopefully this finally will fix dflt 10 bug, 061105 guesshope ###k [works for None, 061114]
         assert is_pure_expr(dflt_expr) # not sure this is redundant, since not sure if canon_expr checks for Instance ###k
         printnim("not sure if canon_expr checks for Instance")
     # Note: we have to use explicit call_Expr & getattr_Expr below, to construct Exprs like _self._i_grabarg( attr_expr, ...),
