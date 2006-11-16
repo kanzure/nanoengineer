@@ -277,7 +277,7 @@ testexpr_9a = Highlightable(
                     # example of bigger highlighting (could be used to define a nearby mouseover-tooltip as well):
                     #   Row(Rect(1,3,blue),Rect(2,3,green)),
                     sbar_text = "big pink rect"
-                )
+                ) # works, incl sbar text, 061116
 if 'stubs':
     Translucent = identity
     IsocelesTriangle = Rect #e worth defining this one
@@ -295,7 +295,7 @@ textexpr_9b = Button(
                     on_release_in = print_Expr('release in'),
                     on_release_out = print_Expr('release out')
                 )
-
+textexpr_9c = SimpleColumn(textexpr_9a,textexpr_9b)
 
 
 # ToggleShow
@@ -316,7 +316,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_9a
+testexpr = testexpr_9b
     # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*
     # currently under devel [061115 late]: Highlightable in testexpr_9a
 
@@ -341,7 +341,7 @@ def drawtest1_innards(glpane):
 
     glpane
     staterefs = _state ##e is this really a stateplace? or do we need a few, named by layers for state?
-        #e it has: place to store transient state, ref to model state
+        #e it has: place to store transient state, [nim] ref to model state
     some_env = widget_env(glpane, staterefs) #####@@@@@@ IMPLEM more args, etc, and import it
 
     inst = some_env.make(testexpr, NullIpath)
@@ -349,7 +349,19 @@ def drawtest1_innards(glpane):
     printnim("severe anti-optim not to memoize some_env.make result in draw") ###e but at least it ought to work this way
     inst.draw()
     import env
-    print "drew", env.redraw_counter
+    print "drew", env.redraw_counter   ##e or print_compact_stack
+        # Note: this shows it often draws one frame twice, not at the same moment, presumably due to GLPane highlighting alg's
+        # glselect redraw. That is, it draws a frame, then on mouseover of something, draws it glselect, then immediately
+        # draws the *next* frame which differs in having one object highlighted. (Whereas on mouse-leave of that something,
+        # it only redraws once, presumably since it sees the infinite depth behind the mousepos, so it doesn't need the glselect draw.)
+        #    That behavior (drawing a new frame with a highlighted object) sounds wrong to me, since I thought it
+        # would manage in that case to only draw the highlighted object (and to do it in the same paintGL call as the glselect),
+        # but it's been awhile since I analyzed that code. Or maybe it has a bug that makes it do an extra gl_update, or maybe our
+        # own code does one for some reason, or maybe it's code I added to selectMode for drag_handler support that does it.
+        # (That last seems likely, since that code has a comment saying it's conservative and might often be doing an extra one;
+        #  it also lets the drag_handler turn that off, which might be an easy optim to try sometime. ####)
+        # When the time comes (eg to optim it), just use print_compact_stack here. [061116 comment]
+    printnim("see code for how to optim by replacing two redraws with one, when mouse goes over an object") # see comment above
     return
 
 

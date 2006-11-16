@@ -86,7 +86,7 @@ def StatePlace(kind, ipath_expr): # experimental; sort of a sister to Arg/Option
 
 def StatePlace_helper( self, kind, ipath): # could become a method in InstanceOrExpr, if we revise StatePlace macro accordingly
     key = (kind,ipath) ##e kind should change which state obj we access, not just be in the key
-    state = self.env.state
+    state = self.env.staterefs
         # I must have the name wrong [where i am 061115 late] --
         ## AttributeError: 'NoneType' object has no attribute 'state'
         ##  [lvals.py:160] [Exprs.py:193] [Exprs.py:413] [Highlightable.py:89] [Delegator.py:10]
@@ -101,7 +101,7 @@ def StatePlace_helper( self, kind, ipath): # could become a method in InstanceOr
 
 def set_default_attrs(obj, **kws): #e refile in py_utils
     "for each attr=val pair in **kws, if attr is not set in obj, set it (using hasattr and setattr on obj)"
-    for k, v in kws:
+    for k, v in kws.iteritems():
         if not hasattr(obj, k):
             setattr(obj, k, v)
         continue

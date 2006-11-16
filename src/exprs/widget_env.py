@@ -1,4 +1,4 @@
-'''
+"""
 widget_env.py -- an environment for the instantiation and use of widget exprs
 
 $Id$
@@ -6,7 +6,7 @@ $Id$
 The environment is used for lexical replacement & instantiation,
 and then for "use/residence" (running & drawing & holding state).
 Maybe someday we'll split these parts.
-'''
+"""
 
 #e rename module?? possible names: expr_env, instance_env, widget_env, drawing_env -- or something plural?
 
@@ -19,7 +19,11 @@ class widget_env(Delegator):
     # I intend to add this soon here (default value): _self = None
     printnim("SOON I need to add _self = None to class widget_env")#####@@@@@
     def __init__(self, glpane, staterefs, delegate = None, lexmods = {}):
-        #e rename glpane? type of staterefs? rules/lexenv too? ipath??
+        #e rename glpane?
+        #e type of staterefs? [just an external dict, as of 061116 calling code; the 'refs' in the name is to remind you it's not owned]
+        #e rules/lexenv too?
+        #e ipath? [061116: no, that's separate, tho if we end up splitting it by state-layer,
+        #    we might have to change that, or let env have ipaths per layer with the separately-passed one relative to all those ]
         self.glpane = glpane
         self.staterefs = staterefs ###k
         ###KLUGES, explained below [061028]:
