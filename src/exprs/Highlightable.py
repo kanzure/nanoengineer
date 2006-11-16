@@ -7,6 +7,8 @@ with the same limitations in API and implem (e.g. it won't work inside display l
 Later we can revise it as needed.
 """
 
+from basic import *
+from basic import _self
 
 # == selobj interface
 
@@ -19,7 +21,12 @@ Later we can revise it as needed.
 
 # == drag handler interface
 
-class DragHandler:
+# Note: class DragHandler (like some other things defined in this file)
+# is also defined in cad/src/testdraw.py, and used there,
+# but having this duplicate def should not cause interference.
+##e Nonetheless, when things are stable enough, we should clean up and only one of them should remain.
+
+class DragHandler: # implemented in selectMode.py; see leftClick, needed to use this, in this file and in selectMode.py
     "document the drag_handler interface, and provide default method implems" # example subclass: class Highlightable
     ### how does this relate to the selobj interface? often the same object, but different API;
     # drag_handlers are retvals from a selobj method
@@ -32,7 +39,7 @@ class DragHandler:
         return False # otherwise subclass is likely to forget to do them
     def DraggedOn(self, event, mode): ### might need better args (the mouseray, as two points? offset? or just ask mode  #e rename
         pass
-    def ReleasedOn(self, selobj, mode): ### will need better args ### NOT YET CALLED  #e rename
+    def ReleasedOn(self, selobj, mode): ### will need better args ### NOT YET CALLED [guess 061115: this is obs, it is called] #e rename
         pass
     pass
 
@@ -55,51 +62,136 @@ def PopName(glname, drawenv = 'fake'):
 
 # ==
 
-class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
-    "Highlightable(plain, highlight) renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight"
+# 061115
+
+def StatePlace(kind, ipath_expr): # experimental; sort of a sister to Arg/Option/Instance; likely to get revised a lot
+    """turn into a formula (for use in class assignment)
+    which will eval to a permanent reference to a (found or created) attrholder
+    for storing state of the given kind, at the given ipath (value of ipath_expr),
+    relative to the env of the Instance this is used in.
+    """
+    return call_Expr( StatePlace_helper, _self, kind, ipath_expr )
+
+def StatePlace_helper( self, kind, ipath): # could become a method in InstanceOrExpr, if we revise StatePlace macro accordingly
+    key = (kind,ipath) ##e kind should change which state obj we access, not just be in the key
+    state = self.env.state
+    res = state.setdefault(key, None) 
+        # I wanted to use {} as default and wrap it with attr interface before returning, e.g. return AttrDict(res),
+        # but I can't find code for AttrDict right now, and I worry its __setattr__ is inefficient, so this is easier:
+    if res is None:
+        res = attrholder()
+        state[key] = res
+    return res
+
+set_default_attrs ###IMPLEM
+
+# ==
+
+class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler):
+    #060722; revised for exprs module, 061115 [not done] [#e if rename, fix super]
+    # using super InstanceOrExpr rather than Widget2D so as not to prevent delegation of lbox attrs (like in Overlay)
+    """Highlightable(plain, highlighted = None, pressed_in = None, pressed_out = None)
+    renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight
+    [and has more, so as to be Button #doc #e rename #e split out draggable of some sort]
+    """
+    # old comment from testdraw.py, don't even know if obs when there:
     # Works, except I suspect the docstring is inaccurate when it says "plain plus highlight" (rather than just highlight), 
     # and there's an exception if you try to ask selectMode for a cmenu for this object, or if you just click on it
     # (I can guess why -- it's a selobj-still-valid check I vaguely recall, selobj_still_ok):
     #   atom_debug: ignoring exception: exceptions.AttributeError: killed
     #   [modes.py:928] (i.e. selobj_still_ok) [Delegator.py:10] [inval.py:192] [inval.py:309]
     #
-##    __init__ = WidgetExpr.__init__ # otherwise Delegator's comes first and init() never runs
-    def init(self, args = None):
-        "args are what it looks like when plain, highlighted, pressed_in, pressed_out (really this makes sense mostly for Button)"
-        self.transient_state = self # kluge, memory leak
-        self.transient_state.in_drag = False # necessary (hope this is soon enough)
-        if args is None:
-            args = self.args # kluge, unless we do away with self.args as being too specific to which superclass we're talking about
-        def getargs(plain, highlighted = None, pressed_in = None, pressed_out = None):
-            "fill in our default args"
-            if not highlighted:
-                highlighted = plain # useful for things that just want a glname to avoid mouseover stickiness
-            # this next stuff is really meant for Button -- maybe we split into two kinds, Button and Draggable
-            if not pressed_in:
-                pressed_in = highlighted # might be better to make it plain (or highlighted) but with an outline, or so...
-            if not pressed_out:
-                pressed_out = plain # assuming we won't operate then
-            return plain, highlighted, pressed_in, pressed_out
-        args = getargs(*args)
-        self.plain, self.highlighted, self.pressed_in, self.pressed_out = args
-        # get glname, register self (or a new obj we make for that purpose #e), define necessary methods
+
+        
+
+    # args are what it looks like in various states
+    plain = Arg(Widget2D)
+    delegate = _self.plain
+    highlighted = Arg(Widget2D, _self.plain)
+        # fyi: leaving this out is useful for things that just want a glname to avoid mouseover stickiness
+        # implem note: this kind of _self-referential dflt formula is not tested, but ought to work;
+        # btw it might not need _self, not sure, but likely it does --
+        # that might depend on details of how Arg macro uses it ###k
+    # this next stuff is really meant for Button -- maybe we split into two kinds, Button and Draggable
+    pressed_in = Arg(Widget2D, _self.highlighted)
+        #e might be better to make it plain (or highlighted) but with an outline, or so...)
+    pressed_out = Arg(Widget2D, _self.plain)
+        # ... good default, assuming we won't operate then
+
+    # refs to places to store state
+    transient_state = StatePlace('transient', _self.ipath) ###k?? used only for .in_drag, which is only used in it...
+    glpane_state = StatePlace('glpane', _self.ipath) # state which is specific to a given glpane
+    per_frame_state = StatePlace('per_frame', _self.ipath) # state which is only needed during one frame (someday, will be cleared often)
+    
+    # abbrevs for read-only state
+    glname = glpane_state.glname
+
+    def _init_instance(self):
+        super(Highlightable, self)._init_instance()
+
+        # == transient_state
+        
+        set_default_attrs( self.transient_state, in_drag = False) # sets only the attrs which are not yet defined
+        # some comments from pre-exprs-module, not reviewed:
+            ## in_drag = False # necessary (hope this is soon enough)
+        # some comments from now, 061115:
+            # but we might like formulas (eg in args) to refer to _self.in_drag and have that delegate into this...
+            # and we might like external stuff to see things like this, and of course to pass arb actions
+            # (not all this style is fully designed, esp how to express actions on external state --
+            #  i guess that state should have a name, then we have an action object, when run it has side effect to modify it
+            #  so no issue of that thing not knowing to run it, as there would be from a "formula contribution to an external lval";
+            #  but from within here, the action is just a callable to call with whatever args it asks for, perhaps via formulae.
+            #  it could be a call_Expr to eval!)
+
+        # == glpane_state
+        
+        set_default_attrs( self.glpane_state, glname = None) # glname, if we have one
+
+        # allocate glname if necessary, and register self (or a new obj we make for that purpose #e) under glname
+        # (kicking out prior registered obj if necessary)
+        # [and be sure we define necessary methods in self or the new obj]
         glname_handler = self # self may not be the best object to register here, though it works for now
-        self.glname = env.alloc_my_glselect_name(glname_handler)
-            #e if we might never be drawn, we could optim by only doing this on demand
+
+        if self.glpane_state.glname is None:
+            # allocate a new glname for the first time (specific to this ipath)
+            import env
+            self.glpane_state.glname = env.alloc_my_glselect_name( glname_handler)
+        else:
+            # reuse old glname for new self
+            if 0:
+                # when we never reused glname for new self, we could do this:
+                self.glpane_state.glname = env.alloc_my_glselect_name(glname_handler)
+                    #e if we might never be drawn, we could optim by only doing this on demand
+            else:
+                # but now that we might be recreated and want to reuse the same glname for a new self, we have to do this:
+                nim ####
+
+        # == per_frame_state
+        
+        set_default_attrs( self.per_frame_state, saved_modelview_matrix = None) #k safe?
+        
+        return # from _init_instance
+
+
+    
     def draw(self):
-        self.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
+        self.per_frame_state.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
             ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
-            #e [if this (or any WE) is really a map from external state to drawables,
-            #   we'd need to store self.glname and self.saved_modelview_matrix in corresponding external state]
-        #e do we need to save glnames? not in present system where only one can be active. ###@@@
         PushName(self.glname)
         if self.transient_state.in_drag:
             if printdraw: print "pressed_out.draw",self
             self.pressed_out.draw() #e actually might depend on mouseover, or might not draw anything then...
+            # Note, 061115: we don't want to revise this to be the rule for self.delegate --
+            # we want to always delegate things like lbox attrs to self.plain, so our look is consistent.
+            # But it might be useful to define at least one co-varying attr (self.whatwedraw?), and draw it here. ####e
         else:
             ## print "plain.draw",self
             self.plain.draw()
         PopName(self.glname)
+
+    ###@@@ got to here, roughly
+
+        
     def draw_in_abs_coords(self, glpane, color):
         # [this API comes from GLPane behavior
         # - why does it pass color? historical: so we can just call our own draw method, with that arg (misguided even so??)
@@ -108,7 +200,7 @@ class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
         # restore coords [note: it won't be so simple if we're inside a display list which is drawn in its own relative coords...]
         ##glMatrixMode(GL_MODELVIEW) #k prob not needed
         glPushMatrix()
-        glLoadMatrixd(self.saved_modelview_matrix)
+        glLoadMatrixd(self.per_frame_state.saved_modelview_matrix)
         # examples of glLoadMatrix (and thus hopefully the glGet for that) can be found in these places on bruce's G4:
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/OpenGLContext/renderpass.py
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/VisionEgg/Core.py
@@ -196,4 +288,33 @@ class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
     pass # end of class Highlightable (a widgetexpr, and one kind of DragHandler)
 
 Button = Highlightable
+
+# == old comments, might be useful (e.g. the suggested formulas involving in_drag)
+
+# I don't think Local and If can work until we get WEs to pass an env into their subexprs, as we know they need to do ####@@@@
+
+# If will eval its cond in the env, and delegate to the right argument -- when needing to draw, or anything else
+# Sensor is like Highlightable and Button code above
+# Overlay is like Row with no offsetting
+# Local will set up more in the env for its subexprs
+# Will they be fed the env only as each method in them gets called? or by "pre-instantiation"?
+
+##def Button(plain, highlighted, pressed_inside, pressed_outside, **actions):
+##    # this time around, we have a more specific API, so just one glname will be needed (also not required, just easier, I hope)
+##    return Local(__, Sensor( # I think this means __ refers to the Sensor() -- not sure... (not even sure it can work perfectly)
+##        0 and Overlay( plain,
+##                 If( __.in_drag, pressed_outside),
+##                 If( __.mouseover, If( __.in_drag, pressed_inside, highlighted )) ),
+##            # what is going to sort out the right pieces to draw in various lists?
+##            # this is like "difference in what's drawn with or without this flag set" -- which is a lot to ask smth to figure out...
+##            # so it might be better to just admit we're defining multiple different-role draw methods. Like this: ###@@@
+##        DrawRoles( ##e bad name
+##            plain, dict(
+##                in_drag = pressed_outside, ### is this a standard role or what? do we have general ability to invent kinds of extras?
+##                mouseover = If( __.in_drag, pressed_inside, highlighted ) # this one is standard, for a Sensor (its own code uses it)
+##            )),
+##        # now we tell the Sensor how to behave
+##        **actions # that simple? are the Button actions so generic? I suppose they might be. (But they'll get more args...)
+##    ))
+
 

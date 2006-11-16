@@ -346,7 +346,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         pass
     def _init_instance(self): #e move to InstanceClass superclass? let it be name-mangled, and call in mro order?
         """called once per python instance, but only when it represents a semantic Instance ###doc -- explain better
-        [subclasses should replace this]
+        [some subclasses should extend this, starting their versions with super(TheirName, self)._init_instance()]
         """
         pass
 

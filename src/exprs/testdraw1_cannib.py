@@ -19,7 +19,7 @@ USE_DISPLAY_LIST_OPTIM = 0 # usually True, set False to see if this optim is cau
 
 printdraw = False # debug flag
 
-class attrholder: pass
+class attrholder: pass # copied into py_utils.py
 
 ### draw_utils.py
 
@@ -994,31 +994,6 @@ def printfunc(*args): #e might be more useful if it could take argfuncs too (may
 ##
 ##__ = Symbol()
 
-# I don't think Local and If can work until we get WEs to pass an env into their subexprs, as we know they need to do ####@@@@
-
-# If will eval its cond in the env, and delegate to the right argument -- when needing to draw, or anything else
-# Sensor is like Highlightable and Button code above
-# Overlay is like Row with no offsetting
-# Local will set up more in the env for its subexprs
-# Will they be fed the env only as each method in them gets called? or by "pre-instantiation"?
-
-##def Button(plain, highlighted, pressed_inside, pressed_outside, **actions):
-##    # this time around, we have a more specific API, so just one glname will be needed (also not required, just easier, I hope)
-##    return Local(__, Sensor( # I think this means __ refers to the Sensor() -- not sure... (not even sure it can work perfectly)
-##        0 and Overlay( plain,
-##                 If( __.in_drag, pressed_outside),
-##                 If( __.mouseover, If( __.in_drag, pressed_inside, highlighted )) ),
-##            # what is going to sort out the right pieces to draw in various lists?
-##            # this is like "difference in what's drawn with or without this flag set" -- which is a lot to ask smth to figure out...
-##            # so it might be better to just admit we're defining multiple different-role draw methods. Like this: ###@@@
-##        DrawRoles( ##e bad name
-##            plain, dict(
-##                in_drag = pressed_outside, ### is this a standard role or what? do we have general ability to invent kinds of extras?
-##                mouseover = If( __.in_drag, pressed_inside, highlighted ) # this one is standard, for a Sensor (its own code uses it)
-##            )),
-##        # now we tell the Sensor how to behave
-##        **actions # that simple? are the Button actions so generic? I suppose they might be. (But they'll get more args...)
-##    ))
 
 class Ifbad(DelegatingWidgetExpr):
     def init(self, args): #####@@@@@ IMPLEM new init API, receives args

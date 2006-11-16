@@ -8,6 +8,8 @@ simple utility functions for python built-in types
 
 # note: the module basic.py imports * from this module.
 
+class attrholder: pass
+
 def interleave(elts, gaps):
     """Return an interleaved list of the given elements and gaps --
     e.g. elt[0] gap[0] elt[1] gap[1] elt[2], for 3 elts and 2 gaps.
