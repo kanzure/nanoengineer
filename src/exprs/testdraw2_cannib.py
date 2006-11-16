@@ -116,7 +116,7 @@ test_ToggleShow = ToggleShow( Rect(3,3,lightblue), "test_ToggleShow's label" )
 
 # now how do we draw it?
 # - set up rendering env, env for specific frame, approp places for state; then call something, using this expr
-# and how does other code here use textexpr? it just calls testexpr.draw(), no args! clearly not enough,
+# and how does other code here use testexpr? it just calls testexpr.draw(), no args! clearly not enough,
 # but is this almost right (if args were put in), or do we need to do something other than "call draw method"??
 # certainly we'd have to apply rules... then it's conceivable that could work; would it be ok? ###@@@
 # - another poss: _e_run_in_env method.

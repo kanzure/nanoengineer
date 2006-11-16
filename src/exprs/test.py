@@ -281,7 +281,7 @@ testexpr_9a = Highlightable(
 if 'stubs':
     Translucent = identity
     IsocelesTriangle = Rect #e worth defining this one
-textexpr_9b = Button(
+testexpr_9b = Button(
                     ## Invisible(Rect(1.5, 1, blue)), # works
                     Translucent(Rect(1.5, 1, blue)), # has bug
                     Overlay( Rect(1.5, 1, lightgreen), (IsocelesTriangle(1.6, 1.1, pink))),
@@ -294,8 +294,13 @@ textexpr_9b = Button(
                     on_press = print_Expr('pressed'),
                     on_release_in = print_Expr('release in'),
                     on_release_out = print_Expr('release out')
-                )
-textexpr_9c = SimpleColumn(textexpr_9a,textexpr_9b)
+                ) # works, except highlighted version is annoyingly bigger -- I need to fix that bug of using actual z motion ###k
+testexpr_9c = SimpleColumn(testexpr_9a,testexpr_9b) # works. btw all this is incredibly slow.
+    # it's even slower the first time I mouseover the 2nd one, suggesting that instantiation time is slow,
+    # but this doesn't make sense since I reinstantiate everything on each draw in the current code. hmm.
+
+    # planned optims (after each, redo tests):
+    # - retain the widget_env and the made testexpr between drawings, if no inputs changed (but not between reloads)
 
 
 # ToggleShow
@@ -316,7 +321,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_9b
+testexpr = testexpr_9c
     # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*
     # currently under devel [061115 late]: Highlightable in testexpr_9a
 
