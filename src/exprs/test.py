@@ -63,7 +63,7 @@ from basic import _self, _this
 
 import Rect
 reload_once(Rect)
-from Rect import Rect, RectFrame
+from Rect import Rect, RectFrame, IsocelesTriangle
 
 import Column
 reload_once(Column)
@@ -288,12 +288,12 @@ testexpr_9a = Highlightable(
 
 if 'stubs 061115':
     Translucent = identity
-    IsocelesTriangle = Rect #e worth defining this one
 
 testexpr_9b = Button(
                     ## Invisible(Rect(1.5, 1, blue)), # works
-                    Translucent(Rect(1.5, 1, blue)), # has bug
-                    Overlay( Rect(1.5, 1, lightgreen), (IsocelesTriangle(1.6, 1.1, orange))),
+                    Translucent(Rect(1.5, 1, blue)), # has bug in Translucent
+                    IsocelesTriangle(1.6, 1.1, orange),
+                      ## Overlay( Rect(1.5, 1, lightgreen) and None, (IsocelesTriangle(1.6, 1.1, orange))),
                         ####@@@@ where do I say this? sbar_text = "button, unpressed"
                         ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
                     IsocelesTriangle(1.5, 1, green),

@@ -1,10 +1,13 @@
 """
-Rect.py -- provide Rect, RectFrame
+Rect.py -- provide Rect, RectFrame, and other simple 2d shapes
 
 $Id$
 
 These are prototypes with imperfect arg syntaxes.
-They might be pulled into a larger file sometime.
+
+#e maybe rename this file to shapes.py?
+#e also have shapes3d.py, or even put both in one file, when simple.
+
 """
 
 from basic import *
@@ -49,6 +52,10 @@ class Rect(Widget2D): # finally working as of 061106
         draw_filled_rect(ORIGIN, DX * self.bright, DY * self.btop, self.fix_color(self.color)) #e move fix_color into draw_filled_rect? 
         glEnable(GL_CULL_FACE)
     pass
+
+# ==
+
+IsocelesTriangle = Rect  #e stub (implem as simple variant of Rect; find it in a cannib file)
 
 # ==
 

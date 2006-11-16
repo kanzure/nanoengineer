@@ -140,6 +140,10 @@ import instance_helpers
 reload_once(instance_helpers)
 from instance_helpers import InstanceOrExpr, DelegatingMixin, InstanceMacro, _this, GlueCodeMemoizer
 
+import staterefs
+reload_once(staterefs)
+from staterefs import * # StatePlace, set_default_attrs
+
 # === higher-level defs, common enough to import for everything
 
 import widget2d

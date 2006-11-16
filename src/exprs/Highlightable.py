@@ -74,44 +74,14 @@ def PopName(glname, drawenv = 'fake'):
 
 # ==
 
-# 061115
+#e refile recycle_glselect_name in cad/src/env.py, next to alloc_my_glselect_name, or merge this with it somehow
+# (and maybe change all that into a gl-displist-context-specific data structure, accessed via a glpane)
 
-def StatePlace(kind, ipath_expr): # experimental; sort of a sister to Arg/Option/Instance; likely to get revised a lot
-    """turn into a formula (for use in class assignment)
-    which will eval to a permanent reference to a (found or created) attrholder
-    for storing state of the given kind, at the given ipath (value of ipath_expr),
-    relative to the env of the Instance this is used in.
-    """
-    return call_Expr( StatePlace_helper, _self, kind, ipath_expr )
-
-def StatePlace_helper( self, kind, ipath): # could become a method in InstanceOrExpr, if we revise StatePlace macro accordingly
-    key = (kind,ipath) ##e kind should change which state obj we access, not just be in the key
-    state = self.env.staterefs
-        # I must have the name wrong [where i am 061115 late] --
-        ## AttributeError: 'NoneType' object has no attribute 'state'
-        ##  [lvals.py:160] [Exprs.py:193] [Exprs.py:413] [Highlightable.py:89] [Delegator.py:10]
-
-    res = state.setdefault(key, None) 
-        # I wanted to use {} as default and wrap it with attr interface before returning, e.g. return AttrDict(res),
-        # but I can't find code for AttrDict right now, and I worry its __setattr__ is inefficient, so this is easier:
-    if res is None:
-        res = attrholder()
-        state[key] = res
-    return res
-
-def set_default_attrs(obj, **kws): #e refile in py_utils
-    "for each attr=val pair in **kws, if attr is not set in obj, set it (using hasattr and setattr on obj)"
-    for k, v in kws.iteritems():
-        if not hasattr(obj, k):
-            setattr(obj, k, v)
-        continue
-    return
-
-def recycle_glselect_name(glpane, glname, newobj): #e refile next to alloc_my_glselect_name in cad/src/env.py, or merge this with it somehow
+def recycle_glselect_name(glpane, glname, newobj): #e refile (see above)
     # 1. [nim] do something to make the old obj using this glname (if any) no longer valid,
     # or tell it the glname's being taken away from it (letting it decide what to do then, eg destroy itself), or so --
     # requires new API (could be optional) in objs that call alloc_my_glselect_name. ##e
-    # 2. If the old obj is the glpane's selobj, change that to point to the new obj! MIGHT BE REQUIRED. ###BUG UNTIL DONE
+    # 2. If the old obj is the glpane's selobj, change that to point to the new obj. [#e might need improvement, see comment]
     # 3. register the new object for this glname.
     import env
     oldobj = env.obj_with_glselect_name.get(glname, None) #e should be an attr of the glpane (or of one it shares displaylists with)
