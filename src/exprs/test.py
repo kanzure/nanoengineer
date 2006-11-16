@@ -268,6 +268,7 @@ testexpr_8f = SimpleRow(SimpleColumn(testexpr_8e, testexpr_8e, Rect(1,1,green)),
 # [warning: some commits today in various files probably say 061114 but mean 061115]
 
 # Highlightable, primitive version [some egs are copied from cad/src/testdraw.py, BUT NOT YET ALL THE PRIMS THEY REQUIRE ##e]
+
 testexpr_9a = Highlightable(
                     Rect(2, 3, pink),
                     # this form of highlight (same shape and depth) works from either front or back view
@@ -277,14 +278,22 @@ testexpr_9a = Highlightable(
                     # example of bigger highlighting (could be used to define a nearby mouseover-tooltip as well):
                     #   Row(Rect(1,3,blue),Rect(2,3,green)),
                     sbar_text = "big pink rect"
-                ) # works, incl sbar text, 061116
-if 'stubs':
+                )
+                # works for highlighting, incl sbar text, 061116
+                #### BUG (alone or as it occurs in _9c, 061116 1023a): clicking on it causes a bad exception.
+                # Looking at traceback, the bug is not in the action (maybe) but in the dflt_expr _self.plain,
+                # which doesn't eval properly; theory: _self in that is treated wrongly as if it came from caller env.
+                # We need to wrap the things from grabarg only if they're not the default from inside... what about the type_expr?
+                # Same issue could exist for it, if it contained _self. Anyway, fixing that is not yet attempted, will be soon. [061116 1038a]
+
+if 'stubs 061115':
     Translucent = identity
     IsocelesTriangle = Rect #e worth defining this one
+
 testexpr_9b = Button(
                     ## Invisible(Rect(1.5, 1, blue)), # works
                     Translucent(Rect(1.5, 1, blue)), # has bug
-                    Overlay( Rect(1.5, 1, lightgreen), (IsocelesTriangle(1.6, 1.1, pink))),
+                    Overlay( Rect(1.5, 1, lightgreen), (IsocelesTriangle(1.6, 1.1, orange))),
                         ####@@@@ where do I say this? sbar_text = "button, unpressed"
                         ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
                     IsocelesTriangle(1.5, 1, green),
@@ -292,15 +301,36 @@ testexpr_9b = Button(
                         ####@@@@ sbar_text = "button, pressed", 
                     # actions (other ones we don't have include baremotion_in, baremotion_out (rare I hope) and drag)
                     on_press = print_Expr('pressed'),
-                    on_release_in = print_Expr('release in'),
+                    on_release_in = print_Expr('release in'), # had a bug (did release_out instead), fixed by 'KLUGE 061116'
                     on_release_out = print_Expr('release out')
-                ) # works, except highlighted version is annoyingly bigger -- I need to fix that bug of using actual z motion ###k
-testexpr_9c = SimpleColumn(testexpr_9a,testexpr_9b) # works. btw all this is incredibly slow.
+                )   # using 'stubs 061115':
+                    # - highlighting works, except highlighted version is annoyingly bigger --
+                    #   I need to fix that bug of using actual z motion ###k
+                    # - button aspect (on_* actions) was not yet tested on first commit; now it is,
+                    #   and each action does something, but on_release_in acted like on_release_out,
+                    #   but I fixed that bug.
+                    ###e should replace colors by text, like enter/leave/pressed_in/pressed_out or so
+
+testexpr_9c = SimpleColumn(testexpr_9a,testexpr_9b) # works (only highlighting tested; using 'stubs 061115')
+
+testexpr_9d = testexpr_9b( on_release_in = print_Expr('release in, customized')) # works
+    # test customization of option after args supplied
+
+testexpr_9e = testexpr_9b( on_release_in = None) # works
+    # test an action of None (should be same as a missing one) (also supplied by customization after args)
+
+
+
+
+    # btw all this is incredibly slow.
     # it's even slower the first time I mouseover the 2nd one, suggesting that instantiation time is slow,
     # but this doesn't make sense since I reinstantiate everything on each draw in the current code. hmm.
 
     # planned optims (after each, redo tests):
+    # - don't always gl_update when highlighting -- requires some code review (or experiment, make it turnable off/on)
     # - retain the widget_env and the made testexpr between drawings, if no inputs changed (but not between reloads)
+    # - display lists (I don't yet know which of the above two will matter more)
+    # but first, make a state-editing example using Button.
 
 
 # ToggleShow
@@ -321,7 +351,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_9c
+testexpr = testexpr_9e
     # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*
     # currently under devel [061115 late]: Highlightable in testexpr_9a
 

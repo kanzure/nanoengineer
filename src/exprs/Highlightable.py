@@ -317,7 +317,34 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         ### written as if for Button, might not make sense for draggables
         self.transient_state.in_drag = False
         self.inval(mode)
-        if selobj is self: #k is this the right selobj? NO! or, maybe -- this DH is its own selobj and vice versa
+        our_selobj = self  #k [old cmt] is this the right selobj? NO! or, maybe -- this DH is its own selobj and vice versa
+        try:
+            # KLUGE 061116, handle case of us being replaced (instances remade)
+            # between the mode or glpane seeing the selobj and us testing whether it's us
+            if selobj and getattr(selobj,'ipath','nope') == our_selobj.ipath:
+                assert our_selobj.glname == selobj.glname, "glnames differ"
+                print "kluge, fyi: pretending old selobj %r is our_selobj (self) %r" % (selobj, our_selobj)
+                    # NOTE: our_selobj (self) is OLDER than the "old selobj" (selobj) passed to us!
+                    # Evidence: the sernos in this print:
+                    ## kluge, fyi: pretending old selobj <Highlightable#2571(i) at 0x10982b30>
+                    ##  is our_selobj (self) <Highlightable#2462(i) at 0x1092bad0>
+                    # I guess that's because the one first seen by mouseover was saved as selobj in glpane;
+                    # then it was replaced by one that drew highlighting;
+                    # then by the time this runs it was replaced again;
+                    # but WE ARE NOT THE LATEST ONE AT THAT IPATH,
+                    # but rather, the first saved one!
+                    # THIS COULD CAUSE BUGS if we are replaced on purpose with one which does different things!
+                    # But that's not supposed to happen, so rather than finding the latest one and having it do the work
+                    # (which is possible in theory -- look it up by glname),
+                    # I'll just ignore this issue, leave in the debug print, and expect the print
+                    # (and even the need for this kluge check code) to go away as soon as I optim
+                    # by not remaking instances on every redraw. [061116]
+                selobj = our_selobj
+            pass
+        except:
+            print_compact_traceback( "bug: exception in ReleasedOn ignored: ")
+            pass
+        if selobj is our_selobj: 
             self._do_action('on_release_in')
         else:
             self._do_action('on_release_out')
