@@ -87,6 +87,10 @@ def StatePlace(kind, ipath_expr): # experimental; sort of a sister to Arg/Option
 def StatePlace_helper( self, kind, ipath): # could become a method in InstanceOrExpr, if we revise StatePlace macro accordingly
     key = (kind,ipath) ##e kind should change which state obj we access, not just be in the key
     state = self.env.state
+        # I must have the name wrong [where i am 061115 late] --
+        ## AttributeError: 'NoneType' object has no attribute 'state'
+        ##  [lvals.py:160] [Exprs.py:193] [Exprs.py:413] [Highlightable.py:89] [Delegator.py:10]
+
     res = state.setdefault(key, None) 
         # I wanted to use {} as default and wrap it with attr interface before returning, e.g. return AttrDict(res),
         # but I can't find code for AttrDict right now, and I worry its __setattr__ is inefficient, so this is easier:
@@ -256,11 +260,14 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         glPopMatrix()
         return
 
-    def __repr__(self):
+    def __repr__THAT_CAUSES_INFRECUR(self):
+        # this causes infrecur, apparently because self.sbar_text indirectly calls __repr__ (perhaps while reporting some bug??);
+        # so I renamed it to disable it and rely on the super version.
         sbar_text = self.sbar_text or ""
         if sbar_text:
             sbar_text = " %r" % sbar_text
         return "<%s%s at %#x>" % (self.__class__.__name__, sbar_text, id(self)) ##e improve by merging in a super version
+        ## [Highlightable.py:260] [ExprsMeta.py:250] [ExprsMeta.py:318] [ExprsMeta.py:366] [Exprs.py:184] [Highlightable.py:260] ...
     
     def mouseover_statusbar_message(self): # called in GLPane.set_selobj
         return self.sbar_text or "%r" % (self,)

@@ -316,7 +316,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_5d ## testexpr_9a
+testexpr = testexpr_9a
     # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*
     # currently under devel [061115 late]: Highlightable in testexpr_9a
 
