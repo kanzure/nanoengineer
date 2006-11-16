@@ -10,6 +10,9 @@ simple utility functions for python built-in types
 
 class attrholder: pass
 
+def identity(arg):
+    return arg
+
 def interleave(elts, gaps):
     """Return an interleaved list of the given elements and gaps --
     e.g. elt[0] gap[0] elt[1] gap[1] elt[2], for 3 elts and 2 gaps.

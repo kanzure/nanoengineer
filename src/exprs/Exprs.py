@@ -1010,7 +1010,11 @@ def canon_type(type_expr):###stub
 ##    # note that the retval will get called to build an expr, thus needs to be in SymbolicExpr -- will that be true of eg CLE?
 ##    # if not, then some InstanceOrExpr objs need __call__ too, or constructor needs to return a SymbolicExpr, or so.
 
-default_expr_from_type_expr = stub ###IMPLEM
+def default_expr_from_type_expr(type_expr): #061115
+    "#doc"
+##    assert type_expr is Stub # only permitted for these ones; not even correct for all of them, but surely not for others like int
+# Stub is not defined here, never mind
+    return canon_expr(None) # stub; only right for Action, wrong for int, str, etc
 
 # end
 

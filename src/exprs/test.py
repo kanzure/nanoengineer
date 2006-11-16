@@ -93,6 +93,10 @@ import TextRect
 reload_once(TextRect)
 from TextRect import TextRect
 
+import Highlightable
+reload_once(Highlightable)
+from Highlightable import Highlightable, Button, print_Expr
+
 # == @@@
 
 import widget_env
@@ -244,14 +248,7 @@ testexpr_6j = TextRect(format_Expr( "%r", (_this(TextRect),_this(TextRect).ncols
     #e more kinds of useful TextRect msg-formulae we'd like to know how to do: 
     #e how to access id(something), or env.redraw_counter, or in general a lambda of _self
 
-# TestIterator (test an iterator - next up, 061113/14)
-testexpr_7 = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
-testexpr_7a = TestIterator( Boxed(testexpr_6f) )
-    ### BUG: shows (by same ipaths) that TestIterator is indeed wrongly sharing an instance
-    # [first test that succeeds in showing this rather than crashing is 061115 -- required fixing bugs in Boxed and what it uses]
-    # note: each testexpr_6f prints an ipath
-
-# Boxed
+# Boxed   (_7 and _7a were TestIterator, now deferred)
 testexpr_7b = Boxed(testexpr_6f) # works (and led to an adjustment of PIXELS to 0.035 -- still not precisely right -- not important)
 testexpr_7c = Boxed(testexpr_7b) # works as of 061114 noon or so. (2 nested Boxeds)
 testexpr_7d = Boxed(testexpr_7c) # works (3 nested Boxeds)
@@ -270,19 +267,58 @@ testexpr_8f = SimpleRow(SimpleColumn(testexpr_8e, testexpr_8e, Rect(1,1,green)),
 #  while I work on state, highlighting, etc, as needed for ToggleShow and MT-in-GLPane [061115]]
 # [warning: some commits today in various files probably say 061114 but mean 061115]
 
-# Column
-testexpr_9 = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+# Highlightable, primitive version [some egs are copied from cad/src/testdraw.py, BUT NOT YET ALL THE PRIMS THEY REQUIRE ##e]
+testexpr_9a = Highlightable(
+                    Rect(2, 3, pink),
+                    # this form of highlight (same shape and depth) works from either front or back view
+                    Rect(2, 3, orange), # comment this out to have no highlight color, but still sbar_text
+                    # example of complex highlighting:
+                    #   Row(Rect(1,3,blue),Rect(1,3,green)),
+                    # example of bigger highlighting (could be used to define a nearby mouseover-tooltip as well):
+                    #   Row(Rect(1,3,blue),Rect(2,3,green)),
+                    sbar_text = "big pink rect"
+                )
+if 'stubs':
+    Translucent = identity
+    IsocelesTriangle = Rect #e worth defining this one
+textexpr_9b = Button(
+                    ## Invisible(Rect(1.5, 1, blue)), # works
+                    Translucent(Rect(1.5, 1, blue)), # has bug
+                    Overlay( Rect(1.5, 1, lightgreen), (IsocelesTriangle(1.6, 1.1, pink))),
+                        ####@@@@ where do I say this? sbar_text = "button, unpressed"
+                        ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
+                    IsocelesTriangle(1.5, 1, green),
+                    IsocelesTriangle(1.5, 1, yellow),#e lightgreen better than yellow, once debugging sees the difference
+                        ####@@@@ sbar_text = "button, pressed", 
+                    # actions (other ones we don't have include baremotion_in, baremotion_out (rare I hope) and drag)
+                    on_press = print_Expr('pressed'),
+                    on_release_in = print_Expr('release in'),
+                    on_release_out = print_Expr('release out')
+                )
+
+
 
 # ToggleShow
-testexpr_10 = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
+testexpr_xxx = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
+
+# TestIterator (test an iterator - was next up, 061113/14, but got deferred, 061115)
+testexpr_7_xxx = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
+testexpr_7a_xxx = TestIterator( Boxed(testexpr_6f) )
+    ### BUG: shows (by same ipaths) that TestIterator is indeed wrongly sharing an instance
+    # [first test that succeeds in showing this rather than crashing is 061115 -- required fixing bugs in Boxed and what it uses]
+    # note: each testexpr_6f prints an ipath
+
+# Column, fancy version
+testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+
 
 
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_3y
+testexpr = testexpr_5d ## testexpr_9a
     # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*
-    # currently under devel: ...
+    # currently under devel [061115 late]: Highlightable in testexpr_9a
 
     # some history:
     # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e, and 061114 6g*, 6h*

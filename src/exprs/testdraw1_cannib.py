@@ -962,11 +962,6 @@ class Ribbon2(Ribbon): ##, Atom): ####@@@@ class Atom - hack kluge experiment - 
 
 # not sure if anything in here is non-obs, tho If is used
 
-def printfunc(*args): #e might be more useful if it could take argfuncs too (maybe as an option); or make a widget expr for that
-    def printer(_guard = None, args = args):
-        assert not _guard # for now
-        print args
-    return printer
 
 ##k are these obs?
 # define these, once i'm satisfied they make sense ####@@@@
@@ -1076,41 +1071,7 @@ def FilledSquare(fillcolor, bordercolor, size = 0.5, thickness_ratio = 0.05): # 
                     RectFrame(size, size, size * thickness_ratio, bordercolor)
     )
 
-# kluge to test state toggling:
-
-def bcolor(env, nextness = 0):
-    n = vv.state.setdefault('buttoncolor',0)
-    return (green, yellow, red)[(n + nextness) % 3]
-
-def next_bcolor(env):
-    return bcolor(env, 1)
-
-def toggleit():
-    n = vv.state.setdefault('buttoncolor',0)
-    n += 1
-    n = n % 3
-    vv.state['buttoncolor'] = n
-    return
-
-def getit(fakeenv): # note: the bug of saying getit() rather than getit in an expr was hard to catch; will be easier when env is real
-    return "use displist? %s" % ('no', 'yes')[not not USE_DISPLAY_LIST_OPTIM]
-
-def setit(val = None):
-    global USE_DISPLAY_LIST_OPTIM
-    if val is None:
-        # toggle it
-        val = not USE_DISPLAY_LIST_OPTIM
-    USE_DISPLAY_LIST_OPTIM = not not val
-    vv.havelist = 0
-    print "set USE_DISPLAY_LIST_OPTIM = %r" % USE_DISPLAY_LIST_OPTIM
-
-displist_expr_BUGGY = Button(Row(Rect(0.5,0.5,black),TextRect(18, 2, getit)), on_press = setit)
-    # works, but has bug: not sensitive to baremotion or click on text if you drag onto it from empty space,
-    # only if you drag onto it from the Rect.
-    
-displist_expr = Row(
-    Button( Rect(0.5,0.5,black), DebugDraw( Rect(0.5,0.5,gray), "grayguy"), on_press = setit),
-    TextRect(18, 2, getit))
+# kluge to test state toggling: moved to exprs module
 
 
 ### testexpr was here
@@ -1268,80 +1229,20 @@ since it doesn't refer to model state except in whatever way it says so internal
 ## testexpr = DebugDraw(Rect(1,1,purple), 1 and "d1")
 testexpr = Row(
     #nim Button:
-                Button(
-                    ## Invisible(Rect(1.5, 1, blue)), # works
-                    Translucent(Rect(1.5, 1, blue)), # has bug
-                    Overlay( Rect(1.5, 1, lightgreen), (IsocelesTriangle(1.6, 1.1, pink))),
-                        ####@@@@ where do I say this? sbar_text = "button, unpressed"
-                        ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
-                    IsocelesTriangle(1.5, 1, green),
-                    IsocelesTriangle(1.5, 1, yellow),#e lightgreen better than yellow, once debugging sees the difference
-                        ####@@@@ sbar_text = "button, pressed", 
-                    # actions (other ones we don't have include baremotion_in, baremotion_out (rare I hope) and drag)
-                    on_press = printfunc('pressed'),
-                    on_release_in = printfunc('release in'),
-                    on_release_out = printfunc('release out')
-                ),
+
+
+
                 Translucent(Rect(1.5, 1, blue)), # has same bug
                 ## DrawThePart(),
-                Column(
-                    Rotated( Overlay( RectFrame(1.5, 1, 0.1, white),
-                                      Rect(0.5,0.5,orange),
-                                      RectFrame(0.5, 0.5, 0.025, ave_colors(0.5,yellow,gray))
-                                      ) ),
-                    Pass,
-                    Overlay( RectFrame(1.5, 1, 0.1, white),
-                             Button(
-                                 FilledSquare(bcolor, bcolor),
-                                 FilledSquare(bcolor, next_bcolor),
-                                 FilledSquare(next_bcolor, black),
-                                 FilledSquare(bcolor, gray),
-                                 on_release_in = toggleit
-                            )
-                    ),
-                ),
+
+
+
                 If(1,
-                    Column(
-                      Rect(1.5, 1, red),
-                      ##Button(Overlay(TextRect(18, 3, "line 1\nline 2...."),Rect(0.5,0.5,black)), on_press = printfunc("zz")),
-                          # buggy - sometimes invis to clicks on the text part, but sees them on the black rect part ###@@@
-                          # (see docstring at top for a theory about the cause)
-                      
-    ##                  Button(TextRect(18, 3, "line 1\nline 2...."), on_press = printfunc("zztr")), # 
-    ##                  Button(Overlay(Rect(3, 1, red),Rect(0.5,0.5,black)), on_press = printfunc("zzred")), # works
-    ##                  Button(Rect(0.5,0.5,black), on_press = printfunc("zz3")), # works
-                      Invisible(Rect(0.2,0.2,white)), # kluge to work around origin bug in TextRect ###@@@
-                      Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
-                      Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "bottom ribbon2" ),
-                      Rect(1.5, 1, green),
-                      gap = 0.2
-                    ## DrawThePart(),
-                    ),
+
+
                 ),
-                Closer(Column(
-                    Highlightable( Rect(2, 3, pink),
-                                   # this form of highlight (same shape and depth) works from either front or back view
-                                   Rect(2, 3, orange), # comment this out to have no highlight color, but still sbar_text
-                                   # example of complex highlighting:
-                                   #   Row(Rect(1,3,blue),Rect(1,3,green)),
-                                   # example of bigger highlighting (could be used to define a nearby mouseover-tooltip as well):
-                                   #   Row(Rect(1,3,blue),Rect(2,3,green)),
-                                   sbar_text = "big pink rect"
-                                   ),
-                    #Highlightable( Rect(2, 3, pink), Closer(Rect(2, 3, orange), 0.1) ) # only works from front
-                        # (presumably since glpane moves it less than 0.1; if I use 0.001 it still works from either side)
-                    Highlightable( # rename? this is any highlightable/mouseoverable, cmenu/click/drag-sensitive object, maybe pickable
-                        Rect(1, 1, pink), # plain form, also determines size for layouts
-                        Rect(1, 1, orange), # highlighted form (can depend on active dragobj/tool if any, too) #e sbar_text?
-                        # [now generalize to be more like Button, but consider it a primitive, as said above]
-                        # handling_a_drag form:
-                        If( True, ## won't work yet: lambda env: env.this.mouseoverme , ####@@@@ this means the Highlightable -- is that well-defined???
-                            Rect(1, 1, blue),
-                            Rect(1, 1, lightblue) # what to draw during the drag
-                        ),
-                        sbar_text = "little buttonlike rect"
-                    )
-                )),
+
+
                 gap = 0.2)
     # end of testexpr
     

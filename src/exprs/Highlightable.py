@@ -10,6 +10,15 @@ Later we can revise it as needed.
 from basic import *
 from basic import _self
 
+from OpenGL.GL import *
+
+# modified from testdraw.printfunc:
+def print_Expr(*args, **kws): #e might be more useful if it could take argfuncs too (maybe as an option); or make a widget expr for that
+    def printer(_guard = None, args = args):
+        assert _guard is None # for now
+        printfunc(*args, **kws) # defined in Exprs, has immediate effect, tho same name in testdraw is delayed like this print_Expr
+    return canon_expr(printer)
+
 # == selobj interface
 
 ###e should define this; see class Highlightable --
@@ -45,19 +54,22 @@ class DragHandler: # implemented in selectMode.py; see leftClick, needed to use 
 
 # ==
 
+#e turn these into glpane methods someday, like all the other gl calls; what they do might need to get fancier
+
 def PushName(glname, drawenv = 'fake'):
     glPushName(glname)
-    glpane = _kluge_glpane()
-    glpane._glnames.append(glname)
+    # glpane._glnames was needed by some experimental code in Invisible; see also *_saved_names (several files); might be revived:
+    ## glpane = _kluge_glpane()
+    ## glpane._glnames.append(glname)
             ###e actually we'll want to pass it to something in env, in case we're in a display list ####@@@@
     return
 
 def PopName(glname, drawenv = 'fake'):
     glPopName() ##e should protect this from exceptions
             #e (or have a WE-wrapper to do that for us, for .draw() -- or just a helper func, draw_and_catch_exceptions)
-    glpane = _kluge_glpane()
-    popped = glpane._glnames.pop()
-    assert glname == popped
+    ## glpane = _kluge_glpane()
+    ## popped = glpane._glnames.pop()
+    ## assert glname == popped
     return
 
 # ==
@@ -83,45 +95,75 @@ def StatePlace_helper( self, kind, ipath): # could become a method in InstanceOr
         state[key] = res
     return res
 
-set_default_attrs ###IMPLEM
+def set_default_attrs(obj, **kws): #e refile in py_utils
+    "for each attr=val pair in **kws, if attr is not set in obj, set it (using hasattr and setattr on obj)"
+    for k, v in kws:
+        if not hasattr(obj, k):
+            setattr(obj, k, v)
+        continue
+    return
+
+def recycle_glselect_name(glpane, glname, newobj): #e refile next to alloc_my_glselect_name in cad/src/env.py, or merge this with it somehow
+    # 1. [nim] do something to make the old obj using this glname (if any) no longer valid,
+    # or tell it the glname's being taken away from it (letting it decide what to do then, eg destroy itself), or so --
+    # requires new API (could be optional) in objs that call alloc_my_glselect_name. ##e
+    # 2. If the old obj is the glpane's selobj, change that to point to the new obj! MIGHT BE REQUIRED. ###BUG UNTIL DONE
+    # 3. register the new object for this glname.
+    import env
+    oldobj = env.obj_with_glselect_name.get(glname, None) #e should be an attr of the glpane (or of one it shares displaylists with)
+    if oldobj is not None and glpane.selobj is oldobj:
+        glpane.selobj = newobj
+            ###k we might need to call some update routine instead, like glpane.set_selobj(newobj),
+            # but I'm not sure its main side effect (env.history.statusbar_msg(msg)) is a good idea here,
+            # so don't do it for now.
+    env.obj_with_glselect_name[glname] = newobj
+    return
 
 # ==
 
-class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler):
-    #060722; revised for exprs module, 061115 [not done] [#e if rename, fix super]
-    # using super InstanceOrExpr rather than Widget2D so as not to prevent delegation of lbox attrs (like in Overlay)
+printdraw = False # debug flag [same name as one in cad/src/testdraw.py]
+
+class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to Button? make variant called Draggable?
     """Highlightable(plain, highlighted = None, pressed_in = None, pressed_out = None)
     renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight
     [and has more, so as to be Button #doc #e rename #e split out draggable of some sort]
     """
-    # old comment from testdraw.py, don't even know if obs when there:
+    #060722;
+    # revised for exprs module, 061115 [not done]
+    # note: uses super InstanceOrExpr rather than Widget2D so as not to prevent delegation of lbox attrs (like in Overlay)
+    #
+    # old comment from testdraw.py, as of 061115 I don't even know if it was obs when there:
     # Works, except I suspect the docstring is inaccurate when it says "plain plus highlight" (rather than just highlight), 
     # and there's an exception if you try to ask selectMode for a cmenu for this object, or if you just click on it
     # (I can guess why -- it's a selobj-still-valid check I vaguely recall, selobj_still_ok):
     #   atom_debug: ignoring exception: exceptions.AttributeError: killed
     #   [modes.py:928] (i.e. selobj_still_ok) [Delegator.py:10] [inval.py:192] [inval.py:309]
-    #
-
-        
-
-    # args are what it looks like in various states
+    
+    # args (which specify what it looks like in various states)
     plain = Arg(Widget2D)
-    delegate = _self.plain
+    delegate = _self.plain # always use this one for lbox attrs, etc
     highlighted = Arg(Widget2D, _self.plain)
         # fyi: leaving this out is useful for things that just want a glname to avoid mouseover stickiness
         # implem note: this kind of _self-referential dflt formula is not tested, but ought to work;
         # btw it might not need _self, not sure, but likely it does --
         # that might depend on details of how Arg macro uses it ###k
-    # this next stuff is really meant for Button -- maybe we split into two kinds, Button and Draggable
+    # these next args are really meant for Button -- maybe we split this into two variants, Button and Draggable
     pressed_in = Arg(Widget2D, _self.highlighted)
         #e might be better to make it plain (or highlighted) but with an outline, or so...)
     pressed_out = Arg(Widget2D, _self.plain)
         # ... good default, assuming we won't operate then
 
-    # refs to places to store state
-    transient_state = StatePlace('transient', _self.ipath) ###k?? used only for .in_drag, which is only used in it...
+    # options
+    sbar_text = Option(str, "") # mouseover text for statusbar
+    on_press = Option(Action)
+    on_release_in = Option(Action)
+    on_release_out = Option(Action)
+    
+    # refs to places to store state of different kinds, all of which is specific to this Instance (or more precisely to its ipath)
+    ##e [these will probably turn out to be InstanceOrExpr default formulae]
+    transient_state = StatePlace('transient', _self.ipath) # state which matters during a drag; scroll-position state; etc
     glpane_state = StatePlace('glpane', _self.ipath) # state which is specific to a given glpane
-    per_frame_state = StatePlace('per_frame', _self.ipath) # state which is only needed during one frame (someday, will be cleared often)
+    per_frame_state = StatePlace('per_frame', _self.ipath) # state which is only needed while drawing one frame (someday, cleared often)
     
     # abbrevs for read-only state
     glname = glpane_state.glname
@@ -160,19 +202,19 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler):
             # reuse old glname for new self
             if 0:
                 # when we never reused glname for new self, we could do this:
-                self.glpane_state.glname = env.alloc_my_glselect_name(glname_handler)
+                self.glpane_state.glname = env.alloc_my_glselect_name( glname_handler)
                     #e if we might never be drawn, we could optim by only doing this on demand
             else:
                 # but now that we might be recreated and want to reuse the same glname for a new self, we have to do this:
-                nim ####
+                glname = self.glpane_state.glname
+                recycle_glselect_name(self.env.glpane, glname, glname_handler)
+            pass
 
         # == per_frame_state
         
-        set_default_attrs( self.per_frame_state, saved_modelview_matrix = None) #k safe?
+        set_default_attrs( self.per_frame_state, saved_modelview_matrix = None) #k safe? (why not?) #e can't work inside display lists
         
         return # from _init_instance
-
-
     
     def draw(self):
         self.per_frame_state.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
@@ -180,7 +222,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler):
         PushName(self.glname)
         if self.transient_state.in_drag:
             if printdraw: print "pressed_out.draw",self
-            self.pressed_out.draw() #e actually might depend on mouseover, or might not draw anything then...
+            self.pressed_out.draw() #e actually this might depend on mouseover, or we might not draw anything then...
+                # but this way, what we draw when mouse is over is a superset of what we draw in general,
+                # easing eventual use of highlightables inside display lists. See other drawing done later when we're highlighted
+                # (ie when mouse is over us)... [cmt revised 061115]
             # Note, 061115: we don't want to revise this to be the rule for self.delegate --
             # we want to always delegate things like lbox attrs to self.plain, so our look is consistent.
             # But it might be useful to define at least one co-varying attr (self.whatwedraw?), and draw it here. ####e
@@ -188,12 +233,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler):
             ## print "plain.draw",self
             self.plain.draw()
         PopName(self.glname)
+        return
 
-    ###@@@ got to here, roughly
-
-        
     def draw_in_abs_coords(self, glpane, color):
-        # [this API comes from GLPane behavior
+        # [this API comes from GLPane behavior:
         # - why does it pass color? historical: so we can just call our own draw method, with that arg (misguided even so??)
         # - what about coords? it has no way to know old ones, so we have no choice but to know or record them...
         # ]
@@ -212,18 +255,23 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler):
             self.highlighted.draw()
         glPopMatrix()
         return
+
     def __repr__(self):
-        sbar_text = self.kws.get('sbar_text') or ""
+        sbar_text = self.sbar_text or ""
         if sbar_text:
             sbar_text = " %r" % sbar_text
-        return "<%s%s at %#x>" % (self.__class__.__name__, sbar_text, id(self))
+        return "<%s%s at %#x>" % (self.__class__.__name__, sbar_text, id(self)) ##e improve by merging in a super version
+    
     def mouseover_statusbar_message(self): # called in GLPane.set_selobj
-        return self.kws.get('sbar_text') or "%r" % (self,)
+        return self.sbar_text or "%r" % (self,)
+    
+    ###@@@ got to here, roughly
+    
     def highlight_color_for_modkeys(self, modkeys):
         """#doc; modkeys is e.g. "Shift+Control", taken from glpane.modkeys
         """
         return green
-            # The specific color we return doesn't matter, but it matters that it's not None, to GLPane --
+            # KLUGE: The specific color we return doesn't matter, but it matters that it's not None, to GLPane --
             # otherwise it sets selobj to None and draws no highlight for it.
             # (This color will be received by draw_in_abs_coords, but our implem of that ignores it.)
     def selobj_still_ok(self, glpane):
@@ -232,6 +280,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler):
         #  but this might be too strict: self.__class__ is Highlightable )
         # actually it ought to be ok for now:
         res = self.__class__ is Highlightable # i.e. we didn't reload this module since self was created
+        import env
         if not res and env.debug():
             print "debug: selobj_still_ok is false for %r" % self ###@@@
         return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
@@ -240,7 +289,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler):
     def leftClick(self, point, mode):
         self.transient_state.in_drag = True
         self.inval(mode)
-        self.do_action('on_press')
+        self._do_action('on_press')
         return self # in role of drag_handler
     def DraggedOn(self, event, mode):
         # only ok for Button so far
@@ -262,16 +311,20 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler):
         self.transient_state.in_drag = False
         self.inval(mode)
         if selobj is self: #k is this the right selobj? NO! or, maybe -- this DH is its own selobj and vice versa
-            self.do_action('on_release_in')
+            self._do_action('on_release_in')
         else:
-            self.do_action('on_release_out')
+            self._do_action('on_release_out')
         ## mode.update_selobj(event) #k not sure if needed -- if it is, we'll need the 'event' arg
         #e need update?
         return
     
-    def do_action(self, name):
-        # print "do_action",name 
-        action = self.kws.get(name)
+    def _do_action(self, name):
+        "[private, should only be called with one of our action-option names]"
+        print "_do_action",name ###
+        assert name.startswith('on_')
+        ## action = self.kws.get(name)
+        action = getattr(self, name) # will always be defined, since Option will give it a default value if necessary
+        # should be None or a callable supplied to the expr, for now; later will be None or an Action
         if action:
             action()
         return
@@ -281,7 +334,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler):
         make sure display lists that might contain us are remade [stub],
         and glpanes are updated
         """
-        vv.havelist = 0
+        ## vv.havelist = 0
         mode.o.gl_update()
         return
     
@@ -317,4 +370,105 @@ Button = Highlightable
 ##        **actions # that simple? are the Button actions so generic? I suppose they might be. (But they'll get more args...)
 ##    ))
 
+# == old code
 
+# kluge to test state toggling:
+
+if 0:
+
+    def bcolor(env, nextness = 0):
+        n = vv.state.setdefault('buttoncolor',0)
+        return (green, yellow, red)[(n + nextness) % 3]
+
+    def next_bcolor(env):
+        return bcolor(env, 1)
+
+    def toggleit():
+        n = vv.state.setdefault('buttoncolor',0)
+        n += 1
+        n = n % 3
+        vv.state['buttoncolor'] = n
+        return
+
+    def getit(fakeenv): # note: the bug of saying getit() rather than getit in an expr was hard to catch; will be easier when env is real
+        return "use displist? %s" % ('no', 'yes')[not not USE_DISPLAY_LIST_OPTIM]
+
+    def setit(val = None):
+        global USE_DISPLAY_LIST_OPTIM
+        if val is None:
+            # toggle it
+            val = not USE_DISPLAY_LIST_OPTIM
+        USE_DISPLAY_LIST_OPTIM = not not val
+        vv.havelist = 0
+        print "set USE_DISPLAY_LIST_OPTIM = %r" % USE_DISPLAY_LIST_OPTIM
+
+    displist_expr_BUGGY = Button(Row(Rect(0.5,0.5,black),TextRect(18, 2, getit)), on_press = setit)
+        # works, but has bug: not sensitive to baremotion or click on text if you drag onto it from empty space,
+        # only if you drag onto it from the Rect.
+        
+    displist_expr = Row(
+        Button( Rect(0.5,0.5,black), DebugDraw( Rect(0.5,0.5,gray), "grayguy"), on_press = setit),
+        TextRect(18, 2, getit))
+
+if 0:
+    
+    Column(
+      Rect(1.5, 1, red),
+      ##Button(Overlay(TextRect(18, 3, "line 1\nline 2...."),Rect(0.5,0.5,black)), on_press = print_Expr("zz")),
+          # buggy - sometimes invis to clicks on the text part, but sees them on the black rect part ###@@@
+          # (see docstring at top for a theory about the cause)
+      
+    ##                  Button(TextRect(18, 3, "line 1\nline 2...."), on_press = print_Expr("zztr")), # 
+    ##                  Button(Overlay(Rect(3, 1, red),Rect(0.5,0.5,black)), on_press = print_Expr("zzred")), # works
+    ##                  Button(Rect(0.5,0.5,black), on_press = print_Expr("zz3")), # works
+      Invisible(Rect(0.2,0.2,white)), # kluge to work around origin bug in TextRect ###@@@
+      Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
+      Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "bottom ribbon2" ),
+      Rect(1.5, 1, green),
+      gap = 0.2
+    ## DrawThePart(),
+    )
+
+    Column(
+        Rotated( Overlay( RectFrame(1.5, 1, 0.1, white),
+                          Rect(0.5,0.5,orange),
+                          RectFrame(0.5, 0.5, 0.025, ave_colors(0.5,yellow,gray))
+                          ) ),
+        Pass,
+        Overlay( RectFrame(1.5, 1, 0.1, white),
+                 Button(
+                     FilledSquare(bcolor, bcolor),
+                     FilledSquare(bcolor, next_bcolor),
+                     FilledSquare(next_bcolor, black),
+                     FilledSquare(bcolor, gray),
+                     on_release_in = toggleit
+                )
+        ),
+    )
+
+    Closer(Column(
+        Highlightable( Rect(2, 3, pink),
+                       # this form of highlight (same shape and depth) works from either front or back view
+                       Rect(2, 3, orange), # comment this out to have no highlight color, but still sbar_text
+                       # example of complex highlighting:
+                       #   Row(Rect(1,3,blue),Rect(1,3,green)),
+                       # example of bigger highlighting (could be used to define a nearby mouseover-tooltip as well):
+                       #   Row(Rect(1,3,blue),Rect(2,3,green)),
+                       sbar_text = "big pink rect"
+                       ),
+        #Highlightable( Rect(2, 3, pink), Closer(Rect(2, 3, orange), 0.1) ) # only works from front
+            # (presumably since glpane moves it less than 0.1; if I use 0.001 it still works from either side)
+        Highlightable( # rename? this is any highlightable/mouseoverable, cmenu/click/drag-sensitive object, maybe pickable
+            Rect(1, 1, pink), # plain form, also determines size for layouts
+            Rect(1, 1, orange), # highlighted form (can depend on active dragobj/tool if any, too) #e sbar_text?
+            # [now generalize to be more like Button, but consider it a primitive, as said above]
+            # handling_a_drag form:
+            If( True, ## won't work yet: lambda env: env.this.mouseoverme , ####@@@@ this means the Highlightable -- is that well-defined???
+                Rect(1, 1, blue),
+                Rect(1, 1, lightblue) # what to draw during the drag
+            ),
+            sbar_text = "little buttonlike rect"
+        )
+    ))
+
+## testdraw2_cannib.py: 89:         on_press = ToggleAction(stateref)

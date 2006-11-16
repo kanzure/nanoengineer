@@ -152,7 +152,7 @@ from widget2d import Widget, Widget2D
 Stub = Widget2D
 
 # types
-Width = Color = Vector = Stub
+Width = Color = Vector = Action = Stub
 
 # layout prims and the like (but for the most part, layout prims probably won't be defined in basic.py at all)
 ToggleShow = Stub
