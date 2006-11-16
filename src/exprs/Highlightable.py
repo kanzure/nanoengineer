@@ -346,6 +346,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
 
 Button = Highlightable
 
+
+# == NO CURRENT CODE IS BELOW HERE (I think)
+
+
 # == old comments, might be useful (e.g. the suggested formulas involving in_drag)
 
 # I don't think Local and If can work until we get WEs to pass an env into their subexprs, as we know they need to do ####@@@@
@@ -376,43 +380,6 @@ Button = Highlightable
 
 # == old code
 
-# kluge to test state toggling:
-
-if 0:
-
-    def bcolor(env, nextness = 0):
-        n = vv.state.setdefault('buttoncolor',0)
-        return (green, yellow, red)[(n + nextness) % 3]
-
-    def next_bcolor(env):
-        return bcolor(env, 1)
-
-    def toggleit():
-        n = vv.state.setdefault('buttoncolor',0)
-        n += 1
-        n = n % 3
-        vv.state['buttoncolor'] = n
-        return
-
-    def getit(fakeenv): # note: the bug of saying getit() rather than getit in an expr was hard to catch; will be easier when env is real
-        return "use displist? %s" % ('no', 'yes')[not not USE_DISPLAY_LIST_OPTIM]
-
-    def setit(val = None):
-        global USE_DISPLAY_LIST_OPTIM
-        if val is None:
-            # toggle it
-            val = not USE_DISPLAY_LIST_OPTIM
-        USE_DISPLAY_LIST_OPTIM = not not val
-        vv.havelist = 0
-        print "set USE_DISPLAY_LIST_OPTIM = %r" % USE_DISPLAY_LIST_OPTIM
-
-    displist_expr_BUGGY = Button(Row(Rect(0.5,0.5,black),TextRect(18, 2, getit)), on_press = setit)
-        # works, but has bug: not sensitive to baremotion or click on text if you drag onto it from empty space,
-        # only if you drag onto it from the Rect.
-        
-    displist_expr = Row(
-        Button( Rect(0.5,0.5,black), DebugDraw( Rect(0.5,0.5,gray), "grayguy"), on_press = setit),
-        TextRect(18, 2, getit))
 
 if 0:
     
@@ -475,4 +442,7 @@ if 0:
         )
     ))
 
-## testdraw2_cannib.py: 89:         on_press = ToggleAction(stateref)
+# see also:
+## ToggleShow-outtakes.py: 48:         on_press = ToggleAction(stateref)
+
+# end
