@@ -201,10 +201,10 @@ def LvalDict(wayfunc, lvalclass = Lval): #e option to not memoize for certain ty
     It's an error (reported [#nim] in MemoDict) for computation of wk = wayfunc(key) to use any external usage-tracked lvalues,
     but it's ok if wk() does; subsequent inval of those lvals causes the lval created here to recompute and memoize wk() on demand.
     This is more useful than if the entire dict had to be recomputed (i.e. if a _C_ rule told how to recompute the whole thing),
-    since only the specific items that become invalid need to be.
+    since only the specific items that become invalid need to be recomputed.
        Design note: DO WE RETURN THE LVALS or their values??
     For now, WE RETURN THE LVALS (partly since implem is easier, partly since it's more generally useful);
-    this might be less convenient for the user.
+    this might be less convenient for the user. [But as of 061117, staterefs.py will depend on this, in our variant LvalDict2.]
     """
     #k Note:
     # I'm only 90% sure the "wayfunc = wayfunc, lvalclass = lvalclass" lambda closure kluge is still needed in Python, in this case.

@@ -9,6 +9,18 @@ from basic import * # all we really need is call_Expr & InstanceOrExpr, so far.
 from basic import _self
     #k [digr: is there a reload bug caused by things we get from basic import *, since we don't reload basic??]
 
+# ==
+
+'''
+[061117] #doc - restate/explain this:
+BTW, when I reload, the data should be persistent, but the subscriptions to it probably shouldn't be.
+But that's really up to each subs -- clearing all of them would be wrong. So ignore it for now.
+(It means old objects will get invalidated, but that loses them their subs, and nothing recomputes their attrs
+and resubs them, so it actually doesn't end up causing a lasting performance problem, I think.)
+'''
+
+# ==
+
 def StatePlace(kind, ipath_expr = _self.ipath): # experimental, but used and working in Highlightable; related to Arg/Option/Instance
     """In a class definition for an InstanceOrExpr subclass, use the assignment
 
@@ -25,6 +37,8 @@ def StatePlace(kind, ipath_expr = _self.ipath): # experimental, but used and wor
        StatePlace() works by turning into a formula which will eval to a permanent reference
     to a (found or created) attrholder for storing state of the given kind, at the given ipath
     (value of ipath_expr), relative to the env of the Instance this is used in (i.e. to _self.env).
+    [revision 061117: the persistent state itself needs usage and change tracking. The attrholder
+    can be permanent and own that state (and do that tracking), or be a transient accessor to it.]
 
        It's usually necessary to initialize the contents of the declared stateplaces
     using set_default_attrs in _init_instance, or the like. (Note that the stateplace is often
@@ -35,16 +49,77 @@ def StatePlace(kind, ipath_expr = _self.ipath): # experimental, but used and wor
     return call_Expr( _StatePlace_helper, _self, kind, ipath_expr )
 
 def _StatePlace_helper( self, kind, ipath): # could become a method in InstanceOrExpr, if we revise StatePlace macro accordingly
-    key = (kind,ipath) ##e kind should change which state obj we access, not just be in the key
-    state = self.env.staterefs
+    """Create or find, and return, a permanent attrholder for access to all attrs with the given ipath.
+    [revision 061117: the persistent state itself needs usage and change tracking. The attrholder
+    can be permanent and own that state (and do that tracking), or be a transient accessor to it.]
+    """
+    # implem scratch 061117:
+    # what needs permanence is the lvals themselves. They will someday be in arrays (one attr, many objects),
+    # but the attrholders are one object, many attrs, so let's keep the lvals outside the attrholders,
+    # so they are not holders but just accessors. Let's simplify for now, by not keeping persistent attrholders at all,
+    # making them nothing but access-translators (knowing kind & ipath to combine with each attr)
+    # into one big persistent LvalDict. Or maybe one per kind, if we feel like it, and to get practice
+    # with letting the LvalDict to use vary. Hmm, might as well make it one per kind/attr pair, then --
+    # but that means all the work is in the attraccessors (since we don't even know the key to identify
+    # the LvalDict until we know the attr) -- ok.
 
-    res = state.setdefault(key, None) 
-        # I wanted to use {} as default and wrap it with attr interface before returning, e.g. return AttrDict(res),
-        # but I can't find code for AttrDict right now, and I worry its __setattr__ is inefficient, so this is easier:
-    if res is None:
-        res = attrholder()
-        state[key] = res
-    return res
+    return _attr_accessor( self.env.staterefs, kind, ipath)
+
+    # older _StatePlace_helper body code, for comparison:
+##    # ok, state is a dict from (kind,attr)    
+##    key = (kind,ipath) ##e kind should change which state obj we access, not just be in the key
+##    state = self.env.staterefs
+##
+##    res = state.setdefault(key, None) 
+##        # I wanted to use {} as default and wrap it with attr interface before returning, e.g. return AttrDict(res),
+##        # but I can't find code for AttrDict right now, and I worry its __setattr__ is inefficient, so this is easier:
+##    if res is None:
+##        res = attrholder()
+##        state[key] = res
+##    return res
+
+class _attr_accessor:
+    """[private helper for _StatePlace_helper;
+    eventually will be implemented in C for speed & density
+    (both this class, and its storage & tracking, now in LvalDict2)]
+    """
+    ###e NIM: doesn't yet let something sign up to recompute -- might be a problem;
+    # to do that well it might need a model-class-name;
+    # we can probably let that be part of "kind" (or a new sibling to it) when the time comes to put it in
+    def __init__( self, staterefs, kind, ipath):
+        self.__dict__['__args'] = staterefs, kind, ipath
+        self.__dict__['__tables'] = {}
+    def __get_table(self, kind, attr):
+        whichtable = (kind,attr)
+        tables = self.__dict__['__tables']
+        try:
+            res = tables[whichtable]
+        except KeyError:
+            # (valfunc computes values from keys; it's used to make the lval formulas; but they have to be resettable)
+            valfunc = self.valfunc
+            tables[whichtable] = res = LvalDict2(valfunc) ####k WRONG, store them in staterefs, not in self! maybe pass our own lvalclass.
+            wrong above#####
+        return res
+    def valfunc(self, key):
+        assert 0, "access to key %r in some lvaldict in _attr_accessor, before that value was set" % (key,)
+            ###e needs more info, meaning, store a lambda above as valfunc
+        pass
+    def __getattr__(self, attr):
+        staterefs, kind, ipath = self.__dict__['__args']
+        table = self.__get_table(kind,attr) # an LvalDict2 object
+        dictkey = ipath
+        lval = table[dictkey] # lval might be created at this time; if so, error, in this or next line when self.valfunc first called
+        res = lval.get_value()
+        return res
+    def __setattr__(self, attr, val):
+        "WARNING: this runs on ALL attribute sets -- do real ones using self.__dict__
+        staterefs, kind, ipath = self.__dict__['__args']
+        table = self.__get_table(kind,attr)
+        dictkey = ipath
+        lval = table[dictkey] # lval might be created at this time; no error, as long as this doesn't internally ask for its value ###k
+        lval.set_constant_value(val) #####IMPLEM, and try to optim by noticing if the value differs from last time (per-attr decl ##e)
+        return
+    pass # end of class _attr_accessor
 
 def set_default_attrs(obj, **kws): #e refile in py_utils, or into the new file mentioned above
     "for each attr=val pair in **kws, if attr is not set in obj, set it (using hasattr and setattr on obj)"
