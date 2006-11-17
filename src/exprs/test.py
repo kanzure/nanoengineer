@@ -326,11 +326,12 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
 
 # @@@
 
-# planned optims (after each, redo tests):
+# planned optims (after each, i need to redo lots of tests):
 # - don't always gl_update when highlighting -- requires some code review (or experiment, make it turnable off/on)
 # - retain the widget_env and the made testexpr between drawings, if no inputs changed (but not between reloads)
 # - display lists (I don't yet know which of the above two will matter more)
 # - simplify exprs, like the grabarg one
+#   - related (maybe needed as part of that): know which attrvals are "final", and which methods are deterministic (by attrname).
 # but first, make a state-editing example using Button.
 
 
@@ -353,8 +354,9 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 # === set the testexpr to use right now   @@@
 
 testexpr = testexpr_9c
-    # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c
-    # currently under devel [061115 late]: Highlightable in testexpr_9a
+    # latest stable tests: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c
+    
+    # currently under devel [061117]: ToggleShow, and its LL needs, StateRef and StatePlace and an inval-tracking attrholder
 
     # some history:
     # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e, and 061114 6g*, 6h*
