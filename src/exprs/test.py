@@ -288,7 +288,10 @@ if 'stubs 061115':
 testexpr_9b = Button(
                     ## Invisible(Rect(1.5, 1, blue)), # works
                     Translucent(Rect(1.5, 1, blue)), # has bug in Translucent
-                    IsocelesTriangle(1.6, 1.1, orange),
+                    ## IsocelesTriangle(1.6, 1.1, orange),
+                        # oops, I thought there was an expanding-highlight-bug-due-to-depthshift-and-perspective,
+                        # but it was only caused by this saying 1.6, 1.1 rather than 1.5, 1!
+                    Rect(1.5, 1, orange),
                       ## Overlay( Rect(1.5, 1, lightgreen) and None, (IsocelesTriangle(1.6, 1.1, orange))),
                         ####@@@@ where do I say this? sbar_text = "button, unpressed"
                         ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
@@ -300,8 +303,7 @@ testexpr_9b = Button(
                     on_release_in = print_Expr('release in'), # had a bug (did release_out instead), fixed by 'KLUGE 061116'
                     on_release_out = print_Expr('release out')
                 )   # using 'stubs 061115':
-                    # - highlighting works, except highlighted version is annoyingly bigger --
-                    #   I need to fix that bug of using actual z motion ###k
+                    # - highlighting works
                     # - button aspect (on_* actions) was not yet tested on first commit; now it is,
                     #   and each action does something, but on_release_in acted like on_release_out,
                     #   but I fixed that bug.
@@ -350,7 +352,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_6c
+testexpr = testexpr_9c
     # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c
     # currently under devel [061115 late]: Highlightable in testexpr_9a
 

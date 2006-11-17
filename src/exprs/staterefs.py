@@ -6,23 +6,37 @@ $Id$
 """
 
 from basic import * # all we really need is call_Expr & InstanceOrExpr, so far.
-    #k [digr: is there a reload bug caused by things we get this way?]
 from basic import _self
+    #k [digr: is there a reload bug caused by things we get from basic import *, since we don't reload basic??]
 
-def StatePlace(kind, ipath_expr): # experimental; sort of a sister to Arg/Option/Instance; likely to get revised a lot
-    """turn into a formula (for use in class assignment)
-    which will eval to a permanent reference to a (found or created) attrholder
-    for storing state of the given kind, at the given ipath (value of ipath_expr),
-    relative to the env of the Instance this is used in.
+def StatePlace(kind, ipath_expr = _self.ipath): # experimental, but used and working in Highlightable; related to Arg/Option/Instance
+    """In a class definition for an InstanceOrExpr subclass, use the assignment
+
+        <kind>_state = StatePlace(<kind>, <ipath_expr>)
+
+    (for a short string <kind>, usually one of a small set of conventional kinds of storage)
+    to cause self.<kind>_state in each Instance to refer to external state specific to
+    <ipath_expr> as evaluated in that Instance (by default, _self.ipath, meaning specific
+    to that Instance, though usually more persistent than it, perhaps depending on <kind>).
+
+    [Believe it or not, that docstring is a lot clearer than it was before... but I think it
+    still has a long way to go.]
+    
+       StatePlace() works by turning into a formula which will eval to a permanent reference
+    to a (found or created) attrholder for storing state of the given kind, at the given ipath
+    (value of ipath_expr), relative to the env of the Instance this is used in (i.e. to _self.env).
+
+       It's usually necessary to initialize the contents of the declared stateplaces
+    using set_default_attrs in _init_instance, or the like. (Note that the stateplace is often
+    found rather than created, and the same sometimes goes for individual attrs within it.
+    Both this declaration and set_default_attrs take this into account by only initializing
+    what's not already there.)
     """
     return call_Expr( _StatePlace_helper, _self, kind, ipath_expr )
 
 def _StatePlace_helper( self, kind, ipath): # could become a method in InstanceOrExpr, if we revise StatePlace macro accordingly
     key = (kind,ipath) ##e kind should change which state obj we access, not just be in the key
     state = self.env.staterefs
-        # I must have the name wrong [where i am 061115 late] --
-        ## AttributeError: 'NoneType' object has no attribute 'state'
-        ##  [lvals.py:160] [Exprs.py:193] [Exprs.py:413] [Highlightable.py:89] [Delegator.py:10]
 
     res = state.setdefault(key, None) 
         # I wanted to use {} as default and wrap it with attr interface before returning, e.g. return AttrDict(res),

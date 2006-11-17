@@ -134,10 +134,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     on_release_out = Option(Action)
     
     # refs to places to store state of different kinds, all of which is specific to this Instance (or more precisely to its ipath)
-    ##e [these will probably turn out to be InstanceOrExpr default formulae]
-    transient_state = StatePlace('transient', _self.ipath) # state which matters during a drag; scroll-position state; etc
-    glpane_state = StatePlace('glpane', _self.ipath) # state which is specific to a given glpane
-    per_frame_state = StatePlace('per_frame', _self.ipath) # state which is only needed while drawing one frame (someday, cleared often)
+    ##e [these will probably turn out to be InstanceOrExpr default formulae] [note: their 2nd arg ipath defaults to _self.ipath]
+    transient_state = StatePlace('transient') # state which matters during a drag; scroll-position state; etc
+    glpane_state = StatePlace('glpane') # state which is specific to a given glpane
+    per_frame_state = StatePlace('per_frame') # state which is only needed while drawing one frame (someday, cleared often)
     
     # abbrevs for read-only state
     glname = glpane_state.glname
