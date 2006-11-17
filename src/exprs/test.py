@@ -326,10 +326,13 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
     # it's even slower the first time I mouseover the 2nd one, suggesting that instantiation time is slow,
     # but this doesn't make sense since I reinstantiate everything on each draw in the current code. hmm.
 
+    # @@@
+    
     # planned optims (after each, redo tests):
     # - don't always gl_update when highlighting -- requires some code review (or experiment, make it turnable off/on)
     # - retain the widget_env and the made testexpr between drawings, if no inputs changed (but not between reloads)
     # - display lists (I don't yet know which of the above two will matter more)
+    # - simplify exprs, like the grabarg one
     # but first, make a state-editing example using Button.
 
 
@@ -351,7 +354,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_9e
+testexpr = testexpr_9a
     # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*
     # currently under devel [061115 late]: Highlightable in testexpr_9a
 
@@ -362,6 +365,7 @@ testexpr = testexpr_9e
     # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
     # once goes over the green rect or the displist text (after each reload)? not sure.
 
+ #e planned optims -- see above
 
 print "using testexpr %r" % testexpr
 for name in dir():

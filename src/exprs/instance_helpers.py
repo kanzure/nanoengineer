@@ -463,11 +463,29 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             print "warning: possible bug: not self._e_has_args in _i_grabarg" ###k #e more info
         assert attr is None or isinstance(attr, str)
         assert argpos is None or (isinstance(argpos, int) and argpos >= 0)
-        res0 = self._i_grabarg_0(attr, argpos, dflt_expr)
-        res = lexenv_Expr(self.env_for_args, res0) ##k lexenv_Expr is guess, 061110 late, seems confirmed; env_for_args 061114
+        external_flag, res0 = self._i_grabarg_0(attr, argpos, dflt_expr)
+        if external_flag:
+            # flag and this condition added 061116 443p to try to fix '_self dflt_expr bug'; seems to work in testexpr_9a;
+            # I'm guessing type_expr doesn't have a similar bug since it's applied outside this call. #k
+            res = lexenv_Expr(self.env_for_args, res0) ##k lexenv_Expr is guess, 061110 late, seems confirmed; env_for_args 061114
             #e possible good optim: use self.env instead, unless res0 contains a use of _this;
             # or we could get a similar effect (slower when this runs, but better when the arg instance is used) by simplifying res,
             # so that only the used parts of the env provided by lexenv_Expr remained (better due to other effects of simplify)
+        else:
+            res = res0
+            #k (I *think* it's right to not even add self.env here, tho I recall I had lexenv_Expr(self.env, res0) at first --
+            #   because the self.env was for changing _self, which we want to avoid here, and the _for_args is for supporting _this.)
+        # Note: there was a '_self dflt_expr bug' in the above, until i added 'if external_flag:'] [diagnosed & fixed 061116]:
+        # it's wrong for the parts of this expr res0 that came from our class, i.e. dflt_expr and type_expr.
+        # That is hard to fix here, since they're mixed into other parts of the same expr,
+        # but nontrivial to fix where we supply them, since when we do, the specific env needed is not known --
+        # we'd have to save it up or push it here, then access it there (or just say "escape from the most local lexenv_Expr"
+        # if that's well-defined & possible & safe -- maybe the most local one of a certain type is better).
+        # We also want whatever we do to be robust, and to not make it too hard to someday simplify the expr.
+        #   So why not fix it by wrapping only the parts that actually come from _e_args and _e_kws, right when we access them?
+        # I guess that is done inside _i_grabarg_0... ok, it's easy to add external_flag to its retval to tell us what to do. [done]
+        ###k ARE THERE any other accesses of _e_args or _e_kws that need similar protection? Worry about this if I add
+        # support for iterating specific args (tho that might just end up calling _i_grabarg and being fine).
         if 0:
             print "_i_grabarg returns %r" % (res,)
         return res
@@ -485,7 +503,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         return self.env.with_lexmods(lexmods)
 
     def _i_grabarg_0( self, attr, argpos, dflt_expr):
-        "[private helper for _i_grabarg]"
+        "[private helper for _i_grabarg] return the pair (external-flag, expr to use for this arg)"
         # i think dflt_expr can be _E_REQUIRED_ARG_, or any (other) expr
         from __Symbols__ import _E_REQUIRED_ARG_
         if dflt_expr is _E_REQUIRED_ARG_:
@@ -500,22 +518,22 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         if attr is not None:
             # try to find it in _e_kws; I suppose the cond is an optim or for clarity, since None won't be a key of _e_kws
             try:
-                return self._e_kws[attr]
+                return 1, self._e_kws[attr]
             except KeyError:
                 pass
         if argpos is not None:
             try:
-                return self._e_args[argpos]
+                return 1, self._e_args[argpos]
             except IndexError: # "tuple index out of range"
                 pass
         # arg was not provided -- error or use dflt_expr
         if required:
             printnim( "error: required arg not provided. Instance-maker should have complained! Using None.")
-            return None
+            return 0, None
             #k I don't understand the following comment -- it seems backwards: [061108]
             ###k NOT canon_expr -- we're dealing in values, which needn't be exprs, tho they might be.
         else:
-            return dflt_expr
+            return 0, dflt_expr
         pass # above should not _e_eval or canon_expr without review -- should return an arg or dflt expr, not its value
     
     pass # end of class InstanceOrExpr
