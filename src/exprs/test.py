@@ -210,7 +210,7 @@ testexpr_5d = Boxed( Rect(2,3.5,purple)) # 061113 morn - works; this should beco
 testexpr_6a = TextRect("line 1\nline 2", 2,8) # works
     # note, nlines/ncols seems like the right order, even though height/width goes the other way
 testexpr_6b = TextRect("line 3\netc", 2) # works except for wrong default ncols
-testexpr_6c = TextRect("line 4\n...") # works except for wrong defaults
+testexpr_6c = TextRect("line 4\n...") # works except for wrong defaults -- now nlines default is fixed, 061116
 
 testexpr_6d = TextRect("%r" % _self.ipath) # bug: Expr doesn't intercept __mod__(sp?) -- can it?? should it?? not for strings. ######
 testexpr_6e = TextRect(format_Expr("%r", _self.ipath),4,60) # incorrect test: _self is not valid unless we're assigned in some pyclass
@@ -279,12 +279,8 @@ testexpr_9a = Highlightable(
                     #   Row(Rect(1,3,blue),Rect(2,3,green)),
                     sbar_text = "big pink rect"
                 )
-                # works for highlighting, incl sbar text, 061116
-                #### BUG (alone or as it occurs in _9c, 061116 1023a): clicking on it causes a bad exception.
-                # Looking at traceback, the bug is not in the action (maybe) but in the dflt_expr _self.plain,
-                # which doesn't eval properly; theory: _self in that is treated wrongly as if it came from caller env.
-                # We need to wrap the things from grabarg only if they're not the default from inside... what about the type_expr?
-                # Same issue could exist for it, if it contained _self. Anyway, fixing that is not yet attempted, will be soon. [061116 1038a]
+                # works for highlighting, incl sbar text, 061116;
+                # works for click and release in or out too, after fixing of '_self dflt_expr bug', 061116.
 
 if 'stubs 061115':
     Translucent = identity
@@ -322,18 +318,18 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
 
 
 
-    # btw all this is incredibly slow.
-    # it's even slower the first time I mouseover the 2nd one, suggesting that instantiation time is slow,
-    # but this doesn't make sense since I reinstantiate everything on each draw in the current code. hmm.
+# BTW, all this highlighting response (e.g. testexpr_9c) is incredibly slow.
+# Maybe it's even slower the first time I mouseover the 2nd one, suggesting that instantiation time is slow,
+# but this doesn't make sense since I reinstantiate everything on each draw in the current code. hmm.
 
-    # @@@
-    
-    # planned optims (after each, redo tests):
-    # - don't always gl_update when highlighting -- requires some code review (or experiment, make it turnable off/on)
-    # - retain the widget_env and the made testexpr between drawings, if no inputs changed (but not between reloads)
-    # - display lists (I don't yet know which of the above two will matter more)
-    # - simplify exprs, like the grabarg one
-    # but first, make a state-editing example using Button.
+# @@@
+
+# planned optims (after each, redo tests):
+# - don't always gl_update when highlighting -- requires some code review (or experiment, make it turnable off/on)
+# - retain the widget_env and the made testexpr between drawings, if no inputs changed (but not between reloads)
+# - display lists (I don't yet know which of the above two will matter more)
+# - simplify exprs, like the grabarg one
+# but first, make a state-editing example using Button.
 
 
 # ToggleShow
@@ -354,8 +350,8 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_9a
-    # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*
+testexpr = testexpr_6c
+    # latest stable test: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c
     # currently under devel [061115 late]: Highlightable in testexpr_9a
 
     # some history:

@@ -532,9 +532,17 @@ class V_expr(OpExpr):
     _e_eval_function = staticmethod( lambda *args: _V(*args) ) #e could inline as optim
     pass
 
-def asfail(msg): #e refile #e rename
+def max_Expr(*args):
+    return call_Expr( max, *args)
+
+def min_Expr(*args):
+    return call_Expr( min, *args)
+
+# ==
+
+def assert_0_func(msg): #e refile #e rename
     """Raise an AssertionError with msg, but be a function, so we're usable in lambdas.
-    Typical usage: cond and result or asfail("error-description" % args).
+    Typical usage: cond and result or assert_0_func("error-description" % args).
     """
     assert 0, msg
 
@@ -558,11 +566,13 @@ class format_Expr(OpExpr): #061113, seems to work
         return "format_Expr%s" % (tuple(self._e_args),) #e need parens?
     _e_eval_function = staticmethod( lambda arg1, *args:
                                      ((type(arg1) is str) and (arg1 % args))
-                                     or asfail("format_Expr got non-string format %r" % arg1)
+                                     or assert_0_func("format_Expr got non-string format %r" % arg1)
                                 ) #e accept unicode arg1 too; python2.2 has an official way to express that (using the name string??)
     pass # format_Expr
 
-class If_expr(OpExpr): # so we can use If in formulas
+# ==
+
+class If_expr(OpExpr): # so we can use If in formulas [but If is nim; see comments about it in ToggleShow.py or so]
     pass
 # see also class If_ in testdraw.py
 ## def If(): pass

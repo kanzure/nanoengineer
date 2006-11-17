@@ -8,6 +8,7 @@ $Id$
 
 
 from basic import *
+from basic import _self
 
 # Plan: make this just good enough for use as a debugging tool -- e.g. to make instances that show their own ipath.
 # It still uses utility funcs and an assumed-bound-texture from cad/src/drawtest.py.
@@ -20,17 +21,22 @@ class TextRect(Widget2D):
     origin on bottomleft.
        #e future: nlines defaults to lines in msg, limited by option max_lines, default 6;
     ncols defaults to cols in msg, limited by option max_cols, default 16.
-    #doc textsize issues, lbox issues
+    #doc textsize issues, lbox issues, arg order reason (some caller comment explains it, i think, maybe in test.py).
     """
     from testdraw import tex_width, tex_height # constants (#e shouldn't be; see comments where they're defined)
     # args
     msg = Arg(str)
-    nlines = Arg(int, 6) # related to height, but comes first anyway (renamed from nrows) ###e try default of _self.msg_lines, etc
-    ncols = Arg(int, 16) # related to width
+    nlines = Arg(int, min_Expr( _self.msg_lines, _self.max_lines) ) # related to height, but in chars
+        ###e try default of _self.msg_lines, etc -- trying this 061116
+    ncols = Arg(int, 16) # related to width, but in chars
     # options
-    max_lines = Option(int, 6) ###e not yet used
+    max_lines = Option(int, 6)
     max_cols = Option(int, 16)
     margin = Option(int, 2) # in pixels -- should this be said in the type? ###k
+    # formulae for arg defaults, from other args and options (take care to not make them circular!) [061116]
+    msg_lines = call_Expr( call_Expr(msg.rstrip).count, '\n') + 1
+        # i.e. msg.rstrip().count('\n') + 1, but x.y(z) syntax-combo is not allowed, as a safety feature --
+        # we'll need to find a way to sometimes allow it, I think.
     # formulae
     ###e msg_lines, msg_cols, and make sure those can be used in the default formulae for the args
     # lbox attrs -- in the wrong units, not pixelwidth, so we need to kluge them for now
