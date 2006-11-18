@@ -9,6 +9,10 @@ from basic import * # all we really need is call_Expr & InstanceOrExpr, so far.
 from basic import _self
     #k [digr: is there a reload bug caused by things we get from basic import *, since we don't reload basic??]
 
+import lvals
+reload_once(lvals)
+from lvals import LvalDict2
+
 # ==
 
 '''
@@ -33,6 +37,10 @@ def StatePlace(kind, ipath_expr = _self.ipath): # experimental, but used and wor
 
     [Believe it or not, that docstring is a lot clearer than it was before... but I think it
     still has a long way to go.]
+
+    OPTIM NOTE: All StatePlaces provide mod & usage tracking; if some of them don't need this (which seems likely,
+    since Highlightable seemed to work before any of them had it), we can optim by not making them all have it;
+    the simpler ones could use the old attrholder class as they all did before 061117, or use some other simpler implem. #e
     
        StatePlace() works by turning into a formula which will eval to a permanent reference
     to a (found or created) attrholder for storing state of the given kind, at the given ipath
@@ -83,43 +91,48 @@ class _attr_accessor:
     eventually will be implemented in C for speed & density
     (both this class, and its storage & tracking, now in LvalDict2)]
     """
-    ###e NIM: doesn't yet let something sign up to recompute -- might be a problem;
-    # to do that well it might need a model-class-name;
-    # we can probably let that be part of "kind" (or a new sibling to it) when the time comes to put it in
+    ##e NIM: doesn't yet let something sign up to recompute one attr's values; only lets them be individually set.
+    # This might be a problem. BTW to do that well it might need to also be told a model-class-name;
+    # we can probably let that be part of "kind" (or a new sibling to it) when the time comes to put it in.
     def __init__( self, staterefs, kind, ipath):
-        self.__dict__['__args'] = staterefs, kind, ipath
-        self.__dict__['__tables'] = {}
-    def __get_table(self, kind, attr):
+        self.__dict__['__staterefs'] = staterefs
+        self.__dict__['__kind'] = kind
+        self.__dict__['__ipath'] = ipath
+        ## self.__dict__['__tables'] = {}
+    def __get_table(self, attr):
+        kind = self.__dict__['__kind']
         whichtable = (kind,attr)
-        tables = self.__dict__['__tables']
+        ## tables = self.__dict__['__tables'] # WRONG, store them in staterefs
+        staterefs = self.__dict__['__staterefs']
+        tables = staterefs
         try:
             res = tables[whichtable]
         except KeyError:
             # (valfunc computes values from keys; it's used to make the lval formulas; but they have to be resettable)
             valfunc = self.valfunc
-            tables[whichtable] = res = LvalDict2(valfunc) ####k WRONG, store them in staterefs, not in self! maybe pass our own lvalclass.
-            wrong above#####
+            tables[whichtable] = res = LvalDict2(valfunc) #e maybe pass our own lvalclass, optimized for set_constant_value
         return res
     def valfunc(self, key):
         assert 0, "access to key %r in some lvaldict in _attr_accessor, before that value was set" % (key,)
-            ###e needs more info, meaning, store a lambda above as valfunc
+            ##e needs more info, so probably make a lambda above to use as valfunc
         pass
+    def __get_lval(self, attr):
+        table = self.__get_table(attr) # an LvalDict2 object
+        ipath = self.__dict__['__ipath']
+        dictkey = ipath
+        lval = table[dictkey] # lval might be created at this time (only in one of our two calls)
+            ##k let's hope this doesn't internally ask for its value -- error if it does
+        return lval
     def __getattr__(self, attr):
-        staterefs, kind, ipath = self.__dict__['__args']
-        table = self.__get_table(kind,attr) # an LvalDict2 object
-        dictkey = ipath
-        lval = table[dictkey] # lval might be created at this time; if so, error, in this or next line when self.valfunc first called
-        res = lval.get_value()
-        return res
+        return self.__get_lval(attr).get_value()
     def __setattr__(self, attr, val):
-        "WARNING: this runs on ALL attribute sets -- do real ones using self.__dict__
-        staterefs, kind, ipath = self.__dict__['__args']
-        table = self.__get_table(kind,attr)
-        dictkey = ipath
-        lval = table[dictkey] # lval might be created at this time; no error, as long as this doesn't internally ask for its value ###k
-        lval.set_constant_value(val) #####IMPLEM, and try to optim by noticing if the value differs from last time (per-attr decl ##e)
+        "WARNING: this runs on ALL attribute sets -- do real ones using self.__dict__"
+        self.__get_lval(attr).set_constant_value(val)
+            # note: this optims by noticing if the value differs from last time; that ought to be a per-attr decl #e
         return
     pass # end of class _attr_accessor
+
+# ==
 
 def set_default_attrs(obj, **kws): #e refile in py_utils, or into the new file mentioned above
     "for each attr=val pair in **kws, if attr is not set in obj, set it (using hasattr and setattr on obj)"
@@ -145,6 +158,9 @@ def set_default_attrs(obj, **kws): #e refile in py_utils, or into the new file m
     #   usually the first, meaning, use two separate calls of this, but can one notation do it all? (and do we need that?)
     # - we might want a toplevel (expr syntax) version of all this, for use in pure-expr-notation programs; related to LocalState
     #   (see notesfile), esp if that really sets up a local *ref* to perhaps-external state.
+    # In the future, it might work differently -- maybe we won't want attrs with default values to use up space,
+    # when possible (not possible for the ones stored in allocated slots in arrays), so this will be replaced with
+    # some sort of per-class per-kind attr decl, which includes the type & default value.
 
 # ==
 
@@ -166,7 +182,7 @@ class LocalState(InstanceOrExpr): #e stub, just reserve the name and let searche
     pass
 
 if 0: # e.g. code, scratch area
-    LocalState( lambda x = State(int, 1): body(x.value, x.value = 1) ) # note, x.calue = 1 is not allowed in a lambda anyway!
+    LocalState( lambda x = State(int, 1): body(x.value, x.value = 1) ) # note, x.value = 1 is not allowed in a lambda anyway!
 
     # in a class:
     def body(self, x):

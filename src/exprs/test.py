@@ -332,6 +332,7 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
 # - display lists (I don't yet know which of the above two will matter more)
 # - simplify exprs, like the grabarg one
 #   - related (maybe needed as part of that): know which attrvals are "final", and which methods are deterministic (by attrname).
+# - some optims mentioned in StatePlace - faster & denser storage, and kinds of state with no usage/mod tracking.
 # but first, make a state-editing example using Button.
 
 

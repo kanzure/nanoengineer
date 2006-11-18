@@ -70,7 +70,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
        Get the current value using .get_value() (this tells the dynenv that this value was used).
     Contains inval flag, subs to what it used to compute, recomputes as needed on access, propogates invals,
     all in standard ways. [#doc better]
-    Change the compute method using .set_compute_method.
+       Change the compute method using .set_compute_method, or set new constant values using set_constant_value.
     """
     # Implem notes:
     #
@@ -112,11 +112,42 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         ## optim of self.set_compute_method( compute_method), only ok in __init__:
         self._compute_method = compute_method
-    def set_compute_method(self, compute_method): # might be untested since might not be presently used
+    def set_compute_method(self, compute_method):
+        "#doc"
+        # notes:
+        # - this might be untested, since it might not be presently used
+        # - note the different behavior of set_constant_value -- it's not equivalent to using this method
+        #   on a constant function, but is closer (or equiv?) to doing that and then immediately evaluating
+        #   that new compute method. (It also diffs the values as opposed to the compute methods.)
         old = self._compute_method
         self._compute_method = compute_method # always, even if equal, since different objects
         if old != compute_method:
             self.inval()
+    def set_constant_value(self, val): #061117, for use in staterefs.py
+        #e might be moved into a variant class which lacks self._compute_method
+        """#doc [for now, using this is strictly an alternative to using compute_methods --
+        correctness of mixing them in one lval is not reviewed, and seems unlikely]
+        """
+        if self.valid and self._value == val:
+            pass # important optim, but in future, we might want to only sometimes do this (or have variant class which doesn't)
+        else:
+            self._value = val
+                # do this first, in case an outsider (violating conventions?) happens to notice
+                # self.valid being true during track_inval, they won't be misled by an incorrect self._value
+            if self.valid:
+                self.track_inval() # (defined in SelfUsageTrackingMixin)
+                    # WARNING: self.valid is different during our two calls of track_inval;
+                    # for this call, we only need to track it if we were valid
+                    # (since if not, we tracked it when we became invalid, or
+                    #  (more likely, assuing we're not mixing this with compute methods)
+                    #  we were never valid); but during that tracking, we'll remain valid
+                    # and have our new value available (permitting queries of it during inval tracking,
+                    # though that violates the convention used for the compute_method style).
+                    # [#e BTW isn't track_inval misnamed, since it's really propogate or report our inval?]
+            else:
+                self.valid = True
+            pass
+        return
     def inval(self):
         """This can be called by the client, and is also subscribed internally to all invalidatable/usage-tracked lvalues
         we use to recompute our value (often not the same set of lvals each time, btw).

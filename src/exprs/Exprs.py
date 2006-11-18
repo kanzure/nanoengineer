@@ -538,6 +538,10 @@ def max_Expr(*args):
 def min_Expr(*args):
     return call_Expr( min, *args)
 
+def not_Expr(arg): # maybe this is an operator so we can just make an OpExpr in usual way??
+    ###e try it - try using not instead, in the call of this, to see if __not__ is the right name
+    return call_Expr(lambda val: not val, arg)
+
 # ==
 
 def assert_0_func(msg): #e refile #e rename
@@ -840,7 +844,7 @@ def Instance(expr, _index_expr = _E_ATTR):
         #guess: it should be, but we didn't notice since canon_expr fixes it. question: is it ever a replace-me-in-scan thing??
     return call_Expr( getattr_Expr(_self, '_i_instance'), hold_Expr(expr), _index_expr) 
 
-_arg_order_counter = 0
+_arg_order_counter = 0 #k might not really be needed?
 
 ##e problems w/ Arg etc as implem - they need an expr, which can be simplified as soon as an instance is known,
 # but we don't really have smth like that, unless we make a new Instance class to support it.
@@ -933,6 +937,8 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
         # for Arg, use a plain int as the index
         # (note: ExprsMeta replaces argpos_expr with that int wrapped in constant_Expr, but later eval pulls out the raw int)
         index_expr = argpos_expr
+    printnim("I suspect type_expr (stub now) is included wrongly re eval_Expr in _ArgOption_helper, in hindsight 061117")
+        ### I suspect the above, because grabarg expr needs to be evalled to get the expr whose type coercion we want to instantiate
     return Instance( eval_Expr( type_expr( grabarg_expr)), _index_expr = index_expr )
 
 class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten
@@ -984,6 +990,27 @@ def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
     global _E_ATTR # fyi
     attr_expr = _E_ATTR
     return Arg( type_expr, dflt_expr, _attr_expr = attr_expr)
+
+def State(type_expr, initval_expr):#061117; see discussion in staterefs.py and/or ToggleShow.py
+    "#doc; sort of like Option but for declaring mutable state, per-Instance by default, but more persistent than the Instance"
+    return _State_helper( _E_ATTR, type_expr, initval_expr) #e and maybe more, like a path to the state, its kind, value-glue code
+
+def _State_helper( attr_expr, type_expr, initval_expr): #e and more args, see caller's comment
+    "[private helper]"
+    return _state_Expr(attr_expr, type_expr, initval_expr)
+
+class _state_Expr(OpExpr):#061117
+    "[private helper]"    
+    # for internal use, but OpExpr seems better than internal_Expr since we want replacement in all the args, and no holding I think
+    def _e_eval(self, env, ipath):
+        # based on still-nim code in ExprsMeta, this happens either in _init_instance or the first time someone wants
+        # to set or get the state attr declared by State macro above, which our job is to implement.
+        # The attr_expr cpuld be assumed to be constant, but needn't be, it's only needed to find the state along with ipath.
+        # Note, as usual for OpExpr, this expr is shared by Instances in a class, and env._self tells you which Instance you're
+        # working for. What we want to do is return an lval object (not a "current value" as usual for _e_eval)
+        # which refers to the desired state (hopefully which is exactly an lval findable in a StatePlace -- see its new-today code).
+        nim # where i am 061117 445p - here and maybe in staterefs.py and definitely in ToggleShow.py. 
+    pass
 
 # stubs:
 Anything = "anything-stub"
