@@ -11,7 +11,7 @@ from basic import _self
 
 import lvals
 reload_once(lvals)
-from lvals import LvalDict2
+from lvals import LvalDict2, LvalForState, LvalError_ValueIsUnset
 
 # ==
 
@@ -87,10 +87,10 @@ def _StatePlace_helper( self, kind, ipath): # could become a method in InstanceO
 ##    return res
 
 class _attr_accessor:
-    """[private helper for _StatePlace_helper;
-    eventually will be implemented in C for speed & density
-    (both this class, and its storage & tracking, now in LvalDict2)]
-    """
+    """[private helper for _StatePlace_helper]"""
+    ##e optim: someday we should rewrite in C both this class,
+    # and its storage & usage-tracking classes (LvalDict2, Lval, etc),
+    # for speed & RAM usage]
     ##e NIM: doesn't yet let something sign up to recompute one attr's values; only lets them be individually set.
     # This might be a problem. BTW to do that well it might need to also be told a model-class-name;
     # we can probably let that be part of "kind" (or a new sibling to it) when the time comes to put it in.
@@ -109,11 +109,13 @@ class _attr_accessor:
             res = tables[whichtable]
         except KeyError:
             # (valfunc computes values from keys; it's used to make the lval formulas; but they have to be resettable)
-            valfunc = self.valfunc
-            tables[whichtable] = res = LvalDict2(valfunc) #e maybe pass our own lvalclass, optimized for set_constant_value
+            valfunc = self.valfunc ###e should use an initval_expr to make this
+            tables[whichtable] = res = LvalDict2(valfunc, LvalForState)
+                # note: we pass our own lvalclass, which permits set_constant_value
         return res
     def valfunc(self, key):
-        assert 0, "access to key %r in some lvaldict in _attr_accessor, before that value was set" % (key,)
+        raise LvalError_ValueIsUnset, "access to key %r in some lvaldict in _attr_accessor, before that value was set" % (key,)
+            #k [061117 late] use this exception in hopes that it makes hasattr just say an attr is not yet there
             ##e needs more info, so probably make a lambda above to use as valfunc
         pass
     def __get_lval(self, attr):
@@ -125,6 +127,7 @@ class _attr_accessor:
         return lval
     def __getattr__(self, attr):
         return self.__get_lval(attr).get_value()
+            # error if the value was not yet set; maybe we need an initval_expr like the State macro is about to be given ###e
     def __setattr__(self, attr, val):
         "WARNING: this runs on ALL attribute sets -- do real ones using self.__dict__"
         self.__get_lval(attr).set_constant_value(val)
@@ -137,7 +140,7 @@ class _attr_accessor:
 def set_default_attrs(obj, **kws): #e refile in py_utils, or into the new file mentioned above
     "for each attr=val pair in **kws, if attr is not set in obj, set it (using hasattr and setattr on obj)"
     for k, v in kws.iteritems():
-        if not hasattr(obj, k):
+        if not hasattr(obj, k): ### problematic for attrs with not-yet-set compute methods -- should they raise AttrError??061117 1018p
             setattr(obj, k, v)
         continue
     return

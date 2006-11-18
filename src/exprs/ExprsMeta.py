@@ -147,7 +147,7 @@ from basic import printnim, printfyi, reload_once # this is a recursive import -
 
 import lvals
 reload_once(lvals)
-from lvals import Lval, LvalDict2 
+from lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
 import Exprs
 reload_once(Exprs)
@@ -417,8 +417,10 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
 ##                print "scanner replaces %r by %r" % (val0, val)
 ##            else:
 ##                print "scanner leaves unchanged %r" % (val0,)
-        if getattr(val, '_is_lval_formula', False): # new feature 061117, for State macro and the like
+        flag = getattr(val, '_e_is_lval_formula', False)
+        if flag: # new feature 061117, for State macro and the like
             # it's a formula for an lval, rather than for a val!
+            print "should not happen yet: val = %r, flag = %r" % (val,flag) # an expr or so??
             return C_rule_for_lval_formula(clsname, attr, val, **kws)
         else:
             return C_rule_for_formula(clsname, attr, val, **kws)
@@ -434,65 +436,64 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
 
 class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - review all comments before done!
     "#doc; used for State macro"
-    # WRONGNESS - the initval_expr is only needed if (1) we get before set (as the code below does)
-    # and (2) if the lval as found and given to us was not already containing a value!
-    # so it's wrong to even know about it here -- the finding formula knows instance
-    # so it can decide whether it needs to use initval_expr. it never needs to return it.
-    # true, if it makes lval it doesn't know if we'll set or get first,
-    # but in that case it can load it up with a compute method from initval_expr
-    # without knowing whether it'll be used. (lval needs doc saying that's ok, and review too,
-    #  and might need to call our discard_usage_tracking version of eval for that! it might need a special new flag in Lval, or so.)
-    # ANYWAY so as not to lose all this interesting initval_expr code I'm about to zap, I'll commit first.
-    # btw this code was never run and might not even parse. and it['s prbly unfinished, surely the supplier of the formula is.
-    # 061117 841p
     
     ###nim: type-formula
     def _init1(self):
-        (self.lval_formula,) = self.args # misnamed -- it supplies both the lval and its initval_expr
+        (self.lval_formula,) = self.args
+        assert 0, "no one should be calling this yet...." #####@@@@@@
     def make_lval_for_instance(self, instance):
-        "return (lval, initval_expr) for this instance"
+        "return an lval (found or made by our formula) for this instance"
         print "make_lval_for_instance",(self, instance)#####@@@@@
         #e not sure what to do if this formula turns out to be time-dependent... what should be invalidated if it does?? ####
         # for now, just be safe and discard tracked usage, tho it might be better to replace the lval with a new one if it invals.#e
-        index = '$' + self.attr # guess, 061117        
-        lval, initval_expr = eval_and_discard_tracked_usage( self.lval_formula, instance, index)
-        return lval, initval_expr
+        index = '$' + self.attr # guess, 061117      
+        lval = eval_and_discard_tracked_usage( self.lval_formula, instance, index)
+        return lval
     def get_for_our_cls(self, instance):
+        print "get_for_our_cls",(self.attr, instance, )#####@@@@@
         attr = self.attr
         try:
             lval = instance.__dict__[attr]
         except KeyError:
-            # (this happens at most once per attr per instance, iff the attr is gotten-from before it's ever been set)
-            lval, initval_expr = self.make_lval_for_instance(instance)
-            if initval_expr is None:
-                raise AttributeError, "attr %r hasn't been set yet in class %r" % (attr, self.cls)
-            index = '$$' + self.attr # guess, 061117
-            initval = eval_and_discard_tracked_usage(initval_expr, instance, index)
-                # note: we need to discard tracked usage from initval_computer
-                # (which is not an error -- initval_expr is allowed to be time-dependent,
-                #   but we don't want to recompute anything when it changes)
-                # note: this is not evaluated until the moment it's needed; that's important, since
-                # (1) it's legal for this to be an error to eval at times before when we need it;
-                # (2) its value might change before we need it, and it's defined to give us the value at the time of first need.
-
-            lval.set_constant_value(initval) # needed so .get_value() will work; .get_value() is still needed for its usage-tracking
+            # (this happens at most once per attr per instance, iff the attr is gotten-from before it's ever been set, in this instance)
+            lval = instance.__dict__[attr] = self.make_lval_for_instance(instance)
+        if not lval.can_get_value(): ###e should optim by doing this only on exception from get_value
+            # note: this has to be checked whether we found or made the lval
+            # preventable by prior set (in this instance or a prior one), or by lval having an initval_compute_method
+            raise AttributeError, "attr %r hasn't been set yet in class %r" % (attr, self.cls)
+                ####k or LvalError_ValueIsUnset??? I think not... when less tired, explain why. [061117 late]
+        # old code, whose index might be needed in state_Expr ##k:
+##            index = '$$' + self.attr # guess, 061117
+##            initval = eval_and_discard_tracked_usage(initval_expr, instance, index)
+##                # note: we need to discard tracked usage from initval_computer
+##                # (which is not an error -- initval_expr is allowed to be time-dependent,
+##                #   but we don't want to recompute anything when it changes)
+##                # note: this is not evaluated until the moment it's needed; that's important, since
+##                # (1) it's legal for this to be an error to eval at times before when we need it;
+##                # (2) its value might change before we need it, and it's defined to give us the value at the time of first need.
+##            lval.set_constant_value(initval) # needed so .get_value() will work; .get_value() is still needed for its usage-tracking
         return lval.get_value() # this does usage tracking, validation-checking, recompute if needed
     def set_for_our_cls(self, instance, val):
-        print "set_for_our_cls",(self, instance, val)#####@@@@@
+        print "set_for_our_cls",(self.attr, instance, val)#####@@@@@
         attr = self.attr
         try:
             lval = instance.__dict__[attr]
         except KeyError:
-            # (this happens at most once per attr per instance, iff the attr is set before it's ever been gotten-from)
-            lval, initval_expr = self.make_lval_for_instance(instance)
-            instance.__dict__[attr] = lval
-            del initval_expr # this is never evaluated, if it's not needed since we set first
-                # (that's not just an optim -- it's legal for this to be an error to eval in cases where we won't eval it)
+            # (this happens at most once per attr per instance, iff the attr is set before it's ever been gotten-from, in this instance)
+            lval = instance.__dict__[attr] = self.make_lval_for_instance(instance)            
+        # note: that lval's initval_expr is never evaluated, if it's not needed since we set it before getting from it;
+        # (that's not just an optim -- it's legal for initval_expr to be an error to eval in cases where we won't eval it)
+        # (note that just because set-before-get happened in this instance doesn't mean it happened overall --
+        #  otoh we might discard older unused initval exprs
+        #  [those points are related, but i am a bit too tired to explain (or see exactly) how])
         lval.set_constant_value(val)
         return        
     def __repr__(self):
-        return "<%s at %#x for %s>" % (self.__class__.__name__, id(self), self.formula)#061114
+        return "<%s at %#x for %s>" % (self.__class__.__name__, id(self), self.attr)#061117 changed self.formula -> self.attr
     pass # end of class C_rule_for_lval_formula
+    #
+    # historical note [061117 841p]: see cvs rev 1.42 for a version of this class
+    # which misguidely handled initval_expr itself, and a comment explaining why that was wrong.
 
 def eval_and_discard_tracked_usage(formula, instance, index): #061117 #e refile into Exprs?
     """Evaluate a formula (for an instance, at an index) which is allowed to be time-dependent,
@@ -506,11 +507,8 @@ def eval_and_discard_tracked_usage(formula, instance, index): #061117 #e refile 
     """
     #e could be more efficient, but doesn't matter too much -- so far only used when initializing Instance objects
     computer = formula._e_compute_method(instance, index)
-    lval = Lval(computer) # lval's only purpose is to discard the tracked usage that is done by computer()
-    res = lval.get_value()
-    #e destroy lval? #e future: option to tell caller whether or not we tracked any usage??
-    return res
-    
+    return call_but_discard_tracked_usage( computer)
+
 # ==
 
 class CV_rule(ClassAttrSpecific_NonDataDescriptor):

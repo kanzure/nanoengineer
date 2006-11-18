@@ -62,6 +62,13 @@ from basic import *
 
 MemoDict # comes from py_utils via basic; very simple, safe for use in ExprsMeta [061024]
 
+class LvalError_ValueIsUnset(AttributeError): #061117 1030p not yet raised or caught in all places where it ought to be #####e
+    """Exception for an lval whose value was never set (nor was a compute method or initval method set).
+    This acts like AttributeError so (I hope) hasattr will treat it as an attr not being there.
+    But it's our own subclass so we can catch it without catching other AttributeErrors caused by our own code's bugs.
+    """
+    pass
+
 # ==
 
 class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
@@ -70,7 +77,8 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
        Get the current value using .get_value() (this tells the dynenv that this value was used).
     Contains inval flag, subs to what it used to compute, recomputes as needed on access, propogates invals,
     all in standard ways. [#doc better]
-       Change the compute method using .set_compute_method, or set new constant values using set_constant_value.
+       Change the compute method using .set_compute_method,
+    or (use our subclass which permits you to) set new constant values using set_constant_value.
     """
     # Implem notes:
     #
@@ -94,7 +102,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
     #   - They're the same mixins used for displists used by chunk/GLPane and defined in chunk, and for changes to env.prefs, 
     #     so these Lvals will work with those (except for chunk not yet propogating invals or tracking changes to its display list).
     #   - See comments near those methods in changes.py for ways they'll someday need extension/optimization for this use.
-    valid = False
+    valid = False # public attribute
     # no need to have default values for _value, unless we add code to compare new values to old,
     # or for _compute_method, due to __init__
     def __init__(self, compute_method = None): #e rename compute_method -> recomputer?? prob not.
@@ -116,38 +124,18 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         "#doc"
         # notes:
         # - this might be untested, since it might not be presently used
-        # - note the different behavior of set_constant_value -- it's not equivalent to using this method
+        # - note the different behavior of set_constant_value (in a variant subclass) -- it's not equivalent to using this method
         #   on a constant function, but is closer (or equiv?) to doing that and then immediately evaluating
         #   that new compute method. (It also diffs the values as opposed to the compute methods.)
+        # - BUG: for this to be correct, we should also discard our usage-subscriptions stemming from the eval
+        #   of the prior compute method. Not doing this might be a severe performance hit or even a bug.
+        #   But it's not easy to do. Since this is never called, that's nim for now.
+        assert 0, "if you call this, you better first implement discarding the prior usage-subscriptions"
+            #e or modify this assert to not complain if there are none of them (eg if there is no prior compute method, or we're valid)
         old = self._compute_method
         self._compute_method = compute_method # always, even if equal, since different objects
         if old != compute_method:
             self.inval()
-    def set_constant_value(self, val): #061117, for use in staterefs.py
-        #e might be moved into a variant class which lacks self._compute_method
-        """#doc [for now, using this is strictly an alternative to using compute_methods --
-        correctness of mixing them in one lval is not reviewed, and seems unlikely]
-        """
-        if self.valid and self._value == val:
-            pass # important optim, but in future, we might want to only sometimes do this (or have variant class which doesn't)
-        else:
-            self._value = val
-                # do this first, in case an outsider (violating conventions?) happens to notice
-                # self.valid being true during track_inval, they won't be misled by an incorrect self._value
-            if self.valid:
-                self.track_inval() # (defined in SelfUsageTrackingMixin)
-                    # WARNING: self.valid is different during our two calls of track_inval;
-                    # for this call, we only need to track it if we were valid
-                    # (since if not, we tracked it when we became invalid, or
-                    #  (more likely, assuing we're not mixing this with compute methods)
-                    #  we were never valid); but during that tracking, we'll remain valid
-                    # and have our new value available (permitting queries of it during inval tracking,
-                    # though that violates the convention used for the compute_method style).
-                    # [#e BTW isn't track_inval misnamed, since it's really propogate or report our inval?]
-            else:
-                self.valid = True
-            pass
-        return
     def inval(self):
         """This can be called by the client, and is also subscribed internally to all invalidatable/usage-tracked lvalues
         we use to recompute our value (often not the same set of lvals each time, btw).
@@ -185,15 +173,26 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         #e future: _compute_value might also:
         # - do layer-prep things, like propogating inval signals from changedicts
         # - diff old & new
-        assert self._compute_method is not None, "our compute_method is not yet set: %r" % self #e remove, as optim (redundant)
+        if self._compute_method is None:
+            raise LvalError_ValueIsUnset, "our compute_method is not yet set: %r" % self
+                #k note: this is a subclass of AttributeError so hasattr can work in this case [061117 late]
         match_checking_code = self.begin_tracking_usage()
         try:
-            val = self._compute_method()
+            val = self._compute_method() ###e should certain exceptions inside here raise AttributeError, for us to catch & reraise,
+                # if val is legitimately not yet set? no - raise our own kind of exception, so bug doesn't act like it,
+                # then catch that & convert to attrerror to reraise. #### SHOULD DOIT 061117 1022p [one place where i am]
+            printnim("catch that & convert to attrerror...")#### here & above assert
+        except LvalError_ValueIsUnset:
+            # might happen from some lower layer if we're virtual (e.g. if our value is stored in some external array or dict)
+            raise
         except:
             print_compact_traceback("exception in %r._compute_method ignored: " % self)
             val = None
             if 1:
-                printfyi("exiting right after lval exception, to see if it makes my errors more readable") ###k 061105; review
+                print_compact_stack("exiting right after lval exception, to see if it makes my errors more readable, from here: ")
+                    ###k 061105; review; 061117 printfyi -> print_compact_stack
+                #e it would be nice to print self's formula (if it has one in the compute method), attr, etc,
+                # but we don't have good access to that info
                 ## import sys
                 ## sys.exit(1) # doesn't work, just raises SystemExit which gets caught in the same way (tho not infrecur):
                 import sys
@@ -207,7 +206,76 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
             # (only if set_compute_method or direct inval won't be called; how do we know? we'd need client to "finalize" that for us.)
         # note: caller stores val and sets self.valid
         return val
+    def can_get_value(self):
+        "ignoring the possibility of errors in any compute method we may have, can our get_value be expected to work right now?"
+        return self.valid or (self._compute_method is not None)
+    def have_already_computed_value(self):
+        return self.valid # even tho it's a public attr
     pass # end of class Lval
+
+def call_but_discard_tracked_usage(compute_method): #061117
+    "#doc [see obs func eval_and_discard_tracked_usage for a docstring to cannibalize]"
+    lval = Lval(compute_method) # lval's only purpose is to discard the tracked usage that is done by compute_method()
+    res = lval.get_value() # this calls compute_method()
+    #e destroy lval? #e future: option to tell caller whether or not we tracked any usage??
+    return res
+
+def make_compute_method_discard_usage_if_ever_called(compute_method): #061117
+    "change a compute_method into one which discards its tracked usage if it's ever called (but don't call it now!)"
+    return lambda _guard = None, compute_method = compute_method: call_but_discard_tracked_usage(compute_method) #e and assert not _guard
+
+class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since split out from its superclass, and initvals enabled)
+    """A variant of Lval for containing mutable state.
+    Can be given an initval compute method -- but that's required
+    if and only if the first get comes before the first set;
+    it's computed at most once, at the moment it's needed (even if it has a time-varying value).
+    """
+    # This differs from Lval because it has to discard tracked usage from its compute_method,
+    # which it uses only to initialize its value in the event it's gotten-from before being set.
+    # That's a semantic difference which invites bugs unless we make it a different class.
+    #
+    #e optim note: we could specialize _compute_value to not bother doing usage tracking.
+    def __init__(self, initval_compute_method = None):
+        # make sure our initval compute method will discard usage it tracks, so we'll call it at most once
+        # (only if and when we're gotten-from before we're first set)
+        if initval_compute_method is not None:
+            compute_method = make_compute_method_discard_usage_if_ever_called( initval_compute_method)
+        else:
+            compute_method = None
+        Lval.__init__(self, compute_method)
+    def set_compute_method(self, compute_method):
+        assert 0, "not supported in this class" #e i.e., Lval and this class should really inherit from a common abstract class
+    def set_constant_value(self, val): #061117, for use in staterefs.py
+        """#doc [for now, using this is strictly an alternative to using compute_methods --
+        correctness of mixing them in one lval is not reviewed, and seems unlikely,
+        with one exception: an initial compute_method can be provided for computing an initial value
+        in case the value is asked for before being set, BUT IT'S AN ERROR IF THAT TRACKS ANY USAGE.
+        So we enforce this by being in a variant subclass of Lval.]
+        """
+        if self.valid and self._value == val:
+            pass # important optim, but in future, we might want to only sometimes do this
+                 # (eg have another variant class which doesn't do it)
+        else:
+            self._value = val
+                # do this first, in case an outsider (violating conventions? At least for Lval, maybe not for us)
+                # happens to notice self.valid being true during track_inval, so they won't be misled by an incorrect self._value
+            if self.valid:
+                self.track_inval() # (defined in SelfUsageTrackingMixin)
+                    # WARNING: self.valid is True for us during our call of track_inval,
+                    # but is False for Lval's call of it.
+                    # For our call, we only need to propogate invals if we were valid
+                    # (since if not, we propogated them when we became invalid, or
+                    #  (more likely, assuming we're not mixing this with compute methods) [###k review re initial value compmethod]
+                    #  we were never valid); but during that propogation, we'll remain valid
+                    # and have our new value available (permitting queries of it during inval propogation,
+                    # though that violates the convention used for the compute_method style).
+                    # [#e BTW isn't track_inval misnamed, since it's really to propogate or report our inval, not to track it?]
+            else:
+                self.valid = True
+            pass
+        return
+    #k I think can_get_value and have_already_computed_value are correct for us as defined in the superclass Lval.
+    pass # end of class LvalForState
 
 # ==
 

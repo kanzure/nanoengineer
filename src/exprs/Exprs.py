@@ -1001,19 +1001,28 @@ def _State_helper( attr_expr, type_expr, initval_expr): #e and more args, see ca
 
 class _state_Expr(OpExpr):#061117
     "[private helper]"
-    _is_lval_formula = True # noticed by ExprsMeta code
+    _e_is_lval_formula = True # noticed by ExprsMeta, so it will use us as a formula for computing (or finding) an LvalForState object
     # for internal use, but OpExpr seems better than internal_Expr since we want replacement in all the args, and no holding I think
     def _e_eval(self, env, ipath):
         # based on still-nim code in ExprsMeta, this eval happens the first time someone wants
         # to set or get the state attr declared by State macro above, which our job is to implement.
+        
         # The attr_expr cpuld be assumed to be constant, but needn't be, it's only needed to find the state along with ipath.
+        # Should we use a StatePlace so the code in it is not duplicated here? YES.
+        
         # Note, as usual for OpExpr, this expr is shared by Instances in a class, and env._self tells you which Instance you're
         # working for. What we want to do is return an lval object (not a "current value" as usual for _e_eval)
         # which refers to the desired state (hopefully which is exactly an lval findable in a StatePlace -- see its new-today code).
 
-        # eval the args, but not initval_expr
+        # eval the args, but not initval_expr, though we do permit replacement within it (I think) ####k lex context ok??
+            # use hold_Expr for that? if there is no initval, use what??? see how required args doit... #####
+        # find or make the lval
+        # if we make it, put in the initval expr
+        # (if we find it, we will not modify the one it has? or, if it's empty = not valid, replace it with ours? yes, that's best.)###e
         # return their values, actually an lval and held initval_expr
-        nim # where i am 061117 445p - here and maybe in staterefs.py and definitely in ToggleShow.py. 
+        nim # where i am 061117 445p - here and maybe in staterefs.py and definitely in ToggleShow.py.
+            # update 959p - the code for this in lvals and exprsmeta might be im (not nim anymore), but is unparsed...
+            # and the remaining code not yet there is this one. 
     pass
 
 # stubs:
