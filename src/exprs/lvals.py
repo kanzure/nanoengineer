@@ -184,9 +184,15 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
             printnim("catch that & convert to attrerror...")#### here & above assert
         except LvalError_ValueIsUnset:
             # might happen from some lower layer if we're virtual (e.g. if our value is stored in some external array or dict)
+            print "doing end_tracking_usage before reraising LvalError_ValueIsUnset [ok??]"
+                ######k TOTAL GUESS that it's fully legit, 061118 156p [but without it we got missing end-tracks, naturally]
+                # note: should we set val to None and say it's valid? NO -- then of two hasattrs in a row, 2nd would be wrong.
+            self.end_tracking_usage( match_checking_code, self.inval )
             raise
         except:
             print_compact_traceback("exception in %r._compute_method ignored: " % self)
+                ###e 061118 we still need to print more info from this; what to do to explain errors deep in evaling some expr?
+                # catch them and turn them into std custom exceptions, then wrap with posn/val info on each step of going up? (maybe)
             val = None
             if 1:
                 print_compact_stack("exiting right after lval exception, to see if it makes my errors more readable, from here: ")
