@@ -453,20 +453,20 @@ def compact_traceback():
 
 # stack
 
-def print_compact_stack( msg = "current stack:\n", skip_innermost_n = 2 ):
+def print_compact_stack( msg = "current stack:\n", skip_innermost_n = 2, **kws ): #bruce 061118 added **kws
     print >> sys.__stderr__, msg + \
-          compact_stack( skip_innermost_n = skip_innermost_n )
+          compact_stack( skip_innermost_n = skip_innermost_n, **kws )
 
 STACKFRAME_IDS = False # don't commit with True,
     # but set to True in debugger to see more info in compact_stack printout [bruce 060330]
 
-def compact_stack( skip_innermost_n = 1 ):
+def compact_stack( skip_innermost_n = 1, linesep = ' ', frame_repr = None ): #bruce 061118 added linesep, frame_repr
     printlines = []
     frame = sys._getframe( skip_innermost_n)
     while frame is not None: # innermost first
         filename = frame.f_code.co_filename
         lineno = frame.f_lineno
-        extra = ""
+        extra = more = ""
         if STACKFRAME_IDS:
             #bruce 060330
             # try 1 failed
@@ -487,10 +487,12 @@ def compact_stack( skip_innermost_n = 1 ):
             frame.f_locals['_CS_seencount'] = count
             if count > 1:
                 extra = "|%d" % count
-        printlines.append("[%s:%r%s]" % ( os.path.basename(filename), lineno, extra ))
+        if frame_repr:
+            more = frame_repr(frame)
+        printlines.append("[%s:%r%s]%s" % ( os.path.basename(filename), lineno, extra, more ))
         frame = frame.f_back
     printlines.reverse() # make it outermost first, like compact_traceback
-    return ' '.join(printlines)
+    return linesep.join(printlines)
 
 # test code for those -- but more non-test code follows, below this!
 
