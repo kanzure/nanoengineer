@@ -214,6 +214,7 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         return
     def __get__(self, obj, cls):
         "subclasses should NOT override this -- override get_for_our_cls instead"
+        # WARNING: similar code to __set__ in a subclass
         self.check(cls) #e remove when works (need to optim)
         if obj is None:
             print_compact_stack("fyi, __get__ direct from class of attr %r in obj %r: " % (self.attr, self)) ####@@@@ ever happens?
@@ -266,19 +267,54 @@ class ClassAttrSpecific_NonDataDescriptor(object):
 
 class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
     """Like our superclass, but has __set__ and __delete__ methods so as to be a data descriptor.
-    Our implems just assert 0; subclasses can override them, to work or not, but don't need to.
-       WARNING: if subclasses did intend to override them, most likely they'd need overhead code like our superclass has in __get__,
-    so in practice such overriding is not yet supported.
-    (Either method would be enough to make Python treat us as a data descriptor,
+    (Defining either method would be enough to make Python treat us as a data descriptor,
      but we'd rather complain equally about either one running, so we define both.)
+       Our implems of __set__ and __delete__ just assert 0; subclasses can override them
+    (with other errors or to make them work), but don't need to.
+       WARNING: if subclasses did intend to override them, most likely they'd need overhead code
+    like our superclass has in __get__, so in practice such overriding is not yet supported --
+    to support it, we'd want to add that sort of code to this class (perhaps sharing common code
+    with our superclass's __get__).
+    
+    [FYI about when to use a data or non-data descriptor:
+     - If a Python descriptor (of any kind, not just the kind created by one of these classes)
+     wants to store info of its own in instance.__dict__[attr], it has to be a data descriptor,
+     since otherwise that info would be retrieved directly by getattr, rather than going through the descriptor.
+     (It might need to intercept that (for example) either to alter the data, or record the fact of its retrieval.)
+     - If it doesn't want to store anything there, then it can be either data or non-data. (Of course it has to be "data"
+     if it wants to support setattr or delattr.)
+     - If it wants to store something there and does want getattr to retrieve it directly (as an optim),
+     then it ought to be a non-data descriptor, asusming it doesn't need to support set or del.
+    ]
     """
-    def __set__(self, *args):
-        assert 0, "__set__ is not yet supported in this abstract class"
-        #e see comment above [061103 830p] for why we have to change this... oops, never mind, we can't change it as needed after all.
+    def __set__(self, obj, val):
+        "subclasses should NOT override this -- override set_for_our_cls instead"
+        # WARNING: similar code to __get__ in our superclass
+        if obj is None:
+            print_compact_stack("fyi, __set__ direct from class of attr %r in obj %r: " % (self.attr, self)) ####@@@@ ever happens?
+                # what this is about -- see long comment near printnim in FormulaScanner far below [061101]
+            return
+        cls = obj.__class__ #### TOTAL GUESS, but otherwise I have to panic since cls is not passed in [061117]
+        self.check(cls) #e remove when works (need to optim)
+##        assert cls is not None, "I don't know if this ever happens, or what it means if it does, or how to handle it" #k in py docs
+##            #e remove when works (need to optim)
+        if cls is not self.cls:
+            copy = self.copy_for_subclass(cls) # e.g. from 'InstanceOrExpr' to 'Rect'
+            attr = self.attr
+            setattr( cls, attr, copy) # this might fail in the DataDescriptor subclass used in C_rule, but I don't know. ###k
+            if 1:
+                print "setattr( cls, attr, copy) worked for supporting __set__ %r from %r for attr %r in %r" % \
+                      (cls , self.cls, attr, self) ####@@@@ self is relevant so we see which kind of descriptor it worked for
+            # btw it also might "succeed but not have the desired effect". What's the predicted bug if it silently has no effect? ##k
+            return copy.__set__(obj, val)
+        return self.set_for_our_cls(obj, val)
+    def set_for_our_cls(self, obj, val):
+        "Subclass should implement -- do the __set__ for our class (initializing our class-specific info if necessary)"
+        assert 0, "subclass should implement set_for_our_cls"
     def __delete__(self, *args): # note: descriptor protocol wants __delete__, not __del__!
         print "note: ClassAttrSpecific_DataDescriptor.__delete__ is about to assert 0"
         assert 0, "__delete__ is not yet supported in this abstract class"
-    pass
+    pass # end of class ClassAttrSpecific_DataDescriptor
 
 # ==
 
@@ -381,7 +417,12 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
 ##                print "scanner replaces %r by %r" % (val0, val)
 ##            else:
 ##                print "scanner leaves unchanged %r" % (val0,)
-        return C_rule_for_formula(clsname, attr, val, **kws)
+        if getattr(val, '_is_lval_formula', False): # new feature 061117, for State macro and the like
+            # it's a formula for an lval, rather than for a val!
+            return C_rule_for_lval_formula(clsname, attr, val, **kws)
+        else:
+            return C_rule_for_formula(clsname, attr, val, **kws)
+        pass
     elif is_Expr(val):
         printnim("Instance case needs review in choose_C_rule_for_val") # does this ever happen? in theory, it can... (dep on is_special)
         return val ###k not sure caller can take this
@@ -391,6 +432,85 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
         ###KLUGE (should change): they get val as a bound method directly from cls, knowing it came from _C_attr
     pass
 
+class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - review all comments before done!
+    "#doc; used for State macro"
+    # WRONGNESS - the initval_expr is only needed if (1) we get before set (as the code below does)
+    # and (2) if the lval as found and given to us was not already containing a value!
+    # so it's wrong to even know about it here -- the finding formula knows instance
+    # so it can decide whether it needs to use initval_expr. it never needs to return it.
+    # true, if it makes lval it doesn't know if we'll set or get first,
+    # but in that case it can load it up with a compute method from initval_expr
+    # without knowing whether it'll be used. (lval needs doc saying that's ok, and review too,
+    #  and might need to call our discard_usage_tracking version of eval for that! it might need a special new flag in Lval, or so.)
+    # ANYWAY so as not to lose all this interesting initval_expr code I'm about to zap, I'll commit first.
+    # btw this code was never run and might not even parse. and it['s prbly unfinished, surely the supplier of the formula is.
+    # 061117 841p
+    
+    ###nim: type-formula
+    def _init1(self):
+        (self.lval_formula,) = self.args # misnamed -- it supplies both the lval and its initval_expr
+    def make_lval_for_instance(self, instance):
+        "return (lval, initval_expr) for this instance"
+        print "make_lval_for_instance",(self, instance)#####@@@@@
+        #e not sure what to do if this formula turns out to be time-dependent... what should be invalidated if it does?? ####
+        # for now, just be safe and discard tracked usage, tho it might be better to replace the lval with a new one if it invals.#e
+        index = '$' + self.attr # guess, 061117        
+        lval, initval_expr = eval_and_discard_tracked_usage( self.lval_formula, instance, index)
+        return lval, initval_expr
+    def get_for_our_cls(self, instance):
+        attr = self.attr
+        try:
+            lval = instance.__dict__[attr]
+        except KeyError:
+            # (this happens at most once per attr per instance, iff the attr is gotten-from before it's ever been set)
+            lval, initval_expr = self.make_lval_for_instance(instance)
+            if initval_expr is None:
+                raise AttributeError, "attr %r hasn't been set yet in class %r" % (attr, self.cls)
+            index = '$$' + self.attr # guess, 061117
+            initval = eval_and_discard_tracked_usage(initval_expr, instance, index)
+                # note: we need to discard tracked usage from initval_computer
+                # (which is not an error -- initval_expr is allowed to be time-dependent,
+                #   but we don't want to recompute anything when it changes)
+                # note: this is not evaluated until the moment it's needed; that's important, since
+                # (1) it's legal for this to be an error to eval at times before when we need it;
+                # (2) its value might change before we need it, and it's defined to give us the value at the time of first need.
+
+            lval.set_constant_value(initval) # needed so .get_value() will work; .get_value() is still needed for its usage-tracking
+        return lval.get_value() # this does usage tracking, validation-checking, recompute if needed
+    def set_for_our_cls(self, instance, val):
+        print "set_for_our_cls",(self, instance, val)#####@@@@@
+        attr = self.attr
+        try:
+            lval = instance.__dict__[attr]
+        except KeyError:
+            # (this happens at most once per attr per instance, iff the attr is set before it's ever been gotten-from)
+            lval, initval_expr = self.make_lval_for_instance(instance)
+            instance.__dict__[attr] = lval
+            del initval_expr # this is never evaluated, if it's not needed since we set first
+                # (that's not just an optim -- it's legal for this to be an error to eval in cases where we won't eval it)
+        lval.set_constant_value(val)
+        return        
+    def __repr__(self):
+        return "<%s at %#x for %s>" % (self.__class__.__name__, id(self), self.formula)#061114
+    pass # end of class C_rule_for_lval_formula
+
+def eval_and_discard_tracked_usage(formula, instance, index): #061117 #e refile into Exprs?
+    """Evaluate a formula (for an instance, at an index) which is allowed to be time-dependent,
+    but for which we don't want to recompute anything when its value changes.
+       This works by discarding tracked usage from the eval.
+       Usage advice: If ordinary eval is called instead of this (for formulas whose value changes
+    can occur but should not trigger recomputes of whatever our caller is computing),
+    changes to this formula's value would incorrectly invalidate whatever our caller happens to be recomputing,
+    which might be a bug, or more likely would just be a big performance hit
+    (causing needless recomputes of arbitrarily lots of stuff).
+    """
+    #e could be more efficient, but doesn't matter too much -- so far only used when initializing Instance objects
+    computer = formula._e_compute_method(instance, index)
+    lval = Lval(computer) # lval's only purpose is to discard the tracked usage that is done by computer()
+    res = lval.get_value()
+    #e destroy lval? #e future: option to tell caller whether or not we tracked any usage??
+    return res
+    
 # ==
 
 class CV_rule(ClassAttrSpecific_NonDataDescriptor):
@@ -483,9 +603,9 @@ def prefix_CV_(clsname, attr0, val, **kws):
     return val0
 
 def prefix_nothing(clsname, attr0, val, **kws):
-    # assume we're only called for a formula
+    # assume we're only called for a formula -- but [as of 061117] it might be a formula for an lval, rather than for a val!
     ## assert is_formula(val)
-    permit_override = kws.get('permit_override', False) # kluge to know about this here
+    permit_override = kws.get('permit_override', False) # it's a kluge to know about this here
     if not permit_override and not val_is_special(val):
         ## print "why is this val not special? (in clsname %r, attr0 %r) val = %r" % (clsname, attr0, val)
         printnim("not val_is_special(val)")

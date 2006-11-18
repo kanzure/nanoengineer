@@ -1000,15 +1000,19 @@ def _State_helper( attr_expr, type_expr, initval_expr): #e and more args, see ca
     return _state_Expr(attr_expr, type_expr, initval_expr)
 
 class _state_Expr(OpExpr):#061117
-    "[private helper]"    
+    "[private helper]"
+    _is_lval_formula = True # noticed by ExprsMeta code
     # for internal use, but OpExpr seems better than internal_Expr since we want replacement in all the args, and no holding I think
     def _e_eval(self, env, ipath):
-        # based on still-nim code in ExprsMeta, this happens either in _init_instance or the first time someone wants
+        # based on still-nim code in ExprsMeta, this eval happens the first time someone wants
         # to set or get the state attr declared by State macro above, which our job is to implement.
         # The attr_expr cpuld be assumed to be constant, but needn't be, it's only needed to find the state along with ipath.
         # Note, as usual for OpExpr, this expr is shared by Instances in a class, and env._self tells you which Instance you're
         # working for. What we want to do is return an lval object (not a "current value" as usual for _e_eval)
         # which refers to the desired state (hopefully which is exactly an lval findable in a StatePlace -- see its new-today code).
+
+        # eval the args, but not initval_expr
+        # return their values, actually an lval and held initval_expr
         nim # where i am 061117 445p - here and maybe in staterefs.py and definitely in ToggleShow.py. 
     pass
 
