@@ -195,7 +195,8 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # catch them and turn them into std custom exceptions, then wrap with posn/val info on each step of going up? (maybe)
             val = None
             if 1:
-                print_compact_stack("exiting right after lval exception, to see if it makes my errors more readable, from here: ")
+                print_compact_stack("exiting right after lval exception, to see if it makes my errors more readable, from here: ",
+                                    frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),), linesep = '\n')
                     ###k 061105; review; 061117 printfyi -> print_compact_stack
                 #e it would be nice to print self's formula (if it has one in the compute method), attr, etc,
                 # but we don't have good access to that info
@@ -213,7 +214,11 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         # note: caller stores val and sets self.valid
         return val
     def can_get_value(self):
-        "ignoring the possibility of errors in any compute method we may have, can our get_value be expected to work right now?"
+        """Ignoring the possibility of errors in any compute method we may have, can our get_value be expected to work right now?
+        [WARNING: This also doesn't take into account the possibility (not an error) of the compute method raising
+        LvalError_ValueIsUnset; this might happen if we're a virtual lval providing access to a real one known to the compute_method.
+        If this matters, the only good test (at present) is to try the compute_method and see if it raises that exception.]
+        """
         return self.valid or (self._compute_method is not None)
     def have_already_computed_value(self):
         return self.valid # even tho it's a public attr
