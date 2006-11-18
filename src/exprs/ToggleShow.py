@@ -21,6 +21,14 @@ import Highlightable
 reload_once(Highlightable)
 from Highlightable import Highlightable
 
+import TextRect
+reload_once(TextRect)
+from TextRect import TextRect
+
+import Column
+reload_once(Column)
+from Column import SimpleRow, SimpleColumn
+
 
 Automatic = StateRef = Stub
 
@@ -133,6 +141,7 @@ class ToggleShow(InstanceMacro):
             # so: open = State()? bt say the type and dfault val -- like I did in this:
             # staterefs.py: 181:     LocalState( lambda x = State(int, 1): body(x.value, x.value = 1) ) #
 
+    if 0: # this will be real code, but not quite yet -- use an easier way first.
         open = State(bool, True) # default 'kind' of state depends on which layer this object is in, or something else about its class
             # but for now make it always transient_state
             # this is a macro like Option
@@ -140,14 +149,22 @@ class ToggleShow(InstanceMacro):
             #  but those are only evalled in _init_instance or so -- not yet well defined what happens if they time-vary
             # and note, that form doesn't yet let you point the state into a storage place other than _self.ipath... should it??
             # but the importance is, now in python you use self.open for get and set, just as you'd expect for an instance var.
-            
-        
+
+    if 1:
+        def get_open(self): #k
+            return self.transient_state.open
+        def set_open(self, val): #k
+            self.transient_state.open = val
+            return
+        open = property(get_open, set_open)
+        pass
+    
     # constants
     open_icon   = TextRect('+',1,1) #stub
     closed_icon = TextRect('-',1,1) #stub
     
     # _value, and helper formulae
-    open = stateref.value # can we make it work to say Set(open, newval) after this?? ####k
+    ## open = stateref.value # can we make it work to say Set(open, newval) after this?? ####k
         # the hard part would be: eval arg1, but not quite all the way. we'd need a special eval mode for lvals.
         # it'd be related to the one for simplify, but different, since for (most) subexprs it'd go all the way.
     ## openclose = If( open, open_icon, closed_icon )
@@ -181,33 +198,37 @@ class ToggleShow(InstanceMacro):
             If( open, thing)
         )
     )
-    ##e do we want to make the height always act as if it's open? I think not... but having a public open_height attr
-    # (and another one for closed_height) might be useful for some callers (e.g. to draw a fixed-sized box that can hold either state).
-    # Would the following defns work:?
-    
-    # (They might not work if SimpleRow(...).attr fails to create a getattr_Expr! I suspect it doesn't. ####k )
 
-    # [WARNING: too inefficient even if they work, due to extra instance of thing -- see comment for a fix]
-    open_height = SimpleRow(   
-        open_icon,
-        SimpleColumn(
-            label,
-            thing
-        )).height   ##k if this works, it must mean the SimpleRow gets instantiated, or (unlikely)
-                    # can report its height even without that. As of 061116 I think it *will* get instantiated from this defn,
-                    # but I was recently doubting whether it *should* (see recent discussions of TestIterator etc).
-                    # If it won't, I think wrapping it with Instance() should solve the problem (assuming height is deterministic).
-                    # If height is not deterministic, the soln is to make open_instance and closed_instance (sharing instances
-                    # of label), then display one of them, report height of both. (More efficient, too -- only one instance of thing.)
-                    # (Will the shared instance of label have an ipath taken from one of its uses, or something else?
-                    #  Guess: from the code that creates it separately.)
-    
-    closed_height = SimpleRow(   
-        closed_icon,
-        SimpleColumn( # this entire subexpr is probably equivalent to label, but using this form makes it more clearly correct
-            label,
-            None
-        )).height
+    if 0: # if 0 for now, since this happens, as semiexpected:
+        ## AssertionError: compute method asked for on non-Instance <SimpleRow#3566(a) at 0xe708cb0>
+
+        ##e do we want to make the height always act as if it's open? I think not... but having a public open_height attr
+        # (and another one for closed_height) might be useful for some callers (e.g. to draw a fixed-sized box that can hold either state).
+        # Would the following defns work:?
+        
+        # (They might not work if SimpleRow(...).attr fails to create a getattr_Expr! I suspect it doesn't. ####k )
+
+        # [WARNING: too inefficient even if they work, due to extra instance of thing -- see comment for a fix]
+        open_height = SimpleRow(   
+            open_icon,
+            SimpleColumn(
+                label,
+                thing
+            )).height   ##k if this works, it must mean the SimpleRow gets instantiated, or (unlikely)
+                        # can report its height even without that. As of 061116 I think it *will* get instantiated from this defn,
+                        # but I was recently doubting whether it *should* (see recent discussions of TestIterator etc).
+                        # If it won't, I think wrapping it with Instance() should solve the problem (assuming height is deterministic).
+                        # If height is not deterministic, the soln is to make open_instance and closed_instance (sharing instances
+                        # of label), then display one of them, report height of both. (More efficient, too -- only one instance of thing.)
+                        # (Will the shared instance of label have an ipath taken from one of its uses, or something else?
+                        #  Guess: from the code that creates it separately.)
+        
+        closed_height = SimpleRow(   
+            closed_icon,
+            SimpleColumn( # this entire subexpr is probably equivalent to label, but using this form makes it more clearly correct
+                label,
+                None
+            )).height
 
     pass # end of class ToggleShow
 

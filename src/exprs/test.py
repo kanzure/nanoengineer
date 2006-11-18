@@ -97,6 +97,10 @@ import Highlightable
 reload_once(Highlightable)
 from Highlightable import Highlightable, Button, print_Expr
 
+import ToggleShow
+reload_once(ToggleShow)
+from ToggleShow import ToggleShow
+
 # == @@@
 
 import widget_env
@@ -317,6 +321,8 @@ testexpr_9d = testexpr_9b( on_release_in = print_Expr('release in, customized'))
 testexpr_9e = testexpr_9b( on_release_in = None) # works
     # test an action of None (should be same as a missing one) (also supplied by customization after args)
 
+# ToggleShow
+testexpr_10a = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 
 
@@ -335,9 +341,6 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
 # - some optims mentioned in StatePlace - faster & denser storage, and kinds of state with no usage/mod tracking.
 # but first, make a state-editing example using Button.
 
-
-# ToggleShow
-testexpr_xxx = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 
 # TestIterator (test an iterator - was next up, 061113/14, but got deferred, 061115)
 testexpr_7_xxx = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
