@@ -12,6 +12,7 @@
 #include "boxtree.h"
 #include "container.h"
 #include "rotationmatrix.h"
+#include "surface.h"
 
 class Hierarchy
 {
@@ -54,6 +55,14 @@ class Hierarchy
 		Triple * vector);
 
 	//------------------------------------------------------------------------
+	// Initialize()
+	//
+	// create box tree 
+	//
+	void Initialize(
+		Surface * s);
+
+	//------------------------------------------------------------------------
 	// Matrix()
 	//
 	// pointer to collision matrix
@@ -91,14 +100,9 @@ class Hierarchy
   private:
 
 	//------------------------------------------------------------------------
-	// mBox
-
-	Box mBox;							// minimal and maximum value for points
-
-	//------------------------------------------------------------------------
 	// mBoxes
 
-	Container<Box *> mBoxes;			// array for entity pointers
+	Container<Box> mBoxes;				// array for boxes
 
 	//------------------------------------------------------------------------
 	// mNumber

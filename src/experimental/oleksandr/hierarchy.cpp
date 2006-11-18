@@ -36,3 +36,33 @@ Hierarchy::~Hierarchy()
 	}
 }
 
+//------------------------------------------------------------------------
+// Initialize()
+//
+// create box tree 
+//
+void Hierarchy::Initialize(
+	Surface * s)
+{
+	int i,j;
+	int n = 3;
+	if (s->Type()) n = 4;
+	for (i = 0; i < s->Nt(); i+=n)
+	{
+		Box b;
+		for (j = 0; j < n; j++)
+		{
+			int ij = s->I(i + j);
+			Triple p(s->Px(ij), s->Py(ij), s->Pz(ij));
+			b.Enclose(p);
+		}
+		mBoxes.Add(b);
+	}
+	for (i = 0; i < s->Nt()/n; i++)
+	{
+		mTree->Add(&mBoxes[i]);
+	}
+	mTree->Base = &mBoxes[0];
+	mTree->BuildTree();
+}
+
