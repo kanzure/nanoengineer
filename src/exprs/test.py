@@ -322,7 +322,7 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
     # test an action of None (should be same as a missing one) (also supplied by customization after args)
 
 # ToggleShow
-testexpr_10a = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
+testexpr_10a = ToggleShow( Rect(2,3,lightgreen) ) # test use of Rules, If, toggling...
 
 
 
@@ -341,6 +341,13 @@ testexpr_10a = ToggleShow( testexpr_2 ) # test use of Rules, If, toggling...
 # - some optims mentioned in StatePlace - faster & denser storage, and kinds of state with no usage/mod tracking.
 # but first, make a state-editing example using Button.
 
+# "intentional deferred loose ends"
+# - iterators, and separation of expreval/instantiation (same thing? not sure)
+# - geom data types (eg Point) with relative coords; good system for transforms in things like Translate
+# - highlighting that works in displists
+# - povray
+
+
 
 # TestIterator (test an iterator - was next up, 061113/14, but got deferred, 061115)
 testexpr_7_xxx = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
@@ -357,7 +364,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_10a
+testexpr = testexpr_10a ## normally testexpr_10a, but even _9c prints lots of stack info now, don't know if harmless [061118 1000p]
     # latest stable tests: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c
     
     # currently under devel [061117]: ToggleShow, and its LL needs, StateRef and StatePlace and an inval-tracking attrholder

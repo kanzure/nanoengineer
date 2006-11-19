@@ -537,6 +537,10 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # Once we've printed the above, we might as well be easier to debug and not cause that bug right now,
             # so we'll return a legal expr -- in some few cases this will not cause an error, making this effectively a warning,
             # "missing args are interpreted as None". Review this later. [061118]
+            printnim("a better error retval might be a visible error indicator, if the type happens to be a widget")###e
+                #e I think we don't know the type here -- but we can return a general error-meaning-thing (incl error msg text)
+                # and let the type-coercers do with it what they will. Or we could return something equivalent to an exception
+                # (in our interpreted language) and revise our eval semantics to handle that kind of thing. [061118]
             return 0, canon_expr(None)
         else:
             return 0, dflt_expr

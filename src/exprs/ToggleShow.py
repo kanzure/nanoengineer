@@ -21,6 +21,10 @@ import Highlightable
 reload_once(Highlightable)
 from Highlightable import Highlightable
 
+import Rect
+reload_once(Rect)
+from Rect import Rect
+
 import TextRect
 reload_once(TextRect)
 from TextRect import TextRect
@@ -28,6 +32,10 @@ from TextRect import TextRect
 import Column
 reload_once(Column)
 from Column import SimpleRow, SimpleColumn
+
+import Overlay
+reload_once(Overlay)
+from Overlay import Overlay
 
 
 Automatic = StateRef = Stub
@@ -88,7 +96,7 @@ def If(cond, _then, _else = None):
 class ToggleShow(InstanceMacro):
     # args
     thing = Arg(Widget2D)
-    label = Arg(Widget2D) #e or coerce text into a 1-line TextRect -- how do we declare that intent??
+    label = Arg(Widget2D, TextRect("label")) #e or coerce text into a 1-line TextRect -- how do we declare that intent??
     if 0: # first make it work with a self-made stateref only, imitating Highlightable, using transient state
         stateref = Arg(StateRef, Automatic) ###k assumes the dflt can be a way to make one, not a literal one
 
@@ -141,7 +149,7 @@ class ToggleShow(InstanceMacro):
             # so: open = State()? bt say the type and dfault val -- like I did in this:
             # staterefs.py: 181:     LocalState( lambda x = State(int, 1): body(x.value, x.value = 1) ) #
 
-    if 0: # this will be real code, but not quite yet -- use an easier way first.
+    if 0: # this will be real code someday when no longer nim, but use an easier way first.
         open = State(bool, True) # default 'kind' of state depends on which layer this object is in, or something else about its class
             # but for now make it always transient_state
             # this is a macro like Option
@@ -150,26 +158,47 @@ class ToggleShow(InstanceMacro):
             # and note, that form doesn't yet let you point the state into a storage place other than _self.ipath... should it??
             # but the importance is, now in python you use self.open for get and set, just as you'd expect for an instance var.
 
-    if 1:
+    else:
         def get_open(self): #k
             return self.transient_state.open
         def set_open(self, val): #k
             self.transient_state.open = val
             return
         open = property(get_open, set_open)
+        set_default_attrs( self.transient_state, open = True)
+            # that was not enough to prevent the bug, don't know why,
+            # too tired to read a stacktrace [this is where i am 061118 1042p]
+            ##_do_action on_press
+            ##doing end_tracking_usage before reraising LvalError_ValueIsUnset [ok??]
+            ##doing end_tracking_usage before reraising LvalError_ValueIsUnset [ok??]
+            ##exception ignored in <Highlightable#5741(i)>.leftClick: exprs.lvals.
+            ##LvalError_ValueIsUnset: access to key 'NullIpath' in some lvaldict in _attr_accessor, before that value was set
+            ##  [selectMode.py:2285] [Highlightable.py:273] [Highlightable.py:337] [ToggleShow.py:204] [staterefs.py:129]
+            ##  [lvals.py:161] [lvals.py:186] [lvals.py:275] [lvals.py:269] [lvals.py:161] [lvals.py:186] [lvals.py:371] [staterefs.py:117]
         pass
     
     # constants
-    open_icon   = TextRect('+',1,1) #stub
-    closed_icon = TextRect('-',1,1) #stub
+    if 0:
+        open_icon   = TextRect('+',1,1) #stub
+        closed_icon = TextRect('-',1,1) #stub
+    else:
+        ####@@@@ I vaguely recall that Highlightable didn't work on text!
+        # and indeed, highlighting doesn't seem to be working on those.
+        # if so, the above'll need revision until that's fixed.
+        open_icon   = Overlay(Rect(1), TextRect('+',1,1))
+        closed_icon = Overlay(Rect(1), TextRect('-',1,1))
     
     # _value, and helper formulae
     ## open = stateref.value # can we make it work to say Set(open, newval) after this?? ####k
         # the hard part would be: eval arg1, but not quite all the way. we'd need a special eval mode for lvals.
         # it'd be related to the one for simplify, but different, since for (most) subexprs it'd go all the way.
     ## openclose = If( open, open_icon, closed_icon )
-    openclose = Highlightable( If( open, open_icon, closed_icon ),
-                               ##e should optim its gl_update eagerness for when some of its states look the same as others!
+    openclose = Highlightable( If( open, open_icon, closed_icon ), #########k does open work inside here, not being an Expr???
+
+                               ##e we should optim Highlightable's gl_update eagerness
+                               # for when some of its states look the same as others!
+                               # (no gl_update needed then, at least not just for that change --
+                               #  note, this is a special case of the inval optim for when something was changed to an equal value)
                                #e someday be able to say:
                                # on_press = Set( open, not_Expr(open) )
                                ## silly: on_press = lambda open = open: open = not open # no, open = not open can't work
@@ -181,7 +210,12 @@ class ToggleShow(InstanceMacro):
                             )
 
     def toggle_open(self):
-        self.open = not self.open ### can this work??? it will call set of self.open -- what does the descriptor do for that?
+        if 1:
+            self.transient_state.open = not self.transient_state.open
+        else:
+            ##### should work but doesn't, see bug in notesfile, it delegates self.open eval to _value: 061118 late
+            # (or is it just because the val was not initialized? GUESS, YES ###k)
+            self.open = not self.open ### can this work??? it will call set of self.open -- what does the descriptor do for that?
         # (asfail, or not have __set__ at all?? FIND OUT. the notesfile says the same thing but for a different Q, what was it?)
             ## WE SHOULD MAKE THIS WORK even if we also make on_press = Set( open, not_Expr(open) ) work, since it's so natural.
         ### BTW what is it that will notice the inval, and the usage of this when we drew, and know that gl_update is needed?
