@@ -234,8 +234,27 @@ def _std_frame_repr(frame): #e refile
     dfr = locals.get('__debug_frame_repr__')
     if dfr:
         return ' ' + dfr(locals)
-    return locals.keys() ##e sorted? limit to 25? include funcname of code object? (f_name?) dir(frame)?
-    
+    co_name = frame.f_code.co_name
+    res = ' ' + co_name
+    self = locals.get('self')
+    if self is not None:
+        res +=', self = %r' % (self,)
+    return res
+    # locals.keys() ##e sorted? limit to 25? include funcname of code object? (f_name?)
+    # note: an example of dir(frame) is:
+    ['__class__', '__delattr__', '__doc__', '__getattribute__', '__hash__',
+    '__init__', '__new__', '__reduce__', '__reduce_ex__', '__repr__',
+    '__setattr__', '__str__', 'f_back', 'f_builtins', 'f_code',
+    'f_exc_traceback', 'f_exc_type', 'f_exc_value', 'f_globals', 'f_lasti',
+    'f_lineno', 'f_locals', 'f_restricted', 'f_trace']
+    # and of dir(frame.f_code) is:
+    ['__class__', '__cmp__', '__delattr__', '__doc__', '__getattribute__',
+    '__hash__', '__init__', '__new__', '__reduce__', '__reduce_ex__',
+    '__repr__', '__setattr__', '__str__', 'co_argcount', 'co_cellvars',
+    'co_code', 'co_consts', 'co_filename', 'co_firstlineno', 'co_flags',
+    'co_freevars', 'co_lnotab', 'co_name', 'co_names', 'co_nlocals',
+    'co_stacksize', 'co_varnames']
+
 def call_but_discard_tracked_usage(compute_method): #061117
     "#doc [see obs func eval_and_discard_tracked_usage for a docstring to cannibalize]"
     lval = Lval(compute_method) # lval's only purpose is to discard the tracked usage that is done by compute_method()

@@ -344,9 +344,9 @@ class OpExpr(SymbolicExpr):
         doing usage-tracking into caller (i.e. doing no memoization or caching of our own).
         """
         def __debug_frame_repr__(locals):
-            "return a string for inclusion in some of our calls of print_compact_stack"
+            "return a string for inclusion in some calls of print_compact_stack"
             # note: this will always run before res is available
-            return "_e_argval(self is a %s, i = %r, env,ipath = %r)" % (self.__class__.__name__, i,ipath)
+            return "_e_argval(i = %r, ipath = %r), self = %r" % (i,ipath,self)
          ##e consider swapping argorder to 0,ipath,env or (0,ipath),env
         res = self._e_args[i]._e_eval(env, (i,ipath))
         return res

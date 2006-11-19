@@ -367,6 +367,9 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         (#e Should we change this to make the expr effectively part of the index, for caching? Probably not; not sure.)
         (#e Should we change this to make it legal to pass a new expr? Probably not... hard for subsequent callers to be consistent...)
         """
+        def __debug_frame_repr__(locals):
+            "return a string for inclusion in some calls of print_compact_stack"
+            return "_i_instance(index = %r, expr = %r), self = %r" % (index,expr,self)
         assert self._e_is_instance
         assert is_pure_expr(expr), "who passed non-pure-expr %r to _i_instance? index %r, self %r, _e_args %r" % \
                (expr, index, self, self._e_args)
