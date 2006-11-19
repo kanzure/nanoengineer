@@ -581,10 +581,11 @@ class format_Expr(OpExpr): #061113, seems to work
 
 # ==
 
-class If_expr(OpExpr): # so we can use If in formulas [but If is nim; see comments about it in ToggleShow.py or so]
-    pass
-# see also class If_ in testdraw.py
-## def If(): pass
+# If_expr is for now being prototyped in ToggleShow.py 061119
+##class If_expr(OpExpr): # so we can use If in formulas [but If is nim; see comments about it in ToggleShow.py or so]
+##    pass
+### see also class If_ in testdraw.py
+#### def If(): pass
 
 class internal_Expr(Expr):
     "Abstract class for various kinds of low-level exprs for internal use that have no visible subexprs."
@@ -647,6 +648,24 @@ class hold_Expr(constant_Expr):
         if modarg == arg:
             return self
         return self.__class__(modarg)
+    pass
+
+class property_Expr(internal_Expr):
+    ##k guess, 061119, for open in ToggleShow.py;
+    # probably just a kluge, since mixing properties with exprs is probably a temp workaround, tho in theory it might make sense
+    "#doc; canon_expr will turn a python property into this (or maybe any misc data descriptor??)"
+    def _internal_Expr_init(self):
+        (self._e_property,) = self.args
+    def __repr__(self):
+        return "<%s#%d%s: %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_property,)
+    def _e_eval(self, env, ipath):
+        assert env #061110
+        instance = env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]
+        prop = self._e_property
+        clas = instance.__class__ ### MIGHT BE WRONG, not sure, might not matter unless someone overrides the prop attr, not sure...
+        res = prop.__get__(instance, clas) ###k is this right? we want to call it like the class would to any descriptor
+        print "%r evals in %r to %r" % (self, instance, res) ####
+        return res
     pass
 
 class lexenv_Expr(internal_Expr): ##k guess, 061110 late
@@ -741,6 +760,10 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
 ##        # if we redefine V to not require floats, we might as well go all the way to V_expr inside it.
 ##        printnim("kluge: turning V(expr...) into a tuple_Expr for now!") #####@@@@@
 ##        return tuple_Expr(*subexpr) #e replace with NumericArray_expr or V_expr or so
+    elif isinstance(subexpr, property):
+        res = property_Expr(subexpr)
+        print "canon_expr wrapping property %r into %r" % (subexpr, res)###
+        return res
     else:
         #e assert it's not various common errors, like expr classes or not-properly-reloaded exprs
         #e more checks?

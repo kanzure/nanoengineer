@@ -59,19 +59,58 @@ class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py thi
     ## _value = cond and _then or _else # needs and_Expr, but that's as hard internally as If_expr, so don't bother
     def _C__value(self):
         if self.cond:
+            print "using then in",self,"because cond is %r type %r" % (self.cond,type(self.cond))
+                ### cond is <property object at 0x105bf030> - not what i wanted - type <type 'property'> - does canon_expr need special case?
+
             return self._then
         else:
+            print "using else in",self###
             return self._else
         pass
     pass
 
+def If_kluge(*args):###
+    "use this when you know you wanted If_expr but the buggy code might not give it to you yet; it always does but warns if If would not have"
+    res1 = res = If(*args)
+    if not isinstance(res, If_expr):
+        res2 = res = If_expr(*args)
+        assert isinstance(res, If_expr)
+        print "bug: If() gave you %r instead of this If_Expr %r I think you wanted (which I'll use)" % (res1, res2)
+    return res
+
+def is_constant_expr(expr):
+    assert is_pure_expr(expr)
+    return isinstance(expr, constant_Expr) ###k probably too limited; #e might need to delve in looking for sources of non-constancy;
+        #e might prefer to return the simpified const value, or a non-constant indicator (eg an equiv constant_Expr or None)
+
+def expr_constant_value(expr):
+    "even api is a kluge"
+    if is_constant_expr(expr):
+        return True, expr._e_constant_value #k will be wrong once is_constant_expr is improved -- a single func will need to do both things
+    else:
+        return False, "arb value"
+    
 def If(cond, _then, _else = None):
-    if is_pure_expr(cond):
+    ##e should map them all through canon_expr first, at least cond
+    # but wait, that's not correct, even False would then be an expr -- the issue is, after canon_expr, would it have a final value or not?
+    # for now that means, would it be a constant or not, I think.
+    # Trying this in a preliminary way. Not mapping _then or _else to make this work better for immediate use. (might be deprecated, not sure)
+
+    cond0 = cond #k for debug
+    cond = canon_expr(cond)
+    constflag, condval = expr_constant_value(cond)
+    
+    ## if is_pure_expr(cond):
+    ## if not is_constant_expr(cond):
+    if not constflag:
+        print "using If_expr"
         return If_expr(cond, _then, _else)
             #e maybe this will typecheck cond someday (in a way that would complain if it was a pyclass)
-    elif cond:
+    elif condval:
+        print "using then immediately"###
         return _then ##k whether or not it's an expr?? (I think so... this is then a primitive form of expr-simplification, I guess)
     else:
+        print "using else immediately"###
         return _else
     pass
 
@@ -165,8 +204,8 @@ class ToggleShow(InstanceMacro):
             self.transient_state.open = val
             return
         open = property(get_open, set_open)
-        set_default_attrs( self.transient_state, open = True)
-            # that was not enough to prevent the bug, don't know why,
+        ## set_default_attrs( self.transient_state, open = True) # WRONG, see next day comment
+            # that set_default_attrs was not enough to prevent the bug, don't know why,
             # too tired to read a stacktrace [this is where i am 061118 1042p]
             ##_do_action on_press
             ##doing end_tracking_usage before reraising LvalError_ValueIsUnset [ok??]
@@ -175,8 +214,16 @@ class ToggleShow(InstanceMacro):
             ##LvalError_ValueIsUnset: access to key 'NullIpath' in some lvaldict in _attr_accessor, before that value was set
             ##  [selectMode.py:2285] [Highlightable.py:273] [Highlightable.py:337] [ToggleShow.py:204] [staterefs.py:129]
             ##  [lvals.py:161] [lvals.py:186] [lvals.py:275] [lvals.py:269] [lvals.py:161] [lvals.py:186] [lvals.py:371] [staterefs.py:117]
+
+            # next day: now the above fails in a simpler way: NameError: name 'self' is not defined !!! How did that not happen yesterday?
+            # In present setup, the above can't be done at the class level (and when it can, that's what State(type, initval) is for),
+            # so we'll do it in _init_instance below.
         pass
     
+    def _init_instance(self):
+        super(ToggleShow, self)._init_instance()
+        set_default_attrs( self.transient_state, open = True)
+
     # constants
     if 0:
         open_icon   = TextRect('+',1,1) #stub
@@ -193,7 +240,7 @@ class ToggleShow(InstanceMacro):
         # the hard part would be: eval arg1, but not quite all the way. we'd need a special eval mode for lvals.
         # it'd be related to the one for simplify, but different, since for (most) subexprs it'd go all the way.
     ## openclose = If( open, open_icon, closed_icon )
-    openclose = Highlightable( If( open, open_icon, closed_icon ), #########k does open work inside here, not being an Expr???
+    openclose = Highlightable( If_kluge( open, open_icon, closed_icon ), #########k does open work inside here, not being an Expr??? No, messes up If.
 
                                ##e we should optim Highlightable's gl_update eagerness
                                # for when some of its states look the same as others!
@@ -211,7 +258,9 @@ class ToggleShow(InstanceMacro):
 
     def toggle_open(self):
         if 1:
+            print "toggle_open sees self.transient_state.open = %r" % (self.transient_state.open,)
             self.transient_state.open = not self.transient_state.open
+            print "toggle_open changed that to self.transient_state.open = %r" % (self.transient_state.open,)
         else:
             ##### should work but doesn't, see bug in notesfile, it delegates self.open eval to _value: 061118 late
             # (or is it just because the val was not initialized? GUESS, YES ###k)
@@ -229,40 +278,43 @@ class ToggleShow(InstanceMacro):
         openclose,
         SimpleColumn(
             label,
-            If( open, thing)
+            If_kluge( open,
+                      thing,
+                      TextRect("<closed>")##### I wanted None here, but it exposes a logic bug 
+                      )
         )
     )
 
-    if 0: # if 0 for now, since this happens, as semiexpected:
-        ## AssertionError: compute method asked for on non-Instance <SimpleRow#3566(a) at 0xe708cb0>
-
-        ##e do we want to make the height always act as if it's open? I think not... but having a public open_height attr
-        # (and another one for closed_height) might be useful for some callers (e.g. to draw a fixed-sized box that can hold either state).
-        # Would the following defns work:?
-        
-        # (They might not work if SimpleRow(...).attr fails to create a getattr_Expr! I suspect it doesn't. ####k )
-
-        # [WARNING: too inefficient even if they work, due to extra instance of thing -- see comment for a fix]
-        open_height = SimpleRow(   
-            open_icon,
-            SimpleColumn(
-                label,
-                thing
-            )).height   ##k if this works, it must mean the SimpleRow gets instantiated, or (unlikely)
-                        # can report its height even without that. As of 061116 I think it *will* get instantiated from this defn,
-                        # but I was recently doubting whether it *should* (see recent discussions of TestIterator etc).
-                        # If it won't, I think wrapping it with Instance() should solve the problem (assuming height is deterministic).
-                        # If height is not deterministic, the soln is to make open_instance and closed_instance (sharing instances
-                        # of label), then display one of them, report height of both. (More efficient, too -- only one instance of thing.)
-                        # (Will the shared instance of label have an ipath taken from one of its uses, or something else?
-                        #  Guess: from the code that creates it separately.)
-        
-        closed_height = SimpleRow(   
-            closed_icon,
-            SimpleColumn( # this entire subexpr is probably equivalent to label, but using this form makes it more clearly correct
-                label,
-                None
-            )).height
+##    if 0: # if 0 for now, since this happens, as semiexpected:
+##        ## AssertionError: compute method asked for on non-Instance <SimpleRow#3566(a) at 0xe708cb0>
+##
+##        ##e do we want to make the height always act as if it's open? I think not... but having a public open_height attr
+##        # (and another one for closed_height) might be useful for some callers (e.g. to draw a fixed-sized box that can hold either state).
+##        # Would the following defns work:?
+##        
+##        # (They might not work if SimpleRow(...).attr fails to create a getattr_Expr! I suspect it doesn't. ####k )
+##
+##        # [WARNING: too inefficient even if they work, due to extra instance of thing -- see comment for a fix]
+##        open_height = SimpleRow(   
+##            open_icon,
+##            SimpleColumn(
+##                label,
+##                thing
+##            )).height   ##k if this works, it must mean the SimpleRow gets instantiated, or (unlikely)
+##                        # can report its height even without that. As of 061116 I think it *will* get instantiated from this defn,
+##                        # but I was recently doubting whether it *should* (see recent discussions of TestIterator etc).
+##                        # If it won't, I think wrapping it with Instance() should solve the problem (assuming height is deterministic).
+##                        # If height is not deterministic, the soln is to make open_instance and closed_instance (sharing instances
+##                        # of label), then display one of them, report height of both. (More efficient, too -- only one instance of thing.)
+##                        # (Will the shared instance of label have an ipath taken from one of its uses, or something else?
+##                        #  Guess: from the code that creates it separately.)
+##        
+##        closed_height = SimpleRow(   
+##            closed_icon,
+##            SimpleColumn( # this entire subexpr is probably equivalent to label, but using this form makes it more clearly correct
+##                label,
+##                None
+##            )).height
 
     pass # end of class ToggleShow
 
