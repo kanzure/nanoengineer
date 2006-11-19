@@ -43,13 +43,16 @@ class OneTimeSubsList: #bruce 050804; as of 061022, it looks ok to use it in the
     even though this docstring is about the application to usage-tracking and next-change-subscription. ###e what to do about that?
        ###k Does it permit resubs while fulfilling them (as in changed_members)?? Is it reusable at all??
     """
-    def __init__(self):
+    def __init__(self, debug_name = None):
+        self.debug_name = debug_name #061118
         self._subs = {}
             # map from id(func) to list of (zero or more identical elements) func (which are of course strongrefs to func).
             # (We need the dict for efficient removal, and multiple copies of func in case duplicate funcs are provided
             #  (which is quite possible), but that doesn't need to be optimized for, so using a list of copies seems simplest.
             #  Implem note if we ever do this in C: could replace id(func) with hash(id(func)), i.e. not distinguish between
             #  equal funcs and funcs with same hashcode.)
+    def __repr__(self): #061118
+        return "<%s%s at %#x>" % (self.__class__.__name__, self.debug_name and ("(%s)" % self.debug_name) or '', id(self))
     def subscribe(self, func):
         try:
             subs = self._subs
@@ -59,7 +62,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, it looks ok to use it in the
             # (note: if subscribe could come before __init__, e.g. due to some sort of bug
             #  in which this obj got unpickled, this could also happen.)
             if platform.atom_debug: #e remove if happens routinely
-                print "atom_debug: fyi: %r's event already occurred, fulfilling new subs %r immediately" % (self, func)
+                print_compact_stack( "atom_debug: fyi: %r's event already occurred, fulfilling new subs %r immediately: " % (self, func))
             self._fulfill1(func)
         else:
             lis = subs.setdefault( id(func), [])
@@ -88,6 +91,7 @@ class OneTimeSubsList: #bruce 050804; as of 061022, it looks ok to use it in the
         except:
             if platform.atom_debug:
                 print_compact_traceback("atom_debug: exception ignored by %r from %r: " % (self, sub1) )
+                print_compact_stack("atom_debug: here is where that exception occurred: ") #061118
         return        
     def remove_subs(self, func): # note: this has never been used as of long before 061022, and looks potentially unsafe (see below)
         """Make sure (one subscribed instance of) func will never be fulfilled.
@@ -153,7 +157,8 @@ class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in c
         except AttributeError:
             # this is the only way self.__subslist gets created;
             # it means this is the first call of track_use ever, or since track_change was last called
-            subslist = self.__subslist = OneTimeSubsList() # (more generally, some sort of unique name for self's current value era)
+            debug_name = platform.atom_debug and ("%r" % self) or None #061118
+            subslist = self.__subslist = OneTimeSubsList(debug_name) # (more generally, some sort of unique name for self's current value era)
         # (Should we now return subslist.subscribe(func)? No -- that's what the value-user should do *after* subslist
         #  gets entered here into its list of used objs, and value-user later finds it there.)
         env.track( subslist)
@@ -314,7 +319,8 @@ class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in cl
     see class usage_tracker_obj for a related docstring
     """
     def begin_tracking_usage(self): #e there's a docstring for this in an outtakes file, if one is needed
-        obj = usage_tracker_obj()
+        debug_name = platform.atom_debug and ("%r" % self) or None #061118
+        obj = usage_tracker_obj(debug_name)
         match_checking_code = usage_tracker.begin( obj)
             # don't store match_checking_code in self -- that would defeat the error-checking
             # for bugs in how self's other code matches up these begin and end methods
@@ -362,6 +368,10 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
     # - as mentioned above, one variant will need to keep an order of addition of new items, in self.track.
     # - and self.track is called extremely often and eventually needs to be optimized (and perhaps recoded in C).
     # Other than that, it can probably be used directly, with the invalidator (from client code) responsible for inval propogation.
+    def __init__(self, debug_name = None):
+        self.debug_name = debug_name #061118
+    def __repr__(self): #061118
+        return "<%s%s at %#x>" % (self.__class__.__name__, self.debug_name and ("(%s)" % self.debug_name) or '', id(self))
     def begin(self):
         self.data = {}
     def track(self, subslist): 
@@ -399,7 +409,7 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
         # which have the same fulfillment function. That is only ok since our subs (self.standard_inval)
         # is unique to this object, and this object makes sure to give only one copy of it to one thing.
         inval = self.last_sub_invalidator
-        del self.last_sub_invalidator
+        del self.last_sub_invalidator # this avoids a memory leak
         whatweused = self.whatweused
         self.whatweused = 444 # not a sequence
         for subslist in whatweused:
