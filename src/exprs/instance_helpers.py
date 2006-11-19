@@ -531,10 +531,13 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 pass
         # arg was not provided -- error or use dflt_expr
         if required:
-            printnim( "error: required arg not provided. Instance-maker should have complained! Using None.")
-            return 0, None
-            #k I don't understand the following comment -- it seems backwards: [061108]
-            ###k NOT canon_expr -- we're dealing in values, which needn't be exprs, tho they might be.
+            print "error: required arg %r or %r not provided to %r. [#e Instance-maker should have complained!] Using None." % \
+                  (attr, argpos, self)
+            # Note: older code returned literally None, not an expr, which caused a bug in caller which tried to _e_eval the result.
+            # Once we've printed the above, we might as well be easier to debug and not cause that bug right now,
+            # so we'll return a legal expr -- in some few cases this will not cause an error, making this effectively a warning,
+            # "missing args are interpreted as None". Review this later. [061118]
+            return 0, canon_expr(None)
         else:
             return 0, dflt_expr
         pass # above should not _e_eval or canon_expr without review -- should return an arg or dflt expr, not its value

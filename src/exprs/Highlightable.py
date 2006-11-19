@@ -240,7 +240,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         sbar_text = self.sbar_text or ""
         if sbar_text:
             sbar_text = " %r" % sbar_text
-        return "<%s%s at %#x>" % (self.__class__.__name__, sbar_text, id(self)) ##e improve by merging in a super version
+        return "<%s%s at %#x>" % (self.__class__.__name__, sbar_text, id(self)) ##e improve by merging in a super version ##e zap %#x
         ## [Highlightable.py:260] [ExprsMeta.py:250] [ExprsMeta.py:318] [ExprsMeta.py:366] [Exprs.py:184] [Highlightable.py:260] ...
     
     def mouseover_statusbar_message(self): # called in GLPane.set_selobj

@@ -195,7 +195,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         "[often overridden by subclasses; __str__ can depend on __repr__ but not vice versa(?) (as python itself does by default(??))]"
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect_old) on 061016
         ## return "<%s at %#x: str = %r>" % (self.__class__.__name__, id(self), self.__str__())
-        return "<%s#%d%s at %#x>" % (self.__class__.__name__, self._e_serno, self._e_repr_info(), id(self))
+        return "<%s#%d%s>" % (self.__class__.__name__, self._e_serno, self._e_repr_info())
     def _e_repr_info(self):#061114
         "[private helper for __repr__]"
         if self._e_has_args:
@@ -684,7 +684,12 @@ class eval_Expr(OpExpr):
         assert env #061110
         (arg,) = self._e_args
         argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
-        res = argval._e_eval(env, ipath)
+        try:
+            res = argval._e_eval(env, ipath)
+        except:
+            print "following exception concerns argval._e_eval(...) where argval is %r and came from evalling %r" % \
+                  (argval, arg) #061118
+            raise
         ## print "eval_Expr eval goes from %r to %r to %r" % (arg, argval, res)
         return res
     pass
