@@ -195,8 +195,11 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # catch them and turn them into std custom exceptions, then wrap with posn/val info on each step of going up? (maybe)
             val = None
             if 1:
+                print ("###e use __debug_frame_repr__")###e use __debug_frame_repr__
                 print_compact_stack("exiting right after lval exception, to see if it makes my errors more readable, from here: ",
-                                    frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),), linesep = '\n')
+                                    ## frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),),
+                                    frame_repr = _std_frame_repr,
+                                    linesep = '\n')
                     ###k 061105; review; 061117 printfyi -> print_compact_stack
                 #e it would be nice to print self's formula (if it has one in the compute method), attr, etc,
                 # but we don't have good access to that info
@@ -224,6 +227,15 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return self.valid # even tho it's a public attr
     pass # end of class Lval
 
+def _std_frame_repr(frame): #e refile
+    "return a string for use in print_compact_stack"
+    # older eg: frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),), linesep = '\n'
+    locals = frame.f_locals
+    dfr = locals.get('__debug_frame_repr__')
+    if dfr:
+        return ' ' + dfr(locals)
+    return locals.keys() ##e sorted? limit to 25? include funcname of code object? (f_name?) dir(frame)?
+    
 def call_but_discard_tracked_usage(compute_method): #061117
     "#doc [see obs func eval_and_discard_tracked_usage for a docstring to cannibalize]"
     lval = Lval(compute_method) # lval's only purpose is to discard the tracked usage that is done by compute_method()

@@ -343,8 +343,13 @@ class OpExpr(SymbolicExpr):
         compute and return the current value of an implicit kid-instance made from self._e_args[i], at relative index i,
         doing usage-tracking into caller (i.e. doing no memoization or caching of our own).
         """
+        def __debug_frame_repr__(locals):
+            "return a string for inclusion in some of our calls of print_compact_stack"
+            # note: this will always run before res is available
+            return "_e_argval(self is a %s, i = %r, env,ipath = %r)" % (self.__class__.__name__, i,ipath)
          ##e consider swapping argorder to 0,ipath,env or (0,ipath),env
-        return self._e_args[i]._e_eval(env, (i,ipath))
+        res = self._e_args[i]._e_eval(env, (i,ipath))
+        return res
     def _e_kwval(self, k, env,ipath):
         "Like _e_argval, but return the current value of our implicit-kid-instance of self._e_kws[k], rel index k."
         return self._e_kws[k]._e_eval(env, (k,ipath))
