@@ -28,20 +28,23 @@ from state_utils import same_vals #bruce 060306
 
 # == Usage tracking.
 
-class OneTimeSubsList: #bruce 050804; as of 061022, it looks ok to use it in the new exprs module
-    """This object corresponds to (one momentary value of) some variable or aspect whose uses can be tracked
-    (causing a ref to this object to get added to a set of used things).
-       What the value-user can do to this object, found in its list of things used during some computation,
-    is to subscribe some function (eg an invalidator for the results of that computation,
-     which might be another variable, or a side effect like the results of drawing something)
-    to "the next change to this value", ie to the event of this value itself becoming invalid.
-    That subscription will be fulfilled at most once, ASAP after the corresponding value is known to be invalid.
-    Exceptions in fulfilling it might be debug-reported but will cause no harm to this object.
+class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new exprs module (and being used there); doc revised 061119
+    """This object corresponds to (one momentary value of) some variable or aspect whose uses (as inputs to
+    other computations) can be tracked (causing a ref to this object to get added to a set of used things).
+       When the user of the value corresponding to this object finds this object in the list of all such things
+    it used during some computation, it can subscribe some function (eg an invalidator for the result of that
+    computation, which (result) might be another variable, or a side effect like the effect of drawing something)
+    to the event of that value becoming invalid. [See SubUsageTrackingMixin and usage_tracker_obj for how this is done.]
+       That subscription will be fulfilled (by self) at most once, ASAP after the corresponding value is known to be invalid.
+    Exceptions in fulfilling it might be debug-reported but will cause no harm to this object (since it's important
+    that they don't prevent this object from fulfilling its other subscriptions).
        The value-user can also remove that subscription before it gets fulfilled
     (or even after? not sure, esp re duplicate funcs provided).
-       In fact, this object's implem seems general enough for any one-time-only subslist,
-    even though this docstring is about the application to usage-tracking and next-change-subscription. ###e what to do about that?
-       ###k Does it permit resubs while fulfilling them (as in changed_members)?? Is it reusable at all??
+       Note: this object's implem seems general enough for any one-time-only subslist,
+    even though this docstring is only about its application to usage-tracking and inval-subscription.
+    [###e what to do about that? Is it really reusable??]
+    [###k Does it permit resubs while fulfilling them (as in changed_members)??]
+    [Does SelfUsageTrackingMixin make a new one each time it fulfills old one? Yes [verified 061119].] 
     """
     def __init__(self, debug_name = None):
         self.debug_name = debug_name #061118
@@ -61,7 +64,11 @@ class OneTimeSubsList: #bruce 050804; as of 061022, it looks ok to use it in the
             # [not sure if this ever happens in initial uses of this class]
             # (note: if subscribe could come before __init__, e.g. due to some sort of bug
             #  in which this obj got unpickled, this could also happen.)
-            if platform.atom_debug: #e remove if happens routinely
+            if platform.atom_debug:
+                #e Remove this debug print if this non-error happens routinely (and turns out not to reveal a bug).
+                # It never happened enough to notice until circa 061118 in exprs module; I don't yet know why it happens there,
+                # but it started after an LvalUnset exception was added and some exception-ignorers were changed to pass that on;
+                # it is also associated (but not always) with the same invals happening twice.
                 print_compact_stack( "atom_debug: fyi: %r's event already occurred, fulfilling new subs %r immediately: " % (self, func))
             self._fulfill1(func)
         else:
@@ -89,8 +96,12 @@ class OneTimeSubsList: #bruce 050804; as of 061022, it looks ok to use it in the
         try:
             sub1() #e would an arg of self be useful?
         except:
+            # We have no choice but to ignore the exception, even if it's always a bug (as explained in docstring).
+            # The convention should be to make sure sub1 won't raise an exception (to make bugs more noticable),
+            # so this is always a likely bug, so we print it; but only when atom_debug, in case it might get printed
+            # a lot in some circumstances.
             if platform.atom_debug:
-                print_compact_traceback("atom_debug: exception ignored by %r from %r: " % (self, sub1) )
+                print_compact_traceback("atom_debug: exception in subs %r ignored by %r: " % (sub1, self) ) #061119 revised wording & arg order   
                 print_compact_stack("atom_debug: here is where that exception occurred: ") #061118
         return        
     def remove_subs(self, func): # note: this has never been used as of long before 061022, and looks potentially unsafe (see below)
@@ -124,6 +135,8 @@ class OneTimeSubsList: #bruce 050804; as of 061022, it looks ok to use it in the
             print_compact_traceback("bug: self._subs is %r: " % (self._subs,) )
         return
     pass # end of class OneTimeSubsList
+
+#
 
 class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class molecule and (via UsageTracker) in preferences.py
     """You can mix this into classes which need to let all other code track uses and changes
@@ -181,8 +194,11 @@ class SelfUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in c
             return # optimization (there were no uses of the current value, or, they were already invalidated)
         del self.__subslist
         subslist.fulfill_all()
+        return
     track_inval = track_change #bruce 061022 added this to API, though I don't know if it ever needs to have a different implem
     pass # end of class SelfUsageTrackingMixin
+
+#
 
 class UsageTracker( SelfUsageTrackingMixin): #bruce 050804 #e rename?
     "Ownable version of that mixin class, for owners that have more than one aspect whose usage can be tracked."
@@ -344,16 +360,22 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
     This object corresponds to one formula being evaluated,
     or to one occurrence of some other action which needs to know what it uses
     during a defined period of time while it calculates something.
-       At the start of that action, the client should create it and make it accessible within env
-    so that when a trackable thing is used, its inval-subslist is passed to self.track.
-       At the end of that action, the client should make it inaccessible
+       At the start of that action, the client should create this object and make it accessible within env
+    so that when a trackable thing is used, its inval-subslist is passed to self.track (self being this object),
+    which will store it in self.
+    [This can be done by calling SubUsageTrackingMixin.begin_tracking_usage().]
+       At the end of that action, the client should make this object inaccessible
     (restoring whatever tracker was active previously, if any),
     then call self.standard_end(invalidator) with a function it wants called
-    the next time one of the things it used becomes invalid. This object lives on
-    as a record of the set of those subscriptions, and the recipient of invalidation-signals from them,
-    which go to self.standard_inval, which removes the other subscriptions before calling invalidator.
-    (Removing them is the only reason this object needs to live on, or that the inval signal needs to be something
-    other than invalidator itself. Perhaps this could be fixed in the future, using weak pointers somehow. #e)
+    the next time one of the things it used becomes invalid.
+    [This can be done by calling SubUsageTrackingMixin.end_tracking_usage() with appropriate args.]
+    Self.standard_end will store invalidator in self, and subscribe self.standard_inval to the invalidation
+    of each trackable thing that was used.
+       This usage_tracker_obj lives on as a record of the set of those subscriptions, and as the recipient
+    of invalidation-signals from them (via self.standard_inval), which removes the other subscriptions
+    before calling invalidator. (Being able to remove them is the only reason this object needs to live on,
+    or that the inval signal needs to be something other than invalidator itself. Perhaps this could be fixed
+    in the future, using weak pointers somehow. #e)
     """
     # [note, 060926: for some purposes, namely optim of recompute when inputs don't change [#doc - need ref to explanation of why],
     #  we might need to record the order of first seeing the used things,
@@ -387,10 +409,12 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
     def end(self):
         pass # let the caller think about self.data.values() (eg filter or compress them) before subscribing to them
     def standard_end(self, invalidator):
-        "some callers will find this useful to call, shortly after self.end gets called; see class docstring for more info"
+        "some callers will find this useful to call, shortly after self.end gets called; see the class docstring for more info"
         self.invalidator = invalidator # this will be called only by our own standard_inval
         whatweused = self.whatweused = self.data.values() # this list is saved for use in other methods called later
-        self.last_sub_invalidator = inval = self.standard_inval # make sure to save the exact copy of this object which we use now
+        self.last_sub_invalidator = inval = self.standard_inval
+            # save the exact copy of this bound method object which we use now, so comparison with 'is' will work for unsubscribes
+            # (this might not be needed if they compare using '==' [###k find out])
             # note: that's a self-referential value, which would cause a memory leak, except that it gets deleted
             # in standard_inval (so it's ok). [060927 comment]
         for subslist in whatweused:
@@ -406,10 +430,18 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
         # But it doesn't know which subs that is! So it has to remove them all, even that one,
         # so it has to call a remove method which is ok to call even for a subs that was already fulfilled.
         # The only way for that method to always work ok is for its semantics to be that it removes all current subs (0 or more)
-        # which have the same fulfillment function. That is only ok since our subs (self.standard_inval)
-        # is unique to this object, and this object makes sure to give only one copy of it to one thing.
+        # which have the same fulfillment function (like subslist.remove_all_instances does).
+        # That is only ok since our subs (self.standard_inval) is unique to this object, and this object
+        # makes sure to give only one copy of it to one thing. (Another reason it could be ok is if it doesn't
+        # matter how many times self.invalidator is called, once it's called once. This is true in all current uses [061119]
+        # but perhaps not guaranteed.)
         inval = self.last_sub_invalidator
-        del self.last_sub_invalidator # this avoids a memory leak
+        self.last_sub_invalidator = 'hmm'
+            # 061119 do this rather than using del, to avoid exception when we're called twice; either way avoids a memory leak
+        if inval == 'hmm':
+            if platform.atom_debug:
+                print_compact_stack("fyi, something called standard_inval twice (not illegal but weird -- bug hint?) in %r: " % self)
+            return
         whatweused = self.whatweused
         self.whatweused = 444 # not a sequence
         for subslist in whatweused:
@@ -423,7 +455,7 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
 
 # ==
 
-class Formula( SubUsageTrackingMixin): #bruce 050805
+class Formula( SubUsageTrackingMixin): #bruce 050805 [not related to class Expr in exprs/Exprs.py, informally called formulae]
     """
     """
     killed = False
@@ -503,13 +535,12 @@ class Formula( SubUsageTrackingMixin): #bruce 050805
         return same_vals(val1, val2)
     pass # end of class Formula
 
-# ===
-# ***
-# ===
-
-# As of 050803, the facilities after this point are used only as stubs,
+# ==
+# As of 050803, many of the facilities after this point are used only as stubs,
 # though some might be used soon, e.g. as part of recent files menu,
-# custom jigs, Undo, or other things. [as of 060330 pairmatcher is used in undo]
+# custom jigs, Undo, or other things.
+# [as of 060330 pairmatcher is used in Undo; maybe keep_forever is used somewhere;
+#  a lot of Undo helpers occur below too]
 
 class pairmatcher:
     """Keep two forever-growing lists,
