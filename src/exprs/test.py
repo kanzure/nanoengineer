@@ -323,7 +323,8 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
 
 # ToggleShow
 testexpr_10a = ToggleShow( Rect(2,3,lightgreen) ) # test use of Rules, If, toggling...
-
+testexpr_10b = ToggleShow( Highlightable(Rect(2,3,green)) ) # see if this form doesn't redraw on every mousemotion over the rect
+testexpr_10c = ToggleShow(ToggleShow( Highlightable(Rect(2,3,green)) ))
 
 
 # BTW, all this highlighting response (e.g. testexpr_9c) is incredibly slow.
@@ -364,7 +365,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_10a ## normally testexpr_10a, but even _9c prints lots of stack info now, don't know if harmless [061118 1000p]
+testexpr = testexpr_10c ## normally testexpr_10a, but even _9c prints lots of stack info now, don't know if harmless [061118 1000p]
     # latest stable tests: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c
     
     # currently under devel [061117]: ToggleShow, and its LL needs, StateRef and StatePlace and an inval-tracking attrholder

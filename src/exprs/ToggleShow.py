@@ -59,12 +59,10 @@ class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py thi
     ## _value = cond and _then or _else # needs and_Expr, but that's as hard internally as If_expr, so don't bother
     def _C__value(self):
         if self.cond:
-            print "using then in",self,"because cond is %r type %r" % (self.cond,type(self.cond))
-                ### cond is <property object at 0x105bf030> - not what i wanted - type <type 'property'> - does canon_expr need special case?
-
+            ## print "using then in",self,"because cond is %r type %r" % (self.cond,type(self.cond))
             return self._then
         else:
-            print "using else in",self###
+            ## print "using else in",self
             return self._else
         pass
     pass
@@ -258,13 +256,16 @@ class ToggleShow(InstanceMacro):
 
     def toggle_open(self):
         if 1:
-            print "toggle_open sees self.transient_state.open = %r" % (self.transient_state.open,)
-            self.transient_state.open = not self.transient_state.open
-            print "toggle_open changed that to self.transient_state.open = %r" % (self.transient_state.open,)
+            old = self.transient_state.open
+            self.transient_state.open = new = not old
+            print "toggle_open changed self.transient_state.open from %r to %r" % (old, new,)
         else:
+            old = self.open
+            self.open = new = not old
+            print "toggle_open changed self.open from %r to %r" % (old, new,)
             ##### should work but doesn't, see bug in notesfile, it delegates self.open eval to _value: 061118 late
             # (or is it just because the val was not initialized? GUESS, YES ###k)
-            self.open = not self.open ### can this work??? it will call set of self.open -- what does the descriptor do for that?
+            ## self.open = not self.open ### can this work??? it will call set of self.open -- what does the descriptor do for that?
         # (asfail, or not have __set__ at all?? FIND OUT. the notesfile says the same thing but for a different Q, what was it?)
             ## WE SHOULD MAKE THIS WORK even if we also make on_press = Set( open, not_Expr(open) ) work, since it's so natural.
         ### BTW what is it that will notice the inval, and the usage of this when we drew, and know that gl_update is needed?

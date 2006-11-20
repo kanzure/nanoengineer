@@ -650,9 +650,9 @@ class hold_Expr(constant_Expr):
         return self.__class__(modarg)
     pass
 
-class property_Expr(internal_Expr):
-    ##k guess, 061119, for open in ToggleShow.py;
-    # probably just a kluge, since mixing properties with exprs is probably a temp workaround, tho in theory it might make sense
+class property_Expr(internal_Expr): ##k guess, 061119, for attr 'open' in ToggleShow.py;
+    # maybe just a kluge, since mixing properties with exprs is probably a temp workaround, tho in theory it might make sense...
+    # if it can be rationalized then it's good to leave it in, maybe even encourage it.
     "#doc; canon_expr will turn a python property into this (or maybe any misc data descriptor??)"
     def _internal_Expr_init(self):
         (self._e_property,) = self.args
@@ -663,8 +663,8 @@ class property_Expr(internal_Expr):
         instance = env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]
         prop = self._e_property
         clas = instance.__class__ ### MIGHT BE WRONG, not sure, might not matter unless someone overrides the prop attr, not sure...
-        res = prop.__get__(instance, clas) ###k is this right? we want to call it like the class would to any descriptor
-        print "%r evals in %r to %r" % (self, instance, res) ####
+        res = prop.__get__(instance, clas) #k is this right? we want to call it like the class would to any descriptor. seems to work.
+        ## print "%r evals in %r to %r" % (self, instance, res)
         return res
     pass
 
