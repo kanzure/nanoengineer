@@ -244,21 +244,46 @@ class ToggleShow(InstanceMacro):
         # the hard part would be: eval arg1, but not quite all the way. we'd need a special eval mode for lvals.
         # it'd be related to the one for simplify, but different, since for (most) subexprs it'd go all the way.
     ## openclose = If( open, open_icon, closed_icon )
-    openclose = Highlightable( If_kluge( open, open_icon, closed_icon ), #########k does open work inside here, not being an Expr??? No, messes up If.
 
-                               ##e we should optim Highlightable's gl_update eagerness
-                               # for when some of its states look the same as others!
-                               # (no gl_update needed then, at least not just for that change --
-                               #  note, this is a special case of the inval optim for when something was changed to an equal value)
-                               #e someday be able to say:
-                               # on_press = Set( open, not_Expr(open) )
-                               ## silly: on_press = lambda open = open: open = not open # no, open = not open can't work
-                               # in fact, you can't use "lambda open = open", since open has to be replaced by ExprsMeta
+    if 0:
+        # when the icons' size varies in open vs closed, this form has weird bugs [it seems as of 061120]:
+        openclose = Highlightable( If_kluge( open, open_icon, closed_icon ), on_press = _self.toggle_open )
+            #k does open work inside here, not being an Expr??? No, messes up If. Fixed using property_Expr.
 
-                               ##k can on_press be an expr to eval, instead of a (constant expr for a) func to call?? ####k
-                               ## on_press = call_Expr( lambda xxx: self.open = not self.open, xxx) # no, no assignment in lambda
-                               on_press = _self.toggle_open
-                            )
+            ##e we should optim Highlightable's gl_update eagerness
+            # for when some of its states look the same as others!
+            # (no gl_update needed then, at least not just for that change --
+            #  note, this is a special case of the inval optim for when something was changed to an equal value)
+            #e someday be able to say:
+            # on_press = Set( open, not_Expr(open) )
+            ## silly: on_press = lambda open = open: open = not open # no, open = not open can't work
+            # in fact, you can't use "lambda open = open", since open has to be replaced by ExprsMeta
+
+            ##k can on_press be an expr to eval, instead of a (constant expr for a) func to call?? ####k
+            ## on_press = call_Expr( lambda xxx: self.open = not self.open, xxx) # no, no assignment in lambda
+        pass
+    else:
+        # so try this form 155p - bug of not working is gone, but now, it always draws the + form! Is it drawing the old one
+        # due to same glname? no (I guess), they should have different names!
+        # is it drawing old one due to not realizing that one is obs? ######where i am
+        # is it failing to invalidate the drawing effect of this instance? (after all, who is it that sees the usage of open?
+        # it must be glpane as if we were using a prefs variable here! is that sufficient?? does it work ok re selobj system???###)
+        # IS THE CHOICE OF DELEGATE being invalled? I think so, since I see the alignment calcs get updated,
+        # or is that just the live gltranslate inside the draw method?
+        # HEY, when I covered up the glpane with this app, then uncovered it, suddenly I see the new selobj,
+        # then the conjunction of both! how can that be? thes are similar to whgat I sawe earlier. conclusion: weird update bugs
+        # in selobj/highlight system, i guess. (maybe it does the main draw and highlight draw on different objects?
+        # try altering color, or using 4 images not 2. ###)
+        # now it sems that mouse around on the closed that looks like open is what makes it look like clsed, or like both.
+        # yes, repeatable, for either change of state. Ok, try that in 'if 1' case of this. ### siilar but not identical
+        # and that time is again does get stuck into the closed state, with the grayrect no longer optiming redraws re stencil buffer.
+        # .. reviewing code in Highlightable, I see some things to try -- see its 061120 comments.
+        # ... I did all that, and the gray becomes inactive bug in if 1 is still there. howbout the if 0 case?
+        openclose = If_kluge( open,
+                              Highlightable(open_icon,   on_press = _self.toggle_open),
+                              Highlightable(closed_icon, on_press = _self.toggle_open),
+                    )
+        pass    
 
     def toggle_open(self):
         if 1:

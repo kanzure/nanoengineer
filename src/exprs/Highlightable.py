@@ -48,7 +48,7 @@ class DragHandler: # implemented in selectMode.py; see leftClick, needed to use 
         return False # otherwise subclass is likely to forget to do them
     def DraggedOn(self, event, mode): ### might need better args (the mouseray, as two points? offset? or just ask mode  #e rename
         pass
-    def ReleasedOn(self, selobj, mode): ### will need better args ### NOT YET CALLED [guess 061115: this is obs, it is called] #e rename
+    def ReleasedOn(self, selobj, event, mode): ### will need better args #e rename
         pass
     pass
 
@@ -93,25 +93,22 @@ def recycle_glselect_name(glpane, glname, newobj): #e refile (see above)
     env.obj_with_glselect_name[glname] = newobj
     return
 
+def selobj_for_glname(glname):#e use above? nah, it also has to store into here
+    import env
+    return env.obj_with_glselect_name.get(glname, None)
+
 # ==
 
 printdraw = False # debug flag [same name as one in cad/src/testdraw.py]
 
 class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to Button? make variant called Draggable?
     """Highlightable(plain, highlighted = None, pressed_in = None, pressed_out = None)
-    renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight
+    renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight [#k or just highlight??]
     [and has more, so as to be Button #doc #e rename #e split out draggable of some sort]
     """
     #060722;
     # revised for exprs module, 061115 [not done]
     # note: uses super InstanceOrExpr rather than Widget2D so as not to prevent delegation of lbox attrs (like in Overlay)
-    #
-    # old comment from testdraw.py, as of 061115 I don't even know if it was obs when there:
-    # Works, except I suspect the docstring is inaccurate when it says "plain plus highlight" (rather than just highlight), 
-    # and there's an exception if you try to ask selectMode for a cmenu for this object, or if you just click on it
-    # (I can guess why -- it's a selobj-still-valid check I vaguely recall, selobj_still_ok):
-    #   atom_debug: ignoring exception: exceptions.AttributeError: killed
-    #   [modes.py:928] (i.e. selobj_still_ok) [Delegator.py:10] [inval.py:192] [inval.py:309]
     
     # args (which specify what it looks like in various states)
     plain = Arg(Widget2D)
@@ -249,9 +246,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     
     def mouseover_statusbar_message(self): # called in GLPane.set_selobj
         return self.sbar_text or "%r" % (self,)
-    
-    ###@@@ got to here, roughly
-    
+
     def highlight_color_for_modkeys(self, modkeys):
         """#doc; modkeys is e.g. "Shift+Control", taken from glpane.modkeys
         """
@@ -259,23 +254,51 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             # KLUGE: The specific color we return doesn't matter, but it matters that it's not None, to GLPane --
             # otherwise it sets selobj to None and draws no highlight for it.
             # (This color will be received by draw_in_abs_coords, but our implem of that ignores it.)
+    
+    ###@@@ got to here, roughly
+        
     def selobj_still_ok(self, glpane):
-        ###e needs to compare glpane.part to something in selobj, and worry whether selobj is killed, current, etc
+        ###e needs to compare glpane.part to something in selobj [i.e. self, i guess? 061120 Q],
+        # and worry whether selobj is killed, current, etc
         # (it might make sense to see if it's created by current code, too;
         #  but this might be too strict: self.__class__ is Highlightable )
         # actually it ought to be ok for now:
         res = self.__class__ is Highlightable # i.e. we didn't reload this module since self was created
+        if res:
+            #061120 see if this helps -- do we still own this glname?
+            our_selobj = self
+            glname = self.glname
+            owner = selobj_for_glname(glname)
+            if owner is not our_selobj:
+                res = False
+                # owner might be None, in theory, but is probably a replacement of self at same ipath
+                # do debug prints
+                print "%r no longer owns glname %r, instead %r does" % (self, glname, owner)
+                our_ipath = self.ipath
+                owner_ipath = getattr(owner, 'ipath', '<missing>')
+                if our_ipath != owner_ipath:
+                    print "WARNING: ipath for that glname also changed, from %r to %r" % (our_ipath, owner_ipath)
+                pass
+            pass
+        printnim("should i check whether selobj got replaced at its same ipath/glname, like I do elsewhere in this class?")##### 061120
+            # more discussion: that printnim is about whether this selobj got replaced locally;
+            # the comments in the calling code are about whether it's no longer being drawn in the current frame;
+            # I think both issues are valid and need addressing in this code or it'll probably cause bugs. [061120 comment] ########BUG
         import env
         if not res and env.debug():
             print "debug: selobj_still_ok is false for %r" % self ###@@@
         return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
             # Caller now prints a warning if it's None.
+    
     ### grabbed from Button, maybe not yet fixed for here
-    def leftClick(self, point, mode):
+    def leftClick(self, point, event, mode):
         self.transient_state.in_drag = True
         self.inval(mode)
         self._do_action('on_press')
+        mode.update_selobj(event) #061120 to see if it fixes bugs (see discussion in comments)
+        self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
         return self # in role of drag_handler
+    
     def DraggedOn(self, event, mode):
         # only ok for Button so far
         #e might need better args (the mouseray, as two points?) - or get by callback
@@ -291,16 +314,16 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # since only this object knows what kind that is.
         return
     
-    def ReleasedOn(self, selobj, mode): ### will need better args
+    def ReleasedOn(self, selobj, event, mode): ### will need better args
         ### written as if for Button, might not make sense for draggables
         self.transient_state.in_drag = False
-        self.inval(mode)
-        our_selobj = self  #k [old cmt] is this the right selobj? NO! or, maybe -- this DH is its own selobj and vice versa
+        self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
+        our_selobj = self #e someday this might be some other object created by self to act as the selobj
         try:
             # KLUGE 061116, handle case of us being replaced (instances remade)
             # between the mode or glpane seeing the selobj and us testing whether it's us
-            if selobj and getattr(selobj,'ipath','nope') == our_selobj.ipath:
-                assert our_selobj.glname == selobj.glname, "glnames differ"
+            if selobj and (selobj is not our_selobj) and getattr(selobj,'ipath','nope') == our_selobj.ipath:
+                assert our_selobj.glname == selobj.glname, "glnames differ" # should be the same, since stored in glpane state at ipath
                 print "kluge, fyi: pretending old selobj %r is our_selobj (self) %r" % (selobj, our_selobj)
                     # NOTE: our_selobj (self) is OLDER than the "old selobj" (selobj) passed to us!
                     # Evidence: the sernos in this print:
@@ -327,7 +350,12 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         else:
             self._do_action('on_release_out')
         ## mode.update_selobj(event) #k not sure if needed -- if it is, we'll need the 'event' arg
+        printnim("does ReleasedOn and also leftClick need the event arg so it can update_selobj so some bugs can be fixed??") ######
+            ##bug guess 061120 - i think it does. try it. any other files affected?? if maybe for leftClick, rename it PressedOn??
+            ########BUG
         #e need update?
+        mode.update_selobj(event) #061120 to see if it fixes bugs (see discussion in comments)
+        self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
         return
     
     def _do_action(self, name):
@@ -346,11 +374,16 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         make sure display lists that might contain us are remade [stub],
         and glpanes are updated
         """
+        ##### 061120 guess: prob not needed in theory, and de-optim, but conservative, and otherwise harmless.
+        # the fact that it comes before the side effect routines in its callers
+        # ought to be ok unless they do recursive event processing. still, why not do it after instead? not sure... ##e
+        # plan: try doing it after as last resort bugfix; otoh if bugs gone, try never doing it. ########BUG - slight chance it is
+        
         ## vv.havelist = 0
         mode.o.gl_update()
         return
     
-    pass # end of class Highlightable (a widgetexpr, and one kind of DragHandler)
+    pass # end of class Highlightable
 
 Button = Highlightable
 
