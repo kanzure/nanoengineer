@@ -224,13 +224,20 @@ class ToggleShow(InstanceMacro):
     # constants
     if 0:
         open_icon   = TextRect('+',1,1) #stub
-        closed_icon = TextRect('-',1,0.5) #stub
+        closed_icon = TextRect('-',1,1) #stub
     else:
         ####@@@@ I vaguely recall that Highlightable didn't work on text!
         # and indeed, highlighting doesn't seem to be working on those.
         # if so, the above'll need revision until that's fixed.
         open_icon   = Overlay(Rect(1), TextRect('+',1,1))
-        closed_icon = Overlay(Rect(1), TextRect('-',1,1))
+        closed_icon = Overlay(Rect(1,0.5), TextRect('-',1,1)) #061120 changed impicit 1 -> 0.5; then noticed click on this is broken
+            # but only for inner eg (not outer eg, of nested two) in testexpr_10d -- is that the true cause? change back to see; yes.
+            ##WEIRD BUGS in gray rects, varsize, inner click -- seems to close the wrong one sometimes, seems to become insensitive, 
+            ##seems to briefly display the highlighted old one at same time as different new one
+            ##(do i end up clicking on an old one so it fails?)
+            ##it does seem like if same size we don't have this bug -- weird.
+            ##NEED TO DEBUG THIS, it might relate to other bugs re selobj or even subslist. [061120 119p]
+
     
     # _value, and helper formulae
     ## open = stateref.value # can we make it work to say Set(open, newval) after this?? ####k
