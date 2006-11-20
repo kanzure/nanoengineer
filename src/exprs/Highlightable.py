@@ -195,8 +195,12 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         return # from _init_instance
     
     def draw(self):
-        self.per_frame_state.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
+        self.per_frame_state.saved_modelview_matrix = var_for_debug = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
             ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
+        if 1:
+            # to investigate a bug, do it again to see if it emits an extra debug print... it doesn't, I think...
+            self.per_frame_state.saved_modelview_matrix = var_for_debug #######
+            del var_for_debug
         PushName(self.glname)
         if self.transient_state.in_drag:
             if printdraw: print "pressed_out.draw",self

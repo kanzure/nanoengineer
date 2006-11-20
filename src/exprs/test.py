@@ -116,7 +116,7 @@ from instance_helpers import DelegatingInstance_obs, DelegatingMixin # needed on
 try:
     _state
 except:
-    _state = {}
+    _state = {} ###### this is used for env.staterefs as of 061120, see also session_state, not yet used, probably should merge
 
 # == debug code #e refile
 
@@ -394,9 +394,9 @@ def drawtest1_innards(glpane):
     glpane
     staterefs = _state ##e is this really a stateplace? or do we need a few, named by layers for state?
         #e it has: place to store transient state, [nim] ref to model state
-    some_env = widget_env(glpane, staterefs) #####@@@@@@ IMPLEM more args, etc, and import it
 
-    inst = some_env.make(testexpr, NullIpath)
+    inst = find_or_make_main_instance(glpane, staterefs, testexpr)
+    
     from basic import printnim, printfyi
     printnim("severe anti-optim not to memoize some_env.make result in draw") ###e but at least it ought to work this way
     inst.draw()
@@ -416,6 +416,56 @@ def drawtest1_innards(glpane):
     printnim("see code for how to optim by replacing two redraws with one, when mouse goes over an object") # see comment above
     return
 
+MEMOIZE_MAIN_INSTANCE = True # change soon, as big optim and to see if it hides some bugs
+
+MEMOIZE_ACROSS_RELOADS = False
+
+try:
+    _last_main_instance_data
+except:
+    # WARNING: duplicated code, a few lines away
+    _last_main_instance_data = (None, None, None)
+    _last_main_instance = None
+else:
+    # reloading
+    if not MEMOIZE_ACROSS_RELOADS:
+        # WARNING: duplicated code, a few lines away
+        _last_main_instance_data = (None, None, None)
+        _last_main_instance = None
+    pass        
+
+def find_or_make_main_instance(glpane, staterefs, testexpr): #061120
+    if not MEMOIZE_MAIN_INSTANCE:
+        return make_main_instance(glpane, staterefs, testexpr)
+    global _last_main_instance_data, _last_main_instance
+    new_data = (glpane, staterefs, testexpr)
+        # note: comparison data doesn't include funcs & classes changed by reload & used to make old inst,
+        # including widget_env, Lval classes, etc, so when memoizing, reload won't serve to try new code from those defs
+    if new_data != _last_main_instance_data:
+        old = _last_main_instance_data
+        _last_main_instance_data = new_data
+        res = _last_main_instance = make_main_instance(glpane, staterefs, testexpr)
+        print "\n**** MADE NEW MAIN INSTANCE ****\n", res, "(glpane %s, staterefs %s, testexpr %s)" % _cmpmsgs(old, new_data)
+    else:
+        res = _last_main_instance
+        ## print "reusing main instance", res
+    return res
+
+def _cmpmsgs(d1, d2):
+    """return e.g. ("same", "DIFFERENT", "same") to show how d1 and d2 compare using == at corresponding elts"""
+    assert len(d1) == len(d2)
+    res = [_cmpmsg(d1[i], d2[i]) for i in range(len(d1))]
+    return tuple(res) # tuple is required for this to work properly with print formatting
+
+def _cmpmsg(e1,e2):
+    return (e1 == e2) and "same" or "DIFFERENT"
+
+def make_main_instance(glpane, staterefs, testexpr):
+    some_env = widget_env(glpane, staterefs)
+    inst = some_env.make(testexpr, NullIpath)
+    return inst
+
+# ==
 
 # old comments:
 
@@ -442,9 +492,9 @@ try:
     session_state
     # assert it's the right type; used for storing per-session transient state which should survive reload
 except:
-    session_state = {}
+    session_state = {}    ### NOT YET USED as of 061120
 
-per_reload_state = {}
+per_reload_state = {}     ### NOT YET USED as of 061120
 
 # also per_frame_state, per_drag_state ... maybe state.per_frame.xxx, state.per_drag.xxx...
 

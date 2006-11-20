@@ -49,6 +49,15 @@ from debug import reload_once_per_event, print_compact_traceback, print_compact_
 
 
 def reload_once(module):
+    "[the real docstring is below this temp debug code]"
+    def printfyi(msg): # WARNING: dup code, inlining py_utils version since not yet imported
+        msg = "fyi (printonce): " + msg
+        from env import seen_before
+        if not seen_before(msg):
+            print msg
+    if 1:
+        printfyi( "DISABLED FOR DEBUG: reload_once(%r)" % module.__name__ )############
+        return
     """This function is used to support automatic runtime reloading of modules within this package,
     for developer convenience. To use it, add this code before any import of symbols from a module
     (or use this code in place of any direct import of a module):
