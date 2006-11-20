@@ -1,8 +1,10 @@
-'''
-Column.py  [module might be renamed if we add Row, etc, to same file]
+"""
+Column.py - provide SimpleColumn and SimpleRow, and later, fancier Column and Row
+
+[#e module might be renamed; otoh, if we have Table it'll be enough more complex to be in its own file]
 
 $Id$
-'''
+"""
 
 from basic import * # autoreload of basic is done before we're imported
 

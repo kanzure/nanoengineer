@@ -1,4 +1,4 @@
-'''
+"""
 ExprsMeta.py -- one metaclass, to take care of whatever is best handled using a metaclass,
 and intended to be used for all or most classes in this module.
 
@@ -125,7 +125,7 @@ What ExprsMeta handles specifically:
 
 - _options (abbrev for multiple _DEFAULT_), but not _args
 
-'''
+"""
 
 __all__ = ['remove_prefix', 'ExprsMeta', 'ConstantComputeMethodMixin', 'DictFromKeysAndFunction', 'RecomputableDict']
 

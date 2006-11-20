@@ -71,7 +71,8 @@ def _StatePlace_helper( self, kind, ipath): # could become a method in InstanceO
     # but that means all the work is in the attraccessors (since we don't even know the key to identify
     # the LvalDict until we know the attr) -- ok.
 
-    return _attr_accessor( self.env.staterefs, kind, ipath)
+    return _attr_accessor( self.env.staterefs, kind, ipath, debug_name = platform.atom_debug and ("%r|%s" % (self,kind)))
+        # we leave ipath out of the debug_name, since the accessor's LvalDict2 will add it in in the form of its key
 
     # older _StatePlace_helper body code, for comparison:
 ##    # ok, state is a dict from (kind,attr)    
@@ -94,10 +95,11 @@ class _attr_accessor:
     ##e NIM: doesn't yet let something sign up to recompute one attr's values; only lets them be individually set.
     # This might be a problem. BTW to do that well it might need to also be told a model-class-name;
     # we can probably let that be part of "kind" (or a new sibling to it) when the time comes to put it in.
-    def __init__( self, staterefs, kind, ipath):
+    def __init__( self, staterefs, kind, ipath, debug_name = None):
         self.__dict__['__staterefs'] = staterefs
         self.__dict__['__kind'] = kind
         self.__dict__['__ipath'] = ipath
+        self.__dict__['__debug_name'] = debug_name
         ## self.__dict__['__tables'] = {}
     def __get_table(self, attr):
         kind = self.__dict__['__kind']
@@ -110,7 +112,10 @@ class _attr_accessor:
         except KeyError:
             # (valfunc computes values from keys; it's used to make the lval formulas; but they have to be resettable)
             valfunc = self.valfunc ###e should use an initval_expr to make this
-            tables[whichtable] = res = LvalDict2(valfunc, LvalForState)
+            debug_name = self.__dict__['__debug_name']
+            if debug_name:
+                debug_name = "%s.%s" % (debug_name, attr)
+            tables[whichtable] = res = LvalDict2(valfunc, LvalForState, debug_name = debug_name)
                 # note: we pass our own lvalclass, which permits set_constant_value
         return res
     def valfunc(self, key):

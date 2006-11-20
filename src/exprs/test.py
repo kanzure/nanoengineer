@@ -340,6 +340,7 @@ testexpr_10c = ToggleShow(ToggleShow( Highlightable(Rect(2,3,green)) ))
 # - simplify exprs, like the grabarg one
 #   - related (maybe needed as part of that): know which attrvals are "final", and which methods are deterministic (by attrname).
 # - some optims mentioned in StatePlace - faster & denser storage, and kinds of state with no usage/mod tracking.
+# - in Lval: self.track_use() # (defined in SelfUsageTrackingMixin) ###e note: this will need optimization
 # but first, make a state-editing example using Button.
 
 # "intentional deferred loose ends"

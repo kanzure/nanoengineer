@@ -762,7 +762,7 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
 ##        return tuple_Expr(*subexpr) #e replace with NumericArray_expr or V_expr or so
     elif isinstance(subexpr, property):
         res = property_Expr(subexpr)
-        print "canon_expr wrapping property %r into %r" % (subexpr, res)###
+        ## print "canon_expr wrapping property %r into %r" % (subexpr, res)
         return res
     else:
         #e assert it's not various common errors, like expr classes or not-properly-reloaded exprs

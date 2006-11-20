@@ -94,18 +94,17 @@ def If(cond, _then, _else = None):
     # for now that means, would it be a constant or not, I think.
     # Trying this in a preliminary way. Not mapping _then or _else to make this work better for immediate use. (might be deprecated, not sure)
 
-    cond0 = cond #k for debug
     cond = canon_expr(cond)
     constflag, condval = expr_constant_value(cond)
     
     ## if is_pure_expr(cond):
     ## if not is_constant_expr(cond):
     if not constflag:
-        print "using If_expr"
+        ## print "using If_expr"
         return If_expr(cond, _then, _else)
             #e maybe this will typecheck cond someday (in a way that would complain if it was a pyclass)
     elif condval:
-        print "using then immediately"###
+        print "using then immediately"### leave these in awhile, since they're rare and might indicate a bug
         return _then ##k whether or not it's an expr?? (I think so... this is then a primitive form of expr-simplification, I guess)
     else:
         print "using else immediately"###

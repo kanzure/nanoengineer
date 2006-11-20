@@ -1,4 +1,4 @@
-'''
+"""
 lvals.py - various kinds of "lvalue" objects (slots for holding attribute values)
 with special behavior such as usage-tracking and invalidation/update.
 
@@ -45,7 +45,7 @@ Other differences, that should *not* be reflected directly in lval classes
   and have the owning class access them differently.
 
 For examples, see the classes herein whose names contain Lval.
-'''
+"""
 
 # WARNING: the code in here needs to be safe for use in implementing ExprsMeta, which means it should not depend
 # on using that as a metaclass.
@@ -105,7 +105,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
     valid = False # public attribute
     # no need to have default values for _value, unless we add code to compare new values to old,
     # or for _compute_method, due to __init__
-    def __init__(self, compute_method = None): #e rename compute_method -> recomputer?? prob not.
+    def __init__(self, compute_method = None, debug_name = None): #e rename compute_method -> recomputer?? prob not.
         """For now, compute_method is either None (meaning no compute_method is set yet -- error to try to use it until it's set),
         or any callable which computes a value when called with no args,
         which does usage-tracking of whatever it uses into its dynenv in the standard way
@@ -120,6 +120,14 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """
         ## optim of self.set_compute_method( compute_method), only ok in __init__:
         self._compute_method = compute_method
+        self.debug_name = debug_name #061119
+        ## if platform.atom_debug and not debug_name:
+            #e can we use a scheme sort of like print_compact_stack to guess the object that is creating us,
+            # since it'll have a localvar called self? I doubt it, since some helper objs are likely to be doing the work.
+            # So just do the work myself of passing this in intelligently...
+        return
+    def __repr__(self): #061119
+        return "<%s%s at %#x>" % (self.__class__.__name__, self.debug_name and ("(%s)" % self.debug_name) or '', id(self))
     def set_compute_method(self, compute_method):
         "#doc"
         # notes:
@@ -199,23 +207,23 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 ###e 061118 we still need to print more info from this; what to do to explain errors deep in evaling some expr?
                 # catch them and turn them into std custom exceptions, then wrap with posn/val info on each step of going up? (maybe)
             val = None
-            if 0:
-                print_compact_stack("exiting right after lval exception, to see if it makes my errors more readable, from here: ",
-                                    ## frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),),
-                                    frame_repr = _std_frame_repr,
-                                    linesep = '\n')
-                    ###k 061105; review; 061117 printfyi -> print_compact_stack
-                #e it would be nice to print self's formula (if it has one in the compute method), attr, etc,
-                # but we don't have good access to that info
-                ## import sys
-                ## sys.exit(1) # doesn't work, just raises SystemExit which gets caught in the same way (tho not infrecur):
-                import sys
-                sys.stderr.flush() #k prob not needed
-                sys.stdout.flush() #k prob needed
-                import os
-                os._exit(1) # from python doc for built-in exceptions, SystemExit
+##            if 0:
+##                print_compact_stack("exiting right after lval exception, to see if it makes my errors more readable, from here: ",
+##                                    ## frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),),
+##                                    frame_repr = _std_frame_repr,
+##                                    linesep = '\n')
+##                    ###k 061105; review; 061117 printfyi -> print_compact_stack
+##                #e it would be nice to print self's formula (if it has one in the compute method), attr, etc,
+##                # but we don't have good access to that info
+##                ## import sys
+##                ## sys.exit(1) # doesn't work, just raises SystemExit which gets caught in the same way (tho not infrecur):
+##                import sys
+##                sys.stderr.flush() #k prob not needed
+##                sys.stdout.flush() #k prob needed
+##                import os
+##                os._exit(1) # from python doc for built-in exceptions, SystemExit
             if 1:
-                print "doing end_tracking_usage before reraising some misc exception [ok??]"
+                ## print "doing end_tracking_usage before reraising some misc exception [ok??]" # seems to be ok when it occurs
                 self.end_tracking_usage( match_checking_code, self.inval )
                 raise
         self.end_tracking_usage( match_checking_code, self.inval )
@@ -285,14 +293,14 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
     # That's a semantic difference which invites bugs unless we make it a different class.
     #
     #e optim note: we could specialize _compute_value to not bother doing usage tracking.
-    def __init__(self, initval_compute_method = None):
+    def __init__(self, initval_compute_method = None, debug_name = None):
         # make sure our initval compute method will discard usage it tracks, so we'll call it at most once
         # (only if and when we're gotten-from before we're first set)
         if initval_compute_method is not None:
             compute_method = make_compute_method_discard_usage_if_ever_called( initval_compute_method)
         else:
             compute_method = None
-        Lval.__init__(self, compute_method)
+        Lval.__init__(self, compute_method = compute_method, debug_name = debug_name)
     def set_compute_method(self, compute_method):
         assert 0, "not supported in this class" #e i.e., Lval and this class should really inherit from a common abstract class
     def set_constant_value(self, val): #061117, for use in staterefs.py
@@ -345,7 +353,7 @@ class LvalForUsingASharedFormula(Lval): #stub -- do we need this? for a formula 
 
 # ==
 
-def LvalDict(wayfunc, lvalclass = Lval): #e option to not memoize for certain types of keys (like trivials or errors)?? this or Memo?
+def LvalDict1(wayfunc, lvalclass = Lval): #e option to not memoize for certain types of keys (like trivials or errors)?? this or Memo?
     """An extensible dict of lvals of the given lval class, whose memoized values will be recomputed from dict key using wayfunc(key)().
     It's an error (reported [#nim] in MemoDict) for computation of wk = wayfunc(key) to use any external usage-tracked lvalues,
     but it's ok if wk() does; subsequent inval of those lvals causes the lval created here to recompute and memoize wk() on demand.
@@ -362,12 +370,13 @@ def LvalDict(wayfunc, lvalclass = Lval): #e option to not memoize for certain ty
     return MemoDict( lambda key, wayfunc = wayfunc, lvalclass = lvalclass:
                      lvalclass( wayfunc(key)) )
 
-def LvalDict2(valfunc, lvalclass = Lval):
-    """Like LvalDict but uses a different recompute-function API, which might be easier for most callers to supply;
-    if it's always better, it'll replace LvalDict.
+def LvalDict2(valfunc, lvalclass = Lval, debug_name = None):
+    """Like LvalDict1 but uses a different recompute-function API, which might be easier for most callers to supply;
+    if it's always better, it'll replace LvalDict1. [not sure yet -- that has one semiobs use with a comment saying to try 2 instead]
     In this variant, just pass valfunc, which will be applied to key in order to recompute the value at key.
     """
-    return MemoDict( lambda key, valfunc = valfunc, lvalclass = lvalclass:
-                     lvalclass( lambda valfunc=valfunc, key=key: valfunc(key)) )
+    return MemoDict( lambda key, valfunc = valfunc, lvalclass = lvalclass, debug_name = debug_name:
+                     lvalclass( lambda valfunc=valfunc, key=key: valfunc(key),
+                                debug_name = debug_name and ("%s|%s" % (debug_name,key)) ) )
         
 # end

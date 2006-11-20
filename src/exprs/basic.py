@@ -1,8 +1,8 @@
-'''
+"""
 basic.py -- define things to be imported by every module in this package (using import *)
 
 $Id$
-'''
+"""
 
 # Import order issues --
 # This module basic gets imported first, and it will be imported at the beginning of most modules.
@@ -35,6 +35,8 @@ $Id$
 from VQT import V, A, Q, norm, vlen
 
 from state_utils import transclose
+
+import platform # so all our code can refer to platform.atom_debug #e someday this should be renamed throughout NE1 (app.debug?)
 
 # (but color constants are imported lower down)
 
