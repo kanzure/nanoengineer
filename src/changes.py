@@ -440,7 +440,9 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
             # 061119 do this rather than using del, to avoid exception when we're called twice; either way avoids a memory leak
         if inval == 'hmm':
             if platform.atom_debug:
-                print_compact_stack("fyi, something called standard_inval twice (not illegal but weird -- bug hint?) in %r: " % self)
+                print_compact_stack("fyi, something called standard_inval twice (not illegal but weird -- bug hint?) in %r: " % self,
+                                    frame_repr = _std_frame_repr, #bruce 061120, might or might not be temporary, not normally seen
+                                    linesep = '\n')
             return
         whatweused = self.whatweused
         self.whatweused = 444 # not a sequence
@@ -452,6 +454,36 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
         invalidator()
         return
     pass # end of class usage_tracker_obj
+
+# ==
+
+def _std_frame_repr(frame): #bruce 061120 #e refile into debug.py? warning: dup code with lvals.py and [g4?] changes.py
+    "return a string for use in print_compact_stack"
+    # older eg: frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),), linesep = '\n'
+    locals = frame.f_locals
+    dfr = locals.get('__debug_frame_repr__')
+    if dfr:
+        return ' ' + dfr(locals)
+    co_name = frame.f_code.co_name
+    res = ' ' + co_name
+    self = locals.get('self')
+    if self is not None:
+        res +=', self = %r' % (self,)
+    return res
+    # locals.keys() ##e sorted? limit to 25? include funcname of code object? (f_name?)
+    # note: an example of dir(frame) is:
+    ['__class__', '__delattr__', '__doc__', '__getattribute__', '__hash__',
+    '__init__', '__new__', '__reduce__', '__reduce_ex__', '__repr__',
+    '__setattr__', '__str__', 'f_back', 'f_builtins', 'f_code',
+    'f_exc_traceback', 'f_exc_type', 'f_exc_value', 'f_globals', 'f_lasti',
+    'f_lineno', 'f_locals', 'f_restricted', 'f_trace']
+    # and of dir(frame.f_code) is:
+    ['__class__', '__cmp__', '__delattr__', '__doc__', '__getattribute__',
+    '__hash__', '__init__', '__new__', '__reduce__', '__reduce_ex__',
+    '__repr__', '__setattr__', '__str__', 'co_argcount', 'co_cellvars',
+    'co_code', 'co_consts', 'co_filename', 'co_firstlineno', 'co_flags',
+    'co_freevars', 'co_lnotab', 'co_name', 'co_names', 'co_nlocals',
+    'co_stacksize', 'co_varnames']
 
 # ==
 
