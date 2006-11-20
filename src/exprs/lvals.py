@@ -169,7 +169,17 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 self._value = self._compute_value()
                     # this USED TO catch exceptions in our compute_method; as of 061118 it reraises them
             except:
-                self.track_use()
+                printnim("I need to figure out what usage to track, in what object, when a tracked attr is unset")
+                pass ## self.track_use()
+                    ### GUESS 061120 1112a: this track_use causes the duplicate track_inval bug, because we track when invalid.
+                    # and (still guessing) we do this during hasattr seeing our value is unset. it's probably wrong, because when the
+                    # val becomes set, why should something be invalled, unless it turned exception into a real value?
+                    # what might be right is to merge all the usage at this point into whatever caller turns the exception
+                    # into a real value, rather than just discarding it.
+                    # surely we don't want to include it here, not only this one, but whatever was used before... but what
+                    # do i mean by "here"? The real error is not in our mentioning the use here, i think, but in what
+                    # the caller does with it... otoh our complaint stems entirely from what happens here, so that's wrong.
+                    # I don't understand this well yet, but let's see what happens if I comment that out.
                 raise
             self.valid = True
         # do standard usage tracking into env (whether or not it was invalid & recomputed) -- API is compatible with env.prefs
@@ -243,7 +253,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return self.valid # even tho it's a public attr
     pass # end of class Lval
 
-def _std_frame_repr(frame): #e refile
+def _std_frame_repr(frame): #e refile into debug.py? warning: dup code with lvals.py and [g4?] changes.py
     "return a string for use in print_compact_stack"
     # older eg: frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),), linesep = '\n'
     locals = frame.f_locals

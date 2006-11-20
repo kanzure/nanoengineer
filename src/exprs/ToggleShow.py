@@ -224,7 +224,7 @@ class ToggleShow(InstanceMacro):
     # constants
     if 0:
         open_icon   = TextRect('+',1,1) #stub
-        closed_icon = TextRect('-',1,1) #stub
+        closed_icon = TextRect('-',1,0.5) #stub
     else:
         ####@@@@ I vaguely recall that Highlightable didn't work on text!
         # and indeed, highlighting doesn't seem to be working on those.
