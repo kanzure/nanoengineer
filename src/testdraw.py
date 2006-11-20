@@ -36,7 +36,7 @@ known bugs:
 - see the exception from the selobj alive test, which happens on clicks (left or cmenu) and on highlight not covering selobj,
   described below (in class Highlightable) [fixed now?]
 
-- DraggedOn and ReleasedOn are nim (and need renaming)
+- DraggedOn and ReleasedOn are nim (and need renaming) [no longer true, as of very long before 061120]
 
 - region selection - works to select atoms in a rect, but the rect for it is not being drawn  [even w/o displist optim]
   - is it a failure to delegate some method to superclass, maybe emptySpaceLeftDown?
@@ -434,8 +434,11 @@ def drawtest1(glpane):
     else:
         # let the exprs module do it
         from exprs import basic
+        basic.reload_once(basic) # moved this before import of test [061113 late],
+            # to see if it'll fix my occasional failures to actually reload test,
+            # and/or errors after reload like this one:
+            #   TypeError: super(type, obj): obj must be an instance or subtype of type
         from exprs import test
-        basic.reload_once(basic)
         basic.reload_once(test)
         from exprs.test import drawtest1_innards
         drawtest1_innards(glpane)
@@ -841,7 +844,7 @@ class DragHandler:
         return False # otherwise subclass is likely to forget to do them
     def DraggedOn(self, event, mode): ### might need better args (the mouseray, as two points? offset? or just ask mode  #e rename
         pass
-    def ReleasedOn(self, selobj, mode): ### will need better args ### NOT YET CALLED  #e rename
+    def ReleasedOn(self, selobj, event, mode): ### will need better args #e rename
         pass
     pass
 
@@ -920,7 +923,7 @@ def PopName(glname, drawenv = 'fake'):
     assert glname == popped
     return
 
-class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
+class Highlightable(DelegatingWidgetExpr, DragHandler):#060722; note, there is a translated and perhaps bugfixed version in exprs module
     "Highlightable(plain, highlight) renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight"
     # Works, except I suspect the docstring is inaccurate when it says "plain plus highlight" (rather than just highlight), 
     # and there's an exception if you try to ask selectMode for a cmenu for this object, or if you just click on it
@@ -1010,7 +1013,7 @@ class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
         return res # I forgot this line, and it took me a couple hours to debug that problem! Ugh.
             # Caller now prints a warning if it's None.
     ### grabbed from Button, maybe not yet fixed for here
-    def leftClick(self, point, mode):
+    def leftClick(self, point, event, mode):
         self.transient_state.in_drag = True
         self.inval(mode)
         self.do_action('on_press')
@@ -1030,7 +1033,7 @@ class Highlightable(DelegatingWidgetExpr, DragHandler):#060722
         # since only this object knows what kind that is.
         return
     
-    def ReleasedOn(self, selobj, mode): ### will need better args
+    def ReleasedOn(self, selobj, event, mode): ### will need better args
         ### written as if for Button, might not make sense for draggables
         self.transient_state.in_drag = False
         self.inval(mode)

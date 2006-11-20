@@ -1052,7 +1052,8 @@ class selectMode(basicMode):
         try:
             method = getattr(drag_handler, 'ReleasedOn', None)#e rename
             if method:
-                retval = method(self.o.selobj, self)
+                retval = method(self.o.selobj, event, self)
+                    #bruce 061120 changed args from (selobj, self) to (selobj, event, self) [where self is the mode object]
                 self.w.win_update() ##k not always needed, might be redundant, should let the handler decide ####@@@@
                 # lots of other stuff done by other leftUp methods here? #####@@@@@
             pass
@@ -2282,7 +2283,8 @@ class selectAtomsMode(selectMode):
             if method:
                 farQ_junk, hitpoint = self.dragstart_using_GL_DEPTH( event) ###k safe?
                 try:
-                    retval = method(hitpoint, self) ##e more args later -- mouseray? modkeys? or use callbacks to get them?
+                    retval = method(hitpoint, event, self) ##e more args later -- mouseray? modkeys? or use callbacks to get them?
+                        #bruce 061120 changed args from (hitpoint, self) to (hitpoint, event, self) [where self is the mode object]
                 except:
                     print_compact_traceback("exception ignored in %r.leftClick: " % (obj,))
                     return # no update or other action here
