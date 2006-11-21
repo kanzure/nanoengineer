@@ -220,6 +220,8 @@ class ToggleShow(InstanceMacro):
     def _init_instance(self):
         super(ToggleShow, self)._init_instance()
         set_default_attrs( self.transient_state, open = True)
+        if 'expose usage bug? 061121':
+            set_default_attrs( self.transient_state, open = True) # w/o bug this would be a noop, tho slightly inefficient.
 
     # constants
     if 0:
@@ -245,7 +247,7 @@ class ToggleShow(InstanceMacro):
         # it'd be related to the one for simplify, but different, since for (most) subexprs it'd go all the way.
     ## openclose = If( open, open_icon, closed_icon )
 
-    if 0:
+    if 0: ###e make this an option, implem = 'if0' or 'if1'?
         # when the icons' size varies in open vs closed, this form has weird bugs [it seems as of 061120]:
         openclose = Highlightable( If_kluge( open, open_icon, closed_icon ), on_press = _self.toggle_open, sbar_text = _self.ipath)
             #k does open work inside here, not being an Expr??? No, messes up If. Fixed using property_Expr.
@@ -326,7 +328,7 @@ class ToggleShow(InstanceMacro):
             ## [staterefs.py:163]
             ##[changes.py:503] [changes.py:481] [changes.py:498]
 
-            #btw have i ever confirmed the ipath depends on the open state in the case where it ought to? (if 0)
+            #btw have i ever confirmed the ipath depends on the open state in the case where it ought to? (if 0) BUG - IT DOESN'T.######
 
             
         if 1:

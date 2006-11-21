@@ -151,11 +151,24 @@ class _attr_accessor:
 def set_default_attrs(obj, **kws): #e refile in py_utils, or into the new file mentioned above
     "for each attr=val pair in **kws, if attr is not set in obj, set it (using hasattr and setattr on obj)"
     import changes
-    mc = changes.begin_disallowing_usage_tracking('set_default_attrs for %r' % obj)
+    #### need to change this to "begin discarding usage tracking", and maybe also "not doing change tracking" (??)
+    ### [where i am 061121 1044, see comment below for why]
+    mc = changes.begin_disallowing_usage_tracking('set_default_attrs for %r' % obj) ### BUG - sometimes tracks - only seen after reload
+        ### see traceback in toggleshow - not useful til we catch this right when it's used (don't yet know in hasattr or setattr)
         # note: argument is just explanation for use in error messages ###e OPTIM: don't precompute that arg
     try:
         for k, v in kws.iteritems():
             if not hasattr(obj, k): ### problematic for attrs with not-yet-set compute methods -- should they raise AttrError??061117 1018p
+                # Note: hasattr itself does legitimately track use of the attr,
+                # since testing thereness does use its "value" in a general sense (as if value was _UNSET_ when not there).
+                # But, in this specific code, we don't want client (caller) to see us using attr,
+                # since from client POV, all we're doing is changing _UNSET_ to v, which are equivalent values
+                # (as client is declaring by calling us).
+                # So we need to discard tracked usage of attr from the above.
+                ####DOIT
+                # We also need to discard any change from the setattr below, except that we can probably ignore that issue for now
+                # since if it's not there, it was never used (an accident of how current code uses it).
+                
                 setattr(obj, k, v)
             continue
         return
