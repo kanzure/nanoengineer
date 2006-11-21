@@ -133,12 +133,15 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     
     # refs to places to store state of different kinds, all of which is specific to this Instance (or more precisely to its ipath)
     ##e [these will probably turn out to be InstanceOrExpr default formulae] [note: their 2nd arg ipath defaults to _self.ipath]
-    # OPTIM QUESTION: which of these actually need usage/mod tracking? They all have it at the moment (not having it is nim),
-    # but my guess is, per_frame_state doesn't need it, and not providing it would be a big optim. #e
-    # (We might even decide we can store all per_frame_state in self, not needing a StatePlace at all -- bigger optim, I think.)
+    # OPTIM QUESTION: which of these actually need usage/mod tracking? They all have it at the moment [not anymore, 061121],
+    # but my guess is, per_frame_state doesn't need it, and not providing it would be a big optim. [turned out to be a big bugfix too!]
+    # (We might even decide we can store all per_frame_state in self, not needing a StatePlace at all -- bigger optim, I think.
+    #  That can be done once reloading or reinstancemaking is not possible during one frame. I'm not sure if it can happen then,
+    #  even now... so to be safe I want to store that state externally.)
     transient_state = StatePlace('transient') # state which matters during a drag; scroll-position state; etc
-    glpane_state = StatePlace('glpane') # state which is specific to a given glpane
-    per_frame_state = StatePlace('per_frame') # state which is only needed while drawing one frame (someday, cleared often)
+    glpane_state = StatePlace('glpane', tracked = False) # state which is specific to a given glpane [#e will some need tracked=True?]
+    per_frame_state = StatePlace('per_frame', tracked = False)
+        # state which is only needed while drawing one frame (someday, cleared often)
         # (this is probably also specific to our glpane; note that a given Instance has only one glpane)
     
     # abbrevs for read-only state
@@ -196,7 +199,18 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         self.per_frame_state.saved_modelview_matrix = var_for_debug = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
             ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
         if 1:
-            # to investigate a bug, do it again to see if it emits an extra debug print... it doesn't, I think...
+            # to investigate a bug [circa 061120], do it again to see if it emits an extra debug print... it doesn't, I think...
+            # addendum 061121: if this is usage tracked (which was never intended), then right here we invalidate whatever used it
+            # (but nothing used it yet, the first time we draw), but in draw_in_abs_coords we use it, so if we ever redraw
+            # after that (as we will - note, nothing yet clears/replaces this per_frame_state every frame),
+            # then that invals the highlighted thing... i can imagine this creating extra invals, esp since the change
+            # occurs during usage tracking of a computation (invalling it the first time), which then uses the same thing.
+            # I don't quite see the exact cause, but I certainly see that it's not an intended use of this system.
+            # (#e sometime I should think it through, understand what's legal and not legal, and add specific checks and warnings.)
+            #  Meanwhile, since all per_frame state is not intended to be usage-tracked, just recorded for ordinary untracked
+            # set and get, I'll just change it to have that property. And review glpane_state too.
+            ########@@@@@@@@ [this, and 061120 cmts/stringlits]
+            
             self.per_frame_state.saved_modelview_matrix = var_for_debug #######
             del var_for_debug
         PushName(self.glname)
@@ -251,7 +265,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         ## [Highlightable.py:260] [ExprsMeta.py:250] [ExprsMeta.py:318] [ExprsMeta.py:366] [Exprs.py:184] [Highlightable.py:260] ...
     
     def mouseover_statusbar_message(self): # called in GLPane.set_selobj
-        return self.sbar_text or "%r" % (self,)
+        return str(self.sbar_text) or "%r" % (self,) #e note: that str() won't be needed once the type-coercion in Option works
 
     def highlight_color_for_modkeys(self, modkeys):
         """#doc; modkeys is e.g. "Shift+Control", taken from glpane.modkeys

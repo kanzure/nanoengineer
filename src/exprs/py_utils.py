@@ -79,15 +79,24 @@ class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibled
         try:
             return dict.__getitem__(self, key)
         except KeyError:
-            printnim("begin_disallowing_usage_tracking is still a stub")
-            # begin_disallowing_usage_tracking()  ####IMPLEM #e pass explanation for use in error messages
-            val = self._way(key)
-                #e assert no usage gets tracked? for efficiency, do it by checking a counter before & after? or tmp hide tracker?
-                # yes, temporarily delete the global dict seen when usage tracking, so whoever tries it will get an error! ####IMPLEM
-            # end_disallowing_usage_tracking() ####IMPLEM; note, it needs to be legal for something during the above to reallow it for itself
-            dict.__setitem__(self, key, val)
-            return val
-    pass
+            import changes
+            mc = changes.begin_disallowing_usage_tracking(self) # note: argument is just explanation for use in error messages
+            try:
+                val = self._way(key)
+                    # note, it needs to be legal for something during this to reallow using tracking for itself, locally
+            except:
+                # try not to hurt this object for use at other keys, but good to reraise exception to whoever accessed this key
+                # (maybe something's wrong with this key, but good even if not, i think [061121])
+                # Note: the exception might be an error being reported by begin_disallowing_usage_tracking!
+                # So we should do the ending of that disallowing -- the initial raising of that exception should not do it.
+                changes.end_disallowing_usage_tracking(mc)
+                raise
+            else:
+                changes.end_disallowing_usage_tracking(mc)
+                dict.__setitem__(self, key, val)
+                return val
+        pass
+    pass # end of class MemoDict
 
 def union(A,B): #k does this override anything that's standard in python? if so, rename it, perhaps to dict_union
     #note: presumably useful, but not yet used; may never end up being used.

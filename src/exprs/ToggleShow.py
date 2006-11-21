@@ -245,9 +245,9 @@ class ToggleShow(InstanceMacro):
         # it'd be related to the one for simplify, but different, since for (most) subexprs it'd go all the way.
     ## openclose = If( open, open_icon, closed_icon )
 
-    if 1:
+    if 0:
         # when the icons' size varies in open vs closed, this form has weird bugs [it seems as of 061120]:
-        openclose = Highlightable( If_kluge( open, open_icon, closed_icon ), on_press = _self.toggle_open )
+        openclose = Highlightable( If_kluge( open, open_icon, closed_icon ), on_press = _self.toggle_open, sbar_text = _self.ipath)
             #k does open work inside here, not being an Expr??? No, messes up If. Fixed using property_Expr.
 
             ##e we should optim Highlightable's gl_update eagerness
@@ -282,8 +282,8 @@ class ToggleShow(InstanceMacro):
         # [later: i think that still had some bad bugs too, not much changed.]
         # for more, see string lits containing 061120, and for a log see big cmt just below here.
         openclose = If_kluge( open,
-                              Highlightable(open_icon,   on_press = _self.toggle_open),
-                              Highlightable(closed_icon, on_press = _self.toggle_open),
+                              Highlightable(open_icon,   on_press = _self.toggle_open, sbar_text = _self.ipath),
+                              Highlightable(closed_icon, on_press = _self.toggle_open, sbar_text = _self.ipath),
                     )
         pass    
 
@@ -306,6 +306,29 @@ class ToggleShow(InstanceMacro):
             # whether-drawn situation, see which are wrong, which might cause the bug. Also - can event processing occur during
             # paintGL? I hope not, but verify. Also maybe GLPane needs to track frame numbers for selobjs being drawn,
             # stencil bits being made, vs selobj state mods as tracked by inval....
+            #
+            # update 061121 953a, where I am: after basic fixes elsewhere [some stateplaces not tracked, some usage tracking disallowed],
+            # and still using all kluge/workarounds from 061120, bug seems totally fixed for if 0 case, all or most for if 1 ##k.
+            # IIRC it was slightly remaining before some usage tracking disallowed, but that is not complaining, which is suspicious.
+            # Anyway, if if 1 works too, plan is to gradually remove the kluges and clean up and keep it working.
+            # BUT it looks like if 1 (using reloaded code) has a bug of some disallowed usage... details to follow.
+            # BUT after restart I don't see it. BTW I recently reenabled reloading -- could that have fixed some bugs (how???),
+            # or could it be that they now occur after reloading but not before it?? indeed, this is after changing if 1->0 and reload,
+            # and looks like it might relate to old state being there, and WHAT IF RELOADED CODE USES THE SAME STATE DIFFERENTLY AND HAS A BUG? #####
+            # [but, that bug aside, there is still a real problem with whatever usage tracking this set_default_attrs is doing. ######]
+            #
+            ##exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
+            ##begin_disallowing_usage_tracking for 'set_default_attrs for <exprs.staterefs._attr_accessor instance at 0xd799e18>'
+            ##sees some things were used: [<OneTimeSubsList(<LvalForState(<ToggleShow#0(i)>|transient.open|NullIpath) at 0xe8868a0>) at 0xea115a8>]                                                            
+            ##[testdraw.py:274] [testdraw.py:308] [testdraw.py:444] [test.py:399] [test.py:448] [test.py:466] [widget_env.py:52]
+            ##[instance_helpers.py:258] [instance_helpers.py:102] [instance_helpers.py:334] [ToggleShow.py:222]
+                # line 222 is set_default_attrs( self.transient_state, open = True)  in _init_instance
+            ## [staterefs.py:163]
+            ##[changes.py:503] [changes.py:481] [changes.py:498]
+
+            #btw have i ever confirmed the ipath depends on the open state in the case where it ought to? (if 0)
+
+            
         if 1:
             old = self.transient_state.open
             self.transient_state.open = new = not old
@@ -326,7 +349,7 @@ class ToggleShow(InstanceMacro):
         printnim("toggle_open might do a setattr which is not legal yet, and (once that's fixed) might not properly gl_update yet")
         return
     
-    _value = SimpleRow(   
+    _value = SimpleRow(
         openclose,
         SimpleColumn(
             label,

@@ -25,7 +25,7 @@ and resubs them, so it actually doesn't end up causing a lasting performance pro
 
 # ==
 
-def StatePlace(kind, ipath_expr = _self.ipath): # experimental, but used and working in Highlightable; related to Arg/Option/Instance
+def StatePlace(kind, ipath_expr = _self.ipath, tracked = True): # experimental, but used and working in Highlightable; related to Arg/Option/Instance
     """In a class definition for an InstanceOrExpr subclass, use the assignment
 
         <kind>_state = StatePlace(<kind>, <ipath_expr>)
@@ -54,12 +54,16 @@ def StatePlace(kind, ipath_expr = _self.ipath): # experimental, but used and wor
     Both this declaration and set_default_attrs take this into account by only initializing
     what's not already there.)
     """
-    return call_Expr( _StatePlace_helper, _self, kind, ipath_expr )
+    assert isinstance(tracked, bool) or tracked in (0,1)
+    assert isinstance(kind, str)
+    return call_Expr( _StatePlace_helper, _self, kind, ipath_expr, tracked )
 
-def _StatePlace_helper( self, kind, ipath): # could become a method in InstanceOrExpr, if we revise StatePlace macro accordingly
-    """Create or find, and return, a permanent attrholder for access to all attrs with the given ipath.
+def _StatePlace_helper( self, kind, ipath, tracked): # could become a method in InstanceOrExpr, if we revise StatePlace macro accordingly
+    """Create or find, and return, a permanent attrholder for access to all attrs with the given ipath,
+    which are usage-and-change-tracked iff tracked is true.
     [revision 061117: the persistent state itself needs usage and change tracking. The attrholder
-    can be permanent and own that state (and do that tracking), or be a transient accessor to it.]
+    can be permanent and own that state (and do that tracking), or be a transient accessor to it [done here].
+    [061121 added back the tracked=False possibility.]
     """
     # implem scratch 061117:
     # what needs permanence is the lvals themselves. They will someday be in arrays (one attr, many objects),
@@ -71,21 +75,23 @@ def _StatePlace_helper( self, kind, ipath): # could become a method in InstanceO
     # but that means all the work is in the attraccessors (since we don't even know the key to identify
     # the LvalDict until we know the attr) -- ok.
 
+    if not tracked:
+        # [devel note: this is just the old code for _StatePlace_helper from before it supported "tracked".]
+        state = self.env.staterefs
+        key = (kind,0,ipath) #e someday, kind should change which state subobj we access, not just be in the key
+            # Note: this needs to be not interfere with _attr_accessor, whose key is (kind,attr) -- thus the extra 0
+        res = state.setdefault(key, None) 
+            # I wanted to use {} as default and wrap it with attr interface before returning, e.g. return AttrDict(res),
+            # but I can't find code for AttrDict right now, and I worry its __setattr__ is inefficient, so this is easier:
+        if res is None:
+            res = attrholder()
+            state[key] = res
+        return res
+        
     return _attr_accessor( self.env.staterefs, kind, ipath, debug_name = platform.atom_debug and ("%r|%s" % (self,kind)))
         # we leave ipath out of the debug_name, since the accessor's LvalDict2 will add it in in the form of its key
 
     # older _StatePlace_helper body code, for comparison:
-##    # ok, state is a dict from (kind,attr)    
-##    key = (kind,ipath) ##e kind should change which state obj we access, not just be in the key
-##    state = self.env.staterefs
-##
-##    res = state.setdefault(key, None) 
-##        # I wanted to use {} as default and wrap it with attr interface before returning, e.g. return AttrDict(res),
-##        # but I can't find code for AttrDict right now, and I worry its __setattr__ is inefficient, so this is easier:
-##    if res is None:
-##        res = attrholder()
-##        state[key] = res
-##    return res
 
 class _attr_accessor:
     """[private helper for _StatePlace_helper]"""
@@ -103,7 +109,7 @@ class _attr_accessor:
         ## self.__dict__['__tables'] = {}
     def __get_table(self, attr):
         kind = self.__dict__['__kind']
-        whichtable = (kind,attr)
+        whichtable = (kind,attr) # WARNING: this key is assumed in _StatePlace_helper, since it needs to not interfere with it
         ## tables = self.__dict__['__tables'] # WRONG, store them in staterefs
         staterefs = self.__dict__['__staterefs']
         tables = staterefs
@@ -144,11 +150,19 @@ class _attr_accessor:
 
 def set_default_attrs(obj, **kws): #e refile in py_utils, or into the new file mentioned above
     "for each attr=val pair in **kws, if attr is not set in obj, set it (using hasattr and setattr on obj)"
-    for k, v in kws.iteritems():
-        if not hasattr(obj, k): ### problematic for attrs with not-yet-set compute methods -- should they raise AttrError??061117 1018p
-            setattr(obj, k, v)
-        continue
-    return
+    import changes
+    mc = changes.begin_disallowing_usage_tracking('set_default_attrs for %r' % obj)
+        # note: argument is just explanation for use in error messages ###e OPTIM: don't precompute that arg
+    try:
+        for k, v in kws.iteritems():
+            if not hasattr(obj, k): ### problematic for attrs with not-yet-set compute methods -- should they raise AttrError??061117 1018p
+                setattr(obj, k, v)
+            continue
+        return
+    finally:
+        changes.end_disallowing_usage_tracking(mc)
+    pass
+
     #e useful improvements to set_default_attrs might be: [061116]
     # - shorter name
     # - able to create new objs of a desired type

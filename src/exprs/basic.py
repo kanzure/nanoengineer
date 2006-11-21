@@ -47,17 +47,9 @@ import platform # so all our code can refer to platform.atom_debug #e someday th
 
 from debug import reload_once_per_event, print_compact_traceback, print_compact_stack
 
+ENABLE_RELOAD = True and platform.atom_debug
 
 def reload_once(module):
-    "[the real docstring is below this temp debug code]"
-    def printfyi(msg): # WARNING: dup code, inlining py_utils version since not yet imported
-        msg = "fyi (printonce): " + msg
-        from env import seen_before
-        if not seen_before(msg):
-            print msg
-    if 1:
-        printfyi( "DISABLED FOR DEBUG: reload_once(%r)" % module.__name__ )############
-        return
     """This function is used to support automatic runtime reloading of modules within this package,
     for developer convenience. To use it, add this code before any import of symbols from a module
     (or use this code in place of any direct import of a module):
@@ -76,6 +68,15 @@ def reload_once(module):
     in the exprs package can always "import basic;reload(basic)" first, and if they do, all modules within
     exprs can just start with "from basic import *". But for clarity, some of them call reload_once on basic too.
     """
+    if not ENABLE_RELOAD:
+        def printfyi(msg): # WARNING: dup code, inlining py_utils version since not yet imported
+            msg = "fyi (printonce): " + msg
+            from env import seen_before
+            if not seen_before(msg):
+                print msg
+        if 1:
+            printfyi( "DISABLED FOR DEBUG: reload_once(%r)" % module.__name__ )
+            return
     from testdraw import vv
     reload_once_per_event(module, always_print = True, never_again = False, counter = vv.reload_counter, check_modtime = True)
 

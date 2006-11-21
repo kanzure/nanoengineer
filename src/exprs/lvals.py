@@ -207,9 +207,10 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
             printnim("catch that & convert to attrerror...")#### here & above assert
         except LvalError_ValueIsUnset:
             # might happen from some lower layer if we're virtual (e.g. if our value is stored in some external array or dict)
-            print "doing end_tracking_usage before reraising LvalError_ValueIsUnset [ok??]" # sometimes we get some subslist exception
+            ## print "doing end_tracking_usage before reraising LvalError_ValueIsUnset [ok??]" # sometimes we get some subslist exception
                 ######k TOTAL GUESS that it's fully legit, 061118 156p [but without it we got missing end-tracks, naturally]
                 # note: should we set val to None and say it's valid? NO -- then of two hasattrs in a row, 2nd would be wrong.
+                # 061121: seems ok, always happens whether or not bugs do, so stop printing it.
             self.end_tracking_usage( match_checking_code, self.inval )
             raise
         except:
