@@ -86,7 +86,8 @@ def recycle_glselect_name(glpane, glname, newobj): #e refile (see above)
     import env
     oldobj = env.obj_with_glselect_name.get(glname, None) #e should be an attr of the glpane (or of one it shares displaylists with)
     if oldobj is not None and glpane.selobj is oldobj:
-        glpane.selobj = newobj
+        glpane.selobj = None ###### normally newobj -- SEE IF THIS HELPs THE BUG 061120 956p
+        printnim("glpane.selobj = None ###### normally newobj") # worse, i suspect logic bug in the idea of reusing the glname....
             ###k we might need to call some update routine instead, like glpane.set_selobj(newobj),
             # but I'm not sure its main side effect (env.history.statusbar_msg(msg)) is a good idea here,
             # so don't do it for now.
@@ -169,7 +170,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # [and be sure we define necessary methods in self or the new obj]
         glname_handler = self # self may not be the best object to register here, though it works for now
 
-        if self.glpane_state.glname is None:
+        if self.glpane_state.glname is None or 'TRY ALLOCATING A NEW NAME EACH TIME 061120 958p':
             # allocate a new glname for the first time (specific to this ipath)
             import env
             self.glpane_state.glname = env.alloc_my_glselect_name( glname_handler)
@@ -199,18 +200,23 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             self.per_frame_state.saved_modelview_matrix = var_for_debug #######
             del var_for_debug
         PushName(self.glname)
-        if self.transient_state.in_drag:
-            if printdraw: print "pressed_out.draw",self
-            self.pressed_out.draw() #e actually this might depend on mouseover, or we might not draw anything then...
-                # but this way, what we draw when mouse is over is a superset of what we draw in general,
-                # easing eventual use of highlightables inside display lists. See other drawing done later when we're highlighted
-                # (ie when mouse is over us)... [cmt revised 061115]
-            # Note, 061115: we don't want to revise this to be the rule for self.delegate --
-            # we want to always delegate things like lbox attrs to self.plain, so our look is consistent.
-            # But it might be useful to define at least one co-varying attr (self.whatwedraw?), and draw it here. ####e
-        else:
-            ## print "plain.draw",self
-            self.plain.draw()
+        try:
+            if self.transient_state.in_drag:
+                if printdraw: print "pressed_out.draw",self
+                self.pressed_out.draw() #e actually this might depend on mouseover, or we might not draw anything then...
+                    # but this way, what we draw when mouse is over is a superset of what we draw in general,
+                    # easing eventual use of highlightables inside display lists. See other drawing done later when we're highlighted
+                    # (ie when mouse is over us)... [cmt revised 061115]
+                # Note, 061115: we don't want to revise this to be the rule for self.delegate --
+                # we want to always delegate things like lbox attrs to self.plain, so our look is consistent.
+                # But it might be useful to define at least one co-varying attr (self.whatwedraw?), and draw it here. ####e
+            else:
+                ## print "plain.draw",self
+                self.plain.draw()
+            pass
+        except:
+            print_compact_traceback("exception during pressed_out or plain draw, ignored: ")#061120 1024p
+            pass # make sure we run the PopName
         PopName(self.glname)
         return
 

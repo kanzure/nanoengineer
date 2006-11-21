@@ -229,7 +229,7 @@ class ToggleShow(InstanceMacro):
         ####@@@@ I vaguely recall that Highlightable didn't work on text!
         # and indeed, highlighting doesn't seem to be working on those.
         # if so, the above'll need revision until that's fixed.
-        open_icon   = Overlay(Rect(1), TextRect('+',1,1))
+        open_icon   = Overlay(Rect(0.5,1), TextRect('+',1,1)) # added 0.5 061120 1018p temp debug kluge
         closed_icon = Overlay(Rect(1,0.5), TextRect('-',1,1)) #061120 changed impicit 1 -> 0.5; then noticed click on this is broken
             # but only for inner eg (not outer eg, of nested two) in testexpr_10d -- is that the true cause? change back to see; yes.
             ##WEIRD BUGS in gray rects, varsize, inner click -- seems to close the wrong one sometimes, seems to become insensitive, 
@@ -245,7 +245,7 @@ class ToggleShow(InstanceMacro):
         # it'd be related to the one for simplify, but different, since for (most) subexprs it'd go all the way.
     ## openclose = If( open, open_icon, closed_icon )
 
-    if 0:
+    if 1:
         # when the icons' size varies in open vs closed, this form has weird bugs [it seems as of 061120]:
         openclose = Highlightable( If_kluge( open, open_icon, closed_icon ), on_press = _self.toggle_open )
             #k does open work inside here, not being an Expr??? No, messes up If. Fixed using property_Expr.
@@ -278,7 +278,9 @@ class ToggleShow(InstanceMacro):
         # yes, repeatable, for either change of state. Ok, try that in 'if 1' case of this. ### siilar but not identical
         # and that time is again does get stuck into the closed state, with the grayrect no longer optiming redraws re stencil buffer.
         # .. reviewing code in Highlightable, I see some things to try -- see its 061120 comments.
-        # ... I did all that, and the gray becomes inactive bug in if 1 is still there. howbout the if 0 case?
+        # ... I did all that, and the 'gray becomes inactive bug' in 'if 1 openclose case' is still there. howbout the if 0 case?
+        # [later: i think that still had some bad bugs too, not much changed.]
+        # for more, see string lits containing 061120, and for a log see big cmt just below here.
         openclose = If_kluge( open,
                               Highlightable(open_icon,   on_press = _self.toggle_open),
                               Highlightable(closed_icon, on_press = _self.toggle_open),
@@ -286,6 +288,24 @@ class ToggleShow(InstanceMacro):
         pass    
 
     def toggle_open(self):
+        if 'yet another shot in the dark 061120 1001p':
+            self.env.glpane.selobj = None ##### THIS SEEMS TO FIX THE BUG, at least together with other potshots and if 0 openclose.
+            # theory: old selobjs are being drawn highlighted even when not drawn normally. they mask the real stuff.
+            # but with if 1 openclose it doesn't fix the different bug (gets wedged into closed state). why not???
+            # this is with no recycling of names, and also selobj=None in recycler.
+            # guess: in if 1, the same glname is used... but it's same literal selobj too, right? and remaking is turned off.
+            # I don't have a theory for 'if 1' bug cause, or for why it only affects the inner thing, not outer one.
+            # Does it only affect that after it's once been hidden? ### if so, is it "you were selobj and then not drawn" that makes it
+            # happen? that might fit the data but I don't see how that could work.
+            # So I added a 2nd 0.5 so neither gray rect form covers the other. but first inner close hits the bug of making it
+            # inactive and act non-highlighted. so i wondered if the glname really only covers the openclose? code says so.
+            # I added a try/except to be sure the PopName occurs; not triggered during this if 1 bug.
+            #
+            # Stopping for night 061120 1027p, summary: I understand some bug causes but not all; wish I could see inside the glselect
+            # reasoning, so plan to add debug prints to glpane. Need to think thru its assumptions re chaotic glname/selobj/size/
+            # whether-drawn situation, see which are wrong, which might cause the bug. Also - can event processing occur during
+            # paintGL? I hope not, but verify. Also maybe GLPane needs to track frame numbers for selobjs being drawn,
+            # stencil bits being made, vs selobj state mods as tracked by inval....
         if 1:
             old = self.transient_state.open
             self.transient_state.open = new = not old
