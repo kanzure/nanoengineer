@@ -439,9 +439,14 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
         self.last_sub_invalidator = 'hmm'
             # 061119 do this rather than using del, to avoid exception when we're called twice; either way avoids a memory leak
         if inval == 'hmm':
+            # Something called standard_inval twice. This can happen (for reasons not yet clear to me) when some tracked state
+            # is set and later used, all during the same computation -- normally, state used by a computation should never be set
+            # during it, only before it (so as to trigger it, if the same computation used the same state last time around).
+            # Maybe the problem is that sets of default values, within "initialization on demand", should be considered pure uses
+            # but are being considered sets? Not sure yet -- this debug code only shows me a later event. ###k [061121 comment]
             if platform.atom_debug:
                 print_compact_stack("fyi, something called standard_inval twice (not illegal but weird -- bug hint?) in %r: " % self,
-                                    frame_repr = _std_frame_repr, #bruce 061120, might or might not be temporary, not normally seen
+                                    ## frame_repr = _std_frame_repr, #bruce 061120, might or might not be temporary, not normally seen
                                     linesep = '\n')
             return
         whatweused = self.whatweused
@@ -454,6 +459,49 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
         invalidator()
         return
     pass # end of class usage_tracker_obj
+
+# ==
+
+class begin_disallowing_usage_tracking(SubUsageTrackingMixin):
+    """Publicly, this is just a function, used like this:
+        mc = begin_disallowing_usage_tracking(whosays) # arg is for use in debug prints and exception text
+        try:
+            ... do stuff in which usage tracking would be an error or indicate a bug
+        finally:
+            end_disallowing_usage_tracking(mc)
+        pass
+    """
+    def __init__(self, whosays, noprint = False):
+        self.whosays = "%r" % (whosays,) #k %r??
+        self.noprint = noprint
+        self.mc = self.begin_tracking_usage()
+            ###e SHOULD do that in a nonstandard way so we notice each usage that occurs and complain, w/ exception;
+            #e and we should not actually subscribe
+    def _end_disallowing_usage_tracking(self):
+        self.end_tracking_usage(self.mc, self.inval) # this shouldn't subscribe us to anything, once implem is finished properly
+        # now warn if we actually subscribed to anything -- done in our overridden version of that method
+        # someday, self.destroy(), but for now [until implem is done], stick around for things to call our inval.
+        return
+    def inval(self):
+        #e don't use noprint, since this implies a bug in self, tho for now, that's a known bug, always there, til implem is done
+        print "bug (some time ago): something that %r should not have subscribed to (but did - also a bug) has changed" % self
+    def __repr__(self):
+        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.whosays)
+    def end_tracking_usage(self, match_checking_code, invalidator):
+        "[THIS OVERRIDES the method from SubUsageTrackingMixin]"
+        obj = usage_tracker.end( match_checking_code) # same as in mixin
+        obj.standard_end( invalidator) # same as in mixin, but we'll remove this later, so don't just call the mixin version here
+        if obj.whatweused: # a private attr of obj (a usage_tracker_obj), that we happen to know about, being a friend of it
+            msg = "begin_disallowing_usage_tracking for %s sees some things were used: %r" % (self.whosays, obj.whatweused,)
+            if not self.noprint:
+                print msg
+            assert 0, msg ##e should be a private exception so clients can catch it specifically; until then, noprint is not useful
+        return
+    pass
+
+def end_disallowing_usage_tracking(mc):
+    mc._end_disallowing_usage_tracking()
+    return
 
 # ==
 
