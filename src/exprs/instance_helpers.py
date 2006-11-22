@@ -374,7 +374,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         assert is_pure_expr(expr), "who passed non-pure-expr %r to _i_instance? index %r, self %r, _e_args %r" % \
                (expr, index, self, self._e_args)
             #k guess 061105
-        if 0:
+        if 0 and self.__class__.__name__.endswith('If_expr'):#debug
             print "_i_instance called, expr %r, index %r, self %r, _e_args %r" % \
                    (expr, index, self, self._e_args)
 

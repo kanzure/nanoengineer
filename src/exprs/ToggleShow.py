@@ -15,7 +15,7 @@ $Id$
 
 
 from basic import *
-from basic import _self
+from basic import _self, _this
 
 import Highlightable
 reload_once(Highlightable)
@@ -46,6 +46,9 @@ State # defined in Exprs.py but nim -- that's where i am 061117 445p, plus here 
 
 # ==
 
+###e REFILE all this If stuff, when it's stable or needed elsewhere
+# probly in Exprs even tho that's getting kind of long - maybe split it in some more sensible way? #e
+
 #e for If, see also:
 # Exprs.py: 565: class If_expr(OpExpr): # so we can use If in formulas
 # Exprs.py: 568: ## def If(): pass
@@ -55,17 +58,28 @@ State # defined in Exprs.py but nim -- that's where i am 061117 445p, plus here 
 class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py think it needs to be an OpExpr? for getattr & call?
     cond = Arg(bool) # WARNING: this is effectively a public attr; none of these argnames will be delegated to the value (I think)
     _then = Arg(Anything)
-    _else  = Arg(Anything, None)
+##    print 'raw _then is',_then 
+    _else  = Arg(Anything, None) # note: the None default probably won't work here; the callers presently pass a TextRect
+##    print 'raw _else is',_then 
     ## _value = cond and _then or _else # needs and_Expr, but that's as hard internally as If_expr, so don't bother
     def _C__value(self):
         if self.cond:
-            ## print "using then in",self,"because cond is %r type %r" % (self.cond,type(self.cond))
+            ##print "using _then = %r in" % self._then,self##"because cond is %r type %r" % (self.cond,type(self.cond))
+                # Q. why are _then & _else ipaths same, rather than including the strings '_then' and '_else' as I assumed they would?
+                # A: they're not! I only thought they were since I said _self where I meant _this(Highlightable).
+                # THAT'S GOING TO BE A COMMON PROBLEM -- need to rethink the jargon... maybe let _this.attr work (find capitalized class)...
+                # btw the actual indices were argposes 1,2, so I was wrong anyway. [061121 late]
             return self._then
         else:
-            ## print "using else in",self
+            ##print "using _else = %r in" % self._else,self
+                # Q. why is this printed twice when I toggle one nested one?
+                # A. Because each ToggleShow has two ifs, a main one and one in openclose! (when i use 'if 0' code)
             return self._else
         pass
     pass
+
+##print '\ncooked _then is',If_expr._then,'with',If_expr._then.formula 
+##print '\ncooked _else is',If_expr._else,'with',If_expr._else.formula 
 
 def If_kluge(*args):###
     "use this when you know you wanted If_expr but the buggy code might not give it to you yet; it always does but warns if If would not have"
@@ -73,7 +87,9 @@ def If_kluge(*args):###
     if not isinstance(res, If_expr):
         res2 = res = If_expr(*args)
         assert isinstance(res, If_expr)
-        print "bug: If() gave you %r instead of this If_Expr %r I think you wanted (which I'll use)" % (res1, res2)
+        msg = "bug: If() gave you %r instead of this If_Expr %r I think you wanted (which I'll use)" % (res1, res2)
+        print msg
+        assert 0, msg #061121 late
     return res
 
 def is_constant_expr(expr):
@@ -115,16 +131,6 @@ def If(cond, _then, _else = None):
     # A: We don't need to -- if it cares, let it define __bool__ (or whatever it's called, maybe __nonzero__) and raise an exception.
     # I think that would be ok, since even if we knew that would happen, what else would we want to do?
     # And besides, we could always catch the exception. (Or add a prior type-query to cond, if one is defined someday.)
-
-# earlier overly conservative version:
-##def If(cond, _then, _else = None):
-##    if is_pure_expr(cond) or is_pure_expr(_then) or is_pure_expr(_else):
-##        return If_expr(cond, _then, _else)
-##    if cond:
-##        return _then
-##    else:
-##        return _else
-##    pass
 
 # ==
 
@@ -223,8 +229,8 @@ class ToggleShow(InstanceMacro):
     def _init_instance(self):
         super(ToggleShow, self)._init_instance()
         set_default_attrs( self.transient_state, open = True)
-        if 'expose usage bug? 061121':
-            set_default_attrs( self.transient_state, open = True) # w/o bug this would be a noop, tho slightly inefficient.
+##        if 'expose usage bug? 061121':
+##            set_default_attrs( self.transient_state, open = True) # w/o bug this would be a noop, tho slightly inefficient.
 
     # constants
     if 0:
@@ -263,9 +269,11 @@ class ToggleShow(InstanceMacro):
 
     # Soon, the needed or not of the above should be sorted out, and most of the following debugging-log commentary should be removed.
     
-    if 1: ###e make this an option, implem = 'if0' or 'if1'? hmm, doesn't seem easy to do! (needs If_expr, equals_Expr (nim)...)
+    if 0: ###e make this an option, implem = 'if0' or 'if1'? hmm, doesn't seem easy to do! (needs If_expr, equals_Expr (nim)...)
         # when the icons' size varies in open vs closed, this form has weird bugs [it seems as of 061120]:
-        openclose = Highlightable( If_kluge( open, open_icon, closed_icon ), on_press = _self.toggle_open, sbar_text = _self.ipath)
+        openclose = Highlightable( If_kluge( open, open_icon, closed_icon ),
+                                   on_press = _self.toggle_open,
+                                   sbar_text = _this(Highlightable).ipath)
             #k does open work inside here, not being an Expr??? No, messes up If. Fixed using property_Expr.
 
             ##e we should optim Highlightable's gl_update eagerness
@@ -300,8 +308,11 @@ class ToggleShow(InstanceMacro):
         # [later: i think that still had some bad bugs too, not much changed.]
         # for more, see string lits containing 061120, and for a log see big cmt just below here.
         openclose = If_kluge( open,
-                              Highlightable(open_icon,   on_press = _self.toggle_open, sbar_text = _self.ipath),
-                              Highlightable(closed_icon, on_press = _self.toggle_open, sbar_text = _self.ipath),
+##                              Highlightable(open_icon,   on_press = _self.toggle_open, sbar_text = _self.ipath),
+##                              Highlightable(closed_icon, on_press = _self.toggle_open, sbar_text = _self.ipath),
+                              ###BUG - same ipaths? NO, I USED _self BUT MEANT _this(Highlightable)!!! AAArgh! ##k works now?? yes
+          Highlightable(open_icon,   on_press = _self.toggle_open, sbar_text = _this(Highlightable).ipath),
+          Highlightable(closed_icon, on_press = _self.toggle_open, sbar_text = _this(Highlightable).ipath),
                     )
         pass    
 
@@ -332,22 +343,13 @@ class ToggleShow(InstanceMacro):
             # BUT it looks like if 1 (using reloaded code) has a bug of some disallowed usage... details to follow.
             # BUT after restart I don't see it. BTW I recently reenabled reloading -- could that have fixed some bugs (how???),
             # or could it be that they now occur after reloading but not before it?? indeed, this is after changing if 1->0 and reload,
-            # and looks like it might relate to old state being there, and WHAT IF RELOADED CODE USES THE SAME STATE DIFFERENTLY AND HAS A BUG? #####
-            # [but, that bug aside, there is still a real problem with whatever usage tracking this set_default_attrs is doing. ######]
-            #
-            ##exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
-            ##begin_disallowing_usage_tracking for 'set_default_attrs for <exprs.staterefs._attr_accessor instance at 0xd799e18>'
-            ##sees some things were used: [<OneTimeSubsList(<LvalForState(<ToggleShow#0(i)>|transient.open|NullIpath) at 0xe8868a0>) at 0xea115a8>]                                                            
-            ##[testdraw.py:274] [testdraw.py:308] [testdraw.py:444] [test.py:399] [test.py:448] [test.py:466] [widget_env.py:52]
-            ##[instance_helpers.py:258] [instance_helpers.py:102] [instance_helpers.py:334] [ToggleShow.py:222]
-                # line 222 is set_default_attrs( self.transient_state, open = True)  in _init_instance
-            ## [staterefs.py:163]
-            ##[changes.py:503] [changes.py:481] [changes.py:498]
-
-            #btw have i ever confirmed the ipath depends on the open state in the case where it ought to? (if 0) BUG - IT DOESN'T.######
+            # and looks like it might relate to old state being there, and
+            ###### WHAT IF RELOADED CODE USES THE SAME STATE DIFFERENTLY AND HAS A BUG? #####
+            # [but, that bug aside, there is still a real problem with whatever usage tracking this
+            #  set_default_attrs is doing. [fixed now]]
 
             
-        if 1:
+        if 0: #061121 822p i've been using if 1 forever, let's see if if 0 works here: it does! either is ok, given the open property.
             old = self.transient_state.open
             self.transient_state.open = new = not old
             print "toggle_open changed self.transient_state.open from %r to %r" % (old, new,)
@@ -355,11 +357,12 @@ class ToggleShow(InstanceMacro):
             old = self.open
             self.open = new = not old
             print "toggle_open changed self.open from %r to %r" % (old, new,)
-            ##### should work but doesn't, see bug in notesfile, it delegates self.open eval to _value: 061118 late
-            # (or is it just because the val was not initialized? GUESS, YES ###k)
-            ## self.open = not self.open ### can this work??? it will call set of self.open -- what does the descriptor do for that?
-        # (asfail, or not have __set__ at all?? FIND OUT. the notesfile says the same thing but for a different Q, what was it?)
-            ## WE SHOULD MAKE THIS WORK even if we also make on_press = Set( open, not_Expr(open) ) work, since it's so natural.
+            # [obs cmt re open property, but was it talking about that or a partly working State decl? as of 061121 I can't remember:]
+                # should work but doesn't, see bug in notesfile, it delegates self.open eval to _value: 061118 late
+                # (or is it just because the val was not initialized? GUESS, YES ###k)
+                ## self.open = not self.open ### can this work??? it will call set of self.open -- what does the descriptor do for that?
+                # (asfail, or not have __set__ at all?? FIND OUT. the notesfile says the same thing but for a different Q, what was it?)
+                ## WE SHOULD MAKE THIS WORK even if we also make on_press = Set( open, not_Expr(open) ) work, since it's so natural.
         ### BTW what is it that will notice the inval, and the usage of this when we drew, and know that gl_update is needed?
         # the same thing that would know a display list content was invalid -- but where is it in our current code (if anywhere)?
         # I vaguely recall a discussion of that issue, in the displist chunk code or notesfile, weeks ago.
@@ -373,7 +376,7 @@ class ToggleShow(InstanceMacro):
             label,
             If_kluge( open,
                       thing,
-                      TextRect("<closed>")##### I wanted None here, but it exposes a logic bug 
+                      TextRect("<closed>")#####BUG: I wanted None here, but it exposes a logic bug 
                       )
         )
     )
