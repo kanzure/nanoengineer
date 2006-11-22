@@ -176,6 +176,12 @@ def set_default_attrs(obj, **kws): #e if this was general, we could refile into 
     # We also need to discard any change from the set to default value,
     # except that we can probably ignore that issue for now (due to an accident of how current code uses this),
     # since if the attr is unset, it was never yet used, so invalidating it should have no effect.
+    if 1:
+        import Exprs
+        reload_once(Exprs)
+        from Exprs import is_pure_expr
+        if is_pure_expr(obj):
+            assert 0, "set_default_attrs called on pure_expr %r is almost surely a bug; normally do it in _init_instance" % (obj,)
     import changes
     try:
         method = obj.__setattr_default__

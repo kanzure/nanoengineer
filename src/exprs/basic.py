@@ -177,7 +177,6 @@ Stub = Widget2D
 Width = Color = Vector = Action = Stub
 
 # layout prims and the like (but for the most part, layout prims probably won't be defined in basic.py at all)
-##ToggleShow = Stub
-##TestIterator = Stub
+# [none at the moment]
 
 # == end

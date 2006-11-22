@@ -168,10 +168,11 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
             try:
                 self._value = self._compute_value()
                     # this USED TO catch exceptions in our compute_method; as of 061118 it reraises them
-            except:
+            except: # note: might be LvalError_ValueIsUnset, or any other exception -- likely that best responses should differ ###e
                 printnim("I need to figure out what usage to track, in what object, when a tracked attr is unset")
-                pass ## self.track_use()
-                    ### GUESS 061120 1112a: this track_use causes the duplicate track_inval bug, because we track when invalid.
+                pass ## self.track_use() -- THIS IS PROBABLY NEEDED SOMEDAY, see below -- ###tryit
+                    # GUESS 061120 1112a [later suspected wrong, see below]:
+                    # this track_use causes the duplicate track_inval bug, because we track when invalid.
                     # and (still guessing) we do this during hasattr seeing our value is unset. it's probably wrong, because when the
                     # val becomes set, why should something be invalled, unless it turned exception into a real value?
                     # what might be right is to merge all the usage at this point into whatever caller turns the exception
@@ -180,6 +181,10 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
                     # do i mean by "here"? The real error is not in our mentioning the use here, i think, but in what
                     # the caller does with it... otoh our complaint stems entirely from what happens here, so that's wrong.
                     # I don't understand this well yet, but let's see what happens if I comment that out.
+                    # ... status, 061121 late: it didn't fix the bug, later stuff did, and I suspect it's right in theory
+                    # to track the use here, but that it won't matter in the near future. So, at some point, put this back
+                    # and see if it works or breaks, but no hurry to put it back in general. But recall it as a possible bug cause,
+                    # and if it seems to not break anything, leave it in, unlike now. 
                 raise
             self.valid = True
         # do standard usage tracking into env (whether or not it was invalid & recomputed) -- API is compatible with env.prefs
@@ -201,16 +206,13 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 #k note: this is a subclass of AttributeError so hasattr can work in this case [061117 late]
         match_checking_code = self.begin_tracking_usage()
         try:
-            val = self._compute_method() ###e should certain exceptions inside here raise AttributeError, for us to catch & reraise,
-                # if val is legitimately not yet set? no - raise our own kind of exception, so bug doesn't act like it,
-                # then catch that & convert to attrerror to reraise. #### SHOULD DOIT 061117 1022p [one place where i am]
-            printnim("catch that & convert to attrerror...")#### here & above assert
+            val = self._compute_method() # [might raise LvalError_ValueIsUnset]
         except LvalError_ValueIsUnset:
             # might happen from some lower layer if we're virtual (e.g. if our value is stored in some external array or dict)
-            ## print "doing end_tracking_usage before reraising LvalError_ValueIsUnset [ok??]" # sometimes we get some subslist exception
-                ######k TOTAL GUESS that it's fully legit, 061118 156p [but without it we got missing end-tracks, naturally]
+                ###k TOTAL GUESS that it's fully legit, 061118 156p [but without it we got missing end-tracks, naturally]
                 # note: should we set val to None and say it's valid? NO -- then of two hasattrs in a row, 2nd would be wrong.
-                # 061121: seems ok, always happens whether or not bugs do, so stop printing it.
+                # 061121: seems ok, always happens whether or not bugs do.
+                # But don't zap this comment til it's fully analyzed as being legit in theory.
             self.end_tracking_usage( match_checking_code, self.inval )
             raise
         except:
@@ -218,24 +220,13 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 ###e 061118 we still need to print more info from this; what to do to explain errors deep in evaling some expr?
                 # catch them and turn them into std custom exceptions, then wrap with posn/val info on each step of going up? (maybe)
             val = None
-##            if 0:
-##                print_compact_stack("exiting right after lval exception, to see if it makes my errors more readable, from here: ",
-##                                    ## frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),),
+##            if 0: [for more of this commented-out code, see cvs rev 1.32]
+##                print_compact_stack("exiting right after lval exception, ... ",
 ##                                    frame_repr = _std_frame_repr,
-##                                    linesep = '\n')
-##                    ###k 061105; review; 061117 printfyi -> print_compact_stack
-##                #e it would be nice to print self's formula (if it has one in the compute method), attr, etc,
-##                # but we don't have good access to that info
-##                ## import sys
-##                ## sys.exit(1) # doesn't work, just raises SystemExit which gets caught in the same way (tho not infrecur):
-##                import sys
-##                sys.stderr.flush() #k prob not needed
-##                sys.stdout.flush() #k prob needed
-##                import os
+##                                    linesep = '\n')...
 ##                os._exit(1) # from python doc for built-in exceptions, SystemExit
             if 1:
-                ## print "doing end_tracking_usage before reraising some misc exception [ok??]" # seems to be ok when it occurs
-                self.end_tracking_usage( match_checking_code, self.inval )
+                self.end_tracking_usage( match_checking_code, self.inval ) # legitness is a guess, but seems to be ok when it occurs
                 raise
         self.end_tracking_usage( match_checking_code, self.inval )
             # that subscribes self.inval to lvals we used, and unsubs them before calling self.inval [###k verify that]
@@ -247,14 +238,15 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         """Ignoring the possibility of errors in any compute method we may have, can our get_value be expected to work right now?
         [WARNING: This also doesn't take into account the possibility (not an error) of the compute method raising
         LvalError_ValueIsUnset; this might happen if we're a virtual lval providing access to a real one known to the compute_method.
-        If this matters, the only good test (at present) is to try the compute_method and see if it raises that exception.]
+        If this matters, the only good test (at present) is to try the compute_method and see if it raises that exception.
+        That is problematic in practice since it might track some usage if it doesn't!]
         """
         return self.valid or (self._compute_method is not None)
     def have_already_computed_value(self):
         return self.valid # even tho it's a public attr
     pass # end of class Lval
 
-def _std_frame_repr(frame): #e refile into debug.py? warning: dup code with lvals.py and [g4?] changes.py
+def _std_frame_repr(frame): #e refile into debug.py? warning: dup code with lvals.py and changes.py
     "return a string for use in print_compact_stack"
     # older eg: frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),), linesep = '\n'
     locals = frame.f_locals
@@ -269,18 +261,18 @@ def _std_frame_repr(frame): #e refile into debug.py? warning: dup code with lval
     return res
     # locals.keys() ##e sorted? limit to 25? include funcname of code object? (f_name?)
     # note: an example of dir(frame) is:
-    ['__class__', '__delattr__', '__doc__', '__getattribute__', '__hash__',
-    '__init__', '__new__', '__reduce__', '__reduce_ex__', '__repr__',
-    '__setattr__', '__str__', 'f_back', 'f_builtins', 'f_code',
-    'f_exc_traceback', 'f_exc_type', 'f_exc_value', 'f_globals', 'f_lasti',
-    'f_lineno', 'f_locals', 'f_restricted', 'f_trace']
+    #   ['__class__', '__delattr__', '__doc__', '__getattribute__', '__hash__',
+    #    '__init__', '__new__', '__reduce__', '__reduce_ex__', '__repr__',
+    #    '__setattr__', '__str__', 'f_back', 'f_builtins', 'f_code',
+    #    'f_exc_traceback', 'f_exc_type', 'f_exc_value', 'f_globals', 'f_lasti',
+    #    'f_lineno', 'f_locals', 'f_restricted', 'f_trace']
     # and of dir(frame.f_code) is:
-    ['__class__', '__cmp__', '__delattr__', '__doc__', '__getattribute__',
-    '__hash__', '__init__', '__new__', '__reduce__', '__reduce_ex__',
-    '__repr__', '__setattr__', '__str__', 'co_argcount', 'co_cellvars',
-    'co_code', 'co_consts', 'co_filename', 'co_firstlineno', 'co_flags',
-    'co_freevars', 'co_lnotab', 'co_name', 'co_names', 'co_nlocals',
-    'co_stacksize', 'co_varnames']
+    #   ['__class__', '__cmp__', '__delattr__', '__doc__', '__getattribute__',
+    #    '__hash__', '__init__', '__new__', '__reduce__', '__reduce_ex__',
+    #    '__repr__', '__setattr__', '__str__', 'co_argcount', 'co_cellvars',
+    #    'co_code', 'co_consts', 'co_filename', 'co_firstlineno', 'co_flags',
+    #    'co_freevars', 'co_lnotab', 'co_name', 'co_names', 'co_nlocals',
+    #    'co_stacksize', 'co_varnames']
 
 def call_but_discard_tracked_usage(compute_method): #061117
     "#doc [see obs func eval_and_discard_tracked_usage for a docstring to cannibalize]"
@@ -354,9 +346,7 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
          providing access to that attr to any client object.)
         """
         # see comments in set_default_attrs about why we need this to do no usage or change tracking
-        ## print "_set_default_value(%r) called in %r" % (default,self)
         if self.valid:
-            ## print "_set_default_value returning immediately"
             return # easy case
 
         # Dilemma: we might have no value, or we might have one computable by an initial-value compute method...
@@ -414,7 +404,7 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
             changes.end_disallowing_usage_tracking(mc)
         pass # end of method _set_default_value
     def inval(self):
-        msg = "inval in LvalForState is probably a bug indicator; not sure, remove this if needed" #061121 (even during init?)
+        msg = "inval in LvalForState is probably a bug indicator; not sure, remove this if needed" #061121
         print msg
         assert 0, msg
     pass # end of class LvalForState

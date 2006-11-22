@@ -5,11 +5,10 @@ $Id$
 """
 
 ##nim: [obs? maybe not]
-##    action on pressing open or closed
 ##    StateRef, syntax and implem
-##    If [needs testing, and review of old code for it vs this new code, esp re OpExpr, and refiling]
-##    get rid of this line: ## basic.py: 162: ToggleShow = Stub -- REMOVE THIS when we want to import this real one
-
+##    If [needs +testing, and [still] review of old code for it vs this new code, esp re OpExpr, and refiling]
+## see comments from 061121
+#
 ##e see also old code in ToggleShow-outtakes.py
 
 
@@ -58,28 +57,18 @@ State # defined in Exprs.py but nim -- that's where i am 061117 445p, plus here 
 class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py think it needs to be an OpExpr? for getattr & call?
     cond = Arg(bool) # WARNING: this is effectively a public attr; none of these argnames will be delegated to the value (I think)
     _then = Arg(Anything)
-##    print 'raw _then is',_then 
     _else  = Arg(Anything, None) # note: the None default probably won't work here; the callers presently pass a TextRect
-##    print 'raw _else is',_then 
-    ## _value = cond and _then or _else # needs and_Expr, but that's as hard internally as If_expr, so don't bother
     def _C__value(self):
         if self.cond:
-            ##print "using _then = %r in" % self._then,self##"because cond is %r type %r" % (self.cond,type(self.cond))
-                # Q. why are _then & _else ipaths same, rather than including the strings '_then' and '_else' as I assumed they would?
-                # A: they're not! I only thought they were since I said _self where I meant _this(Highlightable).
-                # THAT'S GOING TO BE A COMMON PROBLEM -- need to rethink the jargon... maybe let _this.attr work (find capitalized class)...
-                # btw the actual indices were argposes 1,2, so I was wrong anyway. [061121 late]
+                # digr: I mistakenly thought _then & _else ipaths were same, in some debugging e.g. printing _self.ipath,
+                # since I said _self where I meant _this(Highlightable).
+                # THAT'S GOING TO BE A COMMON PROBLEM -- need to rethink the jargon...
+                # maybe let _this.attr work (find innermost Instance with capitalized classname??) [061121]
             return self._then
         else:
-            ##print "using _else = %r in" % self._else,self
-                # Q. why is this printed twice when I toggle one nested one?
-                # A. Because each ToggleShow has two ifs, a main one and one in openclose! (when i use 'if 0' code)
             return self._else
         pass
     pass
-
-##print '\ncooked _then is',If_expr._then,'with',If_expr._then.formula 
-##print '\ncooked _else is',If_expr._else,'with',If_expr._else.formula 
 
 def If_kluge(*args):###
     "use this when you know you wanted If_expr but the buggy code might not give it to you yet; it always does but warns if If would not have"
@@ -89,7 +78,7 @@ def If_kluge(*args):###
         assert isinstance(res, If_expr)
         msg = "bug: If() gave you %r instead of this If_Expr %r I think you wanted (which I'll use)" % (res1, res2)
         print msg
-        assert 0, msg #061121 late
+        assert 0, msg #061121
     return res
 
 def is_constant_expr(expr):
@@ -105,18 +94,12 @@ def expr_constant_value(expr):
         return False, "arb value"
     
 def If(cond, _then, _else = None):
-    ##e should map them all through canon_expr first, at least cond
-    # but wait, that's not correct, even False would then be an expr -- the issue is, after canon_expr, would it have a final value or not?
-    # for now that means, would it be a constant or not, I think.
-    # Trying this in a preliminary way. Not mapping _then or _else to make this work better for immediate use. (might be deprecated, not sure)
 
     cond = canon_expr(cond)
+        # (but not on _then or _else to make this work better for immediate use. (might be deprecated, not sure))
     constflag, condval = expr_constant_value(cond)
     
-    ## if is_pure_expr(cond):
-    ## if not is_constant_expr(cond):
     if not constflag:
-        ## print "using If_expr"
         return If_expr(cond, _then, _else)
             #e maybe this will typecheck cond someday (in a way that would complain if it was a pyclass)
     elif condval:
@@ -140,8 +123,6 @@ class ToggleShow(InstanceMacro):
     thing = Arg(Widget2D)
     label = Arg(Widget2D, TextRect("label")) #e or coerce text into a 1-line TextRect -- how do we declare that intent??
     
-    ## implem = Option(str, "if0") # remove when devel is done -- choice of implementations
-
     if 0: # first make it work with a self-made stateref only, imitating Highlightable, using transient state
         stateref = Arg(StateRef, Automatic) ###k assumes the dflt can be a way to make one, not a literal one
 
@@ -194,6 +175,9 @@ class ToggleShow(InstanceMacro):
             # so: open = State()? bt say the type and dfault val -- like I did in this:
             # staterefs.py: 181:     LocalState( lambda x = State(int, 1): body(x.value, x.value = 1) ) #
 
+        # see if this gets the expected asfail: it does! [061121 late]
+        ## set_default_attrs( transient_state, open = True)
+        
     if 0: # this will be real code someday when no longer nim, but use an easier way first.
         open = State(bool, True) # default 'kind' of state depends on which layer this object is in, or something else about its class
             # but for now make it always transient_state
@@ -210,27 +194,11 @@ class ToggleShow(InstanceMacro):
             self.transient_state.open = val
             return
         open = property(get_open, set_open)
-        ## set_default_attrs( self.transient_state, open = True) # WRONG, see next day comment
-            # that set_default_attrs was not enough to prevent the bug, don't know why,
-            # too tired to read a stacktrace [this is where i am 061118 1042p]
-            ##_do_action on_press
-            ##doing end_tracking_usage before reraising LvalError_ValueIsUnset [ok??]
-            ##doing end_tracking_usage before reraising LvalError_ValueIsUnset [ok??]
-            ##exception ignored in <Highlightable#5741(i)>.leftClick: exprs.lvals.
-            ##LvalError_ValueIsUnset: access to key 'NullIpath' in some lvaldict in _attr_accessor, before that value was set
-            ##  [selectMode.py:2285] [Highlightable.py:273] [Highlightable.py:337] [ToggleShow.py:204] [staterefs.py:129]
-            ##  [lvals.py:161] [lvals.py:186] [lvals.py:275] [lvals.py:269] [lvals.py:161] [lvals.py:186] [lvals.py:371] [staterefs.py:117]
-
-            # next day: now the above fails in a simpler way: NameError: name 'self' is not defined !!! How did that not happen yesterday?
-            # In present setup, the above can't be done at the class level (and when it can, that's what State(type, initval) is for),
-            # so we'll do it in _init_instance below.
         pass
     
     def _init_instance(self):
         super(ToggleShow, self)._init_instance()
         set_default_attrs( self.transient_state, open = True)
-##        if 'expose usage bug? 061121':
-##            set_default_attrs( self.transient_state, open = True) # w/o bug this would be a noop, tho slightly inefficient.
 
     # constants
     if 0:
@@ -241,16 +209,10 @@ class ToggleShow(InstanceMacro):
         # and indeed, highlighting doesn't seem to be working on those.
         # if so, the above'll need revision until that's fixed.
         open_icon   = Overlay(Rect(0.5,1), TextRect('+',1,1)) # added 0.5 061120 1018p temp debug kluge
-        closed_icon = Overlay(Rect(1,0.5), TextRect('-',1,1)) #061120 changed impicit 1 -> 0.5; then noticed click on this is broken
-            # but only for inner eg (not outer eg, of nested two) in testexpr_10d -- is that the true cause? change back to see; yes.
-            ##WEIRD BUGS in gray rects, varsize, inner click -- seems to close the wrong one sometimes, seems to become insensitive, 
-            ##seems to briefly display the highlighted old one at same time as different new one
-            ##(do i end up clicking on an old one so it fails?)
-            ##it does seem like if same size we don't have this bug -- weird.
-            ##NEED TO DEBUG THIS, it might relate to other bugs re selobj or even subslist. [061120 119p]
+        closed_icon = Overlay(Rect(1,0.5), TextRect('-',1,1)) #061120 changed impicit 1 -> 0.5
 
-    
     # _value, and helper formulae
+    
     ## open = stateref.value # can we make it work to say Set(open, newval) after this?? ####k
         # the hard part would be: eval arg1, but not quite all the way. we'd need a special eval mode for lvals.
         # it'd be related to the one for simplify, but different, since for (most) subexprs it'd go all the way.
@@ -266,16 +228,19 @@ class ToggleShow(InstanceMacro):
     # - don't recycle glnames.
     # - some others I forget, which are marked by 061120 (or maybe 061121)
     #   in comments or stringlits (in this or other files).
-
-    # Soon, the needed or not of the above should be sorted out, and most of the following debugging-log commentary should be removed.
+    #  - don't track_use on exception in Lval get_value (BUT, i suspect it's actually wrong not to; see cmt there 061121)
+    #  - more conservative selobj_still_ok
+    #  - mode.update_selobj(event) in leftClick and ReleasedOn
+    #  - self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
+    #
+    # Soon, the needed or not of the above workarounds should be sorted out,
+    # and most of the following debugging-log commentary should be removed. #e
     
-    if 0: ###e make this an option, implem = 'if0' or 'if1'? hmm, doesn't seem easy to do! (needs If_expr, equals_Expr (nim)...)
-        # when the icons' size varies in open vs closed, this form has weird bugs [it seems as of 061120]:
+    if 1:
         openclose = Highlightable( If_kluge( open, open_icon, closed_icon ),
                                    on_press = _self.toggle_open,
-                                   sbar_text = _this(Highlightable).ipath)
-            #k does open work inside here, not being an Expr??? No, messes up If. Fixed using property_Expr.
-
+                                   sbar_text = _this(Highlightable).ipath # this line just for debugging
+                                   )
             ##e we should optim Highlightable's gl_update eagerness
             # for when some of its states look the same as others!
             # (no gl_update needed then, at least not just for that change --
@@ -352,11 +317,11 @@ class ToggleShow(InstanceMacro):
         if 0: #061121 822p i've been using if 1 forever, let's see if if 0 works here: it does! either is ok, given the open property.
             old = self.transient_state.open
             self.transient_state.open = new = not old
-            print "toggle_open changed self.transient_state.open from %r to %r" % (old, new,)
+            ## print "toggle_open changed self.transient_state.open from %r to %r" % (old, new,)
         else:
             old = self.open
             self.open = new = not old
-            print "toggle_open changed self.open from %r to %r" % (old, new,)
+            ## print "toggle_open changed self.open from %r to %r" % (old, new,)
             # [obs cmt re open property, but was it talking about that or a partly working State decl? as of 061121 I can't remember:]
                 # should work but doesn't, see bug in notesfile, it delegates self.open eval to _value: 061118 late
                 # (or is it just because the val was not initialized? GUESS, YES ###k)

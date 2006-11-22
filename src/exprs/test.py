@@ -116,7 +116,7 @@ from instance_helpers import DelegatingInstance_obs, DelegatingMixin # needed on
 try:
     _state
 except:
-    _state = {} ###### this is used for env.staterefs as of 061120, see also session_state, not yet used, probably should merge
+    _state = {} ###e Note: this is used for env.staterefs as of bfr 061120; see also session_state, not yet used, probably should merge
 
 # == debug code #e refile
 

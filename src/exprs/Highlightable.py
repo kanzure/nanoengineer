@@ -196,10 +196,9 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         return # from _init_instance
     
     def draw(self):
-        self.per_frame_state.saved_modelview_matrix = var_for_debug = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
+        self.per_frame_state.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
             ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
-        if 1:
-            # to investigate a bug [circa 061120], do it again to see if it emits an extra debug print... it doesn't, I think...
+        
             # addendum 061121: if this is usage tracked (which was never intended), then right here we invalidate whatever used it
             # (but nothing used it yet, the first time we draw), but in draw_in_abs_coords we use it, so if we ever redraw
             # after that (as we will - note, nothing yet clears/replaces this per_frame_state every frame),
@@ -209,10 +208,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             # (#e sometime I should think it through, understand what's legal and not legal, and add specific checks and warnings.)
             #  Meanwhile, since all per_frame state is not intended to be usage-tracked, just recorded for ordinary untracked
             # set and get, I'll just change it to have that property. And review glpane_state too.
-            ########@@@@@@@@ [this, and 061120 cmts/stringlits]
-            
-            self.per_frame_state.saved_modelview_matrix = var_for_debug #######
-            del var_for_debug
+            ###@@@ [this, and 061120 cmts/stringlits]
         PushName(self.glname)
         try:
             if self.transient_state.in_drag:
@@ -229,7 +225,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
                 self.plain.draw()
             pass
         except:
-            print_compact_traceback("exception during pressed_out or plain draw, ignored: ")#061120 1024p
+            print_compact_traceback("exception during pressed_out or plain draw, ignored: ")#061120 
             pass # make sure we run the PopName
         PopName(self.glname)
         return
@@ -275,7 +271,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             # otherwise it sets selobj to None and draws no highlight for it.
             # (This color will be received by draw_in_abs_coords, but our implem of that ignores it.)
     
-    ###@@@ got to here, roughly
+    ###@@@ got to here, roughly, in a complete review of porting this code from the old system into the exprs module
         
     def selobj_still_ok(self, glpane):
         ###e needs to compare glpane.part to something in selobj [i.e. self, i guess? 061120 Q],
@@ -293,17 +289,17 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
                 res = False
                 # owner might be None, in theory, but is probably a replacement of self at same ipath
                 # do debug prints
-                print "%r no longer owns glname %r, instead %r does" % (self, glname, owner)
+                print "%r no longer owns glname %r, instead %r does" % (self, glname, owner) # [perhaps never seen as of 061121]
                 our_ipath = self.ipath
                 owner_ipath = getattr(owner, 'ipath', '<missing>')
                 if our_ipath != owner_ipath:
+                    # [perhaps never seen as of 061121]
                     print "WARNING: ipath for that glname also changed, from %r to %r" % (our_ipath, owner_ipath)
                 pass
             pass
-        printnim("should i check whether selobj got replaced at its same ipath/glname, like I do elsewhere in this class?")##### 061120
-            # more discussion: that printnim is about whether this selobj got replaced locally;
+            # MORE IS PROBABLY NEEDED HERE: that check above is about whether this selobj got replaced locally;
             # the comments in the calling code are about whether it's no longer being drawn in the current frame;
-            # I think both issues are valid and need addressing in this code or it'll probably cause bugs. [061120 comment] ########BUG
+            # I think both issues are valid and need addressing in this code or it'll probably cause bugs. [061120 comment] ###BUG
         import env
         if not res and env.debug():
             print "debug: selobj_still_ok is false for %r" % self ###@@@
@@ -334,7 +330,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # since only this object knows what kind that is.
         return
     
-    def ReleasedOn(self, selobj, event, mode): ### will need better args
+    def ReleasedOn(self, selobj, event, mode): ### may need better args
         ### written as if for Button, might not make sense for draggables
         self.transient_state.in_drag = False
         self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
@@ -370,9 +366,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         else:
             self._do_action('on_release_out')
         ## mode.update_selobj(event) #k not sure if needed -- if it is, we'll need the 'event' arg
-        printnim("does ReleasedOn and also leftClick need the event arg so it can update_selobj so some bugs can be fixed??") ######
+        ## printnim("does ReleasedOn and also leftClick need the event arg so it can update_selobj so some bugs can be fixed??") ######
             ##bug guess 061120 - i think it does. try it. any other files affected?? if maybe for leftClick, rename it PressedOn??
-            ########BUG
+            ###BUG? don't know if it matters as of 061121; was doing it since before bugs finally got fixed.
+            # Maybe selectMode did it before calling us, btw. #k
         #e need update?
         mode.update_selobj(event) #061120 to see if it fixes bugs (see discussion in comments)
         self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
@@ -382,9 +379,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         "[private, should only be called with one of our action-option names]"
         print "_do_action",name ###
         assert name.startswith('on_')
-        ## action = self.kws.get(name)
         action = getattr(self, name) # will always be defined, since Option will give it a default value if necessary
-        # should be None or a callable supplied to the expr, for now; later will be None or an Action
+            ###e should be None or a callable supplied to the expr, for now; later will be None or an Action
         if action:
             action()
         return
@@ -394,10 +390,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         make sure display lists that might contain us are remade [stub],
         and glpanes are updated
         """
-        ##### 061120 guess: prob not needed in theory, and de-optim, but conservative, and otherwise harmless.
+        ### 061120 guess: prob not needed in theory, and de-optim, but conservative, and otherwise harmless.
         # the fact that it comes before the side effect routines in its callers
         # ought to be ok unless they do recursive event processing. still, why not do it after instead? not sure... ##e
-        # plan: try doing it after as last resort bugfix; otoh if bugs gone, try never doing it. ########BUG - slight chance it is
+        # plan: try doing it after as last resort bugfix; otoh if bugs gone, try never doing it.
         
         ## vv.havelist = 0
         mode.o.gl_update()
