@@ -1,8 +1,8 @@
-'''
+"""
 Boxed.py -- example of high-level layout expr
 
 $Id$
-'''
+"""
 
 from basic import *
 from basic import _self

@@ -30,6 +30,12 @@ $Id$
 # - widget classes, in order of lowest to highest level (most of them don't need to be imported by this module at all)
 
 
+# == python itself
+
+import sys
+
+sys.setrecursionlimit(650) # 5000 is set in startup_funcs.py; this will ease debugging, but REMOVE WHEN DEVEL IS DONE [061121]
+
 # == imports from cad/src
 
 from VQT import V, A, Q, norm, vlen

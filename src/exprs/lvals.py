@@ -321,6 +321,7 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
         in case the value is asked for before being set, BUT IT'S AN ERROR IF THAT TRACKS ANY USAGE.
         So we enforce this by being in a variant subclass of Lval.]
         """
+        # note: this is inlined into _set_default_value
         if self.valid and self._value == val:
             pass # important optim, but in future, we might want to only sometimes do this
                  # (eg have another variant class which doesn't do it)
@@ -343,7 +344,79 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
                 self.valid = True
             pass
         return
-    #k I think can_get_value and have_already_computed_value are correct for us as defined in the superclass Lval.
+    #k I think the methods can_get_value and have_already_computed_value
+    # are correct for us, as implemented in our superclass Lval.
+    def _set_default_value(self, default):
+        """If attr is not set, set it to default; never do any usage or change tracking.
+        (WARNING: This will cause bugs unless all providers of access to a given attribute-instance
+         use this consistently (same default value, and all of them using this rather than some of
+         them providing access to the attr with no default value); they must all use it before
+         providing access to that attr to any client object.)
+        """
+        # see comments in set_default_attrs about why we need this to do no usage or change tracking
+        print "_set_default_value(%r) called in %r" % (default,self)######
+        if self.valid:
+            print "_set_default_value returning immediately"#####
+            return # easy case
+
+        # Dilemma: we might have no value, or we might have one computable by an initial-value compute method...
+        # or we might have such a method which will raise LvalError_ValueIsUnset when we try it
+        # (e.g. valfunc method in some client code). The only way to find out is to use that method,
+        # but what if doing so tracked some usage? I think it's normal for that to happen...
+        # OTOH, it's not correct, I think, to have two inconsistent ways of setting a default value --
+        # code that calls this, vs. code that supplies an initial-value compute method that actually works.
+        # So, maybe we should be able to ask the method which kind it is... but for now, assume it could
+        # be either. If it computes a real value, we better not run it now, since usage would get tracked...
+        # though that's an error... one way to detect is to return now and let it run, but that led to infrecur
+        # in self.delegate in If.cond (don't know why). But setting default now risks hiding bugs.
+        # That leaves: run it now, asserting no usage tracking. [Note: current calling code redundantly asserts the same thing. #e]
+        #
+        # One case which is not covered: something asked if we were set, was told "we're unset", and tracked its usage of us.
+        # Ideally we'd assert right here that we have no current inval-subscribers. ####e DOIT
+        # (For now, if we *do* have subscribers who learned we were unset, and if we leave them untouched,
+        # it's indeed a bug that they asked that before we were initialized, but it's not so bad that they'll
+        # get invalled when something changes us later.)
+        printnim("assert no current inval-subscribers")
+        
+        import changes
+        mc = changes.begin_disallowing_usage_tracking('_set_default_value in %r' % self)
+            # note: the argument is just an explanation for use in error messages ##e OPTIM: don't precompute that arg
+        try:
+            try:
+                val = self._compute_value() # don't call get_value since it calls track_use
+            except LvalError_ValueIsUnset:
+                # this is the only non-error case!
+                # (the following just inlines self.set_constant_value(default):)
+                self._value = default
+                self.valid = True
+                print "_set_default_value returning after set"#####
+                return
+            except:
+                # any other exception, including discovering usage tracking in that computation [once that works when it happens],
+                # should be reported, but then (I think) needn't prevent this from working.
+                print_compact_traceback("error: exception (ignored) in _set_default_value trying initval-computation in %r: " % self)
+                self._value = default
+                self.valid = True
+                return
+            else:
+                # If a value was computed, that conflicts with using this method... report that error (even if the values agree),
+                # but which value should we use? Let's use the computed one for now.
+                #   NOTE: In present code [061121], this can also happen if usage tracking occurred, since it's not detected
+                # until the end_disallowing_usage_tracking call below (since begin_disallowing_usage_tracking is not fully
+                # implemented).
+                print "error: %r computed initial value %r (using it) but was also given an explicit _set_default_value(%r)" % \
+                      (self, val, default)
+                self._value = val
+                self.valid = True
+                return
+            pass
+        finally:
+            changes.end_disallowing_usage_tracking(mc)
+        pass # end of method _set_default_value
+    def inval(self):
+        msg = "inval in LvalForState is probably a bug indicator; not sure, remove this if needed" #061121 (even during init?)
+        print msg
+        assert 0, msg
     pass # end of class LvalForState
 
 # ==

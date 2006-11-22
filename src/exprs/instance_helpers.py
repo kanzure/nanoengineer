@@ -575,6 +575,7 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
     but self.delegate should be defined by the subclass
     (e.g. it might be recomputable from a formula or _C_delegate method handled by ExprsMeta, or assigned in __init__).
     Also, doesn't start delegating until self is an Instance. [##e For now, prints fyi when asked to, tho that's not an error.]
+    Also, DOESN'T DELEGATE attrs that start with '_'.
        Note that the Instance-related semantics mean it's only useful for Exprs.
     [##e Maybe we could generalize it to use a more general way of asking the pyinstance whether to delegate yet,
      like some other optional flag attr or method.
@@ -628,7 +629,14 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
 ##                except:
 ##                    #e what can we do? print attr? too much printing if infrecur.
 ##                    raise
-                delegate = self.delegate ##e could check that delegate is not None, is an Instance (??), etc (could print it if not)
+                recursing = self.__dict__.setdefault('__delegating_now', False) # note: would be name-mangled if set normally
+                assert not recursing, "recursion in self.delegate computation in %r" % self #061121
+                self.__dict__['__delegating_now'] = True
+                try:
+                    delegate = self.delegate
+                finally:
+                    self.__dict__['__delegating_now'] = False #e or could del it, presumed less efficient, not sure
+                ##e could check that delegate is not None, is an Instance (??), etc (could print it if not)
                 #k Should it be silently tolerated if delegate is None? Probably no need -- None won't usually have the attr,
                 # so it will raise the same exception we would. Are there confusing cases where None *does* have the attr??
                 # I doubt it (since we're excluding _attrs). But it's worth giving more info about likely errors, so I'm printing some.
