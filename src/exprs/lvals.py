@@ -354,9 +354,9 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
          providing access to that attr to any client object.)
         """
         # see comments in set_default_attrs about why we need this to do no usage or change tracking
-        print "_set_default_value(%r) called in %r" % (default,self)######
+        ## print "_set_default_value(%r) called in %r" % (default,self)
         if self.valid:
-            print "_set_default_value returning immediately"#####
+            ## print "_set_default_value returning immediately"
             return # easy case
 
         # Dilemma: we might have no value, or we might have one computable by an initial-value compute method...
@@ -389,7 +389,7 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
                 # (the following just inlines self.set_constant_value(default):)
                 self._value = default
                 self.valid = True
-                print "_set_default_value returning after set"#####
+                ## print "_set_default_value returning after set"
                 return
             except:
                 # any other exception, including discovering usage tracking in that computation [once that works when it happens],

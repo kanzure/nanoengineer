@@ -133,6 +133,9 @@ class ToggleShow(InstanceMacro):
     # args
     thing = Arg(Widget2D)
     label = Arg(Widget2D, TextRect("label")) #e or coerce text into a 1-line TextRect -- how do we declare that intent??
+    
+    ## implem = Option(str, "if0") # remove when devel is done -- choice of implementations
+
     if 0: # first make it work with a self-made stateref only, imitating Highlightable, using transient state
         stateref = Arg(StateRef, Automatic) ###k assumes the dflt can be a way to make one, not a literal one
 
@@ -247,7 +250,20 @@ class ToggleShow(InstanceMacro):
         # it'd be related to the one for simplify, but different, since for (most) subexprs it'd go all the way.
     ## openclose = If( open, open_icon, closed_icon )
 
-    if 0: ###e make this an option, implem = 'if0' or 'if1'?
+    # Status as of 061121 421p: both if 0 and if 1 cases seem to work fine, provided you restart when changing between them.
+    # (Testing was not extensive, so it might turn out that avoiding other reloads is also needed.)
+    # The known bugfixes that led to this:
+    # - selobj = None in some places (not sure which are needed).
+    # - no usage/change tracking by stateplaces that get set during draw (or that contain glname -- don't know if that matters).
+    # - no usage/change tracking by set_default_attrs.
+    # And other changes that might be helping:
+    # - don't recycle glnames.
+    # - some others I forget, which are marked by 061120 (or maybe 061121)
+    #   in comments or stringlits (in this or other files).
+
+    # Soon, the needed or not of the above should be sorted out, and most of the following debugging-log commentary should be removed.
+    
+    if 1: ###e make this an option, implem = 'if0' or 'if1'? hmm, doesn't seem easy to do! (needs If_expr, equals_Expr (nim)...)
         # when the icons' size varies in open vs closed, this form has weird bugs [it seems as of 061120]:
         openclose = Highlightable( If_kluge( open, open_icon, closed_icon ), on_press = _self.toggle_open, sbar_text = _self.ipath)
             #k does open work inside here, not being an Expr??? No, messes up If. Fixed using property_Expr.
