@@ -8,16 +8,6 @@
 #include "boxtree.h"
 
 //----------------------------------------------------------------------------
-// mNumber
-
-int BoxTree::Number;					// max number of elements in box
-
-//----------------------------------------------------------------------------
-// mBase
-
-Box * BoxTree::Base;					// base for boxes pointers
-
-//----------------------------------------------------------------------------
 // Constructor
 
 BoxTree::BoxTree():
@@ -189,9 +179,10 @@ void BoxTree::Delete(
 // delete duplicate entities
 //
 void BoxTree::Duplicate(
+	Box * base,
 	int * ia)
 {
-	Duplicate(ia,this);
+	Duplicate(base,ia,this);
 }
 
 //----------------------------------------------------------------------------
@@ -200,6 +191,7 @@ void BoxTree::Duplicate(
 // delete duplicate entities
 //
 void BoxTree::Duplicate(
+	Box * base, 
 	int * ia,
 	BoxTree * bt)
 {
@@ -210,11 +202,11 @@ void BoxTree::Duplicate(
 			for (int il=0; il<bt->mBoxes.Size(); il++)
 			{
 				Box * bi = bt->mBoxes[il];
-				int i = int(bi - Base);
+				int i = int(bi - base);
 				for (int jl=il+1; jl<bt->mBoxes.Size(); jl++)
 				{
 					Box * bj = bt->mBoxes[jl];
-					int j = int(bj - Base);
+					int j = int(bj - base);
 					if (ia[j]>0)
 					{
 						ia[j] = -ia[i];
@@ -222,8 +214,8 @@ void BoxTree::Duplicate(
 				}
 			}
 		}
-		Duplicate(ia,bt->Left());
-		Duplicate(ia,bt->Right());
+		Duplicate(base,ia,bt->Left());
+		Duplicate(base,ia,bt->Right());
 	}
 }
 
@@ -250,6 +242,7 @@ int BoxTree::Initialize(
 //
 int BoxTree::Split()
 {
+	int const Number = 1;
 	int i;
 	int n = Size();
 	if (n<=Number) return 1;

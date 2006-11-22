@@ -20,7 +20,7 @@ class CollisionDetector
   public:
 
 	//------------------------------------------------------------------------
-	// Constructor
+	// Constructor 
 
 	inline CollisionDetector();
 
@@ -149,6 +149,16 @@ class CollisionDetector
   private:
 
 	//------------------------------------------------------------------------
+	// mB0
+
+	Box * mB0;					// base for boxes
+
+	//------------------------------------------------------------------------
+	// mB1
+
+	Box * mB1;					// base for boxes
+
+	//------------------------------------------------------------------------
 	// mEntities
 
 	Container<Box *> mBoxes;	// container for entities in the box
@@ -240,8 +250,8 @@ class CollisionDetector
 	// and translation vector
 	//
 	inline void CalculateTransformation(
-		Hierarchy * b0,
-		Hierarchy * b1);
+		Hierarchy * h0,
+		Hierarchy * h1);
 
 	//------------------------------------------------------------------------
 	// CheckCollision()

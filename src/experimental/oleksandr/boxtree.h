@@ -75,6 +75,7 @@ class BoxTree
 	// delete duplicate entities
 	//
 	void Duplicate(
+		Box * base,
 		int * ia);
 
 	//------------------------------------------------------------------------
@@ -83,6 +84,7 @@ class BoxTree
 	// delete duplicate entities
 	//
 	void Duplicate(
+		Box * base, 
 		int * ia,
 		BoxTree * bt);
 
@@ -152,16 +154,6 @@ class BoxTree
 	inline int WhichBox(
 		int variant,
 		int i);
-
-	//------------------------------------------------------------------------
-	// mNumber
-
-	static int Number;					// max number of elements in box
-
-	//------------------------------------------------------------------------
-	// mNumber
-
-	static Box * Base;					// base for boxes pointers
 
   protected:
 

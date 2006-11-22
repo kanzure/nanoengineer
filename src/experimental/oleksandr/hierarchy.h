@@ -70,11 +70,11 @@ class Hierarchy
 	inline RotationMatrix * Matrix() const;
 
 	//------------------------------------------------------------------------
-	// Number()
+	// Base()
 	//
-	// set number
+	// get base pointer
 	//
-	inline int & Number();
+	inline Box * Base();
 
 	//------------------------------------------------------------------------
 	// Size()
@@ -103,11 +103,6 @@ class Hierarchy
 	// mBoxes
 
 	Container<Box> mBoxes;				// array for boxes
-
-	//------------------------------------------------------------------------
-	// mNumber
-
-	int mNumber;						// max number of elements in box
 
 	//------------------------------------------------------------------------
 	// mTree
@@ -165,9 +160,9 @@ inline RotationMatrix * Hierarchy::Matrix() const
 //----------------------------------------------------------------------------
 // Number()
 
-inline int & Hierarchy::Number()
+inline Box * Hierarchy::Base()
 {
-	return (mNumber);
+	return (&mBoxes[0]);
 }
 
 //----------------------------------------------------------------------------

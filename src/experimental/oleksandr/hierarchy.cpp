@@ -13,8 +13,6 @@
 Hierarchy::Hierarchy():
 
 	// Private data initialization
-	mNumber(							// max number of elements in box
-		1),
 	mRm(								// rotation matrix
 		0),
 	mTv(								// translation vector
@@ -62,7 +60,6 @@ void Hierarchy::Initialize(
 	{
 		mTree->Add(&mBoxes[i]);
 	}
-	mTree->Base = &mBoxes[0];
-	mTree->BuildTree();
+	mTree->BuildTree(); 
 }
 

@@ -436,10 +436,8 @@ void Surface::Duplicate()
 		{
 			bt.Add(&boxes[i]);
 		}
-		bt.Number = 1;
-		bt.Base = &boxes[0];
 		bt.BuildTree();
-		bt.Duplicate(ia);
+		bt.Duplicate(&boxes[0],ia); 
 	}
 	else
 	{
