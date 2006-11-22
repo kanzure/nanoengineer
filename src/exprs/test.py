@@ -401,8 +401,9 @@ def drawtest1_innards(glpane):
     from basic import printnim, printfyi
     printnim("severe anti-optim not to memoize some_env.make result in draw") ###e but at least it ought to work this way
     inst.draw()
-    import env
-    print "drew", env.redraw_counter   ##e or print_compact_stack
+    if not glpane.is_animating: # cond added 061121, but will probably need mod so we print the first & last ones or so... #e
+        import env
+        print "drew", env.redraw_counter   ##e or print_compact_stack
         # Note: this shows it often draws one frame twice, not at the same moment, presumably due to GLPane highlighting alg's
         # glselect redraw. That is, it draws a frame, then on mouseover of something, draws it glselect, then immediately
         # draws the *next* frame which differs in having one object highlighted. (Whereas on mouse-leave of that something,
@@ -414,7 +415,7 @@ def drawtest1_innards(glpane):
         # (That last seems likely, since that code has a comment saying it's conservative and might often be doing an extra one;
         #  it also lets the drag_handler turn that off, which might be an easy optim to try sometime. ####)
         # When the time comes (eg to optim it), just use print_compact_stack here. [061116 comment]
-    printnim("see code for how to optim by replacing two redraws with one, when mouse goes over an object") # see comment above
+        printnim("see code for how to optim by replacing two redraws with one, when mouse goes over an object") # see comment above
     return
 
 MEMOIZE_MAIN_INSTANCE = True # change soon, as big optim and to see if it hides some bugs

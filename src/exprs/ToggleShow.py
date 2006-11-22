@@ -208,8 +208,15 @@ class ToggleShow(InstanceMacro):
         ####@@@@ I vaguely recall that Highlightable didn't work on text!
         # and indeed, highlighting doesn't seem to be working on those.
         # if so, the above'll need revision until that's fixed.
-        open_icon   = Overlay(Rect(0.5,1), TextRect('+',1,1)) # added 0.5 061120 1018p temp debug kluge
-        closed_icon = Overlay(Rect(1,0.5), TextRect('-',1,1)) #061120 changed impicit 1 -> 0.5
+        # BUT, with these grays anyway, clicks on the text are working. But it might be because the grays are behind them. ###k
+        if 0 and 'varying rect sizes':
+            # how it was during debugging
+            open_icon   = Overlay(Rect(0.5,1), TextRect('+',1,1)) # added 0.5 061120 1018p temp debug kluge
+            closed_icon = Overlay(Rect(1,0.5), TextRect('-',1,1)) #061120 changed impicit 1 -> 0.5
+        else:
+            # easier on the mouse-hand and eye
+            open_icon   = Overlay(Rect(0.4), TextRect('+',1,1)) # added 0.5 061120 1018p temp debug kluge
+            closed_icon = Overlay(Rect(0.4), TextRect('-',1,1)) #061120 changed impicit 1 -> 0.5
 
     # _value, and helper formulae
     
