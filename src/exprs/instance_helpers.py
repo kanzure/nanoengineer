@@ -174,7 +174,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         Destructively modify self, an expr, supplying it with the given argument formulas.
         """
         assert not self._e_is_instance
-        assert not self._e_has_args
+        assert not self._e_has_args, "not permitted to re-supply already supplied positional args, in %r" % self # added message 061126
         self._e_has_args = True # needed in case args are supplied as ()
 
         args = tuple(map(canon_expr, args))

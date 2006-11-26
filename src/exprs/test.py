@@ -331,7 +331,8 @@ testexpr_10b = ToggleShow( Highlightable(Rect(2,3,green)) ) # use Highlightable 
 testexpr_10c = ToggleShow(ToggleShow( Highlightable(Rect(2,3,green)) ))
 testexpr_10d = ToggleShow(ToggleShow( Rect(2,3,yellow) )) # has the onetimesubs bug too
 
-# Image [WARNING: as of 061125, once this works we expect it to mess up text, since that assumes only one texture is ever bound]
+# == test Image
+
 from testdraw import courierfile
 blueflake = "blueflake.jpg"
 
@@ -371,15 +372,88 @@ testexpr_11i = testexpr_11h(pixmap = True) # works (reduced fuzziness) [note: th
     #   untested settings include use_mipmaps = False, decal = False [nim].
 testexpr_11j = testexpr_11h(use_mipmaps = False) # DOESN'T WORK -- no visible difference from _11i. #####BUG ???
 
-testexpr_11k = testexpr_11h(tex_origin = (-1,-1)) # works
+testexpr_11k = testexpr_11h(tex_origin = (-1,-1)) # works; latest stable test in _11 (the rest fail, or are bruce-g4-specific, or ugly)
+
+# try other sizes of image files
+
+## testexpr_11l_asfails = testexpr_11k(courierfile) # can I re-supply args? I doubt it. indeed, this asfails as expected.
+    # note, it asfails when parsed (pyevalled), so I have to comment out the test -- that behavior should perhaps be changed.
+imagetest = Image(tex_origin = (-1,-1), clamp = True, nreps = 3, use_mipmaps = True) # customize options
+testexpr_11m = imagetest(courierfile) # works
+testexpr_11n = imagetest("stopsign.png") # fails; guess, our code doesn't support enough in-file image formats;
+    # exception is SystemError: unknown raw mode, [images.py:73] [testdraw.py:663] [ImageUtils.py:69] [Image.py:439] [Image.py:323]
+    ##e need to improve gracefulness of response to this error
+testexpr_11o = imagetest("RotateCursor.bmp") # fails, unknown raw mode
+testexpr_11p = imagetest("win_collapse_icon.png") # fails, unknown raw mode
+    ###e conclusion: we need to improve image loading / texture making code, so icon/cursor images can work
+    # note: mac shell command 'file' reveals image file format details, e.g.
+    ## % file stopsign.png
+    ## stopsign.png: PNG image data, 22 x 22, 8-bit/color RGBA, non-interlaced
+
+# try some images only available on bruce's g4
+
+testexpr_11q1 = imagetest("/Nanorex/bug notes/1059 files/IMG_1615.JPG") # works
+testexpr_11q2 = imagetest("/Nanorex/bug notes/bounding poly bug.jpg") # works
+testexpr_11q3 = imagetest("/Nanorex/bug notes/1059 files/peter-easter-512.png") # works
+testexpr_11q4 = imagetest("/Nanorex/bug notes/1059 files/IMG_1631.JPG alias") # (mac alias) fails
+    ## IOError: cannot identify image file [images.py:56] [testdraw.py:658] [ImageUtils.py:28] [Image.py:1571]
+
+##e want to try: tiff, gif; pdf; afm image, paul notebook page; something with transparency (full in some pixels, or partial)
+
+
+# == @@@
+
+#e what next?
+# - some boolean controls?
+# - framework to let me start setting up the dna ui?
+# - working MT in glpane?
+
+
+# == nim tests
+
+# TestIterator (test an iterator - was next up, 061113/14, but got deferred, 061115)
+testexpr_7_xxx = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
+testexpr_7a_xxx = TestIterator( Boxed(testexpr_6f) )
+    ### BUG: shows (by same ipaths) that TestIterator is indeed wrongly sharing an instance
+    # [first test that succeeds in showing this rather than crashing is 061115 -- required fixing bugs in Boxed and what it uses]
+    # note: each testexpr_6f prints an ipath
+
+# Column, fancy version
+testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+
+
+# === set the testexpr to use right now   @@@
+
+testexpr = testexpr_11k # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n
+
+    # latest stable tests:
+    # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc
+    
+    # currently under devel [061117]: ToggleShow, and its LL needs, StateRef and StatePlace and an inval-tracking attrholder
+
+    # some history:
+    # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e, and 061114 6g*, 6h*
+
+    # buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice
+    # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
+    # once goes over the green rect or the displist text (after each reload)? not sure.
+
+ #e planned optims -- see below
+
+print "using testexpr %r" % testexpr
+for name in dir():
+    if name.startswith('testexpr') and name != 'testexpr' and eval(name) is testexpr:
+        print "(which is probably %s)" % name
+
+# ==
+
+# @@@
 
 # BTW, all this highlighting response (e.g. testexpr_9c) is incredibly slow.
 # Maybe it's even slower the first time I mouseover the 2nd one, suggesting that instantiation time is slow,
 # but this doesn't make sense since I reinstantiate everything on each draw in the current code. hmm.
 
-# @@@
-
-# planned optims (after each, i need to redo lots of tests):
+# PLANNED OPTIMS (after each, i need to redo lots of tests):
 # - don't always gl_update when highlighting -- requires some code review (or experiment, make it turnable off/on)
 # - retain the widget_env and the made testexpr between drawings, if no inputs changed (but not between reloads)
 # - display lists (I don't yet know which of the above two will matter more)
@@ -395,43 +469,6 @@ testexpr_11k = testexpr_11h(tex_origin = (-1,-1)) # works
 # - highlighting that works in displists
 # - povray
 
-
-
-# TestIterator (test an iterator - was next up, 061113/14, but got deferred, 061115)
-testexpr_7_xxx = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
-testexpr_7a_xxx = TestIterator( Boxed(testexpr_6f) )
-    ### BUG: shows (by same ipaths) that TestIterator is indeed wrongly sharing an instance
-    # [first test that succeeds in showing this rather than crashing is 061115 -- required fixing bugs in Boxed and what it uses]
-    # note: each testexpr_6f prints an ipath
-
-# Column, fancy version
-testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
-
-
-
-
-# === set the testexpr to use right now   @@@
-
-testexpr = testexpr_11k # _11i works; _11j doesn't work
-
-    # latest stable tests:
-    # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc
-    
-    # currently under devel [061117]: ToggleShow, and its LL needs, StateRef and StatePlace and an inval-tracking attrholder
-
-    # some history:
-    # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e, and 061114 6g*, 6h*
-
-    # buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice
-    # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
-    # once goes over the green rect or the displist text (after each reload)? not sure.
-
- #e planned optims -- see above
-
-print "using testexpr %r" % testexpr
-for name in dir():
-    if name.startswith('testexpr') and name != 'testexpr' and eval(name) is testexpr:
-        print "(which is probably %s)" % name
 
 # == per-frame drawing code
 

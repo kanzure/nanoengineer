@@ -71,6 +71,9 @@ class _texture_holder(object): ### WARNING: probably assumes square textures for
         image_obj = self._image
         tex_name = self.tex_name
         have_mipmaps, tex_name = testdraw._loadTexture(image_obj, tex_name)
+            ##testexpr_11n = imagetest("stopsign.png") # fails; guess, our code doesn't support enough in-file image formats;
+            ##    # exception is SystemError: unknown raw mode, [images.py:73] [testdraw.py:663] [ImageUtils.py:69] [Image.py:439] [Image.py:323]
+            ##    ##e need to improve gracefulness of response to this error
         glBindTexture(GL_TEXTURE_2D, 0)
             # make sure no caller depends on mere accessing of self.loaded_texture_data binding this texture,
             # which without this precaution would happen "by accident" (as side effect of _loadTexture)
@@ -132,7 +135,24 @@ def canon_image_filename( filename):
      someday there might even be user prefs for image search paths, except that plugins can provide their own images.... ##e]
     """
     #stub, might work for now:
-    return os.path.join( os.path.dirname( os.path.dirname(__file__)), "experimental/textures", filename)
+    thisdir = os.path.dirname(__file__) # dir of exprs module
+    cad_src = os.path.dirname( thisdir)
+    cad = os.path.dirname( cad_src)
+    path = [ #e could precompute; doesn't matter much
+        thisdir,
+        os.path.join( cad_src, "experimental/textures"),
+        os.path.join( cad, "images"), #e still correct??
+    ]
+    tries = map( lambda dir: os.path.join(dir, filename), path)
+    lastresort = testdraw.courierfile
+        #e replace with some error-indicator image, or make one with the missing filename as text (on demand, or too slow)
+    tries.append(lastresort)
+    for filename in tries:
+        filename = os.path.abspath(os.path.normpath(filename)) # faster to do this on demand
+        if os.path.isfile(filename):
+            return filename
+    assert 0, "lastresort file %r should always be present" % os.path.abspath(os.path.normpath(tries[-1]))
+    pass # end of canon_image_filename
 
 class Image(Widget2D):
     "#doc; WARNING: invisible from the back"
