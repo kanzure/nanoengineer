@@ -371,6 +371,8 @@ testexpr_11i = testexpr_11h(pixmap = True) # works (reduced fuzziness) [note: th
     #   untested settings include use_mipmaps = False, decal = False [nim].
 testexpr_11j = testexpr_11h(use_mipmaps = False) # DOESN'T WORK -- no visible difference from _11i. #####BUG ???
 
+testexpr_11k = testexpr_11h(tex_origin = (-1,-1)) # works
+
 # BTW, all this highlighting response (e.g. testexpr_9c) is incredibly slow.
 # Maybe it's even slower the first time I mouseover the 2nd one, suggesting that instantiation time is slow,
 # but this doesn't make sense since I reinstantiate everything on each draw in the current code. hmm.
@@ -410,7 +412,8 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_11i # _11i; j doesn't work
+testexpr = testexpr_11k # _11i works; _11j doesn't work
+
     # latest stable tests:
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc
     

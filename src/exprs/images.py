@@ -150,10 +150,15 @@ class Image(Widget2D):
         # later, it might depend on whether we had RAM, or on a more global pref, or ....
     decal = Option(bool, True) #e False is nim
     nreps = Option(float, 1.0) #e rename - repeat count; mostly only useful when clamp is False, but ought to work otherwise too
-    #e offset option, to shift tex_origin - 2D or 3D?
+        ##e generalize to let caller supply tex_dx and tex_dy vectors, for rotating the texture within the drawing region;
+        # (Can that be done as a more general value for this option? Unclear whether that's natural, tho passing in a matrix might be...)
+    tex_origin = Option(Vector, ORIGIN) # offset option, to shift tex_origin; can be 2d or 3d, though we use only two dims of it
+        #e design Qs:
+        # - is it really Point rather than Vector?
+        # - does it interact with [nim] drawing-region-origin so as to line up if we use the same one for adjacent regions?
     
     # formulae
-    # THIS SHOULD WORK (I think), but doesn't(unconfirmed that it doesn't): [is my syntax wrong for passing the kws to call_Expr???]
+    # THIS SHOULD WORK (I think), but doesn't, don't know why ####BUG: [is my syntax wrong for passing the kws to call_Expr???]
     ## texture_options = call_Expr( dict, clamp = clamp, pixmap = pixmap, use_mipmaps = use_mipmaps, decal = decal )
     ## __get__ is nim in the Expr <type 'dict'>(*(), **{'clamp': <call_Expr#5175: .....
     
@@ -185,12 +190,11 @@ class Image(Widget2D):
         
         # figure out texture coords (from optional args, not yet defined ###e) -- stub for now
         nreps = float(self.nreps) # float won't be needed once we have type coercion; not analyzed whether int vs float matters in subr
-        tex_origin, tex_dx, tex_dy = ORIGIN2, D2X, D2Y # copied from testdraw's drawtest1, still used in testmode to draw whole font
-        ## tex_dx *= nreps # this modifies a shared, mutable Numeric array object, namely D2X! Not what I wanted.
-        ## tex_dy *= nreps
-        tex_dx = tex_dx * nreps
-        tex_dy = tex_dy * nreps
-##        print "tex_dx is",tex_dx,"D2X is %r" % (D2X,)
+        ## tex_origin = ORIGIN2 # see also testdraw's drawtest1, still used in testmode to draw whole font texture rect
+        tex_origin = V(self.tex_origin[0], self.tex_origin[1])
+        ## tex_dx = D2X ; tex_dx *= nreps # this modifies a shared, mutable Numeric array object, namely D2X! Not what I wanted.
+        tex_dx = D2X * nreps
+        tex_dy = D2Y * nreps
         
         # where to draw it -- act like a 2D Rect for now; this code is copied from testdraw's drawtest1, not reanalyzed; fixed size 2x2,
         # roughly 30 pixels square in home view i think
