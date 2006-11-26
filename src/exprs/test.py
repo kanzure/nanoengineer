@@ -397,8 +397,11 @@ testexpr_11q2 = imagetest("/Nanorex/bug notes/bounding poly bug.jpg") # works
 testexpr_11q3 = imagetest("/Nanorex/bug notes/1059 files/peter-easter-512.png") # works
 testexpr_11q4 = imagetest("/Nanorex/bug notes/1059 files/IMG_1631.JPG alias") # (mac alias) fails
     ## IOError: cannot identify image file [images.py:56] [testdraw.py:658] [ImageUtils.py:28] [Image.py:1571]
+testexpr_11q5 = imagetest("/Nanorex/DNA/paul notebook pages/stages1-4.jpg") # fails, unknown raw mode - hmm. try converting it. ###e
 
-##e want to try: tiff, gif; pdf; afm image, paul notebook page; something with transparency (full in some pixels, or partial)
+##e want to try: tiff, gif; pdf; afm image, paul notebook page (converted);
+# something with transparency (full in some pixels, or partial)
+
 
 
 # == @@@
@@ -424,7 +427,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_11k # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n
+testexpr = testexpr_11q5 # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n
 
     # latest stable tests:
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc
