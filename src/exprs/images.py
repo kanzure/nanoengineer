@@ -114,6 +114,7 @@ def canon_image_filename( filename):
     return os.path.join( os.path.dirname( os.path.dirname(__file__)), "experimental/textures", filename)
 
 class Image(Widget2D):
+    "#doc; WARNING: invisible from the back"
     # args
     filename = Arg(str)
     use_filename = call_Expr( canon_image_filename, filename)
@@ -156,6 +157,18 @@ class Image(Widget2D):
         return
 
     ##e need lbox attrs
+    # note the suboptimal error message from this mistake:
+    #   bright = DX * 2
+    #   ## TypeError: only rank-0 arrays can be converted to Python scalars. ...
+    #   ## [test.py:419 inst.draw()] [Column.py:91 glTranslatef(dx,0,0)]
+    #e Ideally we'd have a typecheck on _self.bright (etc) in Widget2D
+    # which would catch this error whenever self.bright was computed,
+    # or even better, when it's a constant for the class (as in this case),
+    # right when that constant formula is defined.
+    bright = 1 * 2 # corresponds to DX * 2 above
+    btop = 1 * 2
+
+    ###k???
     pass
 
 # end

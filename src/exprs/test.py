@@ -339,10 +339,28 @@ testexpr_11a = Image(courierfile) # works
 testexpr_11a1 = Image("courier-128.png") # works (note: same image)
 testexpr_11a2 = Image(blueflake) # works [and no longer messes up text as a side effect, now that drawfont2 binds its own texture]
     # WARNING: might only work due to tex size accident -- need to try other sizes
-testexpr_11b = SimpleRow( Image(blueflake), Image(courierfile) ) # works except for missing lbox attrs (Row gap is only reason I can see it)
-testexpr_11c = SimpleColumn( Image(courierfile), Image(courierfile) )
-testexpr_11d = ToggleShow( testexpr_11a)
-testexpr_11e = ToggleShow( Highlightable( testexpr_11a))
+testexpr_11b = SimpleRow( Image(blueflake), Image(courierfile) ) # works (same caveat about tex size accidents applies, re lbox dims)
+testexpr_11c = SimpleColumn( Image(courierfile), Image(blueflake), pixelgap=1 ) # works
+testexpr_11d = SimpleRow(
+    SimpleColumn( Image(courierfile), Image(blueflake), pixelgap=1 ),
+    SimpleColumn( Image(blueflake), Image(courierfile), pixelgap=1 ), pixelgap=1
+    ) # works
+testexpr_11d2 = SimpleColumn(
+    SimpleColumn( Image(courierfile), Image(blueflake), pixelgap=1 ),
+    SimpleColumn( Image(blueflake), Image(courierfile), pixelgap=1 ),
+    ) # works
+testexpr_11d3 = SimpleColumn(
+    SimpleRow( Image(courierfile), Image(blueflake), pixelgap=1 ),
+    SimpleRow( Image(blueflake), Image(courierfile), pixelgap=1 ),
+    ) # works; but suffers continuous redraw as mouse moves over image
+        # (as expected; presumably happens for the others too, and for all other tests, not just images; seen also for Rect)
+        ##e we need a general fix for that -- should all these leafnodes allocate a glname if nothing in their surroundings did??
+testexpr_11d4 = SimpleRow(
+    SimpleRow( Image(courierfile), Image(blueflake), pixelgap=1 ),
+    SimpleRow( Image(blueflake), Image(courierfile), pixelgap=1 ),
+    ) # works
+testexpr_11e = ToggleShow( testexpr_11a2) # works; continuous redraw as mouse moves over image (as expected)
+testexpr_11f = ToggleShow( Highlightable( testexpr_11a)) # works; no continuous redraw (as expected)
 
 # BTW, all this highlighting response (e.g. testexpr_9c) is incredibly slow.
 # Maybe it's even slower the first time I mouseover the 2nd one, suggesting that instantiation time is slow,
@@ -383,8 +401,9 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_11a2
-    # latest stable tests: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think
+testexpr = testexpr_11d3
+    # latest stable tests:
+    # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc
     
     # currently under devel [061117]: ToggleShow, and its LL needs, StateRef and StatePlace and an inval-tracking attrholder
 
