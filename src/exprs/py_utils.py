@@ -72,6 +72,8 @@ class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibled
     this way MUST NOT USE USAGE-TRACKED LVALS (WARNING: this error is not yet detected).
     WARNING: typical uses are likely to involve cyclic refs, causing memory leaks.
     """
+    ###e should provide an optional argfunc to canonicalize the key before using it to look up or call the wayfunc
+    # (for use in texture_holder_for_filename in images.py) [061125 comment]
     def __init__(self, way):
         self._way = way
         dict.__init__(self)

@@ -32,7 +32,7 @@ $Id$
 
 # == python itself
 
-import sys
+import sys, os
 
 sys.setrecursionlimit(650) # 5000 is set in startup_funcs.py; this will ease debugging, but REMOVE WHEN DEVEL IS DONE [061121]
 

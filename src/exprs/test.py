@@ -101,6 +101,10 @@ import ToggleShow
 reload_once(ToggleShow)
 from ToggleShow import ToggleShow
 
+import images
+reload_once(images)
+from images import Image
+
 # == @@@
 
 import widget_env
@@ -327,6 +331,18 @@ testexpr_10b = ToggleShow( Highlightable(Rect(2,3,green)) ) # use Highlightable 
 testexpr_10c = ToggleShow(ToggleShow( Highlightable(Rect(2,3,green)) ))
 testexpr_10d = ToggleShow(ToggleShow( Rect(2,3,yellow) )) # has the onetimesubs bug too
 
+# Image [WARNING: as of 061125, once this works we expect it to mess up text, since that assumes only one texture is ever bound]
+from testdraw import courierfile
+blueflake = "blueflake.jpg"
+
+testexpr_11a = Image(courierfile) # probably works
+testexpr_11a1 = Image("courier-128.png") # probably works
+testexpr_11a2 = Image(blueflake) # works, but messes up text as a side effect, as expected
+    # WARNING: might only work due to tex size accident
+testexpr_11b = SimpleRow( Image(blueflake), Image(courierfile) ) # works except for missing lbox attrs (Row gap is only reason I can see it)
+testexpr_11c = SimpleColumn( Image(courierfile), Image(courierfile) )
+testexpr_11d = ToggleShow( testexpr_11a)
+testexpr_11e = ToggleShow( Highlightable( testexpr_11a))
 
 # BTW, all this highlighting response (e.g. testexpr_9c) is incredibly slow.
 # Maybe it's even slower the first time I mouseover the 2nd one, suggesting that instantiation time is slow,
@@ -367,7 +383,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_10c
+testexpr = testexpr_11b
     # latest stable tests: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think
     
     # currently under devel [061117]: ToggleShow, and its LL needs, StateRef and StatePlace and an inval-tracking attrholder
