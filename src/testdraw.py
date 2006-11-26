@@ -325,6 +325,18 @@ def ensure_courierfile_loaded(): #e rename to reflect binding too
     setup_to_draw_texture_name(vv.have_mipmaps, vv.tex_name)
     return
 
+def _bind_courier_font_texture(): # kluge 061125 so exprs/images.py won't mess up drawfont2; might be slow
+    """assuming everything else is set up as needed,
+    including that exprs/images.py doesn't change most GL params,
+    bind the texture containing the courierfile font
+    """
+    # optimized part of inlined setup_to_draw_texture_name
+    glBindTexture(GL_TEXTURE_2D, vv.tex_name)
+    ##e note: this will need extension once images.py can change more params,
+    # to do some of the other stuff now done by setup_to_draw_texture_name.
+    # OTOH it's too expensive to do that all the time (and maybe even this, if same tex already bound -- remains to be seen).
+    return
+    
 timing_data = {} # ok to zap on reload, code might change anyway (later, might be better to just mark entries as "old" then)
 
 def drawtest2(glpane): # last stuff drawn, never put into global displist [for redraw stats]
@@ -456,6 +468,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
     in a klugy way;
     msg gives the chars to draw (lines must be shorter than charwidth or they will be truncated)
     """
+    _bind_courier_font_texture()
     # adjust these guessed params (about the specific font image we're using as a texture) until they work right:
     tex_origin_chars = V(3,65) # guess was 0,64... changing y affects the constant color; try 0, not totally constant
     tex_size = (128,128) # guess

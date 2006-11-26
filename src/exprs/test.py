@@ -335,10 +335,10 @@ testexpr_10d = ToggleShow(ToggleShow( Rect(2,3,yellow) )) # has the onetimesubs 
 from testdraw import courierfile
 blueflake = "blueflake.jpg"
 
-testexpr_11a = Image(courierfile) # probably works
-testexpr_11a1 = Image("courier-128.png") # probably works
+testexpr_11a = Image(courierfile) # works
+testexpr_11a1 = Image("courier-128.png") # works (same image)
 testexpr_11a2 = Image(blueflake) # works, but messes up text as a side effect, as expected
-    # WARNING: might only work due to tex size accident
+    # WARNING: might only work due to tex size accident -- need to try other sizes
 testexpr_11b = SimpleRow( Image(blueflake), Image(courierfile) ) # works except for missing lbox attrs (Row gap is only reason I can see it)
 testexpr_11c = SimpleColumn( Image(courierfile), Image(courierfile) )
 testexpr_11d = ToggleShow( testexpr_11a)
@@ -383,7 +383,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_11b
+testexpr = testexpr_11a2
     # latest stable tests: testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think
     
     # currently under devel [061117]: ToggleShow, and its LL needs, StateRef and StatePlace and an inval-tracking attrholder
