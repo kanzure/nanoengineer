@@ -427,9 +427,9 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_11q5 # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n
+testexpr = testexpr_11k # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n
 
-    # latest stable tests:
+    # latest stable tests: _11k
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc
     
     # currently under devel [061117]: ToggleShow, and its LL needs, StateRef and StatePlace and an inval-tracking attrholder
