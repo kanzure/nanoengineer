@@ -26,8 +26,6 @@ To avoid even more confusion, I'll name this module images.py rather than Image.
 (but note, there exists an unrelated directory cad/images).
 """
 
-#e needs cvs add
-
 from basic import * # including ExprsMeta
 from basic import _self
 
@@ -38,20 +36,9 @@ import testdraw #e we'll call some funcs from this, and copy & modify others int
     # when the time comes, the only reliable way to sort out duplicated code is to search for all
     # uses of the GL calls being used here.
 
-from OpenGL.GL import glGenTextures, glBindTexture, GL_TEXTURE_2D
-
-def ensure_courierfile_loaded_EXAMPLE_COPIED_FROM_TESTDRAW(): #e rename to reflect binding too
-    "load font-texture if we edited the params for that in this function, or didn't load it yet; bind it for drawing"
-    tex_filename = courierfile ## "xxx.png" # the charset
-    "courierfile"
-    tex_data = (tex_filename,)
-    if vv.tex_name == 0 or vv.tex_data != tex_data:
-        vv.have_mipmaps, vv.tex_name = load_image_into_new_texture_name( tex_filename, vv.tex_name)
-        vv.tex_data = tex_data
-    else:
-        pass # assume those vars are fine from last time
-    setup_to_draw_texture_name(vv.have_mipmaps, vv.tex_name)
-    return
+from OpenGL.GL import glGenTextures, glBindTexture, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, \
+     GL_CLAMP, GL_REPEAT, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MIN_FILTER, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST, \
+     GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL, glTexParameterf, glTexEnvf
 
 class _texture_holder(object): ### WARNING: probably assumes square textures for now, or rescales to create them; maybe even fixed size?
     """From a filename, create on demand, and cache, a PIL Image object and an optional OpenGL texture object;
@@ -69,7 +56,7 @@ class _texture_holder(object): ### WARNING: probably assumes square textures for
         return testdraw._create_PIL_image_obj_from_image_file(self.filename) # note: that's a trivial glue function into ImageUtils.py
     def _C_tex_name(self):
         "define self.tex_name -- allocate a texture name"
-        # code copied from testdraw._loadTexture
+        # code copied from testdraw._loadTexture (even though we call it, below, for its other code):
         tex_name = glGenTextures(1)
         # note: by experiment (iMac G5 Panther), this returns a single number (1L, 2L, ...), not a list or tuple,
         # but for an argument >1 it returns a list of longs. We depend on this behavior here. [bruce 060207]
@@ -90,10 +77,34 @@ class _texture_holder(object): ### WARNING: probably assumes square textures for
             # whenever self.loaded_texture_data ran this recompute method, _C_loaded_texture_data
         assert tex_name == self.tex_name
         return have_mipmaps, tex_name
-    def bind_texture(self):
+    def bind_texture(self): #e clamp = False, use_mipmaps = True, decal = True, pixmap = False [for NEAREST, useful for text, now True]
         "bind our texture (and set other GL params needed to draw with it)"
         have_mipmaps, tex_name = self.loaded_texture_data
-        testdraw.setup_to_draw_texture_name(have_mipmaps, tex_name) ###e we'll need control over the params this sets up
+        ## testdraw.setup_to_draw_texture_name(have_mipmaps, tex_name) ###e we'll need control over the params this sets up
+        # let's inline that instead, including its call of _initTextureEnv [done], so we can modify it [nim] [061126]
+
+        glBindTexture(GL_TEXTURE_2D, tex_name)
+        
+        # from _initTextureEnv(have_mipmaps) in testdraw.py
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
+            # [looks like a bug that we overwrite clamp with repeat, just below? bruce 060212 comment]
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        if 0 and "kluge" and debug_pref("smoother textures", Choice_boolean_False, prefs_key = True): ###@@@ revise to param
+            #bruce 060212 new feature (only visible in debug version so far);
+            # ideally it'd be controllable per-jig for side-by-side comparison;
+            # also, changing its menu item ought to gl_update but doesn't ##e
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
+            if have_mipmaps: #####@@@@@
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
+            else:
+                glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
+        else:
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
+        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
+        
         return
     pass # end of class _texture_holder
 
