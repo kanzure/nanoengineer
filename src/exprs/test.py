@@ -362,6 +362,15 @@ testexpr_11d4 = SimpleRow(
 testexpr_11e = ToggleShow( testexpr_11a2) # works; continuous redraw as mouse moves over image (as expected)
 testexpr_11f = ToggleShow( Highlightable( testexpr_11a)) # works; no continuous redraw (as expected)
 
+testexpr_11g = Image(blueflake, nreps = 2) # works; this series is best viewed at zoom of 3 or so [061126]
+testexpr_11h = Image(blueflake, clamp = True, nreps = 3, use_mipmaps = True) # works (clamping means only one corner has the image)
+testexpr_11i = testexpr_11h(pixmap = True) # works (reduced fuzziness) [note: this customizes an option after args supplied]
+    # note: there is probably a bug in what Image texture options do to subsequent drawfont2 calls. [as of 061126 noon; not confirmed]
+    # note: defaults are clamp = False, use_mipmaps = True, decal = True, pixmap = False;
+    #   the options not tried above, or tried only with their defaults, are not yet tested -- namely,
+    #   untested settings include use_mipmaps = False, decal = False [nim].
+testexpr_11j = testexpr_11h(use_mipmaps = False) # DOESN'T WORK -- no visible difference from _11i. #####BUG ???
+
 # BTW, all this highlighting response (e.g. testexpr_9c) is incredibly slow.
 # Maybe it's even slower the first time I mouseover the 2nd one, suggesting that instantiation time is slow,
 # but this doesn't make sense since I reinstantiate everything on each draw in the current code. hmm.
@@ -401,7 +410,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_11d3
+testexpr = testexpr_11i # _11i; j doesn't work
     # latest stable tests:
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc
     

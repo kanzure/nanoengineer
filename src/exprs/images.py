@@ -77,33 +77,43 @@ class _texture_holder(object): ### WARNING: probably assumes square textures for
             # whenever self.loaded_texture_data ran this recompute method, _C_loaded_texture_data
         assert tex_name == self.tex_name
         return have_mipmaps, tex_name
-    def bind_texture(self): #e clamp = False, use_mipmaps = True, decal = True, pixmap = False [for NEAREST, useful for text, now True]
-        "bind our texture (and set other GL params needed to draw with it)"
+    def bind_texture(self, clamp = False, use_mipmaps = True, decal = True, pixmap = False):
+        "bind our texture, and set texture-related GL params as specified"
+        # Notes [some of this belongs in docstring]:
+        #e - we might want to pass these tex params as one chunk, or a flags word
+        #e - we might want to optim for when they don't change
+        # - most of them have default values like the old code had implicitly, but not pixmap, which old code had as implicitly true
+        # - pixmap is misnamed, it doesn't use the pixmap ops, tho we might like to use those from the same image data someday
+        # implem: pixmap is for NEAREST
+
+        ###@@@ where i am is here 061126 1140a; caller doesn't pass options
+        
         have_mipmaps, tex_name = self.loaded_texture_data
-        ## testdraw.setup_to_draw_texture_name(have_mipmaps, tex_name) ###e we'll need control over the params this sets up
-        # let's inline that instead, including its call of _initTextureEnv [done], so we can modify it [nim] [061126]
+        ## testdraw.setup_to_draw_texture_name(have_mipmaps, tex_name)
+        # let's inline that instead, including its call of _initTextureEnv, and then modify it [done, untested] [061126]
 
         glBindTexture(GL_TEXTURE_2D, tex_name)
         
-        # from _initTextureEnv(have_mipmaps) in testdraw.py
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
-            # [looks like a bug that we overwrite clamp with repeat, just below? bruce 060212 comment]
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
-        glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
-        if 0 and "kluge" and debug_pref("smoother textures", Choice_boolean_False, prefs_key = True): ###@@@ revise to param
-            #bruce 060212 new feature (only visible in debug version so far);
-            # ideally it'd be controllable per-jig for side-by-side comparison;
-            # also, changing its menu item ought to gl_update but doesn't ##e
+        # modified from _initTextureEnv(have_mipmaps) in testdraw.py
+        if clamp:
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP)
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP)
+        else:
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT)
+            glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT)
+        if not pixmap:
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR)
-            if have_mipmaps: #####@@@@@
+            if have_mipmaps and use_mipmaps:
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR)
             else:
                 glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR)
         else:
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST)
             glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST)
-        glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
+        if decal:
+            glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL)
+        else:
+            print "don't know what to set instead of GL_DECAL"###e
         
         return
     pass # end of class _texture_holder
@@ -132,8 +142,21 @@ class Image(Widget2D):
     ###e the following argnames get warned about -- not sure if that means they're bad, but avoid issue for now since they're nim
 ##    width = Arg(Width, 0) # is this in image pixels or screen pixels? hmm... are those in 1-1 corr at cov? ###k
 ##    height = Arg(Width, 0)
-    ###e named options
+    # named options -- clamp = False, use_mipmaps = True, decal = True, pixmap = False [redundant with defaults in bind_texture]
+    clamp = Option(bool, False) # clamp or (default) repeat
+    pixmap = Option(bool, False) #e misnamed -- whether to use GL_NEAREST filtering
+    use_mipmaps = Option(bool, True) # whether to use mipmaps, if present in loaded texture object; only matters if pixmap is False
+        #e what determines whether mipmaps are present? For now, they always are;
+        # later, it might depend on whether we had RAM, or on a more global pref, or ....
+    decal = Option(bool, True) #e False is nim
+    nreps = Option(float, 1.0) #e rename - repeat count; mostly only useful when clamp is False, but ought to work otherwise too
+    #e offset option, to shift tex_origin - 2D or 3D?
+    
     # formulae
+    # THIS SHOULD WORK (I think), but doesn't(unconfirmed that it doesn't): [is my syntax wrong for passing the kws to call_Expr???]
+    ## texture_options = call_Expr( dict, clamp = clamp, pixmap = pixmap, use_mipmaps = use_mipmaps, decal = decal )
+    ## __get__ is nim in the Expr <type 'dict'>(*(), **{'clamp': <call_Expr#5175: .....
+    
     ## _image = PIL_Image(use_filename) ###e should share with other instances of same filename
     def _C__texture_holder(self):
         return texture_holder_for_filename[self.use_filename] # this shared global MemoDict is defined above
@@ -146,21 +169,31 @@ class Image(Widget2D):
 ##    use_height = height or _image.height ###e should do this differently -- try to preserve aspect ratio
     ##e these are not yet used
 
-    def bind_texture(self):
+    def bind_texture(self, **kws):
         "bind our texture (and set other GL params needed to draw with it)"
-        self._texture_holder.bind_texture()
+        self._texture_holder.bind_texture(**kws)
     
     def draw(self):
         # bind texture for image filename [#e or other image object],
         # doing whatever is needed of allocating texture name, loading image object, loading texture data;
         ###e optim: don't call glBindTexture if it's already bound, and/or have a "raw draw" which assumes it's already bound
-        self.bind_texture()
+        if 'workaround bug in formula for texture_options':
+            texture_options = dict(clamp = self.clamp, pixmap = self.pixmap, use_mipmaps = self.use_mipmaps, decal = self.decal)
+        else:
+            texture_options = self.texture_options # never used, but desired once bug is fixed
+        self.bind_texture( **texture_options)
         
         # figure out texture coords (from optional args, not yet defined ###e) -- stub for now
+        nreps = float(self.nreps) # float won't be needed once we have type coercion; not analyzed whether int vs float matters in subr
         tex_origin, tex_dx, tex_dy = ORIGIN2, D2X, D2Y # copied from testdraw's drawtest1, still used in testmode to draw whole font
-        ##e set tex coord clamping, mipmap/filter mode, etc, from params (for now, we have no choice about them)
-
-        # where to draw it -- act like a 2D Rect for now; this code is copied from testdraw's drawtest1, not reanalyzed
+        ## tex_dx *= nreps # this modifies a shared, mutable Numeric array object, namely D2X! Not what I wanted.
+        ## tex_dy *= nreps
+        tex_dx = tex_dx * nreps
+        tex_dy = tex_dy * nreps
+##        print "tex_dx is",tex_dx,"D2X is %r" % (D2X,)
+        
+        # where to draw it -- act like a 2D Rect for now; this code is copied from testdraw's drawtest1, not reanalyzed; fixed size 2x2,
+        # roughly 30 pixels square in home view i think
         origin = ORIGIN
         dx = DX * 2
         dy = DY * 2
