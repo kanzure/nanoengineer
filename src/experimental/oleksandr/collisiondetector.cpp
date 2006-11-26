@@ -54,7 +54,7 @@ void CollisionDetector::CheckCollision(
 	//  if boxes are overlap
 	if (bt0->Empty() && bt1->Empty())
 	{
-	//  check for intersect entities 
+	//  check for intersect entities
 		mCollision += Collision(bt0,bt1);
 		return;
 	}
@@ -101,9 +101,9 @@ void CollisionDetector::CheckCollision(
 	Hierarchy * h1)
 {
 	if (!h0 || !h1) return;
-	mB0 = h0->Base();
-	mB1 = h1->Base();
-	CalculateTransformation(h0,h1);
+	mH0 = h0;
+	mH1 = h1;
+	CalculateTransformation();
 	CheckCollision(h0->Tree(),h1->Tree());
 	return;
 }
@@ -121,15 +121,26 @@ int CollisionDetector::Collision(
 	int n0 = bt0->Size();
 	int n1 = bt1->Size();
 	int count = 0;
+	int num;
 	for (int i=0; i<n0; i++)
 	{
 		Box * b0 = bt0->GetBox(i);
-		int ii = int(b0 - mB0);
+		int ii = int(b0 - mH0->Base());
+		int ni = mH0->Transformation(ii, a);
 		for (int j=0; j<n1; j++)
 		{
 			Box * b1 = bt1->GetBox(j);
-			int jj = int(b1 - mB1);
-			int ogo = ii + jj;
+			int jj = int(b1 - mH1->Base());
+			int nj = mH1->Transformation(jj, b);
+			mEntity++;
+            if (num = Collision(ni,a,nj,b,0)) 
+            {
+				//  save collision elements   
+                mEntities.Add(ii);
+                mEntities.Add(jj);
+                count++;
+                mPair+=num;
+            }
 		}
 	}
 	return (count);

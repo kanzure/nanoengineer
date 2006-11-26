@@ -8,10 +8,7 @@
 #if !defined(COLLISIONDETECTOR_INCLUDED)
 #define COLLISIONDETECTOR_INCLUDED
 
-#include "triple.h"
-#include "boxtree.h"
 #include "hierarchy.h"
-#include "rotationmatrix.h"
 #include "intersection.h"
 
 class CollisionDetector
@@ -20,7 +17,7 @@ class CollisionDetector
   public:
 
 	//------------------------------------------------------------------------
-	// Constructor 
+	// Constructor
 
 	inline CollisionDetector();
 
@@ -105,9 +102,9 @@ class CollisionDetector
 	//------------------------------------------------------------------------
 	// GetEntity()
 	//
-	// return pointer to entity
+	// return reference to entity 
 	//
-	inline Box * GetBox(
+	inline int GetEntity(
 		int i) const;
 
 	//------------------------------------------------------------------------
@@ -149,19 +146,19 @@ class CollisionDetector
   private:
 
 	//------------------------------------------------------------------------
-	// mB0
+	// mH0
 
-	Box * mB0;					// base for boxes
+	Hierarchy * mH0;					// pointer to hierarchy
 
 	//------------------------------------------------------------------------
-	// mB1
+	// mH1
 
-	Box * mB1;					// base for boxes
+	Hierarchy * mH1;					// pointer to hierarchy
 
 	//------------------------------------------------------------------------
 	// mEntities
 
-	Container<Box *> mBoxes;	// container for entities in the box
+	Container<int> mEntities;			// container for entities in the box
 
 	//------------------------------------------------------------------------
 	// mPoints
@@ -181,7 +178,7 @@ class CollisionDetector
 	//------------------------------------------------------------------------
 	// mRm
 
-	RotationMatrix mRm;				// rotation matrix
+	RotationMatrix mRm;					// rotation matrix
 
 	//------------------------------------------------------------------------
 	// mFrm
@@ -191,32 +188,12 @@ class CollisionDetector
 	//------------------------------------------------------------------------
 	// mTv
 
-	Triple mTv;						// translation vector
-
-	//------------------------------------------------------------------------
-	// mM0
-
-	RotationMatrix * mM0;				// rotation matrix for first object
-
-	//------------------------------------------------------------------------
-	// mM1
-
-	RotationMatrix * mM1;				// rotation matrix for second object
-
-	//------------------------------------------------------------------------
-	// mV0
-
-	Triple * mV0;						// translation vector for first object
-
-	//------------------------------------------------------------------------
-	// mV1
-
-	Triple * mV1;						// translation vector for second object
+	Triple mTv;							// translation vector
 
 	//------------------------------------------------------------------------
 	// mDelta
 
-	Triple mDelta;					// for boxes adjustment
+	Triple mDelta;						// for boxes adjustment
 
 	//------------------------------------------------------------------------
 	// mVolume
@@ -249,9 +226,7 @@ class CollisionDetector
 	// calculate rotation matrix and absolute value
 	// and translation vector
 	//
-	inline void CalculateTransformation(
-		Hierarchy * h0,
-		Hierarchy * h1);
+	inline void CalculateTransformation();
 
 	//------------------------------------------------------------------------
 	// CheckCollision()
@@ -339,47 +314,45 @@ inline void CollisionDetector::AllContacts()
 //----------------------------------------------------------------------------
 // CalculateTransformation()
 
-inline void CollisionDetector::CalculateTransformation(
-	Hierarchy * h0,
-	Hierarchy * h1)
+inline void CollisionDetector::CalculateTransformation()
 {
-	mM0 = h0->Matrix();
-	mM1 = h1->Matrix();
-	mV0 = h0->Vector();
-	mV1 = h1->Vector();
+	RotationMatrix * m0 = mH0->Matrix();
+	RotationMatrix * m1 = mH1->Matrix();
+	Triple * v0 = mH0->Vector();
+	Triple * v1 = mH1->Vector();
 	
 	double EPS = 0.00000001;
-	if (mM0 && mM1)
+	if (m0 && m1)
 	{
-		mRm.Px() = Triple(mM1->Px()%mM0->Px(),mM1->Py()%mM0->Px(),mM1->Pz()%mM0->Px());
-		mRm.Py() = Triple(mM1->Px()%mM0->Py(),mM1->Py()%mM0->Py(),mM1->Pz()%mM0->Py());
-		mRm.Pz() = Triple(mM1->Px()%mM0->Pz(),mM1->Py()%mM0->Pz(),mM1->Pz()%mM0->Pz());
+		mRm.Px() = Triple(m1->Px()%m0->Px(),m1->Py()%m0->Px(),m1->Pz()%m0->Px());
+		mRm.Py() = Triple(m1->Px()%m0->Py(),m1->Py()%m0->Py(),m1->Pz()%m0->Py());
+		mRm.Pz() = Triple(m1->Px()%m0->Pz(),m1->Py()%m0->Pz(),m1->Pz()%m0->Pz());
 	}
-	else if (mM0)
+	else if (m0)
 	{
-		mRm.Px() = Triple(mM0->Xx(),mM0->Xy(),mM0->Xz());
-		mRm.Py() = Triple(mM0->Yx(),mM0->Yy(),mM0->Yz());
-		mRm.Pz() = Triple(mM0->Zx(),mM0->Zy(),mM0->Zz());
+		mRm.Px() = Triple(m0->Xx(),m0->Xy(),m0->Xz());
+		mRm.Py() = Triple(m0->Yx(),m0->Yy(),m0->Yz());
+		mRm.Pz() = Triple(m0->Zx(),m0->Zy(),m0->Zz());
 	}
-	else if (mM1)
+	else if (m1)
 	{
-		mRm.Px() = Triple(mM1->Xx(),mM1->Yx(),mM1->Zx());
-		mRm.Py() = Triple(mM1->Xy(),mM1->Yy(),mM1->Zy());
-		mRm.Pz() = Triple(mM1->Xz(),mM1->Yz(),mM1->Zz());
+		mRm.Px() = Triple(m1->Xx(),m1->Yx(),m1->Zx());
+		mRm.Py() = Triple(m1->Xy(),m1->Yy(),m1->Zy());
+		mRm.Pz() = Triple(m1->Xz(),m1->Yz(),m1->Zz());
 	}
-	if (mM0 || mM1)
+	if (m0 || m1)
 	{
 		mFrm.Px() = Triple(fabs(mRm.Xx())+EPS,fabs(mRm.Xy())+EPS,fabs(mRm.Xz())+EPS);
 		mFrm.Py() = Triple(fabs(mRm.Yx())+EPS,fabs(mRm.Yy())+EPS,fabs(mRm.Yz())+EPS);
 		mFrm.Pz() = Triple(fabs(mRm.Zx())+EPS,fabs(mRm.Zy())+EPS,fabs(mRm.Zz())+EPS);
 	}
-	if (mM0)
+	if (m0)
 	{
-		mTv = (*mM0) * (*mV1 - *mV0);
+		mTv = (*m0) * (*v1 - *v0);
 	}
 	else
 	{
-		mTv = *mV1 - *mV0;
+		mTv = *v1 - *v0;
 	}
 }
 
@@ -392,7 +365,7 @@ inline void CollisionDetector::Clear()
 	if (mPoints) delete [] mPoints;
 	mDistance = 0;
 	mPoints = 0;
-	mBoxes.Empty();
+	mEntities.Empty();
 	mVolume = 0;
 	mEntity = 0;
 	mCollision = 0;
@@ -501,12 +474,12 @@ inline double CollisionDetector::GetDistance() const
 }
 
 //----------------------------------------------------------------------------
-// GetBox()
+// GetEntity()
 
-inline Box * CollisionDetector::GetBox(
+inline int CollisionDetector::GetEntity(
 	int i) const
 {
-	return (mBoxes[i]);
+	return (mEntities[i]);
 }
 
 //----------------------------------------------------------------------------
@@ -527,7 +500,13 @@ inline int CollisionDetector::IsOverlap(
 	const Triple & bc)
 {
 	mVolume++;
-	if (!mM0 || !mM1)
+
+	RotationMatrix * m0 = mH0->Matrix();
+	RotationMatrix * m1 = mH1->Matrix();  
+	Triple * v0 = mH0->Vector();
+	Triple * v1 = mH1->Vector();
+	
+	if (!m0 || !m1)
 	{
 	//  static case
 		if (fabs(bc.X() + mTv.X() - ac.X()) > b.X() + a.X()) return (0);

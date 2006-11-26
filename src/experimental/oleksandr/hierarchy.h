@@ -97,7 +97,19 @@ class Hierarchy
 	//
 	inline Triple * Vector() const;
 
+	//------------------------------------------------------------------------
+	// Transformation()
+	//
+	// rotation and translation entities 
+	//
+	int Transformation(int i, Triple * a);
+
   private:
+
+	//------------------------------------------------------------------------
+	// mSurface
+
+	Surface * mS;						// pointer to surface
 
 	//------------------------------------------------------------------------
 	// mBoxes
@@ -158,7 +170,7 @@ inline RotationMatrix * Hierarchy::Matrix() const
 }
 
 //----------------------------------------------------------------------------
-// Number()
+// Base()
 
 inline Box * Hierarchy::Base()
 {
@@ -188,5 +200,6 @@ inline Triple * Hierarchy::Vector() const
 {
 	return (mTv);
 }
+
 #endif  								// HIERARCHY_INCLUDED
 

@@ -42,6 +42,7 @@ Hierarchy::~Hierarchy()
 void Hierarchy::Initialize(
 	Surface * s)
 {
+	mS = s;
 	int i,j;
 	int n = 3;
 	if (s->Type()) n = 4;
@@ -60,6 +61,31 @@ void Hierarchy::Initialize(
 	{
 		mTree->Add(&mBoxes[i]);
 	}
-	mTree->BuildTree(); 
+	mTree->BuildTree();
+}
+
+//------------------------------------------------------------------------
+// Transformation()
+//
+// rotation and translation entity  
+//
+int Hierarchy::Transformation(int i, Triple * a)
+{
+	int n = 3;
+	if (mS->Type()) n = 4;
+	for (int j = 0; j < n; j++)
+	{
+		int ij = mS->I(3*i + j);
+		Triple p(mS->Px(ij), mS->Py(ij), mS->Pz(ij));
+		if (mRm)
+		{
+			a[j] = *mTv + p * (*mRm); 
+		}
+		else
+		{
+			a[j] = *mTv + p;
+		}
+	}
+	return n;
 }
 

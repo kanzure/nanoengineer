@@ -310,7 +310,7 @@ void Surface::CreateSurface()
 	{
 	case 0:
         SphereTriangles();
-		n = 4;
+		n = 4; 
 		step = 0.25;
 		break;
 	case 1:
