@@ -336,8 +336,8 @@ from testdraw import courierfile
 blueflake = "blueflake.jpg"
 
 testexpr_11a = Image(courierfile) # works
-testexpr_11a1 = Image("courier-128.png") # works (same image)
-testexpr_11a2 = Image(blueflake) # works, but messes up text as a side effect, as expected
+testexpr_11a1 = Image("courier-128.png") # works (note: same image)
+testexpr_11a2 = Image(blueflake) # works [and no longer messes up text as a side effect, now that drawfont2 binds its own texture]
     # WARNING: might only work due to tex size accident -- need to try other sizes
 testexpr_11b = SimpleRow( Image(blueflake), Image(courierfile) ) # works except for missing lbox attrs (Row gap is only reason I can see it)
 testexpr_11c = SimpleColumn( Image(courierfile), Image(courierfile) )
