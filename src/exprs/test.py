@@ -399,20 +399,20 @@ testexpr_11q4 = imagetest("/Nanorex/bug notes/1059 files/IMG_1631.JPG alias") # 
     ## IOError: cannot identify image file [images.py:56] [testdraw.py:658] [ImageUtils.py:28] [Image.py:1571]
 testexpr_11q5 = imagetest("/Nanorex/DNA/paul notebook pages/stages1-4.jpg") # fails, unknown raw mode - hmm. try converting it. ###e
 
-##e want to try: tiff, gif; pdf; afm image, paul notebook page (converted);
-# something with transparency (full in some pixels, or partial)
-
+    ##e want to try: tiff, gif; pdf; afm image, paul notebook page (converted);
+    # something with transparency (full in some pixels, or partial)
 
 # test Spacer
 testexpr_12 = SimpleRow( Rect(4, 2.6, blue), Spacer(4, 2.6, blue), Rect(4, 2.6, blue)) # works
 testexpr_12a = SimpleColumn( testexpr_12, Spacer(4, 2.6, blue), Rect(4, 2.6, blue)) # works
+testexpr_12b = SimpleColumn( testexpr_12, Spacer(0), Rect(4, 2.6, green), pixelgap = 0) # works
 
 # == @@@
 
 #e what next?
 # - some boolean controls?
 # - framework to let me start setting up the dna ui?
-# - working MT in glpane?
+# - working MT in glpane? yes, MT_demo.py
 
 
 # == nim tests
@@ -430,7 +430,8 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_12a # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k
+testexpr = testexpr_12b
+    # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k
 
     # latest stable tests: _11k
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc

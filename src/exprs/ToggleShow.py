@@ -348,7 +348,9 @@ class ToggleShow(InstanceMacro):
             label,
             If_kluge( open,
                       thing,
-                      TextRect("<closed>")#####BUG: I wanted None here, but it exposes a logic bug 
+                      TextRect("<closed>") #####BUG: I wanted None here, but it exposes a logic bug,
+                          # not trivial to fix, discuss in If or Column;
+                          ##e Spacer(0) can be tried here [##e should what to show here be an arg??]
                       )
         )
     )
