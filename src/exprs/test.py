@@ -63,7 +63,7 @@ from basic import _self, _this
 
 import Rect
 reload_once(Rect)
-from Rect import Rect, RectFrame, IsocelesTriangle
+from Rect import Rect, RectFrame, IsocelesTriangle, Spacer
 
 import Column
 reload_once(Column)
@@ -403,6 +403,9 @@ testexpr_11q5 = imagetest("/Nanorex/DNA/paul notebook pages/stages1-4.jpg") # fa
 # something with transparency (full in some pixels, or partial)
 
 
+# test Spacer
+testexpr_12 = SimpleRow( Rect(4, 2.6, blue), Spacer(4, 2.6, blue), Rect(4, 2.6, blue)) # works
+testexpr_12a = SimpleColumn( testexpr_12, Spacer(4, 2.6, blue), Rect(4, 2.6, blue)) # works
 
 # == @@@
 
@@ -427,7 +430,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_11k # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n
+testexpr = testexpr_12a # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k
 
     # latest stable tests: _11k
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc

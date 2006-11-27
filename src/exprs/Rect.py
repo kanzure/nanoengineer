@@ -55,6 +55,18 @@ class Rect(Widget2D): # finally working as of 061106
 
 # ==
 
+class Spacer(Rect): #061126; untested
+    # slight kluge, since accepts color arg but ignores it (harmless, esp since nothing yet warns about extra args or opts)
+    # (note: we might decide that accepting all the same args as Rect is actually a feature)
+    #e #k might need enhancement to declare that instantiation does nothing, ie makes no diff whether you reref after it --
+    # but for that matter the same might be true of Rect itself, or anything that does pure drawing...
+    #e see also: Invisible [nim], e.g. Invisible(Rect(...)) or Invisible(whatever) as a spacer sized to whatever you want
+    def draw(self):
+        pass
+    pass
+
+# ==
+
 IsocelesTriangle = Rect  #e stub (implem as simple variant of Rect; find it in a cannib file)
 
 # ==

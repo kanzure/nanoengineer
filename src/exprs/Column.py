@@ -16,6 +16,10 @@ import instance_helpers
 reload_once(instance_helpers)
 from instance_helpers import GlueCodeMemoizer, DelegatingInstance_obs
 
+import Rect
+reload_once(Rect)
+from Rect import Spacer
+
 from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef ##e revise later
 
 # ==
@@ -168,7 +172,7 @@ class CL(InstanceOrExpr):
         # ... correction: what we'd memoize on would probably be elt1.last_nonempty_elt and elt2.first_nonempty_elt -- not sure... 
         return self._constant_gap #e for now, only constant gap is supported
     def _C__constant_gap(self):
-        return Spacer((0,self.gap)) # this is only constant at a given time -- self.gap itself can be a formula (vary with time), that's ok
+        return Spacer(0,self.gap) # this is only constant at a given time -- self.gap itself can be a formula (vary with time), that's ok
         # note that this spacer can be drawn in more than one place! I guess that's ok since it's not highlightable and has no transparent parts. #k
     #
     def _C_drawables(self):
