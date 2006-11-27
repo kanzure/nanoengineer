@@ -5,7 +5,7 @@ in widget exprs which display it, edit it, operate on it, produce it
 $Id$
 """
 
-from basic import * # all we really need is call_Expr & [for LocalState stub, below] InstanceOrExpr, so far.
+from basic import * # all we really need is call_Expr & [for LocalState stub, below, removed 061126 late] InstanceOrExpr, so far.
 from basic import _self
     #k [digr: is there a reload bug caused by things we get from basic import *, since we don't reload basic??]
 
@@ -16,7 +16,7 @@ from lvals import LvalDict2, LvalForState, LvalError_ValueIsUnset
 # ==
 
 def StatePlace(kind, ipath_expr = _self.ipath, tracked = True): # revised 061117
-    # experimental, but used and working in Highlightable; related to Arg/Option/Instance
+    # experimental, but used and working in Highlightable [that use moved to InstanceOrExpr 061126]; related to Arg/Option/Instance
     """In a class definition for an InstanceOrExpr subclass, use the assignment
 
         <kind>_state = StatePlace(<kind>, <ipath_expr>)
