@@ -424,10 +424,12 @@ testexpr_13 = PixelGrabber(testexpr_12b, "/tmp/pgtest.jpg") # works, tho it's a 
 
 # == @@@
 
-#e what next?
+#e what next?   [where i am, or should be; updated 061126 late]
 # - some boolean controls?
+#   eg ChoiceButton in controls.py -- requires StateRef (does a property count as one?), maybe LocalState to use nicely
 # - framework to let me start setting up the dna ui?
-# - working MT in glpane? yes, MT_demo.py
+#   - just do a test framework first (simpler, needed soon); described in PixelGrabber
+# - working MT in glpane? yes, MT_demo.py; seems to require revamp of instantiation (separate it from IorE-expr eval)
 
 
 # == nim tests
