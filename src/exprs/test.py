@@ -103,7 +103,7 @@ from ToggleShow import ToggleShow
 
 import images
 reload_once(images)
-from images import Image
+from images import Image, PixelGrabber
 
 # == @@@
 
@@ -398,6 +398,9 @@ testexpr_11q3 = imagetest("/Nanorex/bug notes/1059 files/peter-easter-512.png") 
 testexpr_11q4 = imagetest("/Nanorex/bug notes/1059 files/IMG_1631.JPG alias") # (mac alias) fails
     ## IOError: cannot identify image file [images.py:56] [testdraw.py:658] [ImageUtils.py:28] [Image.py:1571]
 testexpr_11q5 = imagetest("/Nanorex/DNA/paul notebook pages/stages1-4.jpg") # fails, unknown raw mode - hmm. try converting it. ###e
+testexpr_11q6 = imagetest("/Users/bruce/untitled.jpg") # glpane screenshot saved by NE1, jpg # works (note clamping artifact -- it's ok)
+testexpr_11q7 = imagetest("/Users/bruce/untitled.png") # glpane screenshot saved by NE1, png # works
+    # note: those are saved by a specific filetype option in "File -> Save As..."
 
     ##e want to try: tiff, gif; pdf; afm image, paul notebook page (converted);
     # something with transparency (full in some pixels, or partial)
@@ -406,6 +409,9 @@ testexpr_11q5 = imagetest("/Nanorex/DNA/paul notebook pages/stages1-4.jpg") # fa
 testexpr_12 = SimpleRow( Rect(4, 2.6, blue), Spacer(4, 2.6, blue), Rect(4, 2.6, blue)) # works
 testexpr_12a = SimpleColumn( testexpr_12, Spacer(4, 2.6, blue), Rect(4, 2.6, blue)) # works
 testexpr_12b = SimpleColumn( testexpr_12, Spacer(0), Rect(4, 2.6, green), pixelgap = 0) # works
+
+# test PixelGrabber -- not fully implemented yet, but this runs as expected (inefficient; saves entire glpane)
+testexpr_13 = PixelGrabber(testexpr_12b, "/tmp/pgtest.jpg") # works, tho it's a partial implem [061126 830p]
 
 # == @@@
 
@@ -430,7 +436,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_12b
+testexpr = testexpr_13
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k
 
     # latest stable tests: _11k

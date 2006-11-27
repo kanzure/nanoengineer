@@ -237,6 +237,88 @@ class Image(Widget2D):
     btop = 1 * 2
 
     ###k???
+    pass # end of class Image
+
+# ==
+
+# for grabbing pixels, e.g. for visual tests of correctness, live vs saved image
+
+if 0: # eg code, ops_files.py, comments added here
+    # jpg
+        image = glpane.grabFrameBuffer()
+            # Evidently this is a Qt method, not our own! Does it have args? only withalpha, not size.
+            # Presumably it returns a QImage. I suppose I could grab a subimage from that somehow.
+            # See also QGLWidget::renderPixmap (sounds easy to mess up).
+            # Or we could use OpenGL to grab raw data (as we now do from depth buffer), then use PIL to output it...
+            # probably best in long run. #e
+        image.save(safile, "JPEG", 85)
+    # elif ext == ".png":
+        type = "PNG"
+        image = glpane.grabFrameBuffer()
+        image.save(safile, "PNG")
+
+from OpenGL.GL import glFlush, glFinish
+
+class PixelGrabber(Widget2D, DelegatingMixin): #e draft, API needs revision to provide more control over when to save, button-compatible
+    """Act like our first argument, but after the first(??) draw call,
+    save an image of the rendered pixels into the file named by arg2.
+    """
+    ###BUGS:
+    # - image might be cluttered with things like the origin axis. Maybe turn these off when using?
+    # - no guarantee our pixel footprint is a pixel rect on screen. Might want to force this?
+    #   Until then, use in home view, maybe ortho.
+    #   (Or outside of the model's modelview matrix, once testmode intercepts render loop.)
+    # - it saves it on *every* draw call. Maybe it ought to save when content changes? (Not yet detected.)
+    #   really, better to have a "save button", but does that have to be provided in same class? If not, how is shared state named?#e
+    ###e one possibility, sounds good:
+    # - separate method on the instance to save image;
+    #   - draw call just saves some helper info like lbox mousepoints;
+    #   - using env has to know how to call that method;
+    # - convenience macro adds a button to do it, and a saved-image viewer,
+    #   and this becomes part of our desired "visual regression test framework",
+    #   which overall lets us select any test, see its code, rerun it, resave it, see saved image (maybe plus older ones),
+    #   and (makes it easier for us to) commit these images into cvs or other archive
+    delegate = Arg(Widget2D)
+    filename = Arg(str) # assume absolute
+    def draw(self):
+        self.delegate.draw()
+        self.save()
+    def save(self):
+        glFlush() ##k needed? don't know; works with it. Or try glFinish? not sure it's legal here. Not needed, never tried.
+        glpane = self.env.glpane
+        image = glpane.grabFrameBuffer() # not sure this is legal during the draw... but it seems to work
+            #e optim: use GL calls instead -- won't matter once we stop this from happening every time
+        ## print "image %r has type %r and dir %r" % (image, type(image), dir(image))
+            ## image <constants.qt.QImage object at 0xf1dc690> has type <class 'constants.qt.QImage'>
+            ## and dir ['BigEndian', 'IgnoreEndian', 'LittleEndian', 'ScaleFree', 'ScaleMax', 'ScaleMin',
+            ##'__class__', '__delattr__', '__doc__', '__getattribute__', '__hash__', '__init__', '__module__',
+            ##'__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__str__', '__weakref__',
+            ##'allGray', 'bitOrder', 'bits', 'bytesPerLine', 'color', 'colorTable', 'convertBitOrder',
+            ##'convertDepth', 'copy', 'create', 'createAlphaMask', 'createHeuristicMask', 'depth', 'detach',
+            ##'dotsPerMeterX', 'dotsPerMeterY', 'fill', 'fromMimeSource', 'hasAlphaBuffer', 'height', 'imageFormat',
+            ##'inputFormatList', 'inputFormats', 'invertPixels', 'isGrayscale', 'isNull', 'jumpTable', 'load',
+            ##'loadFromData', 'mirror', 'numBytes', 'numColors', 'offset', 'outputFormatList', 'outputFormats',
+            ##'pixel', 'pixelIndex', 'rect', 'reset', 'save', 'scale', 'scaleHeight', 'scaleWidth', 'scanLine',
+            ##'setAlphaBuffer', 'setColor', 'setDotsPerMeterX', 'setDotsPerMeterY', 'setNumColors', 'setOffset',
+            ##'setPixel', 'setText', 'size', 'smoothScale', 'swapRGB', 'systemBitOrder', 'systemByteOrder', 'text',
+            ##'textKeys', 'textLanguages', 'textList', 'valid', 'width', 'xForm']
+        print "image dims",image.width(),image.height() # on bruce's g4 now, 633 573, whole glpane (plausible, same as glpane dims below)
+        print "glpane dims",glpane.width, glpane.height
+        ###e figure out where self lies in this image -- inverse mousepoints... i have some code for that somewhere; gluProject?
+        #e add a 1 or 2 pixel margin to verify this grabs bgcolor, not sure it will if pixel coords are pixel-centers
+        ###e trim image
+            # e.g. QImage::copy ( int x, int y, int w, int h, int conversion_flags = 0 ) -- copy a subarea, return a new image
+        filename = self.filename
+        try:
+            os.remove(filename)
+        except OSError: # file doesn't exist
+            pass
+        image.save(filename, "JPEG", 85) #e 85->100 for testing, or use "quality" option; option for filetype, or split into helper...
+        if os.path.isfile(filename):
+            print "saved:",filename # can be false positive i
+        else:
+            print "save didn't work:",filename
+        return
     pass
 
 # end
