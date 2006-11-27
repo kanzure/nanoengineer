@@ -380,11 +380,11 @@ testexpr_11k = testexpr_11h(tex_origin = (-1,-1)) # works; latest stable test in
     # note, it asfails when parsed (pyevalled), so I have to comment out the test -- that behavior should perhaps be changed.
 imagetest = Image(tex_origin = (-1,-1), clamp = True, nreps = 3, use_mipmaps = True) # customize options
 testexpr_11m = imagetest(courierfile) # works
-testexpr_11n = imagetest("stopsign.png") # fails; guess, our code doesn't support enough in-file image formats;
+testexpr_11n = imagetest("stopsign.png") # fails; guess, our code doesn't support enough in-file image formats; ###BUG
     # exception is SystemError: unknown raw mode, [images.py:73] [testdraw.py:663] [ImageUtils.py:69] [Image.py:439] [Image.py:323]
     ##e need to improve gracefulness of response to this error
-testexpr_11o = imagetest("RotateCursor.bmp") # fails, unknown raw mode
-testexpr_11p = imagetest("win_collapse_icon.png") # fails, unknown raw mode
+testexpr_11o = imagetest("RotateCursor.bmp") # fails, unknown raw mode ###BUG
+testexpr_11p = imagetest("win_collapse_icon.png") # fails, unknown raw mode ###BUG
     ###e conclusion: we need to improve image loading / texture making code, so icon/cursor images can work
     # note: mac shell command 'file' reveals image file format details, e.g.
     ## % file stopsign.png
@@ -397,13 +397,21 @@ testexpr_11q2 = imagetest("/Nanorex/bug notes/bounding poly bug.jpg") # works
 testexpr_11q3 = imagetest("/Nanorex/bug notes/1059 files/peter-easter-512.png") # works
 testexpr_11q4 = imagetest("/Nanorex/bug notes/1059 files/IMG_1631.JPG alias") # (mac alias) fails
     ## IOError: cannot identify image file [images.py:56] [testdraw.py:658] [ImageUtils.py:28] [Image.py:1571]
-testexpr_11q5 = imagetest("/Nanorex/DNA/paul notebook pages/stages1-4.jpg") # fails, unknown raw mode - hmm. try converting it. ###e
+testexpr_11q5 = imagetest("/Nanorex/DNA/paul notebook pages/stages1-4.jpg") # fails, unknown raw mode, ###BUG [try converting it. ###e]
 testexpr_11q6 = imagetest("/Users/bruce/untitled.jpg") # glpane screenshot saved by NE1, jpg # works (note clamping artifact -- it's ok)
 testexpr_11q7 = imagetest("/Users/bruce/untitled.png") # glpane screenshot saved by NE1, png # works
     # note: those are saved by a specific filetype option in "File -> Save As..."
+testexpr_11q8 = imagetest("/Users/bruce/PythonModules/data/idlewin.tiff") # try tiff -- works
+testexpr_11q9 = imagetest("/Users/bruce/PythonModules/data/glass.bmp") # bmp from NeHe tutorials -- works
+testexpr_11q10 = imagetest("/Users/bruce/PythonModules/data/kp3.png") # png from KidPix -- fails, unknown raw mode ###BUG
+testexpr_11q11 = imagetest("/Users/bruce/PythonModules/data/textil03.jpg") # a tiling texture from the web -- works
+testexpr_11q11a = imagetest("/Users/bruce/PythonModules/data/textil03.jpg", clamp=False) # try that with tiling effect -- works!
+testexpr_11q12 = imagetest("/Users/bruce/PythonModules/data/dock+term-text.png") # a screenshot containing dock icons -- works
 
-    ##e want to try: tiff, gif; pdf; afm image, paul notebook page (converted);
+    ##e want to try: gif; pdf; afm image, paul notebook page (converted);
     # something with transparency (full in some pixels, or partial)
+    #
+    ####e We could also try different code to read the ones that fail, namely, QImage or QPixmap rather than PIL. ## try it
 
 # test Spacer
 testexpr_12 = SimpleRow( Rect(4, 2.6, blue), Spacer(4, 2.6, blue), Rect(4, 2.6, blue)) # works
@@ -436,7 +444,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_13
+testexpr = testexpr_11q11a
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k
 
     # latest stable tests: _11k
