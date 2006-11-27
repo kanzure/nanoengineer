@@ -46,9 +46,10 @@ def weighted_ave(t, t0, t1): #e refile to py_utils? # not presently used, but us
     """
     return t0 * (1-t) + t1 * t
 
-class Translate(Widget, DelegatingMixin):
+class Translate(InstanceOrExpr, DelegatingMixin):
     "Translate(thing, vec) translates thing (and its bounding box, 2D or 3D) by vec (2 or 3 components). [3D aspect is nim]"
     # 3D aspect might be nim
+    #061127 fixed unnoticed bug, Widget -> IorE, to avoid failing to delegate fix_color etc in Widget
     thing = Arg(Widget)
     delegate = _self.thing
     vec = Arg(Vector)

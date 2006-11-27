@@ -39,6 +39,7 @@ import testdraw #e we'll call some funcs from this, and copy & modify others int
 from OpenGL.GL import glGenTextures, glBindTexture, GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_TEXTURE_WRAP_T, \
      GL_CLAMP, GL_REPEAT, GL_TEXTURE_MAG_FILTER, GL_TEXTURE_MIN_FILTER, GL_LINEAR, GL_LINEAR_MIPMAP_LINEAR, GL_NEAREST, \
      GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL, glTexParameterf, glTexEnvf
+from OpenGL.GLU import gluProject
 
 class _texture_holder(object): ### WARNING: probably assumes square textures for now, or rescales to create them; maybe even fixed size?
     """From a filename, create on demand, and cache, a PIL Image object and an optional OpenGL texture object;
@@ -155,7 +156,7 @@ def canon_image_filename( filename):
     pass # end of canon_image_filename
 
 class Image(Widget2D):
-    "#doc; WARNING: invisible from the back"
+    "#doc; WARNING: image is not visible from the back face, in current implem; maybe we want an option to change that"
     # args
     filename = Arg(str)
     use_filename = call_Expr( canon_image_filename, filename)
@@ -259,11 +260,13 @@ if 0: # eg code, ops_files.py, comments added here
 
 from OpenGL.GL import glFlush, glFinish
 
-class PixelGrabber(Widget2D, DelegatingMixin): #e draft, API needs revision to provide more control over when to save, button-compatible
+## class PixelGrabber(Widget2D, DelegatingMixin):
+class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision to provide more control over when to save, button-compatible
     """Act like our first argument, but after the first(??) draw call,
     save an image of the rendered pixels into the file named by arg2.
     """
     ###BUGS:
+    # - SHOULD NOT INHERIT FROM Widget2D -- it'll make our own lbox wrong. However, this doesn't explain the bug in thing.bbottom.####
     # - image might be cluttered with things like the origin axis. Maybe turn these off when using?
     # - no guarantee our pixel footprint is a pixel rect on screen. Might want to force this?
     #   Until then, use in home view, maybe ortho.
@@ -279,7 +282,7 @@ class PixelGrabber(Widget2D, DelegatingMixin): #e draft, API needs revision to p
     #   which overall lets us select any test, see its code, rerun it, resave it, see saved image (maybe plus older ones),
     #   and (makes it easier for us to) commit these images into cvs or other archive
     delegate = Arg(Widget2D)
-    filename = Arg(str) # assume absolute
+    filename = Arg(str, "/tmp/PixelGrabber-test.jpg") # assume absolute; default value is just for debugging convenience
     def draw(self):
         self.delegate.draw()
         self.save()
@@ -302,12 +305,70 @@ class PixelGrabber(Widget2D, DelegatingMixin): #e draft, API needs revision to p
             ##'setAlphaBuffer', 'setColor', 'setDotsPerMeterX', 'setDotsPerMeterY', 'setNumColors', 'setOffset',
             ##'setPixel', 'setText', 'size', 'smoothScale', 'swapRGB', 'systemBitOrder', 'systemByteOrder', 'text',
             ##'textKeys', 'textLanguages', 'textList', 'valid', 'width', 'xForm']
-        print "image dims",image.width(),image.height() # on bruce's g4 now, 633 573, whole glpane (plausible, same as glpane dims below)
+        print "image dims",image.width(),image.height()
+            # on bruce's g4 now, 633 573, whole glpane (plausible, same as glpane dims below)
+            # on g5, 690 637, also same in image & glpane
         print "glpane dims",glpane.width, glpane.height
-        ###e figure out where self lies in this image -- inverse mousepoints... i have some code for that somewhere; gluProject?
-        #e add a 1 or 2 pixel margin to verify this grabs bgcolor, not sure it will if pixel coords are pixel-centers
-        ###e trim image
-            # e.g. QImage::copy ( int x, int y, int w, int h, int conversion_flags = 0 ) -- copy a subarea, return a new image
+        # figure out where the image of self lies in this image of the entire glpane (in a rect defined by GL window coords x0,x1, y0,y1)
+        #### WARNING: this method only works if we're not inside a display list
+        thing = self.delegate
+        print "thing.bleft, thing.bright, thing.btop, thing.bbottom =",thing.bleft, thing.bright, thing.btop, thing.bbottom
+        lbox_corners = [(x,y) for x in (-thing.bleft, thing.bright) for y in (-thing.bbottom, thing.btop)]
+            #bugfix 061127 133p: those minus signs -- I forgot them, and it took hours to debug this, since in simple examples
+            # the affected attrs are 0. Does this indicate a design flaw in the lbox attr meanings? Guess: maybe --
+            # it might affect a lot of code, and be worse in some code like Column. Maybe we just need a default lbox_rect formula
+            # which includes the proper signs. ###e
+        print "lbox_corners =",lbox_corners ##### BUG, all y's the same -- hmm. saved has margin 3, correct on top, but only top edge.
+            # Note, these are in local model coords, with implicit z = 0, NOT pixels.
+        points = [gluProject(x,y,0) for x,y in lbox_corners] # each point is x,y,depth, with x,y in OpenGL GLPane-window coords
+        print "raw points are",points
+            # this shows they are a list of 4 triples, are fractional, are perfectly rectangular (since view not rotated),
+            # but also a bug in which all the y's are the same. hmm.
+            
+        xs = [p[0] for p in points]
+        ys = [p[1] for p in points]
+        x0, x1 = min(xs), max(xs)
+        y0, y1 = min(ys), max(ys)
+        
+        ###e could warn if the points are not a rectangle, i.e. if self is drawn in a rotated view
+        # add pixelmargin, but limit by window size (glpane.width, glpane.height)
+        # (the reason is to verify this grabs bgcolor from around the image; not sure it will, if pixel coords are pixel-centers)
+        pixelmargin = 2 + 0.5 #e make 2 an option, so more easily usable for display of saved images too
+            # note: if original points are pixel centers, then 0.5 of this serves to turn them into pixel boundaries,
+            # but then we'd also want to round them, differently for low and high values,
+            # so to do that, add 1 to high values before int()
+        x0 -= pixelmargin
+        x0 = int(x0)
+        if x0 < 0: x0 = 0
+        
+        y0 -= pixelmargin
+        y0 = int(y0)
+        if y0 < 0: y0 = 0
+        
+        x1 += pixelmargin + 1 # 1 is for rounding (see comment)
+        x1 = int(x1)
+        if x1 > glpane.width:
+            x1 = glpane.width ###k need -1?? are these pixels or pixel-boundaries?? assume boundaries, see comment above
+        
+        y1 += pixelmargin + 1
+        y1 = int(y1)
+        if y1 > glpane.height:
+            y1 = glpane.height
+        
+        # convert to Qt window coords [note: the other code that does this doesn't use -1 either]
+        y0 = glpane.height - y0
+        y1 = glpane.height - y1
+        y0, y1 = y1, y0
+
+        print "subimage dims",x1-x0, y1-y0 ###
+        
+        assert x0 <= x1, "need x0 <= x1, got x0 = %r, x1 = %r" % (x0,x1)
+        assert y0 <= y1, "need y0 <= y1, got y0 = %r, y1 = %r" % (y0,y1)
+        
+        # trim image, i.e. replace it with a subimage which only shows self.delegate
+        image = image.copy(x0, y0, x1-x0, y1-y0)
+            # QImage::copy ( int x, int y, int w, int h, int conversion_flags = 0 ) -- copy a subarea, return a new image
+        
         filename = self.filename
         try:
             os.remove(filename)
@@ -315,10 +376,10 @@ class PixelGrabber(Widget2D, DelegatingMixin): #e draft, API needs revision to p
             pass
         image.save(filename, "JPEG", 85) #e 85->100 for testing, or use "quality" option; option for filetype, or split into helper...
         if os.path.isfile(filename):
-            print "saved:",filename # can be false positive i
+            print "saved:",filename
         else:
             print "save didn't work:",filename
         return
-    pass
+    pass # end of class PixelGrabber
 
 # end

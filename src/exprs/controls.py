@@ -37,6 +37,7 @@ class ChoiceButton(Widget2D):
 
     ###k assume useful conversions of named options happened already
     ###e use _value; is it as simple as renaming it delegate and using DelegatingMixin?? Can InstanceMacro do it for us??
+    # [if we use one of those, be careful not to inherit from Widget2D here, due to its lbox defaults!]
     _value = Highlightable( Overlay( If(chosen, background, background_off),
                                      content ),
                             on_press = Set(choiceref, choiceval)

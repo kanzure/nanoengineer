@@ -44,6 +44,8 @@ class SimpleColumn(Widget2D): #061115
     ## gap = Option(Width, 3 * PIXELS)
     pixelgap = Option(int, 3)
     gap = pixelgap * PIXELS
+
+    print_lbox = Option(bool, False) #061127 for debugging; should be harmless; never tested (target bug got diagnosed in another way)
     
     drawables = call_Expr(lambda args: filter(None, args) , args)
     empty = not drawables ###e BUG: needs more Expr support, I bet; as it is, likely to silently be a constant False; not used internally
@@ -53,6 +55,8 @@ class SimpleColumn(Widget2D): #061115
     btop = a0 and a0.btop or 0
     bbottom = height - btop
     def draw(self):
+        if self.print_lbox:
+            print "print_lbox: %r lbox attrs are %r" % (self,(self.bleft, self.bright, self.bbottom, self.btop))
         glPushMatrix()
         prior = None
         for a in self.drawables:

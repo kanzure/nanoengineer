@@ -107,6 +107,9 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     renders as plain (and delegates most things to it), but on mouseover, as plain plus highlight [#k or just highlight??]
     [and has more, so as to be Button #doc #e rename #e split out draggable of some sort]
     """
+    # WARNING: the abstract methods in superclass DragHandler will be inherited (if not overridden),
+    # even if they are defined in the delegate. [in theory; unconfirmed.] This is good in this case. [061127 comment]
+    
     #060722;
     # revised for exprs module, 061115 [not done]
     # note: uses super InstanceOrExpr rather than Widget2D so as not to prevent delegation of lbox attrs (like in Overlay)

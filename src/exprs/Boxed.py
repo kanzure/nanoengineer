@@ -43,10 +43,10 @@ from Center import Center
 
 class Boxed_old(InstanceMacro): ##e supers of (Widget2D, InstanceMacro) might be best, but I fear it won't work yet,
         # due to lack of proper super() use in those classes
-    """Boxed(widget) is a boxed version of widget -- it looks like widget, centered inside a rectangular frame.
-    Default options are borderthickness = 4, gap = 4, bordercolor = white.
-    [#e These can be changed in the env in the usual way. [nim]]
-    """
+##    """Boxed(widget) is a boxed version of widget -- it looks like widget, centered inside a rectangular frame.
+##    Default options are borderthickness = 4, gap = 4, bordercolor = white.
+##    [#e These can be changed in the env in the usual way. [nim]]
+##    """
     # args
     thing = Arg(Widget2D)
     # options
@@ -100,6 +100,14 @@ class CenterBoxedKluge(InstanceMacro): #e 061112 try 2 -- just for testing (lots
     pass # CenterBoxedKluge
 
 class Boxed(InstanceMacro):
+    """Boxed(widget) is a boxed version of widget -- it looks like widget, centered inside a rectangular frame.
+    Default options are borderthickness = 4 pixels, gap = 4 pixels, bordercolor = white.
+    [#e These can be changed in the env in the usual way. [nim]]
+       WARNING: options from caller are given in model units, not in pixels (probably a design flaw).
+    """
+    # WARNING: would not work if it inherited from Widget2D,
+    # since it would pick up Widget2D default values for lbox attrs like btop. [unconfirmed but likely; 061127 comment]
+
     # args
     thing = Arg(Widget2D)
     # options

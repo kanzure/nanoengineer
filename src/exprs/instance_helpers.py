@@ -703,15 +703,18 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
 #
 # let's try an explicit experiment, InstanceMacro:
 
-class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110
+class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110; docstring revised 061127
     """Superclass for "macros" -- they should define a formula for _value which they should always look like.
-    # WARNING: a defect in InstanceMacro means no local defs in its client class
-    # (e.g. thing, ww in Boxed) will be delegated to _value;
-    # so be careful what you name them! This is also perhaps a feature
+    # WARNING: a defect in InstanceMacro means no local defs in its client class (e.g. thing, ww in Boxed),
+    # or in a superclass of that, will be delegated to _value (since they won't reach DelegatingMixin.__getattr__);
+    # so be careful what you name those local defs, and what default values are defined in a superclass!
+    #    This is also perhaps a feature
     # (permitting you to override some of the otherwise-delegated attrs, e.g. bright or width),
     # tho at one time I thought delegate should let you do that, _value should not,
     # and this would be a useful distinction. I don't yet know how to make _value not do it,
     # nor whether that's desirable if possible, nor whether it's well-defined. ###@@@ [061114]
+    #    It means, for example, that the InstanceMacro Boxed would not work if it inherited from Widget2D,
+    # since it would pick up Widget2D default values for lbox attrs like btop. [unconfirmed but likely; 061127 comment]
     """
     #e might not work together with use by the macro of DelegatingMixin in its own way, if that's even possible [later: not sure what this comment means]
     delegate = Instance( _self._value, '!_value') #k guess: this might eval it once too many times... ####k

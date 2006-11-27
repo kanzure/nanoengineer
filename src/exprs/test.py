@@ -113,7 +113,7 @@ from widget_env import widget_env
 
 import instance_helpers
 reload_once(instance_helpers)
-from instance_helpers import DelegatingInstance_obs, DelegatingMixin # needed only in DebugPrintAttrs, which i should refile
+from instance_helpers import DelegatingMixin # needed only in DebugPrintAttrs, which i should refile
 
 # == make some "persistent state"
 
@@ -124,6 +124,7 @@ except:
 
 # == debug code #e refile
 
+printnim("bug in DebugPrintAttrs, should inherit from IorE not Widget, to not mask what that adds to IorE from DelegatingMixin")###BUG
 class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106; revised 061109, works now (except for ArgList kluge), ##e refile
     """delegate to our only arg, but whenever we're drawn, before drawing that arg,
     print its attrvalues listed in our other args
@@ -330,7 +331,8 @@ testexpr_10a = ToggleShow( Rect(2,3,lightgreen) ) # test use of Rules, If, toggl
 testexpr_10b = ToggleShow( Highlightable(Rect(2,3,green)) ) # use Highlightable on rect - avoid redraw per mousemotion on it - works
 testexpr_10c = ToggleShow(ToggleShow( Highlightable(Rect(2,3,green)) )) # works
 testexpr_10d = ToggleShow(ToggleShow( Rect(2,3,yellow) )) # works
-    # [all still work [on g4] after StatePlace move, 061126 late]
+    # [all still work [on g4] after StatePlace move, 061126 late; _10c also tested on g5, works]
+    # [also ok on g4: all of _11 & _12 which I retried]
 
 # Image
 
@@ -419,8 +421,18 @@ testexpr_12 = SimpleRow( Rect(4, 2.6, blue), Spacer(4, 2.6, blue), Rect(4, 2.6, 
 testexpr_12a = SimpleColumn( testexpr_12, Spacer(4, 2.6, blue), Rect(4, 2.6, blue)) # works
 testexpr_12b = SimpleColumn( testexpr_12, Spacer(0), Rect(4, 2.6, green), pixelgap = 0) # works
 
-# test PixelGrabber -- not fully implemented yet, but this runs as expected (inefficient; saves entire glpane)
-testexpr_13 = PixelGrabber(testexpr_12b, "/tmp/pgtest.jpg") # works, tho it's a partial implem [061126 830p]
+# test PixelGrabber -- not fully implemented yet (inefficient, saves on every draw), and requires nonrotated view, all on screen, etc
+testexpr_13 = PixelGrabber(testexpr_12b, "/tmp/pgtest_13.jpg") # lbox bug...
+    # worked, when it was a partial implem that saved entire glpane [061126 830p]
+testexpr_13x1 = Boxed(testexpr_12b) # ... but this works, as if lbox is correct! hmm...
+testexpr_13x2 = PixelGrabber(testexpr_13x1, "/tmp/pgtest_13x2.jpg") # works the same (except for hitting left margin limit of glpane)
+testexpr_13x3 = Boxed(Translate(testexpr_12b, (1,1))) # works
+testexpr_13x4 = Boxed(Translate(Translate(testexpr_12b, (1,1)), (1,1))) # works
+testexpr_13x5 = Boxed(Boxed(Translate(Translate(testexpr_12b, (1,1)), (1,1)))) # works -- not sure how!
+testexpr_13x6 = Boxed(PixelGrabber(testexpr_12b)) # predict PixelGrabber lbox will be wrong, w/ shrunken Boxed -- it is... fixed now.
+testexpr_13x7 = Boxed(PixelGrabber(Rect(1,1,red))) # simpler test -- works, saves correct image! no bbottom bug here. hmm. ####
+testexpr_13x8 = Boxed(PixelGrabber(SimpleColumn(Rect(1,1,red),Rect(1,1,blue)))) # had the bug, now i fixed it, now works.
+    # It was a simple lbox misunderstanding in PixelGrabber code. [###e maybe it means lbox attr signs are wrongly designed?]
 
 # == @@@
 
@@ -447,10 +459,10 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_10c ##e works on g4, but retry on g5 too (after StatePlace move): testexpr_10c [also ok, all _11 & _12 retried]
+testexpr = testexpr_13x6
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4]
 
-    # latest stable tests: _11k
+    # latest stable tests: _11k, _10c
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc
     
     # currently under devel [061126]: MT_demo, and need to revamp instantiation, but first make test framework, thus finish PixelGrabber
