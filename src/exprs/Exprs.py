@@ -547,6 +547,12 @@ def not_Expr(arg): # maybe this is an operator so we can just make an OpExpr in 
     ###e try it - try using not instead, in the call of this, to see if __not__ is the right name
     return call_Expr(lambda val: not val, arg)
 
+def eq_Expr(arg1, arg2):
+    call_Expr(lambda a1,a2: a1 == a2, arg1, arg2)
+
+def ne_Expr(arg1, arg2):
+    call_Expr(lambda a1,a2: a1 != a2, arg1, arg2)
+
 # ==
 
 def assert_0_func(msg): #e refile #e rename

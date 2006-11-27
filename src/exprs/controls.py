@@ -33,7 +33,7 @@ class ChoiceButton(Widget2D):
     background_off = ArgOrOption(stubtype) # ditto, defaults to transparent
 
     # formulae
-    chosen = eq_Expr( choiceref.value, choiceval) ####
+    chosen = eq_Expr( choiceref.value, choiceval) #k
 
     ###k assume useful conversions of named options happened already
     ###e use _value; is it as simple as renaming it delegate and using DelegatingMixin?? Can InstanceMacro do it for us??
