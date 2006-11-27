@@ -236,43 +236,33 @@ class Image(Widget2D):
     # right when that constant formula is defined.
     bright = 1 * 2 # corresponds to DX * 2 above
     btop = 1 * 2
-
-    ###k???
     pass # end of class Image
 
-# ==
+# ===
 
-# for grabbing pixels, e.g. for visual tests of correctness, live vs saved image
+# for grabbing pixels, e.g. for visual tests of correctness, live vs saved image [#e put in its own file?]
 
-if 0: # eg code, ops_files.py, comments added here
-    # jpg
-        image = glpane.grabFrameBuffer()
-            # Evidently this is a Qt method, not our own! Does it have args? only withalpha, not size.
-            # Presumably it returns a QImage. I suppose I could grab a subimage from that somehow.
-            # See also QGLWidget::renderPixmap (sounds easy to mess up).
-            # Or we could use OpenGL to grab raw data (as we now do from depth buffer), then use PIL to output it...
-            # probably best in long run. #e
-        image.save(safile, "JPEG", 85)
-    # elif ext == ".png":
-        type = "PNG"
-        image = glpane.grabFrameBuffer()
-        image.save(safile, "PNG")
+#e search for "visual regression test framework" for ideas on that
 
 from OpenGL.GL import glFlush, glFinish
 
-## class PixelGrabber(Widget2D, DelegatingMixin):
 class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision to provide more control over when to save, button-compatible
     """Act like our first argument, but after the first(??) draw call,
     save an image of the rendered pixels into the file named by arg2.
     """
-    ###BUGS:
-    # - SHOULD NOT INHERIT FROM Widget2D -- it'll make our own lbox wrong. However, this doesn't explain the bug in thing.bbottom.####
+    ### issues:
+    # - gluProject implem only works if we're not inside a display list; this is not checked for
     # - image might be cluttered with things like the origin axis. Maybe turn these off when using?
-    # - no guarantee our pixel footprint is a pixel rect on screen. Might want to force this?
-    #   Until then, use in home view, maybe ortho.
+    #   + It turns out this doesn't happen since those haven't been drawn yet! (or so it seems -- not fully confirmed)
+    #   - ###e redefine it to clear the color & depth buffers in its footprint, before drawing?
+    # - no guarantee our pixel footprint is a pixel rect on screen. Might want to force this, or check for it?
+    #   Until then, use in home view.
     #   (Or outside of the model's modelview matrix, once testmode intercepts render loop.)
-    # - it saves it on *every* draw call. Maybe it ought to save when content changes? (Not yet detected.)
-    #   really, better to have a "save button", but does that have to be provided in same class? If not, how is shared state named?#e
+    #   + so far it's been a perfect rect, even tho i'm in perspective view. This makes sense in theory for a nonrotated view.
+    # - only works if everything we draw actually appears on the glpane -- not outside its boundaries, not obscured beforehand
+    # - it saves it on *every* draw call. [Maybe even those for glselect -- might cause bugs, not well tested ###k]
+    #   Maybe it ought to save when content changes? (Not yet detected.)
+    #   Really, better to have a "save button", but does that have to be provided in same class? If not, how is shared state named?#e
     ###e one possibility, sounds good:
     # - separate method on the instance to save image;
     #   - draw call just saves some helper info like lbox mousepoints;
@@ -280,50 +270,42 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
     # - convenience macro adds a button to do it, and a saved-image viewer,
     #   and this becomes part of our desired "visual regression test framework",
     #   which overall lets us select any test, see its code, rerun it, resave it, see saved image (maybe plus older ones),
+    #   do a "flicker test" where we switch between saved and current (recaptured?) image in one place as we toggle mousebutton,
+    #   maybe even show a computed "difference image",
     #   and (makes it easier for us to) commit these images into cvs or other archive
     delegate = Arg(Widget2D)
-    filename = Arg(str, "/tmp/PixelGrabber-test.jpg") # assume absolute; default value is just for debugging convenience
+    filename = Arg(str, "/tmp/PixelGrabber-test.jpg") # default value is just for debugging convenience, but can stay, it's useful
     def draw(self):
         self.delegate.draw()
-        self.save()
+        self.save() #e shouldn't call so often -- see big comment above
     def save(self):
         glFlush() ##k needed? don't know; works with it. Or try glFinish? not sure it's legal here. Not needed, never tried.
         glpane = self.env.glpane
         image = glpane.grabFrameBuffer() # not sure this is legal during the draw... but it seems to work
-            #e optim: use GL calls instead -- won't matter once we stop this from happening every time
-        ## print "image %r has type %r and dir %r" % (image, type(image), dir(image))
-            ## image <constants.qt.QImage object at 0xf1dc690> has type <class 'constants.qt.QImage'>
-            ## and dir ['BigEndian', 'IgnoreEndian', 'LittleEndian', 'ScaleFree', 'ScaleMax', 'ScaleMin',
-            ##'__class__', '__delattr__', '__doc__', '__getattribute__', '__hash__', '__init__', '__module__',
-            ##'__new__', '__reduce__', '__reduce_ex__', '__repr__', '__setattr__', '__str__', '__weakref__',
-            ##'allGray', 'bitOrder', 'bits', 'bytesPerLine', 'color', 'colorTable', 'convertBitOrder',
-            ##'convertDepth', 'copy', 'create', 'createAlphaMask', 'createHeuristicMask', 'depth', 'detach',
-            ##'dotsPerMeterX', 'dotsPerMeterY', 'fill', 'fromMimeSource', 'hasAlphaBuffer', 'height', 'imageFormat',
-            ##'inputFormatList', 'inputFormats', 'invertPixels', 'isGrayscale', 'isNull', 'jumpTable', 'load',
-            ##'loadFromData', 'mirror', 'numBytes', 'numColors', 'offset', 'outputFormatList', 'outputFormats',
-            ##'pixel', 'pixelIndex', 'rect', 'reset', 'save', 'scale', 'scaleHeight', 'scaleWidth', 'scanLine',
-            ##'setAlphaBuffer', 'setColor', 'setDotsPerMeterX', 'setDotsPerMeterY', 'setNumColors', 'setOffset',
-            ##'setPixel', 'setText', 'size', 'smoothScale', 'swapRGB', 'systemBitOrder', 'systemByteOrder', 'text',
-            ##'textKeys', 'textLanguages', 'textList', 'valid', 'width', 'xForm']
-        print "image dims",image.width(),image.height()
-            # on bruce's g4 now, 633 573, whole glpane (plausible, same as glpane dims below)
-            # on g5, 690 637, also same in image & glpane
-        print "glpane dims",glpane.width, glpane.height
+            # This is a QGLWidget method. Does it have args? only withalpha, not size (no way to only grab a subimage directly).
+            # It returns a QImage.
+            # See also QGLWidget::renderPixmap (sounds easy to mess up, so not tried).
+            # Or we could use OpenGL to grab raw data (as we now do from depth buffer), then use PIL (or QImage) to output it...
+            # maybe best in long run, but grabFrameBuffer works ok for now. #e
+            #
+            # Note: Return value is a constants.qt.QImage object; for debug prints including dir(image), see cvs rev 1.8            
+            #e optim: use GL calls instead -- but that optim won't matter once we stop this from happening on every draw call
+        ## print "glpane dims",glpane.width, glpane.height
+            # on bruce's g4 now, whole glpane dims 633 573 (plausible; same as image dims); on g5, 690 637, also same in image
+        assert glpane.width == image.width()
+        assert glpane.height == image.height()
         # figure out where the image of self lies in this image of the entire glpane (in a rect defined by GL window coords x0,x1, y0,y1)
         #### WARNING: this method only works if we're not inside a display list
         thing = self.delegate
-        print "thing.bleft, thing.bright, thing.btop, thing.bbottom =",thing.bleft, thing.bright, thing.btop, thing.bbottom
         lbox_corners = [(x,y) for x in (-thing.bleft, thing.bright) for y in (-thing.bbottom, thing.btop)]
+            # Note, these are in local model coords, with implicit z = 0, NOT pixels.
             #bugfix 061127 133p: those minus signs -- I forgot them, and it took hours to debug this, since in simple examples
             # the affected attrs are 0. Does this indicate a design flaw in the lbox attr meanings? Guess: maybe --
             # it might affect a lot of code, and be worse in some code like Column. Maybe we just need a default lbox_rect formula
             # which includes the proper signs. ###e
-        print "lbox_corners =",lbox_corners ##### BUG, all y's the same -- hmm. saved has margin 3, correct on top, but only top edge.
-            # Note, these are in local model coords, with implicit z = 0, NOT pixels.
         points = [gluProject(x,y,0) for x,y in lbox_corners] # each point is x,y,depth, with x,y in OpenGL GLPane-window coords
-        print "raw points are",points
-            # this shows they are a list of 4 triples, are fractional, are perfectly rectangular (since view not rotated),
-            # but also a bug in which all the y's are the same. hmm.
+        ## print "raw points are",points
+            # this shows they are a list of 4 triples, are fractional, and are perfectly rectangular (since view not rotated).
             
         xs = [p[0] for p in points]
         ys = [p[1] for p in points]
@@ -360,13 +342,15 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
         y1 = glpane.height - y1
         y0, y1 = y1, y0
 
-        print "subimage dims",x1-x0, y1-y0 ###
+        w = x1-x0
+        h = y1-y0
+        ## print "subimage dims",w,h
         
         assert x0 <= x1, "need x0 <= x1, got x0 = %r, x1 = %r" % (x0,x1)
         assert y0 <= y1, "need y0 <= y1, got y0 = %r, y1 = %r" % (y0,y1)
         
         # trim image, i.e. replace it with a subimage which only shows self.delegate
-        image = image.copy(x0, y0, x1-x0, y1-y0)
+        image = image.copy(x0, y0, w, h)
             # QImage::copy ( int x, int y, int w, int h, int conversion_flags = 0 ) -- copy a subarea, return a new image
         
         filename = self.filename
@@ -375,10 +359,11 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
         except OSError: # file doesn't exist
             pass
         image.save(filename, "JPEG", 85) #e 85->100 for testing, or use "quality" option; option for filetype, or split into helper...
+            #e also possible: image.save(filename, "PNG")
         if os.path.isfile(filename):
-            print "saved:",filename
+            print "saved image, %d x %d:" % (w,h), filename
         else:
-            print "save didn't work:",filename
+            print "save image (%d x %d) didn't work:" % (w,h), filename
         return
     pass # end of class PixelGrabber
 
