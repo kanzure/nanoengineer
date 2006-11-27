@@ -1024,7 +1024,7 @@ def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
     attr_expr = _E_ATTR
     return Arg( type_expr, dflt_expr, _attr_expr = attr_expr)
 
-def State(type_expr, initval_expr):#061117; see discussion in staterefs.py and/or ToggleShow.py
+def State(type_expr, initval_expr):#061117; see discussion in staterefs.py and/or ToggleShow.py [still not working as of 061126]
     "#doc; sort of like Option but for declaring mutable state, per-Instance by default, but more persistent than the Instance"
     return _State_helper( _E_ATTR, type_expr, initval_expr) #e and maybe more, like a path to the state, its kind, value-glue code
 
@@ -1032,7 +1032,7 @@ def _State_helper( attr_expr, type_expr, initval_expr): #e and more args, see ca
     "[private helper]"
     return _state_Expr(attr_expr, type_expr, initval_expr)
 
-class _state_Expr(OpExpr):#061117
+class _state_Expr(OpExpr):#061117 [still not working as of 061126]
     "[private helper]"
     _e_is_lval_formula = True # noticed by ExprsMeta, so it will use us as a formula for computing (or finding) an LvalForState object
     # for internal use, but OpExpr seems better than internal_Expr since we want replacement in all the args, and no holding I think

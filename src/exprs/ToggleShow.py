@@ -153,8 +153,8 @@ class ToggleShow(InstanceMacro):
         # we can detect the boolean type by how we try to use the arg, i guess... not sure, maybe just say it right here.
         # and the default encoding for bools (known to the bool type, not custom to us) is fine.
 
-    if 1:
-        transient_state = StatePlace('transient') #e move into super along with the ones in Highlightable of which this is a copy
+    if 1: # works fine, but as of 061126 late, comment out the remaining stmt, since done in InstanceOrExpr superclass rather than here
+        pass ## transient_state = StatePlace('transient') #e move into super along with the ones in Highlightable of which this is a copy
         #e rename stateref to be specific for open, maybe open_stateref, in that if 0 code above
         # devel scratch: transient_state is an attr_accessor, which lets you do getattr and setattr.
         # but what we want it to do for us is tell us an lval for the attr 'open'

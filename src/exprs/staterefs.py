@@ -5,7 +5,7 @@ in widget exprs which display it, edit it, operate on it, produce it
 $Id$
 """
 
-from basic import * # all we really need is call_Expr & InstanceOrExpr, so far.
+from basic import * # all we really need is call_Expr & [for LocalState stub, below] InstanceOrExpr, so far.
 from basic import _self
     #k [digr: is there a reload bug caused by things we get from basic import *, since we don't reload basic??]
 
@@ -232,7 +232,10 @@ def set_default_attrs(obj, **kws): #e if this was general, we could refile into 
 
 # ==
 
-class LocalState(InstanceOrExpr): #e stub, just reserve the name and let searches find where to add code for it
+class InstanceOrExpr_Stub: pass ### kluge, permit early import of this file [061126 late] --
+##e probably need to move LocalState into another file
+
+class LocalState(InstanceOrExpr_Stub): #e stub, just reserve the name and let searches find where to add code for it
     """Permit body exprs to reference specific external state using local names
     (and perhaps using specified proxy-wrappers,
      so the state is seen using locally desired types & in local coordinate systems).

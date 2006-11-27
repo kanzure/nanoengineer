@@ -326,12 +326,13 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
     # test an action of None (should be same as a missing one) (also supplied by customization after args)
 
 # ToggleShow
-testexpr_10a = ToggleShow( Rect(2,3,lightgreen) ) # test use of Rules, If, toggling...
+testexpr_10a = ToggleShow( Rect(2,3,lightgreen) ) # test use of Rules, If, toggling... works
 testexpr_10b = ToggleShow( Highlightable(Rect(2,3,green)) ) # use Highlightable on rect - avoid redraw per mousemotion on it - works
-testexpr_10c = ToggleShow(ToggleShow( Highlightable(Rect(2,3,green)) ))
-testexpr_10d = ToggleShow(ToggleShow( Rect(2,3,yellow) )) # has the onetimesubs bug too
+testexpr_10c = ToggleShow(ToggleShow( Highlightable(Rect(2,3,green)) )) # works
+testexpr_10d = ToggleShow(ToggleShow( Rect(2,3,yellow) )) # works
+    # [all still work [on g4] after StatePlace move, 061126 late]
 
-# == test Image
+# Image
 
 from testdraw import courierfile
 blueflake = "blueflake.jpg"
@@ -444,13 +445,13 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_11q11a
-    # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k
+testexpr = testexpr_10c ##e works on g4, but retry on g5 too (after StatePlace move): testexpr_10c [also ok, all _11 & _12 retried]
+    # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4]
 
     # latest stable tests: _11k
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc
     
-    # currently under devel [061117]: ToggleShow, and its LL needs, StateRef and StatePlace and an inval-tracking attrholder
+    # currently under devel [061126]: MT_demo, and need to revamp instantiation, but first make test framework, thus finish PixelGrabber
 
     # some history:
     # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e, and 061114 6g*, 6h*

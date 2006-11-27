@@ -19,6 +19,10 @@ import widget_env
 reload_once(widget_env)
 from widget_env import thisname_of_class #e refile import?? or make it an env method??
 
+import staterefs
+reload_once(staterefs)
+from staterefs import StatePlace # 061126 late -- earlier import of this module than before; should be ok; seems to work
+
 # ==
 
 class InstanceClass:#k super? meta? [#obs -- as of 061103 i am guessing this will completely disappear -- but i'm not sure]
@@ -78,6 +82,26 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     ## _e_is_instance = False # now done in class Expr # usually overridden in certain python instances, not in subclasses
     ## _e_has_args = False # ditto
 ##    args = () # convenient default
+
+    # standard stateplaces (other ones can be set up in more specific subclasses)
+    # [following 3 StatePlaces moved here from Highlightable & ToggleShow, 061126 late;
+    #  these comments not yet reviewed for their new context: ###doc]
+    #
+    # refs to places to store state of different kinds, all of which is specific to this Instance (or more precisely to its ipath)
+    ##e [these will probably turn out to be InstanceOrExpr default formulae] [note: their 2nd arg ipath defaults to _self.ipath]
+    # OPTIM QUESTION: which of these actually need usage/mod tracking? They all have it at the moment [not anymore, 061121],
+    # but my guess is, per_frame_state doesn't need it, and not providing it would be a big optim. [turned out to be a big bugfix too!]
+    # (We might even decide we can store all per_frame_state in self, not needing a StatePlace at all -- bigger optim, I think.
+    #  That can be done once reloading or reinstancemaking is not possible during one frame. I'm not sure if it can happen then,
+    #  even now... so to be safe I want to store that state externally.)
+    transient_state = StatePlace('transient') # state which matters during a drag; scroll-position state; etc
+    glpane_state = StatePlace('glpane', tracked = False) # state which is specific to a given glpane [#e will some need tracked=True?]
+    per_frame_state = StatePlace('per_frame', tracked = False)
+        # state which is only needed while drawing one frame (someday, cleared often)
+        # (this is probably also specific to our glpane; note that a given Instance has only one glpane)
+    # abbrevs for read-only state [#e should we make them a property or so, so we can set them too?]
+    glname = glpane_state.glname # (note, most things don't have this)
+
     def __init__(self, *args, **kws):
         # note: just before any return herein, we must call self._init_e_serno_(), so it's called after any canon_expr we do;
         # also, the caller (if a private method in us) can then do one inside us; see comment where this is handled in __call__
