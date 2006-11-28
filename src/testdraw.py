@@ -650,16 +650,18 @@ def setup_to_draw_texture_name(have_mipmaps, tex_name):
     return
 
 # low-level helpers modified from ESPImage
-# [note: some of these are called from exprs/Image.py; others are copied & modified into it [bruce 061125]]
+# [note: some of these are called from exprs/images.py; others are copied & modified into it [bruce 061125]]
 
-def _create_PIL_image_obj_from_image_file(image_file):
-    '''Creates and returns a PIL image object from image (png) file (i mean filename?). '''
+def _create_PIL_image_obj_from_image_file(image_file, **kws): # misnamed, see docstring; added kws, 061127
+    """Creates and returns an nEImageOps object (using the given kws, documented in ImageUtils.py),
+    which contains (and sometimes modifies in place) a PIL image object made from the named image file.
+    """
     from ImageUtils import nEImageOps
-    return nEImageOps(image_file)
+    return nEImageOps(image_file, **kws)
 
 def _loadTexture(image_obj, tex_name = 0): #e arg want_mipmaps
-    '''Load texture data from current image object; return have_mipmaps, tex_name (also leave that texture bound, BTW)'''
-    # note: some of this code has been copied into exprs/Image.py, class texture_holder [bruce 061125]
+    """Load texture data from current image object; return have_mipmaps, tex_name (also leave that texture bound, BTW)"""
+    # note: some of this code has been copied into exprs/images.py, class texture_holder [bruce 061125]
     ix, iy, image = image_obj.getTextureData() 
 
     # allocate texture object if necessary
