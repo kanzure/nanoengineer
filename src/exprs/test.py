@@ -392,6 +392,14 @@ testexpr_11p = imagetest("win_collapse_icon.png") # fails, unknown raw mode ###B
     # note: mac shell command 'file' reveals image file format details, e.g.
     ## % file stopsign.png
     ## stopsign.png: PNG image data, 22 x 22, 8-bit/color RGBA, non-interlaced
+    # however, on some images it's clearly incorrect (at least on bruce's g4):
+    ## /Nanorex/bug notes/1059 files/IMG_1615.JPG: JPEG image data, EXIF standard 0.73, 10752 x 2048
+        # obviously too large; PIL says (1704, 2272), 'RGB' when ne1 reads it
+    ## blueflake.jpg:     JPEG image data, JFIF standard 1.01, aspect ratio, 1 x 1 # actually (268, 282), 'RGB' [acc'd to PIL]
+    ## courier-128.png:   PNG image data, 128 x 128, 8-bit/color RGB, non-interlaced # actually (128, 128), 'RGB'
+    ## redblue-34x66.jpg: JPEG image data, JFIF standard 1.01, resolution (DPCM), 0 x 0 # actually (34, 66), 'RGB'
+
+
 
 # try some images only available on bruce's g4
 
@@ -411,12 +419,28 @@ testexpr_11q11 = imagetest("/Users/bruce/PythonModules/data/textil03.jpg") # a t
 testexpr_11q11a = imagetest("/Users/bruce/PythonModules/data/textil03.jpg", clamp=False) # try that with tiling effect -- works!
 testexpr_11q12 = imagetest("/Users/bruce/PythonModules/data/dock+term-text.png") # a screenshot containing dock icons -- works
 
+# try differently-resized images [using new features 061127, Image options rescale = False, ideal_width = 128, ideal_height = 128]
+###e rename ideal_width -> tex_width?? not sure. decide later. poss name conflict.
+# [note, the texture size used in the above tests used to depend on a debug pref, default 256 but 512 on g4;
+#  it is now 256 by default but can be passed as option to Image; RETEST (for that and for revised implem)]
+
+testexpr_11r1 = Image(blueflake, rescale = False) # works; I can't really tell whether I can detect smaller texture size (256 not 512)
+testexpr_11r1b = Image(blueflake, rescale = False, ideal_width = 512, ideal_height = 512) # works, but note unexpected black border on left
+testexpr_11r1c = SimpleRow(testexpr_11r1, testexpr_11r1b) # works (but not aligned or even at same scale -- hard to compare)
+
+testexpr_11r2 = Image("redblue-34x66.jpg", rescale = False) # works, except the desired image is in upper left corner of black padding,
+    # not lower left as expected, and maybe some filtering happened when it pasted,
+    # and the black padding itself is destined to be undrawn
+    ###BUG that some of that is nim ##e
+testexpr_11r2b = Image("redblue-34x66.jpg") # works (rescaled to wider aspect ratio, like before)
+#e see also testexpr_13z2 etc
+
     ##e want to try: gif; pdf; afm image, paul notebook page (converted);
     # something with transparency (full in some pixels, or partial)
     #
     ####e We could also try different code to read the ones that fail, namely, QImage or QPixmap rather than PIL. ## try it
 
-# test Spacer
+# test Spacer [circa 061126]
 testexpr_12 = SimpleRow( Rect(4, 2.6, blue), Spacer(4, 2.6, blue), Rect(4, 2.6, blue)) # works
 testexpr_12a = SimpleColumn( testexpr_12, Spacer(4, 2.6, blue), Rect(4, 2.6, blue)) # works
 testexpr_12b = SimpleColumn( testexpr_12, Spacer(0), Rect(4, 2.6, green), pixelgap = 0) # works
@@ -433,6 +457,24 @@ testexpr_13x6 = Boxed(PixelGrabber(testexpr_12b)) # predict PixelGrabber lbox wi
 testexpr_13x7 = Boxed(PixelGrabber(Rect(1,1,red))) # simpler test -- works, saves correct image! no bbottom bug here...
 testexpr_13x8 = Boxed(PixelGrabber(SimpleColumn(Rect(1,1,red),Rect(1,1,blue)))) # this also had lbox bug, now i fixed it, now works.
     # It was a simple lbox misunderstanding in PixelGrabber code. [###e maybe it means lbox attr signs are wrongly designed?]
+
+savedimage = "redblue-34x66.jpg"
+    ## was "/tmp/PixelGrabber-test.jpg" - use that too but not as a "test" since it's not deterministic;
+    ## it'd actually be a "command to see the last PixelGrabber test which saved into the default file"
+testexpr_13z = Boxed(bordercolor=purple)(Image(savedimage)) # works, but aspect ratio wrong -- that's a feature for now...
+testexpr_13z2 = Boxed(color=purple)(Image(savedimage, rescale = False)) # works (with padding etc for now) ####e make this the default?
+testexpr_13z3 = Boxed(color=purple)(Image(savedimage, rescale = False, ideal_width = 128, ideal_height = 128)) # works
+testexpr_13z4 = Boxed(color=purple)(Image(savedimage, rescale = False, ideal_width = 64, ideal_height = 64)) # will rescale... yes.
+    # note that it prints a debug warning that it can't do as asked
+
+# try non-power-of-2 texture sizes (not confirmed that's what's actually being given to us; should get ImageUtils to tell us ####e)
+testexpr_13z5 = Boxed(color=purple)(Image(savedimage, rescale = False, ideal_width = 36, ideal_height = 68))
+    # works on g4: non-2pow sizes -- but aspect ratio is wrong ###BUG??
+testexpr_13z6 = Boxed(color=purple)(Image(savedimage, rescale = False, ideal_width = 34, ideal_height = 66)) # ditto -- ###BUG??
+
+
+    ###BUG - in some above, purple is showing as white. ah, option name is wrong. revise it in Boxed?? probably, or add warning. ##e
+
 
 # == @@@
 
@@ -459,7 +501,10 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # === set the testexpr to use right now   @@@
 
-testexpr = testexpr_13
+
+testexpr = testexpr_13z4 ## testexpr_11r1b
+
+
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4]
 
     # latest stable tests: _11k, _10c

@@ -575,6 +575,7 @@ class format_Expr(OpExpr): #061113, seems to work
     def _e_init(self):
         assert len(self._e_args) >= 2 #e later, change to >=1, since just 1 arg is legal -- I guess.
             # For now, >= 2 is usefully stricter for debugging.
+            # In fact, maybe we'll keep it -- it catches use of '%' rather than ',', like in format_Expr("/tmp/%s.jpg" % testname)
         #e could assert arg0 is a string, but (1) not required until runtime, (2) hard to say anyway.
         pass
     def __str__(self):

@@ -261,7 +261,8 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         copy.__copycount = self.__copycount + 1
         if copy.__copycount > 1:
             if not seen_before("ClassAttrSpecific_{Non,}DataDescriptor copied again"):
-                print "once-per-session developer warning: this copy got copied again:", self
+                print "once-per-session developer warning: this copy got copied again:", \
+                      self, "for class %s" % self.cls.__name__, "copied as", copy, "for class %s" % cls.__name__
         return copy
     pass # end of class ClassAttrSpecific_NonDataDescriptor
 

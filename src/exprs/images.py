@@ -41,20 +41,30 @@ from OpenGL.GL import glGenTextures, glBindTexture, GL_TEXTURE_2D, GL_TEXTURE_WR
      GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_DECAL, glTexParameterf, glTexEnvf
 from OpenGL.GLU import gluProject
 
-class _texture_holder(object): ### WARNING: probably assumes square textures for now, or rescales to create them; maybe even fixed size?
-    """From a filename, create on demand, and cache, a PIL Image object and an optional OpenGL texture object;
+class _texture_holder(object):
+    ### WARNING: probably assumes square textures for now, or rescales to create them; maybe even fixed size?
+    # the new pil_kws can change that -- untested
+    """[private class for use in a public MemoDict]
+    From a filename and other data, create on demand, and cache, a PIL Image object and an optional OpenGL texture object;
     objects of this class are meant to be saved as a memoized dict value with the filename being the dict key
     """
     #e so far, no param choices, keep only one version, no mgmt, no scaling...
     __metaclass__ = ExprsMeta #e or could use SimpleComputeMethodMixin(sp?) I think
-    def __init__(self, filename):
-        #e and some options? maybe, but by default, get those from queries, store an optimal set of shared versions
-        self.filename = filename
+    def __init__(self, tex_key):
+        self.filename, self.pil_kws_items = tex_key # have to put sorted items tuple in key, since dict itself is unhashable
+        self.pil_kws = dict(self.pil_kws_items)
+        if 1: #e could remove when works, but don't really need to
+            items = self.pil_kws.items()
+            items.sort()
+            assert tuple(items) == self.pil_kws_items
+        # pil_kws added 061127, doc in nEImageOps; currently can be ideal_width = None, ideal_height = None, rescale = True
         # everything else can be computed on-demand (image object, texture name, texture, etc)
-        #e no provision yet for file contents changing
+        #e no provision yet for file contents changing; when there is, update policy or uniqid might need to be part of tex_key
+        #e more options? maybe, but by default, get those from queries, store an optimal set of shared versions [nim]
     def _C__image(self):
-        "define self._image -- create a PIL Image object from the file, and return it"
-        return testdraw._create_PIL_image_obj_from_image_file(self.filename) # note: that's a trivial glue function into ImageUtils.py
+        "define self._image -- create a PIL Image object (enclosed in an neImageOps container) from the file, and return it"
+        return testdraw._create_PIL_image_obj_from_image_file(self.filename, **self.pil_kws)
+            # (trivial glue function into ImageUtils.py class nEImageOps)
     def _C_tex_name(self):
         "define self.tex_name -- allocate a texture name"
         # code copied from testdraw._loadTexture (even though we call it, below, for its other code):
@@ -124,7 +134,8 @@ class _texture_holder(object): ### WARNING: probably assumes square textures for
 
 # ==
 
-texture_holder_for_filename = MemoDict(_texture_holder) ###e should canonicalize the filename -- as another optional argfunc to MemoDict
+texture_holder_for_filename = MemoDict(_texture_holder)
+    ###e should canonicalize the filename -- as another optional argfunc to MemoDict
     #doc: now texture_holder_for_filename[filename] is our memoized _texture_holder for a given filename
 
 # ==
@@ -177,6 +188,14 @@ class Image(Widget2D):
         #e design Qs:
         # - is it really Point rather than Vector?
         # - does it interact with [nim] drawing-region-origin so as to line up if we use the same one for adjacent regions?
+
+    # more options, which affect initial image loading from file, thus are part of the texture-cache key [061127, untested]
+    rescale = Option(bool, True) # whether to resize by rescaling or padding (default might be changed after testing #e)
+    ideal_width = Option(int, 256) ###e let them be a func of image size, as a pair? (eg so they can be next greater 2pow?) someday.
+    ideal_height = Option(int, 256)
+    #e these are not fully implem -- at best, when rescale = False, you'll see black padding when drawing;
+    # what we need to do is pass a reduced tex coord so you don't. I hope the image (not padding) will be at the lower left corner
+    # of what's drawn. [as of 061127 1022p] ####@@@@
     
     # formulae
     # THIS SHOULD WORK (I think), but doesn't, don't know why ####BUG: [is my syntax wrong for passing the kws to call_Expr???]
@@ -185,7 +204,13 @@ class Image(Widget2D):
     
     ## _image = PIL_Image(use_filename) ###e should share with other instances of same filename
     def _C__texture_holder(self):
-        return texture_holder_for_filename[self.use_filename] # this shared global MemoDict is defined above
+        # pil_kws added 061127, doc in nEImageOps; currently can be ideal_width = None, ideal_height = None, rescale = True, in tex_key
+        pil_kws = dict(rescale = self.rescale, ideal_width = self.ideal_width, ideal_height = self.ideal_height)
+        items = pil_kws.items()
+        items.sort()
+        pil_kws_items = tuple(items) # make that dict hashable
+        tex_key = (self.use_filename, pil_kws_items) # must be compatible with the single arg to _texture_holder.__init__
+        return texture_holder_for_filename[tex_key] # this shared global MemoDict is defined above
     _image = _self._texture_holder._image
 ##    _width = _image.width
 ##    _height = _image.height
@@ -240,9 +265,11 @@ class Image(Widget2D):
 
 # ===
 
-# for grabbing pixels, e.g. for visual tests of correctness, live vs saved image [#e put in its own file?]
+# for grabbing pixels, e.g. for visual tests of correctness, live vs saved image
 
-#e search for "visual regression test framework" for ideas on that
+#e put in its own file? yes.
+
+#e search for "visual regression test framework" for ideas on that in comment below; refile them into PixelTester.py ##e
 
 from OpenGL.GL import glFlush, glFinish
 
@@ -263,7 +290,7 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
     # - it saves it on *every* draw call. [Maybe even those for glselect -- might cause bugs, not well tested ###k]
     #   Maybe it ought to save when content changes? (Not yet detected.)
     #   Really, better to have a "save button", but does that have to be provided in same class? If not, how is shared state named?#e
-    ###e one possibility, sounds good:
+    ###e one possibility, sounds good: [see also PixelTester.py]
     # - separate method on the instance to save image;
     #   - draw call just saves some helper info like lbox mousepoints;
     #   - using env has to know how to call that method;
@@ -360,6 +387,10 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
             pass
         image.save(filename, "JPEG", 85) #e 85->100 for testing, or use "quality" option; option for filetype, or split into helper...
             #e also possible: image.save(filename, "PNG")
+            ##e probably better: "If format is omitted, the format is determined from the filename extension, if possible."
+            # (Note that's about image.img.save -- not sure it also applies yet to image.save itself.
+            #  It's in http://www.pythonware.com/library/pil/handbook/image.htm .)
+            # But I'd need to read up about how the option should be given for other formats.
         if os.path.isfile(filename):
             print "saved image, %d x %d:" % (w,h), filename
         else:
@@ -367,39 +398,4 @@ class PixelGrabber(InstanceOrExpr, DelegatingMixin):#e draft, API needs revision
         return
     pass # end of class PixelGrabber
 
-# ==
-
-# PixelTester is untested -- not even parsed by python yet
-
-##e needs save button, per-session filenames, access to on disk log of prior files,
-# or way of reading new image from same file, and including reread-policy
-# (and id if done "by command to instance")
-# along with filename in the texture-dict key
-# (but optim for when multiple reads got same image data, whether by same instance or different ones??
-#  not simple -- eg if single textures have varying data or (worse for displists) names, other issues, and somewhat orthogonal)
-
-class PixelTester(InstanceOrExpr, DelegatingMixin): # ought to be InstanceMacro but trying this alternate style just to see it
-    # args
-    testexpr = Arg(Widget2D) # instantiated right here, hope that's ok
-    testname = Arg(str) # required for now, used to form filename
-    # value
-    filename = format_Expr("/tmp/%s.jpg" % testname)
-    delegate = SimpleColumn(
-        
-        TextRect("saved image from PRIOR session, in blue box"), # kluge: execute this first, so we read file before writing it
-        Boxed(bordercolor = blue)(
-            Image(filename)
-        ),
-        Spacer(0.3),
-        
-        TextRect("live widget, in purple box"),
-        Boxed(bordercolor = purple)(
-            PixelGrabber(testexpr, filename)
-        ),
-
-        ##e and put current session image here, for comparison, or put top on in a tab control for flicker test
-    )
-    pass # end of class PixelTester
-
-        
 # end
