@@ -553,6 +553,43 @@ def eq_Expr(arg1, arg2):
 def ne_Expr(arg1, arg2):
     call_Expr(lambda a1,a2: a1 != a2, arg1, arg2)
 
+class and_Expr(OpExpr): #061128
+    "Evaluate only enough args (out of 2 or more) to return the last one if they're all true, otherwise the first false one."
+    def _e_init(self):
+        assert len(self._e_args) >= 2
+        assert not self._e_kws #k needed?
+    def __str__(self):
+        return "and_Expr%r" % self._e_args
+    def _e_eval(self, env,ipath):
+        assert env
+        for i in range(len(self._e_args)):
+            res = self._e_argval(i,env,ipath)
+            if not res:
+                return res # the first false res
+            continue
+        return res # the last res, if they're all true
+    # note: operator.__and__ requires exactly two args, and couldn't help anyway since we don't always want to eval arg2
+    pass
+
+class or_Expr(OpExpr): #061128 untested
+    "Evaluate only enough args (out of 2 or more) to return the last one if they're all false, otherwise the first true one."
+    def _e_init(self):
+        assert len(self._e_args) >= 2
+        assert not self._e_kws #k needed?
+    def __str__(self):
+        return "or_Expr%r" % self._e_args
+    def _e_eval(self, env,ipath):
+        assert env
+        for i in range(len(self._e_args)):
+            res = self._e_argval(i,env,ipath)
+            if res:
+                return res # the first true res
+            continue
+        return res # the last res, if they're all false
+    pass
+
+#e if_Expr is in another file, and probably wrongly implemed too
+
 # ==
 
 def assert_0_func(msg): #e refile #e rename
