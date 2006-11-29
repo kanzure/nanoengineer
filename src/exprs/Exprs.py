@@ -2,6 +2,8 @@
 Exprs.py -- class Expr, and related subclasses and utilities, other than those involving Instances
 
 $Id$
+
+#e this file is getting kind of long - maybe split it in some sensible way?
 """
 
 # note: this module should not import ExprsMeta, though its InstanceOrExpr subclass needs to (in another module).
@@ -81,6 +83,19 @@ def is_Expr_pyclass(expr):
     [This is easier to use than issubclass, since that has an exception on non-classes.]
     """
     return is_Expr(expr) and not is_Expr(expr.__class__)
+
+def is_constant_expr(expr): # written for use in def If, not reviewed for more general use
+    assert is_pure_expr(expr)
+    return isinstance(expr, constant_Expr) ###k probably too limited; #e might need to delve in looking for sources of non-constancy;
+        #e might prefer to return the simpified const value, or a non-constant indicator (eg an equiv constant_Expr or None)
+
+def expr_constant_value(expr): # written for use in def If, not reviewed for more general use
+    "[even the api is a kluge]"
+    if is_constant_expr(expr):
+        return True, expr._e_constant_value #k will be wrong once is_constant_expr is improved -- a single func will need to do both things
+    else:
+        return False, "arb value"
+    pass
 
 # ==
 
@@ -588,7 +603,7 @@ class or_Expr(OpExpr): #061128 untested
         return res # the last res, if they're all false
     pass
 
-#e if_Expr is in another file, and probably wrongly implemed too
+# note: see also If_expr.py
 
 # ==
 
@@ -624,12 +639,6 @@ class format_Expr(OpExpr): #061113, seems to work
     pass # format_Expr
 
 # ==
-
-# If_expr is for now being prototyped in ToggleShow.py 061119
-##class If_expr(OpExpr): # so we can use If in formulas [but If is nim; see comments about it in ToggleShow.py or so]
-##    pass
-### see also class If_ in testdraw.py
-#### def If(): pass
 
 class internal_Expr(Expr):
     "Abstract class for various kinds of low-level exprs for internal use that have no visible subexprs."

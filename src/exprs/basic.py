@@ -158,6 +158,10 @@ import instance_helpers
 reload_once(instance_helpers)
 from instance_helpers import InstanceOrExpr, DelegatingMixin, InstanceMacro, _this, GlueCodeMemoizer
 
+import If_expr # 061128
+reload_once(If_expr)
+from If_expr import *
+
 import staterefs
 reload_once(staterefs)
 from staterefs import * # StatePlace, set_default_attrs

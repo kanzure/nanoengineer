@@ -618,11 +618,11 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 # === set the testexpr to use right now   @@@
 
 
-testexpr = testexpr_14 ## testexpr_13z4 ## testexpr_11r1b
+testexpr = testexpr_10c  ## testexpr_13z4 ## testexpr_11r1b
 
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
-    # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size]
+    # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size] testexpr_14 [hide_icons]
 
     # latest stable tests: _11k, _10c
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc

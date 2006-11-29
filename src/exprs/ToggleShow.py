@@ -6,11 +6,9 @@ $Id$
 
 ##nim: [obs? maybe not]
 ##    StateRef, syntax and implem
-##    If [needs +testing, and [still] review of old code for it vs this new code, esp re OpExpr, and refiling]
 ## see comments from 061121
 #
 ##e see also old code in ToggleShow-outtakes.py
-
 
 
 from basic import *
@@ -42,81 +40,7 @@ Automatic = StateRef = Stub
 ## Set - not yet needed
 State # defined in Exprs.py but nim -- that's where i am 061117 445p, plus here where i use it
 
-
 # ==
-
-###e REFILE all this If stuff, when it's stable or needed elsewhere
-# probly in Exprs even tho that's getting kind of long - maybe split it in some more sensible way? #e
-
-#e for If, see also:
-# Exprs.py: 565: class If_expr(OpExpr): # so we can use If in formulas
-# Exprs.py: 568: ## def If(): pass
-# testdraw1_cannib.py: 1054: def If(cond, then, else_ = None):
-# usage in ToggleShow-outtakes.py
-
-class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py think it needs to be an OpExpr? for getattr & call?
-    cond = Arg(bool) # WARNING: this is effectively a public attr; none of these argnames will be delegated to the value (I think)
-    _then = Arg(Anything)
-    _else  = Arg(Anything, None) # note: the None default probably won't work here; the callers presently pass a TextRect
-    def _C__value(self):
-        if self.cond:
-                # digr: I mistakenly thought _then & _else ipaths were same, in some debugging e.g. printing _self.ipath,
-                # since I said _self where I meant _this(Highlightable).
-                # THAT'S GOING TO BE A COMMON PROBLEM -- need to rethink the jargon...
-                # maybe let _this.attr work (find innermost Instance with capitalized classname??) [061121]
-            return self._then
-        else:
-            return self._else
-        pass
-    pass
-
-def If_kluge(*args):###
-    "use this when you know you wanted If_expr but the buggy code might not give it to you yet; it always does but warns if If would not have"
-    res1 = res = If(*args)
-    if not isinstance(res, If_expr):
-        res2 = res = If_expr(*args)
-        assert isinstance(res, If_expr)
-        msg = "bug: If() gave you %r instead of this If_Expr %r I think you wanted (which I'll use)" % (res1, res2)
-        print msg
-        assert 0, msg #061121
-    return res
-
-def is_constant_expr(expr):
-    assert is_pure_expr(expr)
-    return isinstance(expr, constant_Expr) ###k probably too limited; #e might need to delve in looking for sources of non-constancy;
-        #e might prefer to return the simpified const value, or a non-constant indicator (eg an equiv constant_Expr or None)
-
-def expr_constant_value(expr):
-    "even api is a kluge"
-    if is_constant_expr(expr):
-        return True, expr._e_constant_value #k will be wrong once is_constant_expr is improved -- a single func will need to do both things
-    else:
-        return False, "arb value"
-    
-def If(cond, _then, _else = None):
-
-    cond = canon_expr(cond)
-        # (but not on _then or _else to make this work better for immediate use. (might be deprecated, not sure))
-    constflag, condval = expr_constant_value(cond)
-    
-    if not constflag:
-        return If_expr(cond, _then, _else)
-            #e maybe this will typecheck cond someday (in a way that would complain if it was a pyclass)
-    elif condval:
-        print "using then immediately"### leave these in awhile, since they're rare and might indicate a bug
-        return _then ##k whether or not it's an expr?? (I think so... this is then a primitive form of expr-simplification, I guess)
-    else:
-        print "using else immediately"###
-        return _else
-    pass
-
-    # Q: If cond is an Instance, do we want to check whether it says it's legal to get its boolean value?
-    # A: We don't need to -- if it cares, let it define __bool__ (or whatever it's called, maybe __nonzero__) and raise an exception.
-    # I think that would be ok, since even if we knew that would happen, what else would we want to do?
-    # And besides, we could always catch the exception. (Or add a prior type-query to cond, if one is defined someday.)
-
-# ==
-
 
 class ToggleShow(InstanceMacro):
     # args
