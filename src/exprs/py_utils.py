@@ -1,10 +1,10 @@
-'''
+"""
 py_utils.py
 
 $Id$
 
 simple utility functions for python built-in types
-'''
+"""
 
 # note: the module basic.py imports * from this module.
 

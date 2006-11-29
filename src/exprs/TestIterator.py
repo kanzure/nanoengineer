@@ -1,6 +1,6 @@
-'''
+"""
 $Id$
-'''
+"""
 
 # not reviewed recently, was part of NewInval
 # as of 061106 the setup looks obs, but it might as well be revived and tested before Column is worked on much

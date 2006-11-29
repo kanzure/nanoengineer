@@ -1,8 +1,8 @@
-'''
+"""
 scratch6.py
 
 $Id$
-'''
+"""
 
 # [061025; exploring a graph-editing eg, gets into interesting comments about
 # exprs for behaviors, actions, events, potential & actual, command offers,

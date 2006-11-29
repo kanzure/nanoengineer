@@ -1,8 +1,8 @@
-'''
+"""
 DisplistChunk.py
 
 $Id$
-'''
+"""
 
 from lvals import Lval ##reloadable
 

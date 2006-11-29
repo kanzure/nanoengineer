@@ -1,10 +1,10 @@
-'''
+"""
 __Symbols__.py -- support for "from __Symbols__ import xxx", from within the exprs module.
 
 NOTE: This module replaces its entry in sys.modules with a FakeModule object, which probably doesn't support reload.
 
 $Id$
-'''
+"""
 __author__ = "bruce" # (but I took the idea of FakeModule from Pmw == Python Megawidgets) 
 
 from Exprs import Symbol
