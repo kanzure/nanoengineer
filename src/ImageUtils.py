@@ -20,21 +20,29 @@ import ImageOps
 import PngImagePlugin # Don't remove this, it is used by package creator to find right modules to support PNG image -- Huaicai
 
 import platform #bruce 061127
+from debug import print_compact_traceback #bruce 061128
 
 class nEImageOps:
     '''Common image operations like, get rgb data, flip, mirror, rotation, filter, resize, etc. '''
     ## ideal_wd = ideal_ht = 256
     # note: bruce 061127 renamed these to ideal_width, ideal_height, as public self attrs and __init__ options
+
+    DESIRED_MODE = "RGBX" #bruce 061128 split this out
     
-    def __init__(self, imageName, ideal_width = None, ideal_height = None, rescale = True):
+    def __init__(self, imageName,
+                 ideal_width = None, ideal_height = None,
+                 rescale = True, ##e filter = ...
+                 convert = False,
+                 _tmpmode = None ):
         #bruce 061127 added options, self attrs, docstring; some are marked [untested] in docstring [###k need to test them];
         ##e add options for resize filter choice, whether to use im.convert (experimental, nim), img mode to use for data (now RGBX)
         """Create an nEImageOps object that holds a PIL image made from the given image filename, imageName.
         Not all file formats are supported; the file extension is not enough to know if the file is supported,
         since it also depends on the nature of the internal data (which is probably a bug that could be fixed).
+        [#doc the convert option, which tries to address that [not fully tested], and the _tmpmode option.]
            The image will be resized on demand by getTextureData (but in place in this mutable object,
         thus affecting all subsequent queries too, not only queries via getTextureData),
-        to ideal_width, ideal_height, specified as options [untested], or if they're not supplied, by a debug_pref "image size",
+        to ideal_width, ideal_height, specified as options, or if they're not supplied, by a debug_pref "image size",
         or by direct modification by client of self.ideal_width and self.ideal_height before this resizing is first done.
         (Callers which want no resizing to occur currently need to explicitly set self.ideal_width and self.ideal_height
         to the actual image size (before first calling getTextureData), which can be determined as explained below.
@@ -51,7 +59,32 @@ class nEImageOps:
         one of several image-modifying methods.
         """
         self.imageName = imageName
+        self.convert = convert
+        self._tmpmode = _tmpmode #bruce 061128, probably temporary, needs doc if not; JPG illegal, JPEG doesn't work, TIFF works well
         self.img = Image.open(imageName)
+        self.unconverted_img = self.img # for debugging, and in case keeping the python reference is needed
+        if self.convert: #bruce 061128
+            # im.convert(mode) => image
+            if type(self.convert) == type(""):
+                mode = self.convert # let caller specify mode to convert to
+                ###e should this also affect getTextureData retval? if so, also reset self.DESIRED_MODE here. ###e
+                #e or maybe have a separate option, desired_mode or mode or convert_to? Guess: someday have that,
+                # and the convert flag will go away since it will always be true, BUT the desired mode will be
+                # a function of the original mode! (just as that will be the case with the desired size.)
+                if 'try it': # useful for testing, so leave it in, but not yet used routinely.
+                    if mode != self.DESIRED_MODE:
+                        print "%r: warning: convert = mode %r is not yet fully supported" % (self, self.convert)
+                        self.DESIRED_MODE = mode
+            else:
+                assert self.convert == True or self.convert == 1
+                mode = self.DESIRED_MODE
+            old_data = self.img.size, self.img.mode
+            self.img = self.img.convert(mode) #k does it matter whether we do this before or after resizing it?
+            new_data = self.img.size, self.img.mode
+            if old_data != new_data and platform.atom_debug:
+                print "debug: %r: fyi: image converted from %r to %r" % (self, old_data, new_data) ###e remove after devel
+                ###e also need self.update() in this case?? if so, better do it later during __init__.
+            pass
         self.orig_width = self.img.size[0] #bruce 061127
         self.orig_height = self.img.size[1] #bruce 061127
         if platform.atom_debug:
@@ -75,7 +108,8 @@ class nEImageOps:
         return
 
     def __repr__(self): #bruce 061127
-        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.imageName) #e add size & mode? use basename only?
+        #e add size & mode? if so, make sure it works in __init__ before self.img has been set!
+        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.imageName) #e use basename only?
     
     def getPowerOfTwo(self, num): # [never reviewed by bruce]
         '''Returns the nearest number for <num> that's a power of 2. Currently, it's not used.'''
@@ -112,7 +146,7 @@ class nEImageOps:
         width = self.img.size[0]
         height = self.img.size[1]
         try:
-            rst = self.img.tostring("raw", "RGBX", 0, -1)
+            rst = self.img.tostring("raw", self.DESIRED_MODE, 0, -1)
             # Note: this line can raise the exception "SystemError: unknown raw mode" for certain image files.
             # Maybe this could be fixed by using "im.convert(mode) => image" when loading the image??
             ##e try it, see above for where [bruce 061127 comment]
@@ -144,9 +178,16 @@ class nEImageOps:
                     if platform.atom_debug:
                         print "debug fyi: %r.resize is rescaling, tho asked not to, since a dim must shrink" % self #e more info
                 self.img = self.img.resize( (wd, ht), filter)
+                    # supported filters, says doc:
+                        ##The filter argument can be one of NEAREST (use nearest neighbour), BILINEAR
+                        ##(linear interpolation in a 2x2 environment), BICUBIC (cubic spline
+                        ##interpolation in a 4x4 environment), or ANTIALIAS (a high-quality
+                        ##downsampling filter). If omitted, or if the image has mode "1" or "P", it is
+                        ##set to NEAREST.
+                    #e see also im.filter(filter) => image, which supports more filters. Maybe add it to our ops like flip & rotate?
             else:
                 # new feature, bruce 061127, only works when width and height needn't shrink:
-                # make new image, then use im.paste(image, box)
+                # make new image, then use im.paste(image, box, [mask])
                 # "Image.new(mode, size) => image"
                 img = self.img
                 mode = img.mode #e or could alter this to convert it at the same time, says the doc
@@ -158,11 +199,30 @@ class nEImageOps:
                 #  or None (same as (0, 0)). If a 4-tuple is given, the size of the pasted image must match the size of the region.
                 #  If the modes don't match, the pasted image is converted to the mode of this image...."
                 box = (0,0) # try this, even though I'm not sure upper left for PIL will be lower left for OpenGL, as I hope it will #k
-                    # in fact, it ends up drawn into the upper left... hmm... guess: tostring args 0, -1 are reversing it for OpenGL;
+                    # in fact, it ends up drawn into the upper left... hmm... guess: tostring args 0, -1 are reversing it for OpenGL
+                    # (apparently confirmed by doc of PIL decoders);
                     # so would I rather correct that here (move it to upper left), or when I get tex coords for drawing it?? ##e decide
-                newimg.paste(img, box) ###k does this do some filtering too? visually it looks like it might have.
+                if 'A' in mode: ###k??
+                    # experiment, bruce 061128:
+                    ##e might need to cause alpha of newimg to start out as 0 -- not sure what's done with it... we want to copy it
+                    # from what we paste, let it be 0 elsewhere.
+                    newimg.paste(img, box, img) # im.paste(image, box, mask)
+                        # motivation: doc says "Note that if you paste an "RGBA" image, the alpha band is ignored.
+                        # You can work around this by using the same image as both source image and mask."
+                else:
+                    newimg.paste(img, box)
+                        ###k does this do some filtering too? visually it looks like it might have. Doc doesn't say it does.
                 self.img = newimg
-            self.update()
+            try:
+                self.update()
+                # Note: an exception in self.update() will abort a current call of e.g. getTextureData,
+                # but won't prevent the next call from working, since the modified image was already stored in self before this call.
+                # That may mean it would make more sense to catch the exception here or inside update, complain, then discard it.
+                # Doing that now. [bruce 061128]
+            except:
+                print_compact_traceback("bug: exception (ignored) in %r.update(): " % self)
+            pass
+        return
 
     def update(self):
         '''Update the image object.'''
@@ -172,9 +232,21 @@ class nEImageOps:
         import os
         from platform import find_or_make_Nanorex_subdir
         nhdir = find_or_make_Nanorex_subdir("Nano-Hive")
-        newName = os.path.join(nhdir, 'temp_'+os.path.basename(self.imageName))
+        basename = os.path.basename(self.imageName)
+        if self._tmpmode:
+            # change file extension of tmp file to correspond with the format we'll store in it
+            # [this is not needed (I think) except to not fool people who stumble upon the temporary file]
+            basename, extjunk = os.path.splitext(basename)
+            basename = "%s.%s" % (basename, self._tmpmode)
+        newName = os.path.join(nhdir, 'temp_' + basename)
+            ###e change file extension to one that always supports self.DESIRED_MODE? (or specify it in save command)
         oldmode = self.img.mode #bruce 061127
-        self.img.save(newName)
+        if self._tmpmode:
+            self.img.save(newName, self._tmpmode) #bruce 061128 experimental, hopefully a temporary kluge
+        else:
+            self.img.save(newName)
+            # if we use self.convert to convert PNG RGBA to RGBX, this can raise an exception:
+            ## IOError: cannot write mode RGBX as PNG
         self.img = Image.open(newName)
         newmode = self.img.mode
         if oldmode != newmode and platform.atom_debug: #k does this ever happen??
