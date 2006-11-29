@@ -20,6 +20,10 @@ import Rect
 reload_once(Rect)
 from Rect import Spacer
 
+import TextRect
+reload_once(TextRect)
+from TextRect import TextRect
+
 from OpenGL.GL import glPushMatrix, glPopMatrix, glTranslatef ##e revise later
 
 # ==
@@ -39,7 +43,16 @@ class SimpleColumn(Widget2D): #061115
     a2 = Arg(Widget2D, None)
     a3 = Arg(Widget2D, None)
     a4 = Arg(Widget2D, None)
-    args = list_Expr(a0,a1,a2,a3,a4)
+    a5 = Arg(Widget2D, None)
+    a6 = Arg(Widget2D, None)
+    a7 = Arg(Widget2D, None)
+    a8 = Arg(Widget2D, None)
+    a9 = Arg(Widget2D, None)
+    a10 = Arg(Widget2D, None)
+    a11 = Arg(Widget2D, None)
+    args = list_Expr(a0,a1,a2,a3,a4,a5, a6,a7,a8,a9,a10,
+                     and_Expr(a11, TextRect("too many columns"))
+                     )
     
     ## gap = Option(Width, 3 * PIXELS)
     pixelgap = Option(int, 3)
@@ -77,7 +90,16 @@ class SimpleRow(Widget2D):
     a2 = Arg(Widget2D, None)
     a3 = Arg(Widget2D, None)
     a4 = Arg(Widget2D, None)
-    args = list_Expr(a0,a1,a2,a3,a4)
+    a5 = Arg(Widget2D, None)
+    a6 = Arg(Widget2D, None)
+    a7 = Arg(Widget2D, None)
+    a8 = Arg(Widget2D, None)
+    a9 = Arg(Widget2D, None)
+    a10 = Arg(Widget2D, None)
+    a11 = Arg(Widget2D, None)
+    args = list_Expr(a0,a1,a2,a3,a4,a5, a6,a7,a8,a9,a10,
+                     and_Expr(a11, TextRect("too many rows"))
+                     )
     
     pixelgap = Option(int, 3)
     gap = pixelgap * PIXELS
