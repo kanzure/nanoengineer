@@ -897,6 +897,9 @@ updateVanDerWaals(struct part *p, void *validity, struct xyz *positions)
     if (validity && p->vanDerWaals_validity == validity) {
 	return;
     }
+    if (p->num_atoms <= 0) {
+        return;
+    }
     NULLPTR(positions);
     for (i=0; i<p->num_atoms; i++) {
 	a = p->atoms[i];

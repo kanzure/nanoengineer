@@ -42,13 +42,19 @@ static char tokenBuffer[256];
 // Any sequence of more than 255 non-delimiter characters is broken
 // into tokens every 255 characters.
 static char *
-readToken(struct mmpStream *mmp)
+readToken(struct mmpStream *mmp, int allowNULL)
 {
   char *s = tokenBuffer;
   char c;
 
   if (feof(mmp->f) || ferror(mmp->f)) {
-    return NULL;
+    if (allowNULL) {
+      return NULL;
+    } else {
+      ERROR("Unexpected EOF");
+      mmpParseError(mmp);
+      return "EOF";
+    }
   }
   while ((*s = fgetc(mmp->f)) != EOF) {
     mmp->charPosition++;
@@ -92,7 +98,13 @@ readToken(struct mmpStream *mmp)
     }
   }
   if (s == tokenBuffer) {
-    return NULL;
+    if (allowNULL) {
+      return NULL;
+    } else {
+      ERROR("Unexpected EOF");
+      mmpParseError(mmp);
+      return "EOF";
+    }
   }
   *s = '\0';
   return tokenBuffer;
@@ -130,7 +142,7 @@ consumeRestOfLine(struct mmpStream *mmp)
   char *tok;
 
   while (1) {
-    tok = readToken(mmp);
+    tok = readToken(mmp, 1);
     if (tok == NULL || *tok == '\n' || *tok == '\r') {
       return;
     }
@@ -145,7 +157,7 @@ expectToken(struct mmpStream *mmp, char *expected)
   char *tok;
   int ret;
   
-  tok = readToken(mmp);
+  tok = readToken(mmp, 1);
   if (tok == NULL) {
     ret = expected == NULL;
   } else if (expected == NULL) {
@@ -174,7 +186,7 @@ expectInt(struct mmpStream *mmp, int *value, int checkForNewline)
   long int val;
 
   consumeWhitespace(mmp);
-  tok = readToken(mmp);
+  tok = readToken(mmp, 1);
   if (value == NULL) {
     ERROR("internal error, value==NULL");
     mmpParseError(mmp);
@@ -224,7 +236,7 @@ expectDouble(struct mmpStream *mmp, double *value, int checkForNewline)
   double val;
 
   consumeWhitespace(mmp);
-  tok = readToken(mmp);
+  tok = readToken(mmp, 1);
   if (value == NULL) {
     ERROR("internal error, value==NULL");
     mmpParseError(mmp);
@@ -254,6 +266,37 @@ expectDouble(struct mmpStream *mmp, double *value, int checkForNewline)
   ERROR("expected double, got EOF");
   mmpParseError(mmp);
   return 0; // not reached
+}
+
+// Parses:
+//
+// ( <double> [, <double>]* )
+//
+// where each space between the parenthesis can be zero or more
+// whitespace characters.  If p is non-null, the doubles are
+// stored in successive array elements.
+//
+// Any whitespace before and after the parenthesis is consumed.
+static void
+expectNDoubles(struct mmpStream *mmp, int n, double *p)
+{
+  int i;
+  double d;
+
+  consumeWhitespace(mmp);
+  expectToken(mmp, "(");
+  for (i=0; i<n; i++) {
+    expectDouble(mmp, &d, 0);
+    if (i < n-1) {
+      expectToken(mmp, ",");
+    }
+    if (p != NULL) {
+      p[i] = d;
+    }
+  }
+  consumeWhitespace(mmp); // only needed if n==0
+  expectToken(mmp, ")");
+  consumeWhitespace(mmp);
 }
 
 // Parses:
@@ -314,7 +357,7 @@ expectName(struct mmpStream *mmp)
   tempBuffer = accumulator(tempBuffer, len + 1, 0);
   buf = (char *)tempBuffer;
   buf[len] = '\0';
-  while ((tok = readToken(mmp)) != NULL) {
+  while ((tok = readToken(mmp, 1)) != NULL) {
     if (!strcmp(tok, ")")) {
       consumeWhitespace(mmp);
       return copy_string(buf);
@@ -383,6 +426,7 @@ readMMP(char *filename)
   char *tok;
   char bondOrder;
   char *name, *fontname, *junk;
+  char *bodyName;
   int fontsize;
   int elementType;
   int previousAtomID = -1; // ID of atom just defined, so we can back-reference to it in later lines
@@ -395,6 +439,7 @@ readMMP(char *filename)
   double force;
   double stiffness;
   double temperature;
+  double mass;
   struct xyz position;
   struct xyz center;
   struct xyz axis;
@@ -416,7 +461,7 @@ readMMP(char *filename)
 
   p = makePart(filename, &mmpParseError, mmp);
 
-  while ((tok = readToken(mmp)) != NULL) {
+  while ((tok = readToken(mmp, 1)) != NULL) {
 
     // atom atomNumber (element) (posx, posy, posz)
     // Identifies a new atom with the given element type and position.
@@ -442,17 +487,17 @@ readMMP(char *filename)
     //  info leaf initial_speed = 20.0
     else if (!strcmp(tok, "info")) {
       consumeWhitespace(mmp);
-      tok = readToken(mmp);
+      tok = readToken(mmp, 0);
       if (!strcmp(tok, "atom")) {
         consumeWhitespace(mmp);
-        tok = readToken(mmp);
+        tok = readToken(mmp, 0);
         if (!strcmp(tok, "atomtype")) {
           enum hybridization hybridization = sp3;
           
           consumeWhitespace(mmp);
           expectToken(mmp, "=");
           consumeWhitespace(mmp);
-          tok = readToken(mmp);
+          tok = readToken(mmp, 0);
 
           if (!strcmp(tok, "sp3d")) {
             hybridization = sp3d;
@@ -475,7 +520,7 @@ readMMP(char *filename)
         }
       } else if (!strcmp(tok, "leaf")) {
         consumeWhitespace(mmp);
-        tok = readToken(mmp);
+        tok = readToken(mmp, 0);
         if (!strcmp(tok, "initial_speed")) {
           consumeWhitespace(mmp);
           expectToken(mmp, "=");
@@ -503,7 +548,7 @@ readMMP(char *filename)
           consumeWhitespace(mmp);
           expectToken(mmp, "=");
           consumeWhitespace(mmp);
-          tok = readToken(mmp);
+          tok = readToken(mmp, 0);
           dampingEnabled = strcmp(tok, "False") ? 1 : 0;
           consumeRestOfLine(mmp);
 
@@ -650,6 +695,45 @@ readMMP(char *filename)
       break;
     }
 
+    // rigidBody (bodyName) (<position 3vector>) (<orientation quaternion>) <mass> (<inertia matrix 6 elements>)
+    else if (0==strcmp(tok, "rigidBody")) {
+      bodyName = expectName(mmp);
+      expectXYZInts(mmp, &center); // com
+      expectNDoubles(mmp, 4, NULL); // quaternion
+      expectDouble(mmp, &mass, 0);
+      expectNDoubles(mmp, 6, NULL); // inertia matrix
+      consumeRestOfLine(mmp);
+      fprintf(stderr, "got rigidBody: %s\n", bodyName);
+    }
+
+    // stationPoint (bodyName) (stationName) (<position 3vector>)
+    else if (0==strcmp(tok, "stationPoint")) {
+      bodyName = expectName(mmp);
+      name = expectName(mmp);
+      expectXYZInts(mmp, &center);
+      fprintf(stderr, "got stationPoint: %s on %s\n", name, bodyName);
+    }
+
+    // bodyAxis (bodyName) (axisName) (<axis 3vector>)
+    else if (0==strcmp(tok, "bodyAxis")) {
+      bodyName = expectName(mmp);
+      name = expectName(mmp);
+      expectXYZInts(mmp, &center);
+      fprintf(stderr, "got bodyAxis: %s on %s\n", name, bodyName);
+    }
+    
+    else if (0==strcmp(tok, "joint")) {
+      consumeWhitespace(mmp);
+      tok = readToken(mmp, 0);
+      if (0==strcmp(tok, "BallSocket")) {
+        consumeRestOfLine(mmp);
+      }
+      else {
+        ERROR1("Unrecognized joint type: %s", tok);
+        mmpParseError(mmp);
+      }
+    }
+    
 #if 0
     // XXX it looks like there isn't any code to implement this behavior
     // bearing 
