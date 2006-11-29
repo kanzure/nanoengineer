@@ -545,8 +545,51 @@ testexpr_13z5 = Boxed(color=purple)(Image(savedimage, rescale = False, ideal_wid
     # works on g4: non-2pow sizes -- but aspect ratio is wrong ###BUG??
 testexpr_13z6 = Boxed(color=purple)(Image(savedimage, rescale = False, ideal_width = 34, ideal_height = 66)) # ditto -- ###BUG??
 
-
     ###BUG - in some above, purple is showing as white. ah, option name is wrong. revise it in Boxed?? probably, or add warning. ##e
+
+
+# try out a table of icons (notation is not very nice though...)
+# [note: this code to setup testexpr_14 all runs even if we don't display that test,
+#  but the images won't load [that's verified] so it shouldn't be too slow]
+hide_icons = """
+anchor-hide.png                 gamess-hide.png                 measuredihedral-hide.png        moltubes-hide.png
+atomset-hide.png                gridplane-hide.png              measuredistance-hide.png        molvdw-hide.png
+displayCylinder-hide.png        ground-hide.png                 molcpk-hide.png                 rmotor-hide.png
+displaySurface-hide.png         linearmotor-hide.png            moldefault-hide.png             stat-hide.png
+espimage-hide.png               lmotor-hide.png                 molinvisible-hide.png           thermo-hide.png
+espwindow-hide.png              measureangle-hide.png           mollines-hide.png
+""".split() # 23 icons
+
+if 0:
+    # test the corresponding non-hidden icons instead -- works
+    hide_icons = map(lambda name: name.replace("-hide",""), hide_icons)
+    for another in "clipboard-empty.png clipboard-full.png clipboard-gray.png".split():
+        hide_icons.append(another)
+    pass
+
+# how do you take 4 groups of 6 of those? we need a utility function, or use Numeric reshape, but for now do this:
+res = []
+myimage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode = 'TIFF') # size 22 MIGHT FAIL on some OpenGL drivers
+nevermind = lambda func: identity
+for i in range(5): # 4 is enough unless you set 'if 1' above
+    res.append([])
+    for j in range(6):
+        res[i].append(None) # otherwise, IndexError: list assignment index out of range
+        try:
+            res[i][j] = hide_icons[i * 6 + j]
+            res[i][j] = myimage(res[i][j])
+            if not ((i + j ) % 3): # with 3 -> 2 they line up vertically, but that's only a coincidence -- this is not a real Table. 
+                pass ## res[i][j] = Boxed(res[i][j])
+        except IndexError:
+            res[i][j] = nevermind(Boxed)(Spacer(1 * PIXELS)) ## None   ###e Spacer should not need any args to be size 0
+        continue
+    continue
+testexpr_14 = SimpleColumn( * map(lambda row: nevermind(Boxed)(SimpleRow(*row)), res) ) # works!
+testexpr_14 = Translate(testexpr_14, V(0,1,0) * 2)
+testexpr_14x = SimpleColumn(*[Rect(2 * i * PIXELS, 10 * PIXELS) for i in range(13)])
+    # works (so to speak) -- 11th elt is TextRect("too many columns")
+    ####e i need that general warning when there are too many args!!
+testexpr_14x2 = SimpleRow(*[Rect(2 * i * PIXELS, 10 * PIXELS) for i in range(13)]) # works -- TextRect("too many rows")
 
 
 # == @@@
@@ -575,7 +618,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 # === set the testexpr to use right now   @@@
 
 
-testexpr = testexpr_11r1b ## testexpr_13z4 ## testexpr_11r1b
+testexpr = testexpr_14 ## testexpr_13z4 ## testexpr_11r1b
 
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
