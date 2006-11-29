@@ -175,7 +175,9 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         """
         for kw in kws:
             if kw.startswith('_'):
-                print "warning or error: this kw is being treated normally:", kw ###@@@ is this always an error?
+                printfyi( "warning or error: this kw is being treated normally as an option, " \
+                      "not as a special case, in spite of initial '_': %s" % kw) ###@@@ is this always an error?
+                    # so far, happened (but not as error) with _tmpmode, ...
         if kws:
             self._destructive_customize(kws)
         if args or not kws:

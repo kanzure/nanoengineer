@@ -383,15 +383,47 @@ testexpr_11k = testexpr_11h(tex_origin = (-1,-1)) # works; latest stable test in
     # note, it asfails when parsed (pyevalled), so I have to comment out the test -- that behavior should perhaps be changed.
 imagetest = Image(tex_origin = (-1,-1), clamp = True, nreps = 3, use_mipmaps = True) # customize options
 testexpr_11m = imagetest(courierfile) # works
+    # [but weirdly, on bruce's g5 061128 212p as first test, clamped part is blue! ###BUG??
+    #  screenshot on g5 is in /Nanorex/bug notes/clamped is blue.jpg
+    #  It turns out it is a different color depending on what's been displayed before!
+    #  If i have some atoms, at least with testexpr_11pcy2, and highlight them etc, it affects this color.
+    #  Must be something in the texture or its border looking at current color,
+    #  or some GL state that affects drawing that border region. But it affects color all around the triangle icon in the file,
+    #  not just around the square pasted area, so it must have something to do with the alpha value, or some sort of background.]
+
 testexpr_11n = imagetest("stopsign.png") # fails; guess, our code doesn't support enough in-file image formats; ###BUG
     # exception is SystemError: unknown raw mode, [images.py:73] [testdraw.py:663] [ImageUtils.py:69] [Image.py:439] [Image.py:323]
     ##e need to improve gracefulness of response to this error
     # PIL reports: (22, 22), 'RGBA'
+testexpr_11nc = imagetest("stopsign.png", convert = True) # [061128, does convert = True help? partly...]
+    # this lets us read it and display it, but we get "IOError: cannot write mode RGBX as PNG"
+    # when we try to write it out to update it.
+    # (But why does it try to write it into a PNG file, not some other format of its choice? ###k Specify or hardcode an update format?)
+    # What's better is to just use RGBA in the texture, if we can... I need to look at the texture making code re this. ###e
+testexpr_11ncx2 = imagetest("stopsign.png", convert = True, _tmpmode = 'TIFF') # works, see 11pc-variant comments for details
+testexpr_11ncy2 = imagetest("stopsign.png", convert = 'RGBA', _tmpmode = 'TIFF') # ditto
+
 testexpr_11o = imagetest("RotateCursor.bmp") # fails, unknown raw mode ###BUG
     # PIL reports: (32, 32), '1'
     # "1-bit bilevel, stored with the leftmost pixel in the most significant bit. 0 means black, 1 means white."
+testexpr_11oc = imagetest("RotateCursor.bmp", convert = True) # works but with exception, like _11nc
+testexpr_11ocx = imagetest("RotateCursor.bmp", convert = True, _tmpmode = 'JPEG') # see if this fixes exception -- well, not quite:
+    ## debug warning: oldmode != newmode ('RGBX' != 'CMYK') in
+    ## <nEImageOps at 0xf029d28 for '/Nanorex/Working/cad/images/RotateCursor.bmp'>.update
+    ##fyi: following exception relates to <JpegImagePlugin.JpegImageFile instance at 0xf029cb0> with mode 'CMYK'
+    ##exception in <Lval at 0xf037e18>._compute_method NO LONGER ignored: exceptions.SystemError: unknown raw mode
+testexpr_11ocx2 = imagetest("RotateCursor.bmp", convert = True, _tmpmode = 'TIFF') # works!
+testexpr_11ocy = imagetest("RotateCursor.bmp", convert = 'RGBA') # IOError: cannot write mode RGBA as BMP
+testexpr_11ocy2 = imagetest("RotateCursor.bmp", convert = 'RGBA', _tmpmode = 'TIFF') # works, looks same as ocx2
+
 testexpr_11p = imagetest("win_collapse_icon.png") # fails, unknown raw mode ###BUG
     # PIL reports: (16, 8), 'RGBA'
+testexpr_11pc = imagetest("win_collapse_icon.png", convert = True) # works but with exception, like _11nc
+testexpr_11pcx = imagetest("win_collapse_icon.png", convert = True, _tmpmode = 'JPEG') # see if this fixes exception -- no, like ocx
+testexpr_11pcx2 = imagetest("win_collapse_icon.png", convert = True, _tmpmode = 'TIFF') # works, looks better than some others
+testexpr_11pcy = imagetest("win_collapse_icon.png", convert = 'RGBA') # partly works, no exception, but alpha not yet "active" --
+    # it's probably not processed properly by neImageOps paste (see comments there), and also not drawn properly.
+testexpr_11pcy2 = imagetest("win_collapse_icon.png", convert = 'RGBA', _tmpmode = 'TIFF') # works, looks worse than pcx2, improper alpha
 
     ###e conclusion: we need to improve image loading / texture making code, so icon/cursor images can work [cmt says how - im.convert]
     # note: mac shell command 'file' reveals image file format details, e.g.
@@ -403,6 +435,11 @@ testexpr_11p = imagetest("win_collapse_icon.png") # fails, unknown raw mode ###B
     ## blueflake.jpg:     JPEG image data, JFIF standard 1.01, aspect ratio, 1 x 1 # actually (268, 282), 'RGB' [acc'd to PIL]
     ## courier-128.png:   PNG image data, 128 x 128, 8-bit/color RGB, non-interlaced # actually (128, 128), 'RGB'
     ## redblue-34x66.jpg: JPEG image data, JFIF standard 1.01, resolution (DPCM), 0 x 0 # actually (34, 66), 'RGB'
+
+    # more conclusions, 061128: Image defaults should be convert = True, _tmpmode = 'TIFF' for now, until Alpha handled properly.
+    # eventually the options should depend on the image type so as not to waste texture ram when used for cursors.
+    #e still need to test more images below with those options. plus the ones that work without them.
+    #e should retest _tmpmode = JPEG since I altered code for that.
 
 
 
@@ -419,13 +456,38 @@ testexpr_11q5 = imagetest("/Nanorex/DNA/paul notebook pages/stages1-4.jpg") # fa
     # accd to http://www.pythonware.com/library/pil/handbook/decoder.htm
     # so converting it is likely to work, but generalizing the retval of getTextureData would be more efficient,
     # but it's too large anyway so we need to support getting subrect textures from it. #e
+
+imagetest_x2 = imagetest(convert = True, _tmpmode = 'TIFF')
+imagetest_y2 = imagetest(convert = 'RGBA', _tmpmode = 'TIFF')
+
+testexpr_11q5cx2_g4 = imagetest_x2("/Nanorex/DNA/paul notebook pages/stages1-4.jpg") # shows the "last resort" file.
+##    ## for the record, at first I didn't guess why it showed courier font file, so I thought the following:
+##        ##print "testexpr_11q5cx2 _e_args are",testexpr_11q5cx2._e_args # args correct...
+##        ## guess: too big to resize or load or paste(?), error not reported,
+##        ## but new texture did not get bound properly.
+##        ## could confirm theory by putting it in a column, predict we'd show prior one in its place. ##e
+##        ## WAIT, WRONG, it's just the lastresort file, since this one is only found under that name on g4!!!
+    # That lastresort file needs to look different and/or print error message when found! Ok, now it prints error msg at least.
+    
+testexpr_11q5cx2_g5 = imagetest_x2("/Nanorex/DNA/pwkr-user-story/notebook page images/stages1-4.jpg") # works, but poor resolution
+testexpr_11q5cx2_g5_bigbad = imagetest_x2("/Nanorex/DNA/pwkr-user-story/notebook page images/stages1-4.jpg",
+                                          ideal_width = 1275,
+                                          ideal_height = 1647) # try huge texture, non2pow size -- actually works! [bruce's g5]
+
+    #e also try bigger ideal sizes for that one, or try loading a subregion of the image.
+    # but for now, if we need it, just grab smaller images out of it using an external program.
+    
+    
 testexpr_11q6 = imagetest("/Users/bruce/untitled.jpg") # glpane screenshot saved by NE1, jpg # works (note clamping artifact -- it's ok)
 testexpr_11q7 = imagetest("/Users/bruce/untitled.png") # glpane screenshot saved by NE1, png # works
     # note: those are saved by a specific filetype option in "File -> Save As..."
 testexpr_11q8 = imagetest("/Users/bruce/PythonModules/data/idlewin.tiff") # try tiff -- works
 testexpr_11q9 = imagetest("/Users/bruce/PythonModules/data/glass.bmp") # bmp from NeHe tutorials -- works
-testexpr_11q10 = imagetest("/Users/bruce/PythonModules/data/kp3.png") # png from KidPix -- fails, unknown raw mode ###BUG
+testexpr_11q10 = imagetest("/Users/bruce/PythonModules/data/kp3.png") # png from KidPix [also on g5] -- fails, unknown raw mode ###BUG
     # fyi, PIL reports (512, 512), 'RGBA'; converting it is likely to work; generalizing to use 'A' in texture would be better. #e
+
+testexpr_11q10x2 = imagetest_x2("/Users/bruce/PythonModules/data/kp3.png") # works
+
 testexpr_11q11 = imagetest("/Users/bruce/PythonModules/data/textil03.jpg") # a tiling texture from the web -- works
 testexpr_11q11a = imagetest("/Users/bruce/PythonModules/data/textil03.jpg", clamp=False) # try that with tiling effect -- works!
 testexpr_11q12 = imagetest("/Users/bruce/PythonModules/data/dock+term-text.png") # a screenshot containing dock icons -- works
@@ -513,10 +575,11 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 # === set the testexpr to use right now   @@@
 
 
-testexpr = testexpr_11m ## testexpr_13z4 ## testexpr_11r1b
+testexpr = testexpr_11r1b ## testexpr_13z4 ## testexpr_11r1b
 
 
-    # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4]
+    # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
+    # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size]
 
     # latest stable tests: _11k, _10c
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc

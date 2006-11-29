@@ -26,7 +26,7 @@ To avoid even more confusion, I'll name this module images.py rather than Image.
 (but note, there exists an unrelated directory cad/images).
 """
 
-from basic import * # including ExprsMeta
+from basic import * # including ExprsMeta, platform
 from basic import _self
 
 from draw_utils import ORIGIN2, D2X, D2Y, ORIGIN, DX, DY, draw_textured_rect
@@ -57,7 +57,8 @@ class _texture_holder(object):
             items = self.pil_kws.items()
             items.sort()
             assert tuple(items) == self.pil_kws_items
-        # pil_kws added 061127, doc in nEImageOps; currently can be ideal_width = None, ideal_height = None, rescale = True
+        # pil_kws added 061127, doc in nEImageOps;
+        #   current defaults are ideal_width = None, ideal_height = None, rescale = True, convert = False
         # everything else can be computed on-demand (image object, texture name, texture, etc)
         #e no provision yet for file contents changing; when there is, update policy or uniqid might need to be part of tex_key
         #e more options? maybe, but by default, get those from queries, store an optimal set of shared versions [nim]
@@ -158,12 +159,17 @@ def canon_image_filename( filename):
     tries = map( lambda dir: os.path.join(dir, filename), path)
     lastresort = testdraw.courierfile
         #e replace with some error-indicator image, or make one with the missing filename as text (on demand, or too slow)
-    tries.append(lastresort)
+    ## tries.append(lastresort)
+    tries.append(-1)
     for filename in tries:
+        if filename == -1:
+            filename = lastresort
+            if 'too important to not tell all users for now' or platform.atom_debug:
+                print "bug: image file not found, using last-resort image file", lastresort ###
         filename = os.path.abspath(os.path.normpath(filename)) # faster to do this on demand
         if os.path.isfile(filename):
             return filename
-    assert 0, "lastresort file %r should always be present" % os.path.abspath(os.path.normpath(tries[-1]))
+    assert 0, "lastresort file %r should always be present" % os.path.abspath(os.path.normpath(lastresort))
     pass # end of canon_image_filename
 
 class Image(Widget2D):
@@ -193,6 +199,10 @@ class Image(Widget2D):
     rescale = Option(bool, True) # whether to resize by rescaling or padding (default might be changed after testing #e)
     ideal_width = Option(int, 256) ###e let them be a func of image size, as a pair? (eg so they can be next greater 2pow?) someday.
     ideal_height = Option(int, 256)
+    convert = Option(bool, False) #061128, whether to convert image to DESIRED_MODE RGBX. [Someday may let you specify another mode --
+        # that already works but is untested -- and in that case may also affect getTextureData retval mode -- DOES NOW, try it #e]
+    _tmpmode = Option(str, None) #k None is not str, is that ok? #doc [might be temp kluge]
+    
     #e these are not fully implem -- at best, when rescale = False, you'll see black padding when drawing;
     # what we need to do is pass a reduced tex coord so you don't. I hope the image (not padding) will be at the lower left corner
     # of what's drawn. [as of 061127 1022p] ####@@@@
@@ -204,8 +214,10 @@ class Image(Widget2D):
     
     ## _image = PIL_Image(use_filename) ###e should share with other instances of same filename
     def _C__texture_holder(self):
-        # pil_kws added 061127, doc in nEImageOps; currently can be ideal_width = None, ideal_height = None, rescale = True, in tex_key
-        pil_kws = dict(rescale = self.rescale, ideal_width = self.ideal_width, ideal_height = self.ideal_height)
+        # pil_kws added 061127, doc in nEImageOps;
+        #   current defaults are ideal_width = None, ideal_height = None, rescale = True, convert = False
+        pil_kws = dict(rescale = self.rescale, ideal_width = self.ideal_width, ideal_height = self.ideal_height,
+                       convert = self.convert, _tmpmode = self._tmpmode)
         items = pil_kws.items()
         items.sort()
         pil_kws_items = tuple(items) # make that dict hashable
