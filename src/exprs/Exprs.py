@@ -563,10 +563,10 @@ def not_Expr(arg): # maybe this is an operator so we can just make an OpExpr in 
     return call_Expr(lambda val: not val, arg)
 
 def eq_Expr(arg1, arg2):
-    call_Expr(lambda a1,a2: a1 == a2, arg1, arg2)
+    return call_Expr(lambda a1,a2: a1 == a2, arg1, arg2)
 
 def ne_Expr(arg1, arg2):
-    call_Expr(lambda a1,a2: a1 != a2, arg1, arg2)
+    return call_Expr(lambda a1,a2: a1 != a2, arg1, arg2)
 
 class and_Expr(OpExpr): #061128
     "Evaluate only enough args (out of 2 or more) to return the last one if they're all true, otherwise the first false one."

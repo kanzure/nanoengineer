@@ -73,7 +73,8 @@ def If(cond, _then, _else = None):
         print "using then immediately"### leave these in awhile, since they're rare and might indicate a bug
         return _then ##k whether or not it's an expr?? (I think so... this is then a primitive form of expr-simplification, I guess)
     else:
-        print "using else immediately"###
+        print "using else immediately; it's", _else ### print_compact_stack()? yes for temporarily###
+        print_compact_stack("using else immediately: ")
         return _else
     pass
 

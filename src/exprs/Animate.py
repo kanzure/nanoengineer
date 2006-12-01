@@ -26,7 +26,7 @@ redraws measure time since start, decide what to draw (based on time), whether t
 
 other Actions:
 
-- Set(lval, newval)
+- Set(lval, newval) [see controls.py for a prototype, 061130, which takes a stateref rather than an lval as arg1 -- might be wrong]
 
 - Action(callable) # or just a bare callable?
 

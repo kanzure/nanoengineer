@@ -105,6 +105,10 @@ import images
 reload_once(images)
 from images import Image, PixelGrabber
 
+import controls
+reload_once(controls)
+from controls import make_testexpr_for_ChoiceButton
+
 # == @@@
 
 import widget_env
@@ -592,6 +596,10 @@ testexpr_14x = SimpleColumn(*[Rect(2 * i * PIXELS, 10 * PIXELS) for i in range(1
 testexpr_14x2 = SimpleRow(*[Rect(2 * i * PIXELS, 10 * PIXELS) for i in range(13)]) # works -- TextRect("too many rows")
 
 
+# 15
+testexpr_15 = make_testexpr_for_ChoiceButton()
+
+
 # == @@@
 
 #e what next?   [where i am, or should be; updated 061126 late]
@@ -618,7 +626,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 # === set the testexpr to use right now   @@@
 
 
-testexpr = testexpr_10c  ## testexpr_13z4 ## testexpr_11r1b
+testexpr = testexpr_15  ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
 
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],

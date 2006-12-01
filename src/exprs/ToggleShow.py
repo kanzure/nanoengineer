@@ -37,7 +37,7 @@ from Overlay import Overlay
 
 Automatic = StateRef = Stub
 
-## Set - not yet needed
+## Set - not yet needed [see controls.py for a prototype, 061130, which takes a stateref rather than an lval as arg1 -- might be wrong]
 State # defined in Exprs.py but nim -- that's where i am 061117 445p, plus here where i use it
 
 # ==
