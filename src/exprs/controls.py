@@ -228,6 +228,12 @@ revert back to thinking about the prior value of selobj???
 mitigation: make these things hover-highlight, then you'll probably
 see if you're going too fast; it might help me debug it too.
 
+
+3. TextRect uses drawfont2 which uses cad/src/testdraw.py: 766: def draw_textured_rect
+Image says "from draw_utils import draw_textured_rect" which gets it from itself, nice simple def.
+So is the one in testdraw.py buggy? No, it looks identical! They need "dup code" comments:
+WARNING: this function is defined identically in both cad/src/testdraw.py and cad/src/exprs/draw_utils.py.
+
 """
 
 # end
