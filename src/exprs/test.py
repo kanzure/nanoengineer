@@ -103,7 +103,7 @@ from ToggleShow import ToggleShow
 
 import images
 reload_once(images)
-from images import Image, PixelGrabber
+from images import Image, IconImage, PixelGrabber
 
 import controls
 reload_once(controls)
@@ -578,7 +578,8 @@ if 0:
 
 # how do you take 4 groups of 6 of those? we need a utility function, or use Numeric reshape, but for now do this:
 res = []
-IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode = 'TIFF') # size 22 MIGHT FAIL on some OpenGL drivers
+## moved into images.py:
+## IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode = 'TIFF') # size 22 MIGHT FAIL on some OpenGL drivers
 nevermind = lambda func: identity
 for i in range(5): # 4 is enough unless you set 'if 1' above
     res.append([])
@@ -631,7 +632,7 @@ testexpr_15e = ChoiceColumn(6,2, content = Translate(Image("blueflake.jpg",size=
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_11s2## testexpr_15e  ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
+testexpr = testexpr_15e## testexpr_15e  ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
     # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size] testexpr_14 [hide_icons]

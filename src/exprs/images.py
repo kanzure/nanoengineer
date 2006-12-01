@@ -3,6 +3,8 @@ images.py - provide some image-displaying utilities and primitives
 
 $Id$
 
+semi-obs:
+
 Image(filename) # a tile, exact same size as image in file (which loads into a texture, rounded up to twopow sizes)
 
 can be used as a texture, or drawn using pixel ops
@@ -177,24 +179,45 @@ def canon_image_filename( filename):
     pass # end of canon_image_filename
 
 class Image(Widget2D):
-    """#doc;
-    draw an image with a fixed size (about 30 pixels square in home view). [#e see code comment for how to fix that]
-    texture resolution is set by options ideal_width & ideal_height
-      [#e should be a single option, resolution or tex_size, number or pair, or smth to pick size based on image native size]
-      [#e should let you specify an image subrect too, or more generally an expr to compute the image -- or this can be part of one...
-       note we do have tex_origin]
-    WARNING: image is not visible from the back face, in current implem; maybe we want an option to change that
+    """Image(filename, size = Rect(2)) draws a rectangular textured image based on the given image file,
+    using the same size and position in model space as the lbox of an instance of self.size
+    (a Widget2D, usually a Rect, Rect(2) by default, i.e. about 30 pixels square in home view).
+       It uses an OpenGL texture size (resolution) given by options ideal_width and ideal_height
+    [#e which need renaming, making into one option, and other improvements; see code comments for details].
+       [It doesn't yet work in POV-Ray but it ought to someday. #e]
+       The other options are not fully documented here, and need improvements in design and sometimes in implem,
+    but are summarized here:
+       Options that affect how the file gets loaded into a PIL Image include rescale, convert, _tmpmode [#doc these],
+    as well as the texture size options mentioned.
+    (The PIL Image object is available as self._image even if our OpenGL texture is not used. [#doc more details?])
+       Options that affect how the texture gets made from the loaded image include... none yet, I think. Someday
+    we'll want make_mipmaps (with filtering options for its use) and probably others. [###k need to verify none are used for this]
+       WARNING: variations in the above options (between instances, or over time [if that's implemented -- untested,
+    unsure ##k]) cause both a new OpenGL texture to be created, and (even if it would not be necessarily in a smarter
+    implem [i think] -- but the lack of image->texture options makes this academic for now) a new PIL Image to be created
+    from the image file on disk.
+       Options that affect how the texture is drawn (in any instance, at any moment) include:
+    clamp, pixmap [#e misnamed], use_mipmaps, decal [#e False is nim], tex_origin, nreps [#doc these].
+    [#e More options of this kind are needed.]
+    All the texture-drawing options can be varied, either in different instances or over time in one instance
+    (by passing them as formulae), without causing a new texture or PIL Image to be loaded as they vary. 
+       WARNING: the image is not visible from the back, which is only ok for some uses, such as 2D widgets
+    or solid-object faces or decals. We should add an option to make it visible from both sides (easy) #e.
     """
-    ##e proposed options to change size, for anything with arb size:
-    #     size = anything (eg Rect), use anything's lbox to get ours.
-    # (misnamed since also controls position -- maybe give it another name like where, place, footprint, lbox, box? none of those good enough)
+    ##e about options ideal_width and ideal_height:
+    #e should be a single option, resolution or tex_size, number or pair, or smth to pick size based on image native size
+    #e should let you specify an image subrect too, or more generally an expr to compute the image -- or this can be part of one...
+    # note we do have tex_origin and nreps
+    #
+    #e size option is misnamed since it also controls position -- maybe give it another name
+    # like where, place, footprint, lbox, box? none of those good enough.
+    # Also we need a way to change the size but preserve the natural aspect ratio.
+    # One way: let size and tex_size both be passed easily as formulas of native image size.
+    # The main new thing that requires is an abbreviation for _this(Image), e.g. _my. ###e decide on this NFR
 
     # args
     filename = Arg(str)
     use_filename = call_Expr( canon_image_filename, filename)
-    ###e the following argnames get warned about -- not sure if that means they're bad, but avoid issue for now since they're nim
-##    width = Arg(Width, 0) # is this in image pixels or screen pixels? hmm... are those in 1-1 corr at cov? ###k
-##    height = Arg(Width, 0)
     # named options -- clamp = False, use_mipmaps = True, decal = True, pixmap = False [redundant with defaults in bind_texture]
     clamp = Option(bool, False) # clamp or (default) repeat
     pixmap = Option(bool, False) #e misnamed -- whether to use GL_NEAREST filtering
@@ -226,14 +249,13 @@ class Image(Widget2D):
     
     #e these are not fully implem -- at best, when rescale = False, you'll see black padding when drawing;
     # what we need to do is pass a reduced tex coord so you don't. I hope the image (not padding) will be at the lower left corner
-    # of what's drawn. [as of 061127 1022p] ####@@@@
+    # of what's drawn. [as of 061127 1022p] [it's not -- this is commented on elsewhere and explained, probably in ImageUtils.py]
     
     # formulae
     # THIS SHOULD WORK (I think), but doesn't, don't know why ####BUG: [is my syntax wrong for passing the kws to call_Expr???]
     ## texture_options = call_Expr( dict, clamp = clamp, pixmap = pixmap, use_mipmaps = use_mipmaps, decal = decal )
     ## __get__ is nim in the Expr <type 'dict'>(*(), **{'clamp': <call_Expr#5175: .....
     
-    ## _image = PIL_Image(use_filename) ###e should share with other instances of same filename
     def _C__texture_holder(self):
         # pil_kws added 061127, doc in nEImageOps;
         #   current defaults are ideal_width = None, ideal_height = None, rescale = True, convert = False
@@ -245,13 +267,6 @@ class Image(Widget2D):
         tex_key = (self.use_filename, pil_kws_items) # must be compatible with the single arg to _texture_holder.__init__
         return texture_holder_for_filename[tex_key] # this shared global MemoDict is defined above
     _image = _self._texture_holder._image
-##    _width = _image.width
-##    _height = _image.height
-
-    # legit but args not yet defined
-##    use_width = width or _image.width
-##    use_height = height or _image.height ###e should do this differently -- try to preserve aspect ratio
-    ##e these are not yet used
 
     def bind_texture(self, **kws):
         "bind our texture (and set other GL params needed to draw with it)"
@@ -275,28 +290,14 @@ class Image(Widget2D):
         tex_dx = D2X * nreps
         tex_dy = D2Y * nreps
         
-        # where to draw it -- act like a 2D Rect for now
-        if 1:
-            origin = V(-self.bleft, -self.bbottom, 0)
-            dx = DX * self.bright
-            dy = DY * self.btop
-            # print "wrong dims:",origin, dx, dy # why are these wrong? oops, forgot to zap the lower-down older defs of bright & btop.
-        if 0:###
-            origin = V(-self.size.bleft, -self.size.bbottom, 0)
-            dx = DX * self.size.bright
-            dy = DY * self.size.btop
-            # print "right dims:",origin, dx, dy
-        if 0:
-            # this code is copied from testdraw's drawtest1, not reanalyzed;
-            # draws all images with a fixed size 2x2 in model units,
-            # roughly 30 pixels square in home view i think
-            origin = ORIGIN
-            dx = DX * 2
-            dy = DY * 2
+        # where to draw it -- act like a 2D Rect for now, determined by self's lbox,
+        # which presently comes from self.size
+        origin = V(-self.bleft, -self.bbottom, 0)
+        dx = DX * self.bright
+        dy = DY * self.btop
         draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy)
         return
 
-    ##e need lbox attrs
     # note the suboptimal error message from this mistake:
     #   bright = DX * 2
     #   ## TypeError: only rank-0 arrays can be converted to Python scalars. ...
@@ -305,9 +306,18 @@ class Image(Widget2D):
     # which would catch this error whenever self.bright was computed,
     # or even better, when it's a constant for the class (as in this case),
     # right when that constant formula is defined.
-##    bright = 1 * 2 # corresponds to DX * 2 above
-##    btop = 1 * 2
+    
     pass # end of class Image
+
+IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode = 'TIFF') #e needs a __doc__ option too! #IMPLEM
+"be the best way to use Image for an NE1 icon" # (the informal docstring)
+    # WARNING: size 22 MIGHT FAIL on some OpenGL drivers (which require texture dims to be powers of 2);
+    # when that happens (or in any case, before a serious release), we'll need to ask OpenGL if it has that limitation
+    # and implement this differently if it does.
+    #
+    # Intent of IconImage is just "be the best way to use Image for an NE1 icon",
+    # so it might change in transparency behavior once we work that out inside Image,
+    # and we'll hopefully not keep needing that _tmpmode kluge, etc.
 
 # ===
 
