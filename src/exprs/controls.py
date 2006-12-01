@@ -165,22 +165,25 @@ class _Apply_helper(InstanceOrExpr, DelegatingMixin):
     def _i_grabarg_0( self, attr, argpos, dflt_expr):
         external_flag, res0 = super(_Apply_helper, self)._i_grabarg_0( attr, argpos, dflt_expr)
         if argpos == 0:
-            print "using False for extflag in %r from _i_grabarg_0%r" % ( (external_flag, res0), (self, attr, argpos, dflt_expr) ) ###
+            ## print "using False for extflag in %r from _i_grabarg_0%r" % ( (external_flag, res0), (self, attr, argpos, dflt_expr) ) 
             external_flag = False # special case for arg[0]: treat _self as internal, so it refers to our instance, not caller's
         return external_flag, res0
     pass
 
 # test status 061130: works, except that a click is only noticed (or a mouseover sbar msg given) for the one that's currently chosen,
 # so you can't change the current choice. hmm.
-_DFLT = 3
-def make_testexpr_for_ChoiceButton(): #e call me from test.py to make a [#e list of named?] testexprs for this
+
+## def make_testexpr_for_ChoiceButton(): #e call me from test.py to make a [#e list of named?] testexprs for this
+def ChoiceColumn( nchoices, dflt = 0, **kws):
+    "#doc"
     #e nim: Column -- esp on list like this -- Column( map(...)) -- so use SimpleColumn
     return Apply(
-        lambda stateref_expr: SimpleRow( # stateref_expr will be a Symbol when this lambda is run, to produce an expr, once only
-             SimpleColumn( * map( ChoiceButton(choiceref = stateref_expr), range(5) ) ), # choose
-             TextRect( format_Expr( "choice is %%r (default %s)" % _DFLT, stateref_expr.value ), 1, 30) # show choice
-        ),
-        LocalVariable_StateRef(int, _DFLT)
+        lambda stateref_expr, nchoices = nchoices, dflt = dflt, kws = kws:
+            SimpleRow( # stateref_expr will be a Symbol when this lambda is run, to produce an expr, once only
+                SimpleColumn( * map( ChoiceButton(choiceref = stateref_expr, **kws), range(nchoices) ) ), # choose
+                TextRect( format_Expr( "choice is %%r (default %s)" % dflt, stateref_expr.value ), 1, 30) # show choice
+            ),
+        LocalVariable_StateRef(int, dflt)
             # LocalState, combining this an the Apply?
                 # or, just a stateref to some fixed state somewhere... whose instance has .value I can get or set? use that for now.
     )

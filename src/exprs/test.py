@@ -107,7 +107,7 @@ from images import Image, PixelGrabber
 
 import controls
 reload_once(controls)
-from controls import make_testexpr_for_ChoiceButton
+from controls import ChoiceColumn ## ( nchoices, dflt = 0, **kws) ## make_testexpr_for_ChoiceButton
 
 # == @@@
 
@@ -597,8 +597,18 @@ testexpr_14x2 = SimpleRow(*[Rect(2 * i * PIXELS, 10 * PIXELS) for i in range(13)
 
 
 # 15
-testexpr_15 = make_testexpr_for_ChoiceButton()
-
+testexpr_15 = ChoiceColumn(6,2) # doesn't work - click on choice only works if it's the one that's already set (also color is wrong)
+    ## ( nchoices, dflt = 0, **kws), kws can be content, background, background_off ## make_testexpr_for_ChoiceButton()
+testexpr_15a = ChoiceColumn(6,2, background = Rect(3,1,green), background_off = Rect(2,1,gray))
+    # almost works -- you can click on any choice, but only for click over area of gray rect,
+    # including the part behind the text, but not for click over other part of text
+    # (and maybe this is the text click bug i recalled before, didn't resee in toggleshow, but there the text is over the grayrect??)
+    # possible clue: for mouseover sbar msg, there is hysteresis, you see it in text not over rect iff you were seeing it before
+    # (from being over rect), not if you come directly from blank area. #k is same true of whether click works? yes!
+    # another clue: if you move mouse too fast from blank to rect to text not over rect, you don't get sbar msg.
+    # you have to hover over the good place and wait for redraw and see it, only then move out over the "suspended" part
+    # (text not over rect, hanging instead over infinite depth empty space).
+    
 
 # == @@@
 
@@ -626,7 +636,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 # === set the testexpr to use right now   @@@
 
 
-testexpr = testexpr_15  ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
+testexpr = testexpr_15a  ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
 
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
