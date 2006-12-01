@@ -511,9 +511,9 @@ testexpr_11r2 = Image("redblue-34x66.jpg", rescale = False) # works, except the 
     ###BUG that some of that is nim ##e
 testexpr_11r2b = Image("redblue-34x66.jpg") # works (rescaled to wider aspect ratio, like before)
 
-testexpr_11s = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)) # try the new size option -- works [now broken]
-testexpr_11s1 = Highlightable(Image("blueflake.jpg",size=Rect(7,0.4))) # make sure this fixes mouseover stickiness and sbar text -- works [now broken]
-testexpr_11s2 = Boxed(Image("blueflake.jpg",size=Rect(7,0.4))) # test its lbox -- won't work? coded a fix, but that broke the use of size entirely!!
+testexpr_11s = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)) # try the new size option [061130] -- works [broken] [works again]
+testexpr_11s1 = Highlightable(Image("blueflake.jpg",size=Rect(7,0.4))) # make sure this fixes mouseover stickiness and sbar text -- works [broken] [works again]
+testexpr_11s2 = Boxed(Image("blueflake.jpg",size=Rect(7,0.4))) # test its lbox -- won't work? coded a fix, but that broke the use of size entirely!! [fixed, works]
 
 #e see also testexpr_13z2 etc
 
@@ -602,7 +602,10 @@ testexpr_14x = SimpleColumn(*[Rect(2 * i * PIXELS, 10 * PIXELS) for i in range(1
 testexpr_14x2 = SimpleRow(*[Rect(2 * i * PIXELS, 10 * PIXELS) for i in range(13)]) # works -- TextRect("too many rows")
 
 
-# 15
+# ChoiceButton (via ChoiceColumn, a convenience function to call it, which ought to be redesigned and made an official expr too #e)
+#   summary, 061130 1015p: mostly works, except for bugs which are not its fault, namely TextRect hit test,
+#   speed/sync of selobj update (guess at cause of sometimes picking wrong one after fast motion),
+#   selobj-changeover effects (guess at cause of sbar_text not working after a click and no motion off the object)
 testexpr_15 = ChoiceColumn(6,2) # doesn't work - click on choice only works if it's the one that's already set (also color is wrong)
     ## ( nchoices, dflt = 0, **kws), kws can be content, background, background_off ## make_testexpr_for_ChoiceButton()
 testexpr_15a = ChoiceColumn(6,2, background = Rect(3,1,green), background_off = Rect(2,1,gray))
@@ -626,13 +629,13 @@ testexpr_15b = ChoiceColumn(6,2, background = Rect(3,1,green), background_off = 
 
 niceargs = dict(background = Rect(3,1,green), background_off = IconImage("espwindow-hide.png"))
 testexpr_15c = ChoiceColumn(6,2, content = TextRect("zz",1,30), **niceargs) # bug more likely at far right end of text, but not consistent
-testexpr_15d = ChoiceColumn(6,2, content = Rect(7,0.3,white), **niceargs) # compare Rect here -- works, reliable except right after click
-testexpr_15e = ChoiceColumn(6,2, content = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)), **niceargs) # compare Image --
+testexpr_15d = ChoiceColumn(6,2, content = Rect(7,0.3,white), **niceargs) # compare Rect here -- works, reliable except right after click [which is a ###BUG]
+testexpr_15e = ChoiceColumn(6,2, content = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)), **niceargs) # compare Image -- works
 
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_15e## testexpr_15e  ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
+testexpr = testexpr_15d  ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
     # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size] testexpr_14 [hide_icons]
