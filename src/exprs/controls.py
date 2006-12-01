@@ -91,6 +91,8 @@ class ChoiceButton(InstanceMacro):
         # and I guess it's no error, just weird, for two of these (eg in a column) to share the same choiceval;
         # in fact, if they're physically separated it's not even weird.
 
+    sbar_text = Option(str, format_Expr("%s", _self.choiceval)) # mouseover text for statusbar
+
     choiceref = ArgOrOption(StateRef) ###k need value-type??
 
     content = ArgOrOption(stubtype, TextRect(format_Expr("%s", _self.choiceval)) ) # Widget2D or something "displayable" in one (eg text or color); defaults to displayed choiceval;
@@ -119,7 +121,8 @@ class ChoiceButton(InstanceMacro):
                                          If(chosen, background, background_off),
                                          content ),
                                      ),
-                            on_press = Set(choiceref, choiceval)
+                            on_press = Set(choiceref, choiceval),
+                            sbar_text = sbar_text
                            )
     pass # end of class ChoiceButton
 
@@ -174,7 +177,7 @@ class _Apply_helper(InstanceOrExpr, DelegatingMixin):
 # so you can't change the current choice. hmm.
 
 ## def make_testexpr_for_ChoiceButton(): #e call me from test.py to make a [#e list of named?] testexprs for this
-def ChoiceColumn( nchoices, dflt = 0, **kws):
+def ChoiceColumn( nchoices, dflt = 0, **kws): ##e should be an InstanceMacro, not a def! doesn't work to be customized this way.
     "#doc"
     #e nim: Column -- esp on list like this -- Column( map(...)) -- so use SimpleColumn
     return Apply(

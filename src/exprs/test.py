@@ -306,11 +306,11 @@ testexpr_9b = Button(
                         # but it was only caused by this saying 1.6, 1.1 rather than 1.5, 1!
                     Rect(1.5, 1, orange),
                       ## Overlay( Rect(1.5, 1, lightgreen) and None, (IsocelesTriangle(1.6, 1.1, orange))),
-                        ####@@@@ where do I say this? sbar_text = "button, unpressed"
+                        ###@@@ where do I say this? sbar_text = "button, unpressed"
                         ##e maybe I include it with the rect itself? (as an extra drawn thing, as if drawn in a global place?)
                     IsocelesTriangle(1.5, 1, green),
                     IsocelesTriangle(1.5, 1, yellow),#e lightgreen better than yellow, once debugging sees the difference
-                        ####@@@@ sbar_text = "button, pressed", 
+                        ###@@@ sbar_text = "button, pressed", 
                     # actions (other ones we don't have include baremotion_in, baremotion_out (rare I hope) and drag)
                     on_press = print_Expr('pressed'),
                     on_release_in = print_Expr('release in'), # had a bug (did release_out instead), fixed by 'KLUGE 061116'
@@ -510,6 +510,11 @@ testexpr_11r2 = Image("redblue-34x66.jpg", rescale = False) # works, except the 
     # and the black padding itself is destined to be undrawn
     ###BUG that some of that is nim ##e
 testexpr_11r2b = Image("redblue-34x66.jpg") # works (rescaled to wider aspect ratio, like before)
+
+testexpr_11s = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)) # try the new size option -- works [now broken]
+testexpr_11s1 = Highlightable(Image("blueflake.jpg",size=Rect(7,0.4))) # make sure this fixes mouseover stickiness and sbar text -- works [now broken]
+testexpr_11s2 = Boxed(Image("blueflake.jpg",size=Rect(7,0.4))) # test its lbox -- won't work? coded a fix, but that broke the use of size entirely!!
+
 #e see also testexpr_13z2 etc
 
     ##e want to try: gif; pdf; afm image, paul notebook page (converted);
@@ -573,7 +578,7 @@ if 0:
 
 # how do you take 4 groups of 6 of those? we need a utility function, or use Numeric reshape, but for now do this:
 res = []
-myimage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode = 'TIFF') # size 22 MIGHT FAIL on some OpenGL drivers
+IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode = 'TIFF') # size 22 MIGHT FAIL on some OpenGL drivers
 nevermind = lambda func: identity
 for i in range(5): # 4 is enough unless you set 'if 1' above
     res.append([])
@@ -581,7 +586,7 @@ for i in range(5): # 4 is enough unless you set 'if 1' above
         res[i].append(None) # otherwise, IndexError: list assignment index out of range
         try:
             res[i][j] = hide_icons[i * 6 + j]
-            res[i][j] = myimage(res[i][j])
+            res[i][j] = IconImage(res[i][j])
             if not ((i + j ) % 3): # with 3 -> 2 they line up vertically, but that's only a coincidence -- this is not a real Table. 
                 pass ## res[i][j] = Boxed(res[i][j])
         except IndexError:
@@ -611,35 +616,22 @@ testexpr_15a = ChoiceColumn(6,2, background = Rect(3,1,green), background_off = 
 
     # see also bug comments in controls.py.
     
+testexpr_15b = ChoiceColumn(6,2, background = Rect(3,1,green), background_off = IconImage("espwindow-hide.png"))
 
-# == @@@
+##e ChoiceColumn should be an InstanceMacro, not a def! doesn't work to be customized this way.
+## testexpr_15cx = testexpr_15b(background = Rect(3,1,red)) -- ###BUG? missing errmsg? somehow it silently doesn't work.
+##niceargs = ChoiceColumn(background = Rect(3,1,green), background_off = IconImage("espwindow-hide.png")) # error, not enough args
+##testexpr_15cy = niceargs(6,2)
 
-#e what next?   [where i am, or should be; updated 061126 late]
-# - some boolean controls?
-#   eg ChoiceButton in controls.py -- requires StateRef (does a property count as one?), maybe LocalState to use nicely
-# - framework to let me start setting up the dna ui?
-#   - just do a test framework first (simpler, needed soon); described in PixelGrabber
-# - working MT in glpane? yes, MT_demo.py; seems to require revamp of instantiation (separate it from IorE-expr eval)
-
-
-# == nim tests
-
-# TestIterator (test an iterator - was next up, 061113/14, but got deferred, 061115)
-testexpr_7_xxx = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
-testexpr_7a_xxx = TestIterator( Boxed(testexpr_6f) )
-    ### BUG: shows (by same ipaths) that TestIterator is indeed wrongly sharing an instance
-    # [first test that succeeds in showing this rather than crashing is 061115 -- required fixing bugs in Boxed and what it uses]
-    # note: each testexpr_6f prints an ipath
-
-# Column, fancy version
-testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+niceargs = dict(background = Rect(3,1,green), background_off = IconImage("espwindow-hide.png"))
+testexpr_15c = ChoiceColumn(6,2, content = TextRect("zz",1,30), **niceargs) # bug more likely at far right end of text, but not consistent
+testexpr_15d = ChoiceColumn(6,2, content = Rect(7,0.3,white), **niceargs) # compare Rect here -- works, reliable except right after click
+testexpr_15e = ChoiceColumn(6,2, content = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)), **niceargs) # compare Image --
 
 
-# === set the testexpr to use right now   @@@
+# === set the testexpr to use right now   @@@@
 
-
-testexpr = testexpr_15a  ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
-
+testexpr = testexpr_11s2## testexpr_15e  ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
     # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size] testexpr_14 [hide_icons]
@@ -652,18 +644,37 @@ testexpr = testexpr_15a  ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
     # some history:
     # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e, and 061114 6g*, 6h*
 
-    # buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice
+    #obs cmt: buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice
     # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
-    # once goes over the green rect or the displist text (after each reload)? not sure.
+    # once goes over the green rect or the displist text (after each reload)? not sure. [later realized it's just the glselect redraw.]
 
- #e planned optims -- see below
+ #e what next, planned optims, nim tests -- see below
 
 print "using testexpr %r" % testexpr
 for name in dir():
     if name.startswith('testexpr') and name != 'testexpr' and eval(name) is testexpr:
         print "(which is probably %s)" % name
 
-# ==
+# == @@@
+
+#e what next?   [where i am, or should be; updated 061126 late]
+# - some boolean controls?
+#   eg ChoiceButton in controls.py -- requires StateRef (does a property count as one?), maybe LocalState to use nicely
+# - framework to let me start setting up the dna ui?
+#   - just do a test framework first (simpler, needed soon); described in PixelGrabber
+# - working MT in glpane? yes, MT_demo.py; seems to require revamp of instantiation (separate it from IorE-expr eval)
+
+# == nim tests
+
+# TestIterator (test an iterator - was next up, 061113/14, but got deferred, 061115)
+testexpr_7_xxx = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
+testexpr_7a_xxx = TestIterator( Boxed(testexpr_6f) )
+    ### BUG: shows (by same ipaths) that TestIterator is indeed wrongly sharing an instance
+    # [first test that succeeds in showing this rather than crashing is 061115 -- required fixing bugs in Boxed and what it uses]
+    # note: each testexpr_6f prints an ipath
+
+# Column, fancy version
+testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
 
 # @@@
 

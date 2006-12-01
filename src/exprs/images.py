@@ -29,7 +29,13 @@ To avoid even more confusion, I'll name this module images.py rather than Image.
 from basic import * # including ExprsMeta, platform
 from basic import _self
 
+import draw_utils
+reload_once(draw_utils)
 from draw_utils import ORIGIN2, D2X, D2Y, ORIGIN, DX, DY, draw_textured_rect
+
+import Rect
+reload_once(Rect)
+from Rect import Rect
 
 import testdraw #e we'll call some funcs from this, and copy & modify others into this file;
     ##e at some point we'll need to clean up the proper source file of our helper functions from testdraw...
@@ -42,8 +48,6 @@ from OpenGL.GL import glGenTextures, glBindTexture, GL_TEXTURE_2D, GL_TEXTURE_WR
 from OpenGL.GLU import gluProject
 
 class _texture_holder(object):
-    ### WARNING: probably assumes square textures for now, or rescales to create them; maybe even fixed size?
-    # the new pil_kws can change that -- untested
     """[private class for use in a public MemoDict]
     From a filename and other data, create on demand, and cache, a PIL Image object and an optional OpenGL texture object;
     objects of this class are meant to be saved as a memoized dict value with the filename being the dict key
@@ -173,7 +177,18 @@ def canon_image_filename( filename):
     pass # end of canon_image_filename
 
 class Image(Widget2D):
-    "#doc; WARNING: image is not visible from the back face, in current implem; maybe we want an option to change that"
+    """#doc;
+    draw an image with a fixed size (about 30 pixels square in home view). [#e see code comment for how to fix that]
+    texture resolution is set by options ideal_width & ideal_height
+      [#e should be a single option, resolution or tex_size, number or pair, or smth to pick size based on image native size]
+      [#e should let you specify an image subrect too, or more generally an expr to compute the image -- or this can be part of one...
+       note we do have tex_origin]
+    WARNING: image is not visible from the back face, in current implem; maybe we want an option to change that
+    """
+    ##e proposed options to change size, for anything with arb size:
+    #     size = anything (eg Rect), use anything's lbox to get ours.
+    # (misnamed since also controls position -- maybe give it another name like where, place, footprint, lbox, box? none of those good enough)
+
     # args
     filename = Arg(str)
     use_filename = call_Expr( canon_image_filename, filename)
@@ -194,7 +209,13 @@ class Image(Widget2D):
         #e design Qs:
         # - is it really Point rather than Vector?
         # - does it interact with [nim] drawing-region-origin so as to line up if we use the same one for adjacent regions?
+    size = Option(Widget2D, Rect(2)) ##e also permit number or pair, ie args to Rect also should be ok # [experiment 061130]
 
+    bleft = size.bleft
+    bright = size.bright
+    bbottom = size.bbottom
+    btop = size.btop
+    
     # more options, which affect initial image loading from file, thus are part of the texture-cache key [061127, untested]
     rescale = Option(bool, True) # whether to resize by rescaling or padding (default might be changed after testing #e)
     ideal_width = Option(int, 256) ###e let them be a func of image size, as a pair? (eg so they can be next greater 2pow?) someday.
@@ -254,11 +275,24 @@ class Image(Widget2D):
         tex_dx = D2X * nreps
         tex_dy = D2Y * nreps
         
-        # where to draw it -- act like a 2D Rect for now; this code is copied from testdraw's drawtest1, not reanalyzed; fixed size 2x2,
-        # roughly 30 pixels square in home view i think
-        origin = ORIGIN
-        dx = DX * 2
-        dy = DY * 2
+        # where to draw it -- act like a 2D Rect for now
+        if 1:
+            origin = V(-self.bleft, -self.bbottom, 0)
+            dx = DX * self.bright
+            dy = DY * self.btop
+            # print "wrong dims:",origin, dx, dy # why are these wrong? oops, forgot to zap the lower-down older defs of bright & btop.
+        if 0:###
+            origin = V(-self.size.bleft, -self.size.bbottom, 0)
+            dx = DX * self.size.bright
+            dy = DY * self.size.btop
+            # print "right dims:",origin, dx, dy
+        if 0:
+            # this code is copied from testdraw's drawtest1, not reanalyzed;
+            # draws all images with a fixed size 2x2 in model units,
+            # roughly 30 pixels square in home view i think
+            origin = ORIGIN
+            dx = DX * 2
+            dy = DY * 2
         draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy)
         return
 
@@ -271,8 +305,8 @@ class Image(Widget2D):
     # which would catch this error whenever self.bright was computed,
     # or even better, when it's a constant for the class (as in this case),
     # right when that constant formula is defined.
-    bright = 1 * 2 # corresponds to DX * 2 above
-    btop = 1 * 2
+##    bright = 1 * 2 # corresponds to DX * 2 above
+##    btop = 1 * 2
     pass # end of class Image
 
 # ===
