@@ -608,6 +608,8 @@ testexpr_15a = ChoiceColumn(6,2, background = Rect(3,1,green), background_off = 
     # another clue: if you move mouse too fast from blank to rect to text not over rect, you don't get sbar msg.
     # you have to hover over the good place and wait for redraw and see it, only then move out over the "suspended" part
     # (text not over rect, hanging instead over infinite depth empty space).
+
+    # see also bug comments in controls.py.
     
 
 # == @@@

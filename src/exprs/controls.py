@@ -188,5 +188,43 @@ def ChoiceColumn( nchoices, dflt = 0, **kws):
                 # or, just a stateref to some fixed state somewhere... whose instance has .value I can get or set? use that for now.
     )
 
+"""
+1. Subject: where i am g5 504p; highlight/text debug ideas
+
+the choicebutton bug might be entirely in highlightable vs textrect
+and not in anything else, based on what it acts like
+and my guesses in test.py comments about it.
+
+next up: did i learn anything from the mess of lambda and localvar
+and state related kluges in controls.py?
+
+(and also debug this bug, or work around it more permanently,
+eg always draw a rect just behind text, or a same-rect into the depth buffer)
+
+(also test this bug for images, since they are drawn the same way as text is)
+
+(also scan the code for drawing text or both for an accidental explan
+like a depth shift, or some disable or mask i forgot about)
+
+(also put in some closers into the overlays
+to see if it's a bug caused by all the things being drawn at the same depth)
+
+2. Subject: BAD CHOICE BUG - wrong one if you move mouse quickly!
+
+if you move mouse from top to bot one or vice versa, fast,
+then click at end w/o slowing down,
+it can pick 2nd to last one sometimes,
+as if it uses an old mouse pos without noticing it,
+or uses an old stencil buffer contents or selobj or something like that.
+
+how can it not correctly confirm the one under the click?
+I'd think it'd update_selobj and find out if it's wrong.
+does it do that and then see None for selobj and somehow
+revert back to thinking about the prior value of selobj???
+
+mitigation: make these things hover-highlight, then you'll probably
+see if you're going too fast; it might help me debug it too.
+
+"""
 
 # end
