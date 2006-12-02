@@ -161,6 +161,10 @@ def remove_prefix(str1, prefix):#e refile
         return str1[len(prefix):]
     return str1
 
+# added 061201:
+FAKE_ATTR = "<FAKE_ATTR>" # not a possible attr name, but a string in case used in __repr__
+FAKE_CLSNAME = "<FAKE_CLSNAME>"
+
 class ClassAttrSpecific_NonDataDescriptor(object):
     """Abstract class for descriptors which cache class- and attr- specific info
     (according to the scheme described in the ExprsMeta module's docstring).
@@ -197,8 +201,18 @@ class ClassAttrSpecific_NonDataDescriptor(object):
     def _ExprsMeta__set_cls(self, cls):
         "[private method for ExprsMeta to call when it knows the defining class]"
         self.cls = cls
-        assert self.clsname == cls.__name__ #k
+        if self.clsname == FAKE_CLSNAME:
+            self.clsname = cls.__name__
+        else:
+            assert self.clsname == cls.__name__ #k
         #e should we store only the class id and name, to avoid ref cycles? Not very important since classes are not freed too often.
+        return
+    def _ExprsMeta__set_attr(self, attr): ####@@@@ CALL ME; see class State_helper discussion for motivation
+        "[private method for ExprsMeta to call when it knows the defining attr]" # 061201, not always called(?) or needed, experimental
+        if self.attr == FAKE_ATTRNAME:
+            self.attr = attr
+        else:
+            assert self.attr == attr, "%r already has an attr, but another one %r is trying to be set in it" % (self, attr)
         return
     def check(self, cls2):
         ###e remove all calls of this when it works (need to optim)
@@ -451,7 +465,7 @@ class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - revie
         lval = eval_and_discard_tracked_usage( self.lval_formula, instance, index)
         return lval
     def get_for_our_cls(self, instance):
-        print "get_for_our_cls",(self.attr, instance, )#####@@@@@
+        print "get_for_our_cls",(self, self.attr, instance, )#####@@@@@
         attr = self.attr
         try:
             lval = instance.__dict__[attr]
@@ -475,7 +489,7 @@ class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - revie
 ##            lval.set_constant_value(initval) # needed so .get_value() will work; .get_value() is still needed for its usage-tracking
         return lval.get_value() # this does usage tracking, validation-checking, recompute if needed
     def set_for_our_cls(self, instance, val):
-        print "set_for_our_cls",(self.attr, instance, val)#####@@@@@
+        print "set_for_our_cls",(self, self.attr, instance, val)#####@@@@@
         attr = self.attr
         try:
             lval = instance.__dict__[attr]
@@ -658,6 +672,12 @@ def attr_prefix(attr): # needn't be fast
 def val_is_special(val): #e rename... or, maybe it'll be obs soon?
     "val is special if it's a formula in _self, i.e. is an instance (not subclass!) of Expr, and contains _self as a free variable."
     return is_Expr_pyinstance(val) and val._e_free_in('_self')
+        # 061201 Q: are there any implicit ways of containing _self? A: not presently. But note that in sequential class assignments
+        # like x = Arg(), y = x + 1, y contains _self since Arg() does. We depend on that in the current code.
+        # THIS WILL BE AN ISSUE FOR THINGS LIKE PROPERTY EXPRS, and I wonder if it even has caused some bugs I've seen and
+        # wondered about? I vaguely recall one of those "should have been processed by ExprsMeta" prints which I didn't understand. ###k
+        # The actual text is "this formula needed wrapping by ExprsMeta to become a compute rule" btw.
+        #
         ## outtake: and val.has_args [now would be val._e_has_args]
         ## outtake: hasattr(val, '_e_compute_method') # this was also true for classes
     ##e 061101: we'll probably call val to ask it in a fancier way... not sure... Instance/Arg/Option might not need this
@@ -726,6 +746,11 @@ class ExprsMeta(type):
                     # note: ns contains just the symbols defined in class's scope in the source code, plus __doc__ and __module__.
             else:
                 attr0 = attr
+            if hasattr(val, '_ExprsMeta__set_attr'): #k also check val is a pyinstance, not pyclass? no need for now.
+                # 061201
+                #e should we do this after prefix processing, instead? doesn't matter for now, not mixed with prefixes or val_is_special.
+                ##k but make sure these vals work with formula scanning for _self.attr replacement! #####IMPLEM
+                val._ExprsMeta__set_attr(attr) #e could set clsname too, or pass it to this same method, if needed
             if prefix or val_is_special(val):
                 ok = True
                 if not prefix and attr.startswith('_'):
@@ -762,7 +787,7 @@ class ExprsMeta(type):
                        ( lis[0][0] + attr0,
                          lis[1][0] + attr0,
                          name, orig_ns_keys )
-                #e change that to a less harmless warning?
+                #e change that to a less harmful warning?
             prefix, val = lis[0]
             if 'kluge061103':
                 # we have to make sure canon_expr happens before sorting, not in the processor after the sort,
@@ -773,7 +798,23 @@ class ExprsMeta(type):
             newitems.append( (expr_serno(val), prefix, attr0, val) )
             del prefix, val, attr0, lis
         del data_for_attr
-        # sort vals by their expr_serno
+        # sort vals by their expr_serno [motivation [IIRC, 061201 ##k]: if expr1 contains expr2, make sure expr1 comes first]
+        # (I don't think we have to give properties (like State_helper) a serno -- canon_expr will make an expr wrapper which gets one.
+        #  What we might need to do is make them act symbolic re getattr... before they get processed at all.
+        #  Hmm, how does that work for whatever Arg turns into?? 061201 Q
+        #  A: it turns into an expr; then that gets turned into a descriptor by our prefix-map,
+        #  but as an expr, it's easily extendible into other exprs, including by getattr, when used during the class def.
+        #  Can a descriptor work like that? ONLY IF IT STARTS ALL ITS OWN ATTRNAMES BY _e_ or so!!!! Hmm, do I want that?
+        #  It would end up simplifying things... maybe it would already be an expr with no wrapping, unlike a plain property....
+        #  OTOH besides the work, it makes these objects bugprone to handle, since they don't complain about missing attrs.
+        #  So what about the old way -- let them be exprs when created, maybe even symbolic ones (perhaps unlike Arg/Option),
+        #  but not descriptors yet, and turn them into descriptors in this scanner.
+        #  But maybe in a simpler way than we do now? Or maybe have a kind of expr that is easy to make into a descriptor --
+        #  maybe it's enough to set a flag in it to tell it "don't be symbolic anymore". Is doing that dynamically ok,
+        #  which means, once the class it's in is defined, are you done with that way of using it? Guess: yes. If so,
+        #  this would increase safety. But it still means writing the descriptor-content-methods with all-_e_ attrs,
+        #  even if the descriptors themselves are separate objects. Or just using current system, with DescriptorForState, like C_rule.
+        ####)
         newitems.sort()
         ## print "newitems for class %s:" % name, newitems # this can print a lot, since single Expr vals can have long reprs
 ##        if 'debugging' 'kluge061103':

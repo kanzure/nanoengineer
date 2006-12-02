@@ -1078,6 +1078,7 @@ def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
     return Arg( type_expr, dflt_expr, _attr_expr = attr_expr)
 
 def State(type_expr, initval_expr):#061117; see discussion in staterefs.py and/or ToggleShow.py [still not working as of 061126]
+    ##e see also experimental class State_helper in ImageChunk.py (to be moved here?) for comparison and discussion
     "#doc; sort of like Option but for declaring mutable state, per-Instance by default, but more persistent than the Instance"
     return _State_helper( _E_ATTR, type_expr, initval_expr) #e and maybe more, like a path to the state, its kind, value-glue code
 
