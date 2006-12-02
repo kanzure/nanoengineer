@@ -58,10 +58,12 @@ void
 destroyPart(struct part *p)
 {
     int i;
+    int k;
     struct atom *a;
     struct bond *b;
     struct jig *j;
     struct vanDerWaals *v;
+    struct rigidBody *rb;
     
     if (p == NULL){
         return;
@@ -124,6 +126,31 @@ destroyPart(struct part *p)
     destroyAccumulator(p->jigs);
     p->jigs = NULL;
 
+    for (i=0; i<p->num_rigidBodies; i++) {
+        rb = &p->rigidBodies[i];
+        destroyAccumulator(rb->stations);
+        rb->stations = NULL;
+        for (k=0; k<rb->num_stations; k++) {
+            free(rb->stationNames[k]);
+        }
+        destroyAccumulator(rb->stationNames);
+        rb->stationNames = NULL;
+        destroyAccumulator(rb->axies);
+        rb->axies = NULL;
+        for (k=0; k<rb->num_axies; k++) {
+            free(rb->axisNames[k]);
+        }
+        destroyAccumulator(rb->axisNames);
+        rb->axisNames = NULL;
+        for (k=0; k<rb->num_joints; k++) {
+            ;
+        }
+        destroyAccumulator(rb->joints);
+        rb->joints = NULL;
+    }
+    destroyAccumulator(p->rigidBodies);
+    p->rigidBodies = NULL;
+
     for (i=0; i<p->num_vanDerWaals; i++) {
         v = p->vanDerWaals[i];
         if (v != NULL) {
@@ -134,7 +161,8 @@ destroyPart(struct part *p)
         }
     }
     destroyAccumulator(p->vanDerWaals);
-
+    p->vanDerWaals = NULL;
+    
     // nothing in a stretch needs freeing
     if (p->stretches != NULL) {
         free(p->stretches);
@@ -1544,6 +1572,75 @@ calculateKinetic(struct part *p)
     return total * 0.5 * 1e18 * Dmass * Dx * Dx / (Dt * Dt);
 }
 
+void
+makeRigidBody(struct part *p, char *name, double mass, double *inertiaTensor, struct xyz position, struct quaternion orientation)
+{
+    struct rigidBody *rb;
+    int i;
+    
+    p->num_rigidBodies++;
+    p->rigidBodies = (struct rigidBody *)accumulator(p->rigidBodies, p->num_rigidBodies * sizeof(struct rigidBody), 0);
+    rb = &p->rigidBodies[p->num_rigidBodies - 1];
+    rb->name = name;
+    rb->num_stations = 0;
+    rb->stations = NULL;
+    rb->stationNames = NULL;
+    rb->num_axies = 0;
+    rb->axies = NULL;
+    rb->axisNames = NULL;
+    for (i=0; i<6; i++) {
+        rb->inertiaTensor[i] = inertiaTensor[i];
+    }
+    rb->mass = mass;
+    rb->position = position;
+    vsetc(rb->velocity, 0.0);
+    rb->orientation = orientation;
+    vsetc(rb->rotation, 0.0);
+    rb->num_joints = 0;
+    rb->joints = NULL;
+}
+
+void
+makeStationPoint(struct part *p, char *bodyName, char *stationName, struct xyz position)
+{
+    int i;
+    struct rigidBody *rb;
+    
+    for (i=p->num_rigidBodies-1; i>=0; i--) {
+        if (!strcmp(p->rigidBodies[i].name, bodyName)) {
+            rb = &p->rigidBodies[i];
+            rb->num_stations++;
+            rb->stations = (struct xyz *)accumulator(rb->stations, rb->num_stations * sizeof (struct xyz), 0);
+            rb->stationNames = (char **)accumulator(rb->stationNames, rb->num_stations * sizeof (char *), 0);
+            rb->stations[rb->num_stations-1] = position;
+            rb->stationNames[rb->num_stations-1] = stationName;
+            return;
+        }
+    }
+    ERROR1("rigidBody named (%s) not found", bodyName);
+    p->parseError(p->stream);
+}
+
+void
+makeBodyAxis(struct part *p, char *bodyName, char *axisName, struct xyz orientation)
+{
+    int i;
+    struct rigidBody *rb;
+    
+    for (i=p->num_rigidBodies-1; i>=0; i--) {
+        if (!strcmp(p->rigidBodies[i].name, bodyName)) {
+            rb = &p->rigidBodies[i];
+            rb->num_axies++;
+            rb->axies = (struct xyz *)accumulator(rb->axies, rb->num_axies * sizeof (struct xyz), 0);
+            rb->axisNames = (char **)accumulator(rb->axisNames, rb->num_axies * sizeof (char *), 0);
+            rb->axies[rb->num_axies-1] = orientation;
+            rb->axisNames[rb->num_axies-1] = axisName;
+            return;
+        }
+    }
+    ERROR1("rigidBody named (%s) not found", bodyName);
+    p->parseError(p->stream);
+}
 
 static struct jig *
 newJig(struct part *p)
@@ -1880,6 +1977,21 @@ printXYZ(FILE *f, struct xyz p)
 }
 
 void
+printQuaternion(FILE *f, struct quaternion q)
+{
+    fprintf(f, "(%f i, %f j, %f k, %f)", q.x, q.y, q.z, q.a);
+}
+
+void
+printInertiaTensor(FILE *f, double *t)
+{
+    fprintf(f, "/ %14.7e %14.7e %14.7e \\\n", t[0], t[1], t[2]);
+    fprintf(f, "| %14s %14.7e %14.7e |\n", "", t[3], t[4]);
+    fprintf(f, "\\ %14s %14s %14.7e /\n", "", "", t[5]);
+}
+
+
+void
 printAtomShort(FILE *f, struct atom *a)
 {
     fprintf(f, "%s(%d)", a->type->symbol, a->atomID);
@@ -2027,6 +2139,67 @@ printJig(FILE *f, struct part *p, struct jig *j)
 	break;
     default:
 	break;
+    }
+}
+
+static void
+printJointType(FILE *f, enum jointType type)
+{
+    switch (type) {
+    case BallSocket:
+        fprintf(f, "BallSocket");
+        break;
+    case Hinge:
+        fprintf(f, "Hinge");
+        break;
+    default:
+        fprintf(f, "*Unknown*");
+        break;
+    }
+}
+
+void
+printJoint(FILE *f, struct part *p, struct joint *j)
+{
+    fprintf(f, " ");
+    printJointType(f, j->type);
+    fprintf(f, " joint between (%s) and (%s)\n", p->rigidBodies[j->rigidBody1].name, p->rigidBodies[j->rigidBody2].name);
+}
+
+void
+printRigidBody(FILE *f, struct part *p, struct rigidBody *rb)
+{
+    int i;
+    
+    fprintf(f, " rigidBody (%s)\n", rb->name);
+    fprintf(f, "  position: ");
+    printXYZ(f, rb->position);
+    fprintf(f, "\n  orientation: ");
+    printQuaternion(f, rb->orientation);
+    fprintf(f, "\n  mass: %f\n  inertiaTensor:\n", rb->mass);
+    printInertiaTensor(f, rb->inertiaTensor);
+    if (rb->num_stations > 0) {
+        fprintf(f, "  stations:\n");
+        for (i=0; i<rb->num_stations; i++) {
+            fprintf(f, "   (%s) ", rb->stationNames[i]);
+            printXYZ(f, rb->stations[i]);
+            fprintf(f, "\n");
+        }
+    }
+    if (rb->num_axies > 0) {
+        fprintf(f, "  axies:\n");
+        for (i=0; i<rb->num_axies; i++) {
+            fprintf(f, "   (%s) ", rb->axisNames[i]);
+            printXYZ(f, rb->axies[i]);
+            fprintf(f, "\n");
+        }
+    }
+    if (rb->num_joints > 0) {
+        fprintf(f, "  joints: ");
+        for (i=0; i<rb->num_joints; i++) {
+            printJoint(f, p, &rb->joints[i]);
+        }
+        fprintf(f, "\n");
     }
 }
 
@@ -2222,6 +2395,9 @@ printPart(FILE *f, struct part *p)
     }
     for (i=0; i<p->num_jigs; i++) {
 	printJig(f, p, p->jigs[i]);
+    }
+    for (i=0; i<p->num_rigidBodies; i++) {
+	printRigidBody(f, p, &p->rigidBodies[i]);
     }
     for (i=0; i<p->num_vanDerWaals; i++) {
 	printVanDerWaals(f, p, p->vanDerWaals[i]);

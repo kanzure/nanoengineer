@@ -17,6 +17,13 @@ struct xyza {
   double a[3];
 };
 
+struct quaternion {
+  double x;
+  double y;
+  double z;
+  double a;
+};
+
 extern struct xyz vcon(double x);
 
 extern struct xyz vsum(struct xyz v, struct xyz w);

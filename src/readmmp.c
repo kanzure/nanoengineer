@@ -440,6 +440,9 @@ readMMP(char *filename)
   double stiffness;
   double temperature;
   double mass;
+  double inertiaTensor[6];
+  double quat[4];
+  struct quaternion orientation;
   struct xyz position;
   struct xyz center;
   struct xyz axis;
@@ -698,12 +701,16 @@ readMMP(char *filename)
     // rigidBody (bodyName) (<position 3vector>) (<orientation quaternion>) <mass> (<inertia matrix 6 elements>)
     else if (0==strcmp(tok, "rigidBody")) {
       bodyName = expectName(mmp);
-      expectXYZInts(mmp, &center); // com
-      expectNDoubles(mmp, 4, NULL); // quaternion
+      expectXYZInts(mmp, &center); // position
+      expectNDoubles(mmp, 4, quat); // quaternion, orientation
+      orientation.x = quat[0];
+      orientation.y = quat[1];
+      orientation.z = quat[2];
+      orientation.a = quat[3];
       expectDouble(mmp, &mass, 0);
-      expectNDoubles(mmp, 6, NULL); // inertia matrix
+      expectNDoubles(mmp, 6, inertiaTensor); // inertia matrix
       consumeRestOfLine(mmp);
-      fprintf(stderr, "got rigidBody: %s\n", bodyName);
+      makeRigidBody(p, bodyName, mass, inertiaTensor, center, orientation);
     }
 
     // stationPoint (bodyName) (stationName) (<position 3vector>)
@@ -711,7 +718,8 @@ readMMP(char *filename)
       bodyName = expectName(mmp);
       name = expectName(mmp);
       expectXYZInts(mmp, &center);
-      fprintf(stderr, "got stationPoint: %s on %s\n", name, bodyName);
+      makeStationPoint(p, bodyName, name, center);
+      free(bodyName);
     }
 
     // bodyAxis (bodyName) (axisName) (<axis 3vector>)
@@ -719,7 +727,7 @@ readMMP(char *filename)
       bodyName = expectName(mmp);
       name = expectName(mmp);
       expectXYZInts(mmp, &center);
-      fprintf(stderr, "got bodyAxis: %s on %s\n", name, bodyName);
+      makeBodyAxis(p, bodyName, name, center);
     }
     
     else if (0==strcmp(tok, "joint")) {

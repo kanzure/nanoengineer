@@ -66,6 +66,46 @@ struct bond
     struct xyz rUnit;
 };
 
+enum jointType {
+  BallSocket,
+  Hinge
+};
+
+struct joint
+{
+    enum jointType type;
+  
+    int rigidBody1;
+    int rigidBody2;
+  
+};
+
+struct rigidBody 
+{
+    char *name;
+
+    int num_stations;
+    struct xyz *stations;
+    char **stationNames;
+
+    int num_axies;
+    struct xyz *axies;
+    char **axisNames;
+
+    double inertiaTensor[6];
+
+    double mass;
+
+    struct xyz position;
+    struct xyz velocity;
+
+    struct quaternion orientation;
+    struct xyz rotation; // Euler angle rotation rates
+
+    int num_joints;
+    struct joint *joints;
+};
+
 enum jigtype {
     Ground,
     Thermometer,
@@ -246,6 +286,9 @@ struct part
     
     int num_jigs;
     struct jig **jigs;
+
+    int num_rigidBodies;
+    struct rigidBody *rigidBodies;
     
     int num_vanDerWaals;
     int num_static_vanDerWaals;
@@ -302,6 +345,12 @@ extern void makeVanDerWaals(struct part *p, int atomID1, int atomID2);
 
 extern double calculateKinetic(struct part *p);
 
+extern void makeRigidBody(struct part *p, char *name, double mass, double *inertiaTensor, struct xyz position, struct quaternion orientation);
+
+extern void makeStationPoint(struct part *p, char *bodyName, char *stationName, struct xyz position);
+
+extern void makeBodyAxis(struct part *p, char *bodyName, char *axisName, struct xyz orientation);
+
 extern void makeGround(struct part *p, char *name, int atomListLength, int *atomList);
 
 extern void makeThermometer(struct part *p, char *name, int firstAtomID, int lastAtomID);
@@ -326,6 +375,10 @@ extern void makeLinearMotor(struct part *p, char *name, double force, double sti
 
 extern void printXYZ(FILE *f, struct xyz p);
 
+extern void printQuaternion(FILE *f, struct quaternion q);
+
+extern void printInertiaTensor(FILE *f, double *t);
+
 extern void printAtomShort(FILE *f, struct atom *a);
 
 extern char printableBondOrder(struct bond *b);
@@ -339,6 +392,10 @@ extern void printBond(FILE *f, struct part *p, struct bond *b);
 extern char *printableJigType(struct jig *j);
 
 extern void printJig(FILE *f, struct part *p, struct jig *j);
+
+extern void printJoint(FILE *f, struct part *p, struct joint *j);
+
+extern void printRigidBody(FILE *f, struct part *p, struct rigidBody *rb);
 
 extern void printVanDerWaals(FILE *f, struct part *p, struct vanDerWaals *v);
 
