@@ -1,0 +1,261 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E1DB43660B1CBC5800A9B6F2 /* CppUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1DB43650B1CBC5800A9B6F2 /* CppUnit.cpp */; };
+		E1DB43930B1CC26500A9B6F2 /* HDF5_SimResults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1DB438F0B1CC26500A9B6F2 /* HDF5_SimResults.cpp */; };
+		E1DB43940B1CC26500A9B6F2 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1DB43900B1CC26500A9B6F2 /* HDF5_SimResults.h */; };
+		E1DB43950B1CC26500A9B6F2 /* HDF5_SimResultsTest.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1DB43910B1CC26500A9B6F2 /* HDF5_SimResultsTest.cpp */; };
+		E1DB43960B1CC26500A9B6F2 /* HDF5_SimResultsTest.h in Headers */ = {isa = PBXBuildFile; fileRef = E1DB43920B1CC26500A9B6F2 /* HDF5_SimResultsTest.h */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		E1DB42940B1CB0F300A9B6F2 /* SimResultsDataStore.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SimResultsDataStore.h; sourceTree = "<group>"; };
+		E1DB429C0B1CB46900A9B6F2 /* config.epydoc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = config.epydoc; sourceTree = "<group>"; };
+		E1DB42CA0B1CB46900A9B6F2 /* ObjectModel.zargo */ = {isa = PBXFileReference; lastKnownFileType = file; path = ObjectModel.zargo; sourceTree = "<group>"; };
+		E1DB42CD0B1CB46900A9B6F2 /* CppUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CppUnit.cpp; sourceTree = "<group>"; };
+		E1DB435F0B1CBBF500A9B6F2 /* CppUnit */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = CppUnit; sourceTree = BUILT_PRODUCTS_DIR; };
+		E1DB43650B1CBC5800A9B6F2 /* CppUnit.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CppUnit.cpp; sourceTree = "<group>"; };
+		E1DB438F0B1CC26500A9B6F2 /* HDF5_SimResults.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HDF5_SimResults.cpp; sourceTree = "<group>"; };
+		E1DB43900B1CC26500A9B6F2 /* HDF5_SimResults.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HDF5_SimResults.h; sourceTree = "<group>"; };
+		E1DB43910B1CC26500A9B6F2 /* HDF5_SimResultsTest.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = HDF5_SimResultsTest.cpp; sourceTree = "<group>"; };
+		E1DB43920B1CC26500A9B6F2 /* HDF5_SimResultsTest.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = HDF5_SimResultsTest.h; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E1DB435C0B1CBBF500A9B6F2 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E1DB42730B1CAFDF00A9B6F2 = {
+			isa = PBXGroup;
+			children = (
+				E1DB43640B1CBC5800A9B6F2 /* Testing */,
+				E1DB42990B1CB46900A9B6F2 /* src */,
+				E1DB42930B1CB0F300A9B6F2 /* include */,
+				E1DB42EB0B1CB97100A9B6F2 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E1DB42930B1CB0F300A9B6F2 /* include */ = {
+			isa = PBXGroup;
+			children = (
+				E1DB42940B1CB0F300A9B6F2 /* SimResultsDataStore.h */,
+			);
+			name = include;
+			path = ../../include;
+			sourceTree = SOURCE_ROOT;
+		};
+		E1DB42990B1CB46900A9B6F2 /* src */ = {
+			isa = PBXGroup;
+			children = (
+				E1DB438F0B1CC26500A9B6F2 /* HDF5_SimResults.cpp */,
+				E1DB43900B1CC26500A9B6F2 /* HDF5_SimResults.h */,
+				E1DB43910B1CC26500A9B6F2 /* HDF5_SimResultsTest.cpp */,
+				E1DB43920B1CC26500A9B6F2 /* HDF5_SimResultsTest.h */,
+				E1DB429A0B1CB46900A9B6F2 /* Documentation */,
+				E1DB42CC0B1CB46900A9B6F2 /* Testing */,
+			);
+			name = src;
+			path = ..;
+			sourceTree = SOURCE_ROOT;
+		};
+		E1DB429A0B1CB46900A9B6F2 /* Documentation */ = {
+			isa = PBXGroup;
+			children = (
+				E1DB429C0B1CB46900A9B6F2 /* config.epydoc */,
+				E1DB42CA0B1CB46900A9B6F2 /* ObjectModel.zargo */,
+			);
+			path = Documentation;
+			sourceTree = "<group>";
+		};
+		E1DB42CC0B1CB46900A9B6F2 /* Testing */ = {
+			isa = PBXGroup;
+			children = (
+				E1DB42CD0B1CB46900A9B6F2 /* CppUnit.cpp */,
+			);
+			path = Testing;
+			sourceTree = "<group>";
+		};
+		E1DB42EB0B1CB97100A9B6F2 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E1DB435F0B1CBBF500A9B6F2 /* CppUnit */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E1DB43640B1CBC5800A9B6F2 /* Testing */ = {
+			isa = PBXGroup;
+			children = (
+				E1DB43650B1CBC5800A9B6F2 /* CppUnit.cpp */,
+			);
+			name = Testing;
+			path = ../Testing;
+			sourceTree = SOURCE_ROOT;
+		};
+/* End PBXGroup section */
+
+/* Begin PBXHeadersBuildPhase section */
+		E1DB435A0B1CBBF500A9B6F2 /* Headers */ = {
+			isa = PBXHeadersBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1DB43940B1CC26500A9B6F2 /* HDF5_SimResults.h in Headers */,
+				E1DB43960B1CC26500A9B6F2 /* HDF5_SimResultsTest.h in Headers */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXHeadersBuildPhase section */
+
+/* Begin PBXProject section */
+		E1DB42750B1CAFDF00A9B6F2 /* Project object */ = {
+			isa = PBXProject;
+			buildConfigurationList = E1DB42760B1CAFDF00A9B6F2 /* Build configuration list for PBXProject "Xcode" */;
+			hasScannedForEncodings = 0;
+			mainGroup = E1DB42730B1CAFDF00A9B6F2;
+			productRefGroup = E1DB42EB0B1CB97100A9B6F2 /* Products */;
+			projectDirPath = "";
+			targets = (
+				E1DB435E0B1CBBF500A9B6F2 /* CppUnit */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXRezBuildPhase section */
+		E1DB435D0B1CBBF500A9B6F2 /* Rez */ = {
+			isa = PBXRezBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXRezBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E1DB435B0B1CBBF500A9B6F2 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E1DB43660B1CBC5800A9B6F2 /* CppUnit.cpp in Sources */,
+				E1DB43930B1CC26500A9B6F2 /* HDF5_SimResults.cpp in Sources */,
+				E1DB43950B1CC26500A9B6F2 /* HDF5_SimResultsTest.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXToolTarget section */
+		E1DB435E0B1CBBF500A9B6F2 /* CppUnit */ = {
+			isa = PBXToolTarget;
+			buildConfigurationList = E1DB43610B1CBC1500A9B6F2 /* Build configuration list for PBXToolTarget "CppUnit" */;
+			buildPhases = (
+				E1DB435A0B1CBBF500A9B6F2 /* Headers */,
+				E1DB435B0B1CBBF500A9B6F2 /* Sources */,
+				E1DB435C0B1CBBF500A9B6F2 /* Frameworks */,
+				E1DB435D0B1CBBF500A9B6F2 /* Rez */,
+			);
+			dependencies = (
+			);
+			name = CppUnit;
+			productInstallPath = /usr/local/bin;
+			productName = CppUnit;
+			productReference = E1DB435F0B1CBBF500A9B6F2 /* CppUnit */;
+		};
+/* End PBXToolTarget section */
+
+/* Begin XCBuildConfiguration section */
+		E1DB42770B1CAFDF00A9B6F2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+			};
+			name = Debug;
+		};
+		E1DB42780B1CAFDF00A9B6F2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+			};
+			name = Release;
+		};
+		E1DB43620B1CBC1500A9B6F2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				OPTIMIZATION_CFLAGS = "-O0";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "-lcppunit";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = CppUnit;
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+			};
+			name = Debug;
+		};
+		E1DB43630B1CBC1500A9B6F2 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = YES;
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
+				OPTIMIZATION_CFLAGS = "-O0";
+				OTHER_CFLAGS = "";
+				OTHER_LDFLAGS = "";
+				OTHER_REZFLAGS = "";
+				PRODUCT_NAME = CppUnit;
+				REZ_EXECUTABLE = YES;
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = (
+					"-Wmost",
+					"-Wno-four-char-constants",
+					"-Wno-unknown-pragmas",
+				);
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E1DB42760B1CAFDF00A9B6F2 /* Build configuration list for PBXProject "Xcode" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1DB42770B1CAFDF00A9B6F2 /* Debug */,
+				E1DB42780B1CAFDF00A9B6F2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E1DB43610B1CBC1500A9B6F2 /* Build configuration list for PBXToolTarget "CppUnit" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E1DB43620B1CBC1500A9B6F2 /* Debug */,
+				E1DB43630B1CBC1500A9B6F2 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E1DB42750B1CAFDF00A9B6F2 /* Project object */;
+}

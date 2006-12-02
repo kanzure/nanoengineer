@@ -1,0 +1,15 @@
+[epydoc] # Epydoc section marker (required by ConfigParser)
+
+# Information about the project.
+name: NE1 External Python API Documentation
+
+# The list of modules to document.  Modules can be named using
+# dotted names, module filenames, or package directory names.
+# This option may be repeated.
+modules: ../../lib/NE1_Simulation, ../../lib/NE1_CorePlugins,
+	../../lib/NE1_JobManagement, ../../lib/NE1_Lib
+
+# Write html output to the directory "html/"
+output: html
+target: html/
+
