@@ -746,7 +746,11 @@ class ExprsMeta(type):
                     # note: ns contains just the symbols defined in class's scope in the source code, plus __doc__ and __module__.
             else:
                 attr0 = attr
-            if hasattr(val, '_ExprsMeta__set_attr'): #k also check val is a pyinstance, not pyclass? no need for now.
+            if hasattr(val, '_ExprsMeta__set_attr'):
+                ### PROBLEM: true for symbolic expr val.
+                # POSSIBLE SOLUTION: exclude _[A-Z] attrnames, not _[a-z]. (Hmm: _S_ATTR_??)
+                # DONE INSTEAD [061203]: exclude any attr which might be name-mangled (starts _ but not __, contains __).
+                #k also check val is a pyinstance, not pyclass? no need for now.
                 # 061201
                 #e should we do this after prefix processing, instead? doesn't matter for now, not mixed with prefixes or val_is_special.
                 ##k but make sure these vals work with formula scanning for _self.attr replacement! #####IMPLEM

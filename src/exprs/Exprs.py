@@ -328,6 +328,11 @@ class SymbolicExpr(Expr): # Symbol or OpExpr; see also SymbolicInstanceOrExpr (i
             # We won't pretend to find Expr methods/attrs starting _e_ (also used in Instances),
             # or Instance ones starting _i_ -- but do reveal which class we didn't find them in.
             raise AttributeError, "no attr %r in %r" % (attr, self.__class__) #e safe_repr for class
+        if attr.startswith('_') and '__' in attr:
+            # 061203: exclude attr since it might be name-mangled. Needed to exclude _ExprsMeta__set_attr.
+            # [Not confident this exclusion is always good -- maybe what we really need is a variant of hasattr
+            # which turns off or detects and ignores the effect of this __getattr__. ###k]
+            raise AttributeError, "no attr %r in %r" % (attr, self.__class__) #e safe_repr for class
         if self._e_is_instance:
             # this case added 061113 for sake of SymbolicInstanceOrExpr Instances (e.g. _this(class)) which lack attr
             ## raise AttributeError, attr
