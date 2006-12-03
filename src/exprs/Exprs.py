@@ -1082,40 +1082,64 @@ def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
     attr_expr = _E_ATTR
     return Arg( type_expr, dflt_expr, _attr_expr = attr_expr)
 
-def State(type_expr, initval_expr):#061117; see discussion in staterefs.py and/or ToggleShow.py [still not working as of 061126]
-    ##e see also experimental class State_helper in ImageChunk.py (to be moved here?) for comparison and discussion
-    "#doc; sort of like Option but for declaring mutable state, per-Instance by default, but more persistent than the Instance"
-    return _State_helper( _E_ATTR, type_expr, initval_expr) #e and maybe more, like a path to the state, its kind, value-glue code
+# ==
 
-def _State_helper( attr_expr, type_expr, initval_expr): #e and more args, see caller's comment
-    "[private helper]"
-    return _state_Expr(attr_expr, type_expr, initval_expr)
-
-class _state_Expr(OpExpr):#061117 [still not working as of 061126]
-    "[private helper]"
-    _e_is_lval_formula = True # noticed by ExprsMeta, so it will use us as a formula for computing (or finding) an LvalForState object
-    # for internal use, but OpExpr seems better than internal_Expr since we want replacement in all the args, and no holding I think
-    def _e_eval(self, env, ipath):
-        # based on still-nim code in ExprsMeta, this eval happens the first time someone wants
-        # to set or get the state attr declared by State macro above, which our job is to implement.
-        
-        # The attr_expr cpuld be assumed to be constant, but needn't be, it's only needed to find the state along with ipath.
-        # Should we use a StatePlace so the code in it is not duplicated here? YES.
-        
-        # Note, as usual for OpExpr, this expr is shared by Instances in a class, and env._self tells you which Instance you're
-        # working for. What we want to do is return an lval object (not a "current value" as usual for _e_eval)
-        # which refers to the desired state (hopefully which is exactly an lval findable in a StatePlace -- see its new-today code).
-
-        # eval the args, but not initval_expr, though we do permit replacement within it (I think) ####k lex context ok??
-            # use hold_Expr for that? if there is no initval, use what??? see how required args doit... #####
-        # find or make the lval
-        # if we make it, put in the initval expr
-        # (if we find it, we will not modify the one it has? or, if it's empty = not valid, replace it with ours? yes, that's best.)###e
-        # return their values, actually an lval and held initval_expr
-        nim # where i am 061117 445p - here and maybe in staterefs.py and definitely in ToggleShow.py.
-            # update 959p - the code for this in lvals and exprsmeta might be im (not nim anymore), but is unparsed...
-            # and the remaining code not yet there is this one. 
+class data_descriptor_Expr(OpExpr):
+    def _e_init(self):
+        assert 0, "subclass of data_descriptor_Expr must implement _e_init"
+    def __repr__(self): # class data_descriptor_Expr
+        # same as in OpExpr, for now
+        ###e if we end up knowing our descriptor or its attr, print that too
+        return "<%s#%d%s: %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_args,)
     pass
+
+class State(data_descriptor_Expr):
+    # experimental, 061201/061203;
+    # if it works would supercede what's in staterefs.py or whatever (actually Exprs.py for State macro)
+    # see also C_rule_for_lval_formula, meant to be used by that old design for the State macro,
+    # but this design doesn't anticipate having an "lval formula",
+    # but just has an implicit self-relative object and explicit attrname to refer to.
+    def _e_init(self):
+        def myargs(type, dflt = None): # note: these args are exprs, and already went through canon_expr
+            dflt = dflt ##e stub; see existing stateref code for likely better version to use here
+            ##e do we need to de-expr these args?? (especially type)
+            ##e dflt is reasonable to be an expr so we'll eval it each time,
+            # but do we need code similar to what's in _i_grabarg to do that properly? guess: yes.
+            self._e_type = type
+            self._e_default_val = dflt
+        myargs(*self._e_args)
+        return
+    def _e_get_for_our_cls(self, descriptor, instance):
+        print "_e_get_for_our_cls",(self, descriptor, instance, )#####@@@@@
+        attr = descriptor.attr
+        holder = self._e_attrholder(instance, init_attr = attr) # might need attr for initialization using self._e_default_val
+        return getattr(holder, attr)
+    def _e_set_for_our_cls(self, descriptor, instance, val):
+        print "_e_set_for_our_cls",(self, descriptor.attr, instance, val)#####@@@@@
+        attr = descriptor.attr
+        holder = self._e_attrholder(instance) # doesn't need to do any initialization
+        return setattr(holder, attr, val)
+    def _e_attrholder(self, instance, init_attr = None):
+        res = instance.transient_state #e or other kind of stateplace
+        # init the default val if needed. ####e OPTIM: this hasattr might be slow (or even buggy, tho i think it'll work
+        # by raising an exception that's a subclass of AttributeError; the slow part is computing args for that every time)
+        if init_attr and hasattr(res, init_attr):
+            where i am - eval the dflt expr here, see i_grabarg for how and the env to use and the ipath
+        set_default_attrs(res, {attr : self._e_default_val}) ##k arg syntax
+            # It's not easy to optimize that for not calling it every time,
+            # since whether it's needed is per-instance (not per-self) and per-attr.
+            # So set_default_attrs may already be doing that check about as efficiently as we could,
+            # except for our computing arg2 to pass it, which could be optimized away by our
+            # first calling a query routine to see if the default has been set yet.
+            # (But translating all this into C is probably a better use of time.)
+            # (I guess the other easy optim would be to inline this for "set" and not call set_default_attrs then. #e)
+        return res
+    pass # end of class State
+
+
+# note: an old def of State, never working, from 061117, was removed 061203 from cvs rev 1.88
+
+# ==
 
 # stubs:
 Anything = "anything-stub"

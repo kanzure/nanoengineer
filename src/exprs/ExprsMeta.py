@@ -209,6 +209,7 @@ class ClassAttrSpecific_NonDataDescriptor(object):
         return
     def _ExprsMeta__set_attr(self, attr): ####@@@@ CALL ME; see class State_helper discussion for motivation
         "[private method for ExprsMeta to call when it knows the defining attr]" # 061201, not always called(?) or needed, experimental
+        print "called _ExprsMeta__set_attr",self,attr ####
         if self.attr == FAKE_ATTRNAME:
             self.attr = attr
         else:
