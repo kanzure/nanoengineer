@@ -107,7 +107,11 @@ from images import Image, IconImage, PixelGrabber
 
 import controls
 reload_once(controls)
-from controls import ChoiceColumn ## ( nchoices, dflt = 0, **kws) ## make_testexpr_for_ChoiceButton
+from controls import ChoiceColumn, checkbox_v3 #e rename
+
+import staterefs
+reload_once(staterefs)
+from staterefs import PrefsKey_StateRef
 
 import Set
 reload_once(Set)
@@ -673,6 +677,7 @@ testexpr_16a = SimpleColumn(
   ) # works
 
 class checkbox_v2(InstanceMacro):
+    # this is now copied into controls.py, but it's probably to be renamed and revised there, so leave this test here
     default_value = Option(bool, False)
     var = State(bool, default_value)
         #e need to be able to specify what external state to use, eg a prefs variable
@@ -689,6 +694,14 @@ testexpr_16b = SimpleColumn(
     SimpleRow(checkbox_v2(), TextRect("option 1a",1,10)), #e need to be able to specify specific external state, eg a prefs variable
     SimpleRow(checkbox_v2(default_value = True)(), TextRect("option 2a",1,10)), # that 2nd () is to tell it "yes, we supplied args"
   ) # works
+
+from prefs_constants import displayOriginAxis_prefs_key
+testexpr_16c = SimpleColumn( 
+    SimpleRow(checkbox_v3(PrefsKey_StateRef(displayOriginAxis_prefs_key)), # test: specify external state, eg a prefs variable
+              ###e would this look better? checkbox_v3(prefs_key = displayOriginAxis_prefs_key)
+              TextRect("option 1a",1,10)),
+  ) # --- try this next
+
 
 
 # === set the testexpr to use right now   @@@@

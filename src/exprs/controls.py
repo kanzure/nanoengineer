@@ -36,6 +36,10 @@ import Overlay
 reload_once(Overlay)
 from Overlay import Overlay
 
+import images
+reload_once(images)
+from images import Image, IconImage
+
 If = If_kluge # until debugged
 
 # stub types
@@ -157,6 +161,37 @@ def ChoiceColumn( nchoices, dflt = 0, **kws): ##e should be an InstanceMacro, no
                 # or, just a stateref to some fixed state somewhere... whose instance has .value I can get or set? use that for now.
                 ##k is there any way to use the new-061203 State macro for this?
     )
+
+# ==
+
+checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 * PIXELS, 21 * PIXELS))
+    # WARNING: dup code & comment with tests.py, WHICH PROBABLY IMPORTS * from here
+    
+    # note, IconImage ought to use orig size in pixels but uses 22x22,
+    # and ought to display with orig size but doesn't -- all those image options need reform, as its comments already know ###e
+
+#e see also checkbox_v2 in tests.py for use in testexpr_16b
+
+class checkbox_v3(InstanceMacro): #e rename
+    stateref = Arg(StateRef, None) ### default? might not work with a default val yet
+        ### IMPLEM: specify what external state to use, eg a prefs variable, PrefsKey_StateRef[displayOriginAxis_prefs_key]
+    default_value = Option(bool, False)
+    ## var = State(bool, default_value)
+    var = stateref.value
+    print "var = %r" % (var,) # TypeError: 'module' object is not callable - on line that says on_press = Set(var, not_Expr(var) )
+    _value = Highlightable(
+        If( var,
+            checkbox_image('mac_checkbox_on.jpg'),
+            checkbox_image('mac_checkbox_off.jpg'),
+        ),
+        on_press = Set(var, not_Expr(var) )
+    )
+    pass
+
+
+
+ # compare to LocalVariable_StateRef
+
 
 """
 1. Subject: where i am g5 504p; highlight/text debug ideas
