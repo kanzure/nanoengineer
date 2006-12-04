@@ -178,7 +178,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         print "__get__ is nim in the Expr", self, ", which is assigned to some attr in", obj ####@@@@ NIM; see above for how [061023 or 24]
         print "this formula needed wrapping by ExprsMeta to become a compute rule...:", self ####@@@@
         return
-    def _e_compute_method(self, instance, index = 'stubi'):
+    def _e_compute_method(self, instance, index = 'stubi', _lvalue_flag = False):
         """Return a compute method version of this formula, which will use instance as the value of _self,
         at the given index relative to instance. (The index should always be passed, tho at the moment it has a default value.)
            Example index [#k guess 061110]: the attrname where self was found in instance (as an attrvalue),
@@ -205,7 +205,13 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         if index == 'stubi':
             printnim("_e_compute_method needs to always be passed an index")
         ipath = (index, ipath0)
-        return lambda self=self, env=env, ipath=ipath: self._e_eval( env, ipath ) #e assert no args received by this lambda?
+        if not _lvalue_flag:
+            # usual case
+            return lambda self=self, env=env, ipath=ipath: self._e_eval( env, ipath ) #e assert no args received by this lambda?
+        else:
+            # lvalue case, added 061204, experimental -- unclear if returned object is ever non-flyweight or has anything but .set_to
+            return lambda self=self, env=env, ipath=ipath: self._e_eval_lval( env, ipath )
+        pass
     def __repr__(self): # class Expr
         "[often overridden by subclasses; __str__ can depend on __repr__ but not vice versa(?) (as python itself does by default(??))]"
         ## return str(self) #k can this cause infrecur?? yes, at least for testexpr_1 (a Rect_old) on 061016
@@ -399,6 +405,14 @@ class OpExpr(SymbolicExpr):
             # the class's __dict__. Using staticmethod seems clearer.
         res = apply(func, [self._e_argval(i,env,ipath) for i in range(len(self._e_args))])
         return res
+    def _e_eval_lval(self, env,ipath):
+        """#doc
+        """
+        assert env #061110
+        assert not self._e_kws #e remove when done with devel -- just checks that certain subclasses overrode us -- or, generalize this
+        func = self._e_eval_lval_function
+        res = apply(func, [self._e_argval(i,env,ipath) for i in range(len(self._e_args))])
+        return res
     pass # end of class OpExpr
 
 class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even though it can be produced by SymbolicExpr.__call__
@@ -438,6 +452,15 @@ class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even th
         return argvals[0] ( *argvals[1:], **kwvals )
     pass
 
+class LvalueFromObjAndAttr(object): #e refile #061204 for _e_eval_lval and LvalueArg, likely to be revised
+    def __init__(self, obj, attr):
+        self.obj = obj
+        self.attr = attr
+    def set_to(self, val):
+        setattr( self.obj, self.attr, val)
+    #e some sort of .get function, .value attr (can be set or get), subscribe func, etc
+    pass
+
 class getattr_Expr(OpExpr):
     def __call__(self, *args, **kws):
         print 'bug: __call__ of %r with:' % self,args,kws
@@ -452,6 +475,8 @@ class getattr_Expr(OpExpr):
     def __str__(self):
          return "%s.%s" % self._e_args #e need parens? need quoting of 2nd arg? Need to not say '.' if 2nd arg not a py-ident string?
     _e_eval_function = getattr # this doesn't need staticmethod, maybe since <built-in function getattr> has different type than lambda
+    ## _e_eval_lval_setto_function = setattr
+    _e_eval_lval_function = staticmethod(LvalueFromObjAndAttr) #061204 ###k not sure if staticmethod is correct
     pass
 
 class getitem_Expr(OpExpr): #061110
@@ -756,6 +781,20 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         else:
             printfyi("### env._self IS newenv._self (surprising)")
         return self._e_expr0._e_eval(newenv, ipath)
+    def _e_eval_lval(self, env, ipath): #061204 semi-guess
+        assert env 
+        env._self 
+        newenv = self._e_env0
+        newenv_self = getattr(newenv, '_self', None) 
+        if env._self is not newenv_self:
+            # usual case (in fact, always true AFAIK)
+            if 0:
+                printfyi("in _e_eval_lval: env._self is not newenv._self: a %s is not a %s (tho it may or may not be in same class)" % \
+                         (env._self.__class__.__name__, newenv_self.__class__.__name__))
+        else:
+            printfyi("### in _e_eval_lval: env._self IS newenv._self (surprising)")
+        return self._e_expr0._e_eval_lval(newenv, ipath) # THE DIFFERENCE from _e_eval IS HERE
+    pass
 
 class eval_Expr(OpExpr):
     """An "eval operator", more or less. For internal use only [if not, indices need to be generalized].
@@ -777,6 +816,18 @@ class eval_Expr(OpExpr):
                   (argval, arg) #061118
             raise
         ## print "eval_Expr eval goes from %r to %r to %r" % (arg, argval, res)
+        return res
+    def _e_eval_lval(self, env,ipath):#061204 guess
+        assert env #061110
+        (arg,) = self._e_args
+        argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
+        try:
+            res = argval._e_eval_lval(env, ipath) # this is the difference from _e_eval
+        except:
+            print "following exception concerns argval._e_eval_lval(...) where argval is %r and came from evalling %r" % \
+                  (argval, arg) #061118
+            raise
+        print "eval_Expr _e_eval_lval goes from %r to %r to %r" % (arg, argval, res)###
         return res
     pass
 

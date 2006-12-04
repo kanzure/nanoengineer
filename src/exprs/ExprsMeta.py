@@ -419,7 +419,7 @@ class C_rule_for_formula(C_rule):
     def make_compute_method_for_instance(self, instance):
         return self.formula._e_compute_method(instance, '$' + self.attr) # index arg is a guess, 061110
     def __repr__(self):
-        return "<%s at %#x for %s>" % (self.__class__.__name__, id(self), self.attr)#061117 changed self.formula -> self.attr
+        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.attr)#061117 changed self.formula -> self.attr
     pass
 
 def choose_C_rule_for_val(clsname, attr, val, **kws):
@@ -513,7 +513,7 @@ class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - revie
         lval.set_constant_value(val)
         return        
     def __repr__(self):
-        return "<%s at %#x for %s>" % (self.__class__.__name__, id(self), self.attr)#061117 changed self.lval_formula -> self.attr
+        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.attr)#061117 changed self.lval_formula -> self.attr
     pass # end of class C_rule_for_lval_formula
     #
     # historical note [061117 841p]: see cvs rev 1.42 for a version of this class
@@ -546,7 +546,7 @@ class data_descriptor_Expr_descriptor(ClassAttrSpecific_DataDescriptor):
         assert self.attr != FAKE_ATTR
         return self.expr._e_set_for_our_cls(self, instance, val) #e or pass self.attr rather than self?
     def __repr__(self):
-        return "<%s at %#x for %s>" % (self.__class__.__name__, id(self), self.attr)
+        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.attr)
     pass # end of class data_descriptor_Expr_descriptor
 
 # ==

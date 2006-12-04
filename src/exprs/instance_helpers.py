@@ -354,7 +354,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
 
         #e call _init_class and/or _init_expr if needed [here or more likely earlier]
 
-        self._i_instance_exprs = {} # private storage for self._i_instance method
+        self._i_instance_decl_data = {} # private storage for self._i_instance method [renamed from _i_instance_exprs, 061204]
         
         # call subclass-specific instantiation code (it should make kids, perhaps lazily, if above didn't; anything else?? ###@@@)
         self._init_instance()
@@ -383,7 +383,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     # kid-instantiation, to support use of the macros Arg, Option, Instance, etc
     #k (not sure this is not needed in some other classes too, but all known needs are here)
     
-    def _i_instance( self, expr, index ):
+    def _i_instance( self, expr, index, _lvalue_flag = False ):
         """[semi-private; used by macros like Instance, Arg, Option]
         Find or create (or perhaps recompute if invalid, but only the latest version is memoized) (and return)
         an Instance of expr, contained in self, at the given relative index, and in the same env [#e generalize env later?].
@@ -404,24 +404,25 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             print "_i_instance called, expr %r, index %r, self %r, _e_args %r" % \
                    (expr, index, self, self._e_args)
 
-        # [#k review whether this comment is still needed/correct]
+        # [#k review whether this comment is still needed/correct; 061204 semiobs due to newdata change below]
         # hmm, calling Instance macro evals the expr first... can't it turn out that it changes over time?
         # I think yes... not only that, a lot of change in it should be buried inside the instance! (if it's in an arg formula)
         # as if we need to "instantiate the expr" before actually passing it... hmm, if so this is a SERIOUS LOGIC BUG. ####@@@@
         # WAIT -- can it be that the expr never changes? only its value does? and that we should pass the unevaluated expr? YES.
         # But i forgot, eval of an expr is that expr! I get confused since _e_eval evals an implicit instance -- rename it soon! ###@@@
-        oldexpr = self._i_instance_exprs.get(index, None) # see above comment
-        if oldexpr is not expr:
-            if oldexpr is not None:
-                print "bug: expr for instance changed: self = %r, index = %r, new expr = %r, old expr = %r" % \
-                      (self,index,expr,oldexpr) #e more info? i think this is an error and should not happen normally
+        newdata = (expr, _lvalue_flag) # revised 061204, was just expr, also renamed; cmt above is semiobs due to this
+        olddata = self._i_instance_decl_data.get(index, None) # see above comment
+        if olddata != newdata:
+            if olddata is not None:
+                print "bug: expr or lvalflag for instance changed: self = %r, index = %r, new data = %r, old data = %r" % \
+                      (self,index,newdata,olddata) #e more info? i think this is an error and should not happen normally
                 #e if it does happen, should we inval that instance? yes, if this ever happens without error.
-            self._i_instance_exprs[index] = expr
+            self._i_instance_decl_data[index] = newdata
         return self._i_instance_CVdict[index] # takes care of invals in making process? or are they impossible? ##k
     def _CV__i_instance_CVdict(self, index):
         """[private] value-recomputing function for self._i_instance_CVdict.
         Before calling this, the caller must store an expr for this instance
-        into self._i_instance_exprs[index] (an ordinary dict).
+        into self._i_instance_decl_data[index] (an ordinary dict).
            If it's permitted for that expr to change with time (which I doubt, but don't know yet for sure #k),
         then whenever the caller changes it (other than when initially setting it), the caller must invalidate
         the entry with the same key (our index arg) in the LvalDict2 that implements self._i_instance_CVdict
@@ -434,9 +435,10 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         # Implem notes:
         # - the glue code added by _CV_ from self._i_instance_CVdict to this method (by ExprsMeta) uses LvalDict2
         #   to cache values computed by this method, and recompute them if needed (which may never happen, I'm not sure).
-        # - the access to self._i_instance_exprs[index] is not usage tracked;
+        # - the access to self._i_instance_decl_data[index] is not usage tracked;
         #   thus if we change it above w/o error, an inval is needed.
-        expr = self._i_instance_exprs[index]
+        data = self._i_instance_decl_data[index]
+        expr, lvalflag = data # 061204
         ## print "fyi, using kid expr %r" % expr
         # (these tend to be longish, and start with eval_Expr -- what we'd rather print is the result of the first eval it does)
             # Note, this expr can be very simplifiable, if it came from an Arg macro,
@@ -470,7 +472,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108 -- now always, 061110
             # note: this (used-to-be-redundantly) grabs env from self
             try:
-                res = expr._e_compute_method(self, index)() ##e optim someday: inline this
+                res = expr._e_compute_method(self, index, _lvalue_flag = lvalflag)() ##e optim someday: inline this
                     # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10'
             except:
                 # we expect caller to exit now, so we might as well print this first: [061114]

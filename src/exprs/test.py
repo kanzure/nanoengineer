@@ -666,7 +666,7 @@ testexpr_16 = SimpleRow(toggler(), toggler())
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_15d
+testexpr = testexpr_16
     ## testexpr_16 state test - under devel
 
     ## testexpr_7c nested Boxed

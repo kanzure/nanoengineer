@@ -16,7 +16,7 @@ from __Symbols__ import _E_ATTR, _E_REQUIRED_ARG_, _E_DFLT_FROM_TYPE_
 
 # ==
 
-def Instance(expr, _index_expr = _E_ATTR):
+def Instance(expr, _index_expr = _E_ATTR, _lvalue_flag = False):
     """This macro is assigned to a class attr to declare that its value should be a lazily-instantiated Instance of expr. 
     Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instance(hold_Expr(expr), _E_ATTR),
     which is free in the symbols _self and _E_ATTR. [#e _E_ATTR might be changed to _E_INDEX, or otherwise revised.]
@@ -24,12 +24,13 @@ def Instance(expr, _index_expr = _E_ATTR):
     for their use only, it has a private _index_expr option, giving an index expr other than _E_ATTR for the new Instance.
     Note that they may have handy, not expr itself, but a "grabarg" expr which needs to be evaluated (with _self bound)
     to produce that expr. What should they pass?? eval_Expr of the expr they have. [#doc - reword this]
+       Other private options: _lvalue_flag
     """
     printnim("review: same index is used for a public Option and a private Instance on an attr; maybe ok if no overlap possible???")##e
     global _self # not needed, just fyi
     ##printnim("why is the expr in the _i_instance call not held??? ##k -- it's %r" % (expr,) )#####@@@@@ see what exprs get printed
         #guess: it should be, but we didn't notice since canon_expr fixes it. question: is it ever a replace-me-in-scan thing??
-    return call_Expr( getattr_Expr(_self, '_i_instance'), hold_Expr(expr), _index_expr) 
+    return call_Expr( getattr_Expr(_self, '_i_instance'), hold_Expr(expr), _index_expr, _lvalue_flag = _lvalue_flag ) 
 
 _arg_order_counter = 0 #k might not really be needed?
 
@@ -38,7 +39,8 @@ _arg_order_counter = 0 #k might not really be needed?
 # they need it to calc the index to use, esp for ArgOrOption if it depends on how the arg was supplied
 # (unless we implem that using an If or using default expr saying "look in the option" -- consider those!)
 
-def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM _E_REQUIRED_ARG_ - do we tell _i_instance somehow?
+def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None, _lvalue_flag = False):
+    ### [update 061204: i think this cmt is obs, not sure:] IMPLEM _E_REQUIRED_ARG_ - do we tell _i_instance somehow?
     """To declare an Instance-argument in an expr class,
     use an assignment like this, directly in the class namespace:
           attr = Arg( type, optional default value expr )
@@ -55,7 +57,7 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM 
     If it is supplied, it is processed through canon_expr (as if Arg was an Expr constructor),
     unless it's one of the special case symbols (meant only for private use by this family of macros)
     _E_REQUIRED_ARG_ or the other _E_ one.##doc
-       [_attr_expr is a private option for use by ArgOrOption.]
+       [_attr_expr is a private option for use by ArgOrOption. So is _lvalue_flag.]
     """
     global _arg_order_counter
     _arg_order_counter += 1
@@ -76,9 +78,13 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None): ###IMPLEM 
         # in finding the arg expr in an instance (the replacement instance for _self) --
         # this is None by default, since _E_ATTR (the attr we're on) shouldn't affect the index,
         # in this Arg macro. When we're used by other macros they can pass something else for that.
-    return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr)
+    return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_flag = _lvalue_flag)
 
-def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
+def LvalueArg(type_expr, dflt_expr = _E_REQUIRED_ARG_): #061204, experimental syntax, likely to be revised; #e might need Option variant too
+    "Declare an Arg which will not be evaluated as usual, but to an lvalue object, so its value can be set using .set_to, etc."
+    return Arg(type_expr, dflt_expr, _lvalue_flag = True)
+
+def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_flag = False ):
     """[private helper for Arg, Option, and maybe ArgOrOption]
     attr_expr should be None, or some sort of expr (in practice always _E_ATTR so far)
       that will get replaced by a constant_Expr for the current attr (in ExprsMeta's FormulaScanner),
@@ -92,6 +98,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
     type_expr ###doc, passed herein to canon_type
     dflt_expr ###doc, can also be _E_DFLT_FROM_TYPE_ or [handled in caller i think, but survives here unmatteringly] _E_REQUIRED_ARG_;
         will be passed through canon_expr
+    _lvalue_flag is a private option used by LvalueArg
     """
     global _self # fyi
     type_expr = canon_type( type_expr)
@@ -126,7 +133,7 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr ):
         index_expr = argpos_expr
     printnim("I suspect type_expr (stub now) is included wrongly re eval_Expr in _ArgOption_helper, in hindsight 061117")
         ### I suspect the above, because grabarg expr needs to be evalled to get the expr whose type coercion we want to instantiate
-    return Instance( eval_Expr( type_expr( grabarg_expr)), _index_expr = index_expr )
+    return Instance( eval_Expr( type_expr( grabarg_expr)), _index_expr = index_expr, _lvalue_flag = _lvalue_flag )
 
 class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten
     def _internal_Expr_init(self):
