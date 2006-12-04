@@ -647,7 +647,7 @@ class toggler(InstanceMacro):
         )[ mod_Expr(var,3) ], ##k
 
         on_press = Set(var, var+1)
-            # Set (defined now in controls.py) needs a stateref, but won't yet coerce a getattr_Expr like var to one ###IMPLEM
+            # Set (defined in Set.py) needed a stateref, but won't yet coerce a getattr_Expr like var to one ###IMPLEM [doing it]
         ###BUG: the expr arg0 of that Set is a State object -- why is it not _self.var ??? BUT if it was, would we alter .var?
         # well, we'd call setattr, but that would go thru the property that wraps State, as origially intended.
         # So it looks like ExprsMeta is failing to do its usual replacement. And it needs it (unless kluges will be bad)
@@ -666,7 +666,7 @@ testexpr_16 = SimpleRow(toggler(), toggler())
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_16
+testexpr = testexpr_15d
     ## testexpr_16 state test - under devel
 
     ## testexpr_7c nested Boxed

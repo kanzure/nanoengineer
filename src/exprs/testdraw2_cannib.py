@@ -20,12 +20,11 @@ pt = print_compact_traceback
 #####@@@@@ from __Symbols__ import Column, Rect, Row, Button, If
 
 # constructors
-from __Symbols__ import NamedLambda, Hidden, Centered, Set
+from __Symbols__ import NamedLambda, Hidden, Centered
 
 ##NamedLambda = Stub
 ##Hidden = Invisible # not quite right (only issue is depth writing, i think; Invis wants it, we don't want it)
 ##Centered = Stub
-##Set = Stub # for an action that sets a stateref to the current value of a formula [what usage-tracking or subs effect does it have?]
 ##
 
 def NamedLambda_OBS(name, arglist, body): #e more body args? options??

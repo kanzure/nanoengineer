@@ -21,6 +21,7 @@ ToggleAction = NamedLambda( ###e need to initialize the state if not there? NO, 
     'ToggleAction',
     ((stateref, StateRef),),
     Set(stateref, not stateref) ### will 'not' be capturable by a formula?
+        ## [update 061204: lhs and rhs are both wrong now, see Set.py -- lhs must be lval, rhs must be not stateref.value or so [nim]]
     )
 
 # == ToggleButton

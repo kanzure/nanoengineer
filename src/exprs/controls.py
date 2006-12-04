@@ -44,7 +44,7 @@ StateRef = Anything # fyi, StateRef is a different stub in ToggleShow.py, same a
 
 import Set
 reload_once(Set)
-from Set import Set ###e move to basic
+from Set import SetStateRefValue ###e move to basic, but maybe only import of Set, not of this semiobs variant [061204 comment]
 
 import staterefs
 reload_once(staterefs)
@@ -98,7 +98,9 @@ class ChoiceButton(InstanceMacro):
                                          If(chosen, background, background_off),
                                          content ),
                                      ),
-                            on_press = Set(choiceref, choiceval),
+                            on_press = SetStateRefValue(choiceref, choiceval),
+                                ##e probably best to say Set(choiceref.value, choiceval), but I think that's nim -- not sure --
+                                # should retest it after Set is revised later today to work with arg1 being lval eg getattr_Expr [061204]
                             sbar_text = sbar_text
                            )
     pass # end of class ChoiceButton

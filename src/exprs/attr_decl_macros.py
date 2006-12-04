@@ -270,6 +270,7 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
             assert self._e_descriptor is descriptor, \
                    "different descriptors in get: %r stored, %r stored next" % (self._e_descriptor, descriptor)
             ####@@@@ I predict that will happen due to descriptor copying. (Unless we always access this through py code.)
+            # (no, that was a bug effect -- i mean, as soon as we use subclasses inheriting a State decl.)
             # I think that copying is not needed in this case. So we probably need to disable it in our class of descriptor. #e [061204]
         attr = descriptor.attr
         holder = self._e_attrholder(instance, init_attr = attr) # might need attr for initialization using self._e_default_val
@@ -322,6 +323,9 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
         assert self._e_descriptor is not None
         descriptor = self._e_descriptor
         res = self._e_get_for_our_cls(descriptor, instance)
+        print "fyi: _e_eval (not thru __get__, i think) of self = %r in instance = %r gets res = %r" % (self, instance, res)
+            ### I SUSPECT this never happens now that formula-scanner is properly called on us, but I'm not sure, so find out.
+            ### ALSO we'll now see the predicted above bug from copying the descriptor, when we use subclasses inheriting a State decl.
         return res
     pass # end of class State
 
