@@ -3,6 +3,8 @@ staterefs.py - facilities for defining and referencing state,
 in widget exprs which display it, edit it, operate on it, produce it
 
 $Id$
+
+see also: class Set, and State macro, in other files
 """
 
 from basic import * # all we really need is call_Expr & [for LocalState stub, below, removed 061126 late] InstanceOrExpr, so far.

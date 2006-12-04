@@ -557,6 +557,10 @@ class V_expr(OpExpr):
     _e_eval_function = staticmethod( lambda *args: _V(*args) ) #e could inline as optim
     pass
 
+# ==
+
+# these function -> OpExpr macros are quick hacks, fine except for their printform and maybe their efficiency.
+
 def max_Expr(*args):
     return call_Expr( max, *args)
 
@@ -572,6 +576,11 @@ def eq_Expr(arg1, arg2):
 
 def ne_Expr(arg1, arg2):
     return call_Expr(lambda a1,a2: a1 != a2, arg1, arg2)
+
+def mod_Expr(arg1, arg2):
+    return call_Expr(lambda a1,a2: a1 % a2, arg1, arg2)
+
+# ==
 
 class and_Expr(OpExpr): #061128
     "Evaluate only enough args (out of 2 or more) to return the last one if they're all true, otherwise the first false one."
@@ -642,7 +651,7 @@ class format_Expr(OpExpr): #061113, seems to work
                                      or assert_0_func("format_Expr got non-string format %r" % arg1)
                                 ) #e accept unicode arg1 too; python2.2 has an official way to express that (using the name string??)
     pass # format_Expr
-
+    
 # ==
 
 class internal_Expr(Expr):

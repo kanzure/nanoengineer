@@ -65,6 +65,16 @@ class Spacer(Rect): #061126; untested
         pass
     pass
 
+class SpacerFor(InstanceOrExpr, DelegatingMixin):
+    """A spacer, the same size and position (ie same lbox) as its arg. ###e Should merge this with Spacer(dims),
+    easier if dims can be a rect object which is also like a thing you could draw... maybe that's the same as a Rect object? #k
+    See also Invisible, which unlike this will pick up mouseovers for highlighting. [##e And which is nim, in a cannib file.]
+    """
+    delegate = Arg(Widget2D)
+    def draw(self):
+        return
+    pass
+
 # ==
 
 IsocelesTriangle = Rect  #e stub (implem as simple variant of Rect; find it in a cannib file)

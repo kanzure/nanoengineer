@@ -1,7 +1,9 @@
 """
-controls.py - some simple controls
+controls.py - some simple controls, like ChoiceButton and ChoiceColumn
 
 $Id$
+
+###e also has some general things we need to refile
 """
 
 #e stub, nim; implem requires StateRef, some better type conversion (& filling it out below), Set action, on_press accepting that
@@ -10,10 +12,9 @@ $Id$
 from basic import *
 from basic import _self
 
-
 import Rect
 reload_once(Rect)
-from Rect import Rect, Spacer
+from Rect import Rect, Spacer, SpacerFor
 
 import Column
 reload_once(Column)
@@ -39,40 +40,12 @@ If = If_kluge # until debugged
 
 # stub types
 stubtype = 'stubtype'
-Type = StateRef = Function = Anything # fyi, StateRef is a different stub in ToggleShow.py
+Type = StateRef = Anything # fyi, StateRef is a different stub in ToggleShow.py, same as in Set.py
 
-class SpacerFor(InstanceOrExpr, DelegatingMixin):
-    """A spacer, the same size and position (ie same lbox) as its arg. ###e Should merge this with Spacer(dims),
-    easier if dims can be a rect object which is also like a thing you could draw... maybe that's the same as a Rect object? #k
-    See also Invisible, which unlike this will pick up mouseovers for highlighting. [##e And which is nim, in a cannib file.]
-    """
-    delegate = Arg(Widget2D)
-    def draw(self):
-        return
-    pass
+import Set
+reload_once(Set)
+from Set import Set ###e move to basic
 
-#  Set(choiceref, choiceval) - instantiates to a py function (or Action wrapping that) that when called does cr.value = cv
-# note: compared to some other files' ideas, this takes a stateref rather than an lval as arg1 -- might be wrong
-# [a suffix of that comment is duped in two files]
-class Set(InstanceOrExpr): # experimental, 061130
-    stateref = Arg(StateRef)
-    val = Arg(Anything)
-    def __call__(self, *args, **kws):
-        if self._e_is_instance:
-            # this will be moved to super Action with the specific thing to do put in a method in this subclass
-            # but for now that thing is:
-            print "%r: setting %r.value = %r" % (self, self.stateref , self.val)###
-            self.stateref.value = self.val
-            #e we might also want the func that does this available as an attr from any Action -- easy, just give it a public name
-            return
-        else:
-            return super(Set, self).__call__(*args, **kws) # presumably a customized or arg-filled pure expr
-                #k Q: could I also just say super(Set, self)(*args, **kws) ?? Same Q for .__getattr__('attr') vs .attr, etc.
-                # I am not sure they're equiv if super doesn't explicitly define the special method (or for that matter, if it does).
-                # For all I know, they'd be infrecurs. In fact that seems likely -- it seems to be what I know is true for getattr.
-        pass
-    pass
-    
 class ChoiceButton(InstanceMacro):
     """ChoiceButton(choiceval, choiceref, content, background, background_off) [most args optional]
     displays and permits control of a choice variable stored externally in choiceref,
@@ -126,6 +99,10 @@ class ChoiceButton(InstanceMacro):
                            )
     pass # end of class ChoiceButton
 
+# ==
+
+####e refile these:
+
 class LocalVariable_StateRef(InstanceOrExpr): # guess, 061130
     "return something which instantiates to something with .value which is settable state..."
     #e older name: StateRefFromIpath; is this almost the same as the proposed State() thing? it may differ in how to alter ipath
@@ -173,6 +150,8 @@ class _Apply_helper(InstanceOrExpr, DelegatingMixin):
         return external_flag, res0
     pass
 
+# ==
+
 # test status 061130: works, except that a click is only noticed (or a mouseover sbar msg given) for the one that's currently chosen,
 # so you can't change the current choice. hmm.
 
@@ -189,6 +168,7 @@ def ChoiceColumn( nchoices, dflt = 0, **kws): ##e should be an InstanceMacro, no
         LocalVariable_StateRef(int, dflt)
             # LocalState, combining this an the Apply?
                 # or, just a stateref to some fixed state somewhere... whose instance has .value I can get or set? use that for now.
+                ##k is there any way to use the new-061203 State macro for this?
     )
 
 """

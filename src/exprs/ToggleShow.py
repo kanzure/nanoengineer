@@ -2,6 +2,8 @@
 ToggleShow.py
 
 $Id$
+
+#e needs cleanup
 """
 
 ##nim: [obs? maybe not]
@@ -39,6 +41,7 @@ Automatic = StateRef = Stub
 
 ## Set - not yet needed [see controls.py for a prototype, 061130, which takes a stateref rather than an lval as arg1 -- might be wrong]
 State # defined in Exprs.py but nim -- that's where i am 061117 445p, plus here where i use it
+    ##e should try using State here once it's tested
 
 # ==
 

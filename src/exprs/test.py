@@ -109,6 +109,10 @@ import controls
 reload_once(controls)
 from controls import ChoiceColumn ## ( nchoices, dflt = 0, **kws) ## make_testexpr_for_ChoiceButton
 
+import Set
+reload_once(Set)
+from Set import Set ##e move to basic
+
 # == @@@
 
 import widget_env
@@ -632,10 +636,25 @@ testexpr_15c = ChoiceColumn(6,2, content = TextRect("zz",1,30), **niceargs) # bu
 testexpr_15d = ChoiceColumn(6,2, content = Rect(7,0.3,white), **niceargs) # compare Rect here -- works, reliable except right after click [which is a ###BUG]
 testexpr_15e = ChoiceColumn(6,2, content = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)), **niceargs) # compare Image -- works
 
+# State [061203]
+class toggler(InstanceMacro):
+    var = State(int, 0)
+    _value = Highlightable(
+        list_Expr( # if you use [] directly, you get TypeError: list indices must be integers (of course)
+            Rect(1,1,red),
+            Rect(1,1,green),
+            Rect(1,1,blue),
+        )[ mod_Expr(var,3) ], ##k
+
+        on_press = Set(var, var+1)
+            # Set (defined now in controls.py) needs a stateref, but won't yet coerce a getattr_Expr like var to one ###IMPLEM
+    )
+    pass
+testexpr_16 = SimpleRow(toggler(), toggler())
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_15d  ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
+testexpr = testexpr_15d  ## testexpr_15d ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
     # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size] testexpr_14 [hide_icons]
