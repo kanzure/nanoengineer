@@ -284,6 +284,12 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
                     print "bug: set_default_attrs should have stored %r at %r in %r, but it has %r" % (val, attr, res, val0)
             pass
         return res
+    ## AttributeError: no attr '_e_eval_function' in <class 'exprs.attr_decl_macros.State'>   -- why does someone want to call this??
+    # where i am 061203 1023p stoopping for night -- wondering that. in testexpr_16.
+    #
+    ##exception in <Lval at 0xff2db70>._compute_method NO LONGER ignored:
+    ##    exceptions.AssertionError: recursion in self.delegate computation in <Highlightable#8076(i)>
+    ##  [lvals.py:209] [Exprs.py:208] [Exprs.py:400] [instance_helpers.py:677]
     pass # end of class State
 
 # note: an old def of State, never working, from 061117, was removed 061203 from cvs rev 1.88 of Exprs.py

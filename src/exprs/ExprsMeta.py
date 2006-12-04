@@ -644,15 +644,14 @@ def prefix_nothing(clsname, attr0, val, **kws):
     # assume we're only called for a formula -- but [as of 061117] it might be a formula for an lval, rather than for a val!
     ## assert is_formula(val)
     permit_override = kws.get('permit_override', False) # it's a kluge to know about this here
-    if not permit_override and not val_is_special(val):
+    if not permit_override and not needs_wrap_by_ExprsMeta(val):
         ## print "why is this val not special? (in clsname %r, attr0 %r) val = %r" % (clsname, attr0, val)
-        printnim("not val_is_special(val)")
+        printnim("not needs_wrap_by_ExprsMeta(val)")
         #kluge 061030: i changed this to a warning, then to printnim since common, due to its effect on ConstantExpr(10),
         # tho the proper fix is different -- entirely change how _DEFAULT_ works. (see notesfile).
         # But on 061101 we fixed _DEFAULT_ differently so this is still an issue -- it's legit to turn formulas
         # on _DEFAULT_attr into e.g. ConstantExpr(10) which doesn't contain _self.
         # Guess: in that case it implicitly DOES contain it! kluge for now: ignore test when permitting override. ###@@@
-        #e rename val_is_special
     val0 = choose_C_rule_for_val(clsname, attr0, val, **kws)
     return val0
 
@@ -694,9 +693,26 @@ def attr_prefix(attr): # needn't be fast
             return prefix
     return ''
 
-def val_is_special(val): #e rename... or, maybe it'll be obs soon?
-    "val is special if it's a formula in _self, i.e. is an instance (not subclass!) of Expr, and contains _self as a free variable."
-    return is_Expr_pyinstance(val) and val._e_free_in('_self')
+def needs_wrap_by_ExprsMeta(val, msg_info = ''): # renamed from val_is_special, and revised, 061203 
+    "val needs_wrap_by_ExprsMeta if it's an Expr pyinstance (for now) [no longer has to contain _self as a free variable]"
+    if not is_Expr_pyinstance(val):
+        return False
+##    if not val._e_free_in('_self'):###WRONG I think, re State... changed now
+##        if msg_info:
+##            msg_info = " (%r)" % (msg_info,)
+##        print "weird val%s: an Expr that is not free in _self" % msg_info, val 
+##        return True ## was False until 061203 1009p
+        # and what it printed for was:
+        ##weird val (('open_icon', 'ToggleShow')): an Expr that is not free in _self <Overlay#3945(a)>
+        ##weird val (('closed_icon', 'ToggleShow')): an Expr that is not free in _self <Overlay#3952(a)>
+        ##weird val (('openclose', 'ToggleShow')): an Expr that is not free in _self <Highlightable#3959(a)>
+        ##
+        ##weird val (('var', 'toggler')): an Expr that is not free in _self <State#6617: (<constant_Expr#6615: <type 'int'>>, <constant_Expr#6616: 0>)>
+        ##weird val (('_value', 'toggler')): an Expr that is not free in _self <Highlightable#6647(a)>
+    if val._e_is_instance: #061203
+        print "POSSIBLE BUG: val._e_is_instance true, for val being wrapped as Expr by ExprsMeta: %r" % (val,)#k ever happens??
+    return True
+##    return is_Expr_pyinstance(val) and val._e_free_in('_self')
         # 061201 Q: are there any implicit ways of containing _self? A: not presently. But note that in sequential class assignments
         # like x = Arg(), y = x + 1, y contains _self since Arg() does. We depend on that in the current code.
         # THIS WILL BE AN ISSUE FOR THINGS LIKE PROPERTY EXPRS, and I wonder if it even has caused some bugs I've seen and
@@ -767,7 +783,7 @@ class ExprsMeta(type):
                        "error: can't define both %r and %r in the same class %r (since ExprsMeta is its metaclass); ns contained %r" % \
                        ( attr0, attr, name, orig_ns_keys )
                     #e change that to a less harmless warning?
-                    # note: it's not redundant with the similar assert below, except when *both* prefix and val_is_special(val).
+                    # note: it's not redundant with the similar assert below, except when *both* prefix and needs_wrap_by_ExprsMeta(val).
                     # note: ns contains just the symbols defined in class's scope in the source code, plus __doc__ and __module__.
             else:
                 attr0 = attr
@@ -777,10 +793,10 @@ class ExprsMeta(type):
                 # DONE INSTEAD [061203]: exclude any attr which might be name-mangled (starts _ but not __, contains __).
                 #k also check val is a pyinstance, not pyclass? no need for now.
                 # 061201
-                #e should we do this after prefix processing, instead? doesn't matter for now, not mixed with prefixes or val_is_special.
+                #e should we do this after prefix processing, instead? doesn't matter for now, not mixed with prefixes or needs_wrap_by_ExprsMeta.
                 ##k but make sure these vals work with formula scanning for _self.attr replacement! #####IMPLEM
                 val._ExprsMeta__set_attr(attr) #e could set clsname too, or pass it to this same method, if needed
-            if prefix or val_is_special(val):
+            if prefix or needs_wrap_by_ExprsMeta(val, msg_info = (attr, name)):
                 ok = True
                 if not prefix and attr.startswith('_'):
                     # note: this scheme doesn't yet handle special vals on "helper prefixes" such as the following:
@@ -910,7 +926,7 @@ class FormulaScanner: #061101  ##e should it also add the attr to the arglist of
         self.linecounter += 1
         printnim("several serious issues remain about C_rules from superclasses in ExprsMeta; see code comment") ####@@@@
             # namely: if a C_rule (the value of a superclass attrname) is seen in place of a formula in ExprsMeta:
-            # - will it notice it as val_is_special?
+            # - will it notice it as needs_wrap_by_ExprsMeta?
             # - will it do the right thing when using it (same as it does when making one for a subclass)?
             # - does C_rule need OpExpr methods for letting source code say e.g. thing.width on it?
             # - if so, does it need renaming of its own methods and attrs (especially args/kws) to start with _e_?

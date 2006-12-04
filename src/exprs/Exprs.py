@@ -129,7 +129,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         # (though it might be definable as whether any __init__ or __call__ had nonempty args or empty kws)
         # (but bare symbols don't need args so they should have this True as well, similar for OpExpr -- all NIM)
         # see also InstanceOrExpr .has_args -- if this survives, that should be renamed so it's the same thing [done now, 061102]
-        # (the original use for this, val_is_special, doesn't need it -- the check for _self is enough) [061027]
+        # (the original use for this, needs_wrap_by_ExprsMeta, doesn't need it -- the check for _self is enough) [061027]
     def __init__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __init__" % self.__class__.__name__
     def _init_e_serno_(self):

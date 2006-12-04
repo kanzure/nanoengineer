@@ -12,6 +12,13 @@ $Id$
 #
 ##e see also old code in ToggleShow-outtakes.py
 
+# Hmm, I discovered by accident 061203 1007p that the following were not being processed by ExprsMeta:
+##weird val (('open_icon', 'ToggleShow')): an Expr that is not free in _self <Overlay#3945(a)>
+##weird val (('closed_icon', 'ToggleShow')): an Expr that is not free in _self <Overlay#3952(a)>
+##weird val (('openclose', 'ToggleShow')): an Expr that is not free in _self <Highlightable#3959(a)>
+# so I will make them processed by it, by removing the free in _self condition (needed for State too),
+# but I wonder if that will break this, or maybe fix some of its occasional problems...
+
 
 from basic import *
 from basic import _self, _this

@@ -651,10 +651,16 @@ class toggler(InstanceMacro):
     )
     pass
 testexpr_16 = SimpleRow(toggler(), toggler())
+    ## AttributeError: no attr '_e_eval_function' in <class 'exprs.attr_decl_macros.State'>
+    #
+    ##exception in <Lval at 0xff2db70>._compute_method NO LONGER ignored:
+    ##    exceptions.AssertionError: recursion in self.delegate computation in <Highlightable#8076(i)>
+    ##  [lvals.py:209] [Exprs.py:208] [Exprs.py:400] [instance_helpers.py:677]
+
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_16 ## testexpr_16  ## testexpr_15d ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
+testexpr = testexpr_7c ## testexpr_16  ## testexpr_15d ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
     # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size] testexpr_14 [hide_icons]
