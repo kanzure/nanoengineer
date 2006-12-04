@@ -9,7 +9,7 @@ from basic import _self
 
 import lvals
 reload_once(lvals)
-from lvals import LvalDict1
+from lvals import LvalDict1, call_but_discard_tracked_usage
 
 import Exprs
 reload_once(Exprs)

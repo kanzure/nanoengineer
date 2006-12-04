@@ -26,12 +26,9 @@ class Set(InstanceOrExpr): # experimental, 061130
     stateref = Arg(StateRef)
     val = Arg(Anything)
     def __call__(self, *args, **kws):
+        ### NOTE: this method will be moved to a new superclass, Action
         if self._e_is_instance:
-            # this will be moved to super Action with the specific thing to do put in a method in this subclass
-            # but for now that thing is:
-            print "%r: setting %r.value = %r" % (self, self.stateref , self.val)###
-            self.stateref.value = self.val
-            #e we might also want the func that does this available as an attr from any Action -- easy, just give it a public name
+            self._i_do_action(*args, **kws) #k correct to pass args? or just assert them missing right here?
             return
         else:
             return super(Set, self).__call__(*args, **kws) # presumably a customized or arg-filled pure expr
@@ -39,6 +36,16 @@ class Set(InstanceOrExpr): # experimental, 061130
                 # I am not sure they're equiv if super doesn't explicitly define the special method (or for that matter, if it does).
                 # For all I know, they'd be infrecurs. In fact that seems likely -- it seems to be what I know is true for getattr.
         pass
+    def _i_do_action(self, *args, **kws):
+        assert not args
+        assert not kws
+        print "%r: setting %r.value = %r" % (self, self.stateref , self.val)###
+        if self.stateref == 0:
+            # kluge: debug print for testexpr_16; this happens because Set is trying to be two things at once re arg1,
+            # lval like _self.var to set, or stateref (this code, used in ToggleShow).
+            print "that stateref of 0 came from this expr arg:", self._e_args[0]
+        self.stateref.value = self.val
+        return
     pass
 
 # end

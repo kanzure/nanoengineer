@@ -648,6 +648,12 @@ class toggler(InstanceMacro):
 
         on_press = Set(var, var+1)
             # Set (defined now in controls.py) needs a stateref, but won't yet coerce a getattr_Expr like var to one ###IMPLEM
+        ###BUG: the expr arg0 of that Set is a State object -- why is it not _self.var ??? BUT if it was, would we alter .var?
+        # well, we'd call setattr, but that would go thru the property that wraps State, as origially intended.
+        # So it looks like ExprsMeta is failing to do its usual replacement. And it needs it (unless kluges will be bad)
+        # and was intended to do it. Why doesn't it? wild guess: lack of _E_ATTR? No, sillier bug: I added the descriptor wrapper
+        # before scanning the formula. Fixed, now the behavior is as expected (arg is _self.var) & boils down to the design of Set.
+        # Kluge it to work both ways, or decide once and for all?
     )
     pass
 testexpr_16 = SimpleRow(toggler(), toggler())
@@ -660,7 +666,14 @@ testexpr_16 = SimpleRow(toggler(), toggler())
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_7c ## testexpr_16  ## testexpr_15d ## testexpr_13z4 ## testexpr_11r1b ## testexpr_10c
+testexpr = testexpr_16
+    ## testexpr_16 state test - under devel
+
+    ## testexpr_7c nested Boxed
+    ## testexpr_10c double-nested toggleshow of highlightable rect
+    ## testexpr_11r1b image with black padding
+    ## testexpr_13z4 red/blue image
+    ## testexpr_15d ChoiceColumn
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
     # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size] testexpr_14 [hide_icons]

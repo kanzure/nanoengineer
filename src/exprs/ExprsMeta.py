@@ -427,10 +427,6 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
     C_rule_for_method or C_rule_for_formula or a val-specified wrapper,
     depending on val
     """
-    wrapper = getattr(val, '_e_wants_this_descriptor_wrapper', None) # new feature 061203
-    if wrapper:
-        assert issubclass(wrapper, ClassAttrSpecific_NonDataDescriptor)
-        return wrapper(clsname, attr, val, **kws)
     if is_pure_expr(val):
         # assume val is a formula on _self
         # first scan it for subformulas that need replacement, and return replaced version, also recording info in scanner
@@ -442,17 +438,20 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
 ##                print "scanner replaces %r by %r" % (val0, val)
 ##            else:
 ##                print "scanner leaves unchanged %r" % (val0,)
+        wrapper = getattr(val, '_e_wants_this_descriptor_wrapper', None) # new feature 061203, 061204 moved after scanner as bugfix
+        if wrapper:
+            assert issubclass(wrapper, ClassAttrSpecific_NonDataDescriptor)
+            return wrapper(clsname, attr, val, **kws)
         flag = getattr(val, '_e_is_lval_formula', False)
         assert not flag # 061203
         if flag: # new feature 061117, for State macro and the like [note 061203: that State macro is obs, new one doesn't use this]
             # it's a formula for an lval, rather than for a val!
             print "should not happen yet: val = %r, flag = %r" % (val,flag) # an expr or so??
             return C_rule_for_lval_formula(clsname, attr, val, **kws)
-        else:
-            return C_rule_for_formula(clsname, attr, val, **kws)
-        pass
+        return C_rule_for_formula(clsname, attr, val, **kws)
     elif is_Expr(val):
-        printnim("Instance case needs review in choose_C_rule_for_val") # does this ever happen? in theory, it can... (dep on is_special)
+        print("Instance case needs review in choose_C_rule_for_val")
+            # does this ever happen? in theory, it can... (depending on needs_wrap_by_ExprsMeta)
         return val ###k not sure caller can take this
     #e support constant val?? not for now.
     else:
@@ -537,6 +536,7 @@ def eval_and_discard_tracked_usage(formula, instance, index): #061117 #e refile 
 class data_descriptor_Expr_descriptor(ClassAttrSpecific_DataDescriptor):
     def _init1(self):
         (self.expr,) = self.args
+        self.expr._e_set_descriptor(self) # whether it stores anything is up to the specific subclass
     def get_for_our_cls(self, instance):
         print "get_for_our_cls",(self, self.attr, instance, )###
         assert self.attr != FAKE_ATTR

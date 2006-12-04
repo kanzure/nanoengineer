@@ -242,6 +242,7 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
     # but just has an implicit self-relative object and explicit attrname to refer to.
     
     _e_wants_this_descriptor_wrapper = data_descriptor_Expr_descriptor # defined in ExprsMeta, imported from basic
+    _e_descriptor = None
     
     def _e_init(self):
         def myargs(type, dflt = None): # note: these args are exprs, and already went through canon_expr
@@ -253,13 +254,31 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
             self._e_default_val = dflt
         myargs(*self._e_args)
         return
+    def _e_set_descriptor(self, descriptor):
+        """In general (ie part of API of this method, called by data_descriptor_Expr_descriptor):
+        storing the descriptor is optional, since it's also passed into the get and set calls.
+        In this subclass, we have to store it, since _e_eval can be called without otherwise knowing descriptor.attr.
+        """
+        if self._e_descriptor is not None:
+            assert self._e_descriptor is descriptor
+        else:
+            self._e_descriptor = descriptor
+        return
     def _e_get_for_our_cls(self, descriptor, instance):
         print "_e_get_for_our_cls",(self, descriptor, instance, )###
+        if self._e_descriptor is not None:
+            assert self._e_descriptor is descriptor, \
+                   "different descriptors in get: %r stored, %r stored next" % (self._e_descriptor, descriptor)
+            ####@@@@ I predict that will happen due to descriptor copying. (Unless we always access this through py code.)
+            # I think that copying is not needed in this case. So we probably need to disable it in our class of descriptor. #e [061204]
         attr = descriptor.attr
         holder = self._e_attrholder(instance, init_attr = attr) # might need attr for initialization using self._e_default_val
         return getattr(holder, attr)
     def _e_set_for_our_cls(self, descriptor, instance, val):
         print "_e_set_for_our_cls",(self, descriptor.attr, instance, val)###
+        if self._e_descriptor is not None:
+            assert self._e_descriptor is descriptor, \
+                   "different descriptors in set: %r stored, %r stored next" % (self._e_descriptor, descriptor) # see commment above
         attr = descriptor.attr
         holder = self._e_attrholder(instance) # doesn't need to do any initialization
         return setattr(holder, attr, val)
@@ -277,7 +296,8 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
                 index = attr
                 val = instance._i_eval_dfltval_expr(val_expr, index)
                 #k should I just do setattr(res, attr, val), or is there something special and better about this:
-                set_default_attrs(res, {attr : val}) ##k arg syntax
+                ## set_default_attrs(res, {attr : val}) ##k arg syntax
+                set_default_attrs(res, **{attr : val})
                 val0 = getattr(res, attr)
                 ## assert val is val0,
                 if not (val is val0):
@@ -285,11 +305,24 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
             pass
         return res
     ## AttributeError: no attr '_e_eval_function' in <class 'exprs.attr_decl_macros.State'>   -- why does someone want to call this??
-    # where i am 061203 1023p stoopping for night -- wondering that. in testexpr_16.
+    # where i am 061203 1023p stopping for night -- wondering that. in testexpr_16.
     #
     ##exception in <Lval at 0xff2db70>._compute_method NO LONGER ignored:
     ##    exceptions.AssertionError: recursion in self.delegate computation in <Highlightable#8076(i)>
     ##  [lvals.py:209] [Exprs.py:208] [Exprs.py:400] [instance_helpers.py:677]
+    def _e_eval(self, env,ipath):
+        # 061204 comments:
+        #e - compare to property_Expr
+        # - it may indicate a bug that we get here at all -- i thought we'd go through our descriptor instead. maybe only thru py code?
+        # - the descriptor knows attr, we don't -- is that ok? no -- it won't let us initialize attr or even find it!
+        #   SO WE HAVE TO GET DESCRIPTOR TO SET ITSELF (or at least attr) INSIDE US, exclusively. Doing this now. #######@@@@@@@
+        ##e - we may also want a variant of this which "evals us as an lvalue, for use as arg1 of Set()" []
+        assert env #061110
+        instance = env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]
+        assert self._e_descriptor is not None
+        descriptor = self._e_descriptor
+        res = self._e_get_for_our_cls(descriptor, instance)
+        return res
     pass # end of class State
 
 # note: an old def of State, never working, from 061117, was removed 061203 from cvs rev 1.88 of Exprs.py
