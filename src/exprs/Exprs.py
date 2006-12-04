@@ -176,7 +176,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
             return self
         #e following error message text needs clarification -- when it comes out of the blue it's hard to understand
         print "__get__ is nim in the Expr", self, ", which is assigned to some attr in", obj ####@@@@ NIM; see above for how [061023 or 24]
-        print "this formula needed wrapping by ExprsMeta to become a compute rule..." ####@@@@
+        print "this formula needed wrapping by ExprsMeta to become a compute rule...:", self ####@@@@
         return
     def _e_compute_method(self, instance, index = 'stubi'):
         """Return a compute method version of this formula, which will use instance as the value of _self,

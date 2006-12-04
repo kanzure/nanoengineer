@@ -154,6 +154,10 @@ import Exprs
 reload_once(Exprs) # doesn't support reload, for now, so this is a noop
 from Exprs import * # Expr, lots of predicates and subclasses
 
+import StatePlace
+reload_once(StatePlace)
+from StatePlace import StatePlace, set_default_attrs # revised 061203, and moved before instance_helpers & If_expr
+
 import attr_decl_macros
 reload_once(attr_decl_macros)
 from attr_decl_macros import * # Instance, Arg, Option, ArgOrOption, State, etc
@@ -166,9 +170,9 @@ import If_expr # 061128
 reload_once(If_expr)
 from If_expr import *
 
-import staterefs
-reload_once(staterefs)
-from staterefs import * # StatePlace, set_default_attrs
+##import staterefs
+##reload_once(staterefs)
+##from staterefs import * 
 
 # === higher-level defs, common enough to import for everything
 

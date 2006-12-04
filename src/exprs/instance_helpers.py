@@ -19,9 +19,9 @@ import widget_env
 reload_once(widget_env)
 from widget_env import thisname_of_class #e refile import?? or make it an env method??
 
-import staterefs
-reload_once(staterefs)
-from staterefs import StatePlace # 061126 late -- earlier import of this module than before; should be ok; seems to work
+##import StatePlace
+##reload_once(StatePlace)
+##from StatePlace import StatePlace # 061126 late -- earlier import of this module than before; should be ok; seems to work
 
 # ==
 

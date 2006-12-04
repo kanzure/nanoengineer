@@ -306,7 +306,7 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
         Lval.__init__(self, compute_method = compute_method, debug_name = debug_name)
     def set_compute_method(self, compute_method):
         assert 0, "not supported in this class" #e i.e., Lval and this class should really inherit from a common abstract class
-    def set_constant_value(self, val): #061117, for use in staterefs.py
+    def set_constant_value(self, val): #061117, for use in StatePlace.py
         """#doc [for now, using this is strictly an alternative to using compute_methods --
         correctness of mixing them in one lval is not reviewed, and seems unlikely,
         with one exception: an initial compute_method can be provided for computing an initial value
@@ -435,7 +435,7 @@ def LvalDict1(wayfunc, lvalclass = Lval): #e option to not memoize for certain t
     since only the specific items that become invalid need to be recomputed.
        Design note: DO WE RETURN THE LVALS or their values??
     For now, WE RETURN THE LVALS (partly since implem is easier, partly since it's more generally useful);
-    this might be less convenient for the user. [But as of 061117, staterefs.py will depend on this, in our variant LvalDict2.]
+    this might be less convenient for the user. [But as of 061117, StatePlace.py will depend on this, in our variant LvalDict2.]
     """
     #k Note:
     # I'm only 90% sure the "wayfunc = wayfunc, lvalclass = lvalclass" lambda closure kluge is still needed in Python, in this case.

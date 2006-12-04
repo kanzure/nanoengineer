@@ -771,7 +771,7 @@ class ExprsMeta(type):
                     # note: ns contains just the symbols defined in class's scope in the source code, plus __doc__ and __module__.
             else:
                 attr0 = attr
-            if hasattr(val, '_ExprsMeta__set_attr'):
+            if hasattr(val, '_ExprsMeta__set_attr'): # note 061203: maybe not needed after all, tho not harmful, might help catch errors
                 ### PROBLEM: true for symbolic expr val.
                 # POSSIBLE SOLUTION: exclude _[A-Z] attrnames, not _[a-z]. (Hmm: _S_ATTR_??)
                 # DONE INSTEAD [061203]: exclude any attr which might be name-mangled (starts _ but not __, contains __).

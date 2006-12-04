@@ -236,7 +236,7 @@ class data_descriptor_Expr(OpExpr):
 
 class State(data_descriptor_Expr): # note: often referred to as "State macro" even though we don't presently say "def State"
     # experimental, 061201/061203; untested;
-    # if it works would supercede what's in staterefs.py or whatever (actually Exprs.py for State macro)
+    # if it works would supercede the prior State macro in Exprs.py [already removed since obs and unfinished, 061203]
     # see also C_rule_for_lval_formula, meant to be used by that old design for the State macro,
     # but this design doesn't anticipate having an "lval formula",
     # but just has an implicit self-relative object and explicit attrname to refer to.
