@@ -152,7 +152,11 @@ NullIpath = 'NullIpath' ##k ok that it's not None? maybe not, we might test for 
 
 import Exprs
 reload_once(Exprs) # doesn't support reload, for now, so this is a noop
-from Exprs import * # Expr, lots of predicates, maybe Arg & Option(??#k)
+from Exprs import * # Expr, lots of predicates and subclasses
+
+import attr_decl_macros
+reload_once(attr_decl_macros)
+from attr_decl_macros import * # Instance, Arg, Option, ArgOrOption, State, etc
 
 import instance_helpers
 reload_once(instance_helpers)

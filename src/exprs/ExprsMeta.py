@@ -127,7 +127,9 @@ What ExprsMeta handles specifically:
 
 """
 
-__all__ = ['remove_prefix', 'ExprsMeta', 'ConstantComputeMethodMixin', 'DictFromKeysAndFunction', 'RecomputableDict']
+__all__ = ['remove_prefix', 'ExprsMeta', 'ConstantComputeMethodMixin', 'DictFromKeysAndFunction', 'RecomputableDict',
+           'data_descriptor_Expr_descriptor', #e this one should probably be private & imported explicitly
+          ]
 
 # == imports
 
