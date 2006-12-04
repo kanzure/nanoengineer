@@ -41,8 +41,9 @@ class ImageChunk(InstanceOrExpr, DelegatingMixin):
     ###e (we need a standard helper for that)
     # (maybe an object which can supply the wrapping method we need below)
     
-    need_redraw = State(bool, True) ###IMPLEM State -- can it just make me a property compatible with the handmade ones? how attrname?
-        # attrname issue is why it needs to make something processed by ExprsMeta. Can it just return one directly? I think so.
+    need_redraw = State(bool, True)
+        # note: as of 061204, this (for State here and Set below) works in other files
+        # but is untested here (since other code here remains nim)
 
     def usagetrack_draw(self, draw_method, *args, **kws): ##e this needs to be a method inside some sort of lval object, not of self
         #e begin tracking
@@ -58,7 +59,7 @@ class ImageChunk(InstanceOrExpr, DelegatingMixin):
                    # and sets need_redraw, False after it. Can we do that, supplying the wrapping method?
                    PixelGrabber(
                        WrapMethod(widget2d, 'draw', _self.usagetrack_draw, ##k is that _self. needed?
-                                  post_action = Set(need_redraw, False)), ###k args ###IMPLEM ##e designs ok????
+                                  post_action = Set(need_redraw, False)), ###k args ###IMPLEM post_action ##e designs ok????
                        filename),
                    Image(...)
                 )
