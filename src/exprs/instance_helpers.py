@@ -466,6 +466,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             ## res = expr._e_make_in(env, index_path)
                 #k we might have to fix bugs caused by not using this case, by defining (or modifying?) defs of _e_eval on some classes
         if 1:
+            # following code is copied into _i_eval_dfltval_expr as of 061203
             printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108 -- now always, 061110
             # note: this (used-to-be-redundantly) grabs env from self
             try:
@@ -478,6 +479,23 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 raise
         return res # from _CV__i_instance_CVdict
 
+    def _i_eval_dfltval_expr(self, expr, index): ##e maybe unify with above, but unclear when we soon split eval from instantiate
+        "evaluate a dfltval expr as used in State macro of 061203; using similar code as _CV__i_instance_CVdict for Instance..."
+        # note: this (used-to-be-redundantly) grabs env from self
+        try:
+            computer = expr._e_compute_method(self, index) ##e optim someday: inline this
+                # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10'
+            if 1:
+                res = call_but_discard_tracked_usage( computer) # see also docstring of eval_and_discard_tracked_usage
+            else:
+                res = computer()
+        except:
+            # we expect caller to exit now, so we might as well print this first: [061114]
+            print "following exception concerns self = %r, index = %r in *** _i_eval_dfltval_expr *** calling _e_compute_method" % \
+                  (self, index)
+            raise
+        return res
+        
     def _i_grabarg( self, attr, argpos, dflt_expr): 
         "#doc, especially the special values for some of these args"
         if 0:

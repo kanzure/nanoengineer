@@ -421,7 +421,14 @@ class C_rule_for_formula(C_rule):
     pass
 
 def choose_C_rule_for_val(clsname, attr, val, **kws):
-    "return a new object made from the correct one of C_rule_for_method or C_rule_for_formula, depending on val"
+    """return a new object made from the correct class out of
+    C_rule_for_method or C_rule_for_formula or a val-specified wrapper,
+    depending on val
+    """
+    wrapper = getattr(val, '_e_wants_this_descriptor_wrapper', None) # new feature 061203
+    if wrapper:
+        assert issubclass(wrapper, ClassAttrSpecific_NonDataDescriptor)
+        return wrapper(clsname, attr, val, **kws)
     if is_pure_expr(val):
         # assume val is a formula on _self
         # first scan it for subformulas that need replacement, and return replaced version, also recording info in scanner
@@ -434,7 +441,8 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
 ##            else:
 ##                print "scanner leaves unchanged %r" % (val0,)
         flag = getattr(val, '_e_is_lval_formula', False)
-        if flag: # new feature 061117, for State macro and the like
+        assert not flag # 061203
+        if flag: # new feature 061117, for State macro and the like [note 061203: that State macro is obs, new one doesn't use this]
             # it's a formula for an lval, rather than for a val!
             print "should not happen yet: val = %r, flag = %r" % (val,flag) # an expr or so??
             return C_rule_for_lval_formula(clsname, attr, val, **kws)
@@ -450,9 +458,8 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
         ###KLUGE (should change): they get val as a bound method directly from cls, knowing it came from _C_attr
     pass
 
-class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - review all comments before done!
-    "#doc; used for State macro"
-    
+class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - review all comments before done! ###OBS as of 061203
+    "#doc; used for obs-061117 version of State macro, not sure it'll ever be used as of newer 061203 version of it, maybe for its #e-refexpr"
     ###nim: type-formula
     def _init1(self):
         (self.lval_formula,) = self.args
@@ -511,7 +518,7 @@ class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - revie
     # historical note [061117 841p]: see cvs rev 1.42 for a version of this class
     # which misguidely handled initval_expr itself, and a comment explaining why that was wrong.
 
-def eval_and_discard_tracked_usage(formula, instance, index): #061117 #e refile into Exprs?
+def eval_and_discard_tracked_usage(formula, instance, index): #061117 #e refile into Exprs? #e see also other calls of call_but_discard_tracked_usage
     """Evaluate a formula (for an instance, at an index) which is allowed to be time-dependent,
     but for which we don't want to recompute anything when its value changes.
        This works by discarding tracked usage from the eval.
@@ -524,6 +531,21 @@ def eval_and_discard_tracked_usage(formula, instance, index): #061117 #e refile 
     #e could be more efficient, but doesn't matter too much -- so far only used when initializing Instance objects
     computer = formula._e_compute_method(instance, index)
     return call_but_discard_tracked_usage( computer)
+
+class data_descriptor_Expr_descriptor(ClassAttrSpecific_DataDescriptor):
+    def _init1(self):
+        (self.expr,) = self.args
+    def get_for_our_cls(self, instance):
+        print "get_for_our_cls",(self, self.attr, instance, )###
+        assert self.attr != FAKE_ATTR
+        return self.expr._e_get_for_our_cls(self, instance) #e or pass self.attr rather than self?
+    def set_for_our_cls(self, instance, val):
+        print "set_for_our_cls",(self, self.attr, instance, val)###
+        assert self.attr != FAKE_ATTR
+        return self.expr._e_set_for_our_cls(self, instance, val) #e or pass self.attr rather than self?
+    def __repr__(self):
+        return "<%s at %#x for %s>" % (self.__class__.__name__, id(self), self.attr)
+    pass # end of class data_descriptor_Expr_descriptor
 
 # ==
 

@@ -5,24 +5,6 @@ $Id$
 from basic import *
 from basic import _self
 
-
-##from ExprsMeta import data_descriptor_Expr ## ClassAttrSpecific_DataDescriptor
-
-class data_descriptor_Expr_descriptor(ClassAttrSpecific_DataDescriptor): #e refile into ExprsMeta, make private, use in a processor
-    def _init1(self):
-        (self.expr,) = self.args #k guess; CALL ME with expr in a processor in exprsmeta ####e
-    def get_for_our_cls(self, instance):
-        print "get_for_our_cls",(self, self.attr, instance, )#####@@@@@
-        assert self.attr != FAKE_ATTR
-        return self.expr._e_get_for_our_cls(self, instance) #e or pass self.attr rather than self?
-    def set_for_our_cls(self, instance, val):
-        print "set_for_our_cls",(self, self.attr, instance, val)#####@@@@@
-        assert self.attr != FAKE_ATTR
-        return self.expr._e_set_for_our_cls(self, instance, val) #e or pass self.attr rather than self?
-    def __repr__(self):
-        return "<%s at %#x for %s>" % (self.__class__.__name__, id(self), self.attr)
-    pass # end of class data_descriptor_Expr_descriptor
-
 # ==
 
 class ImageChunk(InstanceOrExpr, DelegatingMixin):

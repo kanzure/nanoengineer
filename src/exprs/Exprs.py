@@ -1099,6 +1099,10 @@ class State(data_descriptor_Expr):
     # see also C_rule_for_lval_formula, meant to be used by that old design for the State macro,
     # but this design doesn't anticipate having an "lval formula",
     # but just has an implicit self-relative object and explicit attrname to refer to.
+
+    _e_wants_this_descriptor_wrapper = ExprsMeta.data_descriptor_Expr_descriptor
+    where i am - import that
+
     def _e_init(self):
         def myargs(type, dflt = None): # note: these args are exprs, and already went through canon_expr
             dflt = dflt ##e stub; see existing stateref code for likely better version to use here
@@ -1110,32 +1114,37 @@ class State(data_descriptor_Expr):
         myargs(*self._e_args)
         return
     def _e_get_for_our_cls(self, descriptor, instance):
-        print "_e_get_for_our_cls",(self, descriptor, instance, )#####@@@@@
+        print "_e_get_for_our_cls",(self, descriptor, instance, )###
         attr = descriptor.attr
         holder = self._e_attrholder(instance, init_attr = attr) # might need attr for initialization using self._e_default_val
         return getattr(holder, attr)
     def _e_set_for_our_cls(self, descriptor, instance, val):
-        print "_e_set_for_our_cls",(self, descriptor.attr, instance, val)#####@@@@@
+        print "_e_set_for_our_cls",(self, descriptor.attr, instance, val)###
         attr = descriptor.attr
         holder = self._e_attrholder(instance) # doesn't need to do any initialization
         return setattr(holder, attr, val)
     def _e_attrholder(self, instance, init_attr = None):
         res = instance.transient_state #e or other kind of stateplace
-        # init the default val if needed. ####e OPTIM: this hasattr might be slow (or even buggy, tho i think it'll work
-        # by raising an exception that's a subclass of AttributeError; the slow part is computing args for that every time)
-        if init_attr and hasattr(res, init_attr):
-            where i am - eval the dflt expr here, see i_grabarg for how and the env to use and the ipath
-        set_default_attrs(res, {attr : self._e_default_val}) ##k arg syntax
-            # It's not easy to optimize that for not calling it every time,
-            # since whether it's needed is per-instance (not per-self) and per-attr.
-            # So set_default_attrs may already be doing that check about as efficiently as we could,
-            # except for our computing arg2 to pass it, which could be optimized away by our
-            # first calling a query routine to see if the default has been set yet.
-            # (But translating all this into C is probably a better use of time.)
-            # (I guess the other easy optim would be to inline this for "set" and not call set_default_attrs then. #e)
+        # init the default val if needed.
+        if init_attr:
+            attr = init_attr
+            # we need to init the default value for attr, if it's not already defined.
+            ####e OPTIM: this hasattr might be slow (or even buggy, tho i think it'll work
+            # by raising an exception that's a subclass of AttributeError; the slow part is computing args for that every time)
+            if not hasattr(res, attr):
+                # eval the dflt expr here, mcuh like _i_instance does it:
+                val_expr = self._e_default_val
+                index = attr
+                val = instance._i_eval_dfltval_expr(val_expr, index)
+                #k should I just do setattr(res, attr, val), or is there something special and better about this:
+                set_default_attrs(res, {attr : val}) ##k arg syntax
+                val0 = getattr(res, attr)
+                ## assert val is val0,
+                if not (val is val0):
+                    print "bug: set_default_attrs should have stored %r at %r in %r, but it has %r" % (val, attr, res, val0)
+            pass
         return res
     pass # end of class State
-
 
 # note: an old def of State, never working, from 061117, was removed 061203 from cvs rev 1.88
 
