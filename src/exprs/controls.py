@@ -40,11 +40,15 @@ If = If_kluge # until debugged
 
 # stub types
 stubtype = 'stubtype'
-Type = StateRef = Anything # fyi, StateRef is a different stub in ToggleShow.py, same as in Set.py
+StateRef = Anything # fyi, StateRef is a different stub in ToggleShow.py, same as in Set.py
 
 import Set
 reload_once(Set)
 from Set import Set ###e move to basic
+
+import staterefs
+reload_once(staterefs)
+from staterefs import LocalVariable_StateRef ###e move to basic, if it doesn't become obs, but it probably will, once State works
 
 class ChoiceButton(InstanceMacro):
     """ChoiceButton(choiceval, choiceref, content, background, background_off) [most args optional]
@@ -102,25 +106,6 @@ class ChoiceButton(InstanceMacro):
 # ==
 
 ####e refile these:
-
-class LocalVariable_StateRef(InstanceOrExpr): # guess, 061130
-    "return something which instantiates to something with .value which is settable state..."
-    #e older name: StateRefFromIpath; is this almost the same as the proposed State() thing? it may differ in how to alter ipath
-    # or some other arg saying where to store the ref, or in not letting you change how to store it (value encoding),
-    # and worst, in whether it's an lval or not -- I think State is an lval (no need for .value) and this is a stateref.
-    type = Arg(Type, Anything)
-    default_value = ArgOrOption(Anything, None) ##e default of this should depend on type, in same way it does for Arg or Option
-    def get_value(self):
-        #e should coerce this to self.type before returning it -- or add glue code wrt actual type, or....
-        return self.transient_state.value ###e let transient_state not be the only option? does the stateplace even matter??
-    def set_value(self, val): 
-        self.transient_state.value = val #e should coerce that to self.type, or add glue code...
-        return
-    value = property(get_value, set_value)
-    def _init_instance(self):
-        super(LocalVariable_StateRef, self)._init_instance()
-        set_default_attrs( self.transient_state, value = self.default_value) #e should coerce that to self.type
-    pass
 
 ##class Apply(InstanceMacro): # guess, 061130
 ##    func = Arg(Function)
