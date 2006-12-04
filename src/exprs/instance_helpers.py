@@ -324,7 +324,12 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         
         # set up self._e_args etc
         self._e_class = expr # for access to _e_kws and args #k needed? #e rename: self._e_expr? not sure. #k not yet used
-        assert expr._e_has_args # we might allow exceptions to this later, based on type decl
+        assert expr._e_has_args, "this expr needs its arguments supplied: %r" % self
+            # we might allow exceptions to this later, based on type decl, especially if it has no declared args
+            # (how can we tell, here?? ###e),
+            # tho there is then an ambiguity about whether you're only customizing it or not,
+            # but OTOH that is tolerable if it takes no args, actually that's unclear if instantiation does something like
+            # make a random choice! So we might want to detect that, warn at compile time, or so....
         self._e_has_args = expr._e_has_args #k ??
         # copy references to _e_args & _e_kws
         # note: exprs passed to specific args or kws can be lazily type-coerced and instantiated by Arg or Option decls in subclasses

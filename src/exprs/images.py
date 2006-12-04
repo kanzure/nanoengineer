@@ -153,6 +153,7 @@ def canon_image_filename( filename):
     [Note: It's not yet clear whether that's merely a development kluge, or a feature, or some of each;
      someday there might even be user prefs for image search paths, except that plugins can provide their own images.... ##e]
     """
+    orig_filename = filename # for debug prints or warnings
     #stub, might work for now:
     thisdir = os.path.dirname(__file__) # dir of exprs module
     cad_src = os.path.dirname( thisdir)
@@ -171,7 +172,7 @@ def canon_image_filename( filename):
         if filename == -1:
             filename = lastresort
             if 'too important to not tell all users for now' or platform.atom_debug:
-                print "bug: image file not found, using last-resort image file", lastresort ###
+                print "bug: image file %r not found, using last-resort image file %r" % (orig_filename, lastresort) ###
         filename = os.path.abspath(os.path.normpath(filename)) # faster to do this on demand
         if os.path.isfile(filename):
             return filename

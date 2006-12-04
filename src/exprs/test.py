@@ -652,9 +652,48 @@ class toggler(InstanceMacro):
 testexpr_16 = SimpleRow(toggler(), toggler()) # works
     # as of 061204 this works, even tho State & Set are not completely implemented (and I predict bugs in some uses)
 
+checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 * PIXELS, 21 * PIXELS))
+    # note, IconImage ought to use orig size in pixels but uses 22x22,
+    # and ought to display with orig size but doesn't -- all those image options need reform, as its comments already know ###e
+
+class checkbox_v1(InstanceMacro):
+    var = State(int, 0) #e bool, False?
+    _value = Highlightable(
+        list_Expr( 
+            checkbox_image('mac_checkbox_off.jpg'),
+            checkbox_image('mac_checkbox_on.jpg'),
+        )[ mod_Expr(var,2) ],
+            #e or use If
+        on_press = Set(var, mod_Expr(var+1,2) ) #e or use not_Expr
+    )
+    pass
+testexpr_16a = SimpleColumn( 
+    SimpleRow(checkbox_v1(), TextRect("option 1",1,10)), 
+    SimpleRow(checkbox_v1(), TextRect("option 2",1,10)),
+  ) # works
+
+class checkbox_v2(InstanceMacro):
+    default_value = Option(bool, False)
+    var = State(bool, default_value)
+        #e need to be able to specify what external state to use, eg a prefs variable
+        # (but i don't know if the arg or option decl can be part of the same decl, unless it's renamed, e.g. StateArg)
+    _value = Highlightable(
+        If( var,
+            checkbox_image('mac_checkbox_on.jpg'),
+            checkbox_image('mac_checkbox_off.jpg'),
+        ),
+        on_press = Set(var, not_Expr(var) )
+    )
+    pass
+testexpr_16b = SimpleColumn( 
+    SimpleRow(checkbox_v2(), TextRect("option 1a",1,10)), #e need to be able to specify specific external state, eg a prefs variable
+    SimpleRow(checkbox_v2(default_value = True)(), TextRect("option 2a",1,10)), # that 2nd () is to tell it "yes, we supplied args"
+  ) # works
+
+
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_16
+testexpr = testexpr_16b
     ## testexpr_16 state test
     ## testexpr_7c nested Boxed
     ## testexpr_10c double-nested toggleshow of highlightable rect
