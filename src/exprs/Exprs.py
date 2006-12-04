@@ -476,7 +476,7 @@ class getattr_Expr(OpExpr):
          return "%s.%s" % self._e_args #e need parens? need quoting of 2nd arg? Need to not say '.' if 2nd arg not a py-ident string?
     _e_eval_function = getattr # this doesn't need staticmethod, maybe since <built-in function getattr> has different type than lambda
     ## _e_eval_lval_setto_function = setattr
-    _e_eval_lval_function = staticmethod(LvalueFromObjAndAttr) #061204 ###k not sure if staticmethod is correct
+    _e_eval_lval_function = staticmethod(LvalueFromObjAndAttr) #061204 #k not sure if staticmethod is required; at least it works
     pass
 
 class getitem_Expr(OpExpr): #061110
@@ -769,6 +769,8 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
     def __repr__(self):
         return "<%s#%d%s: %r, %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_env0, self._e_expr0,)
     def _e_eval(self, env, ipath):
+        # WARNING: mostly dup code between _e_eval_ and _e_eval_lval
+        #e (so should the distinction be an arg? maybe only for some classes, ie variant methods for fixed arg, another for genl arg?)
         assert env #061110
         env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]
         newenv = self._e_env0
@@ -781,7 +783,8 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         else:
             printfyi("### env._self IS newenv._self (surprising)")
         return self._e_expr0._e_eval(newenv, ipath)
-    def _e_eval_lval(self, env, ipath): #061204 semi-guess
+    def _e_eval_lval(self, env, ipath): #061204 semi-guess; works for now
+        # WARNING: mostly dup code between _e_eval_ and _e_eval_lval
         assert env 
         env._self 
         newenv = self._e_env0
@@ -806,6 +809,7 @@ class eval_Expr(OpExpr):
     def _e_init(self):
         pass
     def _e_eval(self, env,ipath):
+        # WARNING: mostly dup code between _e_eval_ and _e_eval_lval
         assert env #061110
         (arg,) = self._e_args
         argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
@@ -817,17 +821,18 @@ class eval_Expr(OpExpr):
             raise
         ## print "eval_Expr eval goes from %r to %r to %r" % (arg, argval, res)
         return res
-    def _e_eval_lval(self, env,ipath):#061204 guess
-        assert env #061110
+    def _e_eval_lval(self, env,ipath):#061204 guess; works for now
+        # WARNING: mostly dup code between _e_eval_ and _e_eval_lval
+        assert env
         (arg,) = self._e_args
         argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
         try:
             res = argval._e_eval_lval(env, ipath) # this is the difference from _e_eval
         except:
             print "following exception concerns argval._e_eval_lval(...) where argval is %r and came from evalling %r" % \
-                  (argval, arg) #061118
+                  (argval, arg)
             raise
-        print "eval_Expr _e_eval_lval goes from %r to %r to %r" % (arg, argval, res)###
+        # print "eval_Expr _e_eval_lval goes from %r to %r to %r" % (arg, argval, res)
         return res
     pass
 

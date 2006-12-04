@@ -163,7 +163,7 @@ def remove_prefix(str1, prefix):#e refile
         return str1[len(prefix):]
     return str1
 
-# added 061201:
+# added 061201: as of 061204 not sure if still needed (guess: no), tho still active
 FAKE_ATTR = "<FAKE_ATTR>" # not a possible attr name, but a string in case used in __repr__
 FAKE_CLSNAME = "<FAKE_CLSNAME>"
 
@@ -209,9 +209,10 @@ class ClassAttrSpecific_NonDataDescriptor(object):
             assert self.clsname == cls.__name__ #k
         #e should we store only the class id and name, to avoid ref cycles? Not very important since classes are not freed too often.
         return
-    def _ExprsMeta__set_attr(self, attr): ####@@@@ CALL ME; see class State_helper discussion for motivation
+    def _ExprsMeta__set_attr(self, attr): # see class State_helper discussion for motivation
         "[private method for ExprsMeta to call when it knows the defining attr]" # 061201, not always called(?) or needed, experimental
-        print "called _ExprsMeta__set_attr",self,attr ####
+        print "called _ExprsMeta__set_attr",self,attr
+            ####k does it ever happen? if not, it's probably obs; even if so, might be unneeded [cmt 061204]
         if self.attr == FAKE_ATTRNAME:
             self.attr = attr
         else:
@@ -438,7 +439,7 @@ def choose_C_rule_for_val(clsname, attr, val, **kws):
 ##                print "scanner replaces %r by %r" % (val0, val)
 ##            else:
 ##                print "scanner leaves unchanged %r" % (val0,)
-        wrapper = getattr(val, '_e_wants_this_descriptor_wrapper', None) # new feature 061203, 061204 moved after scanner as bugfix
+        wrapper = getattr(val, '_e_wants_this_descriptor_wrapper', None) # new feature 061203; 061204 moved after scanner as bugfix
         if wrapper:
             assert issubclass(wrapper, ClassAttrSpecific_NonDataDescriptor)
             return wrapper(clsname, attr, val, **kws)
@@ -538,11 +539,11 @@ class data_descriptor_Expr_descriptor(ClassAttrSpecific_DataDescriptor):
         (self.expr,) = self.args
         self.expr._e_set_descriptor(self) # whether it stores anything is up to the specific subclass
     def get_for_our_cls(self, instance):
-        print "get_for_our_cls",(self, self.attr, instance, )###
+        # print "get_for_our_cls",(self, self.attr, instance, )
         assert self.attr != FAKE_ATTR
         return self.expr._e_get_for_our_cls(self, instance) #e or pass self.attr rather than self?
     def set_for_our_cls(self, instance, val):
-        print "set_for_our_cls",(self, self.attr, instance, val)###
+        # print "set_for_our_cls",(self, self.attr, instance, val)
         assert self.attr != FAKE_ATTR
         return self.expr._e_set_for_our_cls(self, instance, val) #e or pass self.attr rather than self?
     def __repr__(self):

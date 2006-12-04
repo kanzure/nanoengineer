@@ -81,7 +81,7 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None, _lvalue_fla
     return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_flag = _lvalue_flag)
 
 def LvalueArg(type_expr, dflt_expr = _E_REQUIRED_ARG_): #061204, experimental syntax, likely to be revised; #e might need Option variant too
-    "Declare an Arg which will not be evaluated as usual, but to an lvalue object, so its value can be set using .set_to, etc."
+    "Declare an Arg which will not be evaluated as usual, but to an lvalue object, so its value can be set using .set_to, etc." 
     return Arg(type_expr, dflt_expr, _lvalue_flag = True)
 
 def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_flag = False ):
@@ -100,6 +100,9 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
         will be passed through canon_expr
     _lvalue_flag is a private option used by LvalueArg
     """
+    if _lvalue_flag:
+        printnim("_lvalue_flag's proper interaction with dflt_expr is nim") # in all cases below
+            ### guess: we want it to be an expr for a default stateref
     global _self # fyi
     type_expr = canon_type( type_expr)
     if dflt_expr is _E_DFLT_FROM_TYPE_:
@@ -242,11 +245,11 @@ class data_descriptor_Expr(OpExpr):
     pass
 
 class State(data_descriptor_Expr): # note: often referred to as "State macro" even though we don't presently say "def State"
-    # experimental, 061201/061203; untested;
-    # if it works would supercede the prior State macro in Exprs.py [already removed since obs and unfinished, 061203]
-    # see also C_rule_for_lval_formula, meant to be used by that old design for the State macro,
-    # but this design doesn't anticipate having an "lval formula",
-    # but just has an implicit self-relative object and explicit attrname to refer to.
+    # experimental, 061201-04; works (testexpr_16);
+##    # supercedes the prior State macro in Exprs.py [already removed since obs and unfinished, 061203]
+##    # see also C_rule_for_lval_formula, now obs, meant to be used by that old design for the State macro,
+##    # but that design doesn't anticipate having an "lval formula",
+##    # but just has an implicit self-relative object and explicit attrname to refer to.
     
     _e_wants_this_descriptor_wrapper = data_descriptor_Expr_descriptor # defined in ExprsMeta, imported from basic
     _e_descriptor = None
@@ -272,7 +275,7 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
             self._e_descriptor = descriptor
         return
     def _e_get_for_our_cls(self, descriptor, instance):
-        print "_e_get_for_our_cls",(self, descriptor, instance, )###
+        # print "_e_get_for_our_cls",(self, descriptor, instance, )
         if self._e_descriptor is not None:
             assert self._e_descriptor is descriptor, \
                    "different descriptors in get: %r stored, %r stored next" % (self._e_descriptor, descriptor)
@@ -283,7 +286,7 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
         holder = self._e_attrholder(instance, init_attr = attr) # might need attr for initialization using self._e_default_val
         return getattr(holder, attr)
     def _e_set_for_our_cls(self, descriptor, instance, val):
-        print "_e_set_for_our_cls",(self, descriptor.attr, instance, val)###
+        # print "_e_set_for_our_cls",(self, descriptor.attr, instance, val)
         if self._e_descriptor is not None:
             assert self._e_descriptor is descriptor, \
                    "different descriptors in set: %r stored, %r stored next" % (self._e_descriptor, descriptor) # see commment above

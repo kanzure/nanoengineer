@@ -644,31 +644,18 @@ class toggler(InstanceMacro):
             Rect(1,1,red),
             Rect(1,1,green),
             Rect(1,1,blue),
-        )[ mod_Expr(var,3) ], ##k
-
+        )[ mod_Expr(var,3) ],
+            #e do we want a nicer syntax for this, as simple as If which you can only use when 3 is 2? Case or Switch?
         on_press = Set(var, var+1)
-            # Set (defined in Set.py) needed a stateref, but won't yet coerce a getattr_Expr like var to one ###IMPLEM [doing it]
-        ###BUG: the expr arg0 of that Set is a State object -- why is it not _self.var ??? BUT if it was, would we alter .var?
-        # well, we'd call setattr, but that would go thru the property that wraps State, as origially intended.
-        # So it looks like ExprsMeta is failing to do its usual replacement. And it needs it (unless kluges will be bad)
-        # and was intended to do it. Why doesn't it? wild guess: lack of _E_ATTR? No, sillier bug: I added the descriptor wrapper
-        # before scanning the formula. Fixed, now the behavior is as expected (arg is _self.var) & boils down to the design of Set.
-        # Kluge it to work both ways, or decide once and for all?
     )
     pass
-testexpr_16 = SimpleRow(toggler(), toggler())
-    ## AttributeError: no attr '_e_eval_function' in <class 'exprs.attr_decl_macros.State'>
-    #
-    ##exception in <Lval at 0xff2db70>._compute_method NO LONGER ignored:
-    ##    exceptions.AssertionError: recursion in self.delegate computation in <Highlightable#8076(i)>
-    ##  [lvals.py:209] [Exprs.py:208] [Exprs.py:400] [instance_helpers.py:677]
-
+testexpr_16 = SimpleRow(toggler(), toggler()) # works
+    # as of 061204 this works, even tho State & Set are not completely implemented (and I predict bugs in some uses)
 
 # === set the testexpr to use right now   @@@@
 
 testexpr = testexpr_16
-    ## testexpr_16 state test - under devel
-
+    ## testexpr_16 state test
     ## testexpr_7c nested Boxed
     ## testexpr_10c double-nested toggleshow of highlightable rect
     ## testexpr_11r1b image with black padding

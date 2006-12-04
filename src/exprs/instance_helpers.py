@@ -404,7 +404,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             print "_i_instance called, expr %r, index %r, self %r, _e_args %r" % \
                    (expr, index, self, self._e_args)
 
-        # [#k review whether this comment is still needed/correct; 061204 semiobs due to newdata change below]
+        # [#k review whether this comment is still needed/correct; 061204 semiobs due to newdata change below; even more obs other ways]
         # hmm, calling Instance macro evals the expr first... can't it turn out that it changes over time?
         # I think yes... not only that, a lot of change in it should be buried inside the instance! (if it's in an arg formula)
         # as if we need to "instantiate the expr" before actually passing it... hmm, if so this is a SERIOUS LOGIC BUG. ####@@@@
@@ -468,7 +468,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             ## res = expr._e_make_in(env, index_path)
                 #k we might have to fix bugs caused by not using this case, by defining (or modifying?) defs of _e_eval on some classes
         if 1:
-            # following code is copied into _i_eval_dfltval_expr as of 061203
+            # WARNING: following code is very similar to _i_eval_dfltval_expr as of 061203
             printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108 -- now always, 061110
             # note: this (used-to-be-redundantly) grabs env from self
             try:
@@ -483,6 +483,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
 
     def _i_eval_dfltval_expr(self, expr, index): ##e maybe unify with above, but unclear when we soon split eval from instantiate
         "evaluate a dfltval expr as used in State macro of 061203; using similar code as _CV__i_instance_CVdict for Instance..."
+        # WARNING: similar code to end of _CV__i_instance_CVdict
         # note: this (used-to-be-redundantly) grabs env from self
         try:
             computer = expr._e_compute_method(self, index) ##e optim someday: inline this

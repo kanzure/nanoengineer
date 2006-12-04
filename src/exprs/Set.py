@@ -13,7 +13,7 @@ History, status, plans:
 
 first implem of SetStateRefValue written in controls.py, moved here 061203, renamed from Set to SetStateRefValue 061204.
 
-adding Set with arg1 an lval eg a getattr_Expr, 061204
+adding Set with arg1 an lval eg a getattr_Expr, 061204; works in testexpr_16
 """
 
 from basic import * # might be recursive #e
@@ -57,7 +57,7 @@ class SetStateRefValue(Action): # experimental, 061130; renamed from Set to SetS
     stateref = Arg(StateRef)
     val = Arg(Anything)
     def _i_do_action(self):
-        print "%r: setting %r.value = %r" % (self, self.stateref , self.val)###
+        print "%r (deprecated, fyi): setting %r.value = %r" % (self, self.stateref , self.val)###
         if self.stateref == 0:
             # kluge: debug print for testexpr_16; this happens because SetStateRefValue is trying to be two things at once re arg1,
             # lval like _self.var to set, or stateref (this code, used in ToggleShow).
@@ -79,7 +79,7 @@ class Set(Action): # adding Set with arg1 an lval eg a getattr_Expr, 061204; unt
     def _i_do_action(self):
         var = self.var
         val = self.val
-        print "%r: calling on our lval-object, %r.set_to(%r)" % (self, var , val)###
+        # print "%r: calling on our lval-object, %r.set_to(%r)" % (self, var , val)
         var.set_to( val) # .set_to is in api for lval-objects of this kind -- not the same kind as "exprs plus _self" (for now)
         return
     pass
