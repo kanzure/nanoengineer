@@ -80,7 +80,11 @@ class Set(Action): # adding Set with arg1 an lval eg a getattr_Expr, 061204; unt
         var = self.var
         val = self.val
         # print "%r: calling on our lval-object, %r.set_to(%r)" % (self, var , val)
-        var.set_to( val) # .set_to is in api for lval-objects of this kind -- not the same kind as "exprs plus _self" (for now)
+        try:
+            var.set_to( val) # .set_to is in api for lval-objects of this kind -- not the same kind as "exprs plus _self" (for now)
+        except:
+            print "following exception in var.set_to( val) in %r concerns var = %r" % (self, var,)
+            raise
         return
     pass
 

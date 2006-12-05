@@ -48,7 +48,7 @@ StateRef = Anything # fyi, StateRef is a different stub in ToggleShow.py, same a
 
 import Set
 reload_once(Set)
-from Set import SetStateRefValue ###e move to basic, but maybe only import of Set, not of this semiobs variant [061204 comment]
+from Set import Set, SetStateRefValue ###e move to basic, but maybe only import of Set, not of this semiobs variant [061204 comment]
 
 import staterefs
 reload_once(staterefs)
@@ -178,13 +178,35 @@ class checkbox_v3(InstanceMacro): #e rename
     default_value = Option(bool, False)
     ## var = State(bool, default_value)
     var = stateref.value
-    print "var = %r" % (var,) # TypeError: 'module' object is not callable - on line that says on_press = Set(var, not_Expr(var) )
+##    # print "var = %r" % (var,) # TypeError: 'module' object is not callable - on line that says on_press = Set(var, not_Expr(var) )
+##        # solved: it's probably from above: import Set; from Set import something else but not Set
     _value = Highlightable(
         If( var,
             checkbox_image('mac_checkbox_on.jpg'),
             checkbox_image('mac_checkbox_off.jpg'),
         ),
-        on_press = Set(var, not_Expr(var) )
+        ## on_press = Set(var, not_Expr(var) ) # wanted (sort of), but doesn't work yet, as explained here:
+            ## AssertionError:... <C_rule_for_formula at 0xff2de10 for 'var' in 'checkbox_v3'> should implement set_for_our_cls
+            # ah, I was assuming "var = stateref.value" would alias var to obj.attr permitting set of obj.attr by set of var,
+            # but of course, that should probably never be permitted to work, since it looks like we're changing self.var instead!
+            # Unless, I either:
+            # - implem a variant of "var = stateref.value"
+            # - decide that since var would normally be unsettable when defined by a formula, that always aliasing it like that
+            #   would be ok (often wanted, not too confusing).
+            # PROBLEM WITH PERMITTING IT: you might start out var = State(), and it works to change self.var,
+            # then change var to a formula, and forget you were directly setting it... causing an unwanted actual working set
+            # of other state which you thought you were not touching or even able to touch.
+            # SOLUTION:
+            # - implem a variant of "var = stateref.value, sort of a "state alias"
+            # - have a clear error message from this Set, suggesting to change that assignment to that alias form.
+            # as of 061204 418p: tentatively decided I like that, but the alias variant syntax is not yet designed.
+            # Maybe: ####@@@@
+            # - var = Alias(stateref.value) ?? [sounds good]
+            # - or just var = State(stateref.value), or is that too confusing?
+            #   [yes, too confusing, that arg is for the type, and State is for new state, not an alias... latter is lesser problem]
+            # - or var = StateRef(stateref.value)? no, it's an lval, not a stateref.
+        on_press = Set(stateref.value, not_Expr(var) )
+            # kluge: see if this works (I predict it will) -- workaround of not yet having that alias form of "var = stateref.value"
     )
     pass
 

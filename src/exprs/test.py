@@ -699,14 +699,17 @@ from prefs_constants import displayOriginAxis_prefs_key
 testexpr_16c = SimpleColumn( 
     SimpleRow(checkbox_v3(PrefsKey_StateRef(displayOriginAxis_prefs_key)), # test: specify external state, eg a prefs variable
               ###e would this look better? checkbox_v3(prefs_key = displayOriginAxis_prefs_key)
-              TextRect("option 1a",1,10)),
-  ) # --- try this next
-
+              TextRect("display origin axis",1,20)),
+  ) # works! (changes the axis display)
+    # an older implem doesn't work yet, see comments in controls.py
+    # note: if prior verson of _16c diff implem of _v3) failed first in same session, then in this good test or a prior good test
+    # being retried, we'd see a double-inval warning for glpane (something called standard_inval twice). But if no error in same session
+    # then I never saw this.
 
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_16b
+testexpr = testexpr_16c
     ## testexpr_16 state test
     ## testexpr_7c nested Boxed
     ## testexpr_10c double-nested toggleshow of highlightable rect

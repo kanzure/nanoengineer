@@ -329,7 +329,7 @@ class ClassAttrSpecific_DataDescriptor(ClassAttrSpecific_NonDataDescriptor):
         return self.set_for_our_cls(obj, val)
     def set_for_our_cls(self, obj, val):
         "Subclass should implement -- do the __set__ for our class (initializing our class-specific info if necessary)"
-        assert 0, "subclass should implement set_for_our_cls"
+        assert 0, "subclass %r of %r should implement set_for_our_cls" % (self.__class__, self)
     def __delete__(self, *args): # note: descriptor protocol wants __delete__, not __del__!
         print "note: ClassAttrSpecific_DataDescriptor.__delete__ is about to assert 0"
         assert 0, "__delete__ is not yet supported in this abstract class"
@@ -420,7 +420,7 @@ class C_rule_for_formula(C_rule):
     def make_compute_method_for_instance(self, instance):
         return self.formula._e_compute_method(instance, '$' + self.attr) # index arg is a guess, 061110
     def __repr__(self):
-        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.attr)#061117 changed self.formula -> self.attr
+        return "<%s at %#x for %r in %r>" % (self.__class__.__name__, id(self), self.attr, self.clsname)#061117 changed self.formula -> self.attr
     pass
 
 def choose_C_rule_for_val(clsname, attr, val, **kws):
