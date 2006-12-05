@@ -33,7 +33,8 @@ class nEImageOps:
                  ideal_width = None, ideal_height = None,
                  rescale = True, ##e filter = ...
                  convert = False,
-                 _tmpmode = None ):
+                 _tmpmode = None,
+                 _debug = False):
         #bruce 061127 added options, self attrs, docstring; some are marked [untested] in docstring [###k need to test them];
         ##e add options for resize filter choice, whether to use im.convert (experimental, nim), img mode to use for data (now RGBX)
         """Create an nEImageOps object that holds a PIL image made from the given image filename, imageName.
@@ -58,6 +59,7 @@ class nEImageOps:
         with a new one, with altered data and/or size, either due to resizing for getTextureData, or to external calls of
         one of several image-modifying methods.
         """
+        self.debug = _debug #bruce 061204
         self.imageName = imageName
         self.convert = convert
         self._tmpmode = _tmpmode #bruce 061128, probably temporary, needs doc if not; JPG illegal, JPEG doesn't work, TIFF works well
@@ -81,13 +83,13 @@ class nEImageOps:
             old_data = self.img.size, self.img.mode
             self.img = self.img.convert(mode) #k does it matter whether we do this before or after resizing it?
             new_data = self.img.size, self.img.mode
-            if old_data != new_data and platform.atom_debug:
+            if old_data != new_data and platform.atom_debug and self.debug:
                 print "debug: %r: fyi: image converted from %r to %r" % (self, old_data, new_data) ###e remove after devel
                 ###e also need self.update() in this case?? if so, better do it later during __init__.
             pass
         self.orig_width = self.img.size[0] #bruce 061127
         self.orig_height = self.img.size[1] #bruce 061127
-        if platform.atom_debug:
+        if platform.atom_debug and self.debug:
             #bruce 061127; fyi, see also string in this file containing RGB
             print "debug fyi: nEImageOps.__init__: %r.img.size, mode is %r, %r" % (self, self.img.size, self.img.mode) ###
         if 1:
@@ -175,7 +177,7 @@ class nEImageOps:
                 # we will rescale.
                 if not self.rescale:
                     # print debug warning that it can't do as asked
-                    if platform.atom_debug:
+                    if platform.atom_debug and self.debug:
                         print "debug fyi: %r.resize is rescaling, tho asked not to, since a dim must shrink" % self #e more info
                 self.img = self.img.resize( (wd, ht), filter)
                     # supported filters, says doc:
@@ -249,7 +251,7 @@ class nEImageOps:
             ## IOError: cannot write mode RGBX as PNG
         self.img = Image.open(newName)
         newmode = self.img.mode
-        if oldmode != newmode and platform.atom_debug: #k does this ever happen??
+        if oldmode != newmode and platform.atom_debug and self.debug: #k does this ever happen??
             print "debug warning: oldmode != newmode (%r != %r) in %r.update" % (oldmode, newmode, self)
         #e could set actual-size attrs here
         
