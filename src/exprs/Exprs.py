@@ -968,8 +968,8 @@ class Symbol(SymbolicExpr):
                 print "warning: %r and %r are two different Symbols with same name, thus equal" % (self,val)
             print "warning: Symbol(%r) evals to itself" % self._e_name
             return self
-        if self._e_name != '_self':
-            print "warning: _e_eval of a symbol other than _self is not well-reviewed or yet well-understood"
+        if self._e_name not in ('_self', '_my'): #k Q: does this also happen for a thisname, _this_<classname> ?
+            print "warning: _e_eval of a symbol other than _self or _my is not well-reviewed or yet well-understood:",self._e_name
                 # e.g. what should be in env? what if it's an expr with free vars incl _self -- are they in proper context?
                 # see docstring for more info [061105]
         ## pre-061105 code did: return val._e_eval(env, ipath)

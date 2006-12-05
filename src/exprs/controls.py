@@ -77,7 +77,8 @@ class ChoiceButton(InstanceMacro):
     choiceref = ArgOrOption(StateRef) ###k need value-type??
 
     content = ArgOrOption(stubtype, TextRect(format_Expr("%s", _self.choiceval)) ) # Widget2D or something "displayable" in one (eg text or color); defaults to displayed choiceval;
-        # can caller pass a formula in terms of the other options to _self? Maybe but not by saying _self! _this(ChoiceButton) == _my?
+        # can caller pass a formula in terms of the other options to _self?
+        # Maybe, but not by saying _self! _this(ChoiceButton) == _my? [yes -- _my is now implemented, 061205]
 
     background = ArgOrOption(stubtype, Rect(_self.width, _self.height, lightblue) ) # Widget2D, or color (used in Rect a bit larger than content)
     

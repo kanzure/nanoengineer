@@ -555,6 +555,9 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         
         lexmods[thisname] = self
             # WARNING: this creates a cyclic ref, from each child whose env contains lexmods, to self, to each child self still knows.
+
+        lexmods['_my'] = self #061205
+        
         return self.env.with_lexmods(lexmods)
 
     def _i_grabarg_0( self, attr, argpos, dflt_expr):

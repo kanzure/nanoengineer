@@ -59,7 +59,7 @@ basic.reload_once(basic)
 del basic
 
 from basic import * # including reload_once, and some stubs
-from basic import _self, _this
+from basic import _self, _this, _my
 
 import Rect
 reload_once(Rect)
@@ -718,19 +718,18 @@ testexpr_17 = Highlightable(Rect(), on_drag = print_Expr("on_drag happened")) # 
 
 
 # == MT_demo
-_my = _this(MT) # kluge for this test [###e need better error message when I accidently pass _self rather than _my]
+
 testexpr_18 = MT( _my.env.glpane.assy.part.topnode )
     # works! except for ugliness, slowness, and need for manual update by reloading.
     #e Still need to test: changing the current Part. Should work, tho manual update will make that painful.
-_my = _this(test_drag_pixmap)
-testexpr_18a = test_drag_pixmap( _my.env.glpane.assy.w.mt, _my.env.glpane.assy.part.topnode )
-del _my
+    ###e need better error message when I accidently pass _self rather than _my]
 
+testexpr_18a = test_drag_pixmap( _my.env.glpane.assy.w.mt, _my.env.glpane.assy.part.topnode )
 
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_18a
+testexpr = testexpr_18
     ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables

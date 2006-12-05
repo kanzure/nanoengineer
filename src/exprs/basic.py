@@ -100,7 +100,8 @@ from py_utils import * # includes printnim
 
 from ExprsMeta import * ###e can this support autoreload?? ###e note -- this imports a few other modules - list those here ##doc
 
-from __Symbols__ import _self # (__Symbols__ module doesn't support reload) # warning: not included in "import *"
+from __Symbols__ import _self, _my # (__Symbols__ module doesn't support reload) # warning: not included in "import *"
+    # _this is imported below from somewhere else -- since it's not a Symbol! Maybe __Symbols__ should warn if we ask for it. #e
 
 
 # == colors (constants and simple functions; import them everywhere to discourage name conflicts that show up only later)

@@ -214,7 +214,7 @@ class Image(Widget2D):
     # like where, place, footprint, lbox, box? none of those good enough.
     # Also we need a way to change the size but preserve the natural aspect ratio.
     # One way: let size and tex_size both be passed easily as formulas of native image size.
-    # The main new thing that requires is an abbreviation for _this(Image), e.g. _my. ###e decide on this NFR
+    # The main new thing that requires is an abbreviation for _this(Image), e.g. _my. [note: _my is now implemented, 061205]
 
     # args
     filename = Arg(str)

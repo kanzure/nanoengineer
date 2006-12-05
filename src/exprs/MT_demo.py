@@ -4,9 +4,8 @@ $Id$
 
 #e stub, but works in test.py:
 ## # MT_demo
-## _my = _this(MT) # kluge for this test [###e need better error message when I accidently pass _self rather than _my]
+## ###e need better error message when I accidently pass _self rather than _my]
 ## testexpr_18 = MT( _my.env.glpane.assy.part.topnode ) # works! except for ugliness, slowness, and need for manual update by reloading.
-## del _my
 
 
 # biggest nim issues [some marked with ####]: [solved just barely enough for testexpr_18]
