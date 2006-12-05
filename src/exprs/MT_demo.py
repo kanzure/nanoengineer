@@ -72,6 +72,10 @@ import Rect
 reload_once(Rect)
 from Rect import Rect, Spacer
 
+import images
+reload_once(images)
+from images import IconImage, Image #e and more
+
 # == stubs
 
 If = If_kluge ####e until it works, then remove and retest
@@ -199,6 +203,73 @@ class MT(InstanceMacro):
         )
     )
     pass # end of class MT
+
+# ==
+
+class test_drag_pixmap(InstanceMacro):
+    mt = Arg(Anything) # pass _my.env.glpane.assy.w.mt
+    node = Arg(Node) # pass the topnode
+    def _C__value(self):
+        mt = self.mt # fails, recursion in self.delegate computation -- why? related to parent AttributeError: win? must be.
+            ###e NEED BETTER ERROR MESSAGE from exception when computing self.mt by formula from caller.
+            # It did have the attrerror, but buried under (and then followed by) too much other stuff (not stopping) to notice.
+        node = self.node
+        pixmap = mt.get_pixmap_for_dragging_nodes('move', [node]) # (drag_type, nodes); method defined in TreeWidget.py
+            #e includes "moving n items", need to make it leave that out if I pass None for drag_type
+        print pixmap # <constants.qt.QPixmap object at 0x10fbc2a0>
+        #e make Image (texture) from pixmap -- how?
+        # - pass the pixmap into ImageUtils somehow (won't be hard, could go in in place of the filename)
+        # - worry about how it works in our texture-caching key (won't be hard)
+        # - teach ImageUtils how to get a PIL image or equivalent data from it -- requires learning about QPixmap, image formats
+        # MAYBE NOT WORTH IT FOR NOW, since I can get the icons anyway, and for text I'd rather have a Qt-independent path anyway,
+        # if I can find one -- tho I predict I'll eventually want this one too, so we can make GL text look the same as Qt text.
+        # Note: PixelGrabber shows how to go in the reverse direction, from GL to Qt image.
+        # Guess: QPixmap or QImage docs will tell me a solution to this. So when I want nice text it might be the quickest way.
+        # (Also worth trying PIL's builtin text-image makers, but I'm not sure if we have them in NE1 even tho we have PIL.)
+        # The other way is to grab actual screenshots (of whatever) and make my own font-like images. Not ideal, re user-reconfig
+        # of font or its size!
+        #
+        # Here are hints towards using Qt: turn it into QImage, which boasts
+        # "The QImage class provides a hardware-independent pixmap representation with direct access to the pixel data."
+        # and then extract the data -- not yet known how much of this PyQt can do.
+        #
+        # - QImage QPixmap::convertToImage () const
+        #
+        ##uchar * QImage::scanLine ( int i ) const
+        ##
+        ##Returns a pointer to the pixel data at the scanline with index i. The first
+        ##scanline is at index 0.
+        ##
+        ##The scanline data is aligned on a 32-bit boundary.
+        ##
+        ##Warning: If you are accessing 32-bpp image data, cast the returned pointer
+        ##to QRgb* (QRgb has a 32-bit size) and use it to read/write the pixel value.
+        ##You cannot use the uchar* pointer directly, because the pixel format depends
+        ##on the byte order on the underlying platform. Hint: use qRed(), qGreen() and
+        ##qBlue(), etc. (qcolor.h) to access the pixels.
+
+        image = pixmap.convertToImage()
+        print image # <constants.qt.QImage object at 0x10fe1900>
+
+        print "scanlines 0 and 1 are", image.scanLine(0), image.scanLine(1)
+            # <sip.voidptr object at 0x5f130> <sip.voidptr object at 0x5f130> -- hmm, same address
+        print "image.bits() is",image.bits() # image.bits() is <sip.voidptr object at 0x5f130> -- also same address
+
+        print "\n*** still same address when all collected at once?:" # no. good.
+        objs = [image.scanLine(0), image.scanLine(1), image.bits()]
+        for obj in objs:
+            print obj
+        print
+        # but what can i do with a <sip.voidptr object>? Can Python buffers help?? Can PIL use it somehow??
+        # Or do I have to write a C routine? Or can I pass it directly to OpenGL as texture data, if I get the format right?
+        # Hmm, maybe look for Qt/OpenGL example code doing this, even if in C. ##e
+        
+        _value = Image( "notfound")
+        env = self.env
+        ipath = self.ipath
+        return _value._e_eval( env, ('v', ipath)) # 'v' is wrong, self.env is guess
+            ## AssertionError: recursion in self.delegate computation in <test_drag_pixmap#15786(i)> -- in pixmap set above
+    pass
 
 # end
 

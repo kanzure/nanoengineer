@@ -119,7 +119,7 @@ from Set import Set ##e move to basic
 
 import MT_demo
 reload_once(MT_demo)
-from MT_demo import MT
+from MT_demo import MT, test_drag_pixmap
 
 # == @@@
 
@@ -722,13 +722,15 @@ _my = _this(MT) # kluge for this test [###e need better error message when I acc
 testexpr_18 = MT( _my.env.glpane.assy.part.topnode )
     # works! except for ugliness, slowness, and need for manual update by reloading.
     #e Still need to test: changing the current Part. Should work, tho manual update will make that painful.
+_my = _this(test_drag_pixmap)
+testexpr_18a = test_drag_pixmap( _my.env.glpane.assy.w.mt, _my.env.glpane.assy.part.topnode )
 del _my
 
 
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_18
+testexpr = testexpr_18a
     ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
