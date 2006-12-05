@@ -6,6 +6,9 @@
 
 #include <string>
 
+#define SRDS_UNABLE_TO_OPEN_FILE			1
+#define SRDS_UNABLE_TO_COMPLETE_OPERATION	2
+
 namespace ne1 {
 
 
@@ -13,12 +16,12 @@ namespace ne1 {
  *
  * A chemical bond. See SimResultsDataStore for context.
  */
-struct SimResultsBond {
+typedef struct SimResultsBond {
 	
 	unsigned int atomId_1, atomId_2;
 	float order;
-};
-	
+} SimResultsbond;
+
 
 /* CLASS: SimResultsDataStore
  *
@@ -37,10 +40,10 @@ struct SimResultsBond {
  */
 class SimResultsDataStore {
   public:
-	~SimResultsDataStore() {}
+	virtual ~SimResultsDataStore();
 
-	/* METHOD: openDataStore
-	 *
+	/* METHOD: openDataStore */
+	/**
 	 * Opens the simulation results data store, found in the given directory,
 	 * for read/write access.
 	 *
@@ -51,31 +54,49 @@ class SimResultsDataStore {
 	virtual int openDataStore(const char* directory, std::string& message) = 0;
 
 	
-/*
-	def getNotes(self):
-		"""Returns the user's notes for these simulation results."""
-		pass
-	def setNotes(self, notes):
-		"""Sets the user's notes for these simulation results."""
-		pass
-
-
-	def getName(self):
-		"""Returns the simulation name."""
-		pass
-	def setName(self, name):
-		"""Sets the simulation name."""
-		pass
+	/*
+	 * Name
+	 */
+	/** Returns the simulation name. */
+	virtual std::string getName() const = 0;
+	
+	/** Sets the simulation name.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setName(const std::string& name, std::string& message) = 0;
 	
 	
-	def getDescription(self):
-		"""Returns the simulation description."""
-		pass
-	def setDescription(self, description):
-		"""Sets the simulation description."""
-		pass
+	/*
+	 * Description
+	 */
+	/** Returns the simulation description. */
+	virtual std::string getDescription() const = 0;
+	
+	/** Sets the simulation description.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setDescription(const std::string& description,
+							   std::string& message) = 0;
+
+	/*
+	 * Notes
+	 */
+	/** Returns the user's notes for these simulation results. */
+	virtual std::string getNotes() const = 0;
+	
+	/** Sets the user's notes for these simulation results.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setNotes(const std::string& notes, std::string& message) = 0;
 		
 	
+	/*
 	def getTimestep(self):
 		"""Returns the simulation timestep in seconds."""
 		pass
@@ -100,14 +121,6 @@ class SimResultsDataStore {
 		pass
 	def setMaxSteps(self, maxSteps):
 		"""Sets the maximum number of steps to simulate."""
-		pass
-	
-	
-	def getStepsPerFrame(self):
-		"""Returns the number of steps per frame."""
-		pass
-	def setStepsPerFrame(self, stepsPerFrame):
-		"""Sets the number of steps per frame."""
 		pass
 		
 	
@@ -275,12 +288,15 @@ class SimResultsDataStore {
 		get/set frame data.
 		"""
 		pass
-	def addFrameSet(self, name, aggregationMode):
+	def addFrameSet(self, name):
 		"""
-		Adds a frame-set with the given name and aggregation mode.
+		Adds a frame-set with the given name.
+		"""
+		pass
+	get/setAggregationMode(self, name, mode)
 		@param aggregationMode: 0=per-time-step values are averaged (default),
 								1=last per-time-step value is used
-		"""
+	get/setStepsPerFrame(self, name, stepsPerFrame)
 		pass
 	def removeFrameSet(self, name):
 		"""Removes the frame-set with the given name."""

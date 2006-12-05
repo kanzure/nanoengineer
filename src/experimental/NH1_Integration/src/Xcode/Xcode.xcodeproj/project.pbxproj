@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E103ADB80B22037300C0D014 /* SimResultsDataStore.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E103ADB70B22037300C0D014 /* SimResultsDataStore.cpp */; };
 		E1DB43660B1CBC5800A9B6F2 /* CppUnit.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1DB43650B1CBC5800A9B6F2 /* CppUnit.cpp */; };
 		E1DB43930B1CC26500A9B6F2 /* HDF5_SimResults.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1DB438F0B1CC26500A9B6F2 /* HDF5_SimResults.cpp */; };
 		E1DB43940B1CC26500A9B6F2 /* HDF5_SimResults.h in Headers */ = {isa = PBXBuildFile; fileRef = E1DB43900B1CC26500A9B6F2 /* HDF5_SimResults.h */; };
@@ -15,6 +16,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		E103ADB70B22037300C0D014 /* SimResultsDataStore.cpp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = SimResultsDataStore.cpp; sourceTree = "<group>"; };
 		E1DB42940B1CB0F300A9B6F2 /* SimResultsDataStore.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = SimResultsDataStore.h; sourceTree = "<group>"; };
 		E1DB429C0B1CB46900A9B6F2 /* config.epydoc */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = text; path = config.epydoc; sourceTree = "<group>"; };
 		E1DB42CA0B1CB46900A9B6F2 /* ObjectModel.zargo */ = {isa = PBXFileReference; lastKnownFileType = file; path = ObjectModel.zargo; sourceTree = "<group>"; };
@@ -60,6 +62,7 @@
 		E1DB42990B1CB46900A9B6F2 /* src */ = {
 			isa = PBXGroup;
 			children = (
+				E103ADB70B22037300C0D014 /* SimResultsDataStore.cpp */,
 				E1DB438F0B1CC26500A9B6F2 /* HDF5_SimResults.cpp */,
 				E1DB43900B1CC26500A9B6F2 /* HDF5_SimResults.h */,
 				E1DB43910B1CC26500A9B6F2 /* HDF5_SimResultsTest.cpp */,
@@ -151,6 +154,7 @@
 				E1DB43660B1CBC5800A9B6F2 /* CppUnit.cpp in Sources */,
 				E1DB43930B1CC26500A9B6F2 /* HDF5_SimResults.cpp in Sources */,
 				E1DB43950B1CC26500A9B6F2 /* HDF5_SimResultsTest.cpp in Sources */,
+				E103ADB80B22037300C0D014 /* SimResultsDataStore.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -199,7 +203,10 @@
 				GCC_OPTIMIZATION_LEVEL = 0;
 				OPTIMIZATION_CFLAGS = "-O0";
 				OTHER_CFLAGS = "";
-				OTHER_LDFLAGS = "-lcppunit";
+				OTHER_LDFLAGS = (
+					"-lcppunit",
+					"-lhdf5",
+				);
 				OTHER_REZFLAGS = "";
 				PRODUCT_NAME = CppUnit;
 				REZ_EXECUTABLE = YES;

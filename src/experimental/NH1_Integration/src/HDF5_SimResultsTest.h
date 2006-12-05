@@ -16,6 +16,9 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 
 	CPPUNIT_TEST_SUITE(HDF5_SimResultsTest);
 	CPPUNIT_TEST(openDataStore);
+	CPPUNIT_TEST(getSetName);
+	CPPUNIT_TEST(getSetDescription);
+	CPPUNIT_TEST(getSetNotes);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -23,8 +26,12 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 		void tearDown();
 
 		void openDataStore();
+		void getSetName();
+		void getSetDescription();
+		void getSetNotes();
 
 	private:
+		ne1::HDF5_SimResults* simResults;
 };
 
 #endif
