@@ -2,9 +2,14 @@
 $Id$
 """
 
-#e stub, nim
+#e stub, but works in test.py:
+## # MT_demo
+## _my = _this(MT) # kluge for this test [###e need better error message when I accidently pass _self rather than _my]
+## testexpr_18 = MT( _my.env.glpane.assy.part.topnode ) # works! except for ugliness, slowness, and need for manual update by reloading.
+## del _my
 
-# biggest nim issues [some marked with ####]:
+
+# biggest nim issues [some marked with ####]: [solved just barely enough for testexpr_18]
 # - where to put a caching map from kidnode, args to MT(kidnode, args)
 #   - note, that's a general issue for any "external data editor"
 #     where the node is the external data and MT is our preferred-edit-method
@@ -51,10 +56,23 @@ $Id$
 
 # #e more??
 
+
+# == imports
+
 from basic import *
 from basic import _self
 
 from ToggleShow import * # e.g. If, various other imports we should do explicitly #e
+
+import Set
+reload_once(Set)
+from Set import Set ##e move to basic
+
+import Rect
+reload_once(Rect)
+from Rect import Rect, Spacer
+
+# == stubs
 
 If = If_kluge ####e until it works, then remove and retest
 
@@ -63,7 +81,8 @@ Node = Stub
 # == trivial prototype of central cache of MT-viewers for objects
 
 def _make_new_MT_viewer_for_object(key):
-    obj, essential_data = key
+    obj, essential_data, reload_counter = key
+    print "viewing node %r, reload_counter = %r" % (obj, reload_counter) ###
     # obj is a Node or equivalent
     mt_instance = MT(obj) # but will this work, with arg1 being already instantiated -- will it make an instance? not yet! ###IMPLEM that
     return mt_instance
@@ -77,31 +96,86 @@ _MT_viewer_for_object = MemoDict(_make_new_MT_viewer_for_object)
     #  and a two-level dict, key1 = weak node, key2 = essentialdata.)
 
 def MT_viewer_for_object(obj, essential_data = None):
-    return _MT_viewer_for_object( (obj, essential_data) ) # assume essential_data is already hashable (eg not dict but sorted items of one)
+    from testdraw import vv
+    reload_counter = vv.reload_counter # this is so we clear this cache on reload (even if this module is not reloaded)
+        # which partly makes up for not live-updating the displayed MT
+    key = (obj, essential_data, reload_counter)
+    return _MT_viewer_for_object[ key ] # assume essential_data is already hashable (eg not dict but sorted items of one)
+
 
 # ==
+
+def node_kids(node):
+    return node.kids(_DISPLAY_PREFS)
+
+_DISPLAY_PREFS = dict(open = True) # private to def node_kids
+
+
+##class Column(InstanceMacro): #kluge just for MT_kids
+##    eltlist = Arg(list_Expr)
+##    _value = SimpleColumn( *eltlist) ### this is wrong, but it seemed to cause an infinite loop -- did it? ###k
+        ##    exceptions.KeyboardInterrupt: 
+        ##  [debug.py:1320] [debug.py:1305] [test.py:120] [MT_demo.py:100] [MT_demo.py:102] (this line)
+        ##  [Exprs.py:271] return getitem_Expr(self, index)  [Exprs.py:360] [Exprs.py:880]
+        # guess: *expr is an infloop, since it tries to turn it into a sequence, forming expr[0], expr[1], etc, forever.
+        # the Exprs lines above are probably compatible with that.
+        # Can this bug be detected? Is there an __xxx__ which gets called first, to grab the whole sequence,
+        # which I can make fail with an error? I can find out: *debug_expr where that expr prints all getattr failures. Later.
+    
+class MT_kids(InstanceMacro):
+    # args
+    kids = Arg(list_Expr)####k more like List or list or Anything...
+        ##### note: the kid-list itself is time-varying (not just its members); need to think thru instantiation behavior;
+        # what we want in the end is to cache (somewhere, not sure if in _self)
+        # the mapping from the kid instance (after If eval - that eval to fixed type thing like in Column, still nim)
+        # to the MT instance made from that kid. We would cache these with keys being all the args... like for texture_holder.
+        # so that's coarser grained caching than if we did it in _self, but finer than if we ignored poss of varying other args
+        # (btw do i mean args, or arg-formulae??).
+
+        # note that the caching gets done in here as we scan the kids... *this* instance is fixed for a given node.kids passed to it.
+        # BTW maybe our arg should just be the node, probably that's simpler & better,
+        # otoh i ought to at least know how it'd work with arg being node.kids which timevaries.
+
+    ## _value = Column( map_Expr( MT_viewer_for_object, kids )) ###e change to caching map?? no, MT_viewer_for_object does the caching.
+        #e needs Column which takes a time-varying list arg
+        #e change to ScrollableColumn someday
+        # (also resizable, scrolling kicks in when too tall; how do we pick threshhold? fixed at 10?)
+
+    def _C__value(self): # we need this since we don't yet have a way of including " * map(func,expr)" in a toplevel expr.
+        kids = self.kids
+        assert type(kids) == type([])
+        elts = map(MT_viewer_for_object, kids)
+        res = SimpleColumn(*elts)
+        ## return res # bug: AssertionError: compute method asked for on non-Instance <SimpleColumn#10982(a)>
+        # I guess that means we have to instantiate it here to get the delegate. kluge this for now:
+        return res._e_eval(self.env, ('v',self.ipath)) # 'v' is wrong, self.env is guess
+    pass
+
+##_ColumnKluge = Column # don't let our kluge mess up someone who unwisely imports * from here
+##del Column
+
 
 class MT(InstanceMacro):
     # compare to ToggleShow - lots of copied code
 
     # args
-    node = Arg(Node) #### type?
+    node = Arg(Node) #### type? the actual arg will be a node instance...
 
     # state refs
-    open ####
+    open = State(bool, False)
     
     # other formulae
     open_icon   = Overlay(Rect(0.4), TextRect('+',1,1))
     closed_icon = Overlay(Rect(0.4), TextRect('-',1,1))
     openclose_spacer = Spacer(0.4)
         #e or Invisible(open_icon); otoh that's no simpler, since open_icon & closed_icon have to be same size anyway
+
+    # the openclose icon, when open or close is visible (i.e. for openable nodes)
+    openclose_visible = Highlightable(
+        If( open, open_icon, closed_icon ),
+        on_press = Set(open, not_Expr(open)) )
     
-    openclose_visible = Highlightable( If( open, open_icon, closed_icon ), on_press = _self.toggle_open )
-    
-    def toggle_open(self):
-        pass####
-    
-    openclose_slot = If( node.openable, openclose_visible, openclose_spacer )
+    openclose_slot = If( call_Expr(node.openable), openclose_visible, openclose_spacer )
 
     icon = Rect(0.4, 0.4, green)##stub; btw, would be easy to make color show hiddenness or type, bfr real icons work
         ###k is this a shared instance (multiply drawn)?? any issue re highlighting? need to "instantiate again"?
@@ -119,29 +193,12 @@ class MT(InstanceMacro):
         SimpleColumn(
             SimpleRow(icon, label),
             If( open,
-                      MT_kids(node.kids), ###e implem or find kids... needs usage/mod tracking
+                      MT_kids( call_Expr(node_kids, node) ), ###e implem or find kids... needs usage/mod tracking
                       Spacer(0) ###BUG that None doesn't work here: see comment in ToggleShow.py
                       )
         )
     )
-    pass
+    pass # end of class MT
 
-class MT_kids(InstanceMacro):
-    # args
-    kids = Arg(list_Expr)####k more like List or list or Anything...
-        ##### note: the kid-list itself is time-varying (not just its members); need to think thru instantiation behavior;
-        # what we want in the end is to cache (somewhere, not sure if in _self)
-        # the mapping from the kid instance (after If eval - that eval to fixed type thing like in Column, still nim)
-        # to the MT instance made from that kid. We would cache these with keys being all the args... like for texture_holder.
-        # so that's coarser grained caching than if we did it in _self, but finer than if we ignored poss of varying other args
-        # (btw do i mean args, or arg-formulae??).
-
-        # note that the caching gets done in here as we scan the kids... *this* instance is fixed for a given node.kids passed to it.
-        # BTW maybe our arg should just be the node, probably that's simpler & better,
-        # otoh i ought to at least know how it'd work with arg being node.kids which timevaries.
-
-    _value = Column( map_Expr( MT_viewer_for_object, kids )) ###e change to caching map?? no, MT_viewer_for_object does the caching.
-        #e needs Column which takes a time-varying list arg
-        #e change to ScrollableColumn someday (also resizable, scrolling kicks in when too tall; how do we pick threshhold? fixed at 10?)
-    pass
+# end
 

@@ -117,6 +117,10 @@ import Set
 reload_once(Set)
 from Set import Set ##e move to basic
 
+import MT_demo
+reload_once(MT_demo)
+from MT_demo import MT
+
 # == @@@
 
 import widget_env
@@ -706,13 +710,25 @@ testexpr_16c = SimpleColumn(
     # being retried, we'd see a double-inval warning for glpane (something called standard_inval twice). But if no error in same session
     # then I never saw this.
 
-# on_drag
+
+# == dragging (e.g. on_drag)
 testexpr_17 = Highlightable(Rect(), on_drag = print_Expr("on_drag happened")) # works, but trivial (only prints)
+
+###e  [more tests later]
+
+
+# == MT_demo
+_my = _this(MT) # kluge for this test [###e need better error message when I accidently pass _self rather than _my]
+testexpr_18 = MT( _my.env.glpane.assy.part.topnode )
+    # works! except for ugliness, slowness, and need for manual update by reloading.
+    #e Still need to test: changing the current Part. Should work, tho manual update will make that painful.
+del _my
+
 
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_17
+testexpr = testexpr_18
     ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
@@ -820,21 +836,25 @@ def drawtest1_innards(glpane):
         printnim("see code for how to optim by replacing two redraws with one, when mouse goes over an object") # see comment above
     return
 
-MEMOIZE_MAIN_INSTANCE = True # change soon, as big optim and to see if it hides some bugs
+MEMOIZE_MAIN_INSTANCE = True      # whether to memoize it across redraws, without reloads
 
-MEMOIZE_ACROSS_RELOADS = False
+MEMOIZE_ACROSS_RELOADS = False    # whether to memoize it across reloads
+    ###BUG: False seems to not be working for MT_demo, 061205... ah, the intent might have been "printed reloads of testdraw"
+    # but the code looks for reloads of this module test.py! Which often correspond but not always!
+    # Solution: include testdraw.vv.reload_counter in the data, when this is false.
+
 
 try:
     _last_main_instance_data
 except:
     # WARNING: duplicated code, a few lines away
-    _last_main_instance_data = (None, None, None)
+    _last_main_instance_data = (None, None, None, None)
     _last_main_instance = None
 else:
     # reloading
     if not MEMOIZE_ACROSS_RELOADS:
         # WARNING: duplicated code, a few lines away
-        _last_main_instance_data = (None, None, None)
+        _last_main_instance_data = (None, None, None, None)
         _last_main_instance = None
     pass        
 
@@ -842,14 +862,15 @@ def find_or_make_main_instance(glpane, staterefs, testexpr): #061120
     if not MEMOIZE_MAIN_INSTANCE:
         return make_main_instance(glpane, staterefs, testexpr)
     global _last_main_instance_data, _last_main_instance
-    new_data = (glpane, staterefs, testexpr)
+    from testdraw import vv
+    new_data = (glpane, staterefs, testexpr, MEMOIZE_ACROSS_RELOADS or vv.reload_counter ) # revised as bugfix, 061205
         # note: comparison data doesn't include funcs & classes changed by reload & used to make old inst,
         # including widget_env, Lval classes, etc, so when memoizing, reload won't serve to try new code from those defs
     if new_data != _last_main_instance_data:
         old = _last_main_instance_data
         _last_main_instance_data = new_data
         res = _last_main_instance = make_main_instance(glpane, staterefs, testexpr)
-        print "\n**** MADE NEW MAIN INSTANCE ****\n", res, "(glpane %s, staterefs %s, testexpr %s)" % _cmpmsgs(old, new_data)
+        print "\n**** MADE NEW MAIN INSTANCE ****\n", res, "(glpane %s, staterefs %s, testexpr %s, reloads %s)" % _cmpmsgs(old, new_data)
     else:
         res = _last_main_instance
         ## print "reusing main instance", res
