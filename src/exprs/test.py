@@ -706,16 +706,21 @@ testexpr_16c = SimpleColumn(
     # being retried, we'd see a double-inval warning for glpane (something called standard_inval twice). But if no error in same session
     # then I never saw this.
 
+# on_drag
+testexpr_17 = Highlightable(Rect(), on_drag = print_Expr("on_drag happened")) # works, but trivial (only prints)
+
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_16c
-    ## testexpr_16 state test
+testexpr = testexpr_17
+    ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
     ## testexpr_7c nested Boxed
+    ## testexpr_9c column of two highlightables
     ## testexpr_10c double-nested toggleshow of highlightable rect
     ## testexpr_11r1b image with black padding
     ## testexpr_13z4 red/blue image
     ## testexpr_15d ChoiceColumn
+
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
     # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size] testexpr_14 [hide_icons]

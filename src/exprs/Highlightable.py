@@ -13,7 +13,9 @@ from basic import _self
 from OpenGL.GL import *
 
 # modified from testdraw.printfunc:
-def print_Expr(*args, **kws): #e might be more useful if it could take argfuncs too (maybe as an option); or make a widget expr for that
+def print_Expr(*args, **kws): ##e rename to include Action in the name?? #e refile
+    "#doc"
+    #e might be more useful if it could take argfuncs too (maybe as an option); or make a widget expr for that
     def printer(_guard = None, args = args):
         assert _guard is None # for now
         printfunc(*args, **kws) # defined in Exprs, has immediate effect, tho same name in testdraw is delayed like this print_Expr
@@ -131,6 +133,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     # options
     sbar_text = Option(str, "") # mouseover text for statusbar
     on_press = Option(Action)
+    on_drag = Option(Action) # new feature 061204 untested
     on_release_in = Option(Action)
     on_release_out = Option(Action)
 
@@ -323,6 +326,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # only ok for Button so far
         #e might need better args (the mouseray, as two points?) - or get by callback
         # print "draggedon called, need to update_selobj, current selobj %r" % mode.o.selobj
+            # retested this 061204 in testexpr_10c; it gets called, but only during drag (motion when mouse is down);
+            # the update_selobj is safe, won't trigger redraw unless selobj has changed. will when it does (off or on the object);
+            # didn't test highlight behavior (tho it works in other tests), since _10c doesn't use it.
+        self._do_action('on_drag', motion = True) # 061204 new feature
         mode.update_selobj(event)
         #e someday, optim by passing a flag, which says "don't do glselect or change stencil buffer if we go off of it",
         # valid if no other objects are highlightable during this drag (typical for buttons). Can't do that yet,
@@ -379,9 +386,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
         return
     
-    def _do_action(self, name):
+    def _do_action(self, name, motion = False):
         "[private, should only be called with one of our action-option names]"
-        print "_do_action",name ###
+        if not motion:
+            print "_do_action",name ###
         assert name.startswith('on_')
         action = getattr(self, name) # will always be defined, since Option will give it a default value if necessary
             ###e should be None or a callable supplied to the expr, for now; later will be None or an Action
