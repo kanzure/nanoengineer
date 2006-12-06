@@ -103,7 +103,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     glname = glpane_state.glname # (note, most things don't have this)
 
     def __init__(self, *args, **kws):
-        # note: just before any return herein, we must call self._init_e_serno_(), so it's called after any canon_expr we do;
+        # note: just before any return herein, we must call self._e_init_e_serno(), so it's called after any canon_expr we do;
         # also, the caller (if a private method in us) can then do one inside us; see comment where this is handled in __call__
         ###e does place (instanceness) come in from kws or any args?
 ##        val = kws.pop('_destructive_customize', None)
@@ -118,23 +118,23 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         if val:
             assert not args and not kws
             self._destructive_copy(val)
-            self._init_e_serno_()
+            self._e_init_e_serno()
             return
         val = kws.pop('_make_in', None)
         if val:
             assert not args and not kws
             self._destructive_make_in(val)
-            self._init_e_serno_()
+            self._e_init_e_serno()
             return
         #e
         # assume no special keywords remain
         self._destructive_init(args, kws)
-        self._init_e_serno_()
+        self._e_init_e_serno()
         return
     def __call__(self, *args, **kws):
         new = self._copy()
         new._destructive_init(args, kws)
-        new._init_e_serno_()
+        new._e_init_e_serno()
             # note, this "wastes a serno" by allocating a newer one that new.__init__ did;
             # this is necessary to make serno newer than any exprs produced by canon_expr during _destructive_init
         return new

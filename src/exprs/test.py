@@ -117,9 +117,14 @@ import Set
 reload_once(Set)
 from Set import Set ##e move to basic
 
-import MT_demo
+import MT_demo #e rename? put in subdir?
 reload_once(MT_demo)
 from MT_demo import MT, test_drag_pixmap
+
+import demo_drag
+reload_once(demo_drag)
+from demo_drag import * # for now [just testing import, for now]
+
 
 # == @@@
 

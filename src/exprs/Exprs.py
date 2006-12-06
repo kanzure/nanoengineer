@@ -132,7 +132,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         # (the original use for this, needs_wrap_by_ExprsMeta, doesn't need it -- the check for _self is enough) [061027]
     def __init__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __init__" % self.__class__.__name__
-    def _init_e_serno_(self):
+    def _e_init_e_serno(self): # renamed from _init_e_serno_, 061205
         """[private -- all subclasses must call this; the error of not doing so is not directly detected --
          but if they call canon_expr on their args, they should call this AFTER that, so self._e_serno
          will be higher than that of self's args! This may not be required for ExprsMeta sorting to work,
@@ -153,6 +153,11 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         if self._e_serno == _debug_e_serno: #k hope not too early for %r to work
             print_compact_stack("just made expr %d, %r, at: " % (_debug_e_serno,self))
         return
+    def _e_dir_added(self): # 061205
+        "For a symbolic expr only, return the names in dir(self) which were stored by external assignments."
+        assert self._e_is_symbolic
+        assert not self._e_is_instance #k probably implied by _e_is_symbolic
+        return filter( lambda name: not (name.startswith('_e_') or name.startswith('__')) , dir(self) )
     def __call__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __call__" % self.__class__.__name__
     # note: for __getattr__, see also the subclasses; for __getitem__ see below
@@ -358,7 +363,7 @@ class OpExpr(SymbolicExpr):
     "Any expression formed by an operation (treated symbolically) between exprs, or exprs and constants"
     def __init__(self, *args):
         self._e_args = tuple(map(canon_expr, args)) # tuple is required, so _e_args works directly for a format string of same length
-        self._init_e_serno_() # call this AFTER canon_expr (for sake of _e_serno order)
+        self._e_init_e_serno() # call this AFTER canon_expr (for sake of _e_serno order)
         self._e_init()
     def _e_init(self):
         assert 0, "subclass of OpExpr must implement _e_init"
@@ -695,7 +700,7 @@ class internal_Expr(Expr):
         self.args = args # not sure if the non-_e_ name is ok... if not, try _e_data_args or so? ###k
         self.kws = kws
         self._internal_Expr_init() # subclasses should override this method to do their init
-        self._init_e_serno_()
+        self._e_init_e_serno()
         return
     def _internal_Expr_init(self):
         assert 0, "subclass must implem"
@@ -912,7 +917,7 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
 class Symbol(SymbolicExpr):
     "A kind of Expr that is just a symbol with a given name. Often used via the __Symbols__ module."
     def __init__(self, name = None):
-        self._init_e_serno_()
+        self._e_init_e_serno()
         if name is None:
             name = "?%s" % compact_stack(skip_innermost_n = 3).split()[-1] # kluge - show line where it's defined
         self._e_name = name

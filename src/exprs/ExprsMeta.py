@@ -179,6 +179,7 @@ class ClassAttrSpecific_NonDataDescriptor(object):
     """
     __copycount = 0
     cls = None
+    clsname = attr = '<unset>' # probably never seen
     def __init__(self, clsname, attr, *args, **kws):
         # to simplify
         #e perhaps this got called from a subclass init method, which stored some additional info of its own,
@@ -197,6 +198,8 @@ class ClassAttrSpecific_NonDataDescriptor(object):
             # (Or it might turn out that's done before calling it, so this issue might not come up for that example.)
         self._init1()
         #e super init?
+    def __repr__(self): #061205 moved this here from a subclass, and removed the worse ones in other subclasses
+        return "<%s at %#x for %r in %r>" % (self.__class__.__name__, id(self), self.attr, self.clsname)
     def _init1(self):
         "subclasses can override this"
         pass
@@ -281,6 +284,9 @@ class ClassAttrSpecific_NonDataDescriptor(object):
             if not seen_before("ClassAttrSpecific_{Non,}DataDescriptor copied again"):
                 print "once-per-session developer warning: this copy got copied again:", \
                       self, "for class %s" % self.cls.__name__, "copied as", copy, "for class %s" % cls.__name__
+                # Note: this may be normal for Rect -> Spacer, and it's probably not an error at all.
+                # If this keeps seeming true, remove the message.
+                # (For that matter, I could probably remove the copying behavior entirely. ##k) [061205 comment]
         return copy
     pass # end of class ClassAttrSpecific_NonDataDescriptor
 
@@ -419,8 +425,6 @@ class C_rule_for_formula(C_rule):
         #e could/should we assert no unknown kws??
     def make_compute_method_for_instance(self, instance):
         return self.formula._e_compute_method(instance, '$' + self.attr) # index arg is a guess, 061110
-    def __repr__(self):
-        return "<%s at %#x for %r in %r>" % (self.__class__.__name__, id(self), self.attr, self.clsname)#061117 changed self.formula -> self.attr
     pass
 
 def choose_C_rule_for_val(clsname, attr, val, **kws):
@@ -513,8 +517,8 @@ class C_rule_for_lval_formula(ClassAttrSpecific_DataDescriptor): #061117 - revie
         #  [those points are related, but i am a bit too tired to explain (or see exactly) how])
         lval.set_constant_value(val)
         return        
-    def __repr__(self):
-        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.attr)#061117 changed self.lval_formula -> self.attr
+##    def __repr__(self):
+##        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.attr)#061117 changed self.lval_formula -> self.attr
     pass # end of class C_rule_for_lval_formula
     #
     # historical note [061117 841p]: see cvs rev 1.42 for a version of this class
@@ -546,8 +550,8 @@ class data_descriptor_Expr_descriptor(ClassAttrSpecific_DataDescriptor):
         # print "set_for_our_cls",(self, self.attr, instance, val)
         assert self.attr != FAKE_ATTR
         return self.expr._e_set_for_our_cls(self, instance, val) #e or pass self.attr rather than self?
-    def __repr__(self):
-        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.attr)
+##    def __repr__(self):
+##        return "<%s at %#x for %r>" % (self.__class__.__name__, id(self), self.attr)
     pass # end of class data_descriptor_Expr_descriptor
 
 # ==
