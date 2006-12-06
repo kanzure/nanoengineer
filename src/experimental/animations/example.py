@@ -3,13 +3,15 @@
 import os, sys, animate, string, jobqueue
 
 jobqueue.worker_list = [
-    # ('localhost', '/tmp/mpeg'),
+    ('localhost', '/tmp/mpeg'),
     ('server', '/tmp/mpeg'),
-    ('laptop', '/tmp/mpeg'),
-    ('mac', '/Users/wware/tmp')
+    # ('laptop', '/tmp/mpeg'),
+    # ('mac', '/Users/wware/tmp')
     ]
 
 rendering = False
+
+# Comment out stuff that's already done
 
 for arg in sys.argv[1:]:
     if arg.startswith('debug='):
@@ -18,7 +20,7 @@ for arg in sys.argv[1:]:
         animate.povray_pretty = False
         animate.setScale(0.25)
     elif arg == 'clean':
-        dirs = ('slowjpeg', 'slow_cpk_jpeg', 'fastjpeg')
+        dirs = ('slowjpeg', 'slow_cpk_jpeg', 'fastjpeg', 'fast_cpk_jpeg')
         for d in dirs:
             jobqueue.do('rm -rf ' + os.path.join(animate.mpeg_dir, d))
             jobqueue.do('mkdir -p ' + os.path.join(animate.mpeg_dir, d))
@@ -41,6 +43,10 @@ if rendering:
     # First step, generate all the subframes we'll need
     m.rawSubframes(os.path.join(animate.mpeg_dir, 'fastpov'),
                    os.path.join(animate.mpeg_dir, 'fastjpeg'),
+                   struct_name + '.%06d.pov',
+                   2160+1)
+    m.rawSubframes(os.path.join(animate.mpeg_dir, 'fast_cpk_pov'),
+                   os.path.join(animate.mpeg_dir, 'fast_cpk_jpeg'),
                    struct_name + '.%06d.pov',
                    2160+1)
 
@@ -101,31 +107,36 @@ I'll need 10.8 picoseconds of fast simulation using 5 fs subframes, or
 2160 subframes.
 """
 
+# Textlists are interpreted in the motionBlur method in animate.py. The argument
+# to the textlist_xxx function is a subframe index
+
 def textlist_6ps(framenumber):
     # 200 fs is 200.0e-6 nanoseconds
+    # motor rotations are once per 0.2 nanoseconds
     nsecs = framenumber * 200.0e-6
     return [
-        '%.4f nanoseconds' % nsecs,
+        '%.3f nanoseconds' % nsecs,
         '%.3f rotations' % (nsecs / 0.2)
         ]
 
 def textlist_0_6ps(framenumber):
     nsecs = framenumber * 20.0e-6
     return [
-        '%.4f nanoseconds' % nsecs,
+        '%.3f nanoseconds' % nsecs,
         '%.3f rotations' % (nsecs / 0.2)
         ]
 
 def textlist_0_15ps(framenumber):
     nsecs = framenumber * 5.0e-6
     return [
-        '%.4f nanoseconds' % nsecs,
+        '%.3f nanoseconds' % nsecs,
         '%.3f rotations' % (nsecs / 0.2)
         ]
 
+FAST_CPK = os.path.join(animate.mpeg_dir, 'fast_cpk_jpeg/' + struct_name + '.%06d.jpg')
 SLOW_CPK = os.path.join(animate.mpeg_dir, 'slow_cpk_jpeg/' + struct_name + '.%06d.jpg')
-SLOW_TUBES = os.path.join(animate.mpeg_dir, 'slowjpeg/' + struct_name + '.%06d.jpg')
 FAST_TUBES = os.path.join(animate.mpeg_dir, 'fastjpeg/' + struct_name + '.%06d.jpg')
+SLOW_TUBES = os.path.join(animate.mpeg_dir, 'slowjpeg/' + struct_name + '.%06d.jpg')
 
 def slow_cpk_with_title(titleImage, real_seconds, start=0, avg=10):
     # Background animation with title, 6 ps/s blurred CPK
@@ -167,6 +178,18 @@ def medium_tubes(real_seconds, start=0):
                         start=start, incr=4, frames=real_seconds*m.SECOND, avg=4,
                         textlist=textlist_0_6ps)
 
+def medium_cpk_with_title(titleImage, real_seconds, start=0):
+    # Background animation with title, 0.6 ps/s blurred, cpk
+    return m.motionBlur(FAST_CPK,
+                        start=start, incr=4, frames=real_seconds*m.SECOND, avg=4,
+                        titleImage=titleImage)
+
+def medium_cpk(real_seconds, start=0):
+    # Background animation with title, 0.6 ps/s blurred, cpk
+    return m.motionBlur(FAST_CPK,
+                        start=start, incr=4, frames=real_seconds*m.SECOND, avg=4,
+                        textlist=textlist_0_6ps)
+
 def fast_tubes_with_title(titleImage, real_seconds, start=0):
     # Background animation with title, 0.15 ps/s blurred, tubes
     return m.motionBlur(FAST_TUBES,
@@ -179,6 +202,18 @@ def fast_tubes(real_seconds, start=0):
                         start=start, incr=1, frames=real_seconds*m.SECOND, avg=1,
                         textlist=textlist_0_15ps)
 
+def fast_cpk_with_title(titleImage, real_seconds, start=0):
+    # Background animation with title, 0.15 ps/s blurred, cpk
+    return m.motionBlur(FAST_CPK,
+                        start=start, incr=1, frames=real_seconds*m.SECOND, avg=1,
+                        titleImage=titleImage)
+
+def fast_cpk(real_seconds, start=0):
+    # Background animation with title, 0.15 ps/s blurred, cpk
+    return m.motionBlur(FAST_CPK,
+                        start=start, incr=1, frames=real_seconds*m.SECOND, avg=1,
+                        textlist=textlist_0_15ps)
+
 def cross_fade(real_seconds, from_filespec, to_filespec, start=0, avg=10, textlist=textlist_6ps):
     # We only do cross-fades at 0.6 and 6 ps/sec
     return m.motionBlur(from_filespec,
@@ -186,26 +221,29 @@ def cross_fade(real_seconds, from_filespec, to_filespec, start=0, avg=10, textli
                         avg=avg, textlist=textlist, fadeTo=to_filespec)
 
 ####################################################################
-# Slow simulation: 23 real seconds, 6900 subframes, 138 psecs
+# Medium simulation: 23 real seconds, 13.8 simulated psecs, 690 frames, 2760 subframes at 5 fs each
+# I don't have enough frames! Restart the animation on the second title page (start=0, not z)
 
+# Medium simulation: 8 real seconds, 4.8 simulated psecs, 240 frames, 960 subframes at 5 fs each
 z = medium_cpk_with_title('Titles_22_Sep_2006/1SmallBearingPages-17.gif', 8, start=0)
-z = medium_cpk_with_title('Titles_22_Sep_2006/2SmallBearingPages-17.gif', 15, start=z)
+# Medium simulation: 13 real seconds, 9.0 simulated psecs, 450 frames, 1800 subframes at 5 fs each
+z = medium_cpk_with_title('Titles_22_Sep_2006/2SmallBearingPages-17.gif', 15, start=0)
 
 ####################################################################
-# Slow animation: 10.5 real seconds, 3150 subframes, 63 psecs
+# Medium animation: 10.5 real seconds, 6.3 sim psecs, 315 frames, 1260 subframes at 5 fs each
 
 z = medium_cpk(5, start=0)
 z = cross_fade(0.5, FAST_CPK, FAST_TUBES, start=z, avg=4, textlist=textlist_0_6ps)
 z = medium_tubes(5, start=z)
 
 ####################################################################
-# Fast simulation: 18 seconds, 540 subframes, 2.7 psecs
+# Fast simulation: 18 seconds, 10.8 sim psecs, 540 subframes
 
 z = fast_tubes_with_title('Titles_22_Sep_2006/3SmallBearingPages-17.gif', 8, start=0)
 z = fast_tubes(10, start=z)
 
 ####################################################################
-# Fast simulation: 18 real seconds, 2160 subframes, 10.8 psecs
+# Medium simulation: 18 seconds, 10.8 sim psecs, 540 frames, 2160 subframes
 
 z = medium_tubes_with_title('Titles_22_Sep_2006/4SmallBearingPages-17.gif', 8, start=0)
 z = medium_tubes(10, start=z)
