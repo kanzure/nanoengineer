@@ -55,14 +55,30 @@ class Rect(Widget2D): # finally working as of 061106
 
 # ==
 
-class Spacer(Rect): #061126; untested
+class Spacer_pre061205_obs(Rect): #061126
     # slight kluge, since accepts color arg but ignores it (harmless, esp since nothing yet warns about extra args or opts)
     # (note: we might decide that accepting all the same args as Rect is actually a feature)
     #e #k might need enhancement to declare that instantiation does nothing, ie makes no diff whether you reref after it --
     # but for that matter the same might be true of Rect itself, or anything that does pure drawing...
     #e see also: Invisible [nim], e.g. Invisible(Rect(...)) or Invisible(whatever) as a spacer sized to whatever you want
+
+    ###e should change default dims to 0,0 -- now i did this by rewriting it below
     def draw(self):
-        pass
+        return
+    pass
+
+class Spacer(Widget2D): # rewritten 061205 to not inherit from Rect, so arg defaults can change --
+        ###e it would be better if that was not the only safe way [tho I didn't even bother trying the simpler way, I admit]
+    "Accept same args as Rect, but draw as nothing. Equivalent to SpacerFor(Rect( same args))."
+    width = Arg(Width, 0)
+        # Note: Widget2D defines width & height, making this seem circular, but it's ok (see comment in RectFrame)
+    height = Arg(Width, width)
+    color = ArgOrOption(Color, gray) # not used, but should be accepted, since it's accepted as arg or public option name in Rect
+    # formulas
+    bright = _self.width
+    btop = _self.height
+    def draw(self):
+        return
     pass
 
 class SpacerFor(InstanceOrExpr, DelegatingMixin):
