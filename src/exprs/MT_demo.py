@@ -148,7 +148,17 @@ class MT_kids(InstanceMacro):
         kids = self.kids
         assert type(kids) == type([])
         elts = map(MT_viewer_for_object, kids)
-        res = SimpleColumn(*elts)
+        if not elts:
+            # THIS BUGFIX MIGHT BE UNTESTED where i am 061205 519p #####@@@@@
+            res = Spacer(0,0) #k # work around limitation in SimpleColumn (guess at bugfix but did see the bug on restart)
+                # to see bug, start the test with the old code before this case, then open the main part (when it's empty)
+                # (i did not analyze the following but skimming it it looks consistent with this guess)
+                    ##    AttributeError: 'NoneType' object has no attribute 'btop'
+                    ##  [lvals.py:209] [Exprs.py:215] [Exprs.py:411]
+                    ##exception in testdraw.py's drawfunc call ignored: exceptions.AttributeError: no attr 'btop' in delegate <MT_kids#9652(i)> of self = <If_expr#9622(i)>
+                    ##  [testdraw.py:274] [testdraw.py:308] [testdraw.py:456] [test.py:827] [Column.py:123] [Column.py:78] [instance_helpers.py:706]
+        else:
+            res = SimpleColumn(*elts)
         ## return res # bug: AssertionError: compute method asked for on non-Instance <SimpleColumn#10982(a)>
         # I guess that means we have to instantiate it here to get the delegate. kluge this for now:
         return res._e_eval(self.env, ('v',self.ipath)) # 'v' is wrong, self.env is guess

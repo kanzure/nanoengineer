@@ -14,6 +14,10 @@ import transforms
 reload_once(transforms)
 from transforms import Translate
 
+import Highlightable
+reload_once(Highlightable)
+from Highlightable import Highlightable ## Button, print_Expr
+
 # ==
 
 Alias = mousepos = Stub
