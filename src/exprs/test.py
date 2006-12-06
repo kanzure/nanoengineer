@@ -729,19 +729,21 @@ testexpr_18 = MT( _my.env.glpane.assy.part.topnode )
     #e Still need to test: changing the current Part. Should work, tho manual update will make that painful.
     ###e need better error message when I accidently pass _self rather than _my]
 
-testexpr_18a = test_drag_pixmap( _my.env.glpane.assy.w.mt, _my.env.glpane.assy.part.topnode )
+testexpr_18a = test_drag_pixmap( _my.env.glpane.assy.w.mt, _my.env.glpane.assy.part.topnode ) # nim, otherwise works -- debug prints
 
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_18
-    ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
+testexpr = testexpr_16c
+
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
     ## testexpr_10c double-nested toggleshow of highlightable rect
     ## testexpr_11r1b image with black padding
     ## testexpr_13z4 red/blue image
     ## testexpr_15d ChoiceColumn
+    ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
+    ## testexpr_18 model tree demo
 
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
