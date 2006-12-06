@@ -21,11 +21,12 @@ namespace ne1 {
  * HDF5 implementation of SimResultsDataStore.
  *
  * Hierarchy:
-	/SimResults
-		Attributes:
-			Strings: Name, Description, Notes
-			Ints: StartStep, MaxSteps
-			Floats: Timestep, EnvironmentTemperature, EnvironmentPressure
+	/
+		Name, Description, Notes
+	
+		Parameters/
+			StartStep, MaxSteps
+			Timestep, EnvironmentTemperature, EnvironmentPressure
 	
 		InputFilePaths/
  */
@@ -36,15 +37,30 @@ class HDF5_SimResults : public SimResultsDataStore {
 		
 		int openDataStore(const char* directory, std::string& message);
 		
-		std::string getName() const;
+		int getName(std::string& name) const;
 		int setName(const std::string& name, std::string& message);
 		
-		std::string getDescription() const;
+		int getDescription(std::string& description) const;
 		int setDescription(const std::string& description,
 						   std::string& message);
 		
-		std::string getNotes() const;
+		int getNotes(std::string& notes) const;
 		int setNotes(const std::string& notes, std::string& message);
+		
+		int getTimestep(float& timestep) const;
+		int setTimestep(float timestep, std::string& message);
+		
+		int getStartStep(int& startStep) const;
+		int setStartStep(int startStep, std::string& message);
+		
+		int getMaxSteps(int& maxSteps) const;
+		int setMaxSteps(int maxSteps, std::string& message);
+		
+		int getEnvironmentTemperature(float& envTemp) const;
+		int setEnvironmentTemperature(float envTemp, std::string& message);
+		
+		int getEnvironmentPressure(float& envPress) const;
+		int setEnvironmentPressure(float envPress, std::string& message);
 		
 	private:
 		// HDF5 type identifiers
@@ -53,11 +69,27 @@ class HDF5_SimResults : public SimResultsDataStore {
 		
 		hid_t fileId;	// HDF5 file identifier
 		
-		std::string getStringAttribute(const std::string& groupName,
-									   const std::string& attributeName) const;
-		int setStringAttribute
-			(const std::string& groupName, const std::string& attributeName,
-			 const std::string& value, std::string& message);
+		int getStringAttribute(const std::string& groupName,
+							   const std::string& attributeName,
+							   std::string& attributeValue) const;
+		int setStringAttribute(const std::string& groupName,
+							   const std::string& attributeName,
+							   const std::string& value,
+							   std::string& message);
+		int getIntAttribute(const std::string& groupName,
+							const std::string& attributeName,
+							int& attributeValue) const;
+		int setIntAttribute(const std::string& groupName,
+							const std::string& attributeName,
+							const int& value,
+							std::string& message);
+		int getFloatAttribute(const std::string& groupName,
+							  const std::string& attributeName,
+							  float& attributeValue) const;
+		int setFloatAttribute(const std::string& groupName,
+							  const std::string& attributeName,
+							  const float& value,
+							  std::string& message);
 };
 
 } // ne1::

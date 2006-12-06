@@ -57,8 +57,11 @@ class SimResultsDataStore {
 	/*
 	 * Name
 	 */
-	/** Returns the simulation name. */
-	virtual std::string getName() const = 0;
+	/** Retrieves the simulation name.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getName(std::string& name) const = 0;
 	
 	/** Sets the simulation name.
 	 *
@@ -71,8 +74,11 @@ class SimResultsDataStore {
 	/*
 	 * Description
 	 */
-	/** Returns the simulation description. */
-	virtual std::string getDescription() const = 0;
+	/** Retrieves the simulation description.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getDescription(std::string& description) const = 0;
 	
 	/** Sets the simulation description.
 	 *
@@ -85,8 +91,11 @@ class SimResultsDataStore {
 	/*
 	 * Notes
 	 */
-	/** Returns the user's notes for these simulation results. */
-	virtual std::string getNotes() const = 0;
+	/** Retrieves the user's notes for these simulation results.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getNotes(std::string& notes) const = 0;
 	
 	/** Sets the user's notes for these simulation results.
 	 *
@@ -97,54 +106,94 @@ class SimResultsDataStore {
 		
 	
 	/*
-	def getTimestep(self):
-		"""Returns the simulation timestep in seconds."""
-		pass
-	def setTimestep(self, timestep):
-		"""
-		Sets the simulation timestep.
-		@param timestep: duration in seconds
-		"""
-		pass
+	 * Timestep
+	 */
+	/** Retrieves the simulation timestep in seconds.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getTimestep(float& timestep) const = 0;
+	
+	/** Sets the simulation timestep.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setTimestep(float timestep, std::string& message) = 0;
 	
 	
-	def getStartStep(self):
-		"""Returns the simulation starting step number."""
-		pass
-	def setStartStep(self, startStep):
-		"""Sets the simulation starting step number."""
-		pass
+	/*
+	 * StartStep
+	 */
+	/** Retrieves the simulation starting step number.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getStartStep(int& startStep) const = 0;
+	
+	/** Sets the simulation starting step number.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setStartStep(int startStep, std::string& message) = 0;
+	
+
+	/*
+	 * MaxSteps
+	 */
+	/** Retrieves the maximum number of steps to simulate.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getMaxSteps(int& maxSteps) const = 0;
+	
+	/** Sets the maximum number of steps to simulate.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setMaxSteps(int maxSteps, std::string& message) = 0;
 	
 	
-	def getMaxSteps(self):
-		"""Returns the maximum number of steps to simulate."""
-		pass
-	def setMaxSteps(self, maxSteps):
-		"""Sets the maximum number of steps to simulate."""
-		pass
-		
+	/*
+	 * EnvironmentTemperature
+	 */
+	/** Retrieves the simulation environment temperature in Kelvin.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getEnvironmentTemperature(float& envTemp) const = 0;
 	
-	def getEnvironmentTemperature(self):
-		"""Returns the simulation environment temperature in Kelvin."""
-		pass
-	def setEnvironmentTemperature(self, temperature):
-		"""
-		Sets the simulation environment temperature.
-		@param temperature: in Kelvin
-		"""
-		pass
+	/** Sets the simulation environment temperature.
+	 *
+	 * @param envTemp in Kelvin
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setEnvironmentTemperature(float envTemp,
+										  std::string& message) = 0;
+
+	/*
+	 * EnvironmentPressure
+	 */
+	/** Retrieves the simulation environment pressure in Pascals.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getEnvironmentPressure(float& envPress) const = 0;
 	
+	/** Sets the simulation environment pressure.
+	 *
+	 * @param envTemp in Pascals
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setEnvironmentPressure(float envPress,
+									   std::string& message) = 0;
+
 	
-	def getEnvironmentPressure(self):
-		"""Returns the simulation environment pressure in Pascals."""
-		pass
-	def setEnvironmentPressure(self, pressure):
-		"""
-		Sets the simulation environment pressure.
-		@param pressure: in Pascals
-		"""
-		pass
-	
+	/*
 	
 	def getFilePathKeys(self):
 		"""
