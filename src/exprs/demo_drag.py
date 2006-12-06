@@ -18,25 +18,38 @@ from transforms import Translate
 
 Alias = mousepos = Stub
 Position = 'stub type position'
-## Node = Widget2D # better stub
 
 class ModelObject(InstanceOrExpr,DelegatingMixin): # stub ##e will we need Widget2D for some reason?
     """#doc
     """
     pass
 
-class Node(ModelObject):
+class Node(ModelObject): ##e should rename - not the same as in Utility.py. see below about what to rename it...
     """It has a position, initializable from arg1 but also settable as state under name pos, and an arb appearance.
     Position is relative to whatever coords it's drawn in.
     """
+    ###e about what to rename it... Hmm, is it a general "Draggable"? .lookslike arg2 -> .islike or .thing arg1?
+    
+    # BTW, the highlightability is not yet specified here ###nim; it relates to the fact that we can bind commands to it
+    # (as opposed to things it contains or is contained in, tho that should be permitted at the same time,
+    #  tho implem requires nested glnames to sometimes ignore inner ones, when those are inactive);
+    # but we might add it in a wrapper which makes it into a view of it that lets commands be bound to it,
+    # except that World.draw assumes we draw the actual model objs, not wraps of them - also an issue if env says they
+    # look different -- so maybe World needs to wrap all it draws with glue to add looks and behavior to it, in fact.
+
+    # but for now, can we do this here?
+    
     pos0 = Arg(Position)
     pos = State(Position, pos0)
     #e we probably want to combine pos0/pos into one ArgState or StateArg so it's obvious how they relate,
     # and only one gets saved in file, and only one self.attr name is used up and accessible
     lookslike = ArgOrOption(Anything) # OrOption is so it's customizable
     ## delegate = _self.lookslike #k
-    delegate = Translate( lookslike, pos )
-        ##e will we want to rename delegate so it's only for appearance? *is it*? does it sim like this too?
+    delegate = Highlightable( Translate( lookslike, pos ) )
+                #e actions? or do this in a per-tool wrapper which knows the actions?
+                # or, do this here and make the actions delegate to the current tool for the current parent? guess: the latter.
+                
+        ##e digr: will we want to rename delegate so it's only for appearance? *is it*? does it sim like this too?
         # Guess: it's for everything -- looks, sim qualities, etc -- except what we override or grab from special members.
         # [if so, no need to rename, except to clarify, leaving it general.]
     #e might need something for how to save it in a file, Undo policy, etc
@@ -244,6 +257,7 @@ class World(ModelObject):
                 # so it doesn't make much difference in our code. we can always have a type "Node for us" to coerce them to
                 # which if necessary adds the pos which only we see -- we'd want this if one Node could be in two Worlds at diff posns.
                 # (Which is likely, due to Configuration Management.)
+        ###e see comment above: "maybe World needs to wrap all it draws with glue to add looks and behavior to it"
         return
     pass
 
