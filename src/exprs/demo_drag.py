@@ -10,13 +10,27 @@ and their edit tools and behaviors. [Eventually.]
 from basic import *
 from basic import _self, _this, _my
 
+
+import Overlay
+reload_once(Overlay)
+from Overlay import Overlay
+
 import transforms
 reload_once(transforms)
 from transforms import Translate
 
+import Rect
+reload_once(Rect)
+from Rect import Rect
+
 import Highlightable
 reload_once(Highlightable)
 from Highlightable import Highlightable ## Button, print_Expr
+
+
+import draw_utils
+reload_once(draw_utils)
+from draw_utils import DZ ##e move DZ etc to basic??
 
 # ==
 
@@ -44,7 +58,7 @@ class Node(ModelObject): ##e should rename - not the same as in Utility.py. see 
     # but for now, can we do this here?
     
     pos0 = Arg(Position)
-    pos = State(Position, pos0)
+    pos = State(Position, pos0) ###BUG -- does this work -- is pos0 set in time for this? not sure it's working... 061205 1009p
     #e we probably want to combine pos0/pos into one ArgState or StateArg so it's obvious how they relate,
     # and only one gets saved in file, and only one self.attr name is used up and accessible
     lookslike = ArgOrOption(Anything) # OrOption is so it's customizable
@@ -256,6 +270,7 @@ class World(ModelObject):
     nodelist = State(list_Expr, []) ###k ?? # self.nodelist is public for append (can that be changetracked???#####IMPLEM) or reset
     def draw(self):
         for node in self.nodelist:
+            # print "%r is drawing %r at %r" % (self, node, node.pos) # suspicious: all have same pos ... didn't stay true, nevermind
             node.draw() # this assumes the items in the list track their own posns, which might not make perfect sense;
                 # otoh if they didn't we'd probably replace them with container objs for our view of them, which did track their pos;
                 # so it doesn't make much difference in our code. we can always have a type "Node for us" to coerce them to
@@ -282,6 +297,93 @@ class World(ModelObject):
 #   well, the tool can change for the same world, the world concerns itself only with what kind of data it can hold
 #   (and it may offer a set of tools, or have a default one, or have implems of std-named ones...)
 
+# but for an initial test, we can always be in this kind of world, have one tool implicitly, on entire space --
+# but this does require changing the click-action. OR we could create a big image as a guide shape, and put click action on that.
+# Hmm, I think that's easier, I'll try that first.
 
+# Let's do it with a DNA origami image... but first, just a rect. So, we want a modifier for a thing (the rect)
+# which gives it the event bindings implied by this tool. I.e. a macro based on Highlightable.
 
+# status 061205 1022p: works (in this initial klugy form, not using Command classes above) except for recording points in abs coords
+# (wrong) but drawing them in arb rel coords (wrong), when both need to be in a specified coord sys, namely that of the bg rect object.
+class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
+    background = Arg(Widget2D, Rect(10))
+    world = Instance( World() ) # has .nodelist I'm allowed to extend
+    _value = Overlay(
+        Highlightable( background, on_press = _self.on_press_bg, on_drag = _self.on_drag_bg ),
+        ## Translate( world, DZ)### Translate needed?? not good once not needed... BUT will it even work?? I think so...
+        world
+    )
+    _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
+    def on_press_bg(self):
+        ###e hmm, how can we find out the mouse pos of the event?? without having to accept an arg all the time? be an Action??
+        # or is it ok for the caller to ask us how many args we take and pass one only if we take one?
+        # (non-POLS I suppose; maybe ok if reliable. But it's a pain, and weird, and makes it hard to read and learn from the code...)
+        # (Maybe it has to try passing one, see the exception... unsafe if bug *inside* ... same problems.)
+        # So is there a simpler way, like looking in self.env or self.glpane here? yes.
+        # Nothing really wrong with it (just a dynamic var).
+        # It's just part of the API of these methods -- bind glpane.xxx while you call them.
+##        pos = self.env.glpane._event.pos #####IMPLEM and maybe rename and maybe change type and maybe translate coords...
+            # but wait, we have to turn it into a 3d point! Hmm, that point is being passed into Highlightable...
+        point = self.current_event_mousepoint() # shorthand... which makes it easier to translate coords for now ###IMPLEM in Widget?
+        # for initial test, don't use those Command classes above, just do a side effect right here
+        # kluge: that's in abs coords for now
+
+        print "event mousepoint:",point, ###
+        newpos = point + DZ * PIXELS
+        print "newpos",newpos
+        node_expr = Node(newpos, Rect(0.2,0.2,red)) # kluge: move it slightly closer so we can see it in spite of bg
+            ###e needs more principled fix -- not yet sure what that should be -- is it to *draw* closer? (in a perp dir from surface)
+            #e or just to create spheres (or anything else with thickness in Z) instead? (that should not always be required)
+        node = self.make(node_expr) ## , 'on_press_bg')
+        ## self.world.nodelist.append(node)
+        self.world.nodelist = self.world.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
+        print "added",node,"ipath[0]",node.ipath[0]
+##        print "at (should be newpos)",node.pos###
+##        ###BUG: after reload, these new nodes share ipath with old ones, and that Arg/State code gets fooled (I conjecture)
+##        # and inits state to the state of the old node, ignoring the arg!!!
+##        # evidence: the recycled 101 in the following, the first 2 nodes with identical pos...
+##            ##event mousepoint: [-5.90148889  5.16380219  0.01199794] newpos [-5.90148889  5.16380219  0.04699794]
+##            ##added <Node#18254(i)> ipath[0] 101
+##            ##at (should be newpos) [-3.3274351   2.6525307   0.04699794]
+##        ### FIXED by recording self._index_counter in State, not just in self!
+            
+
+        ##e let new node be dragged, and use Command classes above for newmaking and dragging
+        return
+    def on_drag_bg(self):
+        print "called on_drag_bg" # note: nothing useful is in the glpane env, yet ###IMPLEM
+    def make(self, expr): ## , index = None):
+        index = None
+        #e rename? #e move to some superclass 
+        #e worry about lexenv, eg _self in the expr, _this or _my in it... is expr hardcoded or from an arg?
+        #e revise implem in other ways eg eval vs instantiate
+        #e default unique index?? (unique in the saved stateplace, not just here)
+        # (in fact, is reuse of index going to occur from a Command and be a problem? note *we* are acting as command...
+        #e use in other recent commits that inlined it
+        if index is None:
+            # usual case I hope (due to issues mentioned above): allocate one
+            if 0:
+                index = getattr(self, '_index_counter', 100)
+                index = index + 1
+                setattr(self, '_index_counter', index)
+            else:
+                # try to fix bug
+                index = self._index_counter
+                index = index + 1
+                self._index_counter = index
+                ###e LOGIC ISSUE: should assert the resulting ipath has never been used,
+                # or have a more fundamental mechanism to guarantee that
+        env = self.env # maybe wrong, esp re _self
+        ipath = (index, self.ipath)
+        return expr._e_eval(self.env, ipath)
+    def current_event_mousepoint(self): #e rename #e move to Widget or so #e or move to glpane, except might need self coord sys to work
+        """return the 3d point (in abs coords for now ###FIX) corresponding to the click point
+        of the current mousepress event (error if no current mousepress event);
+        this is defined (for now) based on the depth buffer pixel clicked on,
+        or is in the plane of the center-of-view otherwise.
+           Naming note: point implies 3d; pos might mean 2d, especially in the context
+        of a 2d mouse. So it's named mousepoint rather than mousepos.
+        """
+        return + self.env.glpane._point # the + is to make a copy for safety; we assume it's a Numeric array
 # end

@@ -123,7 +123,7 @@ from MT_demo import MT, test_drag_pixmap
 
 import demo_drag
 reload_once(demo_drag)
-from demo_drag import * # for now [just testing import, for now]
+from demo_drag import GraphDrawDemo_FixedToolOnArg1
 
 
 # == @@@
@@ -719,6 +719,8 @@ testexpr_16c = SimpleColumn(
 # == dragging (e.g. on_drag)
 testexpr_17 = Highlightable(Rect(), on_drag = print_Expr("on_drag happened")) # works, but trivial (only prints)
 
+testexpr_17a = GraphDrawDemo_FixedToolOnArg1() # works in initial kluge form, except for drawing coords; see comments in there for more
+
 ###e  [more tests later]
 
 
@@ -734,7 +736,7 @@ testexpr_18a = test_drag_pixmap( _my.env.glpane.assy.w.mt, _my.env.glpane.assy.p
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_16c
+testexpr = testexpr_17a
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
@@ -743,6 +745,7 @@ testexpr = testexpr_16c
     ## testexpr_13z4 red/blue image
     ## testexpr_15d ChoiceColumn
     ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
+    ## testexpr_17a = GraphDrawDemo_FixedToolOnArg1 -- IN DEVEL ###
     ## testexpr_18 model tree demo
 
 

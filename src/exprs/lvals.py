@@ -207,6 +207,7 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         match_checking_code = self.begin_tracking_usage()
         try:
             val = self._compute_method() # [might raise LvalError_ValueIsUnset]
+            # WARNING: lots of dup code in the except clauses. Should make them set flags to control common code afterwards. ##e
         except LvalError_ValueIsUnset:
             # might happen from some lower layer if we're virtual (e.g. if our value is stored in some external array or dict)
                 ###k TOTAL GUESS that it's fully legit, 061118 156p [but without it we got missing end-tracks, naturally]
@@ -215,11 +216,21 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
                 # But don't zap this comment til it's fully analyzed as being legit in theory.
             self.end_tracking_usage( match_checking_code, self.inval )
             raise
+            # note 061205: delegation code should probably catch this specifically and not delegate, unlike for attrerror.
+            # Coded it in DelegatingMixin, UNTESTED! #####TEST
+        except AttributeError:
+            # we don't want the caller to think this attr is entirely missing, and should be delegated!
+            # So change this to another kind of exception.
+            # [new feature 061205, works; see comment in Highlightable about a bug it helps catch]
+            msg = "AttributeError in %r._compute_method turned into a RuntimeError" % self
+            print_compact_traceback(msg + ": ")
+            self.end_tracking_usage( match_checking_code, self.inval )
+            raise RuntimeError, msg ##e change to our own kind of exception, subclass of RuntimeError, NOT of AttributeError
         except:
             print_compact_traceback("exception in %r._compute_method NO LONGER ignored: " % self)
                 ###e 061118 we still need to print more info from this; what to do to explain errors deep in evaling some expr?
                 # catch them and turn them into std custom exceptions, then wrap with posn/val info on each step of going up? (maybe)
-            val = None
+            val = None # [note: has no effect as long as we have that 'if 1' below -- 061205 comment]
 ##            if 0: [for more of this commented-out code, see cvs rev 1.32]
 ##                print_compact_stack("exiting right after lval exception, ... ",
 ##                                    frame_repr = _std_frame_repr,

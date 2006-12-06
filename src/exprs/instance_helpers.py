@@ -9,7 +9,7 @@ from basic import _self
 
 import lvals
 reload_once(lvals)
-from lvals import LvalDict1, call_but_discard_tracked_usage
+from lvals import LvalDict1, call_but_discard_tracked_usage, LvalError_ValueIsUnset
 
 import Exprs
 reload_once(Exprs)
@@ -658,6 +658,11 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
         try:
             return super(DelegatingMixin,self).__getattr__(attr)###k need to verify super args in python docs, and lack of self in __getattr__
                 # note, _C__attr for _attr starting with _ is permitted, so we can't check whether attr starts '_' before doing this.
+        except LvalError_ValueIsUnset:
+            # 061205 new feature to prevent bugs: don't delegate in this case. UNTESTED! #####TEST
+            print "fyi (maybe not always bug): " \
+                  "don't delegate attr %r from %r when it raises LvalError_ValueIsUnset! reraising instead." % (attr, self)
+            raise
         except AttributeError:
             if attr.startswith('_'):
 # useful debug code -- commented out, but keep around for now [061110]:

@@ -317,7 +317,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     def leftClick(self, point, event, mode):
         self.transient_state.in_drag = True
         self.inval(mode)
-        self._do_action('on_press')
+        self._do_action('on_press', glpane_bindings = dict( _point = point) ) ###e rename _point; it's setattr'd in glpane [061205]
         mode.update_selobj(event) #061120 to see if it fixes bugs (see discussion in comments)
         self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
         return self # in role of drag_handler
@@ -386,15 +386,38 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
         return
     
-    def _do_action(self, name, motion = False):
+    def _do_action(self, name, motion = False, glpane_bindings = {}):
         "[private, should only be called with one of our action-option names]"
         if not motion:
             print "_do_action",name ###
         assert name.startswith('on_')
         action = getattr(self, name) # will always be defined, since Option will give it a default value if necessary
+            ###BUG 061205: seems to not be defined in a certain bug where I supplied it a formula whose computing has an error!
+            # and as a result it gets delegated. Guess: the exception makes it seem missing to the delegation code --
+            # because the exception also happens to be an AttributeError! (It does, in that bug: formula was _self.on_drag_bg
+            # and that attr was not defined in that object.)
+            #
+            # ... Unfortunately I can't think of a trivial fix to prevent delegation...
+            # I guess I could manually grab the class property and call its __get__ protocol... not too hard, try it sometime. ##e
+            # Ah, found one: for an error in the recompute like that, turn it into my own exception (in lvals.py)
+            # so it can't imitate another one -- at least not an AttributeError which causes delegation!
+            # Ok, that's coded (for AttributeError only) and does prevent that error from causing delegation, makes it easier
+            # to debug. Good. Not much need to try the other fix above.
+
             ###e should be None or a callable supplied to the expr, for now; later will be None or an Action
         if action:
-            action()
+            if glpane_bindings: # new feature 061205 - dynamic bindings of specific attrnames in glpane
+                glpane = self.env.glpane
+                for k,v in glpane_bindings.iteritems(): # these k should only be hardcoded in this class, not caller-supplied
+                    assert not hasattr(glpane, k) #e might revise to let it be a default value in the class, or more
+                    setattr(glpane, k, v)
+                        #e or could call glpane.somedict.update(glpane_bindings) -- maybe more controlled if it keeps them in a dict
+            try:
+                action()
+            finally:
+                if glpane_bindings:
+                    for k in glpane_bindings.iterkeys():
+                        delattr(glpane, k)
         return
 
     def inval(self, mode):
