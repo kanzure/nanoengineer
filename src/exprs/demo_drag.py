@@ -325,20 +325,25 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         # It's just part of the API of these methods -- bind glpane.xxx while you call them.
 ##        pos = self.env.glpane._event.pos #####IMPLEM and maybe rename and maybe change type and maybe translate coords...
             # but wait, we have to turn it into a 3d point! Hmm, that point is being passed into Highlightable...
-        point = self.current_event_mousepoint() # shorthand... which makes it easier to translate coords for now ###IMPLEM in Widget?
-        # for initial test, don't use those Command classes above, just do a side effect right here
-        # kluge: that's in abs coords for now
+        
+        point = self.current_event_mousepoint()
+            #e note: current_event_mousepoint is defined only on Highlightable, for now (see comments there for how we need to fix that),
+            # but should work because we delegate ultimately to a Highlightable, without changing local coords as we do. ###k test
 
-        print "event mousepoint:",point, ###
+        # for initial test, don't use those Command classes above, just do a side effect right here
+        # kluge: that's in abs coords for now.. no, as of 061206 9pm it should be in local coords... finally working 952p.
+
+##        print "event mousepoint:",point, ###
         newpos = point + DZ * PIXELS
-        print "newpos",newpos
+##        print "newpos",newpos
         node_expr = Node(newpos, Rect(0.2,0.2,red)) # kluge: move it slightly closer so we can see it in spite of bg
             ###e needs more principled fix -- not yet sure what that should be -- is it to *draw* closer? (in a perp dir from surface)
             #e or just to create spheres (or anything else with thickness in Z) instead? (that should not always be required)
         node = self.make(node_expr) ## , 'on_press_bg')
         ## self.world.nodelist.append(node)
         self.world.nodelist = self.world.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
-        print "added",node,"ipath[0]",node.ipath[0]
+##        print "added",node,"ipath[0]",node.ipath[0]
+        
 ##        print "at (should be newpos)",node.pos###
 ##        ###BUG: after reload, these new nodes share ipath with old ones, and that Arg/State code gets fooled (I conjecture)
 ##        # and inits state to the state of the old node, ignoring the arg!!!
@@ -377,13 +382,6 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         env = self.env # maybe wrong, esp re _self
         ipath = (index, self.ipath)
         return expr._e_eval(self.env, ipath)
-    def current_event_mousepoint(self): #e rename #e move to Widget or so #e or move to glpane, except might need self coord sys to work
-        """return the 3d point (in abs coords for now ###FIX) corresponding to the click point
-        of the current mousepress event (error if no current mousepress event);
-        this is defined (for now) based on the depth buffer pixel clicked on,
-        or is in the plane of the center-of-view otherwise.
-           Naming note: point implies 3d; pos might mean 2d, especially in the context
-        of a 2d mouse. So it's named mousepoint rather than mousepos.
-        """
-        return + self.env.glpane._point # the + is to make a copy for safety; we assume it's a Numeric array
+    pass # end of class GraphDrawDemo_FixedToolOnArg1
+
 # end

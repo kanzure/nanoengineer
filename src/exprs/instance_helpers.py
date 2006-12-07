@@ -625,6 +625,8 @@ class DelegatingInstanceOrExpr_obs(InstanceOrExpr): #061020; as of 061109 this l
 DelegatingInstance_obs = DelegatingInstanceOrExpr_obs #k ok? (for when you don't need the expr behavior, but (i hope) don't mind it either)
 
 
+_DELEGATION_DEBUG_ATTR = '' # you can set this to an attrname of interest, at runtime, for debugging
+
 class DelegatingMixin(object): #e refile? # 061109, apparently works (only tested in DebugPrintAttrs so far)
     """#doc: like Delegator (with no caching, in case the delegate varies over time),
     but self.delegate should be defined by the subclass
@@ -703,12 +705,17 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
                 if delegate is None or is_pure_expr(delegate): ##k is None in fact unlikely to be valid?
                     print_compact_stack( "likely-invalid delegate %r for %r in self = %r: " % (delegate, attr, self)) #061114
                 try:
+                    if attr == _DELEGATION_DEBUG_ATTR: 
+                        print "fyi: delegating %r from %r to %r" % (attr, self, delegate)
                     return getattr(delegate, attr) # here is where we delegate. It's normal for this to raise AttributeError (I think).
                 except AttributeError:
                     #### catching this is too expensive for routine use (since I think it's often legitimate and maybe common -- not sure),
                     # but it's useful for debugging -- so leave it in for now. 061114
                     printnim("too expensive for routine use")
-                    raise AttributeError, "no attr %r in delegate %r of self = %r" % (attr, delegate, self)
+                    msg = "no attr %r in delegate %r of self = %r" % (attr, delegate, self)
+                    if attr == _DELEGATION_DEBUG_ATTR: 
+                        print msg
+                    raise AttributeError, msg
             ##printfyi("DelegatingMixin: too early to delegate %r, still a pure Expr" % (attr,)) ###e remove someday, not an error?
                 # OTOH maybe it is an error and I should print self and delegate, and always print. ####e try it:
             print "DelegatingMixin: too early to delegate %r from %r, which is still a pure Expr" % (attr, self)###

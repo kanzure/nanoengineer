@@ -33,7 +33,9 @@ class Widget(InstanceOrExpr):
         ### we'll have fix_ for the dims too, handling their units, perhaps in a way specific to this class
         ### we'll have memoization code for all these attrs
         ### and we'll need better control of gl state like GL_CULL_FACE, if we can run this while it's already disabled
-    pass
+    pass # end of class Widget
+
+# ==
 
 class Widget2D(Widget):
     """1. superclass for widget instances with 2D layout boxes (with default layout-box formulas).
@@ -60,7 +62,8 @@ class Widget2D(Widget):
     if 1: #061114 more defaults
         width =  _self.bleft   + _self.bright
         height = _self.bbottom + _self.btop
-    pass ### make sure it has .btop. .bbottom, etc -- i.e. a layout box
+    pass # end of class Widget2D
+
 
 ## DelegatingWidget2D = Widget2D ###STUB, needs DelegatingMixin too
     #####@@@@@ this means, I think, Widget2D with arg1 used for layout... sort of like a "WidgetDecorator"...

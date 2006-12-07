@@ -12,6 +12,8 @@ from basic import _self
 
 from OpenGL.GL import *
 
+from OpenGL.GLU import gluProject, gluUnProject
+
 # modified from testdraw.printfunc:
 def print_Expr(*args, **kws): ##e rename to include Action in the name?? #e refile
     "#doc"
@@ -238,25 +240,156 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         return
 
     def draw_in_abs_coords(self, glpane, color):
+        "#doc; called from GLPane using an API it specifies; see also run_OpenGL_in_local_coords for more general related feature"
         # [this API comes from GLPane behavior:
         # - why does it pass color? historical: so we can just call our own draw method, with that arg (misguided even so??)
         # - what about coords? it has no way to know old ones, so we have no choice but to know or record them...
         # ]
-        # restore coords [note: it won't be so simple if we're inside a display list which is drawn in its own relative coords...]
+        #
+        # WARNING: This implem won't work when we can be inside a display list which is drawn in its own relative coords.
+        # For latest info on what to do about that, see '061206 coordinate systems' on bruce's g5.
+        
+        # restore coords
         ##glMatrixMode(GL_MODELVIEW) #k prob not needed
         glPushMatrix()
-        glLoadMatrixd(self.per_frame_state.saved_modelview_matrix)
-        # examples of glLoadMatrix (and thus hopefully the glGet for that) can be found in these places on bruce's G4:
-        # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/OpenGLContext/renderpass.py
-        # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/VisionEgg/Core.py
-        if self.transient_state.in_drag:
-            if printdraw: print "pressed_in.draw",self
-            self.pressed_in.draw() #e actually might depend on mouseover, or might not draw anything then...
+        try:
+            glLoadMatrixd(self.per_frame_state.saved_modelview_matrix)
+            # examples of glLoadMatrix (and thus hopefully the glGet for that) can be found in these places on bruce's G4:
+            # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/OpenGLContext/renderpass.py
+            # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/VisionEgg/Core.py
+            if self.transient_state.in_drag:
+                if printdraw: print "pressed_in.draw",self
+                self.pressed_in.draw() #e actually might depend on mouseover, or might not draw anything then...
+            else:
+                if printdraw: print "highlighted.draw",self
+                self.highlighted.draw()
+        finally:
+            #061206 added try/finally as a precaution.
+            ##e Future: maybe we should not reraise (or pass on) an exception here??
+            # GLPane's call is not well protected from an exception here, though it ought to be!
+            glPopMatrix()
+        return # from draw_in_abs_coords
+
+    def run_OpenGL_in_local_coords(self, func): #061206
+        ###@@@ CALL ME, using gluUnProject on saved x/y/depth in func,
+        # like in GLPane.py's def dragstart_using_GL_DEPTH, or testdraw's def mymousepoints
+        """Run the OpenGL code in func in self's local coordinate system (and with its GL context current),
+        and not while compiling any display list. If we run func immediately (always true in present implem),
+        return (True, func-retval); otherwise return (False, not-yet-defined-info-about-how-or-why-we-delayed-func).
+           Intended to be called from user mouse event handlers (not sure if ok for key or wheel events ##k).
+        Maybe we'll also sometimes call it from later parts of a rendering loop, after the main drawing part;
+        see below for caveats related to that.
+           For now, this is defined to run func immediately (thus it's illegal to call this if you're
+        presently compiling a display list -- but this error might not yet be detected, unless func does
+        something explicitly illegal then).
+           More subtlely, the current implem may only work when self was (1) in fact drawn (rather than being
+        not drawn, due to being hidden, culled at a high level since obscured or outside the view frustum, etc)
+        in the most recently drawn frame, (2) drawn outside of a display list, rather than as part of one we ran,
+        when it was drawn then. That's because this implem works by caching a matrix containing
+        the local coords as a side effect of self being drawn. [#e For info on fixing that, see code comments.]
+           WARNINGS:
+           - The current implem assumes no widget expr modifies the OpenGL projection matrix. This will change someday,
+        and we'll probably need to save and restore both matrices. #e
+           - This does not reproduce all OpenGL state that was used to draw self, but only its local modelview matrix.
+           - This does not ensure that any display lists that might be called by func (or by self.draw) are up to date!
+           #e Later we might revise this API so it adds self, func to a dict and runs func later in the
+        rendering loop. Then it might be legal to call this while compiling a display list (though it might
+        not be directly useful; for a related feature see draw_later [nim?]). We might add args about whether
+        delayed call is ok, properties of func relevant to when to delay it too, etc.
+           See also draw_in_abs_coords, which is sort of like a special case of this, but not enough for it to
+        work by calling this.
+        """
+        #e When this needs to work with display lists, see '061206 coordinate systems' on bruce's g5.
+        #e We should probably move this to a mixin for all widget exprs that save their coordinates,
+        # either as this current implem does, or by saving their position in a scenegraph/displaylist tree
+        # and being able to do a fake redraw that gets back to the same coords.
+        run_immediately = True
+        if run_immediately:
+            self.env.glpane.makeCurrent() # probably not needed
+            ##glMatrixMode(GL_MODELVIEW) #k prob not needed YET
+            glPushMatrix()
+            try:
+                glLoadMatrixd(self.per_frame_state.saved_modelview_matrix)
+                res = func()
+            finally:
+                glPopMatrix()
+            pass
         else:
-            if printdraw: print "highlighted.draw",self
-            self.highlighted.draw()
-        glPopMatrix()
-        return
+            assert 0, "nim"
+            res = None
+        return run_immediately, res # from run_OpenGL_in_local_coords
+
+    def current_event_mousepoint(self, center = None, radius = None): #061206
+        #e rename? #e add variant to get the drag-startpoint too #e cache the result #e is this the right class for it?
+        """Return the 3d point (in self's local coordinates) corresponding to the mouse position
+        of the current mouse event (error if no current mouse event which stores the necessary info for this);
+        this is defined (for now) based on the depth buffer pixel clicked on,
+        or is (by default) in the plane of the center-of-view if the depth is too large (meaning the mouse was over empty space).
+           If center and radius are passed, they change the way a click over empty space is handled,
+        to approximate what would happen if self was drawn as a screen-parallel circle (not a sphere)
+        with the given center and radius (both in local coordinates). If only center is passed, it's the same as if
+        center and a very large (infinite) radius is passed. The default behavior (when center is not passed)
+        is equivalent to passing the "center of view" (in local coordinates) as center. [all this about center and radius is nim ##e]
+           WARNING: this is so far implemented for click (press) but not drag or release; it remains to be seen
+        exactly what it will do for drag when the depth under the mouse is varying during the drag. ##k
+           WARNING: this only works on widgets which store, or can reconstruct, their local coordinate system
+        used to draw them in the just-drawn frame. Only some kinds can (for now only Highlightable), and only if
+        they were actually drawn in the just-drawn frame (if they weren't, we might give wrong results rather than
+        detecting the error). See more caveat comments in the current implementing submethod (run_OpenGL_in_local_coords).
+           Terminology note: point implies 3d; pos might mean 2d, especially in the context of a 2d mouse.
+        So it's named mousepoint rather than mousepos.
+        """
+        info = self.env.glpane._event_gl_info # this will fail if we're called during the wrong kind of user event
+        def func():
+            farQ, abs_hitpoint, wX, wY, depth, farZ = info
+            if not farQ:
+                point = A(gluUnProject(wX, wY, depth))
+            else:
+                if center is None:
+                    center = V(0,0,0) #e stub (not enough info) --
+                        # we need the center of view in local coords (tho this substitute is not terrible!),
+                        # e.g. turn abs_hitpoint into local coords (how?) or into x,y,depth... maybe selectMode will need
+                        # to put more info into _event_gl_info before we can do this. ###e
+                ## point = center #e stub (since i'm lazy) --
+                    # the rest of the work here is straightforward:
+                    # just intersect the mouseray (gotten using mymousepoints or equiv) with the center/radius sphere
+                    # (really with a screen-parallel plane through center) to decide what to do. In fact, the same code used
+                    # in mymousepoints (in cad/src/testdraw.py) could probably do it -- except that code uses glpane.lineOfSight
+                    # which might be in abs coords. (I'm not sure! Need to review that in GLPane.__getattr__. ###k)
+                # Hmm, a simpler way might be to get center's depth using gluProject, then use that depth in gluUnProject
+                # to get the mousepoint at the same depth, which is the intersection asked for above, then compare distance
+                # to radius.
+                xjunk, yjunk, center_depth = gluProject(center[0],center[1],center[2]) #k is there a "gluProjectv"?
+                intersection = A(gluUnProject(wX, wY, center_depth))
+                if radius is not None and radius < vlen(intersection - center):
+                    # intersection is too far from center to count -- redo with cov instead of center
+                    pass # that's nim for now ####e
+                point = intersection
+            # point is a Numeric array, and we needn't copy it for safety since it was constructed anew in each case above
+            return point # from func
+        ran_already_flag, funcres = self.run_OpenGL_in_local_coords( func)
+        assert ran_already_flag # it ran immediately
+        # semi-obs comment from when I had this method in Widget but had run_OpenGL_in_local_coords in Highlightable, causing a bug:
+            # note: run_OpenGL_in_local_coords only works (or is only defined) for some kinds of widgets, presently Highlightable.
+            # Since it's not defined on other widgets, it will also delegate from them to a Highlightable if they delegate to one,
+            # but this is often accidental (adding a Translate wrapper would break it), so it's not good to rely on it unless you
+            # doc that. WORSE, if a transforming widget delegates other attrs (like that method) to a Highlightable inside,
+            # IT WILL MAKE THIS SILENTLY GIVE WRONG RESULTS (in the wrong coords). This should be fixed by preventing this
+            # from delegating through transforms (or maybe though anything), but that makes some upcoming code harder,
+            # needlessly for now, so it's postponed. ##e
+            # [##k this delegation is also untested, but then, so is everything else about this, as of 061206 9pm.]
+        ###BUG: that comment warns about problems that are NOT obs, namely, delegation through a transform (like Translate)
+        # to this routine. Probably we should define it on IorE, and ensure that it only delegates when justified, #####e DOIT
+        # i.e. not in transforms, which need their own class so they can define this method as an error
+        # (unless they can delegate it and then fix the result, which might be ok and useful).
+        #
+        # The bug was, I defined this in Widget, used it in a thing I expected to delegate twice to reach Highlightable,
+        # but none of that stuff inherited Widget so it went all the way thru that into Rect to run this, then didn't
+        # find the submethod inside Highlightable since delegation (its defect) had skipped it! [digr: Note: if that defect of
+        # delegation bothers us in specific cases, a workaround is to pass self as explicit last arg to methods
+        # that might get delegated to, but that want to call submethods on the original object!! ###e]
+
+        return funcres
 
     def __repr__THAT_CAUSES_INFRECUR(self):
         # this causes infrecur, apparently because self.sbar_text indirectly calls __repr__ (perhaps while reporting some bug??);
@@ -315,9 +448,17 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     
     ### grabbed from Button, maybe not yet fixed for here
     def leftClick(self, point, event, mode):
+        # print "mode._drag_handler_gl_event_info = %r" % (mode._drag_handler_gl_event_info,)
+            # farQ, hitpoint, wX, wY, depth, farZ -- for use in gluUnProject in local coords (see also run_OpenGL_in_local_coords)
+            # note: point == hitpoint.
+        # point is in global coords, not ours; sometimes useful, but save enough info to compute the local version too.
+        # But don't precompute it -- let the action ask for it if desired. That optim doesn't matter for this leftClick method,
+        # but it might matter for the drag methods which use the same API to pass optional info to their actions.
         self.transient_state.in_drag = True
-        self.inval(mode)
-        self._do_action('on_press', glpane_bindings = dict( _point = point) ) ###e rename _point; it's setattr'd in glpane [061205]
+        self.inval(mode) #k needed?
+        glpane_bindings = dict( _event_global_point = point, _event_gl_info = mode._drag_handler_gl_event_info )
+            # WARNING: the keys in that dict will be set as attrs in the main GLPane object.
+        self._do_action('on_press', glpane_bindings = glpane_bindings )
         mode.update_selobj(event) #061120 to see if it fixes bugs (see discussion in comments)
         self.inval(mode) #k needed? (done in two places per method, guess is neither is needed)
         return self # in role of drag_handler
