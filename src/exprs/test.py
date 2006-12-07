@@ -720,6 +720,8 @@ testexpr_16c = SimpleColumn(
 testexpr_17 = Highlightable(Rect(), on_drag = print_Expr("on_drag happened")) # works, but trivial (only prints)
 
 testexpr_17a = GraphDrawDemo_FixedToolOnArg1() # works in initial kluge form (even local coords work now, 061206 10pm)
+    # [for current status see comments just before GraphDrawDemo_FixedToolOnArg1]
+
 
 ###e  [more tests later]
 

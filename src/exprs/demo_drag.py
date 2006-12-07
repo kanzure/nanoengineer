@@ -5,6 +5,8 @@ $Id$
 
 demo not only some drag actions, but some ways of setting up new model types
 and their edit tools and behaviors. [Eventually.]
+
+[for current status see comments just before GraphDrawDemo_FixedToolOnArg1]
 """
 
 from basic import *
@@ -22,6 +24,10 @@ from transforms import Translate
 import Rect
 reload_once(Rect)
 from Rect import Rect
+
+import Center
+reload_once(Center)
+from Center import Center
 
 import Highlightable
 reload_once(Highlightable)
@@ -304,61 +310,63 @@ class World(ModelObject):
 # Let's do it with a DNA origami image... but first, just a rect. So, we want a modifier for a thing (the rect)
 # which gives it the event bindings implied by this tool. I.e. a macro based on Highlightable.
 
+
 # status 061205 1022p: works (in this initial klugy form, not using Command classes above) except for recording points in abs coords
 # (wrong) but drawing them in arb rel coords (wrong), when both need to be in a specified coord sys, namely that of the bg rect object.
+
+# status 061207 ~9am: coords were fixed last night, and drag now works as of thismorning. simple demo draws blue nodes along the drag.
+# In theory it's using depth found at each point, so it could draw on a 3d curved surface -- but that's not tested.
+
 class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
     background = Arg(Widget2D, Rect(10))
     world = Instance( World() ) # has .nodelist I'm allowed to extend
     _value = Overlay(
         Highlightable( background, on_press = _self.on_press_bg, on_drag = _self.on_drag_bg ),
-        ## Translate( world, DZ)### Translate needed?? not good once not needed... BUT will it even work?? I think so...
         world
     )
     _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
+
     def on_press_bg(self):
-        ###e hmm, how can we find out the mouse pos of the event?? without having to accept an arg all the time? be an Action??
-        # or is it ok for the caller to ask us how many args we take and pass one only if we take one?
-        # (non-POLS I suppose; maybe ok if reliable. But it's a pain, and weird, and makes it hard to read and learn from the code...)
-        # (Maybe it has to try passing one, see the exception... unsafe if bug *inside* ... same problems.)
-        # So is there a simpler way, like looking in self.env or self.glpane here? yes.
-        # Nothing really wrong with it (just a dynamic var).
-        # It's just part of the API of these methods -- bind glpane.xxx while you call them.
-##        pos = self.env.glpane._event.pos #####IMPLEM and maybe rename and maybe change type and maybe translate coords...
-            # but wait, we have to turn it into a 3d point! Hmm, that point is being passed into Highlightable...
-        
         point = self.current_event_mousepoint()
             #e note: current_event_mousepoint is defined only on Highlightable, for now (see comments there for how we need to fix that),
-            # but should work because we delegate ultimately to a Highlightable, without changing local coords as we do. ###k test
+            # but works here because we delegate ultimately to a Highlightable, without changing local coords as we do.
+            # note: lots of devel scratch & debug comments removed 061207; see cvs rev 1.5 for them.
 
-        # for initial test, don't use those Command classes above, just do a side effect right here
-        # kluge: that's in abs coords for now.. no, as of 061206 9pm it should be in local coords... finally working 952p.
+        # for initial test, don't use those Command classes above, just do a side effect right here ###kluge
 
-##        print "event mousepoint:",point, ###
-        newpos = point + DZ * PIXELS
-##        print "newpos",newpos
-        node_expr = Node(newpos, Rect(0.2,0.2,red)) # kluge: move it slightly closer so we can see it in spite of bg
+        newpos = point + DZ * PIXELS # kluge: move it slightly closer so we can see it in spite of bg
             ###e needs more principled fix -- not yet sure what that should be -- is it to *draw* closer? (in a perp dir from surface)
             #e or just to create spheres (or anything else with thickness in Z) instead? (that should not always be required)
-        node = self.make(node_expr) ## , 'on_press_bg')
+
+        node_expr = Node(newpos, Center(Rect(0.2,0.2,green))) 
+
+        self.make_and_add(node_expr)
+        return
+    
+    def make_and_add(self, node_expr):
+        node = self.make(node_expr)
+            ### NOTE: index should really be determined by where we add it in world, or changed when we do that;
+            # for now, that picks a unique index (using a counter in transient_state)
+        
         ## self.world.nodelist.append(node)
         self.world.nodelist = self.world.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
-##        print "added",node,"ipath[0]",node.ipath[0]
         
-##        print "at (should be newpos)",node.pos###
-##        ###BUG: after reload, these new nodes share ipath with old ones, and that Arg/State code gets fooled (I conjecture)
-##        # and inits state to the state of the old node, ignoring the arg!!!
-##        # evidence: the recycled 101 in the following, the first 2 nodes with identical pos...
-##            ##event mousepoint: [-5.90148889  5.16380219  0.01199794] newpos [-5.90148889  5.16380219  0.04699794]
-##            ##added <Node#18254(i)> ipath[0] 101
-##            ##at (should be newpos) [-3.3274351   2.6525307   0.04699794]
-##        ### FIXED by recording self._index_counter in State, not just in self!
-            
-
         ##e let new node be dragged, and use Command classes above for newmaking and dragging
         return
+    
     def on_drag_bg(self):
-        print "called on_drag_bg" # note: nothing useful is in the glpane env, yet ###IMPLEM
-    def make(self, expr): ## , index = None):
+        #print "called on_drag_bg"
+        point = self.current_event_mousepoint() # works differently for drag
+        #print "  dragpoint:",point
+
+        if 1:
+            newpos = point + DZ * PIXELS * 2
+            node_expr = Node(newpos, Center(Rect(0.1,0.1,blue)))
+
+            self.make_and_add(node_expr)
+        return
+    
+    def make(self, expr):
         index = None
         #e rename? #e move to some superclass 
         #e worry about lexenv, eg _self in the expr, _this or _my in it... is expr hardcoded or from an arg?

@@ -135,7 +135,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     # options
     sbar_text = Option(str, "") # mouseover text for statusbar
     on_press = Option(Action)
-    on_drag = Option(Action) # new feature 061204 untested
+    on_drag = Option(Action)
     on_release_in = Option(Action)
     on_release_out = Option(Action)
 
@@ -339,7 +339,27 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
            Terminology note: point implies 3d; pos might mean 2d, especially in the context of a 2d mouse.
         So it's named mousepoint rather than mousepos.
         """
-        info = self.env.glpane._event_gl_info # this will fail if we're called during the wrong kind of user event
+        glpane = self.env.glpane
+        try:
+            # during leftClick, this has been computed for us:
+            info = glpane._leftClick_gl_event_info # this will fail if we're called during the wrong kind of user event
+        except AttributeError:
+            # during drag, it's often not needed, so compute it only if we need it -- which we do right now.
+            # (WARNING: if we decide to cache it somewhere, don't do it in glpane._leftClick_gl_event_info or we'll cause bugs,
+            #  since that would not get delattr'd at the end of the drag-event, so it might confuse something which saw it later
+            #  (tho in practice that's unlikely since the next leftClick to a Highlightable would overwrite it).
+            #  But I bet we won't need to cache it -- maybe this routine will be called by some standard attr's
+            #  recompute method, so that attr will cache it.)
+            #
+            # Note: we could clean up/safen this system, and remove that warning above, if we just controlled a single dict or
+            # attrholder in glpane, and cleared it each time; it could be full of per-user-event info of all kinds,
+            # including some cached here -- or by its own recompute methods. We could have one for per-extended-drag info
+            # and one for per-drawn-frame info. ###DOIT sometime
+            mode = glpane._kluge_drag_mode
+            event = glpane._kluge_drag_event
+            gl_event_info = mode.dragstart_using_GL_DEPTH( event, more_info = True) # same as what mode did itself, for a leftClick
+            #print "during drag got this info:",gl_event_info
+            info = gl_event_info
         def func():
             farQ, abs_hitpoint, wX, wY, depth, farZ = info
             if not farQ:
@@ -349,7 +369,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
                     center = V(0,0,0) #e stub (not enough info) --
                         # we need the center of view in local coords (tho this substitute is not terrible!),
                         # e.g. turn abs_hitpoint into local coords (how?) or into x,y,depth... maybe selectMode will need
-                        # to put more info into _event_gl_info before we can do this. ###e
+                        # to put more info into _leftClick_gl_event_info before we can do this. ###e
                 ## point = center #e stub (since i'm lazy) --
                     # the rest of the work here is straightforward:
                     # just intersect the mouseray (gotten using mymousepoints or equiv) with the center/radius sphere
@@ -456,7 +476,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # but it might matter for the drag methods which use the same API to pass optional info to their actions.
         self.transient_state.in_drag = True
         self.inval(mode) #k needed?
-        glpane_bindings = dict( _event_global_point = point, _event_gl_info = mode._drag_handler_gl_event_info )
+        glpane_bindings = dict( _leftClick_global_point = point, _leftClick_gl_event_info = mode._drag_handler_gl_event_info )
             # WARNING: the keys in that dict will be set as attrs in the main GLPane object.
         self._do_action('on_press', glpane_bindings = glpane_bindings )
         mode.update_selobj(event) #061120 to see if it fixes bugs (see discussion in comments)
@@ -470,7 +490,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             # retested this 061204 in testexpr_10c; it gets called, but only during drag (motion when mouse is down);
             # the update_selobj is safe, won't trigger redraw unless selobj has changed. will when it does (off or on the object);
             # didn't test highlight behavior (tho it works in other tests), since _10c doesn't use it.
-        self._do_action('on_drag', motion = True) # 061204 new feature
+        glpane_bindings = dict( _kluge_drag_event = event, _kluge_drag_mode = mode ) #061207
+        self._do_action('on_drag', motion = True, glpane_bindings = glpane_bindings)
         mode.update_selobj(event)
         #e someday, optim by passing a flag, which says "don't do glselect or change stencil buffer if we go off of it",
         # valid if no other objects are highlightable during this drag (typical for buttons). Can't do that yet,
@@ -529,8 +550,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     
     def _do_action(self, name, motion = False, glpane_bindings = {}):
         "[private, should only be called with one of our action-option names]"
-        if not motion:
-            print "_do_action",name ###
+##        if not motion:
+##            print "_do_action",name
         assert name.startswith('on_')
         action = getattr(self, name) # will always be defined, since Option will give it a default value if necessary
             ###BUG 061205: seems to not be defined in a certain bug where I supplied it a formula whose computing has an error!
