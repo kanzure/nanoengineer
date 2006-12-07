@@ -23,7 +23,7 @@ from transforms import Translate
 
 import Rect
 reload_once(Rect)
-from Rect import Rect, Sphere
+from Rect import Rect ## , Sphere
 
 import Center
 reload_once(Center)
@@ -318,8 +318,10 @@ class World(ModelObject):
 # In theory it's using depth found at each point, so it could draw on a 3d curved surface -- but that's not tested.
 
 class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
-    background = Arg(Widget2D, Overlay(Rect(10),Sphere(1.5))) # see if arb objects work here, and try drawing on a curved surface
-        # works! except we should replace DZ with "local perp to surface" to make the drawn things more visible.
+    background = Arg(Widget2D, Rect(10) )
+        # testexpr_19a, 061207 morn -- see if arb objects work here, and try drawing on a curved surface --
+        # works! (when the surface was the default here -- untested when it's the arg supplied by that testexpr)
+        # except we should replace DZ with "local perp to surface" to make the drawn things more visible.
         # And we *might* want to replace depth with "computed true depth", since for a sphere, as we rotate the view
         # the drawn radius slightly changes due to where the triangle faces are located, and this can bury the drawing of marks
         # if they are really close to the sphere -- either that, or record their posns relative to the sphere surface,

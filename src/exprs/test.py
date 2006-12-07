@@ -63,7 +63,7 @@ from basic import _self, _this, _my
 
 import Rect
 reload_once(Rect)
-from Rect import Rect, RectFrame, IsocelesTriangle, Spacer
+from Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere
 
 import Column
 reload_once(Column)
@@ -719,11 +719,7 @@ testexpr_16c = SimpleColumn(
 # == dragging (e.g. on_drag)
 testexpr_17 = Highlightable(Rect(), on_drag = print_Expr("on_drag happened")) # works, but trivial (only prints)
 
-testexpr_17a = GraphDrawDemo_FixedToolOnArg1() # works in initial kluge form (even local coords work now, 061206 10pm)
-    # [for current status see comments just before GraphDrawDemo_FixedToolOnArg1]
-
-
-###e  [more tests later]
+# testexpr_17a was moved below and renamed to testexpr_19
 
 
 # == MT_demo
@@ -736,9 +732,21 @@ testexpr_18 = MT( _my.env.glpane.assy.part.topnode )
 testexpr_18a = test_drag_pixmap( _my.env.glpane.assy.w.mt, _my.env.glpane.assy.part.topnode ) # nim, otherwise works -- debug prints
 
 
+# == more dragging
+
+testexpr_19 = GraphDrawDemo_FixedToolOnArg1(Rect(10)) # works
+## testexpr_17a = testexpr_19 # alias, remove soon
+    # [for current status see comments just before GraphDrawDemo_FixedToolOnArg1]
+testexpr_19a = GraphDrawDemo_FixedToolOnArg1(Overlay(Rect(10),Sphere(1.5))) # works
+testexpr_19b = GraphDrawDemo_FixedToolOnArg1(Overlay(Rect(10),SimpleRow(Sphere(1.5),Sphere(2)))) # works
+    # note that you can interchange the guide shapes at runtime, and retain the drawing which was done with their aid.
+    # (just by editing this file's choice of testexpr, and clicking to reload it)
+
+
+
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_17a
+testexpr = testexpr_19
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
@@ -747,7 +755,7 @@ testexpr = testexpr_17a
     ## testexpr_13z4 red/blue image
     ## testexpr_15d ChoiceColumn
     ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
-    ## testexpr_17a = GraphDrawDemo_FixedToolOnArg1 -- IN DEVEL ###
+    ## testexpr_19b = GraphDrawDemo_FixedToolOnArg1 -- works, but the tool remains IN DEVEL ###
     ## testexpr_18 model tree demo
 
 
