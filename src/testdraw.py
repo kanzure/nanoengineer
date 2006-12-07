@@ -422,7 +422,7 @@ def drawtest1(glpane):
     dy = DY * 2
     # using a subrect eliminates the funny edges: tex_origin, tex_dx, tex_dy = V(0.1, 0.1), D2X * 0.8, D2Y * 0.8
     tex_origin, tex_dx, tex_dy = ORIGIN2, D2X, D2Y
-    draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy)
+    draw_textured_rect(origin - 0.2 * DZ, dx, dy, tex_origin, tex_dx, tex_dy)
 ##    ### what are coords in following??? replace it with better calls...
 ##    width = 32
 ##    textureReady = True
@@ -591,13 +591,16 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
     return #drawfont2 #e rename, clean up
 
     
-def mymousepoints(glpane, x, y): # modified from GLPane.mousepoints; x and y are window coords (y is 0 at top, positive as you go down)
+def mymousepoints(glpane, x, y):
+    # modified from GLPane.mousepoints; x and y are window coords (y is 0 at top, positive as you go down) [SOUNDS WRONG, 061206 ###k]
     self = glpane
     just_beyond = 0.0
     p1 = A(gluUnProject(x, y, just_beyond))
     p2 = A(gluUnProject(x, y, 1.0))
 
-    los = self.lineOfSight
+    los = self.lineOfSight # isn't this just norm(p2 - p1)?? Probably not, if we're in perspective mode! [bruce Q 061206]
+        # note: this might be in abs coords (not sure!) even though p1 and p2 would be in local coords.
+        # I need to review that in GLPane.__getattr__. ###k
     
     k = dot(los, -self.pov - p1) / dot(los, p2 - p1)
 

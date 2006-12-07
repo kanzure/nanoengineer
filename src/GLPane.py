@@ -1657,26 +1657,40 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 ##    def getZoomFactor(self):
 ##        return self.zoomFactor
 
-    def dragstart_using_GL_DEPTH(self, event): #bruce 060829 moved this from basicMode, which now calls it here
+    def dragstart_using_GL_DEPTH(self, event, more_info = False): #bruce 061206 added more_info option
         """Use the OpenGL depth buffer pixel at the coordinates of event
         (which works correctly only if the proper GL context (of self) is current -- caller is responsible for this)
         to guess the 3D point that was visually clicked on.
         If that was too far away to be correct, use a point under the mouse and in the plane of the center of view.
-           Return (False, point) when point came from the depth buffer, or (True, point) when point came from the
-        plane of the center of view. Callers should typically do further sanity checks on point and the "farQ" flag,
+           By default, return (False, point) when point came from the depth buffer, or (True, point) when point came from the
+        plane of the center of view. Callers should typically do further sanity checks on point and the "farQ" flag (the first
+        value in the returned tuple),
         perhaps replacing point with an object's center, projected onto the mousepoints line, if point is an unrealistic
         dragpoint for the object which will be dragged. [#e there should be a canned routine for doing that to our retval]
+           If the optional flag more_info is true, then return a larger tuple (whose first two members are the same as in the
+        2-tuple we return by default). The larger tuple is (farQ, point, wX, wY, depth, farZ) where wX, wY are the OpenGL window
+        coordinates of event within self (note that Y is 0 on the bottom, unlike in Qt window coordinates; glpane.height minus
+        wY gives the Qt window coordinate of the event), and depth is the current depth buffer value at the position of the event --
+        larger values are deeper; 0.0 is the nearest possible value; depths of farZ or greater are considered "background",
+        even though they might be less than 1.0 due to drawing of a background rectangle. (In the current implementation,
+        farZ is always GL_FAR_Z, a public global constant defined in constants.py, but in principle it might depend on the
+        GLPane and/or vary with differently drawn frames.)
         """
         wX = event.pos().x()
         wY = self.height - event.pos().y()
         wZ = glReadPixelsf(wX, wY, 1, 1, GL_DEPTH_COMPONENT)
+        depth = wZ[0][0]
+        farZ = GL_FAR_Z
         
-        if wZ[0][0] >= GL_FAR_Z:
+        if depth >= farZ:
             junk, point = self.mousepoints(event)
             farQ = True
         else:
-            point = A(gluUnProject(wX, wY, wZ[0][0]))
+            point = A(gluUnProject(wX, wY, depth))
             farQ = False
+        
+        if more_info:
+            return farQ, point, wX, wY, depth, farZ
         return farQ, point
 
     def rescale_around_point(self, factor, point): #bruce 060829

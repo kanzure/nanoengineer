@@ -2281,10 +2281,17 @@ class selectAtomsMode(selectMode):
             # (see also mouseover_statusbar_message, used in GLPane.set_selobj)
             method = getattr(obj, 'leftClick', None)
             if method:
-                farQ_junk, hitpoint = self.dragstart_using_GL_DEPTH( event) ###k safe?
+                ## farQ_junk, hitpoint = self.dragstart_using_GL_DEPTH( event) ###k safe?
+                gl_event_info = self.dragstart_using_GL_DEPTH( event, more_info = True) #bruce 061206 revised this, adding more_info
+                self._drag_handler_gl_event_info = gl_event_info 
+                farQ_junk, hitpoint, wX, wY, depth, farZ = gl_event_info
+                del wX, wY, depth, farZ
                 try:
                     retval = method(hitpoint, event, self) ##e more args later -- mouseray? modkeys? or use callbacks to get them?
                         #bruce 061120 changed args from (hitpoint, self) to (hitpoint, event, self) [where self is the mode object]
+                        # a new part of the drag_handler API is access by method to self._drag_handler_gl_event_info [bruce 061206]
+                        #e (we might decide to change that to a dict so it's easily extendable after that, or we might add more attrs
+                        #   or methods of self which the method call is specifically allowed to access as part of that API #e)
                 except:
                     print_compact_traceback("exception ignored in %r.leftClick: " % (obj,))
                     return # no update or other action here

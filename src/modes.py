@@ -979,13 +979,13 @@ class basicMode(anyMode):
         self.picking = False
         self.update_cursor()
 
-    def dragstart_using_GL_DEPTH(self, event): #bruce 060316 made this from common code in several places; 060829 moved body to GLPane
+    def dragstart_using_GL_DEPTH(self, event, **kws):
         """Use the OpenGL depth buffer pixel at the coordinates of event
         (which works correctly only if the proper GL context, self.o, is current -- caller is responsible for this)
         to guess the 3D point that was visually clicked on. See GLPane version's docstring for details.
         """
-        farQ, point = self.o.dragstart_using_GL_DEPTH(event)
-        return farQ, point
+        res = self.o.dragstart_using_GL_DEPTH(event, **kws) # note: res is a tuple whose length depends on **kws
+        return res
 
     def middleShiftDown(self, event):
         """Set up for panning the view with MMB+Shift+Drag.
