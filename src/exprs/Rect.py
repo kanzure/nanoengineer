@@ -53,6 +53,34 @@ class Rect(Widget2D): # finally working as of 061106
         glEnable(GL_CULL_FACE)
     pass
 
+Position = 'Position' #e stub, wrong, doesn't matter yet
+Color = 'Color'# ditto, might differ from other stubs for this
+
+class Sphere(Widget2D): # the superclass is to give it a 2D lbox. We'll need to think about whether it needs renaming.
+        # or maybe this super will be Widget3D and that will inherit Widget2D?? hmm...
+    """Sphere(radius, color, center) represents a spherical surface
+    of the given radius (default 1), color (default gray), and center (default the local origin) [partly nim if not #e].
+    [There is also an undocumented option, detailLevel.]
+    """
+    # args
+    radius = ArgOrOption(Width, 1)
+    color = ArgOrOption(Color, gray)
+    center = ArgOrOption(Position, ORIGIN) # this is not yet supported in determining the layout box,
+        # since I'm tempted to say, if this is supplied, turn into a macro, Translate(Sphere(...))
+        # so I won't need to uglify those calcs. Not yet sure quite how to most easily organize that --
+        # best would be a general way to make some options or uses of them "turn into macros",
+        # sort of like in a math paper saying "w/o loss of generality, assume center == ORIGIN". ###e
+    detailLevel = Option(int, 2) #k guess: 1 or 2 or 3, i think -- undocumented since needs a better name and maybe arg meaning
+    # formulae
+    bright = _self.radius
+    bleft = _self.radius
+    btop = _self.radius
+    bbottom = _self.radius
+    def draw(self):
+        from drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
+        drawsphere(self.fix_color(self.color), self.center, self.radius, self.detailLevel)
+    pass
+    
 # ==
 
 class Spacer_pre061205_obs(Rect): #061126

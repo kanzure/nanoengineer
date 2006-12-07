@@ -23,7 +23,7 @@ from transforms import Translate
 
 import Rect
 reload_once(Rect)
-from Rect import Rect
+from Rect import Rect, Sphere
 
 import Center
 reload_once(Center)
@@ -318,7 +318,16 @@ class World(ModelObject):
 # In theory it's using depth found at each point, so it could draw on a 3d curved surface -- but that's not tested.
 
 class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
-    background = Arg(Widget2D, Rect(10))
+    background = Arg(Widget2D, Overlay(Rect(10),Sphere(1.5))) # see if arb objects work here, and try drawing on a curved surface
+        # works! except we should replace DZ with "local perp to surface" to make the drawn things more visible.
+        # And we *might* want to replace depth with "computed true depth", since for a sphere, as we rotate the view
+        # the drawn radius slightly changes due to where the triangle faces are located, and this can bury the drawing of marks
+        # if they are really close to the sphere -- either that, or record their posns relative to the sphere surface,
+        # which might be most correct anyway -- and especially useful if we change the radius of the sphere! (making it balloon-like)
+        # Also those things are oriented in global coords rather than coords based on the clicked surface.
+        #   Note that all these ideas would require asking the object for the surface, and in the given eg, getting quite different
+        # answers (incl about how to transform coords for storage) depending on whether the rect or sphere was clicked --
+        # which the current code does not even detect, since it gives them the same glname. ###e
     world = Instance( World() ) # has .nodelist I'm allowed to extend
     _value = Overlay(
         Highlightable( background, on_press = _self.on_press_bg, on_drag = _self.on_drag_bg ),
