@@ -40,7 +40,7 @@ sys.setrecursionlimit(650) # 5000 is set in startup_funcs.py; this will ease deb
 
 from VQT import V, A, Q, norm, vlen
 
-from state_utils import transclose
+from state_utils import transclose, same_vals
 
 import platform # so all our code can refer to platform.atom_debug #e someday this should be renamed throughout NE1 (app.debug?)
 

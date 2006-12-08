@@ -325,7 +325,9 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
         So we enforce this by being in a variant subclass of Lval.]
         """
         # note: this is inlined into _set_default_value
-        if self.valid and self._value == val:
+##        if self.valid and self._value == val: # THIS HAS THE BUG of numeric arrays being == if any element is ==.
+##        if self.valid and not (self._value != val): # still not correct, but more often correct, and did fix my loss-of-drag bug...
+        if self.valid and same_vals(self._value, val):
             pass # important optim, but in future, we might want to only sometimes do this
                  # (eg have another variant class which doesn't do it)
         else:

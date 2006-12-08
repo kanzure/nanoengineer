@@ -14,7 +14,7 @@ $Id$
 # as of 061102 this module is probably reloadable:
 
 from basic import printnim, printfyi, stub # this may be a recursive import (with most things in basic not yet defined)
-from basic import print_compact_stack, print_compact_traceback
+from basic import print_compact_stack, print_compact_traceback, same_vals
 
 # == utilities #e refile
 
@@ -904,7 +904,6 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
         #e more checks?
         # assume it's a python constant
         #e later add checks for its type, sort of like we'd use in same_vals or so... in fact, how about this?
-        from state_utils import same_vals
         assert same_vals(subexpr, subexpr)
         ###e at first i thought: we should delve into it and assert you don't find Exprs... but delve in what way, exactly?
         # if you have a way, you understand the type, and then just handle it instead of checking for the unmet need to handle it.

@@ -52,6 +52,11 @@ $Id$
 
 # (none yet)
 
+import changes
+changes._debug_standard_inval_nottwice_stack = False
+changes._debug_standard_inval_twice = False # WARNING: this hides the pseudobug [061207]
+changes._debug_standard_inval_twice_stack = False
+
 # == local imports with reload
 
 import basic

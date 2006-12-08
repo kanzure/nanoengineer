@@ -300,7 +300,7 @@ class World(ModelObject):
                 # so it doesn't make much difference in our code. we can always have a type "Node for us" to coerce them to
                 # which if necessary adds the pos which only we see -- we'd want this if one Node could be in two Worlds at diff posns.
                 # (Which is likely, due to Configuration Management.)
-            if node is self.nodelist[-1]:
+            if 0 and node is self.nodelist[-1]:
                 print "drew last node in list, %r, ipath[0] %r, pos %r" % (node, node.ipath[0], node.pos)
         ###e see comment above: "maybe World needs to wrap all it draws with glue to add looks and behavior to it"
         return
@@ -405,7 +405,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             lastipath = lastnode.ipath[0]
         except:
             lastipath = -1
-        print "on_drag_bg %d" % lastipath, point###  # this shows no error in retaining correct lastnode -- that's not the bug
+        # print "on_drag_bg %d" % lastipath, point###  # this shows no error in retaining correct lastnode -- that's not the bug
         newpos = point + DZ * PIXELS * 2 # used for different things, depending
         
         what = kluge_dragtool_state() ###IMPLEM better
@@ -418,8 +418,14 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             if not lastnode:
                 print "bug: no self.newnode!!!"
             else:
-                lastnode.pos = newpos
-                print "set %r.pos = %r" % (lastnode,newpos)### this shows i set them, then draw them to a different pos! Why?[where i am]
+                lastnode.pos = newpos # this is always triggering the "standard inval twice" message; don't yet know why;
+                    # see g4 file '061207 debug std inval twice' for two stacktraces for once and twice (not confirmed from same
+                    # source), one with longer inval path. That file asks:
+                    #  could it be a normal consequence of two paths of usage/dependency from one thing (node.pos) to another (glpane),
+                    #  with the ends of the two paths entering glpane at different invalidation subs from it??
+                    #  I doubt it... but should review. Or what if they enter at the same subs? Also doubt it, also should review. ##k
+
+                # print "set %r.pos = %r" % (lastnode,newpos)### this shows i set them, then draw them to a different pos! Why?[where i am]
                 self.env.glpane.gl_update() ###KLUGE [attempted bugfix, didn't work, see comment for guess at why]
                     # without this gl_update, during drag of a new node,
                     # if mouse gets too far ahead, we lose the updates until we mouse over some node,
@@ -433,6 +439,10 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                     #
                     # Can it just be that Qt has no time to redraw since it's processing repeated drag events?
                     # Wouldn't it merge them? (Maybe not.) But I observed that stopping and waiting didn't seem to solve the problem.
+                    #
+                    # SOLVED: It was the Numeric array == bug, in lvals.py optim for setting to same value.
+                    # If any coord was the same, it didn't inval or change the stored pos. Fixed using same_vals.
+                    # Checked for other such bugs in that file, BUT NOT IN OTHER FILES. ###DOIT [061207 10p]
                     
                     
             pass

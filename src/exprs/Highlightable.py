@@ -360,7 +360,9 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             gl_event_info = mode.dragstart_using_GL_DEPTH( event, more_info = True) # same as what mode did itself, for a leftClick
             #print "during drag got this info:",gl_event_info
             info = gl_event_info
-        def func():
+        def func(center = center, radius = radius):
+            # will the arg dflts fix this bug when I drag off the edge of the object?
+            #   UnboundLocalError: local variable 'center' referenced before assignment
             farQ, abs_hitpoint, wX, wY, depth, farZ = info
             if not farQ:
                 point = A(gluUnProject(wX, wY, depth))
