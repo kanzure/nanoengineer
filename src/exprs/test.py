@@ -848,8 +848,10 @@ def drawtest1_innards(glpane):
     printnim("severe anti-optim not to memoize some_env.make result in draw") ###e but at least it ought to work this way
     inst.draw()
     if not glpane.is_animating: # cond added 061121, but will probably need mod so we print the first & last ones or so... #e
-        import env
-        print "drew", env.redraw_counter   ##e or print_compact_stack
+        if not glpane.in_drag: # subcond added 061208; should be easily controllable;
+                # might be problematic if *all* drag-caused redraws are not printed, but I'm guessing the last one will be [##k].
+            import env
+            print "drew", env.redraw_counter   ##e or print_compact_stack
         # Note: this shows it often draws one frame twice, not at the same moment, presumably due to GLPane highlighting alg's
         # glselect redraw. That is, it draws a frame, then on mouseover of something, draws it glselect, then immediately
         # draws the *next* frame which differs in having one object highlighted. (Whereas on mouse-leave of that something,
@@ -884,7 +886,7 @@ else:
         # WARNING: duplicated code, a few lines away
         _last_main_instance_data = (None, None, None, None)
         _last_main_instance = None
-    pass        
+    pass
 
 def find_or_make_main_instance(glpane, staterefs, testexpr): #061120
     if not MEMOIZE_MAIN_INSTANCE:
