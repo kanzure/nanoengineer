@@ -193,7 +193,11 @@ def leftDown(mode, event, glpane, super): # called from testmode.leftDown, just 
 
 def render_scene(mode, glpane): # called by testmode.render_scene # 061208
     # to do what would make no difference: glpane.render_scene()
-    from exprs.GLPane_overrider import GLPane_overrider # make reloadable, and/or let exprs/test.py do this work
+    reload_basic_and_test()
+    from exprs import GLPane_overrider
+    basic.reload_once(GLPane_overrider)
+    from exprs.GLPane_overrider import GLPane_overrider # or let exprs/test.py do this work
+    
     glo = GLPane_overrider(glpane) # THIS MIGHT FAIL since it stores some attrs inside itself --
         # but it might work since i'm not sure it needs them between calls... seems to work in testexpr_19c.
     # print "calling glo.render_scene" - works
@@ -454,18 +458,23 @@ def drawtest1(glpane):
         testexpr.draw()
     else:
         # let the exprs module do it
-        from exprs import basic
-        basic.reload_once(basic) # moved this before import of test [061113 late],
-            # to see if it'll fix my occasional failures to actually reload test,
-            # and/or errors after reload like this one:
-            #   TypeError: super(type, obj): obj must be an instance or subtype of type
-        from exprs import test
-        basic.reload_once(test)
+        reload_basic_and_test()
         from exprs.test import drawtest1_innards
         drawtest1_innards(glpane)
     glTranslatef( 0, -8, -1 )
 
     return # drawtest1 #e rename
+
+def reload_basic_and_test():
+    global basic, test
+    from exprs import basic
+    basic.reload_once(basic) # moved this before import of test [061113 late, when this was just part of drawtest1],
+        # to see if it'll fix my occasional failures to actually reload test,
+        # and/or errors after reload like this one:
+        #   TypeError: super(type, obj): obj must be an instance or subtype of type
+    from exprs import test
+    basic.reload_once(test)
+    return
 
 #e put these into an object for a texture font!
 tex_width = 6 # pixel width in texture of 1 char
