@@ -30,9 +30,10 @@ $Id$
 # - widget classes, in order of lowest to highest level (most of them don't need to be imported by this module at all)
 
 
-# == python itself
+# == imports from python itself
 
 import sys, os
+import time # questionable, but try it
 
 sys.setrecursionlimit(650) # 5000 is set in startup_funcs.py; this will ease debugging, but REMOVE WHEN DEVEL IS DONE [061121]
 
@@ -41,13 +42,13 @@ sys.setrecursionlimit(650) # 5000 is set in startup_funcs.py; this will ease deb
 from VQT import V, A, Q, norm, vlen
 
 from state_utils import transclose, same_vals
+## not yet needed: from state_utils import _UNSET_ # warning: not included in "import *"
 
 import platform # so all our code can refer to platform.atom_debug #e someday this should be renamed throughout NE1 (app.debug?)
 
 # (but color constants are imported lower down)
 
-## not yet needed: from state_utils import _UNSET_ # warning: not included in "import *"
-
+# == GL imports -- for now, individual modules import things from submodules of GL as needed; this might be revised
 
 # == Python and debug utilities, and low-level local defs
 

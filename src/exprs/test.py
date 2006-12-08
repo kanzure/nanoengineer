@@ -871,6 +871,113 @@ def drawtest1_innards(glpane):
         printnim("see code for how to optim by replacing two redraws with one, when mouse goes over an object") # see comment above
     return
 
+# ==  what to draw in the corner @@@@
+
+## corner_expr = Rect(3,2,red)
+corner_expr = testexpr_16c # works to show it, but it doesn't work as a control since it doesn't get highlighted!!! ###LOGIC BUG
+
+# test.after_drawcompass(self, aspect)
+from GLPane_overrider import * ### KLUGE
+def after_drawcompass(glpane, aspect):
+    # WARNING: bugs in here can break the entire session, since nothing restores the stack depth of the projection-matrix stack.
+    ## modified from GLPane's def drawcompass(self, aspect):
+    """Draw corner_expr (globally defined in this module) in a corner of the GLPane specified by preference variables.
+    No longer assumes a specific glMatrixMode, but sets it to GL_MODELVIEW on exit.
+    No longer trashes either matrix, but does require enough GL_PROJECTION stack depth
+    to do glPushMatrix on it (though the guaranteed depth for that stack is only 2).
+    """
+
+    self = glpane
+    
+    #bruce 050608 improved behavior re GL state requirements and side effects; 050707 revised docstring accordingly.
+    #mark 0510230 switched Y and Z colors.  Now X = red, Y = green, Z = blue, standard in all CAD programs.
+    glMatrixMode(GL_MODELVIEW)
+    glPushMatrix()
+    glLoadIdentity()
+    glMatrixMode(GL_PROJECTION)
+    glPushMatrix()
+    glLoadIdentity() #k needed?
+    
+    # Set compass position using glOrtho
+    # modified...
+    glpane.width
+    which = LOWER_RIGHT
+    if which == UPPER_RIGHT:
+        glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500) # Upper Right
+    elif which == UPPER_LEFT:
+        glOrtho(-5*aspect, 50.5*aspect, -50, 5.5,  -5, 500) # Upper Left
+    elif which == LOWER_LEFT:
+        glOrtho(-5*aspect, 50.5*aspect, -5, 50.5,  -5, 500) # Lower Left
+    else:
+        ## glOrtho(-50*aspect, 5.5*aspect, -5, 50.5,  -5, 500) # Lower Right
+        ## glOrtho(-50*aspect, 0, 0, 50,  -5, 500) # Lower Right [used now] -- x from -50*aspect to 0, y (bot to top) from 0 to 50
+        glOrtho(-glpane.width * PIXELS, 0, 0, glpane.height * PIXELS,  -5, 500)
+            # approximately right for the checkbox, but I ought to count pixels to be sure (note, PIXELS is a pretty inexact number)
+        
+    try:
+        inst0 = make_aux_instance(corner_expr, 'corner_expr') # kluge, wasteful
+        offset = (-inst0.bright, inst0.bbottom)
+        corner_expr_1 = Translate(corner_expr, offset) # use lbox to translate
+        inst = make_aux_instance(corner_expr_1, 'corner_expr')
+        inst.draw()
+    except:
+        print_compact_traceback("exception ignored in drawing corner_expr_1: ") # not print_compact_stack
+    
+##    q = self.quat
+##    glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
+        
+##    glEnable(GL_COLOR_MATERIAL)
+##    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
+    
+##    glDisable(GL_CULL_FACE)
+##    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
+    
+##    # X Arrow (Red)      
+##    glePolyCone([[-1,0,0], [0,0,0], [4,0,0], [3,0,0], [5,0,0], [6,0,0]],
+##                [[0,0,0], [1,0,0], [1,0,0], [.5,0,0], [.5,0,0], [0,0,0]],
+##                [.3,.3,.3,.75,0,0])
+##    
+##    # Y Arrow (Green) 
+##    glePolyCone([[0,-1,0], [0,0,0], [0,4,0], [0,3,0], [0,5,0], [0,6,0]],
+##                [[0,0,0], [0,.9,0], [0,.9,0], [0,.4,0], [0,.4,0], [0,0,0]],
+##                [.3,.3,.3,.75,0,0])
+##    
+##    # Z Arrow (Blue)
+##    glePolyCone([[0,0,-1], [0,0,0], [0,0,4], [0,0,3], [0,0,5], [0,0,6]],
+##                [[0,0,0], [0,0,1], [0,0,1], [0,0,.4], [0,0,.4], [0,0,0]],
+##                [.3,.3,.3,.75,0,0])
+                
+##    glEnable(GL_CULL_FACE)
+##    glDisable(GL_COLOR_MATERIAL)
+       
+    ##Adding "X, Y, Z" text labels for Axis. By test, the following code will get
+    # segmentation fault on Mandrake Linux 10.0 with libqt3-3.2.3-17mdk
+    # or other 3.2.* versions, but works with libqt3-3.3.3-26mdk. Huaicai 1/15/05
+
+##    if env.prefs[displayCompassLabels_prefs_key]: ###sys.platform in ['darwin', 'win32']:
+##            glDisable(GL_LIGHTING)
+##            glDisable(GL_DEPTH_TEST)
+##            ## glPushMatrix()
+##            font = QFont( QString("Helvetica"), 12)
+##            self.qglColor(QColor(200, 75, 75)) # Dark Red
+##            self.renderText(5.3, 0.0, 0.0, QString("x"), font)
+##            self.qglColor(QColor(25, 100, 25)) # Dark Green
+##            self.renderText(0.0, 4.8, 0.0, QString("y"), font)
+##            self.qglColor(QColor(50, 50, 200)) # Dark Blue
+##            self.renderText(0.0, 0.0, 5.0, QString("z"), font)
+##            ## glPopMatrix()
+##            glEnable(GL_DEPTH_TEST)
+##            glEnable(GL_LIGHTING)
+
+    #bruce 050707 switched order to leave ending matrixmode in standard state, GL_MODELVIEW
+    # (though it doesn't matter for present calling code; see discussion in bug 727)
+    glMatrixMode(GL_PROJECTION)
+    glPopMatrix()
+    glMatrixMode(GL_MODELVIEW)
+    glPopMatrix()
+    return # from after_drawcompass
+
+
 MEMOIZE_MAIN_INSTANCE = True      # whether to memoize it across redraws, without reloads
 
 MEMOIZE_ACROSS_RELOADS = False    # whether to memoize it across reloads
@@ -905,7 +1012,7 @@ def find_or_make_main_instance(glpane, staterefs, testexpr): #061120
         old = _last_main_instance_data
         _last_main_instance_data = new_data
         res = _last_main_instance = make_main_instance(glpane, staterefs, testexpr)
-        print "\n**** MADE NEW MAIN INSTANCE ****\n", res, "(glpane %s, staterefs %s, testexpr %s, reloads %s)" % _cmpmsgs(old, new_data)
+        print "\n**** MADE NEW MAIN INSTANCE %s ****\n" % time.asctime(), res, "(glpane %s, staterefs %s, testexpr %s, reloads %s)" % _cmpmsgs(old, new_data)
     else:
         res = _last_main_instance
         ## print "reusing main instance", res
@@ -925,6 +1032,13 @@ def make_main_instance(glpane, staterefs, testexpr):
     inst = some_env.make(testexpr, NullIpath)
     return inst
 
+def make_aux_instance(expr, index): ###KLUGE 061208; not memoized, that'll need fixing
+    global _last_main_instance
+    some_env = _last_main_instance.env
+    ipath = (index, ('$$aux', NullIpath))
+    inst = some_env.make(expr, ipath)
+    return inst
+    
 # ==
 
 # old comments:

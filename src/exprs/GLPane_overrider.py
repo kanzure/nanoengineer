@@ -339,6 +339,7 @@ class GLPane_overrider(Delegator):
             glMatrixMode(GL_MODELVIEW) #k maybe not needed
 
         self.mode.Draw_after_highlighting() # e.g. draws water surface in Build mode
+            # note: this is called with the same coordinate system as mode.Draw() [bruce 061208 comment]
 
         ###@@@ move remaining items back into caller? sometimes yes sometimes no... need to make them more modular... [bruce 050617]
         
@@ -354,6 +355,15 @@ class GLPane_overrider(Delegator):
         # draw coordinate-orientation arrows at upper right corner of glpane
         if env.prefs[displayCompass_prefs_key]:
             self.drawcompass(aspect) #bruce 050608 moved this here, and rewrote it to behave then
+
+        try:
+            # kluge 061208 to let us draw things in the corners, to tide us over until we modularize the rendering alg as a whole
+            from basic import reload_once
+            import test
+            reload_once(test)
+            test.after_drawcompass(self, aspect)
+        except:
+            print_compact_traceback("bug: exception ignored in test.after_drawcompass: ")
         
         #ninad060921 The following draws a dotted origin axis if the correct preferece is checked. 
         #The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
