@@ -6,10 +6,14 @@ Note: this directory cad/src/exprs will someday become a python package in NE1,
 but for now, it's still experimental, is never loaded by default, and perhaps not all its
 source files have been committed.
 
+For info on how to try it out, see file header of cad/src/testmode.py.
+
 Its files mostly don't yet have proper file headers or copyright info. 
 (They are all copyright Nanorex, Inc, same as the code in cad/src/*.py files.)
 
 Regarding developer changes in cvs, all files in this package are entirely "owned" by Bruce
 until further notice. 
 
--- Bruce, 061011 & 061023
+See also PLAN and BUGS in this directory.
+
+-- Bruce, 061011 & 061023 & 061208

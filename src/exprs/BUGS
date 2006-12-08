@@ -1,0 +1,57 @@
+cad/src/exprs/BUGS
+
+# $Id$
+
+This is a place to record bugs in the exprs module that need to not be
+forgotten, and have no better place to be recorded at this time (the use of
+bugzilla being premature at this early stage of its development).
+
+Most bugs are apparent enough that the best place to discuss how to fix them
+is next to the code that will have to be fixed, in a comment or in a
+"printnim" call.
+
+But for a few, it's hard to know where to record them or they might be
+forgotten there, so they're listed here, in order of addition to this file.
+
+See also:
+- the list of planned optimizations (optims) in test.py
+- anything marked ###BUG in the source files
+
+===
+
+061208 texture dims not always a power of 2 (from a couple weeks ago)
+
+I rely on OpenGL handling textures of arbitrary
+sizes, even though some OpenGL drivers or chips require their dimensions to be
+powers of 2. Before release, we should add code to ask OpenGL whether it can handle this,
+and work around it if not.
+
+==
+
+061208 highlighting synchronization bug
+
+If you click a checkbox, move the mouse onto something else, and click
+again, too quickly, the checkbox can be toggled a second time (e.g. in
+testexpr_19c).
+
+I speculate that this happens because the selobj has not been updated fast
+enough (due to a slow redraw; maybe 1-3 of them need to occur), and the code
+in GLPane/selectMode/Highlightable doesn't realize this and uses an old
+selobj to receive the click.
+
+We might work around it by rechecking whether the click coords are in the
+receiving object (in Highlightable), but I would have thought the callers
+were doing this anyway. It might be that I introduced a bug like this
+specific to the exprs module, for example in code to compensate for selobjs
+being replaced frequently with new ones.
+
+(At one point those new ones shared both glname and ipath -- right now they
+might be only sharing ipath, I can't recall.)
+
+Another workaround might be to make the selobj always visible as such,
+e.g. by hover-highlighting checkboxes even though that's not standard for them,
+so the user can see whether things are not catching up to their motions.
+This would also help with debugging (eg to test the above theory).
+
+==
+
