@@ -58,7 +58,14 @@ class testmode(super):
         # This is always called, and modifying it would let us revise the entire rendering algorithm however needed.
         # This encompasses almost everything done within a single paintGL call -- even the framebuffer clear!
         # For what it doesn't include, see GLPane.paintGL, which gets to its call of this quickly.
-        glpane.render_scene()
+        if 0:
+            glpane.render_scene()
+        else:
+            import testdraw
+            try:
+                testdraw.render_scene(self, glpane)
+            except:
+                print_compact_traceback("exception in testdraw.render_scene ignored: ")
         return
     
     def Draw(self):

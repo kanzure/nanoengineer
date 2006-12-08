@@ -850,8 +850,13 @@ def drawtest1_innards(glpane):
     if not glpane.is_animating: # cond added 061121, but will probably need mod so we print the first & last ones or so... #e
         if not glpane.in_drag: # subcond added 061208; should be easily controllable;
                 # might be problematic if *all* drag-caused redraws are not printed, but I'm guessing the last one will be [##k].
+                # it turns out, it is in some cases and not others.
+                # if this is a problem, or if in_drag redraws matter, also consider printing ".", for them. In fact, try this now.
             import env
             print "drew", env.redraw_counter   ##e or print_compact_stack
+        else:
+            sys.stdout.write(".")
+            sys.stdout.flush()
         # Note: this shows it often draws one frame twice, not at the same moment, presumably due to GLPane highlighting alg's
         # glselect redraw. That is, it draws a frame, then on mouseover of something, draws it glselect, then immediately
         # draws the *next* frame which differs in having one object highlighted. (Whereas on mouse-leave of that something,

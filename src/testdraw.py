@@ -180,18 +180,27 @@ def init_glpane_vars(glpane):
     glpane._testmode_stuff_3 = []
     glpane._alpha = 1.0
     
-def leftDown(self, event, glpane, super): # called from testmode.leftDown, just after it reloads this module (on empty-space clicks only)
+def leftDown(mode, event, glpane, super): # called from testmode.leftDown, just after it reloads this module (on empty-space clicks only)
     ###@@@ move reload condition into another func in this module? make it wait for leftUp and only if it didn't move, in empty space?
-    "self is the mode, needed to call super.leftDown"
+    "[mode is needed to call super.leftDown]"
     ####@@@@ LOGIC BUG: when we reload, we replace one highlightable with a new one in the same place --
     # but don't replace selobj with the new one! So we predict not selobj_still_ok -- should print that from there ###@@@
     # [fixed now?]
     if printdraw: print "\ntestdraw leftDown" ###@@@
     vv.havelist = 0 # so editing this file (and clicking) uses the new code -- this also affects clicks on selobj which don't reload
-    super.leftDown(self, event) # this might call testmode.emptySpaceLeftDown (or other class-specific leftDown methods in it)
+    super.leftDown(mode, event) # this might call testmode.emptySpaceLeftDown (or other class-specific leftDown methods in it)
     glpane.gl_update() # always, for now [might be redundant with super.leftDown, too]
 
-def Draw(self, glpane, super): # called by testmode.Draw
+def render_scene(mode, glpane): # called by testmode.render_scene # 061208
+    # to do what would make no difference: glpane.render_scene()
+    from exprs.GLPane_overrider import GLPane_overrider # make reloadable, and/or let exprs/test.py do this work
+    glo = GLPane_overrider(glpane) # THIS MIGHT FAIL since it stores some attrs inside itself --
+        # but it might work since i'm not sure it needs them between calls... seems to work in testexpr_19c.
+    # print "calling glo.render_scene" - works
+    glo.render_scene()
+    return
+    
+def Draw(mode, glpane, super): # called by testmode.Draw
     init_glpane_vars(glpane)
     vv.counter += 1
     glPushMatrix()
@@ -206,7 +215,7 @@ def Draw(self, glpane, super): # called by testmode.Draw
     if 1 and 'draw_model':
         glPushMatrix()
         if 1:
-            super.Draw(self) # needed for region selection's separate xor-drawing;
+            super.Draw(mode) # needed for region selection's separate xor-drawing;
             # I suspect this is slower than the other case. Does it draw more than once (for glselect) or something like that? ####@@@@
         else:
             # region selection's drawing won't work in this case, though its selection op itself will work
@@ -225,9 +234,9 @@ def Draw(self, glpane, super): # called by testmode.Draw
         func()
     return
 
-def Draw_after_highlighting(self, pickCheckOnly, glpane, super):
+def Draw_after_highlighting(mode, pickCheckOnly, glpane, super):
     ## print "testdraw.Draw_after_highlighting(pickCheckOnly = %r)" % (pickCheckOnly,) # pickCheckOnly is True once when I click
-    super.Draw_after_highlighting(self, pickCheckOnly)
+    super.Draw_after_highlighting(mode, pickCheckOnly)
     return
 
 # ==

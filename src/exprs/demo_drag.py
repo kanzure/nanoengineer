@@ -380,9 +380,20 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         node_expr = Node(newpos, Center(Rect(0.2,0.2,
                                              ## 'green', -- now we cycle through several colors: (colors,...)[counter % 6]
                                              tuple_Expr(green,yellow,red,blue,white,black)[mod_Expr(_this(Node).ipath[0],6)]
-                                             ))) 
+                                             )))
+        draggable_node_expr = Highlightable(node_expr, on_drag = _self.on_drag_node, sbar_text = "dne")
+            ###BUG: this breaks dragging of the new node; it fails to print the call message from on_drag_node;
+            # if you try to drag an old node made this way, it doesn't work but says
+            # debug fyi: len(names) == 2 (names = (268L, 269L))
+            # Guess: limitation in current rendering code makes it not work for any nested glnames, but just print this instead...
+            # (note: even after reload, the node objects in the world have their old Node class, and the old expr used to make them)
 
-        newnode = self.make_and_add(node_expr)
+        if 0:
+            ## MAKE THIS WORK:
+            newnode = self.make_and_add( draggable_node_expr)
+        else:
+            newnode = self.make_and_add( node_expr)
+            
         self.newnode = newnode ###KLUGE that we store it directly in self; might work tho; we store it only for use by on_drag_bg
         return
     
@@ -396,6 +407,10 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         
         ##e let new node be dragged, and use Command classes above for newmaking and dragging
         return node
+    
+    def on_drag_node(self):
+        print "on_drag_node called -- how can we know *which* node it was called on??"
+        return
     
     def on_drag_bg(self):
         # note: so far, anyway, called only for drag after click on empty space, not from drag after click on existing node
