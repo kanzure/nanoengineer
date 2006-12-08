@@ -65,26 +65,7 @@ class GLPane_overrider(Delegator):
 
         self.standard_repaint()
         
-        return # from GLPane.render_scene
-    
-    # ==
-    
-##    # The following behavior (in several methods herein) related to wants_gl_update
-##    # should probably also be done in ThumbViews
-##    # if they want to get properly updated when graphics prefs change. [bruce 050804 guess] ####@@@@
-##    
-##    wants_gl_update = True #bruce 050804
-##        # this is set to True after we redraw, and to False by the following method
-##
-##    def wants_gl_update_was_True(self): #bruce 050804
-##        """Outside code should call this if it changes what our redraw would draw,
-##        and then sees self.wants_gl_update being true,
-##        if it might not otherwise call self.gl_update
-##        (which is also ok to do, but might be slower -- whether it's actually slower is not known).
-##           This can also be used as an invalidator for passing to self.end_tracking_usage().
-##        """
-##        self.wants_gl_update = False
-##        self.gl_update()
+        return # from render_scene
     
     def standard_repaint(self): #bruce 050617 split this out; bruce 061208 removed obsolete special_topnode experiment
         """#doc... this trashes both gl matrices! caller must push them both if it needs the current ones.
@@ -404,8 +385,6 @@ class GLPane_overrider(Delegator):
             hicolor = None #bruce 050822 changed this from LEDon to None
         return hicolor
     
-##    selobj = None #bruce 050609
-
     def set_selobj(self, selobj, why = "why?"):
         if selobj is not self.selobj:
             if debug_set_selobj:
@@ -546,8 +525,6 @@ class GLPane_overrider(Delegator):
         ## print "target depth NOT reached by",candidate,newdepth , targetdepth
         return None
 
-# ...
-
     def _setup_modelview(self, vdist): #bruce 050608 split this out; 050615 added explanatory comments
         "set up modelview coordinate system"
         glMatrixMode(GL_MODELVIEW)
@@ -673,6 +650,7 @@ class GLPane_overrider(Delegator):
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
         return
+    
     pass # end of class GLPane_overrider
 
 # end

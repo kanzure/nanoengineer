@@ -1893,7 +1893,59 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         return # from most_of_paintGL
 
-    # ==
+    def _restore_modelview_stack_depth(self): #bruce 050608 split this out
+        "restore GL_MODELVIEW_STACK_DEPTH to 1, if necessary"
+        #bruce 040923: I'd like to reset the OpenGL state
+        # completely, here, incl the stack depths, to mitigate some
+        # bugs. How??  Note that there might be some OpenGL init code
+        # earlier which I'll have to not mess up. Incl displaylists in
+        # drawer.setup.  What I ended up doing is just to measure the
+        # stack depth and pop it 0 or more times to make the depth 1.
+        #   BTW I don't know for sure whether this causes a significant speed
+        # hit for some OpenGL implementations (esp. X windows)...
+        # test sometime. #e
+        glMatrixMode(GL_MODELVIEW)
+        
+        depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
+        # this is normally 1
+        # (by experiment, qt-mac-free-3.3.3, Mac OS X 10.2.8...)
+        if depth > 1:
+            print "apparent bug: glGetInteger(GL_MODELVIEW_STACK_DEPTH) = %r in GLPane.paintGL" % depth
+            print "workaround: pop it back to depth 1"
+            while depth > 1:
+                    depth -= 1
+                    glPopMatrix()
+            newdepth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
+            if newdepth != 1:
+                    print "hmm, after depth-1 pops we should have reached depth 1, but instead reached depth %r" % newdepth
+            pass
+        return
+    
+    # The following behavior (in several methods herein) related to wants_gl_update
+    # should probably also be done in ThumbViews
+    # if they want to get properly updated when graphics prefs change. [bruce 050804 guess] ####@@@@
+    
+    wants_gl_update = True #bruce 050804
+        # this is set to True after we redraw, and to False by the following method
+
+    def wants_gl_update_was_True(self): #bruce 050804
+        """Outside code should call this if it changes what our redraw would draw,
+        and then sees self.wants_gl_update being true,
+        if it might not otherwise call self.gl_update
+        (which is also ok to do, but might be slower -- whether it's actually slower is not known).
+           This can also be used as an invalidator for passing to self.end_tracking_usage().
+        """
+        self.wants_gl_update = False
+        self.gl_update()
+
+    selobj = None #bruce 050609
+
+    # *** WARNING: the code between the two comments containing the text "GLPane_overrider code" has been copied and modified
+    # *** into cad/src/exprs/GLPane_overrider.py. The version in that file might become the official one someday.
+    # *** When that happens, we can examine all changes to this version (starting with the insertion of these comments)
+    # *** and decide whether to port them into that version. Thus, changes to this version should be kept minimal.
+    # *** BTW, two methods were moved outside of this region before it was copied -- _restore_modelview_stack_depth and
+    # *** wants_gl_update_was_True (also the initial value of the instancevar it sets, wants_gl_update). [bruce 061208]
 
     def render_scene(self):#bruce 061208 split this out so some modes can override it (also removed obsolete trans_feature experiment)
         
@@ -1917,26 +1969,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
         self.standard_repaint()
         
-        return # from GLPane.render_scene
-    
-    # ==
-    
-    # The following behavior (in several methods herein) related to wants_gl_update
-    # should probably also be done in ThumbViews
-    # if they want to get properly updated when graphics prefs change. [bruce 050804 guess] ####@@@@
-    
-    wants_gl_update = True #bruce 050804
-        # this is set to True after we redraw, and to False by the following method
-
-    def wants_gl_update_was_True(self): #bruce 050804
-        """Outside code should call this if it changes what our redraw would draw,
-        and then sees self.wants_gl_update being true,
-        if it might not otherwise call self.gl_update
-        (which is also ok to do, but might be slower -- whether it's actually slower is not known).
-           This can also be used as an invalidator for passing to self.end_tracking_usage().
-        """
-        self.wants_gl_update = False
-        self.gl_update()
+        return # from render_scene
     
     def standard_repaint(self): #bruce 050617 split this out; bruce 061208 removed obsolete special_topnode experiment
         """#doc... this trashes both gl matrices! caller must push them both if it needs the current ones.
@@ -2256,8 +2289,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             hicolor = None #bruce 050822 changed this from LEDon to None
         return hicolor
     
-    selobj = None #bruce 050609
-
     def set_selobj(self, selobj, why = "why?"):
         if selobj is not self.selobj:
             if debug_set_selobj:
@@ -2398,34 +2429,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         ## print "target depth NOT reached by",candidate,newdepth , targetdepth
         return None
 
-    def _restore_modelview_stack_depth(self): #bruce 050608 split this out
-        "restore GL_MODELVIEW_STACK_DEPTH to 1, if necessary"
-        #bruce 040923: I'd like to reset the OpenGL state
-        # completely, here, incl the stack depths, to mitigate some
-        # bugs. How??  Note that there might be some OpenGL init code
-        # earlier which I'll have to not mess up. Incl displaylists in
-        # drawer.setup.  What I ended up doing is just to measure the
-        # stack depth and pop it 0 or more times to make the depth 1.
-        #   BTW I don't know for sure whether this causes a significant speed
-        # hit for some OpenGL implementations (esp. X windows)...
-        # test sometime. #e
-        glMatrixMode(GL_MODELVIEW)
-        
-        depth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
-        # this is normally 1
-        # (by experiment, qt-mac-free-3.3.3, Mac OS X 10.2.8...)
-        if depth > 1:
-            print "apparent bug: glGetInteger(GL_MODELVIEW_STACK_DEPTH) = %r in GLPane.paintGL" % depth
-            print "workaround: pop it back to depth 1"
-            while depth > 1:
-                    depth -= 1
-                    glPopMatrix()
-            newdepth = glGetInteger(GL_MODELVIEW_STACK_DEPTH)
-            if newdepth != 1:
-                    print "hmm, after depth-1 pops we should have reached depth 1, but instead reached depth %r" % newdepth
-            pass
-        return
-
     def _setup_modelview(self, vdist): #bruce 050608 split this out; 050615 added explanatory comments
         "set up modelview coordinate system"
         glMatrixMode(GL_MODELVIEW)
@@ -2551,6 +2554,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
         return
+
+    # *** WARNING: the code between the two comments containing the text "GLPane_overrider code" has been copied and modified
+    # *** into cad/src/exprs/GLPane_overrider.py. For more info, see the first such comment above. [bruce 061208]
            
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.
@@ -2646,6 +2652,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
     pass # end of class GLPane
 
+# ==
+
 def typecheckViewArgs(q2, s2, p2, z2): #mark 060128
     '''Typecheck the view arguments quat q2, scale s2, pov p2, and zoom factor z2
     used by GLPane.snapToView() and GLPane.animateToView().
@@ -2658,7 +2666,5 @@ def typecheckViewArgs(q2, s2, p2, z2): #mark 060128
     assert isinstance(p2[2], float)
     assert isinstance(z2, float)
     return
-
-#==
 
 #end
