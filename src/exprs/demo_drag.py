@@ -38,6 +38,24 @@ import draw_utils
 reload_once(draw_utils)
 from draw_utils import DZ ##e move DZ etc to basic??
 
+import staterefs
+reload_once(staterefs)
+from staterefs import PrefsKey_StateRef
+
+import TextRect
+reload_once(TextRect)
+from TextRect import TextRect
+
+
+import controls
+reload_once(controls)
+from controls import checkbox_v3 #e rename ##,ChoiceColumn, 
+
+import Column
+reload_once(Column)
+from Column import Column, SimpleColumn, SimpleRow # only using SimpleRow
+
+                      
 # ==
 
 Alias = mousepos = Stub
@@ -282,6 +300,8 @@ class World(ModelObject):
                 # so it doesn't make much difference in our code. we can always have a type "Node for us" to coerce them to
                 # which if necessary adds the pos which only we see -- we'd want this if one Node could be in two Worlds at diff posns.
                 # (Which is likely, due to Configuration Management.)
+            if node is self.nodelist[-1]:
+                print "drew last node in list, %r, ipath[0] %r, pos %r" % (node, node.ipath[0], node.pos)
         ###e see comment above: "maybe World needs to wrap all it draws with glue to add looks and behavior to it"
         return
     pass
@@ -320,15 +340,21 @@ class World(ModelObject):
 class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
     background = Arg(Widget2D, Rect(10) )
         # testexpr_19a, 061207 morn -- see if arb objects work here, and try drawing on a curved surface --
-        # works! (when the surface was the default here -- untested when it's the arg supplied by that testexpr)
-        # except we should replace DZ with "local perp to surface" to make the drawn things more visible.
-        # And we *might* want to replace depth with "computed true depth", since for a sphere, as we rotate the view
-        # the drawn radius slightly changes due to where the triangle faces are located, and this can bury the drawing of marks
-        # if they are really close to the sphere -- either that, or record their posns relative to the sphere surface,
-        # which might be most correct anyway -- and especially useful if we change the radius of the sphere! (making it balloon-like)
-        # Also those things are oriented in global coords rather than coords based on the clicked surface.
-        #   Note that all these ideas would require asking the object for the surface, and in the given eg, getting quite different
-        # answers (incl about how to transform coords for storage) depending on whether the rect or sphere was clicked --
+        # works! (when the surface was the default here -- now also tested/works when it's the arg supplied by that testexpr)
+        #
+        # ... except for desirable improvements:
+        # - we should replace DZ with "local perp to surface" to make the drawn things more visible.
+        # - And we *might* want to replace depth with "computed true depth", since for a sphere, as we rotate the view
+        #   the drawn radius slightly changes due to where the triangle faces are located, and this can bury the drawing of marks
+        #   if they are really close to the sphere --
+        # - either that, or record their posns relative to the sphere surface,
+        #   which might be most correct anyway -- and especially useful if we change the radius of the sphere! (making it balloon-like)
+        # - Also those things are oriented in global coords rather than coords based on the clicked surface.
+        #   Fixing that would also make them "look oriented" and help you perceive their depth when they're over a curved surface.
+        #
+        # Note that all these ideas would require asking the object for the surface orientation, and for how to store coords (relative
+        # to what), and in the given eg, getting quite different answers (incl about how to transform coords for storage, re scaling)
+        # depending on whether the rect or sphere was clicked --
         # which the current code does not even detect, since it gives them the same glname. ###e
     world = Instance( World() ) # has .nodelist I'm allowed to extend
     _value = Overlay(
@@ -337,6 +363,8 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
     )
     _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
 
+    newnode = None # note: name conflict(?) with one of those not yet used Command classes
+    
     def on_press_bg(self):
         point = self.current_event_mousepoint()
             #e note: current_event_mousepoint is defined only on Highlightable, for now (see comments there for how we need to fix that),
@@ -349,9 +377,13 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             ###e needs more principled fix -- not yet sure what that should be -- is it to *draw* closer? (in a perp dir from surface)
             #e or just to create spheres (or anything else with thickness in Z) instead? (that should not always be required)
 
-        node_expr = Node(newpos, Center(Rect(0.2,0.2,green))) 
+        node_expr = Node(newpos, Center(Rect(0.2,0.2,
+                                             ## 'green', -- now we cycle through several colors: (colors,...)[counter % 6]
+                                             tuple_Expr(green,yellow,red,blue,white,black)[mod_Expr(_this(Node).ipath[0],6)]
+                                             ))) 
 
-        self.make_and_add(node_expr)
+        newnode = self.make_and_add(node_expr)
+        self.newnode = newnode ###KLUGE that we store it directly in self; might work tho; we store it only for use by on_drag_bg
         return
     
     def make_and_add(self, node_expr):
@@ -363,18 +395,47 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         self.world.nodelist = self.world.nodelist + [node] # kluge: make sure it gets change-tracked. Inefficient when long!
         
         ##e let new node be dragged, and use Command classes above for newmaking and dragging
-        return
+        return node
     
     def on_drag_bg(self):
-        #print "called on_drag_bg"
-        point = self.current_event_mousepoint() # works differently for drag
-        #print "  dragpoint:",point
-
-        if 1:
-            newpos = point + DZ * PIXELS * 2
+        # note: so far, anyway, called only for drag after click on empty space, not from drag after click on existing node
+        point = self.current_event_mousepoint()
+        lastnode = self.newnode # btw nothing clears this on mouseup, so in theory it could be left from a prior drag
+        try:
+            lastipath = lastnode.ipath[0]
+        except:
+            lastipath = -1
+        print "on_drag_bg %d" % lastipath, point###  # this shows no error in retaining correct lastnode -- that's not the bug
+        newpos = point + DZ * PIXELS * 2 # used for different things, depending
+        
+        what = kluge_dragtool_state() ###IMPLEM better
+        if what == 'draw':
+            # make a blue dot showing the drag path, without moving the main new node (from the click)
             node_expr = Node(newpos, Center(Rect(0.1,0.1,blue)))
-
             self.make_and_add(node_expr)
+        elif what == 'drag':
+            # drag the new node made by the click
+            if not lastnode:
+                print "bug: no self.newnode!!!"
+            else:
+                lastnode.pos = newpos
+                print "set %r.pos = %r" % (lastnode,newpos)### this shows i set them, then draw them to a different pos! Why?[where i am]
+                self.env.glpane.gl_update() ###KLUGE [attempted bugfix, didn't work, see comment for guess at why]
+                    # without this gl_update, during drag of a new node,
+                    # if mouse gets too far ahead, we lose the updates until we mouse over some node,
+                    # perhaps since only a change of what's highlighted triggers an update. Why doesn't change-tracking of the setattr
+                    # solve that???? HMM, ADDING THIS gl_update DOESN'T FIX THE BUG!   ###BUG
+                    #
+                    # Under what conds does gl_update not redraw?!?
+                    #   GUESS [wrong, see below] - mouse motion, detecting no change of selobj in selectMode, perhaps immediately does nothing
+                    # (not calling this routine via drag_handler at all)... but then how do we drag atoms? Review this. #k
+                    #   NO, that can't be it -- our debug print above is indeed printing that it gets called.
+                    #
+                    # Can it just be that Qt has no time to redraw since it's processing repeated drag events?
+                    # Wouldn't it merge them? (Maybe not.) But I observed that stopping and waiting didn't seem to solve the problem.
+                    
+                    
+            pass
         return
     
     def make(self, expr):
@@ -402,5 +463,38 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         ipath = (index, self.ipath)
         return expr._e_eval(self.env, ipath)
     pass # end of class GraphDrawDemo_FixedToolOnArg1
+
+kluge_dragtool_state_prefs_key = "A9 devel/kluge_dragtool_state_bool"
+kluge_dragtool_state_prefs_default = False ## False = 'draw', True = 'drag' (since our only prefs control yet is a boolean checkbox)
+
+def kluge_dragtool_state():
+    # can edit by hand, then reload; should make it a checkbox or tool-choice setting (tho 'drag' is useless)...
+    # it's like a user pref or transient state for the *toolset* of which the tools choosable here are a part.
+    # (typically you have one instance of each toolset in your app, not one per editable thing for each kind of toolset,
+    #  though if you ask, there might be a way to customize those settings for what you edit -- but by default they're general.)
+    # so for now we can approximate this using either transient state or prefs state for the toolset object,
+    # or a prefs key if we don't have that kind of state. (Note: currently no stateplace is stored in prefs, but one could be.)
+    #
+    # related digr: if code uses prefs, those prefs might as well be readily available when that code's in use,
+    # so automatically we can get code-specific control panels just to control display & behavior that affects what's now on screen,
+    # organized in std hierarchy but filtered for whether they are "in use". For now do this by hand, but later we'll want some way
+    # to find out what's in use in that sense, and usage-tracking might be enough unless prefs get bundled into single tracked objs
+    # of which then only some parts get used. We can probably avoid that well enough by convention.
+    if 0:
+        if 1:
+            return 'draw' # usual case
+        else:
+            return 'drag'
+    else:
+        import env
+        # for this kluge, let the stored value be False or True for whether it's drag
+        return env.prefs.get(kluge_dragtool_state_prefs_key, kluge_dragtool_state_prefs_default) and 'drag' or 'draw'
+    pass
+
+kluge_dragtool_state() # set the default val
+
+kluge_dragtool_state_checkbox_expr = \
+    SimpleRow(checkbox_v3(PrefsKey_StateRef(kluge_dragtool_state_prefs_key)),
+              TextRect("drag new nodes?",1,20))
 
 # end

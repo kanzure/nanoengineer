@@ -69,6 +69,8 @@ class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204, untested
         assert type(prefs_key) == type("") #k redundant?
         import env
         env.prefs[prefs_key] = val
+        if platform.atom_debug:
+            print "fyi: %r set env.prefs[%r] = %r" % (self, prefs_key, val)
         return
     value = property(get_value, set_value)
     def _init_instance(self):

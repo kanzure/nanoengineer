@@ -123,7 +123,7 @@ from MT_demo import MT, test_drag_pixmap
 
 import demo_drag
 reload_once(demo_drag)
-from demo_drag import GraphDrawDemo_FixedToolOnArg1
+from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkbox_expr
 
 
 # == @@@
@@ -742,11 +742,13 @@ testexpr_19b = GraphDrawDemo_FixedToolOnArg1(Overlay(Rect(10),SimpleRow(Sphere(1
     # note that you can interchange the guide shapes at runtime, and retain the drawing which was done with their aid.
     # (just by editing this file's choice of testexpr, and clicking to reload it)
 
-
+testexpr_19c = Overlay( testexpr_19b, # edit this one by hand if you want
+                        Translate( kluge_dragtool_state_checkbox_expr, (12,-4) ) ###e need to wrap this with "draw at the edge, untrackballed"
+                    )
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_19
+testexpr = testexpr_19c
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
