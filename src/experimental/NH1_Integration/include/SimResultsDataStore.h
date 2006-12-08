@@ -5,6 +5,7 @@
 #define NE1_SIMRESULTSDATASTORE_H
 
 #include <string>
+#include <vector>
 
 #define SRDS_UNABLE_TO_OPEN_FILE			1
 #define SRDS_UNABLE_TO_COMPLETE_OPERATION	2
@@ -119,7 +120,7 @@ class SimResultsDataStore {
 	 * @param message description of the error when a non-zero value is returned
 	 * @return 0=successful or non-zero error code
 	 */
-	virtual int setTimestep(float timestep, std::string& message) = 0;
+	virtual int setTimestep(const float& timestep, std::string& message) = 0;
 	
 	
 	/*
@@ -136,7 +137,7 @@ class SimResultsDataStore {
 	 * @param message description of the error when a non-zero value is returned
 	 * @return 0=successful or non-zero error code
 	 */
-	virtual int setStartStep(int startStep, std::string& message) = 0;
+	virtual int setStartStep(const int& startStep, std::string& message) = 0;
 	
 
 	/*
@@ -153,7 +154,7 @@ class SimResultsDataStore {
 	 * @param message description of the error when a non-zero value is returned
 	 * @return 0=successful or non-zero error code
 	 */
-	virtual int setMaxSteps(int maxSteps, std::string& message) = 0;
+	virtual int setMaxSteps(const int& maxSteps, std::string& message) = 0;
 	
 	
 	/*
@@ -171,7 +172,7 @@ class SimResultsDataStore {
 	 * @param message description of the error when a non-zero value is returned
 	 * @return 0=successful or non-zero error code
 	 */
-	virtual int setEnvironmentTemperature(float envTemp,
+	virtual int setEnvironmentTemperature(const float& envTemp,
 										  std::string& message) = 0;
 
 	/*
@@ -189,89 +190,131 @@ class SimResultsDataStore {
 	 * @param message description of the error when a non-zero value is returned
 	 * @return 0=successful or non-zero error code
 	 */
-	virtual int setEnvironmentPressure(float envPress,
+	virtual int setEnvironmentPressure(const float& envPress,
 									   std::string& message) = 0;
 
 	
 	/*
+	 * FilePath
+	 */
+	/**
+	 * Returns a vector of file path keys. These file paths are for simulation
+	 * specification files, simulation workflow scripts, template files, etc.
+	 *
+	 */
+	virtual std::vector<std::string> getFilePathKeys() const = 0;
+
+	/** Retrieves the file path associated with the given key.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getFilePath(const char* key, std::string& filePath) const = 0;
+
+	/** Associates the given file path with the given key.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setFilePath(const char* key, const char* filePath,
+							std::string& message) = 0;
+
+
+	/*
+	 * RunResult
+	 */
+	/**
+	 * Retrieves the simulation run's result and failure message if the
+	 * simulation failed.
+	 *
+	 * @param result	0=success, 1=still running, 2=failure, 3=aborted
+	 * @param failureDescription	description of the failure/abortion if
+	 *								result=2/3
+	 * @return			0=successful or non-zero if no value was found.
+	 */
+	virtual int getRunResult(int& result,
+							 std::string& failureDescription) const = 0;
+
+	/** Sets the simulation run's result and failure message.
+	 * 
+	 * @param code		0=success, 1=still running, 2=failure, 3=aborted
+	 * @param failureDescription	description of the failure/abortion if
+	 *								result=2/3
+	 * @param message	description of the error when a non-zero value is returned
+	 * @return			0=successful or non-zero error code
+	 */
+	virtual int setRunResult(const int& code, const char* failureDescription,
+							 std::string& message) = 0;
 	
-	def getFilePathKeys(self):
-		"""
-		Returns an array of file path keys. These file paths are for simulation
-		specification files, simulation workflow scripts, template files, etc.
-		"""
-		pass
-	def getFilePath(self, key):
-		"""Returns the file path associated with the given key."""
-		pass
-	def setFilePath(self, key, filePath):
-		"""Associates the given file path with the given key."""
-		pass
-	
-	
-	def getRunResult(self):
-		"""
-		Returns the simulation run's result and failure message if the
-		simulation failed.
-		@return: (0=success, 1=still running, 2=failure, 3=aborted),
-				 (failure message)
-		"""
-		pass
-	def setRunResult(self, code, message):
-		"""
-		Sets the simulation run's result and failure message.
-		@param code: 0=success, 1=still running, 2=failure, 3=aborted
-		@param message: description of a simulation failure
-		"""
-		pass
-	
-	
-	def getStepCount(self):
-		"""Returns the number of steps successfully simulated."""
-		pass
-	def setStepCount(self, count):
-		"""Sets the number of steps successfully simulated."""
-		pass
+
+	/*
+	 * StepCount
+	 */
+	/** Retrieves the number of steps successfully simulated.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getStepCount(int& stepCount) const = 0;
+
+	/** Sets the number of steps successfully simulated.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setStepCount(const int& stepCount, std::string& message) = 0;
 
 	
-	def getStartTime(self):
-		"""
-		Returns the simulation start time.
-		@return: a U{datetime<http://docs.python.org/lib/datetime-datetime.html>}
-				 object set to the simulation's start time
-		"""
-		pass
-	def setStartTime(self, startTime):
-		"""
-		Sets the simulation start time.
-		@param startTime: a U{datetime<http://docs.python.org/lib/datetime-datetime.html>}
-						  object set to the simulation's start time
-		"""
-		pass
+	/*
+	 * StartTime
+	 */
+	/** Retrieves the simulation start time.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getStartTime(time_t& startTime) const = 0;
+
+	/** Sets the simulation start time.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setStartTime(const time_t& startTime, std::string& message) = 0;
 	
 	
-	def getCPU_RunningTime(self):
-		"""Returns the simulation CPU running time in seconds."""
-		pass
-	def setCPU_RunningTime(self, cpuRunningTime):
-		"""
-		Set the simulation CPU running time.
-		@param cpuRunningTime: in seconds
-		"""
-		pass
+	/*
+	 * CPU_RunningTime
+	 */
+	/** Retrieves the simulation CPU running time in seconds.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getCPU_RunningTime(float& cpuRunningTime) const = 0;
 	
+	/** Sets the simulation CPU running time.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setCPU_RunningTime(const float& cpuRunningTime,
+								   std::string& message) = 0;
 	
-	def getWallRunningTime(self):
-		"""Returns the simulation wall running time in seconds."""
-		pass
-	def setWallRunningTime(self, wallRunningTime):
-		"""
-		Sets the simulation wall running time.
-		@param wallRunningTime: in seconds
-		"""
-		pass
+	/*
+	 * WallRunningTime
+	 */
+	/** Retrieves the simulation wall running time in seconds.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getWallRunningTime(float& wallRunningTime) const = 0;
 	
+	/** Sets the simulation CPU running time.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setWallRunningTime(const float& wallRunningTime,
+								   std::string& message) = 0;
 	
+	/*
 	def getExtDataNames(self):
 		"""Returns an array of extension data-set names."""
 		pass
@@ -329,26 +372,38 @@ class SimResultsDataStore {
 		with the given key.
 		"""
 		pass
+	*/
 
 	
-	def getFrameSetNames(self):
-		"""
-		Returns an array of frame-set names. These frame-set names are used to
-		get/set frame data.
-		"""
+	/*
+	 * FrameSet
+	 */
+	/**
+	 * Returns a vector of frame-set names. These frame-set names are used to
+	 * get/set frame data.
+	 */
+	virtual std::vector<std::string> getFrameSetNames() const = 0;
+	
+	/** Adds a frame-set with the given name.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int addFrameSet(const char* name, std::string& message) = 0;
+
+	/**
+	 * Removes the frame-set with the given name.
+	 *
+	def removeFrameSet(self, name):
+		""""""
 		pass
-	def addFrameSet(self, name):
-		"""
-		Adds a frame-set with the given name.
-		"""
-		pass
+	 */
+	/*
+	 
 	get/setAggregationMode(self, name, mode)
 		@param aggregationMode: 0=per-time-step values are averaged (default),
 								1=last per-time-step value is used
 	get/setStepsPerFrame(self, name, stepsPerFrame)
-		pass
-	def removeFrameSet(self, name):
-		"""Removes the frame-set with the given name."""
 		pass
 	
 	

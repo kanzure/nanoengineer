@@ -132,7 +132,7 @@ int HDF5_SimResults::getTimestep(float& timestep) const {
 
 
 /* FUNCTION: setTimestep */
-int HDF5_SimResults::setTimestep(float timestep, std::string& message) {
+int HDF5_SimResults::setTimestep(const float& timestep, std::string& message) {
 	return setFloatAttribute("/Parameters", "Timestep", timestep, message);
 }
 
@@ -144,7 +144,7 @@ int HDF5_SimResults::getStartStep(int& startStep) const {
 
 
 /* FUNCTION: setStartStep */
-int HDF5_SimResults::setStartStep(int startStep, std::string& message) {
+int HDF5_SimResults::setStartStep(const int& startStep, std::string& message) {
 	return setIntAttribute("/Parameters", "StartStep", startStep, message);
 }
 
@@ -156,7 +156,7 @@ int HDF5_SimResults::getMaxSteps(int& maxSteps) const {
 
 
 /* FUNCTION: setMaxSteps */
-int HDF5_SimResults::setMaxSteps(int maxSteps, std::string& message) {
+int HDF5_SimResults::setMaxSteps(const int& maxSteps, std::string& message) {
 	return setIntAttribute("/Parameters", "MaxSteps", maxSteps, message);
 }
 
@@ -168,7 +168,7 @@ int HDF5_SimResults::getEnvironmentTemperature(float& envTemp) const {
 
 
 /* FUNCTION: setEnvironmentTemperature */
-int HDF5_SimResults::setEnvironmentTemperature(float envTemp,
+int HDF5_SimResults::setEnvironmentTemperature(const float& envTemp,
 											   std::string& message) {
 	return setFloatAttribute("/Parameters", "EnvironmentTemperature", envTemp,
 							 message);
@@ -182,10 +182,235 @@ int HDF5_SimResults::getEnvironmentPressure(float& envPress) const {
 
 
 /* FUNCTION: setEnvironmentPressure */
-int HDF5_SimResults::setEnvironmentPressure(float envPress,
+int HDF5_SimResults::setEnvironmentPressure(const float& envPress,
 											std::string& message) {
 	return setFloatAttribute("/Parameters", "EnvironmentPressure", envPress,
 							 message);
+}
+
+
+/* FUNCTION: getFilePathKeys */
+std::vector<std::string> HDF5_SimResults::getFilePathKeys() const {	
+	std::vector<std::string> keys;
+	
+	// See if the group exists and open it
+	hid_t groupId = H5Gopen(fileId, "/InputFilePaths");
+	if (groupId > -1) {
+		// Get an attribute count
+		int attrCount = H5Aget_num_attrs(groupId);
+		
+		// Build key list
+		hid_t attributeId;
+		char buffer[64];
+		for (int attrIndex = 0; attrIndex < attrCount; attrIndex++) {
+			attributeId = H5Aopen_idx(groupId, attrIndex);
+			H5Aget_name(attributeId, sizeof(buffer), buffer);
+			H5Aclose(attributeId);
+			keys.push_back(buffer);
+		}
+		H5Gclose(groupId);
+	}		
+	return keys;
+}
+
+
+/* FUNCTION: getFilePath */
+int HDF5_SimResults::getFilePath(const char* key, std::string& filePath) const {
+	return getStringAttribute("/InputFilePaths", key, filePath);
+}
+
+	
+/* FUNCTION: setFilePath */
+int HDF5_SimResults::setFilePath(const char* key, const char* filePath,
+								 std::string& message) {
+	return setStringAttribute("/InputFilePaths", key, filePath, message);
+}
+
+
+/* FUNCTION: getRunResult */
+int HDF5_SimResults::getRunResult(int& result,
+								  std::string& failureDescription) const {
+	int status = getIntAttribute("/Results", "RunResult", result);
+	
+	if ((status == 0) && ((result == 2) || (result == 3)))
+		getStringAttribute("/Results", "RunResultMessage", failureDescription);
+	
+	return status;
+}
+
+
+/* FUNCTION: setRunResult */
+int HDF5_SimResults::setRunResult(const int& code,
+								  const char* failureDescription,
+								  std::string& message) {
+	int status = setIntAttribute("/Results", "RunResult", code, message);
+	if ((status == 0) && ((code == 2) || (code == 3)))
+		status =
+			setStringAttribute("/Results", "RunResultMessage",
+							   failureDescription, message);
+	return status;
+}
+
+
+/* FUNCTION: getStepCount */
+int HDF5_SimResults::getStepCount(int& stepCount) const {
+	return getIntAttribute("/Results", "StepCount", stepCount);
+}
+
+
+/* FUNCTION: setStepCount */
+int HDF5_SimResults::setStepCount(const int& stepCount, std::string& message) {
+	return setIntAttribute("/Results", "StepCount", stepCount, message);
+}
+
+
+/* FUNCTION: getStartTime */
+int HDF5_SimResults::getStartTime(time_t& startTime) const {
+	return getTimeAttribute("/Results", "StartTime", startTime);
+}
+
+
+/* FUNCTION: setStartTime */
+int HDF5_SimResults::setStartTime(const time_t& startTime,
+								  std::string& message) {
+	return setTimeAttribute("/Results", "StartTime", startTime, message);
+}
+
+
+/* FUNCTION: getCPU_RunningTime */
+int HDF5_SimResults::getCPU_RunningTime(float& cpuRunningTime) const {
+	return getFloatAttribute("/Results", "CPU_RunningTime", cpuRunningTime);
+}
+
+
+/* FUNCTION: setCPU_RunningTime */
+int HDF5_SimResults::setCPU_RunningTime(const float& cpuRunningTime,
+										std::string& message) {
+	return setFloatAttribute("/Results", "CPU_RunningTime", cpuRunningTime,
+							 message);
+}
+
+
+/* FUNCTION: getWallRunningTime */
+int HDF5_SimResults::getWallRunningTime(float& wallRunningTime) const {
+	return getFloatAttribute("/Results", "WallRunningTime", wallRunningTime);
+}
+
+
+/* FUNCTION: setWallRunningTime */
+int HDF5_SimResults::setWallRunningTime(const float& wallRunningTime,
+										std::string& message) {
+	return setFloatAttribute("/Results", "WallRunningTime", wallRunningTime,
+							 message);
+}
+
+
+/* FUNCTION: getFrameSetNames */
+std::vector<std::string> HDF5_SimResults::getFrameSetNames() const {
+    herr_t status;
+	std::vector<std::string> keys;
+	
+	hid_t groupId = H5Gopen(fileId, "/Results/FrameSets");
+	if (groupId > -1) {
+		hsize_t numObjects;
+		status = H5Gget_num_objs(groupId, &numObjects);
+		if (status > -1) {
+			char objectName[64];
+			H5G_stat_t objectInfo;
+			for (hsize_t index = 0; index < numObjects; index++) {
+				H5Gget_objname_by_idx(groupId, index, objectName,
+									  sizeof(objectName));
+				H5Gget_objinfo(groupId, objectName, 0, &objectInfo);
+				if (objectInfo.type == H5G_GROUP)
+					keys.push_back(objectName);
+			}
+		}
+		H5Gclose(groupId);
+	}
+	return keys;
+}
+
+
+/* FUNCTION: addFrameSet */
+int HDF5_SimResults::addFrameSet(const char* name, std::string& message) {
+    herr_t status;
+	bool pathExists = false;
+	int resultCode = 0;
+	
+	message = "Unable to add FrameSet: /Results/FrameSets/";
+	message.append(name).append(": ");
+	
+	// Make sure Group path leading up to the Group we want to add exists
+	//
+	hid_t groupId = H5Gopen(fileId, "/Results");
+	if (groupId > -1) {
+		H5Gclose(groupId);
+		pathExists = true;
+		
+	} else {
+		groupId =
+			H5Gcreate(fileId, "/Results", GROUP_NAME_SIZE_HINT);
+		if (groupId > -1) {
+			H5Gclose(groupId);
+			pathExists = true;
+		
+		} else {
+			// Get error description from HDF5
+			std::string hdf5Message;
+			status =
+				H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+			if (status > -1)
+				message.append(hdf5Message).append(".");
+			resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		}
+	}
+	
+	if (pathExists) {
+		pathExists = false;
+		groupId = H5Gopen(fileId, "/Results/FrameSets");
+		if (groupId > -1) {
+			H5Gclose(groupId);
+			pathExists = true;
+			
+		} else {
+			groupId =
+				H5Gcreate(fileId, "/Results/FrameSets", GROUP_NAME_SIZE_HINT);
+			if (groupId > -1) {
+				H5Gclose(groupId);
+				pathExists = true;
+				
+			} else {
+				// Get error description from HDF5
+				std::string hdf5Message;
+				status =
+					H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+				if (status > -1)
+					message.append(hdf5Message).append(".");
+				resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+			}
+		}
+	}
+	
+	if (pathExists) {
+		// Create the frame set Group
+		std::string frameSetGroup = "/Results/FrameSets/";
+		frameSetGroup.append(name);
+		groupId =
+			H5Gcreate(fileId, frameSetGroup.c_str(), GROUP_NAME_SIZE_HINT);
+		if (groupId > -1) {
+			H5Gclose(groupId);
+			
+		} else {			
+			// Get error description from HDF5
+			std::string hdf5Message;
+			status =
+				H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+			if (status > -1)
+				message.append(hdf5Message).append(".");
+			resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		}
+	}
+	return resultCode;
 }
 
 
@@ -235,10 +460,7 @@ int HDF5_SimResults::setStringAttribute(const std::string& groupName,
 	hid_t groupId = H5Gopen(fileId, groupName.c_str());
 	if (groupId < 0) {
 		// Doesn't exist, create it
-		//
-		// The number of bytes to reserve for the names in the group
-		int namesSize = 64;
-		groupId = H5Gcreate(fileId, groupName.c_str(), namesSize);
+		groupId = H5Gcreate(fileId, groupName.c_str(), GROUP_NAME_SIZE_HINT);
 	}
 	
 	// Create the type
@@ -311,7 +533,7 @@ int HDF5_SimResults::getIntAttribute(const std::string& groupName,
 	H5Gclose(groupId);
 	
 	return resultCode;
-									   }
+}
 
 
 /* FUNCTION: setIntAttribute */
@@ -326,10 +548,7 @@ int HDF5_SimResults::setIntAttribute(const std::string& groupName,
 	hid_t groupId = H5Gopen(fileId, groupName.c_str());
 	if (groupId < 0) {
 		// Doesn't exist, create it
-		//
-		// The number of bytes to reserve for the names in the group
-		int namesSize = 64;
-		groupId = H5Gcreate(fileId, groupName.c_str(), namesSize);
+		groupId = H5Gcreate(fileId, groupName.c_str(), GROUP_NAME_SIZE_HINT);
 	}
 	
 	// Create the dataspace
@@ -397,7 +616,7 @@ int HDF5_SimResults::getFloatAttribute(const std::string& groupName,
 	H5Gclose(groupId);
 	
 	return resultCode;
-									   }
+}
 
 
 /* FUNCTION: setFloatAttribute */
@@ -412,10 +631,7 @@ int HDF5_SimResults::setFloatAttribute(const std::string& groupName,
 	hid_t groupId = H5Gopen(fileId, groupName.c_str());
 	if (groupId < 0) {
 		// Doesn't exist, create it
-		//
-		// The number of bytes to reserve for the names in the group
-		int namesSize = 64;
-		groupId = H5Gcreate(fileId, groupName.c_str(), namesSize);
+		groupId = H5Gcreate(fileId, groupName.c_str(), GROUP_NAME_SIZE_HINT);
 	}
 	
 	// Create the dataspace
@@ -456,5 +672,91 @@ int HDF5_SimResults::setFloatAttribute(const std::string& groupName,
 	return resultCode;
 }
 
+
+/* FUNCTION: getTimeAttribute */
+int HDF5_SimResults::getTimeAttribute(const std::string& groupName,
+									   const std::string& attributeName,
+									   time_t& attributeValue) const {
+	int resultCode = 1;
+    herr_t status;
+	
+	// See if the group exists and open it
+	hid_t groupId = H5Gopen(fileId, groupName.c_str());
+	if (groupId > -1) {
+		// See if the attribute exists and open it
+		hid_t attributeId = H5Aopen_name(groupId, attributeName.c_str());
+		if (attributeId > -1) {
+			// Read the attribute
+			time_t value;
+			status = H5Aread(attributeId, H5T_UNIX_D32BE, &value);
+			if (status > -1) {
+				attributeValue = value;
+				resultCode = 0;
+			}
+		}
+		H5Aclose(attributeId);
+	}
+	H5Gclose(groupId);
+	
+	return resultCode;
+}
+
+
+/* FUNCTION: setTimeAttribute */
+int HDF5_SimResults::setTimeAttribute(const std::string& groupName,
+									  const std::string& attributeName,
+									  const time_t& value,
+									  std::string& message) {
+	int resultCode = 0;
+    herr_t status;
+	
+	// See if the group exists and open it
+	hid_t groupId = H5Gopen(fileId, groupName.c_str());
+	if (groupId < 0) {
+		// Doesn't exist, create it
+		groupId = H5Gcreate(fileId, groupName.c_str(), GROUP_NAME_SIZE_HINT);
+	}
+	
+	// Create the dataspace
+	hid_t dataspaceId = H5Screate(H5S_SCALAR);
+	
+	// See if the attribute exists and open it
+	hid_t attributeId = H5Aopen_name(groupId, attributeName.c_str());
+	if (attributeId < 0)
+		// Doesn't exist, create it
+		attributeId =
+			H5Acreate(groupId, attributeName.c_str(), H5T_UNIX_D32BE,
+					  dataspaceId, H5P_DEFAULT);
+	
+	// Write the attribute
+	status = H5Awrite(attributeId, H5T_UNIX_D32BE, &value);
+	if (status < 0) {
+		message = "Unable to set ";
+		message.append(groupName).append("/").append(attributeName);
+
+		struct tm timestamp;
+		char buffer[64];
+		timestamp = *localtime(&value);
+		strftime(buffer, sizeof(buffer), "%a %Y-%m-%d %H:%M:%S %Z", &timestamp);
+		message.append("=").append(buffer).append(": ");
+
+		
+		// Get error description from HDF5
+		std::string hdf5Message;
+		status =
+			H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+		if (status > -1)
+			message.append(hdf5Message).append(".");
+		
+		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+	}
+	
+	// Clean up
+	H5Aclose(attributeId);
+	H5Sclose(dataspaceId);
+	H5Gclose(groupId);
+	
+	return resultCode;
+}
 
 } // ne1::

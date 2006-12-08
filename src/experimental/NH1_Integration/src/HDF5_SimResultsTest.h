@@ -24,6 +24,16 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 	CPPUNIT_TEST(getSetMaxSteps);
 	CPPUNIT_TEST(getSetEnvironmentTemperature);
 	CPPUNIT_TEST(getSetEnvironmentPressure);
+	
+	CPPUNIT_TEST(getSetFilePath);
+	
+	CPPUNIT_TEST(getSetRunResult);
+	CPPUNIT_TEST(getSetStepCount);
+	CPPUNIT_TEST(getSetStartTime);
+	CPPUNIT_TEST(getSetCPU_RunningTime);
+	CPPUNIT_TEST(getSetWallRunningTime);
+	
+	CPPUNIT_TEST(addGetRemoveFrameSet);
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -39,7 +49,17 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 		void getSetMaxSteps();
 		void getSetEnvironmentTemperature();
 		void getSetEnvironmentPressure();
-
+		
+		void getSetFilePath();
+		
+		void getSetRunResult();
+		void getSetStepCount();
+		void getSetStartTime();
+		void getSetCPU_RunningTime();
+		void getSetWallRunningTime();
+		
+		void addGetRemoveFrameSet();
+		
 	private:
 		ne1::HDF5_SimResults* simResults;
 };
