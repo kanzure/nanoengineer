@@ -1,25 +1,31 @@
 # Copyright (c) 2006 Nanorex, Inc.  All rights reserved.
-'''
-testmode.py -- scratchpad for new code, OWNED BY BRUCE, not imported by default.
+"""
+testmode.py -- scratchpad for new code (mainly related to DNA Origami),
+OWNED BY BRUCE, not imported by default.
 
 FOR NOW [060716], NO ONE BUT BRUCE SHOULD EDIT THIS FILE IN ANY WAY.
 
 $Id$
 
-How to use: make a symlink from ~/Nanorex/Modes/testmode.py to this file, i.e.
+How to use:
 
+  [this symlink is no longer needed as of 061207:]
+  make a symlink from ~/Nanorex/Modes/testmode.py to this file, i.e.
   % cd ~/Nanorex/Modes
   % ln -s /.../cad/src/testmode.py .
 
-then find testmode in debug menu's custom modes submenu. It reloads testdraw.py
-on every click, so new drawing code can be tried by editing that file and clicking.
+then find testmode in the debug menu's custom modes submenu. It reloads testdraw.py
+on every click on empty space, so new drawing code can be tried by editing that file and clicking.
 
-(It also hides all your toolbars, but you can get them back using the context menu
-on the Qt dock, or customize this feature by editing the "annoyers" list below.)
+(It also hides most of your toolbars, but you can get them back using the context menu
+on the Qt dock, or by changing to another mode, or customize this feature by editing
+the "annoyers" list below to leave out the toolbars you want to have remain.)
 
 WARNING: some of the code in here might not be needed;
 conversely, some of it might depend on code or data files bruce has at home.
-'''
+Much of it depends on the "cad/src/exprs" module, and some of that depends
+on the "cad/src/experimental/textures" directory.
+"""
 
 __author__ = "bruce"
 

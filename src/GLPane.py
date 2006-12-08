@@ -2594,7 +2594,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # [bruce 050418 comment]
         return makemenu_helper(self, menu_spec)
     
-    def debug_menu_items(self): #bruce 050515 experiment
+    def debug_menu_items(self): #bruce 050515
         "overrides method from DebugMenuMixin"
         super = DebugMenuMixin
         usual = super.debug_menu_items(self)
@@ -2615,19 +2615,28 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             print_compact_traceback("exception ignored: ")
         return ours
 
-    def custom_mode_names_files(self):
-        modes_dir = os.path.join( self.win.tmpFilePath, "Modes")
-        if not os.path.isdir( modes_dir):
-            return []
+    def custom_mode_names_files(self): #bruce 061207 revised this
         res = []
-        for file in os.listdir( modes_dir):
-            if file.endswith('.py') and '-' not in file:
-                modename, ext = os.path.splitext(file)
-                modefile = os.path.join( modes_dir, file)
-                res.append(( modename, modefile ))
+        try:
+            # special case for cad/src/testmode.py
+            testmodefile = os.path.join( os.path.dirname(__file__), "testmode.py")
+            assert os.path.isfile(testmodefile)
+            res.append(( 'testmode', testmodefile ))
+        except:
+            if platform.atom_debug:
+                print "fyi: error adding testmode.py from cad/src to custom modes menu (ignored)"
+            pass
+        modes_dir = os.path.join( self.win.tmpFilePath, "Modes")
+        if os.path.isdir( modes_dir):
+            for file in os.listdir( modes_dir):
+                if file.endswith('.py') and '-' not in file:
+                    modename, ext = os.path.splitext(file)
+                    modefile = os.path.join( modes_dir, file)
+                    res.append(( modename, modefile ))
+        res.sort()
         return res
 
-    def enter_custom_mode( self, modename, modefile): #bruce 050515 experiment
+    def enter_custom_mode( self, modename, modefile): #bruce 050515
         fn = modefile
         if not os.path.exists(fn):
             env.history.message("should never happen: file does not exist: [%s]" % fn)
