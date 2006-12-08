@@ -444,11 +444,19 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
             # during it, only before it (so as to trigger it, if the same computation used the same state last time around).
             # Maybe the problem is that sets of default values, within "initialization on demand", should be considered pure uses
             # but are being considered sets? Not sure yet -- this debug code only shows me a later event. ###k [061121 comment]
-            if platform.atom_debug:
-                print_compact_stack("fyi, something called standard_inval twice (not illegal but weird -- bug hint?) in %r: " % self,
-                                    ## frame_repr = _std_frame_repr, #bruce 061120, might or might not be temporary, not normally seen
-                                    linesep = '\n')
+            # ... update 061207: this is now happening all the time when I drag rects using exprs.test.testexpr_19c,
+            # so until it's debugged I need to lower the verbosity, so I'm putting it under control of flags I can set from other code.
+            if _debug_standard_inval_twice: ## was platform.atom_debug:
+                msg = "debug: fyi: something called standard_inval twice (not illegal but weird -- bug hint?) in %r" % self
+                if _debug_standard_inval_twice_stack:
+                    print_compact_stack(msg + ": ",
+                                        ## frame_repr = _std_frame_repr, #bruce 061120, might or might not be temporary, not normally seen
+                                        linesep = '\n')
+                else:
+                    print msg
             return
+        elif _debug_standard_inval_nottwice_stack:
+            print_compact_stack("debug: fyi: something called standard_inval once (totally normal) in %r: " % self)
         whatweused = self.whatweused
         self.whatweused = 444 # not a sequence
         for subslist in whatweused:
@@ -459,6 +467,10 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
         invalidator()
         return
     pass # end of class usage_tracker_obj
+
+_debug_standard_inval_twice = platform.atom_debug # whether to warn about this at all
+_debug_standard_inval_twice_stack = False # whether to print_compact_stack in that warning [untested since revised by bruce 061207]
+_debug_standard_inval_nottwice_stack = False # whether to print_compact_stack in an inval that *doesn't* give that warning [untested]
 
 # ==
 
