@@ -54,6 +54,13 @@ class testmode(super):
     modename = 'TEST'
     default_mode_status_text = "Mode: Test"
 
+    def render_scene(self, glpane):
+        # This is always called, and modifying it would let us revise the entire rendering algorithm however needed.
+        # This encompasses almost everything done within a single paintGL call -- even the framebuffer clear!
+        # For what it doesn't include, see GLPane.paintGL, which gets to its call of this quickly.
+        glpane.render_scene()
+        return
+    
     def Draw(self):
         import testdraw
         try:

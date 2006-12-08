@@ -632,7 +632,6 @@ class MMKitView(ThumbView):
         ##  think it looks like a glpane object.
         self.displayMode = 0  
         self.selatom = None
-        self.special_topnode = None
 
         self.hotspotAtom = None #The current hotspot singlet for the part
         self.lastHotspotChunk = None # The previous chunk of the hotspot for the part

@@ -66,8 +66,6 @@ debug_lighting = False #bruce 050418
 
 debug_set_selobj = False # do not commit with true
 
-trans_feature = False ###@@@ bruce 050627 experimental code disabled for commit [DO NOT COMMIT with true]
-
 
 paneno = 0
 #  ... what a Pane ...
@@ -1860,7 +1858,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
     
     def most_of_paintGL(self): #bruce 060323 split this out of paintGL
         "Do most of what paintGL should do."
-        # 20060224 Added fog_test_enable debug pref, can take out if fog is implemented fully.
+
+        self._needs_repaint = 0 # do this now, even if we have an exception during the repaint
+
+        #k not sure whether _restore_modelview_stack_depth is also needed in the split-out standard_repaint [bruce 050617]
+        
+        self._restore_modelview_stack_depth() #bruce 050608 moved this here (was after _setup_lighting ###k verify that)
+
+        # 20060224 Added fog_test_enable debug pref, can take out if fog is implemented fully. [bruce 061208 moved this down a bit]
         from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
         fog_test_enable = debug_pref("Use test fog?", Choice_boolean_False, non_debug = True)
             #e should remove non_debug = True before release!
@@ -1871,11 +1876,28 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             # the atomic model itself.  I dunno where that is.
             drawer.enable_fog()
         
-        self._needs_repaint = 0 # do this now, even if we have an exception during the repaint
+        try: #bruce 061208
+            self.mode.render_scene
+        except AttributeError:
+            self.render_scene() # usual case
+        else:
+            self.mode.render_scene( self) # let the mode override it
 
-        #k not sure whether next two things are also needed in the split-out standard_repaint [bruce 050617]
+        if fog_test_enable:
+            # this next line really should be just after rendering
+            # the atomic model itself.  I dunno where that is.
+            drawer.disable_fog()
+
+        glFlush()
+        ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
         
-        self._restore_modelview_stack_depth() #bruce 050608 moved this here (was after _setup_lighting ###k verify that)
+        return # from most_of_paintGL
+
+    # ==
+
+    def render_scene(self):#bruce 061208 split this out so some modes can override it (also removed obsolete trans_feature experiment)
+        
+        #k not sure whether next things are also needed in the split-out standard_repaint [bruce 050617]
 
         drawer._glprefs.update() #bruce 051126; kluge: have to do this before lighting *and* inside standard_repaint_0
         
@@ -1893,44 +1915,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.need_setup_lighting = False # set to true again if setLighting is called
             self._setup_lighting()
 
-        if trans_feature: # if we're top glpane and doing trans feature
-            part = self.part #e correct? might worry if not same as self.assy.part
-            if platform.atom_debug and part is not self.assy.part:
-                print "atom_debug: glpane redraw sees different self.part %r and self.assy.part %r" % (self.part,self.assy.part)
-            topnode = part.topnode
-            try:
-                import demo_trans
-                reload(demo_trans)
-                rendertop = demo_trans.translate(topnode, self)
-            except:
-                print_compact_traceback( "glpane redraw: ignoring exception in demo_trans (using untrans form): ")
-                    #e improve if module missing, or don't commit
-                self.standard_repaint()
-            else:
-                # rendertop is the actual nodes to draw... no, not enough, need the modified render loop too... ####e
-                # or can that just be inserted into the nodes for use when you draw them? if so, they also need to encode the
-                # standard render loop! ie a call of standard_repaint (and self's other attrs) need passing in. well we did pass self!
-                # is that enough? if so, then right now, rather than std repaint we would just call rendertop.draw! (when no exc above)
-                self.rendertop = rendertop # will be needed later for mouse-event processing, maybe more ###@@@
-                rendertop.draw(self, self.displayMode)
-            pass
-        else:
-            self.standard_repaint()
-
-        if fog_test_enable:
-            # this next line really should be just after rendering
-            # the atomic model itself.  I dunno where that is.
-            drawer.disable_fog()
-
-        glFlush()
-        ##self.swapBuffers()  ##This is a redundant call, Huaicai 2/8/05
+        self.standard_repaint()
         
-        return # from most_of_paintGL
-
+        return # from GLPane.render_scene
+    
     # ==
     
-    special_topnode = None #bruce 050627 only used experimentally so far
-
     # The following behavior (in several methods herein) related to wants_gl_update
     # should probably also be done in ThumbViews
     # if they want to get properly updated when graphics prefs change. [bruce 050804 guess] ####@@@@
@@ -1948,12 +1938,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.wants_gl_update = False
         self.gl_update()
     
-    def standard_repaint(self, special_topnode = None): #bruce 050617 split this out, added arg
-        ###e not sure of name or exact role; might be called on proxy for subrect?
+    def standard_repaint(self): #bruce 050617 split this out; bruce 061208 removed obsolete special_topnode experiment
         """#doc... this trashes both gl matrices! caller must push them both if it needs the current ones.
         this routine sets its own matrixmode but depends on other gl state being standard when entered.
         """
-        self.special_topnode = special_topnode # this will be detected by assy.draw()
         match_checking_code = self.begin_tracking_usage() #bruce 050806
         try:
             try:
@@ -1965,7 +1953,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 raise
         finally:
             self.wants_gl_update = True #bruce 050804
-            self.special_topnode = None #k or old one??
             self.end_tracking_usage( match_checking_code, self.wants_gl_update_was_True ) # same invalidator even if exception
         return
 
