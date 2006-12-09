@@ -211,8 +211,11 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         return # from _init_instance
     
     def draw(self):
-        self.save_coords()
-            # these comments are about the implem of that method -- need review, which are obs and which should be moved? ###
+        if not self.env.glpane.current_glselect: # see if this cond fixes the projection=True bug (when not in DrawInCorner anyway)
+            self.save_coords()
+        else:
+            print "%r not saving due to current_glselect" % self####
+            # these comments are about the implem of save_coords -- need review, which are obs and which should be moved? ###
             #
             ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
             #

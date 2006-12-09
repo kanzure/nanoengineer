@@ -796,11 +796,11 @@ testexpr_19c = Overlay( testexpr_19b, # edit this one by hand if you want
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_19 # or _19c with the spheres
+testexpr = testexpr_9cx # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
-        # _9cx has a bug, in highlightable with projection = True
+        # _9cx has a bug, in highlightable with projection = True... the current_glselect cond fix attempt didn't fix it.
     ## testexpr_10c double-nested toggleshow of highlightable rect
     ## testexpr_11r1b image with black padding
     ## testexpr_13z4 red/blue image
@@ -828,7 +828,7 @@ testexpr = testexpr_19 # or _19c with the spheres
 def testbed(expr):
     "this turns the current testexpr into the actual expr to render"
     ## return Overlay(expr, Closer(Rect(1,1,black), 3.4)) #stub
-    return Overlay(expr, If(1,DrawInCorner,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green))))
+    return Overlay(expr, If(1,DrawInCorner,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
     
 ## testbed = identity
 

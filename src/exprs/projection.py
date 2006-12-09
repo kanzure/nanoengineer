@@ -9,6 +9,7 @@ from basic import *
 from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT
 
 from OpenGL.GL import *
+from OpenGL.GLU import gluPickMatrix
 
 class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): pass #e refile if I like it
 
@@ -30,6 +31,18 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             aspect = 1.0 ###WRONG but the cases that use it don't work right anyway; BTW does glpane.aspect exist?
             corner = self.corner
             delegate = self.delegate
+
+            ###e should get glpane to do this for us (ie call a method in it to do this if necessary)
+            # (this code is copied from it)
+            glselect = glpane.current_glselect
+            if glselect:
+                print "%r setting up gluPickMatrix" % self
+                x,y,w,h = glselect
+                gluPickMatrix(
+                        x,y,
+                        w,h,
+                        glGetIntegerv( GL_VIEWPORT ) #k is this arg needed? it might be the default...
+                )
             
             if corner == UPPER_RIGHT:
                 glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500) # Upper Right

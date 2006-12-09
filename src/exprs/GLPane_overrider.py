@@ -27,7 +27,11 @@ class GLPane_overrider(Delegator):
     # self.vdist - FIXED
     # self.glselect_wanted - FIXED
     # self.targetdepth - FIX UNLESS LOCAL - seems ok since local
-    # self.current_glselect - FIX UNLESS LOCAL - seems ok since local
+    # self.current_glselect - FIX UNLESS LOCAL - seems ok since local -- WRONG, external code looks at it! (modes, selectMode)
+        # btw, the same code in those files fails to set it here... in fact maybe i'm wrong and it doesn't look at it,
+        # but starting now [061208 1032p] Highlightable is going to look at it, so (1) i'll put it in self.delegate,
+        # (2) the jig select code in those files might be wrong now, if I ever draw jigs in funny projection matrices
+        # (as I surely will someday).
     # self.wX # FIX - seems ok since local
     # self.wY # FIX - seems ok since local
     # self.glselect - ok since obs
@@ -146,7 +150,7 @@ class GLPane_overrider(Delegator):
                 #  having a graphical effect. Ideally we'd count intentional redraws, and disable this picking in that case.)
             self.wX, self.wY = wX,wY
             self.delegate.glselect_wanted = 0
-            self.current_glselect = (wX,wY,3,3) #bruce 050615 for use by nodes which want to set up their own projection matrix
+            self.delegate.current_glselect = (wX,wY,3,3) #bruce 050615 for use by nodes which want to set up their own projection matrix
             self._setup_projection( aspect, vdist, glselect = self.current_glselect ) # option makes it use gluPickMatrix
                 # replace 3,3 with 1,1? 5,5? not sure whether this will matter... in principle should have no effect except speed
             glSelectBuffer(self.glselectBufferSize)
@@ -164,7 +168,7 @@ class GLPane_overrider(Delegator):
                 glMatrixMode(GL_MODELVIEW)
                 self._setup_modelview( vdist) ###k correctness of this is unreviewed! ####@@@@
                 # now it's important to continue, at least enough to restore other gl state
-            self.current_glselect = False
+            self.delegate.current_glselect = False
             ###e On systems with no stencil buffer, I think we'd also need to draw selobj here in highlighted form
             # (in case that form is bigger than when it's not highlighted), or (easier & faster) just always pretend
             # it passes the hit test and add it to glselect_dict -- and, make sure to give it "first dibs" for being

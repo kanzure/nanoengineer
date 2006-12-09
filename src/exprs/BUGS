@@ -55,3 +55,13 @@ This would also help with debugging (eg to test the above theory).
 
 ==
 
+061208 Fix the jig select code in modes files as described here:
+
+    # self.current_glselect - FIX UNLESS LOCAL - seems ok since local -- WRONG, external code looks at it! (modes, selectMode)
+        # btw, the same code in those files fails to set it here... in fact maybe i'm wrong and it doesn't look at it,
+        # but starting now [061208 1032p] Highlightable is going to look at it, so (1) i'll put it in self.delegate,
+        # (2) the jig select code in those files might be wrong now, if I ever draw jigs in funny projection matrices
+        # (as I surely will someday).
+
+==
+
