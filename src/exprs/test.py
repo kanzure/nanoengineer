@@ -84,7 +84,7 @@ from Boxed import Boxed_old, CenterBoxedKluge, CenterBoxedKluge_try1, Boxed
 
 import transforms
 reload_once(transforms)
-from transforms import Translate
+from transforms import Translate, Closer
 
 import Center
 reload_once(Center)
@@ -159,11 +159,12 @@ class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106; revised 061109, 
     delegate = Arg(Anything) #k guess 061106
         #k when it said Arg(Widget): is this typedecl safe, re extensions of that type it might have, like Widget2D?
         #k should we leave out the type, thus using whatever the arg expr uses? I think yes, so I changed the type to Anything.
-    attrs = ArgList(str) # as of 061109 this is a stub equal to Arg(Anything)
+    ## attrs = ArgList(str) # as of 061109 this is a stub equal to Arg(Anything)
+    attrs = Arg(Anything, [])
     def draw(self, *args): #e or do this in some init routine?
         ## guy = self.args[0] ##### will this be an instance?? i doubt it
         guy = self.delegate
-        print "guy = %r, guy._e_is_instance = %r" % (guy, guy._e_is_instance)
+        print "guy = %r" % (guy, )
         ## attrs = self.args[1:]
         attrs = self.attrs
         if type(attrs) == type("kluge"):
@@ -179,6 +180,40 @@ class DebugPrintAttrs(Widget, DelegatingMixin):#k guess 061106; revised 061109, 
         # super draw, I guess:
         return guy.draw(*args) ### [obs cmt?] fails, wrong # args, try w/o self
     pass
+
+#e refile:
+class DebugDraw_notsure(InstanceOrExpr,DelegatingMixin):
+    """DebugDraw(widget, name) draws like widget, but prints name and other useful info whenever widget gets drawn.
+    Specifically, it prints "gotme(name) at (x,y,depth)", with x,y being mouse posn as gluProject returns it.
+    (It may print nonsense x,y when we're drawn during glSelect operations.)
+    Once per event in which this prints anything, it prints mousepos first.
+    If name is 0 or -1 or None, the debug-printing is disabled.
+    """
+    delegate = Arg(Widget)
+    name = Arg(str, '')
+    def draw(self):
+        # who are we?
+        who = who0 = ""
+        if len(self._e_args) > 1:
+            who0 = delegate
+            who = "(%s)" % (who0,)
+        if (who0 is not None) and who0 != 0 and who0 != -1:
+##            # print "who yes: %r" % (who,), (who is not None), who != 0 , who != -1, 0 != 0
+            if env.once_per_event('DebugDraw'):
+                try:
+                    printmousepos()
+                except:
+                    print_compact_traceback("ignoring exception in printmousepos(): ")
+            # figure out where in the window we'd be drawing right now [this only works if we're not inside a display list]
+            x,y,depth = gluProject(0,0,0)
+            msg = "gotme%s at %r" % (who, (x,y,depth),)
+            ## print_compact_stack(msg + ": ")
+            print msg
+##        else:
+##            print "who no: %r" % (who,)
+        self.delegate.draw()
+    pass
+DebugDraw = DebugPrintAttrs
 
 # == testexprs
 
@@ -783,7 +818,7 @@ testexpr = testexpr_19c
 
  #e what next, planned optims, nim tests -- see below
 
-print "using testexpr %r" % testexpr
+print "using testexpr %r (inside testbed)" % testexpr
 for name in dir():
     if name.startswith('testexpr') and name != 'testexpr' and eval(name) is testexpr:
         print "(which is probably %s)" % name
@@ -834,6 +869,11 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # == per-frame drawing code
 
+
+def testbed(expr):
+    return Overlay(expr, Closer(DebugDraw(Rect(1,1,black)), 4.4)) #stub, but rect was hard to see since in unexpected place... ###FIX
+    #####BUG: makes new main instance with every mousemove!!!!!!
+
 def drawtest1_innards(glpane):
     "entry point from ../testdraw.py"
     ## print "got glpane = %r, doing nothing for now" % (glpane,)
@@ -842,7 +882,9 @@ def drawtest1_innards(glpane):
     staterefs = _state ##e is this really a stateplace? or do we need a few, named by layers for state?
         #e it has: place to store transient state, [nim] ref to model state
 
-    inst = find_or_make_main_instance(glpane, staterefs, testexpr)
+    testexpr_in_testbed = testbed(testexpr)
+    
+    inst = find_or_make_main_instance(glpane, staterefs, testexpr_in_testbed)
     
     from basic import printnim, printfyi
     printnim("severe anti-optim not to memoize some_env.make result in draw") ###e but at least it ought to work this way
@@ -879,6 +921,8 @@ corner_expr = testexpr_16c # works to show it, but it doesn't work as a control 
 # test.after_drawcompass(self, aspect)
 from GLPane_overrider import * ### KLUGE
 def after_drawcompass(glpane, aspect):
+    return # "nevermind"
+
     # WARNING: bugs in here can break the entire session, since nothing restores the stack depth of the projection-matrix stack.
     ## modified from GLPane's def drawcompass(self, aspect):
     """Draw corner_expr (globally defined in this module) in a corner of the GLPane specified by preference variables.
@@ -1000,7 +1044,7 @@ else:
         _last_main_instance = None
     pass
 
-def find_or_make_main_instance(glpane, staterefs, testexpr): #061120
+def find_or_make_main_instance(glpane, staterefs, testexpr): #061120 #note: as of 061208, not necessarily called on testexpr itself
     if not MEMOIZE_MAIN_INSTANCE:
         return make_main_instance(glpane, staterefs, testexpr)
     global _last_main_instance_data, _last_main_instance

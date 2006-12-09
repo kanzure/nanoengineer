@@ -105,4 +105,7 @@ class Translate(InstanceOrExpr, DelegatingMixin):
         return
     pass # end of class Translate
 
+def Closer(expr, amount = 0.1): #061208 #e should be a class i guess, if anyone wants to use _this on it -- unlikely
+    return Translate(expr, (0,0,amount))
+
 # end
