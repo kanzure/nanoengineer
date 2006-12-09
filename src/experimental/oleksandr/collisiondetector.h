@@ -34,13 +34,6 @@ class CollisionDetector
 	inline void AllContacts();
 
 	//------------------------------------------------------------------------
-	// CalculateDistance()
-	//
-	// calculate distance
-	//
-	void CalculateDistance();
-
-	//------------------------------------------------------------------------
 	// CalculatePoints()
 	//
 	// calculate intersection points
@@ -85,24 +78,9 @@ class CollisionDetector
 	inline void FirstContact();
 
 	//------------------------------------------------------------------------
-	// GetDistance()
-	//
-	// return mDistance
-	//
-	inline double GetDistance(
-		int i) const;
-
-	//------------------------------------------------------------------------
-	// GetDistance()
-	//
-	// return mDistance
-	//
-	inline double GetDistance() const;
-
-	//------------------------------------------------------------------------
 	// GetEntity()
 	//
-	// return reference to entity 
+	// return reference to entity
 	//
 	inline int GetEntity(
 		int i) const;
@@ -122,19 +100,11 @@ class CollisionDetector
 	inline int PairCount() const;
 
 	//------------------------------------------------------------------------
-	// Proximity()
-	//
-	// set proximity
-	//
-	inline void Proximity(
-		double value);
-
-	//------------------------------------------------------------------------
 	// Select()
 	//
 	// select collision elements
 	//
-	inline void Select() const;
+	void Select(int c) const;   
 
 	//------------------------------------------------------------------------
 	// VolumeCount()
@@ -164,16 +134,6 @@ class CollisionDetector
 	// mPoints
 
 	Triple * mPoints;					// array for intersection points
-
-	//------------------------------------------------------------------------
-	// mDistance
-
-	double * mDistance;					// array for distances
-
-	//------------------------------------------------------------------------
-	// mD
-
-	double mD;							// current distance
 
 	//------------------------------------------------------------------------
 	// mRm
@@ -287,8 +247,6 @@ inline CollisionDetector::CollisionDetector():
 
 	mPoints(							// array for intersection points
 		0),
-	mDistance(							// array for distances
-		0),
 	mVolume(							// number of cheked boxes
 		0),
 	mEntity(							// number of cheked trias
@@ -361,9 +319,7 @@ inline void CollisionDetector::CalculateTransformation()
 
 inline void CollisionDetector::Clear()
 {
-	if (mDistance) delete [] mDistance;
 	if (mPoints) delete [] mPoints;
-	mDistance = 0;
 	mPoints = 0;
 	mEntities.Empty();
 	mVolume = 0;
@@ -457,23 +413,6 @@ inline void CollisionDetector::FirstContact()
 }
 
 //----------------------------------------------------------------------------
-// GetDistance()
-
-inline double CollisionDetector::GetDistance(
-	int i) const
-{
-	return (mDistance[i]);
-}
-
-//----------------------------------------------------------------------------
-// GetDistance()
-
-inline double CollisionDetector::GetDistance() const
-{
-	return (mD);
-}
-
-//----------------------------------------------------------------------------
 // GetEntity()
 
 inline int CollisionDetector::GetEntity(
@@ -502,7 +441,7 @@ inline int CollisionDetector::IsOverlap(
 	mVolume++;
 
 	RotationMatrix * m0 = mH0->Matrix();
-	RotationMatrix * m1 = mH1->Matrix();  
+	RotationMatrix * m1 = mH1->Matrix();
 	Triple * v0 = mH0->Vector();
 	Triple * v1 = mH1->Vector();
 	
@@ -591,13 +530,6 @@ inline int CollisionDetector::IsOverlap(
 inline int CollisionDetector::PairCount() const
 {
 	return (mPair);
-}
-
-//----------------------------------------------------------------------------
-// Select()
-
-inline void CollisionDetector::Select() const
-{
 }
 
 //----------------------------------------------------------------------------

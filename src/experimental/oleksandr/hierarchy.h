@@ -104,6 +104,13 @@ class Hierarchy
 	//
 	int Transformation(int i, Triple * a);
 
+	//------------------------------------------------------------------------
+	// S()
+	//
+	// get surface pointer
+	//
+	inline Surface * S() const; 
+
   private:
 
 	//------------------------------------------------------------------------
@@ -199,6 +206,14 @@ inline BoxTree * Hierarchy::Tree() const
 inline Triple * Hierarchy::Vector() const
 {
 	return (mTv);
+}
+
+//----------------------------------------------------------------------------
+// S()
+
+inline Surface * Hierarchy::S() const
+{
+	return (mS);
 }
 
 #endif  								// HIERARCHY_INCLUDED

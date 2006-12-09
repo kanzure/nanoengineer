@@ -12,19 +12,8 @@
 
 CollisionDetector::~CollisionDetector()
 {
-	if (mDistance) delete [] mDistance;
 	if (mPoints) delete [] mPoints;
-	mDistance = 0;
 	mPoints = 0;
-}
-
-//----------------------------------------------------------------------------
-// CalculateDistance()
-//
-// calculate distance
-//
-void CollisionDetector::CalculateDistance()
-{
 }
 
 //----------------------------------------------------------------------------
@@ -34,6 +23,23 @@ void CollisionDetector::CalculateDistance()
 //
 void CollisionDetector::CalculatePoints()
 {
+	int np = 2*(mPair+1);
+	mPoints = new Triple[np]; 
+	int n = mEntities.Size();
+	int count = 0;
+	Triple a[4],b[4];
+	for (int i=0; i<n; i+=2)
+	{
+		int ii = mEntities[i];
+		int ni = mH0->Transformation(ii, a);
+		int jj = mEntities[i+1];
+		int nj = mH1->Transformation(jj, b);
+		int num = Collision(ni,a,nj,b,mPoints+count);
+		if (num)
+		{
+			count += (num+num);
+		}
+	}
 }
 
 //----------------------------------------------------------------------------
@@ -133,9 +139,9 @@ int CollisionDetector::Collision(
 			int jj = int(b1 - mH1->Base());
 			int nj = mH1->Transformation(jj, b);
 			mEntity++;
-            if (num = Collision(ni,a,nj,b,0)) 
+            if (num = Collision(ni,a,nj,b,0))
             {
-				//  save collision elements   
+				//  save collision elements
                 mEntities.Add(ii);
                 mEntities.Add(jj);
                 count++;
@@ -145,3 +151,34 @@ int CollisionDetector::Collision(
 	}
 	return (count);
 }
+
+//----------------------------------------------------------------------------
+// Select()
+//
+// select collision elements
+//
+
+void CollisionDetector::Select(int c) const
+{
+	int ni = 3;
+	if (mH0->S()->Type()) ni = 4;
+	int nj = 3;
+	if (mH1->S()->Type()) nj = 4;
+	for (int i = 0; i < mCollision; i++)
+	{
+		int ie = mEntities[2 * i];
+		int ii;
+		for (ii = 0; ii < ni; ii++)
+		{
+			int i0 = mH0->S()->I(3 * ie + ii);
+			//mH0->S()->C(i0, c); 
+		}
+		int je = mEntities[2 * i + 1];
+		for (ii = 0; ii < nj; ii++)
+		{
+			int j0 = mH1->S()->I(3 * je + ii);
+			//mH1->S()->C(j0, c);
+		}
+	}
+}
+
