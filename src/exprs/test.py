@@ -130,6 +130,9 @@ import demo_drag
 reload_once(demo_drag)
 from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkbox_expr
 
+import projection
+reload_once(projection)
+from projection import DrawInCorner
 
 # == @@@
 
@@ -140,6 +143,8 @@ from widget_env import widget_env
 import instance_helpers
 reload_once(instance_helpers)
 from instance_helpers import DelegatingMixin # needed only in DebugPrintAttrs, which i should refile
+
+from OpenGL.GL import glPopMatrix, glPushMatrix
 
 # == make some "persistent state"
 
@@ -379,13 +384,16 @@ testexpr_9b = Button(
                     #   but I fixed that bug.
                     ###e should replace colors by text, like enter/leave/pressed_in/pressed_out or so
 
-testexpr_9c = SimpleColumn(testexpr_9a,testexpr_9b) # works (only highlighting tested; using 'stubs 061115')
+testexpr_9c = SimpleColumn(testexpr_9a, testexpr_9b) # works (only highlighting tested; using 'stubs 061115')
 
 testexpr_9d = testexpr_9b( on_release_in = print_Expr('release in, customized')) # works
     # test customization of option after args supplied
 
 testexpr_9e = testexpr_9b( on_release_in = None) # works
     # test an action of None (should be same as a missing one) (also supplied by customization after args)
+
+testexpr_9cx = SimpleColumn(testexpr_9a, testexpr_9b(projection = True)) ###BUG -- that option breaks the functionality.
+    # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
 
 # ToggleShow
 testexpr_10a = ToggleShow( Rect(2,3,lightgreen) ) # test use of Rules, If, toggling... works
@@ -783,15 +791,16 @@ testexpr_19b = GraphDrawDemo_FixedToolOnArg1(Overlay(Rect(10),SimpleRow(Sphere(1
     # (just by editing this file's choice of testexpr, and clicking to reload it)
 
 testexpr_19c = Overlay( testexpr_19b, # edit this one by hand if you want
-                        Translate( kluge_dragtool_state_checkbox_expr, (12,-4) ) ###e need to wrap this with "draw at the edge, untrackballed"
+                        Translate( kluge_dragtool_state_checkbox_expr, (6,-4) ) ###e need to wrap this with "draw at the edge, untrackballed"
                     )
 
 # === set the testexpr to use right now   @@@@
 
-testexpr = testexpr_19c
+testexpr = testexpr_19 # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
+        # _9cx has a bug, in highlightable with projection = True
     ## testexpr_10c double-nested toggleshow of highlightable rect
     ## testexpr_11r1b image with black padding
     ## testexpr_13z4 red/blue image
@@ -816,9 +825,16 @@ testexpr = testexpr_19c
     # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
     # once goes over the green rect or the displist text (after each reload)? not sure. [later realized it's just the glselect redraw.]
 
+def testbed(expr):
+    "this turns the current testexpr into the actual expr to render"
+    ## return Overlay(expr, Closer(Rect(1,1,black), 3.4)) #stub
+    return Overlay(expr, If(1,DrawInCorner,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green))))
+    
+## testbed = identity
+
  #e what next, planned optims, nim tests -- see below
 
-print "using testexpr %r (inside testbed)" % testexpr
+print "using testexpr %r" % testexpr
 for name in dir():
     if name.startswith('testexpr') and name != 'testexpr' and eval(name) is testexpr:
         print "(which is probably %s)" % name
@@ -869,25 +885,26 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # == per-frame drawing code
 
-
-def testbed(expr):
-    return Overlay(expr, Closer(DebugDraw(Rect(1,1,black)), 4.4)) #stub, but rect was hard to see since in unexpected place... ###FIX
-    #####BUG: makes new main instance with every mousemove!!!!!!
-
 def drawtest1_innards(glpane):
-    "entry point from ../testdraw.py"
+    "entry point from ../testdraw.py (called once per mode.Draw call)"
     ## print "got glpane = %r, doing nothing for now" % (glpane,)
 
     glpane
     staterefs = _state ##e is this really a stateplace? or do we need a few, named by layers for state?
         #e it has: place to store transient state, [nim] ref to model state
-
-    testexpr_in_testbed = testbed(testexpr)
     
-    inst = find_or_make_main_instance(glpane, staterefs, testexpr_in_testbed)
+    inst = find_or_make_main_instance(glpane, staterefs, testexpr, testbed)
+        # for testbed changes to have desired effect, we'll need to switch them among __eq__-comparable choices (like exprs)
+        # rather than among defs, or editing one def, like we do now... not sure it's easy to make it an expr though;
+        # but when it is, change to that to improve this. ##e
     
     from basic import printnim, printfyi
-    printnim("severe anti-optim not to memoize some_env.make result in draw") ###e but at least it ought to work this way
+
+    if 'kluge':
+        # get back to the standard drawing coords (only works since exactly one level of this is pushed since mode.Draw is entered)
+        glPopMatrix()
+        glPushMatrix()
+
     inst.draw()
     if not glpane.is_animating: # cond added 061121, but will probably need mod so we print the first & last ones or so... #e
         if not glpane.in_drag: # subcond added 061208; should be easily controllable;
@@ -913,114 +930,12 @@ def drawtest1_innards(glpane):
         printnim("see code for how to optim by replacing two redraws with one, when mouse goes over an object") # see comment above
     return
 
-# ==  what to draw in the corner @@@@
+# ==  what to draw in the corner @@@@ ###NIM for now
 
 ## corner_expr = Rect(3,2,red)
 corner_expr = testexpr_16c # works to show it, but it doesn't work as a control since it doesn't get highlighted!!! ###LOGIC BUG
 
-# test.after_drawcompass(self, aspect)
-from GLPane_overrider import * ### KLUGE
-def after_drawcompass(glpane, aspect):
-    return # "nevermind"
-
-    # WARNING: bugs in here can break the entire session, since nothing restores the stack depth of the projection-matrix stack.
-    ## modified from GLPane's def drawcompass(self, aspect):
-    """Draw corner_expr (globally defined in this module) in a corner of the GLPane specified by preference variables.
-    No longer assumes a specific glMatrixMode, but sets it to GL_MODELVIEW on exit.
-    No longer trashes either matrix, but does require enough GL_PROJECTION stack depth
-    to do glPushMatrix on it (though the guaranteed depth for that stack is only 2).
-    """
-
-    self = glpane
-    
-    #bruce 050608 improved behavior re GL state requirements and side effects; 050707 revised docstring accordingly.
-    #mark 0510230 switched Y and Z colors.  Now X = red, Y = green, Z = blue, standard in all CAD programs.
-    glMatrixMode(GL_MODELVIEW)
-    glPushMatrix()
-    glLoadIdentity()
-    glMatrixMode(GL_PROJECTION)
-    glPushMatrix()
-    glLoadIdentity() #k needed?
-    
-    # Set compass position using glOrtho
-    # modified...
-    glpane.width
-    which = LOWER_RIGHT
-    if which == UPPER_RIGHT:
-        glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500) # Upper Right
-    elif which == UPPER_LEFT:
-        glOrtho(-5*aspect, 50.5*aspect, -50, 5.5,  -5, 500) # Upper Left
-    elif which == LOWER_LEFT:
-        glOrtho(-5*aspect, 50.5*aspect, -5, 50.5,  -5, 500) # Lower Left
-    else:
-        ## glOrtho(-50*aspect, 5.5*aspect, -5, 50.5,  -5, 500) # Lower Right
-        ## glOrtho(-50*aspect, 0, 0, 50,  -5, 500) # Lower Right [used now] -- x from -50*aspect to 0, y (bot to top) from 0 to 50
-        glOrtho(-glpane.width * PIXELS, 0, 0, glpane.height * PIXELS,  -5, 500)
-            # approximately right for the checkbox, but I ought to count pixels to be sure (note, PIXELS is a pretty inexact number)
-        
-    try:
-        inst0 = make_aux_instance(corner_expr, 'corner_expr') # kluge, wasteful
-        offset = (-inst0.bright, inst0.bbottom)
-        corner_expr_1 = Translate(corner_expr, offset) # use lbox to translate
-        inst = make_aux_instance(corner_expr_1, 'corner_expr')
-        inst.draw()
-    except:
-        print_compact_traceback("exception ignored in drawing corner_expr_1: ") # not print_compact_stack
-    
-##    q = self.quat
-##    glRotatef(q.angle*180.0/pi, q.x, q.y, q.z)
-        
-##    glEnable(GL_COLOR_MATERIAL)
-##    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
-    
-##    glDisable(GL_CULL_FACE)
-##    glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE)
-    
-##    # X Arrow (Red)      
-##    glePolyCone([[-1,0,0], [0,0,0], [4,0,0], [3,0,0], [5,0,0], [6,0,0]],
-##                [[0,0,0], [1,0,0], [1,0,0], [.5,0,0], [.5,0,0], [0,0,0]],
-##                [.3,.3,.3,.75,0,0])
-##    
-##    # Y Arrow (Green) 
-##    glePolyCone([[0,-1,0], [0,0,0], [0,4,0], [0,3,0], [0,5,0], [0,6,0]],
-##                [[0,0,0], [0,.9,0], [0,.9,0], [0,.4,0], [0,.4,0], [0,0,0]],
-##                [.3,.3,.3,.75,0,0])
-##    
-##    # Z Arrow (Blue)
-##    glePolyCone([[0,0,-1], [0,0,0], [0,0,4], [0,0,3], [0,0,5], [0,0,6]],
-##                [[0,0,0], [0,0,1], [0,0,1], [0,0,.4], [0,0,.4], [0,0,0]],
-##                [.3,.3,.3,.75,0,0])
-                
-##    glEnable(GL_CULL_FACE)
-##    glDisable(GL_COLOR_MATERIAL)
-       
-    ##Adding "X, Y, Z" text labels for Axis. By test, the following code will get
-    # segmentation fault on Mandrake Linux 10.0 with libqt3-3.2.3-17mdk
-    # or other 3.2.* versions, but works with libqt3-3.3.3-26mdk. Huaicai 1/15/05
-
-##    if env.prefs[displayCompassLabels_prefs_key]: ###sys.platform in ['darwin', 'win32']:
-##            glDisable(GL_LIGHTING)
-##            glDisable(GL_DEPTH_TEST)
-##            ## glPushMatrix()
-##            font = QFont( QString("Helvetica"), 12)
-##            self.qglColor(QColor(200, 75, 75)) # Dark Red
-##            self.renderText(5.3, 0.0, 0.0, QString("x"), font)
-##            self.qglColor(QColor(25, 100, 25)) # Dark Green
-##            self.renderText(0.0, 4.8, 0.0, QString("y"), font)
-##            self.qglColor(QColor(50, 50, 200)) # Dark Blue
-##            self.renderText(0.0, 0.0, 5.0, QString("z"), font)
-##            ## glPopMatrix()
-##            glEnable(GL_DEPTH_TEST)
-##            glEnable(GL_LIGHTING)
-
-    #bruce 050707 switched order to leave ending matrixmode in standard state, GL_MODELVIEW
-    # (though it doesn't matter for present calling code; see discussion in bug 727)
-    glMatrixMode(GL_PROJECTION)
-    glPopMatrix()
-    glMatrixMode(GL_MODELVIEW)
-    glPopMatrix()
-    return # from after_drawcompass
-
+# ==
 
 MEMOIZE_MAIN_INSTANCE = True      # whether to memoize it across redraws, without reloads
 
@@ -1034,29 +949,30 @@ try:
     _last_main_instance_data
 except:
     # WARNING: duplicated code, a few lines away
-    _last_main_instance_data = (None, None, None, None)
+    _last_main_instance_data = (None, None, None, None, None)
     _last_main_instance = None
 else:
     # reloading
     if not MEMOIZE_ACROSS_RELOADS:
         # WARNING: duplicated code, a few lines away
-        _last_main_instance_data = (None, None, None, None)
+        _last_main_instance_data = (None, None, None, None, None)
         _last_main_instance = None
     pass
 
-def find_or_make_main_instance(glpane, staterefs, testexpr): #061120 #note: as of 061208, not necessarily called on testexpr itself
+def find_or_make_main_instance(glpane, staterefs, testexpr, testbed): #061120; got testbed 061208
     if not MEMOIZE_MAIN_INSTANCE:
-        return make_main_instance(glpane, staterefs, testexpr)
+        return make_main_instance(glpane, staterefs, testexpr, testbed)
     global _last_main_instance_data, _last_main_instance
     from testdraw import vv
-    new_data = (glpane, staterefs, testexpr, MEMOIZE_ACROSS_RELOADS or vv.reload_counter ) # revised as bugfix, 061205
+    new_data = (glpane, staterefs, testexpr, testbed, MEMOIZE_ACROSS_RELOADS or vv.reload_counter ) # revised as bugfix, 061205
         # note: comparison data doesn't include funcs & classes changed by reload & used to make old inst,
         # including widget_env, Lval classes, etc, so when memoizing, reload won't serve to try new code from those defs
     if new_data != _last_main_instance_data:
         old = _last_main_instance_data
         _last_main_instance_data = new_data
-        res = _last_main_instance = make_main_instance(glpane, staterefs, testexpr)
-        print "\n**** MADE NEW MAIN INSTANCE %s ****\n" % time.asctime(), res, "(glpane %s, staterefs %s, testexpr %s, reloads %s)" % _cmpmsgs(old, new_data)
+        res = _last_main_instance = make_main_instance(glpane, staterefs, testexpr, testbed)
+        print "\n**** MADE NEW MAIN INSTANCE %s ****\n" % time.asctime(), res, \
+              "(glpane %s, staterefs %s, testexpr %s, testbed %s, reloads %s)" % _cmpmsgs(old, new_data)
     else:
         res = _last_main_instance
         ## print "reusing main instance", res
@@ -1071,17 +987,26 @@ def _cmpmsgs(d1, d2):
 def _cmpmsg(e1,e2):
     return (e1 == e2) and "same" or "DIFFERENT"
 
-def make_main_instance(glpane, staterefs, testexpr):
+def make_main_instance(glpane, staterefs, testexpr, testbed):
     some_env = widget_env(glpane, staterefs)
-    inst = some_env.make(testexpr, NullIpath)
+    inst = some_env.make(testbed(testexpr), NullIpath)
     return inst
 
-def make_aux_instance(expr, index): ###KLUGE 061208; not memoized, that'll need fixing
-    global _last_main_instance
-    some_env = _last_main_instance.env
-    ipath = (index, ('$$aux', NullIpath))
-    inst = some_env.make(expr, ipath)
-    return inst
+# ==
+
+def after_drawcompass(glpane, aspect):
+    return # "nevermind"
+
+# in after_drawcompass-outtakes.py:
+##def make_aux_instance(expr, index): #KLUGE 061208; not memoized, that'll need fixing
+##    global _last_main_instance
+##    some_env = _last_main_instance.env
+##    ipath = (index, ('$$aux', NullIpath))
+##    inst = some_env.make(expr, ipath)
+##    return inst
+##
+##def after_drawcompass(glpane, aspect):
+##    ...
     
 # ==
 

@@ -155,7 +155,9 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     
     # copy methods (used by __call__)
     def _copy(self):
-        assert not self._e_is_instance ## ??? [061019]
+        ## assert not self._e_is_instance ## ??? [061019]
+        if self._e_is_instance:
+            print "WARNING: copying an instance %r" % (self,)
         return self.__class__(_copy_of = self) # this calls _destructive_copy on the new instance
     def _destructive_copy(self, old):
         """[private]
@@ -469,7 +471,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         # actually this is even faster -- review sometime (note, in constant_Expr they're both there & equiv #k): ###@@@
         ## this is just the kid expr: print "_CV__i_instance_CVdict needs to make expr %r" % (expr,)
         if hasattr(expr, '_e_make_in'):
-            printfyi("REJECTED using _e_make_in case, on a pyinstance of class %s" % expr.__class__.__name__)
+            print("REJECTED using _e_make_in case, on a pyinstance of class %s" % expr.__class__.__name__)###was printfyi til 061208 921p
             ## res = expr._e_make_in(env, index_path)
                 #k we might have to fix bugs caused by not using this case, by defining (or modifying?) defs of _e_eval on some classes
         if 1:

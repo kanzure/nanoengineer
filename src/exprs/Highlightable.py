@@ -138,6 +138,9 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     on_drag = Option(Action)
     on_release_in = Option(Action)
     on_release_out = Option(Action)
+    projection = Option(bool, False) # whether to save projection matrix too... would be default True except that breaks us. ###BUG
+        # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
+
 
     # moved to IorE, 061126 late; might have required new _self in some formula uses, but i didn't notice any #k:
 ##    # refs to places to store state of different kinds, all of which is specific to this Instance (or more precisely to its ipath)
@@ -200,14 +203,19 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
 
         # == per_frame_state
         
-        set_default_attrs( self.per_frame_state, saved_modelview_matrix = None) #k safe? (why not?) #e can't work inside display lists
+        set_default_attrs( self.per_frame_state,
+                           saved_modelview_matrix = None,
+                           saved_projection_matrix = None
+                           ) #k safe? (why not?) #e can't work inside display lists
         
         return # from _init_instance
     
     def draw(self):
-        self.per_frame_state.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
+        self.save_coords()
+            # these comments are about the implem of that method -- need review, which are obs and which should be moved? ###
+            #
             ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
-        
+            #
             # addendum 061121: if this is usage tracked (which was never intended), then right here we invalidate whatever used it
             # (but nothing used it yet, the first time we draw), but in draw_in_abs_coords we use it, so if we ever redraw
             # after that (as we will - note, nothing yet clears/replaces this per_frame_state every frame),
@@ -248,15 +256,12 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         #
         # WARNING: This implem won't work when we can be inside a display list which is drawn in its own relative coords.
         # For latest info on what to do about that, see '061206 coordinate systems' on bruce's g5.
+
+        # print "calling draw_in_abs_coords in",self # this does get called even when projection=True makes it seem to not work.
+        # but mousing around over it does cause repeated draws, unlike when it works. Both as if it drew in wrong place.
         
-        # restore coords
-        ##glMatrixMode(GL_MODELVIEW) #k prob not needed
-        glPushMatrix()
+        self.begin_using_saved_coords()
         try:
-            glLoadMatrixd(self.per_frame_state.saved_modelview_matrix)
-            # examples of glLoadMatrix (and thus hopefully the glGet for that) can be found in these places on bruce's G4:
-            # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/OpenGLContext/renderpass.py
-            # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/VisionEgg/Core.py
             if self.transient_state.in_drag:
                 if printdraw: print "pressed_in.draw",self
                 self.pressed_in.draw() #e actually might depend on mouseover, or might not draw anything then...
@@ -267,7 +272,7 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             #061206 added try/finally as a precaution.
             ##e Future: maybe we should not reraise (or pass on) an exception here??
             # GLPane's call is not well protected from an exception here, though it ought to be!
-            glPopMatrix()
+            self.end_using_saved_coords()
         return # from draw_in_abs_coords
 
     def run_OpenGL_in_local_coords(self, func): #061206
@@ -290,6 +295,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
            WARNINGS:
            - The current implem assumes no widget expr modifies the OpenGL projection matrix. This will change someday,
         and we'll probably need to save and restore both matrices. #e
+        [as of 061208 we tried that, but it may have broken highlightable, not for sbar text but for color change...
+         could it relate to glselect?? hmm... i'm adding a flag so i can test this.]
            - This does not reproduce all OpenGL state that was used to draw self, but only its local modelview matrix.
            - This does not ensure that any display lists that might be called by func (or by self.draw) are up to date!
            #e Later we might revise this API so it adds self, func to a dict and runs func later in the
@@ -306,19 +313,47 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         run_immediately = True
         if run_immediately:
             self.env.glpane.makeCurrent() # probably not needed
-            ##glMatrixMode(GL_MODELVIEW) #k prob not needed YET
-            glPushMatrix()
+            self.begin_using_saved_coords()
             try:
-                glLoadMatrixd(self.per_frame_state.saved_modelview_matrix)
                 res = func()
             finally:
-                glPopMatrix()
+                self.end_using_saved_coords()
             pass
         else:
             assert 0, "nim"
             res = None
         return run_immediately, res # from run_OpenGL_in_local_coords
 
+    def save_coords(self):
+        # weirdly, this seems to cause bugs if done in the other order (if self.projection is False but not checked here)...
+        # could it change the current matrix?? or be wrong when the wrong matrix is current???
+        if self.projection:
+            self.per_frame_state.saved_projection_matrix = glGetDoublev( GL_PROJECTION_MATRIX ) # needed by draw_in_abs_coords
+        self.per_frame_state.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
+        
+    def begin_using_saved_coords(self):
+        # fyi: examples of glLoadMatrix (and thus hopefully the glGet for that) can be found in these places on bruce's G4:
+        # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/OpenGLContext/renderpass.py
+        # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/VisionEgg/Core.py
+        self.per_frame_state.saved_projection_matrix
+        self.per_frame_state.saved_modelview_matrix
+            #k make sure we can access these (to get the most likely exceptions out of the way)
+        if self.projection:
+            glMatrixMode(GL_PROJECTION)
+            glPushMatrix()
+            glLoadMatrixd(self.per_frame_state.saved_projection_matrix)
+        glMatrixMode(GL_MODELVIEW)
+        glPushMatrix()
+        glLoadMatrixd(self.per_frame_state.saved_modelview_matrix)
+        return
+
+    def end_using_saved_coords(self):
+        if self.projection:
+            glMatrixMode(GL_PROJECTION)
+            glPopMatrix()
+        glMatrixMode(GL_MODELVIEW)
+        glPopMatrix()
+        
     def current_event_mousepoint(self, center = None, radius = None): #061206
         #e rename? #e add variant to get the drag-startpoint too #e cache the result #e is this the right class for it?
         """Return the 3d point (in self's local coordinates) corresponding to the mouse position

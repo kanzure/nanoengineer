@@ -48,7 +48,7 @@ import platform # so all our code can refer to platform.atom_debug #e someday th
 
 # (but color constants are imported lower down)
 
-# == GL imports -- for now, individual modules import things from submodules of GL as needed; this might be revised
+# == OpenGL imports -- for now, individual modules import things from submodules of OpenGL as needed; this might be revised
 
 # == Python and debug utilities, and low-level local defs
 

@@ -358,7 +358,12 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         # which the current code does not even detect, since it gives them the same glname. ###e
     world = Instance( World() ) # has .nodelist I'm allowed to extend
     _value = Overlay(
-        Highlightable( background, on_press = _self.on_press_bg, on_drag = _self.on_drag_bg ),
+        Highlightable( background, #######   WAIT A MINUTE,   how can we do that -- background is already an instance?!? ######@@@@@@
+                       ## background(color=green),####KLUGE, causes various bugs or weirdnesses... not yet fully understood,
+                       ## e.g. AssertionError: compute method asked for on non-Instance <Rect#10415(a)>
+                       ## [GLPane_overrider.py:455] [Highlightable.py:275] [Rect.py:52]
+                       # Rect(5,5,green),###KLUGE2 - works now that highlightable is not broken by projection=True
+                       on_press = _self.on_press_bg, on_drag = _self.on_drag_bg ),
         world
     )
     _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
@@ -366,6 +371,13 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
     newnode = None # note: name conflict(?) with one of those not yet used Command classes
     
     def on_press_bg(self):
+        if 1:
+            print "compare:"
+            print self, self.delegate, self.delegate.delegate, self.delegate.delegate.plain # the background
+            print self.background
+                # self.background is the same as the .plain printed above, which means, as of 061208 941pm anyway,
+                # instantiating an instance gives exactly that instance. (Reasonable for now...)
+            
         point = self.current_event_mousepoint()
             #e note: current_event_mousepoint is defined only on Highlightable, for now (see comments there for how we need to fix that),
             # but works here because we delegate ultimately to a Highlightable, without changing local coords as we do.
