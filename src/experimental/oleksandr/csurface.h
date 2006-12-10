@@ -18,6 +18,10 @@ void cCreateSurface()
 {
 	cppCreateSurface();
 }
+void cCollisionDetection()
+{
+	cppCollisionDetection();  
+}
 void cAllocate()
 {
 	cppAllocate();

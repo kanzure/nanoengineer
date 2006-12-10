@@ -31,6 +31,13 @@ class Surface
 	void CreateSurface();
 
 	//------------------------------------------------------------------------
+	// CreateSurface()
+	//
+	// create surface
+	//
+	void CreateSurface(Surface * s0, Surface * s1);
+
+	//------------------------------------------------------------------------
 	// Level()
 	//
 	// set level member
@@ -127,6 +134,13 @@ class Surface
 	// get color property
 	//
 	inline int C(int i);
+
+	//------------------------------------------------------------------------
+	// C()
+	//
+	// set color property
+	//
+	inline void C(int i, int c);
 
 	//------------------------------------------------------------------------
 	// I()
@@ -427,6 +441,16 @@ inline double Surface::Nz(int i)
 inline int Surface::C(int i)
 {
 	return mColors[i];
+}
+
+//------------------------------------------------------------------------
+// C()
+//
+// set color property  
+//
+inline void Surface::C(int i, int c)
+{
+	mColors[i] = c; 
 }
 
 //------------------------------------------------------------------------

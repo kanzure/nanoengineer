@@ -157,7 +157,6 @@ int CollisionDetector::Collision(
 //
 // select collision elements
 //
-
 void CollisionDetector::Select(int c) const
 {
 	int ni = 3;
@@ -171,13 +170,13 @@ void CollisionDetector::Select(int c) const
 		for (ii = 0; ii < ni; ii++)
 		{
 			int i0 = mH0->S()->I(3 * ie + ii);
-			//mH0->S()->C(i0, c); 
+			mH0->S()->C(i0, c); 
 		}
 		int je = mEntities[2 * i + 1];
 		for (ii = 0; ii < nj; ii++)
 		{
 			int j0 = mH1->S()->I(3 * je + ii);
-			//mH1->S()->C(j0, c);
+			mH1->S()->C(j0, c);
 		}
 	}
 }
