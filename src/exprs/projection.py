@@ -13,7 +13,7 @@ from OpenGL.GLU import gluPickMatrix
 
 class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): pass #e refile if I like it
 
-class DrawInCorner(DelegatingInstanceOrExpr):
+class DrawInCorner1(DelegatingInstanceOrExpr):
     delegate = Arg(Widget2D)
     corner = Arg(int, LOWER_RIGHT) # WARNING: only the default corner works properly yet
     def draw(self):
@@ -72,7 +72,7 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             glPopMatrix()
 
         return
-    pass
+    pass # end of class DrawInCorner1
 
 # Will this really work with highlighting? (I mean if delegate contains a Highlightable?)
 # NO, because that doesn't save both matrices!
@@ -81,3 +81,40 @@ class DrawInCorner(DelegatingInstanceOrExpr):
 # unless we're saving the ipath instead, as I presume we will be by then).
 
 # BUT FOR NOW, just always save it, since easier.
+
+# ==
+
+# Since the above does not yet work with highlighting, try it in a completely different way for now, not using projection matrix,
+# since we need the feature.
+
+class DrawInCorner2(DelegatingInstanceOrExpr):
+    delegate = Arg(Widget2D)
+    corner = Arg(int, LOWER_RIGHT) # WARNING: only the default corner works properly yet
+    def draw(self):
+        glMatrixMode(GL_MODELVIEW) # not needed
+        glPushMatrix()
+        glLoadIdentity()
+        try:
+            glpane = self.env.glpane
+            aspect = 1.0 ###WRONG but the cases that use it don't work right anyway; BTW does glpane.aspect exist?
+            corner = self.corner
+            delegate = self.delegate
+
+            # modified from _setup_modelview:
+            glTranslatef( 0.0, 0.0, - glpane.vdist)
+            # move to corner -- NOT YET CORRECT [but other than this, it works!]
+            FUDGE = 0.85 # would be 1 if this was correct
+            glTranslatef( glpane.width * PIXELS * 0.5 * FUDGE, - glpane.height * PIXELS * 0.5 * FUDGE, 0.0)
+                # signs only correct for LOWER_RIGHT
+            # align lbox corner (could use an alignment prim for the corner if we had one)
+            offset = (-delegate.bright, delegate.bbottom) # only correct for LOWER_RIGHT
+            glTranslatef(offset[0], offset[1], 0)
+            
+            delegate.draw()
+            
+        finally:
+            glMatrixMode(GL_MODELVIEW) # not needed
+            glPopMatrix()
+
+        return
+    pass # end of class DrawInCorner2
