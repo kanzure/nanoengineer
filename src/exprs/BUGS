@@ -65,3 +65,10 @@ This would also help with debugging (eg to test the above theory).
 
 ==
 
+061210 a rapid motion onto the Highlightable doesn't highlight it until the next motion
+
+        # BUG in _9c, noticed 061210 morn g4: a rapid motion onto the Highlightable doesn't highlight it, tho it does update sbar text.
+        # Only the next motion highlights it. I wonder if it's related to gl_update and usage-tracking sync issues.
+
+==
+

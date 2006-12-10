@@ -794,13 +794,19 @@ testexpr_19c = Overlay( testexpr_19b, # edit this one by hand if you want
                         Translate( kluge_dragtool_state_checkbox_expr, (6,-4) ) ###e need to wrap this with "draw at the edge, untrackballed"
                     )
 
-# === set the testexpr to use right now   @@@@
+# === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-testexpr = testexpr_9cx # or _19c with the spheres
+enable_testbed = False
+
+testexpr = testexpr_9c # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
-        # _9cx has a bug, in highlightable with projection = True... the current_glselect cond fix attempt didn't fix it.
+        # testexpr_9cx has a bug, in highlightable with projection = True... the current_glselect cond fix attempt didn't fix it.
+        # status 061209 eve: has debug prints, debug ideas are on paper, but for now I'll use a different method (not projection matrix)
+        # for doing things like DrawInCorner.
+        # BUG in _9c, noticed 061210 morn g4: a rapid motion onto the Highlightable doesn't highlight it, tho it does update sbar text.
+        # Only the next motion highlights it. I wonder if it's related to gl_update and usage-tracking sync issues.
     ## testexpr_10c double-nested toggleshow of highlightable rect
     ## testexpr_11r1b image with black padding
     ## testexpr_13z4 red/blue image
@@ -829,8 +835,10 @@ def testbed(expr):
     "this turns the current testexpr into the actual expr to render"
     ## return Overlay(expr, Closer(Rect(1,1,black), 3.4)) #stub
     return Overlay(expr, If(1,DrawInCorner,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
-    
-## testbed = identity
+
+
+if not enable_testbed:
+    testbed = identity
 
  #e what next, planned optims, nim tests -- see below
 

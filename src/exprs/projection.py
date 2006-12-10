@@ -22,7 +22,8 @@ class DrawInCorner(DelegatingInstanceOrExpr):
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
         glLoadIdentity()
-        glMatrixMode(GL_PROJECTION)
+        
+        glMatrixMode(GL_PROJECTION) # WARNING: we're now in nonstandard matrixmode (for sake of gluPickMatrix and glOrtho -- needed??##k)
         glPushMatrix()
         glLoadIdentity()
 
@@ -36,7 +37,7 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             # (this code is copied from it)
             glselect = glpane.current_glselect
             if glselect:
-                print "%r setting up gluPickMatrix" % self
+                print "%r (ipath %r) setting up gluPickMatrix" % (self, self.ipath)
                 x,y,w,h = glselect
                 gluPickMatrix(
                         x,y,
@@ -55,7 +56,11 @@ class DrawInCorner(DelegatingInstanceOrExpr):
                 ## glOrtho(-50*aspect, 0, 0, 50,  -5, 500) # Lower Right [used now] -- x from -50*aspect to 0, y (bot to top) from 0 to 50
                 glOrtho(-glpane.width * PIXELS, 0, 0, glpane.height * PIXELS,  -5, 500)
                     # approximately right for the checkbox, but I ought to count pixels to be sure (note, PIXELS is a pretty inexact number)
-            
+
+            glMatrixMode(GL_MODELVIEW) ###k guess 061210 at possible bugfix (and obviously needed in general) --
+                # do this last to leave the matrixmode standard
+                # (status of bugs & fixes unclear -- hard to test since even Highlightable(projection=True) w/o any change to
+                # projection matrix (test _9cx) doesn't work!)
             offset = (-delegate.bright, delegate.bbottom) # only correct for LOWER_RIGHT
             glTranslatef(offset[0], offset[1], 0)
             delegate.draw()
@@ -63,7 +68,7 @@ class DrawInCorner(DelegatingInstanceOrExpr):
         finally:
             glMatrixMode(GL_PROJECTION)
             glPopMatrix()
-            glMatrixMode(GL_MODELVIEW)
+            glMatrixMode(GL_MODELVIEW) # be sure to do this last, to leave the matrixmode standard
             glPopMatrix()
 
         return

@@ -214,7 +214,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         if not self.env.glpane.current_glselect: # see if this cond fixes the projection=True bug (when not in DrawInCorner anyway)
             self.save_coords()
         else:
-            print "%r not saving due to current_glselect" % self####
+            if self.projection: # since this debug print is only needed when investigating the bug _9cx in using that option
+                print "%r (projection=%r) not saving due to current_glselect" % (self, self.projection)####
             # these comments are about the implem of save_coords -- need review, which are obs and which should be moved? ###
             #
             ###WRONG if we can be used in a displaylist that might be redrawn in varying orientations/positions
@@ -331,7 +332,9 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # weirdly, this seems to cause bugs if done in the other order (if self.projection is False but not checked here)...
         # could it change the current matrix?? or be wrong when the wrong matrix is current???
         if self.projection:
+            glMatrixMode(GL_PROJECTION) ###k guess 061210 at possible _9cx bugfix -- needed?? anyway, these guesses didn't fix the bug.
             self.per_frame_state.saved_projection_matrix = glGetDoublev( GL_PROJECTION_MATRIX ) # needed by draw_in_abs_coords
+            glMatrixMode(GL_MODELVIEW)
         self.per_frame_state.saved_modelview_matrix = glGetDoublev( GL_MODELVIEW_MATRIX ) # needed by draw_in_abs_coords
         
     def begin_using_saved_coords(self):
