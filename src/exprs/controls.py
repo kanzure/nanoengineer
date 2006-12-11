@@ -103,7 +103,9 @@ class ChoiceButton(InstanceMacro):
                                          If(chosen, background, background_off),
                                          content ),
                                      ),
-                            on_press = SetStateRefValue(choiceref, choiceval),
+                            ## old code: on_press = SetStateRefValue(choiceref, choiceval),
+                            # try this code 061211 1113a -- it works, use it:
+                            on_press = Set(choiceref.value, choiceval),
                                 ##e probably best to say Set(choiceref.value, choiceval), but I think that's nim -- not sure --
                                 # should retest it after Set is revised later today to work with arg1 being lval eg getattr_Expr [061204]
                             sbar_text = sbar_text
