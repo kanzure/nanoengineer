@@ -160,7 +160,7 @@ def ChoiceColumn( nchoices, dflt = 0, **kws): ##e should be an InstanceMacro, no
                 TextRect( format_Expr( "choice is %%r (default %s)" % dflt, stateref_expr.value ), 1, 30) # show choice
             ),
         LocalVariable_StateRef(int, dflt)
-            # LocalState, combining this an the Apply?
+            # LocalState, combining this and the Apply?
                 # or, just a stateref to some fixed state somewhere... whose instance has .value I can get or set? use that for now.
                 ##k is there any way to use the new-061203 State macro for this?
     )

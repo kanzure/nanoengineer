@@ -263,6 +263,9 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
     def __neg__( self):
         """operator -a"""
         return neg_Expr(self)
+    def __pos__( self):
+        """operator +a"""
+        return pos_Expr(self)
 
     #e __mod__? (only ok if not used for print formatting -- otherwise we'd break debug prints like "%r" % expr)
     #e __len__? (might be ok, except lack of it catches bugs every so often, so I guess it's not a good idea)
@@ -553,6 +556,14 @@ class neg_Expr(OpExpr):
     def __str__(self):
         return "- %s" % self._e_args #e need parens?
     _e_eval_function = staticmethod( lambda x:-x )
+    pass
+
+class pos_Expr(OpExpr):#061211
+    def _e_init(self):
+        assert len(self._e_args) == 1
+    def __str__(self):
+        return "+ %s" % self._e_args #e need parens?
+    _e_eval_function = staticmethod( lambda x:+x )
     pass
 
 class list_Expr(OpExpr): #k not well reviewed, re how it should be used, esp. in 0-arg case

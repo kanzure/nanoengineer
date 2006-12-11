@@ -51,7 +51,7 @@ class GLPane_overrider(Delegator, object): # object superclass added for selobj 
         return self.delegate.selobj
     def _set_selobj(self, val):
         self.delegate.selobj = val
-    selobj = property(_get_selobj, _set_selobj) # 061211 954a, see if this fixes highlight-delay bug when overrider is used ####
+    selobj = property(_get_selobj, _set_selobj) # 061211 -- this fixes highlight-delay bug when overrider is used
     
     def render_scene(self):#bruce 061208 split this out so some modes can override it (also removed obsolete trans_feature experiment)
         

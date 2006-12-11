@@ -608,7 +608,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
 # ===
 
 class DelegatingInstanceOrExpr_obs(InstanceOrExpr): #061020; as of 061109 this looks obs since the _C_ prefix is deprecated;
-    #e use, instead, DelegatingMixin combined with formula on self.delegate
+    #e use, instead, DelegatingMixin or DelegatingInstanceOrExpr combined with formula on self.delegate
     """#doc: like Delegator, but self.delegate is recomputable from _C_delegate as defined by subclass.
     This is obsolete; use DelegatingMixin instead. [#e need to rewrite GlueCodeMemoizer to not use this; only other uses are stubs.]
     """
@@ -629,7 +629,7 @@ DelegatingInstance_obs = DelegatingInstanceOrExpr_obs #k ok? (for when you don't
 
 _DELEGATION_DEBUG_ATTR = '' # you can set this to an attrname of interest, at runtime, for debugging
 
-class DelegatingMixin(object): #e refile? # 061109, apparently works (only tested in DebugPrintAttrs so far)
+class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr
     """#doc: like Delegator (with no caching, in case the delegate varies over time),
     but self.delegate should be defined by the subclass
     (e.g. it might be recomputable from a formula or _C_delegate method handled by ExprsMeta, or assigned in __init__).
@@ -748,7 +748,7 @@ class DelegatingMixin(object): #e refile? # 061109, apparently works (only teste
 #
 # let's try an explicit experiment, InstanceMacro:
 
-class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110; docstring revised 061127
+class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110; docstring revised 061127; see also DelegatingInstanceOrExpr
     """Superclass for "macros" -- they should define a formula for _value which they should always look like.
     # WARNING: a defect in InstanceMacro means no local defs in its client class (e.g. thing, ww in Boxed),
     # or in a superclass of that, will be delegated to _value (since they won't reach DelegatingMixin.__getattr__);
@@ -778,6 +778,14 @@ class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110; docstring 
         
     ##e could add sanity check that self.delegate and self._value are instances
     # (probably the same one, tho not intended by orig code, and won't remain true when Instance is fixed) [061114]
+    pass
+
+# ==
+
+class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): # moved here & basic 061211, created a few days before
+    """#doc
+    """
+    #e this might replace most uses of DelegatingMixin and InstanceMacro, if I like it
     pass
 
 # ==

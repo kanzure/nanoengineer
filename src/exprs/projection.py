@@ -11,8 +11,6 @@ from prefs_constants import UPPER_RIGHT, UPPER_LEFT, LOWER_LEFT, LOWER_RIGHT
 from OpenGL.GL import *
 from OpenGL.GLU import gluPickMatrix, gluUnProject
 
-class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): pass #e refile if I like it
-
 class DrawInCorner1(DelegatingInstanceOrExpr):
     delegate = Arg(Widget2D)
     corner = Arg(int, LOWER_RIGHT) # WARNING: only the default corner works properly yet

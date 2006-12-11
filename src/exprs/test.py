@@ -88,7 +88,7 @@ from transforms import Translate, Closer
 
 import Center
 reload_once(Center)
-from Center import Center
+from Center import * # e.g. Center, TopRight, CenterRight, Right; not yet complete, mostly working (see specific tests) [061211 112p] 
 
 import TestIterator
 reload_once(TestIterator)
@@ -112,7 +112,7 @@ from images import Image, IconImage, PixelGrabber
 
 import controls
 reload_once(controls)
-from controls import ChoiceColumn, checkbox_v3 #e rename
+from controls import ChoiceButton, ChoiceColumn, checkbox_v3 #e rename
 
 import staterefs
 reload_once(staterefs)
@@ -818,13 +818,75 @@ testexpr_20a = Overlay(
     func('lower right', black, (1,-1)),
     func('upper right', blue, (1,1)))
 
+# == alignment exprs [061211]
+
+def wrap1(alignfunc):
+    return Boxed(alignfunc(Rect()))
+
+testexpr_21 = Boxed(SimpleColumn(wrap1(Left), wrap1(Center), wrap1(Right))) # works
+testexpr_21a = Boxed(SimpleRow(wrap1(Left), wrap1(Center), wrap1(Right))) # works
+testexpr_21b = Boxed(SimpleColumn(wrap1(TopRight), wrap1(CenterRight), wrap1(BottomRight))) # might work but hard to interpret
+testexpr_21c = Boxed(SimpleRow(wrap1(TopRight), wrap1(CenterRight), wrap1(BottomRight))) # ditto
+
+def aligntest(af):
+    "[af should be an alignment func (class) like Center]"
+    try:
+        ##print "returning one for",af.__name__ # why only called once?? probably for testexpr_21d -- not called as we use _21e, why?
+        return Overlay(BottomRight(TextRect(af.__name__)),
+                       BottomLeft(Boxed(SimpleRow(af(Rect(0.2)),
+                                                  af(Rect(0.4)),
+                                                  af(Rect(0.6)) ))),
+                       TopRight(Boxed(SimpleColumn(af(Rect(0.25)), # TopRight is not working as hardcoded here
+                                                   af(Rect(0.45)),
+                                                   af(Rect(0.65)) ))) )
+    except:
+        print sys.exc_info() ##k
+        return BottomRight(TextRect('exception discarded') )#e find a way to include the text?
+
+def aligntest_by_name(afname):
+    try:
+        import Center ### this was the WRONG MODULE, that explains a lot of the problems
+        af = getattr(Center, afname)
+        return aligntest(af)
+    except:
+        return BottomRight(TextRect("didn't work: %r" % afname,1,30)) # this is always happening -- why?
+    # known now: we didn't see it before since (before BottomRight) it was obscured by item 1,1's textrect in the table, at exact same pos.
+    pass
+
+testexpr_21d = aligntest(Center)
+
+colwords = ('Left', 'Center', 'Right', '')
+rowwords = ('Top', 'Center', 'Bottom', '')
+## choiceref_21e = LocalVariable_StateRef(str, "") ###k ok outside anything? it's just an expr, why not? but what's it rel to? var name???
+    # answer: each instance has its own state, so it won't work unless shared, e.g. in InstanceMacro or if we specify sharing somehow.
+choiceref_21e = PrefsKey_StateRef("A9 devel scratch/testexpr_21e alignfunc", 'Center') # need a non-persistent variant of this... ###e
+def mybutton(xword, yword, choiceref):
+    word = yword + xword
+    if word == 'CenterCenter':
+        word = 'Center'
+    elif word == 'Center':
+        word = '' # for now
+    if not word:
+        return Spacer()
+    return ChoiceButton(word, choiceref, content = TextRect( format_Expr("%s", _this(ChoiceButton).choiceval), 1,12 ) )
+
+table_21e = SimpleColumn(* [SimpleRow(* [mybutton(colword, rowword, choiceref_21e) for colword in colwords]) for rowword in rowwords])
+testexpr_21e = Translate( Overlay(
+    identity(eval_Expr)( call_Expr( aligntest_by_name, getattr_Expr(choiceref_21e, 'value'))) ,
+    TopLeft( Boxed(table_21e))
+                        ), (-6,0) )
+    # needed bugfix: choiceref_21e.value -> getattr_Expr(choiceref_21e, 'value') -- is there a better way?? ###e
+    # ditto for call of aligntest on that -> call_Expr -- and eval_Expr (if it works) which is a ###KLUGE -- need better way for sure.
+
+    # working; but not defined for TopCenter, CenterLeft; BottomCenter
+    # seems wrong: CenterRight [as of 061211 308p]
 
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = True
+enable_testbed = False
 
-testexpr = testexpr_15d ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_21e ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
