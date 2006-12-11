@@ -102,7 +102,11 @@ class DrawInCorner2(DelegatingInstanceOrExpr):
 
             # modified from _setup_modelview:
             glTranslatef( 0.0, 0.0, - glpane.vdist)
-            # move to corner -- NOT YET CORRECT [but other than this, it works!]
+            ###e need to compensate for zoom*scale in _setup_projection
+
+            ### probably need to get notified of glpane resizes -- preferably by an inval of glpane height & width
+            
+            # move to corner -- NOT YET CORRECT [but other than this and zoom, it works!]
             FUDGE = 1.0 # 1.0 works well on g4 -- but only with my current default window size.
             glTranslatef( glpane.width * PIXELS * 0.5 * FUDGE, - glpane.height * PIXELS * 0.5 * FUDGE, 0.0)
                 # signs only correct for LOWER_RIGHT
