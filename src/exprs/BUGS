@@ -72,3 +72,13 @@ This would also help with debugging (eg to test the above theory).
 
 ==
 
+061210 usage-tracking of glpane attrs width, height, zoomFactor, scale
+
+Calls to gluProject, gluUnProject (eg via mousepoints) get results which depend on those variables, but don't usage-track them.
+We can ignore this in terms of knowing about global redraw (since changes to those would trigger it), but not
+for knowing when to invalidate display lists. OTOH, maybe those funcs can't be run inside them? I'm not sure.
+
+More generally, I'm not sure whether we need usage-tracking of glpane height & width for related things like DrawInCorner.
+
+==
+

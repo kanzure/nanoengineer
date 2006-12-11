@@ -102,9 +102,17 @@ class DrawInCorner2(DelegatingInstanceOrExpr):
 
             # modified from _setup_modelview:
             glTranslatef( 0.0, 0.0, - glpane.vdist)
+
+            
             ###e need to compensate for zoom*scale in _setup_projection
 
-            ### probably need to get notified of glpane resizes -- preferably by an inval of glpane height & width
+            ###e one easy way to do all we need: get cov_depth (depth of origin),
+            #then use gluUnProject to get the 4 screen corners at that depth;
+            # then do approp translate and glScale (scale needed due to zoomfactor and scale of glpane).
+            # This method is probably best since it doesn't depend on knowing the setup code, except meaning of glpane height & width,
+            # and origin being right between them.
+
+            ### maybe need to usage-track glpane height & width -- not sure it matters
             
             # move to corner -- NOT YET CORRECT [but other than this and zoom, it works!]
             FUDGE = 1.0 # 1.0 works well on g4 -- but only with my current default window size.
