@@ -400,15 +400,7 @@ everythingElse(void) // WARNING: this duplicates some code from simulator.c
 	set_py_exc_str(__FILE__, __LINE__, "part is null");
 	PYBAIL();
     }
-    updateVanDerWaals(part, NULL, part->positions);
-    PYBAIL();
-    generateStretches(part);
-    PYBAIL();
-    generateBends(part);
-    PYBAIL();
-    generateTorsions(part);
-    PYBAIL();
-    generateOutOfPlanes(part);
+    initializePart(part);
     PYBAIL();
 
     // ##e should print options set before run, but it's too early to do that in this code

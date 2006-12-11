@@ -728,6 +728,7 @@ readMMP(char *filename)
       name = expectName(mmp);
       expectXYZInts(mmp, &center);
       makeBodyAxis(p, bodyName, name, center);
+      free(bodyName);
     }
     
     else if (0==strcmp(tok, "joint")) {
@@ -802,6 +803,7 @@ readMMP(char *filename)
     }
   }
   fclose(mmp->f);
+  destroyAccumulator(tempBuffer);
 
   return endPart(p);
 }

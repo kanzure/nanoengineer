@@ -145,6 +145,7 @@
 #include "potential.h"
 #include "minstructure.h"
 #include "writemovie.h"
+#include "rigid.h"
 
 #include "globals.h"
 

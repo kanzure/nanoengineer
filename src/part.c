@@ -126,8 +126,14 @@ destroyPart(struct part *p)
     destroyAccumulator(p->jigs);
     p->jigs = NULL;
 
+    if (p->rigid_body_info != NULL) {
+        rigid_destroy(p);
+        p->rigid_body_info = NULL;
+    }
     for (i=0; i<p->num_rigidBodies; i++) {
         rb = &p->rigidBodies[i];
+        free(rb->name);
+        rb->name = NULL;
         destroyAccumulator(rb->stations);
         rb->stations = NULL;
         for (k=0; k<rb->num_stations; k++) {
@@ -263,6 +269,17 @@ endPart(struct part *p)
     // calculate initial velocities
     
     return p;
+}
+
+void
+initializePart(struct part *p)
+{
+    updateVanDerWaals(p, NULL, p->positions);
+    generateStretches(p);
+    generateBends(p);
+    generateTorsions(p);
+    generateOutOfPlanes(p);
+    rigid_init(p);
 }
 
 // Creates a stretch for each bond in the part.

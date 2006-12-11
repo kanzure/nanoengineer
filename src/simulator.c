@@ -429,11 +429,7 @@ main(int argc, char **argv)
     }
     
     part = readMMP(InputFileName);
-    updateVanDerWaals(part, NULL, part->positions);
-    generateStretches(part);
-    generateBends(part);
-    generateTorsions(part);
-    generateOutOfPlanes(part);
+    initializePart(part);
 
     if (printStructurePotentialEnergy) {
         struct xyz *force = (struct xyz *)allocate(sizeof(struct xyz) * part->num_atoms);
@@ -442,7 +438,7 @@ main(int argc, char **argv)
         printf("%e %e %e %e (Potential energy in aJ, gradient of atom 1)\n", potentialEnergy, force[1].x, force[1].y, force[1].z);
         exit(0);
     }
-
+    
     if (dump_part) {
         //
         // this segment is convenient to run valgrind on to test the

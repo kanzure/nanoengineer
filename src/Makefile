@@ -42,7 +42,7 @@ else
 #---------------------------------------- Unix
 PYBASE:=$(shell which python | sed "s%/bin/python%%")
 CFLAGS+=-I$(PYBASE)/include/python$(PYDVER)
-LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config -lm -lpython$(PYDVER)
+LDFLAGS=-L$(PYBASE)/lib/python$(PYDVER)/config -lode -lm -lpython$(PYDVER)
 LDSHARED=gcc -shared
 #---------------------------------------- End of Unix
 endif
@@ -72,6 +72,8 @@ COMMONOBJS=\
 	printers.o \
 	readmmp.o \
 	readxyz.o \
+	rigid.o \
+	rigid-ode.o \
 	structcompare.o \
 	writemovie.o
 

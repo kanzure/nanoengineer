@@ -289,6 +289,11 @@ struct part
 
     int num_rigidBodies;
     struct rigidBody *rigidBodies;
+
+    // pointer to a data structure that holds data which is specific
+    // to the particular rigid body library in use.  rigid.c selects
+    // the library to use and calls into rigid-*.c as appropriate.
+    void *rigid_body_info;
     
     int num_vanDerWaals;
     int num_static_vanDerWaals;
@@ -322,6 +327,8 @@ extern struct part *makePart(char *filename, void (*parseError)(void *), void *s
 extern void destroyPart(struct part *p);
 
 extern struct part *endPart(struct part *p);
+
+extern void initializePart(struct part *p);
 
 extern void generateStretches(struct part *p);
 
