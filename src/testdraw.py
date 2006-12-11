@@ -191,8 +191,16 @@ def leftDown(mode, event, glpane, super): # called from testmode.leftDown, just 
     super.leftDown(mode, event) # this might call testmode.emptySpaceLeftDown (or other class-specific leftDown methods in it)
     glpane.gl_update() # always, for now [might be redundant with super.leftDown, too]
 
+USE_OVERRIDER = True
+print "reloading testdraw.py, %susing overrider" % ((not USE_OVERRIDER) and 'NOT ' or '')
+
 def render_scene(mode, glpane): # called by testmode.render_scene # 061208
     # to do what would make no difference: glpane.render_scene()
+    if not USE_OVERRIDER:
+        glpane.render_scene() # 061211 940a, using this removes the delayed highlighting bug. it's caused by the overrider. [fixed now]
+        # that makes me wonder if overrider is causing bugs in Highlightable(projection=True)... no, still has bug using this case.
+        return
+    
     reload_basic_and_test()
     from exprs import GLPane_overrider
     basic.reload_once(GLPane_overrider)
@@ -207,6 +215,9 @@ def render_scene(mode, glpane): # called by testmode.render_scene # 061208
 def Draw(mode, glpane, super): # called by testmode.Draw
     init_glpane_vars(glpane)
     vv.counter += 1
+
+    # glpane.part.draw(glpane) # this doesn't draw the model in any different place as when done below... [061211]
+    
     glPushMatrix()
     try:
         drawtest0(glpane) # this does all our special drawing, and sometimes puts some of it into a display list

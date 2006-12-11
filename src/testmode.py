@@ -129,6 +129,8 @@ class testmode(super):
         self.o.pov = V(0,0,0)
         self.o.quat = Q(1,0,0,0) ##  + Q(V(1,0,0),10.0 * pi/180) ###k why?
         ###e maybe: testdraw.Enter, so it can do setViewHome
+
+        #k are these attrs still needed or used??
         self.right = V(1,0,0) ## self.o.right
         self.up = V(0,1,0)
         self.left = - self.right
@@ -138,7 +140,8 @@ class testmode(super):
         self.origin = - self.o.pov ###k replace with V(0,0,0)
 ##        self.guy = guy(self)
         ##self.glbufstates = [0,0] # 0 = unknown, number = last drawn model state number
-        self.modelstate = 1
+##        self.modelstate = 1
+        
         # set perspective view -- no need, just do it in user prefs
         return super.Enter(self)
 
@@ -163,7 +166,7 @@ class testmode(super):
         glpane = self.o
 ##        q1 = Q(glpane.quat)
         super.middleDrag(self, event)
-        self.modelstate += 1
+##        self.modelstate += 1
 ##        q2 = Q(glpane.quat)
         ## novertigo(glpane)
 ##        q3 = Q(glpane.quat)
