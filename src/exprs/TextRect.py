@@ -61,7 +61,8 @@ class TextRect(Widget2D):
         from testdraw import drawfont2
         glPushMatrix() ####k guess, not sure needed
         #e translate by margin
-        drawfont2(glpane, msg, width, height)
+        drawfont2(glpane, msg, width, height, pixelwidth = PIXELS)
+            #061211 pass pixelwidth so rotation won't matter (warning: different value than before, even w/o rotation)
         glPopMatrix()
         return
     pass # TextRect

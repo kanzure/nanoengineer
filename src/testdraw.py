@@ -491,7 +491,7 @@ def reload_basic_and_test():
 tex_width = 6 # pixel width in texture of 1 char
 tex_height = 10 # guess (pixel height)
 
-def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpattern = False):
+def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpattern = False, pixelwidth = None):
     """draws a rect of chars (dimensions given as char counts: charwidth x charheight [#e those args are misnamed])
     using vv's font texture [later 061113: assumed currently bound, i think -- see ensure_courierfile_loaded()],
     in a klugy way;
@@ -527,7 +527,6 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
         # (Ortho mode, home view, a certain window size -- not sure if that matters but it might)
         # restoring last-saved window position (782, 44) and size (891, 749)
     
-    ##pixelwidth = pixelheight = 0.05 * 2/3
     gap = 2 # in pixels - good for debugging
     gap = 0 # good for looking nice! but note that idlehack uses one extra pixel of vspace, and that does probably look better.
       # to do that efficiently i'd want another image to start from.
@@ -535,23 +534,29 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
     pixfactor = 1 # try *2... now i can see some fuzz... what if i start at origin, to draw?
         # did that, got it tolerable for pixfactor 2, then back to 1 and i've lost the niceness! Is it no longer starting at origin?
 
-    # mousepoints
-    p1junk, p2a = mymousepoints(glpane, 10, 10)
-    p1junk, p2b = mymousepoints(glpane, 11, 10)
-    px,py,pz = p2b - p2a # should be DX * pixelwidth
-    ## print px,py,pz # 0.0313971755382 0.0 0.0 (in Ortho mode, near but not at home view, also at it (??))
-        # 0.0313971755382 0.0 0.0 home ortho
-        # 0.03139613018 0.0 0.0 home perspective -- still looks good (looks the same) (with false "smoother textures")
-    pixelwidth = pixelheight = px * pixfactor
-    # print "pixelwidth",pixelwidth
-        ####@@@@ can be one of:
-        #    0.0319194157846
-        # or 0.0313961295259
-        # or 0.00013878006302
-    if pixelwidth < 0.01:
-        pixelwidth = 0.0319194157846
-        ### kluge, in case you didn't notice [guess: formula is wrong during highlighting]
-        # but this failed to fix the bug in which a TextRect doesn't notice clicks unless you slide onto it from a Rect ####@@@@
+    ##pixelwidth = pixelheight = 0.05 * 2/3
+    if pixelwidth is None: #061211 permit caller to pass it
+        p1junk, p2a = mymousepoints(glpane, 10, 10)
+        p1junk, p2b = mymousepoints(glpane, 11, 10)
+        px,py,pz = vec = p2b - p2a # should be DX * pixelwidth
+        ## print px,py,pz # 0.0313971755382 0.0 0.0 (in Ortho mode, near but not at home view, also at it (??))
+            # 0.0313971755382 0.0 0.0 home ortho
+            # 0.03139613018 0.0 0.0 home perspective -- still looks good (looks the same) (with false "smoother textures")
+        ## pixelwidth = pixelheight = px * pixfactor
+        pixelwidth = pixelheight = vlen(vec) * pixfactor # 061211 work better for rotated text (still not good unless screen-parallel)
+        # print "pixelwidth",pixelwidth
+            ####@@@@ can be one of:
+            #    0.0319194157846
+            # or 0.0313961295259
+            # or 0.00013878006302
+        if pixelwidth < 0.01:
+            pixelwidth = 0.0319194157846
+            ### kluge, in case you didn't notice [guess: formula is wrong during highlighting]
+            # but this failed to fix the bug in which a TextRect doesn't notice clicks unless you slide onto it from a Rect ####@@@@
+        pass
+    else:
+        pixelheight = pixelwidth
+    
     if pixfactor == 2:
         tex_origin_chars = V(3.5, 64.5) # 3.5 seems best, tho some shift to right; 3.55 through 3.75 are same, too much shift to left
     if pixfactor == 1:
