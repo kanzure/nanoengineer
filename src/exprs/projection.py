@@ -112,12 +112,25 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             # modified from _setup_modelview:
 ##            glTranslatef( 0.0, 0.0, - glpane.vdist) # this should make no difference, I think. try leaving it out. ###k
 
-            if glpane.current_glselect or (0 and 'KLUGE' and hasattr(self, '_saved_stuff')):
+            ## saveplace = self
+            saveplace = self.transient_state # see if this fixes the bug 061211 1117a mentioned below -- it does, use it.
+            if glpane.current_glselect or (0 and 'KLUGE' and hasattr(saveplace, '_saved_stuff')):
                             # kluge did make it faster; still slow, and confounded by the highlighting-delay bug;
                             # now I fixed that bug, and now it seems only normally slow for this module -- ok for now.
-                x1, y1, z1 = self._saved_stuff # this is needed to make highlighting work!
+                x1, y1, z1 = saveplace._saved_stuff # this is needed to make highlighting work!
+                ###BUG [061211 1117a; fixed now, see above, using saveplace = self.transient_state]:
+                # if we click on an object in testexpr_15d (with DrawInCorner used for other objs in the testbed)
+                # before it has a chance to show its highlighted form, at least after a recent reload, we get an attrerror here.
+                # Easy to repeat in the test conditions mentioned (on g5). Not sure how it can affect a different obj (self)
+                # than the one clicked on too quickly. Best fix would be to let glpane give us the requested info,
+                # which is usually the same for all callers anyway, and the same across reloads (just not across resizes).
+                # But it does depend on want_depth, and (via gluUnProject) on the current modelview coords
+                # (and projection coords if we ever changed them). So it's not completely clear how to combine ease, efficiency,
+                # and safety, for that optim in general, even w/o needing this bugfix.
+                #    But the bug is easy to hit, so needs a soon fix... maybe memoize it with a key corresponding to your own
+                # assumed choice of modelview coords and want_depth? Or maybe enough to put it into the transient_state? TRY THAT. works.
             else:
-                x1, y1, z1 = self._saved_stuff = gluUnProject(glpane.width, glpane.height, want_depth) # max x and y, i.e. right top
+                x1, y1, z1 = saveplace._saved_stuff = gluUnProject(glpane.width, glpane.height, want_depth) # max x and y, i.e. right top
                 # (note, min x and y would be (0,0,want_depth), since these are windows coords, 0,0 is bottom left corner (not center))
                 # Note: Using gluUnProject is probably better than knowing and reversing _setup_projection,
                 # since it doesn't depend on knowing the setup code, except meaning of glpane height & width attrs,
