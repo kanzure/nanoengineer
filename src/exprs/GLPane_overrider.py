@@ -611,7 +611,9 @@ class GLPane_overrider(Delegator, object): # object superclass added for selobj 
         
         # Set compass position using glOrtho
         if self.compassPosition == UPPER_RIGHT:
-            glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500) # Upper Right
+            ### glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500) # Upper Right
+            # hack for use in testmode:
+            glOrtho(-40*aspect, 15.5*aspect, -50, 5.5,  -5, 500)
         elif self.compassPosition == UPPER_LEFT:
             glOrtho(-5*aspect, 50.5*aspect, -50, 5.5,  -5, 500) # Upper Left
         elif self.compassPosition == LOWER_LEFT:
