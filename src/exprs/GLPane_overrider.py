@@ -6,7 +6,7 @@ from GLPane import * # since this mode might depend on all kinds of imports and 
 
 from idlelib.Delegator import Delegator
 
-class GLPane_overrider(Delegator):
+class GLPane_overrider(Delegator, object): # object superclass added for selobj = property(...), unreviewed re Delegator
     """Be a proxy for the GLPane, which replaces some of its methods with our own versions,
     for use only during render_scene.
        Note that this is not a subclass of GLPane,
@@ -46,6 +46,12 @@ class GLPane_overrider(Delegator):
     #
     # things returned by __getattr__ should be ok
     # things set by begin_tracking_usage -- hopefully ok since only used in this code, not in the code of GLPane called outside of this
+
+    def _get_selobj(self):
+        return self.delegate.selobj
+    def _set_selobj(self, val):
+        self.delegate.selobj = val
+    selobj = property(_get_selobj, _set_selobj) # 061211 954a, see if this fixes highlight-delay bug when overrider is used ####
     
     def render_scene(self):#bruce 061208 split this out so some modes can override it (also removed obsolete trans_feature experiment)
         

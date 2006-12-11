@@ -112,10 +112,12 @@ class DrawInCorner(DelegatingInstanceOrExpr):
             # modified from _setup_modelview:
 ##            glTranslatef( 0.0, 0.0, - glpane.vdist) # this should make no difference, I think. try leaving it out. ###k
 
-            if glpane.current_glselect:
-                x1, y1, z1 = self.__saved_stuff # this is needed to make highlighting work!
+            if glpane.current_glselect or (0 and 'KLUGE' and hasattr(self, '_saved_stuff')):
+                            # kluge did make it faster; still slow, and confounded by the highlighting-delay bug;
+                            # now I fixed that bug, and now it seems only normally slow for this module -- ok for now.
+                x1, y1, z1 = self._saved_stuff # this is needed to make highlighting work!
             else:
-                x1, y1, z1 = self.__saved_stuff = gluUnProject(glpane.width, glpane.height, want_depth) # max x and y, i.e. right top
+                x1, y1, z1 = self._saved_stuff = gluUnProject(glpane.width, glpane.height, want_depth) # max x and y, i.e. right top
                 # (note, min x and y would be (0,0,want_depth), since these are windows coords, 0,0 is bottom left corner (not center))
                 # Note: Using gluUnProject is probably better than knowing and reversing _setup_projection,
                 # since it doesn't depend on knowing the setup code, except meaning of glpane height & width attrs,

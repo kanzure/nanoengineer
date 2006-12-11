@@ -65,10 +65,34 @@ This would also help with debugging (eg to test the above theory).
 
 ==
 
+[fixed]
 061210 a rapid motion onto the Highlightable doesn't highlight it until the next motion
 
-        # BUG in _9c, noticed 061210 morn g4: a rapid motion onto the Highlightable doesn't highlight it, tho it does update sbar text.
-        # Only the next motion highlights it. I wonder if it's related to gl_update and usage-tracking sync issues.
+# BUG in _9c, noticed 061210 morn g4: a rapid motion onto the Highlightable doesn't highlight it, tho it does update sbar text.
+# Only the next motion highlights it. I wonder if it's related to gl_update and usage-tracking sync issues.
+
+More on this [061211]:
+
+In my experimental graphics code I notice this bug for highlightable objects:
+if I move the mouse on top of an object rapidly enough (with a model which has
+a slow redraw), then the highlighting does not occur until i move the mouse
+slightly while it's over the object. It only happens some of the time, but I
+think it's because sometimes I don't move the mouse rapidly enough or stop it
+suddenly enough, so there are two mouse move events and the last one is
+entirely over the object (and causes the highlighting). I notice this bug
+even for highlighting open bonds, but my own code is active so that might
+make a difference.
+
+... first try in Build mode -- it doesn't happen! 
+  hmm... bug is specific to testmode, even for identical models (/w open bonds).
+  It is not just the redraw slowness difference, since it happens for testexpr = Rect(), which is not much slower.
+  I bet it's recent -- maybe it's related to using GLPane_overrider? (Try not using it. [prevented it])
+  Or to recent Highlightable changes? [never tried]
+  It's quite annoying.
+  
+Indeed, USE_OVERRIDER = False prevents the bug.
+... Fixed now, by using a property to delegate selobj,
+after I recalled that outside code sets glpane.selobj directly.
 
 ==
 
@@ -82,3 +106,13 @@ More generally, I'm not sure whether we need usage-tracking of glpane height & w
 
 ==
 
+061211
+
+how come testmode shows the model (with atoms, in assy) in a different viewpoint than
+Build mode does?
+
+I suspect it translates before drawing it.
+
+==
+
+ 

@@ -816,24 +816,28 @@ testexpr_20 = Overlay(
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = True
+enable_testbed = False
 
-testexpr = testexpr_20 # or _19c with the spheres
+testexpr = testexpr_20 ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
         # testexpr_9cx has a bug, in highlightable with projection = True... the current_glselect cond fix attempt didn't fix it.
         # status 061209 eve: has debug prints, debug ideas are on paper, but for now I'll use a different method (not projection matrix)
-        # for doing things like DrawInCorner1.
-        # BUG in _9c, noticed 061210 morn g4: a rapid motion onto the Highlightable doesn't highlight it, tho it does update sbar text.
+        # for doing things like DrawInCorner1. [not using overrider doesn't fix it.]
+        #
+        # BUG in testexpr_9c (later: and all other highlightables), noticed 061210 morn g4:
+        # a rapid motion onto the Highlightable doesn't highlight it, tho it does update sbar text.
         # Only the next motion highlights it. I wonder if it's related to gl_update and usage-tracking sync issues.
+        # ... discussion is in BUGS file. Might be fixed now.
     ## testexpr_10c double-nested toggleshow of highlightable rect
     ## testexpr_11r1b image with black padding
     ## testexpr_13z4 red/blue image
     ## testexpr_15d ChoiceColumn
     ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
-    ## testexpr_19b = GraphDrawDemo_FixedToolOnArg1 -- works, but the tool remains IN DEVEL ###
     ## testexpr_18 model tree demo
+    ## testexpr_19b = GraphDrawDemo_FixedToolOnArg1 -- works, but the tool remains IN DEVEL ###
+    ## testexpr_20 - four DrawInCorners (works but highlighting is slow)
 
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
@@ -944,7 +948,7 @@ def drawtest1_innards(glpane):
                 # it turns out, it is in some cases and not others.
                 # if this is a problem, or if in_drag redraws matter, also consider printing ".", for them. In fact, try this now.
             import env
-            print "drew", env.redraw_counter   ##e or print_compact_stack
+            ##print "drew", env.redraw_counter   ##e or print_compact_stack
         else:
             sys.stdout.write(".")
             sys.stdout.flush()
