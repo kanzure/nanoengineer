@@ -6,7 +6,15 @@ $Id$
 
 from basic import *
 from basic import _self
- 
+
+import TextRect
+reload_once(TextRect)
+from TextRect import TextRect
+
+import Rect
+reload_once(Rect)
+from Rect import Spacer
+
 class Overlay(InstanceOrExpr, DelegatingMixin):
     "Overlay has the size of its first arg, but draws all its args in the same place, with the same origin."
     # Note: we can't inherit from Widget2D, or we'd fail to delegate
@@ -15,27 +23,27 @@ class Overlay(InstanceOrExpr, DelegatingMixin):
     # (e.g. as a last-resort delegate of some sort -- maybe we could say right here (to a fancier
     #  version of DelegatingMixin), if you don't find the attr in self.delegate, look in Widget2D).
     # See also comments in InstanceMacro, about the same issue for it.
-    #
-    # Note: stub; works only with exactly two args
-    # (though we could make them optional, add 3 more, and then it would be useful enough --
-    #  see SimpleColumn, which does this already)
-    arg0 = Arg(Widget2D)
-    delegate = _self.arg0 # needed by DelegatingMixin
-    arg1 = Arg(Widget2D)
-    args = list_Expr(arg0, arg1) # not sure if [arg0, arg1] would work, but I doubt it --
+    # [061210 grabbing SimpleColumn's scheme for permitting up to 10 args, though ArgList is nim]
+    a0 = Arg(Widget2D, None) # so it's not a bug to call it with no args, as when applying it to a list of no elts [061205]
+    a1 = Arg(Widget2D, None)
+    a2 = Arg(Widget2D, None)
+    a3 = Arg(Widget2D, None)
+    a4 = Arg(Widget2D, None)
+    a5 = Arg(Widget2D, None)
+    a6 = Arg(Widget2D, None)
+    a7 = Arg(Widget2D, None)
+    a8 = Arg(Widget2D, None)
+    a9 = Arg(Widget2D, None)
+    a10 = Arg(Widget2D, None)
+    a11 = Arg(Widget2D, None)
+    args = list_Expr(a0,a1,a2,a3,a4,a5, a6,a7,a8,a9,a10, # could say or_Expr(a0, Spacer(0)) but here is not where it matters
+                     and_Expr(a11, TextRect("too many args in Overlay"))
+                     )
+    
+    delegate = or_Expr(a0, Spacer(0)) ## _self.a0 # needed by DelegatingMixin
+##    args = list_Expr(arg0, arg1) # not sure if [arg0, arg1] would work, but I doubt it --
         ###e should make it work sometime, if possible (e.g. by delving inside all literal list ns-values in ExprsMeta)
     #e add an option to make each element slightly closer, maybe just as a depth increment? makes hover highlighting more complicated...
-    def _init_instance(self):
-        super(Overlay, self)._init_instance()
-        if not ( len(self._e_args) == 2):
-            print("Overlay is a stub which only works with exactly two args")
-        # sanity checks 061114
-        ##[tmp disabled to ensure old bug comes back when I do -- yes! See explan in Boxed._init_instance comment, rev 1.20.]
-##        assert self.arg0._e_is_instance
-        assert self.arg1._e_is_instance
-##        assert self.args[0] is self.arg0
-##        assert self.args[1] is self.arg1
-        return
     def draw(self):
         for a in self.args[::-1]:
             #e We'd like this to work properly for little filled polys drawn over big ones.
@@ -45,8 +53,7 @@ class Overlay(InstanceOrExpr, DelegatingMixin):
             # Callers can kluge it using Closer, though that's imperfect in perspective mode (or when viewpoint is rotated).
             # But for now, let's just try drawing in the wrong order and see if that helps... yep!
             if a is None:
-                printfyi("some Overlay arg is None") #k I guess this is possible; when type coercion works, decide if it should be
-                continue # even for first arg -- but that being None would fail in other ways, since it'd be our delegate
+                continue # even for first arg
             a.draw() #e try/except
     pass # Overlay
 

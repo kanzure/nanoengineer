@@ -132,7 +132,7 @@ from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkb
 
 import projection
 reload_once(projection)
-from projection import DrawInCorner1, DrawInCorner2
+from projection import DrawInCorner1, DrawInCorner
 
 # == @@@
 
@@ -794,11 +794,31 @@ testexpr_19c = Overlay( testexpr_19b, # edit this one by hand if you want
                         Translate( kluge_dragtool_state_checkbox_expr, (6,-4) ) ###e need to wrap this with "draw at the edge, untrackballed"
                     )
 
+# == DrawInCorner
+
+def func(text, color, corner):
+    color1 = ave_colors(0.6,white,color)
+    color2 = ave_colors(0.1,white,color)
+    return DrawInCorner( Boxed( SimpleColumn(
+                                       TextRect(text,1,11),
+                                       Highlightable(Rect(1,1,color1),Rect(1,1,color2)))) , corner)
+
+testexpr_20 = Overlay(
+    Rect(1,1,purple),
+    func('lower left', red, (-1,-1)),
+    func('upper left', green, (-1,1)),
+    func('lower right', black, (1,-1)),
+    func('upper right', blue, (1,1)))
+    # works -- except for textrect size when I rotate the trackball, and it's intolerably slow to highlight.
+    # (why slow? chopping out TextRect speeds it somewhat, but it's still slow. ###e SHOULD COMPARE to same stuff drawn in center.)
+
+
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True
 
-testexpr = testexpr_9c # or _19c with the spheres
+testexpr = testexpr_20 # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
@@ -835,7 +855,9 @@ def testbed(expr):
     "this turns the current testexpr into the actual expr to render"
     ## return Overlay(expr, Closer(Rect(1,1,black), 3.4)) #stub
     ## return Overlay(expr, If(1,DrawInCorner1,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
-    return Overlay(expr, If(1,DrawInCorner2,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=False)))
+    return Overlay(expr, DrawInCorner(Highlightable(Rect(1,1,black),Rect(1,1,green)),
+                                       ##(-1,-1)
+                                       ))
 
 
 if not enable_testbed:
@@ -910,7 +932,8 @@ def drawtest1_innards(glpane):
     from basic import printnim, printfyi
 
     if 'kluge':
-        # get back to the standard drawing coords (only works since exactly one level of this is pushed since mode.Draw is entered)
+        #### KLUGE: get back to the standard drawing coords
+        # (only works since exactly one level of this is pushed since mode.Draw is entered, and we control all that code)
         glPopMatrix()
         glPushMatrix()
 
