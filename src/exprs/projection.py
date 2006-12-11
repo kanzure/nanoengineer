@@ -103,7 +103,7 @@ class DrawInCorner2(DelegatingInstanceOrExpr):
             # modified from _setup_modelview:
             glTranslatef( 0.0, 0.0, - glpane.vdist)
             # move to corner -- NOT YET CORRECT [but other than this, it works!]
-            FUDGE = 0.85 # would be 1 if this was correct
+            FUDGE = 1.0 # 1.0 works well on g4 -- but only with my current default window size.
             glTranslatef( glpane.width * PIXELS * 0.5 * FUDGE, - glpane.height * PIXELS * 0.5 * FUDGE, 0.0)
                 # signs only correct for LOWER_RIGHT
             # align lbox corner (could use an alignment prim for the corner if we had one)
