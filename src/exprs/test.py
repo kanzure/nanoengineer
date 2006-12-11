@@ -811,14 +811,20 @@ testexpr_20 = Overlay(
     func('upper right', blue, (1,1)))
     # works -- except for textrect size when I rotate the trackball, and it's intolerably slow to highlight.
     # (why slow? chopping out TextRect speeds it somewhat, but it's still slow. ###e SHOULD COMPARE to same stuff drawn in center.)
+testexpr_20a = Overlay(
+    ##Rect(1,1,purple),
+    func('lower left', red, (-1,-1)),
+    func('upper left', green, (-1,1)),
+    func('lower right', black, (1,-1)),
+    func('upper right', blue, (1,1)))
 
 
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = False
+enable_testbed = True
 
-testexpr = testexpr_20 ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_15d ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
@@ -859,9 +865,8 @@ def testbed(expr):
     "this turns the current testexpr into the actual expr to render"
     ## return Overlay(expr, Closer(Rect(1,1,black), 3.4)) #stub
     ## return Overlay(expr, If(1,DrawInCorner1,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
-    return Overlay(expr, DrawInCorner(Highlightable(Rect(1,1,black),Rect(1,1,green)),
-                                       ##(-1,-1)
-                                       ))
+    ## return Overlay(expr, DrawInCorner(Highlightable(Rect(1,1,black),Rect(1,1,green)) ))
+    return Overlay(expr, testexpr_20a)
 
 
 if not enable_testbed:
@@ -949,6 +954,8 @@ def drawtest1_innards(glpane):
                 # if this is a problem, or if in_drag redraws matter, also consider printing ".", for them. In fact, try this now.
             import env
             ##print "drew", env.redraw_counter   ##e or print_compact_stack
+            sys.stdout.write(";")
+            sys.stdout.flush()
         else:
             sys.stdout.write(".")
             sys.stdout.flush()
