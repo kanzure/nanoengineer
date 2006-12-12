@@ -44,19 +44,21 @@ class LocalVariable_StateRef(InstanceOrExpr): # guess, 061130
         set_default_attrs( self.transient_state, value = self.default_value) #e should coerce that to self.type
     pass
 
-class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204, untested
+class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204
     """return something which instantiates to something with .value which is settable state,
     shared with env.prefs[key],
     properly usage-tracked in a compatible way with the rest of NE1
     """
     prefs_key = Arg(str) # note: it's probably ok if this is a time-varying formula, tho I don't know why it would be useful.
-    type = Arg(Type, Anything)
-    default_value = ArgOrOption(Anything, None) ##e default of this should depend on type, in same way it does for Arg or Option
+    default_value = ArgOrOption(Anything, None) ##e default of this should depend on type, in same way it does for Arg or Option --
+        # nonetheless it's so much more common to specify a default value than a type, that I decided to put default value first.
+    printnim("need a way to declare that this arg should not be usage-tracked, or have its use as default val do that for that use")
         ###e we need a way to declare that this arg should not be usage-tracked re time-variation!!! or to assert it uses nothing.
         # right now, if it uses something that will silently cause bugs, probably just invisible performance bugs from extra invals.
         # CAN THERE BE A GENERAL SOLN based on what we use this for (default vals of things that don't care about updates)?
         # that is more correct in principle, since that's what matters -- eg what if someone added another use of the same arg. ###e
-    printnim("need a way to declare that this arg should not be usage-tracked, or have its use as default val do that for that use")
+    type = ArgOrOption(Type, Anything) # this arg is not yet passed by anything, or used in this implem;
+        # moved type from arg2->arg3, and Arg -> ArgOrOption (as being after ArgOrOption arg2 ought to force anyway), 061211 night
     def get_value(self):
         #e should coerce this to self.type before returning it -- or add glue code wrt actual type, or....
         prefs_key = self.prefs_key
@@ -75,7 +77,9 @@ class PrefsKey_StateRef(InstanceOrExpr): # guess, 061204, untested
     value = property(get_value, set_value)
     def _init_instance(self):
         super(PrefsKey_StateRef, self)._init_instance()
-        pass #e set default value of this prefs key - there is probably an official way but i forget it now
+        # also set default value of this prefs key (noting that it may or may not already have a saved value) --
+        # i think this (since it does .get with default arg) is the official way:
+        self.get_value()
     pass
 
 # == end of current code

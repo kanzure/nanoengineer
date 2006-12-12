@@ -861,7 +861,7 @@ colwords = ('Left', 'Center', 'Right', '')
 rowwords = ('Top', 'Center', 'Bottom', '')
 ## choiceref_21e = LocalVariable_StateRef(str, "") ###k ok outside anything? it's just an expr, why not? but what's it rel to? var name???
     # answer: each instance has its own state, so it won't work unless shared, e.g. in InstanceMacro or if we specify sharing somehow.
-choiceref_21e = PrefsKey_StateRef("A9 devel scratch/testexpr_21e alignfunc", 'Center') # need a non-persistent variant of this... ###e
+choiceref_21e = PrefsKey_StateRef("A9 devel scratch/testexpr_21e alignfunc5", 'Center') # need a non-persistent variant of this... ###e
 def mybutton(xword, yword, choiceref):
     word = yword + xword
     if word == 'CenterCenter':
@@ -891,9 +891,9 @@ testexpr_21f = Boxed( identity(Center)( Rect(2,3.5,purple))) # test lbox transla
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = False
+enable_testbed = True
 
-testexpr = testexpr_21f ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_21e ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables

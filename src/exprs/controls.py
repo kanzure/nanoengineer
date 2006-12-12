@@ -177,7 +177,7 @@ checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 *
 
 class checkbox_v3(InstanceMacro): #e rename
     stateref = Arg(StateRef, None) ### default? might not work with a default val yet
-        ### IMPLEM: specify what external state to use, eg a prefs variable, PrefsKey_StateRef[displayOriginAxis_prefs_key]
+        ### IMPLEM: specify what external state to use, eg a prefs variable, PrefsKey_StateRef(displayOriginAxis_prefs_key)
     default_value = Option(bool, False)
     ## var = State(bool, default_value)
     var = stateref.value
