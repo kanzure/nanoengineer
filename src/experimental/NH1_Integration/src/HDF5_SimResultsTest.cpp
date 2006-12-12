@@ -9,11 +9,17 @@ CPPUNIT_TEST_SUITE_NAMED_REGISTRATION(HDF5_SimResultsTest, "HDF5_SimResultsTestS
 
 /* FUNCTION: setUp */
 void HDF5_SimResultsTest::setUp() {
+	simResults = new ne1::HDF5_SimResults();
+
+	std::string message;
+	int status = simResults->openDataStore("Testing", message);
+	CPPUNIT_ASSERT(status == 0);
 }
 
 
 /* FUNCTION: tearDown */
 void HDF5_SimResultsTest::tearDown() {
+	delete simResults;
 }
 
 
@@ -22,6 +28,7 @@ void HDF5_SimResultsTest::openDataStore() {
 	int status;
 	std::string message;
 	
+	delete simResults;
 	simResults = new ne1::HDF5_SimResults();
 	
 	status = simResults->openDataStore("non-existent-directory", message);
@@ -33,7 +40,6 @@ void HDF5_SimResultsTest::openDataStore() {
 	status = simResults->openDataStore("Testing", message);
 	CPPUNIT_ASSERT(status == 0);
 
-	delete simResults;
 }
 
 
@@ -42,21 +48,17 @@ void HDF5_SimResultsTest::getSetName() {
 	int status;
 	std::string message;
 	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
-	
 	std::string name;
 	status = simResults->getName(name);
 	CPPUNIT_ASSERT(status != 0);
 	
+	status = simResults->setName("Hydrocarbon deposition xxx", message);
+	CPPUNIT_ASSERT(status == 0);
 	status = simResults->setName("Hydrocarbon deposition", message);
 	CPPUNIT_ASSERT(status == 0);
 
 	status = simResults->getName(name);
 	CPPUNIT_ASSERT((status == 0) && (name == "Hydrocarbon deposition"));
-
-	delete simResults;
 }
 
 
@@ -64,10 +66,6 @@ void HDF5_SimResultsTest::getSetName() {
 void HDF5_SimResultsTest::getSetDescription() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	std::string description;
 	status = simResults->getDescription(description);
@@ -80,8 +78,6 @@ void HDF5_SimResultsTest::getSetDescription() {
 	status = simResults->getDescription(description);
 	CPPUNIT_ASSERT((status == 0) &&
 				   (description == "A nice informative description."));
-	
-	delete simResults;
 }
 
 
@@ -89,10 +85,6 @@ void HDF5_SimResultsTest::getSetDescription() {
 void HDF5_SimResultsTest::getSetNotes() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	std::string notes;
 	status = simResults->getNotes(notes);
@@ -103,8 +95,6 @@ void HDF5_SimResultsTest::getSetNotes() {
 	
 	status = simResults->getNotes(notes);
 	CPPUNIT_ASSERT((status == 0) && (notes == "User's notes"));
-	
-	delete simResults;
 }
 
 
@@ -112,10 +102,6 @@ void HDF5_SimResultsTest::getSetNotes() {
 void HDF5_SimResultsTest::getSetTimestep() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	float timestep;
 	status = simResults->getTimestep(timestep);
@@ -127,8 +113,6 @@ void HDF5_SimResultsTest::getSetTimestep() {
 	status = simResults->getTimestep(timestep);
 	CPPUNIT_ASSERT(status == 0);
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(1.234, timestep, 0.0001);
-	
-	delete simResults;
 }
 
 
@@ -136,10 +120,6 @@ void HDF5_SimResultsTest::getSetTimestep() {
 void HDF5_SimResultsTest::getSetStartStep() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	int startStep;
 	status = simResults->getStartStep(startStep);
@@ -150,8 +130,6 @@ void HDF5_SimResultsTest::getSetStartStep() {
 	
 	status = simResults->getStartStep(startStep);
 	CPPUNIT_ASSERT((status == 0) && (startStep == 5));
-	
-	delete simResults;
 }
 
 
@@ -159,10 +137,6 @@ void HDF5_SimResultsTest::getSetStartStep() {
 void HDF5_SimResultsTest::getSetMaxSteps() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	int maxSteps;
 	status = simResults->getMaxSteps(maxSteps);
@@ -173,8 +147,6 @@ void HDF5_SimResultsTest::getSetMaxSteps() {
 	
 	status = simResults->getMaxSteps(maxSteps);
 	CPPUNIT_ASSERT((status == 0) && (maxSteps == 10));
-	
-	delete simResults;
 }
 
 
@@ -182,10 +154,6 @@ void HDF5_SimResultsTest::getSetMaxSteps() {
 void HDF5_SimResultsTest::getSetEnvironmentTemperature() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	float envTemp;
 	status = simResults->getEnvironmentTemperature(envTemp);
@@ -197,8 +165,6 @@ void HDF5_SimResultsTest::getSetEnvironmentTemperature() {
 	status = simResults->getEnvironmentTemperature(envTemp);
 	CPPUNIT_ASSERT(status == 0);
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(5.678, envTemp, 0.0001);
-	
-	delete simResults;
 }
 
 
@@ -206,10 +172,6 @@ void HDF5_SimResultsTest::getSetEnvironmentTemperature() {
 void HDF5_SimResultsTest::getSetEnvironmentPressure() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	float envPress;
 	status = simResults->getEnvironmentPressure(envPress);
@@ -221,8 +183,6 @@ void HDF5_SimResultsTest::getSetEnvironmentPressure() {
 	status = simResults->getEnvironmentPressure(envPress);
 	CPPUNIT_ASSERT(status == 0);
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(9.101, envPress, 0.0001);
-	
-	delete simResults;
 }
 
 
@@ -230,10 +190,6 @@ void HDF5_SimResultsTest::getSetEnvironmentPressure() {
 void HDF5_SimResultsTest::getSetFilePath() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	std::string filePath;
 	status = simResults->getFilePath("SimSpec", filePath);
@@ -255,8 +211,6 @@ void HDF5_SimResultsTest::getSetFilePath() {
 	CPPUNIT_ASSERT(keys.size() == 2);
 	CPPUNIT_ASSERT(keys[0] == "SimSpec");
 	CPPUNIT_ASSERT(keys[1] == "SimFlow");
-	
-	delete simResults;
 }
 
 
@@ -264,10 +218,6 @@ void HDF5_SimResultsTest::getSetFilePath() {
 void HDF5_SimResultsTest::getSetRunResult() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	int result;
 	std::string failureDesc;
@@ -286,8 +236,6 @@ void HDF5_SimResultsTest::getSetRunResult() {
 	status = simResults->getRunResult(result, failureDesc);
 	CPPUNIT_ASSERT((status == 0) &&
 				   (result == 2) && (failureDesc == "It blew up."));
-	
-	delete simResults;
 }
 
 
@@ -295,10 +243,6 @@ void HDF5_SimResultsTest::getSetRunResult() {
 void HDF5_SimResultsTest::getSetStepCount() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	int stepCount;
 	status = simResults->getStepCount(stepCount);
@@ -309,8 +253,6 @@ void HDF5_SimResultsTest::getSetStepCount() {
 	
 	status = simResults->getStepCount(stepCount);
 	CPPUNIT_ASSERT((status == 0) && (stepCount == 100));
-	
-	delete simResults;
 }
 
 
@@ -318,10 +260,6 @@ void HDF5_SimResultsTest::getSetStepCount() {
 void HDF5_SimResultsTest::getSetStartTime() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	time_t startTime;
 	status = simResults->getStartTime(startTime);
@@ -334,8 +272,6 @@ void HDF5_SimResultsTest::getSetStartTime() {
 	time_t retrievedStartTime;
 	status = simResults->getStartTime(retrievedStartTime);
 	CPPUNIT_ASSERT((status == 0) && (retrievedStartTime == startTime));
-	
-	delete simResults;
 }
 
 
@@ -343,10 +279,6 @@ void HDF5_SimResultsTest::getSetStartTime() {
 void HDF5_SimResultsTest::getSetCPU_RunningTime() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	float runningTime;
 	status = simResults->getCPU_RunningTime(runningTime);
@@ -358,8 +290,6 @@ void HDF5_SimResultsTest::getSetCPU_RunningTime() {
 	status = simResults->getCPU_RunningTime(runningTime);
 	CPPUNIT_ASSERT(status == 0);
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(100.1, runningTime, 0.01);
-	
-	delete simResults;
 }
 
 
@@ -367,10 +297,6 @@ void HDF5_SimResultsTest::getSetCPU_RunningTime() {
 void HDF5_SimResultsTest::getSetWallRunningTime() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
 	
 	float runningTime;
 	status = simResults->getWallRunningTime(runningTime);
@@ -382,25 +308,21 @@ void HDF5_SimResultsTest::getSetWallRunningTime() {
 	status = simResults->getWallRunningTime(runningTime);
 	CPPUNIT_ASSERT(status == 0);
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(110.1, runningTime, 0.01);
-	
-	delete simResults;
 }
 
 
-/* FUNCTION: addGetRemoveFrameSet */
-void HDF5_SimResultsTest::addGetRemoveFrameSet() {
+/* FUNCTION: getAddRemoveFrameSet */
+void HDF5_SimResultsTest::getAddRemoveFrameSet() {
 	int status;
 	std::string message;
-	
-	simResults = new ne1::HDF5_SimResults();
-	status = simResults->openDataStore("Testing", message);
-	CPPUNIT_ASSERT(status == 0);
-	
+
 	std::vector<std::string> frameSetNames = simResults->getFrameSetNames();
 	CPPUNIT_ASSERT(frameSetNames.size() == 0);
 
 	status = simResults->addFrameSet("frame-set-1", message);
 	CPPUNIT_ASSERT(status == 0);
+	status = simResults->addFrameSet("frame-set-1", message);
+	CPPUNIT_ASSERT(status != 0);
 	status = simResults->addFrameSet("frame-set-2", message);
 	CPPUNIT_ASSERT(status == 0);
 	
@@ -408,6 +330,51 @@ void HDF5_SimResultsTest::addGetRemoveFrameSet() {
 	CPPUNIT_ASSERT(frameSetNames.size() == 2);
 	CPPUNIT_ASSERT(frameSetNames[0] == "frame-set-1");
 	CPPUNIT_ASSERT(frameSetNames[1] == "frame-set-2");
+}
+
+
+/* FUNCTION: getSetAggregationMode */
+void HDF5_SimResultsTest::getSetAggregationMode() {
+	int status;
+	std::string message;
 	
-	delete simResults;
+	int mode;
+	status = simResults->getAggregationMode("frame-set-X", mode);
+	CPPUNIT_ASSERT(status != 0);
+	
+	status = simResults->getAggregationMode("frame-set-1", mode);
+	CPPUNIT_ASSERT(status != 0);
+	
+	status = simResults->setAggregationMode("frame-set-X", 1, message);
+	CPPUNIT_ASSERT(status == SRDS_NON_EXISTENT_FRAMESET);
+	
+	status = simResults->setAggregationMode("frame-set-1", 1, message);
+	CPPUNIT_ASSERT(status == 0);
+	
+	status = simResults->getAggregationMode("frame-set-1", mode);
+	CPPUNIT_ASSERT((status == 0) && (mode == 1));
+}
+
+
+/* FUNCTION: getSetStepsPerFrame */
+void HDF5_SimResultsTest::getSetStepsPerFrame() {
+	int status;
+	std::string message;
+	
+	int stepsPerFrame;
+	status = simResults->getStepsPerFrame("frame-set-X", stepsPerFrame);
+	CPPUNIT_ASSERT(status != 0);
+	
+	status = simResults->getStepsPerFrame("frame-set-1", stepsPerFrame);
+	CPPUNIT_ASSERT(status != 0);
+	
+	status =
+		simResults->setStepsPerFrame("frame-set-X", 10, message);
+	CPPUNIT_ASSERT(status == SRDS_NON_EXISTENT_FRAMESET);
+	
+	status = simResults->setStepsPerFrame("frame-set-1", 10, message);
+	CPPUNIT_ASSERT(status == 0);
+	
+	status = simResults->getStepsPerFrame("frame-set-1", stepsPerFrame);
+	CPPUNIT_ASSERT((status == 0) && (stepsPerFrame == 10));
 }

@@ -414,6 +414,78 @@ int HDF5_SimResults::addFrameSet(const char* name, std::string& message) {
 }
 
 
+/* FUNCTION: getAggregationMode */
+int HDF5_SimResults::getAggregationMode(const char* frameSetName,
+										int& mode) const {
+	std::string groupName = "/Results/FrameSets/";
+	groupName.append(frameSetName);
+	
+	return getIntAttribute(groupName.c_str(), "AggregationMode", mode);
+}
+
+
+/* FUNCTION: setAggregationMode */
+int HDF5_SimResults::setAggregationMode(const char* frameSetName,
+										const int& mode,
+										std::string& message) {
+	
+	std::string groupName = "/Results/FrameSets/";
+	groupName.append(frameSetName);
+	
+	// Check if the frame-set has been added first
+	int resultCode = 1;
+	hid_t groupId = H5Gopen(fileId, groupName.c_str());
+	if (groupId > -1) {
+		// Exists
+		H5Gclose(groupId);
+		resultCode =
+			setIntAttribute(groupName, "AggregationMode", mode, message);
+		
+	} else {
+		message = "Frame-set: ";
+		message.append(frameSetName).append(" doesn't exist.");
+		resultCode = SRDS_NON_EXISTENT_FRAMESET;
+	}
+	return resultCode;
+}
+
+
+/* FUNCTION: getStepsPerFrame */
+int HDF5_SimResults::getStepsPerFrame(const char* frameSetName,
+									  int& stepsPerFrame) const {
+	std::string groupName = "/Results/FrameSets/";
+	groupName.append(frameSetName);
+	
+	return getIntAttribute(groupName.c_str(), "StepsPerFrame", stepsPerFrame);
+									  }
+
+
+/* FUNCTION: setStepsPerFrame */
+int HDF5_SimResults::setStepsPerFrame(const char* frameSetName,
+									  const int& stepsPerFrame,
+									  std::string& message) {
+	
+	std::string groupName = "/Results/FrameSets/";
+	groupName.append(frameSetName);
+	
+	// Check if the frame-set has been added first
+	int resultCode = 1;
+	hid_t groupId = H5Gopen(fileId, groupName.c_str());
+	if (groupId > -1) {
+		// Exists
+		H5Gclose(groupId);
+		resultCode =
+			setIntAttribute(groupName, "StepsPerFrame", stepsPerFrame, message);
+		
+	} else {
+		message = "Frame-set: ";
+		message.append(frameSetName).append(" doesn't exist.");
+		resultCode = SRDS_NON_EXISTENT_FRAMESET;
+	}
+	return resultCode;
+}
+
+
 /* FUNCTION: getStringAttribute */
 int HDF5_SimResults::getStringAttribute(const std::string& groupName,
 										const std::string& attributeName,
@@ -456,53 +528,63 @@ int HDF5_SimResults::setStringAttribute(const std::string& groupName,
 	int resultCode = 0;
     herr_t status;
 	
+	// Prepare error message
+	message = "Unable to set ";
+	message.append(groupName).append("/").append(attributeName);
+	message.append("=").append(value).append(": ");
+	
 	// See if the group exists and open it
 	hid_t groupId = H5Gopen(fileId, groupName.c_str());
 	if (groupId < 0) {
 		// Doesn't exist, create it
 		groupId = H5Gcreate(fileId, groupName.c_str(), GROUP_NAME_SIZE_HINT);
+		if (groupId < 0) {
+			// Get error description from HDF5
+			std::string hdf5Message;
+			status =
+				H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+			if (status > -1)
+				message.append(hdf5Message).append(".");
+			
+			resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		}
 	}
 	
-	// Create the type
-	hid_t stringType = H5Tcopy(H5T_C_S1);
-	status = H5Tset_size(stringType, H5T_VARIABLE);
-	
-	// Create the dataspace
-	hid_t dataspaceId = H5Screate(H5S_SCALAR);
-	
-	// See if the attribute exists and open it
-	hid_t attributeId = H5Aopen_name(groupId, attributeName.c_str());
-	if (attributeId < 0)
-		// Doesn't exist, create it
-		attributeId =
-			H5Acreate(groupId, attributeName.c_str(), stringType, dataspaceId,
-					  H5P_DEFAULT);
-	
-	// Write the attribute
-	char* valueChars = (char*)(malloc((value.length()+1)*sizeof(char)));
-	strcpy(valueChars, value.c_str());
-	status = H5Awrite(attributeId, stringType, &valueChars);
-	free(valueChars);
-	if (status < 0) {
-		message = "Unable to set ";
-		message.append(groupName).append("/").append(attributeName);
-		message.append("=").append(value).append(": ");
+	if (resultCode == 0) {
+		// Create the type
+		hid_t stringType = H5Tcopy(H5T_C_S1);
+		status = H5Tset_size(stringType, H5T_VARIABLE);
 		
-		// Get error description from HDF5
-		std::string hdf5Message;
-		status =
-			H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
-		if (status > -1)
-			message.append(hdf5Message).append(".");
+		// Create the dataspace
+		hid_t dataspaceId = H5Screate(H5S_SCALAR);
 		
-		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		// See if the attribute exists and open it
+		hid_t attributeId = H5Aopen_name(groupId, attributeName.c_str());
+		if (attributeId < 0)
+			// Doesn't exist, create it
+			attributeId =
+				H5Acreate(groupId, attributeName.c_str(), stringType,
+						  dataspaceId, H5P_DEFAULT);
+		
+		// Write the attribute
+		char* valueChars = (char*)(malloc((value.length()+1)*sizeof(char)));
+		strcpy(valueChars, value.c_str());
+		status = H5Awrite(attributeId, stringType, &valueChars);
+		free(valueChars);
+		if (status < 0) {		
+			// Get error description from HDF5
+			std::string hdf5Message;
+			status =
+				H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+			if (status > -1)
+				message.append(hdf5Message).append(".");
+			
+			resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		}
+		H5Aclose(attributeId);
+		H5Sclose(dataspaceId);
+		H5Gclose(groupId);
 	}
-	
-	// Clean up
-	H5Aclose(attributeId);
-	H5Sclose(dataspaceId);
-	H5Gclose(groupId);
-	
 	return resultCode;
 }
 
@@ -538,54 +620,64 @@ int HDF5_SimResults::getIntAttribute(const std::string& groupName,
 
 /* FUNCTION: setIntAttribute */
 int HDF5_SimResults::setIntAttribute(const std::string& groupName,
-									   const std::string& attributeName,
-									   const int& value,
-									   std::string& message) {
+									 const std::string& attributeName,
+									 const int& value,
+									 std::string& message) {
 	int resultCode = 0;
     herr_t status;
+	
+	// Prepare error message
+	message = "Unable to set ";
+	message.append(groupName).append("/").append(attributeName);
+	char buffer[20];
+	sprintf(buffer, "%d", value);
+	message.append("=").append(buffer).append(": ");
 	
 	// See if the group exists and open it
 	hid_t groupId = H5Gopen(fileId, groupName.c_str());
 	if (groupId < 0) {
 		// Doesn't exist, create it
 		groupId = H5Gcreate(fileId, groupName.c_str(), GROUP_NAME_SIZE_HINT);
+		if (groupId < 0) {
+			// Get error description from HDF5
+			std::string hdf5Message;
+			status =
+				H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+			if (status > -1)
+				message.append(hdf5Message).append(".");
+			
+			resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		}
 	}
 	
-	// Create the dataspace
-	hid_t dataspaceId = H5Screate(H5S_SCALAR);
-	
-	// See if the attribute exists and open it
-	hid_t attributeId = H5Aopen_name(groupId, attributeName.c_str());
-	if (attributeId < 0)
-		// Doesn't exist, create it
-		attributeId =
-			H5Acreate(groupId, attributeName.c_str(), H5T_NATIVE_INT,
-					  dataspaceId, H5P_DEFAULT);
-	
-	// Write the attribute
-	status = H5Awrite(attributeId, H5T_NATIVE_INT, &value);
-	if (status < 0) {
-		message = "Unable to set ";
-		message.append(groupName).append("/").append(attributeName);
-		char buffer[20];
-		sprintf(buffer, "%d", value);
-		message.append("=").append(buffer).append(": ");
+	if (resultCode == 0) {
+		// Create the dataspace
+		hid_t dataspaceId = H5Screate(H5S_SCALAR);
 		
-		// Get error description from HDF5
-		std::string hdf5Message;
-		status =
-			H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
-		if (status > -1)
-			message.append(hdf5Message).append(".");
+		// See if the attribute exists and open it
+		hid_t attributeId = H5Aopen_name(groupId, attributeName.c_str());
+		if (attributeId < 0)
+			// Doesn't exist, create it
+			attributeId =
+				H5Acreate(groupId, attributeName.c_str(), H5T_NATIVE_INT,
+						  dataspaceId, H5P_DEFAULT);
 		
-		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		// Write the attribute
+		status = H5Awrite(attributeId, H5T_NATIVE_INT, &value);
+		if (status < 0) {
+			// Get error description from HDF5
+			std::string hdf5Message;
+			status =
+				H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+			if (status > -1)
+				message.append(hdf5Message).append(".");
+			
+			resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		}
+		H5Aclose(attributeId);
+		H5Sclose(dataspaceId);
+		H5Gclose(groupId);
 	}
-	
-	// Clean up
-	H5Aclose(attributeId);
-	H5Sclose(dataspaceId);
-	H5Gclose(groupId);
-	
 	return resultCode;
 }
 
@@ -627,48 +719,58 @@ int HDF5_SimResults::setFloatAttribute(const std::string& groupName,
 	int resultCode = 0;
     herr_t status;
 	
+	// Prepare error message
+	message = "Unable to set ";
+	message.append(groupName).append("/").append(attributeName);
+	char buffer[20];
+	sprintf(buffer, "%f", value);
+	message.append("=").append(buffer).append(": ");
+	
 	// See if the group exists and open it
 	hid_t groupId = H5Gopen(fileId, groupName.c_str());
 	if (groupId < 0) {
 		// Doesn't exist, create it
 		groupId = H5Gcreate(fileId, groupName.c_str(), GROUP_NAME_SIZE_HINT);
+		if (groupId < 0) {
+			// Get error description from HDF5
+			std::string hdf5Message;
+			status =
+				H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+			if (status > -1)
+				message.append(hdf5Message).append(".");
+			
+			resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		}
 	}
-	
-	// Create the dataspace
-	hid_t dataspaceId = H5Screate(H5S_SCALAR);
-	
-	// See if the attribute exists and open it
-	hid_t attributeId = H5Aopen_name(groupId, attributeName.c_str());
-	if (attributeId < 0)
-		// Doesn't exist, create it
-		attributeId =
-			H5Acreate(groupId, attributeName.c_str(), H5T_NATIVE_FLOAT,
-					  dataspaceId, H5P_DEFAULT);
-	
-	// Write the attribute
-	status = H5Awrite(attributeId, H5T_NATIVE_FLOAT, &value);
-	if (status < 0) {
-		message = "Unable to set ";
-		message.append(groupName).append("/").append(attributeName);
-		char buffer[20];
-		sprintf(buffer, "%f", value);
-		message.append("=").append(buffer).append(": ");
 		
-		// Get error description from HDF5
-		std::string hdf5Message;
-		status =
-			H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
-		if (status > -1)
-			message.append(hdf5Message).append(".");
+	if (resultCode == 0) {
+		// Create the dataspace
+		hid_t dataspaceId = H5Screate(H5S_SCALAR);
 		
-		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
-	}
-	
-	// Clean up
-	H5Aclose(attributeId);
-	H5Sclose(dataspaceId);
-	H5Gclose(groupId);
-	
+		// See if the attribute exists and open it
+		hid_t attributeId = H5Aopen_name(groupId, attributeName.c_str());
+		if (attributeId < 0)
+			// Doesn't exist, create it
+			attributeId =
+				H5Acreate(groupId, attributeName.c_str(), H5T_NATIVE_FLOAT,
+						  dataspaceId, H5P_DEFAULT);
+		
+		// Write the attribute
+		status = H5Awrite(attributeId, H5T_NATIVE_FLOAT, &value);
+		if (status < 0) {
+			// Get error description from HDF5
+			std::string hdf5Message;
+			status =
+				H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+			if (status > -1)
+				message.append(hdf5Message).append(".");
+			
+			resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		}
+		H5Aclose(attributeId);
+		H5Sclose(dataspaceId);
+		H5Gclose(groupId);
+	}	
 	return resultCode;
 }
 

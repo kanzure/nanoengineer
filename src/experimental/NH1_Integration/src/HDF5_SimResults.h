@@ -114,12 +114,23 @@ class HDF5_SimResults : public SimResultsDataStore {
 		std::vector<std::string> getFrameSetNames() const;
 		int addFrameSet(const char* name, std::string& message);
 		
+		int getAggregationMode(const char* frameSetName, int& mode) const;
+		int setAggregationMode(const char* frameSetName, const int& mode,
+							   std::string& message);
+		
+		int getStepsPerFrame(const char* frameSetName,
+							 int& stepsPerFrame) const;
+		int setStepsPerFrame(const char* frameSetName,
+							 const int& stepsPerFrame,
+							 std::string& message);
+		
 	private:
 		// HDF5 type identifiers
 		hid_t bondTypeId;
 		hid_t bondsVariableLengthId;
 		
 		hid_t fileId;	// HDF5 file identifier
+		
 		
 		int getStringAttribute(const std::string& groupName,
 							   const std::string& attributeName,

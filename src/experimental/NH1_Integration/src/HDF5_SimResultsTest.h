@@ -15,6 +15,7 @@
 class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 
 	CPPUNIT_TEST_SUITE(HDF5_SimResultsTest);
+	
 	CPPUNIT_TEST(openDataStore);
 	CPPUNIT_TEST(getSetName);
 	CPPUNIT_TEST(getSetDescription);
@@ -33,7 +34,10 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 	CPPUNIT_TEST(getSetCPU_RunningTime);
 	CPPUNIT_TEST(getSetWallRunningTime);
 	
-	CPPUNIT_TEST(addGetRemoveFrameSet);
+	CPPUNIT_TEST(getAddRemoveFrameSet);
+	CPPUNIT_TEST(getSetAggregationMode);
+	CPPUNIT_TEST(getSetStepsPerFrame);
+	
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -58,7 +62,9 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 		void getSetCPU_RunningTime();
 		void getSetWallRunningTime();
 		
-		void addGetRemoveFrameSet();
+		void getAddRemoveFrameSet();
+		void getSetAggregationMode();
+		void getSetStepsPerFrame();
 		
 	private:
 		ne1::HDF5_SimResults* simResults;

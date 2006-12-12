@@ -9,6 +9,7 @@
 
 #define SRDS_UNABLE_TO_OPEN_FILE			1
 #define SRDS_UNABLE_TO_COMPLETE_OPERATION	2
+#define SRDS_NON_EXISTENT_FRAMESET			3
 
 namespace ne1 {
 
@@ -384,7 +385,9 @@ class SimResultsDataStore {
 	 */
 	virtual std::vector<std::string> getFrameSetNames() const = 0;
 	
-	/** Adds a frame-set with the given name.
+	/**
+	 * Adds a frame-set with the given name. If a frame-set with the given name
+	 * already exists, the call fails.
 	 *
 	 * @param message description of the error when a non-zero value is returned
 	 * @return 0=successful or non-zero error code
@@ -395,17 +398,54 @@ class SimResultsDataStore {
 	 * Removes the frame-set with the given name.
 	 *
 	def removeFrameSet(self, name):
-		""""""
-		pass
 	 */
-	/*
-	 
-	get/setAggregationMode(self, name, mode)
-		@param aggregationMode: 0=per-time-step values are averaged (default),
-								1=last per-time-step value is used
-	get/setStepsPerFrame(self, name, stepsPerFrame)
-		pass
 	
+
+	/*
+	 * AggregationMode
+	 */
+	/** Retrieves the aggregation mode of the frame-set with the given name.
+	 *
+	 * @param mode [IN]	0=per-time-step values are averaged (default),
+	 *					1=last per-time-step value is used
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getAggregationMode(const char* frameSetName,
+								   int& mode) const = 0;
+	/**
+	 * Sets the aggregation mode of the frame-set with the given name. If a
+	 * frame-set with the given name doesn't exist, the call fails.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setAggregationMode(const char* frameSetName, const int& mode,
+								   std::string& message) = 0;
+	
+	
+	/*
+	 * StepsPerFrame
+	 */
+	/**
+	 * Retrieves the steps-per-frame for the frame-set with the given name.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getStepsPerFrame(const char* frameSetName,
+								 int& stepsPerFrame) const = 0;
+	/**
+	 * Sets the steps-per-frame for the frame-set with the given name. If a
+	 * frame-set with the given name doesn't exist, the call fails.
+	 *
+	 * @param message description of the error when a non-zero value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setStepsPerFrame(const char* frameSetName,
+								 const int& stepsPerFrame,
+								 std::string& message) = 0;
+
+	
+	/*
 	
 	def getFrameCount(self, frameSetName):
 		"""Returns the number of frames in a frame-set."""
