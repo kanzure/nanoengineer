@@ -532,6 +532,6 @@ kluge_dragtool_state() # set the default val
 
 kluge_dragtool_state_checkbox_expr = \
     SimpleRow(checkbox_v3(PrefsKey_StateRef(kluge_dragtool_state_prefs_key)),
-              TextRect("drag new nodes?",1,20))
+              TextRect("drag new nodes?",1,20)) # [later comment: see also testexpr_16c, similar to this with different prefs_key]
 
 # end

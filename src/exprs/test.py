@@ -753,7 +753,7 @@ testexpr_16b = SimpleColumn(
   ) # works
 
 from prefs_constants import displayOriginAxis_prefs_key
-testexpr_16c = SimpleColumn( 
+testexpr_16c = SimpleColumn( # [later: see also kluge_dragtool_state_checkbox_expr, similar to this with different prefs_key]
     SimpleRow(checkbox_v3(PrefsKey_StateRef(displayOriginAxis_prefs_key)), # test: specify external state, eg a prefs variable
               ###e would this look better? checkbox_v3(prefs_key = displayOriginAxis_prefs_key)
               TextRect("display origin axis",1,20)),
@@ -862,7 +862,8 @@ rowwords = ('Top', 'Center', 'Bottom', '')
 ## choiceref_21e = LocalVariable_StateRef(str, "") ###k ok outside anything? it's just an expr, why not? but what's it rel to? var name???
     # answer: each instance has its own state, so it won't work unless shared, e.g. in InstanceMacro or if we specify sharing somehow.
 choiceref_21e = PrefsKey_StateRef("A9 devel scratch/testexpr_21e alignfunc5", 'Center') # need a non-persistent variant of this... ###e
-def mybutton(xword, yword, choiceref):
+    # later note: choiceref_21e (constructed by PrefsKey_StateRef) is an expr, not yet an instance.
+def mybutton(xword, yword, choiceref): # later note: choiceref is really choiceref_expr,  not yet an instance.
     word = yword + xword
     if word == 'CenterCenter':
         word = 'Center'
@@ -889,11 +890,87 @@ testexpr_21e = Translate( Overlay(
 testexpr_21f = Boxed( identity(Center)( Rect(2,3.5,purple))) # test lbox translation by Center -- works
     # (implem of lbox shift is in Translate, so no need to test all alignment prims if this works)
 
+class class_21g(DelegatingInstanceOrExpr): # see how far I can simplify testexpr_21e using an expr class [061212]
+    choiceref_21g = PrefsKey_StateRef("A9 devel scratch/testexpr_21g alignfunc", 'Center')
+        # note: this is an expr. In current code [061212]: it's implicitly instantiated, i think.
+        # In planned newer code [i think]: you'd have to explicitly instantiate it if it mattered,
+        # but it doesn't matter in this case, since this expr has no instance-specific data or state.
+    colwords = ('Left', 'Center', 'Right', '')
+    rowwords = ('Top', 'Center', 'Bottom', '')
+    ## xxx = TextRect( format_Expr("%s", _this(ChoiceButton).choiceval), 1,12 ) #k is _this ok, tho it requires piecing together to work?
+        # no, see comment "IT WILL FAIL" -- and indeed it does:
+        ## AssertionError: _this failed to find referent for '_this_ChoiceButton' (at runtime)
+    def mybutton_CANTWORK(self, xword, yword):
+        # an ordinary method -- return an expr when asked for one - but does require self to run, THOUGH IT OUGHT NOT TO
+        #k (should we make it into a classmethod or staticmethod? yes, see below)
+        word = yword + xword
+        if word == 'CenterCenter':
+            word = 'Center'
+        elif word == 'Center':
+            if not xword:
+                word = yword + 'Y' # i.e. CenterY
+            elif not yword:
+                word = xword + 'X' # CenterX
+        if not word:
+            return Spacer()
+        ###k is it ok that this returns something that was constructed around self.choiceref_21g,
+        # a saved choiceref instance, the same instance each time this runs (for different args)?
+        # reiterating the above comment about the choiceref_21g attr def:
+        # current code: yes, sharing that instance is ok
+        # planned new code: it will be including an expr anyway, tho hopefully one with the optim-power
+        # to cache instantiated versions on self if it so desires... this might mean self.choiceref_21g
+        # is a "sharable partly-instantiated-as-appropriate-for-self thing", able to be anything in
+        # between instance and expr. (But what if it was a number vs a number-producer?? #k)
+        ###k what about for self.xxx?
+        # In planned new code, it's just an expr, so we're fine (given that we're returning "just an expr").
+        # In current code, it will eval to an instance...
+        # _this might fail now, fail later (my guess), or work later.
+        # But the instance is the same for each button, which is definitely wrong. SO IT WILL FAIL.###BUG
+        return ChoiceButton(word, self.choiceref_21g, content = self.xxx )
+    # this next is supposed to be an expr dependent only on this class... but it can't be if mybutton gets choiceref_21g via self.
+    # so fix that:
+    def mybutton(xword, yword, choiceref): ## , xxx): # staticmethod, but only after direct use as function
+        word = yword + xword
+        if word == 'CenterCenter':
+            word = 'Center'
+        elif word == 'Center':
+            if not xword:
+                word = yword + 'Y' # i.e. CenterY
+            elif not yword:
+                word = xword + 'X' # CenterX
+        if not word:
+            return Spacer() 
+        ## return ChoiceButton(word, choiceref, content = xxx )
+        return ChoiceButton(word, choiceref, content = TextRect( format_Expr("%s", _this(ChoiceButton).choiceval), 1,12 ) )
+    # now pass what we need to mybutton, direct from the class namespace -- will this work now, or do we need to do it before the staticmethod call??
+    # yes, we got TypeError: 'staticmethod' object is not callable until we did that
+    table_21g = SimpleColumn(* [SimpleRow(* [mybutton(colword, rowword, choiceref_21g) for colword in colwords]) for rowword in rowwords])
+    mybutton = staticmethod(mybutton) # could just as well be del mybutton, i think
+    del mybutton #k ok?
+    # the following required compromises with current code: getattr_Expr, eval_Expr, no xxx in mybutton call above (due to _this vs autoinstantiation).
+    delegate = Overlay(
+        identity(eval_Expr)( call_Expr( aligntest_by_name, getattr_Expr(choiceref_21g, 'value') )) ,
+                # predict failure here in .value, until I re-add getattr_Expr [and then? works]
+                # yes, it failed, but I didn't predict the exact manner: AssertionError: compute method asked for on non-Instance <PrefsKey_StateRef#105377(a)>
+                # and i'm unsure if it's equiv to what i predicted... ##k
+            # I think ExprsMeta scanner makes choiceref_21g symbolic -- but, too late to help? YES, ###BUG, unless we wrap the def above with something
+            # to make it symbolic, even if we needn't wrap it with something to instantiate it.
+            # And I think the eval_Expr requirement isn't affected by being in a class. And I think the next line TopLeft( Boxed(table_21g)) will still work,
+            # UNLESS replacement of table_21g with _self.table_21g causes trouble (not sure). #k likely BUG -- but seems to work ok for some reason... aha,
+            # it's because _self.table_21g evals to what's already an instance, since all exprs as class attrs become instances as self attrs in current code.
+            # In planned new code it will also work, with table_21g staying an expr until used (or explicitly type-coerced or instantiated).
+        TopLeft( Boxed(table_21g))
+     )
+    pass
+
+testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p]
+
+    
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = True
+enable_testbed = False
 
-testexpr = testexpr_21e ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
