@@ -828,29 +828,31 @@ testexpr_21a = Boxed(SimpleRow(wrap1(Left), wrap1(Center), wrap1(Right))) # work
 testexpr_21b = Boxed(SimpleColumn(wrap1(TopRight), wrap1(CenterRight), wrap1(BottomRight))) # might work but hard to interpret
 testexpr_21c = Boxed(SimpleRow(wrap1(TopRight), wrap1(CenterRight), wrap1(BottomRight))) # ditto
 
+# the following testexpr_21d & _especially _21e are examples of toplevel code we need to figure out how to simplify. ####
+
 def aligntest(af):
     "[af should be an alignment func (class) like Center]"
     try:
-        ##print "returning one for",af.__name__ # why only called once?? probably for testexpr_21d -- not called as we use _21e, why?
+        def doit(n):
+            return af(Translate(Rect(n),(-n/3.0,-n/3.0)))
         return Overlay(BottomRight(TextRect(af.__name__)),
-                       BottomLeft(Boxed(SimpleRow(af(Rect(0.2)),
-                                                  af(Rect(0.4)),
-                                                  af(Rect(0.6)) ))),
-                       TopRight(Boxed(SimpleColumn(af(Rect(0.25)), # TopRight is not working as hardcoded here
-                                                   af(Rect(0.45)),
-                                                   af(Rect(0.65)) ))) )
+                       BottomLeft(Boxed(SimpleRow(doit(0.4),
+                                                  doit(0.6),
+                                                  doit(0.9) ))),
+                       TopRight(Boxed(SimpleColumn(doit(0.45),
+                                                   doit(0.65),
+                                                   doit(0.95) ))) )
     except:
         print sys.exc_info() ##k
         return BottomRight(TextRect('exception discarded') )#e find a way to include the text?
 
 def aligntest_by_name(afname):
     try:
-        import Center ### this was the WRONG MODULE, that explains a lot of the problems
+        import Center
         af = getattr(Center, afname)
         return aligntest(af)
     except:
-        return BottomRight(TextRect("didn't work: %r" % afname,1,30)) # this is always happening -- why?
-    # known now: we didn't see it before since (before BottomRight) it was obscured by item 1,1's textrect in the table, at exact same pos.
+        return BottomRight(TextRect("didn't work: %r" % afname,1,30))
     pass
 
 testexpr_21d = aligntest(Center)
@@ -865,7 +867,11 @@ def mybutton(xword, yword, choiceref):
     if word == 'CenterCenter':
         word = 'Center'
     elif word == 'Center':
-        word = '' # for now
+        ## word = (xword or 'Y') + (yword or 'X') -- oops, wrong order (YCenter)
+        if not xword:
+            word = yword + 'Y' # i.e. CenterY
+        elif not yword:
+            word = xword + 'X' # CenterX
     if not word:
         return Spacer()
     return ChoiceButton(word, choiceref, content = TextRect( format_Expr("%s", _this(ChoiceButton).choiceval), 1,12 ) )
@@ -878,15 +884,16 @@ testexpr_21e = Translate( Overlay(
     # needed bugfix: choiceref_21e.value -> getattr_Expr(choiceref_21e, 'value') -- is there a better way?? ###e
     # ditto for call of aligntest on that -> call_Expr -- and eval_Expr (if it works) which is a ###KLUGE -- need better way for sure.
 
-    # working; but not defined for TopCenter, CenterLeft; BottomCenter
-    # seems wrong: CenterRight [as of 061211 308p]
+    # all 15 primitives in the table are defined and working as of 061211 eve
 
+testexpr_21f = Boxed( identity(Center)( Rect(2,3.5,purple))) # test lbox translation by Center -- works
+    # (implem of lbox shift is in Translate, so no need to test all alignment prims if this works)
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = False
 
-testexpr = testexpr_21e ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_21f ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
