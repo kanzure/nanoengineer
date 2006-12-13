@@ -395,6 +395,36 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
 testexpr_9cx = SimpleColumn(testexpr_9a, testexpr_9b(projection = True)) ###BUG -- that option breaks the functionality.
     # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
 
+testexpr_9f = Highlightable( Rect(color = If_expr(_this(Highlightable).env.glpane.in_drag, blue, lightblue))) # fails, silly reason
+    ## AssertionError: this expr needs its arguments supplied: <Rect#0(i w/o a)>
+    # I turned that into a warning, but it fails later (ends up trying to draw_filled_rect with color = If_expr(...)),
+    # perhaps because destructive_supply_args never ran -- just a speculation, but I can't see anything else that could differ.
+    # Hmm, maybe the bug will occur even if I supply the args?!? Try that now:
+testexpr_9fx1 = Rect(color = If_expr(_my.env.glpane.in_drag, blue, lightblue)) # still fails (expected)
+    # _my is ok since everyone's glpane is the same!
+    # This has the same ###BUG!!! Hmm, why doesn't that expr get evalled? Oh, duh, I forgot to supply the args. Ok, this is the control experiment.
+testexpr_9fx2 = Rect(color = If_expr(_my.env.glpane.in_drag, blue, lightblue))() # still fails
+    # This has the same bug, and does have args and no longer complains it doesn't! So some code to eval If_expr or _my is missing.
+testexpr_9fx3 = Rect(1, 1, If_expr(_my.env.glpane.in_drag, blue, lightblue)) # try it with args supplied at same time, and color not an option -- still fails;
+    # after I overrode _e_eval in If_expr it sort of works but gets stuck at true state, but maybe in_drag itself gets stuck (in rubberband selrect)??
+    # hard to say; double-click makes it 0, using atoms makes it 1 again...
+    # note that I was wrong that glpane.in_drag would be ok for this application instead of something about _this(Highlightable) --
+    # it's true about *any* drag, not only about a drag of that object -- not what I intended. Even so it ought to work.
+    # It might be failing due to lack of inval when in_drag changes, of course. Try adding another draggable somewhere?
+    # No, dragging around on a TextRect causes lots of redraws, but no reprints of "<If_expr#19096(a)> gets cond 1"! Why?
+    # Because something contains its value and didn't usage-track anything which we're invalidating here! AHA. ######BUG
+    # That can be fixed by referring to trackable state, provided it's not _i_instance_dict or whatever which fails to track this eval anyway. Try it.
+testexpr_9fx4 = Highlightable( Rect(1, 1, If_expr(_this(Highlightable).transient_state.in_drag, blue, lightblue))) # works, if I remember to click -- it's not in_bareMotion!
+    # as i said next to in_drag's def:
+    ###e should make an abbrev for that attr as HL.in_drag -- maybe use State macro for it? read only is ok, maybe good.
+    ###e should add an accessible attr for detecting whether we're over it. What to call it?
+
+
+## testexpr_9f = testexpr_9fx4 ###KLUGE testexpr to use now, don't commit like this
+
+##### RETEST EVERYTHING THAT USES If_expr!!!! see @@@@
+
+                               
 # ToggleShow
 testexpr_10a = ToggleShow( Rect(2,3,lightgreen) ) # test use of Rules, If, toggling... works
 testexpr_10b = ToggleShow( Highlightable(Rect(2,3,green)) ) # use Highlightable on rect - avoid redraw per mousemotion on it - works
@@ -970,7 +1000,7 @@ testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p]
 
 enable_testbed = False
 
-testexpr = testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_9fx4 ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
@@ -988,8 +1018,9 @@ testexpr = testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
     ## testexpr_15d ChoiceColumn
     ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
     ## testexpr_18 model tree demo
-    ## testexpr_19b = GraphDrawDemo_FixedToolOnArg1 -- works, but the tool remains IN DEVEL ###
-    ## testexpr_20 - four DrawInCorners (works but highlighting is slow)
+    ## testexpr_19b GraphDrawDemo_FixedToolOnArg1 -- works, but the tool remains IN DEVEL ###
+    ## testexpr_20 four DrawInCorners (works but highlighting is slow)
+    ## testexpr_21e table of alignment testers; _21g same in class form
 
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],

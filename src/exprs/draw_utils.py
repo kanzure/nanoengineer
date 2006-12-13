@@ -41,6 +41,11 @@ def draw_filled_rect(origin, dx, dy, color):
 ##    print 'draw_filled_rect',(origin, dx, dy, color) #####@@@@@
     glDisable(GL_LIGHTING) # this allows the specified color to work. Otherwise it doesn't work (I always get dark blue). Why???
      # guess: if i want lighting, i have to specify a materialcolor, not just a regular color. (and vertex normals)
+    try:
+        len(color)
+    except:
+        print "following exception in len(color) for color = %r" % (color,) # 061212 -- why didn't caller's fix_color catch it? ##k
+        raise
     if len(color) == 4:
         glColor4fv(color)
         if 0 and color[3] != 1.0:

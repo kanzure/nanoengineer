@@ -43,6 +43,40 @@ class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py thi
         else:
             return self._else
         pass
+    # addendum 061212:
+    # The above is enough for If(cond, InstanceOrExpr1(), InstanceOrExpr2()), since it delegates to one of them as needed.
+    # but it's not enough for use an as OpExpr that needs to eval, as in
+    # testexpr_9fx2 = Rect(color = If_expr(_my.env.glpane.in_drag, blue, lightblue))() (or the same with color as arg3).
+    # For that, I think we need an eval method which returns a different value in each case... OTOH that might cause trouble
+    # when it's used to instantiate. Which calls which, of _e_eval and _e_make_in and things that call either one?
+    # The one that can say "REJECTED using _e_make_in case" is _CV__i_instance_CVdict -- only happens on toplevel exprs in class attr
+    # assignments I think, maybe only when Instance/Arg/Option is involved. In the IorE class, _e_make_in is primitive
+    # and _e_eval calls it -- after saying printnim("Instance eval doesn't yet handle If"). So that's what we want to fix here:
+    def _e_eval(self, env, ipath): # added 061212
+        ## super method: return self._e_make_in(env, ipath)
+        # note, this might be WRONG if the toplevel assignment of a class formula is an If.
+        # We might want to permit it and change _i_instance or _CV__i_instance_CVdict to do usage-tracking of this eval... ###e
+        # otoh this might all be superceded by the "planned new eval/instantiate code", for which this change of today
+        # is a related pre-experiment. [061212]
+        ## res = self._value ##k? this fails because self is an expr, and env probably contains _self to help that (in which to eval cond),
+        # but we're not doing it right... #### LOGIC BUG -- enough pain to do that to call into Q this method of doing it....
+        # or can be easy if we do what OpExpr._e_eval would do?
+        condval = self._e_argval_If_expr(0,env,ipath)
+        if condval:
+            res = self._e_argval_If_expr(1,env,ipath)
+        else:
+            res = self._e_argval_If_expr(2,env,ipath)
+        ## print "is this right?: %r gets cond %r, evals to %r" % (self, condval, res)
+        # This happens in a lot of existing If-examples, but seems ok, for reasons not fully understood.
+        # For test results & discussion see comments in '061127 coding log' (bruce's g5) dated 061212 410p.
+        return res
+    def _e_argval_If_expr(self, i, env,ipath): # modified from OpExpr (I don't want to try making OpExpr a superclass right now)
+        # _e_argval is not normally defined in InstanceOrExpr, which is important --
+        # we don't want to override anything in there unwittingly. To be safe, I renamed it.
+        ## args = self._e_args
+        args = self._e_args # I guess this is correct -- self.cond etc would prematurely eval or instantiate them i think (#k not sure!)
+        res = args[i]._e_eval(env, (i,ipath))
+        return res
     pass
 
 def If_kluge(*args):###e zap or rename 

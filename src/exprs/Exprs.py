@@ -372,7 +372,7 @@ class OpExpr(SymbolicExpr):
         assert 0, "subclass of OpExpr must implement _e_init"
     def __repr__(self): # class OpExpr
         return "<%s#%d%s: %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_args,)
-    def _e_argval(self, i, env,ipath):
+    def _e_argval(self, i, env,ipath): # see also a copy of this in IfExpr
         """Under the same assumptions as _e_eval (see its docstring),
         compute and return the current value of an implicit kid-instance made from self._e_args[i], at relative index i,
         doing usage-tracking into caller (i.e. doing no memoization or caching of our own).

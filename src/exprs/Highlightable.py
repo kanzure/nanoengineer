@@ -165,6 +165,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # == transient_state
         
         set_default_attrs( self.transient_state, in_drag = False) # sets only the attrs which are not yet defined
+            ###e should make an abbrev for that attr as HL.in_drag -- maybe use State macro for it? read only is ok, maybe good.
+            ###e should add an accessible tracked attr for detecting whether we're over self, too. What to call it?
+            # [061212 comments, also paraphrased near testexpr_9fx4]
+        
         # some comments from pre-exprs-module, not reviewed:
             ## in_drag = False # necessary (hope this is soon enough)
         # some comments from now, 061115:

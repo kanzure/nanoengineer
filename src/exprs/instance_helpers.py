@@ -326,12 +326,17 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         
         # set up self._e_args etc
         self._e_class = expr # for access to _e_kws and args #k needed? #e rename: self._e_expr? not sure. #k not yet used
-        assert expr._e_has_args, "this expr needs its arguments supplied: %r" % self
+        ## assert expr._e_has_args, "this expr needs its arguments supplied: %r" % self
             # we might allow exceptions to this later, based on type decl, especially if it has no declared args
             # (how can we tell, here?? ###e),
             # tho there is then an ambiguity about whether you're only customizing it or not,
             # but OTOH that is tolerable if it takes no args, actually that's unclear if instantiation does something like
             # make a random choice! So we might want to detect that, warn at compile time, or so....
+        if not expr._e_has_args:
+            print "warning: this expr might need its arguments supplied: %r" % self
+                    ### addendum 061212: probably not a bug when all args are optional, so for now, permit with warning and
+                    # examine the specific cases, such as testexpr_9f. BUT it turned out that using this always gets later
+                    # bugs. See comments near that test.
         self._e_has_args = expr._e_has_args #k ??
         # copy references to _e_args & _e_kws
         # note: exprs passed to specific args or kws can be lazily type-coerced and instantiated by Arg or Option decls in subclasses
@@ -384,7 +389,9 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         pass
 
     def _e_eval(self, env, ipath): # implem/behavior totally revised, late-061109; works - not sure it always will tho... ###k
-        printnim("Instance eval doesn't yet handle If") ###@@@ or _value, but for now, I'm doing that at higher level only -- see InstanceMacro
+        # As of 061212 If_expr (a subclass of this) overrides _e_eval and seems to work; see comments there.
+        ## printnim("Instance eval doesn't yet handle If")
+        ###@@@ or _value, but for now, I'm doing that at higher level only -- see InstanceMacro
         return self._e_make_in(env, ipath)
 
     # kid-instantiation, to support use of the macros Arg, Option, Instance, etc
@@ -417,6 +424,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         # as if we need to "instantiate the expr" before actually passing it... hmm, if so this is a SERIOUS LOGIC BUG. ####@@@@
         # WAIT -- can it be that the expr never changes? only its value does? and that we should pass the unevaluated expr? YES.
         # But i forgot, eval of an expr is that expr! I get confused since _e_eval evals an implicit instance -- rename it soon! ###@@@
+        # [addendum 061212: see also the comments in the new overriding method If_expr._e_eval.]
         newdata = (expr, _lvalue_flag) # revised 061204, was just expr, also renamed; cmt above is semiobs due to this
         olddata = self._i_instance_decl_data.get(index, None) # see above comment
         if olddata != newdata:
@@ -424,8 +432,10 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 print "bug: expr or lvalflag for instance changed: self = %r, index = %r, new data = %r, old data = %r" % \
                       (self,index,newdata,olddata) #e more info? i think this is an error and should not happen normally
                 #e if it does happen, should we inval that instance? yes, if this ever happens without error.
+                # [addendum 061212: see also the comments in the new overriding method If_expr._e_eval.]
+
             self._i_instance_decl_data[index] = newdata
-        return self._i_instance_CVdict[index] # takes care of invals in making process? or are they impossible? ##k
+        return self._i_instance_CVdict[index] # takes care of invals in making process? or are they impossible? ##k [see above]
     def _CV__i_instance_CVdict(self, index):
         """[private] value-recomputing function for self._i_instance_CVdict.
         Before calling this, the caller must store an expr for this instance
