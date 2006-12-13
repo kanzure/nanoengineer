@@ -335,8 +335,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         if not expr._e_has_args:
             print "warning: this expr might need its arguments supplied: %r" % self
                     ### addendum 061212: probably not a bug when all args are optional, so for now, permit with warning and
-                    # examine the specific cases, such as testexpr_9f. BUT it turned out that using this always gets later
-                    # bugs. See comments near that test.
+                    # examine the specific cases, such as testexpr_9fx6. At first I thought that using this always gets later
+                    # bugs, but it turned out those were unrelated If_expr bugs, so now this can work. See comments near that test.
         self._e_has_args = expr._e_has_args #k ??
         # copy references to _e_args & _e_kws
         # note: exprs passed to specific args or kws can be lazily type-coerced and instantiated by Arg or Option decls in subclasses

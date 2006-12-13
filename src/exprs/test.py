@@ -418,11 +418,9 @@ testexpr_9fx4 = Highlightable( Rect(1, 1, If_expr(_this(Highlightable).transient
     # as i said next to in_drag's def:
     ###e should make an abbrev for that attr as HL.in_drag -- maybe use State macro for it? read only is ok, maybe good.
     ###e should add an accessible attr for detecting whether we're over it. What to call it?
-
-
-## testexpr_9f = testexpr_9fx4 ###KLUGE testexpr to use now, don't commit like this
-
-##### RETEST EVERYTHING THAT USES If_expr!!!! see @@@@
+testexpr_9fx5 = Highlightable( Rect(color = If_expr(_this(Highlightable).transient_state.in_drag, blue, lightblue))) # works with warning
+    # so it turns out the If_expr was a total red herring -- once fixed, the no-args form now warns us, but works anyway.
+testexpr_9fx6 = Highlightable( Rect(color = If_expr(_this(Highlightable).transient_state.in_drag, purple, lightblue))() ) # works
 
                                
 # ToggleShow
@@ -1012,6 +1010,7 @@ testexpr = testexpr_9fx4 ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect()
         # a rapid motion onto the Highlightable doesn't highlight it, tho it does update sbar text.
         # Only the next motion highlights it. I wonder if it's related to gl_update and usage-tracking sync issues.
         # ... discussion is in BUGS file. Might be fixed now.
+    ## testexpr_9fx4 - use of _this(Highlightable).attr to determine Rect color; _9fx6 with missing args (warning but works)
     ## testexpr_10c double-nested toggleshow of highlightable rect
     ## testexpr_11r1b image with black padding
     ## testexpr_13z4 red/blue image
