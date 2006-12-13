@@ -9,19 +9,16 @@ from basic import _self
 
 import lvals
 reload_once(lvals)
-from lvals import LvalDict1, call_but_discard_tracked_usage, LvalError_ValueIsUnset
+from lvals import call_but_discard_tracked_usage, LvalError_ValueIsUnset
+from lvals import LvalDict1 # only needed by obs code
 
-import Exprs
-reload_once(Exprs)
-from Exprs import * # at least Expr; note, basic now does this anyway
+##import Exprs
+##reload_once(Exprs)
+##from Exprs import * # at least Expr; note, basic now does this anyway, so this might not be needed
 
 import widget_env
 reload_once(widget_env)
 from widget_env import thisname_of_class #e refile import?? or make it an env method??
-
-##import StatePlace
-##reload_once(StatePlace)
-##from StatePlace import StatePlace # 061126 late -- earlier import of this module than before; should be ok; seems to work
 
 # ==
 
@@ -34,7 +31,6 @@ class InstanceClass:#k super? meta? [#obs -- as of 061103 i am guessing this wil
     pass
 
 # maybe merge this into InstanceOrExpr docstring:
-# like Rect or Color or If
 """Instances of subclasses of this can be unplaced or placed (aka "instantiated");
 if placed, they might be formulas (dependent on aspects of drawing-env state)
 for appearance and behavior (justifying the name Drawable),
@@ -79,9 +75,6 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     # PatternOrThing?[no]
     ### WARNING: instantiate normally lets parent env determine kid env... if arg is inst this seems reversed...
     # may only be ok if parent doesn't want to modify lexenv for kid.
-    ## _e_is_instance = False # now done in class Expr # usually overridden in certain python instances, not in subclasses
-    ## _e_has_args = False # ditto
-##    args = () # convenient default
 
     # standard stateplaces (other ones can be set up in more specific subclasses)
     # [following 3 StatePlaces moved here from Highlightable & ToggleShow, 061126 late;
@@ -106,11 +99,6 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         # note: just before any return herein, we must call self._e_init_e_serno(), so it's called after any canon_expr we do;
         # also, the caller (if a private method in us) can then do one inside us; see comment where this is handled in __call__
         ###e does place (instanceness) come in from kws or any args?
-##        val = kws.pop('_destructive_customize', None)
-##        if val:
-##            assert not args and not kws
-##            self._destructive_customize(val)
-##            return
         # initialize attrs of self to an owned empty state for an expr
         self._e_kws = {} # need a fresh dict, since we own it and alter it during subsequent parts of init (??)
         # handle special keywords (assume they all want self to be initialized as we just did above)
@@ -126,7 +114,6 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             self._destructive_make_in(val)
             self._e_init_e_serno()
             return
-        #e
         # assume no special keywords remain
         self._destructive_init(args, kws)
         self._e_init_e_serno()
@@ -175,11 +162,12 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         """[private, called by __init__ or indirectly by __call__]
         Modify self to give it optional args and optional ordinary keyword args.
         """
-        for kw in kws:
-            if kw.startswith('_'):
-                printfyi( "warning or error: this kw is being treated normally as an option, " \
-                      "not as a special case, in spite of initial '_': %s" % kw) ###@@@ is this always an error?
-                    # so far, happened (but not as error) with _tmpmode, ...
+# removed this 061212, since it never caught a bug:
+##        for kw in kws:
+##            if kw.startswith('_'):
+##                printfyi( "warning or error: this kw is being treated normally as an option, " \
+##                      "not as a special case, in spite of initial '_': %s" % kw) ###@@@ is this always an error?
+##                    # so far, happened (but not as error) with _tmpmode, ...
         if kws:
             self._destructive_customize(kws)
         if args or not kws:
@@ -389,9 +377,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         pass
 
     def _e_eval(self, env, ipath): # implem/behavior totally revised, late-061109; works - not sure it always will tho... ###k
-        # As of 061212 If_expr (a subclass of this) overrides _e_eval and seems to work; see comments there.
-        ## printnim("Instance eval doesn't yet handle If")
-        ###@@@ or _value, but for now, I'm doing that at higher level only -- see InstanceMacro
+        # handling of If: As of 061212 If_expr (a subclass of this) overrides _e_eval and seems to work; see comments there.
+        # handling of _value: done at a higher level only -- see InstanceMacro.
         return self._e_make_in(env, ipath)
 
     # kid-instantiation, to support use of the macros Arg, Option, Instance, etc
@@ -487,7 +474,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 # addendum 061212, we now do that on If_expr.
         if 1:
             # WARNING: following code is very similar to _i_eval_dfltval_expr as of 061203
-            printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108 -- now always, 061110
+            # printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108 -- now always, 061110
             # note: this (used-to-be-redundantly) grabs env from self
             try:
                 res = expr._e_compute_method(self, index, _lvalue_flag = lvalflag)() ##e optim someday: inline this
@@ -618,26 +605,6 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
 
 # ===
 
-class DelegatingInstanceOrExpr_obs(InstanceOrExpr): #061020; as of 061109 this looks obs since the _C_ prefix is deprecated;
-    #e use, instead, DelegatingMixin or DelegatingInstanceOrExpr combined with formula on self.delegate
-    """#doc: like Delegator, but self.delegate is recomputable from _C_delegate as defined by subclass.
-    This is obsolete; use DelegatingMixin instead. [#e need to rewrite GlueCodeMemoizer to not use this; only other uses are stubs.]
-    """
-    def _C_delegate(self):
-        assert 0, "must be overridden by subclass to return object to delegate to at the moment"
-    def __getattr__(self, attr):
-        try:
-            return InstanceOrExpr.__getattr__(self, attr) # handles _C_ methods via InvalidatableAttrsMixin
-                # note, _C__attr for _attr starting with _ is permitted.
-        except AttributeError:
-            if attr.startswith('_'):
-                raise AttributeError, attr # not just an optim -- we don't want to delegate these.
-            return getattr(self.delegate, attr) # here is where we delegate.
-    pass
-
-DelegatingInstance_obs = DelegatingInstanceOrExpr_obs #k ok? (for when you don't need the expr behavior, but (i hope) don't mind it either)
-
-
 _DELEGATION_DEBUG_ATTR = '' # you can set this to an attrname of interest, at runtime, for debugging
 
 class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr
@@ -652,22 +619,6 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr
      (But probably not just by testing self.delegate is None, since the point is to avoid running a compute method
       for self.delegate too early.)]
     """
-##    def _C_delegate(self):
-##        """[subclasses must either replace this method and use ExprsMeta metaclass,
-##        or in some other way make sure self.delegate is set or always retrievable]
-##        """
-##        # Notes:
-##        # - we might want to revise this, since it won't work w/o ExprsMeta and _C_ is deprecated even within that;
-##        # OTOH, it's not really needed (it just changes the error message from AttributeError on self.delegate),
-##        # so this def causes no harm.
-##        # [But it might fail to prevent infrecur on undefined self.delegate in classes not understanding _C_! #k]
-##        # - in spite of assert text, the subclass needn't override _C_delegate if it has some other way
-##        # to make sure self.delegate is defined.
-##        # - THIS DOESN'T SEEM TO WORK AT ALL: tried it in class Overlay(Widget2D, DelegatingMixin) but forgot to define delegate,
-##        # got infrecur (trying to delegate the attr 'delegate') instead of this assert. Guess: this would only work if *this class*
-##        # (DelegatingMixin) used ExprsMeta metaclass, which only covers _C_ methods in classes whose namespaces it processes,
-##        # not in their superclasses.
-##        assert 0, "must be overridden by subclass to return object to delegate to at the moment"
     ##e optim: do this instead of the assert about attr: delegate = None # safer default -- prevent infrecur
     def __getattr__(self, attr):
         try:
@@ -695,15 +646,7 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr
                 # or maybe even some of those need delegation sometimes -- we'll see.
                 #e Maybe the subclass will need to declare what attrs we exclude, or what _attrs we include!
             assert attr != 'delegate', "DelegatingMixin refuses to delegate self.delegate (which would infrecur) in %r" % self 
-##            if attr == 'delegate':
-##                # not sure if this is ever ok
-##                printfyi("note: attr == 'delegate' in DelegatingMixin -- not sure if ever ok")###k 
             if expr_is_Instance(self):
-##                try:
-##                    delegate = self.delegate
-##                except:
-##                    #e what can we do? print attr? too much printing if infrecur.
-##                    raise
                 recursing = self.__dict__.setdefault('__delegating_now', False) # note: would be name-mangled if set normally
                 assert not recursing, "recursion in self.delegate computation in %r" % self #061121
                 self.__dict__['__delegating_now'] = True
@@ -729,9 +672,7 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr
                     if attr == _DELEGATION_DEBUG_ATTR: 
                         print msg
                     raise AttributeError, msg
-            ##printfyi("DelegatingMixin: too early to delegate %r, still a pure Expr" % (attr,)) ###e remove someday, not an error?
-                # OTOH maybe it is an error and I should print self and delegate, and always print. ####e try it:
-            print "DelegatingMixin: too early to delegate %r from %r, which is still a pure Expr" % (attr, self)###
+            print "DelegatingMixin: too early to delegate %r from %r, which is still a pure Expr" % (attr, self)
                 # might be an error to try computing self.delegate this early, so don't print it even if you can compute it
                 # (don't even try, in case it runs a compute method too early)
             raise AttributeError, attr
@@ -824,26 +765,33 @@ class _this(SymbolicExpr): # it needs to be symbolic to support automatic getatt
         return res
     pass # end of class _this   
 
-# ==
+# === only obs code after this point
 
-# obs code for _this:
-##class SymbolicInstanceOrExpr_obs(SymbolicExpr, InstanceOrExpr): # see also SymbolicExpr (whether or not we inherit from it)
-##    "[for now, private helper for _this [obs for that as of 061114], tho would be useful for other symbol-like InstanceOrExprs]"
-##    # the reason it's obs (probably forever, not just for _this for now) is that an InstanceOrExpr has too many actual attrs
-##    # that interfere with using it as symbolic, for which they should create getattr_Expr when accessed, meaning they have
-##    # to not exist at all on the pure expr pyinstance form. It might be handlable with enough trouble, but it's not worth
-##    # the trouble. (Just if(instance) tests in __getattr__ would not be enough, since that never runs if the attr is there,
-##    # so no such attrs can be methods, or can have class defaults, unless those are fancy descriptors of some kind,
-##    # or can have values set in __init__. It might work if attrprefix determined handling, but even that can't work for _this
-##    # since it needs to be able to refer to specially-prefixed attrs for debugging.)
-##    pass # the combo of supers is enough
-##
 ##class _this(SymbolicInstanceOrExpr_obs, DelegatingMixin): #061113; might work for now, prob not ok in the long run
 #e [see an outtakes file, or cvs rev 1.57, for more of this obs code for _this, which might be useful someday]
 
 # ==
 
-#e rewrite this to use DelegatingMixin
+class DelegatingInstanceOrExpr_obs(InstanceOrExpr): #061020; as of 061109 this looks obs since the _C_ prefix is deprecated;
+    #e use, instead, DelegatingMixin or DelegatingInstanceOrExpr combined with formula on self.delegate
+    """#doc: like Delegator, but self.delegate is recomputable from _C_delegate as defined by subclass.
+    This is obsolete; use DelegatingMixin instead. [#e need to rewrite GlueCodeMemoizer to not use this; only other uses are stubs.]
+    """
+    def _C_delegate(self):
+        assert 0, "must be overridden by subclass to return object to delegate to at the moment"
+    def __getattr__(self, attr):
+        try:
+            return InstanceOrExpr.__getattr__(self, attr) # handles _C_ methods via InvalidatableAttrsMixin
+                # note, _C__attr for _attr starting with _ is permitted.
+        except AttributeError:
+            if attr.startswith('_'):
+                raise AttributeError, attr # not just an optim -- we don't want to delegate these.
+            return getattr(self.delegate, attr) # here is where we delegate.
+    pass
+
+DelegatingInstance_obs = DelegatingInstanceOrExpr_obs #k ok? (for when you don't need the expr behavior, but (i hope) don't mind it either)
+
+#e rewrite this to use DelegatingMixin [later 061212: nevermind, it's probably obs, tho not sure]
 class GlueCodeMemoizer( DelegatingInstanceOrExpr_obs): ##e rename WrapperMemoizer? WrappedObjectMemoizer? WrappedInstanceMemoizer? probably yes [061020]
     """Superclass for an InstanceOrExpr which maps instances to memoized wrapped versions of themselves,
     constructed according to the method ###xxx (_make_wrapped_obj?) in each subclass, and delegates to the wrapped versions.

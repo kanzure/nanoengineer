@@ -173,8 +173,11 @@ class DragANode(DragCommand):
         # maybe noticing it automatically for all attrs they use -- i.e. "or" some caveat-flags (incl warnings, uncertainties...)
         # as you usage-track so you'll know what caveats apply to some value you compute. (Or actually use them, in case they change.
         # I guess only use them for a parallel computation of your own caveats.)
+
+    print_node_mod_demo = 0 # 061212
     
-    print "our node symexpr has:",node._e_dir_added()
+    if print_node_mod_demo:
+        print "our node symexpr has:",node._e_dir_added()
 ##    for attr in dir(node):
 ##        if attr.startswith('_e_') or attr.startswith('__'):
 ##            pass
@@ -187,7 +190,8 @@ class DragANode(DragCommand):
     node.pos2 = _PERMIT_SETS_INSIDE_()
     node.pos2.subattr2 = 1
 
-    print "now it has:",node._e_dir_added() ###BUG [before i had _PERMIT_SETS_INSIDE_() above] - where is pos2?
+    if print_node_mod_demo:
+        print "now it has:",node._e_dir_added() ###BUG [before i had _PERMIT_SETS_INSIDE_() above] - where is pos2?
     #print "dir is",dir(node) # it's not in here either! OH, I never made it, I only asked for it (for val of node.pos2)
      # and I got a getattr_Expr of node and pos2! Can that be fixed? As it is I can't even see that getattr_Expr,
      # it was discarded. Can/should I capture the setattr of attr in symbolic getattr_Expr? Guess: probably I can. ###k
@@ -261,14 +265,18 @@ class MakeANode(ClickDragCommand): #k super?
 
         # defect: this requires us to define DragANode first in the file; if a problem, replace it with _forward.DragANode or so
 
-    _what_we_make = newnode # maybe we'll just name newnode so this is obvious...
-        # btw this can be an exception to not allowing two attrs = one expr, since _what_we_make is a special name... so ignore this:
-            ## warning: formula <Widget2D#12737(a)> already in replacements -- error??
-            ## its rhs is <getattr_Expr#12741: (S._self, <constant_Expr#12740: '_what_we_make'>)>;
-            ## new rhs would be for attr 'newnode'
-        # should we make its specialness obvious (for it and _value and _continue_drag and all other special names)??
-        # I mean by a common prefix or so. BTW are they all different kinds of "values" or "results"? Could use _V_ or _v_ or _r_...
-        # ####e decide
+    if 0:
+        # I disabled this 061212 to avoid the warning which in real life would be suppressed for this special case:
+        ## warning: formula <Node#8661(a)> already in replacements -- error?? its rhs is
+        ## <getattr_Expr#8669: (S._self, <constant_Expr#8668: '_what_we_make'>)>; new rhs would be for attr 'newnode'
+        _what_we_make = newnode # maybe we'll just name newnode so this is obvious...
+            # btw this can be an exception to not allowing two attrs = one expr, since _what_we_make is a special name... so ignore this:
+                ## warning: formula <Widget2D#12737(a)> already in replacements -- error??
+                ## its rhs is <getattr_Expr#12741: (S._self, <constant_Expr#12740: '_what_we_make'>)>;
+                ## new rhs would be for attr 'newnode'
+            # should we make its specialness obvious (for it and _value and _continue_drag and all other special names)??
+            # I mean by a common prefix or so. BTW are they all different kinds of "values" or "results"? Could use _V_ or _v_ or _r_...
+            # ####e decide
 
     # an alternate way to say what we make, and to say where: some sort of side effect formula... maybe worse re POLS.
     if 0:

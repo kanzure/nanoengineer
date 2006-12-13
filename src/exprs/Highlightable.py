@@ -25,7 +25,7 @@ def print_Expr(*args, **kws): ##e rename to include Action in the name?? #e refi
 
 # == selobj interface
 
-###e should define this; see class Highlightable --
+###e should define a class for the selobj interface; see class Highlightable for an example --
 # draw_in_abs_coords,
 # ClickedOn/leftClick,
 # mouseover_statusbar_message
@@ -140,24 +140,6 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     on_release_out = Option(Action)
     projection = Option(bool, False) # whether to save projection matrix too... would be default True except that breaks us. ###BUG
         # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
-
-
-    # moved to IorE, 061126 late; might have required new _self in some formula uses, but i didn't notice any #k:
-##    # refs to places to store state of different kinds, all of which is specific to this Instance (or more precisely to its ipath)
-##    ##e [these will probably turn out to be InstanceOrExpr default formulae] [note: their 2nd arg ipath defaults to _self.ipath]
-##    # OPTIM QUESTION: which of these actually need usage/mod tracking? They all have it at the moment [not anymore, 061121],
-##    # but my guess is, per_frame_state doesn't need it, and not providing it would be a big optim. [turned out to be a big bugfix too!]
-##    # (We might even decide we can store all per_frame_state in self, not needing a StatePlace at all -- bigger optim, I think.
-##    #  That can be done once reloading or reinstancemaking is not possible during one frame. I'm not sure if it can happen then,
-##    #  even now... so to be safe I want to store that state externally.)
-##    transient_state = StatePlace('transient') # state which matters during a drag; scroll-position state; etc
-##    glpane_state = StatePlace('glpane', tracked = False) # state which is specific to a given glpane [#e will some need tracked=True?]
-##    per_frame_state = StatePlace('per_frame', tracked = False)
-##        # state which is only needed while drawing one frame (someday, cleared often)
-##        # (this is probably also specific to our glpane; note that a given Instance has only one glpane)
-##    
-##    # abbrevs for read-only state
-##    glname = glpane_state.glname
 
     def _init_instance(self):
         super(Highlightable, self)._init_instance()
@@ -284,8 +266,6 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         return # from draw_in_abs_coords
 
     def run_OpenGL_in_local_coords(self, func): #061206
-        ###@@@ CALL ME, using gluUnProject on saved x/y/depth in func,
-        # like in GLPane.py's def dragstart_using_GL_DEPTH, or testdraw's def mymousepoints
         """Run the OpenGL code in func in self's local coordinate system (and with its GL context current),
         and not while compiling any display list. If we run func immediately (always true in present implem),
         return (True, func-retval); otherwise return (False, not-yet-defined-info-about-how-or-why-we-delayed-func).

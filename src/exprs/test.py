@@ -998,7 +998,7 @@ testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p]
 
 enable_testbed = False
 
-testexpr = testexpr_9fx4 ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_11r1b ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables

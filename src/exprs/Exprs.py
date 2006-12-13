@@ -322,10 +322,10 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         return False
     pass
 
-class SymbolicExpr(Expr): # Symbol or OpExpr; see also SymbolicInstanceOrExpr (in another file, obs as of 061114)
+class SymbolicExpr(Expr): # Symbol or OpExpr
     _e_is_symbolic = True #061113
     def __call__(self, *args, **kws):
-        assert not self._e_is_instance # added 061113 for sake of SymbolicInstanceOrExpr Instances (should never happen I think)
+        assert not self._e_is_instance # added 061113 for [now obs] SymbolicInstanceOrExpr Instances (should never happen I think)
         return call_Expr(self, *args, **kws)
     def __getattr__(self, attr):
         if attr.startswith('__'):
@@ -525,21 +525,7 @@ class add_Expr(OpExpr):
     def __str__(self):
         return "%s + %s" % self._e_args #e need parens?
     _e_eval_function = staticmethod( lambda x,y:x+y )
-##    # maybe, 061016: ####@@@@ [current issues: args to _e_make_in, for normals & Ops; symbol lookup; when shared exprs ref same instance]
-##    def _C_value(self):
-##        return self.kids[0].value + self.kids[1].value
-    def _make_in_WRONG(self, place, ipath): #### WRONG (see below), really more like _init_instance, called by common _destructive_make_in
-        ###WRONG args (maybe -- place -> env??), and defined in wrong class (common to all OpExprs or exprs with fixed kids arrays),
-        ###and attrs used here (kids, args, maybe even _e_is_instance) might need _e_ (??),
-        ### and maybe OpExprs never need ipath or place, just env
-        ###    (for symbol lookup when they include symbols? or did replacement already happen to make self understood??)
-        ### and WORST OF ALL, it's actually a destructive make -- maybe it's _init_instance, called by common _destructive_make_in .
-        assert not self._e_is_instance ###@@@ need to be in InstanceOrExpr superclass for this [obs cmt??061102]
-        # following says place._make_in but probably means env.make! [061020 guess]
-        ##self.kids = map(place._make_in, self._e_args_dict.items()) # hmm, items have index->expr already -- but this leaves out ipath
-        args = self._e_args
-        self.kids = [place._make_in(args[i], [i, ipath]) for i in range(len(args))]
-            # note (proposed): [i, ipath] is an inlined sub_index(i,ipath); [] leaves room for intern = append
+    ##e refile this note (proposed): [i, ipath] is an inlined sub_index(i,ipath); [] leaves room for intern = append
     pass
 
 class sub_Expr(OpExpr):
@@ -756,8 +742,6 @@ class hold_Expr(constant_Expr):
     Used internally to prevent eval of args to call_Expr.
     """
     def _e_replace_using_subexpr_filter(self, func): #e rename, since more like map than filter; subexpr_mapper??
-# zapped 061114 since common and so far always ok:
-##        printfyi("_e_replace_using_subexpr_filter called on pyinstance of class %s" % self.__class__.__name__)
         arg = self._e_constant_value #e another implem, maybe cleaner: store this data in _e_args; possible problems not reviewed
         modarg = func(arg)
         if modarg == arg:

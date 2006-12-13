@@ -882,13 +882,13 @@ class ExprsMeta(type):
             # prefix might be anything in prefix_map (including ''), and should control how val gets processed for assignment to attr0.
             processor = prefix_map[prefix]
             if 1:
-                # new code, not yet working [061103]
-                printfyi("formula_scanner is enabled")
+                # new code [was not yet working sometime on 061103, but is working and always used as of long before 061212]
+                ## printfyi("formula_scanner is enabled")
                 val0 = processor(name, attr0, val, formula_scanner = scanner)
                     # note, this creates a C_rule (or the like) for each formula
             else:
                 # old code, working (usually), ok for Rect_old, but obsolete [061103]
-                printnim("NOTE: formula_scanner is temporarily disabled")
+                printfyi("NOTE: formula_scanner is temporarily disabled")
                 val0 = processor(name, attr0, val)
                     # note, this creates a C_rule (or the like) for each formula
                 pass
