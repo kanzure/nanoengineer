@@ -52,6 +52,8 @@ class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py thi
     # The one that can say "REJECTED using _e_make_in case" is _CV__i_instance_CVdict -- only happens on toplevel exprs in class attr
     # assignments I think, maybe only when Instance/Arg/Option is involved. In the IorE class, _e_make_in is primitive
     # and _e_eval calls it -- after saying printnim("Instance eval doesn't yet handle If"). So that's what we want to fix here:
+    # (439p: This affected many or all uses of If, but note that _e_make_in is probably never or almost never called,
+    #  so that is not surprising in hindsight.)
     def _e_eval(self, env, ipath): # added 061212
         ## super method: return self._e_make_in(env, ipath)
         # note, this might be WRONG if the toplevel assignment of a class formula is an If.
@@ -67,7 +69,7 @@ class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py thi
         else:
             res = self._e_argval_If_expr(2,env,ipath)
         ## print "is this right?: %r gets cond %r, evals to %r" % (self, condval, res)
-        # This happens in a lot of existing If-examples, but seems ok, for reasons not fully understood.
+        # This happens in a lot of existing If-examples, but seems ok, for reasons not fully understood. (But see comment above 439p.)
         # For test results & discussion see comments in '061127 coding log' (bruce's g5) dated 061212 410p.
         return res
     def _e_argval_If_expr(self, i, env,ipath): # modified from OpExpr (I don't want to try making OpExpr a superclass right now)

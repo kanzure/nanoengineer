@@ -483,7 +483,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         if hasattr(expr, '_e_make_in'):
             print("REJECTED using _e_make_in case, on a pyinstance of class %s" % expr.__class__.__name__)###was printfyi til 061208 921p
             ## res = expr._e_make_in(env, index_path)
-                #k we might have to fix bugs caused by not using this case, by defining (or modifying?) defs of _e_eval on some classes
+                #k we might have to fix bugs caused by not using this case, by defining (or modifying?) defs of _e_eval on some classes;
+                # addendum 061212, we now do that on If_expr.
         if 1:
             # WARNING: following code is very similar to _i_eval_dfltval_expr as of 061203
             printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108 -- now always, 061110
