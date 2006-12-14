@@ -231,86 +231,95 @@ allocate.o: allocate.h
 dynamics.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 dynamics.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 dynamics.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-dynamics.o: writemovie.h globals.h
+dynamics.o: writemovie.h rigid.h globals.h
 globals.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 globals.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 globals.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-globals.o: writemovie.h globals.h
+globals.o: writemovie.h rigid.h globals.h
 glviewer.o: allocate.h
 hashtable.o: allocate.h hashtable.h
 interpolate.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h
 interpolate.o: minimize.h structcompare.h part.h newtables.h interpolate.h
 interpolate.o: readmmp.h readxyz.h printers.h dynamics.h jigs.h potential.h
-interpolate.o: minstructure.h writemovie.h globals.h
+interpolate.o: minstructure.h writemovie.h rigid.h globals.h
 jigs.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 jigs.o: structcompare.h part.h newtables.h interpolate.h readmmp.h readxyz.h
 jigs.o: printers.h dynamics.h jigs.h potential.h minstructure.h writemovie.h
-jigs.o: globals.h
+jigs.o: rigid.h globals.h
 lin-alg.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 lin-alg.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 lin-alg.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-lin-alg.o: writemovie.h globals.h
+lin-alg.o: writemovie.h rigid.h globals.h
 minimize.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 minimize.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 minimize.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-minimize.o: writemovie.h globals.h
+minimize.o: writemovie.h rigid.h globals.h
 minstructure.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h
 minstructure.o: minimize.h structcompare.h part.h newtables.h interpolate.h
 minstructure.o: readmmp.h readxyz.h printers.h dynamics.h jigs.h potential.h
-minstructure.o: minstructure.h writemovie.h globals.h
+minstructure.o: minstructure.h writemovie.h rigid.h globals.h
 newtables.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 newtables.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 newtables.o: readxyz.h printers.h dynamics.h jigs.h potential.h
-newtables.o: minstructure.h writemovie.h globals.h bonds.gen bends.gen
+newtables.o: minstructure.h writemovie.h rigid.h globals.h bonds.gen
+newtables.o: bends.gen
 part.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 part.o: structcompare.h part.h newtables.h interpolate.h readmmp.h readxyz.h
 part.o: printers.h dynamics.h jigs.h potential.h minstructure.h writemovie.h
-part.o: globals.h
+part.o: rigid.h globals.h
 potential.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 potential.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 potential.o: readxyz.h printers.h dynamics.h jigs.h potential.h
-potential.o: minstructure.h writemovie.h globals.h
+potential.o: minstructure.h writemovie.h rigid.h globals.h
 printers.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 printers.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 printers.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-printers.o: writemovie.h globals.h
+printers.o: writemovie.h rigid.h globals.h
 readers.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 readers.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 readers.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-readers.o: writemovie.h globals.h
+readers.o: writemovie.h rigid.h globals.h
 readmmp.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 readmmp.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 readmmp.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-readmmp.o: writemovie.h globals.h
+readmmp.o: writemovie.h rigid.h globals.h
 readxyz.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 readxyz.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 readxyz.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-readxyz.o: writemovie.h globals.h
+readxyz.o: writemovie.h rigid.h globals.h
+rigid-ode.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+rigid-ode.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
+rigid-ode.o: readxyz.h printers.h dynamics.h jigs.h potential.h
+rigid-ode.o: minstructure.h writemovie.h rigid.h globals.h rigid-ode.h
+rigid.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
+rigid.o: structcompare.h part.h newtables.h interpolate.h readmmp.h readxyz.h
+rigid.o: printers.h dynamics.h jigs.h potential.h minstructure.h writemovie.h
+rigid.o: rigid.h globals.h rigid-ode.h
 sim.o: simhelp.c simulator.h debug.h lin-alg.h allocate.h hashtable.h
 sim.o: minimize.h structcompare.h part.h newtables.h interpolate.h readmmp.h
 sim.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-sim.o: writemovie.h globals.h version.h
+sim.o: writemovie.h rigid.h globals.h version.h
 simhelp.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 simhelp.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 simhelp.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-simhelp.o: writemovie.h globals.h version.h
+simhelp.o: writemovie.h rigid.h globals.h version.h
 simulator.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 simulator.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 simulator.o: readxyz.h printers.h dynamics.h jigs.h potential.h
-simulator.o: minstructure.h writemovie.h globals.h version.h
+simulator.o: minstructure.h writemovie.h rigid.h globals.h version.h
 simulator.o: debug.h lin-alg.h allocate.h hashtable.h minimize.h
 simulator.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 simulator.o: readxyz.h printers.h dynamics.h jigs.h potential.h
-simulator.o: minstructure.h writemovie.h globals.h
+simulator.o: minstructure.h writemovie.h rigid.h globals.h
 structcompare.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h
 structcompare.o: minimize.h structcompare.h part.h newtables.h interpolate.h
 structcompare.o: readmmp.h readxyz.h printers.h dynamics.h jigs.h potential.h
-structcompare.o: minstructure.h writemovie.h globals.h
-tables.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
-tables.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
-tables.o: readxyz.h printers.h dynamics.h jigs.h potential.h minstructure.h
-tables.o: writemovie.h globals.h
+structcompare.o: minstructure.h writemovie.h rigid.h globals.h
+testminimize.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h
+testminimize.o: minimize.h structcompare.h part.h newtables.h interpolate.h
+testminimize.o: readmmp.h readxyz.h printers.h dynamics.h jigs.h potential.h
+testminimize.o: minstructure.h writemovie.h rigid.h globals.h
 writemovie.o: simulator.h debug.h lin-alg.h allocate.h hashtable.h minimize.h
 writemovie.o: structcompare.h part.h newtables.h interpolate.h readmmp.h
 writemovie.o: readxyz.h printers.h dynamics.h jigs.h potential.h
-writemovie.o: minstructure.h writemovie.h globals.h
+writemovie.o: minstructure.h writemovie.h rigid.h globals.h

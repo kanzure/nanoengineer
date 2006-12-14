@@ -426,7 +426,12 @@ readMMP(char *filename)
   char *tok;
   char bondOrder;
   char *name, *fontname, *junk;
-  char *bodyName;
+  char *bodyName1;
+  char *bodyName2;
+  char *stationName1;
+  char *stationName2;
+  char *axisName1;
+  char *axisName2;
   int fontsize;
   int elementType;
   int previousAtomID = -1; // ID of atom just defined, so we can back-reference to it in later lines
@@ -700,7 +705,7 @@ readMMP(char *filename)
 
     // rigidBody (bodyName) (<position 3vector>) (<orientation quaternion>) <mass> (<inertia matrix 6 elements>)
     else if (0==strcmp(tok, "rigidBody")) {
-      bodyName = expectName(mmp);
+      bodyName1 = expectName(mmp);
       expectXYZInts(mmp, &center); // position
       expectNDoubles(mmp, 4, quat); // quaternion, orientation
       orientation.x = quat[0];
@@ -710,33 +715,74 @@ readMMP(char *filename)
       expectDouble(mmp, &mass, 0);
       expectNDoubles(mmp, 6, inertiaTensor); // inertia matrix
       consumeRestOfLine(mmp);
-      makeRigidBody(p, bodyName, mass, inertiaTensor, center, orientation);
+      makeRigidBody(p, bodyName1, mass, inertiaTensor, center, orientation);
     }
 
     // stationPoint (bodyName) (stationName) (<position 3vector>)
     else if (0==strcmp(tok, "stationPoint")) {
-      bodyName = expectName(mmp);
-      name = expectName(mmp);
+      bodyName1 = expectName(mmp);
+      stationName1 = expectName(mmp);
       expectXYZInts(mmp, &center);
-      makeStationPoint(p, bodyName, name, center);
-      free(bodyName);
+      makeStationPoint(p, bodyName1, stationName1, center);
+      free(bodyName1);
     }
 
     // bodyAxis (bodyName) (axisName) (<axis 3vector>)
     else if (0==strcmp(tok, "bodyAxis")) {
-      bodyName = expectName(mmp);
-      name = expectName(mmp);
+      bodyName1 = expectName(mmp);
+      axisName1 = expectName(mmp);
       expectXYZInts(mmp, &center);
-      makeBodyAxis(p, bodyName, name, center);
-      free(bodyName);
+      makeBodyAxis(p, bodyName1, axisName1, center);
+      free(bodyName1);
     }
     
     else if (0==strcmp(tok, "joint")) {
       consumeWhitespace(mmp);
       tok = readToken(mmp, 0);
-      if (0==strcmp(tok, "BallSocket")) {
+      // joint Ball (bodyName1) (stationName1) (bodyName2) (stationName2)
+      if (0==strcmp(tok, "Ball")) {
+        bodyName1 = expectName(mmp);
+        stationName1 = expectName(mmp);
+        bodyName2 = expectName(mmp);
+        stationName2 = expectName(mmp);
         consumeRestOfLine(mmp);
+        makeBallJoint(p, bodyName1, stationName1, bodyName2, stationName2);
+        free(bodyName1);
+        free(stationName1);
+        free(bodyName2);
+        free(stationName2);
       }
+      // joint Hinge (bodyName1) (stationName1) (axisName1) (bodyName2) (stationName2) (axisName2)
+      else if (0==strcmp(tok, "Hinge")) {
+        bodyName1 = expectName(mmp);
+        stationName1 = expectName(mmp);
+        axisName1 = expectName(mmp);
+        bodyName2 = expectName(mmp);
+        stationName2 = expectName(mmp);
+        axisName2 = expectName(mmp);
+        consumeRestOfLine(mmp);
+        makeHingeJoint(p, bodyName1, stationName1, axisName1, bodyName2, stationName2, axisName2);
+        free(bodyName1);
+        free(stationName1);
+        free(axisName1);
+        free(bodyName2);
+        free(stationName2);
+        free(axisName2);
+      }
+      // joint Slider (bodyName1) (axisName1) (bodyName2) (axisName2)
+      else if (0==strcmp(tok, "Slider")) {
+        bodyName1 = expectName(mmp);
+        axisName1 = expectName(mmp);
+        bodyName2 = expectName(mmp);
+        axisName2 = expectName(mmp);
+        consumeRestOfLine(mmp);
+        makeSliderJoint(p, bodyName1, axisName1, bodyName2, axisName2);
+        free(bodyName1);
+        free(axisName1);
+        free(bodyName2);
+        free(axisName2);
+      }
+
       else {
         ERROR1("Unrecognized joint type: %s", tok);
         mmpParseError(mmp);

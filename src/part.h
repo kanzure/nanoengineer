@@ -67,8 +67,9 @@ struct bond
 };
 
 enum jointType {
-  BallSocket,
-  Hinge
+    JointBall,
+    JointHinge,
+    JointSlider
 };
 
 struct joint
@@ -77,7 +78,12 @@ struct joint
   
     int rigidBody1;
     int rigidBody2;
-  
+
+    int station1_1;
+    int station2_1;
+
+    int axis1_1;
+    int axis2_1;
 };
 
 struct rigidBody 
@@ -101,9 +107,6 @@ struct rigidBody
 
     struct quaternion orientation;
     struct xyz rotation; // Euler angle rotation rates
-
-    int num_joints;
-    struct joint *joints;
 };
 
 enum jigtype {
@@ -290,6 +293,9 @@ struct part
     int num_rigidBodies;
     struct rigidBody *rigidBodies;
 
+    int num_joints;
+    struct joint *joints;
+
     // pointer to a data structure that holds data which is specific
     // to the particular rigid body library in use.  rigid.c selects
     // the library to use and calls into rigid-*.c as appropriate.
@@ -357,6 +363,12 @@ extern void makeRigidBody(struct part *p, char *name, double mass, double *inert
 extern void makeStationPoint(struct part *p, char *bodyName, char *stationName, struct xyz position);
 
 extern void makeBodyAxis(struct part *p, char *bodyName, char *axisName, struct xyz orientation);
+
+extern void makeBallJoint(struct part *p, char *bodyName1, char *stationName1, char *bodyName2, char *stationName2);
+
+extern void makeHingeJoint(struct part *p, char *bodyName1, char *stationName1, char *axisName1, char *bodyName2, char *stationName2, char *axisName2);
+
+extern void makeSliderJoint(struct part *p, char *bodyName1, char *axisName1, char *bodyName2, char *axisName2);
 
 extern void makeGround(struct part *p, char *name, int atomListLength, int *atomList);
 

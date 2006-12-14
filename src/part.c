@@ -148,14 +148,13 @@ destroyPart(struct part *p)
         }
         destroyAccumulator(rb->axisNames);
         rb->axisNames = NULL;
-        for (k=0; k<rb->num_joints; k++) {
-            ;
-        }
-        destroyAccumulator(rb->joints);
-        rb->joints = NULL;
     }
     destroyAccumulator(p->rigidBodies);
     p->rigidBodies = NULL;
+
+    // joint has no separately allocated storage
+    destroyAccumulator(p->joints);
+    p->joints = NULL;
 
     for (i=0; i<p->num_vanDerWaals; i++) {
         v = p->vanDerWaals[i];
@@ -1589,11 +1588,60 @@ calculateKinetic(struct part *p)
     return total * 0.5 * 1e18 * Dmass * Dx * Dx / (Dt * Dt);
 }
 
+// XXX we could turn this into a hashtable if we need the speed
+// because of lots of bodies.
+static int
+findRigidBodyByName(struct part *p, char *name)
+{
+    int i;
+    
+    for (i=0; i<p->num_rigidBodies; i++) {
+        if (!strcmp(name, p->rigidBodies[i].name)) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static int
+findStationPointByName(struct part *p, int rigidBodyIndex, char *stationName)
+{
+    int i;
+    struct rigidBody *rb = &p->rigidBodies[rigidBodyIndex];
+
+    for (i=0; i<rb->num_stations; i++) {
+        if (!strcmp(stationName, rb->stationNames[i])) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+static int
+findAxisByName(struct part *p, int rigidBodyIndex, char *axisName)
+{
+    int i;
+    struct rigidBody *rb = &p->rigidBodies[rigidBodyIndex];
+
+    for (i=0; i<rb->num_axies; i++) {
+        if (!strcmp(axisName, rb->axisNames[i])) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+
 void
 makeRigidBody(struct part *p, char *name, double mass, double *inertiaTensor, struct xyz position, struct quaternion orientation)
 {
     struct rigidBody *rb;
     int i;
+
+    if (findRigidBodyByName(p, name) >= 0) {
+        ERROR1("duplicate rigidBody declaration: %s", name);
+        p->parseError(p->stream);
+    }
     
     p->num_rigidBodies++;
     p->rigidBodies = (struct rigidBody *)accumulator(p->rigidBodies, p->num_rigidBodies * sizeof(struct rigidBody), 0);
@@ -1613,8 +1661,6 @@ makeRigidBody(struct part *p, char *name, double mass, double *inertiaTensor, st
     vsetc(rb->velocity, 0.0);
     rb->orientation = orientation;
     vsetc(rb->rotation, 0.0);
-    rb->num_joints = 0;
-    rb->joints = NULL;
 }
 
 void
@@ -1622,20 +1668,25 @@ makeStationPoint(struct part *p, char *bodyName, char *stationName, struct xyz p
 {
     int i;
     struct rigidBody *rb;
-    
-    for (i=p->num_rigidBodies-1; i>=0; i--) {
-        if (!strcmp(p->rigidBodies[i].name, bodyName)) {
-            rb = &p->rigidBodies[i];
-            rb->num_stations++;
-            rb->stations = (struct xyz *)accumulator(rb->stations, rb->num_stations * sizeof (struct xyz), 0);
-            rb->stationNames = (char **)accumulator(rb->stationNames, rb->num_stations * sizeof (char *), 0);
-            rb->stations[rb->num_stations-1] = position;
-            rb->stationNames[rb->num_stations-1] = stationName;
-            return;
-        }
+
+    i = findRigidBodyByName(p, bodyName);
+    if (i < 0) {
+        ERROR1("rigidBody named (%s) not found", bodyName);
+        p->parseError(p->stream);
     }
-    ERROR1("rigidBody named (%s) not found", bodyName);
-    p->parseError(p->stream);
+    
+    rb = &p->rigidBodies[i];
+    if (findStationPointByName(p, i, stationName) >= 0) {
+        ERROR2("duplicate stationName: %s on rigidBody: %s", stationName, bodyName);
+        p->parseError(p->stream);
+    }
+    
+    rb->num_stations++;
+    rb->stations = (struct xyz *)accumulator(rb->stations, rb->num_stations * sizeof (struct xyz), 0);
+    rb->stationNames = (char **)accumulator(rb->stationNames, rb->num_stations * sizeof (char *), 0);
+    rb->stations[rb->num_stations-1] = position;
+    rb->stationNames[rb->num_stations-1] = stationName;
+    return;
 }
 
 void
@@ -1643,21 +1694,130 @@ makeBodyAxis(struct part *p, char *bodyName, char *axisName, struct xyz orientat
 {
     int i;
     struct rigidBody *rb;
-    
-    for (i=p->num_rigidBodies-1; i>=0; i--) {
-        if (!strcmp(p->rigidBodies[i].name, bodyName)) {
-            rb = &p->rigidBodies[i];
-            rb->num_axies++;
-            rb->axies = (struct xyz *)accumulator(rb->axies, rb->num_axies * sizeof (struct xyz), 0);
-            rb->axisNames = (char **)accumulator(rb->axisNames, rb->num_axies * sizeof (char *), 0);
-            rb->axies[rb->num_axies-1] = orientation;
-            rb->axisNames[rb->num_axies-1] = axisName;
-            return;
-        }
+
+    i = findRigidBodyByName(p, bodyName);
+    if (i < 0) {
+        ERROR1("rigidBody named (%s) not found", bodyName);
+        p->parseError(p->stream);
     }
-    ERROR1("rigidBody named (%s) not found", bodyName);
-    p->parseError(p->stream);
+    
+    rb = &p->rigidBodies[i];
+    if (findAxisByName(p, i, axisName) >= 0) {
+        ERROR2("duplicate axisName: %s on rigidBody: %s", axisName, bodyName);
+        p->parseError(p->stream);
+    }
+    
+    rb->num_axies++;
+    rb->axies = (struct xyz *)accumulator(rb->axies, rb->num_axies * sizeof (struct xyz), 0);
+    rb->axisNames = (char **)accumulator(rb->axisNames, rb->num_axies * sizeof (char *), 0);
+    rb->axies[rb->num_axies-1] = orientation;
+    rb->axisNames[rb->num_axies-1] = axisName;
 }
+
+static struct joint *
+newJoint(struct part *p)
+{
+    struct joint *j;
+    
+    p->num_joints++;
+    p->joints = (struct joint *)accumulator(p->joints, p->num_joints * sizeof (struct joint), 0);
+    j = &p->joints[p->num_joints-1];
+
+    j->rigidBody1 = -1;
+    j->rigidBody2 = -1;
+    j->station1_1 = -1;
+    j->station2_1 = -1;
+    j->axis1_1 = -1;
+    j->axis2_1 = -1;
+
+    return j;
+}
+
+static int
+requireRigidBody(struct part *p, char *name)
+{
+    int i = findRigidBodyByName(p, name);
+    if (i < 0) {
+        ERROR1("no rigid body named %s", name);
+        p->parseError(p->stream);
+    }
+    return i;
+}
+
+static int
+requireStationPoint(struct part *p, char *bodyName, char *stationName)
+{
+    int i = findRigidBodyByName(p, bodyName);
+    int j;
+    
+    if (i < 0) {
+        ERROR1("no rigid body named %s", bodyName);
+        p->parseError(p->stream);
+    }
+    j = findStationPointByName(p, i, stationName);
+    if (j < 0) {
+        ERROR2("no station named %s in rigid body %s", stationName, bodyName);
+        p->parseError(p->stream);
+    }
+    return j;
+}
+
+static int
+requireAxis(struct part *p, char *bodyName, char *axisName)
+{
+    int i = findRigidBodyByName(p, bodyName);
+    int j;
+    
+    if (i < 0) {
+        ERROR1("no rigid body named %s", bodyName);
+        p->parseError(p->stream);
+    }
+    j = findAxisByName(p, i, axisName);
+    if (j < 0) {
+        ERROR2("no axis named %s in rigid body %s", axisName, bodyName);
+        p->parseError(p->stream);
+    }
+    return j;
+}
+
+void
+makeBallJoint(struct part *p, char *bodyName1, char *stationName1, char *bodyName2, char *stationName2)
+{
+    struct joint *j = newJoint(p);
+
+    j->type = JointBall;
+    j->rigidBody1 = requireRigidBody(p, bodyName1);
+    j->station1_1 = requireStationPoint(p, bodyName1, stationName1);
+    j->rigidBody2 = requireRigidBody(p, bodyName2);
+    j->station2_1 = requireStationPoint(p, bodyName2, stationName2);
+}
+
+void
+makeHingeJoint(struct part *p, char *bodyName1, char *stationName1, char *axisName1, char *bodyName2, char *stationName2, char *axisName2)
+{
+    struct joint *j = newJoint(p);
+
+    j->type = JointHinge;
+    j->rigidBody1 = requireRigidBody(p, bodyName1);
+    j->station1_1 = requireStationPoint(p, bodyName1, stationName1);
+    j->axis1_1 = requireAxis(p, bodyName1, axisName1);
+    j->rigidBody2 = requireRigidBody(p, bodyName2);
+    j->station2_1 = requireStationPoint(p, bodyName2, stationName2);
+    j->axis2_1 = requireAxis(p, bodyName2, axisName2);
+}
+
+void
+makeSliderJoint(struct part *p, char *bodyName1, char *axisName1, char *bodyName2, char *axisName2)
+{
+    struct joint *j = newJoint(p);
+
+    j->type = JointSlider;
+    j->rigidBody1 = requireRigidBody(p, bodyName1);
+    j->axis1_1 = requireAxis(p, bodyName1, axisName1);
+    j->rigidBody2 = requireRigidBody(p, bodyName2);
+    j->axis2_1 = requireAxis(p, bodyName2, axisName2);
+}
+
 
 static struct jig *
 newJig(struct part *p)
@@ -2163,11 +2323,14 @@ static void
 printJointType(FILE *f, enum jointType type)
 {
     switch (type) {
-    case BallSocket:
-        fprintf(f, "BallSocket");
+    case JointBall:
+        fprintf(f, "Ball");
         break;
-    case Hinge:
+    case JointHinge:
         fprintf(f, "Hinge");
+        break;
+    case JointSlider:
+        fprintf(f, "Slider");
         break;
     default:
         fprintf(f, "*Unknown*");
@@ -2178,7 +2341,6 @@ printJointType(FILE *f, enum jointType type)
 void
 printJoint(FILE *f, struct part *p, struct joint *j)
 {
-    fprintf(f, " ");
     printJointType(f, j->type);
     fprintf(f, " joint between (%s) and (%s)\n", p->rigidBodies[j->rigidBody1].name, p->rigidBodies[j->rigidBody2].name);
 }
@@ -2210,13 +2372,6 @@ printRigidBody(FILE *f, struct part *p, struct rigidBody *rb)
             printXYZ(f, rb->axies[i]);
             fprintf(f, "\n");
         }
-    }
-    if (rb->num_joints > 0) {
-        fprintf(f, "  joints: ");
-        for (i=0; i<rb->num_joints; i++) {
-            printJoint(f, p, &rb->joints[i]);
-        }
-        fprintf(f, "\n");
     }
 }
 
@@ -2433,6 +2588,9 @@ printPart(FILE *f, struct part *p)
     }
     for (i=0; i<p->num_outOfPlanes; i++) {
 	printOutOfPlane(f, p, &p->outOfPlanes[i]);
+    }
+    for (i=0; i<p->num_joints; i++) {
+        printJoint(f, p, &p->joints[i]);
     }
 }
 
