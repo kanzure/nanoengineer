@@ -822,7 +822,9 @@ testexpr_19c = Overlay( testexpr_19b, # edit this one by hand if you want
                         Translate( kluge_dragtool_state_checkbox_expr, (6,-4) ) ###e need to wrap this with "draw at the edge, untrackballed"
                     )
 # later 061213:
-testexpr_19d = Overlay( testexpr_19b,
+testexpr_19d = Overlay( testexpr_19,
+                        ## or testexpr_19b, but the internal background.copy(color=green) experiment won't work for that
+                        # [btw that's not the exact syntax, and the color is now a lighter gray so it's tolerable to leave it in]
                         DrawInCorner(Boxed(kluge_dragtool_state_checkbox_expr)) ) # (works but highlight-sync bug is annoying)
 
 # == DrawInCorner

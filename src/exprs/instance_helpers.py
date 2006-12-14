@@ -141,11 +141,14 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         return formula._e_compute_method(self, '@' + attr) #k index arg is a guess, 061110
     
     # copy methods (used by __call__)
-    def _copy(self):
+    def _copy(self, _instance_warning = True):
         ## assert not self._e_is_instance ## ??? [061019]
-        if self._e_is_instance:
-            print "WARNING: copying an instance %r" % (self,)
+        if self._e_is_instance and _instance_warning:
+            print "WARNING: copying an instance %r" % (self,) # this might be ok...
         return self.__class__(_copy_of = self) # this calls _destructive_copy on the new instance
+    def copy(self):#061213 experiment, used in demo_drag.py, background.copy(color=green) ###k
+        "copy an expr or instance to make a new expr with the same formulas [experimental]"
+        return self._copy(_instance_warning = False)
     def _destructive_copy(self, old):
         """[private]
         Modify self to be a copy of old, an expr of the same class.

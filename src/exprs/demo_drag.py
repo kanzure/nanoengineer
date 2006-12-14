@@ -23,7 +23,7 @@ from transforms import Translate
 
 import Rect
 reload_once(Rect)
-from Rect import Rect ## , Sphere
+from Rect import Rect ##, Sphere
 
 import Center
 reload_once(Center)
@@ -31,12 +31,12 @@ from Center import Center
 
 import Highlightable
 reload_once(Highlightable)
-from Highlightable import Highlightable ## Button, print_Expr
+from Highlightable import Highlightable ##, Button, print_Expr
 
 
 import draw_utils
 reload_once(draw_utils)
-from draw_utils import DZ ##e move DZ etc to basic??
+from draw_utils import DZ ##e move DZ etc to basic?? not yet, they might need rethought.
 
 import staterefs
 reload_once(staterefs)
@@ -370,8 +370,26 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                        ## background(color=green),####KLUGE, causes various bugs or weirdnesses... not yet fully understood,
                        ## e.g. AssertionError: compute method asked for on non-Instance <Rect#10415(a)>
                        ## [GLPane_overrider.py:455] [Highlightable.py:275] [Rect.py:52]
-                       # Rect(5,5,green),###KLUGE2 - works now that highlightable is not broken by projection=True
-                       on_press = _self.on_press_bg, on_drag = _self.on_drag_bg ),
+                       ##Rect(5,5,green),###KLUGE2 - works now that highlightable is not broken by projection=True [also works 061213]
+                       ## background.copy(color=green), # oops i mean:
+                       ## call_Expr(background.copy,)( color=green), # oops, i have to include eval_Expr:
+                       eval_Expr( call_Expr(background.copy,)( color=ave_colors(0.9,gray,white)) ), # can't work unless background is simple like a Rect,
+                           # but does work then! (edit _19d to include _19 not _19b)
+                       #e want this to work too: call_Expr(background.copy, color=green),
+                           # -- just let copy take **kws and pass them on, or let it call a customize helper
+                       # review of the kluges:
+                       # - the explicit call_Expr remains annoying but the lack of simple fix still seems true; not sure;
+                       #   could we experiment by turning off that check within certain classes? not sure if that's possible
+                       #   since it happens during expr-building. ##k
+                       # - the need for eval_Expr seems wrong somehow, in fact i'm not sure I understand why we need it.
+                       #   Will it go away in new planned eval/instantiation scheme? not sure. I think so.
+                       # - copy needs **kws.
+                       # - does the .copy itself need to be explicit? that is, could supplying args/opts to an instance copy it implicitly??
+                       #   this might fit with other instances doing other stuff when those were supplied.... ###e
+                       # - should Overlay take color option and pass it on into leaves (subexprs)? what if some leaves won't take it?
+                       #   that has been discussed elsewhere... i forget if dynenv or _optional_options = dict() seemed best.
+                       on_press = _self.on_press_bg,
+                       on_drag = _self.on_drag_bg ),
         world
     )
     _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
@@ -379,10 +397,11 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
     newnode = None # note: name conflict(?) with one of those not yet used Command classes
     
     def on_press_bg(self):
-        if 1:
+        if 0:
             print "compare:"
             print self, self.delegate, self.delegate.delegate, self.delegate.delegate.plain # the background
             print self.background
+            print "hl.highlighted =",self.delegate.delegate.highlighted
                 # self.background is the same as the .plain printed above, which means, as of 061208 941pm anyway,
                 # instantiating an instance gives exactly that instance. (Reasonable for now...)
             
