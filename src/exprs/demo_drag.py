@@ -407,7 +407,46 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             # debug fyi: len(names) == 2 (names = (268L, 269L))
             # Guess: limitation in current rendering code makes it not work for any nested glnames, but just print this instead...
             # (note: even after reload, the node objects in the world have their old Node class, and the old expr used to make them)
-
+            #
+            # [later 061213:] IIRC the status was: I made GLPane_overrider so I could fix that 2-glname issue in it,
+            # but never got to that yet. Meanwhile I commented out the use of this expr, and thus on_drag_node is never used...
+            # and Nodes dragged directly do nothing -- they're highlightable but with no actions.
+            # And World could probably draw them highlightable even if they weren't, but it doesn't.
+            # BTW the disabled nonworking draggable_node_expr is not well-designed -- it does not add a Node to World, it adds a
+            # draggable one -- but even World is not perfect, since it contains Nodes (not just their data)
+            # and they inherently have (a lack of) action bindings since they are Highlightable.
+            # Probably better would be if World contained data-nodes and had access to (or had its own) display rules for them
+            # which added commands/actions based on the currently active tools. That would help with tool-code-reloading too.
+            # Probably some other comments here say this too.
+            #
+            # So does a World need a formula or function arg for how to map its data objects to display objects, at the moment?
+            # Or is there some scheme of a global map for that, to be applied when "drawing" any data object?
+            # And do some data objs have their own positions, or is that always supplied by the world or other data obj they're in?
+            # In theory, we might display atoms at posns unrelated to atom.pos, e.g. as a row in a table which includes their coords.
+            # So it's more like we have ways of "drawing a set of things" which can say "at posns given by func(thing)"
+            # or "at successive posns in a column", corresponding to two display forms with different exprs,
+            # with the map from thing to individual display form also needing to be specified.
+            # So a World is more like a set of things, and it can have a display mode (or more than one), given a thing-display-function.
+            # We can ask it or anything else how it recommends displaying itself given display style options,
+            # but we can choose to use that display function (from it to a more directly displayable object) or use another one.
+            # Or we can probably just "draw it" and have it pick up the current display style from the env (including the
+            # currently active tools). Is there any reason not to permit both? (draw using current style, draw using given style,
+            # give me function from you to drawables using given style, use specific function and draw the results -- all possible.)
+            # 
+            # If a thing in a world has standard mouse actions of its own, can it also have "grabbable areas" for use in dragging it
+            # when it has a posn as displayed in some world? Or did that world have to explicitly turn it into a draggable thing?
+            # Answer: both. The world turns it into that by adding a drag binding for those "overall handles" the thing has.
+            # It might draw them with glnames in some set it knows... ie as named subobjs of itself. The overall thing might also
+            # have a single name. Then we have a sequence of two glnames meaning obj/subobj which we want to use to determine the action.
+            # For some subobjs that's within the object and supplied by it (perhaps depending on tool); for others,
+            # it's supplied by the World it's in (also dep on a tool) and handled by it (eg move the obj, select the obj).
+            #
+            # For the simple things we have there, there are no subobjects, and no actions except drag or later select the whole thing.
+            # A simple model is "one thing was hit, but some things are specified by a specific series of two or more glnames".
+            # In general the outer name decides how to interpret (or whether to ignore) the inner names.
+            # It can map the inner ones somehow... not sure how. This will relate a lot to DisplistChunk when we have that.
+            # Mere nested Highlightables might push two names but both would be unique. Outer name might just defer to inner one then.
+            
         if 0:
             ## MAKE THIS WORK:
             newnode = self.make_and_add( draggable_node_expr)

@@ -821,6 +821,9 @@ testexpr_19b = GraphDrawDemo_FixedToolOnArg1(Overlay(Rect(10),SimpleRow(Sphere(1
 testexpr_19c = Overlay( testexpr_19b, # edit this one by hand if you want
                         Translate( kluge_dragtool_state_checkbox_expr, (6,-4) ) ###e need to wrap this with "draw at the edge, untrackballed"
                     )
+# later 061213:
+testexpr_19d = Overlay( testexpr_19b,
+                        DrawInCorner(Boxed(kluge_dragtool_state_checkbox_expr)) ) # (works but highlight-sync bug is annoying)
 
 # == DrawInCorner
 
@@ -998,7 +1001,7 @@ testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p]
 
 enable_testbed = False
 
-testexpr = testexpr_11r1b ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
@@ -1012,12 +1015,13 @@ testexpr = testexpr_11r1b ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect(
         # ... discussion is in BUGS file. Might be fixed now.
     ## testexpr_9fx4 - use of _this(Highlightable).attr to determine Rect color; _9fx6 with missing args (warning but works)
     ## testexpr_10c double-nested toggleshow of highlightable rect
-    ## testexpr_11r1b image with black padding
+    ## testexpr_11r1b image with black padding; _11s1 highlightable stretched image
     ## testexpr_13z4 red/blue image
     ## testexpr_15d ChoiceColumn
     ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
     ## testexpr_18 model tree demo
     ## testexpr_19b GraphDrawDemo_FixedToolOnArg1 -- works, but the tool remains IN DEVEL ###
+        # _19c has checkbox overlay; _19d puts it in corner (works but highlight-sync bug is annoying)
     ## testexpr_20 four DrawInCorners (works but highlighting is slow)
     ## testexpr_21e table of alignment testers; _21g same in class form
 
