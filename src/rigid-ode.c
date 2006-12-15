@@ -20,7 +20,7 @@ rigid_ode_init(struct part *p)
   dBodyID body;
   dQuaternion q;
   
-  if (p->num_rigidBodies < 1) {
+  if (p->num_rigidBodies < 2) {
     return;
   }
   
@@ -28,9 +28,10 @@ rigid_ode_init(struct part *p)
   p->rigid_body_info = (void *)ode;
   
   ode->world = world = dWorldCreate();
-  ode->bodies = (dBodyID *)allocate(p->num_rigidBodies * sizeof(dBodyID));
+  ode->bodies = (dBodyID *)allocate((p->num_rigidBodies - 1) * sizeof(dBodyID));
+  ode->bodies[0] = 0;
   
-  for (i=0; i<p->num_rigidBodies; i++) {
+  for (i=1; i<p->num_rigidBodies; i++) {
     rb = &p->rigidBodies[i];
     ode->bodies[i] = body = dBodyCreate(world);
     dBodySetPosition(body, (dReal)rb->position.x, (dReal)rb->position.y, (dReal)rb->position.z);
@@ -50,7 +51,7 @@ rigid_ode_destroy(struct part *p)
   int i;
   struct ode_info *ode;
 
-  if (p->num_rigidBodies < 1) {
+  if (p->num_rigidBodies < 2) {
     return;
   }
   
@@ -58,7 +59,7 @@ rigid_ode_destroy(struct part *p)
   NULLPTR(ode);
   NULLPTR(ode->bodies);
 
-  for (i=0; i<p->num_rigidBodies; i++) {
+  for (i=1; i<p->num_rigidBodies; i++) {
     dBodyDestroy(ode->bodies[i]);
   }
   free(ode->bodies);

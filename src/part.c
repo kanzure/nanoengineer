@@ -44,6 +44,7 @@ struct part *
 makePart(char *filename, void (*parseError)(void *), void *stream)
 {
     struct part *p;
+    struct rigidBody *rb;
     
     p = (struct part *)allocate(sizeof(struct part));
     memset(p, 0, sizeof(struct part));
@@ -51,6 +52,13 @@ makePart(char *filename, void (*parseError)(void *), void *stream)
     p->filename = copy_string(filename);
     p->parseError = parseError ? parseError : &defaultParseError;
     p->stream = parseError ? stream : p;
+
+    p->num_rigidBodies = 1 ;
+    p->rigidBodies = (struct rigidBody *)accumulator(p->rigidBodies, sizeof(struct rigidBody), 0);
+    rb = &p->rigidBodies[0];
+    memset(rb, 0, sizeof(struct rigidBody));
+    rb->name = copy_string("$Anchor");
+
     return p;
 }
 
