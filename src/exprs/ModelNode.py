@@ -81,11 +81,22 @@ class ModelNode(Node, SimpleCopyMixin, InstanceOrExpr):
         print "name is",name # "DebugNode"
         print self.__class__.__module__ 
         #e rest is nim; like copy_val but treats instances differently, maps them through an upgrader
+
+    # new code:
+    def draw(self, glpane, dispdef): # follows Node.draw API
+        #e should create appropriate drawable for the given glpane and dispdef;
+        # even if we kluge them as fixed, we need to instantiate our "appearance-expr" (which might default to self? no, draw method is an issue)
+        # btw isn't there a parent env and ipath we need to inherit, to draw properly?
+        # from this draw-interface, the best ipath might be id(self) or so -- or self.ipath if it has one. or parent-node index-path??
+        # not really, given moving of nodes.
+        # maybe a per-node serno is best. _e_serno could work unless it changes too often. And it does. hmm.
+        # Maybe this has to be specified by whoever makes *us*! that means, self.ipath is best.
+        self.find_or_make_kid('_value', glpane).draw() ###IMPLEM find_or_make_kid -- think through the issues
     pass
 
 class Sphere_ExampleModelNode(ModelNode):
     "A sphere."
-    pos = StateArg(Position, ORIGIN)
+    pos = StateArg(Position, ORIGIN) ###IMPLEM
         #e or can all arg/option formulas be treated as state, if we want them to be? (no, decl needed)
         #e or can/should the decl "this is changeable, ie state" as a flag option to the Arg macro?
         #e can it be set to a new *formula*, not just a new constant value? (for constraint purposes)
@@ -98,14 +109,70 @@ class Sphere_ExampleModelNode(ModelNode):
         
     radius = StateArg(Width, 1)
     color = StateArgOrOption(Color, gray)
-    def draw_unpicked(self):
-        ###KLUGE: this is copied from Sphere.draw in Rect.py.
-        ##e Instead, we should define and cache a real Sphere using self-formulas, and draw that,
-        # and delegate to it for lbox as well.
-        from drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
-        drawsphere(self.fix_color(self.color), self.center, self.radius, self.detailLevel) # some of this won't work ######IMPLEM
-    # so is using Sphere hard?
-    _value = Sphere(pos, radius, color) # and something to delegate to it... but only for drawing??
+##    def draw_unpicked(self):
+##        ###KLUGE: this is copied from Sphere.draw in Rect.py.
+##        ##e Instead, we should define and cache a real Sphere using self-formulas, and draw that,
+##        # and delegate to it for lbox as well.
+##        from drawer import drawsphere # drawsphere(color, pos, radius, detailLevel)
+##        drawsphere(self.fix_color(self.color), self.center, self.radius, self.detailLevel) # some of this won't work ######IMPLEM
+    # so is using Sphere hard? maybe not:
+    _value = Sphere(pos, radius, color) # and something to delegate to it... but only for drawing and lbox, delegation by ModelNode??
+        # wait, why would we delegate lbox? if we're a Node does that mean we have a position? if lbox is used, does that mean we're
+        # drawn by a graphic parent, not as the appearance of some node? For now, assume we won't delegate lbox. OTOH can some
+        # graphic thing use a model object as shorthand for "whatever that looks like in the present env"? Without wrapping it??
+        # If so, that might lead to our desire to delegate lbox, and everything else in some to-be-formalized "3dgraphics API".
+    #e but how would we make that depend on the current display mode? just look at self.env? Or is that part of the model?
+        # what about instances of drawables -- they depend on env, maybe they are not fixed for a given model object like we are!!!
+        # should we grab env out of glpane when Node.draw is called?
+
+        ###LOGIC PROBLEM 1: Group.draw assumes there's 1-1 correspondence between subnodes in MT and subnodes drawn.
+        # POSSIBLE EASY FIX: override Group.draw for our own kind of Grouplike objects. At least, it can modify drawing env,
+        # even if it also usually calls the subnode draw methods. BTW we could pass env to draw as a new optional arg.
+
+        ###LOGIC PROBLEM 2: we'd really rather make a parallel drawable (perhaps a tree) and draw that, not call draw on subnodes
+        # directly. POSSIBLE EASY FIX: just do it -- don't call draw on subnodes directly, assume they're kids of main drawable.
+        # Then Node.draw only gets called at the top of "our kind of Group". That can even work for subnodes not of our type,
+        # if we turn them into drawables of a simple kind, by wrapping them with "draw old-style Node using old API".
+
+        ### PROBLEM 3: what if we are drawn multiply in one screen, how does it work?
+        # SOLUTION: the Node.draw is not our normal draw api -- that's "find view of this model object and draw it"
+        # (specific to env, ipath, other things). The Node.draw is mainly used when legacy modes (not testmode) draw the object.
+        # Those can only draw it in one place so it doesn't matter. (Hmm, what if we define a Grouplike node which draws whatever's
+        # under it in more than one place? It'd have to work by altering global coords before calling Node.draw. It could pass
+        # optional env and ipath args, or whatever, to permit smart nodes to create Instances of their appearance...
+        # think this through. ###e)    (It's almost like we just want to add new dynamic args to Node.draw and start using that...
+        # in order to coexist in mixed ways with old-style Nodes. They should be dynamic so they pass through old-style Nodes
+        # unchanged and are still seen by their new-style Node children. But does this work when there's >1 glpane?
+        # BTW, what about drawing with Atoms or Bonds (old drawables, but not Nodes)??
+        # I'm not even sure their .draw API is the same. It might be, or could be made to be.)
+
+        ### WORSE PROBLEM 4: what if >1 MT, with different MT-views of one model object? Letting model obj be its own MTNode
+        # is a scheme only one of the MTs can use, or that requires the MT-views to be identical (even for value of node.open).
+        # If we had multiple MTs we'd want each to have its own set of Nodes made to view our model objects.
+        # That would be a fundamentally better scheme anyway. So we'll want it for our own newer MTs (like the ones in the GLPane).
+        # So will we want it from the start?
+        # Or let it coexist with "model obj can give you a node for another MT, and at same time, be one for "the MT""?
+
+        # ... I guess it now seems like making a separate Node proxy is best, and only using it for this old-MT interface
+        # but noting the multiple purposes of that (all the ones listed in the module docstring, unless testmode is running
+        # and not using the old rendering code on the assy). For awhile, even in testmode, save file will still use assy.tree, etc.
+        # So we'll keep needing to interface with these old APIs through the "old MT view". But we'll like having new views too,
+        # incl new-MT (in glpane or not) and new-graphics view (various dispmodes).
+
+        # SO FIRST FIGURE OUT THE GENERAL WAY TO GET VIEW OBJECTS FROM MODEL OBJECTS. Some sort of caching recomputing dict?
+        # preferably with adaptive keys, that automatically generalize when subkeys are not used in main expr or subexprs...
+        # but for now, ok to ignore that optim (esp if we redecide the key for each subexpr, and some *know* they don't use
+        # some parts of the most general key). Compare to what's in MT_demo, texture_holder, CL.
+        
+    pass
+
+class OldNodeDrawer(InstanceOrExpr):
+    node = Arg(Node)
+    def draw(self):
+        glpane = self.env.glpane
+        dispdef = None ###STUB
+        node.draw(glpane, dispdef) #####PROBLEM: attrs of old nodes or their subnodes are not usage/change-tracked.
+        return
     pass
 
 # end
