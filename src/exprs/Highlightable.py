@@ -325,18 +325,40 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         # fyi: examples of glLoadMatrix (and thus hopefully the glGet for that) can be found in these places on bruce's G4:
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/OpenGLContext/renderpass.py
         # - /Library/Frameworks/Python.framework/Versions/2.3/lib/python2.3/site-packages/VisionEgg/Core.py
-        self.per_frame_state.saved_projection_matrix
-        self.per_frame_state.saved_modelview_matrix
-            #k make sure we can access these (to get the most likely exceptions out of the way)
+        projection_matrix = self.per_frame_state.saved_projection_matrix
+        modelview_matrix = self.per_frame_state.saved_modelview_matrix
+            #k make sure we can access these (to get the most likely exceptions out of the way) (also shorten the remaining code)
         if self.projection:
             glMatrixMode(GL_PROJECTION)
             glPushMatrix()
-            glLoadMatrixd(self.per_frame_state.saved_projection_matrix)
+            self.safe_glLoadMatrixd( projection_matrix, "projection_matrix")
         glMatrixMode(GL_MODELVIEW)
         glPushMatrix()
-        glLoadMatrixd(self.per_frame_state.saved_modelview_matrix)
+        self.safe_glLoadMatrixd( modelview_matrix, "modelview_matrix")
+            # safe -> thus perhaps avoiding a crash bug [the one I had recently? 061214 Q]
         return
 
+    def safe_glLoadMatrixd(self, matrix, name): # note: doesn't use self, ought to refile in draw_utils.py or a glpane proxy ###e
+        "call glLoadMatrixd(matrix( if it looks like matrix has the right type; print a warning otherwise."
+        # as of initial commit, 061214 359, the crash bug never recurred but neither did I see any prints from this,
+        # so it remains untested as a bugfix, tho it's tested as a matrix-loader.
+        if matrix is None:
+            print "saved %s is None, not using it" % (name,) # thus perhaps avoiding a crash bug
+                # I predict I'll see this where i would have otherwise crashed;
+                ### print until i'm sure the bug is fixed
+            return
+        try:
+            matrix.shape != (4,4)
+        except:
+            #e print exception type? more than one type is possible in theory
+            print "not using wrong type of %s, which is %r" % (name, matrix)
+            return
+        if matrix.shape != (4,4):
+            print "not using misshappen %s, which is %r" % (name, matrix)
+            return
+        glLoadMatrixd(matrix) # crashes Python if matrix has wrong type or shape, it seems [guess for now]
+        return
+        
     def end_using_saved_coords(self):
         if self.projection:
             glMatrixMode(GL_PROJECTION)

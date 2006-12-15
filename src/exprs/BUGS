@@ -106,13 +106,31 @@ More generally, I'm not sure whether we need usage-tracking of glpane height & w
 
 ==
 
-061211
+061211 testmode model viewpoint seems wrong
 
 how come testmode shows the model (with atoms, in assy) in a different viewpoint than
 Build mode does?
 
-I suspect it translates before drawing it.
+I suspect it translates before drawing it. But I can't find any code that would do that!
 
 ==
 
- 
+061213 nonrepeatable crash after waking mac
+
+crash after i was connected and using demo_drag, slept it, woke it much later, started using it
+again in same session. details of new use: checkbox off, then try to draw -- the square showed,
+the blue dots never did. instead python crashed.
+
+Macintosh HD:Nanorex:code, work notes:061213 crash postsleep offline -- has stacktrace from crash reporter
+
+[can't repeat it, but i wonder if it relates to asking for time right after wakening when it displays
+wrong on menubar]
+
+[but time might be red herring, in a thread that didn't crash, eg a sleep -- the one that crashed
+was doing _wrap_glLoadMatrixd -- maybe GL state didn't wake properly?]
+
+... an attempted fix (runs, but not yet verified whether it really fixes the bug; see comments therein) 
+is in Highlightable around LoadMatrix calls, 061214. ####k
+
+==
+
