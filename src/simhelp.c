@@ -55,11 +55,9 @@ static char py_exc_strbuf[1024];
 PyObject *simulatorInterruptedException;
 
 #ifdef WWDEBUG
-#define SAY(x)           fprintf(stderr, x)
 #define WHERE_ARE_WE()   DPRINT2(D_PYREX_SIM, "%s: %d\n", __FILE__, __LINE__)
 #else
-#define SAY(x)           ((void*) 0)
-#define WHERE_ARE_WE()   ((void*) 0)
+#define WHERE_ARE_WE()   
 #endif
 
 // wware 060109  python exception handling
@@ -71,6 +69,10 @@ PyObject *simulatorInterruptedException;
         fcloseIfNonNull(&OutputFile); \
         return NULL; \
     }
+
+PyObject *specialExceptionIs(PyObject *specialExcep);
+char * structCompareHelp(void);
+void set_interrupted_flag(int value);
 
 static void
 fcloseIfNonNull(FILE **f)
