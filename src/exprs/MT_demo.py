@@ -79,7 +79,7 @@ from images import IconImage, Image #e and more
 
 If = If_kluge ####e until it works, then remove and retest
 
-Node = Stub
+Node = Stub # [later note 061215: this is probably the same as Utility.Node; it's NOT the same as that's new subclass, ModelNode.]
 
 # == trivial prototype of central cache of MT-viewers for objects
 

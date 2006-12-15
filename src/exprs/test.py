@@ -1018,7 +1018,7 @@ testexpr_22 = DrawInCorner(ChoiceRow(6,2), (1,-1)) # works! (though default opti
 
 enable_testbed = False
 
-testexpr = testexpr_22 ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables

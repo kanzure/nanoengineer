@@ -60,7 +60,10 @@ class ModelObject(InstanceOrExpr,DelegatingMixin): # stub ##e will we need Widge
     """
     pass
 
-class Node(ModelObject): ##e should rename - not the same as in Utility.py. see below about what to rename it...
+class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it added some too, since localvars not all changed,
+      # and since the world ought to contain model objs anyway, in general, of which Vertex is only one type, and current implem
+      # also has its own graphics code)...
+    # see below about better ways to rename it...
     """It has a position, initializable from arg1 but also settable as state under name pos, and an arb appearance.
     Position is relative to whatever coords it's drawn in.
     """
@@ -118,15 +121,15 @@ class DragCommand(Command):
 _PERMIT_SETS_INSIDE_ = attrholder # temporary kluge
 
 class DragANode(DragCommand):
-    """this runs on a new Node made by the click which started this drag (assumed made before this drag starts)
+    """this runs on a new Vertex made by the click which started this drag (assumed made before this drag starts)
     [whether we can or should really separate click and drag actions like that, in this example, is not clear ###k]
     [but if we can, then this *same* command can also drag an *old* node, which would be nice, if we rename it. #e]
     [I think we can sep them, by noticing that the node-maker on click can then decide what to do with "the rest of its drag". #k
      In fact, I bet it will continue to exist as an ongoing command, delegating its remaining user-event stream to the subcommand
      it selects for handling that "rest". #k]
     """
-    # the new Node is an Arg, I guess. How does caller know its name? or is it always arg1?
-    node = Arg(Node)
+    # the new Vertex is an Arg, I guess. How does caller know its name? or is it always arg1?
+    node = Arg(Vertex)
     # it has a position which we will drag.
     # This is really its posn in a specific space... for now assume it (or our view of it, anyway)
     # owns that pos and knows that space.
@@ -144,7 +147,7 @@ class DragANode(DragCommand):
     ## pos = mousepos # won't work, since erases above other set of pos in the class namespace.
 
     node.pos = mousepos # won't work -- syntax error [predicted] .. wait, turns out it's not one!!!
-        # But what does it do? It ought to be doing setattr on an expr returned by Arg(Node) -- which does what?
+        # But what does it do? It ought to be doing setattr on an expr returned by Arg(Vertex) -- which does what?
         # Oh, just sets the attr in there, silently! Can we capture it? If the attrname is arbitrary (seems likely, not certain),
         # then only with expensive code (on all symbolic exprs?) to notice all sets of attrs not starting with _e_ etc...
         # (hmm, maybe we don't need to notice them except later? that is, it's just a formula sitting inside the value of node,
@@ -225,7 +228,7 @@ class MakeANode(ClickDragCommand): #k super?
     newnodepos = _self.pos # what other kind of pos can we have? well, we could have the continuously updated mousepos...
     newnodepos = _self.clickpos #e rename; note we have dragstart_posn or so in other files
     
-    newnode = Node(newnodepos, 'some params') 
+    newnode = Vertex(newnodepos, 'some params') 
         ###PROBLEM: is that just an Expr (pure expr, not instance, not more symbolic than IorE) assigned to an attr?
         # is it symbolic enough to let us do newnode.pos = whatever later if we want?
         # see cmt below about how to list it as "_what_we_make".
@@ -261,7 +264,7 @@ class MakeANode(ClickDragCommand): #k super?
 
     if 0:
         # I disabled this 061212 to avoid the warning which in real life would be suppressed for this special case:
-        ## warning: formula <Node#8661(a)> already in replacements -- error?? its rhs is
+        ## warning: formula <Vertex#8661(a)> already in replacements -- error?? its rhs is
         ## <getattr_Expr#8669: (S._self, <constant_Expr#8668: '_what_we_make'>)>; new rhs would be for attr 'newnode'
         _what_we_make = newnode # maybe we'll just name newnode so this is obvious...
             # btw this can be an exception to not allowing two attrs = one expr, since _what_we_make is a special name... so ignore this:
@@ -290,7 +293,7 @@ class MakeANode(ClickDragCommand): #k super?
 # (It might still exist enough to be revivable if we Undoed to the point where it was active, if it was a wizard... that's good!
 #  I think that should work fine even if one command makes it, some later ones modify it, etc...)
 
-# so we need a world object whose state contains a list of Nodes. And a non-stub Node object (see above I hope).
+# so we need a world object whose state contains a list of Vertex objects. And a non-stub Vertex object (see above I hope).
 
 class World(ModelObject):
     nodelist = State(list_Expr, []) ###k ?? # self.nodelist is public for append (can that be changetracked???#####IMPLEM) or reset
@@ -299,8 +302,8 @@ class World(ModelObject):
             # print "%r is drawing %r at %r" % (self, node, node.pos) # suspicious: all have same pos ... didn't stay true, nevermind
             node.draw() # this assumes the items in the list track their own posns, which might not make perfect sense;
                 # otoh if they didn't we'd probably replace them with container objs for our view of them, which did track their pos;
-                # so it doesn't make much difference in our code. we can always have a type "Node for us" to coerce them to
-                # which if necessary adds the pos which only we see -- we'd want this if one Node could be in two Worlds at diff posns.
+                # so it doesn't make much difference in our code. we can always have a type "Vertex for us" to coerce them to
+                # which if necessary adds the pos which only we see -- we'd want this if one Vertex could be in two Worlds at diff posns.
                 # (Which is likely, due to Configuration Management.)
             if 0 and node is self.nodelist[-1]:
                 print "drew last node in list, %r, ipath[0] %r, pos %r" % (node, node.ipath[0], node.pos)
@@ -426,23 +429,23 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             ###e needs more principled fix -- not yet sure what that should be -- is it to *draw* closer? (in a perp dir from surface)
             #e or just to create spheres (or anything else with thickness in Z) instead? (that should not always be required)
 
-        node_expr = Node(newpos, Center(Rect(0.2,0.2,
+        node_expr = Vertex(newpos, Center(Rect(0.2,0.2,
                                              ## 'green', -- now we cycle through several colors: (colors,...)[counter % 6]
-                                             tuple_Expr(green,yellow,red,blue,white,black)[mod_Expr(_this(Node).ipath[0],6)]
+                                             tuple_Expr(green,yellow,red,blue,white,black)[mod_Expr(_this(Vertex).ipath[0],6)]
                                              )))
         draggable_node_expr = Highlightable(node_expr, on_drag = _self.on_drag_node, sbar_text = "dne")
             ###BUG: this breaks dragging of the new node; it fails to print the call message from on_drag_node;
             # if you try to drag an old node made this way, it doesn't work but says
             # debug fyi: len(names) == 2 (names = (268L, 269L))
             # Guess: limitation in current rendering code makes it not work for any nested glnames, but just print this instead...
-            # (note: even after reload, the node objects in the world have their old Node class, and the old expr used to make them)
+            # (note: even after reload, the node objects in the world have their old Vertex class, and the old expr used to make them)
             #
             # [later 061213:] IIRC the status was: I made GLPane_overrider so I could fix that 2-glname issue in it,
             # but never got to that yet. Meanwhile I commented out the use of this expr, and thus on_drag_node is never used...
-            # and Nodes dragged directly do nothing -- they're highlightable but with no actions.
+            # and Vertexes dragged directly do nothing -- they're highlightable but with no actions.
             # And World could probably draw them highlightable even if they weren't, but it doesn't.
-            # BTW the disabled nonworking draggable_node_expr is not well-designed -- it does not add a Node to World, it adds a
-            # draggable one -- but even World is not perfect, since it contains Nodes (not just their data)
+            # BTW the disabled nonworking draggable_node_expr is not well-designed -- it does not add a Vertex to World, it adds a
+            # draggable one -- but even World is not perfect, since it contains Vertexes (not just their data)
             # and they inherently have (a lack of) action bindings since they are Highlightable.
             # Probably better would be if World contained data-nodes and had access to (or had its own) display rules for them
             # which added commands/actions based on the currently active tools. That would help with tool-code-reloading too.
@@ -514,7 +517,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         what = kluge_dragtool_state() ###IMPLEM better
         if what == 'draw':
             # make a blue dot showing the drag path, without moving the main new node (from the click)
-            node_expr = Node(newpos, Center(Rect(0.1,0.1,blue)))
+            node_expr = Vertex(newpos, Center(Rect(0.1,0.1,blue)))
             self.make_and_add(node_expr)
         elif what == 'drag':
             # drag the new node made by the click
