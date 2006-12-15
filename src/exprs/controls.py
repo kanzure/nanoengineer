@@ -1,5 +1,5 @@
 """
-controls.py - some simple controls, like ChoiceButton and ChoiceColumn
+controls.py - some simple controls, like ChoiceButton, ChoiceColumn/Row, checkbox_v3
 
 $Id$
 
@@ -15,6 +15,10 @@ from basic import _self
 import Rect
 reload_once(Rect)
 from Rect import Rect, Spacer, SpacerFor
+
+import Center
+reload_once(Center)
+from Center import Center, CenterY
 
 import Column
 reload_once(Column)
@@ -39,6 +43,10 @@ from Overlay import Overlay
 import images
 reload_once(images)
 from images import Image, IconImage
+
+import staterefs
+reload_once(staterefs)
+from staterefs import PrefsKey_StateRef
 
 If = If_kluge # until debugged
 
@@ -165,6 +173,58 @@ def ChoiceColumn( nchoices, dflt = 0, **kws): ##e should be an InstanceMacro, no
                 ##k is there any way to use the new-061203 State macro for this?
     )
 
+def ChoiceRow( nchoices, dflt = 0, **kws): ##e should be an InstanceMacro, not a def! doesn't work to be customized this way.
+    "#doc"
+    #e nim: Row -- esp on list like this -- Row( map(...)) -- so use SimpleRow
+    return Apply(
+        lambda stateref_expr, nchoices = nchoices, dflt = dflt, kws = kws:
+            SimpleRow( # stateref_expr will be a Symbol when this lambda is run, to produce an expr, once only
+                SimpleRow( * map( ChoiceButton(choiceref = stateref_expr, **kws), range(nchoices) ) ), # choose
+                TextRect( format_Expr( "choice is %%r (default %s)" % dflt, stateref_expr.value ), 1, 30) # show choice
+            ),
+        LocalVariable_StateRef(int, dflt)
+            # LocalState, combining this and the Apply?
+                # or, just a stateref to some fixed state somewhere... whose instance has .value I can get or set? use that for now.
+                ##k is there any way to use the new-061203 State macro for this?
+    )
+
+# ==
+
+# how far are we from doing ChoiceRow as a class, nicely expressed? [061214 Q/exper]
+# in light of the attempt below:
+# - biggest need is dealings with iterated args of several kinds:
+#   - OptionsDict
+#   - Row over made list of things
+#   - making those things, by iterating a ChoiceButton expr
+# - we might also need a way to turn _self.var into a stateref we can pass into ChoiceButton as its choiceref
+###e conclusion: too far to be held up by doing it, but worth thinking about, since we *DO* need to solve all those Qs pretty soon.
+
+# One approach is to say
+# - "assume we want *-expr and map-Expr for use in SimpleRow( * map( expr, varying args/opts for expr ))"
+#   - and come up with simplest syntax for that we can.
+#   - then we'd probably need to resolve "iterator expr" (eval/instantiate) issues too.
+# - Another is to say "do that iteration in python methods or lambdas",
+#   but make it easier to integrate those with toplevel formula exprs.
+#   (An argument for this is that people already know how -- no need to learn new syntax.
+#    A disadvantage is that the iteration won't be incrementally updated, only the whole thing at once will update.)
+#   So the Apply above happens in some method of the class -- perhaps _C__value -- not sure that works if nchoices can vary,
+#   but they can't vary anyway in the current def.
+
+def OptionsDict(type = Anything):
+    return Option(type) ###STUB just so parsing works, totally wrong in effect
+
+class ChoiceRow_class(InstanceMacro): # stub, nim
+    nchoices = Arg(int)
+    dflt = Arg(int, 0)
+    kws = OptionsDict() ###IMPLEM #e see if name is correct re other proposals, eg Options not Option?
+        #e renamekws tosay what they are for -- the ChoiceButton --- note that we could ditch the OptionsDict and ask for
+        # an explicit dict of them, but then they would not be indivly customizable. Should a new sub-option cust scheme be made? #e
+    var = State(int, _self.dflt) ###k does _self.dflt work? Is this equiv to the above? NO, it's an lval not a stateref!
+    _value = SimpleRow(
+        0 ###stub -- the next hard thing is to apply this to a variable number of exprs or insts created by map over range(nchoices)
+    )
+    pass
+
 # ==
 
 checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 * PIXELS, 21 * PIXELS))
@@ -175,7 +235,7 @@ checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 *
 
 #e see also checkbox_v2 in tests.py for use in testexpr_16b
 
-class checkbox_v3(InstanceMacro): #e rename
+class checkbox_v3(InstanceMacro): ##e rename
     stateref = Arg(StateRef, None) ### default? might not work with a default val yet
         ### IMPLEM: specify what external state to use, eg a prefs variable, PrefsKey_StateRef(displayOriginAxis_prefs_key)
     default_value = Option(bool, False)
@@ -213,9 +273,17 @@ class checkbox_v3(InstanceMacro): #e rename
     )
     pass
 
-
-
- # compare to LocalVariable_StateRef
+def checkbox_pref(prefs_key, label, dflt = False):
+    "#doc"
+    #e rename, make it a class, make it one of several prefs controls for other types of pref and control
+    #e generalize to all named state -- e.g. see also LocalVariable_StateRef -- permit passing in the stateref?
+    #e get dflt label from stateref??
+    # note: this was split out of kluge_dragtool_state_checkbox_expr 061214, extended here
+    if type(label) == type(""):
+        label = TextRect(label,1,20)
+    return SimpleRow(CenterY(checkbox_v3(PrefsKey_StateRef(prefs_key, dflt))), CenterY(label)) # align = CenterY is nim
+    # note: adding CenterY also (probably coincidentally) improved the pixel-alignment (on g5 at least), so the label is no longer fuzzy.
+    # [see also testexpr_16c, similar to this]
 
 
 """

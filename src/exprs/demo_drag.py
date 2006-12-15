@@ -27,29 +27,23 @@ from Rect import Rect ##, Sphere
 
 import Center
 reload_once(Center)
-from Center import Center
+from Center import Center, CenterY
 
 import Highlightable
 reload_once(Highlightable)
 from Highlightable import Highlightable ##, Button, print_Expr
 
-
 import draw_utils
 reload_once(draw_utils)
 from draw_utils import DZ ##e move DZ etc to basic?? not yet, they might need rethought.
-
-import staterefs
-reload_once(staterefs)
-from staterefs import PrefsKey_StateRef
 
 import TextRect
 reload_once(TextRect)
 from TextRect import TextRect
 
-
 import controls
 reload_once(controls)
-from controls import checkbox_v3 #e rename ##,ChoiceColumn, 
+from controls import checkbox_pref 
 
 import Column
 reload_once(Column)
@@ -343,9 +337,14 @@ class World(ModelObject):
 # (wrong) but drawing them in arb rel coords (wrong), when both need to be in a specified coord sys, namely that of the bg rect object.
 
 # status 061207 ~9am: coords were fixed last night, and drag now works as of thismorning. simple demo draws blue nodes along the drag.
-# In theory it's using depth found at each point, so it could draw on a 3d curved surface -- but that's not tested.
+# In theory it's using depth found at each point, so it could draw on a 3d curved surface -- but that's not tested. [later, it is.]
+
+# 061213 bug report, trivial: draws just in front, but in model coords, not screen coords. For trackball and then draw on back or
+# other side, screen coords would work better -- or maybe object-surface-coords (as some comment suggests) would be better still,
+# but for non-enclosed objs like planes, note that that depends on screen coords to know which face is facing the user.
 
 class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
+    # args
     background = Arg(Widget2D, Rect(10) )
         # testexpr_19a, 061207 morn -- see if arb objects work here, and try drawing on a curved surface --
         # works! (when the surface was the default here -- now also tested/works when it's the arg supplied by that testexpr)
@@ -364,6 +363,9 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         # to what), and in the given eg, getting quite different answers (incl about how to transform coords for storage, re scaling)
         # depending on whether the rect or sphere was clicked --
         # which the current code does not even detect, since it gives them the same glname. ###e
+    # options
+    highlight_color = Option(Color, None)#UNTESTED ## suggest: ave_colors(0.9,gray,white)) # use this only if background takes a color option
+    # internals
     world = Instance( World() ) # has .nodelist I'm allowed to extend
     _value = Overlay(
         Highlightable( background, #######   WAIT A MINUTE,   how can we do that -- background is already an instance?!? ######@@@@@@
@@ -373,8 +375,16 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                        ##Rect(5,5,green),###KLUGE2 - works now that highlightable is not broken by projection=True [also works 061213]
                        ## background.copy(color=green), # oops i mean:
                        ## call_Expr(background.copy,)( color=green), # oops, i have to include eval_Expr:
-                       eval_Expr( call_Expr(background.copy,)( color=ave_colors(0.9,gray,white)) ), # can't work unless background is simple like a Rect,
-                           # but does work then! (edit _19d to include _19 not _19b)
+                       If( highlight_color,#UNTESTED
+                          eval_Expr( call_Expr(background.copy,)( color = highlight_color) ),
+                               # can't work unless background is simple like a Rect,
+                               # but does work then! (edit _19d to include _19 not _19b)
+                          background ## None -- I hoped None would be equivalent, noticed in HL and replaced, but that would be hard,
+                           # would require it to notice each time whether the opt was suppied or not, do default each time
+                           # rather than per-time, also require supplying None to be same as not supplying the arg (not true now)
+                           # (maybe passing some other symbol should be same as that?? and permitted each time? But If->None is so
+                           #  easy, by leaving out the arg... ###e decide)
+                        ),
                        #e want this to work too: call_Expr(background.copy, color=green),
                            # -- just let copy take **kws and pass them on, or let it call a customize helper
                        # review of the kluges:
@@ -535,9 +545,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                     #
                     # SOLVED: It was the Numeric array == bug, in lvals.py optim for setting to same value.
                     # If any coord was the same, it didn't inval or change the stored pos. Fixed using same_vals.
-                    # Checked for other such bugs in that file, BUT NOT IN OTHER FILES. ###DOIT [061207 10p]
-                    
-                    
+                    # Checked for other such bugs in that file, BUT NOT IN OTHER FILES. ###DOIT [061207 10p] 
             pass
         return
     
@@ -596,8 +604,9 @@ def kluge_dragtool_state():
 
 kluge_dragtool_state() # set the default val
 
-kluge_dragtool_state_checkbox_expr = \
-    SimpleRow(checkbox_v3(PrefsKey_StateRef(kluge_dragtool_state_prefs_key)),
-              TextRect("drag new nodes?",1,20)) # [later comment: see also testexpr_16c, similar to this with different prefs_key]
+kluge_dragtool_state_checkbox_expr = SimpleColumn(
+    checkbox_pref(kluge_dragtool_state_prefs_key,         "drag new nodes?", dflt = kluge_dragtool_state_prefs_default),
+    checkbox_pref(kluge_dragtool_state_prefs_key + "bla", "some other pref"),
+ )    
 
 # end

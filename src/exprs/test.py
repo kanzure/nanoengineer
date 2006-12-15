@@ -112,7 +112,7 @@ from images import Image, IconImage, PixelGrabber
 
 import controls
 reload_once(controls)
-from controls import ChoiceButton, ChoiceColumn, checkbox_v3 #e rename
+from controls import ChoiceButton, ChoiceColumn, ChoiceRow, checkbox_v3 #e rename
 
 import staterefs
 reload_once(staterefs)
@@ -724,6 +724,7 @@ niceargs = dict(background = Rect(3,1,green), background_off = IconImage("espwin
 testexpr_15c = ChoiceColumn(6,2, content = TextRect("zz",1,30), **niceargs) # bug more likely at far right end of text, but not consistent
 testexpr_15d = ChoiceColumn(6,2, content = Rect(7,0.3,white), **niceargs) # compare Rect here -- works, reliable except right after click [which is a ###BUG]
 testexpr_15e = ChoiceColumn(6,2, content = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)), **niceargs) # compare Image -- works
+    # see also _22
 
 # State [061203]
 class toggler(InstanceMacro):
@@ -822,10 +823,14 @@ testexpr_19c = Overlay( testexpr_19b, # edit this one by hand if you want
                         Translate( kluge_dragtool_state_checkbox_expr, (6,-4) ) ###e need to wrap this with "draw at the edge, untrackballed"
                     )
 # later 061213:
-testexpr_19d = Overlay( testexpr_19,
-                        ## or testexpr_19b, but the internal background.copy(color=green) experiment won't work for that
-                        # [btw that's not the exact syntax, and the color is now a lighter gray so it's tolerable to leave it in]
-                        DrawInCorner(Boxed(kluge_dragtool_state_checkbox_expr)) ) # (works but highlight-sync bug is annoying)
+testexpr_19d = Overlay( testexpr_19b,
+                        DrawInCorner(Boxed(kluge_dragtool_state_checkbox_expr))
+                    ) # (works but highlight-sync bug is annoying) -- after some changes inside 061214, still works
+
+testexpr_19e = Overlay( GraphDrawDemo_FixedToolOnArg1( Rect(9), highlight_color = green),
+                            # this is the new (and only current) test of background.copy(color=green) experiment [061214]
+                        DrawInCorner(Boxed(kluge_dragtool_state_checkbox_expr)) ) # ugly color, but works
+
 
 # == DrawInCorner
 
@@ -998,12 +1003,22 @@ class class_21g(DelegatingInstanceOrExpr): # see how far I can simplify testexpr
 
 testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p]
 
+# ==
+
+##niceargs = dict(background = Rect(3,1,green), background_off = IconImage("espwindow-hide.png"))
+##testexpr_15c = ChoiceColumn(6,2, content = TextRect("zz",1,30), **niceargs) # bug more likely at far right end of text, but not consistent
+##testexpr_15d = ChoiceColumn(6,2, content = Rect(7,0.3,white), **niceargs) # compare Rect here -- works, reliable except right after click [which is a ###BUG]
+##testexpr_15e = ChoiceColumn(6,2, content = Translate(Image("blueflake.jpg",size=Rect(7,0.4)),(1,0)), **niceargs) # compare Image -- works
+
+testexpr_22 = DrawInCorner(ChoiceRow(6,2), (1,-1)) # works! (though default options are far from perfect)
+    # see also kluge_dragtool_state_prefs_default and _19*
+
     
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = False
 
-testexpr = testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_22 ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
@@ -1026,6 +1041,7 @@ testexpr = testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() 
         # _19c has checkbox overlay; _19d puts it in corner (works but highlight-sync bug is annoying)
     ## testexpr_20 four DrawInCorners (works but highlighting is slow)
     ## testexpr_21e table of alignment testers; _21g same in class form
+    ## testexpr_22 ChoiceRow (in corner)
 
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
