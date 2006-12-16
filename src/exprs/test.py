@@ -112,7 +112,7 @@ from images import Image, IconImage, PixelGrabber
 
 import controls
 reload_once(controls)
-from controls import ChoiceButton, ChoiceColumn, ChoiceRow, checkbox_v3 #e rename
+from controls import ChoiceButton, ChoiceColumn, ChoiceRow, checkbox_v3, checkbox_pref #e rename
 
 import staterefs
 reload_once(staterefs)
@@ -1022,7 +1022,7 @@ testexpr_22 = DrawInCorner(ChoiceRow(6,2), (1,-1)) # works! (though default opti
     
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = False
+enable_testbed = True
 
 testexpr = testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
@@ -1065,13 +1065,31 @@ testexpr = testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() 
     # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
     # once goes over the green rect or the displist text (after each reload)? not sure. [later realized it's just the glselect redraw.]
 
+bottom_left_corner = Boxed(SimpleColumn(
+##    checkbox_pref("A9 devel/testdraw/use old vv.displist?", "use old vv.displist?"), # see USE_DISPLAY_LIST_OPTIM
+    checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider?", dflt = True), # works (moves compass)
+    checkbox_pref("A9 devel/testdraw/super.Draw?", "draw model & region-sel rect?", dflt = True), # works
+    checkbox_pref("A9 devel/testdraw/show old timing data?", "show old timing data?", dflt = False), # works (side effect on text in next one)
+    checkbox_pref("A9 devel/testdraw/show old use displist?", "show old use displist?", dflt = False), # works
+    checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
+##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
+ ))
+    # cosmetic bugs in this: mouse stickiness on text label (worse on g4?), and label not active for click,
+    # and Boxed not resizable, and labels wouldn't grow if it was (and they're not long enough, tho that'd be ok if they'd grow),
+    # and reload is pretty slow since we're not caching all this testbed stuff (I guess that's why)
+
+top_left_corner = testexpr_10c
+
 def testbed(expr):
     "this turns the current testexpr into the actual expr to render"
     ## return Overlay(expr, Closer(Rect(1,1,black), 3.4)) #stub
     ## return Overlay(expr, If(1,DrawInCorner1,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
     ## return Overlay(expr, DrawInCorner(Highlightable(Rect(1,1,black),Rect(1,1,green)) ))
-    return Overlay(expr, testexpr_20a)
-
+    return Overlay(expr,
+                   DrawInCorner( top_left_corner, (-1,1)), # MT on top left
+                   ## testexpr_20a,
+                   DrawInCorner( bottom_left_corner, (-1,-1)), # checkboxes on bot left
+                )
 
 if not enable_testbed:
     testbed = identity
