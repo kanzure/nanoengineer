@@ -187,8 +187,8 @@ from widget2d import Widget, Widget2D
 # lowercase stub doesn't work for the following, since they get called during import, so use uppercase Stub
 Stub = Widget2D
 
-# types
-Width = Color = Vector = Action = Stub
+# stub types
+Width = Color = Vector = Action = Position = Stub
 
 # layout prims and the like (but for the most part, layout prims probably won't be defined in basic.py at all)
 # [none at the moment]

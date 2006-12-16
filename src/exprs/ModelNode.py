@@ -66,8 +66,17 @@ from lvals import RecomputingMemoDict ##, call_but_discard_tracked_usage, LvalEr
 
 # WRONG
 
-class ModelNode(Node, SimpleCopyMixin, InstanceOrExpr):
-    __metaclass__ = ExprsMeta
+##class ModelNode(Node, SimpleCopyMixin, InstanceOrExpr):
+##    __metaclass__ = ExprsMeta
+    ##  reload failed (not supported in this version?); continuing: exceptions.TypeError: Cannot create a consistent method resolution
+    ##  order (MRO) for bases Node, SimpleCopyMixin, InstanceOrExpr
+    ##    [debug.py:1320] [debug.py:1305] [test.py:137] [ModelNode.py:69] [ExprsMeta.py:900]
+    ##
+    ##  ### why can't it?
+    ##
+    ##  ### that might be yet another reason not to make ModelObjects and their Nodes the same object
+
+class ModelNode(InstanceOrExpr): #e rename since not a Node anymore (unless I actually like this name; doubtful; try ModelObject)
     ###IMPLEM - rewrite the rest of this class
     def __init__(self, stuff, name = None):
         assy = env.mainwindow().assy #k wrongheaded??
@@ -104,9 +113,13 @@ class ModelNode(Node, SimpleCopyMixin, InstanceOrExpr):
         self.find_or_make_kid('_value', glpane).draw() ###IMPLEM find_or_make_kid -- think through the issues
     pass
 
+StateArg = Arg ###STUB
+StateArgOrOption = ArgOrOption ###STUB
+ORIGIN = V(0,0,0) ###e get from basic or draw_utils
+
 class Sphere_ExampleModelNode(ModelNode):
     "A sphere."
-    pos = StateArg(Position, ORIGIN) ###IMPLEM
+    pos = StateArg(Position, ORIGIN) ###IMPLEM StateArg , StateArgOrOption
         #e or can all arg/option formulas be treated as state, if we want them to be? (no, decl needed)
         #e or can/should the decl "this is changeable, ie state" as a flag option to the Arg macro?
         #e can it be set to a new *formula*, not just a new constant value? (for constraint purposes)
@@ -200,7 +213,11 @@ def testfunc(key):
 
 rcmd = RecomputingMemoDict(testfunc)
 
-print "rcmd maps 1 to %r, 2 to %r, 1 to %r" % map(rcmd, [1,2,1])
+def dictmap(dict1, list1): ##e does this have another name in py_utils, or is there a dict->func converter there??
+    #e return tuple??
+    return [dict1[key] for key in list1]
+
+print "rcmd maps 1 to %r, 2 to %r, 1 to %r" % tuple(dictmap(rcmd, [1,2,1])) #e change time to counter so you can tell it didn't recompute
 
 # end
 

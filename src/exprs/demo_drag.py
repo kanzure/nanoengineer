@@ -53,7 +53,7 @@ from Column import Column, SimpleColumn, SimpleRow # only using SimpleRow
 # ==
 
 Alias = mousepos = Stub
-Position = 'stub type position'
+##Position = 'stub type position'
 
 class ModelObject(InstanceOrExpr,DelegatingMixin): # stub ##e will we need Widget2D for some reason?
     """#doc
