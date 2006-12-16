@@ -69,7 +69,8 @@ def printfyi(msg, constpart = None):
 class MemoDict(dict): #k will inherit from dict work? ###e rename to extensibledict?? -- it doesn't have to memoize exactly...
     """Act like a transparently extensible dict,
     given a way to compute a new element (which we'll memoize) from the dict key;
-    this way MUST NOT USE USAGE-TRACKED LVALS (WARNING: this error is not yet detected).
+    this way MUST NOT USE USAGE-TRACKED LVALS (WARNING: this error is not yet detected [actually I think it is, now]).
+    (If you wish there was usage-tracking and update, see LvalDict2, or a proposed RecomputingMemoDict, in other files.)
     WARNING: typical uses are likely to involve cyclic refs, causing memory leaks.
     """
     ###e should provide an optional argfunc to canonicalize the key before using it to look up or call the wayfunc

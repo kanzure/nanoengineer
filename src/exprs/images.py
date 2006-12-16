@@ -143,7 +143,9 @@ class _texture_holder(object):
 
 texture_holder_for_filename = MemoDict(_texture_holder)
     ###e should canonicalize the filename -- as another optional argfunc to MemoDict
-    #doc: now texture_holder_for_filename[filename] is our memoized _texture_holder for a given filename
+    #doc: now texture_holder_for_filename[filename] is our memoized _texture_holder for a given filename.
+    # note [added 061215]: no need to use LvalDict2, since _texture_holder never needs recomputing for a given filename
+    # (and uses no usage-tracked values).
 
 # ==
 

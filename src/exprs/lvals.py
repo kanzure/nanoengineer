@@ -442,13 +442,14 @@ class LvalForUsingASharedFormula(Lval): #stub -- do we need this? for a formula 
 
 def LvalDict1(wayfunc, lvalclass = Lval): #e option to not memoize for certain types of keys (like trivials or errors)?? this or Memo?
     """An extensible dict of lvals of the given lval class, whose memoized values will be recomputed from dict key using wayfunc(key)().
-    It's an error (reported [#nim] in MemoDict) for computation of wk = wayfunc(key) to use any external usage-tracked lvalues,
+    It's an error (reported [nim? not anymore i think] in MemoDict) for computation of wk = wayfunc(key) to use any external usage-tracked lvalues,
     but it's ok if wk() does; subsequent inval of those lvals causes the lval created here to recompute and memoize wk() on demand.
     This is more useful than if the entire dict had to be recomputed (i.e. if a _C_ rule told how to recompute the whole thing),
     since only the specific items that become invalid need to be recomputed.
        Design note: DO WE RETURN THE LVALS or their values??
     For now, WE RETURN THE LVALS (partly since implem is easier, partly since it's more generally useful);
     this might be less convenient for the user. [But as of 061117, StatePlace.py will depend on this, in our variant LvalDict2.]
+       Deprecation note: LvalDict2 is probably better to use. This LvalDict1 has not quite been deprecated in its favor, but almost.
     """
     #k Note:
     # I'm only 90% sure the "wayfunc = wayfunc, lvalclass = lvalclass" lambda closure kluge is still needed in Python, in this case.
@@ -465,5 +466,21 @@ def LvalDict2(valfunc, lvalclass = Lval, debug_name = None):
     return MemoDict( lambda key, valfunc = valfunc, lvalclass = lvalclass, debug_name = debug_name:
                      lvalclass( lambda valfunc=valfunc, key=key: valfunc(key),
                                 debug_name = debug_name and ("%s|%s" % (debug_name,key)) ) )
-        
+
+class RecomputingMemoDict: # 061215 scratch, not yet used, might relate to comments in ModelNode.py
+    """Like MemoDict, but permit usage-tracked recomputes by way
+    (invalidating/recomputing our elements individually),
+    which means the values we return for a given key might not be constant.
+       [WARNING: we don't implement most dict-access methods, only __getitem__.]
+    """
+    def __init__( self, way, lvalclass = Lval, debug_name = None):
+        ##e and more options, if LvalDict2/MemoDict provides them, like canon_key??
+        self._lvals = LvalDict2( way, lvalclass = lvalclass, debug_name = debug_name)
+        ## dict.__init__(self) #k will this mean that other dict-access methods (like len, keys, items) work property? no...
+        # so what's the point?? no point, it'd just be promising what it can't deliver. Should create a value-filtered-dict or so... #e
+    def __getitem__(self, key):
+        lval = self._lvals[key]
+        return lval.get_value() # might recompute (and track usage into lval), that's ok
+    pass
+
 # end

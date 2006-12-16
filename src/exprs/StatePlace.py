@@ -132,6 +132,9 @@ class _attr_accessor:
                 # note: we pass our own lvalclass, which permits set_constant_value
         return res
     def valfunc(self, key):
+        # note: as of 061215 this is never overridden, so the usage-tracking LvalDict2's lvals do for it never tracks usage,
+        # but we still need to use Lvals there so we can reset their value. In theory we could use a special kind
+        # which didn't have recomputation-usage-tracking code at all. [i guess, as of 061215]
         raise LvalError_ValueIsUnset, "access to key %r in some lvaldict in _attr_accessor, before that value was set" % (key,)
             #k [061117 late] use this exception in hopes that it makes hasattr just say an attr is not yet there
             ##e needs more info, so probably make a lambda above to use as valfunc

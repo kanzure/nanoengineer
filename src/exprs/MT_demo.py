@@ -83,6 +83,10 @@ Node = Stub # [later note 061215: this is probably the same as Utility.Node; it'
 
 # == trivial prototype of central cache of MT-viewers for objects
 
+# WARNING [added 061215]: this assumes _make_new_MT_viewer_for_object uses no usage-tracked values and thus never needs recomputing.
+# That's probably true since the reload counter is in the key. If that becomes false, we'll probably need to replace MemoDict
+# with a variant based on LvalDict2.
+
 def _make_new_MT_viewer_for_object(key):
     obj, essential_data, reload_counter = key
     print "viewing node %r, reload_counter = %r" % (obj, reload_counter) ###
@@ -90,7 +94,7 @@ def _make_new_MT_viewer_for_object(key):
     mt_instance = MT(obj) # but will this work, with arg1 being already instantiated -- will it make an instance? not yet! ###IMPLEM that
     return mt_instance
 
-_MT_viewer_for_object = MemoDict(_make_new_MT_viewer_for_object)
+_MT_viewer_for_object = MemoDict( _make_new_MT_viewer_for_object)
     # args are (object, essential-data) where data diffs should prevent sharing of an existing viewer
     # (this scheme means we'd find an existing but not now drawn viewer... but we only have one place to draw one at a time,
     #  so that won't come up as a problem for now.)

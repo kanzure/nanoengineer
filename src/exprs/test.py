@@ -134,6 +134,12 @@ import projection
 reload_once(projection)
 from projection import DrawInCorner1, DrawInCorner
 
+import ModelNode # as of 061215 450p this import fails (no consistent MRO) but causes no other problems
+    # (it did on try1 but that was after lots of file edits in a running session, and didn't repeat in a new session)
+reload_once(ModelNode)
+from ModelNode import Sphere_ExampleModelNode ###stub or wrong, not yet used [061215]
+
+
 # == @@@
 
 import widget_env

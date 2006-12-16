@@ -52,9 +52,19 @@ from basic import *
 from basic import _self, _my, _this
 
 from Utility import SimpleCopyMixin, Node, imagename_to_pixmap, genViewNum
-from state_utils import copy_val, S_DATA #k copy_val in basic? where is S_DATA really?
+from state_utils import copy_val, S_DATA #e put copy_val in basic? #k where is S_DATA really?
 
-from Rect import Sphere #reload
+import Rect
+reload_once(Rect)
+from Rect import Sphere
+
+import lvals
+reload_once(lvals)
+from lvals import RecomputingMemoDict ##, call_but_discard_tracked_usage, LvalError_ValueIsUnset
+
+# ===
+
+# WRONG
 
 class ModelNode(Node, SimpleCopyMixin, InstanceOrExpr):
     __metaclass__ = ExprsMeta
@@ -163,7 +173,17 @@ class Sphere_ExampleModelNode(ModelNode):
         # preferably with adaptive keys, that automatically generalize when subkeys are not used in main expr or subexprs...
         # but for now, ok to ignore that optim (esp if we redecide the key for each subexpr, and some *know* they don't use
         # some parts of the most general key). Compare to what's in MT_demo, texture_holder, CL.
-        
+        #
+        # ... re all that, see RecomputingMemoDict (written just now, not yet used). ###e
+        # The idea is to use it to map objects into images (views) of themselves (with keys containing objs and other data),
+        # where instances are images of exprs, view objs are instances of model objs
+        # (whether the view objs are Nodes (old MT) or MTViews (new one) or _3DViews(?)), glue code wrapped things of those things.
+        # But in some cases we'd like the dict val to permanent -- in that case, use MemoDict and a wayfunc that recomputes internally
+        # and delegates to what it recomputes (or forwards to it if it becomes final, as an optim). This might be true for glue code,
+        # not sure about viewers. We might like to say which style we prefer in each case (as if part of the key).
+        #
+        # Note: current direct uses of MemoDict are texture holders and MTView; of LvalDict2 are subinstances -- and any others?
+        # StatePlaces -- but they don't make use of the recomputing ability.
     pass
 
 class OldNodeDrawer(InstanceOrExpr):
@@ -174,6 +194,13 @@ class OldNodeDrawer(InstanceOrExpr):
         node.draw(glpane, dispdef) #####PROBLEM: attrs of old nodes or their subnodes are not usage/change-tracked.
         return
     pass
+
+def testfunc(key):
+    return "%s, %s" % (key, time.asctime()) # note: uses no usage-tracked values!!!
+
+rcmd = RecomputingMemoDict(testfunc)
+
+print "rcmd maps 1 to %r, 2 to %r, 1 to %r" % map(rcmd, [1,2,1])
 
 # end
 
