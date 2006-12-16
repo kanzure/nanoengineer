@@ -191,11 +191,12 @@ def leftDown(mode, event, glpane, super): # called from testmode.leftDown, just 
     super.leftDown(mode, event) # this might call testmode.emptySpaceLeftDown (or other class-specific leftDown methods in it)
     glpane.gl_update() # always, for now [might be redundant with super.leftDown, too]
 
-USE_OVERRIDER = True
+USE_OVERRIDER = env.prefs.get("A9 devel/testdraw/use GLPane_Overrider?", True)
 print "reloading testdraw.py, %susing overrider" % ((not USE_OVERRIDER) and 'NOT ' or '')
 
 def render_scene(mode, glpane): # called by testmode.render_scene # 061208
     # to do what would make no difference: glpane.render_scene()
+    USE_OVERRIDER = env.prefs.get("A9 devel/testdraw/use GLPane_Overrider?", True)
     if not USE_OVERRIDER:
         glpane.render_scene() # 061211 940a, using this removes the delayed highlighting bug. it's caused by the overrider. [fixed now]
         # that makes me wonder if overrider is causing bugs in Highlightable(projection=True)... no, still has bug using this case.
@@ -227,7 +228,7 @@ def Draw(mode, glpane, super): # called by testmode.Draw
     glPopMatrix() # it turns out this is needed, if drawtest0 does glTranslate, or our coords are messed up when glselect code
     # [not sure what this next comment is about:]
     # makes us draw twice! noticed on g4, should happen on g5 too, did it happen but less??
-    if 1 and 'draw_model':
+    if env.prefs.get("A9 devel/testdraw/super.Draw?", True):
         glPushMatrix()
         if 1:
             super.Draw(mode) # needed for region selection's separate xor-drawing;
@@ -380,25 +381,27 @@ def drawtest2(glpane): # last stuff drawn, never put into global displist [for r
 
     timing_data[timeflags] = (env.redraw_counter, timesofar)
 
-    items = timing_data.items()
-    items.sort()
-    msg = ""
-    for flags, (redraw_counter, timesofar) in items:
-        try:
-            fps = int(1/timesofar)
-            # note, timesofar doesn't include some (fixed?) overhead time after this point; still, higher means faster
-        except:
-            fps = -1
-        if msg:
-            msg += '\n'
-        msg += "%s %4d (%4d fps)" % (flags, redraw_counter, fps)
-    ## msg = "redraw %d\n(dlist %d)" % (env.redraw_counter, vv.when_drawtest1_last_ran)
-    drawfont2(glpane, msg, charwidth = 18)
+    if env.prefs.get("A9 devel/testdraw/show old timing data?", False):
+        items = timing_data.items()
+        items.sort()
+        msg = ""
+        for flags, (redraw_counter, timesofar) in items:
+            try:
+                fps = int(1/timesofar)
+                # note, timesofar doesn't include some (fixed?) overhead time after this point; still, higher means faster
+            except:
+                fps = -1
+            if msg:
+                msg += '\n'
+            msg += "%s %4d (%4d fps)" % (flags, redraw_counter, fps)
+        ## msg = "redraw %d\n(dlist %d)" % (env.redraw_counter, vv.when_drawtest1_last_ran)
+        drawfont2(glpane, msg, charwidth = 18)
 
     try:
-        glTranslate(0,1,0)
-        we = displist_expr ## Overlay(Rect(1,1,green),displist_expr)
-        we.draw()
+        if env.prefs.get("A9 devel/testdraw/show old use displist?", False):
+            glTranslate(0,1,0)
+            we = displist_expr ## Overlay(Rect(1,1,green),displist_expr)
+            we.draw()
     except:
         print_compact_traceback("exc ignored: ")
     pass
@@ -407,64 +410,66 @@ def drawtest1(glpane):
     # main special drawing; if a global flag is set, it's all put into a global displist by caller (tho it doesn't all work there)
 
     vv.when_drawtest1_last_ran = env.redraw_counter # so we see when displist gets updated
-    
-    glTranslatef(-9, 7, 0)
-    dy = - 0.5
 
-    # draw some lines
-    
-    ## drawline(color, pos1, pos2, dashEnabled = False, width = 1)
-    drawline(red,   V(0,0,0),V(1,0,0),width = 2)
-    glTranslatef( 0, dy, 0)
-    drawline(green, V(0,0,0),V(2,0,0),width = 2)
-    glTranslatef( 0, dy, 0)
-    drawline(yellow,V(0,0,0),V(1,0,0),width = 2)
+    if env.prefs.get("A9 devel/testdraw/draw test graphics?", False):
+        glTranslatef(-9, 7, 0)
+        dy = - 0.5
 
-    # draw some text using builtin facility for that # MAYBE SLOW
-    dothis = 0 # don't draw it - this speeds it up 
-    
-    ## def drawtext(text, color, pt, size, glpane)
-    glTranslatef( 0, dy, 0)
-    if dothis:
-        drawtext("hi! (@[fg])", blue, V(0,0,0), 12, glpane)
-    glTranslatef( 0, dy, 0)
-    if dothis:
-        drawtext("hi Mom...", white, V(0,0,0), 24, glpane) # ugly, but readable
-    #drawtext("<b>hi Mom</b>", blue, V(0,0,0), 24, glpane) # html doesn't work, as expected
-    # even \n doesn't work -- \n is a rectangle, \r is nothing, \t is single space.
+        # draw some lines
+        
+        ## drawline(color, pos1, pos2, dashEnabled = False, width = 1)
+        drawline(red,   V(0,0,0),V(1,0,0),width = 2)
+        glTranslatef( 0, dy, 0)
+        drawline(green, V(0,0,0),V(2,0,0),width = 2)
+        glTranslatef( 0, dy, 0)
+        drawline(yellow,V(0,0,0),V(1,0,0),width = 2)
 
-    glTranslatef( 0, dy, 0.002) # 0.002 is enough to obscure the yellow line; 0.001 is not enough.
+        # draw some text using builtin facility for that # MAYBE SLOW
+        dothis = 0 # don't draw it - this speeds it up 
+        
+        ## def drawtext(text, color, pt, size, glpane)
+        glTranslatef( 0, dy, 0)
+        if dothis:
+            drawtext("hi! (@[fg])", blue, V(0,0,0), 12, glpane)
+        glTranslatef( 0, dy, 0)
+        if dothis:
+            drawtext("hi Mom...", white, V(0,0,0), 24, glpane) # ugly, but readable
+        #drawtext("<b>hi Mom</b>", blue, V(0,0,0), 24, glpane) # html doesn't work, as expected
+        # even \n doesn't work -- \n is a rectangle, \r is nothing, \t is single space.
 
-    # this used to be here:
-        ##    # load the texture for the courier bitmap font; params incl tex_name are in vv
-        ##    ensure_courierfile_loaded()
+        glTranslatef( 0, dy, 0.002) # 0.002 is enough to obscure the yellow line; 0.001 is not enough.
 
-    # draw the whole font-texture??
-    
-    origin = ORIGIN
-    dx = DX * 2
-    dy = DY * 2
-    # using a subrect eliminates the funny edges: tex_origin, tex_dx, tex_dy = V(0.1, 0.1), D2X * 0.8, D2Y * 0.8
-    tex_origin, tex_dx, tex_dy = ORIGIN2, D2X, D2Y
-    draw_textured_rect(origin - 0.2 * DZ, dx, dy, tex_origin, tex_dx, tex_dy)
-##    ### what are coords in following??? replace it with better calls...
-##    width = 32
-##    textureReady = True
-##    opacity = 1.0
-##    drawPlane(blue, width, width, textureReady, opacity, SOLID=True, pickCheckOnly=False)
+        # this used to be here:
+            ##    # load the texture for the courier bitmap font; params incl tex_name are in vv
+            ##    ensure_courierfile_loaded()
 
-    if 0:
-        # draw a blue rect for some reason [might obscure the text]
-        draw_filled_rect(origin + 0.2*DZ + DX, dx, dy, halfblue) # note, it matters that dx/dy is right-handed.
+        # draw the whole font-texture??
+        
+        origin = ORIGIN
+        dx = DX * 2
+        dy = DY * 2
+        # using a subrect eliminates the funny edges: tex_origin, tex_dx, tex_dy = V(0.1, 0.1), D2X * 0.8, D2Y * 0.8
+        tex_origin, tex_dx, tex_dy = ORIGIN2, D2X, D2Y
+        draw_textured_rect(origin - 0.2 * DZ, dx, dy, tex_origin, tex_dx, tex_dy)
+    ##    ### what are coords in following??? replace it with better calls...
+    ##    width = 32
+    ##    textureReady = True
+    ##    opacity = 1.0
+    ##    drawPlane(blue, width, width, textureReady, opacity, SOLID=True, pickCheckOnly=False)
 
-##    Rect(1,1,red).draw() ####@@@@ not working
-##    print "is it an Expr?",Rect(1,1,red),Rect(1,1,red).draw
-##    return #####@@@@@@
+        if 0:
+            # draw a blue rect for some reason [might obscure the text]
+            draw_filled_rect(origin + 0.2*DZ + DX, dx, dy, halfblue) # note, it matters that dx/dy is right-handed.
+
+    ##    Rect(1,1,red).draw() ####@@@@ not working
+    ##    print "is it an Expr?",Rect(1,1,red),Rect(1,1,red).draw
+    ##    return #####@@@@@@
+        glTranslatef( 0, -4, 0 )
     
     # draw a test widget expr
     
-    glTranslatef( 0, -4, 0 )
-    if debug_pref("drawtest in old way", Choice_boolean_True, prefs_key = True):
+    if debug_pref("drawtest in old way", Choice_boolean_False, prefs_key = "A9 devel/testdraw/drawtest in old way?"):
+            #061215 altered prefs key, made default False
         # draw 1 copy of testexpr, our test widget expr defined at end of file
         testexpr.draw()
     else:
@@ -472,7 +477,9 @@ def drawtest1(glpane):
         reload_basic_and_test()
         from exprs.test import drawtest1_innards
         drawtest1_innards(glpane)
-    glTranslatef( 0, -8, -1 )
+    
+    if env.prefs.get("A9 devel/testdraw/draw test graphics?", False):
+        glTranslatef( 0, -8, -1 )
 
     return # drawtest1 #e rename
 
