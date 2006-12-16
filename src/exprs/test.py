@@ -112,7 +112,7 @@ from images import Image, IconImage, PixelGrabber
 
 import controls
 reload_once(controls)
-from controls import ChoiceButton, ChoiceColumn, ChoiceRow, checkbox_v3, checkbox_pref #e rename
+from controls import ChoiceButton, ChoiceColumn, ChoiceRow, checkbox_v3, checkbox_pref  #e rename some of these?
 
 import staterefs
 reload_once(staterefs)
@@ -1074,9 +1074,10 @@ bottom_left_corner = Boxed(SimpleColumn(
     checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
 ##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
  ))
-    # cosmetic bugs in this: mouse stickiness on text label (worse on g4?), and label not active for click,
+    # cosmetic bugs in this: mouse stickiness on text label (worse on g4?) [fixed], and label not active for click [fixed],
+    # but now that those are fixed, highlighting of text changes pixel alignment with screen,
     # and Boxed not resizable, and labels wouldn't grow if it was (and they're not long enough, tho that'd be ok if they'd grow),
-    # and reload is pretty slow since we're not caching all this testbed stuff (I guess that's why)
+    # and reload is pretty slow since we're not caching all this testbed stuff (at least I guess that's why)
 
 top_left_corner = testexpr_10c
 

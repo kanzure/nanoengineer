@@ -238,7 +238,7 @@ checkbox_image = IconImage(ideal_width = 25, ideal_height = 21, size = Rect(25 *
 class checkbox_v3(InstanceMacro): ##e rename
     stateref = Arg(StateRef, None) ### default? might not work with a default val yet
         ### IMPLEM: specify what external state to use, eg a prefs variable, PrefsKey_StateRef(displayOriginAxis_prefs_key)
-    default_value = Option(bool, False)
+    default_value = Option(bool, False) ###BUG -- not used! [noticed 061215]
     ## var = State(bool, default_value)
     var = stateref.value
 ##    # print "var = %r" % (var,) # TypeError: 'module' object is not callable - on line that says on_press = Set(var, not_Expr(var) )
@@ -273,7 +273,7 @@ class checkbox_v3(InstanceMacro): ##e rename
     )
     pass
 
-def checkbox_pref(prefs_key, label, dflt = False):
+def checkbox_pref_OLDER(prefs_key, label, dflt = False): # renamed 061215 late, since newer one is better
     "#doc"
     #e rename, make it a class, make it one of several prefs controls for other types of pref and control
     #e generalize to all named state -- e.g. see also LocalVariable_StateRef -- permit passing in the stateref?
@@ -285,6 +285,25 @@ def checkbox_pref(prefs_key, label, dflt = False):
     # note: adding CenterY also (probably coincidentally) improved the pixel-alignment (on g5 at least), so the label is no longer fuzzy.
     # [see also testexpr_16c, similar to this]
 
+class checkbox_pref(InstanceMacro): #061215 improved version, replacing older one -- highlight and accept press on label too #e rename?
+    prefs_key = Arg(str)
+    label = Arg(Anything) # string or Widget2D
+    dflt = ArgOrOption(bool, False)
+    use_label = If( call_Expr(lambda label: type(label) == type(""), label), TextRect(label,1,20), label ) ###k
+    stateref = Instance(PrefsKey_StateRef(prefs_key, dflt))
+        # NOTE: without Instance here, next line stateref.value says
+        ## AssertionError: compute method asked for on non-Instance <PrefsKey_StateRef#47221(a)>
+        # note: now that it imports, making or clicking on one of these says, every time:
+        ## REJECTED using _e_make_in case, on a pyinstance of class PrefsKey_StateRef
+        # (probably a simple reason, but I should find out exactly why and maybe remove the print or clean up the code)
+    var = stateref.value
+    checkbox = If( var,
+            checkbox_image('mac_checkbox_on.jpg'),
+            checkbox_image('mac_checkbox_off.jpg'),
+        )
+    _value = Highlightable( SimpleRow( CenterY(checkbox), CenterY(use_label)), # align = CenterY is nim
+                            on_press = Set(stateref.value, not_Expr(var) ) )
+    pass
 
 """
 1. Subject: where i am g5 504p; highlight/text debug ideas

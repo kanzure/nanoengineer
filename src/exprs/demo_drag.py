@@ -607,7 +607,7 @@ def kluge_dragtool_state():
 
 kluge_dragtool_state() # set the default val
 
-kluge_dragtool_state_checkbox_expr = SimpleColumn(
+kluge_dragtool_state_checkbox_expr = SimpleColumn( # note, on 061215 late, checkbox_pref was replaced with a better version, same name
     checkbox_pref(kluge_dragtool_state_prefs_key,         "drag new nodes?", dflt = kluge_dragtool_state_prefs_default),
     checkbox_pref(kluge_dragtool_state_prefs_key + "bla", "some other pref"),
  )    
