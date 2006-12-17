@@ -217,7 +217,8 @@ def dictmap(dict1, list1): ##e does this have another name in py_utils, or is th
     #e return tuple??
     return [dict1[key] for key in list1]
 
-print "rcmd maps 1 to %r, 2 to %r, 1 to %r" % tuple(dictmap(rcmd, [1,2,1])) #e change time to counter so you can tell it didn't recompute
+if 0:
+    print "rcmd maps 1 to %r, 2 to %r, 1 to %r" % tuple(dictmap(rcmd, [1,2,1])) #e change time to counter so you can tell it didn't recompute
 
 # end
 
