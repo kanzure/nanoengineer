@@ -289,7 +289,9 @@ class checkbox_pref(InstanceMacro): #061215 improved version, replacing older on
     prefs_key = Arg(str)
     label = Arg(Anything) # string or Widget2D
     dflt = ArgOrOption(bool, False)
-    use_label = If( call_Expr(lambda label: type(label) == type(""), label), TextRect(label,1,20), label ) ###k
+    sbar_text = Option(str, '')
+    use_label = If( call_Expr(lambda label: type(label) == type(""), label), TextRect(label,1,20), label )
+    use_sbar_text = or_Expr( sbar_text, If( call_Expr(lambda label: type(label) == type(""), label), label, "" ))
     stateref = Instance(PrefsKey_StateRef(prefs_key, dflt))
         # NOTE: without Instance here, next line stateref.value says
         ## AssertionError: compute method asked for on non-Instance <PrefsKey_StateRef#47221(a)>
@@ -302,7 +304,8 @@ class checkbox_pref(InstanceMacro): #061215 improved version, replacing older on
             checkbox_image('mac_checkbox_off.jpg'),
         )
     _value = Highlightable( SimpleRow( CenterY(checkbox), CenterY(use_label)), # align = CenterY is nim
-                            on_press = Set(stateref.value, not_Expr(var) ) )
+                            on_press = Set(stateref.value, not_Expr(var) ),
+                            sbar_text = use_sbar_text)
     pass
 
 """
