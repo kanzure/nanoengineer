@@ -1258,6 +1258,61 @@ def make_main_instance(glpane, staterefs, testexpr, testbed):
     inst = some_env.make(testbed(testexpr), NullIpath)
     return inst
 
+class _find_or_make: #061217 from find_or_make_main_instance etc #e refile
+    """Helper class for caching made things when the input data hasn't changed.
+    (Note that it is up to you to not accidentally discard and remake instances of this class itself, e.g. upon module reload.
+     Or maybe we'll let you do it, and have this class store its data elsewhere... that might be more convenient,
+     especially during development of this class.)
+    If you want a "remake button" for such a thing, let the button increment a counter which is part of the input data.
+    If you want an "always remake" button, let it control whether an always-changing counter gets included in the data or not.
+    If the data is positional, then include a constant in place of anything you sometimes leave out.
+    """
+    def __init__(self, printname = None): #e makefunc? cacheplace?
+        self.old_data = None
+        self.printname = printname
+    def find_or_make(self, *data_args, **data_kws):
+        if 0: ## not MEMOIZE_MAIN_INSTANCE:
+            return self.make(*data_args, **data_kws) #e store in self.res?
+        for i in range(len(data_args)):
+            data_kws[i] = data_args[i] ###k only safe if passing a dict via ** always copies it!
+        new_data = data_kws #k ok since dict.__eq__ does what i want
+        if not same_vals( new_data, self.old_data): # use same_vals to avoid the bug in != for "Numeric array in tuple"
+            # remake, but first explain why
+            old_data = self.old_data
+            self.old_data = new_data
+            if self.printname:
+                print "remaking %r, because",
+                if old_data is None:
+                    print "not made before"
+                else:
+                    # make sure keys are the same
+                    k1 = old_data.keys()
+                    k2 = new_data.keys()
+                    k1.sort()
+                    k2.sort()
+                    if k1 != k2:
+                        print "data keys changed (bug?)"
+                    else:
+                        for k in k1:
+                            if not same_vals(old_data[k], new_data[k]):
+                                print "%s DIFFERENT" % k,
+                            else:
+                                print "%s same" % k,
+                        print
+                    pass
+                pass
+            res = self.res = self.make(*data_args, **data_kws)
+##            print "\n**** MADE NEW MAIN INSTANCE %s ****\n" % time.asctime(), res, \
+##                  "(glpane %s, staterefs %s, testexpr %s, testbed %s, reloads %s)" % _cmpmsgs(old, new_data)
+        else:
+            res = self.res
+            ## print "reusing %s" % self.printname, res
+        return res
+    def make(self):
+        assert 0, "subclass should implement" ### or use a self.func
+    pass
+
+    
 # ==
 
 def after_drawcompass(glpane, aspect):
