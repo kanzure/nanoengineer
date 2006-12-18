@@ -444,24 +444,36 @@ class SimResultsDataStore {
 								 const int& stepsPerFrame,
 								 std::string& message) = 0;
 
-	
 	/*
-	
-	def getFrameCount(self, frameSetName):
-		"""Returns the number of frames in a frame-set."""
-		pass
+	 * Frame
+	 */
+	/** Retrieves the number of frames in a frame-set.
+	 *
+	 * @return 0=successful or non-zero if no value was found.
+	 */
+	virtual int getFrameCount(const char* frameSetName,
+							  int& frameCount) const = 0;
+	/*
 	def getFrameTimes(self, frameSetName):
 		"""Returns an array of frame times (in seconds) for a frame-set."""
 		pass
 	def getFrameTime(self, frameSetName, frameIndex):
 		"""Returns a specific frame time (in seconds) for a frame-set."""
 		pass
-	def addFrame(self, frameSetName, time):
-		"""
-		Adds a frame to the specified frame-set.
-		@param time: the frame's time in seconds
-		"""
-		pass
+	 */
+	
+	/** Adds a frame to the specified frame-set.
+	 *
+	 * @param time			[IN] the frame's time in seconds
+	 * @param frameIndex	[OUT] the frame index of the newly added frame
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int addFrame(const char* frameSetName, const float& time,
+						 int& frameIndex, std::string& message) = 0;
+
+	/*
 	def removeFrame(self, frameSetName, frameIndex):
 		"""Removes a frame from the specified frame-set."""
 		pass

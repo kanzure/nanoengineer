@@ -5,6 +5,7 @@
 #define NE1_HDF5_SIMRESULTS_H
 
 #include <stdlib.h>
+#include <map>
 
 #include "hdf5.h"
 
@@ -13,8 +14,27 @@
 #define HDF5_SIM_RESULT_FILENAME	"sim_results.h5"
 #define GROUP_NAME_SIZE_HINT		64
 
+#define USE_CHUNKING				1
+#define USE_SHUFFLING				1
+#define USE_COMPRESSION				1
+#define COMPRESSION_LVL				6
+
+
 namespace ne1 {
 
+
+/* CLASS: FrameSetInfo */
+class FrameSetInfo {
+	public:
+		FrameSetInfo() {
+			currentFrameIndex = 0;
+			timestampsDatasetId = timestampsDataspaceId = 0;
+		}
+	
+		int currentFrameIndex;
+		hid_t timestampsDatasetId, timestampsDataspaceId;
+};
+	
 
 /* CLASS: HDF5_SimResults
  *
@@ -124,6 +144,10 @@ class HDF5_SimResults : public SimResultsDataStore {
 							 const int& stepsPerFrame,
 							 std::string& message);
 		
+		
+		int getFrameCount(const char* frameSetName, int& frameCount) const;
+		int addFrame(const char* frameSetName, const float& time,
+					 int& frameIndex, std::string& message);
 	private:
 		// HDF5 type identifiers
 		hid_t bondTypeId;
@@ -131,6 +155,17 @@ class HDF5_SimResults : public SimResultsDataStore {
 		
 		hid_t fileId;	// HDF5 file identifier
 		
+		std::map<std::string, FrameSetInfo> frameSetInfoMap;
+		
+		
+		int writeTimestamp(int frame, const float& time,
+						   hid_t datasetId, hid_t dataspaceId,
+						   std::string& message);
+		int createTimestampsDataset(const char* frameSetName,
+									hid_t& datasetId, hid_t& dataspaceId,
+									std::string& message);
+		int checkFrameSetExistence(const char* frameSetName,
+								   std::string& message);
 		
 		int getStringAttribute(const std::string& groupName,
 							   const std::string& attributeName,

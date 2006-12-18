@@ -38,6 +38,8 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 	CPPUNIT_TEST(getSetAggregationMode);
 	CPPUNIT_TEST(getSetStepsPerFrame);
 	
+	CPPUNIT_TEST(getAddRemoveFrame);
+	
 	CPPUNIT_TEST_SUITE_END();
 
 	public:
@@ -65,6 +67,8 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 		void getAddRemoveFrameSet();
 		void getSetAggregationMode();
 		void getSetStepsPerFrame();
+		
+		void getAddRemoveFrame();
 		
 	private:
 		ne1::HDF5_SimResults* simResults;

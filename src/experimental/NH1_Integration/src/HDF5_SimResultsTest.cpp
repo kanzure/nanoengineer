@@ -378,3 +378,29 @@ void HDF5_SimResultsTest::getSetStepsPerFrame() {
 	status = simResults->getStepsPerFrame("frame-set-1", stepsPerFrame);
 	CPPUNIT_ASSERT((status == 0) && (stepsPerFrame == 10));
 }
+
+/* FUNCTION: getAddRemoveFrame */
+void HDF5_SimResultsTest::getAddRemoveFrame() {
+	int status;
+	std::string message;
+	
+	/*
+	std::vector<std::string> frameSetNames = simResults->getFrameSetNames();
+	CPPUNIT_ASSERT(frameSetNames.size() == 0);
+	 */
+	
+	int index;
+	status = simResults->addFrame("frame-set-X", 0.0, index, message);
+	CPPUNIT_ASSERT(status != 0);
+	status = simResults->addFrame("frame-set-1", 0.0, index, message);
+	CPPUNIT_ASSERT((status == 0) && (index == 0));
+	status = simResults->addFrame("frame-set-1", 0.5, index, message);
+	CPPUNIT_ASSERT((status == 0) && (index == 1));
+	/*
+	
+	frameSetNames = simResults->getFrameSetNames();
+	CPPUNIT_ASSERT(frameSetNames.size() == 2);
+	CPPUNIT_ASSERT(frameSetNames[0] == "frame-set-1");
+	CPPUNIT_ASSERT(frameSetNames[1] == "frame-set-2");
+	 */
+}

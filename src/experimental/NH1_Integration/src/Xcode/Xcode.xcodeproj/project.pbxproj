@@ -208,6 +208,7 @@
 					"-lhdf5",
 				);
 				OTHER_REZFLAGS = "";
+				PREBINDING = NO;
 				PRODUCT_NAME = CppUnit;
 				REZ_EXECUTABLE = YES;
 				SECTORDER_FLAGS = "";
