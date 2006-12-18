@@ -55,6 +55,8 @@ extern int debug_flags;
 #define ERROR1(fmt,a) (printError(__FILE__, __LINE__, TYPE_ERROR, 0, fmt, a))
 #define ERROR2(fmt,a,b) (printError(__FILE__, __LINE__, TYPE_ERROR, 0, fmt, a, b))
 #define ERROR3(fmt,a,b,c) (printError(__FILE__, __LINE__, TYPE_ERROR, 0, fmt, a, b, c))
+#define ERROR4(fmt,a,b,c,d) (printError(__FILE__, __LINE__, TYPE_ERROR, 0, fmt, a, b, c, d))
+#define ERROR5(fmt,a,b,c,d,e) (printError(__FILE__, __LINE__, TYPE_ERROR, 0, fmt, a, b, c, d, e))
 #define WARNING(fmt) (printError(__FILE__, __LINE__, TYPE_WARNING, 0, fmt))
 #define WARNING1(fmt,a) (printError(__FILE__, __LINE__, TYPE_WARNING, 0, fmt, a))
 #define WARNING2(fmt,a,b) (printError(__FILE__, __LINE__, TYPE_WARNING, 0, fmt, a, b))

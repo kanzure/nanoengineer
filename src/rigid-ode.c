@@ -3,22 +3,107 @@
 #include "rigid-ode.h"
 #include <ode/ode.h>
 
+// There is a sphere centered on a station point on body1, whose
+// radius is the square root of this value (in pm).  The corrosponding
+// station point on body2 must be inside that sphere.
+#define STATION_TOLERANCE 0.04
+
+// similar for axies
+#define AXIS_TOLERANCE 0.04
+
 struct ode_info 
 {
   dWorldID world;
   dBodyID *bodies;
-  
+  dJointID *joints;
 };
+
+static void
+findStationPoint(struct part *p,
+                 int jointNumber,
+                 char *jointType,
+                 int body1index,
+                 int body2index,
+                 dBodyID body1,
+                 dBodyID body2,
+                 int station1index,
+                 int station2index,
+                 dVector3 station1)
+{
+  struct xyz s1;
+  struct xyz s2;
+  dVector3 station2;
+  dReal deltax;
+  dReal deltay;
+  dReal deltaz;
+
+  s1 = p->rigidBodies[body1index].stations[station1index];
+  s2 = p->rigidBodies[body2index].stations[station2index];
+  dBodyGetRelPointPos(body1, (dReal)s1.x, (dReal)s1.y, (dReal)s1.z, station1);
+  dBodyGetRelPointPos(body2, (dReal)s2.x, (dReal)s2.y, (dReal)s2.z, station2);
+  deltax = station1[0] - station2[0];
+  deltay = station1[1] - station2[1];
+  deltaz = station1[2] - station2[2];
+  if (deltax * deltax + deltay * deltay + deltaz * deltaz > STATION_TOLERANCE) {
+    ERROR5("joint %d, a %s, StationPoint mismatch: (%f, %f, %f)", jointNumber, jointType, deltax, deltay, deltaz);
+    dBodyGetPosRelPoint(body2, station1[0], station1[1], station1[2], station2);
+    ERROR3("StationPoint on body2 would be (%f, %f, %f) to match body1", station2[0], station2[1], station2[2]);
+    p->parseError(p->stream);
+  }
+}
+
+static void
+findAxis(struct part *p,
+         int jointNumber,
+         char *jointType,
+         int body1index,
+         int body2index,
+         dBodyID body1,
+         dBodyID body2,
+         int axis1index,
+         int axis2index,
+         dVector3 axis1)
+{
+  struct xyz a1;
+  struct xyz a2;
+  dVector3 axis2;
+  dReal deltax;
+  dReal deltay;
+  dReal deltaz;
+
+  a1 = p->rigidBodies[body1index].axies[axis1index];
+  a2 = p->rigidBodies[body2index].axies[axis2index];
+  dBodyVectorToWorld(body1, (dReal)a1.x, (dReal)a1.y, (dReal)a1.z, axis1);
+  dBodyVectorToWorld(body2, (dReal)a2.x, (dReal)a2.y, (dReal)a2.z, axis2);
+  deltax = axis1[0] - axis2[0];
+  deltay = axis1[1] - axis2[1];
+  deltaz = axis1[2] - axis2[2];
+  if (deltax * deltax + deltay * deltay + deltaz * deltaz > AXIS_TOLERANCE) {
+    ERROR5("joint %d, a %s, Axis mismatch: (%f, %f, %f)", jointNumber, jointType, deltax, deltay, deltaz);
+    dBodyVectorFromWorld(body2, axis1[0], axis1[1], axis1[2], axis2);
+    ERROR3("AxisPoint on body2 would be (%f, %f, %f) to match body1", axis2[0], axis2[1], axis2[2]);
+    p->parseError(p->stream);
+  }
+}
+
 
 void
 rigid_ode_init(struct part *p)
 {
   int i;
   struct rigidBody *rb;
+  struct joint *j;
   struct ode_info *ode;
   dWorldID world;
   dBodyID body;
+  dJointID joint;
   dQuaternion q;
+  int b1;
+  int b2;
+  dBodyID body1;
+  dBodyID body2;
+  dVector3 station1;
+  dVector3 axis1;
   
   if (p->num_rigidBodies < 2) {
     return;
@@ -30,6 +115,7 @@ rigid_ode_init(struct part *p)
   ode->world = world = dWorldCreate();
   ode->bodies = (dBodyID *)allocate((p->num_rigidBodies - 1) * sizeof(dBodyID));
   ode->bodies[0] = 0;
+  ode->joints = (dJointID *)allocate((p->num_joints) * sizeof(dJointID));
   
   for (i=1; i<p->num_rigidBodies; i++) {
     rb = &p->rigidBodies[i];
@@ -42,6 +128,39 @@ rigid_ode_init(struct part *p)
     q[2] = (dReal)rb->orientation.z;
     q[3] = (dReal)rb->orientation.a;
     dBodySetQuaternion(body, q);
+  }
+
+  for (i=0; i<p->num_joints; i++) {
+    j = &p->joints[i];
+    b1 = j->rigidBody1;
+    b2 = j->rigidBody2;
+    body1 = ode->bodies[b1];
+    body2 = ode->bodies[b2];
+    switch (j->type) {
+    case JointBall:
+      ode->joints[i] = joint = dJointCreateBall(world, 0);
+      dJointAttach(joint, body1, body2);
+      findStationPoint(p, i, "Ball", b1, b2, body1, body2, j->station1_1, j->station2_1, station1);
+      dJointSetBallAnchor(joint, station1[0], station1[1], station1[2]);
+      break;
+    case JointHinge:
+      ode->joints[i] = joint = dJointCreateHinge(world, 0);
+      dJointAttach(joint, body1, body2);
+      findStationPoint(p, i, "Hinge", b1, b2, body1, body2, j->station1_1, j->station2_1, station1);
+      dJointSetHingeAnchor(joint, station1[0], station1[1], station1[2]);
+      findAxis(p, i, "Hinge", b1, b2, body1, body2, j->axis1_1, j->axis2_1, axis1);
+      dJointSetHingeAxis(joint, axis1[0], axis1[1], axis1[2]);
+      break;
+    case JointSlider:
+      ode->joints[i] = joint = dJointCreateSlider(world, 0);
+      dJointAttach(joint, body1, body2);
+      findAxis(p, i, "Slider", b1, b2, body1, body2, j->axis1_1, j->axis2_1, axis1);
+      dJointSetSliderAxis(joint, axis1[0], axis1[1], axis1[2]);
+      break;
+    default:
+      ERROR1("unknown joint type for joint %d", i);
+      p->parseError(p->stream);
+    }
   }
 }
 
@@ -64,6 +183,12 @@ rigid_ode_destroy(struct part *p)
   }
   free(ode->bodies);
   ode->bodies = NULL;
+
+  for (i=0; i<p->num_joints; i++) {
+    dJointDestroy(ode->joints[i]);
+  }
+  free(ode->joints);
+  ode->joints = NULL;
   
   dWorldDestroy(ode->world);
   free(ode);
