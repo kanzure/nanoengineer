@@ -1258,7 +1258,7 @@ def make_main_instance(glpane, staterefs, testexpr, testbed):
     inst = some_env.make(testbed(testexpr), NullIpath)
     return inst
 
-class _find_or_make: #061217 from find_or_make_main_instance etc #e refile
+class _find_or_make: #061217 from find_or_make_main_instance etc #e refile ### NOT YET USED
     """Helper class for caching made things when the input data hasn't changed.
     (Note that it is up to you to not accidentally discard and remake instances of this class itself, e.g. upon module reload.
      Or maybe we'll let you do it, and have this class store its data elsewhere... that might be more convenient,
