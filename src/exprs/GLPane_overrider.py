@@ -315,15 +315,20 @@ class GLPane_overrider(Delegator, object): # object superclass added for selobj 
             #  it happened and for which object). In practice, as long as the stencil optim works, this isn't needed,
             #  and it's not yet implemented. This is predicted to result in highlight flickering if no stencil bits are
             #  available. ###e should fix sometime, if that ever happens.)
-            
-            glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
-            glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
-            glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
-                # (this works, but someday verify sign is correct in theory #k)
-                # [actually it has some visual bugs, esp. in perspective view when off-center,
-                #  and it would be better to just use a depth offset, or better still (probably)
-                #  to change the depth test to LEQUAL, either just for now, or all the time. bruce 060729 comment]
-            glMatrixMode(GL_MODELVIEW) # probably required!
+
+            use_pre_draw_in_abs_coords = hasattr(self.selobj, "pre_draw_in_abs_coords") #bruce 061218 new feature
+            if use_pre_draw_in_abs_coords:
+                assert hasattr(self.selobj, "post_draw_in_abs_coords")
+                self.selobj.pre_draw_in_abs_coords(self)
+            else:
+                glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
+                glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
+                glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
+                    # (this works, but someday verify sign is correct in theory #k)
+                    # [actually it has some visual bugs, esp. in perspective view when off-center,
+                    #  and it would be better to just use a depth offset, or better still (probably)
+                    #  to change the depth test (glDepthFunc) to GL_LEQUAL, either just for now, or all the time. bruce 060729 comment]
+                glMatrixMode(GL_MODELVIEW) # probably required!
             
             ####@@@@ TODO -- rename draw_in_abs_coords and make it imply highlighting so obj knows whether to get bigger
             # (note: having it always draw selatoms bigger, as if highlighted, as it does now, would probably be ok in hit-test,
@@ -331,8 +336,13 @@ class GLPane_overrider(Delegator, object): # object superclass added for selobj 
             #  of glselect_dict objs (where it *is* used), resulting in "premonition of bigger size" when hit test passed... ###bug);
             # make provisions elsewhere for objs "stuck as selobj" even if tests to retain that from stencil are not done
             # (and as optim, turn off stencil drawing then if you think it probably won't be needed after last draw you'll do)
-            
-            self.selobj.draw_in_abs_coords(self, hicolor or black) ###@@@ test having color writing disabled here, does stencil still happen??
+
+            try:
+                self.selobj.draw_in_abs_coords(self, hicolor or black) ###@@@ test having color writing disabled here, does stencil still happen??
+            except:
+                # try/except added for GL-state safety, bruce 061218
+                print_compact_traceback("bug: exception in %r.draw_in_abs_coords ignored: " % self.selobj)
+                pass
             
             # restore gl state (but don't do unneeded OpenGL ops in case that speeds it up somehow)
             if not highlight_into_depth:
@@ -344,10 +354,14 @@ class GLPane_overrider(Delegator, object): # object superclass added for selobj 
                 # when they reenable stenciling.
             glDisable(GL_STENCIL_TEST)
             
-            glMatrixMode(GL_PROJECTION)
-            glPopMatrix()
-            glMatrixMode(GL_MODELVIEW) #k maybe not needed
-
+            if use_pre_draw_in_abs_coords:
+                self.selobj.post_draw_in_abs_coords(self)
+            else:
+                glMatrixMode(GL_PROJECTION)
+                glPopMatrix()
+                glMatrixMode(GL_MODELVIEW) #k maybe not needed
+            pass
+        
         self.mode.Draw_after_highlighting() # e.g. draws water surface in Build mode
             # note: this is called with the same coordinate system as mode.Draw() [bruce 061208 comment]
 

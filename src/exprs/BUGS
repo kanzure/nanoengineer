@@ -28,7 +28,7 @@ and work around it if not.
 
 ==
 
-061208 highlighting synchronization bug [fixed 061218]
+[fixed] 061208 highlighting synchronization bug
 
 If you click a checkbox, move the mouse onto something else, and click
 again, too quickly, the checkbox can be toggled a second time (e.g. in
@@ -79,8 +79,7 @@ The changes for this in cad/src and cad/src/exprs are all commented with 061218.
 
 ==
 
-[fixed]
-061210 a rapid motion onto the Highlightable doesn't highlight it until the next motion
+[fixed] 061210 a rapid motion onto the Highlightable doesn't highlight it until the next motion
 
 # BUG in _9c, noticed 061210 morn g4: a rapid motion onto the Highlightable doesn't highlight it, tho it does update sbar text.
 # Only the next motion highlights it. I wonder if it's related to gl_update and usage-tracking sync issues.
@@ -110,7 +109,7 @@ after I recalled that outside code sets glpane.selobj directly.
 
 ==
 
-061210 usage-tracking of glpane attrs width, height, zoomFactor, scale
+[maybe NAB] 061210 usage-tracking of glpane attrs width, height, zoomFactor, scale
 
 Calls to gluProject, gluUnProject (eg via mousepoints) get results which depend on those variables, but don't usage-track them.
 We can ignore this in terms of knowing about global redraw (since changes to those would trigger it), but not
@@ -127,9 +126,18 @@ Build mode does?
 
 I suspect it translates before drawing it. But I can't find any code that would do that!
 
+update 061218: I recently (a few days ago?) saw some glTranslates in testdraw that might do that,
+and added prefs to not run that code (or other related code), and checkboxes in lower left
+corner to control those, so maybe this fixed it (when those checkboxes are off), but I
+didn't test that yet. ... Now I did; it's not fixed. 
+
+But I have another theory: it might just be due to the larger glpane in testmode as opposed
+to Build mode, due to fewer toolbars being visible when in testmode. ####k should test that,
+perhaps by making a debug pref for whether or not to remove the toolbars in testmode.
+
 ==
 
-061213 nonrepeatable crash after waking mac
+[fixed] 061213 nonrepeatable crash after waking mac
 
 crash after i was connected and using demo_drag, slept it, woke it much later, started using it
 again in same session. details of new use: checkbox off, then try to draw -- the square showed,
@@ -143,8 +151,54 @@ wrong on menubar]
 [but time might be red herring, in a thread that didn't crash, eg a sleep -- the one that crashed
 was doing _wrap_glLoadMatrixd -- maybe GL state didn't wake properly?]
 
-... an attempted fix (runs, but not yet verified whether it really fixes the bug; see comments therein) 
-is in Highlightable around LoadMatrix calls, 061214. ####k
+... an attempted fix (runs, but not yet verified whether it really fixes the bug; 
+see comments therein) is in Highlightable around LoadMatrix calls, 061214...
+later that day (IIRC as of 061218), I verified this probably fixed it, and since then
+I've never had the crash, so it's surely fixed.
+
+==
+
+[fixed] 061218 highlighting causes incorrect model motion towards screen
+
+(especially noticable when off-center in perspective view; it causes object boundaries to shift
+or texture pixel alignment to change)
+
+(this is a general NE1 highlighting bug, but is not a big problem for atoms & bonds since they
+also grow slightly when highlighting)
+
+fixed (only for selobjs defined in exprs module using Highlightable, and only when
+GLPane_overrider is active) by defining some new selobj interface routines, pre_ and post_
+draw_in_abs_coords, which for Highlightables change the depth test to GL_LEQUAL 
+rather than shifting the model (or using a depth offset, proposed but never tried since it's
+hard to figure out what the offset should be, unless you think "1 depth bit" is enough --
+which it would be if you only wanted it to be as good as using LEQUAL, I have to admit,
+but in that case you might as well just use LEQUAL as I did).
+
+  [NEW MINOR BUG PROBABLY CAUSED BY THIS FIX: see next bug report.]
+
+One reason we might want a thoughtfully-computed depth offset someday
+is if we have the problem of draw_in_abs_coords using a different orientation for
+approximating spheres or cylinders as triangle meshes than draw (in local coords) uses
+for the same spheres, if it does not change their radius. But just fixing the coord sys issue
+might be better; I think Highlightable already fixes it, so we won't have this problem when we
+use it, anyway -- I predict it'll always do the same drawing as it does in local coords.
+Conclusion: we should never need a depth offset for that reason.
+
+Another reason would be if we draw a planar figure, then highlight a subregion of it.
+(The problem is roundoff error on the vertices causing slight depth changes between 
+these two supposedly coincident planes. This is commonly seen when drawing different
+polygons in coincident planes, in the form of moire-like pixel-dithering patterns.)
+But that is probably fixable using a fixed depth offset of 1 or perhaps 2 bits, I would guess.
+
+==
+
+061218 when highlighting the fake openclose icons in e.g. testexpr_10c,
+only the gray rect is seen, not the + or - text. I first noticed this just after fixing the
+previous bug, so that fix may have caused it, but I don't often try to highlight those icons,
+so that fix having caused it is not proven.
+
+(Speculation: this might be an effect of the roundoff issue mentioned at the end of that bug
+discussion, above.)
 
 ==
 

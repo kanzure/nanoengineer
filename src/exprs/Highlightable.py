@@ -237,6 +237,11 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         PopName(self.glname)
         return
 
+    def pre_draw_in_abs_coords(self, glpane): #bruce 061218 new feature of selobj interface,
+        # used to stop highlightables from moving slightly when they highlight, esp when off-center in perspective view
+        glDepthFunc(GL_LEQUAL)
+        return
+    
     def draw_in_abs_coords(self, glpane, color):
         "#doc; called from GLPane using an API it specifies; see also run_OpenGL_in_local_coords for more general related feature"
         # [this API comes from GLPane behavior:
@@ -264,6 +269,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             # GLPane's call is not well protected from an exception here, though it ought to be!
             self.end_using_saved_coords()
         return # from draw_in_abs_coords
+
+    def post_draw_in_abs_coords(self, glpane): #bruce 061218 new feature of selobj interface
+        glDepthFunc(GL_LESS) # the default state in OpenGL and in NE1
+        return
 
     def run_OpenGL_in_local_coords(self, func): #061206
         """Run the OpenGL code in func in self's local coordinate system (and with its GL context current),
