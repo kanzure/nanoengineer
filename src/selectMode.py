@@ -2132,7 +2132,11 @@ class selectAtomsMode(selectMode):
                 # glupdate was ever called because model looks different,
                 # and inval these instrs if that happens again before they are used
                 # (since in that case wZ is no longer correct)
-            # don't change glpane.selobj (since it might not even need to change) (ok??#k) -- the next paintGL will do that
+            # don't change glpane.selobj (since it might not even need to change) (ok??#k) -- the next paintGL will do that --
+            # UNLESS the current mode wants us to change it [new feature, bruce 061218, perhaps a temporary kluge, but helps
+            #  avoid a logic bug in this code, experienced often in testmode due to its slow redraw]
+            if hasattr(glpane.mode, 'UNKNOWN_SELOBJ'):
+                glpane.selobj = getattr(glpane.mode, 'UNKNOWN_SELOBJ')
             glpane.gl_update()
         else:
             # it's known (to be a specific object or None)

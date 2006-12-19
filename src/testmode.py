@@ -53,6 +53,7 @@ class testmode(super):
     backgroundColor = 103/256.0, 124/256.0, 53/256.0
     modename = 'TEST'
     default_mode_status_text = "Mode: Test"
+    ## UNKNOWN_SELOBJ = something... this is actually not set here (necessary for now) but a bit later in exprs/test.py [061218 kluge]
 
     def render_scene(self, glpane):
         # This is always called, and modifying it would let us revise the entire rendering algorithm however needed.
