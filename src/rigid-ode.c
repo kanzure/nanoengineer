@@ -8,7 +8,7 @@
 // station point on body2 must be inside that sphere.
 #define STATION_TOLERANCE 0.04
 
-// similar for axies
+// similar for axes
 #define AXIS_TOLERANCE 0.04
 
 struct ode_info 
@@ -71,8 +71,8 @@ findAxis(struct part *p,
   dReal deltay;
   dReal deltaz;
 
-  a1 = p->rigidBodies[body1index].axies[axis1index];
-  a2 = p->rigidBodies[body2index].axies[axis2index];
+  a1 = p->rigidBodies[body1index].axes[axis1index];
+  a2 = p->rigidBodies[body2index].axes[axis2index];
   dBodyVectorToWorld(body1, (dReal)a1.x, (dReal)a1.y, (dReal)a1.z, axis1);
   dBodyVectorToWorld(body2, (dReal)a2.x, (dReal)a2.y, (dReal)a2.z, axis2);
   deltax = axis1[0] - axis2[0];

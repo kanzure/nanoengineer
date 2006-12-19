@@ -94,8 +94,8 @@ struct rigidBody
     struct xyz *stations;
     char **stationNames;
 
-    int num_axies;
-    struct xyz *axies;
+    int num_axes;
+    struct xyz *axes;
     char **axisNames;
 
     double inertiaTensor[6];

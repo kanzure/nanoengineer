@@ -149,9 +149,9 @@ destroyPart(struct part *p)
         }
         destroyAccumulator(rb->stationNames);
         rb->stationNames = NULL;
-        destroyAccumulator(rb->axies);
-        rb->axies = NULL;
-        for (k=0; k<rb->num_axies; k++) {
+        destroyAccumulator(rb->axes);
+        rb->axes = NULL;
+        for (k=0; k<rb->num_axes; k++) {
             free(rb->axisNames[k]);
         }
         destroyAccumulator(rb->axisNames);
@@ -1631,7 +1631,7 @@ findAxisByName(struct part *p, int rigidBodyIndex, char *axisName)
     int i;
     struct rigidBody *rb = &p->rigidBodies[rigidBodyIndex];
 
-    for (i=0; i<rb->num_axies; i++) {
+    for (i=0; i<rb->num_axes; i++) {
         if (!strcmp(axisName, rb->axisNames[i])) {
             return i;
         }
@@ -1658,8 +1658,8 @@ makeRigidBody(struct part *p, char *name, double mass, double *inertiaTensor, st
     rb->num_stations = 0;
     rb->stations = NULL;
     rb->stationNames = NULL;
-    rb->num_axies = 0;
-    rb->axies = NULL;
+    rb->num_axes = 0;
+    rb->axes = NULL;
     rb->axisNames = NULL;
     for (i=0; i<6; i++) {
         rb->inertiaTensor[i] = inertiaTensor[i];
@@ -1715,11 +1715,11 @@ makeBodyAxis(struct part *p, char *bodyName, char *axisName, struct xyz orientat
         p->parseError(p->stream);
     }
     
-    rb->num_axies++;
-    rb->axies = (struct xyz *)accumulator(rb->axies, rb->num_axies * sizeof (struct xyz), 0);
-    rb->axisNames = (char **)accumulator(rb->axisNames, rb->num_axies * sizeof (char *), 0);
-    rb->axies[rb->num_axies-1] = orientation;
-    rb->axisNames[rb->num_axies-1] = axisName;
+    rb->num_axes++;
+    rb->axes = (struct xyz *)accumulator(rb->axes, rb->num_axes * sizeof (struct xyz), 0);
+    rb->axisNames = (char **)accumulator(rb->axisNames, rb->num_axes * sizeof (char *), 0);
+    rb->axes[rb->num_axes-1] = orientation;
+    rb->axisNames[rb->num_axes-1] = axisName;
 }
 
 static struct joint *
@@ -2373,11 +2373,11 @@ printRigidBody(FILE *f, struct part *p, struct rigidBody *rb)
             fprintf(f, "\n");
         }
     }
-    if (rb->num_axies > 0) {
-        fprintf(f, "  axies:\n");
-        for (i=0; i<rb->num_axies; i++) {
+    if (rb->num_axes > 0) {
+        fprintf(f, "  axes:\n");
+        for (i=0; i<rb->num_axes; i++) {
             fprintf(f, "   (%s) ", rb->axisNames[i]);
-            printXYZ(f, rb->axies[i]);
+            printXYZ(f, rb->axes[i]);
             fprintf(f, "\n");
         }
     }
