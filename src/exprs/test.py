@@ -100,7 +100,7 @@ from TextRect import TextRect
 
 import Highlightable
 reload_once(Highlightable)
-from Highlightable import Highlightable, Button, print_Expr
+from Highlightable import Highlightable, Button, print_Expr, _setup_UNKNOWN_SELOBJ
 
 import ToggleShow
 reload_once(ToggleShow)
@@ -1152,6 +1152,11 @@ def drawtest1_innards(glpane):
     "entry point from ../testdraw.py (called once per mode.Draw call)"
     ## print "got glpane = %r, doing nothing for now" % (glpane,)
 
+    mode = glpane.mode # assume this is always testmode
+    _setup_UNKNOWN_SELOBJ(mode) #061218 kluge (multiple places, some in cad/src);
+        # fixes "highlight sync bug" in which click on checkbox, then rapid motion away from it,
+        # then click again, could falsely click the same checkbox twice.
+    
     glpane
     staterefs = _state ##e is this really a stateplace? or do we need a few, named by layers for state?
         #e it has: place to store transient state, [nim] ref to model state

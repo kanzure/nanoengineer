@@ -46,6 +46,8 @@ from state_utils import transclose, same_vals
 
 import platform # so all our code can refer to platform.atom_debug #e someday this should be renamed throughout NE1 (app.debug?)
 
+from constants import noop # def noop(*args,**kws): pass
+
 # (but color constants are imported lower down)
 
 # == OpenGL imports -- for now, individual modules import things from submodules of OpenGL as needed; this might be revised

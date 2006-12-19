@@ -28,7 +28,7 @@ and work around it if not.
 
 ==
 
-061208 highlighting synchronization bug
+061208 highlighting synchronization bug [fixed 061218]
 
 If you click a checkbox, move the mouse onto something else, and click
 again, too quickly, the checkbox can be toggled a second time (e.g. in
@@ -52,6 +52,20 @@ Another workaround might be to make the selobj always visible as such,
 e.g. by hover-highlighting checkboxes even though that's not standard for them,
 so the user can see whether things are not catching up to their motions.
 This would also help with debugging (eg to test the above theory).
+
+update 061218 (and fix): reviewing the code in update_selobj in selectMode.py,
+I think that theory above was correct -- a comment where we figure out that
+the old selobj is invalid specifically says we're not changing it, since only
+the next repaint can set it correctly, but wonders if this is ok. Here is when
+it would not be ok: you click on a checkbox, and this causes a slow redraw;
+during that time, a move (bareMotion) and another press are queued. The bareMotion
+handler runs update_selobj which decides the selobj is unknown but leaves the old
+one set; no repaint has a chance to run right then, since the press was already queued,
+so the press handler runs next, and finds that invalid selobj and sends it a leftClick.
+The fix, for modes that define UNKNOWN_SELOBJ, is to store that into selobj when it's
+known to be invalid. Note that this breaks the glpane feature to give the old selobj
+"first dibs" at being the new one; I'm not sure if this matters. It does fix the bug.
+The changes for this in cad/src and cad/src/exprs are all commented with 061218. 
 
 ==
 

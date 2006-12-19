@@ -25,7 +25,7 @@ def print_Expr(*args, **kws): ##e rename to include Action in the name?? #e refi
 
 # == selobj interface
 
-###e should define a class for the selobj interface; see class Highlightable for an example --
+###e should define a class for the selobj interface; see classes Highlightable and _UNKNOWN_SELOBJ_class for an example --
 # draw_in_abs_coords,
 # ClickedOn/leftClick,
 # mouseover_statusbar_message
@@ -517,6 +517,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
     
     ### grabbed from Button, maybe not yet fixed for here
     def leftClick(self, point, event, mode):
+##        if 1:
+##            print_compact_stack("fyi: on_press called: ")#061218 debug hl sync bug
         # print "mode._drag_handler_gl_event_info = %r" % (mode._drag_handler_gl_event_info,)
             # farQ, hitpoint, wX, wY, depth, farZ -- for use in gluUnProject in local coords (see also run_OpenGL_in_local_coords)
             # note: point == hitpoint.
@@ -649,6 +651,35 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
 
 Button = Highlightable
 
+class _UNKNOWN_SELOBJ_class: #061218 
+    "[private helper, for a kluge]"
+    def handles_updates(self): #k guessing this one might be needed
+        return True
+    # these methods were found by experiment to be needed
+    def selobj_still_ok(self, glpane):
+        return (self is getattr(glpane.mode, 'UNKNOWN_SELOBJ')) # goal: True in the mode that defines us, False otherwise
+    highlight_color_for_modkeys = noop #e will it need to be a method which returns a color? I doubt it.
+    leftClick = noop
+    # this is in case we didn't find one that's needed:
+    def __getattr__(self, attr):
+        if attr.startswith("__"):
+            raise AttributeError, attr
+        if platform.atom_debug:###
+            print "_UNKNOWN_SELOBJ_class returns noop for attr %r" % attr
+        setattr(self, attr, noop) # optim
+        return noop # fake bound method
+    pass
+# draw_in_abs_coords,
+# ClickedOn/leftClick,
+# mouseover_statusbar_message
+# highlight_color_for_modkeys
+# selobj_still_ok, maybe more
+
+def _setup_UNKNOWN_SELOBJ(mode): #061218
+    "[private helper, for a kluge -- see comment where called]"
+    if not hasattr(mode, 'UNKNOWN_SELOBJ'):
+        mode.UNKNOWN_SELOBJ = _UNKNOWN_SELOBJ_class()
+    return
 
 # == NO CURRENT CODE IS BELOW HERE (I think)
 
