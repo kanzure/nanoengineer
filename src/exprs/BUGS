@@ -200,5 +200,12 @@ so that fix having caused it is not proven.
 (Speculation: this might be an effect of the roundoff issue mentioned at the end of that bug
 discussion, above.)
 
+update 061219: more likely, it's just that Overlay scan order is backwards, 
+appropriate for GL_LESS but not for GL_LEQUAL, and the buggy fake icon makes use of an Overlay
+of gray rect and text. Fixable by reversing Overlay order in this case, or switching
+to GL_LEQUAL all the time (or all the time in testmode, provided these things are not
+drawn in other modes, but since model objs are drawn there, that makes no sense except
+as a temporary situation). ####k TRY IT
+
 ==
 
