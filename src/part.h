@@ -90,14 +90,28 @@ struct rigidBody
 {
     char *name;
 
+    // StationPoints are named locations specified in body relative
+    // coordinates.  Joints connect bodies together at their
+    // StationPoints.
     int num_stations;
     struct xyz *stations;
     char **stationNames;
 
+    // Axes are named orientations specified in body relative
+    // coordinates.  Joints can maintain these orientations parallel
+    // to each other for a pair of bodies.
     int num_axes;
     struct xyz *axes;
     char **axisNames;
 
+    // Attachments link atoms to rigid bodies.  attachmentLocations
+    // are in body relative coordinates, and are calculated from the
+    // initial positions of the attached atoms, and the initial
+    // position/orientation of the body.
+    int num_attachments;
+    struct xyz *attachmentLocations;
+    int *attachmentAtomIndices;
+    
     double inertiaTensor[6];
 
     double mass;
@@ -363,6 +377,8 @@ extern void makeRigidBody(struct part *p, char *name, double mass, double *inert
 extern void makeStationPoint(struct part *p, char *bodyName, char *stationName, struct xyz position);
 
 extern void makeBodyAxis(struct part *p, char *bodyName, char *axisName, struct xyz orientation);
+
+extern void makeAtomAttachments(struct part *p, char *bodyName, int atomListLength, int *atomList);
 
 extern void makeBallJoint(struct part *p, char *bodyName1, char *stationName1, char *bodyName2, char *stationName2);
 

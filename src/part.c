@@ -156,6 +156,10 @@ destroyPart(struct part *p)
         }
         destroyAccumulator(rb->axisNames);
         rb->axisNames = NULL;
+        free(rb->attachmentLocations);
+        rb->attachmentLocations = NULL;
+        free(rb->attachmentAtomIndices);
+        rb->attachmentAtomIndices = NULL;
     }
     destroyAccumulator(p->rigidBodies);
     p->rigidBodies = NULL;
@@ -1661,6 +1665,9 @@ makeRigidBody(struct part *p, char *name, double mass, double *inertiaTensor, st
     rb->num_axes = 0;
     rb->axes = NULL;
     rb->axisNames = NULL;
+    rb->num_attachments = 0;
+    rb->attachmentLocations = NULL;
+    rb->attachmentAtomIndices = NULL;
     for (i=0; i<6; i++) {
         rb->inertiaTensor[i] = inertiaTensor[i];
     }
@@ -1720,6 +1727,35 @@ makeBodyAxis(struct part *p, char *bodyName, char *axisName, struct xyz orientat
     rb->axisNames = (char **)accumulator(rb->axisNames, rb->num_axes * sizeof (char *), 0);
     rb->axes[rb->num_axes-1] = orientation;
     rb->axisNames[rb->num_axes-1] = axisName;
+}
+
+void
+makeAtomAttachments(struct part *p, char *bodyName, int atomListLength, int *atomList)
+{
+    int i;
+    int j;
+    struct rigidBody *rb;
+    struct atom *a;
+
+    i = findRigidBodyByName(p, bodyName);
+    if (i < 0) {
+        ERROR1("rigidBody named (%s) not found", bodyName);
+        p->parseError(p->stream);
+    }
+    
+    rb = &p->rigidBodies[i];
+    if (rb->num_attachments != 0) {
+        ERROR1("more than one attachAtoms for body %s", bodyName);
+        p->parseError(p->stream);
+    }
+    rb->num_attachments = atomListLength;
+    rb->attachmentLocations = (struct xyz *)allocate(atomListLength * sizeof(struct xyz));
+    rb->attachmentAtomIndices = (int *)allocate(atomListLength * sizeof(int));
+    for (j=0; j<atomListLength; j++) {
+	a = translateAtomID(p, atomList[j]);
+        vsetc(rb->attachmentLocations[j], 0.0);
+        rb->attachmentAtomIndices[j] = a->index;
+    }
 }
 
 static struct joint *
@@ -2380,6 +2416,14 @@ printRigidBody(FILE *f, struct part *p, struct rigidBody *rb)
             printXYZ(f, rb->axes[i]);
             fprintf(f, "\n");
         }
+    }
+    if (rb->num_attachments > 0) {
+        fprintf(f, "  attached atoms:  ");
+        for (i=0; i<rb->num_attachments; i++) {
+            printAtomShort(f, p->atoms[rb->attachmentAtomIndices[i]]);
+            fprintf(f, " ");
+        }
+        fprintf(f, "\n");
     }
 }
 

@@ -735,6 +735,14 @@ readMMP(char *filename)
       makeBodyAxis(p, bodyName1, axisName1, center);
       free(bodyName1);
     }
+
+    // attachAtoms (bodyName) atomset...
+    else if (0==strcmp(tok, "attachAtoms")) {
+      bodyName1 = expectName(mmp);
+      expectIntList(mmp, &atomList, &atomListLength, 0);
+      makeAtomAttachments(p, bodyName1, atomListLength, atomList);
+      free(bodyName1);
+    }
     
     else if (0==strcmp(tok, "joint")) {
       consumeWhitespace(mmp);

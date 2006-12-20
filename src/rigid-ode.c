@@ -91,6 +91,8 @@ void
 rigid_ode_init(struct part *p)
 {
   int i;
+  int k;
+  struct xyz attachAtomLocation;
   struct rigidBody *rb;
   struct joint *j;
   struct ode_info *ode;
@@ -113,7 +115,7 @@ rigid_ode_init(struct part *p)
   p->rigid_body_info = (void *)ode;
   
   ode->world = world = dWorldCreate();
-  ode->bodies = (dBodyID *)allocate((p->num_rigidBodies - 1) * sizeof(dBodyID));
+  ode->bodies = (dBodyID *)allocate((p->num_rigidBodies) * sizeof(dBodyID));
   ode->bodies[0] = 0;
   ode->joints = (dJointID *)allocate((p->num_joints) * sizeof(dJointID));
   
@@ -128,6 +130,17 @@ rigid_ode_init(struct part *p)
     q[2] = (dReal)rb->orientation.z;
     q[3] = (dReal)rb->orientation.a;
     dBodySetQuaternion(body, q);
+    for (k=0; k<rb->num_attachments; k++) {
+      attachAtomLocation = p->positions[rb->attachmentAtomIndices[k]];
+      dBodyGetPosRelPoint(body,
+                          (dReal)attachAtomLocation.x,
+                          (dReal)attachAtomLocation.y,
+                          (dReal)attachAtomLocation.z,
+                          station1);
+      rb->attachmentLocations[k].x = (double)station1[0];
+      rb->attachmentLocations[k].y = (double)station1[1];
+      rb->attachmentLocations[k].z = (double)station1[2];
+    }
   }
 
   for (i=0; i<p->num_joints; i++) {
@@ -195,3 +208,16 @@ rigid_ode_destroy(struct part *p)
   // XXX we may want to call this somewhere.
   //dCloseODE();
 }
+
+void
+rigid_ode_relative_to_absolute(struct part *p, int bodyIndex, struct xyz relative, struct xyz *absolute)
+{
+  ERROR("rigid_ode_relative_to_absolute not implemented");
+}
+
+void
+rigid_ode_apply_force_relative(struct part *p, int bodyIndex, struct xyz force_location_relative, struct xyz force_direction_absolute)
+{
+  ERROR("rigid_ode_apply_force_relative not implemented");
+}
+
