@@ -326,8 +326,11 @@ class GLPane_overrider(Delegator, object): # object superclass added for selobj 
                 glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
                     # (this works, but someday verify sign is correct in theory #k)
                     # [actually it has some visual bugs, esp. in perspective view when off-center,
-                    #  and it would be better to just use a depth offset, or better still (probably)
-                    #  to change the depth test (glDepthFunc) to GL_LEQUAL, either just for now, or all the time. bruce 060729 comment]
+                    #  and it would be better to just use a depth offset (via glPolygonOffset(hard to use in this case)
+                    #  or glDepthRange (which requires us to know the depth buffer resolution to use it properly)),
+                    #  or better still [now done sometimes, via pre_draw_in_abs_coords]
+                    #  to change the depth test (glDepthFunc) to GL_LEQUAL, either just for now, or all the time.
+                    #  [bruce 060729 comment, revised 061219]]
                 glMatrixMode(GL_MODELVIEW) # probably required!
             
             ####@@@@ TODO -- rename draw_in_abs_coords and make it imply highlighting so obj knows whether to get bigger
