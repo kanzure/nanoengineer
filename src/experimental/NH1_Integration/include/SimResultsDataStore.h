@@ -10,6 +10,8 @@
 #define SRDS_UNABLE_TO_OPEN_FILE			1
 #define SRDS_UNABLE_TO_COMPLETE_OPERATION	2
 #define SRDS_NON_EXISTENT_FRAMESET			3
+#define SRDS_EMPTY_FRAMESET					4
+#define SRDS_INVALID_FRAMEINDEX				5
 
 namespace ne1 {
 
@@ -447,20 +449,36 @@ class SimResultsDataStore {
 	/*
 	 * Frame
 	 */
-	/** Retrieves the number of frames in a frame-set.
+	/** Retrieves the number of frames in a frame-set. */
+	virtual void getFrameCount(const char* frameSetName,
+							   int& frameCount) = 0;
+	
+	/** Retrieves a malloc'd array of frame times (in seconds) for a frame-set.
 	 *
-	 * @return 0=successful or non-zero if no value was found.
+	 * @param frameSetName	[IN] the name of the frame-set to retieve frame
+	 *						times from
+	 * @param frameTimes	[OUT] a malloc'd float array with sufficient
+	 *						space to store the frame-set times
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
 	 */
-	virtual int getFrameCount(const char* frameSetName,
-							  int& frameCount) const = 0;
-	/*
-	def getFrameTimes(self, frameSetName):
-		"""Returns an array of frame times (in seconds) for a frame-set."""
-		pass
-	def getFrameTime(self, frameSetName, frameIndex):
-		"""Returns a specific frame time (in seconds) for a frame-set."""
-		pass
+	virtual int getFrameTimes(const char* frameSetName, float* frameTimes,
+							  std::string& message) = 0;
+
+	/** Retrieves the frame time for a specific frame
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set to retieve frame
+	 *						times from
+	 * @param frameIndex	[IN] the index of the frame to retrieve the time
+	 *						from
+	 * @param time			[OUT] the frame's timestamp in seconds
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
 	 */
+	virtual int getFrameTime(const char* frameSetName, const int& frameIndex,
+							 float& time, std::string& message) = 0;
 	
 	/** Adds a frame to the specified frame-set.
 	 *
@@ -477,16 +495,33 @@ class SimResultsDataStore {
 	def removeFrame(self, frameSetName, frameIndex):
 		"""Removes a frame from the specified frame-set."""
 		pass
+	 */
 	
 	
-	def getFrameAtomIds(self, frameSetName):
-		"""Returns an array of atom identifiers for a frame-set."""
-		pass
-	def setFrameAtomIds(self, frameSetName, atomIds):
-		"""Sets the array of atom identifiers for a frame-set."""
-		pass
+	/*
+	 * AtomIds
+	 */
+	/** Retrieves the number of atom ids for the frame-set. */
+	virtual void getFrameAtomIdsCount(const char* frameSetName,
+									  unsigned int& atomIdsCount) = 0;
 	
+	/** Retrieves an array of atom identifiers for the frame-set. */
+	virtual int getFrameAtomIds(const char* frameSetName,
+								unsigned int* atomIds,
+								std::string& message) = 0;
+
+	/** Sets the array of atom identifiers for the specified frame-set.
+	 *
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setFrameAtomIds(const char* frameSetName, unsigned int* atomIds,
+								unsigned int atomIdsCount,
+								std::string& message) = 0;
 	
+
+	/*
 	def getFrameAtomPositions(self, frameSetName, frameIndex):
 		"""
 		Returns an array of Cartesian atom positions for a specified frame. Each

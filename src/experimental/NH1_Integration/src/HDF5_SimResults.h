@@ -29,10 +29,12 @@ class FrameSetInfo {
 		FrameSetInfo() {
 			currentFrameIndex = 0;
 			timestampsDatasetId = timestampsDataspaceId = 0;
+			atomIdsDatasetId = atomIdsDataspaceId = 0;
 		}
 	
 		int currentFrameIndex;
 		hid_t timestampsDatasetId, timestampsDataspaceId;
+		hid_t atomIdsDatasetId, atomIdsDataspaceId;
 };
 	
 
@@ -65,7 +67,7 @@ class FrameSetInfo {
 			FrameSets/
 				name/
 					AggregationMode, StepsPerFrame - attributes
-					FrameTimes - dataset
+					Timestamps - dataset
 					AtomIds - dataset
 					AtomPositions, AtomVelocities - dataset
 					Bonds - dataset
@@ -145,9 +147,22 @@ class HDF5_SimResults : public SimResultsDataStore {
 							 std::string& message);
 		
 		
-		int getFrameCount(const char* frameSetName, int& frameCount) const;
+		void getFrameCount(const char* frameSetName, int& frameCount);
+		int getFrameTimes(const char* frameSetName, float* frameTimes,
+						  std::string& message);
+		int getFrameTime(const char* frameSetName, const int& frameIndex,
+						 float& time, std::string& message);
 		int addFrame(const char* frameSetName, const float& time,
 					 int& frameIndex, std::string& message);
+		
+		void getFrameAtomIdsCount(const char* frameSetName,
+								  unsigned int& atomIdsCount);
+		int getFrameAtomIds(const char* frameSetName,
+							unsigned int* atomIds,
+							std::string& message);
+		int setFrameAtomIds(const char* frameSetName, unsigned int* atomIds,
+							unsigned int atomIdsCount, std::string& message);
+		
 	private:
 		// HDF5 type identifiers
 		hid_t bondTypeId;
@@ -158,15 +173,20 @@ class HDF5_SimResults : public SimResultsDataStore {
 		std::map<std::string, FrameSetInfo> frameSetInfoMap;
 		
 		
-		int writeTimestamp(int frame, const float& time,
-						   hid_t datasetId, hid_t dataspaceId,
-						   std::string& message);
+		int checkTimestampsExistence(const char* frameSetName,
+									 std::string& message);
+		int checkFrameSetExistence(const char* frameSetName,
+								   std::string& message);
 		int createTimestampsDataset(const char* frameSetName,
 									hid_t& datasetId, hid_t& dataspaceId,
 									std::string& message);
-		int checkFrameSetExistence(const char* frameSetName,
-								   std::string& message);
-		
+		int writeTimestamp(int frame, const float& time,
+						   hid_t datasetId, hid_t dataspaceId,
+						   std::string& message);
+		int readTimestamp(int frame, float& time,
+						  hid_t datasetId, hid_t dataspaceId,
+						  std::string& message) const;
+			
 		int getStringAttribute(const std::string& groupName,
 							   const std::string& attributeName,
 							   std::string& attributeValue) const;

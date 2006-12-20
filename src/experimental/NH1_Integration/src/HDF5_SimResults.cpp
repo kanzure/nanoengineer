@@ -473,12 +473,76 @@ int HDF5_SimResults::setStepsPerFrame(const char* frameSetName,
 
 
 /* FUNCTION: getFrameCount */
-int HDF5_SimResults::getFrameCount(const char* frameSetName,
-								   int& frameCount) const {
+void HDF5_SimResults::getFrameCount(const char* frameSetName,
+									int& frameCount) {
+	frameCount = 0;
+	
+	// Check if the frame-set has been added
+	std::string message;
+	int resultCode = checkFrameSetExistence(frameSetName, message);
+	if (resultCode == 0) { // Frame-set exists
+		// Check if Timestamps dataset has been added
+		resultCode = checkTimestampsExistence(frameSetName, message);
+		if (resultCode == 0) {
+			frameCount = frameSetInfoMap[frameSetName].currentFrameIndex + 1;
+		}
+	}
+}
+
+
+/* FUNCTION: getFrameTimes */
+int HDF5_SimResults::getFrameTimes(const char* frameSetName, float* frameTimes,
+								   std::string& message) {
 	
 	// Check if the frame-set has been added
 	int resultCode = checkFrameSetExistence(frameSetName, message);
+	if (resultCode == 0) { // Frame-set exists
+		// Check if Timestamps dataset has been added
+		resultCode = checkTimestampsExistence(frameSetName, message);
+		if (resultCode == 0) {
+			FrameSetInfo& frameSetInfo = frameSetInfoMap[frameSetName];
+			int frameCount = frameSetInfo.currentFrameIndex + 1;			
+			for (int index = 0;
+				 (index < frameCount) && (resultCode == 0);
+				 index++)
+				resultCode =
+					readTimestamp(index, frameTimes[index],
+								  frameSetInfo.timestampsDatasetId,
+								  frameSetInfo.timestampsDataspaceId,
+								  message);
+		}
+	}
+	return resultCode;
+}
+
+
+/* FUNCTION: getFrameTime */
+int HDF5_SimResults::getFrameTime(const char* frameSetName,
+								  const int& frameIndex,
+								  float& time, std::string& message) {
 	
+	// Check if the frame-set has been added
+	int resultCode = checkFrameSetExistence(frameSetName, message);
+	if (resultCode == 0) { // Frame-set exists
+		// Check if Timestamps dataset has been added
+		resultCode = checkTimestampsExistence(frameSetName, message);
+		if (resultCode == 0) {
+			FrameSetInfo& frameSetInfo = frameSetInfoMap[frameSetName];
+			// Check that the given frameIndex is valid
+			if (frameSetInfo.currentFrameIndex >= frameIndex) {
+				resultCode =
+				readTimestamp(frameIndex, time,
+							  frameSetInfo.timestampsDatasetId,
+							  frameSetInfo.timestampsDataspaceId,
+							  message);
+				
+			} else {
+				message = "Invalid frameIndex.";
+				resultCode = SRDS_INVALID_FRAMEINDEX;
+			}
+		}
+	}
+	return resultCode;
 }
 
 
@@ -488,41 +552,29 @@ int HDF5_SimResults::addFrame(const char* frameSetName, const float& time,
 	
 	// Check if the frame-set has been added
 	int resultCode = checkFrameSetExistence(frameSetName, message);
-	
 	if (resultCode == 0) { // Frame-set exists
 		FrameSetInfo& frameSetInfo = frameSetInfoMap[frameSetName];
 		
-		// Check if the Timestamps dataset has been created
-		if (frameSetInfo.timestampsDatasetId == 0) {
+		// Check if Timestamps dataset has been added
+		resultCode = checkTimestampsExistence(frameSetName, message);
+		if (resultCode != 0) {
+			// Create it
+			//
+			hid_t datasetId, dataspaceId;
+			std::string datasetMessage;
+			resultCode =
+				createTimestampsDataset(frameSetName,
+										datasetId, dataspaceId,
+										datasetMessage);
 			
-			// Check if some other object created the dataset			
-			std::string datasetName = "/Results/FrameSets/";
-			datasetName.append(frameSetName).append("/Timestamps");
-			hid_t datasetId = H5Dopen(fileId, datasetName.c_str());
-			if (datasetId > -1) {
-				// Exists
-				frameSetInfo.timestampsDatasetId = datasetId;
-				frameSetInfo.timestampsDataspaceId = H5Dget_space(datasetId);
+			if (resultCode != 0) {
+				message = "Unable to add Frame to /Results/FrameSets/";
+				message.append(frameSetName).append(": ");
+				message.append(datasetMessage);
 				
 			} else {
-				// Create it
-				//
-				hid_t dataspaceId;
-				std::string datasetMessage;
-				resultCode =
-					createTimestampsDataset(frameSetName,
-											datasetId, dataspaceId,
-											datasetMessage);
-				
-				if (resultCode != 0) {
-					message = "Unable to add Frame to /Results/FrameSets/";
-					message.append(frameSetName).append(": ");
-					message.append(datasetMessage);
-					
-				} else {
-					frameSetInfo.timestampsDatasetId = datasetId;
-					frameSetInfo.timestampsDataspaceId = dataspaceId;
-				}
+				frameSetInfo.timestampsDatasetId = datasetId;
+				frameSetInfo.timestampsDataspaceId = dataspaceId;
 			}
 			
 		} else {
@@ -543,7 +595,141 @@ int HDF5_SimResults::addFrame(const char* frameSetName, const float& time,
 }
 
 
+/* FUNCTION: getFrameAtomIdsCount */
+void HDF5_SimResults::getFrameAtomIdsCount(const char* frameSetName,
+										   unsigned int& atomIdsCount) {
+}
+
+
+/* FUNCTION: getFrameAtomIds */
+int HDF5_SimResults::getFrameAtomIds(const char* frameSetName,
+									 unsigned int* atomIds,
+									 std::string& message) {
+}
+
+
+/* FUNCTION: setFrameAtomIds */
+int HDF5_SimResults::setFrameAtomIds(const char* frameSetName,
+									 unsigned int* atomIds,
+									 unsigned int atomIdsCount,
+									 std::string& message) {
+	
+	// Check if the frame-set has been added
+	int resultCode = checkFrameSetExistence(frameSetName, message);
+	if (resultCode == 0) { // Frame-set exists
+		FrameSetInfo& frameSetInfo = frameSetInfoMap[frameSetName];
+
+		// Check if the atomIds have already been set (can only set them once).
+		if (frameSetInfo.atomIdsDatasetId != 0) {
+			message = "Atom ids have already been set.";
+			resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+			
+		} else {
+			herr_t status;
+			
+			// Create the dataspace
+			hsize_t dims[1] = { atomIdsCount };
+			hid_t dataspaceId =
+				H5Screate_simple(1,		// rank
+								 dims,	// dimensions
+								 NULL);	// max dimensions
+			
+			// Modify dataset creation properties, i.e. enable chunking,
+			// compression
+			hid_t datasetParams = H5Pcreate(H5P_DATASET_CREATE);
+			if (USE_CHUNKING) {
+				hsize_t chunkDims[1] = { atomIdsCount };
+				status = H5Pset_chunk(datasetParams, 1 /* rank */, chunkDims);
+			}
+			if (USE_SHUFFLING) {
+				status = H5Pset_shuffle(datasetParams);
+			}
+			if (USE_COMPRESSION) {
+				status = H5Pset_deflate(datasetParams, COMPRESSION_LVL);
+			}
+			
+			// Create a new dataset within the file using datasetParams creation
+			// properties.
+			std::string groupName = "/Results/FrameSets/";
+			groupName.append(frameSetName).append("/AtomIds");
+			hid_t datasetId =
+				H5Dcreate(fileId, groupName.c_str(), H5T_NATIVE_UINT,
+						  dataspaceId, datasetParams);
+			H5Pclose(datasetParams);
+			if (datasetId < 0) {
+				message =
+					"Unable to create the atom ids dataset for /Results/FrameSets/";
+				message.append(frameSetName).append(": ");
+				
+				// Get error description from HDF5
+				std::string hdf5Message;
+				status =
+					H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+				if (status > -1)
+					message.append(hdf5Message).append(".");
+				resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+				
+			} else {
+				// Write the atom identifiers
+				hid_t filespace = H5Dget_space(datasetId);
+				status =
+					H5Dwrite(datasetId, H5T_NATIVE_UINT, dataspaceId, filespace,
+							 H5P_DEFAULT, atomIds);
+				H5Sclose(filespace);
+				if (status == 0) {
+					frameSetInfo.atomIdsDatasetId = datasetId;
+					frameSetInfo.atomIdsDataspaceId = dataspaceId;
+					
+				} else {
+					H5Dclose(datasetId);
+					H5Sclose(dataspaceId);
+				}
+			}
+		}
+	}
+	return resultCode;
+}
+
+
 /******************************************************************************/
+
+
+/* FUNCTION: checkTimestampsExistence
+ *
+ * Assumes the frame-set exists, ie, doesn't check for it.
+ */
+int HDF5_SimResults::checkTimestampsExistence(const char* frameSetName,
+											  std::string& message) {
+	int resultCode = 0;
+	FrameSetInfo& frameSetInfo = frameSetInfoMap[frameSetName];
+	
+	// Check if the Timestamps dataset has been created
+	if (frameSetInfo.timestampsDatasetId == 0) {
+		
+		// Check if some other object created the dataset			
+		std::string datasetName = "/Results/FrameSets/";
+		datasetName.append(frameSetName).append("/Timestamps");
+		hid_t datasetId = H5Dopen(fileId, datasetName.c_str());
+		if (datasetId > -1) {
+			// Exists
+			frameSetInfo.timestampsDatasetId = datasetId;
+			frameSetInfo.timestampsDataspaceId = H5Dget_space(datasetId);
+			frameSetInfo.currentFrameIndex =
+				H5Sget_simple_extent_npoints
+					(frameSetInfo.timestampsDataspaceId);
+			// Current frame index starts at zero, so if there's two frames,
+			// the current frame index is 1.
+			if (frameSetInfo.currentFrameIndex > 0)
+				frameSetInfo.currentFrameIndex--;
+			
+		} else {
+			message = "Frame-set: ";
+			message.append(frameSetName).append(" has no frames.");
+			resultCode = SRDS_EMPTY_FRAMESET;
+		}
+	}
+	return resultCode;
+}
 
 
 /* FUNCTION: checkFrameSetExistence */
@@ -664,6 +850,48 @@ int HDF5_SimResults::writeTimestamp(int frame, const float& time,
 		if (status > -1)
 			message.append(hdf5Message).append(".");
 		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+	}
+	return resultCode;
+}
+
+
+/* FUNCTION: readTimestamp */
+int HDF5_SimResults::readTimestamp(int frame, float& time,
+								   hid_t datasetId, hid_t dataspaceId,
+								   std::string& message) const {
+    herr_t	status;
+	int resultCode = 0;
+	
+	// Get the filespace
+	hid_t filespace = H5Dget_space(datasetId);
+	
+	// Select a hyperslab.
+	hsize_t slabStart[1] = { frame };
+	hsize_t slabStride[1] = { 1 };
+	hsize_t slabCount[1] = { 1 };
+	status =
+		H5Sselect_hyperslab(filespace, H5S_SELECT_SET,
+							slabStart, slabStride, slabCount, NULL);
+	// Read data
+	float data[1];
+	status =
+		H5Dread(datasetId, H5T_NATIVE_FLOAT, dataspaceId, filespace,
+				H5P_DEFAULT, data);
+    H5Sclose(filespace);
+	
+	if (status < 0) {
+		message = "Unable to read timestamp: ";
+		
+		// Get error description from HDF5
+		std::string hdf5Message;
+		status =
+			H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+		if (status > -1)
+			message.append(hdf5Message).append(".");
+		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		
+	} else {
+		time = data[0];
 	}
 	return resultCode;
 }

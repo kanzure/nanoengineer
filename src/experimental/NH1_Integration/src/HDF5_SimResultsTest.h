@@ -39,6 +39,7 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 	CPPUNIT_TEST(getSetStepsPerFrame);
 	
 	CPPUNIT_TEST(getAddRemoveFrame);
+	CPPUNIT_TEST(getSetAtomIds);
 	
 	CPPUNIT_TEST_SUITE_END();
 
@@ -69,6 +70,7 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 		void getSetStepsPerFrame();
 		
 		void getAddRemoveFrame();
+		void getSetAtomIds();
 		
 	private:
 		ne1::HDF5_SimResults* simResults;

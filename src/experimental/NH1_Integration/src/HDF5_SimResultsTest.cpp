@@ -384,10 +384,25 @@ void HDF5_SimResultsTest::getAddRemoveFrame() {
 	int status;
 	std::string message;
 	
-	/*
-	std::vector<std::string> frameSetNames = simResults->getFrameSetNames();
-	CPPUNIT_ASSERT(frameSetNames.size() == 0);
-	 */
+	int frameCount;
+	simResults->getFrameCount("frame-set-X", frameCount);
+	CPPUNIT_ASSERT(frameCount == 0);
+	simResults->getFrameCount("frame-set-1", frameCount);
+	CPPUNIT_ASSERT(frameCount == 0);
+	
+	float* frameTimes;
+	status =
+		simResults->getFrameTimes("frame-set-X", frameTimes, message);
+	CPPUNIT_ASSERT(status != 0);
+	status =
+		simResults->getFrameTimes("frame-set-1", frameTimes, message);
+	CPPUNIT_ASSERT(status != 0);
+	
+	float frameTime;
+	status = simResults->getFrameTime("frame-set-X", 0, frameTime, message);
+	CPPUNIT_ASSERT(status != 0);
+	status = simResults->getFrameTime("frame-set-1", 0, frameTime, message);
+	CPPUNIT_ASSERT(status != 0);
 	
 	int index;
 	status = simResults->addFrame("frame-set-X", 0.0, index, message);
@@ -396,11 +411,36 @@ void HDF5_SimResultsTest::getAddRemoveFrame() {
 	CPPUNIT_ASSERT((status == 0) && (index == 0));
 	status = simResults->addFrame("frame-set-1", 0.5, index, message);
 	CPPUNIT_ASSERT((status == 0) && (index == 1));
-	/*
+
+	simResults->getFrameCount("frame-set-1", frameCount);
+	CPPUNIT_ASSERT(frameCount == 2);
+
+	frameTimes = (float*)(malloc(frameCount * sizeof(float)));
+	status =
+		simResults->getFrameTimes("frame-set-1", frameTimes, message);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, frameTimes[0], 0.001);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5, frameTimes[1], 0.001);
 	
-	frameSetNames = simResults->getFrameSetNames();
-	CPPUNIT_ASSERT(frameSetNames.size() == 2);
-	CPPUNIT_ASSERT(frameSetNames[0] == "frame-set-1");
-	CPPUNIT_ASSERT(frameSetNames[1] == "frame-set-2");
-	 */
+	status = simResults->getFrameTime("frame-set-1", 0, frameTime, message);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(0.0, frameTime, 0.001);
+	status = simResults->getFrameTime("frame-set-1", 1, frameTime, message);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(0.5, frameTime, 0.001);
+	status = simResults->getFrameTime("frame-set-1", 2, frameTime, message);
+	CPPUNIT_ASSERT(status != 0);
+}
+
+
+/* FUNCTION: getSetAtomIds */
+void HDF5_SimResultsTest::getSetAtomIds() {
+	int status;
+	std::string message;
+	
+	unsigned int atomIds[] = { 0, 1, 2 };
+	status = simResults->setFrameAtomIds("frame-set-X", atomIds, 3, message);
+	CPPUNIT_ASSERT(status != 0);
+	status = simResults->setFrameAtomIds("frame-set-1", atomIds, 3, message);
+	CPPUNIT_ASSERT(status == 0);
 }
