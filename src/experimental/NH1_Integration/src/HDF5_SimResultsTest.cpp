@@ -438,9 +438,40 @@ void HDF5_SimResultsTest::getSetAtomIds() {
 	int status;
 	std::string message;
 	
+	unsigned int atomIdsCount = 5;
+	simResults->getFrameAtomIdsCount("frame-set-X", atomIdsCount);
+	CPPUNIT_ASSERT(atomIdsCount == 0);
+	simResults->getFrameAtomIdsCount("frame-set-1", atomIdsCount);
+	CPPUNIT_ASSERT(atomIdsCount == 0);
+
 	unsigned int atomIds[] = { 0, 1, 2 };
 	status = simResults->setFrameAtomIds("frame-set-X", atomIds, 3, message);
 	CPPUNIT_ASSERT(status != 0);
 	status = simResults->setFrameAtomIds("frame-set-1", atomIds, 3, message);
+	CPPUNIT_ASSERT(status == 0);
+
+	atomIds[0] = 5; atomIds[1] = 6; atomIds[2] = 7;
+	status = simResults->getFrameAtomIds("frame-set-1", atomIds, message);
+	CPPUNIT_ASSERT((status == 0) && (atomIds[0] == 0) && (atomIds[1] = 1) &&
+				   (atomIds[2] == 2));
+		
+	simResults->getFrameAtomIdsCount("frame-set-1", atomIdsCount);
+	CPPUNIT_ASSERT(atomIdsCount == 3);
+}
+
+
+/* FUNCTION: getSetAtomPositions */
+void HDF5_SimResultsTest::getSetAtomPositions() {
+	int status;
+	std::string message;
+	
+	float* positions;
+	status =
+		simResults->setFrameAtomPositions("frame-set-X", 0, positions, 3,
+										  message);
+	CPPUNIT_ASSERT(status != 0);
+	status =
+		simResults->setFrameAtomPositions("frame-set-1", 0, positions, 3,
+										  message);
 	CPPUNIT_ASSERT(status == 0);
 }

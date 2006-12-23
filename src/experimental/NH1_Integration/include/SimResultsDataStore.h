@@ -12,6 +12,7 @@
 #define SRDS_NON_EXISTENT_FRAMESET			3
 #define SRDS_EMPTY_FRAMESET					4
 #define SRDS_INVALID_FRAMEINDEX				5
+#define SRDS_NON_EXISTENT_DATASET			6
 
 namespace ne1 {
 
@@ -517,10 +518,12 @@ class SimResultsDataStore {
 	 * @return 0=successful or non-zero error code
 	 */
 	virtual int setFrameAtomIds(const char* frameSetName, unsigned int* atomIds,
-								unsigned int atomIdsCount,
+								const unsigned int& atomIdsCount,
 								std::string& message) = 0;
 	
-
+	/*
+	 * AtomPositions
+	 */
 	/*
 	def getFrameAtomPositions(self, frameSetName, frameIndex):
 		"""
@@ -529,15 +532,30 @@ class SimResultsDataStore {
 		meters.
 		"""
 		pass
-	def setFrameAtomPositions(self, frameSetName, frameIndex, positions):
-		"""
-		Sets the array of Cartesian atom positions for a specified frame.
-		@param positions: an array of arrays of length 3 corresponding to
-						  x, y, z coordinates for each atom in meters
-		"""
-		pass
+	 */
+	/** Sets the array of Cartesian atom positions for a specified frame.
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set to set atom positions
+	 *						for
+	 * @param frameIndex	[IN] the index of the frame to set atom positions
+	 *						for
+	 * @param positions		[IN] an array of length: 3 x (number of atoms)
+	 *						containing atom positions in meters, layed out like
+	 *						atom0.x, atom0.y, atom0.z, atom1.x, atom1.y,
+	 *						atom1.z, etc.
+	 * @param atomCount		[IN] the number of atoms
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setFrameAtomPositions(const char* frameSetName,
+									  const int& frameIndex,
+									  float* positions,
+									  const unsigned int& atomCount,
+									  std::string& message) = 0;
+
 	
-	
+	/*
 	def getFrameAtomVelocities(self, frameSetName, frameIndex):
 		"""
 		Returns an array of atom velocities for a specified frame. Each velocity

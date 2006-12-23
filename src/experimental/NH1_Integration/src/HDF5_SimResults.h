@@ -30,11 +30,13 @@ class FrameSetInfo {
 			currentFrameIndex = 0;
 			timestampsDatasetId = timestampsDataspaceId = 0;
 			atomIdsDatasetId = atomIdsDataspaceId = 0;
+			atomPositionsDatasetId = atomPositionsDataspaceId = 0;
 		}
 	
 		int currentFrameIndex;
 		hid_t timestampsDatasetId, timestampsDataspaceId;
 		hid_t atomIdsDatasetId, atomIdsDataspaceId;
+		hid_t atomPositionsDatasetId, atomPositionsDataspaceId;
 };
 	
 
@@ -161,8 +163,15 @@ class HDF5_SimResults : public SimResultsDataStore {
 							unsigned int* atomIds,
 							std::string& message);
 		int setFrameAtomIds(const char* frameSetName, unsigned int* atomIds,
-							unsigned int atomIdsCount, std::string& message);
+							const unsigned int& atomIdsCount,
+							std::string& message);
 		
+		int setFrameAtomPositions(const char* frameSetName,
+								  const int& frameIndex,
+								  float* positions,
+								  const unsigned int& atomCount,
+								  std::string& message);
+			
 	private:
 		// HDF5 type identifiers
 		hid_t bondTypeId;
@@ -173,10 +182,21 @@ class HDF5_SimResults : public SimResultsDataStore {
 		std::map<std::string, FrameSetInfo> frameSetInfoMap;
 		
 		
+		int checkFrameSetDatasetExistence(const char* frameSetName,
+										  hid_t& datasetId,
+										  hid_t& dataspaceId,
+										  const char* datasetName,
+										  std::string& message);
 		int checkTimestampsExistence(const char* frameSetName,
 									 std::string& message);
 		int checkFrameSetExistence(const char* frameSetName,
 								   std::string& message);
+		int create3D_AtomFloatsDataset(const char* frameSetName,
+									   const char* dataSetName,
+									   const unsigned int& atomCount,
+									   hid_t& datasetId,
+									   hid_t& dataspaceId,
+									   std::string& message);
 		int createTimestampsDataset(const char* frameSetName,
 									hid_t& datasetId, hid_t& dataspaceId,
 									std::string& message);
