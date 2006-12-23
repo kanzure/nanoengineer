@@ -47,6 +47,12 @@ The reason this condition is needed at all is to reduce the harm caused
 by someone accidentally running "import atom" (which is wrong but causes no harm).
 """
 
+#bruce 061222: define global flags (available to other modules via import __main__) that indicate
+# whether we're in the Qt3 or Qt4 version of NE1. This works by hardcoding the flags differently
+# in the MAIN and wware_qt4_20060919 cvs branches. Here, we set them for the MAIN (Qt3) branch:
+USING_Qt3 = True
+USING_Qt4 = False
+
 import sys, os, time
 if sys.platform == 'darwin':
     # Bug 1724 mitigation, wware 060320 & bruce 060327   [for incomplete parts, search for ####@@@@]
