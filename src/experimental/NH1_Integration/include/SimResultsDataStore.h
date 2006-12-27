@@ -22,7 +22,6 @@ namespace ne1 {
  * A chemical bond. See SimResultsDataStore for context.
  */
 typedef struct SimResultsBond {
-	
 	unsigned int atomId_1, atomId_2;
 	float order;
 } SimResultsbond;
@@ -524,15 +523,28 @@ class SimResultsDataStore {
 	/*
 	 * AtomPositions
 	 */
-	/*
-	def getFrameAtomPositions(self, frameSetName, frameIndex):
-		"""
-		Returns an array of Cartesian atom positions for a specified frame. Each
-		position is an array of length 3 corresponding to x, y, z coordinates in
-		meters.
-		"""
-		pass
+	/**
+	 * Retrieves an array of Cartesian atom positions for a specified frame.
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set to set atom positions
+	 *						for
+	 * @param frameIndex	[IN] the index of the frame to set atom positions
+	 *						for
+	 * @param atomCount		[IN] the number of atoms
+	 * @param positions		[OUT] an array of length: 3 x (number of atoms)
+	 *						will contain atom positions in meters, layed out
+	 *						like atom0.x, atom0.y, atom0.z, atom1.x, atom1.y,
+	 *						atom1.z, etc.
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
 	 */
+	virtual int getFrameAtomPositions(const char* frameSetName,
+									  const int& frameIndex,
+									  const unsigned int& atomCount,
+									  float* positions,
+									  std::string& message) = 0;
+	
 	/** Sets the array of Cartesian atom positions for a specified frame.
 	 *
 	 * @param frameSetName	[IN] the name of the frame-set to set atom positions
@@ -550,35 +562,93 @@ class SimResultsDataStore {
 	 */
 	virtual int setFrameAtomPositions(const char* frameSetName,
 									  const int& frameIndex,
-									  float* positions,
+									  const float* positions,
 									  const unsigned int& atomCount,
 									  std::string& message) = 0;
-
-	
 	/*
-	def getFrameAtomVelocities(self, frameSetName, frameIndex):
-		"""
-		Returns an array of atom velocities for a specified frame. Each velocity
-		is an array of length 3 corresponding to the x, y, z components of the
-		atom's velocity in m/s.
-		"""
-		pass
-	def setFrameAtomVelocities(self, frameSetName, frameIndex, velocities):
-		"""
-		Sets the array of atom velocities for a specified frame.
-		@param velocities: an array of arrays of length 3 corresponding to the
-						   x, y, z components for each atom's velocity in m/s
-		"""
-		pass
+	 * AtomVelocities
+	 */
+	/**
+	 * Retrieves an array of atom velocities for a specified frame.
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set to set atom
+	 *						velocities for
+	 * @param frameIndex	[IN] the index of the frame to set atom velocities
+	 *						for
+	 * @param atomCount		[IN] the number of atoms
+	 * @param velocities	[OUT] an array of length: 3 x (number of atoms)
+	 *						will contain atom velocities in meters/second, layed
+	 *						out like atom0.x, atom0.y, atom0.z, atom1.x,
+	 *						atom1.y, atom1.z, etc.
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int getFrameAtomVelocities(const char* frameSetName,
+									   const int& frameIndex,
+									   const unsigned int& atomCount,
+									   float* velocities,
+									   std::string& message) = 0;
 	
+	/** Sets the array of atom velocities for a specified frame.
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set to set atom
+	 *						velocities for
+	 * @param frameIndex	[IN] the index of the frame to set atom velocities
+	 *						for
+	 * @param velocities	[IN] an array of length: 3 x (number of atoms)
+	 *						containing atom velocities in meters/second, layed
+	 *						out like atom0.x, atom0.y, atom0.z, atom1.x,
+	 *						atom1.y, atom1.z, etc.
+	 * @param atomCount		[IN] the number of atoms
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setFrameAtomVelocities(const char* frameSetName,
+									   const int& frameIndex,
+									   const float* velocities,
+									   const unsigned int& atomCount,
+									   std::string& message) = 0;
+	/*
+	 * Bonds
+	 */
+	/**
+	 * Retrieves an array of SimResultsBond structs for a specified frame.
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set from which to
+	 *						retrieve bonds
+	 * @param frameIndex	[IN] the index of the frame from which to retrieve
+	 *						bonds
+	 * @param bondCount		[OUT] the number of bonds
+	 * @param bonds			[OUT] a pointer to an array of SimResultsBond
+	 *						structs (don't forget to free() it when done with
+	 *						it)
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int getFrameBonds(const char* frameSetName,
+							  const int& frameIndex,
+							  unsigned int& bondCount,
+							  void* bonds,
+							  std::string& message) = 0;
 	
-	def getFrameBonds(self, frameSetName, frameIndex):
-		"""Returns an array of SimResultsBond objects for a specified frame."""
-		pass
-	def setFrameBonds(self, frameSetName, frameIndex, bonds):
-		"""Sets the array of SimResultsBond objects for a specified frame."""
-		pass
-	
+	/** Sets the array of SimResultsBond structs for a specified frame.
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set in which to set bonds
+	 * @param frameIndex	[IN] the index of the frame in which to set bonds
+	 * @param bonds			[IN] a pointer to an array of SimResultsBond structs
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setFrameBonds(const char* frameSetName,
+							  const int& frameIndex,
+							  const void* bonds,
+							  const unsigned int& bondCount,
+							  std::string& message) = 0;
+	/*
 	
 	def getFrameTotalEnergy(self, frameSetName, frameIndex):
 		"""Returns the total energy for the specified frame in Joules."""

@@ -465,7 +465,24 @@ void HDF5_SimResultsTest::getSetAtomPositions() {
 	int status;
 	std::string message;
 	
-	float* positions;
+	int nAtoms = 3;
+	float positions[nAtoms*3];
+	int atomIndex;
+	for (atomIndex = 0; atomIndex < nAtoms; atomIndex++) {
+		positions[atomIndex*3+0] = atomIndex * 3.0f;
+		positions[atomIndex*3+1] = atomIndex * 3.0f + 1.0f;
+		positions[atomIndex*3+2] = atomIndex * 3.0f + 2.0f;
+	}
+	
+	status =
+		simResults->getFrameAtomPositions("frame-set-X", 0, 3, positions,
+										  message);
+	CPPUNIT_ASSERT(status != 0);
+	status =
+		simResults->getFrameAtomPositions("frame-set-1", 0, 3, positions,
+										  message);
+	CPPUNIT_ASSERT(status != 0);
+	
 	status =
 		simResults->setFrameAtomPositions("frame-set-X", 0, positions, 3,
 										  message);
@@ -474,4 +491,101 @@ void HDF5_SimResultsTest::getSetAtomPositions() {
 		simResults->setFrameAtomPositions("frame-set-1", 0, positions, 3,
 										  message);
 	CPPUNIT_ASSERT(status == 0);
+	
+	for (atomIndex = 0; atomIndex < nAtoms; atomIndex++) {
+		positions[atomIndex*3+0] = 0.0f;
+		positions[atomIndex*3+1] = 0.0f;
+		positions[atomIndex*3+2] = 0.0f;
+	}
+	status =
+		simResults->getFrameAtomPositions("frame-set-1", 0, 3, positions,
+										  message);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, positions[1], 0.001);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, positions[5], 0.001);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, positions[8], 0.001);
+}
+
+
+/* FUNCTION: getSetAtomVelocities */
+void HDF5_SimResultsTest::getSetAtomVelocities() {
+	int status;
+	std::string message;
+	
+	int nAtoms = 3;
+	float velocities[nAtoms*3];
+	int atomIndex;
+	for (atomIndex = 0; atomIndex < nAtoms; atomIndex++) {
+		velocities[atomIndex*3+0] = atomIndex * 3.0f;
+		velocities[atomIndex*3+1] = atomIndex * 3.0f + 1.0f;
+		velocities[atomIndex*3+2] = atomIndex * 3.0f + 2.0f;
+	}
+	
+	status =
+		simResults->getFrameAtomVelocities("frame-set-X", 0, 3, velocities,
+										   message);
+	CPPUNIT_ASSERT(status != 0);
+	status =
+		simResults->getFrameAtomVelocities("frame-set-1", 0, 3, velocities,
+										   message);
+	CPPUNIT_ASSERT(status != 0);
+	
+	status =
+		simResults->setFrameAtomVelocities("frame-set-X", 0, velocities, 3,
+										   message);
+	CPPUNIT_ASSERT(status != 0);
+	status =
+		simResults->setFrameAtomVelocities("frame-set-1", 0, velocities, 3,
+										   message);
+	CPPUNIT_ASSERT(status == 0);
+	
+	for (atomIndex = 0; atomIndex < nAtoms; atomIndex++) {
+		velocities[atomIndex*3+0] = 0.0f;
+		velocities[atomIndex*3+1] = 0.0f;
+		velocities[atomIndex*3+2] = 0.0f;
+	}
+	status =
+		simResults->getFrameAtomVelocities("frame-set-1", 0, 3, velocities,
+										   message);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, velocities[1], 0.001);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, velocities[5], 0.001);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, velocities[8], 0.001);
+}
+
+
+/* FUNCTION: getSetBonds */
+void HDF5_SimResultsTest::getSetBonds() {
+	int status;
+	std::string message;
+	
+	void* bonds = (void*)malloc(3*sizeof(ne1::SimResultsBond));
+	unsigned int bondIndex;
+	ne1::SimResultsBond bond;
+	for (bondIndex = 0; bondIndex < 3; bondIndex++) {
+		bond.atomId_1 = bondIndex;
+		bond.atomId_2 = bondIndex + 1;
+		bond.order = bondIndex + 0.5f;
+		((ne1::SimResultsBond*)bonds)[bondIndex] = bond;
+	}
+	
+	status = simResults->setFrameBonds("frame-set-X", 0, bonds, 3, message);
+	CPPUNIT_ASSERT(status != 0);
+	status = simResults->setFrameBonds("frame-set-1", 0, bonds, 3, message);
+	CPPUNIT_ASSERT(status == 0);
+	
+	unsigned int bondsCount = 0;
+	status = simResults->getFrameBonds("frame-set-X", 0, bondsCount, bonds,
+									   message);
+	CPPUNIT_ASSERT(status != 0);
+	status = simResults->getFrameBonds("frame-set-1", 0, bondsCount, bonds,
+									   message);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT(bondsCount = 3);
+	for (bondIndex = 0; bondIndex < 3; bondIndex++) {
+		bond = ((ne1::SimResultsBond*)bonds)[bondIndex];
+		CPPUNIT_ASSERT(bond.atomId_1 == bondIndex);
+		CPPUNIT_ASSERT(bond.atomId_2 == bondIndex + 1);
+		CPPUNIT_ASSERT_DOUBLES_EQUAL(bondIndex + 0.5f, bond.order, 0.001);
+	}
 }
