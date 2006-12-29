@@ -51,6 +51,9 @@ def copytree(src, dst, symlinks=False):
     the directory. If the directory already exists, issue a warning
     to standard error, but continue working.
     """
+    srcdir = os.path.join(os.getcwd(), src)
+    assert os.path.exists(srcdir), \
+           "copytree - source directory doesn't exist: " + srcdir
     names = os.listdir(src)
     if os.path.isdir(dst):
         print >>sys.stderr, "copytree - directory exists already: " + dst
@@ -180,7 +183,6 @@ class NanoBuildBase:
         os.chdir(self.atomPath)
         dirlist = ' '.join(('cad/src',
                             'cad/plugins',
-                            'cad/images',
                             'sim',
                             'cad/partlib',
                             'cad/licenses-common',
@@ -244,7 +246,9 @@ class NanoBuildBase:
         os.chdir(os.path.join(self.atomPath,'cad'))
         copytree('doc', os.path.join(self.buildSourcePath, 'doc'))
         copytree('partlib', os.path.join(self.buildSourcePath, 'partlib'))
-        copytree('images', os.path.join(self.buildSourcePath, 'images'))
+        #copytree('images', os.path.join(self.buildSourcePath, 'images'))
+        os.mkdir(os.path.join(self.buildSourcePath, 'src'))
+        copytree('src/ui', os.path.join(self.buildSourcePath, 'src/ui'))
         copytree('plugins', os.path.join(self.buildSourcePath, 'plugins'))
         self.copyLicenses()
 
@@ -691,7 +695,22 @@ class NanoBuildMacOSX(NanoBuildBase):
 
         os.chdir(os.path.join(self.atomPath,'cad'))
         copytree('doc', os.path.join(self.buildSourcePath, appname, 'Contents/doc'))
-        copytree('images', os.path.join(self.buildSourcePath, appname, 'Contents/images'))
+
+
+        #########################################
+
+        print """
+        
+        
+        # wware 061229 - not sure if this is correct
+        copytree('ui', os.path.join(self.buildSourcePath, appname, 'Contents/ui'))
+        
+        
+        """
+
+        ###########################################
+
+
         copytree('plugins', os.path.join(self.buildSourcePath, appname, 'Contents', 'plugins'))
         # Put the partlib outside the app bundle, where users can see its internal
         # directories and files. Put a symbolic link to it from the normal
