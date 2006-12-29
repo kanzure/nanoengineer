@@ -13,9 +13,9 @@ ifeq ($(OS),Windows_NT)
 # One dollar sign for DOS and two for Cygwin
 UNAME_A=$(shell ver)
 # UNAME_A=$$(shell ver)   # Cygwin: but in this case use 'uname -a' anyway
-CC = "C:/Dev-Cpp/bin/gcc.exe"
-CFLAGS=-g -I"C:/Dev-Cpp/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
-LDFLAGS=-L"C:/Dev-Cpp/lib"
+CC = "C:/MinGW/bin/gcc.exe"
+CFLAGS=-g -I"C:/MinGW/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
+LDFLAGS=-L"C:/MinGW/lib"
 PYREXTARGET=atombase.dll
 STDC99=
 PYREXC=python c:/Python$(PYVER)/Scripts/pyrexc.py
