@@ -1,4 +1,6 @@
-[by bruce, 040920]
+# $Id$
+
+[by bruce, 040920; still current as of 061230]
 
 I added a feature to atom.py so that developers can request python profiling
 of atom by setting a variable in their .atom-debug-rc (for a filename to
