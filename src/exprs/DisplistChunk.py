@@ -202,7 +202,8 @@ class DisplistChunk( DelegatingInstanceOrExpr):
         self.glpane.makeCurrent() # not sure when this compute method might get called, so make sure our GL context is current
         displist = self.glpane.glGenLists(1) # allocate the display list name [#k does this do makeCurrent??]
         # make sure it's a nonzero int or long
-        assert type(displist) in (type(1), type(1L)) and displist
+        assert type(displist) in (type(1), type(1L))
+        assert displist
         return displist
 
     def _ensure_self_updated(self): #e rename, and revise to not run or not be called when only kidlists need remaking
@@ -241,11 +242,23 @@ class DisplistChunk( DelegatingInstanceOrExpr):
 
     # == old, some obs or wrong
     def draw(self): ######@@@@@@ prob wrong name, see above; also, wrong code.
+        """#doc
+        Basically, we draw by emitting glCallList for our display list.
+        (This might be executed immediately or compiled into another display list, depending on when we're called.)
+        But a few extra effects are necessary:
+        - If the contents of any display list used when ours is called are not up to date,
+          we have to fix that before ours gets called. In immediate mode, this means, before emitting glCallList;
+          if another list is being compiled, it means, sometime before that list's drawing effects are marked valid.
+        ... tracking of two kinds, etc... explain recursion...
+
+        list contents are not up to date, then before our list can be called,
+        
+        [Note: might be called when actual drawing is occurring, or when compiling another displist.]
+        """
         # 061023 comments: analogous to Lval.get_value, both in .draw always being such, and in what's happening in following code.
-        #
-        # need to make sure we have a list allocated -- this is implicit in grabbing its opengl listname from self.displist
-        self.displist
-        assert self.displist
+        
+        # make sure we have a display list allocated
+        displist = self.displist
         if 'self.delegate.draw() total effects changed': #####@@@@@ how to find out? not in usual way, that would draw it right now!
             # maybe: if self.delegate.draw_effects_version_counter > ... -- do we have to store version that got drawn, to make each
             # displist we call it in? no, just assume any inval tells us to remake it. inval propogate is enough, no counter needed,
