@@ -426,17 +426,10 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
 
 ###@@@
 
-class LvalForDrawingCode(Lval): #stub -- do we need this, or just pass an appropriate lambda to Lval? ##e
-    """[deal with get_value returning side effects? or using .draw instead -- just internally?]
-    """
-    pass
-
 class LvalForUsingASharedFormula(Lval): #stub -- do we need this? for a formula on _self shared among several instances
     """[pass _self to _compute_value?]
     """
     pass
-
-## class LvalForDisplistEffects -- see DisplistChunk.py
 
 # ==
 

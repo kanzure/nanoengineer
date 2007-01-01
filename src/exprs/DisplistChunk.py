@@ -4,51 +4,16 @@ DisplistChunk.py
 $Id$
 """
 
-from lvals import Lval ##e make reloadable
-
-##e during devel -- see also some comments in lvals-outtakes.py (not in cvs)
-
-class LvalForDisplistEffects(Lval): #stub -- see NewInval.py and paper notes
-    """Lval variant, for when the value in question is the total drawing effect of calling an OpenGL display list
-    (which depends not only on the OpenGL commands in that display list, but on those in all display lists it calls,
-    directly or indirectly).
-       [The basic issues are the same as if the effect was of running an external subroutine, in a set of external subrs
-    whose code we get to maintain, some of which call others. But there are a lot of OpenGL-specific details which affect
-    the implementation. The analogous things (external Qt widgets, POV-Ray macros) are like that too, so it's unlikely
-    a common superclass LvalForThingsLikeExternalSubroutines would be useful.]
-    """
-    def _compute_value(self):
-        "[unlike in superclass Lval, we first make sure all necessary display list contents are up to date]"
-        pass
-    pass
+from basic import *
 
 
-##DelegatingWidget3D
-DelegatingWidget # 2D or 3D -- I hope we don't have to say which one in the superclass! ###
-# Can the Delegating part be a mixin? Even if it is, we still have to avoid having to say the 2D or 3D part... ###
+##e comment during devel -- see also some comments in lvals-outtakes.py and DisplistChunk-outtakes.py (in cvs, only during devel)
 
-class DisplistChunk(DelegatingWidget):
-    def _init_instance(self):
-        DelegatingWidget._init_instance(self)
-        instance_of_arg1 # what is this? it needs to be set up by the prior statement, or by that time... see our make_in code... ###
-        # allocate display list and its lval
-        LvalForDisplistEffects # do what with this class? see below
-        #e or could use _C_ rule for this kid-object, so it'd be lazy... but don't we need to pass it instantiation context? ####
-        self.displist_lval = LvalForDisplistEffects( instance_of_arg1 )
-        ####@@@@ like CLE, do we need to actually make one displist per instance of whatever we eval arg1 to??
-        # problem is, there's >1 way to do that... so for now, assume no.
-        pass
-    def draw(self):
-        """compile a call to our display list
-        in a way which depends on whether we're compiling some other display list right now, in self.env.glpane --
-        how to do that is handled by our displist owner / displist effects lval
-        """
-        self.displist_lval.call_displist() # this will call instance_of_arg1.draw() if it needs to compile that displist
-    pass
 
 # ===
 
-# earlier code moved here 061231 from NewInval.py -- might be mostly right, but not recently reviewed
+# what follows is earlier code, moved here 061231 from NewInval.py -- might be mostly right, but not recently reviewed;
+# now being revised to become real code
 
 # ... maybe just write down the pseudocode for calling a display list in imm mode, which remakes some, which calls some in compiled mode?
 
@@ -94,7 +59,7 @@ each having one inval flag, rather than one, handling two flags? ####@@@@
 
 '''
 
-class GLPaneProxy: #######@@@@@@@ WRONG and/or OBS
+class GLPaneProxy: #######@@@@@@@ WRONG and/or OBS ... 061231: things like it might become part of GLPaneOverrider ###e
     compiling_displist = 0
     def __init__(self):
         self.displists_needing_recompile_asap = {}
@@ -154,7 +119,7 @@ def ensure_ready_to_call( dlist_owner_1 ):
     transclose(  toscan, collector )
     return
 
-class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOwner or so (or proxy? no, tho sort of.)
+class DisplistChunk( DelegatingInstanceOrExpr):
     """Each object of this class owns one OpenGL display list (initially unallocated) in a specific OpenGL context,
     and keeps track of whether its contents (OpenGL commands, as actually stored in our GL context) might be invalid,
     and whether any of its kids' contents might be invalid.
@@ -176,7 +141,7 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
     # ==
        To fit with the "maybe-inval" scheme for avoiding recomputes that we were warned might be needed, but turn out not to be
     (as detected by a recompute rule noticing old and new values of all inputs are equal, or "equal enough" for how it uses them),
-    we would need a way of asking self.thing.draw whether its output (i.e. the OpenGL commands it generates, usually reported only
+    we would need a way of asking self.delegate.draw whether its output (i.e. the OpenGL commands it generates, usually reported only
     by side effect on a GL context -- note that its direct kidlist is a function of that output) would actually be different than
     the last time we called it for compiling into our display list.
        This is not yet implemented... it would probably require separation of "asking for drawing code", "diffing that" (via a proxy
@@ -199,7 +164,7 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
     
     # belongs to one gl-displist-context
     # has self.displist (glpane displist id in that context)
-    # has arg, self.thing, can redraw it - it's an instance of a drawable
+    # has arg, self.delegate, can redraw it - it's an instance of a drawable
     # maintains formula: thing's draw-effects is an input to this guy's draw-effects
     #  so if thing's draw-effects change, and something wants "return" (do, where specified) of self draw-effects,
     #  and that caller might or might not be itself making a displaylist,
@@ -217,18 +182,28 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
 
     # default values of instance variables
     _direct_sublists_dict = 3 # intentional error if this default value is taken seriously
+
+    # args
+    delegate = Arg(Widget)
+    # options
+    # (none for now, but some will be added later)
     
-    def __init__(self):
-        self._key = id(self)
+    def _init_instance(self):
+        self._key = id(self) ###k needed??
+        self.glpane = self.env.glpane #e refile into superclass??
         
-    def _compute_displist(self): # compute method for self.displist ###IMPLEM compute methods
-        ###NOTE usage tracking should turn up nothing -- we use nothing
+    def _C_displist(self): # compute method for self.displist
+        ### WARNING: this doesn't recycle displists when instances are remade at same ipath (but it probably should),
+        # and it never frees them. To recycle them, just change it to use transient_state.
+        # When we start using more than one GL Context which share display lists, we'll have to revise this somehow.
+        #
+        ### NOTE: usage tracking should turn up nothing -- we use nothing
         "allocate a new display list name (a 32-bit int) in our GL context"
         self.glpane.makeCurrent() # not sure when this compute method might get called, so make sure our GL context is current
-        self.displist = self.glpane.glGenLists(1) # allocate the display list name [#k does this do makeCurrent??]
+        displist = self.glpane.glGenLists(1) # allocate the display list name [#k does this do makeCurrent??]
         # make sure it's a nonzero int or long
-        assert type(self.displist) in (type(1), type(1L)) and self.displist
-        return
+        assert type(displist) in (type(1), type(1L)) and displist
+        return displist
 
     def _ensure_self_updated(self): #e rename, and revise to not run or not be called when only kidlists need remaking
         """[private]
@@ -271,8 +246,8 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
         # need to make sure we have a list allocated -- this is implicit in grabbing its opengl listname from self.displist
         self.displist
         assert self.displist
-        if 'self.thing.draw() total effects changed': #####@@@@@ how to find out? not in usual way, that would draw it right now!
-            # maybe: if self.thing.draw_effects_version_counter > ... -- do we have to store version that got drawn, to make each
+        if 'self.delegate.draw() total effects changed': #####@@@@@ how to find out? not in usual way, that would draw it right now!
+            # maybe: if self.delegate.draw_effects_version_counter > ... -- do we have to store version that got drawn, to make each
             # displist we call it in? no, just assume any inval tells us to remake it. inval propogate is enough, no counter needed,
             # i bet.
             ### or can we say, that would return a routine to draw it???
@@ -318,12 +293,12 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
         self.glpane.glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
             # note: not normally a glpane method, but we'll turn all gl calls into methods so that self.glpane can intercept
             # the ones it wants to (e.g. in this case, so it can update self.glpane.compiling_displist)
-        self.thing.draw()
+        self.delegate.draw()
         self.glpane.glEndList(self.displist) # doesn't normally have an arg, but this lets glpane interception do more error-checking
         return
     def recompile_our_displist(self):
         self.glpane.glNewList(self.displist, GL_COMPILE)
-        self.thing.draw()
+        self.delegate.draw()
         self.glpane.glEndList(self.displist)
         return
     def call_our_displist(self): ### immd mode or not? what do we vs caller do?
@@ -332,12 +307,6 @@ class DisplistChunkInstance( ComputeRuleMixin): ######@@@@@ RENAME to DisplistOw
     def ensure_our_displist_gets_recompiled_asap(self):
         self.glpane.displists_needing_recompile_asap[ self.displist] = self
         return
-    pass # end of class DisplistChunkInstance #e misnamed
-
-# ==
-
-class DisplistInvalidatable:
-    pass ###
-# several levels: opengl; invalidating a rewritable external subroutine; inval per se
+    pass # end of class DisplistChunk
 
 # end
