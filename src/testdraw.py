@@ -169,11 +169,14 @@ if vv.havelist:
     vv.havelist = 0
     print "(fyi, this reload needed to reset vv.havelist)"
     
-def Enter(glpane): # never yet called ###@@@ [still true??]
-    glpane.win.setViewHome() # not tested, might be wrong; redundant now (if home view is the default)
+def end_of_Enter(glpane):
+    # called by testmode.Enter after it does everything else including super Enter; was never called before 070103
+    ## glpane.win.setViewHome() # not tested, might be wrong; redundant now (if home view is the default)
     init_glpane_vars(glpane)
-
+    # print "did end_of_Enter on",glpane # works
+    
 def init_glpane_vars(glpane):
+    # print "init_glpane_vars on glpane %r" % glpane # called by Draw on the overrider; by end_of_Enter on main glpane (as of 070103)
     glpane._glnames = []
     glpane._testmode_stuff = []
     glpane._testmode_stuff_2 = []
@@ -219,8 +222,12 @@ def render_scene(mode, glpane): # called by testmode.render_scene # 061208
         # many exceptions here are not errors and can happen routinely
         assert tryit, "not an error"
         # look for a cached GLPane_overrider we want to reuse (current reuse cond, below, is not the ideal one ##e)
-        glo = glpane._testdraw__cached_GLPane_overrider
-        assert glpane._testdraw__cached_GLPane_overrider_reload_counter == vv.reload_counter, "reload counter differs (not an error)"
+        if not glpane.__class__.__name__.endswith("GLPane"):
+            print "\n*** not an ordinary glpane! use it as glo: %r" % (glpane,) # might happen if we somehow get passed the glo itself
+            glo = glpane # guess that's what happened, see if it works
+        else:
+            glo = glpane._testdraw__cached_GLPane_overrider
+            assert glpane._testdraw__cached_GLPane_overrider_reload_counter == vv.reload_counter, "reload counter differs (not an error)"
         ##print "using old glo"
         if use_resetcache:
             glo.resetcache() # SEE IF THIS WORKS AROUND MY NEW BUGS -- it does. 070103 1215p
@@ -232,13 +239,12 @@ def render_scene(mode, glpane): # called by testmode.render_scene # 061208
         # store it to use again, until the next reload [kluge 070103]
         glpane._testdraw__cached_GLPane_overrider = glo
         glpane._testdraw__cached_GLPane_overrider_reload_counter = vv.reload_counter
-        
+
+    global _glpane_replacements        
     if debug_pref("GLPane_Overrider: pass to Draw?", Choice_boolean_True): # new, 070103, should be True except for debugging
         #KLUGE 070103: need to also pass glo as glpane to drawtest1_innards, but not sure how to get it there better than like this:
-        global _glpane_replacements
         _glpane_replacements = {glpane:glo}
     else:
-        global _glpane_replacements
         _glpane_replacements = {}
     
     # print "calling glo.render_scene" - works

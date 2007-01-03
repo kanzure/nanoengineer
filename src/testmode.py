@@ -129,7 +129,6 @@ class testmode(super):
 ##        hack_standard_repaint_0(self.o, self.pre_repaint)
         self.o.pov = V(0,0,0)
         self.o.quat = Q(1,0,0,0) ##  + Q(V(1,0,0),10.0 * pi/180) ###k why?
-        ###e maybe: testdraw.Enter, so it can do setViewHome
 
         #k are these attrs still needed or used??
         self.right = V(1,0,0) ## self.o.right
@@ -144,7 +143,12 @@ class testmode(super):
 ##        self.modelstate = 1
         
         # set perspective view -- no need, just do it in user prefs
-        return super.Enter(self)
+        res = super.Enter(self)
+        if 1:
+            # new 070103; needs reload??
+            import testdraw
+            testdraw.end_of_Enter(self.o)
+        return res
 
     def init_gui(self): #050528
         ## self.w.modifyToolbar.hide()
