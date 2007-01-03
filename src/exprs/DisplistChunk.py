@@ -6,90 +6,88 @@ $Id$
 
 from basic import *
 
+from changes import SelfUsageTrackingMixin # defines track_use, track_inval
+from changes import SubUsageTrackingMixin # defines begin_tracking_usage, end_tracking_usage; doesn't use self
 
 ##e comment during devel -- see also some comments in lvals-outtakes.py and DisplistChunk-outtakes.py (in cvs, only during devel)
-
+# (including long docstrings/comments that might be correct, but are unreviewed and partly redundant now)
 
 # ===
 
 # what follows is earlier code, moved here 061231 from NewInval.py -- might be mostly right, but not recently reviewed;
 # now being revised to become real code
 
-# ... maybe just write down the pseudocode for calling a display list in imm mode, which remakes some, which calls some in compiled mode?
 
-'''
-Reviewing situation of lvals for displists, 061023:
-
-- What's interesting about draw methods in general, vs ordinary "compute methods":
-  - they return their main value in the form of side effects
-  - there are really two values they implicitly return, and the set of things used by these (re usage tracking for inval) differs!
-    - the set of OpenGL commands they emit -- inval of this means any display list containing these commands needs rewriting
-    - the effects on the current frame buffers of running those OpenGL commands -- this also depends on some of the GL state,
-      including the content of certain display lists which they call (directly or indirectly, but only direct calls should be recorded,
-       since the set of indirect calls might change due only to changes in content of directly called displists).
-  - if drawing commands affect other OpenGL state, is their effect on each aspect of that state another thing that needs tracking?
-    If so, the above two things are special cases:
-    - effect on content of displist currently being compiled
-    - effect on framebuffer contents, assuming no displisp is being compiled, *or* at a future time when current one is run.
-  - complete tracking of these things would have to consider how OpenGL commands can *move* state between aspects of GL context state.
-    I think we can ignore that now, since we're not compiling such general OpenGL into display lists.
-    (Except in coordinate systems, if we compile a translation... which we can handle in a specialcase way.)
-  - it may be that, in general, we need to generalize "track usage" to "track usage, and what state it affects",
-    so anything we do (that gets usage-tracked) could say "I used this to affect that", where "that" is e.g. a specific display list,
-    or the opengl commands being emitted.
-  - a Q that needs answering, and leads to the above: if several kinds of usage are tracked, which one is tracked "normally"
-    and which in special ways? I thought it was "displist calls are tracked specially, not variable accesses", but I'm having
-    trouble explaining this rationally within the above framework.
-     But, ordinary variable access, if it affects anything, affects both things we're tracking our effect on,
-    since it affects our output of OpenGL. Display lists we call are the only things with a different effect on each one.
-    This justifies tracking variable access in usual way, and called displists specially, but these *don't* correspond directly
-    to the two things we can affect. It's as if we tracked usage in two parallel but independent worlds (python vars and opengl state)
-    and "in the end" know how to combine them: drawing effect depends on both, opengl output depends on only one.
-
-Preliminary conclusions:
-- draw methods do track two different things... and ordinary var access tracking can be totally standard,
-unaffected by the parallel tracking of calls of displists. Not sure yet about tracking effects on other OpenGL state,
-esp if they use other OpenGL state. (Should we track an effective function we're applying to OpenGL state, via state = f(state)??)
-- we do need a special kind of Lval whose value is the OpenGL commands issued into a display list;
-and maybe another one, whose value is the OpenGL commands issued by any draw method. The latter is special re side effect output
-and need for a version number (when we need to store inputs to whoever used it, for diff old and new in them);
-the former is also special in the concern about which displists were called, and corresponds to an op on draw methods,
-one is "run a displist" and the inner one is "emit its contents when compiling it". Maybe this means two special lval classes,
-each having one inval flag, rather than one, handling two flags? ####@@@@
-
-'''
-
-class GLPaneProxy: #######@@@@@@@ WRONG and/or OBS ... 061231: things like it might become part of GLPaneOverrider ###e
-    compiling_displist = 0
-    def __init__(self):
-        self.displists_needing_recompile_asap = {}
-    def recompile_displists_that_need_it(self):
-        while self.displists_needing_recompile_asap:
-            listname, object = self.displists_needing_recompile_asap.popitem()
-            if not self._not_needing_recompile.has_key(listname):
-                # what we do next can add items to that dict, right? hmm, can they be the ones we already popped??? ######@@@@@@
-                self._not_needing_recompile[listname] = object # maybe we have to store a counter (saying when they were up to date)??
-                ### make sure that if they are in here, we don't think we need to remake them, or maybe check when we pull them out
-                object.recompile_our_displist()
-        return
-    def glNewList(self, listname, mode):
-        ###e assert current? no, callers already had to know that to safely call original form, so we can be the same way
-        assert not self.compiling_displist
+class GLPaneProxy: #WRONG; 061231: this might become a mixin for use in GLPaneOverrider or GLPane; #e rename it ###e
+    compiling_displist = 0 #e change to point to the owner or None ###e rename to be private
+    compiling_displist_owned_by = None
+    def glNewList(self, listname, mode, owner = None):
+        """Execute glNewList, after verifying args are ok and we don't think we're compiling a display list now.
+        (The OpenGL call is illegal if we're *actually* compiling one now. Even if it detects that error (as is likely),
+        it's not a redundant check, since our internal flag about whether we're compiling one could be wrong.)
+           If owner is provided, record it privately (until glEndList) as the owner of the display list being compiled.
+        This allows information to be tracked in owner or using it, like the set of sublists directly called by owner's list.
+        Any initialization of tracking info in owner is up to our caller.###k doit
+        """
+        #e make our GL context current? no need -- callers already had to know that to safely call the original form of glNewList
+        #e assert it's current? yes -- might catch old bugs -- but not yet practical to do.
+        assert self.compiling_displist == 0
+        assert self.compiling_displist_owned_by is None
+        assert listname
         glNewList(listname, mode)
-        self.compiling_displist = listname #e also store the control object?
+        self.compiling_displist = listname
+        self.compiling_displist_owned_by = owner # optional, I guess ###CALL ME with this arg
         return
     def glEndList(self, listname = None):
-        if listname:
+        assert self.compiling_displist != 0
+        if listname is not None: # optional arg
             assert listname == self.compiling_displist
-        glEndList() # no arg
+        glEndList() # no arg is permitted
         self.compiling_displist = 0
+        self.compiling_displist_owned_by = None
         return
     def glCallList(self, listname):
+        "Compile a call to the given display list. Note: most error checking and any extra tracking is responsibility of caller."
         ###e in future, could merge successive calls into one call of multiple lists
         assert not self.compiling_displist # redundant with OpenGL only if we have no bugs in maintaining it, so worth checking
+        assert listname # redundant with following?
         glCallList(listname)
         return
-    pass
+    def ensure_dlist_ready_to_call( dlist_owner_1 ): #e rename this and its vars, revise term "owner" in it [070102 cmt] ###CALL ME
+        """[private helper method for use by DisplistChunk]
+           This implements the recursive algorithm described in DisplistChunk.__doc__.
+        dlist_owner_1 should be a DisplistOwner ###term; we use private attrs and/or methods of that class,
+        including _key, _recompile_if_needed_and_return_sublists_dict().
+           What we do: make sure that dlist_owner_1's display list can be safely called (executed) right after we return,
+        with all displists that will call (directly or indirectly) up to date (in their content).
+           Note that, in general, we won't know which displists will be called by a given one
+        until after we've updated its content (and thereby compiled calls to those displists as part of its content).
+           Assume we are only called when our GL context is current and we're not presently compiling a displist in it.
+        """
+        ###e verify our GL context is current, or make it so
+        ###e verify we're not presently compiling a displist in it
+        toscan = { dlist_owner_1._key : dlist_owner_1 }
+        def collector( obj1, dict1):
+            dlist_owner = obj1
+            direct_sublists_dict = dlist_owner._recompile_if_needed_and_return_sublists_dict() # [renamed from _ensure_self_updated]
+                # This says to dlist_owner: if your list is invalid, recompile it (and set your flag saying it's valid);
+                # then you know your direct sublists, so we can ask you to return them.
+                #   Note: it only has to include sublists whose drawing effects might be invalid.
+                # This means, if its own effects are valid, it can optim by just returning {}.
+                # [#e Someday it might maintain a dict of invalid sublists and return that. Right now it returns none or all of them.]
+                ###IMPLEM the return and making that sometimes {}
+                #   Note: during that call, the glpane (self) is modified to know which dlist_owner's list is being compiled. ###IMPLEM
+                ###k need to check that comment is accurate
+                ###e tell it effects valid at the end
+            dict1.update( direct_sublists_dict )
+        transclose(  toscan, collector )
+        ###e now, for each dlist_owner we saw, tell it its drawing effects are valid. Only needed if it optims for knowing that.
+        # to implem that, find out if transclose returns (or keeps in toscan) the complete dict, or if the last obj1 is guaranteed it,
+        # or if we need to keep one separately.
+        return
+    pass # end of class GLPaneProxy #e rename it
+
+# ==
 
 ######@@@@@@ Q: do we separate the object to own a displist, below, and the one to represent various Instances,
 # like one for DisplistChunk and one for defining a displist-subroutine?
@@ -99,97 +97,29 @@ class GLPaneProxy: #######@@@@@@@ WRONG and/or OBS ... 061231: things like it mi
 #   overridden by them (just a flag on the name which matters when it's interpreted).])
 # If we do, is the class below even an Instance with a draw method? (I doubt it. I bet it's an internal displist-owner helper object.)
 
-# singleton object - layer of displist proxies
+#e digr: someday: it might be good for glpane to have a dict from allocated dlist names to their owning objects.
+# Could we use displist names as keys, for that purpose?
 
-def ensure_ready_to_call( dlist_owner_1 ):
-    """[private helper function]
-    dlist_owner_1 should be a DisplistOwner; we use private attrs and/or methods of that class,
-    including _key, _ensure_self_updated(), _direct_sublists_dict.
-       Make sure that dlist_owner_1's displist can be safely called right after we return,
-    with all displists that will call (directly or indirectly) up to date (in their content).
-    Note that, in general, we won't know which displists will be called by a given one
-    until after we've updated its content (and compiled calls to those displists as part of its content).
-       Assume we are only called when our GL context is current and we're not presently compiling a displist in it.
+class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageTrackingMixin ):
+    """#doc
+    [Note: the implicit value for SelfUsageTrackingMixin is the total drawing effect of calling our displist in immediate mode. Compare to class Lval.]
+    [old long docstring and comment moved to outtakes file since unreviewed and partly redundant, 070102]
     """
-    toscan = { dlist_owner_1._key : dlist_owner_1 }
-    def collector( obj1, dict1):
-        dlist_owner = obj1
-        dlist_owner._ensure_self_updated() # if necessary, sets or updates dlist_owner._direct_sublists_dict
-        dict1.update( dlist_owner._direct_sublists_dict )
-    transclose(  toscan, collector )
-    return
-
-class DisplistChunk( DelegatingInstanceOrExpr):
-    """Each object of this class owns one OpenGL display list (initially unallocated) in a specific OpenGL context,
-    and keeps track of whether its contents (OpenGL commands, as actually stored in our GL context) might be invalid,
-    and whether any of its kids' contents might be invalid.
-    (By "kids" here, we mean any displists ours calls, directly or indirectly.)
-       We also need to know how to regenerate our displist's contents on demand, tracking all displists it directly calls,
-    as well as doing the usual usage-tracking of modifiable values on which the contents depends.
-    We record these things separately so we can be invalidated in the necessary ways.
-       A main public method ensures that our contents and our kids' contents are up to date.
-    The algorithm is to transclose on the set of displists we call (including self.displist),
-    and by calling a private method of this class on each one, to ensure updatedness of its contents
-    and of its record of its direct kids, allowing us to tranclose on the direct kids.
-       We also have a public method to call our displist in immediate mode, which must first use the prior method
-    to ensure updatedness of all displists that that would call. (That means it has to use GL_COMPILE followed by glCallList,
-    not GL_COMPILE_AND_EXECUTE, since in the latter case, it might encounter an unexpected call to a kid displist which is not
-    up to date, and have no way to make it up to date, since OpenGL doesn't permit recursive compiling of displists.)
-       We also have a method to compile a call to self.displist, which although callable by arbitrary commands' drawing code,
-    is semi-private in that it's only legally called while some object of this class is compiling a displist, 
-    and it assumes there is a global place in which to record that displist call for use by that object's tracking of called displists.
-    # ==
-       To fit with the "maybe-inval" scheme for avoiding recomputes that we were warned might be needed, but turn out not to be
-    (as detected by a recompute rule noticing old and new values of all inputs are equal, or "equal enough" for how it uses them),
-    we would need a way of asking self.delegate.draw whether its output (i.e. the OpenGL commands it generates, usually reported only
-    by side effect on a GL context -- note that its direct kidlist is a function of that output) would actually be different than
-    the last time we called it for compiling into our display list.
-       This is not yet implemented... it would probably require separation of "asking for drawing code", "diffing that" (via a proxy
-    version-counter, or perhaps by direct graph comparison of the code's rep), and executing that in some GL context. ###k
-       BTW [digr], I think the maybe-inval scheme in general is just to pass on a maybe-inval signal, and later to be asked
-    whether inval is really needed, and to ask kids the same, perhaps diffing their values... the hard part is that different
-    users of one value need different answers, e.g. if one user used it so long ago that it changed and changed back since then,
-    though other users used it when it was changed. This is why we can't only ask the kid -- we can, but even if it recomputes,
-    we have to diff to really know. I suspect this means that it's equivalent to an ordinary inval scheme, with each function
-    also optimizing by memoizing the answer given certain inputs, namely the last ones it used. I'm not sure of all this. ###k
-       Summary of public methods:
-    - call our displist in immediate mode
-    - call it while compiling another displist
-    [both of those are called by glpane when it's asked to call a displist, or an array of them; it switches on its flag of whether
-     it's currently compiling a displist; if it is, it knows the owning object, so it can *ask that object* to make the record.]
-    MAYBE WRONG?, they are called by self.draw... ok?? no, prob not... ######@@@@@@
-    - report our displist name (this is just the public attribute self.displist, which has a recompute rule)
-    """
-    # maybe semi-obs comments:
-    
-    # belongs to one gl-displist-context
-    # has self.displist (glpane displist id in that context)
-    # has arg, self.delegate, can redraw it - it's an instance of a drawable
-    # maintains formula: thing's draw-effects is an input to this guy's draw-effects
-    #  so if thing's draw-effects change, and something wants "return" (do, where specified) of self draw-effects,
-    #  and that caller might or might not be itself making a displaylist,
-    #  then we can do that (by emitting a call of this guy's displist, perhaps merged with other calls if we call several in a row)
-    #  (that merging can be autodone by our glpane, if it records all gl commands -- hmm, that's errorprone, leave it for later,
-    #   it doesn't affect this guy's code anyway)
-    #  but for callers making a displist, only if we warn caller that before it runs that displist, it better have us recompile ours,
-    #  which we do by adding ourself to a set in the calling env;
-    #  whereas for callers not making a displist, only if we *first* remake ours, before emitting the call,
-    #  *or* if we remake ours in compile-execute mode (equiv since when it later means smth else, that doesn't matter anymore
-    #  since current cmds not being saved) (and i'm not sure it's always possible to first remake ours, then call it)
-    #  (though we can try and see -- it's a user pref which is mainly for debugging, might affect speed or gl-bugs)
-    
-    # if thing's draw effects don't change, and smth wants us to draw, in either case we just emit a call of the displist.
-
     # default values of instance variables
-    _direct_sublists_dict = 3 # intentional error if this default value is taken seriously
-
+    _direct_sublists_dict = 2 # intentional error if this default value is taken seriously
+    contents_valid = False ###IMPLEM the set and reset of each of these flags, and the use of the 2nd one
+    drawing_effects_valid = False
+        # we don't yet have a specific flag for validity of sublist drawing effects (unknown when not contents_valid);
+        # that doesn't matter for now; a useful optim someday would be a dict of all invalid-effects direct sublists #e
+    
     # args
     delegate = Arg(Widget)
+    
     # options
     # (none for now, but some will be added later)
     
     def _init_instance(self):
-        self._key = id(self) ###k needed??
+        self._key = id(self) # set attribute to use as dict key (could probably use display list name, but it's not allocated yet)
         self.glpane = self.env.glpane #e refile into superclass??
         
     def _C_displist(self): # compute method for self.displist
@@ -203,123 +133,209 @@ class DisplistChunk( DelegatingInstanceOrExpr):
         displist = self.glpane.glGenLists(1) # allocate the display list name [#k does this do makeCurrent??]
         # make sure it's a nonzero int or long
         assert type(displist) in (type(1), type(1L))
-        assert displist
+        assert displist, "error: allocated displist was zero"
         return displist
 
-    def _ensure_self_updated(self): #e rename, and revise to not run or not be called when only kidlists need remaking
-        """[private]
-        Ensure updatedness of our displist's contents
-        and of our record of its direct kids (other displists it directly calls).
-        [if necessary, sets or updates self._direct_sublists_dict]
-        [might be called while compiling a displist, other or ours, or not?? ###k]
+    def draw(self):
+        """Basically, we draw by emitting glCallList, whether our caller is currently
+        compiling another display list or executing OpenGL in immediate mode.
+           But if our total drawing effects are invalid (i.e. our own list and/or some list it calls
+        has invalid contents), we must do some extra things, and do them differently in those two cases.
+           In immediate mode, if our own display list contents are invalid, we have to recompile it (without
+        executing it) and only later emit the call, since compiling it is the only way to find out what other
+        display lists it currently calls (when using the current widget expr .draw() API). Further, whether
+        or not we recompiled it, we have to make sure any other lists it calls are valid, recompiling them
+        if not, even though they too might call other lists we can't discover until we recompile them.
+           Since OpenGL doesn't permit nested compiles of display lists, we use a helper function:
+        given a set of display lists, make sure all of them are ok to call (by compiling zero or more of them,
+        one at a time), extending this set recursively to all lists they indirectly call, as found out when
+        recompiling them. This involves calling .draw methods of arbitrary widgets, with a glpane flag telling
+        them we're compiling a display list. (In fact, we tell them its controller object, e.g. self,
+        so they can record info that helps with later redrawing them for highlighting or transparency.)
+           When not in immediate mode, it means we're inside the recursive algorithm described above,
+        which is compiling some other display list that calls us. We can safely emit our glCallList before or after
+        our other effects (since it's not executed immediately), but we also have to add ourselves to
+        the set of displists directly called by whatever list is being compiled. (Doing that allows the
+        recursive algorithm to add those to the set it needs to check for validity. That alg can optim by
+        only doing that to the ones we know might be invalid, but it has to record them as sublists of
+        the list being compiled whether or not we're valid now, since it might use that later when we're
+        no longer valid.)
+           We do all that via methods and/or private dynamic vars in self.glpane. ###doc which
+           Note that the recursive algorithm may call us more than once. We should, of course, emit a glCallList
+        every time, but get recompiled by the recursive algorithm at most once, whether that happens due to side effects
+        here or in the algorithm or both. (Both might be possible, depending on what optims are implemented. ###k)
+           Note that recursive display list calls are possible
+        (due to bugs in client code), even though they are OpenGL errors if present when executed. (BTW, it's possible
+        for cycles to exist transiently in display list contents without an error, if this only happens when
+        some but not all display lists have been updated after a change. This needs no noticing or handling in the code.)
         """
-        self._direct_sublists_dict = 3 # intentional error if this value is taken seriously
-        ###e what's needed [061023 guess]:
-        # set up self._direct_sublists_dict in the dynenv or glpane, so that calls to displists are recorded in it.
-        # BTW it might be good for glpane to have a dict from allocated dlist names to their owning objects.
-        # Could we use displist names as keys, for that purpose?
-        new_sublists_dict = {}
-        glpane ###
-        old = glpane.begin_tracking_displist_calls(new_sublists_dict) ###IMPLEM
-        try:
-            self.recompile_our_displist() # render our contents into our displist using glNewList
-        except:
-            print_compact_traceback()
-            pass
-        glpane.end_tracking_displist_calls(old)
-        self._direct_sublists_dict = new_sublists_dict
-        ### now, subscribe something to inval of those, but not sure if we do that right here
-        ### also unsub whatever was subbed to the last set of them -- is that ever needed? what about in ordinary lvals?? ####@@@@
-        ### also our caller will use them for its scanning alg
-        assert 0, 'nim' #######@@@@@@@
-        return
-        
-    def call_in_immediate_mode(self):
-        self.ensure_ready_for_immediate_mode_call() ### change to external helper func, since it works on many objs of this class? yes.
-        # or class method? (nah)
-        self.call_our_displist() #### RENAME to make private
+        # docstring revised 070102.
+        # old cmt: prob wrong name [of method], see above
 
+        self.displist
+            # make sure we have a display list allocated
+            # (this calls the compute method to allocate one if necessary)
+            # [probably not needed explicitly, but might as well get it over with at the beginning]
 
-    # == old, some obs or wrong
-    def draw(self): ######@@@@@@ prob wrong name, see above; also, wrong code.
-        """#doc
-        Basically, we draw by emitting glCallList for our display list.
-        (This might be executed immediately or compiled into another display list, depending on when we're called.)
-        But a few extra effects are necessary:
-        - If the contents of any display list used when ours is called are not up to date,
-          we have to fix that before ours gets called. In immediate mode, this means, before emitting glCallList;
-          if another list is being compiled, it means, sometime before that list's drawing effects are marked valid.
-        ... tracking of two kinds, etc... explain recursion...
-
-        list contents are not up to date, then before our list can be called,
+        # are we being compiled into another display list?
+        parent_dlist = self.glpane.compiling_displist_owned_by # note: a dlist owner or None, not a dlist name
         
-        [Note: might be called when actual drawing is occurring, or when compiling another displist.]
-        """
-        # 061023 comments: analogous to Lval.get_value, both in .draw always being such, and in what's happening in following code.
-        
-        # make sure we have a display list allocated
-        displist = self.displist
-        if 'self.delegate.draw() total effects changed': #####@@@@@ how to find out? not in usual way, that would draw it right now!
-            # maybe: if self.delegate.draw_effects_version_counter > ... -- do we have to store version that got drawn, to make each
-            # displist we call it in? no, just assume any inval tells us to remake it. inval propogate is enough, no counter needed,
-            # i bet.
-            ### or can we say, that would return a routine to draw it???
-            ## also what need we do, to say that we've updated to use this info? will running thing.draw revalidate it?
-            # not in all contexts, just this one! will it incr a counter, so we can look and see which draw effects are latest
-            # and which ones we last grabbed? yes, i think so, esp since other inval objects need to "diff" results,
-            # and the number would stand for the results, hash them as it were. maybe we need it too for some reason.
-            #####@@@@
-            if self.glpane.compiling_displist:
-                self.call_our_displist()
-                self.ensure_our_displist_gets_recompiled_asap() # this schedules something which will soon, but not now, call thing.draw
-                    # (asap means before drawing the one being compiled, eg before any immediate mode drawing)
-                    # WRONG [061023 comments]: just because total effects changed, doesn't mean gl commands changed.
-                    # What is right is: recompile of this one (or each one in the tree of diplist calls) might not be needed;
-                    # instead, visit the entire tree, but recomp only the ones that got an inval, and that does revise
-                    # their list of kids in the tree (really a dag; don't recomp one twice -- inval flag reset handles that),
-                    # then (using list of kids, and only first time hit, via transclose), look at list of kids.
-                    # So each one stores the list of kids, and uses it two ways: subs to total effects inval, and scan them.
-                    # This is stored next to "an lval for a displist's total effects". Maybe that points to "lval for dlist contents".
-                    # In other words, two new lval classes: Lval for a displist effects, Lval for opengl coming out of a draw method.
-                    # Another issue - intermediate levels in a formula might need no lval objs, only ordinary compute calls,
-                    # unless they have something to memoize or inval at that level... do ordinary draw methods, when shared,
-                    # need this (their own capturing of inval flag, one for opengl and one for total effect,
-                    # and their own pair of usage lists too, one of called lists which can be scanned)??
-            else:
-                # immediate mode - don't call it until it's remade!
-                ###e also need to recompile any lists listed in self.glpane.displists_needing_recompile_asap!!! i think...
-                if 'oneway':
-                    self.recompile_our_displist()
-                    self.glpane.recompile_displists_that_need_it() # might do more lists than before prior statement added some ###
-                    self.call_our_displist()
-                else: # anotherway -- is this possible? only if we know in advance which lists will get used by the following!
-                    assert 0, "nim, since we need to know more..."
-                    #e recompile_displists_that_need_it, including ones we're about to call in following statement
-                    self.recompile_and_execute_our_displist()
-                pass
-            pass
+        if parent_dlist:
+            # We're being compiled into a display list (owned by parent_dlist); tell parent that its list calls ours.
+            # (Note: even if we're fully valid now, we have to tell it,
+            #  since it uses this info not only now if we're invalid, but later,
+            #  when we might have become invalid. If we ever have a concept of
+            #  our content and/or drawing effects being "finalized", we can optim
+            #  in that case, by reducing what we report here.)
+            parent_dlist.__you_called_dlist( self) ##e optim: inline this
+                # (note: we pass self == self.displist owner, not self.displist)
+                # (note: this will also make sure the alg recompiles us and whatever lists we turn out to call,
+                #  before calling any list that calls us, if our drawing effects are not valid now.)
+        elif self.glpane.compiling_displist:
+            print "warning: compiling dlist %r with no owner" % self.glpane.compiling_displist
+            #e If this ever happens, decide then whether anything but glCallList is needed.
+            # (Can it happen when compiling a "fixed display list"? Not likely if we define that using a widget expr.)
         else:
-            self.call_our_displist()
+            # immediate mode -- do all needed recompiles before emitting the glCallList,
+            # and [nim###e] make sure glpane will be updated if anything used by our total drawing effect changes.
+            # [this means make it the top of a tree of invals of total drawing effects, parallel to displist call tree; #e use a fake lval?]
+            # [how does this work now for chunks? hmm... in theory the same way should work here. so use SelfUsageTrackingMixin if not already a superclass.]
+            self.glpane.ensure_dlist_ready_to_call( self)
+                # note: does transclose starting with self, calls _recompile_if_needed_and_return_sublists_dict
+            self.track_use() # defined in SelfUsageTrackingMixin; compare to class Lval
+                # note: this draw method only does this in immediate mode,
+                # but when compiling displists, it can be done by callers in certain cases... ####e use special method?
+        # emit the glCallList
+        self.do_glCallList() ##e optim: inline this
+        return # from draw
+
+        # some old comments which might still be useful:
+
+            } ###e subs to total effects inval
+            
+            # 061023 comments: analogous to Lval.get_value, both in .draw always being such, and in what's happening in following code.
+
+            # Another issue - intermediate levels in a formula might need no lval objs, only ordinary compute calls,
+            # unless they have something to memoize or inval at that level... do ordinary draw methods, when shared,
+            # need this (their own capturing of inval flag, one for opengl and one for total effect,
+            # and their own pair of usage lists too, one of called lists which can be scanned)??
+
+    track_use_of_drawing_effects = track_use # this is semipublic; track_use itself (defined in SelfUsageTrackingMixin) is private
+    
+    def __you_called_dlist(self, dlist):
+        "[private]"
+        self.__new_sublists_dict[ dlist._key ] = dlist
+            # note: this will intentionally fail if called at wrong time, since self.__new_sublists_dict won't be a dict then
         return
-    def recompile_and_execute_our_displist(self): ### who does usage tracking, general and displist?
-        assert 0, "never called"
-        self.glpane.glNewList(self.displist, GL_COMPILE_AND_EXECUTE)
-            # note: not normally a glpane method, but we'll turn all gl calls into methods so that self.glpane can intercept
-            # the ones it wants to (e.g. in this case, so it can update self.glpane.compiling_displist)
-        self.delegate.draw()
-        self.glpane.glEndList(self.displist) # doesn't normally have an arg, but this lets glpane interception do more error-checking
+    
+    def _recompile_if_needed_and_return_sublists_dict(self): #e needs some implems and optims, see comments
+        ###e obs cmt: revise to not run or not be called when only kidlists need remaking
+        """[private helper method for glpane.ensure_dlist_ready_to_call()]
+        Ensure updatedness of our displist's contents (i.e. the OpenGL instructions last emitted for it)
+        and of our record of its direct sublists (a dict of owners of other displists it directly calls).
+        Return the dict of direct sublists.
+           As an optim, it's ok to return a subset of that, which includes all direct sublists
+        whose drawing effects might be invalid. (In particular, if our own drawing effects are valid,
+        except perhaps for our own displist's contents, it's ok to return {}.) ###e DO THAT OPTIM
+        """ # doc revised 070102
+        if not self.contents_valid:
+            ###e someday: detect recursive call of this displist -- not sure if this is simple unless it's a direct call
+            
+            self._direct_sublists_dict = 3 # intentional error if this temporary value is used as a dict
+                # (note: this might detect the error of a recursive direct or indirect call)
+            self.__new_sublists_dict = new_sublists_dict = {}
+                # this is added to by draw methods of owners of display lists we call
+            mc = self.begin_tracking_usage()
+                # Note: we use this twice here, for different implicit values, which is ok since it doesn't store anything on self.
+                # [#e i should make these non-methods to clarify that.]
+                # This begin/end pair is to track whatever affects the OpenGL commands we compile;
+                # the one below is to track the total drawing effects of the display lists called during that
+                # (or more generally, any other drawing effects not included in that, but tracking for any other
+                #  kinds of effects, like contents of textures we draw to the screen ### WHICH MIGHT MATTER, is nim).
+                #
+                # Note that track_use and track_inval do NOT have that property -- they store self.__subslist.
+            try:
+                self.recompile_our_displist() # render our contents into our displist using glNewList, self.delegate.draw(), glEndList
+                    # note: has try/except so always does endlist ##e make it tell us if error but no exception??
+            finally:
+                self.end_tracking_usage( mc, self.invalidate_contents) # same invalidator even if exception during recompile or its draw
+                self._direct_sublists_dict = dict(new_sublists_dict)
+                    #e optim: this copy is only for bug-safety in case something kept a ref and modifies it later
+                self.__new_sublists_dict = 4 # illegal dict value
+
+            mc2 = self.begin_tracking_usage() # this tracks how our drawing effects depend on those of the sublists we call
+            try:
+                for sublist in self._direct_sublists_dict.itervalues():
+                    sublist.track_use_of_drawing_effects() # (note: that's tracked into the global env)
+            finally:
+                self.end_tracking_usage( mc2, self.invalidate_drawing_effects )
+                    # this gets subscribed to inval of total effects of sublists (effectively includes all indirectly called sublists too)
+            self.contents_valid = True
+                #k is it ok that we do this now but caller might look at it?? I think so since I think caller never needs to see it.
+        if self.drawing_effects_valid:
+            return {} # optim
+        return self._direct_sublists_dict
+
+    def invalidate_contents(self):
+        "[private] called when something changes which might affect the sequence of OpenGL commands that should be compiled into self.displist" 
+        ###e should propogate?? not sure -- this needs to inval the drawing effects of whatever drawing uses us...
+        # but if something draws, does it track anything? what if the glpane itself calls us? this should tell it to gl_update!
+        # but right now it doesn't... we'll need some fix for that! or a toplevel use of one of these for it... or an invalidator arg for this expr...
+        # IN THEORY this means that glpane (or other pixmaps made from draw calls) should subs to total drawing effect,
+        # whereas a dlist compile (calling the very same draw method) should only subs to opengl commands, not their effect!
+        # THIS MAY PROVE THE NEED FOR TRACKING TWO DIFFERENT THINGS IN THE ENV for everything we can call in draw...
+        # or maybe not, since if we use something, how could it know which to affect? it can't.
+        # so only correct way is to switch effects over at the boundaries of compiling a list (smth like what we do)...
+        # but not sure it's correct YET. Guess: it's fine if we change glpane to also notice dlist calls, and change this code to inval it
+        # when a dlist runs in imm mode. This code should do that with a special routine in glpane, called in imm mode draw...
+        # or maybe, easier, by "using a fake lval" then, and changing it when our drawing effects change...
+        # then that lval would relate somehow to the flag we have and the subs to effects of sublist drawing. #####k DOIT - NEED TO FIGURE THIS OUT CLEARLY
+        # ... ok: in general you have to track what you use with what in your env it would effect.
+        # if you emit a calllist, then in imm mode, the total drawing effect of that affects the pixmap you draw onto and the other gl state...
+        # but in compiling mode, only the opengl commands affect the gl state, but the other stuff they do has to be tracked in some other way
+        # with the list owner. So we're assuming that the only opengl commands we do that have effects dependent on other gl state or other list contents
+        # are the calllists, even though in general this might be false. But assuming that, all we need to do is "track different usage in those cases"
+        # in self.draw. ###DOIT
+        ## printnim("propogate inval from invalidate_contents") # but maybe the only one to really propogate is for our total drawing effects...
+        self.contents_valid = False
+        self.invalidate_drawing_effects() #k I THINK this is all the propogation we need to do. NEED TO REVISE ABOVE COMMENT if so.
+
+    def invalidate_drawing_effects(self):
+        # note: compare to class Lval
+        if self.drawing_effects_valid: ######IMPLEM the set True -- and another use?? not sure.
+            # plan: make checklist of all needs of both inval paths. that's where i am 070102 436p.
+            self.drawing_effects_valid = False
+            # propogate inval to whoever used our drawing effects
+            self.track_inval() # (defined in SelfUsageTrackingMixin)
         return
+
     def recompile_our_displist(self):
-        self.glpane.glNewList(self.displist, GL_COMPILE)
-        self.delegate.draw()
-        self.glpane.glEndList(self.displist)
+        "call glNewList/draw/glEndList in the appropriate way [private]"
+        glpane = self.glpane
+        displist = self.displist
+        glpane.glNewList(displist, GL_COMPILE)
+            # note: not normally a glpane method, but we'll turn all gl calls into methods so that glpane can intercept
+            # the ones it wants to (e.g. in this case, so it can update glpane.compiling_displist)
+            # note: we have no correct way to use GL_COMPILE_AND_EXECUTE, as explained in draw docstring
+        try:
+            self.delegate.draw()
+        except:
+            print_compact_traceback("exception while compiling display list for %r ignored, but terminates the list: " % self )
+            ###e should restore both stack depths and as much gl state as we can
+            # (but what if the list contents are not *supposed* to preserve stack depth? then it'd be better to imitate their intent re depths)
+            pass
+        glpane.glEndList(displist)
+            # note: glEndList doesn't normally have an arg, but this arg lets glpane version of that method do more error-checking
+        ###e do some tracking or set valid flags, or let caller do that??
         return
-    def call_our_displist(self): ### immd mode or not? what do we vs caller do?
-        self.glpane.glCallList(self.displist)
+    
+    def do_glCallList(self):
+        "emit a call of our display list, whether or not we're called in immediate mode"
+        self.glpane.glCallList( self.displist)
         return
-    def ensure_our_displist_gets_recompiled_asap(self):
-        self.glpane.displists_needing_recompile_asap[ self.displist] = self
-        return
+
+    #e def __repr__, print list name and delegate
+    
     pass # end of class DisplistChunk
 
 # end
