@@ -1014,6 +1014,9 @@ testexpr_22 = DrawInCorner(ChoiceRow(6,2), (1,-1)) # works! (though default opti
 
 # == test DisplistChunk
 
+  ##BUG in general when not wrapped directly around translated Highlightable, or when an HL is trackballed.
+  # Most of these are not marked as indiv ##BUGs.
+
 testexpr_23 = DisplistChunk(Rect(1,green)) # might work
 testexpr_23x = DisplistChunk(Rect(1,green), debug_prints = "dlc1") # might work
 
@@ -1042,13 +1045,18 @@ testexpr_23bh = DisplistChunk(testexpr_9c) # sort of works - top rect works exce
 testexpr_23bh2 = SimpleColumn( DisplistChunk(testexpr_9a), DisplistChunk(testexpr_9b)) # works.
 
 # so I put it in checkbox_pref, and this sped up the testbed expr with 5 of them, so I adopted it in there as standard.
-###e retest demo_drag re that...
-                              
+# I also retested demo_drag (_19d) re that; it works.
+
+testexpr_23ch = Highlightable(testexpr_10c) # works, but prints debug fyi: len(names) == 2 (names = (429L, 439L)) due to glname nesting
+testexpr_23cd = DisplistChunk(testexpr_10c) # has expected coord ##BUG -- outermost toggle works, inner one as if not highlightable
+    # probably a bit faster (smoother rot90) than bare testexpr_10c, tho hard to be sure.
+    ###e sometime try improving MT_demo to use DisplistChunk inside -- should not be hard -- but not right now.
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = True
+enable_testbed = False
 
-testexpr = testexpr_19d ## testexpr_10c ## testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_23cd ## testexpr_10c ## testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
