@@ -1,14 +1,4 @@
 """
-current bugs [061013]:
-
-- reload_once does it too often -- should be only when i do the reload effect from testmode/testdraw in cad/src
-  (ie base it on that counter, not the redraw counter, but be sure that counter incrs before any imports)
-- lots of things are nim, including drawtest1_innards
-
-061113:
-- auto reload is not working (even after touch *.py) when another file is modified and this one isn't, or so -- not sure when
-but I think it used to be working...
-
 $Id$
 """
 
@@ -1022,12 +1012,16 @@ testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p]
 testexpr_22 = DrawInCorner(ChoiceRow(6,2), (1,-1)) # works! (though default options are far from perfect)
     # see also kluge_dragtool_state_prefs_default and _19*
 
-    
+# ==
+
+testexpr_23 = DisplistChunk(Rect(1,green))
+
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True
 
-testexpr = testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_23 ## testexpr_10c ## testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
@@ -1051,7 +1045,7 @@ testexpr = testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexp
     ## testexpr_20 four DrawInCorners (works but highlighting is slow)
     ## testexpr_21e table of alignment testers; _21g same in class form
     ## testexpr_22 ChoiceRow (in corner)
-
+    ## testexpr_23 DisplistChunk (doesn't crash but not well tested) #####
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
     # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size] testexpr_14 [hide_icons]
@@ -1153,7 +1147,7 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 def drawtest1_innards(glpane):
     "entry point from ../testdraw.py (called once per mode.Draw call)"
-    ## print "got glpane = %r, doing nothing for now" % (glpane,)
+    ## print "got glpane = %r" % (glpane,) # this was not the GLPAne_overrider proxy until bugfix in testdraw labelled "KLUGE 070103"
 
     mode = glpane.mode # assume this is always testmode
     _setup_UNKNOWN_SELOBJ(mode) #061218 kluge (multiple places, some in cad/src);

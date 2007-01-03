@@ -19,7 +19,9 @@ Still needed:
 
 from basic import *
 
-from OpenGL.GL import glNewList, glEndList, glCallList, GL_COMPILE, GL_COMPILE_AND_EXECUTE
+from debug_prefs import debug_pref, Choice_boolean_False #k in basic??
+
+from OpenGL.GL import glGenLists, glNewList, glEndList, glCallList, GL_COMPILE, GL_COMPILE_AND_EXECUTE
 
 from changes import SelfUsageTrackingMixin # defines track_use, track_inval; maintains a private __subslist on self
 from changes import SubUsageTrackingMixin # defines begin_tracking_usage, end_tracking_usage; doesn't use self
@@ -29,9 +31,16 @@ from changes import SubUsageTrackingMixin # defines begin_tracking_usage, end_tr
 
 # ==
 
-class GLPaneProxy: # this needs to become a mixin for use in GLPaneOverrider or GLPane #######e #e rename it
+class GLPane_mixin_for_DisplistChunk(object):
+    """Private mixin class for GLPane. Attr and method names must not interfere with GLPane.
+    Likely to be merged into class GLPane in future.
+    For now, mixed into class GLPane_overrider instead.
+    """
+    # 070103 renamed GLPane_mixin_for_DisplistChunk from GLPaneProxy, and mixed into GLPane_overrider
     compiling_displist = 0 #e rename to be private? probably not.
     compiling_displist_owned_by = None
+    def glGenLists(self, *args):
+        return glGenLists(*args)
     def glNewList(self, listname, mode, owner = None):
         """Execute glNewList, after verifying args are ok and we don't think we're compiling a display list now.
         (The OpenGL call is illegal if we're *actually* compiling one now. Even if it detects that error (as is likely),
@@ -64,7 +73,7 @@ class GLPaneProxy: # this needs to become a mixin for use in GLPaneOverrider or 
         assert listname # redundant with following?
         glCallList(listname)
         return
-    def ensure_dlist_ready_to_call( dlist_owner_1 ): #e rename the local vars, revise term "owner" in it [070102 cmt]
+    def ensure_dlist_ready_to_call( self, dlist_owner_1 ): #e rename the local vars, revise term "owner" in it [070102 cmt]
         """[private helper method for use by DisplistChunk]
            This implements the recursive algorithm described in DisplistChunk.__doc__.
         dlist_owner_1 should be a DisplistOwner ###term; we use private attrs and/or methods of that class,
@@ -96,7 +105,7 @@ class GLPaneProxy: # this needs to become a mixin for use in GLPaneOverrider or 
                 # A: it does it in reverse logic dir and reverse arrow dir (due to transclose) as inval prop, so it's ok.
                 # Note: that comment won't be understandable in a month [from 070102]. Need to explain it better. ####doc
         return
-    pass # end of class GLPaneProxy #e rename it
+    pass # end of class GLPane_mixin_for_DisplistChunk
 
 # ==
 
@@ -143,6 +152,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         ### NOTE: usage tracking should turn up nothing -- we use nothing
         "allocate a new display list name (a 32-bit int) in our GL context"
         self.glpane.makeCurrent() # not sure when this compute method might get called, so make sure our GL context is current
+        ## print "my glpane is",self.glpane,"type",type(self.glpane)
         displist = self.glpane.glGenLists(1) # allocate the display list name [#k does this do makeCurrent??]
         # make sure it's a nonzero int or long
         assert type(displist) in (type(1), type(1L))
@@ -183,6 +193,12 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         some but not all display lists have been updated after a change. This needs no noticing or handling in the code.)
         """ # docstring revised 070102.
 
+        if debug_pref("disable DisplistChunk?", Choice_boolean_False):
+            self.delegate.draw()
+            # I hope it's ok that this has no explicit effect on usage tracking or inval propogation... I think so.
+            # It's equivalent to wrapping the whole thing in an If on this cond, so it must be ok.
+            return
+        
         self.displist
             # make sure we have a display list allocated
             # (this calls the compute method to allocate one if necessary)

@@ -6,7 +6,48 @@ from GLPane import * # since this mode might depend on all kinds of imports and 
 
 from idlelib.Delegator import Delegator
 
-class GLPane_overrider(Delegator, object): # object superclass added for selobj = property(...), unreviewed re Delegator
+import basic
+basic.reload_once(basic)
+del basic
+from basic import reload_once
+
+import DisplistChunk
+reload_once(DisplistChunk)
+from DisplistChunk import GLPane_mixin_for_DisplistChunk
+
+# ==
+
+class delegated_state_attr(object): ###e refile [070103] [testing: get is proven sinxw fixed home view bug; set is untested, had error]
+    """A descriptor (like a property) which delegates get and set of an attr into another object found at a specified attrpath.
+    For example, to delegate self.quat to self.delegate.quat (for get and set), use
+      quat = delegated_state_attr('delegate', 'quat')
+    """
+    def __init__(self, *attrpath):
+        self.path_to_obj = tuple(attrpath[0:-1])
+        self.attr = attrpath[-1]
+        assert self.path_to_obj + (self.attr,) == attrpath
+    def find_obj(self, obj):
+        assert obj is not None
+        for attr in self.path_to_obj:
+            obj = getattr(obj, attr)
+        return obj
+    def __get__(self, obj, cls):
+        if obj is None:
+            return self
+        obj = self.find_obj(obj)
+        attr = self.attr
+        return getattr(obj, attr)
+    def __set__(self, obj, val):
+        if obj is None:
+            return
+        obj = self.find_obj(obj)
+        attr = self.attr
+        setattr(obj, attr, val)
+        return
+    pass
+
+class GLPane_overrider(Delegator, GLPane_mixin_for_DisplistChunk, object):
+    # object superclass added for selobj = property(...), unreviewed re Delegator; redundant with mixin, but mixin might be temporary
     """Be a proxy for the GLPane, which replaces some of its methods with our own versions,
     for use only during render_scene.
        Note that this is not a subclass of GLPane,
@@ -18,7 +59,13 @@ class GLPane_overrider(Delegator, object): # object superclass added for selobj 
     But we don't do this change for gets of those attrs for in comments, to reduce unnecessary diffs.
     """
     ### WARNING: much of this code is duplicated with GLPane.py in cad/src.
-    ### sets to fix: if lots, make a property-like thing to delegate an attr to a delegate -- would be generally useful
+    # WARNING 070103: Delegator not only doesn't share state for sets to self.attr, it doesn't copy sets to self.delegate.attr either!
+    # So we really ought to replace all these attrs listed below with delegated_state_attr (at some speed cost for now).
+    # I will do that now, even though a simpler change (glo.resetcache in testdraw.render_scene) worked around the lack of this.
+    # Doing it now might fix a few more bugs... eg after I do it I should retest the highlighting in projection matrix bugs.
+    ##### TEST THAT
+    
+    ### sets I need to fix: if lots, make a property-like thing to delegate an attr to a delegate -- would be generally useful
     ### or make it happen auto? Delegator can't do that, can something else do it?
     # self.selobj - FIXED i.e. sets use self.delegate.selobj
     # self.glselect_dict - ok since modified, never replaced
@@ -47,11 +94,25 @@ class GLPane_overrider(Delegator, object): # object superclass added for selobj 
     # things returned by __getattr__ should be ok
     # things set by begin_tracking_usage -- hopefully ok since only used in this code, not in the code of GLPane called outside of this
 
-    def _get_selobj(self):
-        return self.delegate.selobj
-    def _set_selobj(self, val):
-        self.delegate.selobj = val
-    selobj = property(_get_selobj, _set_selobj) # 061211 -- this fixes highlight-delay bug when overrider is used
+##    def _get_selobj(self):
+##        return self.delegate.selobj
+##    def _set_selobj(self, val):
+##        self.delegate.selobj = val
+##    selobj = property(_get_selobj, _set_selobj) # 061211 -- this fixes highlight-delay bug when overrider is used
+
+##    quat = delegated_state_attr('delegate', 'quat')
+##    pov = delegated_state_attr('delegate', 'pov')
+##    zoomFactor = delegated_state_attr('delegate', 'zoomFactor')
+##    scale = delegated_state_attr('delegate', 'scale')
+
+    # let's just override all those attrs listed above -- see farther above for related comments [070103]. ###e MIGHT NOT BE ENOUGH.
+    # in fact, the glo.resetcache in testdraw is still needed to fix the highlight bugs, even after all these!
+    # so an important one must be missed here. Sometime diff the glpanes to find out (or ditch this entire Overrider kluge).
+    overrides = 'selobj glselect_dict need_setup_lighting wants_gl_update vdist'\
+                'glselect_wanted targetdepth current_glselect wX wY glselect compassPosition'\
+                'near far quat pov zoomFactor scale'
+    for attr in overrides.split():
+        exec( "%s = delegated_state_attr('delegate', '%s')" % (attr, attr) )
     
     def render_scene(self):#bruce 061208 split this out so some modes can override it (also removed obsolete trans_feature experiment)
         
