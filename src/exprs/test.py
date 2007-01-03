@@ -1036,6 +1036,8 @@ testexpr_23a2h = DisplistChunk(testexpr_23a1h) # doesn't crash, and even its hig
     # This may also mean it can work fine for exprs that are shown in fixed places, like widgets in our testbed.
 
 # I suspect it may have another highlighting bug besides coords, namely, in use of a different appearance for highlighting.
+# But it turns out it doesn't. Later: I guess that's because in DisplistChunk(Highlightable(...)), the draw_in_abs_coords
+# is called directly on the inner Highlightable, so the displist is only used when running the usual draw on the whole thing.
 testexpr_23b = testexpr_9c(fakeoption=0) # customize it just to make it nonequal - works
 testexpr_23bh = DisplistChunk(testexpr_9c) # sort of works - top rect works except for coords, bottom rect doesn't work at all,
     # maybe [wrong] since not moused until after trackball, or trackball too far for it??
@@ -1052,11 +1054,13 @@ testexpr_23cd = DisplistChunk(testexpr_10c) # has expected coord ##BUG -- outerm
     # probably a bit faster (smoother rot90) than bare testexpr_10c, tho hard to be sure.
     ###e sometime try improving MT_demo to use DisplistChunk inside -- should not be hard -- but not right now.
 
+    # but I did improve demo_drag inside... testexpr_19d still works, and seems to be faster (hard to be sure)
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = False
 
-testexpr = testexpr_23cd ## testexpr_10c ## testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_19d ## testexpr_10c ## testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables

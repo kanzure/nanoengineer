@@ -307,10 +307,12 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         except perhaps for our own displist's contents, it's ok to return {}. [That's the part of this optim we do.])
         """ # doc revised 070102
         if not self.contents_valid:
-            ###e someday: detect recursive call of this displist -- not sure if this is simple unless it's a direct call
+            # we need to recompile our own displist.
+            if self._debug_print_name:
+                print "%s: compiling our displist(%r)" % (self._debug_print_name, self.displist)
             
             self._direct_sublists_dict = 3 # intentional error if this temporary value is used as a dict
-                # (note: this might detect the error of a recursive direct or indirect call)
+                # (note: this might detect the error of a recursive direct or indirect call -- untested ##k)
             self.__new_sublists_dict = new_sublists_dict = {}
                 # this is added to by draw methods of owners of display lists we call
             mc = self.begin_tracking_usage()

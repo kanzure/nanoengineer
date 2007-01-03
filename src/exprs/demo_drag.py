@@ -49,7 +49,10 @@ import Column
 reload_once(Column)
 from Column import Column, SimpleColumn, SimpleRow # only using SimpleRow
 
-                      
+import DisplistChunk # works 070103, but must be directly wrapped around Highlightable and coords wrong after trackball even then
+reload_once(DisplistChunk)
+from DisplistChunk import DisplistChunk
+
 # ==
 
 Alias = mousepos = Stub
@@ -371,6 +374,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
     # internals
     world = Instance( World() ) # has .nodelist I'm allowed to extend
     _value = Overlay(
+      DisplistChunk( # new feature as of 070103; works, and seems to be faster (hard to be sure)
         Highlightable( background, #######   WAIT A MINUTE,   how can we do that -- background is already an instance?!? ######@@@@@@
                        ## background(color=green),####KLUGE, causes various bugs or weirdnesses... not yet fully understood,
                        ## e.g. AssertionError: compute method asked for on non-Instance <Rect#10415(a)>
@@ -402,7 +406,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                        # - should Overlay take color option and pass it on into leaves (subexprs)? what if some leaves won't take it?
                        #   that has been discussed elsewhere... i forget if dynenv or _optional_options = dict() seemed best.
                        on_press = _self.on_press_bg,
-                       on_drag = _self.on_drag_bg ),
+                       on_drag = _self.on_drag_bg )), # end of Highlightable and DisplistChunk
         world
     )
     _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
