@@ -1017,12 +1017,25 @@ testexpr_22 = DrawInCorner(ChoiceRow(6,2), (1,-1)) # works! (though default opti
 testexpr_23 = DisplistChunk(Rect(1,green)) # might work
 testexpr_23x = DisplistChunk(Rect(1,green), debug_prints = "dlc1") # might work
 
+# try to detect the speedup of trackball or animated rotation. some of these may fail immediately due to highlighting issue.
+# (remember to turn off testbed for speed tests.)
+testexpr_23a1 = TextRect("hjfdfhjksdhfkjafhjksdhfkafdftftytudyufdyufua\n" * 26, max_lines = 100, max_cols = 100) # works
+testexpr_23a2 = DisplistChunk(testexpr_23a1) # works -- *much* faster (as eyeballed using rotate view 90)
+    # WHY does this not fail due to highlighting issue? Maybe TextRect is not natively highlightable. Ah, that must be it.
+testexpr_23a1h = Highlightable(testexpr_23a1) # works
+testexpr_23a2h = DisplistChunk(testexpr_23a1h) # doesn't crash, and even its highlighting sbar msg works! WHY??? ####
+    # At least it does have a bug -- the highlight is drawn in the home position of the main thing, ignoring trackball rot/shift.
+    # Guess: loading the matrix doesn't fail while compiling a displist, it just loads the wrong matrix.
+    # If so (and if indep of opengl driver), I can leave this unfixed until I need highlighting behavior inside one of these.
+    # (It also suggests a kluge fix: load the matrix for real, by disabling displist, once each time the local coords change!
+    #  Some experiments suggest this might work. Hmm. ##### THINK WHETHER THIS COULD WORK -- no, inefficient, needed for all objs.
+    #  Or is it only needed for "candidates found by glselect"?? Hmm.... #####)
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = True
+enable_testbed = False
 
-testexpr = testexpr_23 ## testexpr_10c ## testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_23a2h ## testexpr_10c ## testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
