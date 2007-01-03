@@ -274,6 +274,47 @@ obs stuff
         else:
             self.do_glCallList()
 
+--
 
+the comments in the following now seem resolved, and the code correct, so removing most of them
+
+    def invalidate_contents(self):
+        "[private] called when something changes which might affect the sequence of OpenGL commands that should be compiled into self.displist" 
+        ###e should propogate?? not sure -- this needs to inval the drawing effects of whatever drawing uses us...
+        # but if something draws, does it track anything? what if the glpane itself calls us? this should tell it to gl_update!
+        # but right now it doesn't... we'll need some fix for that! or a toplevel use of one of these for it... or an invalidator arg for this expr...
+        # IN THEORY this means that glpane (or other pixmaps made from draw calls) should subs to total drawing effect,
+        # whereas a dlist compile (calling the very same draw method) should only subs to opengl commands, not their effect!
+        # THIS MAY PROVE THE NEED FOR TRACKING TWO DIFFERENT THINGS IN THE ENV for everything we can call in draw...
+        # or maybe not, since if we use something, how could it know which to affect? it can't.
+        # so only correct way is to switch effects over at the boundaries of compiling a list (smth like what we do)...
+        # but not sure it's correct YET. Guess: it's fine if we change glpane to also notice dlist calls, and change this code to inval it
+        # when a dlist runs in imm mode. This code should do that with a special routine in glpane, called in imm mode draw...
+        # or maybe, easier, by "using a fake lval" then, and changing it when our drawing effects change...
+        # then that lval would relate somehow to the flag we have and the subs to effects of sublist drawing. #####k DOIT - NEED TO FIGURE THIS OUT CLEARLY
+        # ... ok: in general you have to track what you use with what in your env it would effect.
+        # if you emit a calllist, then in imm mode, the total drawing effect of that affects the pixmap you draw onto and the other gl state...
+        # but in compiling mode, only the opengl commands affect the gl state, but the other stuff they do has to be tracked in some other way
+        # with the list owner. So we're assuming that the only opengl commands we do that have effects dependent on other gl state or other list contents
+        # are the calllists, even though in general this might be false. But assuming that, all we need to do is "track different usage in those cases"
+        # in self.draw. ###DOIT
+        ## printnim("propogate inval from invalidate_contents") # but maybe the only one to really propogate is for our total drawing effects...
+        if self.contents_valid:
+            self.contents_valid = False
+            self.invalidate_drawing_effects() #k I THINK this is all the propogation we need to do. NEED TO REVISE ABOVE COMMENT if so.
+        else:
+            # this clause would not be needed except for fear of bugs; it detects/complains/works around certain bugs.
+            if self.drawing_effects_valid:
+                print "bug: self.drawing_effects_valid when not self.contents_valid. Error, but invalidate_drawing_effects anyway."
+                self.invalidate_drawing_effects()
+            pass
+        return
+
+==
+
+        # old cmt: prob wrong name [of method -- draw], see above
+
+too obvious:
+                    # (note: we pass self == self.displist owner, not self.displist)
 
 
