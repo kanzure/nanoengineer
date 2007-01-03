@@ -5,14 +5,21 @@ $Id$
 
 061231 prototyped this code in NewInval.py
 
-070102 moved it here 1-2 days ago, and revised it to seem correct (though not yet tried)
-  
-Still needed: include texture/image contents in the same scheme -- analogous to displist contents.
-Requires giving them compatible owner objects and treating those like we treat the ones for directly called display lists,
-aka sublists.
+070102 moved it here 1-2 days ago, and revised it to seem correct; imports/reloads ok, but otherwise untested #####
+
+Still needed:
+- mixin to be renamed and put into GLPane
+- some other renamings, as commented
+- GL imports
+- provisions for highlighting, or at least disablement to avoid gl errors
+- include texture/image contents in the same scheme -- analogous to displist contents.
+  Requires giving them compatible owner objects and treating those like we treat the ones
+  for directly called display lists, aka sublists.
 """
 
 from basic import *
+
+from OpenGL.GL import glNewList, glEndList, glCallList, GL_COMPILE, GL_COMPILE_AND_EXECUTE
 
 from changes import SelfUsageTrackingMixin # defines track_use, track_inval; maintains a private __subslist on self
 from changes import SubUsageTrackingMixin # defines begin_tracking_usage, end_tracking_usage; doesn't use self
@@ -220,7 +227,10 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
             # need this (their own capturing of inval flag, one for opengl and one for total effect,
             # and their own pair of usage lists too, one of called lists which can be scanned)??
 
-    track_use_of_drawing_effects = track_use # this is semipublic; track_use itself (defined in SelfUsageTrackingMixin) is private
+    # this doesn't work due to quirks of Python:
+    ## track_use_of_drawing_effects = track_use # this is semipublic; track_use itself (defined in SelfUsageTrackingMixin) is private
+    # so rather than slow it down by a def,
+    # I'll just rename the calls track_use but comment them as really track_use_of_drawing_effects
 
     def _your_drawing_effects_are_valid(self): ##e should inline as optim
         "[private]"
@@ -274,7 +284,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
             mc2 = self.begin_tracking_usage() # this tracks how our drawing effects depend on those of the sublists we call
             try:
                 for sublist in self._direct_sublists_dict.itervalues():
-                    sublist.track_use_of_drawing_effects() # (note: that's tracked into the global env, as always for track_use)
+                    sublist.track_use() # really track_use_of_drawing_effects (note: that's tracked into the global env, as always for track_use)
             finally:
                 self.end_tracking_usage( mc2, self.invalidate_drawing_effects )
                     # this subscribes invalidate_drawing_effects to inval of total effects of all sublists

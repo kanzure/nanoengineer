@@ -139,6 +139,9 @@ import ModelNode # as of 061215 450p this import fails (no consistent MRO) but c
 reload_once(ModelNode)
 from ModelNode import Sphere_ExampleModelNode ###stub or wrong, not yet used [061215]
 
+import DisplistChunk # 070102; imports/reloads ok, but otherwise untested #####
+reload_once(DisplistChunk)
+from DisplistChunk import DisplistChunk
 
 # == @@@
 
