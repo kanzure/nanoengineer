@@ -138,7 +138,17 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
     delegate = Arg(Widget)
     
     # options
-    # (none for now, but some might be added later)
+    debug_prints = ArgOrOption(str, None) # flag to do debug prints, and (unless a boolean) name for doing them
+
+    def _C__debug_print_name(self): # compute self._debug_print_name
+        "return False (meaning don't do debug prints), or a name string to prefix them with"
+        # use this to say when we emit a calllist (and if so, immediate or into what other displist), and/or recompile our list
+        #e and use in repr
+        if self.debug_prints:
+            if self.debug_prints == True:
+                return "%r" % self
+            return str(self.debug_prints)
+        return False
     
     def _init_instance(self):
         self._key = id(self) # set attribute to use as dict key (could probably use display list name, but it's not allocated yet)
@@ -157,8 +167,23 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         # make sure it's a nonzero int or long
         assert type(displist) in (type(1), type(1L))
         assert displist, "error: allocated displist was zero"
+        if self._debug_print_name:
+            print "%s: allocated display list name %r" % (self._debug_print_name, displist)
         return displist
 
+    def __repr__(self):
+        try:
+            if not self._e_is_instance:
+                return super(DisplistChunk,self).__repr__()
+            _debug_print_name = self._debug_print_name # only legal on an instance
+        except:
+            print "exception in self._debug_print_name discarded" #e print more, at least id(self), maybe traceback, if this happens
+            # (but don't print self or you might infrecur!!)
+            return "<%s at %#x>" % (self.__class__.__name__, id(self))
+        else:
+            return "<%s(%s) at %#x>" % (self.__class__.__name__, _debug_print_name or "<no name>", id(self))
+        pass
+    
     def draw(self):
         """Basically, we draw by emitting glCallList, whether our caller is currently
         compiling another display list or executing OpenGL in immediate mode.
@@ -192,7 +217,9 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         for cycles to exist transiently in display list contents without an error, if this only happens when
         some but not all display lists have been updated after a change. This needs no noticing or handling in the code.)
         """ # docstring revised 070102.
-
+        
+        _debug_print_name = self._debug_print_name
+        
         if debug_pref("disable DisplistChunk?", Choice_boolean_False):
             self.delegate.draw()
             # I hope it's ok that this has no explicit effect on usage tracking or inval propogation... I think so.
@@ -214,23 +241,33 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
             #  when we might have become invalid. If we ever have a concept of
             #  our content and/or drawing effects being "finalized", we can optim
             #  in that case, by reducing what we report here.)
+            if _debug_print_name:
+                print "%s: compiling glCallList into parent list %r" % (_debug_print_name, parent_dlist)
+
             parent_dlist.__you_called_dlist( self) #e optim: inline this
                 # (note: this will also make sure the alg recompiles us and whatever lists we turn out to call,
                 #  before calling any list that calls us, if our drawing effects are not valid now.)
+            
         elif self.glpane.compiling_displist:
             print "warning: compiling dlist %r with no owner" % self.glpane.compiling_displist
             #e If this ever happens, decide then whether anything but glCallList is needed.
             # (Can it happen when compiling a "fixed display list"? Not likely if we define that using a widget expr.)
+            
         else:
             # immediate mode -- do all needed recompiles before emitting the glCallList,
             # and make sure glpane will be updated if anything used by our total drawing effect changes.
-            self.glpane.ensure_dlist_ready_to_call( self)
+            if _debug_print_name:
+                print "%s: prepare to emit glCallList in immediate mode" % (_debug_print_name, )
+            
+            self.glpane.ensure_dlist_ready_to_call( self) # (this might print "compiling glCallList" for sublists)
                 # note: does transclose starting with self, calls _recompile_if_needed_and_return_sublists_dict
             self.track_use() # defined in SelfUsageTrackingMixin; compare to class Lval
                 # This makes sure the GLPane itself (or whatever GL context we're drawing into, if it has proper usage tracking)
                 # knows it needs to redraw if our drawing effects change.
                 # Note: this draw method only does track_use in immediate mode (since it would be wrong otherwise),
                 # but when compiling displists, it can be done by the external recursive algorithm via track_use_of_drawing_effects.
+        if _debug_print_name:
+            print "%s: emit glCallList(%r)" % (_debug_print_name, self.displist)
         self.do_glCallList() #e optim: inline this
         return # from draw
 

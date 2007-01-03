@@ -1014,7 +1014,8 @@ testexpr_22 = DrawInCorner(ChoiceRow(6,2), (1,-1)) # works! (though default opti
 
 # ==
 
-testexpr_23 = DisplistChunk(Rect(1,green))
+testexpr_23 = DisplistChunk(Rect(1,green)) # might work
+testexpr_23x = DisplistChunk(Rect(1,green), debug_prints = "dlc1") # might work
 
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
