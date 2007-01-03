@@ -48,6 +48,10 @@ import staterefs
 reload_once(staterefs)
 from staterefs import PrefsKey_StateRef
 
+import DisplistChunk # works 070103, but must be directly wrapped around Highlightable and coords wrong after trackball even then
+reload_once(DisplistChunk)
+from DisplistChunk import DisplistChunk
+
 If = If_kluge # until debugged
 
 # stub types
@@ -285,7 +289,8 @@ def checkbox_pref_OLDER(prefs_key, label, dflt = False): # renamed 061215 late, 
     # note: adding CenterY also (probably coincidentally) improved the pixel-alignment (on g5 at least), so the label is no longer fuzzy.
     # [see also testexpr_16c, similar to this]
 
-class checkbox_pref(InstanceMacro): #061215 improved version, replacing older one -- highlight and accept press on label too #e rename?
+class checkbox_pref_NO_DISPLIST(InstanceMacro): #061215 improved version, replacing older one -- highlight and accept press on label too #e rename?
+    # WARNING: this code is duplicated below.
     prefs_key = Arg(str)
     label = Arg(Anything) # string or Widget2D
     dflt = ArgOrOption(bool, False)
@@ -306,6 +311,26 @@ class checkbox_pref(InstanceMacro): #061215 improved version, replacing older on
     _value = Highlightable( SimpleRow( CenterY(checkbox), CenterY(use_label)), # align = CenterY is nim
                             on_press = Set(stateref.value, not_Expr(var) ),
                             sbar_text = use_sbar_text)
+    pass
+
+class checkbox_pref(InstanceMacro):
+    # WARNING (code dup): same as checkbox_pref_NO_DISPLIST except for DisplistChunk in _value --
+    # works & faster, so using it as standard, 070103 248p.
+    prefs_key = Arg(str)
+    label = Arg(Anything) # string or Widget2D
+    dflt = ArgOrOption(bool, False)
+    sbar_text = Option(str, '')
+    use_label = If( call_Expr(lambda label: type(label) == type(""), label), TextRect(label,1,20), label )
+    use_sbar_text = or_Expr( sbar_text, If( call_Expr(lambda label: type(label) == type(""), label), label, "" ))
+    stateref = Instance(PrefsKey_StateRef(prefs_key, dflt))
+    var = stateref.value
+    checkbox = If( var,
+            checkbox_image('mac_checkbox_on.jpg'),
+            checkbox_image('mac_checkbox_off.jpg'),
+        )
+    _value = DisplistChunk( Highlightable( SimpleRow( CenterY(checkbox), CenterY(use_label)), # align = CenterY is nim
+                            on_press = Set(stateref.value, not_Expr(var) ),
+                            sbar_text = use_sbar_text) )
     pass
 
 """

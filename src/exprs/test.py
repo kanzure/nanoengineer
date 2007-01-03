@@ -129,7 +129,7 @@ import ModelNode # as of 061215 450p this import fails (no consistent MRO) but c
 reload_once(ModelNode)
 from ModelNode import Sphere_ExampleModelNode ###stub or wrong, not yet used [061215]
 
-import DisplistChunk # 070102; imports/reloads ok, but otherwise untested #####
+import DisplistChunk # works 070103, but must be directly wrapped around Highlightable and coords wrong after trackball even then
 reload_once(DisplistChunk)
 from DisplistChunk import DisplistChunk
 
@@ -1012,7 +1012,7 @@ testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p]
 testexpr_22 = DrawInCorner(ChoiceRow(6,2), (1,-1)) # works! (though default options are far from perfect)
     # see also kluge_dragtool_state_prefs_default and _19*
 
-# ==
+# == test DisplistChunk
 
 testexpr_23 = DisplistChunk(Rect(1,green)) # might work
 testexpr_23x = DisplistChunk(Rect(1,green), debug_prints = "dlc1") # might work
@@ -1030,12 +1030,25 @@ testexpr_23a2h = DisplistChunk(testexpr_23a1h) # doesn't crash, and even its hig
     # (It also suggests a kluge fix: load the matrix for real, by disabling displist, once each time the local coords change!
     #  Some experiments suggest this might work. Hmm. ##### THINK WHETHER THIS COULD WORK -- no, inefficient, needed for all objs.
     #  Or is it only needed for "candidates found by glselect"?? Hmm.... #####)
+    # This may also mean it can work fine for exprs that are shown in fixed places, like widgets in our testbed.
 
+# I suspect it may have another highlighting bug besides coords, namely, in use of a different appearance for highlighting.
+testexpr_23b = testexpr_9c(fakeoption=0) # customize it just to make it nonequal - works
+testexpr_23bh = DisplistChunk(testexpr_9c) # sort of works - top rect works except for coords, bottom rect doesn't work at all,
+    # maybe [wrong] since not moused until after trackball, or trackball too far for it??
+    # or [right i think] since not drawn at origin?
+    # if the latter, it probably breaks the hopes of making this work trivially for testbed widgets.
+# ... maybe it would turn out differently if the DisplistChunk was embedded deeper inside them:
+testexpr_23bh2 = SimpleColumn( DisplistChunk(testexpr_9a), DisplistChunk(testexpr_9b)) # works.
+
+# so I put it in checkbox_pref, and this sped up the testbed expr with 5 of them, so I adopted it in there as standard.
+###e retest demo_drag re that...
+                              
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = False
+enable_testbed = True
 
-testexpr = testexpr_23a2h ## testexpr_10c ## testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_19d ## testexpr_10c ## testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
@@ -1059,7 +1072,7 @@ testexpr = testexpr_23a2h ## testexpr_10c ## testexpr_9c ## testexpr_19d ## test
     ## testexpr_20 four DrawInCorners (works but highlighting is slow)
     ## testexpr_21e table of alignment testers; _21g same in class form
     ## testexpr_22 ChoiceRow (in corner)
-    ## testexpr_23 DisplistChunk (doesn't crash but not well tested) #####
+    ## testexpr_23bh2 DisplistChunk
 
     # works: _11i, k, l_asfails, m; doesn't work: _11j, _11n  ## stable: testexpr_11k, testexpr_11q11a [g4],
     # testexpr_11ncy2 [stopsign], testexpr_11q5cx2_g5_bigbad [paul notebook, g5, huge non2pow size] testexpr_14 [hide_icons]
