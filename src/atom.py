@@ -361,7 +361,7 @@ if __name__ == '__main__':
         # to enable profiling into that file
         atom_debug_profile_filename 
         if atom_debug_profile_filename:
-            print "user's .atom_debug_rc requests profiling into file %r" % (atom_debug_profile_filename,)
+            print "user's .atom-debug-rc requests profiling into file %r" % (atom_debug_profile_filename,)
             if not type(atom_debug_profile_filename) in [type("x"), type(u"x")]:
                 print "error: atom_debug_profile_filename must be a string; running without profiling"
                 assert 0 # caught and ignored, turns off profiling
