@@ -194,6 +194,8 @@ def leftDown(mode, event, glpane, super): # called from testmode.leftDown, just 
 USE_OVERRIDER = env.prefs.get("A9 devel/testdraw/use GLPane_Overrider?", True)
 print "reloading testdraw.py, %susing overrider" % ((not USE_OVERRIDER) and 'NOT ' or '')
 
+_glpane_replacements = {} #kluge 070103
+
 def render_scene(mode, glpane): # called by testmode.render_scene # 061208
     # to do what would make no difference: glpane.render_scene()
     USE_OVERRIDER = env.prefs.get("A9 devel/testdraw/use GLPane_Overrider?", True)
@@ -206,14 +208,57 @@ def render_scene(mode, glpane): # called by testmode.render_scene # 061208
     from exprs import GLPane_overrider
     basic.reload_once(GLPane_overrider)
     from exprs.GLPane_overrider import GLPane_overrider # or let exprs/test.py do this work
+
+    tryit = debug_pref("GLPane_Overrider: cache and reuse?", Choice_boolean_True) # new, 070103
+    use_resetcache = debug_pref("GLPane_Overrider: resetcache each Draw?", Choice_boolean_True)
+        # change to False if that has no bugs?? nah, this is safer -- for now, be slower and safer even if it hides a few bugs,
+        # since after all, the bugs being hidden are in a temporary kluge, namely the use of the overrider in the first place.
+        # Anyway, False does have bugs! Without this, highlighting doesn't work (with other prefs their defaults). 070103 1239p
     
-    glo = GLPane_overrider(glpane) # THIS MIGHT FAIL since it stores some attrs inside itself --
-        # but it might work since i'm not sure it needs them between calls... seems to work in testexpr_19c.
+    try:
+        # many exceptions here are not errors and can happen routinely
+        assert tryit, "not an error"
+        # look for a cached GLPane_overrider we want to reuse (current reuse cond, below, is not the ideal one ##e)
+        glo = glpane._testdraw__cached_GLPane_overrider
+        assert glpane._testdraw__cached_GLPane_overrider_reload_counter == vv.reload_counter, "reload counter differs (not an error)"
+        ##print "using old glo"
+        if use_resetcache:
+            glo.resetcache() # SEE IF THIS WORKS AROUND MY NEW BUGS -- it does. 070103 1215p
+          # STILL NEEDED even after GLPane_overrider improved delegation of lots of attrs using delegated_state_attr! See comments there.
+    except:
+        # make a new one; note: this will usually force exprs.test to make a new main instance, since it compares glpanes
+        ##print_compact_traceback("remaking glo: not an error: ")       
+        glo = GLPane_overrider(glpane)
+        # store it to use again, until the next reload [kluge 070103]
+        glpane._testdraw__cached_GLPane_overrider = glo
+        glpane._testdraw__cached_GLPane_overrider_reload_counter = vv.reload_counter
+        
+    if debug_pref("GLPane_Overrider: pass to Draw?", Choice_boolean_True): # new, 070103, should be True except for debugging
+        #KLUGE 070103: need to also pass glo as glpane to drawtest1_innards, but not sure how to get it there better than like this:
+        global _glpane_replacements
+        _glpane_replacements = {glpane:glo}
+    else:
+        global _glpane_replacements
+        _glpane_replacements = {}
+    
     # print "calling glo.render_scene" - works
     glo.render_scene()
     return
     
 def Draw(mode, glpane, super): # called by testmode.Draw
+
+    if 1:
+        #KLUGE 070103
+        global _glpane_replacements
+        try:
+            _rep = _glpane_replacements[glpane]
+            ## print "fyi: replaced glpane %r with %r" % (glpane, _rep)  # works
+            glpane = _rep
+        except KeyError:
+            ##print "fyi: did not replace glpane %r [### remove when seen (if legit)]" % (glpane,)### remove when seen (if legit)
+            pass
+        pass
+    
     init_glpane_vars(glpane)
     vv.counter += 1
 
