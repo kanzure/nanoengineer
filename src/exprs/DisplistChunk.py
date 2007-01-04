@@ -3,18 +3,42 @@ DisplistChunk.py
 
 $Id$
 
+history:
+
 061231 prototyped this code in NewInval.py
 
-070102 moved it here 1-2 days ago, and revised it to seem correct; imports/reloads ok, but otherwise untested #####
+070102 moved it here 1-2 days ago, and revised it to seem correct; imports/reloads ok, but otherwise untested
+
+070103 works, with important caveats re Highlightable (described below)
+
+==
 
 Still needed:
-- mixin to be renamed and put into GLPane
-- some other renamings, as commented
-- GL imports
-- provisions for highlighting, or at least disablement to avoid gl errors
+- maybe: some renamings, as commented
+- provisions for highlighting (see just below in this docstring)
 - include texture/image contents in the same scheme -- analogous to displist contents.
   Requires giving them compatible owner objects and treating those like we treat the ones
   for directly called display lists, aka sublists.
+
+==
+
+caveats re Highlightable [as of 070103]:
+
+a Highlightable inside a DisplistChunk only works properly (without highlight-position errors)
+if no coord transform occurs from the DisplistChunk to the Highlightable,
+and no trackballing or other motion of whole thing from the last time the instance was made.
+
+Theory: the gl matrix is saved only once and only as it was when the displist was compiled.
+Note, the rules would be even weirder (I predict) if nested display lists were involved --
+then we'd need no transforms in any of them, re their calls of the next, for current code to work.
+
+The best fix is the one planned on paper a few weeks ago -- have ExprsMeta decorate draw methods
+with something that can call only the needed ones in a special scan for implementing draw_in_abs_coords.
+(Idea now: the tree whose paths from root need to be marked, to implem that, is the tree of original
+calls of draw methods. This was supposed to equal the ipath-suffix tree. Hopefully it does. If not,
+the decorated draw methods themselves could generate ipath-like things for this purpose -- or really,
+just pointers to the draw-method-owning parents in each one, to be stored in the objects with the draw methods.)
+
 """
 
 from basic import *
@@ -288,9 +312,31 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
     def _your_drawing_effects_are_valid(self): ##e should inline as optim
         "[private]"
         assert self.contents_valid
+            # this failed with the exception shown in long string below, when I used clear "button" (070103 kluge) on one node...
+            # theory: the nodelist change (by clear button run inside draw method, which is illegal -- that's the kluge)
+            # invalidated it right when it was being recompiled (or just after, but before the overall recomp alg sent this call).
+            # So that kluge has to go,
+            # and the underlying error of changing an input to an ongoing recompute has to be better detected. ####e
         self.drawing_effects_valid = True
         return
-    
+
+# the exception mentioned above: 
+    '''
+atom_debug: fyi: <OneTimeSubsList(<LvalForState(<World#16291(i)>|transient.nodelist|('world', (0, (0, 'NullIpath')))) at 0x101a7b98>) at 0x10583850>'s 
+event already occurred, fulfilling new subs 
+<bound method usage_tracker_obj.standard_inval of <usage_tracker_obj(<DisplistChunk(<no name>) at 0x111b7670>) at 0x112086e8>> immediately: 
+
+[atom.py:414] [GLPane.py:1847] [GLPane.py:1884] [testmode.py:67] [testdraw.py:251] [GLPane_overrider.py:127]
+[GLPane_overrider.py:138] [GLPane_overrider.py:298] [testmode.py:75] [testdraw.py:275] [testdraw.py:385]
+[testdraw.py:350] [testdraw.py:384] [testdraw.py:530] [test.py:1231] [Overlay.py:57] [Overlay.py:57]
+[Overlay.py:57] [DisplistChunk.py:286] [DisplistChunk.py:124] [state_utils.py:156] [DisplistChunk.py:116]
+[DisplistChunk.py:358] [changes.py:352] [changes.py:421] [changes.py:72]
+
+exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
+
+[testdraw.py:350] [testdraw.py:384] [testdraw.py:530] [test.py:1231] [Overlay.py:57] [Overlay.py:57]
+[Overlay.py:57] [DisplistChunk.py:286] [DisplistChunk.py:127] [DisplistChunk.py:314]
+'''
     def __you_called_dlist(self, dlist):
         "[private]"
         self.__new_sublists_dict[ dlist._key ] = dlist

@@ -49,7 +49,7 @@ import Column
 reload_once(Column)
 from Column import Column, SimpleColumn, SimpleRow # only using SimpleRow
 
-import DisplistChunk # works 070103, but must be directly wrapped around Highlightable and coords wrong after trackball even then
+import DisplistChunk # works 070103, with important caveats re Highlightable
 reload_once(DisplistChunk)
 from DisplistChunk import DisplistChunk
 
@@ -90,7 +90,7 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     delegate = Highlightable( Translate( lookslike, pos ),
                               ## eval_Expr( call_Expr(lookslike.copy,)( color = yellow) ),  #####?? weird exc don't know why - reload?
                               ## AssertionError: _this failed to find referent for '_this_Vertex'
-                              on_drag = _self.on_drag # 070103 kluge experiment, untested, try it in _19d
+                              on_drag = _self.on_drag # 070103 kluge experiment, works (eg in _19d)
 
                               )
                 #e actions? or do this in a per-tool wrapper which knows the actions?
@@ -319,7 +319,8 @@ class MakeANode(ClickDragCommand): #k super?
 # so we need a world object whose state contains a list of Vertex objects. And a non-stub Vertex object (see above I hope).
 
 class World(ModelObject):
-    nodelist = State(list_Expr, []) ###k ?? # self.nodelist is public for append (can that be changetracked???#####IMPLEM) or reset
+    nodelist = State(list_Expr, []) # self.nodelist is public for set (self.nodelist = newval), but not for append or other mods
+        # since not changetracked -- can it be?###@@@
     def draw(self):
         # clear the state? (kluge that we do this here at all or do it this way w/ a checkbox_pref; 070103 late hack)
         # (seems to work fine except for the "event already occurred" warning every time I clear some nodes;
@@ -334,7 +335,7 @@ class World(ModelObject):
             return
         # draw all the nodes
         # [optim idea 070103 late: have caller put this in a DisplistChunk; will it actually work?
-        #  the hope is, yes for animating rotation, with proper inval when nodelist changes. It ought to work! Try it. ####e]
+        #  the hope is, yes for animating rotation, with proper inval when nodelist changes. It ought to work! Try it. It works!]
         for node in self.nodelist:
             # print "%r is drawing %r at %r" % (self, node, node.pos) # suspicious: all have same pos ... didn't stay true, nevermind
             node.draw() # this assumes the items in the list track their own posns, which might not make perfect sense;
@@ -442,8 +443,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                        on_press = _self.on_press_bg,
                        on_drag = _self.on_drag_bg )), # end of Highlightable and DisplistChunk
       DisplistChunk( world) ##, debug_prints = "World")
-          # try DisplistChunk, 070103 later -- predict it will break dragging of old nodes due to nested glnames;
-          # IT DOESN'T -- WHY NOT?!? Oh, duh, because only Highlighting pushes a glname, not DisplistChunk.
+          # try DisplistChunk, 070103 later -- works, doesn't break dragging of contained old nodes.
     )
     _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
 

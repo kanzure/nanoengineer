@@ -17,7 +17,7 @@ from DisplistChunk import GLPane_mixin_for_DisplistChunk
 
 # ==
 
-class delegated_state_attr(object): ###e refile [070103] [testing: get is proven sinxw fixed home view bug; set is untested, had error]
+class delegated_state_attr(object): ###e refile [070103]
     """A descriptor (like a property) which delegates get and set of an attr into another object found at a specified attrpath.
     For example, to delegate self.quat to self.delegate.quat (for get and set), use
       quat = delegated_state_attr('delegate', 'quat')
@@ -94,20 +94,9 @@ class GLPane_overrider(Delegator, GLPane_mixin_for_DisplistChunk, object):
     # things returned by __getattr__ should be ok
     # things set by begin_tracking_usage -- hopefully ok since only used in this code, not in the code of GLPane called outside of this
 
-##    def _get_selobj(self):
-##        return self.delegate.selobj
-##    def _set_selobj(self, val):
-##        self.delegate.selobj = val
-##    selobj = property(_get_selobj, _set_selobj) # 061211 -- this fixes highlight-delay bug when overrider is used
-
-##    quat = delegated_state_attr('delegate', 'quat')
-##    pov = delegated_state_attr('delegate', 'pov')
-##    zoomFactor = delegated_state_attr('delegate', 'zoomFactor')
-##    scale = delegated_state_attr('delegate', 'scale')
-
-    # let's just override all those attrs listed above -- see farther above for related comments [070103]. ###e MIGHT NOT BE ENOUGH.
-    # in fact, the glo.resetcache in testdraw is still needed to fix the highlight bugs, even after all these!
-    # so an important one must be missed here. Sometime diff the glpanes to find out (or ditch this entire Overrider kluge).
+    # let's just override all those attrs listed above -- see farther above for related comments [070103]. ### WARNING: NOT ENOUGH.
+    # In fact, the glo.resetcache in testdraw is still needed to fix the highlight bugs, even after all these!
+    # So an important one must be missed here. Sometime diff the glpanes to find out (or ditch this entire Overrider kluge).
     overrides = 'selobj glselect_dict need_setup_lighting wants_gl_update vdist'\
                 'glselect_wanted targetdepth current_glselect wX wY glselect compassPosition'\
                 'near far quat pov zoomFactor scale'\

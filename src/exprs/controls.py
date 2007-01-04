@@ -48,7 +48,7 @@ import staterefs
 reload_once(staterefs)
 from staterefs import PrefsKey_StateRef
 
-import DisplistChunk # works 070103, but must be directly wrapped around Highlightable and coords wrong after trackball even then
+import DisplistChunk # works 070103, with important caveats re Highlightable
 reload_once(DisplistChunk)
 from DisplistChunk import DisplistChunk
 

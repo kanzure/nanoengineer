@@ -129,7 +129,7 @@ import ModelNode # as of 061215 450p this import fails (no consistent MRO) but c
 reload_once(ModelNode)
 from ModelNode import Sphere_ExampleModelNode ###stub or wrong, not yet used [061215]
 
-import DisplistChunk # works 070103, but must be directly wrapped around Highlightable and coords wrong after trackball even then
+import DisplistChunk # works 070103, with important caveats re Highlightable (see module docstring)
 reload_once(DisplistChunk)
 from DisplistChunk import DisplistChunk
 
@@ -1203,7 +1203,8 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 def drawtest1_innards(glpane):
     "entry point from ../testdraw.py (called once per mode.Draw call)"
-    ## print "got glpane = %r" % (glpane,) # this was not the GLPAne_overrider proxy until bugfix in testdraw labelled "KLUGE 070103"
+    ## print "got glpane = %r" % (glpane,)
+        # Note: this was not the GLPane_overrider proxy until bugfix in testdraw labelled "KLUGE 070103"
 
     mode = glpane.mode # assume this is always testmode
     _setup_UNKNOWN_SELOBJ(mode) #061218 kluge (multiple places, some in cad/src);
