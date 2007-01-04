@@ -321,6 +321,15 @@ class MakeANode(ClickDragCommand): #k super?
 class World(ModelObject):
     nodelist = State(list_Expr, []) ###k ?? # self.nodelist is public for append (can that be changetracked???#####IMPLEM) or reset
     def draw(self):
+        # clear the state? (kluge that we do this here at all or do it this way w/ a checkbox_pref; 070103 late hack)
+        # (seems to work fine except for the "event already occurred" warning every time I clear some nodes)
+        import env
+        clearbuttondown = env.prefs.get(kluge_dragtool_state_prefs_key + "cb ", False)
+        if clearbuttondown:
+            if self.nodelist:
+                self.nodelist = []
+            return
+        # draw all the nodes
         for node in self.nodelist:
             # print "%r is drawing %r at %r" % (self, node, node.pos) # suspicious: all have same pos ... didn't stay true, nevermind
             node.draw() # this assumes the items in the list track their own posns, which might not make perfect sense;
@@ -635,6 +644,7 @@ kluge_dragtool_state() # set the default val
 kluge_dragtool_state_checkbox_expr = SimpleColumn( # note, on 061215 late, checkbox_pref was replaced with a better version, same name
     checkbox_pref(kluge_dragtool_state_prefs_key,         "drag new nodes?", dflt = kluge_dragtool_state_prefs_default),
     checkbox_pref(kluge_dragtool_state_prefs_key + "bla", "some other pref"),
+    checkbox_pref(kluge_dragtool_state_prefs_key + "cb ", "button: clear"),
  )    
 
 # end
