@@ -87,7 +87,12 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     # and only one gets saved in file, and only one self.attr name is used up and accessible
     lookslike = ArgOrOption(Anything) # OrOption is so it's customizable
     ## delegate = _self.lookslike #k
-    delegate = Highlightable( Translate( lookslike, pos ) )
+    delegate = Highlightable( Translate( lookslike, pos ),
+                              ## eval_Expr( call_Expr(lookslike.copy,)( color = yellow) ),  #####?? weird exc don't know why - reload?
+                              ## AssertionError: _this failed to find referent for '_this_Vertex'
+                              on_drag = _self.on_drag # 070103 kluge experiment, untested, try it in _19d
+
+                              )
                 #e actions? or do this in a per-tool wrapper which knows the actions?
                 # or, do this here and make the actions delegate to the current tool for the current parent? guess: the latter.
                 
@@ -95,7 +100,22 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
         # Guess: it's for everything -- looks, sim qualities, etc -- except what we override or grab from special members.
         # [if so, no need to rename, except to clarify, leaving it general.]
     #e might need something for how to save it in a file, Undo policy, etc
-    pass
+
+    def on_drag(self): # 070103 kluge experiment, copied/modified from on_drag_bg in bigger class below
+
+        # where i am 070103 447p (one of two places with that comment)
+        # - sort of sometimes works, but posns are sometimes same as bg, not sure why that DZ would be needed,
+        # oh i guess the mousepos comes from the gray bg rect not the self unless we drag very slow...
+        
+        point = self.current_event_mousepoint() ### MIGHT BE WRONG COORDS? guess: no
+         #k guess: will have snap-to-fixed-point bug for generic drag code
+        newpos = point + DZ * PIXELS * 2 # used for different things, depending #### DZ needed but might cause trouble too
+        self.pos = newpos
+        ## print "in-node action set %r.pos = %r" % (self, newpos) # sometimes works
+        self.env.glpane.gl_update() #k needed?
+        return
+
+    pass # end of class Vertex
 
 # ==
 
@@ -505,17 +525,18 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
     
     def on_drag_node(self):
         print "on_drag_node called -- how can we know *which* node it was called on??"
+        # 070103 status guess: this is not called; old cmts above seem to say that the only problem with it working is nested glnames. 
         return
     
     def on_drag_bg(self):
         # note: so far, anyway, called only for drag after click on empty space, not from drag after click on existing node
         point = self.current_event_mousepoint()
         lastnode = self.newnode # btw nothing clears this on mouseup, so in theory it could be left from a prior drag
-        try:
-            lastipath = lastnode.ipath[0]
-        except:
-            lastipath = -1
-        # print "on_drag_bg %d" % lastipath, point###  # this shows no error in retaining correct lastnode -- that's not the bug
+##        try:
+##            lastipath = lastnode.ipath[0]
+##        except:
+##            lastipath = -1
+##        # print "on_drag_bg %d" % lastipath, point###  # this shows no error in retaining correct lastnode -- that's not the bug
         newpos = point + DZ * PIXELS * 2 # used for different things, depending
         
         what = kluge_dragtool_state() ###IMPLEM better
