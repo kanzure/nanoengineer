@@ -102,7 +102,8 @@ from images import Image, IconImage, PixelGrabber
 
 import controls
 reload_once(controls)
-from controls import ChoiceButton, ChoiceColumn, ChoiceRow, checkbox_v3, checkbox_pref  #e rename some of these?
+from controls import ChoiceButton, ChoiceColumn, ChoiceRow, checkbox_v3, checkbox_pref, ActionButton, PrintAction
+    #e rename some of these?
 
 import staterefs
 reload_once(staterefs)
@@ -1070,14 +1071,20 @@ testexpr_24b = resizablyBoxed(Boxed(Rect(1))) # works with action being incrs of
   # now modifying _19d to let me drag existing nodes... sort of working, see comments there...
   # will use this in _24b or so to let me define corner resizers -- as long as their local coords are right, they
   # are just like any other draggable things in local coords. that is where i am 070103 447p (one of two places with that comment)
-  
+
+# == ActionButton
+
+testexpr_25 = ActionButton( PrintAction("pressed me"), "test button")
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True
 
-testexpr = testexpr_19d ## testexpr_24b
+testexpr = testexpr_25
+    ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
-    ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+    ## testexpr_19d
+    ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables

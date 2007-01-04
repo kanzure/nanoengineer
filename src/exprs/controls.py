@@ -34,7 +34,7 @@ from TextRect import TextRect
 
 import Highlightable
 reload_once(Highlightable)
-from Highlightable import Highlightable
+from Highlightable import Highlightable, print_Expr
 
 import Overlay
 reload_once(Overlay)
@@ -333,6 +333,37 @@ class checkbox_pref(InstanceMacro):
                             sbar_text = use_sbar_text) )
     pass
 
+class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
+    "ActionButton(command, text) is something the user can press to run command, which looks like a button."
+    # args/options
+    command = Arg(Action) #e default which prints?
+    text = Arg(str, "<do it>") #e default text should be extracted from the command somehow
+    button = Arg(Widget2D, Rect(15.*PIXELS)) # can it be left out so only text label is used? ideally we'd have text with special border...
+    # formulae
+    use_label = TextRect(text,1,20)###e revise
+    plain_button = CenterY(button)
+    highlighted_button = Boxed( plain_button,
+                        bordercolor = blue, # should color adapt to bg? is it a bad idea to put this over bg rather than over button?
+                        borderthickness = 1.5 * PIXELS,
+                        gap = 1 * PIXELS, ) ###k ????   -- note, this doesn't include the label -- ok?
+    plain =       DisplistChunk( SimpleRow( plain_button,       CenterY(use_label))) # align = CenterY is nim
+    highlighted = DisplistChunk( SimpleRow( highlighted_button, CenterY(use_label), pixelgap = 0.5)) ###k ok to wrap with DisplistChunk???
+        ### KLUGE: without the pixelgap adjustment,
+        # the label moves to the right when highlighted, due to the Boxed being used to position it in the row.
+        ### BUG: CenterY is not perfectly working. Guess -- lbox for TextRect is slightly wrong.
+        ### IDEA: make the borderthickness for Boxed negative so the border is over the edge of the plain button. Might look better.
+    #
+    #e on_release_in  rather than  on_press?
+    delegate = Highlightable(
+        plain,
+        highlighted,
+        on_press = command,
+        sbar_text = text
+     )
+    pass
+
+PrintAction = print_Expr ###e refile (both names if kept) into an actions file
+    
 """
 1. Subject: where i am g5 504p; highlight/text debug ideas
 

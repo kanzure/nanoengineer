@@ -56,7 +56,7 @@ class SimpleColumn(Widget2D): #061115
                      )
     
     ## gap = Option(Width, 3 * PIXELS)
-    pixelgap = Option(int, 3)
+    pixelgap = Option(float, 3) # 070104 int -> float
     gap = pixelgap * PIXELS
 
     print_lbox = Option(bool, False) #061127 for debugging; should be harmless; never tested (target bug got diagnosed in another way)

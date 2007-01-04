@@ -218,9 +218,10 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
             ###@@@ [this, and 061120 cmts/stringlits]
         PushName(self.glname)
         try:
+            draw_this = "<not yet set>" # for debug prints
             if self.transient_state.in_drag:
                 if printdraw: print "pressed_out.draw",self
-                self.pressed_out.draw() #e actually this might depend on mouseover, or we might not draw anything then...
+                draw_this = self.pressed_out #e actually this might depend on mouseover, or we might not draw anything then...
                     # but this way, what we draw when mouse is over is a superset of what we draw in general,
                     # easing eventual use of highlightables inside display lists. See other drawing done later when we're highlighted
                     # (ie when mouse is over us)... [cmt revised 061115]
@@ -229,10 +230,12 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
                 # But it might be useful to define at least one co-varying attr (self.whatwedraw?), and draw it here. ####e
             else:
                 ## print "plain.draw",self
-                self.plain.draw()
-            pass
+                draw_this = self.plain
+            draw_this.draw() # split out draw_this, 070104
         except:
-            print_compact_traceback("exception during pressed_out or plain draw, ignored: ")#061120 
+            print_compact_traceback("exception during pressed_out or plain draw, ignored: ")#061120
+            print "fyi: the object we wanted to draw when we got that exception was:",
+            print "%r" % (draw_this,)
             pass # make sure we run the PopName
         PopName(self.glname)
         return

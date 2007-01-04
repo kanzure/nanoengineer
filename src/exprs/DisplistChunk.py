@@ -312,7 +312,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
     def _your_drawing_effects_are_valid(self): ##e should inline as optim
         "[private]"
         assert self.contents_valid
-            # this failed with the exception shown in long string below, when I used clear "button" (070103 kluge) on one node...
+            # this failed 070104 with the exception shown in long string below, when I used clear "button" (070103 kluge) on one node...
             # theory: the nodelist change (by clear button run inside draw method, which is illegal -- that's the kluge)
             # invalidated it right when it was being recompiled (or just after, but before the overall recomp alg sent this call).
             # So that kluge has to go,
