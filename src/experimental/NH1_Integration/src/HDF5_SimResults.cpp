@@ -508,7 +508,6 @@ int HDF5_SimResults::getFrameTimes(const char* frameSetName, float* frameTimes,
 				resultCode =
 					readTimestamp(index, frameTimes[index],
 								  frameSetInfo.timestampsDatasetId,
-								  frameSetInfo.timestampsDataspaceId,
 								  message);
 		}
 	}
@@ -528,7 +527,6 @@ int HDF5_SimResults::getFrameTime(const char* frameSetName,
 		resultCode =
 			readTimestamp(frameIndex, time,
 						  frameSetInfo.timestampsDatasetId,
-						  frameSetInfo.timestampsDataspaceId,
 						  message);
 	}
 	return resultCode;
@@ -549,11 +547,10 @@ int HDF5_SimResults::addFrame(const char* frameSetName, const float& time,
 		if (resultCode != 0) {
 			// Create it
 			//
-			hid_t datasetId, dataspaceId;
+			hid_t datasetId;
 			std::string datasetMessage;
 			resultCode =
-				createTimestampsDataset(frameSetName,
-										datasetId, dataspaceId,
+				createTimestampsDataset(frameSetName, datasetId,
 										datasetMessage);
 			
 			if (resultCode != 0) {
@@ -563,7 +560,6 @@ int HDF5_SimResults::addFrame(const char* frameSetName, const float& time,
 				
 			} else {
 				frameSetInfo.timestampsDatasetId = datasetId;
-				frameSetInfo.timestampsDataspaceId = dataspaceId;
 			}
 			
 		} else {
@@ -573,8 +569,7 @@ int HDF5_SimResults::addFrame(const char* frameSetName, const float& time,
 		if (resultCode == 0) { // Timestamp dataset exists
 			resultCode =
 				writeTimestamp(frameSetInfo.currentFrameIndex, time,
-							   frameSetInfo.timestampsDatasetId,
-							   frameSetInfo.timestampsDataspaceId, message);
+							   frameSetInfo.timestampsDatasetId, message);
 			if (resultCode < 0)
 				frameSetInfo.currentFrameIndex--;
 		}
@@ -598,12 +593,12 @@ void HDF5_SimResults::getFrameAtomIdsCount(const char* frameSetName,
 		resultCode =
 			checkFrameSetDatasetExistence(frameSetName,
 										  frameSetInfo.atomIdsDatasetId,
-										  frameSetInfo.atomIdsDataspaceId,
 										  "AtomPositions",
 										  message);
 		if (resultCode == 0) {
-			atomIdsCount =
-				H5Sget_simple_extent_npoints(frameSetInfo.atomIdsDataspaceId);
+			hid_t dataspaceId = H5Dget_space(frameSetInfo.atomIdsDatasetId);
+			atomIdsCount = H5Sget_simple_extent_npoints(dataspaceId);
+			H5Sclose(dataspaceId);
 		}
 	}
 }
@@ -622,22 +617,16 @@ int HDF5_SimResults::getFrameAtomIds(const char* frameSetName,
 		resultCode =
 			checkFrameSetDatasetExistence(frameSetName,
 										  frameSetInfo.atomIdsDatasetId,
-										  frameSetInfo.atomIdsDataspaceId,
 										  "AtomPositions",
 										  message);
 		if (resultCode == 0) {
 			herr_t status;
 			
-			// Get the filespace
-			hid_t filespace = H5Dget_space(frameSetInfo.atomIdsDatasetId);
-			
 			// Read the atom identifiers
 			status =
 				H5Dread(frameSetInfo.atomIdsDatasetId, H5T_NATIVE_UINT,
-						frameSetInfo.atomIdsDataspaceId, filespace, H5P_DEFAULT,
+						H5S_ALL, H5S_ALL, H5P_DEFAULT,
 						atomIds);
-			H5Sclose(filespace);
-			
 			if (status < 0) {
 				message = "Unable to read atom ids: ";
 				
@@ -670,7 +659,6 @@ int HDF5_SimResults::setFrameAtomIds(const char* frameSetName,
 		resultCode =
 			checkFrameSetDatasetExistence(frameSetName,
 										  frameSetInfo.atomIdsDatasetId,
-										  frameSetInfo.atomIdsDataspaceId,
 										  "AtomPositions",
 										  message);
 		if (resultCode == 0) {
@@ -709,7 +697,6 @@ int HDF5_SimResults::setFrameAtomIds(const char* frameSetName,
 			hid_t datasetId =
 				H5Dcreate(fileId, groupName.c_str(), H5T_NATIVE_UINT,
 						  dataspaceId, datasetParams);
-			H5Pclose(datasetParams);
 			if (datasetId < 0) {
 				message =
 					"Unable to create the atom ids dataset for /Results/FrameSets/";
@@ -724,21 +711,31 @@ int HDF5_SimResults::setFrameAtomIds(const char* frameSetName,
 				resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
 				
 			} else {
+				H5Sclose(dataspaceId);
+				
 				// Write the atom identifiers
-				hid_t filespace = H5Dget_space(datasetId);
 				status =
-					H5Dwrite(datasetId, H5T_NATIVE_UINT, dataspaceId, filespace,
+					H5Dwrite(datasetId, H5T_NATIVE_UINT, H5S_ALL, H5S_ALL,
 							 H5P_DEFAULT, atomIds);
-				H5Sclose(filespace);
 				if (status == 0) {
 					frameSetInfo.atomIdsDatasetId = datasetId;
-					frameSetInfo.atomIdsDataspaceId = dataspaceId;
 					
-				} else {
+				} else {					
+					message = "Unable to write atom identifiers: ";
+					
+					// Get error description from HDF5
+					std::string hdf5Message;
+					status =
+						H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker,
+								&hdf5Message);
+					if (status > -1)
+						message.append(hdf5Message).append(".");
+					resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+					
 					H5Dclose(datasetId);
-					H5Sclose(dataspaceId);
 				}
 			}
+			H5Pclose(datasetParams);
 		}
 	}
 	return resultCode;
@@ -762,7 +759,6 @@ int HDF5_SimResults::getFrameAtomPositions(const char* frameSetName,
 			checkFrameSetDatasetExistence
 				(frameSetName,
 				 frameSetInfo.atomPositionsDatasetId,
-				 frameSetInfo.atomPositionsDataspaceId,
 				 "AtomPositions",
 				 message);
 	}
@@ -771,7 +767,6 @@ int HDF5_SimResults::getFrameAtomPositions(const char* frameSetName,
 		resultCode =
 			read3SpaceAtomFloats(frameIndex, atomCount, positions,
 								 frameSetInfo.atomPositionsDatasetId,
-								 frameSetInfo.atomPositionsDataspaceId,
 								 message);
 	}
 	return resultCode;
@@ -795,7 +790,6 @@ int HDF5_SimResults::setFrameAtomPositions(const char* frameSetName,
 			checkFrameSetDatasetExistence
 				(frameSetName,
 				 frameSetInfo.atomPositionsDatasetId,
-				 frameSetInfo.atomPositionsDataspaceId,
 				 "AtomPositions",
 				 message);
 		
@@ -807,7 +801,6 @@ int HDF5_SimResults::setFrameAtomPositions(const char* frameSetName,
 					 "AtomPositions",
 					 atomCount,
 					 frameSetInfo.atomPositionsDatasetId,
-					 frameSetInfo.atomPositionsDataspaceId,
 					 message);
 		}
 	}
@@ -816,7 +809,6 @@ int HDF5_SimResults::setFrameAtomPositions(const char* frameSetName,
 		resultCode =
 			write3SpaceAtomFloats(frameIndex, atomCount, positions,
 								  frameSetInfo.atomPositionsDatasetId,
-								  frameSetInfo.atomPositionsDataspaceId,
 								  message);
 	}
 	return resultCode;
@@ -840,7 +832,6 @@ int HDF5_SimResults::getFrameAtomVelocities(const char* frameSetName,
 			checkFrameSetDatasetExistence
 				(frameSetName,
 				 frameSetInfo.atomVelocitiesDatasetId,
-				 frameSetInfo.atomVelocitiesDataspaceId,
 				 "AtomVelocities",
 				 message);
 	}
@@ -849,7 +840,6 @@ int HDF5_SimResults::getFrameAtomVelocities(const char* frameSetName,
 		resultCode =
 			read3SpaceAtomFloats(frameIndex, atomCount, velocities,
 								 frameSetInfo.atomVelocitiesDatasetId,
-								 frameSetInfo.atomVelocitiesDataspaceId,
 								 message);
 	}
 	return resultCode;
@@ -873,7 +863,6 @@ int HDF5_SimResults::setFrameAtomVelocities(const char* frameSetName,
 			checkFrameSetDatasetExistence
 				(frameSetName,
 				 frameSetInfo.atomVelocitiesDatasetId,
-				 frameSetInfo.atomVelocitiesDataspaceId,
 				 "AtomVelocities",
 				 message);
 		
@@ -885,7 +874,6 @@ int HDF5_SimResults::setFrameAtomVelocities(const char* frameSetName,
 					 "AtomVelocities",
 					 atomCount,
 					 frameSetInfo.atomVelocitiesDatasetId,
-					 frameSetInfo.atomVelocitiesDataspaceId,
 					 message);
 		}
 	}
@@ -894,7 +882,6 @@ int HDF5_SimResults::setFrameAtomVelocities(const char* frameSetName,
 		resultCode =
 			write3SpaceAtomFloats(frameIndex, atomCount, velocities,
 								  frameSetInfo.atomVelocitiesDatasetId,
-								  frameSetInfo.atomVelocitiesDataspaceId,
 								  message);
 	}
 	return resultCode;
@@ -918,30 +905,29 @@ int HDF5_SimResults::getFrameBonds(const char* frameSetName,
 			checkFrameSetDatasetExistence
 				(frameSetName,
 				 frameSetInfo.bondsDatasetId,
-				 frameSetInfo.bondsDataspaceId,
 				 "Bonds", message);
 		
 		if (resultCode == 0) {
 			herr_t	status;
 			
-			// Get the filespace
-			hid_t filespace = H5Dget_space(frameSetInfo.bondsDatasetId);
-			
 			// Select a hyperslab.
+			hid_t filespace = H5Dget_space(frameSetInfo.bondsDatasetId);
 			hsize_t slabStart[2] = { 0, frameIndex };
 			hsize_t slabStride[2] = { 1, 1 };
 			hsize_t slabCount[2] = { 1, 1 };
 			status =
 				H5Sselect_hyperslab(filespace, H5S_SELECT_SET,
 									slabStart, slabStride, slabCount, NULL);	
+			
+			// Create memory dataspace
+			hsize_t dataDims[] = { 1 };       
+			hid_t memoryspace = H5Screate_simple(1, dataDims, NULL);
+			
 			// Read data
 			hvl_t data[1];
 			status =
 				H5Dread(frameSetInfo.bondsDatasetId, bondsVariableLengthId,
-						frameSetInfo.bondsDataspaceId, filespace,
-						H5P_DEFAULT, data);
-			H5Dclose(filespace);
-			
+						memoryspace, filespace, H5P_DEFAULT, data);
 			if (status < 0) {
 				message = "Unable to read bonds: ";
 				
@@ -954,9 +940,17 @@ int HDF5_SimResults::getFrameBonds(const char* frameSetName,
 				resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
 				
 			} else {
+unsigned int bondIndex;
+SimResultsBond bond;
+for (bondIndex = 0; bondIndex < data[0].len; bondIndex++) {
+	bond = ((SimResultsBond*)data[0].p)[bondIndex];
+	printf("<%d %d %g>  ", bond.atomId_1, bond.atomId_2, bond.order);fflush(0);
+}
 				bondCount = data[0].len;
 				bonds = data[0].p;
 			}
+			H5Sclose(memoryspace);
+			H5Sclose(filespace);
 		}
 	}
 	return resultCode;
@@ -980,7 +974,6 @@ int HDF5_SimResults::setFrameBonds(const char* frameSetName,
 			checkFrameSetDatasetExistence
 				(frameSetName,
 				 frameSetInfo.bondsDatasetId,
-				 frameSetInfo.bondsDataspaceId,
 				 "Bonds",
 				 message);
 		
@@ -988,16 +981,51 @@ int HDF5_SimResults::setFrameBonds(const char* frameSetName,
 			// Create it
 			resultCode =
 				createBondsDataset(frameSetName, bondCount,
-								   frameSetInfo.bondsDatasetId,
-								   frameSetInfo.bondsDataspaceId, message);
+								   frameSetInfo.bondsDatasetId, message);
 		}
 	}
 	
 	if (resultCode == 0) {
 		resultCode =
 			writeBonds(frameIndex, bondCount, bonds,
-					   frameSetInfo.bondsDatasetId,
-					   frameSetInfo.bondsDataspaceId, message);
+					   frameSetInfo.bondsDatasetId, message);
+	}
+	return resultCode;
+}
+
+
+/* FUNCTION: setFrameTotalEnergy */
+int HDF5_SimResults::setFrameTotalEnergy(const char* frameSetName,
+										 const int& frameIndex,
+										 const float& totalEnergy,
+										 std::string& message) {
+	
+	FrameSetInfo& frameSetInfo = frameSetInfoMap[frameSetName];
+	
+	// Check if the frame has been added
+	int resultCode = checkFrameExistence(frameSetName, frameIndex, message);
+	if (resultCode == 0) {
+		// Check if the measurements dataset has been created
+		resultCode =
+			checkFrameSetDatasetExistence
+				(frameSetName,
+				 frameSetInfo.measurementsDatasetId,
+				 "Measurements",
+				 message);
+		
+		if (resultCode != 0) {
+			// Create it
+			resultCode =
+				createMeasurementsDataset
+					(frameSetName, frameSetInfo.measurementsDatasetId,
+					 message);
+		}
+	}
+	
+	if (resultCode == 0) {
+		resultCode =
+			writeMeasurement(frameIndex, TOTAL_ENERGY_MSRMT, totalEnergy,
+							 frameSetInfo.measurementsDatasetId, message);
 	}
 	return resultCode;
 }
@@ -1041,7 +1069,6 @@ int HDF5_SimResults::checkFrameExistence(const char* frameSetName,
  */
 int HDF5_SimResults::checkFrameSetDatasetExistence(const char* frameSetName,
 												   hid_t& datasetId,
-												   hid_t& dataspaceId,
 												   const char* datasetName,
 												   std::string& message) {
 	int resultCode = 0;
@@ -1053,12 +1080,8 @@ int HDF5_SimResults::checkFrameSetDatasetExistence(const char* frameSetName,
 		std::string fullDatasetName = "/Results/FrameSets/";
 		fullDatasetName.append(frameSetName).append("/").append(datasetName);
 		datasetId = H5Dopen(fileId, fullDatasetName.c_str());
-		if (datasetId > -1) {
-			// Exists
-			dataspaceId = H5Dget_space(datasetId);
-			
-		} else {
-			datasetId = dataspaceId = 0;
+		if (datasetId < 0) {
+			datasetId = 0;
 			message = "Dataset: ";
 			message.append(fullDatasetName).append(" doesn't exist.");
 			resultCode = SRDS_NON_EXISTENT_DATASET;
@@ -1091,10 +1114,11 @@ int HDF5_SimResults::checkTimestampsExistence(const char* frameSetName,
 		if (datasetId > -1) {
 			// Exists
 			frameSetInfo.timestampsDatasetId = datasetId;
-			frameSetInfo.timestampsDataspaceId = H5Dget_space(datasetId);
+			hid_t dataspaceId = H5Dget_space(datasetId);
 			frameSetInfo.currentFrameIndex =
-				H5Sget_simple_extent_npoints
-					(frameSetInfo.timestampsDataspaceId);
+				H5Sget_simple_extent_npoints(dataspaceId);
+			H5Sclose(dataspaceId);
+			
 			// Current frame index starts at zero, so if there's two frames,
 			// the current frame index is 1.
 			if (frameSetInfo.currentFrameIndex > 0)
@@ -1137,11 +1161,61 @@ int HDF5_SimResults::checkFrameSetExistence(const char* frameSetName,
 }
 
 
+/* FUNCTION: createMeasurementsDataset */
+int HDF5_SimResults::createMeasurementsDataset(const char* frameSetName,
+											   hid_t& datasetId,
+											   std::string& message) {
+    herr_t	status;
+	int resultCode = 0;
+	
+	// Create the dataspace
+    hsize_t	dims[2] = { 3, 1 };
+    hsize_t	maxDims[2] = { 3, H5S_UNLIMITED };
+    hid_t dataspaceId = H5Screate_simple(2 /* rank */, dims, maxDims);
+	
+    // Modify dataset creation properties, i.e. enable chunking, compression
+    hid_t datasetParams = H5Pcreate(H5P_DATASET_CREATE);
+	if (USE_CHUNKING) {
+		hsize_t	chunkDims[2] = { 3, 1 };
+		status = H5Pset_chunk(datasetParams, 2 /* rank */, chunkDims);
+	}
+	if (USE_SHUFFLING) {
+		status = H5Pset_shuffle(datasetParams);
+	}
+	if (USE_COMPRESSION) {
+		status = H5Pset_deflate(datasetParams, COMPRESSION_LVL);
+	}
+	
+    // Create a new dataset within the file using datasetParams creation
+	// properties.
+	std::string fullDatasetName = "/Results/FrameSets/";
+	fullDatasetName.append(frameSetName).append("/Measurements");
+    datasetId =
+		H5Dcreate(fileId, fullDatasetName.c_str(), H5T_NATIVE_FLOAT,
+				  dataspaceId, datasetParams);
+	if (datasetId < 0) {
+		message = "Unable to create dataset: ";
+		message.append(fullDatasetName).append(": ");
+		
+		// Get error description from HDF5
+		std::string hdf5Message;
+		status =
+			H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+		if (status > -1)
+			message.append(hdf5Message).append(".");
+		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+	}
+	H5Sclose(dataspaceId);
+    H5Pclose(datasetParams);
+	
+	return resultCode;
+}
+
+
 /* FUNCTION: createBondsDataset */
 int HDF5_SimResults::createBondsDataset(const char* frameSetName,
 										const unsigned int& bondCount,
 										hid_t& datasetId,
-										hid_t& dataspaceId,
 										std::string& message) {
     herr_t	status;
 	int resultCode = 0;
@@ -1149,7 +1223,7 @@ int HDF5_SimResults::createBondsDataset(const char* frameSetName,
 	// Create the dataspace
     hsize_t	dims[2] = { 1, 1 };
     hsize_t	maxDims[2] = { 1, H5S_UNLIMITED };
-    dataspaceId = H5Screate_simple(2 /* rank */, dims, maxDims);
+    hid_t dataspaceId = H5Screate_simple(2 /* rank */, dims, maxDims);
 	
     // Modify dataset creation properties, i.e. enable chunking, compression
     hid_t datasetParams = H5Pcreate(H5P_DATASET_CREATE);
@@ -1171,8 +1245,6 @@ int HDF5_SimResults::createBondsDataset(const char* frameSetName,
     datasetId =
 		H5Dcreate(fileId, fullDatasetName.c_str(), bondsVariableLengthId,
 				  dataspaceId, datasetParams);
-    H5Pclose(datasetParams);
-	
 	if (datasetId < 0) {
 		message = "Unable to create dataset: ";
 		message.append(fullDatasetName).append(": ");
@@ -1185,6 +1257,9 @@ int HDF5_SimResults::createBondsDataset(const char* frameSetName,
 			message.append(hdf5Message).append(".");
 		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
 	}
+	H5Sclose(dataspaceId);
+    H5Pclose(datasetParams);
+	
 	return resultCode;
 }	
 
@@ -1197,7 +1272,6 @@ int HDF5_SimResults::create3D_AtomFloatsDataset(const char* frameSetName,
 												const char* dataSetName,
 												const unsigned int& atomCount,
 												hid_t& datasetId,
-												hid_t& dataspaceId,
 												std::string& message) {
     herr_t status;
 	int resultCode = 0;
@@ -1205,7 +1279,7 @@ int HDF5_SimResults::create3D_AtomFloatsDataset(const char* frameSetName,
 	// Create the dataspace
     hsize_t	dims[3] = { atomCount, 3, 1 };
     hsize_t	maxDims[3] = { atomCount, 3, H5S_UNLIMITED };
-    dataspaceId = H5Screate_simple(3 /* rank */, dims, maxDims);
+    hid_t dataspaceId = H5Screate_simple(3 /* rank */, dims, maxDims);
 	
     // Modify dataset creation properties, i.e. enable chunking, compression
     hid_t datasetParams = H5Pcreate(H5P_DATASET_CREATE);
@@ -1227,8 +1301,6 @@ int HDF5_SimResults::create3D_AtomFloatsDataset(const char* frameSetName,
     datasetId =
 		H5Dcreate(fileId, fullDatasetName.c_str(), H5T_NATIVE_FLOAT,
 				  dataspaceId, datasetParams);
-    H5Pclose(datasetParams);
-	
 	if (datasetId < 0) {
 		message = "Unable to create dataset: ";
 		message.append(fullDatasetName).append(": ");
@@ -1241,6 +1313,9 @@ int HDF5_SimResults::create3D_AtomFloatsDataset(const char* frameSetName,
 			message.append(hdf5Message).append(".");
 		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
 	}
+	H5Sclose(dataspaceId);
+    H5Pclose(datasetParams);
+	
 	return resultCode;
 }
 	
@@ -1251,7 +1326,6 @@ int HDF5_SimResults::create3D_AtomFloatsDataset(const char* frameSetName,
  */
 int HDF5_SimResults::createTimestampsDataset(const char* frameSetName,
 											 hid_t& datasetId,
-											 hid_t& dataspaceId,
 											 std::string& message) {
     herr_t status;
 	int resultCode = 0;
@@ -1259,7 +1333,7 @@ int HDF5_SimResults::createTimestampsDataset(const char* frameSetName,
 	// Create the dataspace
     hsize_t	dims[1] = { 1 };
     hsize_t	maxDims[1] = { H5S_UNLIMITED };
-    dataspaceId = H5Screate_simple(1 /* rank */, dims, maxDims);
+    hid_t dataspaceId = H5Screate_simple(1 /* rank */, dims, maxDims);
 	
     // Modify dataset creation properties, i.e. enable chunking, compression
     hid_t datasetParams = H5Pcreate(H5P_DATASET_CREATE);
@@ -1281,8 +1355,6 @@ int HDF5_SimResults::createTimestampsDataset(const char* frameSetName,
     datasetId =
 		H5Dcreate(fileId, datasetName.c_str(), H5T_NATIVE_FLOAT,
 				  dataspaceId, datasetParams);
-    H5Pclose(datasetParams);
-	
 	if (datasetId < 0) {
 		message = "Unable to create dataset: ";
 		message.append(datasetName).append(": ");
@@ -1295,14 +1367,68 @@ int HDF5_SimResults::createTimestampsDataset(const char* frameSetName,
 			message.append(hdf5Message).append(".");
 		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
 	}
+	H5Sclose(dataspaceId);
+    H5Pclose(datasetParams);
+	
+	return resultCode;
+}
+
+
+/* FUNCTION: writeMeasurement */
+int HDF5_SimResults::writeMeasurement(const int& frame,
+									  const int& measurementIndex,
+									  const float& value,
+									  const hid_t& datasetId,
+									  std::string& message) {
+    herr_t status;
+	int resultCode = 0;
+
+	// Prepare data
+	hsize_t dataDims[] = { 1 };       
+	float data[] = { value }; 
+	
+	// Array to store selected points from the file dataspace
+	hsize_t coordinates[1][2];
+	coordinates[0][0] = measurementIndex; coordinates[0][1] = frame;
+	
+	// Create memory dataspace
+	hid_t memoryspace = H5Screate_simple(1, dataDims, NULL);
+	
+	// Extend the dataset.
+    hsize_t	dims[2] = { 3, frame + 1 };
+	status = H5Dextend(datasetId, dims);
+	
+	// Select the point
+	hid_t filespace = H5Dget_space(datasetId);
+	status =
+		H5Sselect_elements(filespace, H5S_SELECT_SET, 1,
+						   (const hsize_t**)coordinates);
+		
+	// Write the data to the point.
+	status =
+		H5Dwrite(datasetId, H5T_NATIVE_FLOAT, H5S_ALL/*memoryspace*/, filespace,
+				 H5P_DEFAULT, data);	
+	if (status < 0) {
+		message = "Unable to write measurement: ";
+		
+		// Get error description from HDF5
+		std::string hdf5Message;
+		status =
+			H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+		if (status > -1)
+			message.append(hdf5Message).append(".");
+		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+	}
+    H5Sclose(filespace);
+	H5Sclose(memoryspace);
+	
 	return resultCode;
 }
 
 
 /* FUNCTION: writeBonds */
 int HDF5_SimResults::writeBonds(const int& frame, const unsigned int& bondCount,
-								const void* bonds,
-								hid_t datasetId, hid_t dataspaceId,
+								const void* bonds, hid_t datasetId,
 								std::string& message) {
     herr_t	status;
 	int resultCode = 0;
@@ -1316,6 +1442,10 @@ int HDF5_SimResults::writeBonds(const int& frame, const unsigned int& bondCount,
     hsize_t	dims[2] = { 1, frame + 1 };
 	status = H5Dextend(datasetId, dims);
 	
+	// Create memory dataspace
+	hsize_t dataDims[] = { 1 };       
+	hid_t memoryspace = H5Screate_simple(1, dataDims, NULL);
+	
 	// Select a hyperslab.
 	hid_t filespace = H5Dget_space(datasetId);
 	hsize_t slabStart[2] = { 0, frame };
@@ -1327,10 +1457,8 @@ int HDF5_SimResults::writeBonds(const int& frame, const unsigned int& bondCount,
 	
 	// Write the data to the hyperslab.
 	status =
-		H5Dwrite(datasetId, bondsVariableLengthId, dataspaceId, filespace,
+		H5Dwrite(datasetId, bondsVariableLengthId, memoryspace, filespace,
 				 H5P_DEFAULT, data);
-    H5Sclose(filespace);
-	
 	if (status < 0) {
 		message = "Unable to write bonds: ";
 		
@@ -1342,6 +1470,9 @@ int HDF5_SimResults::writeBonds(const int& frame, const unsigned int& bondCount,
 			message.append(hdf5Message).append(".");
 		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
 	}
+	H5Sclose(memoryspace);
+    H5Sclose(filespace);	
+	
 	return resultCode;
 }
 
@@ -1349,8 +1480,7 @@ int HDF5_SimResults::writeBonds(const int& frame, const unsigned int& bondCount,
 /* FUNCTION: write3SpaceAtomFloats */
 int HDF5_SimResults::write3SpaceAtomFloats(const int& frame,
 										   const unsigned int& atomCount,
-										   const float* data,
-										   hid_t datasetId, hid_t dataspaceId,
+										   const float* data, hid_t datasetId,
 										   std::string& message) {
     herr_t	status;
 	int resultCode = 0;
@@ -1369,12 +1499,14 @@ int HDF5_SimResults::write3SpaceAtomFloats(const int& frame,
 		H5Sselect_hyperslab(filespace, H5S_SELECT_SET,
 							slabStart, slabStride, slabCount, NULL);
 	
+	// Create memory dataspace
+	hsize_t dataDims[] = { atomCount, 3, 1 };       
+	hid_t memoryspace = H5Screate_simple(3, dataDims, NULL);
+	
 	// Write the data to the hyperslab.
 	status =
-		H5Dwrite(datasetId, H5T_NATIVE_FLOAT, dataspaceId, filespace,
+		H5Dwrite(datasetId, H5T_NATIVE_FLOAT, memoryspace, filespace,
 				 H5P_DEFAULT, data);
-    H5Sclose(filespace);
-	
 	if (status < 0) {
 		message = "Unable to write atom floats: ";
 		
@@ -1386,17 +1518,18 @@ int HDF5_SimResults::write3SpaceAtomFloats(const int& frame,
 			message.append(hdf5Message).append(".");
 		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
 	}
+	H5Sclose(memoryspace);
+    H5Sclose(filespace);
+	
 	return resultCode;
 }
 	
 	
 /* FUNCTION: writeTimestamp */
 int HDF5_SimResults::writeTimestamp(const int& frame, const float& time,
-									hid_t datasetId, hid_t dataspaceId,
-									std::string& message) {
+									hid_t datasetId, std::string& message) {
 	herr_t	status;
 	int resultCode = 0;
-	float data[1] = { time };
 	
 	// Extend the dataset.
     hsize_t	dims[1] = { frame + 1 };
@@ -1411,12 +1544,15 @@ int HDF5_SimResults::writeTimestamp(const int& frame, const float& time,
 		H5Sselect_hyperslab(filespace, H5S_SELECT_SET,
 							slabStart, slabStride, slabCount, NULL);
 	
+	// Create memory dataspace
+	float data[1] = { time };
+	hsize_t dataDims[] = { 1 };       
+	hid_t memoryspace = H5Screate_simple(1, dataDims, NULL);
+	
 	// Write the data to the hyperslab.
 	status =
-		H5Dwrite(datasetId, H5T_NATIVE_FLOAT, dataspaceId, filespace,
+		H5Dwrite(datasetId, H5T_NATIVE_FLOAT, memoryspace, filespace,
 				 H5P_DEFAULT, data);
-    H5Sclose(filespace);
-	
 	if (status < 0) {
 		message = "Unable to write timestamp: ";
 		
@@ -1428,6 +1564,9 @@ int HDF5_SimResults::writeTimestamp(const int& frame, const float& time,
 			message.append(hdf5Message).append(".");
 		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
 	}
+	H5Sclose(memoryspace);
+    H5Sclose(filespace);
+	
 	return resultCode;
 }
 
@@ -1435,8 +1574,7 @@ int HDF5_SimResults::writeTimestamp(const int& frame, const float& time,
 /* FUNCTION: read3SpaceAtomFloats */
 int HDF5_SimResults::read3SpaceAtomFloats(const int& frame,
 										  const unsigned int& atomCount,
-										  float* data,
-										  hid_t datasetId, hid_t dataspaceId,
+										  float* data, hid_t datasetId,
 										  std::string& message) {
     herr_t	status;
 	int resultCode = 0;
@@ -1452,12 +1590,14 @@ int HDF5_SimResults::read3SpaceAtomFloats(const int& frame,
 		H5Sselect_hyperslab(filespace, H5S_SELECT_SET,
 							slabStart, slabStride, slabCount, NULL);
 	
+	// Create memory dataspace
+	hsize_t dataDims[] = { atomCount, 3, 1 };       
+	hid_t memoryspace = H5Screate_simple(3, dataDims, NULL);
+
 	// Read data
 	status =
-		H5Dread(datasetId, H5T_NATIVE_FLOAT, dataspaceId, filespace,
+		H5Dread(datasetId, H5T_NATIVE_FLOAT, memoryspace, filespace,
 				H5P_DEFAULT, data);
-    H5Sclose(filespace);
-	
 	if (status < 0) {
 		message = "Unable to read atom floats: ";
 		
@@ -1469,34 +1609,38 @@ int HDF5_SimResults::read3SpaceAtomFloats(const int& frame,
 			message.append(hdf5Message).append(".");
 		resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
 	}
+	H5Sclose(memoryspace);
+    H5Sclose(filespace);
+	
 	return resultCode;
 }
 
 
 /* FUNCTION: readTimestamp */
 int HDF5_SimResults::readTimestamp(const int& frame, float& time,
-								   hid_t datasetId, hid_t dataspaceId,
+								   hid_t datasetId,
 								   std::string& message) const {
     herr_t	status;
 	int resultCode = 0;
 	
-	// Get the filespace
-	hid_t filespace = H5Dget_space(datasetId);
-	
 	// Select a hyperslab.
+	hid_t filespace = H5Dget_space(datasetId);
 	hsize_t slabStart[1] = { frame };
 	hsize_t slabStride[1] = { 1 };
 	hsize_t slabCount[1] = { 1 };
 	status =
 		H5Sselect_hyperslab(filespace, H5S_SELECT_SET,
 							slabStart, slabStride, slabCount, NULL);
-	// Read data
-	float data[1];
-	status =
-		H5Dread(datasetId, H5T_NATIVE_FLOAT, dataspaceId, filespace,
-				H5P_DEFAULT, data);
-    H5Sclose(filespace);
 	
+	// Create memory dataspace
+	float data[1];
+	hsize_t dataDims[] = { 1 };       
+	hid_t memoryspace = H5Screate_simple(1, dataDims, NULL);
+	
+	// Read data
+	status =
+		H5Dread(datasetId, H5T_NATIVE_FLOAT, memoryspace, filespace,
+				H5P_DEFAULT, data);
 	if (status < 0) {
 		message = "Unable to read timestamp: ";
 		
@@ -1511,6 +1655,9 @@ int HDF5_SimResults::readTimestamp(const int& frame, float& time,
 	} else {
 		time = data[0];
 	}
+	H5Sclose(memoryspace);
+    H5Sclose(filespace);
+	
 	return resultCode;
 }
 

@@ -467,13 +467,8 @@ void HDF5_SimResultsTest::getSetAtomPositions() {
 	
 	int nAtoms = 3;
 	float positions[nAtoms*3];
-	int atomIndex;
-	for (atomIndex = 0; atomIndex < nAtoms; atomIndex++) {
-		positions[atomIndex*3+0] = atomIndex * 3.0f;
-		positions[atomIndex*3+1] = atomIndex * 3.0f + 1.0f;
-		positions[atomIndex*3+2] = atomIndex * 3.0f + 2.0f;
-	}
 	
+	//
 	status =
 		simResults->getFrameAtomPositions("frame-set-X", 0, 3, positions,
 										  message);
@@ -483,20 +478,36 @@ void HDF5_SimResultsTest::getSetAtomPositions() {
 										  message);
 	CPPUNIT_ASSERT(status != 0);
 	
+	//
 	status =
 		simResults->setFrameAtomPositions("frame-set-X", 0, positions, 3,
 										  message);
 	CPPUNIT_ASSERT(status != 0);
+	
+	//
+	int atomIndex;
+	for (atomIndex = 0; atomIndex < nAtoms; atomIndex++) {
+		positions[atomIndex*3+0] = atomIndex * 3.0f;
+		positions[atomIndex*3+1] = atomIndex * 3.0f + 1.0f;
+		positions[atomIndex*3+2] = atomIndex * 3.0f + 2.0f;
+	}
 	status =
 		simResults->setFrameAtomPositions("frame-set-1", 0, positions, 3,
 										  message);
 	CPPUNIT_ASSERT(status == 0);
 	
+	//
 	for (atomIndex = 0; atomIndex < nAtoms; atomIndex++) {
-		positions[atomIndex*3+0] = 0.0f;
-		positions[atomIndex*3+1] = 0.0f;
-		positions[atomIndex*3+2] = 0.0f;
+		positions[atomIndex*3+0] = atomIndex * 3.0f + 9.0f;
+		positions[atomIndex*3+1] = atomIndex * 3.0f + 10.0f;
+		positions[atomIndex*3+2] = atomIndex * 3.0f + 11.0f;
 	}
+	status =
+		simResults->setFrameAtomPositions("frame-set-1", 1, positions, 3,
+										  message);
+	CPPUNIT_ASSERT(status == 0);
+	
+	//
 	status =
 		simResults->getFrameAtomPositions("frame-set-1", 0, 3, positions,
 										  message);
@@ -504,6 +515,15 @@ void HDF5_SimResultsTest::getSetAtomPositions() {
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(1.0, positions[1], 0.001);
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(5.0, positions[5], 0.001);
 	CPPUNIT_ASSERT_DOUBLES_EQUAL(8.0, positions[8], 0.001);
+	
+	//
+	status =
+		simResults->getFrameAtomPositions("frame-set-1", 1, 3, positions,
+										  message);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(10.0, positions[1], 0.001);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(14.0, positions[5], 0.001);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(17.0, positions[8], 0.001);
 }
 
 
@@ -573,19 +593,44 @@ void HDF5_SimResultsTest::getSetBonds() {
 	CPPUNIT_ASSERT(status != 0);
 	status = simResults->setFrameBonds("frame-set-1", 0, bonds, 3, message);
 	CPPUNIT_ASSERT(status == 0);
+
+	for (bondIndex = 0; bondIndex < 3; bondIndex++) {
+		bond.atomId_1 = 10+bondIndex;
+		bond.atomId_2 = 10+bondIndex + 1;
+		bond.order = bondIndex + 1.5f;
+		((ne1::SimResultsBond*)bonds)[bondIndex] = bond;
+	}
+	status = simResults->setFrameBonds("frame-set-1", 1, bonds, 3, message);
+	CPPUNIT_ASSERT(status == 0);
 	
 	unsigned int bondsCount = 0;
 	status = simResults->getFrameBonds("frame-set-X", 0, bondsCount, bonds,
 									   message);
 	CPPUNIT_ASSERT(status != 0);
-	status = simResults->getFrameBonds("frame-set-1", 0, bondsCount, bonds,
+void* _bonds;
+	status = simResults->getFrameBonds("frame-set-1", 0, bondsCount, _bonds,
 									   message);
 	CPPUNIT_ASSERT(status == 0);
 	CPPUNIT_ASSERT(bondsCount = 3);
 	for (bondIndex = 0; bondIndex < 3; bondIndex++) {
-		bond = ((ne1::SimResultsBond*)bonds)[bondIndex];
+		bond = ((ne1::SimResultsBond*)_bonds)[bondIndex];
+printf("\n%d %d %g", bond.atomId_1, bond.atomId_2, bond.order);fflush(0);
 		CPPUNIT_ASSERT(bond.atomId_1 == bondIndex);
 		CPPUNIT_ASSERT(bond.atomId_2 == bondIndex + 1);
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(bondIndex + 0.5f, bond.order, 0.001);
 	}
+}
+
+
+/* FUNCTION: getSetTotalEnergy */
+void HDF5_SimResultsTest::getSetTotalEnergy() {
+	int status;
+	std::string message;
+	
+	status =
+		simResults->setFrameTotalEnergy("frame-set-X", 0, 0.1, message);
+	CPPUNIT_ASSERT(status != 0);
+	status =
+		simResults->setFrameTotalEnergy("frame-set-1", 0, 0.1, message);
+	CPPUNIT_ASSERT(status == 0);
 }

@@ -649,17 +649,40 @@ class SimResultsDataStore {
 							  const unsigned int& bondCount,
 							  std::string& message) = 0;
 	/*
-	
-	def getFrameTotalEnergy(self, frameSetName, frameIndex):
-		"""Returns the total energy for the specified frame in Joules."""
-		pass
-	def setFrameTotalEnergy(self, frameSetName, frameIndex, totalEnergy):
-		"""
-		Sets the total energy for the specified frame.
-		@param totalEnergy: in Joules
-		"""
-		pass
-	
+	 * TotalEnergy
+	 */
+	/**
+	 * Retrieves the total energy for the specified frame in Joules.
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set of interest
+	 * @param frameIndex	[IN] the index of the frame of interest
+	 * @param totalEnergy	[OUT] total energy in Joules
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	/*
+	virtual int getFrameTotalEnergy(const char* frameSetName,
+									const int& frameIndex,
+									float& totalEnergy,
+									std::string& message) = 0;
+	 */
+	/**
+	 * Sets the total energy for the specified frame.
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set of interest
+	 * @param frameIndex	[IN] the index of the frame of interest
+	 * @param totalEnergy	[IN] total energy in Joules
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setFrameTotalEnergy(const char* frameSetName,
+									const int& frameIndex,
+									const float& totalEnergy,
+									std::string& message) = 0;
+
+	/*
 	
 	def getFrameIdealTemperature(self, frameSetName, frameIndex):
 		"""Returns the ideal temperature for the specified frame in Kelvin."""

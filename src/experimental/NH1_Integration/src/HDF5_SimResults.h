@@ -19,6 +19,7 @@
 #define USE_COMPRESSION				1
 #define COMPRESSION_LVL				6
 
+#define TOTAL_ENERGY_MSRMT			0
 
 namespace ne1 {
 
@@ -28,19 +29,21 @@ class FrameSetInfo {
 	public:
 		FrameSetInfo() {
 			currentFrameIndex = 0;
-			timestampsDatasetId = timestampsDataspaceId = 0;
-			atomIdsDatasetId = atomIdsDataspaceId = 0;
-			atomPositionsDatasetId = atomPositionsDataspaceId = 0;
-			atomVelocitiesDatasetId = atomVelocitiesDataspaceId = 0;
-			bondsDatasetId = bondsDataspaceId = 0;
+			timestampsDatasetId = 0;
+			atomIdsDatasetId = 0;
+			atomPositionsDatasetId = 0;
+			atomVelocitiesDatasetId = 0;
+			bondsDatasetId = 0;
+			measurementsDatasetId = 0;
 		}
 	
 		int currentFrameIndex;
-		hid_t timestampsDatasetId, timestampsDataspaceId;
-		hid_t atomIdsDatasetId, atomIdsDataspaceId;
-		hid_t atomPositionsDatasetId, atomPositionsDataspaceId;
-		hid_t atomVelocitiesDatasetId, atomVelocitiesDataspaceId;
-		hid_t bondsDatasetId, bondsDataspaceId;
+		hid_t timestampsDatasetId;
+		hid_t atomIdsDatasetId;
+		hid_t atomPositionsDatasetId;
+		hid_t atomVelocitiesDatasetId;
+		hid_t bondsDatasetId;
+		hid_t measurementsDatasetId;
 };
 	
 
@@ -203,6 +206,11 @@ class HDF5_SimResults : public SimResultsDataStore {
 						  const unsigned int& bondCount,
 						  std::string& message);
 		
+		int setFrameTotalEnergy(const char* frameSetName,
+								const int& frameIndex,
+								const float& totalEnergy,
+								std::string& message);
+		
 	private:
 		// HDF5 type identifiers
 		hid_t bondTypeId;
@@ -218,46 +226,48 @@ class HDF5_SimResults : public SimResultsDataStore {
 								std::string& message);
 		int checkFrameSetDatasetExistence(const char* frameSetName,
 										  hid_t& datasetId,
-										  hid_t& dataspaceId,
 										  const char* datasetName,
 										  std::string& message);
 		int checkTimestampsExistence(const char* frameSetName,
 									 std::string& message);
 		int checkFrameSetExistence(const char* frameSetName,
 								   std::string& message);
+		int createMeasurementsDataset(const char* frameSetName,
+									  hid_t& datasetId,
+									  std::string& message);			
 		int createBondsDataset(const char* frameSetName,
 							   const unsigned int& bondCount,
 							   hid_t& datasetId,
-							   hid_t& dataspaceId,
 							   std::string& message);
 		int create3D_AtomFloatsDataset(const char* frameSetName,
 									   const char* dataSetName,
 									   const unsigned int& atomCount,
 									   hid_t& datasetId,
-									   hid_t& dataspaceId,
 									   std::string& message);
-		int createTimestampsDataset(const char* frameSetName,
-									hid_t& datasetId, hid_t& dataspaceId,
+		int createTimestampsDataset(const char* frameSetName, hid_t& datasetId,
 									std::string& message);
+		int writeMeasurement(const int& frame,
+							 const int& measurementIndex,
+							 const float& value,
+							 const hid_t& datasetId,
+							 std::string& message);			
 		int writeBonds(const int& frame, const unsigned int& bondCount,
-					   const void* bonds,
-					   hid_t datasetId, hid_t dataspaceId,
+					   const void* bonds, hid_t datasetId,
 					   std::string& message);
 		int write3SpaceAtomFloats(const int& frame,
 								  const unsigned int& atomCount,
 								  const float* data,
-								  hid_t datasetId, hid_t dataspaceId,
+								  hid_t datasetId,
 								  std::string& message);
 		int writeTimestamp(const int& frame, const float& time,
-						   hid_t datasetId, hid_t dataspaceId,
+						   hid_t datasetId,
 						   std::string& message);
 		int read3SpaceAtomFloats(const int& frame,
 								 const unsigned int& atomCount,
 								 float* data,
-								 hid_t datasetId, hid_t dataspaceId,
+								 hid_t datasetId,
 								 std::string& message);
-		int readTimestamp(const int& frame, float& time,
-						  hid_t datasetId, hid_t dataspaceId,
+		int readTimestamp(const int& frame, float& time, hid_t datasetId,
 						  std::string& message) const;
 			
 		int getStringAttribute(const std::string& groupName,
