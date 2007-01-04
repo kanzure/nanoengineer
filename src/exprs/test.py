@@ -133,6 +133,11 @@ import DisplistChunk # works 070103, but must be directly wrapped around Highlig
 reload_once(DisplistChunk)
 from DisplistChunk import DisplistChunk
 
+import demo_dna # stub 070103
+reload_once(demo_dna)
+from demo_dna import newerBoxed, resizablyBoxed
+
+
 # == @@@
 
 import widget_env
@@ -1056,11 +1061,18 @@ testexpr_23cd = DisplistChunk(testexpr_10c) # has expected coord ##BUG -- outerm
 
     # but I did improve demo_drag inside... testexpr_19d still works, and seems to be faster (hard to be sure)
 
+# == demo_dna.py (stub)
+
+testexpr_24 = newerBoxed(Boxed(Rect(1))) # works
+testexpr_24a = newerBoxed(Boxed(Highlightable(Rect(1)))) # works
+testexpr_24b = resizablyBoxed(Boxed(Rect(1))) # works with action being incrs of state
+
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = False
+enable_testbed = True
 
-testexpr = testexpr_19d ## testexpr_10c ## testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
+testexpr = testexpr_24b ## testexpr_10c ## testexpr_9c ## testexpr_19d ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
