@@ -20,6 +20,8 @@
 #define COMPRESSION_LVL				6
 
 #define TOTAL_ENERGY_MSRMT			0
+#define IDEAL_TEMPERATURE_MSRMT		1
+#define PRESSURE_MSRMT				2
 
 namespace ne1 {
 
@@ -195,9 +197,11 @@ class HDF5_SimResults : public SimResultsDataStore {
 								   const unsigned int& atomCount,
 								   std::string& message);
 		
+		void getFrameBondsCount(const char* frameSetName,
+								const int& frameIndex,
+								unsigned int& bondCount);
 		int getFrameBonds(const char* frameSetName,
 						  const int& frameIndex,
-						  unsigned int& bondCount,
 						  void* bonds,
 						  std::string& message);
 		int setFrameBonds(const char* frameSetName,
@@ -206,10 +210,32 @@ class HDF5_SimResults : public SimResultsDataStore {
 						  const unsigned int& bondCount,
 						  std::string& message);
 		
+		int getFrameTotalEnergy(const char* frameSetName,
+								const int& frameIndex,
+								float& totalEnergy,
+								std::string& message);
 		int setFrameTotalEnergy(const char* frameSetName,
 								const int& frameIndex,
 								const float& totalEnergy,
 								std::string& message);
+		
+		int getFrameIdealTemperature(const char* frameSetName,
+									 const int& frameIndex,
+									 float& idealTemperature,
+									 std::string& message);
+		int setFrameIdealTemperature(const char* frameSetName,
+									 const int& frameIndex,
+									 const float& idealTemperature,
+									 std::string& message);
+
+		int getFramePressure(const char* frameSetName,
+							 const int& frameIndex,
+							 float& pressure,
+							 std::string& message);
+		int setFramePressure(const char* frameSetName,
+							 const int& frameIndex,
+							 const float& pressure,
+							 std::string& message);
 		
 	private:
 		// HDF5 type identifiers
@@ -246,11 +272,12 @@ class HDF5_SimResults : public SimResultsDataStore {
 									   std::string& message);
 		int createTimestampsDataset(const char* frameSetName, hid_t& datasetId,
 									std::string& message);
-		int writeMeasurement(const int& frame,
+		int writeMeasurement(const char* frameSetName,
+							 const int& frameIndex,
 							 const int& measurementIndex,
 							 const float& value,
 							 const hid_t& datasetId,
-							 std::string& message);			
+							 std::string& message);
 		int writeBonds(const int& frame, const unsigned int& bondCount,
 					   const void* bonds, hid_t datasetId,
 					   std::string& message);
@@ -262,6 +289,12 @@ class HDF5_SimResults : public SimResultsDataStore {
 		int writeTimestamp(const int& frame, const float& time,
 						   hid_t datasetId,
 						   std::string& message);
+		int readMeasurement(const char* frameSetName,
+							const int& frameIndex,
+							const int& measurementIndex,
+							const hid_t& datasetId,
+							float& value,
+							std::string& message);
 		int read3SpaceAtomFloats(const int& frame,
 								 const unsigned int& atomCount,
 								 float* data,

@@ -579,6 +579,12 @@ void HDF5_SimResultsTest::getSetBonds() {
 	int status;
 	std::string message;
 	
+	unsigned int bondCount = 99;
+	simResults->getFrameBondsCount("frame-set-X", 0, bondCount);
+	CPPUNIT_ASSERT(bondCount == 0);
+	simResults->getFrameBondsCount("frame-set-1", 0, bondCount);
+	CPPUNIT_ASSERT(bondCount == 0);
+	
 	void* bonds = (void*)malloc(3*sizeof(ne1::SimResultsBond));
 	unsigned int bondIndex;
 	ne1::SimResultsBond bond;
@@ -588,36 +594,44 @@ void HDF5_SimResultsTest::getSetBonds() {
 		bond.order = bondIndex + 0.5f;
 		((ne1::SimResultsBond*)bonds)[bondIndex] = bond;
 	}
-	
 	status = simResults->setFrameBonds("frame-set-X", 0, bonds, 3, message);
 	CPPUNIT_ASSERT(status != 0);
 	status = simResults->setFrameBonds("frame-set-1", 0, bonds, 3, message);
 	CPPUNIT_ASSERT(status == 0);
+	free(bonds);
 
-	for (bondIndex = 0; bondIndex < 3; bondIndex++) {
+	bonds = (void*)malloc(5*sizeof(ne1::SimResultsBond));
+	for (bondIndex = 0; bondIndex < 5; bondIndex++) {
 		bond.atomId_1 = 10+bondIndex;
 		bond.atomId_2 = 10+bondIndex + 1;
 		bond.order = bondIndex + 1.5f;
 		((ne1::SimResultsBond*)bonds)[bondIndex] = bond;
 	}
-	status = simResults->setFrameBonds("frame-set-1", 1, bonds, 3, message);
+	status = simResults->setFrameBonds("frame-set-1", 1, bonds, 5, message);
 	CPPUNIT_ASSERT(status == 0);
 	
-	unsigned int bondsCount = 0;
-	status = simResults->getFrameBonds("frame-set-X", 0, bondsCount, bonds,
-									   message);
+	simResults->getFrameBondsCount("frame-set-1", 0, bondCount);
+	CPPUNIT_ASSERT(bondCount == 3);
+	simResults->getFrameBondsCount("frame-set-1", 1, bondCount);
+	CPPUNIT_ASSERT(bondCount == 5);
+	
+	status = simResults->getFrameBonds("frame-set-X", 0, bonds, message);
 	CPPUNIT_ASSERT(status != 0);
-void* _bonds;
-	status = simResults->getFrameBonds("frame-set-1", 0, bondsCount, _bonds,
-									   message);
+	status = simResults->getFrameBonds("frame-set-1", 0, bonds, message);
 	CPPUNIT_ASSERT(status == 0);
-	CPPUNIT_ASSERT(bondsCount = 3);
 	for (bondIndex = 0; bondIndex < 3; bondIndex++) {
-		bond = ((ne1::SimResultsBond*)_bonds)[bondIndex];
-printf("\n%d %d %g", bond.atomId_1, bond.atomId_2, bond.order);fflush(0);
+		bond = ((ne1::SimResultsBond*)bonds)[bondIndex];
 		CPPUNIT_ASSERT(bond.atomId_1 == bondIndex);
 		CPPUNIT_ASSERT(bond.atomId_2 == bondIndex + 1);
 		CPPUNIT_ASSERT_DOUBLES_EQUAL(bondIndex + 0.5f, bond.order, 0.001);
+	}
+	status = simResults->getFrameBonds("frame-set-1", 1, bonds, message);
+	CPPUNIT_ASSERT(status == 0);
+	for (bondIndex = 0; bondIndex < 5; bondIndex++) {
+		bond = ((ne1::SimResultsBond*)bonds)[bondIndex];
+		CPPUNIT_ASSERT(bond.atomId_1 == 10+bondIndex);
+		CPPUNIT_ASSERT(bond.atomId_2 == 10+bondIndex + 1);
+		CPPUNIT_ASSERT_DOUBLES_EQUAL(bondIndex + 1.5f, bond.order, 0.001);
 	}
 }
 
@@ -627,10 +641,77 @@ void HDF5_SimResultsTest::getSetTotalEnergy() {
 	int status;
 	std::string message;
 	
+	float totalEnergy;
+	status =
+		simResults->getFrameTotalEnergy("frame-set-X", 0, totalEnergy, message);
+	CPPUNIT_ASSERT(status != 0);
+	
 	status =
 		simResults->setFrameTotalEnergy("frame-set-X", 0, 0.1, message);
 	CPPUNIT_ASSERT(status != 0);
 	status =
 		simResults->setFrameTotalEnergy("frame-set-1", 0, 0.1, message);
 	CPPUNIT_ASSERT(status == 0);
+	status =
+		simResults->setFrameTotalEnergy("frame-set-1", 1, 0.11, message);
+	CPPUNIT_ASSERT(status == 0);
+	
+	status =
+		simResults->getFrameTotalEnergy("frame-set-1", 0, totalEnergy, message);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(0.1, totalEnergy, 0.001);
+	status =
+		simResults->getFrameTotalEnergy("frame-set-1", 1, totalEnergy, message);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(0.11, totalEnergy, 0.001);
+}
+
+
+/* FUNCTION: getSetIdealTemperature */
+void HDF5_SimResultsTest::getSetIdealTemperature() {
+	int status;
+	std::string message;
+	
+	float temperature;
+	status =
+		simResults->getFrameIdealTemperature
+			("frame-set-X", 0, temperature, message);
+	CPPUNIT_ASSERT(status != 0);
+	
+	status =
+		simResults->setFrameIdealTemperature("frame-set-X", 0, 0.2, message);
+	CPPUNIT_ASSERT(status != 0);
+	status =
+		simResults->setFrameIdealTemperature("frame-set-1", 0, 0.2, message);
+	CPPUNIT_ASSERT(status == 0);
+	
+	status =
+		simResults->getFrameIdealTemperature
+			("frame-set-1", 0, temperature, message);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(0.2, temperature, 0.001);
+}
+
+
+/* FUNCTION: getSetPressure */
+void HDF5_SimResultsTest::getSetPressure() {
+	int status;
+	std::string message;
+	
+	float pressure;
+	status =
+		simResults->getFramePressure("frame-set-X", 0, pressure, message);
+	CPPUNIT_ASSERT(status != 0);
+	
+	status =
+		simResults->setFramePressure("frame-set-X", 0, 0.3, message);
+	CPPUNIT_ASSERT(status != 0);
+	status =
+		simResults->setFramePressure("frame-set-1", 0, 0.3, message);
+	CPPUNIT_ASSERT(status == 0);
+	
+	status =
+		simResults->getFramePressure("frame-set-1", 0, pressure, message);
+	CPPUNIT_ASSERT(status == 0);
+	CPPUNIT_ASSERT_DOUBLES_EQUAL(0.3, pressure, 0.001);
 }

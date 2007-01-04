@@ -44,6 +44,8 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 	CPPUNIT_TEST(getSetAtomVelocities);
 	CPPUNIT_TEST(getSetBonds);
 	CPPUNIT_TEST(getSetTotalEnergy);
+	CPPUNIT_TEST(getSetIdealTemperature);
+	CPPUNIT_TEST(getSetPressure);
 	
 	CPPUNIT_TEST_SUITE_END();
 
@@ -79,6 +81,8 @@ class HDF5_SimResultsTest : public CPPUNIT_NS::TestFixture {
 		void getSetAtomVelocities();
 		void getSetBonds();
 		void getSetTotalEnergy();
+		void getSetIdealTemperature();
+		void getSetPressure();
 		
 	private:
 		ne1::HDF5_SimResults* simResults;

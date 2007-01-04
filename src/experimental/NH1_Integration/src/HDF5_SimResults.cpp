@@ -888,7 +888,7 @@ int HDF5_SimResults::setFrameAtomVelocities(const char* frameSetName,
 }
 
 
-/* FUNCTION: getFrameBonds */
+/* FUNCTION: getFrameBonds
 int HDF5_SimResults::getFrameBonds(const char* frameSetName,
 								   const int& frameIndex,
 								   unsigned int& bondCount,
@@ -955,6 +955,126 @@ for (bondIndex = 0; bondIndex < data[0].len; bondIndex++) {
 	}
 	return resultCode;
 }
+*/
+
+
+/* FUNCTION: getFrameBondsCount */
+void HDF5_SimResults::getFrameBondsCount(const char* frameSetName,
+										 const int& frameIndex,
+										 unsigned int& bondCount) {
+	bondCount = 0;
+	FrameSetInfo& frameSetInfo = frameSetInfoMap[frameSetName];
+	
+	// Check if the frame has been added
+	std::string message;
+	int resultCode = checkFrameExistence(frameSetName, frameIndex, message);
+	if (resultCode == 0) {
+		// Check if the bonds dataset has been created
+		resultCode =
+		checkFrameSetDatasetExistence
+		(frameSetName, frameSetInfo.bondsDatasetId, "Bonds", message);
+		
+		if (resultCode == 0) {
+			herr_t	status;
+			
+			// Select a hyperslab.
+			hid_t filespace = H5Dget_space(frameSetInfo.bondsDatasetId);
+			hsize_t slabStart[2] = { 0, frameIndex };
+			hsize_t slabStride[2] = { 1, 1 };
+			hsize_t slabCount[2] = { 1, 1 };
+			status =
+				H5Sselect_hyperslab(filespace, H5S_SELECT_SET,
+									slabStart, slabStride, slabCount, NULL);
+			
+			// Create memory dataspace
+			hsize_t dataDims[] = { 1 };       
+			hid_t memoryspace = H5Screate_simple(1, dataDims, NULL);
+			
+			// Read data
+			hvl_t data[1];
+			status =
+				H5Dread(frameSetInfo.bondsDatasetId, bondsVariableLengthId,
+						memoryspace, filespace, H5P_DEFAULT, data);
+			if (status > -1) {
+				bondCount = data[0].len;
+				status =
+					H5Dvlen_reclaim(bondsVariableLengthId, memoryspace,
+									H5P_DEFAULT, data);
+			}
+			H5Sclose(memoryspace);
+			H5Sclose(filespace);
+		}
+	}
+}
+
+
+/* FUNCTION: getFrameBonds */
+int HDF5_SimResults::getFrameBonds(const char* frameSetName,
+								   const int& frameIndex,
+								   void* bonds,
+								   std::string& message) {
+	
+	FrameSetInfo& frameSetInfo = frameSetInfoMap[frameSetName];
+	
+	// Check if the frame has been added
+	int resultCode = checkFrameExistence(frameSetName, frameIndex, message);
+	if (resultCode == 0) {
+		// Check if the bonds dataset has been created
+		resultCode =
+		checkFrameSetDatasetExistence
+		(frameSetName,
+		 frameSetInfo.bondsDatasetId,
+		 "Bonds", message);
+		
+		if (resultCode == 0) {
+			herr_t	status;
+			
+			// Select a hyperslab.
+			hid_t filespace = H5Dget_space(frameSetInfo.bondsDatasetId);
+			hsize_t slabStart[2] = { 0, frameIndex };
+			hsize_t slabStride[2] = { 1, 1 };
+			hsize_t slabCount[2] = { 1, 1 };
+			status =
+				H5Sselect_hyperslab(filespace, H5S_SELECT_SET,
+									slabStart, slabStride, slabCount, NULL);
+			
+			// Create memory dataspace
+			hsize_t dataDims[] = { 1 };       
+			hid_t memoryspace = H5Screate_simple(1, dataDims, NULL);
+			
+			// Read data
+			hvl_t data[1];
+			status =
+				H5Dread(frameSetInfo.bondsDatasetId, bondsVariableLengthId,
+						memoryspace, filespace, H5P_DEFAULT, data);
+			if (status < 0) {
+				message = "Unable to read bonds: ";
+				
+				// Get error description from HDF5
+				std::string hdf5Message;
+				status =
+					H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+				if (status > -1)
+					message.append(hdf5Message).append(".");
+				resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+				
+			} else {
+				unsigned int bondIndex;
+				SimResultsBond bond;
+				for (bondIndex = 0; bondIndex < data[0].len; bondIndex++) {
+					bond = ((SimResultsBond*)data[0].p)[bondIndex];
+					((SimResultsBond*)bonds)[bondIndex] = bond;
+				}
+				status =
+					H5Dvlen_reclaim(bondsVariableLengthId, memoryspace,
+									H5P_DEFAULT, data);
+			}
+			H5Sclose(memoryspace);
+			H5Sclose(filespace);
+		}
+	}
+	return resultCode;
+}
 
 
 /* FUNCTION: setFrameBonds */
@@ -994,7 +1114,7 @@ int HDF5_SimResults::setFrameBonds(const char* frameSetName,
 }
 
 
-/* FUNCTION: setFrameTotalEnergy */
+/* FUNCTION: setFrameTotalEnergy
 int HDF5_SimResults::setFrameTotalEnergy(const char* frameSetName,
 										 const int& frameIndex,
 										 const float& totalEnergy,
@@ -1028,6 +1148,82 @@ int HDF5_SimResults::setFrameTotalEnergy(const char* frameSetName,
 							 frameSetInfo.measurementsDatasetId, message);
 	}
 	return resultCode;
+}
+*/
+
+
+/* FUNCTION: getFrameTotalEnergy */
+int HDF5_SimResults::getFrameTotalEnergy(const char* frameSetName,
+										 const int& frameIndex,
+										 float& totalEnergy,
+										 std::string& message) {
+	
+	return readMeasurement(frameSetName, frameIndex, TOTAL_ENERGY_MSRMT,
+						   frameSetInfoMap[frameSetName].measurementsDatasetId,
+						   totalEnergy, message);
+}
+
+
+/* FUNCTION: setFrameTotalEnergy */
+int HDF5_SimResults::setFrameTotalEnergy(const char* frameSetName,
+										 const int& frameIndex,
+										 const float& totalEnergy,
+										 std::string& message) {
+	
+	return writeMeasurement(frameSetName, frameIndex, TOTAL_ENERGY_MSRMT,
+							totalEnergy,
+							frameSetInfoMap[frameSetName].measurementsDatasetId,
+							message);
+}
+
+
+/* FUNCTION: getFrameIdealTemperature */
+int HDF5_SimResults::getFrameIdealTemperature(const char* frameSetName,
+											  const int& frameIndex,
+											  float& idealTemperature,
+											  std::string& message) {
+	
+	return readMeasurement(frameSetName, frameIndex, IDEAL_TEMPERATURE_MSRMT,
+						   frameSetInfoMap[frameSetName].measurementsDatasetId,
+						   idealTemperature, message);
+}
+
+
+/* FUNCTION: setFrameIdealTemperature */
+int HDF5_SimResults::setFrameIdealTemperature(const char* frameSetName,
+											  const int& frameIndex,
+											  const float& idealTemperature,
+											  std::string& message) {
+	
+	return writeMeasurement(frameSetName, frameIndex, IDEAL_TEMPERATURE_MSRMT,
+							idealTemperature,
+							frameSetInfoMap[frameSetName].measurementsDatasetId,
+							message);
+}
+
+
+/* FUNCTION: getFramePressure */
+int HDF5_SimResults::getFramePressure(const char* frameSetName,
+									  const int& frameIndex,
+									  float& pressure,
+									  std::string& message) {
+	
+	return readMeasurement(frameSetName, frameIndex, PRESSURE_MSRMT,
+						   frameSetInfoMap[frameSetName].measurementsDatasetId,
+						   pressure, message);
+}
+
+
+/* FUNCTION: setFramePressure */
+int HDF5_SimResults::setFramePressure(const char* frameSetName,
+									  const int& frameIndex,
+									  const float& pressure,
+									  std::string& message) {
+	
+	return writeMeasurement(frameSetName, frameIndex, PRESSURE_MSRMT,
+							pressure,
+							frameSetInfoMap[frameSetName].measurementsDatasetId,
+							message);
 }
 
 
@@ -1374,7 +1570,7 @@ int HDF5_SimResults::createTimestampsDataset(const char* frameSetName,
 }
 
 
-/* FUNCTION: writeMeasurement */
+/* FUNCTION: writeMeasurement
 int HDF5_SimResults::writeMeasurement(const int& frame,
 									  const int& measurementIndex,
 									  const float& value,
@@ -1406,7 +1602,7 @@ int HDF5_SimResults::writeMeasurement(const int& frame,
 		
 	// Write the data to the point.
 	status =
-		H5Dwrite(datasetId, H5T_NATIVE_FLOAT, H5S_ALL/*memoryspace*/, filespace,
+		H5Dwrite(datasetId, H5T_NATIVE_FLOAT, H5S_ALL, filespace,
 				 H5P_DEFAULT, data);	
 	if (status < 0) {
 		message = "Unable to write measurement: ";
@@ -1423,8 +1619,83 @@ int HDF5_SimResults::writeMeasurement(const int& frame,
 	H5Sclose(memoryspace);
 	
 	return resultCode;
-}
-
+}*/
+				 
+				 
+ /* FUNCTION: writeMeasurement */
+ int HDF5_SimResults::writeMeasurement(const char* frameSetName,
+									   const int& frameIndex,
+									   const int& measurementIndex,
+									   const float& value,
+									   const hid_t& datasetId,
+									   std::string& message) {
+	 
+	 FrameSetInfo& frameSetInfo = frameSetInfoMap[frameSetName];
+	 
+	 // Check if the frame has been added
+	 int resultCode = checkFrameExistence(frameSetName, frameIndex, message);
+	 if (resultCode == 0) {
+		 // Check if the measurements dataset has been created
+		 resultCode =
+		 checkFrameSetDatasetExistence
+		 (frameSetName, frameSetInfo.measurementsDatasetId,
+		  "Measurements", message);
+		 
+		 if (resultCode != 0) {
+			 // Create it
+			 resultCode =
+			 createMeasurementsDataset
+			 (frameSetName, frameSetInfo.measurementsDatasetId,
+			  message);
+		 }
+	 }
+	 
+	 if (resultCode == 0) {
+		 herr_t status;
+		 
+		 // Prepare data
+		 hsize_t dataDims[] = { 1 };       
+		 float data[] = { value }; 
+		 
+		 // Array to store selected points from the file dataspace
+		 hsize_t coordinates[1][2];
+		 coordinates[0][0] = measurementIndex;
+		 coordinates[0][1] = frameIndex;
+		 
+		 // Create memory dataspace
+		 hid_t memoryspace = H5Screate_simple(1, dataDims, NULL);
+		 
+		 // Extend the dataset.
+		 hsize_t	dims[2] = { 3, frameIndex + 1 };
+		 status = H5Dextend(datasetId, dims);
+		 
+		 // Select the point
+		 hid_t filespace = H5Dget_space(datasetId);
+		 status =
+			 H5Sselect_elements(filespace, H5S_SELECT_SET, 1,
+								(const hsize_t**)coordinates);
+		 
+		 // Write the data to the point.
+		 status =
+			 H5Dwrite(datasetId, H5T_NATIVE_FLOAT, memoryspace, filespace,
+					  H5P_DEFAULT, data);	
+		 if (status < 0) {
+			 message = "Unable to write measurement: ";
+			 
+			 // Get error description from HDF5
+			 std::string hdf5Message;
+			 status =
+				 H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+			 if (status > -1)
+				 message.append(hdf5Message).append(".");
+			 resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+		 }
+		 H5Sclose(filespace);
+		 H5Sclose(memoryspace);
+	 }
+	 return resultCode;
+ }
+				 
 
 /* FUNCTION: writeBonds */
 int HDF5_SimResults::writeBonds(const int& frame, const unsigned int& bondCount,
@@ -1567,6 +1838,72 @@ int HDF5_SimResults::writeTimestamp(const int& frame, const float& time,
 	H5Sclose(memoryspace);
     H5Sclose(filespace);
 	
+	return resultCode;
+}
+
+
+/* FUNCTION: readMeasurement */
+int HDF5_SimResults::readMeasurement(const char* frameSetName,
+									 const int& frameIndex,
+									 const int& measurementIndex,
+									 const hid_t& datasetId,
+									 float& value,
+									 std::string& message) {
+	
+	FrameSetInfo& frameSetInfo = frameSetInfoMap[frameSetName];
+	
+	// Check if the frame has been added
+	int resultCode = checkFrameExistence(frameSetName, frameIndex, message);
+	if (resultCode == 0) {
+		// Check if the measurements dataset has been created
+		resultCode =
+		checkFrameSetDatasetExistence
+		(frameSetName, frameSetInfo.measurementsDatasetId,
+		 "Measurements", message);
+	}
+	
+	if (resultCode == 0) {
+		herr_t status;
+		
+		// Prepare data
+		hsize_t dataDims[] = { 1 };       
+		float data[1]; 
+		
+		// Array to store selected points from the file dataspace
+		hsize_t coordinates[1][2];
+		coordinates[0][0] = measurementIndex;
+		coordinates[0][1] = frameIndex;
+		
+		// Create memory dataspace
+		hid_t memoryspace = H5Screate_simple(1, dataDims, NULL);
+		
+		// Select the point
+		hid_t filespace = H5Dget_space(datasetId);
+		status =
+			H5Sselect_elements(filespace, H5S_SELECT_SET, 1,
+							   (const hsize_t**)coordinates);
+		
+		// Read the data point
+		status =
+			H5Dread(datasetId, H5T_NATIVE_FLOAT, memoryspace, filespace,
+					H5P_DEFAULT, data);	
+		if (status < 0) {
+			message = "Unable to read measurement: ";
+			
+			// Get error description from HDF5
+			std::string hdf5Message;
+			status =
+				H5Ewalk(H5E_WALK_UPWARD, H5_ErrorStackWalker, &hdf5Message);
+			if (status > -1)
+				message.append(hdf5Message).append(".");
+			resultCode = SRDS_UNABLE_TO_COMPLETE_OPERATION;
+			
+		} else {
+			value = data[0];
+		}
+		H5Sclose(filespace);
+		H5Sclose(memoryspace);
+	}
 	return resultCode;
 }
 

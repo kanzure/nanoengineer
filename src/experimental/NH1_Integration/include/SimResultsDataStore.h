@@ -614,13 +614,24 @@ class SimResultsDataStore {
 	 * Bonds
 	 */
 	/**
-	 * Retrieves an array of SimResultsBond structs for a specified frame.
+	 * Retrieves the number of bonds for a specified frame.
 	 *
 	 * @param frameSetName	[IN] the name of the frame-set from which to
 	 *						retrieve bonds
 	 * @param frameIndex	[IN] the index of the frame from which to retrieve
 	 *						bonds
 	 * @param bondCount		[OUT] the number of bonds
+	 */
+	 virtual void getFrameBondsCount(const char* frameSetName,
+									const int& frameIndex,
+									unsigned int& bondCount) = 0;
+	/**
+	 * Retrieves an array of SimResultsBond structs for a specified frame.
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set from which to
+	 *						retrieve bonds
+	 * @param frameIndex	[IN] the index of the frame from which to retrieve
+	 *						bonds
 	 * @param bonds			[OUT] a pointer to an array of SimResultsBond
 	 *						structs (don't forget to free() it when done with
 	 *						it)
@@ -630,7 +641,6 @@ class SimResultsDataStore {
 	 */
 	virtual int getFrameBonds(const char* frameSetName,
 							  const int& frameIndex,
-							  unsigned int& bondCount,
 							  void* bonds,
 							  std::string& message) = 0;
 	
@@ -661,12 +671,10 @@ class SimResultsDataStore {
 	 *						is returned
 	 * @return 0=successful or non-zero error code
 	 */
-	/*
 	virtual int getFrameTotalEnergy(const char* frameSetName,
 									const int& frameIndex,
 									float& totalEnergy,
 									std::string& message) = 0;
-	 */
 	/**
 	 * Sets the total energy for the specified frame.
 	 *
@@ -681,31 +689,71 @@ class SimResultsDataStore {
 									const int& frameIndex,
 									const float& totalEnergy,
 									std::string& message) = 0;
-
 	/*
+	 * IdealTemperature
+	 */
+	/**
+	 * Retrieves the ideal temperature for the specified frame in Kelvin.
+	 *
+	 * @param frameSetName		[IN] the name of the frame-set of interest
+	 * @param frameIndex		[IN] the index of the frame of interest
+	 * @param idealTemperature	[OUT] ideal temperature in Kelvin
+	 * @param message			[OUT] description of the error when a non-zero
+	 *							value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int getFrameIdealTemperature(const char* frameSetName,
+										 const int& frameIndex,
+										 float& idealTemperature,
+										 std::string& message) = 0;
+	/**
+	 * Sets the ideal temperature for the specified frame.
+	 *
+	 * @param frameSetName		[IN] the name of the frame-set of interest
+	 * @param frameIndex		[IN] the index of the frame of interest
+	 * @param idealTemperature	[IN] ideal temperature in Kelvin
+	 * @param message			[OUT] description of the error when a non-zero
+	 *							value is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setFrameIdealTemperature(const char* frameSetName,
+										 const int& frameIndex,
+										 const float& idealTemperature,
+										 std::string& message) = 0;
+	/*
+	 * Pressure
+	 */
+	/**
+	 * Retrieves the pressure for the specified frame in Pascals.
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set of interest
+	 * @param frameIndex	[IN] the index of the frame of interest
+	 * @param pressure		[OUT] pressure in Pascals
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int getFramePressure(const char* frameSetName,
+								 const int& frameIndex,
+								 float& pressure,
+								 std::string& message) = 0;
+	/**
+	 * Sets the pressure for the specified frame.
+	 *
+	 * @param frameSetName	[IN] the name of the frame-set of interest
+	 * @param frameIndex	[IN] the index of the frame of interest
+	 * @param pressure		[OUT] pressure in Pascals
+	 * @param message		[OUT] description of the error when a non-zero value
+	 *						is returned
+	 * @return 0=successful or non-zero error code
+	 */
+	virtual int setFramePressure(const char* frameSetName,
+								 const int& frameIndex,
+								 const float& pressure,
+								 std::string& message) = 0;
 	
-	def getFrameIdealTemperature(self, frameSetName, frameIndex):
-		"""Returns the ideal temperature for the specified frame in Kelvin."""
-		pass
-	def setFrameIdealTemperature(self, frameSetName, frameIndex, temperature):
-		"""
-		Sets the ideal temperature for the specified frame.
-		@param temperature: in Kelvin
-		"""
-		pass
 	
-	
-	def getFramePressure(self, frameSetName, frameIndex):
-		"""Returns the pressure for the specified frame in Pascals."""
-		pass
-	def setFramePressure(self, frameSetName, frameIndex, pressure):
-		"""
-		Sets the pressure for the specified frame.
-		@param pressure: in Pascals
-		"""
-		pass
-	
-	
+	/*
 	def getFrameExtDataNames(self, frameSetName):
 		"""Returns an array of extension data-set names for a given frame-set."""
 		pass
