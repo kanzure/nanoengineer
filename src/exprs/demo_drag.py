@@ -322,7 +322,10 @@ class World(ModelObject):
     nodelist = State(list_Expr, []) ###k ?? # self.nodelist is public for append (can that be changetracked???#####IMPLEM) or reset
     def draw(self):
         # clear the state? (kluge that we do this here at all or do it this way w/ a checkbox_pref; 070103 late hack)
-        # (seems to work fine except for the "event already occurred" warning every time I clear some nodes)
+        # (seems to work fine except for the "event already occurred" warning every time I clear some nodes;
+        #  guess at cause: this draw method is like a recompute based on value of nodelist, but doing the recomp is also changing
+        #  the nodelist, and in general for a recomp to change one of its inputs is a nono. Fixing the kluge of doing it here
+        #  should fix that. i.e. just make a real button which side-effects this state directly, that should fix it. ##e)
         import env
         clearbuttondown = env.prefs.get(kluge_dragtool_state_prefs_key + "cb ", False)
         if clearbuttondown:
@@ -330,6 +333,8 @@ class World(ModelObject):
                 self.nodelist = []
             return
         # draw all the nodes
+        # [optim idea 070103 late: have caller put this in a DisplistChunk; will it actually work?
+        #  the hope is, yes for animating rotation, with proper inval when nodelist changes. It ought to work! Try it. ####e]
         for node in self.nodelist:
             # print "%r is drawing %r at %r" % (self, node, node.pos) # suspicious: all have same pos ... didn't stay true, nevermind
             node.draw() # this assumes the items in the list track their own posns, which might not make perfect sense;
@@ -436,7 +441,9 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                        #   that has been discussed elsewhere... i forget if dynenv or _optional_options = dict() seemed best.
                        on_press = _self.on_press_bg,
                        on_drag = _self.on_drag_bg )), # end of Highlightable and DisplistChunk
-        world
+      DisplistChunk( world) ##, debug_prints = "World")
+          # try DisplistChunk, 070103 later -- predict it will break dragging of old nodes due to nested glnames;
+          # IT DOESN'T -- WHY NOT?!? Oh, duh, because only Highlighting pushes a glname, not DisplistChunk.
     )
     _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
 
