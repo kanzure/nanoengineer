@@ -772,78 +772,62 @@ class ExprsMeta(type):
         # look for special vals, or vals assigned to special prefixes, in the new class object's original namespace
         # (since we will modify these in the namespace we'll actually use to create it)
         for attr, val in ns.iteritems():
-            #### 070104 late: iteritems -> items to see if it helps fix my weird exception:
-            ##AssertionError: these attrs claim the same arg: ['bbottom', 'drawables']
-            # (it doesn't) (but i fixed it separately so change it back to iteritems -- ok?######)
 
-            if 1: # soon to be disabled since not yet working but cause lots of debug prints and some errors [070104 late]
-                # draw decorators:
-                # new feature 070104, experimental, should be generalized:
-                # if attr is draw and val is callable, assume it's a draw function
-                # which should be "decorated" using a specially named function in a superclass (or perhaps in this class).
-                # But how do we look up the decorating function? We have to produce a function object or a descriptor...
-                # if a descriptor it could look up the decorator dynamically... if we find it now, note that it might be
-                # either earlier or later in ns.iteritems()! Not a problem if we just index ns to find it in that case.
-                use_dec = None
-                if attr == 'draw': #e maybe: generalize to any xxx for which _e_decorate_xxx exists in ns or any superclass
-                    decname = "_e_decorate_draw" #e might be revised
-                    decs = [] # decorator candidates (built up in following loop) ###REVISE since there will be at most one soon
-                    if ns.has_key(decname):
-                        decs.append(ns[decname])
-                        # that one wins, no need to look in bases
-                    else:
-                        # Need to check all supers in mro. Easiest way to get mro is to make a new class just to find it.
-                        fakecls = super(ExprsMeta, cls).__new__(cls, "_ExprsMeta__fake_class", bases, {}) #k I hope a namespace of {} is ok
-    ##                    print "fyi: ExprsMeta for %s: fakecls.__mro__ = %r" % (name, fakecls.__mro__)
-                        for supcls in fakecls.__mro__:
-                            if supcls.__dict__.has_key(decname):
-    ##                            print "fyi: ExprsMeta for %s: found %s in %r" % (name, decname, supcls)#works
-                                decs.append(supcls.__dict__[decname])
-                                break
-                            continue
-    ##                    # WRONG try1 version: base.__dict__ doesn't include its superclass dicts!
-    ##                    for base in bases:
-    ##                        if base.__dict__.has_key(decname):
-    ##                            decs.append(base.__dict__[decname])
-    ##                        continue
-                        pass
-                    if len(decs) > 1:
-                        assert 0, "no longer reached!"
-                        #e should use method resolution order or some kluge with eval and super, but for now,
-                        # give up unless they are all the same:
-                        use_dec = decs[0] # tentative
-                        for dec in decs:
-                            if dec is not use_dec:
-                                print "\n*** error: ExprsMeta for %s: don't know which %s to use out of %r, so not using any" % (name, decname, decs)
-                                use_dec = None
-                                break
-                            continue
-                        pass
-                    elif len(decs) < 1:
-                        print "warning: ExprsMeta for %s: found no %s to use on %r function %r" % (name, decname, attr, val) # why does this still happen?
-    ##                    print "this cls.__mro__ (defined yet?) is", cls.__mro__ # yes but not useful: cls might be wrong thing...
-    ##                    for base in bases:
-    ##                        print "base %r has .__mro__ %r" % (base, base.__mro__) # wrong, no __mro__ on non-newstyle base classes
-                    else:
-                        use_dec = decs[0]
-    ##                    print "fyi: ExprsMeta for %s: found %s = %r to use on %r function %r" % (name, decname, use_dec, attr, val)
+            # draw decorators:
+            # new feature 070104, experimental, should be generalized:
+            # if attr is draw and val is callable, assume it's a draw function
+            # which should be "decorated" using a specially named function in a superclass (or perhaps in this class).
+            # But how do we look up the decorating function? We have to produce a function object or a descriptor...
+            # if a descriptor it could look up the decorator dynamically... if we find it now, note that it might be
+            # either earlier or later in ns.iteritems()! Not a problem if we just index ns to find it in that case.
+            use_dec = None
+            if attr == 'draw': #e maybe: generalize to any xxx for which _e_decorate_xxx exists in ns or any superclass
+                decname = "_e_decorate_draw" #e might be revised
+                decs = [] # decorator candidates (built up in following loop) ###REVISE since there is at most one now
+                if ns.has_key(decname):
+                    decs.append(ns[decname])
+                    # that one wins, no need to look in bases
+                else:
+                    # Need to check all supers in mro. Easiest way to get mro is to make a new class just to find it.
+                    fakecls = super(ExprsMeta, cls).__new__(cls, "_ExprsMeta__fake_class", bases, {}) #k I hope a namespace of {} is ok
+                    for supcls in fakecls.__mro__:
+                        if supcls.__dict__.has_key(decname):
+                            decs.append(supcls.__dict__[decname])
+                            break
+                        continue
                     pass
-                # now use_dec is None or a decorator function to use around val (presumed to be a draw method)
-                # (note, it's not an unbound method, but a function meant to be treated as one.. we'll just manually pass self to it...
-                #  maybe someday we'll call a helper function and have it do what this lambda does, so it can change what it does dynamically)
-                if use_dec:
-                    assert callable(use_dec)
-                    oldfunc = val
-                    # syntax error, need to change to an object bound method or a custom descriptor:
-    ##                def newfunc(self, *args, _oldfunc = oldfunc, _decorator = use_dec):
-    ##                    return _decorator(self, _oldfunc, *args)
-                    printnim("stub for newfunc = oldfunc needs fixing to use _e_decorator_draw")#####
-                    newfunc = oldfunc
-                    ####BUG: does the next line cause my weird exception:
-                    ## AssertionError: these attrs claim the same arg: ['bbottom', 'drawables']
-                    ns[attr] = newfunc # this modification of ns is legal even within iteritems
-                    continue # skip the rest of this loop on attr,val in ns  [###BUG: was break; this has fixed my weird exception###]    
+                if len(decs) > 1:
+                    assert 0, "no longer reached!"
+                    #e should use method resolution order or some kluge with eval and super, but for now,
+                    # give up unless they are all the same:
+                    use_dec = decs[0] # tentative
+                    for dec in decs:
+                        if dec is not use_dec:
+                            print "\n*** error: ExprsMeta for %s: don't know which %s to use out of %r, so not using any" % (name, decname, decs)
+                            use_dec = None
+                            break
+                        continue
+                    pass
+                elif len(decs) < 1:
+                    print "warning: ExprsMeta for %s: found no %s to use on %r function %r" % (name, decname, attr, val) # why does this still happen?
+                else:
+                    use_dec = decs[0]
                 pass
+            # now use_dec is None or a decorator function to use around val (presumed to be a draw method)
+            # (note, it's not an unbound method, but a function meant to be treated as one.. we'll just manually pass self to it...
+            #  maybe someday we'll call a helper function and have it do what this lambda does, so it can change what it does dynamically)
+            if use_dec:
+                assert callable(use_dec)
+                oldfunc = val
+                # syntax error, need to change to an object bound method or a custom descriptor:
+##                def newfunc(self, *args, _oldfunc = oldfunc, _decorator = use_dec):
+##                    return _decorator(self, _oldfunc, *args)
+                printnim("stub for newfunc = oldfunc needs fixing to use _e_decorator_draw")#####
+                newfunc = oldfunc
+                ns[attr] = newfunc # this modification of ns is legal even within iteritems
+                continue # skip the rest of this loop on attr,val in ns
+                    ##e [this huge loop body badly needs cleanup/simplify/split out subfuncs!]
+            pass
 
             # ==
             
