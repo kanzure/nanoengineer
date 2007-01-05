@@ -131,4 +131,33 @@ def union(A,B): #k does this override anything that's standard in python? if so,
         return B
     pass
 
+class delegated_state_attr(object): # 070103, moved from GLPane_overrider.py 070104
+    """A descriptor (like a property) which delegates get and set of an attr into another object found at a specified attrpath.
+    For example, to delegate self.quat to self.delegate.quat (for get and set), use
+      quat = delegated_state_attr('delegate', 'quat')
+    """
+    def __init__(self, *attrpath):
+        self.path_to_obj = tuple(attrpath[0:-1])
+        self.attr = attrpath[-1]
+        assert self.path_to_obj + (self.attr,) == attrpath
+    def find_obj(self, obj):
+        assert obj is not None
+        for attr in self.path_to_obj:
+            obj = getattr(obj, attr)
+        return obj
+    def __get__(self, obj, cls):
+        if obj is None:
+            return self
+        obj = self.find_obj(obj)
+        attr = self.attr
+        return getattr(obj, attr)
+    def __set__(self, obj, val):
+        if obj is None:
+            return
+        obj = self.find_obj(obj)
+        attr = self.attr
+        setattr(obj, attr, val)
+        return
+    pass
+
 # end
