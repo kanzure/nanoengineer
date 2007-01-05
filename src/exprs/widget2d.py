@@ -33,11 +33,8 @@ class Widget(InstanceOrExpr):
         ### we'll have fix_ for the dims too, handling their units, perhaps in a way specific to this class
         ### we'll have memoization code for all these attrs
         ### and we'll need better control of gl state like GL_CULL_FACE, if we can run this while it's already disabled
-    def _e_decorate_draw(self, oldfunc, *args):
-        "#doc"
-        assert not args
-        print "called _e_decorate_draw in %r" % self### remove when works [070104]
-        return oldfunc(*args)
+    # note: _e_decorate_draw is not defined here, but on InstanceOrExpr,
+    # so that a delegating InstanceOrExpr can have a draw method and have it get decorated. [070104]
     def draw(self):
         "#doc"
         print "warning: no draw method in %r" % self
