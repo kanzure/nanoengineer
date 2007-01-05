@@ -43,7 +43,7 @@ from TextRect import TextRect
 
 import controls
 reload_once(controls)
-from controls import checkbox_pref 
+from controls import checkbox_pref, ActionButton
 
 import Column
 reload_once(Column)
@@ -651,7 +651,7 @@ kluge_dragtool_state() # set the default val
 kluge_dragtool_state_checkbox_expr = SimpleColumn( # note, on 061215 late, checkbox_pref was replaced with a better version, same name
     checkbox_pref(kluge_dragtool_state_prefs_key,         "drag new nodes?", dflt = kluge_dragtool_state_prefs_default),
     checkbox_pref(kluge_dragtool_state_prefs_key + "bla", "some other pref"),
-    checkbox_pref(kluge_dragtool_state_prefs_key + "cb ", "button: clear"),
+    checkbox_pref(kluge_dragtool_state_prefs_key + "cb ", "button: clear"), ###e use ActionButton somehow, but what action?
  )    
 
 # end
