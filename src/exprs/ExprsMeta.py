@@ -801,7 +801,9 @@ class ExprsMeta(type):
                         continue
                     pass
                 elif len(decs) < 1:
-                    print "warning: ExprsMeta: found no %s to use on %r function %r" % (decname, attr, val) # will happen a lot at first
+                    print "warning: ExprsMeta: found no %s to use on %r function %r" % (decname, attr, val) # why does this still happen?
+                    for base in bases:
+                        print "base %r has dict keys %r" % (base, base.__dict__.keys())###
                 else:
                     use_dec = decs[0]
                 pass
