@@ -294,6 +294,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         # which the current code does not even detect, since it gives them the same glname. ###e
     # options
     highlight_color = Option(Color, None)#UNTESTED ## suggest: ave_colors(0.9,gray,white)) # use this only if background takes a color option
+    use_VertexView = Option(bool, False) # 070105 so I can try out new code w/o breaking old code #### TRYIT
     # internals
     world = Instance( World() ) # has .nodelist I'm allowed to extend
     _value = Overlay(
@@ -357,11 +358,21 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             ###e needs more principled fix -- not yet sure what that should be -- is it to *draw* closer? (in a perp dir from surface)
             #e or just to create spheres (or anything else with thickness in Z) instead? (that should not always be required)
 
-        node_expr = Vertex(newpos, Center(Rect(0.2,0.2,
+        if not self.use_VertexView:
+            # old code
+            node_expr = Vertex(newpos, Center(Rect(0.2,0.2,
                                              ## 'green', -- now we cycle through several colors: (colors,...)[counter % 6]
                                              tuple_Expr(green,yellow,red,blue,white,black)[mod_Expr(_this(Vertex).ipath[0],6)]
                                              )))
-        draggable_node_expr = Highlightable(node_expr, on_drag = _self.on_drag_node, sbar_text = "dne")
+        else:
+            # new code, being written 070105, just getting started -- mostly nim
+            node_expr = Vertex_new(newpos,
+                               # cycle through several colors: (colors,...)[counter % 6]
+                               color = tuple_Expr(green,yellow,red,blue,white,black)[mod_Expr(_this(Vertex).ipath[0],6)]
+                            )
+            pass
+        
+        ## draggable_node_expr = Highlightable(node_expr, on_drag = _self.on_drag_node, sbar_text = "dne")
             ###BUG: this breaks dragging of the new node; it fails to print the call message from on_drag_node;
             # if you try to drag an old node made this way, it doesn't work but says
             # debug fyi: len(names) == 2 (names = (268L, 269L))
@@ -414,7 +425,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             newnode = self.make_and_add( node_expr)
             
         self.newnode = newnode ###KLUGE that we store it directly in self; might work tho; we store it only for use by on_drag_bg
-        return
+        return # from on_press_bg
     
     def make_and_add(self, node_expr):
         node = self.make(node_expr)
@@ -427,10 +438,10 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         ##e let new node be dragged, and use Command classes above for newmaking and dragging
         return node
     
-    def on_drag_node(self):
-        print "on_drag_node called -- how can we know *which* node it was called on??"
-        # 070103 status guess: this is not called; old cmts above seem to say that the only problem with it working is nested glnames. 
-        return
+##    def on_drag_node(self):
+##        print "on_drag_node called -- how can we know *which* node it was called on??"
+##        # 070103 status guess: this is not called; old cmts above seem to say that the only problem with it working is nested glnames. 
+##        return
     
     def on_drag_bg(self):
         # note: so far, anyway, called only for drag after click on empty space, not from drag after click on existing node
