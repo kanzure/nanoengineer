@@ -152,8 +152,8 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
 
     #e so now what we want is for this (in super modelobject) to delegate to a computed viewer from the helper func above
 
-    #e but also to have more args that can be used to set the color
-    color = Option(Color, color)
+    #e but also to have more args that can be used to set the color [do this only in Vertex_new, below]
+    ## color = Option(Color, color)
     
 ##    pass
 
@@ -195,6 +195,49 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
         return
 
     pass # end of class Vertex
+
+# ==
+
+class ModelObject_new(DelegatingInstanceOrExpr):
+    ###e delegate = something from env.viewer_for_model_object(self) or so
+    pass
+    
+class Vertex_new(ModelObject_new): #070105 ###e maybe it also needs an official type or typename for use in rules and files?
+    pos0 = Arg(Position)
+    pos = State(Position, pos0)
+    color = Option(Color, color)
+    pass
+
+class Viewer(InstanceOrExpr):
+    "superclass for viewers of model objs given as arg1"
+    modelobj = Arg(ModelObject_new) #k can subclass refer to this??
+    pass
+
+class VertexViewer(DelegatingInstanceOrExpr, Viewer): ###k ok supers?
+    
+    delegate = Rect(1, color = _self.modelobj.color) ###WRONG details, also assumes _self.modelobj has a color, but some don't.
+        ###e do we wrap it in a provider of new default options??
+    ###e also needs behaviors...
+        
+# ==
+
+viewerfunc = identity # stub - might better be that hardcoded helper func above ####e
+
+class WithViewerFunc(DelegatingInstanceOrExpr):#070105 stub experiment for use with use_VertexView option
+    world = Arg(Anything)
+    viewerfunc = Arg(Anything) ### NOT YET USED in this stub
+    delegate = _self.world # stub
+    #e what we actually want is to supply a different env to delegate == arg1, which contains a change from parent env,
+    # which depends on viewerfunc. We want a standard way to ask env for viewers, and the change should override that way.
+    # But we don't yet have a good way to tell this macro to override env for some arg.
+    # We probably have some way to do that by overriding some method to find the env to use for an arg...
+    # but we didn't, so i made one.
+    def env_for_arg(self, index): # 070105 experiment -- for now, it only exists so we can override it in some subclasses
+        env = self.env_for_args #e or could use super of this method [better #e]
+        if index == 0: #KLUGE that we know index for that arg (world, delegate, arg1)
+            env = env.with_lexmods({}) #### something to use viewerfunc
+        return env
+    pass
 
 # ==
 
@@ -331,7 +374,9 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                        #   that has been discussed elsewhere... i forget if dynenv or _optional_options = dict() seemed best.
                        on_press = _self.on_press_bg,
                        on_drag = _self.on_drag_bg )), # end of Highlightable and DisplistChunk
-      DisplistChunk( world) ##, debug_prints = "World")
+      If( _self.use_VertexView,
+          DisplistChunk( WithViewerFunc(world, viewerfunc) ),
+          DisplistChunk( world) ##, debug_prints = "World")
           # try DisplistChunk, 070103 later -- works, doesn't break dragging of contained old nodes.
     )
     _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
