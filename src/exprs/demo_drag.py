@@ -86,9 +86,28 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     pos = State(Position, pos0) ###BUG -- does this work -- is pos0 set in time for this? not sure it's working... 061205 1009p
     #e we probably want to combine pos0/pos into one ArgState or StateArg so it's obvious how they relate,
     # and only one gets saved in file, and only one self.attr name is used up and accessible
+
+    # the rest of this class is for drawing it and interacting with it.
+    # Can we move that code into e.g. VertexDrawable or VertexView
+    # and have Vertex itself just delegate (for sake of draw, lbox, etc) to some rule in the env for getting a Drawable for it,
+    # probably looking it up in a dynamic memoizing mapping in the env? ####e [070105]
+    # I think YES.
+    # - a main difference between a model & view object -- a view obj knows how to draw itself, a model obj asks the env.
+    #   (and the answer is quite different in different envs, e.g. 3d area vs MT. but what if we mix those?)
+    # related notes:
+    # - it might want a different delegate for drawing purposes (draw, lbox) and sim purposes (or others).
+    # - does it also have an attr corresponding to its index/address/id in the model world?
+    # - and maybe some for relations to other model objs, eg MT-parent, tags, name, etc?
+    # - and maybe some graphics prefs like color or whatever, even if it's up to the drawing rule whether/how to use these?
+    # - and for that matter some arbitrary other data (named attrs), as we'll let any model object have?
+    # simplest thing that could work --
+    # - make some sort of MemoDict for model-view and put it into the env, even if we kluge how to set it up for now.
+    #   how does MT_demo do it? With a hardcoded helper function using a MemoDict in a simple way -- no involvement of env.
+    
     lookslike = ArgOrOption(Anything) # OrOption is so it's customizable
-        ###BAD for lookslike to be an attr of the Vertex, at least if this should be a good example of editing a sketch.
+        ###BAD for lookslike to be an attr of the Vertex, at least if this should be a good example of editing a sketch. [070105]
         # (a fancy sketch might have custom point types, but they'd have tags or typenames, with rules to control what they look like)
+        
     ## delegate = _self.lookslike #k
     delegate = Highlightable( Translate( lookslike, pos ),
                               ## eval_Expr( call_Expr(lookslike.copy,)( color = yellow) ),  #####?? weird exc don't know why - reload?

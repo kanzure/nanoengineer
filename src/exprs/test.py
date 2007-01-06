@@ -1102,7 +1102,7 @@ testexpr = testexpr_19d
     ## testexpr_13z4 red/blue image
     ## testexpr_15d ChoiceColumn
     ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
-    ## testexpr_18 model tree demo
+    ## testexpr_18 model tree demo [only use of MT exprhead in this file -- that exprhead and its module need renaming btw]
     ## testexpr_19b GraphDrawDemo_FixedToolOnArg1 -- works, but the tool remains IN DEVEL ###
         # _19c has checkbox overlay; _19d puts it in corner (works but highlight-sync bug is annoying)
     ## testexpr_20 four DrawInCorners (works but highlighting is slow)
@@ -1139,7 +1139,8 @@ bottom_left_corner = Boxed(SimpleColumn(
     # and Boxed not resizable, and labels wouldn't grow if it was (and they're not long enough, tho that'd be ok if they'd grow),
     # and reload is pretty slow since we're not caching all this testbed stuff (at least I guess that's why)
 
-top_left_corner = testexpr_10c
+top_left_corner = testexpr_10c # nested ToggleShow.
+    # Note: testexpr_18 (MT) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
 
 def testbed(expr):
     "this turns the current testexpr into the actual expr to render"

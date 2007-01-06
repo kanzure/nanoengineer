@@ -1,5 +1,20 @@
 """
 $Id$
+
+works in testexpr_18
+
+warning: *not* being used in test.py's top_left_corner [as of 070105 anyway], that's something else that looks the same
+
+#e should rename this module to demo_MT, and rename the main class it defines from MT to something longer
+
+bugs to fix:
+- overlay highlight bug (gray hides plus sign -- for best way to fix, see notesfile 070105)
+- updating
+- see "nim issues" comment below
+
+nfrs:
+- use DisplistChunk
+- see "needed polish" comment below, etc
 """
 
 #e stub, but works in test.py:
