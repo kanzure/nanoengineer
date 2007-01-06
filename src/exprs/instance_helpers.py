@@ -526,7 +526,9 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         if external_flag:
             # flag and this condition added 061116 443p to try to fix '_self dflt_expr bug'; seems to work in testexpr_9a;
             # I'm guessing type_expr doesn't have a similar bug since it's applied outside this call. #k
-            res = lexenv_Expr(self.env_for_args, res0) ##k lexenv_Expr is guess, 061110 late, seems confirmed; env_for_args 061114
+            index = attr or argpos #k I guess, for now [070105 stub -- not always equal to index in ipath, esp for ArgOrOption]
+            env_for_arg = self.env_for_arg(index) # revised 070105
+            res = lexenv_Expr(env_for_arg, res0) ##k lexenv_Expr is guess, 061110 late, seems confirmed; env_for_args 061114
             #e possible good optim: use self.env instead, unless res0 contains a use of _this;
             # or we could get a similar effect (slower when this runs, but better when the arg instance is used) by simplifying res,
             # so that only the used parts of the env provided by lexenv_Expr remained (better due to other effects of simplify)
@@ -549,6 +551,14 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             print "_i_grabarg returns %r" % (res,)
         return res
 
+    def env_for_arg(self, index): # 070105 experiment -- for now, it only exists so we can override it in some subclasses
+        """Return the env to use for the arg (or kid?) at the given index (attr or argpos, I guess, for now #k).
+        By default this is just self.env_for_args.
+        Certain subclasses can override it to supply other envs based on that,
+        or self.env, using .with_lexmods(dict) to alter them.
+        """
+        return self.env_for_args
+        
     def _C_env_for_args(self):###NAMECONFLICT? i.e. an attr whose name doesn't start with _ (let alone __ _i_ or _e_) in some exprs
         "#doc"
         lexmods = {} # lexmods for the args, relative to our env
