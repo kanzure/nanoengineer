@@ -223,7 +223,7 @@ class VertexViewer(DelegatingInstanceOrExpr, Viewer): ###k ok supers?
 
 viewerfunc = identity # stub - might better be that hardcoded helper func above ####e
 
-class WithViewerFunc(DelegatingInstanceOrExpr):#070105 stub experiment for use with use_VertexView option
+class WithViewerFunc(DelegatingInstanceOrExpr):#070105 stub experiment for use with use_VertexView option ### NOT YET USED non-stubbily
     world = Arg(Anything)
     viewerfunc = Arg(Anything) ### NOT YET USED in this stub
     delegate = _self.world # stub
@@ -238,6 +238,33 @@ class WithViewerFunc(DelegatingInstanceOrExpr):#070105 stub experiment for use w
             env = env.with_lexmods({}) #### something to use viewerfunc
         return env
     pass
+
+# let's try a more primitive, more general version:
+
+class WithEnvMods(DelegatingInstanceOrExpr):#070105 stub experiment -- refile into instance_helpers.py if accepted ### NOT YET USED
+    """WithEnvMods(something, var1 = val1, var2 = val2) delegates to something, but with something instantiated
+    in a modified dynamic environment compared to self, in which env.var1 is defined by the formula val1, etc,
+    with the formulae interpreted as usual in the lexical environment of self (e.g. they can directly contain
+    Symbol objects which have bindings in env, or they can reference any symbol biding in env using _env.symbolname ###IMPLEM
+    or maybe other notations not yet defined such as _the(classname) ###MAYBE IMPLEM).
+    """
+    # The goal is to just say things like WithEnvMods(model, viewer_for_object = bla)
+    # in order to change env.viewer_for_object, with bla able to refer to the old one by _env.viewer_for_object, I guess.
+    # This assumes env.viewer_for_object is by convention a function used by ModelObjects to get their views. (Why "viewer" not "view"?)
+    delegate = Arg(Anything)
+    var1 = Option(Anything) ###WRONG, but shows the idea for now...
+    def env_for_arg(self, index):
+        env = self.env # note: not self.env_for_args, since we'd rather not lexically bind _my.
+            # But by convention that means we need a new lowercase name... ####e
+        if index == 0: #KLUGE that we know index for that arg (delegate, arg1)
+            mods = {} ###stub, WRONG
+                #### how do we make these mods? _e_kws tells which, but what env/ipath for the formulae?
+                # for that matter do we eval them all now, or (somehow) wait and see if env clients use them?
+                # ... would it be easier if this was an OpExpr rather than an InstanceOrExpr?
+            env = env.with_lexmods(mods)
+        return env
+    pass
+
 
 # ==
 

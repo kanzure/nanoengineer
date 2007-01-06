@@ -551,11 +551,16 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             print "_i_grabarg returns %r" % (res,)
         return res
 
-    def env_for_arg(self, index): # 070105 experiment -- for now, it only exists so we can override it in some subclasses
+    def env_for_arg(self, index): # 070105 experiment -- for now, it only exists so we can override it in certain primitive subclasses
         """Return the env to use for the arg (or kid?) at the given index (attr or argpos, I guess, for now #k).
         By default this is just self.env_for_args.
-        Certain subclasses can override it to supply other envs based on that,
-        or self.env, using .with_lexmods(dict) to alter them.
+        Certain subclasses [intended to be dynenv-modifying primitives, not user macros]
+        can override this (for specific indices) to supply other envs based on self.env_for_args or self.env,
+        using .with_lexmods(dict) to alter one of those envs. They should use self.env_for_args if they want to
+        lexically bind _this(theirname) and _my, not otherwise. For OpExpr-like primitives it might be best to use self.env.
+           Note that overriding this method in a user-level macro (e.g. one based on DelegatingInstanceOrExpr)
+        may not work as expected, since this is only used to alter the env for exprs that come from outside as actual args,
+        not those that are defined internally by formulae (not even the default value formula for an arg).
         """
         return self.env_for_args
         
