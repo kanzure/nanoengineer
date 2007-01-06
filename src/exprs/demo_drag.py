@@ -57,6 +57,51 @@ import DisplistChunk # works 070103, with important caveats re Highlightable
 reload_once(DisplistChunk)
 from DisplistChunk import DisplistChunk
 
+import lvals
+reload_once(lvals)
+from lvals import Lval, LvalDict2, call_but_discard_tracked_usage
+
+# == trivial prototype of central cache of viewers for objects -- copied/modified from MT_demo.py, 070105, not yet used, stub
+
+def _make_viewer_for_object(obj, essential_data):
+    ###stub
+    assert obj.__class__.__name__.endswith("Vertex")
+    return VertexView(obj)
+
+    # semiobs cmt (del or refile a bit below #e):
+    # args are (object, essential-data) where data diffs should prevent sharing of an existing viewer
+    # (this scheme means we'd find an existing but not now drawn viewer... but we only have one place to draw one at a time,
+    #  so that won't come up as a problem for now.)
+    # (this is reminiscent of the Qt3MT node -> TreeItem map...
+    #  will it have similar problems? I doubt it, except a memory leak at first, solvable someday by a weak-key node,
+    #  and a two-level dict, key1 = weak node, key2 = essentialdata.)
+
+def _make_viewer_for_object_using_key(key):
+    """[private, for use in a MemoDict or LvalDict2]
+    #doc
+    key is whatever should determine how to make the viewer and be used as the key for the dict of cached viewers
+    so it includes whatever matters in picking which obj to make/cache/return
+    but *not* things that determine current viewer
+    but in which changes should invalidate and replace cached viewers.
+    """
+    obj, essential_data, reload_counter = key ###k assume key has this form
+    print "make viewer for obj %r, reload_counter = %r" % (obj, reload_counter) ###
+    # obj is any model object
+    viewer = _make_viewer_for_object(obj)
+    return viewer
+
+_viewer_lvaldict = LvalDict2( _make_viewer_for_object_using_key )
+
+def _viewer_for_object(obj, essential_data = None): #####@@@@@ CALL ME
+    "Find or make a viewer for the given model object. Essential data is hashable data which should alter which viewer to find. ###k??"
+    from testdraw import vv
+    reload_counter = vv.reload_counter # this is so we clear this cache on reload (even if this module is not reloaded)
+    # assume essential_data is already hashable (eg not dict but sorted items of one)
+    key = (obj, essential_data, reload_counter)
+    lval = _viewer_lvaldict[ key ]
+    viewer = lval.get_value() ###k?
+    return viewer
+
 # ==
 
 class ModelObject(InstanceOrExpr,DelegatingMixin): # stub ##e will we need Widget2D for some reason?
@@ -103,6 +148,18 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     # simplest thing that could work --
     # - make some sort of MemoDict for model-view and put it into the env, even if we kluge how to set it up for now.
     #   how does MT_demo do it? With a hardcoded helper function using a MemoDict in a simple way -- no involvement of env.
+    #   So see above for copied code from that... ###e
+
+    #e so now what we want is for this (in super modelobject) to delegate to a computed viewer from the helper func above
+
+    #e but also to have more args that can be used to set the color
+    color = Option(Color, color)
+    
+##    pass
+
+## class VertexView(xx): -- SOMETHING LIKE THIS IS THE INTENT ####
+
+    #e and then we want this new class to have the hardcoded appearance & behavior which the code below now passes in lookslike arg
     
     lookslike = ArgOrOption(Anything) # OrOption is so it's customizable
         ###BAD for lookslike to be an attr of the Vertex, at least if this should be a good example of editing a sketch. [070105]
