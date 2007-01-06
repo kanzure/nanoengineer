@@ -46,6 +46,8 @@ Copy -- can SimpleCopyMixin work? It needs an exception to usage-tracking (basic
 since it is defined to take a snapshot.
 
 ...
+
+much later: see also non-cvs notes (files & paper) of 070105
 """
 
 from basic import *
@@ -128,7 +130,7 @@ class Sphere_ExampleModelNode(ModelNode):
     if 0:
         # StateArg might be equivalent to this (except for the name to use in the Arg if it matters, e.g. for StateOption):
         _orig_pos = Arg(Position, ORIGIN) #e can we pass an index to override '_orig_pos' if it matters?
-        pos = State(Position, _orig_pos) # see similar code in drag_demo (in class Vertex I think)
+        pos = State(Position, _orig_pos) # see similar code in demo_drag (in class Vertex I think)
         
     radius = StateArg(Width, 1)
     color = StateArgOrOption(Color, gray)
