@@ -1076,11 +1076,17 @@ testexpr_24b = resizablyBoxed(Boxed(Rect(1))) # works with action being incrs of
 
 testexpr_25 = ActionButton( PrintAction("pressed me"), "test button")
 
+# == demo of shared instance, drawn in two places (syntax is a kluge, and perhaps won't even keep working after eval/instantiate fix )
+
+testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , testexpr_10c )) # works, except for highlighting bug --
+    # when you draw one instance twice, Highlightables only work within the last-drawn copy. See BUGS file for cause and fix.
+
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True
 
-testexpr = testexpr_19d
+testexpr = testexpr_26
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
     ## testexpr_19d
@@ -1209,6 +1215,12 @@ testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't wor
 
 # == per-frame drawing code
 
+_kluge_current_testexpr_instance = None
+    # new feature 070106 for use by other modules such as demo_drag, but it's deprecated at birth and may never be used.
+    # WARNING: if enable_testbed is set, this is actually an instance of testbed(testexpr), not of testexpr alone,
+    # and there's no simple way to find the instance of testexpr inside it (even assuming there's exactly one instance,
+    # which is only a convention).
+
 def drawtest1_innards(glpane):
     "entry point from ../testdraw.py (called once per mode.Draw call)"
     ## print "got glpane = %r" % (glpane,)
@@ -1227,6 +1239,9 @@ def drawtest1_innards(glpane):
         # for testbed changes to have desired effect, we'll need to switch them among __eq__-comparable choices (like exprs)
         # rather than among defs, or editing one def, like we do now... not sure it's easy to make it an expr though;
         # but when it is, change to that to improve this. ##e
+
+    global _kluge_current_testexpr_instance
+    _kluge_current_testexpr_instance = inst
     
     from basic import printnim, printfyi
 

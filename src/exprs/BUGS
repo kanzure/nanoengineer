@@ -226,6 +226,23 @@ rather when HL has those decorators on draw, they should avoid displists only if
 should not be descended into -- once they reach level of draw it all, they should use them
 (a dynamic flag seen by decorator will no longer say "be careful what you draw").
 
- 
+==
+
+070106 when you draw one instance twice, Highlightables only work within the last-drawn copy,
+since Highlightable only stores one draw-coord and draws one highlight-image.
+
+It would not be too hard to make it store a series and redraw them all. But it might be better
+to make these two instances get an env with different "highlighting state" -- except then they're
+not really the same instance, are they? (Since .env is a function of instance.)
+
+Either way, then we could implement stereo this way!
+
+(My guess is, one instance recording >1 highlight pos is more efficient, as well as simpler,
+than making two instances which share some stateplaces and not others. It's done for every
+highlightable in the model, so you don't want the increased RAM to be larger than necessary.)
+
+(The syntax for drawing one instance twice is also klugy and may stop working -- see testexpr_26
+and its comments. But that's not this bug.)
+
 ==
 

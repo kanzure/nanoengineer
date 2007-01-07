@@ -274,7 +274,18 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # knowing we always modify it by adding _self? Better would just be something to replace env.
             # Note I could store them shared, and wrap them as I retrieve them, I think -- in _i_grabarg.
             # BTW is it desirable for everything in env, or just _self? what about ipath? #####@@@@@
-        assert not self._e_is_instance
+        ## assert not self._e_is_instance
+        if self._e_is_instance:
+            # new feature 070106, experimental but seems sensible/principled (since same as for constants like pyobjs) and desirable;
+            # I'm sure about ignoring ipath but not completely sure about ignoring env, but it's my best guess,
+            # and I don't know how *not* to ignore it. If you want a shared instance, this does it (see testexpr_26 for a demo
+            # and some discussion); if you wanted mostly-shared but different instances, try something fancier.
+            ## print "fyi: instantiating an instance returns it unchanged: %r" % self # works fine, no need to print for now
+                # Q: Will we want to print this once per created main instance in which it happens, to warn about accidental use
+                #    of this new feature?
+                # A: I doubt we need to, since in a long time when this was an assertfail, I never saw it until I wanted to
+                #    draw one instance twice (in testexpr_26).
+            return self
         return self.__class__(_make_in = (self,env,ipath)) # this calls _destructive_make_in on the new instance
     def _destructive_make_in(self, data):
         """[private]
