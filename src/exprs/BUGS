@@ -16,6 +16,7 @@ forgotten there, so they're listed here, in order of addition to this file.
 See also:
 - the list of planned optimizations (optims) in test.py
 - anything marked ###BUG in the source files
+- the "list of language deficiencies or todos" in PLAN
 
 ===
 
@@ -205,7 +206,26 @@ appropriate for GL_LESS but not for GL_LEQUAL, and the buggy fake icon makes use
 of gray rect and text. Fixable by reversing Overlay order in this case, or switching
 to GL_LEQUAL all the time (or all the time in testmode, provided these things are not
 drawn in other modes, but since model objs are drawn there, that makes no sense except
-as a temporary situation). ####k TRY IT
+as a temporary situation). 
 
+update 070105: Here is a specific better way of doing the above fix:
+
+plan: new glpane var, set up in init_glpane_vars, default_glDepthFunc,
+normally one thing for NE1 and same for me, but have debug pref to make it normally the other;
+and then change it in highlightable
+to optim the nonuse of gldepthfunc
+so when pref is set i never call it except when entering and leaving mode
+
+also let this glpane var determine overlay order
+(even tho it's only the default not the current)
+
+then i predict my openicon hlighlight bug (that hides the plus sign) goes away and no other bugs come
+
+no need yet to avoid descend into displists in highlighting, which in any case i don't want to do --
+rather when HL has those decorators on draw, they should avoid displists only if some elements of them
+should not be descended into -- once they reach level of draw it all, they should use them
+(a dynamic flag seen by decorator will no longer say "be careful what you draw").
+
+ 
 ==
 
