@@ -1,8 +1,8 @@
-[last updated circa 061011]
-
 # $Id$
 
-plan for the files in here:
+===
+
+plan for the files in this exprs directory:  [last updated circa 061011]
 
 will be cannibalized for useful parts:
 
@@ -40,3 +40,22 @@ classes (names unclear): Env, RawExpr, UnderstoodExpr, Instance...
 not sure if RawExpr, UnderstoodExpr are different; HelperClass seems to be both...
 
 ... and some .py files already added...
+
+===
+
+list of the biggest language deficiencies or todos [as of 070105]:
+- eval vs instantiate (semantic mess needs fixing)
+- mappings in general
+  - instantiation
+  - glue code memoization
+  - misc apps
+- lexenv/dynenv disambiguation (and other widget_env cleanups)
+- iteration constructs (generalized list extension, not just for lists but for categories/hypergraphs too)
+- geometry needs to be geometric, not coordinate-based
+- type coercion
+  - polymorphic arg decls
+- action/command syntax
+- rule syntax
+- layered data
+- draw decorators (_e_decorate_draw), so highlighting and display lists can work properly together
+- no compiling yet implemented
