@@ -119,7 +119,7 @@ from demo_MT import MT, test_drag_pixmap
 
 import demo_drag
 reload_once(demo_drag)
-from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkbox_expr
+from demo_drag import GraphDrawDemo_FixedToolOnArg1, kluge_dragtool_state_checkbox_expr, demo_drag_toolcorner_expr_maker
 
 import projection
 reload_once(projection)
@@ -836,6 +836,12 @@ testexpr_19e = Overlay( GraphDrawDemo_FixedToolOnArg1( Rect(9), highlight_color 
                             # this is the new (and only current) test of background.copy(color=green) experiment [061214]
                         DrawInCorner(Boxed(kluge_dragtool_state_checkbox_expr)) ) # ugly color, but works
 
+# later 070106: (syntax is a kluge; see also testexpr_26)
+testexpr_19f = eval_Expr( call_Expr( lambda thing:
+                                     Overlay( thing,
+                                              DrawInCorner( Boxed(
+                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
+                                     testexpr_19b ))
 
 # == DrawInCorner
 
@@ -1086,7 +1092,7 @@ testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , t
 
 enable_testbed = True
 
-testexpr = testexpr_26
+testexpr = testexpr_19f
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
     ## testexpr_19d

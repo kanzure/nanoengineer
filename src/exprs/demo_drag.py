@@ -280,17 +280,6 @@ class World(ModelObject):
     nodelist = State(list_Expr, []) # self.nodelist is public for set (self.nodelist = newval), but not for append or other mods
         # since not changetracked -- can it be?###@@@
     def draw(self):
-        # clear the state? (kluge that we do this here at all or do it this way w/ a checkbox_pref; 070103 late hack)
-        # (seems to work fine except for the "event already occurred" warning every time I clear some nodes;
-        #  guess at cause: this draw method is like a recompute based on value of nodelist, but doing the recomp is also changing
-        #  the nodelist, and in general for a recomp to change one of its inputs is a nono. Fixing the kluge of doing it here
-        #  should fix that. i.e. just make a real button which side-effects this state directly, that should fix it. ##e)
-        import env
-        clearbuttondown = env.prefs.get(kluge_dragtool_state_prefs_key + "cb ", False)
-        if clearbuttondown:
-            if self.nodelist:
-                self.nodelist = []
-            return
         # draw all the nodes
         # [optim idea 070103 late: have caller put this in a DisplistChunk; will it actually work?
         #  the hope is, yes for animating rotation, with proper inval when nodelist changes. It ought to work! Try it. It works!]
@@ -305,6 +294,16 @@ class World(ModelObject):
                 print "drew last node in list, %r, ipath[0] %r, pos %r" % (node, node.ipath[0], node.pos)
         ###e see comment above: "maybe World needs to wrap all it draws with glue to add looks and behavior to it"
         return
+    def _cmd_Clear(self): #070106 experimental naming convention for a "cmd method" -- a command on this object (requiring no args/opts, by default)
+        if self.nodelist:
+            # avoid gratuitous change-track by only doing it if it does something (see also _cmd_Clear_nontrivial)
+            self.nodelist = []
+        return
+    # related formulae for that command
+    # (names are related by convention, only used in this file, so far; prototype for wider convention, but not yet well thought through)
+    _cmd_Clear_nontrivial = not_Expr( nodelist) # can be used to enable (vs disable) a button or menu item for this command on this object
+    _cmd_Clear_legal = True # whether giving the command to this object from a script would be an error
+    _cmd_Clear_tooltip = "clear the dots" # a command button or menu item could use this as its tooltip
     pass
 
 # ok, now how do we bind a click on empty space to class MakeANode ?
@@ -620,10 +619,31 @@ def kluge_dragtool_state():
 
 kluge_dragtool_state() # set the default val
 
+##def _kluge_clear_the_world(): OBS, will remove after commit
+##    # find the World
+##    from test import _kluge_current_testexpr_instance, enable_testbed
+##    #e now how do we find the instance of testexpr if enable_testbed is true? ...
+##    # conclusion: this approach is ###WRONG, instead the checkbox thingy below needs an arg...
+##    testexpr_instance = ...
+##    # assume that's a GraphDrawDemo_FixedToolOnArg1 with .world
+##    world = testexpr_instance.world
+##    world._cmd_Clear()
+##    return
+    
 kluge_dragtool_state_checkbox_expr = SimpleColumn( # note, on 061215 late, checkbox_pref was replaced with a better version, same name
     checkbox_pref(kluge_dragtool_state_prefs_key,         "drag new nodes?", dflt = kluge_dragtool_state_prefs_default),
     checkbox_pref(kluge_dragtool_state_prefs_key + "bla", "some other pref"),
-    checkbox_pref(kluge_dragtool_state_prefs_key + "cb ", "button: clear"), ###e use ActionButton somehow, but what action?
+##    checkbox_pref(kluge_dragtool_state_prefs_key + "cb ", "button: clear (buggy)"), #e use ActionButton somehow, but what action? see below...
+##    ActionButton( _kluge_clear_the_world, "button: clear (untested)")
  )    
+
+def demo_drag_toolcorner_expr_maker(world): #070106 improving the above ### USE ME
+    # given an instance of World, return an expr for the "toolcorner" for use along with GraphDrawDemo_FixedToolOnArg1 (on the same World)
+    expr = SimpleColumn(
+        checkbox_pref(kluge_dragtool_state_prefs_key,         "drag new nodes?", dflt = kluge_dragtool_state_prefs_default),
+        checkbox_pref(kluge_dragtool_state_prefs_key + "bla", "some other pref"),
+        ActionButton( world._cmd_Clear, "button: clear")
+     )
+    return expr
 
 # end
