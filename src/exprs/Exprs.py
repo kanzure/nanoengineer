@@ -770,6 +770,10 @@ class property_Expr(internal_Expr): ##k guess, 061119, for attr 'open' in Toggle
 class lexenv_Expr(internal_Expr): ##k guess, 061110 late
     """lexenv_Expr(env, expr) evals expr inside env, regardless of the passed env, but without altering the passed ipath.
     It is opaque to replacement -- even by ExprsMeta, so it should never appear inside a class-attr value [##e should enforce that].
+       WARNING [070106]: lexenv_Expr will have a major bug once we implement anything that can override dynamic env vars,
+    since it should, but doesn't, inherit dynamic vars from the passed env rather than from its own env argument --
+    only lexical vars should be overridden by the argument env. For more info see the discussion in widget_env.py docstring.
+    To fix this bug, we need to know how to combine the lexical vars from the argument env with the dynamic ones from the passed env. ###
     """
     def _internal_Expr_init(self):
         (self._e_env0, self._e_expr0) = self.args
@@ -958,7 +962,7 @@ class Symbol(SymbolicExpr):
         #older comments:
         ## -- in the object (env i guess) or lexenv(?? or is that replacement??) which is which?
         # maybe: replacement is for making things to instantiate (uses widget expr lexenv), eval is for using them (uses env & state)
-        # env (drawing_env) will let us grab attrs/opts in object, or things from dynenv as passed to any lexcontaining expr, i think...
+        # env ("drawing env") will let us grab attrs/opts in object, or things from dynenv as passed to any lexcontaining expr, i think...
         val = env.lexval_of_symbol(self) # note: cares mainly or only about self._e_name; renamed _e_eval_symbol -> lexval_of_symbol
             # but I'm not sure it's really more lexenv than dynenv, at least as seen w/in env... [061028] ####@@@@
         # val is an intermediate value, needs further eval [this old comment might be wrong; see docstring -- 061105]
