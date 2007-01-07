@@ -61,7 +61,7 @@ import lvals
 reload_once(lvals)
 from lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
-# == trivial prototype of central cache of viewers for objects -- copied/modified from MT_demo.py, 070105, not yet used, stub
+# == trivial prototype of central cache of viewers for objects -- copied/modified from demo_MT.py, 070105, not yet used, stub
 
 def _make_viewer_for_object(obj, essential_data):
     ###stub
@@ -147,7 +147,7 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
     # - and for that matter some arbitrary other data (named attrs), as we'll let any model object have?
     # simplest thing that could work --
     # - make some sort of MemoDict for model-view and put it into the env, even if we kluge how to set it up for now.
-    #   how does MT_demo do it? With a hardcoded helper function using a MemoDict in a simple way -- no involvement of env.
+    #   how does demo_MT do it? With a hardcoded helper function using a MemoDict in a simple way -- no involvement of env.
     #   So see above for copied code from that... ###e
 
     #e so now what we want is for this (in super modelobject) to delegate to a computed viewer from the helper func above

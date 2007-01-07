@@ -187,7 +187,7 @@ class Sphere_ExampleModelNode(ModelNode):
         # SO FIRST FIGURE OUT THE GENERAL WAY TO GET VIEW OBJECTS FROM MODEL OBJECTS. Some sort of caching recomputing dict?
         # preferably with adaptive keys, that automatically generalize when subkeys are not used in main expr or subexprs...
         # but for now, ok to ignore that optim (esp if we redecide the key for each subexpr, and some *know* they don't use
-        # some parts of the most general key). Compare to what's in MT_demo, texture_holder, CL.
+        # some parts of the most general key). Compare to what's in demo_MT, texture_holder, CL.
         #
         # ... re all that, see RecomputingMemoDict (written just now, not yet used). ###e
         # The idea is to use it to map objects into images (views) of themselves (with keys containing objs and other data),

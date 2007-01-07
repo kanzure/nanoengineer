@@ -113,9 +113,9 @@ import Set
 reload_once(Set)
 from Set import Set ##e move to basic
 
-import MT_demo #e rename? put in subdir?
-reload_once(MT_demo)
-from MT_demo import MT, test_drag_pixmap
+import demo_MT
+reload_once(demo_MT)
+from demo_MT import MT, test_drag_pixmap
 
 import demo_drag
 reload_once(demo_drag)
@@ -804,7 +804,7 @@ testexpr_17 = Highlightable(Rect(), on_drag = print_Expr("on_drag happened")) # 
 # testexpr_17a was moved below and renamed to testexpr_19
 
 
-# == MT_demo
+# == demo_MT
 
 testexpr_18 = MT( _my.env.glpane.assy.part.topnode )
     # works! except for ugliness, slowness, and need for manual update by reloading.
@@ -1058,7 +1058,7 @@ testexpr_23bh2 = SimpleColumn( DisplistChunk(testexpr_9a), DisplistChunk(testexp
 testexpr_23ch = Highlightable(testexpr_10c) # works, but prints debug fyi: len(names) == 2 (names = (429L, 439L)) due to glname nesting
 testexpr_23cd = DisplistChunk(testexpr_10c) # has expected coord ##BUG -- outermost toggle works, inner one as if not highlightable
     # probably a bit faster (smoother rot90) than bare testexpr_10c, tho hard to be sure.
-    ###e sometime try improving MT_demo to use DisplistChunk inside -- should not be hard -- but not right now.
+    ###e sometime try improving demo_MT to use DisplistChunk inside -- should not be hard -- but not right now.
 
     # but I did improve demo_drag inside... testexpr_19d still works, and seems to be faster (hard to be sure)
 
@@ -1116,7 +1116,7 @@ testexpr = testexpr_19d
     # latest stable tests: _11k, _10c
     # testexpr_5d, and testexpr_6f2, and Boxed tests in _7*, and all of _8*, and testexpr_9c, and _10d I think, and _11d3 etc
     
-    # currently under devel [061126]: MT_demo, and need to revamp instantiation, but first make test framework, thus finish PixelGrabber
+    # currently under devel [061126]: demo_MT, and need to revamp instantiation, but first make test framework, thus finish PixelGrabber
 
     # some history:
     # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e, and 061114 6g*, 6h*
@@ -1170,7 +1170,7 @@ for name in dir():
 #   eg ChoiceButton in controls.py -- requires StateRef (does a property count as one?), maybe LocalState to use nicely
 # - framework to let me start setting up the dna ui?
 #   - just do a test framework first (simpler, needed soon); described in PixelGrabber
-# - working MT in glpane? yes, MT_demo.py; seems to require revamp of instantiation (separate it from IorE-expr eval)
+# - working MT in glpane? yes, demo_MT.py; seems to require revamp of instantiation (separate it from IorE-expr eval)
 
 # == nim tests
 
@@ -1273,7 +1273,7 @@ corner_expr = testexpr_16c # works to show it, but it doesn't work as a control 
 MEMOIZE_MAIN_INSTANCE = True      # whether to memoize it across redraws, without reloads
 
 MEMOIZE_ACROSS_RELOADS = False    # whether to memoize it across reloads
-    ###BUG: False seems to not be working for MT_demo, 061205... ah, the intent might have been "printed reloads of testdraw"
+    ###BUG: False seems to not be working for demo_MT, 061205... ah, the intent might have been "printed reloads of testdraw"
     # but the code looks for reloads of this module test.py! Which often correspond but not always!
     # Solution: include testdraw.vv.reload_counter in the data, when this is false.
 

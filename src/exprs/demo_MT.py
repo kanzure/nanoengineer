@@ -1,4 +1,6 @@
 """
+demo_MT.py
+
 $Id$
 
 works in testexpr_18
@@ -15,10 +17,12 @@ bugs to fix:
 nfrs:
 - use DisplistChunk
 - see "needed polish" comment below, etc
+
+[renamed from MT_demo.py, 070106]
 """
 
 #e stub, but works in test.py:
-## # MT_demo
+## # demo_MT
 ## ###e need better error message when I accidently pass _self rather than _my]
 ## testexpr_18 = MT( _my.env.glpane.assy.part.topnode ) # works! except for ugliness, slowness, and need for manual update by reloading.
 
@@ -137,7 +141,7 @@ _DISPLAY_PREFS = dict(open = True) # private to def node_kids
 ##    eltlist = Arg(list_Expr)
 ##    _value = SimpleColumn( *eltlist) ### this is wrong, but it seemed to cause an infinite loop -- did it? ###k
         ##    exceptions.KeyboardInterrupt: 
-        ##  [debug.py:1320] [debug.py:1305] [test.py:120] [MT_demo.py:100] [MT_demo.py:102] (this line)
+        ##  [debug.py:1320] [debug.py:1305] [test.py:120] [demo_MT.py:100] [demo_MT.py:102] (this line)
         ##  [Exprs.py:271] return getitem_Expr(self, index)  [Exprs.py:360] [Exprs.py:880]
         # guess: *expr is an infloop, since it tries to turn it into a sequence, forming expr[0], expr[1], etc, forever.
         # the Exprs lines above are probably compatible with that.
