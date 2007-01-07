@@ -5,12 +5,69 @@ $Id$
 
 The environment is used for lexical replacement & instantiation,
 and then for "use/residence" (running & drawing & holding state).
-Maybe someday we'll split these parts.
+Maybe someday we'll split these parts. The ipath is already passed separately
+for efficiency. [#doc -- this comment is not clear enough.]
+
+070106 discussion of lexical/dynamic confusion: the env is mainly dynamic,
+but also holds lexical bindings. At present, it holds both kinds as attributes
+(distinguishing them only by convention), and also has class attrs and an instance
+variable (delegate and whatever else Delegator has), with no means of distinguishing
+them from variable bindings (which would lead to bugs if symbolnames overlapped class attrs --
+so far that can't happen, since nothing creates arbitrary symbolnames and the fixed ones
+don't overlap them). Finally, the implementation of lexical vs dynamic inheritance is
+incorrect, since lexenv_Expr should grab only lexical vars from its contained env, but grabs
+all vars from it -- this too has not yet led to bugs, since there is no provision for overriding
+dynamic variables, so each one is the same in both envs seen by lexenv_Expr.
+
+But all the confusions mentioned above will soon turn into real bugs, since we'll introduce
+ways to declare and override both lexical and dynamic symbols of non-hardcoded names.
+So we have to clean up the situation somehow. First, a survey of existing symbolnames in use:
+
+Lexical:
+
+_self
+    [note: the _e_eval* methods on Expr act as operations on implicit instances of the Expr self
+     owned by the real instance env._self; AFAIK this is an orthogonal issue to _self being lexical in formulae]
+_this_<classname>
+_my
+
+Dynamic:
+
+glpane
+staterefs (rarely used directly)
+
+And proposed names:
+
+_the_<classname> (dynamic)
+_env (unclear -- the intent is for _env.sym to be used in formulas to refer to dynamic sym,
+      but it's probably short for _my.env.sym, thus _env is itself lexical.)
+
+With the exception of the proposed dynamic variable _the_<classname>,
+note that the lexical names start with one '_'
+and the dynamic ones start with no '_'.
+
+Of these, the only ones often accessed as env attrs by client code are _self and glpane.
+If we changed how all env vars should be accessed, only those would lead to large numbers
+of client code changes.Nothing is wrong with a fixed set of vars being accessible as env attrs,
+so we might let those continue to be accessed that way even if general vars can't be.
+
+We also may want formulas to access env vars of some object using <object>.env.<var>,
+which is a harder issue since the vars could be arbitrary. I don't yet know if we want to
+enforce a naming convention about which vars are dynamic vs lexical, and/or a fancier required
+syntax for accessing non-hardcoded env var names.
+
+The likely uses for dynamic variables are to refer to important GUI framework objects surrounding
+specific drawables, including singleton model objects like the model or the current selection,
+to display styles, to "the model object" being shown in drawables serving as its view, and probably
+various containing or otherwise-related model objects of given types, and to the presence of
+specific user-defined "tags" on those objects.
+
+The likely uses for lexical variables are in user-defined rules, and the hardcoded _self, _this_X, _my.
 """
 
 #e rename module?? possible names: expr_env, instance_env, widget_env, drawing_env -- or something plural?
 
-from idlelib.Delegator import Delegator
+from idlelib.Delegator import Delegator ###e we should use our own delegation code, since we don't need the key cache so it can be more efficient
 
 from basic import printnim
 
@@ -85,18 +142,6 @@ def thisname_of_class(clas):
     return thisname
 
 # == end, except for obs code and maybe-not-obs comments
-
-##
-# drawing_env
-
-class drawing_env: ###e cannibalize this above; only used in test.py, obs now
-    def __init__(self, glpane):
-        #e needs what args? glpane; place to store stuff (assy or part, and transient state); initial state defaults or decls...
-        pass  
-##    def _e_eval_expr(self, expr):
-##        ###e look for _e_eval method; test for simple py type
-##        assert 0, "nim"####@@@@ maybe obs too [guess 061108]
-    pass
 
 # things in the env:
 # - rules for understanding exprs (can be empty even in practice)
