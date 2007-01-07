@@ -205,7 +205,7 @@ class ModelObject_new(DelegatingInstanceOrExpr):
 class Vertex_new(ModelObject_new): #070105 ###e maybe it also needs an official type or typename for use in rules and files?
     pos0 = Arg(Position)
     pos = State(Position, pos0)
-    color = Option(Color, color)
+    color = Option(Color, black)
     pass
 
 class Viewer(InstanceOrExpr):
@@ -405,6 +405,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
           DisplistChunk( WithViewerFunc(world, viewerfunc) ),
           DisplistChunk( world) ##, debug_prints = "World")
           # try DisplistChunk, 070103 later -- works, doesn't break dragging of contained old nodes.
+      )
     )
     _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
 
