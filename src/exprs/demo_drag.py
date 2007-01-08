@@ -301,7 +301,8 @@ class World(ModelObject):
         return
     # related formulae for that command
     # (names are related by convention, only used in this file, so far; prototype for wider convention, but not yet well thought through)
-    _cmd_Clear_nontrivial = not_Expr( nodelist) # can be used to enable (vs disable) a button or menu item for this command on this object
+    _cmd_Clear_nontrivial = not_Expr( not_Expr( nodelist)) #KLUGE: need a more direct boolean coercion (not that it's really needed at all)
+        # can be used to enable (vs disable) a button or menu item for this command on this object
     _cmd_Clear_legal = True # whether giving the command to this object from a script would be an error
     _cmd_Clear_tooltip = "clear the dots" # a command button or menu item could use this as its tooltip
     pass
@@ -642,7 +643,18 @@ def demo_drag_toolcorner_expr_maker(world): #070106 improving the above ### USE 
     expr = SimpleColumn(
         checkbox_pref(kluge_dragtool_state_prefs_key,         "drag new nodes?", dflt = kluge_dragtool_state_prefs_default),
         checkbox_pref(kluge_dragtool_state_prefs_key + "bla", "some other pref"),
-        ActionButton( world._cmd_Clear, "button: clear")
+        ## ActionButton( world._cmd_Clear, "button: clear") # works
+        # 070108: try this variant which uses _cmd_Clear_nontrivial: will the If work as an Expr?? If_kluge should tell us #####k
+        ####k also will the type tests inside ActionButton work with an If? Probably not -- that's a ###BUG but I'll put it off.
+        ## 1. make this work later: ActionButton( world._cmd_Clear, If_kluge( world._cmd_Clear_nontrivial, "button: clear", "button (disabled): clear"))
+##          2. this too: If_kluge( world._cmd_Clear_nontrivial,
+##                  ActionButton( world._cmd_Clear, "button: clear"),
+##                  ActionButton( world._cmd_Clear, "button (disabled): clear")
+##         )
+        If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
+                  ActionButton( world._cmd_Clear, "button: clear"),
+                  ActionButton( world._cmd_Clear, "button (disabled): clear")
+         ) # works, though text change is so slow I suspect there's actually a highlighting or update bug making it appear even slower.
      )
     return expr
 
