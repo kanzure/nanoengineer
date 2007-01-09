@@ -1203,13 +1203,19 @@ def testbed(expr):
     ## return Overlay(expr, Closer(Rect(1,1,black), 3.4)) #stub
     ## return Overlay(expr, If(1,DrawInCorner1,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
     ## return Overlay(expr, DrawInCorner(Highlightable(Rect(1,1,black),Rect(1,1,green)) ))
-    return Overlay( AppOuterLayer( expr),
-##                   ## or maybe: WithEnv(expr, _env = access to app state, env module, etc ...) or, intercept .draw and run special code...
-##                   ## _WrapDrawMethod(expr, ...)... with code to copy app state into instance State -- of what instance? smth in env...
-                   DrawInCorner( top_left_corner, (-1,1)), # MT on top left
-                   ## testexpr_20a,
-                   DrawInCorner( bottom_left_corner, (-1,-1)), # checkboxes on bot left
+    return AppOuterLayer( # [note: defines _app in dynenv]
+        Overlay( expr,
+                 
+##                 ## or maybe: WithEnv(expr, _env = access to app state, env module, etc ...) or, intercept .draw and run special code...
+##                 ## _WrapDrawMethod(expr, ...)... with code to copy app state into instance State -- of what instance? smth in env...
+                 DrawInCorner( top_left_corner, (-1,1)), # MT on top left
+                 ## testexpr_20a,
+##                 DrawInCorner( bottom_left_corner, (-1,-1)), # checkboxes on bot left [note: contains _app as ref to dynenv]
+                 ####BUG: the _app ref in this works now, except it triggers continuous redraw, not sure why.
+                 # the bug when it didn't work was not lex/dyn confusion, it was just that the _app use was not in the scope of its
+                 # definition.
                 )
+     )
 
 if not enable_testbed:
     testbed = identity
