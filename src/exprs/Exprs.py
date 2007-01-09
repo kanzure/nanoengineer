@@ -779,36 +779,31 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         (self._e_env0, self._e_expr0) = self.args
     def __repr__(self):
         return "<%s#%d%s: %r, %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_env0, self._e_expr0,)
-    def _e_eval(self, env, ipath):
-        # WARNING: mostly dup code between _e_eval_ and _e_eval_lval
-        #e (so should the distinction be an arg? maybe only for some classes, ie variant methods for fixed arg, another for genl arg?)
+    def _e_eval(self, env, ipath, _e_eval_lval = False):
+        "[note: _e_eval_lval is a private option]"
+        # note: the _e_eval_lval option is solely to allow methods _e_eval and _e_eval_lval to share code.
+        # about the lval code: #061204 semi-guess; works for now. Methods merged on 070109.
+        #e (should the val/lval distinction be an arg in the _e_eval API?
+        #   maybe only for some classes, ie variant methods for fixed arg, another for genl arg??)
         assert env #061110
         env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]
         newenv = self._e_env0
         newenv_self = getattr(newenv, '_self', None) ####e change newenv._self to give this answer! [intention soon, 061110 very late]
         if env._self is not newenv_self:
             # usual case (in fact, always true AFAIK)
-            if 0:
-                printfyi("env._self is not newenv._self: a %s is not a %s (tho it may or may not be in same class)" % \
-                         (env._self.__class__.__name__, newenv_self.__class__.__name__))
+            if 0: # untested since revised on 070109
+                printfyi("in _e_eval%s: env._self is not newenv._self: a %s is not a %s (tho it may or may not be in same class)" % \
+                         (_e_eval_lval and "_lval" or "", env._self.__class__.__name__, newenv_self.__class__.__name__))
         else:
-            printfyi("### env._self IS newenv._self (surprising)")
-        return self._e_expr0._e_eval(newenv, ipath)
-    def _e_eval_lval(self, env, ipath): #061204 semi-guess; works for now
-        # WARNING: mostly dup code between _e_eval_ and _e_eval_lval
-        assert env 
-        env._self 
-        newenv = self._e_env0
-        newenv_self = getattr(newenv, '_self', None) 
-        if env._self is not newenv_self:
-            # usual case (in fact, always true AFAIK)
-            if 0:
-                printfyi("in _e_eval_lval: env._self is not newenv._self: a %s is not a %s (tho it may or may not be in same class)" % \
-                         (env._self.__class__.__name__, newenv_self.__class__.__name__))
+            printfyi("### in _e_eval%s: env._self IS newenv._self (surprising)" % (_e_eval_lval and "_lval" or "") )
+        if _e_eval_lval:
+            res = self._e_expr0._e_eval_lval(newenv, ipath)
         else:
-            printfyi("### in _e_eval_lval: env._self IS newenv._self (surprising)")
-        return self._e_expr0._e_eval_lval(newenv, ipath) # THE DIFFERENCE from _e_eval IS HERE
-    pass
+            res = self._e_expr0._e_eval(newenv, ipath)
+        return res
+    def _e_eval_lval(self, env, ipath):
+        return self._e_eval(env, ipath, _e_eval_lval = True)
+    pass # end of class lexenv_Expr
 
 class eval_Expr(OpExpr):
     """An "eval operator", more or less. For internal use only [if not, indices need to be generalized].
@@ -819,14 +814,24 @@ class eval_Expr(OpExpr):
     """
     def _e_init(self):
         pass
-    def _e_eval(self, env,ipath):
-        # WARNING: mostly dup code between _e_eval_ and _e_eval_lval
+    def _e_eval(self, env, ipath, _e_eval_lval = False):
+        "[note: _e_eval_lval is a private option]"
+        # note: the _e_eval_lval option is solely to allow methods _e_eval and _e_eval_lval to share code.
+        # about the lval code: #061204 semi-guess; works for now. Methods merged on 070109.
+        
         assert env #061110
         (arg,) = self._e_args
         ## argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
-        argval = arg._e_eval(env, ('eval_Expr',ipath)) #070109 one of these two unused-indexes can be used, as it turns out.
+        if _e_eval_lval:
+            index = 'eval_Expr(lval)'
+        else:
+            index = 'eval_Expr'
+        argval = arg._e_eval(env, (index, ipath)) #070109 this index can in fact be used, it turns out.
         try:
-            res = argval._e_eval(env, ipath)
+            if _e_eval_lval:
+                res = argval._e_eval_lval(env, ipath)
+            else:
+                res = argval._e_eval(env, ipath)
                 ###BUG (likely): if argval varies, maybe this ipath should vary with it -- but I'm not sure in what way.
                 # We probably have to depend on argval to have different internal ipaths when it comes from different sources --
                 # but presently that's nim (nothing yet wraps exprs with local-ipath-modifiers, tho e.g. If probably should),
@@ -834,27 +839,14 @@ class eval_Expr(OpExpr):
                 # and most likely, most uses of eval_Expr are kluges which are wrong in some way anyway, which this issue is
                 # hinting at, since it seems fundamentally unfixable in general. [070109 comment]
         except:
-            print "following exception concerns argval._e_eval(...) where argval is %r and came from evalling %r" % \
-                  (argval, arg) #061118
+            print "following exception concerns argval._e_eval%s(...) where argval is %r and came from evalling %r" % \
+                  (_e_eval_lval and "_lval" or "", argval, arg) #061118, revised 070109
             raise
-        ## print "eval_Expr eval goes from %r to %r to %r" % (arg, argval, res)
+        ## print "eval_Expr eval%s goes from %r to %r to %r" % (_e_eval_lval and "_lval" or "", arg, argval, res) #untested since lval
         return res
-    def _e_eval_lval(self, env,ipath):#061204 guess; works for now
-        # WARNING: mostly dup code between _e_eval_ and _e_eval_lval
-        assert env
-        (arg,) = self._e_args
-        ## argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
-        argval = arg._e_eval(env, ('eval_Expr(lval)',ipath)) #070109
-        try:
-            res = argval._e_eval_lval(env, ipath) # this line contains the difference from _e_eval (use of _e_eval_lval method)
-                ###BUG (likely): see 070109 comment above.
-        except:
-            print "following exception concerns argval._e_eval_lval(...) where argval is %r and came from evalling %r" % \
-                  (argval, arg)
-            raise
-        # print "eval_Expr _e_eval_lval goes from %r to %r to %r" % (arg, argval, res)
-        return res
-    pass
+    def _e_eval_lval(self, env, ipath):
+        return self._e_eval(env, ipath, _e_eval_lval = True)
+    pass # end of class eval_Expr
 
 class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for debugging
     "wrap a subexpr with me in order to get its evals printed (by print_compact_stack), with (I hope) no other effect"
@@ -868,6 +860,7 @@ class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for d
         res = the_expr._e_eval(env, ipath)
         print_compact_stack("debug_evals_of_Expr(%r) evals it to %r at: " % (the_expr, res)) #k does this ever happen?
         return res
+    ###e also print _e_eval_lval calls
     pass
 
 ##from VQT import V ###e replace with a type constant -- probably there's one already in state_utils
