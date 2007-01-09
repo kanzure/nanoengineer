@@ -138,6 +138,11 @@ class _attr_accessor:
         raise LvalError_ValueIsUnset, "access to key %r in some lvaldict in %r, before that value was set" % (key,self)
             #k [061117 late] use this exception in hopes that it makes hasattr just say an attr is not yet there
             ##e needs more info, so probably make a lambda above to use as valfunc
+            # [Update 070109: a certain order of file mods (triggering reload_once, each followed by remaking main instance)
+            # can cause a bug of unknown cause which leads to this error. I found it only once, but repeatably,
+            # using the demo_drag example and doing this order of touches: test.py lvals.py demo_drag.py test.py.
+            # The messages mentioned Highlightable#0 -- not sure if that was an inner or outer expr.
+            # Since it only happens in certain reloads, it may not be a "real bug".]
         pass
     def __repr__(self):#070109
         return "<%s(%s,%s) at %#x>" % (self.__class__.__name__, self.__dict__['__kind'], self.__dict__['__debug_name'] or '', id(self))
