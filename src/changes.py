@@ -329,6 +329,27 @@ def _usage_tracker_stack_changed( usage_tracker, infodict): #bruce 050804
 usage_tracker = begin_end_matcher( None, _usage_tracker_stack_changed )
     # constructor None means obj must be passed to each begin
 
+usage_tracker._do_after_current_tracked_usage_ends = {} #070108
+
+def after_current_tracked_usage_ends(func):# new feature 070108 [tested and works, but not currently used]
+    """Do func at least once after the current usage-tracked computation ends.
+       WARNING: if func invalidates something used during that computation, it will cause
+    an immediate inval of the entire computation, which in most cases would lead to
+    excessive useless recomputation. For an example of incorrect usage of this kind,
+    see Lval_which_recomputes_every_time in exprs/lvals.py (deprecated).
+       (There may be legitimate uses which do something other than a direct inval,
+    such as making a note to compare something's current and new value at some later time,
+    for possible inval just before it's next used in a tracked computation.
+    So this function itself is not deprecated. But it's been tested only in the deprecated
+    Lval_which_recomputes_every_time.)
+    """
+    assert usage_tracker.stack, "error: there is no current usage-tracked computation"
+    # we use a dict to optim for lots of equal funcs (reducing RAM usage, at least)
+    # (note that in the case where this comes up, Lval_which_recomputes_every_time in exprs/lvals.py,
+    #  they might be equivalent but non-identical bound methods)
+    usage_tracker._do_after_current_tracked_usage_ends[ func] = func
+    return
+
 class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in class molecule, class GLPane, class Formula
     # [note, 060926: this doesn't use self at all. Does it need to be a mixin?? addendum 061022: maybe for inval propogation??]
     """###doc - for doing usagetracking in whatever code we call when we remake a value, and handling results of that;
@@ -352,8 +373,20 @@ class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in cl
         obj.standard_end( invalidator)
             ##e or we could pass our own invalidator which wraps that one,
             # so it can destroy us, and/or do more invals, like one inside the other mixin class if that exists
+        # support after_current_tracked_usage_ends [070108]
+        if not usage_tracker.stack:
+            dict1 = usage_tracker._do_after_current_tracked_usage_ends
+            usage_tracker._do_after_current_tracked_usage_ends = {}
+            for func in dict1.itervalues():
+                try:
+                    func()
+                except:
+                    print_compact_traceback("after_current_tracked_usage_ends: error: exception in call of %r (ignored): " % (func,))
+                    pass
+                continue
+            pass
         return
-    pass
+    pass # end of class SubUsageTrackingMixin
 
 class usage_tracker_obj: #bruce 050804; docstring added 060927
     """###doc [private to SubUsageTrackingMixin, mostly]
