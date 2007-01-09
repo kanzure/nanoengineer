@@ -769,6 +769,7 @@ class property_Expr(internal_Expr): ##k guess, 061119, for attr 'open' in Toggle
 
 class lexenv_Expr(internal_Expr): ##k guess, 061110 late
     """lexenv_Expr(env, expr) evals expr inside env, regardless of the passed env, but without altering the passed ipath.
+    THIS BEHAVIOR IS INCORRECT AND WILL BE CHANGED SOON [070109 comment].
     It is opaque to replacement -- even by ExprsMeta, so it should never appear inside a class-attr value [##e should enforce that].
        WARNING [070106]: lexenv_Expr will have a major bug once we implement anything that can override dynamic env vars,
     since it should, but doesn't, inherit dynamic vars from the passed env rather than from its own env argument --
@@ -796,6 +797,15 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
                          (_e_eval_lval and "_lval" or "", env._self.__class__.__name__, newenv_self.__class__.__name__))
         else:
             printfyi("### in _e_eval%s: env._self IS newenv._self (surprising)" % (_e_eval_lval and "_lval" or "") )
+        # bugfix re lex/dyn confusion, 070109:
+        # now we want to combine the dynamic part of env with the lexical part of newenv, to make a modified newenv.
+        # later the code above will be cleaned up for that -- for now just rename them first to clarify.
+        dynenv = env
+        lexenv = newenv
+        del env, newenv
+        newenv = dynenv.dynenv_with_lexenv(lexenv) # WARNING: this is initially a stub which returns lexenv, equiv to the old code here.
+            #e might be renamed; might be turned into a helper function rather than a method 
+        # end of new code for lex/dyn bugfix
         if _e_eval_lval:
             res = self._e_expr0._e_eval_lval(newenv, ipath)
         else:
@@ -973,7 +983,7 @@ class Symbol(SymbolicExpr):
                 print "warning: %r and %r are two different Symbols with same name, thus equal" % (self,val)
             print "warning: Symbol(%r) evals to itself" % self._e_name
             return self
-        if self._e_name not in ('_self', '_my'): #k Q: does this also happen for a thisname, _this_<classname> ?
+        if self._e_name not in ('_self', '_my', '_app'): #k Q: does this also happen for a thisname, _this_<classname> ?
             print "warning: _e_eval of a symbol other than _self or _my is not well-reviewed or yet well-understood:",self._e_name
                 # e.g. what should be in env? what if it's an expr with free vars incl _self -- are they in proper context?
                 # see docstring for more info [061105]

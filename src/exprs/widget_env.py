@@ -69,7 +69,7 @@ The likely uses for lexical variables are in user-defined rules, and the hardcod
 
 from idlelib.Delegator import Delegator ###e we should use our own delegation code, since we don't need the key cache so it can be more efficient
 
-from basic import printnim
+from basic import printnim, printfyi
 
 class widget_env(Delegator):
     "represent an environment for the instantiation and use of widget exprs (with rules and staterefs)"
@@ -129,9 +129,20 @@ class widget_env(Delegator):
     def lexval_of_symbolname(self, name, dflt):
         #e default for dflt? used to be the sym, even now could be an imported (so identical) sym
         if name != '_self' and not name.startswith('_this_'):
-            printnim("fyi: lexval_of_symbolname other than _self or _this_xxx: %s" % (name,) )
+            printfyi("lexval_of_symbolname other than _self or _this_xxx: %s" % (name,) ) ### does this happen for _app? [070109 Q]
         # kluge:
         return getattr(self, name, dflt)
+    ## newenv = dynenv.dynenv_with_lexenv(lexenv) #e might be renamed; might be turned into a helper function rather than a method
+    def dynenv_with_lexenv(self, lexenv):
+        "#doc"
+        return lexenv ##### 070109 is _app bug fixed even w/ this? yes, it was unrelated. WE STILL NEED NEW CODE HERE. ####BUG
+        # kluge 070109: do just enough to see if using this fixes the bug i suspect it might -- ###WRONG IN GENERAL (and disabled too)
+        if getattr(self, '_app', None) is not getattr(lexenv, '_app', None):
+            print "fyi: dynenv_with_lexenv makes a difference for _app: %r vs %r" % \
+                  ( getattr(self, '_app', None) , getattr(lexenv, '_app', None) ) ### remove when works
+        if not hasattr(self, '_app'):
+            return lexenv
+        return lexenv.with_literal_lexmods(_app = self._app) # really this is a "dynamic mod" as hardcoded in the name _app (w/in current kluge)
     pass
 
 def thisname_of_class(clas):
