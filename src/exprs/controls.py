@@ -339,6 +339,7 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
     command = Arg(Action) #e default which prints?
     text = Arg(str, "<do it>") #e default text should be extracted from the command somehow
     button = Arg(Widget2D, Rect(15.*PIXELS)) # can it be left out so only text label is used? ideally we'd have text with special border...
+    enabled = Option(bool, True) # whether the button should look enabled, and whether the command will run when the button is operated
     # formulae
     use_label = TextRect(text,1,20)###e revise
     plain_button = CenterY(button)
@@ -355,10 +356,10 @@ class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
     #
     #e on_release_in  rather than  on_press?
     delegate = Highlightable(
-        plain,
-        highlighted,
-        on_press = command,
-        sbar_text = text
+        plain, ##e should this depend on enabled? probably yes, but probably the caller has to pass in the disabled form.
+        If( enabled, highlighted, plain), # revised 070109 to depend on enabled (UNTESTED)
+        on_press = command,###BUG: should depend on enabled -- not sure if If(enabled,command,None) will work properly ###k TRY IT
+        sbar_text = text #e should this depend on enabled??
      )
     pass
 

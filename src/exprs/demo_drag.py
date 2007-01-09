@@ -654,8 +654,9 @@ def demo_drag_toolcorner_expr_maker(world): #070106 improving the above ### USE 
 ##         )
         If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
                   ActionButton( world._cmd_Clear, "button: clear"),
-                  ActionButton( world._cmd_Clear, "button (disabled): clear")
-         ) # works, though text change is so slow I suspect there's actually a highlighting or update bug making it appear even slower.
+                  ActionButton( world._cmd_Clear, "button (disabled): clear", enabled = False)
+         ) # works, though text change is so slow I suspect there's actually a highlighting or update bug making it appear even slower...
+          # update 070109: the bug seems to be that as long as the mouse stays on the button, it remains highlighted with the old highlight form.
      )
     return expr
 
