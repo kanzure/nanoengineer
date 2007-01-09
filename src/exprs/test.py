@@ -138,6 +138,10 @@ import demo_dna # stub 070103
 reload_once(demo_dna)
 from demo_dna import newerBoxed, resizablyBoxed
 
+import lvals
+reload_once(lvals)
+from lvals import Lval_which_recomputes_every_time ##e and more? refile in basic??
+
 
 # == @@@
 
@@ -1137,6 +1141,19 @@ testexpr = testexpr_19f
     # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
     # once goes over the green rect or the displist text (after each reload)? not sure. [later realized it's just the glselect redraw.]
 
+def get_redraw_counter(): #070108
+    "#doc [WARNING: this is not a usage/change-tracked attribute!]"
+    import env
+    return env.redraw_counter
+
+_lval_for_redraw_counter = Lval_which_recomputes_every_time( get_redraw_counter) #070108
+
+def get_redraw_counter_ALWAYSCHANGES(): #070108 experiment -- useless, since it correctly causes an unwanted gl_update after every redraw!
+    "like get_redraw_counter() but act as if we use something which changes every time (usage/change tracked the max legal amount)"
+    return _lval_for_redraw_counter.get_value()
+
+from __Symbols__ import _app #070108; might refile this into basic.py ##e
+
 bottom_left_corner = Boxed(SimpleColumn(
 ##    checkbox_pref("A9 devel/testdraw/use old vv.displist?", "use old vv.displist?"), # see USE_DISPLAY_LIST_OPTIM
     checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider?", dflt = True), # works (moves compass)
@@ -1144,6 +1161,14 @@ bottom_left_corner = Boxed(SimpleColumn(
     checkbox_pref("A9 devel/testdraw/show old timing data?", "show old timing data?", dflt = False), # works (side effect on text in next one)
     checkbox_pref("A9 devel/testdraw/show old use displist?", "show old use displist?", dflt = False), # works
     checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
+    DisplistChunk(
+        CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) ), # NOTE: not usage/change tracked,
+            # thus not updated every redraw
+    ## CenterY(TextRect( format_Expr("current redraw %r [BUG: CAUSES CONTINUOUS REDRAWS]", call_Expr(get_redraw_counter_ALWAYSCHANGES)))),
+    DisplistChunk(
+        CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) ), # should be properly usage/change tracked ###k
+        ###BUG: warning: Symbol('_app') evals to itself [once only??]; and then %r prints a getattr_Expr...
+        ## guess: it's the lexenv_Expr known bug. #####k
 ##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
  ))
     # cosmetic bugs in this: mouse stickiness on text label (worse on g4?) [fixed], and label not active for click [fixed],
@@ -1154,12 +1179,33 @@ bottom_left_corner = Boxed(SimpleColumn(
 top_left_corner = testexpr_10c # nested ToggleShow.
     # Note: testexpr_18 (MT) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
 
+class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 experiment] ### PARTLY UNTESTED
+    "helper class for use in testbed, to provide glue code between testexpr and the rest of NE1"
+    redraw_counter = State(int)
+    delegate = Arg(Anything) # might need to delegate lbox attrs (or might not, not sure, but no harm in doing it)
+    def draw(self):
+        import env
+        self.redraw_counter = env.redraw_counter # assume this set is subject to LvalForState's same_vals->noinval optimization #k verify
+        self.delegate.draw()
+    ###e need an env for args which binds some varname to self (dynamically), so the args have some way to access our state
+    def env_for_arg(self, index):
+        env = self.env_for_args #e or could use super of this method [better #e]
+        if index == 0: #KLUGE that we know index for that arg (delegate, arg1)
+            env = env.with_lexmods(dict(_app = self)) # something to provide access to self under the name _app (for now)
+                # NOTE: this is meant to be a dynamic binding.
+                # It might work anyway, given how it's used (inside & outside this expr) -- not sure. ##k
+                # See comments in widget_env.py about needed lexical/dynamic cleanup.
+        return env
+    pass
+        
 def testbed(expr):
     "this turns the current testexpr into the actual expr to render"
     ## return Overlay(expr, Closer(Rect(1,1,black), 3.4)) #stub
     ## return Overlay(expr, If(1,DrawInCorner1,Closer)(Highlightable(Rect(1,1,black),Rect(1,1,green),projection=True)))
     ## return Overlay(expr, DrawInCorner(Highlightable(Rect(1,1,black),Rect(1,1,green)) ))
-    return Overlay(expr,
+    return Overlay( AppOuterLayer( expr),
+##                   ## or maybe: WithEnv(expr, _env = access to app state, env module, etc ...) or, intercept .draw and run special code...
+##                   ## _WrapDrawMethod(expr, ...)... with code to copy app state into instance State -- of what instance? smth in env...
                    DrawInCorner( top_left_corner, (-1,1)), # MT on top left
                    ## testexpr_20a,
                    DrawInCorner( bottom_left_corner, (-1,-1)), # checkboxes on bot left

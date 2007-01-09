@@ -297,6 +297,7 @@ class World(ModelObject):
     def _cmd_Clear(self): #070106 experimental naming convention for a "cmd method" -- a command on this object (requiring no args/opts, by default)
         if self.nodelist:
             # avoid gratuitous change-track by only doing it if it does something (see also _cmd_Clear_nontrivial)
+            # NOTE: this cond is probably not needed, since (IIRC) LvalForState only invalidates if a same_vals comparison fails. ###k
             self.nodelist = []
         return
     # related formulae for that command

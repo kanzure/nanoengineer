@@ -55,6 +55,7 @@ For examples, see the classes herein whose names contain Lval.
 # from modules in cad/src
 
 from changes import SelfUsageTrackingMixin, SubUsageTrackingMixin
+import changes
 
 # from this exprs package
 
@@ -257,6 +258,36 @@ class Lval(SelfUsageTrackingMixin, SubUsageTrackingMixin):
         return self.valid # even tho it's a public attr
     pass # end of class Lval
 
+# ==
+
+class Lval_which_recomputes_every_time(Lval): #070108; SEVERELY DEPRECATED (see docstring)
+    """Lval_which_recomputes_every_time(recompute_func) is like Lval(recompute_func)
+    but acts as if recompute_func uses something which changes immediately after the
+    current (entire) usage-tracking-recomputation is complete.
+       This class is DEPRECATED at birth, since using it anywhere in a computation
+    causes the entire computation to be marked invalid as soon as it completes,
+    which in most uses of this feature would cause excessive recomputation, mostly unneeded.
+    (For example, if a widget expr draws anything computed by this class, then it issues a
+    gl_update immediately after every redraw, causing continuous redraw and roughly 100% cpu usage.)
+       So don't use it, But for the record, here are some details:
+       An lval of this kind will call its recompute function exactly once
+    in every entire usage-tracked computation which calls self.get_value
+    one or more times.
+       [Note that we might invalidate long before the next recomputation,
+    so it would not be correct to recompute at that time, compare, and only
+    inval if the value differs (as when setting a new value in LvalForState).
+    For that behavior, something external would have to say when a recompute and compare
+    should be done, most easily by just recomputing and setting an LvalForState.
+    This class is not useful for that behavior.]
+    """
+    def get_value(self):
+        res = Lval.get_value(self)
+        changes.after_current_tracked_usage_ends( self.inval )
+        return res
+    pass
+
+# ==
+
 def _std_frame_repr(frame): #e refile into debug.py? warning: dup code with lvals.py and changes.py
     "return a string for use in print_compact_stack"
     # older eg: frame_repr = lambda frame: " %s" % (frame.f_locals.keys(),), linesep = '\n'
@@ -295,6 +326,8 @@ def call_but_discard_tracked_usage(compute_method): #061117
 def make_compute_method_discard_usage_if_ever_called(compute_method): #061117
     "change a compute_method into one which discards its tracked usage if it's ever called (but don't call it now!)"
     return lambda _guard = None, compute_method = compute_method: call_but_discard_tracked_usage(compute_method) #e and assert not _guard
+
+# ==
 
 class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since split out from its superclass, and initvals enabled)
     """A variant of Lval for containing mutable state.
@@ -381,7 +414,6 @@ class LvalForState(Lval): #061117 -- NOT REVIEWED AS WELL AS I'D LIKE (esp since
         # get invalled when something changes us later.)
         printnim("assert no current inval-subscribers")
         
-        import changes
         mc = changes.begin_disallowing_usage_tracking('_set_default_value in %r' % self)
             # note: the argument is just an explanation for use in error messages ##e OPTIM: don't precompute that arg
         try:
