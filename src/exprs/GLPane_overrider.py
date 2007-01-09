@@ -71,7 +71,8 @@ class GLPane_overrider(Delegator, GLPane_mixin_for_DisplistChunk, object):
     overrides = 'selobj glselect_dict need_setup_lighting wants_gl_update vdist'\
                 'glselect_wanted targetdepth current_glselect wX wY glselect compassPosition'\
                 'near far quat pov zoomFactor scale'\
-                '_glnames _testmode_stuff _testmode_stuff_2 _testmode_stuff_3 _alpha'
+                '_glnames _testmode_stuff _testmode_stuff_2 _testmode_stuff_3 _alpha' \
+                '_needs_repaint' 
     for attr in overrides.split():
         exec( "%s = delegated_state_attr('delegate', '%s')" % (attr, attr) )
     
