@@ -135,10 +135,12 @@ class _attr_accessor:
         # note: as of 061215 this is never overridden, so the usage-tracking LvalDict2's lvals do for it never tracks usage,
         # but we still need to use Lvals there so we can reset their value. In theory we could use a special kind
         # which didn't have recomputation-usage-tracking code at all. [i guess, as of 061215]
-        raise LvalError_ValueIsUnset, "access to key %r in some lvaldict in _attr_accessor, before that value was set" % (key,)
+        raise LvalError_ValueIsUnset, "access to key %r in some lvaldict in %r, before that value was set" % (key,self)
             #k [061117 late] use this exception in hopes that it makes hasattr just say an attr is not yet there
             ##e needs more info, so probably make a lambda above to use as valfunc
         pass
+    def __repr__(self):#070109
+        return "<%s(%s,%s) at %#x>" % (self.__class__.__name__, self.__dict__['__kind'], self.__dict__['__debug_name'] or '', id(self))
     def __get_lval(self, attr):
         table = self.__get_table(attr) # an LvalDict2 object
         ipath = self.__dict__['__ipath']

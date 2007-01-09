@@ -823,7 +823,8 @@ class eval_Expr(OpExpr):
         # WARNING: mostly dup code between _e_eval_ and _e_eval_lval
         assert env #061110
         (arg,) = self._e_args
-        argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
+        ## argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
+        argval = arg._e_eval(env, ('eval_Expr',ipath)) #070109 one of these two unused-indexes can be used, as it turns out.
         try:
             res = argval._e_eval(env, ipath)
         except:
@@ -836,7 +837,8 @@ class eval_Expr(OpExpr):
         # WARNING: mostly dup code between _e_eval_ and _e_eval_lval
         assert env
         (arg,) = self._e_args
-        argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
+        ## argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
+        argval = arg._e_eval(env, ('eval_Expr(lval)',ipath)) #070109
         try:
             res = argval._e_eval_lval(env, ipath) # this is the difference from _e_eval
         except:
