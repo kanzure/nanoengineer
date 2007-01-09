@@ -827,6 +827,12 @@ class eval_Expr(OpExpr):
         argval = arg._e_eval(env, ('eval_Expr',ipath)) #070109 one of these two unused-indexes can be used, as it turns out.
         try:
             res = argval._e_eval(env, ipath)
+                ###BUG (likely): if argval varies, maybe this ipath should vary with it -- but I'm not sure in what way.
+                # We probably have to depend on argval to have different internal ipaths when it comes from different sources --
+                # but presently that's nim (nothing yet wraps exprs with local-ipath-modifiers, tho e.g. If probably should),
+                # so this might lead to incorrectly overlapping ipaths. It's not at all clear how to fix this in general,
+                # and most likely, most uses of eval_Expr are kluges which are wrong in some way anyway, which this issue is
+                # hinting at, since it seems fundamentally unfixable in general. [070109 comment]
         except:
             print "following exception concerns argval._e_eval(...) where argval is %r and came from evalling %r" % \
                   (argval, arg) #061118
@@ -840,7 +846,8 @@ class eval_Expr(OpExpr):
         ## argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
         argval = arg._e_eval(env, ('eval_Expr(lval)',ipath)) #070109
         try:
-            res = argval._e_eval_lval(env, ipath) # this is the difference from _e_eval
+            res = argval._e_eval_lval(env, ipath) # this line contains the difference from _e_eval (use of _e_eval_lval method)
+                ###BUG (likely): see 070109 comment above.
         except:
             print "following exception concerns argval._e_eval_lval(...) where argval is %r and came from evalling %r" % \
                   (argval, arg)
