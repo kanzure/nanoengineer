@@ -1830,8 +1830,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         if not self.redrawGL: return
 
         from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
-        if debug_pref("GLPane: skip redraws requested only by Qt?", Choice_boolean_False): # (and print '#' for each skipped redraw)
-            #bruce 070109 restored/empowered the following code, but only within this new non-persistent debug pref.
+        if debug_pref("GLPane: skip redraws requested only by Qt?", Choice_boolean_False, prefs_key = True):
+            # (and print '#' for each skipped redraw)
+            #
+            #bruce 070109 restored/empowered the following code, but only within this new debug pref [persistent as of 070110].
             # ITS USE IS PREDICTED TO CAUSE SOME BUGS: one in changed bond redrawing [described below, "bruce 050717 bugfix"]
             # (though the fact that _needs_repaint is not reset until below makes me think it either won't happen now,
             #  or is explained incorrectly in that comment),
