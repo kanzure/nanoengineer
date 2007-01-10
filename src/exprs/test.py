@@ -1165,8 +1165,8 @@ bottom_left_corner = Boxed(SimpleColumn(
         CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) ), # NOTE: not usage/change tracked,
             # thus not updated every redraw
     ## CenterY(TextRect( format_Expr("current redraw %r [BUG: CAUSES CONTINUOUS REDRAWS]", call_Expr(get_redraw_counter_ALWAYSCHANGES)))),
-    DisplistChunk(
-        CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) ), # should be properly usage/change tracked ###k
+    nevermind(DisplistChunk)(
+        CenterY(DebugDraw(TextRect( format_Expr("current redraw %r", _app.redraw_counter)))) ), # should be properly usage/change tracked ###k
         ###BUG: warning: Symbol('_app') evals to itself [once only??]; and then %r prints a getattr_Expr...
         ## guess: it's the lexenv_Expr known bug. #####k
 ##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
@@ -1185,8 +1185,20 @@ class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 expe
     delegate = Arg(Anything) # might need to delegate lbox attrs (or might not, not sure, but no harm in doing it)
     def draw(self):
         import env
+##        print "changes._print_all_subs = True"
+##        changes._print_all_subs = True ####
         self.redraw_counter = env.redraw_counter # assume this set is subject to LvalForState's same_vals->noinval optimization #k verify
+##        changes._print_all_subs = False
+##        print "changes._print_all_subs = False"
+        ## (note: that set caused no warning, even when done twice. Why not, since it's during recomputation that used it?? #k)
+        # THEORY OF CONTIN REDRAW BUG WHEN THIS IS USED IN DRAWING:
+        # the use last time means the set above does gl_update during this repaint. ... but the details of how & why are elusive...
+        # (Would a separate lval for each draw fix it? would some kind of clear or ignore of invals at the right time fix it?
+        #  the right time for the inval from this set right now is *now* in terms of changing what the redraw will do,
+        #  but *never* in terms of causing the gl_update from our caller's use of this here. Not sure how to fix that. ####k 070109)
+        print "AppOuterLayer: before delegate draw", env.redraw_counter###
         self.delegate.draw()
+        print "AppOuterLayer: after delegate draw", env.redraw_counter###
     ###e need an env for args which binds some varname to self (dynamically), so the args have some way to access our state
     def env_for_arg(self, index):
         env = self.env_for_args #e or could use super of this method [better #e]

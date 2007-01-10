@@ -104,7 +104,31 @@ class GLPane_overrider(Delegator, GLPane_mixin_for_DisplistChunk, object):
         """#doc... this trashes both gl matrices! caller must push them both if it needs the current ones.
         this routine sets its own matrixmode but depends on other gl state being standard when entered.
         """
+        if 0:
+            #bruce 070109 see if a nonempty subslist is present -- it might be part of my _app contin redraw bug -- offer to empty it
+            #WRONG, this is the wrong subslist, it's for usage of the glpane, whhat i need is invals that might come to it.
+            # that's whatweused in the onetimesubslist in the usage tracker terminated by end_tracking_usage.
+            try:
+                subslist = self._SelfUsageTrackingMixin__subslist
+            except AttributeError: # this is common at all times -- in fact it's the only case here I've yet seen
+                ## print "fyi: glpane had no __subslist" ## this is the only one that got printed, so it doesn't explain my _app redraw bug.
+                pass
+            else:
+                lis = subslist._list_of_subs()
+                if not lis:
+                    print "fyi: glpane had empty __subslist"###
+                else:
+                    remove = debug_pref("GLPane: empty __subslist?", Choice_boolean_False, prefs_key = True)
+                    print "bug??: glpane had %d things in __subslist%s" % (len(subslist), remove and " -- will remove them" or "")
+                    print subslist ###
+                    if remove:
+                        subslist.remove_all_subs()
+                    pass
+                pass
+            pass
+
         match_checking_code = self.begin_tracking_usage() #bruce 050806
+        print "glpane begin_tracking_usage"###070109
         try:
             try:
                 self.standard_repaint_0()
@@ -116,6 +140,7 @@ class GLPane_overrider(Delegator, GLPane_mixin_for_DisplistChunk, object):
         finally:
             self.delegate.wants_gl_update = True #bruce 050804
             self.end_tracking_usage( match_checking_code, self.wants_gl_update_was_True ) # same invalidator even if exception
+            print "glpane end_tracking_usage"###070109
         return
 
     def standard_repaint_0(self):

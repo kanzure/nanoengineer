@@ -128,8 +128,8 @@ class widget_env(Delegator):
         return self.lexval_of_symbolname(name, sym)
     def lexval_of_symbolname(self, name, dflt):
         #e default for dflt? used to be the sym, even now could be an imported (so identical) sym
-        if name != '_self' and not name.startswith('_this_'):
-            printfyi("lexval_of_symbolname other than _self or _this_xxx: %s" % (name,) ) ### does this happen for _app? [070109 Q]
+        if name not in ('_self','_app') and not name.startswith('_this_'):
+            printfyi("lexval_of_symbolname other than _self, _app, or _this_xxx: %s" % (name,) )
         # kluge:
         return getattr(self, name, dflt)
     ## newenv = dynenv.dynenv_with_lexenv(lexenv) #e might be renamed; might be turned into a helper function rather than a method
