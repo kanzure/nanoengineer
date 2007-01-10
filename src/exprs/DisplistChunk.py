@@ -170,13 +170,17 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         #e and use in repr
         if self.debug_prints:
             if self.debug_prints == True:
-                return "%r" % self
+                return "%r" % self ###BUG (suspected): this looks like an infrecur. Not sure if ever tested. [070110 comment]
             return str(self.debug_prints)
         return False
     
     def _init_instance(self):
         self._key = id(self) # set attribute to use as dict key (could probably use display list name, but it's not allocated yet)
         self.glpane = self.env.glpane #e refile into superclass??
+        self.disabled = not hasattr(self.glpane, 'glGenLists')
+        if self.disabled:
+            pass ## print "warning: %r is disabled since its GLPane was not overridden" % self # text makes sense only in current devel-code
+        return
         
     def _C_displist(self): # compute method for self.displist
         ### WARNING: this doesn't recycle displists when instances are remade at same ipath (but it probably should),
@@ -185,6 +189,10 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         #
         ### NOTE: usage tracking should turn up nothing -- we use nothing
         "allocate a new display list name (a 32-bit int) in our GL context"
+        if self.disabled:
+            printfyi("bug: why does .dislplist get requested in a disabled DisplistChunk??") ### happens??
+            return 0
+        
         self.glpane.makeCurrent() # not sure when this compute method might get called, so make sure our GL context is current
         ## print "my glpane is",self.glpane,"type",type(self.glpane)
         displist = self.glpane.glGenLists(1) # allocate the display list name [#k does this do makeCurrent??]
@@ -244,7 +252,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         
         _debug_print_name = self._debug_print_name
         
-        if debug_pref("disable DisplistChunk?", Choice_boolean_False):
+        if self.disabled or debug_pref("disable DisplistChunk?", Choice_boolean_False):
             self.delegate.draw()
             # I hope it's ok that this has no explicit effect on usage tracking or inval propogation... I think so.
             # It's equivalent to wrapping the whole thing in an If on this cond, so it must be ok.
