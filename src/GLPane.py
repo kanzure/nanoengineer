@@ -277,6 +277,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         self.triggerBareMotionEvent = True 
             # Supports timerEvent() to minimize calls to bareMotion(). Mark 060814.
 
+        self.cursorMotionlessStartTime = time.time() #bruce 070110 fix bug when debug_pref turns off glpane timer from startup
+
         ###### User Preference initialization ##############################
         
         # Get glpane related settings from prefs db.
@@ -1474,14 +1476,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
     highlightTimer = None #bruce 070110 (was not needed before)
 
-    def _timer_debug_pref(self):
+    def _timer_debug_pref(self): #bruce 070110 split this out and revised it
         from debug_prefs import debug_pref, Choice
-        res = debug_pref("glpane timer interval", Choice([100, 0, 5000, "None"]), non_debug = True, prefs_key = True)
-        if res == "None":
-            # The use of "None" rather than None (in Choice above) is to work around a bug in class debug_pref and/or preferences.py,
-            # which probably only happens if this pref has never been stored in the past and if None itself is in Choice's list.
-            # (I don't know the bug's cause, but I vaguely recall it was a known limitation and might even be documented.
-            #  Even so it ought to be fixed sometime in debug_pref and/or preferences.py.) [bruce 070110]
+        res = debug_pref("glpane timer interval", Choice([100, 0, 5000, None]), non_debug = True, prefs_key = True)
+        if res is not None and type(res) is not type(1):
+            # support prefs values stored by future versions (or by a brief bug workaround which stored "None")
             res = None
         return res
         

@@ -16,7 +16,10 @@ from constants import noop
 from constants import black, white, red, green, blue, gray, orange, yellow, magenta, pink
 
 import env
-# see below for import preferences at runtime
+# see below for import preferences at runtime; we can't import it here due to errors caused by recursive import
+
+_NOT_PASSED = [] # private object for use as keyword arg default [bruce 070110, part of fixing bug of None as Choice value]
+    # (note, the same global name is used for different objects in preferences.py and debug_prefs.py)
 
 debug_prefs = {} # maps names of debug prefs to "pref objects"
 
@@ -68,6 +71,7 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             import preferences # make sure env.prefs is initialized [bruce 070110 precaution]
                 # (evidently ok this early, but not sure if needed -- it didn't fix the bug in a Choice of None I commented on today)
             self.value = env.prefs.get( prefs_key, self.value ) ###k guess about this being a fully ok way to store a default value
+                # Note: until I fixed preferences.py today, this failed to store a default value when self.value was None. [bruce 070110]
             # note: in this case, self.value might not matter after this, but in case it does we keep it in sync before using it,
             # or use it only via self.current_value() [bruce 060209 bugfix]
         self.non_debug = non_debug # show up in debug_prefs submenu even when ATOM-DEBUG is not set?
@@ -189,15 +193,11 @@ def autoname(thing):
 
 class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePref and merged with Pref class to include a prefname etc
     """DataType for a choice between one of a few specific values, perhaps with names and comments and order and default.
-    There is a bug if None is used as one of the choices, so use "None" instead (see code comment for more info).
     """
-    # WARNING: there is a bug if None is used in the list of choices in Choice in a debug_pref when the pref was not
-    # saved before. (See GLPane.py changes dated 070110 for one way to work around this bug, using "None" rather than None.)
-    # I don't know the bug's cause, but I vaguely recall it was a known limitation and might even be documented somewhere.
-    # (There is a suspicious docstring below, "API kluge: curval = None means curval not known, unless None's a legal value",
-    #  but no mention of an actual bug about this.)
-    # Even if it's documented, it ought to be fixed sometime in debug_pref and/or preferences.py. [bruce 070110]
-    def __init__(self, values = None, names = None, names_to_values = None, default_value = None):
+    # WARNING: before 070110, there was a bug if None was used as one of the choices, but it should be ok now,
+    # except that the "API kluge: curval = None means curval not known, unless None's a legal value"
+    # in docstring of self.changer_menu_text has not been reviewed regarding this. ###e [bruce 070110 comment]
+    def __init__(self, values = None, names = None, names_to_values = None, default_value = _NOT_PASSED):
         #e names_to_values should be a dict from names to values; do we union these inits or require no redundant ones? Let's union.
         if values is not None:
             values = list(values) #e need more ways to use the init options
@@ -225,7 +225,11 @@ class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePre
         self.values_to_names = {}
         for name, value in zip(self.names, self.values):
             self.values_to_names[value] = name
-            if default_value == value: # even if it's None!
+            if default_value is not _NOT_PASSED and default_value == value: # even if default_value is None!
+                # There used to be a bug when None was a legal value but no default_value was passed,
+                # in which this code would change self._default_value to None. I fixed that bug using _NOT_PASSED.
+                # This is one of two changes which makes None acceptable as a Choice value.
+                # The other is in preferences.py dated today. [bruce 070110]
                 self._default_value = value
     def name_of_value(self, value):
         return self.values_to_names[value]

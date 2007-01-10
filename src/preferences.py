@@ -356,6 +356,9 @@ def keys_list( keys): #bruce 050805
 # in which prefs can be accessed or stored using attributes, whose names are interpreted in a context
 # which might differ for each module.
 
+_NOT_PASSED = [] # private object for use as keyword arg default [bruce 070110, part of fixing bug of None as Choice value]
+    # (note, the same global name is used for different objects in preferences.py and debug_prefs.py)
+
 class _prefs_context:
     """Represents a symbol context for prefs names, possibly [someday] customized for one module.
     """
@@ -409,12 +412,16 @@ class _prefs_context:
         assert type(key) == type("a")
         pkey = self._attr2key(key)
         return _get_pkey_key( pkey, key)
-    def get(self, key, dflt = None): #bruce 050117; revised 050804
+    def get(self, key, dflt = _NOT_PASSED): #bruce 050117; revised 050804, and 070110 to use _NOT_PASSED
         assert type(key) == type("a")
         pkey = self._attr2key(key)
-        if dflt is not None:
+        if dflt is not _NOT_PASSED:
             _record_default( pkey, dflt)
-        del dflt
+            #bruce 070110 bugfix: use _NOT_PASSED rather than None.
+            # Before this fix, passing None explicitly as dflt would fail to record it, which could cause later exceptions
+            # when client code used env.prefs[key] if the pref had never been saved. This was one of two bugs in
+            # using a Choice value of None in debug_prefs.py. The other part is fixed in debug_prefs.py dated today.
+        del dflt # [if dflt was used below and we removed this del, we'd need to replace _NOT_PASSED with None in this localvar]
         try:
             return _get_pkey_faster( pkey) # optim of self[key]
                 # note: usage of this pref is tracked in _get_pkey_faster even if it then raises KeyError.
