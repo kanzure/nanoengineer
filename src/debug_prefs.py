@@ -1,12 +1,12 @@
 # Copyright (c) 2005-2006 Nanorex, Inc.  All rights reserved.
-'''
+"""
 debug_prefs.py
 
 Some prototype general-prefs code, useful now for "debugging prefs",
 i.e. user-settable temporary flags to help with debugging.
 
 $Id$
-'''
+"""
 
 __all__ = ['debug_pref', 'Choice', 'debug_prefs_menuspec'] # funcs to declare and access prefs; datatypes; UI funcs for prefs
 
@@ -16,6 +16,7 @@ from constants import noop
 from constants import black, white, red, green, blue, gray, orange, yellow, magenta, pink
 
 import env
+# see below for import preferences at runtime
 
 debug_prefs = {} # maps names of debug prefs to "pref objects"
 
@@ -64,6 +65,8 @@ class Pref: #e might be merged with the DataType (aka PrefDataType) objects
             assert type(prefs_key) == type(""), "prefs_key must be True or a string"
             assert prefs_key # implied by the other asserts/ifs
             self.prefs_key = prefs_key
+            import preferences # make sure env.prefs is initialized [bruce 070110 precaution]
+                # (evidently ok this early, but not sure if needed -- it didn't fix the bug in a Choice of None I commented on today)
             self.value = env.prefs.get( prefs_key, self.value ) ###k guess about this being a fully ok way to store a default value
             # note: in this case, self.value might not matter after this, but in case it does we keep it in sync before using it,
             # or use it only via self.current_value() [bruce 060209 bugfix]
@@ -185,7 +188,15 @@ def autoname(thing):
     return `thing` # for now
 
 class Choice(DataType): #e might be renamed ChoicePrefType, or renamed ChoicePref and merged with Pref class to include a prefname etc
-    "DataType for a choice between one of a few specific values, perhaps with names and comments and order and default"
+    """DataType for a choice between one of a few specific values, perhaps with names and comments and order and default.
+    There is a bug if None is used as one of the choices, so use "None" instead (see code comment for more info).
+    """
+    # WARNING: there is a bug if None is used in the list of choices in Choice in a debug_pref when the pref was not
+    # saved before. (See GLPane.py changes dated 070110 for one way to work around this bug, using "None" rather than None.)
+    # I don't know the bug's cause, but I vaguely recall it was a known limitation and might even be documented somewhere.
+    # (There is a suspicious docstring below, "API kluge: curval = None means curval not known, unless None's a legal value",
+    #  but no mention of an actual bug about this.)
+    # Even if it's documented, it ought to be fixed sometime in debug_pref and/or preferences.py. [bruce 070110]
     def __init__(self, values = None, names = None, names_to_values = None, default_value = None):
         #e names_to_values should be a dict from names to values; do we union these inits or require no redundant ones? Let's union.
         if values is not None:
