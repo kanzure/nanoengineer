@@ -28,6 +28,8 @@ from state_utils import same_vals #bruce 060306
 
 # == Usage tracking.
 
+_print_all_subs = False # can be set to True by debuggers or around bits of code being debugged
+
 class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new exprs module (and being used there); doc revised 061119
     """This object corresponds to (one momentary value of) some variable or aspect whose uses (as inputs to
     other computations) can be tracked (causing a ref to this object to get added to a set of used things).
@@ -91,9 +93,24 @@ class OneTimeSubsList: #bruce 050804; as of 061022, looks ok for use in new expr
                 self._fulfill1(sub1)
             pass
         return
+    def _list_of_subs(self): #bruce 070109
+        "For debugging: return a newly made list of our subscriptions (not removing duplicates), without changing or fulfilling them."
+        res = []
+        for sublis in subs.itervalues():
+            res.extend(sublis)
+        return res
+    def remove_all_subs(self): #bruce 070109 experimental (for trying to fix a bug in exprs module), might become normal
+        "[private while experimental] WARNING: I'm not sure makes sense except on an owning obj since we are a 'one time' sublist"
+        try:
+            self._subs.clear() # does self._subs always exist when this is called? I think so but I'm not sure, so check for this.
+        except AttributeError:
+            print "no _subs in %r so nothing to clear in remove_all_subs" % (self,)
+        return
     def _fulfill1(self, sub1):
         # note: the only use of self is in the debug msg.
         try:
+            if _print_all_subs:
+                print "%r: fulfilling sub1 %r" % (self, sub1)
             sub1() #e would an arg of self be useful?
         except:
             # We have no choice but to ignore the exception, even if it's always a bug (as explained in docstring).
@@ -369,6 +386,7 @@ class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in cl
             #  And it might be legitimate. So don't add a restriction like that.]
         return match_checking_code
     def end_tracking_usage(self, match_checking_code, invalidator):
+        "#doc; new feature 070109, mainly for debugging-related uses: returns the usage_tracker_obj"
         obj = usage_tracker.end( match_checking_code)
         obj.standard_end( invalidator)
             ##e or we could pass our own invalidator which wraps that one,
@@ -376,16 +394,18 @@ class SubUsageTrackingMixin: #bruce 050804; as of 061022 this is used only in cl
         # support after_current_tracked_usage_ends [070108]
         if not usage_tracker.stack:
             dict1 = usage_tracker._do_after_current_tracked_usage_ends
-            usage_tracker._do_after_current_tracked_usage_ends = {}
-            for func in dict1.itervalues():
-                try:
-                    func()
-                except:
-                    print_compact_traceback("after_current_tracked_usage_ends: error: exception in call of %r (ignored): " % (func,))
-                    pass
-                continue
+            if dict1: # condition is optim
+                usage_tracker._do_after_current_tracked_usage_ends = {}
+                for func in dict1.itervalues():
+                    try:
+                        func()
+                    except:
+                        print_compact_traceback("after_current_tracked_usage_ends: error: exception in call of %r (ignored): " % (func,))
+                        pass
+                    continue
+                pass
             pass
-        return
+        return obj
     pass # end of class SubUsageTrackingMixin
 
 class usage_tracker_obj: #bruce 050804; docstring added 060927
