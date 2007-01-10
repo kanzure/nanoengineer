@@ -1744,8 +1744,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         #print "repaint duration = ", self._repaint_duration
         
         return
-        
-
+    
     _needs_repaint = 1 #bruce 050516 experiment -- initial value is true
     
     def gl_update(self): #bruce 050127
@@ -1804,19 +1803,31 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         if not self.redrawGL: return
 
-##        if not self._needs_repaint: #bruce 050516 experiment
-##            # This probably happens fairly often when Qt calls paintGL but our own code
-##            # didn't change anything and therefore didn't call gl_update.
-##            # The plan is to return in this case, but until I'm sure that's safe
-##            # (and/or know what else needs to be checked, like the GLPane widget size in case that changed),
-##            # I'll just print a debug message about the missed chance for an optimization.
-##            # (Removed message since it happens a lot, mainly when context menu is put up, window goes bg or fg, etc.
-##            #  What we need is a debug pref to turn off repainting then, so we can see if it's needed on each platform.
-##            #  Even if it is, we might optimize by somehow painting from the existing buffer
-##            # without swapping or clearing it. ###@@@)
-##            pass
-####            if platform.atom_debug:
-####                print_compact_stack("atom_debug: paintGL called with _needs_repaint false; needed?\n  ")
+        from debug_prefs import debug_pref, Choice_boolean_True, Choice_boolean_False
+        if debug_pref("GLPane: skip redraws requested only by Qt?", Choice_boolean_False): # (and print '#' for each skipped redraw)
+            #bruce 070109 restored/empowered the following code, but only within this new non-persistent debug pref.
+            # ITS USE IS PREDICTED TO CAUSE SOME BUGS: one in changed bond redrawing [described below, "bruce 050717 bugfix"]
+            # (though the fact that _needs_repaint is not reset until below makes me think it either won't happen now,
+            #  or is explained incorrectly in that comment),
+            # and maybe some in look of glpane after resizing, toolbar changes, or popups/dialogs going up or down,
+            # any of which might be platform-dependent. The debug_pref's purpose is experimentation --
+            # if we could figure out which repaints are really needed, we could probably optimize away quite a few unneeded ones.
+            if not self._needs_repaint: #bruce 050516 experiment
+                # This probably happens fairly often when Qt calls paintGL but our own code
+                # didn't change anything and therefore didn't call gl_update.
+                # The plan is to return in this case, but until I'm sure that's safe
+                # (and/or know what else needs to be checked, like the GLPane widget size in case that changed),
+                # I'll just print a debug message about the missed chance for an optimization.
+                # (Removed message since it happens a lot, mainly when context menu is put up, window goes bg or fg, etc.
+                #  What we need is a debug pref to turn off repainting then, so we can see if it's needed on each platform.
+                #  Even if it is, we might optimize by somehow painting from the existing buffer
+                # without swapping or clearing it. ###@@@)
+                if platform.atom_debug:
+                    ## print_compact_stack("atom_debug: paintGL called with _needs_repaint false; needed?\n  ") # happens a lot
+                    sys.stdout.write("#") # indicate a repaint is being skipped
+                    sys.stdout.flush()
+                return # skip the following repaint
+            pass
 
         env.redraw_counter += 1 #bruce 050825
         
@@ -1935,6 +1946,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         (which is also ok to do, but might be slower -- whether it's actually slower is not known).
            This can also be used as an invalidator for passing to self.end_tracking_usage().
         """
+        #bruce 070109 comment: it looks wrong to me that the use of this as an invalidator in end_tracking_usage
+        # is not conditioned on self.wants_gl_update, either inside or outside this routine. I'm not sure it's really wrong,
+        # and I didn't analyze all calls of this, nor how it might interact with self._needs_repaint.
+        # If it's wrong, it means the intended optim (avoiding lots of Qt update calls) is not happening.
         self.wants_gl_update = False
         self.gl_update()
 
