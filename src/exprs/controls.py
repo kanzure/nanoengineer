@@ -320,7 +320,7 @@ class checkbox_pref(InstanceMacro):
     label = Arg(Anything) # string or Widget2D
     dflt = ArgOrOption(bool, False)
     sbar_text = Option(str, '')
-    use_label = If( call_Expr(lambda label: type(label) == type(""), label), TextRect(label,1,20), label )
+    use_label = If( call_Expr(lambda label: type(label) == type(""), label), TextRect(label), label ) ## was TextRect(label,1,20)
     use_sbar_text = or_Expr( sbar_text, If( call_Expr(lambda label: type(label) == type(""), label), label, "" ))
     stateref = Instance(PrefsKey_StateRef(prefs_key, dflt))
     var = stateref.value
