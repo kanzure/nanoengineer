@@ -1476,7 +1476,14 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
     def _timer_debug_pref(self):
         from debug_prefs import debug_pref, Choice
-        return debug_pref("glpane timer interval", Choice([100, 0, 5000, None]), non_debug = True, prefs_key = True)
+        res = debug_pref("glpane timer interval", Choice([100, 0, 5000, "None"]), non_debug = True, prefs_key = True)
+        if res == "None":
+            # The use of "None" rather than None (in Choice above) is to work around a bug in class debug_pref and/or preferences.py,
+            # which probably only happens if this pref has never been stored in the past and if None itself is in Choice's list.
+            # (I don't know the bug's cause, but I vaguely recall it was a known limitation and might even be documented.
+            #  Even so it ought to be fixed sometime in debug_pref and/or preferences.py.) [bruce 070110]
+            res = None
+        return res
         
     def enterEvent(self, event): # Mark 060806. [minor revisions by bruce 070110]
         """Event handler for when the cursor enters the GLPane.
