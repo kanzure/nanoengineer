@@ -1472,16 +1472,29 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
 #== Timer helper methods
 
-    def enterEvent(self, event): # Mark 060806.
+    highlightTimer = None #bruce 070110 (was not needed before)
+
+    def _timer_debug_pref(self):
+        from debug_prefs import debug_pref, Choice
+        return debug_pref("glpane timer interval", Choice([100, 0, 5000, None]), non_debug = True, prefs_key = True)
+        
+    def enterEvent(self, event): # Mark 060806. [minor revisions by bruce 070110]
         """Event handler for when the cursor enters the GLPane.
         <event> is the mouse event after entering the GLpane.
         """
-        from debug_prefs import debug_pref, Choice
-        interval = int( debug_pref("glpane timer interval", Choice([100, 0]), non_debug = True, prefs_key = True) )
+        choice = self._timer_debug_pref()
+        if choice is None:
+            if not env.seen_before("timer is turned off"):
+                print "warning: GLPane's timer is turned off by a debug_pref"
+            if self.highlightTimer:
+                self.killTimer(self.highlightTimer)
+            self.highlightTimer = None
+            return
+        interval = int( choice)
         self.highlightTimer = self.startTimer(interval) # 100-millisecond repeating timer
         return
     
-    def leaveEvent(self, event): # Mark 060806.
+    def leaveEvent(self, event): # Mark 060806. [minor revisions by bruce 070110]
         """Event handler for when the cursor leaves the GLPane.
         <event> is the last mouse event before leaving the GLpane.
         """
@@ -1491,7 +1504,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             self.gl_update()
         
         # Kill timer when the cursor leaves the GLpane. It is (re)started in enterEvent() above.
-        self.killTimer(self.highlightTimer)
+        if self.highlightTimer:
+            self.killTimer(self.highlightTimer)
         return
     
     def timerEvent(self, e): # Mark 060806.
@@ -1506,6 +1520,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         For more information, read the docstring for selectMode.mouse_exceeded_distance().
         """
+        if not self.highlightTimer or (self._timer_debug_pref() is None): #bruce 070110
+            if platform.atom_debug:
+                print "debug note (not a bug): GLPane got timerEvent but has no timer"
+                    # should happen once when we turn it off or maybe when mouse leaves -- not other times, not much
+            #e should we do any of the following before returning??
+            return
         
         # Get the x, y position of the cursor and store as tuple in <xy_now>.
         cursor = self.cursor()
