@@ -1152,24 +1152,37 @@ def get_redraw_counter_ALWAYSCHANGES(): #070108 experiment -- useless, since it 
     "like get_redraw_counter() but act as if we use something which changes every time (usage/change tracked the max legal amount)"
     return _lval_for_redraw_counter.get_value()
 
+def get_pref(key, dflt = None): #e see also... some stateref-maker I forget
+    """Return a prefs value. Fully usage-tracked.
+    [Kluge until we have better direct access from an expr to env.prefs. Suggest: use in call_Expr.]
+    """
+    import env
+    return env.prefs.get(key, dflt)
+
 from __Symbols__ import _app #070108; might refile this into basic.py ##e
+
+debug_prints_prefs_key = "A9 devel/debug prints for my bug?"
 
 bottom_left_corner = Boxed(SimpleColumn(
 ##    checkbox_pref("A9 devel/testdraw/use old vv.displist?", "use old vv.displist?"), # see USE_DISPLAY_LIST_OPTIM
+##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
     checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider?", dflt = True), # works (moves compass)
     checkbox_pref("A9 devel/testdraw/super.Draw?", "draw model & region-sel rect?", dflt = True), # works
     checkbox_pref("A9 devel/testdraw/show old timing data?", "show old timing data?", dflt = False), # works (side effect on text in next one)
     checkbox_pref("A9 devel/testdraw/show old use displist?", "show old use displist?", dflt = False), # works
     checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
+    checkbox_pref(debug_prints_prefs_key, "debug prints for my bug?", dflt = False), # 
+    checkbox_pref("A9 devel/show redraw_counter?", "show redraw_counter?", dflt = False), # works, but has continuous redraw bug
     DisplistChunk(
-        CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) ), # NOTE: not usage/change tracked,
-            # thus not updated every redraw
+        CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) ),
+            # NOTE: not usage/change tracked, thus not updated every redraw, which we depend on here
     ## CenterY(TextRect( format_Expr("current redraw %r [BUG: CAUSES CONTINUOUS REDRAWS]", call_Expr(get_redraw_counter_ALWAYSCHANGES)))),
-    nevermind(DisplistChunk)(
-        CenterY(DebugDraw(TextRect( format_Expr("current redraw %r", _app.redraw_counter)))) ), # should be properly usage/change tracked ###k
-        ###BUG: warning: Symbol('_app') evals to itself [once only??]; and then %r prints a getattr_Expr...
-        ## guess: it's the lexenv_Expr known bug. #####k
-##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
+    If( call_Expr(get_pref, "A9 devel/show redraw_counter?"),
+        DisplistChunk( CenterY(DebugDraw(TextRect( format_Expr("current redraw %r", _app.redraw_counter)))) ),
+            # should be properly usage/change tracked; has continuous redraw bug, not yet understood.
+            # note: after checking the checkbox above, the bug shows up only after the selobj changes away from that checkbox.
+        DisplistChunk(TextRect("current redraw: use checkbox (but has bug)"))
+    ),
  ))
     # cosmetic bugs in this: mouse stickiness on text label (worse on g4?) [fixed], and label not active for click [fixed],
     # but now that those are fixed, highlighting of text changes pixel alignment with screen,
@@ -1196,9 +1209,11 @@ class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 expe
         # (Would a separate lval for each draw fix it? would some kind of clear or ignore of invals at the right time fix it?
         #  the right time for the inval from this set right now is *now* in terms of changing what the redraw will do,
         #  but *never* in terms of causing the gl_update from our caller's use of this here. Not sure how to fix that. ####k 070109)
-        print "AppOuterLayer: before delegate draw", env.redraw_counter###
+        if get_pref(debug_prints_prefs_key):
+            print "AppOuterLayer: before delegate draw", env.redraw_counter###
         self.delegate.draw()
-        print "AppOuterLayer: after delegate draw", env.redraw_counter###
+        if get_pref(debug_prints_prefs_key):
+            print "AppOuterLayer: after delegate draw", env.redraw_counter###
     ###e need an env for args which binds some varname to self (dynamically), so the args have some way to access our state
     def env_for_arg(self, index):
         env = self.env_for_args #e or could use super of this method [better #e]
@@ -1222,7 +1237,7 @@ def testbed(expr):
 ##                 ## _WrapDrawMethod(expr, ...)... with code to copy app state into instance State -- of what instance? smth in env...
                  DrawInCorner( top_left_corner, (-1,1)), # MT on top left
                  ## testexpr_20a,
-##                 DrawInCorner( bottom_left_corner, (-1,-1)), # checkboxes on bot left [note: contains _app as ref to dynenv]
+                 DrawInCorner( bottom_left_corner, (-1,-1)), # checkboxes on bot left [note: contains _app as ref to dynenv]
                  ####BUG: the _app ref in this works now, except it triggers continuous redraw, not sure why.
                  # the bug when it didn't work was not lex/dyn confusion, it was just that the _app use was not in the scope of its
                  # definition.
