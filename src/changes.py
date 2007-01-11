@@ -479,6 +479,19 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
         See class docstring for more info.
         It also removes all cyclic or large attrs of self, to prevent memory leaks.
         """
+        already = self.unsubscribe_to_invals('standard_inval')
+        if already:
+            pass # error message was already printed
+        else:
+            invalidator = self.invalidator
+            del self.invalidator
+            invalidator()
+                # calling this twice might cause a bug if "something called standard_inval twice",
+                # depending on the client object which receives it,
+                # so we don't, and the error message above should be retained [070110 comment]
+        return
+    def unsubscribe_to_invals(self, why): #070110 split this out and revised caller (leaving it equivalent) and added a caller
+        "if we already did this, print an error message mentioning why we did it before and return 1, else do it and return 0"
         # this needs to remove every subs except the one which is being fulfilled by calling it.
         # But it doesn't know which subs that is! So it has to remove them all, even that one,
         # so it has to call a remove method which is ok to call even for a subs that was already fulfilled.
@@ -489,38 +502,82 @@ class usage_tracker_obj: #bruce 050804; docstring added 060927
         # matter how many times self.invalidator is called, once it's called once. This is true in all current uses [061119]
         # but perhaps not guaranteed.)
         inval = self.last_sub_invalidator
-        self.last_sub_invalidator = 'hmm'
+        self.last_sub_invalidator = 'hmm' # this value is also tested in another method
             # 061119 do this rather than using del, to avoid exception when we're called twice; either way avoids a memory leak
+        self.last_sub_invalidator_why = why
         if inval == 'hmm':
-            # Something called standard_inval twice. This can happen (for reasons not yet clear to me) when some tracked state
-            # is set and later used, all during the same computation -- normally, state used by a computation should never be set
-            # during it, only before it (so as to trigger it, if the same computation used the same state last time around).
-            # Maybe the problem is that sets of default values, within "initialization on demand", should be considered pure uses
-            # but are being considered sets? Not sure yet -- this debug code only shows me a later event. ###k [061121 comment]
-            # ... update 061207: this is now happening all the time when I drag rects using exprs.test.testexpr_19c,
-            # so until it's debugged I need to lower the verbosity, so I'm putting it under control of flags I can set from other code.
-            if _debug_standard_inval_twice: ## was platform.atom_debug:
-                msg = "debug: fyi: something called standard_inval twice (not illegal but weird -- bug hint?) in %r" % self
-                if _debug_standard_inval_twice_stack:
-                    print_compact_stack(msg + ": ",
-                                        ## frame_repr = _std_frame_repr, #bruce 061120, might or might not be temporary, not normally seen
-                                        linesep = '\n')
-                else:
-                    print msg
-            return
+            # we already did this
+            if self.last_sub_invalidator_why == 'standard_inval' and why == 'standard_inval':
+                # Something called standard_inval twice. This can happen (for reasons not yet clear to me) when some tracked state
+                # is set and later used, all during the same computation -- normally, state used by a computation should never be set
+                # during it, only before it (so as to trigger it, if the same computation used the same state last time around).
+                # Maybe the problem is that sets of default values, within "initialization on demand", should be considered pure uses
+                # but are being considered sets? Not sure yet -- this debug code only shows me a later event. ###k [061121 comment]
+                # ... update 061207: this is now happening all the time when I drag rects using exprs.test.testexpr_19c,
+                # so until it's debugged I need to lower the verbosity, so I'm putting it under control of flags I can set from other code.
+                if _debug_standard_inval_twice: ## was platform.atom_debug:
+                    msg = "debug: fyi: something called standard_inval twice (not illegal but weird -- bug hint?) in %r" % self
+                    if _debug_standard_inval_twice_stack:
+                        print_compact_stack(msg + ": ",
+                                            ## frame_repr = _std_frame_repr, #bruce 061120, might or might not be temporary, not normally seen
+                                            linesep = '\n')
+                    else:
+                        print msg
+            else:
+                print "likely bug: %r unsubscribe_to_invals twice, whys are %r and %r" % (self, self.last_sub_invalidator_why, why)
+                #e print stack?
+            return 1
         elif _debug_standard_inval_nottwice_stack:
             print_compact_stack("debug: fyi: something called standard_inval once (totally normal) in %r: " % self)
+        # the actual unsubscribe:
         whatweused = self.whatweused
-        self.whatweused = 444 # not a sequence
+        self.whatweused = 444 # not a sequence (cause bug if we call this again)
         for subslist in whatweused:
             ## can't use subslist.remove( self.last_sub_invalidator ), as explained above
             subslist.remove_all_instances( inval )
-        invalidator = self.invalidator
-        del self.invalidator
-        invalidator()
+                ####e should add debug code to make sure this actually removes some, except in at most one call;
+                # in fact, I need code to somehow verify they get removed by comparing lengths
+                # since a bug in removing them properly at all is a possibility [070110 comment]
+        return 0
+    def got_inval(self):#070110
+        """Did we get an inval yet (or make them illegal already)?
+        (if we did, we no longer subscribe to any others, in theory -- known to be not always true in practice)
+        """
+        return (self.last_sub_invalidator == 'hmm')
+    def make_invals_illegal(self, obj_for_errmsgs = None):#070110, experimental -- clients ought to call it before another begin_tracking_usage... ##e
+        # if not self.got_inval():
+            # if it still subscribes to any invals:
+            # + remove those subs
+            # + in case that fails, arrange to complain if they are ever fulfilled,
+            #   or better yet, prevent them from being fulfilled, by changing the invalidator
+            # - print a message (if atom_debug) since it might indicate a bug (or did, anyway, before we removed the subs)
+        # else:
+            # - it supposedly doesn't subscribe to any invals, but what if it gets one anyway?
+            # tell it to not call our invalidator in that case (change it?);
+            # no need to print a message unless it would have called it
+        if not self.got_inval():
+            if 1: ## self.whatweused:
+                if _debug_old_invalsubs:
+                    # not necessarily a bug if they would never arrive -- I don't really know yet --
+                    # it might (in fact it does routinely) happen in GLPane for reasons I'm not sure about...
+                    # I should find out if it happens in other subusagetracking objects. ###e
+                    # What I do know -- it's large and normal (for glpane) as if inval unsubs never happened; it's never 0;
+                    # but the zapping fixes my continuous redraw bug in exprs module!
+                    # [bruce 070110; more info and cleanup to follow when situation is better understood --
+                    #  could it be a bug in the removal of subs which makes it never happen at all?!? ###k]
+                    print "fyi: %r still has %d subs of its invalidator to things it used; zapping/disabling them" % \
+                          (obj_for_errmsgs or self, len(self.whatweused))
+            already = self.unsubscribe_to_invals('standard_inval')
+            if already:
+                # error message was already printed -- but, I don't think this can ever happen, so print *that*
+                print "(should never happen in make_invals_illegal)"
+        else:
+            # if an inval comes (to self.standard_inval), we'll find out, since it'll complain (I think) 
+            pass
         return
     pass # end of class usage_tracker_obj
 
+_debug_old_invalsubs = False #070110
 _debug_standard_inval_twice = platform.atom_debug # whether to warn about this at all
 _debug_standard_inval_twice_stack = False # whether to print_compact_stack in that warning [untested since revised by bruce 061207]
 _debug_standard_inval_nottwice_stack = False # whether to print_compact_stack in an inval that *doesn't* give that warning [untested]
@@ -561,7 +618,7 @@ class begin_disallowing_usage_tracking(SubUsageTrackingMixin):
             if not self.noprint:
                 print msg
             assert 0, msg ##e should be a private exception so clients can catch it specifically; until then, noprint is not useful
-        return
+        return obj #070110 be compatible with new superclass API
     pass
 
 def end_disallowing_usage_tracking(mc):

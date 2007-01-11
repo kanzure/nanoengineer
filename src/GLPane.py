@@ -2090,6 +2090,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         self.standard_repaint()
         
         return # from render_scene
+
+    __subusage = None #bruce 070110
     
     def standard_repaint(self): #bruce 050617 split this out; bruce 061208 removed obsolete special_topnode experiment
         """#doc... this trashes both gl matrices! caller must push them both if it needs the current ones.
@@ -2118,7 +2120,34 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 pass
             pass
 
+        # zap any leftover usage tracking from last time
+        #
+        # [bruce 070110 new feature, for debugging and possibly as a bugfix;
+        #  #e it might become an option of begin_tracking_usage, but an "aspect" would need to be passed
+        #  to permit more than one tracked aspect to be used -- it would determine the attr
+        #  corresponding to __subusage in this code. Maybe the same aspect could be passed to
+        #  methods of SelfUsageTrackingMixin, but I'm not sure whether the two tracking mixins
+        #  would or should interact -- maybe one would define an invalidator for the other to use?]
+        #
+        if self.__subusage is None: 
+            # usual the first time
+            pass
+        elif self.__subusage == 0:
+            # should never happen
+            print_compact_stack( "bug: apparent recursive usage tracking in GLPane: ")
+            pass
+                # it'd be better if we'd make invals illegal in this case, but in current code
+                # we don't know the obj to tell to do that (easy to fix if needed)
+        elif self.__subusage == -1:
+            print "(possible bug: looks like the last begin_tracking_usage raised an exception)"
+            pass
+        else:
+            # usual case except for the first time
+            self.__subusage.make_invals_illegal(self)
+        self.__subusage = -1
+        
         match_checking_code = self.begin_tracking_usage() #bruce 050806
+        self.__subusage = 0
 
         debug_prints_prefs_key = "A9 devel/debug prints for my bug?" # also defined in exprs/test.py
         if env.prefs.get(debug_prints_prefs_key, False):
@@ -2133,7 +2162,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 raise
         finally:
             self.wants_gl_update = True #bruce 050804
-            self.end_tracking_usage( match_checking_code, self.wants_gl_update_was_True ) # same invalidator even if exception
+            self.__subusage = self.end_tracking_usage( match_checking_code, self.wants_gl_update_was_True )
+                # same invalidator even if exception
             if env.prefs.get(debug_prints_prefs_key, False):
                 print "glpane end_tracking_usage" #bruce 070110
         return

@@ -1173,17 +1173,18 @@ bottom_left_corner = Boxed(SimpleColumn(
     checkbox_pref("A9 devel/testdraw/show old timing data?", "show old timing data?", dflt = False), # works (side effect on text in next one)
     checkbox_pref("A9 devel/testdraw/show old use displist?", "show old use displist?", dflt = False), # works
     checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
-    checkbox_pref(debug_prints_prefs_key, "debug prints for my bug?", dflt = False), # 
+    checkbox_pref(debug_prints_prefs_key, "debug prints for redraw?", dflt = False), # note prefs_key text != checkbox label text
     checkbox_pref("A9 devel/show redraw_counter?", "show redraw_counter?", dflt = False), # works, but has continuous redraw bug
     Highlightable(DisplistChunk(
         CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) )),
             # NOTE: not usage/change tracked, thus not updated every redraw, which we depend on here
     ## CenterY(TextRect( format_Expr("current redraw %r [BUG: CAUSES CONTINUOUS REDRAWS]", call_Expr(get_redraw_counter_ALWAYSCHANGES)))),
     If( call_Expr(get_pref, "A9 devel/show redraw_counter?", False),
-        Highlightable(DisplistChunk( CenterY(DebugDraw(TextRect( format_Expr("current redraw %r", _app.redraw_counter)))) )),
+        Highlightable(DisplistChunk( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )),
             # should be properly usage/change tracked; has continuous redraw bug, not yet understood.
             # note: after checking the checkbox above, the bug shows up only after the selobj changes away from that checkbox.
-        Highlightable(DisplistChunk(TextRect("current redraw: use checkbox (but has bug)")))
+            # update 070110 1040p: the bug is fixed in GLPane.py/changes.py; still not fully understood; more info to follow. ###e
+        Highlightable(DisplistChunk(TextRect("current redraw: use checkbox (bug is fixed)"))) ####
     ),
  ))
     # cosmetic bugs in this: mouse stickiness on text label (worse on g4?) [fixed], and label not active for click [fixed],
