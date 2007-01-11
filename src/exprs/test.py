@@ -1168,7 +1168,7 @@ debug_prints_prefs_key = "A9 devel/debug prints for my bug?" # also defined in G
 bottom_left_corner = Boxed(SimpleColumn(
 ##    checkbox_pref("A9 devel/testdraw/use old vv.displist?", "use old vv.displist?"), # see USE_DISPLAY_LIST_OPTIM
 ##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
-    checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider? (after reload)", dflt = True), # works (moves compass)
+##    checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider? (after reload)", dflt = True), # works (moves compass)
     checkbox_pref("A9 devel/testdraw/super.Draw?", "draw model & region-sel rect?", dflt = True), # works
     checkbox_pref("A9 devel/testdraw/show old timing data?", "show old timing data?", dflt = False), # works (side effect on text in next one)
     checkbox_pref("A9 devel/testdraw/show old use displist?", "show old use displist?", dflt = False), # works
@@ -1179,7 +1179,7 @@ bottom_left_corner = Boxed(SimpleColumn(
         CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) )),
             # NOTE: not usage/change tracked, thus not updated every redraw, which we depend on here
     ## CenterY(TextRect( format_Expr("current redraw %r [BUG: CAUSES CONTINUOUS REDRAWS]", call_Expr(get_redraw_counter_ALWAYSCHANGES)))),
-    If( call_Expr(get_pref, "A9 devel/show redraw_counter?"),
+    If( call_Expr(get_pref, "A9 devel/show redraw_counter?", False),
         Highlightable(DisplistChunk( CenterY(DebugDraw(TextRect( format_Expr("current redraw %r", _app.redraw_counter)))) )),
             # should be properly usage/change tracked; has continuous redraw bug, not yet understood.
             # note: after checking the checkbox above, the bug shows up only after the selobj changes away from that checkbox.
@@ -1194,7 +1194,7 @@ bottom_left_corner = Boxed(SimpleColumn(
 top_left_corner = testexpr_10c # nested ToggleShow.
     # Note: testexpr_18 (MT) also works, and has indep node.open state, i think (limited autoupdate makes it hard to be sure).
 
-class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 experiment] ### PARTLY UNTESTED
+class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 experiment]
     "helper class for use in testbed, to provide glue code between testexpr and the rest of NE1"
     redraw_counter = State(int)
     delegate = Arg(Anything) # might need to delegate lbox attrs (or might not, not sure, but no harm in doing it)
@@ -1310,8 +1310,6 @@ _kluge_current_testexpr_instance = None
 
 def drawtest1_innards(glpane):
     "entry point from ../testdraw.py (called once per mode.Draw call)"
-    ## print "got glpane = %r" % (glpane,)
-        # Note: this was not the GLPane_overrider proxy until bugfix in testdraw labelled "KLUGE 070103"
 
     mode = glpane.mode # assume this is always testmode
     _setup_UNKNOWN_SELOBJ(mode) #061218 kluge (multiple places, some in cad/src);
@@ -1480,23 +1478,6 @@ class _find_or_make: #061217 from find_or_make_main_instance etc #e refile ### N
     def make(self):
         assert 0, "subclass should implement" ### or use a self.func
     pass
-
-    
-# ==
-
-def after_drawcompass(glpane, aspect):
-    return # "nevermind"
-
-# in after_drawcompass-outtakes.py:
-##def make_aux_instance(expr, index): #KLUGE 061208; not memoized, that'll need fixing
-##    global _last_main_instance
-##    some_env = _last_main_instance.env
-##    ipath = (index, ('$$aux', NullIpath))
-##    inst = some_env.make(expr, ipath)
-##    return inst
-##
-##def after_drawcompass(glpane, aspect):
-##    ...
     
 # ==
 

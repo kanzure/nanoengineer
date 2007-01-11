@@ -61,6 +61,7 @@ from changes import SubUsageTrackingMixin
 
 from DynamicTip import DynamicTip #ninad060818 moved class DynamicTip to a new file
 
+from state_utils import transclose #bruce 070110
 
 debug_lighting = False #bruce 050418
 
@@ -119,7 +120,85 @@ button = {0:None, 1:'LMB', 2:'RMB', 4:'MMB'} ###e NEEDS RENAME -- global variabl
     #  and preferably do it many weeks before a release so any rare bugs it causes might be found)
     # Also, the numeric constants need to be replaced by named constants from Qt (or at least from constants.py).
 
-class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
+# ==
+
+class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from exprs/DisplistChunk.py and made GLPane inherit it
+    """Private mixin class for GLPane. Attr and method names must not interfere with GLPane.
+    Likely to be merged into class GLPane in future (as directly included methods rather than a mixin superclass).
+    """
+    compiling_displist = 0 #e rename to be private? probably not.
+    compiling_displist_owned_by = None
+    def glGenLists(self, *args):
+        return glGenLists(*args)
+    def glNewList(self, listname, mode, owner = None):
+        """Execute glNewList, after verifying args are ok and we don't think we're compiling a display list now.
+        (The OpenGL call is illegal if we're *actually* compiling one now. Even if it detects that error (as is likely),
+        it's not a redundant check, since our internal flag about whether we're compiling one could be wrong.)
+           If owner is provided, record it privately (until glEndList) as the owner of the display list being compiled.
+        This allows information to be tracked in owner or using it, like the set of sublists directly called by owner's list.
+        Any initialization of tracking info in owner is up to our caller.###k doit
+        """
+        #e make our GL context current? no need -- callers already had to know that to safely call the original form of glNewList
+        #e assert it's current? yes -- might catch old bugs -- but not yet practical to do.
+        assert self.compiling_displist == 0
+        assert self.compiling_displist_owned_by is None
+        assert listname
+        glNewList(listname, mode)
+        self.compiling_displist = listname
+        self.compiling_displist_owned_by = owner # optional arg in general, but required for the tracking done in this module
+        return
+    def glEndList(self, listname = None):
+        assert self.compiling_displist != 0
+        if listname is not None: # optional arg
+            assert listname == self.compiling_displist
+        glEndList() # no arg is permitted
+        self.compiling_displist = 0
+        self.compiling_displist_owned_by = None
+        return
+    def glCallList(self, listname):
+        "Compile a call to the given display list. Note: most error checking and any extra tracking is responsibility of caller."
+        ##e in future, could merge successive calls into one call of multiple lists
+        assert not self.compiling_displist # redundant with OpenGL only if we have no bugs in maintaining it, so worth checking
+        assert listname # redundant with following?
+        glCallList(listname)
+        return
+    def ensure_dlist_ready_to_call( self, dlist_owner_1 ): #e rename the local vars, revise term "owner" in it [070102 cmt]
+        """[private helper method for use by DisplistChunk]
+           This implements the recursive algorithm described in DisplistChunk.__doc__.
+        dlist_owner_1 should be a DisplistOwner ###term; we use private attrs and/or methods of that class,
+        including _key, _recompile_if_needed_and_return_sublists_dict().
+           What we do: make sure that dlist_owner_1's display list can be safely called (executed) right after we return,
+        with all displists that will call (directly or indirectly) up to date (in their content).
+           Note that, in general, we won't know which displists will be called by a given one
+        until after we've updated its content (and thereby compiled calls to those displists as part of its content).
+           Assume we are only called when our GL context is current and we're not presently compiling a displist in it.
+        """
+        ###e verify our GL context is current, or make it so; not needed now since only called during some widget's draw call
+        assert self.compiling_displist == 0
+        toscan = { dlist_owner_1._key : dlist_owner_1 }
+        def collector( obj1, dict1):
+            dlist_owner = obj1
+            direct_sublists_dict = dlist_owner._recompile_if_needed_and_return_sublists_dict() # [renamed from _ensure_self_updated]
+                # This says to dlist_owner: if your list is invalid, recompile it (and set your flag saying it's valid);
+                # then you know your direct sublists, so we can ask you to return them.
+                #   Note: it only has to include sublists whose drawing effects might be invalid.
+                # This means, if its own effects are valid, it can optim by just returning {}.
+                # [#e Someday it might maintain a dict of invalid sublists and return that. Right now it returns none or all of them.]
+                #   Note: during that call, the glpane (self) is modified to know which dlist_owner's list is being compiled.
+            dict1.update( direct_sublists_dict )
+        seen = transclose(  toscan, collector )
+        # now, for each dlist_owner we saw, tell it its drawing effects are valid.
+        for dlist_owner in seen.itervalues():
+            dlist_owner._your_drawing_effects_are_valid()
+                # Q: this resets flags which cause inval propogation... does it retain consistency?
+                # A: it does it in reverse logic dir and reverse arrow dir (due to transclose) as inval prop, so it's ok.
+                # Note: that comment won't be understandable in a month [from 070102]. Need to explain it better. ####doc
+        return
+    pass # end of class GLPane_mixin_for_DisplistChunk
+
+# ==
+
+class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane_mixin_for_DisplistChunk):
     """Mouse input and graphics output in the main view window.
     """
     # Note: external code expects self.mode to always be a working
@@ -1983,12 +2062,10 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
 
     selobj = None #bruce 050609
 
-    # *** WARNING: the code between the two comments containing the text "GLPane_overrider code" has been copied and modified
-    # *** into cad/src/exprs/GLPane_overrider.py. The version in that file might become the official one someday.
-    # *** When that happens, we can examine all changes to this version (starting with the insertion of these comments)
-    # *** and decide whether to port them into that version. Thus, changes to this version should be kept minimal.
-    # *** BTW, two methods were moved outside of this region before it was copied -- _restore_modelview_stack_depth and
-    # *** wants_gl_update_was_True (also the initial value of the instancevar it sets, wants_gl_update). [bruce 061208]
+    # ** Note: all code between the two comments containing "changes merged in from exprs/GLPane_overrider.py"
+    # ** was copied from here into that file by bruce 061208, modified somewhat in that file, then moved back here
+    # ** by bruce 070110, in order to make GLPane_overrider obsolete, with minor further changes to make this file not
+    # ** depend on the exprs module.
 
     def render_scene(self):#bruce 061208 split this out so some modes can override it (also removed obsolete trans_feature experiment)
         
@@ -2018,7 +2095,34 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         """#doc... this trashes both gl matrices! caller must push them both if it needs the current ones.
         this routine sets its own matrixmode but depends on other gl state being standard when entered.
         """
+        if 0:
+            #bruce 070109 see if a nonempty subslist is present -- it might be part of my _app contin redraw bug -- offer to empty it
+            #WRONG, this is the wrong subslist, it's for usage of the glpane, whhat i need is invals that might come to it.
+            # that's whatweused in the onetimesubslist in the usage tracker terminated by end_tracking_usage.
+            try:
+                subslist = self._SelfUsageTrackingMixin__subslist
+            except AttributeError: # this is common at all times -- in fact it's the only case here I've yet seen
+                ## print "fyi: glpane had no __subslist" ## this is the only one that got printed, so it doesn't explain my _app redraw bug.
+                pass
+            else:
+                lis = subslist._list_of_subs()
+                if not lis:
+                    print "fyi: glpane had empty __subslist"###
+                else:
+                    remove = debug_pref("GLPane: empty __subslist?", Choice_boolean_False, prefs_key = True)
+                    print "bug??: glpane had %d things in __subslist%s" % (len(subslist), remove and " -- will remove them" or "")
+                    print subslist ###
+                    if remove:
+                        subslist.remove_all_subs()
+                    pass
+                pass
+            pass
+
         match_checking_code = self.begin_tracking_usage() #bruce 050806
+
+        debug_prints_prefs_key = "A9 devel/debug prints for my bug?" # also defined in exprs/test.py
+        if env.prefs.get(debug_prints_prefs_key, False):
+            print "glpane begin_tracking_usage" #bruce 070110
         try:
             try:
                 self.standard_repaint_0()
@@ -2030,6 +2134,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         finally:
             self.wants_gl_update = True #bruce 050804
             self.end_tracking_usage( match_checking_code, self.wants_gl_update_was_True ) # same invalidator even if exception
+            if env.prefs.get(debug_prints_prefs_key, False):
+                print "glpane end_tracking_usage" #bruce 070110
         return
 
     def standard_repaint_0(self):
@@ -2252,15 +2358,23 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             #  it happened and for which object). In practice, as long as the stencil optim works, this isn't needed,
             #  and it's not yet implemented. This is predicted to result in highlight flickering if no stencil bits are
             #  available. ###e should fix sometime, if that ever happens.)
-            
-            glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
-            glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
-            glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
-                # (this works, but someday verify sign is correct in theory #k)
-                # [actually it has some visual bugs, esp. in perspective view when off-center,
-                #  and it would be better to just use a depth offset, or better still (probably)
-                #  to change the depth test to LEQUAL, either just for now, or all the time. bruce 060729 comment]
-            glMatrixMode(GL_MODELVIEW) # probably required!
+
+            use_pre_draw_in_abs_coords = hasattr(self.selobj, "pre_draw_in_abs_coords") #bruce 061218 new feature
+            if use_pre_draw_in_abs_coords:
+                assert hasattr(self.selobj, "post_draw_in_abs_coords")
+                self.selobj.pre_draw_in_abs_coords(self)
+            else:
+                glMatrixMode(GL_PROJECTION) # prepare to "translate the world"
+                glPushMatrix() # could avoid using another matrix-stack-level if necessary, by untranslating when done
+                glTranslatef(0.0, 0.0, +0.01) # move the world a bit towards the screen
+                    # (this works, but someday verify sign is correct in theory #k)
+                    # [actually it has some visual bugs, esp. in perspective view when off-center,
+                    #  and it would be better to just use a depth offset (via glPolygonOffset(hard to use in this case)
+                    #  or glDepthRange (which requires us to know the depth buffer resolution to use it properly)),
+                    #  or better still [now done sometimes, via pre_draw_in_abs_coords]
+                    #  to change the depth test (glDepthFunc) to GL_LEQUAL, either just for now, or all the time.
+                    #  [bruce 060729 comment, revised 061219]]
+                glMatrixMode(GL_MODELVIEW) # probably required!
             
             ####@@@@ TODO -- rename draw_in_abs_coords and make it imply highlighting so obj knows whether to get bigger
             # (note: having it always draw selatoms bigger, as if highlighted, as it does now, would probably be ok in hit-test,
@@ -2268,8 +2382,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
             #  of glselect_dict objs (where it *is* used), resulting in "premonition of bigger size" when hit test passed... ###bug);
             # make provisions elsewhere for objs "stuck as selobj" even if tests to retain that from stencil are not done
             # (and as optim, turn off stencil drawing then if you think it probably won't be needed after last draw you'll do)
-            
-            self.selobj.draw_in_abs_coords(self, hicolor or black) ###@@@ test having color writing disabled here, does stencil still happen??
+
+            try:
+                self.selobj.draw_in_abs_coords(self, hicolor or black) ###@@@ test having color writing disabled here, does stencil still happen??
+            except:
+                # try/except added for GL-state safety, bruce 061218
+                print_compact_traceback("bug: exception in %r.draw_in_abs_coords ignored: " % self.selobj)
+                pass
             
             # restore gl state (but don't do unneeded OpenGL ops in case that speeds it up somehow)
             if not highlight_into_depth:
@@ -2281,11 +2400,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
                 # when they reenable stenciling.
             glDisable(GL_STENCIL_TEST)
             
-            glMatrixMode(GL_PROJECTION)
-            glPopMatrix()
-            glMatrixMode(GL_MODELVIEW) #k maybe not needed
-
+            if use_pre_draw_in_abs_coords:
+                self.selobj.post_draw_in_abs_coords(self)
+            else:
+                glMatrixMode(GL_PROJECTION)
+                glPopMatrix()
+                glMatrixMode(GL_MODELVIEW) #k maybe not needed
+            pass
+        
         self.mode.Draw_after_highlighting() # e.g. draws water surface in Build mode
+            # note: this is called with the same coordinate system as mode.Draw() [bruce 061208 comment]
 
         ###@@@ move remaining items back into caller? sometimes yes sometimes no... need to make them more modular... [bruce 050617]
         
@@ -2301,6 +2425,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         # draw coordinate-orientation arrows at upper right corner of glpane
         if env.prefs[displayCompass_prefs_key]:
             self.drawcompass(aspect) #bruce 050608 moved this here, and rewrote it to behave then
+
+# a relic of GLPane_overrider.py which can be removed after one commit:
+##        try:
+##            #bruce 061208 kluge to let us draw things in the corners, to tide us over until we modularize the rendering alg as a whole
+##            from basic import reload_once
+##            import test
+##            reload_once(test)
+##            test.after_drawcompass(self, aspect)
+##        except:
+##            print_compact_traceback("bug: exception ignored in test.after_drawcompass: ")
         
         #ninad060921 The following draws a dotted origin axis if the correct preferece is checked. 
         #The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
@@ -2538,7 +2672,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         
         # Set compass position using glOrtho
         if self.compassPosition == UPPER_RIGHT:
-            glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500) # Upper Right
+            # hack for use in testmode [revised bruce 070110 when GLPane_overrider merged into GLPane]:
+            if getattr(self.mode, "compass_moved_in_from_corner", False):                
+                glOrtho(-40*aspect, 15.5*aspect, -50, 5.5,  -5, 500)
+            else:
+                glOrtho(-50*aspect, 5.5*aspect, -50, 5.5,  -5, 500) # Upper Right
         elif self.compassPosition == UPPER_LEFT:
             glOrtho(-5*aspect, 50.5*aspect, -50, 5.5,  -5, 500) # Upper Left
         elif self.compassPosition == LOWER_LEFT:
@@ -2596,10 +2734,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin):
         glPopMatrix()
         glMatrixMode(GL_MODELVIEW)
         glPopMatrix()
-        return
+        return # from drawcompass
+    
+    # ** note: all code between the two comments containing "changes merged in from exprs/GLPane_overrider.py"
+    # ** was modified by bruce 070110. For more info see the other such comment, above.
 
-    # *** WARNING: the code between the two comments containing the text "GLPane_overrider code" has been copied and modified
-    # *** into cad/src/exprs/GLPane_overrider.py. For more info, see the first such comment above. [bruce 061208]
+    # ==
            
     def resizeGL(self, width, height):
         """Called by QtGL when the drawing window is resized.

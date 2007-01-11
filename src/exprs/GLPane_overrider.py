@@ -2,6 +2,8 @@
 $Id$
 """
 
+assert 0, "obsolete, should no longer be used" #### and should cvs remove it soon [070110]
+
 from GLPane import * # since this mode might depend on all kinds of imports and constants in that module
 
 from idlelib.Delegator import Delegator
@@ -19,6 +21,7 @@ from DisplistChunk import GLPane_mixin_for_DisplistChunk
 
 class GLPane_overrider(Delegator, GLPane_mixin_for_DisplistChunk, object):
     # object superclass added for selobj = property(...), unreviewed re Delegator; redundant with mixin, but mixin might be temporary
+    # fyi: delegate is a GLPane, and its supers are QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin
     """Be a proxy for the GLPane, which replaces some of its methods with our own versions,
     for use only during render_scene.
        Note that this is not a subclass of GLPane,
@@ -75,6 +78,8 @@ class GLPane_overrider(Delegator, GLPane_mixin_for_DisplistChunk, object):
                 '_needs_repaint' 
     for attr in overrides.split():
         exec( "%s = delegated_state_attr('delegate', '%s')" % (attr, attr) )
+
+    ### code after this point merged back into GLPane.py in cad/src, 070110
     
     def render_scene(self):#bruce 061208 split this out so some modes can override it (also removed obsolete trans_feature experiment)
         

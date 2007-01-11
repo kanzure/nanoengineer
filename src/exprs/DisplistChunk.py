@@ -45,7 +45,7 @@ from basic import *
 
 from debug_prefs import debug_pref, Choice_boolean_False #k in basic??
 
-from OpenGL.GL import glGenLists, glNewList, glEndList, glCallList, GL_COMPILE, GL_COMPILE_AND_EXECUTE
+from OpenGL.GL import GL_COMPILE
 
 from changes import SelfUsageTrackingMixin # defines track_use, track_inval; maintains a private __subslist on self
 from changes import SubUsageTrackingMixin # defines begin_tracking_usage, end_tracking_usage; doesn't use self
@@ -55,81 +55,7 @@ from changes import SubUsageTrackingMixin # defines begin_tracking_usage, end_tr
 
 # ==
 
-class GLPane_mixin_for_DisplistChunk(object):
-    """Private mixin class for GLPane. Attr and method names must not interfere with GLPane.
-    Likely to be merged into class GLPane in future.
-    For now, mixed into class GLPane_overrider instead.
-    """
-    # 070103 renamed GLPane_mixin_for_DisplistChunk from GLPaneProxy, and mixed into GLPane_overrider
-    compiling_displist = 0 #e rename to be private? probably not.
-    compiling_displist_owned_by = None
-    def glGenLists(self, *args):
-        return glGenLists(*args)
-    def glNewList(self, listname, mode, owner = None):
-        """Execute glNewList, after verifying args are ok and we don't think we're compiling a display list now.
-        (The OpenGL call is illegal if we're *actually* compiling one now. Even if it detects that error (as is likely),
-        it's not a redundant check, since our internal flag about whether we're compiling one could be wrong.)
-           If owner is provided, record it privately (until glEndList) as the owner of the display list being compiled.
-        This allows information to be tracked in owner or using it, like the set of sublists directly called by owner's list.
-        Any initialization of tracking info in owner is up to our caller.###k doit
-        """
-        #e make our GL context current? no need -- callers already had to know that to safely call the original form of glNewList
-        #e assert it's current? yes -- might catch old bugs -- but not yet practical to do.
-        assert self.compiling_displist == 0
-        assert self.compiling_displist_owned_by is None
-        assert listname
-        glNewList(listname, mode)
-        self.compiling_displist = listname
-        self.compiling_displist_owned_by = owner # optional arg in general, but required for the tracking done in this module
-        return
-    def glEndList(self, listname = None):
-        assert self.compiling_displist != 0
-        if listname is not None: # optional arg
-            assert listname == self.compiling_displist
-        glEndList() # no arg is permitted
-        self.compiling_displist = 0
-        self.compiling_displist_owned_by = None
-        return
-    def glCallList(self, listname):
-        "Compile a call to the given display list. Note: most error checking and any extra tracking is responsibility of caller."
-        ##e in future, could merge successive calls into one call of multiple lists
-        assert not self.compiling_displist # redundant with OpenGL only if we have no bugs in maintaining it, so worth checking
-        assert listname # redundant with following?
-        glCallList(listname)
-        return
-    def ensure_dlist_ready_to_call( self, dlist_owner_1 ): #e rename the local vars, revise term "owner" in it [070102 cmt]
-        """[private helper method for use by DisplistChunk]
-           This implements the recursive algorithm described in DisplistChunk.__doc__.
-        dlist_owner_1 should be a DisplistOwner ###term; we use private attrs and/or methods of that class,
-        including _key, _recompile_if_needed_and_return_sublists_dict().
-           What we do: make sure that dlist_owner_1's display list can be safely called (executed) right after we return,
-        with all displists that will call (directly or indirectly) up to date (in their content).
-           Note that, in general, we won't know which displists will be called by a given one
-        until after we've updated its content (and thereby compiled calls to those displists as part of its content).
-           Assume we are only called when our GL context is current and we're not presently compiling a displist in it.
-        """
-        ###e verify our GL context is current, or make it so; not needed now since only called during some widget's draw call
-        assert self.compiling_displist == 0
-        toscan = { dlist_owner_1._key : dlist_owner_1 }
-        def collector( obj1, dict1):
-            dlist_owner = obj1
-            direct_sublists_dict = dlist_owner._recompile_if_needed_and_return_sublists_dict() # [renamed from _ensure_self_updated]
-                # This says to dlist_owner: if your list is invalid, recompile it (and set your flag saying it's valid);
-                # then you know your direct sublists, so we can ask you to return them.
-                #   Note: it only has to include sublists whose drawing effects might be invalid.
-                # This means, if its own effects are valid, it can optim by just returning {}.
-                # [#e Someday it might maintain a dict of invalid sublists and return that. Right now it returns none or all of them.]
-                #   Note: during that call, the glpane (self) is modified to know which dlist_owner's list is being compiled.
-            dict1.update( direct_sublists_dict )
-        seen = transclose(  toscan, collector )
-        # now, for each dlist_owner we saw, tell it its drawing effects are valid.
-        for dlist_owner in seen.itervalues():
-            dlist_owner._your_drawing_effects_are_valid()
-                # Q: this resets flags which cause inval propogation... does it retain consistency?
-                # A: it does it in reverse logic dir and reverse arrow dir (due to transclose) as inval prop, so it's ok.
-                # Note: that comment won't be understandable in a month [from 070102]. Need to explain it better. ####doc
-        return
-    pass # end of class GLPane_mixin_for_DisplistChunk
+# moved class GLPane_mixin_for_DisplistChunk from here into GLPane.py, bruce 070110
 
 # ==
 
@@ -179,7 +105,8 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         self.glpane = self.env.glpane #e refile into superclass??
         self.disabled = not hasattr(self.glpane, 'glGenLists')
         if self.disabled:
-            pass ## print "warning: %r is disabled since its GLPane was not overridden" % self # text makes sense only in current devel-code
+            # this should never happen after the merge of GLPane_overrider into GLPane done today [070110]
+            print "bug: %r is disabled since its GLPane is missing required methods" % self
         return
         
     def _C_displist(self): # compute method for self.displist
@@ -190,11 +117,10 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         ### NOTE: usage tracking should turn up nothing -- we use nothing
         "allocate a new display list name (a 32-bit int) in our GL context"
         if self.disabled:
-            printfyi("bug: why does .dislplist get requested in a disabled DisplistChunk??") ### happens??
+            printfyi("bug: why does .dislplist get requested in a disabled DisplistChunk??") # (i never saw this)
             return 0
         
         self.glpane.makeCurrent() # not sure when this compute method might get called, so make sure our GL context is current
-        ## print "my glpane is",self.glpane,"type",type(self.glpane)
         displist = self.glpane.glGenLists(1) # allocate the display list name [#k does this do makeCurrent??]
         # make sure it's a nonzero int or long
         assert type(displist) in (type(1), type(1L))
@@ -211,6 +137,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         except:
             print "exception in self._debug_print_name discarded" #e print more, at least id(self), maybe traceback, if this happens
             # (but don't print self or you might infrecur!!)
+            ##e can we print self.displist and/or self.delegate?
             return "<%s at %#x>" % (self.__class__.__name__, id(self))
         else:
             return "<%s(%s) at %#x>" % (self.__class__.__name__, _debug_print_name or "<no name>", id(self))
@@ -323,7 +250,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
             # this failed 070104 with the exception shown in long string below, when I used clear "button" (070103 kluge) on one node...
             # theory: the nodelist change (by clear button run inside draw method, which is illegal -- that's the kluge)
             # invalidated it right when it was being recompiled (or just after, but before the overall recomp alg sent this call).
-            # So that kluge has to go,
+            # So that kluge has to go [later: it's gone],
             # and the underlying error of changing an input to an ongoing recompute has to be better detected. ####e
         self.drawing_effects_valid = True
         return
@@ -450,8 +377,6 @@ exception in testdraw.py's drawfunc call ignored: exceptions.AssertionError:
         "emit a call of our display list, whether or not we're called in immediate mode"
         self.glpane.glCallList( self.displist)
         return
-
-    #e def __repr__, print list name and delegate
     
     pass # end of class DisplistChunk
 
