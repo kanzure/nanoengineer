@@ -2426,16 +2426,6 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         if env.prefs[displayCompass_prefs_key]:
             self.drawcompass(aspect) #bruce 050608 moved this here, and rewrote it to behave then
 
-# a relic of GLPane_overrider.py which can be removed after one commit:
-##        try:
-##            #bruce 061208 kluge to let us draw things in the corners, to tide us over until we modularize the rendering alg as a whole
-##            from basic import reload_once
-##            import test
-##            reload_once(test)
-##            test.after_drawcompass(self, aspect)
-##        except:
-##            print_compact_traceback("bug: exception ignored in test.after_drawcompass: ")
-        
         #ninad060921 The following draws a dotted origin axis if the correct preferece is checked. 
         #The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
         #it will just draw it as dotted line (Remember that we are drawing 2 origins superimposed over each other
