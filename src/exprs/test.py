@@ -1152,7 +1152,9 @@ def get_redraw_counter_ALWAYSCHANGES(): #070108 experiment -- useless, since it 
     "like get_redraw_counter() but act as if we use something which changes every time (usage/change tracked the max legal amount)"
     return _lval_for_redraw_counter.get_value()
 
-def get_pref(key, dflt = None): #e see also... some stateref-maker I forget
+from preferences import _NOT_PASSED ###k
+
+def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forget
     """Return a prefs value. Fully usage-tracked.
     [Kluge until we have better direct access from an expr to env.prefs. Suggest: use in call_Expr.]
     """
@@ -1161,27 +1163,27 @@ def get_pref(key, dflt = None): #e see also... some stateref-maker I forget
 
 from __Symbols__ import _app #070108; might refile this into basic.py ##e
 
-debug_prints_prefs_key = "A9 devel/debug prints for my bug?"
+debug_prints_prefs_key = "A9 devel/debug prints for my bug?" # also defined in GLPane.py
 
 bottom_left_corner = Boxed(SimpleColumn(
 ##    checkbox_pref("A9 devel/testdraw/use old vv.displist?", "use old vv.displist?"), # see USE_DISPLAY_LIST_OPTIM
 ##    checkbox_pref("A9 devel/testdraw/drawtest in old way?", "drawtest in old way?", dflt = False),
-    checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider?", dflt = True), # works (moves compass)
+    checkbox_pref("A9 devel/testdraw/use GLPane_Overrider?", "use GLPane_Overrider? (after reload)", dflt = True), # works (moves compass)
     checkbox_pref("A9 devel/testdraw/super.Draw?", "draw model & region-sel rect?", dflt = True), # works
     checkbox_pref("A9 devel/testdraw/show old timing data?", "show old timing data?", dflt = False), # works (side effect on text in next one)
     checkbox_pref("A9 devel/testdraw/show old use displist?", "show old use displist?", dflt = False), # works
     checkbox_pref("A9 devel/testdraw/draw test graphics?", "draw old test graphics?", dflt = False), # works, but turns off above two too (ignore)
     checkbox_pref(debug_prints_prefs_key, "debug prints for my bug?", dflt = False), # 
     checkbox_pref("A9 devel/show redraw_counter?", "show redraw_counter?", dflt = False), # works, but has continuous redraw bug
-    DisplistChunk(
-        CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) ),
+    Highlightable(DisplistChunk(
+        CenterY(TextRect( format_Expr("instance remade at redraw %r", call_Expr(get_redraw_counter)))) )),
             # NOTE: not usage/change tracked, thus not updated every redraw, which we depend on here
     ## CenterY(TextRect( format_Expr("current redraw %r [BUG: CAUSES CONTINUOUS REDRAWS]", call_Expr(get_redraw_counter_ALWAYSCHANGES)))),
     If( call_Expr(get_pref, "A9 devel/show redraw_counter?"),
-        DisplistChunk( CenterY(DebugDraw(TextRect( format_Expr("current redraw %r", _app.redraw_counter)))) ),
+        Highlightable(DisplistChunk( CenterY(DebugDraw(TextRect( format_Expr("current redraw %r", _app.redraw_counter)))) )),
             # should be properly usage/change tracked; has continuous redraw bug, not yet understood.
             # note: after checking the checkbox above, the bug shows up only after the selobj changes away from that checkbox.
-        DisplistChunk(TextRect("current redraw: use checkbox (but has bug)"))
+        Highlightable(DisplistChunk(TextRect("current redraw: use checkbox (but has bug)")))
     ),
  ))
     # cosmetic bugs in this: mouse stickiness on text label (worse on g4?) [fixed], and label not active for click [fixed],
