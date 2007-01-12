@@ -3,6 +3,9 @@ Command_scratch_1.py
 
 $Id$
 
+[061212 is the date of some small mods to make this parse -- probably it was mostly written
+then or a few days before, within demo_drag.py]
+
 070105 moved the pseudocode for Command & DragCommand class etc from demo_drag.py
 into this new file Command_scratch_1.py --
 see this file for ideas about Command, DragCommand, _PERMIT_SETS_INSIDE_, DragANode, ClickDragCommand, MakeANode.
@@ -55,6 +58,11 @@ class DragANode(DragCommand):
     # This is really its posn in a specific space... for now assume it (or our view of it, anyway)
     # owns that pos and knows that space.
     pos = Alias( node.pos) # Alias is so we can set or change pos as a way of changing node.pos [#nim, & not even fully decided on]
+
+        # [later 070111: note that in real life, pos should be a *translated* form of node.pos, but still be settable as an lval.
+        #  in general we'll want to transform the settable for drag parts of node, to those of a drag-target with a uniform
+        #  interface, then let the mouse drag events modify the drag-target in a standard way. See '070111 settable coordinate vars'
+        #  [not in cvs] for related discussion.]
 
     # Q: if system decides it's a drag only after it moves a little bit, does the object then jump, or start smoothly,
     # as it starts to move?

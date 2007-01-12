@@ -221,6 +221,16 @@ class VertexViewer(DelegatingInstanceOrExpr, Viewer): ###k ok supers?
         
 # ==
 
+# Summary of this and Vertex_new -- make use_VertexView work --
+# [long comment added 070111; devel on this code has been inactive for a few days]
+#
+# it's an example of dynamically mapping selobj thru toolstate to get looks & behavior,
+# so the model object itself can be split out and needs no graphics/interaction code of its own.
+# My general sense in hindsight is that it's too low-level -- I need to figure out how all this could/should look as toplevel exprs.
+#
+# See a new file rules.py for more on that.
+
+
 viewerfunc = identity # stub - might better be that hardcoded helper func above ####e
 
 class WithViewerFunc(DelegatingInstanceOrExpr):#070105 stub experiment for use with use_VertexView option ### NOT YET USED non-stubbily
