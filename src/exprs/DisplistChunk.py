@@ -13,6 +13,13 @@ history:
 
 ==
 
+Current unsolved bugs:
+
+- discussed in BUGS file:
+  070115 "DisplistChunk breaks highlighting of testexpr_19f old nodes"
+
+==
+
 Still needed:
 - maybe: some renamings, as commented
 - provisions for highlighting (see just below in this docstring)

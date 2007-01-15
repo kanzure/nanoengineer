@@ -182,6 +182,9 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
 
     def on_drag(self): # 070103 kluge experiment, copied/modified from on_drag_bg in bigger class below
 
+        # Note: this bug reported in BUGS breaks dragging of these nodes:
+        # 070115 "DisplistChunk breaks highlighting of testexpr_19f old nodes"
+
         # where i am 070103 447p (one of two places with that comment)
         # - sort of sometimes works, but posns are sometimes same as bg, not sure why that DZ would be needed,
         # oh i guess the mousepos comes from the gray bg rect not the self unless we drag very slow...
@@ -444,7 +447,8 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
 
         if not self.use_VertexView:
             # old code
-            node_expr = Vertex(newpos, Center(Rect(0.2,0.2,
+            ## print "make node in old way (not using VertexView)" # still running as of 070115 at least in testexpr_19f
+            Vertex(newpos, Center(Rect(0.2,0.2,
                                              ## 'green', -- now we cycle through several colors: (colors,...)[counter % 6]
                                              tuple_Expr(green,yellow,red,blue,white,black)[mod_Expr(_this(Vertex).ipath[0],6)]
                                              )))
@@ -536,6 +540,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
 ##        except:
 ##            lastipath = -1
 ##        # print "on_drag_bg %d" % lastipath, point###  # this shows no error in retaining correct lastnode -- that's not the bug
+        ## print "on_drag_bg"
         newpos = point + DZ * PIXELS * 2 # used for different things, depending
         
         what = kluge_dragtool_state() ###IMPLEM better

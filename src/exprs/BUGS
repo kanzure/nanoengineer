@@ -261,3 +261,42 @@ If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
 
 ==
 
+070115 "DisplistChunk breaks highlighting of testexpr_19f old nodes"
+
+in testexpr_19f:
+
+drag of old nodes seems broken. is this is new or old bug?
+I dimly remember hacking on the related code in demo_drag...
+am I using _19f which is revised somehow? yes but it's old -- the improved clear button.
+
+bug also appears in $B (doesn't have my lmods "revised stub types & type coercion, canon_type")
+
+trying again carefully in $W, I note:
+
+- disabling the debug pref for glpane skipping of Qt-redraws does not fix it; 
+  further tests done while leaving it disabled (more redraws than usual for me, normal for NE1)
+  (so this debug pref being False might be partially fixing this bug in the following tests,
+   for all i know)
+
+- the mouse over the little black rect reports same sbar msg (no change in sbar as I mouseover --
+  indicating a bug in highlighting the rect) but does a new redraw per mousemotion
+  (as if it's drawn in front but not drawn with a glname)
+
+- tilt in XZ -- now old node is shown tilted (and draggable? not sure)
+  but now I can't even make a new node (due to highlight/displist bug?)
+
+- remake main instance, now i can make a new node, and can drag an old node
+
+  (so I wonder if this is caused by the highlighting bug related to DisplistChunk -- try disabling all those ###)
+  
+  and the old node is no longer tilted -- i think that indicates some sort of displist update bug!
+  either that, or it's a bug in the drawing code that it implicitly uses the to-screen direction...
+  or maybe it's related to snapshotting the look-expr for the node when making it... not sure ###
+
+trying disabling displists: fixes all reported bugsI tried (all 3 rects are draggable
+and affect sbar on mouseover, some just made and some from before remake main instance,
+both before and after untilting using "home view")
+
+conclusion: guess: bug is either in displist updating, or interaction of displist and highlight.
+I'll add comments to DisplistChunk and Highlightable mentioning this bug.
+

@@ -5,6 +5,14 @@ This will start out as just a straight port of class Highlightable from cad/src/
 with the same limitations in API and implem (e.g. it won't work inside display lists).
 
 Later we can revise it as needed.
+
+==
+
+Current unsolved bugs:
+
+- discussed in BUGS file:
+  070115 "DisplistChunk breaks highlighting of testexpr_19f old nodes"
+
 """
 
 from basic import *
