@@ -300,3 +300,24 @@ both before and after untilting using "home view")
 conclusion: guess: bug is either in displist updating, or interaction of displist and highlight.
 I'll add comments to DisplistChunk and Highlightable mentioning this bug.
 
+WRONG -- not so simple: trying it more, even with that debug_pref disabled, it is intermittent --
+it might depend on how long I leave the mouse down when I make the node, or whether I move it over
+the node at that time, or on which files were modified and presumably got reloaded w/o main instance
+being remade (since this was changing over time as I did a commit).
+
+Trying it again in a fresh session, I get an exception:
+UnboundLocalError: local variable 'node_expr' referenced before assignment
+  [selectMode.py:2294] [Highlightable.py:552] [Highlightable.py:649] [demo_drag.py:513]
+
+I was wondering about that bug just before since I glanced it in the code,
+but then couldn't see it when I read it more carefully 
+(node_expr assignment is in else of 'if not self.use_VertexView', so doesn't happen;
+ use is in else of 'if 0', so does happen). No idea why it was working before.
+Not sure if it can relate to this bug, anyway. 
+
+Fix that, try again in fresh session:
+
+I still get the bug, and this time, no big chance DisplistChunk or file reload could be involved.
+WAIT, my debug_pref to disable DisplistChunk is not persistent! So maybe it's still causing this.
+Turning it off & remaking instance, bug can still happen on new nodes. I'll need to make that debug_pref
+persistent and test again more carefully. ### TRY THAT LATER

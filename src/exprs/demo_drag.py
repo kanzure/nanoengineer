@@ -448,7 +448,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         if not self.use_VertexView:
             # old code
             ## print "make node in old way (not using VertexView)" # still running as of 070115 at least in testexpr_19f
-            Vertex(newpos, Center(Rect(0.2,0.2,
+            node_expr = Vertex(newpos, Center(Rect(0.2,0.2,
                                              ## 'green', -- now we cycle through several colors: (colors,...)[counter % 6]
                                              tuple_Expr(green,yellow,red,blue,white,black)[mod_Expr(_this(Vertex).ipath[0],6)]
                                              )))
