@@ -21,16 +21,22 @@ def Instance(expr, _index_expr = _E_ATTR, _lvalue_flag = False):
     Assuming the arg is an expr (not yet checked?), turn into the expr _self._i_instance(hold_Expr(expr), _E_ATTR),
     which is free in the symbols _self and _E_ATTR. [#e _E_ATTR might be changed to _E_INDEX, or otherwise revised.]
        This function is also used internally to help implement the Arg and Option macros;
-    for their use only, it has a private _index_expr option, giving an index expr other than _E_ATTR for the new Instance.
-    Note that they may have handy, not expr itself, but a "grabarg" expr which needs to be evaluated (with _self bound)
-    to produce that expr. What should they pass?? eval_Expr of the expr they have. [#doc - reword this]
+    for their use only, it has a private _index_expr option, giving an index expr other than _E_ATTR for the new Instance
+    (which is used to suggest an ipath for the new instance, relative to that of self).
+       Devel scratch comment:
+    Note that the Arg and Option macros may have handy, not expr itself, but a "grabarg" expr which needs to be evaluated
+    (with _self bound) to produce the expr to be instantiated. What should they pass?? eval_Expr of the expr they have.
+    [#doc - reword this]
        Other private options: _lvalue_flag
     """
     printnim("review: same index is used for a public Option and a private Instance on an attr; maybe ok if no overlap possible???")##e
     global _self # not needed, just fyi
     ##printnim("why is the expr in the _i_instance call not held??? ##k -- it's %r" % (expr,) )#####@@@@@ see what exprs get printed
         #guess: it should be, but we didn't notice since canon_expr fixes it. question: is it ever a replace-me-in-scan thing??
-    return call_Expr( getattr_Expr(_self, '_i_instance'), hold_Expr(expr), _index_expr, _lvalue_flag = _lvalue_flag ) 
+    if EVAL_REFORM:
+        return call_Expr( getattr_Expr(_self, '_i_instance'),           expr,  _index_expr, _lvalue_flag = _lvalue_flag )
+    else:
+        return call_Expr( getattr_Expr(_self, '_i_instance'), hold_Expr(expr), _index_expr, _lvalue_flag = _lvalue_flag )
 
 _arg_order_counter = 0 #k might not really be needed?
 
@@ -81,7 +87,7 @@ def Arg( type_expr, dflt_expr = _E_REQUIRED_ARG_, _attr_expr = None, _lvalue_fla
     return _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_flag = _lvalue_flag)
 
 def LvalueArg(type_expr, dflt_expr = _E_REQUIRED_ARG_): #061204, experimental syntax, likely to be revised; #e might need Option variant too
-    "Declare an Arg which will not be evaluated as usual, but to an lvalue object, so its value can be set using .set_to, etc." 
+    "Declare an Arg which will be evaluated not as usual, but to an lvalue object, so its value can be set using .set_to, etc." 
     return Arg(type_expr, dflt_expr, _lvalue_flag = True)
 
 def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_flag = False ):
@@ -105,8 +111,10 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
             ### guess: we want it to be an expr for a default stateref
     global _self # fyi
     type_expr = canon_type( type_expr)
+    printnim("can type_expr legally be self-dependent and/or time-dependent? ###k I guess that's nim in current code!")#070115 comment
     if dflt_expr is _E_DFLT_FROM_TYPE_:
         dflt_expr = default_expr_from_type_expr( type_expr)
+            ## note [070115], this would be impossible for time-dependent types! and for self-dep ones, possible but harder than current code.
         assert is_pure_expr(dflt_expr) #k guess 061105
     else:
         dflt_expr = canon_expr(dflt_expr) # hopefully this finally will fix dflt 10 bug, 061105 guesshope ###k [works for None, 061114]
@@ -121,6 +129,15 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
         # by the time _i_grabarg sees it (the eval is done when the call_Expr evals its args before doing the call).
         # So if we wanted _i_grabarg to want None rather than _E_REQUIRED_ARG_ as a special case, we could change to that (there & here).
     grabarg_expr = call_Expr( getattr_Expr(_self, '_i_grabarg'), attr_expr, argpos_expr, held_dflt_expr )
+        # comments 070115:
+        # - This will eval to an expr which depends on self but not on time. We could optim by wrapping it
+        # (or declaring it final) in a way which effectively replaced it with its value-expr when first used.
+        # (But it's not obvious where to store the result of that, since the exprs being returned now are assigned to classes
+        #  and will never be specific to single selfs. Do we need an expr to use here, which can cache its own info in self??
+        #  Note: AFAIK, self will be the same as what _self gets replaced with when this is used. (We ought to assert that.) ###e)
+        # - Further, grabarg_expr is probably supposed to be wrapped *directly* by eval_Expr, not with type_expr inside. I think I'll
+        # make that change right now and test it with EVAL_REFORM still False, since I think it's always been required, as said
+        # in other comments here. DOING THIS NOW.
     if attr_expr is not None and argpos_expr is not None:
         # for ArgOrOption, use a tuple of a string and int (attr and argpos) as the index
         index_expr = tuple_Expr( attr_expr, argpos_expr )
@@ -134,10 +151,30 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
         # for Arg, use a plain int as the index
         # (note: ExprsMeta replaces argpos_expr with that int wrapped in constant_Expr, but later eval pulls out the raw int)
         index_expr = argpos_expr
-    printnim("I suspect type_expr (stub now) is included wrongly re eval_Expr in _ArgOption_helper, in hindsight 061117")
-        ### I suspect the above, because grabarg expr needs to be evalled to get the expr whose type coercion we want to instantiate
-    return Instance( eval_Expr( type_expr( grabarg_expr)), _index_expr = index_expr, _lvalue_flag = _lvalue_flag )
+# see if this is fixed now, not that it means much since we were using a stub... but who knows, maybe the stub was buggy
+# and we compensated for that and this could if so cause a bug:
+##    printnim("I suspect type_expr (stub now) is included wrongly re eval_Expr in _ArgOption_helper, in hindsight 061117")
+##        ### I suspect the above, because grabarg expr needs to be evalled to get the expr whose type coercion we want to instantiate
+    return Instance( _type_coercion_expr( type_expr, eval_Expr(grabarg_expr) ),
+                     _index_expr = index_expr, _lvalue_flag = _lvalue_flag )
+        # 070115 replaced eval_Expr( type_expr( grabarg_expr)) with _type_coercion_expr( type_expr, eval_Expr(grabarg_expr) )
 
+def _type_coercion_expr( type_expr, thing_expr):
+    ###e should we make this a full IorE (except when type_expr is Anything?) in order to let it memoize/track its argvals?
+    # (can import at runtime if nec.)
+    """[private helper for Arg, etc] [#e stub]
+    Given an expr for a type and an expr [to be evalled to get an expr?? NO, caller use eval_Expr for that] for a thing,
+    return an expr for a type-coerced version of the thing.
+    """
+    if type_expr is None or type_expr is Anything:
+        return thing_expr
+    assert 0, "this will never run" # until we fix canon_type to not always return Anything!!
+    print "TypeCoerce is nim, ignoring",type_expr #####070115   ###IMPLEM TypeCoerce 
+    from xxx import TypeCoerce # note, if xxx == IorE's file, runtime import is required, else recursive import error; use new file??
+    return TypeCoerce( type_expr, thing_expr)
+        # a new expr, for a helper IorE -- this is an easy way to do some memoization optims (almost as good as optim for finalization),
+        # and permit either expr to be time-dependent (not to mention self-dependent) [070115]
+    
 class _this_gets_replaced_with_argpos_for_current_attr(internal_Expr):#e rename? mention FormulaScanner or ExprsMeta; shorten
     def _internal_Expr_init(self):
         (self._e__arg_order_counter, self._e_is_required,) = self.args
@@ -191,7 +228,6 @@ def ArgOrOption(type_expr, dflt_expr = _E_DFLT_FROM_TYPE_):
 # ==
 
 # stubs:
-Anything = "anything-stub"
 def ArgStub(*args): return Arg(Anything)
 ArgList = ArgStub
 InstanceList = InstanceDict = ArgStub
@@ -213,6 +249,9 @@ InstanceList = InstanceDict = ArgStub
 
 def canon_type(type_expr):###stub [note: this is not canon_expr!]
     "Return a symbolic expr representing a type for coercion"
+
+    return Anything # for now! when we implement TypeCoerce, revise this
+
     printnim("canon_type is a stub; got %r" % type_expr) ## so far: Widget2D, int
     return lambda x:x #stub
 ##    # special cases [nim]
@@ -220,7 +259,7 @@ def canon_type(type_expr):###stub [note: this is not canon_expr!]
 ##        if type_expr is k:
 ##            type_expr = v
 ##            break
-##    ### not sure if for Widget2D or Color or Width we return that, or TypeCoercer(that), or something else
+##    ### not sure if for Widget2D or Color or Width we return that, or TypeCoerce(that), or something else
 ##    assert is_pure_expr(type_expr)
 ##    return type_expr #stub; needs to work for builtin types like int,
 ##        # and for InstanceOrExpr subclasses that are types (like Widget -- or maybe even Rect??)
@@ -228,6 +267,7 @@ def canon_type(type_expr):###stub [note: this is not canon_expr!]
 ##    # if not, then some InstanceOrExpr objs need __call__ too, or constructor needs to return a SymbolicExpr, or so.
 
 def default_expr_from_type_expr(type_expr): #061115
+    ## note [070115], this would be impossible for time-dependent types! and for self-dep ones, possible but harder than current code.
     "#doc"
 ##    assert type_expr is Stub # only permitted for these ones; not even correct for all of them, but surely not for others like int
 # Stub is not defined here, never mind

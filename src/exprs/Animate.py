@@ -58,7 +58,7 @@ In those, the start time is somehow programmed, not "literally the time of givin
 
 """
 
-Action = Stub
+Action = StubType
 
 class Animate(Action):
     ...

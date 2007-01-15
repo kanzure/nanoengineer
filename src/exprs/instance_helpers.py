@@ -4,7 +4,7 @@ instance_helpers.py
 $Id$
 """
 
-from basic import * # autoreload of basic is done before we're imported
+from basic import * # autoreload of basic is done before we're imported; this is a recursive import
 from basic import _self
 
 import lvals
@@ -254,11 +254,12 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
 
     # instantiation methods
     def _e_make_in(self, env, ipath):
-        """Instantiate self in env, at the given index-path.
-        [Note: as of some time before 061110, this is usually called via _e_eval;
+        """Instantiate self in env, at the given index-path [by default] [or return an existing instance at that ipath??].
+        [Note [semi-obs]: as of some time before 061110, this is usually called via _e_eval;
          and as of 061110 it's probably always called that way;
          probably they'll be merged at some point, unless some subtle difference
          is discovered (e.g. related to finding memoized instances).]
+        [Later note, 070115: soon the "eval reform" will mean this is no longer called by _e_eval.]
         """
         ##print "_e_make_in%r" % ((self, env, ipath),) #k is this ever called? [061215 Q] -- yes, lots of times in a single test.
         # of course it runs, _e_eval calls it... which will change when we do the eval/instantiate reform, maybe soon. [070112]
@@ -287,6 +288,12 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 # A: I doubt we need to, since in a long time when this was an assertfail, I never saw it until I wanted to
                 #    draw one instance twice (in testexpr_26).
             return self
+        ####e 070115: Here is where I think we need to ask self to decide what ipath a new instance should have,
+        # and then if an old one is there and not out of date (which may involve comparing its init-expr to self??), return it.
+        # (We may want to optimize the expr-compare by interning those exprs as we work. Maybe one could point to the other as equal?
+        #  Is there any way that can optim the discovery that they're *not* equal, as full interning can? #e)
+        # Alternatively, maybe the caller should ask about this first (perhaps using a larger containing expr)? No, I doubt it.
+        printnim("optim (important): decide what ipath a new instance should have, and if a valid old one is there, return it")#070115
         return self.__class__(_make_in = (self,env,ipath)) # this calls _destructive_make_in on the new instance
     def _destructive_make_in(self, data):
         """[private]

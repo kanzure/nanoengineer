@@ -17,7 +17,6 @@ from basic import _self, _this, _my
 
 
 Alias = mousepos = Stub
-##Position = 'stub type position'
 
 
 class Command(InstanceMacro): #k super is prob wrong

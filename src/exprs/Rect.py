@@ -53,9 +53,6 @@ class Rect(Widget2D): # finally working as of 061106
         glEnable(GL_CULL_FACE)
     pass
 
-##Position = 'Position' #e stub, wrong, doesn't matter yet
-##Color = 'Color'# ditto, might differ from other stubs for this
-
 class Sphere(Widget2D): # the superclass is to give it a 2D lbox. We'll need to think about whether it needs renaming.
         # or maybe this super will be Widget3D and that will inherit Widget2D?? hmm...
     """Sphere(radius, color, center) represents a spherical surface

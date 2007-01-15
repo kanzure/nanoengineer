@@ -44,7 +44,7 @@ reload_once(Overlay)
 from Overlay import Overlay
 
 
-Automatic = StateRef = Stub
+Automatic = Stub
 
 ## Set - not yet needed
 # [see controls.py [moved to Set.py] for a prototype, 061130, which takes a stateref rather than an lval as arg1 -- might be wrong --
@@ -69,6 +69,7 @@ class ToggleShow(InstanceMacro):
 
     if 0 and 'maybe':
         ##e might need to also say it's supposed to be boolean
+        # note, on 070115 I revised StateRef (still a stub) but might have broken it due to the arg being passed here (not tested)
         stateref = Arg(StateRef(bool), Automatic)
 
         ##e and also spell out the default location -- assume ipath itself can be coerced into the full stateref

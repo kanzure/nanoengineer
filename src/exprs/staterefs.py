@@ -21,8 +21,6 @@ from basic import _self
 
 # ==
 
-Type = Anything # stub type
-
 class LocalVariable_StateRef(InstanceOrExpr): # guess, 061130
     # [moved here from controls.py, 061203; will probably become obs once State works]
     "return something which instantiates to something with .value which is settable state..."

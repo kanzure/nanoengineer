@@ -18,11 +18,6 @@ adding Set with arg1 an lval eg a getattr_Expr, 061204; works in testexpr_16
 
 from basic import * # might be recursive #e
 
-# stub types
-StateRef = Anything # fyi, StateRef is a different stub in ToggleShow.py, same as in controls.py
-
-
-
 class Action(InstanceOrExpr): #061204 ; #e might refile to a new file actions.py
     """#doc; abstract superclass and coercion-type
     """

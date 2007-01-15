@@ -54,6 +54,19 @@ from constants import noop # def noop(*args,**kws): pass
 
 # == Python and debug utilities, and low-level local defs
 
+try:
+    old_EVAL_REFORM = EVAL_REFORM
+except NameError:
+    old_EVAL_REFORM = None
+
+EVAL_REFORM = False # 070115: False supposedly acts like old code, True like experimental new code which should become standard;
+     # this affects all class defs, so to be safe, print a warning if it changes across reload
+
+if old_EVAL_REFORM != EVAL_REFORM and old_EVAL_REFORM is not None:
+    print "\n*** WARNING: EVAL_REFORM was %r before reload, is %r now -- might require restart of NE1 or testmode" % \
+          (old_EVAL_REFORM, EVAL_REFORM)
+
+
 from debug import reload_once_per_event, print_compact_traceback, print_compact_stack
 
 ENABLE_RELOAD = True and platform.atom_debug
@@ -106,6 +119,8 @@ from ExprsMeta import * ###e can this support autoreload?? ###e note -- this imp
 from __Symbols__ import _self, _my # (__Symbols__ module doesn't support reload) # warning: not included in "import *"
     # _this is imported below from somewhere else -- since it's not a Symbol! Maybe __Symbols__ should warn if we ask for it. #e
 
+from __Symbols__ import Anything #070115
+
 
 # == colors (constants and simple functions; import them everywhere to discourage name conflicts that show up only later)
 
@@ -152,6 +167,12 @@ PIXELS = 0.035 #k guess; 0.05->0.035 061114, re testexpr_7b (which shows true va
 NullIpath = 'NullIpath' ##k ok that it's not None? maybe not, we might test for None... seems to work for now tho.
     #e make it different per reload?
 
+StubType = Anything # use this for stub Type symbols [new symbol and policy, 070115]
+
+# stub types
+Width = Color = Vector = Position = StateRef = StubType   # for Action, see below
+Type = Anything
+
 # == fundamental defs
 
 import Exprs
@@ -187,10 +208,14 @@ from widget2d import Widget, Widget2D
 # == higher-level stubs
 
 # lowercase stub doesn't work for the following, since they get called during import, so use uppercase Stub
-Stub = Widget2D
 
-# stub types
-Width = Color = Vector = Action = Position = Stub
+Stub = Widget2D # use this for stub InstanceOrExpr subclasses
+
+# stub types which are also defined as classes in other files
+import Set
+reload_once(Set)
+from Set import Action # import added 070115
+
 
 # layout prims and the like (but for the most part, layout prims probably won't be defined in basic.py at all)
 # [none at the moment]

@@ -55,8 +55,7 @@ from DisplistChunk import DisplistChunk
 If = If_kluge # until debugged
 
 # stub types
-stubtype = 'stubtype'
-StateRef = Anything # fyi, StateRef is a different stub in ToggleShow.py, same as in Set.py
+stubtype = StubType
 
 import Set
 reload_once(Set)
