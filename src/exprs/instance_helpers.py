@@ -261,6 +261,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
          is discovered (e.g. related to finding memoized instances).]
         """
         ##print "_e_make_in%r" % ((self, env, ipath),) #k is this ever called? [061215 Q] -- yes, lots of times in a single test.
+        # of course it runs, _e_eval calls it... which will change when we do the eval/instantiate reform, maybe soon. [070112]
         assert env #061110
         # no need to copy the formulas or args, since they're shared among all instances, so don't call self._copy. [###k still true?]
         # instead, make a new instance in a similar way.

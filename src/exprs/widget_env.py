@@ -93,14 +93,17 @@ class widget_env(Delegator):
         return "<widget_env at %#x>" % id(self)
     __str__ = __repr__ #k guess: might be needed for same reason as __repr__
     def understand_expr(self, expr, lexmods = None):
+        print "understand_expr ran"###070112 -- never happens
         "#doc; retval contains env + lexmods, and can be trusted to understand itself."
         # only the "rules" in self are needed for this, not the glpane & staterefs! so put this method in a subobject! #e
         assert not lexmods, "lexmods are nim" ###@@@
         return expr ####@@@@ STUB but might sometimes work
+            #e [if we ever need this, can we just use something like lexenv_Expr?? but with dynenv bindings too? 070112 guess comment]
     def make(self, expr, ipath): #k args?? ####@@@@
         """Make and return an instance of the given expr (understood or not) in self.
         The instance should store its state under the index-path ipath [#doc format].
         """
+        print "make ran"###070112 -- happens only before you make a new main instance.
         #e ipath guess: a list of 2 or 3 elts, linked list inner first, maybe append an interning of it
         #e look for rules; check if understood;
         #e Q: is this memoized? does it allocate anything like a state obj ref, or was that already done by customizing this env?
