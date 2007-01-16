@@ -2535,6 +2535,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 order = 2
             items.append((order, obj))
         items.sort()
+        report_failures = debug_pref("GLPane: preDraw_glselect_dict: report failures?", Choice_boolean_False, prefs_key = True)
+        if debug_pref("GLPane: check_target_depth debug prints?", Choice_boolean_False, prefs_key = True):
+            debug_prefix = "check_target_depth"
+        else:
+            debug_prefix = None
+        fudge = getattr( self.mode, '_check_target_depth_fudge_factor', 0.0001) #bruce 070115 kluge for testmode
         for orderjunk, obj in items:
             try:
                 method = obj.draw_in_abs_coords
@@ -2553,7 +2559,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                         # - be sure to draw each obj in same way it was last drawn, esp if highlighted:
                         #    maybe drawn bigger (selatom)
                         #    moved towards screen
-                    newpicked = self.check_target_depth( obj)
+                    newpicked = self.check_target_depth( obj, fudge, debug_prefix = debug_prefix)
                         # returns obj or None -- not sure if that should be guaranteed [bruce 050822 comment]
                     if newpicked is not None:
                         break
@@ -2582,12 +2588,15 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # (But I couldn't yet cause this to be printed while testing that bug.)
             #bruce 060224 disabling it since it's happening all the time when hover-highlighting in Build
             # (though I didn't reanalyze my reasons for thinking it might be a bug, so I don't know if it's a real one or not).
-            if 0 and platform.atom_debug:
-                print "atom_debug: newpicked is None -- bug? items are:", items
+            #070115 changing condition from if 0 to a debug_pref, and revised message
+            if report_failures:
+                print "debug_pref: preDraw_glselect_dict failure: targetdepth is %r, items are %r" % (self.targetdepth, items)
+        ###e try printing it all -- is the candidate test just wrong?
         return newpicked # might be None in case of errors (or if selobj_hicolor returns None)
 
-    def check_target_depth(self, candidate): #bruce 050609; tolerance revised 050702
+    def check_target_depth(self, candidate, fudge, debug_prefix = None): #bruce 050609; revised 050702, 070115
         """[private helper method]
+           [required arg fudge is the fudge factor in threshhold test]
            WARNING: docstring is obsolete -- no newpicked anymore, retval details differ: ###@@@
         Candidate is an object which drew at the mouse position during GL_SELECT drawing mode
         (using the given gl_select name), and which (1) has now noticed this, via its entry in self.glselect_dict
@@ -2611,19 +2620,21 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         newdepth = wZ[0][0]
         targetdepth = self.targetdepth
         ####@@@@ here we could effectively move selobj forwards... warning: worry about scales of coord systems in doing that...
-        # due to that issue it is probably be easier to fix this when drawing it, instead
-        if newdepth <= targetdepth + 0.0001: # use fudge factor in case of roundoff errors
+        # due to that issue it is probably easier to fix this when drawing it, instead
+        if newdepth <= targetdepth + fudge: # use fudge factor in case of roundoff errors (hardcoded as 0.0001 before 070115)
             # [bruce 050702: 0.000001 was not enough! 0.00003 or more was needed, to properly highlight some bonds
             #  which became too hard to highlight after today's initial fix of bug 715-1.]
             #e could check for newdepth being < targetdepth - 0.002 (error), but best
             # to just let caller do that (NIM), since we would often not catch this error anyway,
             # since we're turning into noop on first success
             # (no choice unless we re-cleared depth buffer now, which btw we could do... #e).
-            ## print "target depth reached by",candidate,newdepth , targetdepth
+            if debug_prefix:
+                print "%s: target depth %r reached by %r at %r" % (debug_prefix, targetdepth, candidate, newdepth)
             return candidate
                 # caller should not call us again without clearing depth buffer,
                 # otherwise we'll keep returning every object even if its true depth is too high
-        ## print "target depth NOT reached by",candidate,newdepth , targetdepth
+        if debug_prefix:
+            print "%s: target depth %r NOT reached by %r at %r" % (debug_prefix, targetdepth, candidate, newdepth)
         return None
 
     def _setup_modelview(self, vdist): #bruce 050608 split this out; 050615 added explanatory comments
