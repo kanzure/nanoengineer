@@ -14,14 +14,15 @@ But for a few, it's hard to know where to record them, or they might be
 forgotten there, so they're listed here, in order of addition to this file.
 
 When they get fully fixed, and after a few days are thought to be
-permanently fixed, they can be moved from this file into BUGS-fixed.
+permanently fixed, they can be moved from this file into BUGS-fixed.txt.
 If they are just worked around but need better fixes later, they should
 remain in this file (if code comments are not enough).
 
 See also:
+- BUGS-fixed.txt
 - the list of planned optimizations (optims) in test.py
 - anything marked ###BUG in the source files
-- the "list of language deficiencies or todos" in PLAN
+- the "list of language deficiencies or todos" in PLAN.txt
 
 ===
 
@@ -224,9 +225,14 @@ not tested this time.
 
 A better fix would be to change the 0.0001 in check_target_depth (see code comments for problems
 to solve first); for now I made it depend on mode, but made testmode set it to existing value.
+(I bet the old code needed 0.0001 to be so large due to cylinder or sphere
+drawing misalignment -- if I fixed that, maybe it could tolerate a smaller threshhold.)
+
 And the DZ * DZFUZZ (3 * PIXELS) in demo_drag.py could be replaced by a depth offset which
-doesn't depend on zoom history (i.e. not a value in model coords like now). Note that for use
-in displists, this has to be a real depth offset, not a computed model coord change.
+doesn't depend on zoom history, so mousewheel would not affect its size in depth
+(i.e. not a value in model coords like now). Note that for use in displists, 
+this has to be a direct depth offset, not a model coord change calculated to imitate
+a desired depth offset using glu*Project.
 
 WARNING: It's possible that the value of DZFUZZ needed to work around this bug depends
 on the GLPane size, or on user prefs settings, or on Ortho vs Perspective! (all speculations)

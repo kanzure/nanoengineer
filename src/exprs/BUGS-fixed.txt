@@ -97,6 +97,10 @@ see comments therein) is in Highlightable around LoadMatrix calls, 061214...
 later that day (IIRC as of 061218), I verified this probably fixed it, and since then
 I've never had the crash, so it's surely fixed.
 
+[later: see also: [Bug 2298] NE1 won't hide after mac sleeps, in some cases
+ https://mirror2.cvsdude.com/bugz/polosims/show_bug.cgi?id=2298
+]
+
 ==
 
 [fixed] 061218 highlighting causes incorrect model motion towards screen
