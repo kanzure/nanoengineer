@@ -11,6 +11,10 @@ and their edit tools and behaviors. [Eventually.]
 070105 moved the pseudocode for Command & DragCommand class etc into new file Command_scratch_1.py --
 see it for ideas about Command, DragCommand, _PERMIT_SETS_INSIDE_, DragANode, ClickDragCommand, MakeANode.
 (But some comments below still discuss Command and MakeANode in important ways.)
+
+Notable bug (really in check_target_depth in GLPane, not this file): highlighted-object-finder
+can be fooled by nearby depths due to _check_target_depth_fudge_factor of 0.0001. This caused
+a bug here, which is so far only worked around (by increasing DZFUZZ), not really fixed. [070115 comment]
 """
 
 from basic import *
@@ -109,6 +113,10 @@ class ModelObject(InstanceOrExpr,DelegatingMixin): # stub ##e will we need Widge
     """
     pass
 
+DZFUZZ = PIXELS * 3.0 # replacing 1, 2, 2.5 in different places, to work around bug reported in BUGS as:
+    # 070115 "highlightable-finder can be fooled due to _check_target_depth_fudge_factor of 0.0001"
+    # (see also the assignment of _check_target_depth_fudge_factor in testmode.py, and the discussion in BUGS)
+
 class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it added some too, since localvars not all changed,
       # and since the world ought to contain model objs anyway, in general, of which Vertex is only one type, and current implem
       # also has its own graphics code)...
@@ -182,8 +190,8 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
 
     def on_drag(self): # 070103 kluge experiment, copied/modified from on_drag_bg in bigger class below
 
-        # Note: this bug reported in BUGS breaks dragging of these nodes:
-        # 070115 "DisplistChunk breaks highlighting of testexpr_19f old nodes"
+        # Note: this bug reported in BUGS breaks dragging of these nodes; worked around by increasing DZFUZZ:
+        # 070115 "highlightable-finder can be fooled due to _check_target_depth_fudge_factor of 0.0001"
 
         # where i am 070103 447p (one of two places with that comment)
         # - sort of sometimes works, but posns are sometimes same as bg, not sure why that DZ would be needed,
@@ -191,7 +199,7 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
         
         point = self.current_event_mousepoint() ### MIGHT BE WRONG COORDS? guess: no
          #k guess: will have snap-to-fixed-point bug for generic drag code
-        newpos = point + DZ * PIXELS * 2 # used for different things, depending #### DZ needed but might cause trouble too
+        newpos = point + DZ * DZFUZZ # used for different things, depending #### DZ needed but might cause trouble too
         self.pos = newpos
         ## print "in-node action set %r.pos = %r" % (self, newpos) # sometimes works
         self.env.glpane.gl_update() #k needed?
@@ -234,7 +242,10 @@ class VertexViewer(DelegatingInstanceOrExpr, Viewer): ###k ok supers?
 # See a new file rules.py for more on that.
 
 
-viewerfunc = identity # stub - might better be that hardcoded helper func above ####e
+## viewerfunc = identity # stub - might better be that hardcoded helper func above ####e
+def viewerfunc(x):
+    printfyi("viewerfunc is being used but is a stub")
+    return x
 
 class WithViewerFunc(DelegatingInstanceOrExpr):#070105 stub experiment for use with use_VertexView option ### NOT YET USED non-stubbily
     world = Arg(Anything)
@@ -417,8 +428,9 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                        on_drag = _self.on_drag_bg )), # end of Highlightable and DisplistChunk
       If( _self.use_VertexView,
           DisplistChunk( WithViewerFunc(world, viewerfunc) ),
-          DisplistChunk( world) ##, debug_prints = "World")
           # try DisplistChunk, 070103 later -- works, doesn't break dragging of contained old nodes.
+          DisplistChunk( world) ##, debug_prints = "World")
+          ## world # zap DisplistChunk to see if it fixes new 070115 bug about dragging old nodes -- nope
       )
     )
     _index_counter = State(int, 1000) # we have to use this for indexes of created thing, or they overlap state!
@@ -441,7 +453,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
 
         # for initial test, don't use those Command classes above, just do a side effect right here ###kluge
 
-        newpos = point + DZ * PIXELS # kluge: move it slightly closer so we can see it in spite of bg
+        newpos = point + DZ * DZFUZZ # kluge: move it slightly closer so we can see it in spite of bg
             ###e needs more principled fix -- not yet sure what that should be -- is it to *draw* closer? (in a perp dir from surface)
             #e or just to create spheres (or anything else with thickness in Z) instead? (that should not always be required)
 
@@ -541,7 +553,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
 ##            lastipath = -1
 ##        # print "on_drag_bg %d" % lastipath, point###  # this shows no error in retaining correct lastnode -- that's not the bug
         ## print "on_drag_bg"
-        newpos = point + DZ * PIXELS * 2 # used for different things, depending
+        newpos = point + DZ * DZFUZZ # used for different things, depending
         
         what = kluge_dragtool_state() ###IMPLEM better
         if what == 'draw':

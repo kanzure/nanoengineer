@@ -259,9 +259,23 @@ If_kluge( getattr_Expr( world, '_cmd_Clear_nontrivial'),
  # update 070109: the bug seems to be that as long as the mouse stays on the button, 
  # it remains highlighted with the old highlight form.
 
+Theory: an old instance is stored in selobj/stencilbuffer and is being redrawn in abs coords,
+and seems still selected even though a new instance has replaced it. But (1) I didn't confirm
+it's a different instance, (2) even if it is, I'm not sure why already-coded checks are not
+enough... but maybe the idea of an object not drawn in a frame becoming invalid as selobj
+is still nim?? Not sure, but I bet it is, since I can't recall any record of whether an obj
+does get drawn in a frame or not. (Just set a "last drawn in this frame" ivar in draw...) ####k
+
 ==
 
-070115 "DisplistChunk breaks highlighting of testexpr_19f old nodes"
+[worked around in demo_drag.py:]
+
+070115 "highlightable-finder can be fooled due to _check_target_depth_fudge_factor of 0.0001"
+
+[in earlier commits today, I misnamed this bug based on an incorrect theory of its cause:
+070115 "DisplistChunk breaks highlighting of testexpr_19f old nodes"]
+
+[I'll remove these debugging notes sometime after this commit, and leave only the correct parts:]
 
 in testexpr_19f:
 
@@ -320,4 +334,20 @@ Fix that, try again in fresh session:
 I still get the bug, and this time, no big chance DisplistChunk or file reload could be involved.
 WAIT, my debug_pref to disable DisplistChunk is not persistent! So maybe it's still causing this.
 Turning it off & remaking instance, bug can still happen on new nodes. I'll need to make that debug_pref
-persistent and test again more carefully. ### TRY THAT LATER
+persistent and test again more carefully. ### TRY THAT LATER [I did]
+
+... now I think the bug is caused by the 0.0001 being too large in check_target_depth in GLPane
+compared to the DZ * PIXELS * 1 or 2 in different places in demo_drag.py.
+Replacing them all with PIXELS * 3... this seems to have fixed it, even if I change all
+debug_prefs back to defaults (enable displists, skip redraws only wanted by Qt).
+But if I zoom out a bit, bug is predicted back... can't test that with displists enabled... 
+not tested this time.
+
+A better fix would be to change the 0.0001 in check_target_depth (see code comments for problems
+to solve first); for now I made it depend on mode, but made testmode set it to existing value.
+And the DZ * DZFUZZ (3 * PIXELS) in demo_drag.py could be replaced by a depth offset which
+doesn't depend on zoom history (i.e. not a value in model coords like now). Note that for use
+in displists, this has to be a real depth offset, not a computed model coord change.
+
+==
+

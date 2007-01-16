@@ -8,10 +8,9 @@ Later we can revise it as needed.
 
 ==
 
-Current unsolved bugs:
-
-- discussed in BUGS file:
-  070115 "DisplistChunk breaks highlighting of testexpr_19f old nodes"
+Notable bug (really in check_target_depth in GLPane, not this file): highlighted-object-finder
+can be fooled by nearby depths due to _check_target_depth_fudge_factor of 0.0001. This caused
+a bug in demo_drag.py which is so far only worked around, not really fixed. [070115 comment]
 
 """
 

@@ -13,13 +13,6 @@ history:
 
 ==
 
-Current unsolved bugs:
-
-- discussed in BUGS file:
-  070115 "DisplistChunk breaks highlighting of testexpr_19f old nodes"
-
-==
-
 Still needed:
 - maybe: some renamings, as commented
 - provisions for highlighting (see just below in this docstring)
@@ -186,7 +179,7 @@ class DisplistChunk( DelegatingInstanceOrExpr, SelfUsageTrackingMixin, SubUsageT
         
         _debug_print_name = self._debug_print_name
         
-        if self.disabled or debug_pref("disable DisplistChunk?", Choice_boolean_False):
+        if self.disabled or debug_pref("disable DisplistChunk?", Choice_boolean_False, prefs_key = True):
             self.delegate.draw()
             # I hope it's ok that this has no explicit effect on usage tracking or inval propogation... I think so.
             # It's equivalent to wrapping the whole thing in an If on this cond, so it must be ok.
