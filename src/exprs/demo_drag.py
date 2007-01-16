@@ -115,9 +115,13 @@ class ModelObject(InstanceOrExpr,DelegatingMixin): # stub ##e will we need Widge
 
 DZFUZZ = PIXELS * 3.0 # replacing 1, 2, 2.5 in different places, to work around bug reported in BUGS as:
     # 070115 "highlightable-finder can be fooled due to _check_target_depth_fudge_factor of 0.0001"
-    # (see also the assignment of _check_target_depth_fudge_factor in testmode.py, and the discussion in BUGS of better fixes ###e)
+    # (see also the assignment of _check_target_depth_fudge_factor in testmode.py, and the discussion in BUGS.txt of better fixes ###e)
     # WARNING: It's possible that the value of DZFUZZ needed to work around this bug depends
     # on the GLPane size, or on user prefs settings, or on Ortho vs Perspective! (all speculations)
+
+## DZFUZZ = PIXELS * 0.5 # this also works, given the change in testmode.py to _check_target_depth_fudge_factor = 0.00001 [070116],
+# reducing it by 10x, but I will leave it this way (>10x margin of safety) to make it unlikely the bug will show up with
+# other GLPane sizes, zoom factors, etc. Sometime it needs one of the better fixes discussed in BUGS.txt.
 
 
 class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it added some too, since localvars not all changed,
@@ -428,7 +432,9 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                        # - should Overlay take color option and pass it on into leaves (subexprs)? what if some leaves won't take it?
                        #   that has been discussed elsewhere... i forget if dynenv or _optional_options = dict() seemed best.
                        on_press = _self.on_press_bg,
-                       on_drag = _self.on_drag_bg )), # end of Highlightable and DisplistChunk
+                       on_drag = _self.on_drag_bg,
+                       sbar_text = "gray bg"
+                       )), # end of Highlightable and DisplistChunk
       If( _self.use_VertexView,
           DisplistChunk( WithViewerFunc(world, viewerfunc) ),
           # try DisplistChunk, 070103 later -- works, doesn't break dragging of contained old nodes.
