@@ -349,5 +349,8 @@ And the DZ * DZFUZZ (3 * PIXELS) in demo_drag.py could be replaced by a depth of
 doesn't depend on zoom history (i.e. not a value in model coords like now). Note that for use
 in displists, this has to be a real depth offset, not a computed model coord change.
 
+WARNING: It's possible that the value of DZFUZZ needed to work around this bug depends
+on the GLPane size, or on user prefs settings, or on Ortho vs Perspective! (all speculations)
+
 ==
 

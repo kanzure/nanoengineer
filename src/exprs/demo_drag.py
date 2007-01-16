@@ -115,7 +115,10 @@ class ModelObject(InstanceOrExpr,DelegatingMixin): # stub ##e will we need Widge
 
 DZFUZZ = PIXELS * 3.0 # replacing 1, 2, 2.5 in different places, to work around bug reported in BUGS as:
     # 070115 "highlightable-finder can be fooled due to _check_target_depth_fudge_factor of 0.0001"
-    # (see also the assignment of _check_target_depth_fudge_factor in testmode.py, and the discussion in BUGS)
+    # (see also the assignment of _check_target_depth_fudge_factor in testmode.py, and the discussion in BUGS of better fixes ###e)
+    # WARNING: It's possible that the value of DZFUZZ needed to work around this bug depends
+    # on the GLPane size, or on user prefs settings, or on Ortho vs Perspective! (all speculations)
+
 
 class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it added some too, since localvars not all changed,
       # and since the world ought to contain model objs anyway, in general, of which Vertex is only one type, and current implem
