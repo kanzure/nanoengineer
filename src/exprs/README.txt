@@ -1,4 +1,4 @@
-cad/src/exprs/README
+cad/src/exprs/README.txt
 
 # $Id$
 
