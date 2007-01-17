@@ -7,6 +7,8 @@ about Resizer, Draggable, and especially Interface.
 
 Interface-scratch.py?? Problem is, I might rename Interface,
 and this file might yet be more about draggables or resizers.
+And now it's extending into polygon-vertex dragging, as a way of
+exploring some Draggable/DragCommand structure issues.
 """
 
 from basic import *
@@ -368,6 +370,24 @@ class drag_verts_while_edgedirs_unchanged(DragCommand):
         for v in dragverts:
             v.pos += delta
         return
+    ###e add something to help the UI visually indicate which verts are moved in different ways -- there are 4 kinds here:
+    # original dragged verts, added due to angle 180, added due to both neighbors dragged, induced motion since one neighbor dragged.
+    # We want to create a visible object on each, with one of 4 looks (but the first is not needed since they'll probably be the selected verts).
+    # All we need is 3 new attrs which define these sets during the motion, and some default looks for them, and our own default look made of those --
+    # the look of a drag command is whatever extra stuff you should draw when doing it (or considering it, maybe -- maybe that's a separate look
+    #  so it can be turned off by default).
+    #
+    ###e BTW we might also want to take over defining the look of the stuff we're moving (as an optional feature of the DragCommand interface) --
+    # not so much to make it look different (tho that might be useful) as to implem the optim of having the moving and fixed stuff in different
+    # display lists! in fact, we want different ones for fixed stuff, moving-with-mouse stuff, and each other indep motion set -- assume each vert
+    # in move_verts is indep, so just put all of them into a displist we remake all the time (or not in any displist at all -- probably that's better),
+    # but the ones that move together should be in a single displist which moves as a unit, and which won't need to be remade during the drag!
+    #   This requires somehow pulling our v's (and all their edges, and any other stuff attached to them) out of the "main displist for v's".
+    # (And sorting it into those categories of motion -- surely this requires new general additions to some interface they're all part of ##e).
+    #   One possible trick for part of that -- introduce a temporary state variable "in-drag" in which things with a certain attr are not visible
+    # in the normal way -- that'll be things moving due to the drag.
+    # And make normal displists have variants for when the app is in that mode and any of their own elements are being dragged.
+    # (Details not entirely clear.)
     pass
 
 # for comparison: drag verts while other verts unchanged (should be simpler!)
