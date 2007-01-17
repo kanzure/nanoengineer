@@ -305,3 +305,69 @@ class Draggable(...): ###e super? is it a kind of Command in all these cases? no
     # (the reason it starts with _cmd_ is so its clients know they can look for these --
     #  it's a kind of interface made of several methodnames parametrized by one methodname-root!)
     pass
+
+# ==
+
+# some specifics about dragging a set of polygon vertices while keeping edge directions unchanged. (as an example DragCommand)
+
+class x:
+    def method():
+        """
+        given: a set of vertices to be dragged together, with edges staying parallel, in a polygon or the like,
+        come up with: an object which accepts drag commands and alters state of them and connected verts
+        """
+        verts # an input list; each v in it has .edges (exactly 2 or fewer)
+              # [Q: do we need to identify the net or poly too? yes, if v doesn't imply it... nevermind for now, easy to add later]
+        # find the edges touched twice or once -- but for boundary verts, transclose on them if near 180 --
+        # in other words, find all verts "affected" (which need to move) by transclose
+        dragverts = dict([(v,v) for v in verts]) # a set of those verts
+        def collect_straightneighbors(v, dict1):
+            for v2 in v.neighbors: ###IMPLEM .neighbors, .angle (assumes each vert has exactly 2 edges),
+                        ## veryclose(a,x1,x2) means a is close to x1 or x2 -- or use [x1,x2]? or have modular-arithmetic version?
+                if veryclose(v2.angle % 180, 0, 180): #e optim: only bother with this calc at the boundaries
+                    dict1[v2] = v2
+            return
+        def collect_allneighbors(v,dict1):
+            for v2 in v.neighbors:
+                    dict1[v2] = v2
+            return
+        dragverts = transclose(dragverts, collect_straightneighbors) # all the verts we have to drag (will later include extra_dragverts)
+        allverts = transclose(dragverts, collect_allneighbors) # all the verts affected when we drag those (including those)
+        # the formula for vert motion is simple: dragverts move with the drag, and any other verts move because one edge
+        # connects them to some dragvert, and needs to stay parallel -- unless they have more than one edge connected to a dragvert,
+        # in which case, assume they move entirely with the drag -- and assume they have no other edges (this alg breaks down here
+        # for a general graph, which seems harder).
+        extra_dragverts = {} # verts effectively dragged since both their neighbors are dragged
+        move_verts = [] # verts moved by the motion of one neighbor dragvert, paired with that dragvert and their other neighbor
+        for v in allverts: # .keys() but works ok, since these sets are v->v maps
+            if v not in dragverts:
+                dragneighbors = intersection(v.neighbors, dragverts)###IMPLEM intersection, complement if necessary (does py23 have a sets module?)
+                assert len(dragneighbors) > 0 # otherwise v should not be in allverts
+                if len(dragneighbors) > 1:
+                    extra_dragverts[v] = v # just drag these too
+                else:
+                    otherneighbors = complement(v.neighbors, dragneighbors)
+                    assert len(otherneighbors) == 1 # can't handle general graphs #e not yet not bothering to handle free ends (easy to fix)
+                    move_verts.append((v, dragneighbors[0], otherneighbors[0]))
+                        # list of (v with induced motion, v which we drag to move it, v which stays fixed) triples
+                pass
+            continue
+        dragverts.update(extra_dragverts)
+        # now all affected verts are in one of dragverts or move_verts.
+        def motion_func(delta):
+##            # semi-kluge: do move_verts first, so the connected dragverts haven't yet moved
+##            # (the non-kluge solution would be to keep track of old and new posns, both at once)
+##            # (nevermind -- doesn't matter anyway, see below)
+            for v,dv,v0 in move_verts: #e optim: precompute some of this (then we wouldn't care whether dv had moved yet)
+                #### actually we don't need dv -- just project delta onto the line from v0 to v.
+                unit = UnitVector(v-v0) ####e precompute this
+                motion = dot(delta,unit) * unit
+                v.pos += motion
+            # the dragverts move independently so it doesn't matter what other vs we moved already
+            for v in dragverts:
+                v.pos += delta
+            return
+            ###BUG: this won't work, because we'd need to make it remember move_verts and dragverts somewhere when we return it from method.
+            # Soln is to let motion_func be a method of an object which we init by the above computations;
+            # it's an object for a DragCommand for this situation.
+        return motion_func
