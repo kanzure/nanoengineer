@@ -162,6 +162,19 @@ class GLPane_mixin_for_DisplistChunk(object): #bruce 070110 moved this here from
         assert listname # redundant with following?
         glCallList(listname)
         return
+    current_glDepthFunc = None # None indicates not known; must be unequal to any legal setting
+    def glDepthFunc(self, gl_func_constant, always = False): #bruce 070117; needn't be part of this mixin except to be next to similar methods
+        """Imitate glDepthFunc, but record the func (e.g. GL_LEQUAL or GL_LESS)
+        in a variable visible to drawing code, and avoid redundant gl calls.
+        Limitations in present implem mean this method should not be used inside display lists,
+        so we check for this. (That's because it has no concept of the current glDepthFunc setting within a display list
+        vs. within the current GL context for direct execution.)
+           We assume without checking that self's GL context is current.
+        """
+        if always or self.current_glDepthFunc != gl_func_constant:
+            glDepthFunc( gl_func_constant)
+            self.current_glDepthFunc = gl_func_constant
+        return
     def ensure_dlist_ready_to_call( self, dlist_owner_1 ): #e rename the local vars, revise term "owner" in it [070102 cmt]
         """[private helper method for use by DisplistChunk]
            This implements the recursive algorithm described in DisplistChunk.__doc__.
@@ -1973,6 +1986,8 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
 ##                self.assy.undo_checkpoint_after_command( begin_retval)
 
         return # from paintGL
+
+    standard_glDepthFunc = GL_LESS # default value for modes that don't have one, and default initial value for our instance var
     
     def most_of_paintGL(self): #bruce 060323 split this out of paintGL
         "Do most of what paintGL should do."
@@ -1993,6 +2008,11 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # this next line really should be just before rendering
             # the atomic model itself.  I dunno where that is.
             drawer.enable_fog()
+
+        # restore standard OpenGL state settings [bruce 070117, though seems like a good idea for the past; #e should make it a method]
+        self.standard_glDepthFunc = getattr(self.mode, 'standard_glDepthFunc', self.__class__.standard_glDepthFunc)
+            #e I plan to try GL_LEQUAL in testmode, and if it works, maybe adopt it generally [bruce 070117]
+        self.glDepthFunc( self.standard_glDepthFunc, always = True)
         
         try: #bruce 061208
             self.mode.render_scene
