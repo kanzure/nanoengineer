@@ -134,9 +134,9 @@ import DisplistChunk # works 070103, with important caveats re Highlightable (se
 reload_once(DisplistChunk)
 from DisplistChunk import DisplistChunk
 
-import demo_dna # stub 070103
-reload_once(demo_dna)
-from demo_dna import newerBoxed, resizablyBoxed
+##import demo_dna # stub 070103 -- commented out 070117 since file is a scratch file with syntax errors, and will be renamed anyway
+##reload_once(demo_dna)
+##from demo_dna import newerBoxed, resizablyBoxed
 
 import lvals
 reload_once(lvals)
@@ -1074,9 +1074,10 @@ testexpr_23cd = DisplistChunk(testexpr_10c) # has expected coord ##BUG -- outerm
 
 # == demo_dna.py (stub)
 
-testexpr_24 = newerBoxed(Boxed(Rect(1))) # works
-testexpr_24a = newerBoxed(Boxed(Highlightable(Rect(1)))) # works
-testexpr_24b = resizablyBoxed(Boxed(Rect(1))) # works with action being incrs of state
+# commented out 070117, see comment after "import demo_dna"
+##testexpr_24 = newerBoxed(Boxed(Rect(1))) # works
+##testexpr_24a = newerBoxed(Boxed(Highlightable(Rect(1)))) # works
+##testexpr_24b = resizablyBoxed(Boxed(Rect(1))) # works with action being incrs of state
 
   # now modifying _19d to let me drag existing nodes... sort of working, see comments there...
   # will use this in _24b or so to let me define corner resizers -- as long as their local coords are right, they
