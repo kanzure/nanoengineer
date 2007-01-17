@@ -360,12 +360,22 @@ class drag_verts_while_edgedirs_unchanged(DragCommand):
         # now all affected verts are in one of dragverts or move_verts.
         self.dragverts = dragverts
         self.move_verts = move_verts
-    def motion_func(delta): ##e rename -- something in the Draggable or DragCommand interface
+    def motion_func(self, delta): ##e rename -- something in the Draggable or DragCommand interface
         for v,unit in move_verts: # just project delta onto the line from v0 to v (in direction of unit)
             motion = dot(delta,unit) * unit
             v.pos += motion
         # the dragverts move independently, so it doesn't matter what other verts we moved already, among them or others
         for v in dragverts:
+            v.pos += delta
+        return
+    pass
+
+# for comparison: drag verts while other verts unchanged (should be simpler!)
+
+class drag_verts(DragCommand):
+    verts = Arg(ListOf(Vertex))
+    def motion_func(self, delta):
+        for v in self.verts:
             v.pos += delta
         return
     pass
