@@ -314,7 +314,7 @@ class Draggable(...): ###e super? is it a kind of Command in all these cases? no
 
 class drag_verts_while_edgedirs_unchanged(DragCommand):
     verts = Arg(ListOf(Vertex)) ###IMPLEM ListOf ##e rename Vertex? they need to be "polygon vertices" for this to work. Do we need the poly itself??
-    def _init_instance(self):
+    def _init_instance(self): ###k might be wrong method, if instance only means we're considering the drag -- later method means doing it
         """
         given: a set of vertices to be dragged together, with edges staying parallel, in a polygon or the like,
         come up with: an object which accepts drag commands and alters state of them and connected verts
@@ -364,7 +364,10 @@ class drag_verts_while_edgedirs_unchanged(DragCommand):
         self.move_verts = move_verts
     def motion_func(self, delta): ##e rename -- something in the Draggable or DragCommand interface
         for v,unit in move_verts: # just project delta onto the line from v0 to v (in direction of unit)
-            motion = dot(delta,unit) * unit
+            wrong:
+                motion = dot(delta,unit) * unit ###WRONG -- we need to divide by dot, or something like that
+                    # to be correct:
+                    # the actual motion, projected onto unit, should equal delta, projected onto unit. length-of-motion == dot(delta,unit) -- STILL WRONG!
             v.pos += motion
         # the dragverts move independently, so it doesn't matter what other verts we moved already, among them or others
         for v in dragverts:
@@ -384,6 +387,8 @@ class drag_verts_while_edgedirs_unchanged(DragCommand):
     # but the ones that move together should be in a single displist which moves as a unit, and which won't need to be remade during the drag!
     #   This requires somehow pulling our v's (and all their edges, and any other stuff attached to them) out of the "main displist for v's".
     # (And sorting it into those categories of motion -- surely this requires new general additions to some interface they're all part of ##e).
+    # It also requires *not* moving them by v.pos += delta, but by redefining v.pos to be relative, then moving the collection.
+    # [later Q: can any .pos implicitly have associated attrs "which coordsystem" and a related one "which displist" or "which displist-variation"?]
     #   One possible trick for part of that -- introduce a temporary state variable "in-drag" in which things with a certain attr are not visible
     # in the normal way -- that'll be things moving due to the drag.
     # And make normal displists have variants for when the app is in that mode and any of their own elements are being dragged.
