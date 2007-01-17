@@ -1,8 +1,13 @@
 """
 demo_dna.py
 $Id$
-"""
 
+this will probably be renamed, since it's turned into a scratch file
+about Resizer, Draggable, and especially Interface.
+
+Interface-scratch.py?? Problem is, I might rename Interface,
+and this file might yet be more about draggables or resizers.
+"""
 
 from basic import *
 from basic import _self
@@ -145,11 +150,21 @@ class Resizer(DelegatingInstanceOrExpr):
         #e do we ask for this interface by name, when giving any of these commands?? ####k
         #e as if IorE had a rule, _cmd_drag_from_to = _self.draggable_commands._cmd_drag_from_to ?
         # overridable of course by a specific def of _cmd_drag_from_to.
+        
         #  (But if we override _cmd_drag_from_to, has that overridden something else asking us for self.draggable_commands?
         #   Only if the specific methodname is effectively an alias (even for redef and inheritance, at least by deleg) for the
-        #   one in self.draggable_commands. That can be done somehow, *if* we can figure out the exact desired rules.)
+        #   one in self.draggable_commands. That can be done somehow, *if* we can figure out the exact desired rules. ###e)
+
+        # An alternative way of defining/implementing per-Interface delegation -- just a modification of delegation & inheritance
+        # which can look up, for each attr, what interface it's in and therefore how to delegate it & define it.
+
         # Do we have a naming convention for assignable interfaces? _I_draggable = _self.what._I_draggable
     pass
+
+# which commands are the draggable_commands, aka _I_draggable or _I_Draggable ?
+# - _cmd_drag_from_to [#e rename -- more concise?]
+# - point or center (?) (also part of some more basic geometric interface)
+#   (in fact a Draggable would often have a size & shape -- but it's not required)
 
 
 class CornerResizer(Resizer):
@@ -175,6 +190,7 @@ class CornerResizer(Resizer):
 #   - it means we have to declare the interfaces things have... superclasses count...
 #     and it needs to be easy to define the glue in the original class (show how to make it fit some interface) or separately
 #   - the interface bundling a set of attrs that can also be accessed directly seems common -- in fact, maybe they preexisted it
+#     (i.e. the attrs were defined, then we decided later they were all part of an interface)
 
 class Corner(Interface):
             # why call it Interface, even if it is one? 
@@ -234,7 +250,7 @@ c1 = Corner(p, v0, v1)
 # that means, my existing classes should be defining defaults for this, by ExprsMeta or by a general rule that it defaults to the supers.
 # (Or at least the ones that say they can be used as types.)
 
-# So is an Interface just a Type?
+# So is an Interface just a Type?    (note, it might be a distinct concept, but able to be automade (coerced) from a Type.)
 
 # For a long time, we don't need nontrivial coercers! They can just look up formulas and fail if they don't find them.
 # We do however need the option to define one thing in a variety of ways,
@@ -243,3 +259,49 @@ c1 = Corner(p, v0, v1)
 # and detect circularity as an error, "not enough specified"? I doubt that's enough. We need to pick correct formula for X
 # based on whether Y or Z was defined. It's almost more like executing a program that says "if these are defined and those not, do this"...
 # This means, we need to know if a super, defining an attr, is defining it in a way that counts for this, or only as a default.
+
+# ==
+
+# back to drag commands: (use some supers from Command_scratch_1.py)
+
+class typical_DragCommand(ClickDragCommand):
+        # ??? maybe this is also a declared way of coercing any Draggable to a ClickDragCommand?
+        # if so we might rename it in such a way as to indicate that and permit it to be autoregistered for that use.
+        # (it has to be registered with either Draggable or ClickDragCommand or TypeCoerce or env... details unknown.)
+    delegate = Arg(Draggable) # general delegate?? or change to a delegate just for _cmd_drag_from_to?
+        # argument in favor of general: maybe it wants to define extra info to be used for this purpose.
+        # I wonder if it can define extra info "only to be visible if i'm coerced to or seen as a DragCommand"... #k
+    def on_press(self):
+        point = whatever # see example in demo_drag.py; point should be the touched point on the visible object (hitpoint)
+        self.oldpoint = point
+        return
+    def on_drag(self):
+        point = whatever # see example in demo_drag.py
+        oldpoint = self.oldpoint # was saved by prior on_drag and by on_press
+        self._cmd_drag_from_to( oldpoint, point) # use Draggable interface cmd (to delegate)
+        self.oldpoint = point
+        return
+    def on_release(self):
+        pass
+    pass
+
+
+# let's assume that a Corner can be dragged because setting its point will work (preserving vectors, or not touching their formulae --
+#  so they might change if they are defined in terms of point, and not if they are defined as indep state)
+# and by default the implem of _cmd_drag_from_to will work by resetting self.point with the same delta in 3d space.
+
+class _default_Draggable_methods: ###e name, super -- is it just part of Draggable itself??
+    def _cmd_drag_from_to( self, p1, p2):
+        self.point += (p2 - p1)
+        return
+    pass
+
+class Draggable(...): ###e super? is it a kind of Command in all these cases? not sure.
+    point = Attr(Point) # declare it as something any draggable must have. Do we say State so if not overridden it's defined as state??##k
+    def _cmd_drag_from_to( self, p1, p2):
+        self.point += (p2 - p1)
+        return
+    #e some tooltip and disablement cond to go with that cmd
+    # (the reason it starts with _cmd_ is so its clients know they can look for these --
+    #  it's a kind of interface made of several methodnames parametrized by one methodname-root!)
+    pass

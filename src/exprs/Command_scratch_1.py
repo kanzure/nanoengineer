@@ -142,7 +142,10 @@ class DragANode(DragCommand):
     pass # end of class DragANode
 
 ClickDragCommand = DragCommand # STUB
-    #e the idea is, one includes initial click, one only starts when real drag is recognized
+    #e the idea is, ClickDragCommand includes initial click, whereas DragCommand only starts when real drag is recognized
+    # (later: we might decide to drop the type-distinction between ClickDragCommand and DragCommand,
+    #  for economy in set of concepts, trading it off for making the common DragCommand more complex or ambiguous
+    #  since it may or may not include the initial click -- but it has to be given enough info as if it did.)
 
 class MakeANode(ClickDragCommand): #k super?
     #e will be bound to empty space, or guide surfaces/objects you can make nodes on
