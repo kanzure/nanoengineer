@@ -73,7 +73,7 @@ perhaps by making a debug pref for whether or not to remove the toolbars in test
 
 ==
 
-061218 when highlighting the fake openclose icons in e.g. testexpr_10c,
+[fixed] 061218 when highlighting the fake openclose icons in e.g. testexpr_10c,
 only the gray rect is seen, not the + or - text. I first noticed this just after fixing the
 previous bug, so that fix may have caused it, but I don't often try to highlight those icons,
 so that fix having caused it is not proven.
@@ -105,6 +105,22 @@ no need yet to avoid descend into displists in highlighting, which in any case i
 rather when HL has those decorators on draw, they should avoid displists only if some elements of them
 should not be descended into -- once they reach level of draw it all, they should use them
 (a dynamic flag seen by decorator will no longer say "be careful what you draw").
+
+fixed 070117 by implementing a plan similar to the above, in GLPane, testmode, Highlightable, Overlay.
+The fix details are not fully internally tested, but it does fix the reported bug.
+
+There are two tested variants of the fix -- both work. In one, which is left in place in
+the current code (near start of testmode.py, by setting standard_glDepthFunc to a nonstandard value),
+glDepthFunc is always GL_LEQUAL when we're in testmode. This is simplest and probably best.
+It won't fix the same bug in other modes of NE1 (if Overlay exprs would be displayed in them someday)
+until we make the same change in other modes or in GLPane's default.
+
+In the other bugfix-variant, glDepthFunc varies depending on whether we're in draw_in_abs_coords
+(i.e. drawing highlights). This is predicted to have problems with display lists in current code, 
+if the same one is used for highlight and normal drawing (evidently not the case in testexpr_10c
+openclose icons, or the bug would not be fixed then -- an inference). That could be fixed by
+compiling variant displists in those cases, which we'll need for other reasons and other GL state
+someday, but it's not worth the trouble for this one compared to the "always GL_LEQUAL" bugfix-variant.
 
 ==
 

@@ -15,6 +15,9 @@ import Rect
 reload_once(Rect)
 from Rect import Spacer
 
+from OpenGL.GL import GL_LESS
+
+
 class Overlay(InstanceOrExpr, DelegatingMixin):
     "Overlay has the size of its first arg, but draws all its args in the same place, with the same origin."
     # Note: we can't inherit from Widget2D, or we'd fail to delegate
@@ -45,7 +48,12 @@ class Overlay(InstanceOrExpr, DelegatingMixin):
         ###e should make it work sometime, if possible (e.g. by delving inside all literal list ns-values in ExprsMeta)
     #e add an option to make each element slightly closer, maybe just as a depth increment? makes hover highlighting more complicated...
     def draw(self):
-        for a in self.args[::-1]:
+        if self.env.glpane.current_glDepthFunc == GL_LESS: #070117; note: assumes displists are compiled & used in the same state!
+            args = self.args[::-1]
+            printfyi("Overlay in reverse order (should not normally happen after 070117")
+        else: # GL_LEQUAL
+            args = self.args
+        for a in args:
             #e We'd like this to work properly for little filled polys drawn over big ones.
             # We might need something like z translation or depth offset or "decal mode"(??) or a different depth test.
             # Different depth test would be best, but roundoff error might make it wrong...

@@ -249,7 +249,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
 
     def pre_draw_in_abs_coords(self, glpane): #bruce 061218 new feature of selobj interface,
         # used to stop highlightables from moving slightly when they highlight, esp when off-center in perspective view
-        glDepthFunc(GL_LEQUAL)
+        ## glDepthFunc(GL_LEQUAL)
+        glpane.glDepthFunc(GL_LEQUAL) # revised 070117
         return
     
     def draw_in_abs_coords(self, glpane, color):
@@ -281,7 +282,8 @@ class Highlightable(InstanceOrExpr, DelegatingMixin, DragHandler): #e rename to 
         return # from draw_in_abs_coords
 
     def post_draw_in_abs_coords(self, glpane): #bruce 061218 new feature of selobj interface
-        glDepthFunc(GL_LESS) # the default state in OpenGL and in NE1
+        ## glDepthFunc(GL_LESS) # the default state in OpenGL and in NE1
+        glpane.glDepthFunc( glpane.standard_glDepthFunc ) # restore default state for current mode [revised 070117]
         return
 
     def run_OpenGL_in_local_coords(self, func): #061206
