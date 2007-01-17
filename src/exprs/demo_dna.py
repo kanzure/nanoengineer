@@ -362,6 +362,13 @@ class drag_verts_while_edgedirs_unchanged(DragCommand):
                         # so as long as v itself didn't, it always knows how to handle v's motion for whatever neighhors are dragverts
                         # with the others assumed fixed.
                         # (This might also help with the general optim for drag-specific displists, discussed below -- not sure.)
+                        #
+                        # Come to think of it, that's how we'd handle a much-generalized drag of some dofs, with constraints tying them to others,
+                        # some of which we should also drag, others update partially. Each dof would get analyzed, updating that alalysis incrementally in a
+                        # transclose, whose units (dict entries) might be influences (effect arrows between dofs or their owning objs, not dofs themselves)
+                        # so each unit has binary not gradual inclusion into the transclose set. Even during runtime we might update these analyzers
+                        # to bring more stuff into the drag if limits were reached. Then they'd compile the drag-code (e.g. displist membership) for the drag,
+                        # helped by knowing enough about the dofs to know which objects were purely translated.
                         nim ###IMPLEM the use
                     pass
                 continue
