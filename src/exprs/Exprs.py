@@ -200,16 +200,13 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         # (this might prevent need for ipath here, if pure opexprs can't need that path)
         # if so, who scans the expr to see if it's pure (no need for ipath or full env)? does expr track this as we build it?
 
-        # try 2 061027 late:
+        # try 2 061027 late: revised 070117
         assert instance._e_is_instance, "compute method asked for on non-Instance %r" % (instance,) # happens if a kid is non-instantiated(?)
-        env0 = instance.env # fyi: AttributeError for a pure expr (ie a non-instance)
-        env = env0.with_literal_lexmods(_self = instance) ###e could be memoized in instance, except for cyclic ref issue
-        assert env #061110
-        ipath0 = instance.ipath ####k not yet defined i bet... funny, it didn't seem to crash from this -- did i really test it??
-        ## index = 'stub' ###should be the attr of self we're coming from, i think!
-        if index == 'stubi':
+        if index == 'stubi': #k should be the attr of self we're coming from, i think!
             printnim("_e_compute_method needs to always be passed an index")
-        ipath = (index, ipath0)
+
+        env, ipath = instance._i_env_ipath_for_formula_at_index( index) # split out of here into IorE, 070117
+
         if not _lvalue_flag:
             # usual case
             return lambda self=self, env=env, ipath=ipath: self._e_eval( env, ipath ) #e assert no args received by this lambda?
@@ -320,6 +317,15 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
                 return True
         printnim("_e_free_in is nim for option vals")###@@@ btw 061114 do we still use _e_free_in at all? see if this gets printed.
         return False
+    def _e_eval_to_expr(self, env, ipath, expr):#070117
+        "#doc"
+        # does this use self? guess: yes, for knowing what ipath is rel too -- not sure --
+        # maybe the caller or result-storer or result-user (to make from it, in the future) has to use its own.###k
+        assert EVAL_REFORM
+        print "stub _e_eval_to_expr(env, ipath, self) (bugs likely) -> ",expr######
+        return expr ####STUB -- this is likely to cause bugs until the ipath-mod wrapping is implemented
+    #k _e_eval is nim in this class, must be implemented in subclasses. Before adding a nim asserting def here, review whether
+    # its presence would affect expr-building code! [070117 comment]
     pass
 
 class SymbolicExpr(Expr): # Symbol or OpExpr
@@ -387,7 +393,7 @@ class OpExpr(SymbolicExpr):
     def _e_kwval(self, k, env,ipath):
         "Like _e_argval, but return the current value of our implicit-kid-instance of self._e_kws[k], rel index k."
         return self._e_kws[k]._e_eval(env, (k,ipath))
-    def _e_eval(self, env,ipath):
+    def _e_eval(self, env, ipath):
         """Considering ourself implicitly instantiated by the replacements (especially _self_) in env,
         or more precisely, instantiated as a formula residing in env's _self, after replacement by env's other replacements,
         with that implicit instance using the index-path given as ipath
@@ -623,7 +629,7 @@ class and_Expr(OpExpr): #061128
         assert not self._e_kws #k needed?
     def __str__(self):
         return "and_Expr%r" % self._e_args
-    def _e_eval(self, env,ipath):
+    def _e_eval(self, env, ipath):
         assert env
         for i in range(len(self._e_args)):
             res = self._e_argval(i,env,ipath)
@@ -641,7 +647,7 @@ class or_Expr(OpExpr): #061128 untested
         assert not self._e_kws #k needed?
     def __str__(self):
         return "or_Expr%r" % self._e_args
-    def _e_eval(self, env,ipath):
+    def _e_eval(self, env, ipath):
         assert env
         for i in range(len(self._e_args)):
             res = self._e_argval(i,env,ipath)
@@ -704,6 +710,7 @@ class internal_Expr(Expr):
     pass
     
 class constant_Expr(internal_Expr):
+    #### NOT YET REVIEWED FOR EVAL_REFORM 070117 [should it ever wrap the result using _e_eval_to_expr -- maybe in a variant class?] 
     ###k super may not be quite right -- we want some things in it, like isinstance Expr, but not the __add__ defs [not sure, actually]
     def _internal_Expr_init(self):
         (self._e_constant_value,) = self.args
@@ -981,8 +988,12 @@ class Symbol(SymbolicExpr):
         if self == val:
             if self is not val:
                 print "warning: %r and %r are two different Symbols with same name, thus equal" % (self,val)
-            print "warning: Symbol(%r) evals to itself" % self._e_name
-            return self
+            if EVAL_REFORM:#070117
+                print "warning: Symbol(%r) evals to itself [perhaps wrapped by _e_eval_to_expr]" % self._e_name
+                return self._e_eval_to_expr(env, ipath, self)
+            else:
+                print "warning: Symbol(%r) evals to itself" % self._e_name
+                return self
         if self._e_name not in ('_self', '_my', '_app'): #k Q: does this also happen for a thisname, _this_<classname> ?
             print "warning: _e_eval of a symbol other than _self or _my is not well-reviewed or yet well-understood:",self._e_name
                 # e.g. what should be in env? what if it's an expr with free vars incl _self -- are they in proper context?

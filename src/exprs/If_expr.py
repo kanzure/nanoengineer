@@ -30,6 +30,7 @@ from basic import * # partial (recursive) import, since this is imported by basi
 # ==
 
 class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py think it needs to be an OpExpr? for getattr & call?
+    #### NOT YET REVIEWED FOR EVAL_REFORM 070117
     cond = Arg(bool) # WARNING: this is effectively a public attr; none of these argnames will be delegated to the value (I think)
     _then = Arg(Anything)
     _else  = Arg(Anything, None) # note: the None default probably won't work here; the callers presently pass a TextRect
@@ -72,7 +73,7 @@ class If_expr(InstanceMacro): #e refile ### WAIT A MINUTE, why does Exprs.py thi
         # This happens in a lot of existing If-examples, but seems ok, for reasons not fully understood. (But see comment above 439p.)
         # For test results & discussion see comments in '061127 coding log' (bruce's g5) dated 061212 410p.
         return res
-    def _e_argval_If_expr(self, i, env,ipath): # modified from OpExpr (I don't want to try making OpExpr a superclass right now)
+    def _e_argval_If_expr(self, i, env, ipath): # modified from OpExpr (I don't want to try making OpExpr a superclass right now)
         # _e_argval is not normally defined in InstanceOrExpr, which is important --
         # we don't want to override anything in there unwittingly. To be safe, I renamed it.
         ## args = self._e_args

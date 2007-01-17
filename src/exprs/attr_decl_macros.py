@@ -361,7 +361,7 @@ class State(data_descriptor_Expr): # note: often referred to as "State macro" ev
     ##exception in <Lval at 0xff2db70>._compute_method NO LONGER ignored:
     ##    exceptions.AssertionError: recursion in self.delegate computation in <Highlightable#8076(i)>
     ##  [lvals.py:209] [Exprs.py:208] [Exprs.py:400] [instance_helpers.py:677]
-    def _e_eval(self, env,ipath):
+    def _e_eval(self, env, ipath):
         # 070112 comment: the print below has been there a long time and I don't recall ever seeing it,
         # so the comment below it guessing it may no longer happen is probably right,
         # meaning that this method probably never gets called anymore.

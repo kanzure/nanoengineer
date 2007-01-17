@@ -255,3 +255,12 @@ on the GLPane size, or on user prefs settings, or on Ortho vs Perspective! (all 
 
 ==
 
+070117 highlight failure if I mousewheel-zoom (in or out), 
+then mouseover the label or button of a checkbox_pref in the corner
+
+failure details: no highlight sbar_text, no action on press, debug_pref print like
+;;debug_pref: preDraw_glselect_dict failure: targetdepth is 0.0099999317899346352, items are [(2, <Highlightable#16016(i)>)]
+
+happens with the "drag new nodes?" checkbox_pref in testexpr_19f in bottom_right_corner]
+seems repeatable -- in one session tried so far
+

@@ -287,7 +287,14 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 #    of this new feature?
                 # A: I doubt we need to, since in a long time when this was an assertfail, I never saw it until I wanted to
                 #    draw one instance twice (in testexpr_26).
-            return self
+            # [update 070117 re EVAL_REFORM -- we might do this in a caller, env.make, and perhaps make that the only caller,
+            #  so it has the same noop special case for "numbers used as exprs" too ####e]
+            if EVAL_REFORM:
+                print("_e_make_in called on Instance even after EVAL_REFORM -- shouldn't widget_env.make or _i_instance intercept that?")
+                #### in fact, _i_instance should intercept it, so it ought to never happen, so use print not printfyi. 070117
+                return self
+            else:
+                return self
         ####e 070115: Here is where I think we need to ask self to decide what ipath a new instance should have,
         # and then if an old one is there and not out of date (which may involve comparing its init-expr to self??), return it.
         # (We may want to optimize the expr-compare by interning those exprs as we work. Maybe one could point to the other as equal?
@@ -402,11 +409,32 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     def _e_eval(self, env, ipath): # implem/behavior totally revised, late-061109; works - not sure it always will tho... ###k
         # handling of If: As of 061212 If_expr (a subclass of this) overrides _e_eval and seems to work; see comments there.
         # handling of _value: done at a higher level only -- see InstanceMacro.
-        return self._e_make_in(env, ipath)
-
+        if EVAL_REFORM: #070117
+            assert not self._e_is_instance, "EVAL_REFORM means we should not eval an instance: %r" % self
+            # exprs that need instantiation eval to themselves. ###k will there be exceptions that are subclasses of this?
+            printfyi("eval to self of expr in IorE subclass named %s" % self.__class__.__name__) # find out which classes this happens to ###
+            return self._e_eval_to_expr(env, ipath, self) ###IMPLEM in Expr, call from other _e_eval defs
+                # not just "return self", in case we need to wrap it with a local-ipath-modifying expr
+                # Q: will the point of the local ipath be eval to any pure expr wanting instantiation in future, ie "free in ipath",
+                # not just eval to self? A: I think so.
+        else:
+            return self._e_make_in(env, ipath)
+        pass
+    
     # kid-instantiation, to support use of the macros Arg, Option, Instance, etc
     #k (not sure this is not needed in some other classes too, but all known needs are here)
-    
+
+    def _i_env_ipath_for_formula_at_index( self, index): # split out of Expr._e_compute_method 070117
+        "#doc; semi-private helper method for Expr._e_compute_method and (after EVAL_REFORM) self._i_instance"
+        instance = self
+        assert instance._e_is_instance
+        env0 = instance.env # fyi: AttributeError for a pure expr (ie a non-instance)
+        env = env0.with_literal_lexmods(_self = instance) ###e could be memoized in instance, except for cyclic ref issue
+        assert env #061110
+        ipath0 = instance.ipath
+        ipath = (index, ipath0)
+        return env, ipath
+
     def _i_instance( self, expr, index, _lvalue_flag = False ):
         """[semi-private; used by macros like Instance, Arg, Option]
         Find or create (or perhaps recompute if invalid, but only the latest version is memoized) (and return)
@@ -475,14 +503,20 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # The simplify implem would need decls about finality of, e.g., getting of some bound methods and (determinism of)
             # their retvals -- namely (for Arg macro etc) for _i_instance and _i_grabarg and maybe more.
             # Feasible but not simple; worthwhile optim someday but not right away. ##e
-        # three increasingly strict asserts:
-        assert expr is not None
-        assert is_Expr(expr), "not is_Expr: %r" % (expr,)
-        assert is_pure_expr(expr) ###k?? what if someone passes an instance -- is that permitted, but a noop for instantiation??
-        # also assume expr is "canonicalized" and even "understood" -- not sure if this is justified
-        printnim("don't we need understand_expr somewhere in here? (before kidmaking in IorE)") ###@@@
-##        env = self.env #e with lexmods?
-##        index_path = (index, self.ipath)
+        if not EVAL_REFORM:
+            # three increasingly strict asserts:
+            assert expr is not None
+            assert is_Expr(expr), "not is_Expr: %r" % (expr,)
+            assert is_pure_expr(expr) ###k?? what if someone passes an instance -- is that permitted, but a noop for instantiation??
+            assert is_Expr_pyinstance(expr), "can't instantiate a class: %r" % (expr,) # new, 070117, untested### -- i'm not even sure it's correct
+            # also assume expr is "canonicalized" and even "understood" -- not sure if this is justified
+            printnim("don't we need understand_expr somewhere in here? (before kidmaking in IorE)") ###@@@
+        else:
+            # EVAL_REFORM case 070117
+            if not (is_pure_expr(expr) and is_Expr_pyinstance(expr)):
+                print "FYI: EVAL_REFORM: _CV__i_instance_CVdict is identity on %r" % (expr,) ### remove when works -- might be routine & verbose
+                return expr
+            pass
         ####e:  [061105] is _e_eval actually needing to be different from _e_make_in?? yes, _e_eval needs to be told _self
         # and the other needs to make one... no wait, wrong, different selves --
         # the _self told to eval is the one _make_in *should make something inside of*! (ie should make a kid of)
@@ -495,7 +529,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
 ##            ## res = expr._e_make_in(env, index_path)
 ##                #k we might have to fix bugs caused by not using this case, by defining (or modifying?) defs of _e_eval on some classes;
 ##                # addendum 061212, we now do that on If_expr.
-        if 1:
+        if not EVAL_REFORM:
             # WARNING: following code is very similar to _i_eval_dfltval_expr as of 061203
             # printfyi("used _e_eval case (via _e_compute_method)") # this case is usually used, as of 061108 -- now always, 061110
             # note: this (used-to-be-redundantly) grabs env from self
@@ -507,12 +541,19 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 print "following exception concerns self = %r, index = %r in _CV__i_instance_CVdict calling _e_compute_method" % \
                       (self, index)
                 raise
+        else:
+            # EVAL_REFORM case, 070117
+            env, ipath = self._i_env_ipath_for_formula_at_index( index) # equivalent to how above other case computes them
+            assert not _lvalue_flag ###k
+            res = expr._e_make_in(env,ipath) # only pure IorE exprs have this method; should be ok since only they are returned from expr evals
         return res # from _CV__i_instance_CVdict
 
     def _i_eval_dfltval_expr(self, expr, index): ##e maybe unify with above, but unclear when we soon split eval from instantiate
         "evaluate a dfltval expr as used in State macro of 061203; using similar code as _CV__i_instance_CVdict for Instance..."
         # WARNING: similar code to end of _CV__i_instance_CVdict
         # note: this (used-to-be-redundantly) grabs env from self
+        # Note about EVAL_REFORM: I think this needs no change, since these exprs can now be evalled to pure exprs,
+        # then if desired passed through instantiation.
         try:
             computer = expr._e_compute_method(self, index) ##e optim someday: inline this
                 # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10'
@@ -791,6 +832,7 @@ class DelegatingInstanceOrExpr(InstanceOrExpr, DelegatingMixin): # moved here & 
 class _this(SymbolicExpr): # it needs to be symbolic to support automatic getattr_Expr
     """_this(class) refers to the instance of the innermost lexically enclosing expr with the same name(?) as class.
     """
+    #### NOT YET REVIEWED FOR EVAL_REFORM 070117
     #k will replacement in _e_args be ok? at first it won't matter, I think.
     def __init__(self, clas):
         assert is_Expr_pyclass(clas) #k
