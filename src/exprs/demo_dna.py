@@ -330,6 +330,7 @@ class drag_verts_while_edgedirs_unchanged(DragCommand):
             for v2 in v.neighbors: ###IMPLEM .neighbors, .angle (assumes each vert has exactly 2 edges),
                         ## veryclose(a,x1,x2) means a is close to x1 or x2 -- or use [x1,x2]? or have modular-arithmetic version?
                 if veryclose(v2.angle % 180, 0, 180): #e optim: only bother with this calc at the boundaries
+                    ###e actually we want to use corner_analyzer (below) for this, then memo it for v/dv and reuse it later
                     dict1[v2] = v2
             return
         def collect_allneighbors(v,dict1):
@@ -368,6 +369,7 @@ class drag_verts_while_edgedirs_unchanged(DragCommand):
                 motion = dot(delta,unit) * unit ###WRONG -- we need to divide by dot, or something like that
                     # to be correct:
                     # the actual motion, projected onto unit, should equal delta, projected onto unit. length-of-motion == dot(delta,unit) -- STILL WRONG!
+                    #### to correct this, use corner_analyzer below, which we ought to memoize for v/dv during the transclose
             v.pos += motion
         # the dragverts move independently, so it doesn't matter what other verts we moved already, among them or others
         for v in dragverts:
@@ -403,4 +405,46 @@ class drag_verts(DragCommand):
         for v in self.verts:
             v.pos += delta
         return
+    pass
+
+class _use_ExprsMeta(object): #e refile, if not already there under another name
+    __metaclass__ = ExprsMeta
+    pass
+
+class corner_analyzer(_use_ExprsMeta):  ###e nim: handle UnitVector(0) ie v == dv or v == v0  ###CALL ME
+    """Figure out how to propogate vertex-drag of dv (with all edge directions unchanged)
+    into an adjacent vertex v, based on local geometry of v's "corner"
+    (i.e. positions of 3 adjacent vertices dv, v, v0).
+       Assume without checking that dv will be directly dragged, but v and v0 won't be,
+    meaning that v will have induced partial motion and v0 will remain fixed.
+    It's up to the caller to determine whether this is actually true
+    and ignore our analysis if not (and this happens in practice in our current uses).
+    """
+    def __init__(self, v0, v, dv):
+        """we're the corner from v0 to v to dv (or the same 3 verts in reverse order),
+        where dv is a dragvert and v has induced motion and v0 is fixed and all edge-directions are fixed
+        """
+        self.vars = (v0, v, dv)
+    def motion_of_v(self, delta):
+        """if dv moves by delta (a vector), how much (as a vector) should v move by?
+        [Note: this will be asked for at every drag-step (so it should be fast).]
+        """
+        return self.unit * dot(self.control, delta)
+    # the following compute methods are run at most once per self
+    def _C_unit(self):
+        "compute self.unit, a unit vector in the direction in which v should move"
+        v0, v, dv = self.vars
+        return UnitVector(v-v0)
+    def _C_control(self):
+        "compute self.control, a vector whose dot product with delta determines the desired signed distance of motion, or V(0,0,0) if it's too sensitive to work"
+        # this vector should have the direction of unit projected perp to the dir of null motion, but inverted length
+        v0, v, dv = self.vars
+        unit = self.unit
+        nullunit = UnitVector(dv-v) # a direction of no induced motion of v
+        control_dir = unit - nullunit * dot(unit, nullunit) # perp to nullunit; shorter if induced motion is more sensitive
+        inverse_sensitivity = vlen(control_dir)
+        if inverse_sensitivity < 0.01: # guess
+            return V(0,0,0) # wrong, but the right answer is an excessively long vector for excessively sensitive motion (infinitely so, if points are colinear)
+        control_dir /= inverse_sensitivity # now it's unit length
+        return control_dir / inverse_sensitivity # now it's longer when motion should be more sensitive
     pass
