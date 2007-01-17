@@ -316,8 +316,20 @@ class drag_verts_while_edgedirs_unchanged(DragCommand):
     verts = Arg(ListOf(Vertex)) ###IMPLEM ListOf ##e rename Vertex? they need to be "polygon vertices" for this to work. Do we need the poly itself??
     def _init_instance(self): ###k might be wrong method, if instance only means we're considering the drag -- later method means doing it
         """
-        given: a set of vertices to be dragged together, with edges staying parallel, in a polygon or the like,
-        come up with: an object which accepts drag commands and alters state of them and connected verts
+        Given: a set of vertices to be dragged together, with edges staying parallel, in a polygon or the like,
+        Come up with: an object which accepts drag commands and alters state of them and connected verts.
+           Note: we assume each vert has exactly 2 neighbor verts and thus 2 edges. Extending to valence 1 would be easy,
+        but for higher valences, it would require some new UI decisions, since we would not know what to do
+        when dragging 2 out of 3 neighbors of a vert we're not dragging (which ought to move that vert along, but can't).
+        [future implem note: I suppose it could just go ahead and move it (perhaps unless the internal analyzer.ok flag was false),
+         but I can't recall if that was the only problem in here with higher valence... maybe it was, so I should generalize this.
+         There are other cases too, but if in general we either drag or leave fixed when confused, it'll probably be ok. ###e]
+           Note: we may assume the entire graph is in 2D, but I can't think of a specific place where we assume that, so it might work in 3D
+        (for a non-planar polygon or graph, and drags of verts in any 3D direction).
+           When the graph/polygon is 2D, the user may wish to constrain delta to the same plane, either for a tilted polygon vs the screen,
+        or to avoid nonplanarity due to roundoff errors. Our alg does not yet handle this in either case. The caller should constrain delta
+        to the polygon's plane, *and* should separately constrain all newly set vert positions to that plane to avoid roundoff error.
+        (Or maybe we should have a feature to do those things for it.) ###e
         """
         verts = self.verts # an input list; each v in it has .edges (exactly 2 or fewer)
               # [Q: do we need to identify the net or poly too? yes, if v doesn't imply it... nevermind for now, easy to add later]
@@ -325,15 +337,36 @@ class drag_verts_while_edgedirs_unchanged(DragCommand):
               #  but note that it doesn't! They could be in a set of polygons and this alg would work fine -- and that's useful in a UI! hmm...]
         # find the edges touched twice or once -- but for boundary verts, transclose on them if near 180 --
         # in other words, find all verts "affected" (which need to move) by transclose
-        dragverts = dict([(v,v) for v in verts]) # a set of those verts [##e maybe the arg should be SetOf(Vertex) so we don't need to do this here??]
-        def collect_straightneighbors(v, dict1):
-            for v2 in v.neighbors: ###IMPLEM .neighbors, .angle (assumes each vert has exactly 2 edges),
-                        ## veryclose(a,x1,x2) means a is close to x1 or x2 -- or use [x1,x2]? or have modular-arithmetic version?
-                if veryclose(v2.angle % 180, 0, 180): #e optim: only bother with this calc at the boundaries
-                    ###e actually we want to use corner_analyzer (below) for this, then memo it for v/dv and reuse it later
-                    dict1[v2] = v2
-            return
-        def collect_allneighbors(v,dict1):
+        dragverts = dict([(dv,dv) for dv in verts]) # a set of those verts [##e maybe the arg should be SetOf(Vertex) so we don't need to do this here??]
+        analyzers = {}
+        def collect_straightneighbors(dv, dict1):
+            nn = dv.neighbors ###IMPLEM .neighbors
+            for v in nn:
+                if v not in dict1: # (this is just an optim, but it's a big one ###k verify that it works, re transclose semantics; doc in transclose if so)
+                    analyzer = corner_analyzer(v, dv, other_of_pair(nn,dv)) # (here's one place where we'd need revision for a general graph)
+                    nim ###IMPLEM revised arg order ##e rename -- induced_motion_analyzer? #e should v0 arg be done in the class, e.g. in case >1?
+                        # analyzer figures out how it would work to drag dv and thereby induce motion in v
+                        # (assuming v's other neighbor is fixed, which is not yet known -- we'll discard this later if it's not, using extra_dragverts)
+                    if not analyzer.ok: ###IMPLEM ok
+                        dict1[v] = v # make v also a dragvert
+                    else:
+                        # save analyzer for use when we do the drag (but not all of them will be used)
+                        if v in analyzers:
+                            analyzers[v] = "invalid" # >1 analyzers were found; this means v will end up in extra_dragverts, so no analyzer for v will be used
+                        else:
+                            analyzers[v] = analyzer 
+                        # Note: in principle we should index analyzers by both v and dv, in case v is found from both sides;
+                        # but if that happens, we know we'll never use them, since v will end up in extra_verts.
+                        #    Another solution (more general since it better supports general graphs)
+                        # would be for one analyzer to learn about new neighbors of v becoming dragverts,
+                        # so as long as v itself didn't, it always knows how to handle v's motion for whatever neighhors are dragverts
+                        # with the others assumed fixed.
+                        # (This might also help with the general optim for drag-specific displists, discussed below -- not sure.)
+                        nim ###IMPLEM the use
+                    pass
+                continue
+            return                        
+        def collect_allneighbors(v,dict1): ###e this could be removed since they're in analyzers
             for v2 in v.neighbors:
                     dict1[v2] = v2
             return
@@ -410,6 +443,13 @@ class drag_verts(DragCommand):
 class _use_ExprsMeta(object): #e refile, if not already there under another name
     __metaclass__ = ExprsMeta
     pass
+
+def other_of_pair(lis, thing):
+    a,b = lis # error if wrong length
+    if thing == a:
+        return b
+    assert thing == b
+    return a
 
 class corner_analyzer(_use_ExprsMeta):  ###e nim: handle UnitVector(0) ie v == dv or v == v0  ###CALL ME
     """Figure out how to propogate vertex-drag of dv (with all edge directions unchanged)
