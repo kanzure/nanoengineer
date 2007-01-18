@@ -6,9 +6,21 @@ for directories of text files which require no changes for the merge (like cad/s
 
 $Id$
 
-WARNINGS:
-- not yet done -- just prints debug output about its analysis so far.
-- doesn't check for -kb (binary files) and use cmp rather than diff -- but it ought to.
+WARNINGS / BUGS / NFRS:
+
+- this script is NOT YET DONE -- just prints debug output about its analysis so far.
+
+- I don't know if the current line 1, "#!/usr/bin/env python", is portable to all OSes.
+
+- it doesn't check for -kb (binary files) and use cmp rather than diff -- but it ought to.
+
+- it doesn't descend into subdirs of the argument dirs.
+
+- there ought to be a way to run it on specific files in a larger directory, e.g. testmode.py.
+  Maybe if I revise it to be more fully organized around file and dir analyzer objects,
+  those will be easy extensions. Note that it needs one for each cvs branch,
+  and another one (different class, effectively) for each pair of corresponding files or dirs
+  in the two branches. (Though we might use fewer distinct classes for convenience.)
 """
 
 # bruce 070118 
