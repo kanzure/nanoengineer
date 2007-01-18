@@ -290,6 +290,7 @@ testexpr_4d = Overlay( Rect(2), Rect(1, color = white) ) # works!
 # Boxed
 testexpr_5 = Boxed_old( Rect(2,3.5,green)) # works as of 061110 late,
     # except for non-centering (and known nims re inclusion in bigger things), I think on 061111
+    # fails in ###EVAL_REFORM ###BUG see comments below
 
 testexpr_5a = Boxed_old( Center( Rect(2,3.5,green))) # sort of works, but alignment is wrong as expected [still as of 061112]
 testexpr_5b = CenterBoxedKluge( Rect(2,3.5,yellow)) # works, 061112 827p
@@ -1115,8 +1116,9 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 ## try restart -- same. Try without eval_reform! works. Looking at its code, it ought to be legal. Looking at exception, looks like wrong delegate was picked.
 # (Does Overlay pick the wrong one due to its arg reversal change earlier today? Its code clearly says no.)
 # Looking closer, self.ww was missed so it went to delegate. Did it save the _C_rule_for_formula? If so, why did that not work? #####
+# aha, shouldn't self be a Boxed_old, not Overlay, when looking for ww? Maybe _self was wrong or not stored properly....
 
-testexpr = testexpr_2c
+testexpr = testexpr_5
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
     ## testexpr_19d
