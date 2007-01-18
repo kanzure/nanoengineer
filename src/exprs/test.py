@@ -243,6 +243,12 @@ testexpr_2a = Rect(8,5, color = trans_red) # fails, since appears fully red ###B
 
 testexpr_2b = Rect(4, color = purple) # works [061109]
 testexpr_2c = Rect(color = purple) # asfail - guess, not has_args since this is just a customization 061109 ###BUG (make it work?)
+    ###EVAL_REFORM status 070117 451p: [maybe same in non-eval-reform??##k]
+    # warning: this expr might need its arguments supplied: <Rect#0(i w/o a)>
+    # <Rect#20261(i w/o a)>
+    # warning: possible bug: not self._e_has_args in _i_grabarg
+    # decision: should be permitted to work provided having no args is ok (ie all are optional). ###DOIT
+
 testexpr_2d = Rect() # works, except default size is too big, since 10 makes sense for pixels but current units are more like "little"
 testexpr_2e = Rect(4, 5, white) # works
 
@@ -1098,12 +1104,17 @@ testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , t
 enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 
 # EVAL_REFORM status: 070117 439p
-# _19f and testbed: compute method on non-instance, details in a local debug notesfile
+# _19f and testbed: compute method on non-instance, details in a local debug notesfile ###BUG
 # _2 and no testbed: works
-# _2 and testbed: recursion in self.delegate in Highlightable
-# _19f and no testbed: no attr '_e_make_in' in class eval_Expr
+# _2 and testbed: recursion in self.delegate in Highlightable ###BUG
+# _19f and no testbed: no attr '_e_make_in' in class eval_Expr ###BUG
+# trying them all, no testbed, all working (tho results not checked much for visual correctness, just for weirdlooking debug prints)
+# except as noted next to the examples: thru _4d so far -- see ###EVAL_REFORM
+# _5 has a ###BUG: AttributeError: no attr 'ww' in delegate <RectFrame#58607(i)> of self = <Overlay#58605(i)>
+#  [lvals.py:210] [Exprs.py:213] [Exprs.py:463] [Exprs.py:392] [Exprs.py:852] [Exprs.py:820] [Exprs.py:421] [instance_helpers.py:765]
+## try restart -- same. Try without eval_reform! ####TRYIT LATER
 
-testexpr = testexpr_2
+testexpr = testexpr_5
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
     ## testexpr_19d
