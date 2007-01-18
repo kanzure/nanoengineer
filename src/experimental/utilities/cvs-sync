@@ -1,0 +1,179 @@
+#!/usr/bin/env python
+
+"""
+cvs-sync -- python command-line script for helping merge changes from one cvs branch to another,
+for directories of text files which require no changes for the merge (like cad/src/exprs).
+
+$Id$
+
+WARNINGS:
+- not yet done -- just prints debug output about its analysis so far.
+- doesn't check for -kb (binary files) and use cmp rather than diff -- but it ought to.
+"""
+
+# bruce 070118 
+
+USAGE = """usage: 
+    cvs-sync dir1 dir2
+generates and prints proposed cp and cvs shell commands to be run manually in dir2, 
+which would copy files from dir1, and/or cvs add, remove, or commit files in dir2,
+in order to make dir2 contents equal dir1 contents within the cvs repository.
+Options can cause it to print more or less info for verification of the commands,
+or to actually run the commands.
+"""
+
+import sys, os, time
+
+if not (len(sys.argv) == 3):
+    print USAGE
+    sys.exit(1)
+
+#e digr, not needed now:
+# can we prepend cad/src/exprs and cad/src onto sys.path, so as to use utilities therein??
+# (will the imports done by that work, before librarification?)
+# (if not, can we prepend some other dir with kluge versions of some of those files, to fix it?)
+
+dir1 = sys.argv[1]
+dir2 = sys.argv[2]
+
+dir1 = os.path.abspath(os.path.normpath(dir1))
+dir2 = os.path.abspath(os.path.normpath(dir2))
+
+def entries_lines(dir):
+    assert os.path.isdir(dir)
+    entriesfile = os.path.join(dir, 'CVS', 'Entries')
+    assert os.path.isfile(entriesfile)
+    ff = open(entriesfile, "rU")
+    lines = ff.readlines()
+    ff.close()
+    return lines
+
+# example lines:
+# 6, ['', 'TextRect.py', '1.8.2.3', 'Thu Jan 18 20:22:45 2007', '', 'Twware_qt4_20060919\n']
+# 1, ['D\n']
+
+class analyzed_dir:
+    def __init__(self, dir):
+        self.dir = dir
+        self.lines = entries_lines(dir)
+        self.files = {} # public member
+        for line in self.lines:
+            words = line.split('/')
+            # print "%d, %r" % (len(words), words)
+            if words == ['D\n']:
+                continue
+            assert len(words) == 6 and words[0] == ''
+            junk, file, rev, date, something, tags = words
+            del junk, tags, rev, date
+            if something:
+                # I don't yet know what this field means; could it relate to -kb?
+                # See what it is in experimental/textures (which also needs merge).
+                # To handle binary files, use cmp rather than diff. [nim]
+                print "fyi: this line in %s has something in a normally blank field: %r" % (dir,line)
+            del something
+            # all we care about is the set of files, but store all the words anyway
+            self.files[file] = words
+            continue
+        return
+    def something_else(self):
+        pass
+    def nfiles(self):
+        return len(self.files)
+    pass
+
+print    
+print "lines from dir1", dir1
+print
+d1 = analyzed_dir(dir1)
+
+print
+print "lines from dir2", dir2
+print
+d2 = analyzed_dir(dir2)
+
+print
+print "syntax is ok"
+print d1.nfiles(), d2.nfiles()
+
+print
+for file in d1.files:
+    if file not in d2.files:
+        print "need to add:", file
+print
+for file in d2.files:
+    if file not in d1.files:
+        print "need to remove:" , file
+
+# now for the ones we need to change or not: i just want to count lines in diff output.
+
+look = []
+
+for file in d2.files:
+    if file in d1.files:
+        look.append(file)
+
+look.sort()
+
+def noneed(outlines, file):
+    "no need to change, fom diff output?"
+    # i.e. does it look like
+    # 4c4
+    # < $Id$
+    # ---
+    # > $Id$
+
+    if len(outlines) != 4:
+        return False
+    outlines = list(outlines) # don't modify our caller's copy
+    for i in range(4):
+        outlines[i] = outlines[i].rstrip() # don't worry about ending '\n' (or space)
+    l1,l2,l3,l4 = outlines
+    if not (len(l1) == 3):
+        return False # if diff is too late into the file, look at it manually
+    if not (l3 == '---'):
+        return False
+    if not l2.startswith('< $Id: ' + file + ',v 1.'):
+        return False # look manually if anything is fishy about $Id$ lines
+    if not l4.startswith('< $Id: ' + file + ',v 1.'):
+        return False
+    return True
+        
+for file in look:
+        print "do we need to change:" , file
+        cmd = "diff %s %s" % (os.path.join(dir1, file), os.path.join(dir2, file))
+        # assume no spaces in these names, if it matters
+        # output = os.popen("/bin/tcsh -f -c \"date\"").read()
+        pipe = os.popen(cmd)
+        outlines = pipe.readlines()
+        pipe.close()
+        print "got %d lines from %s" % (len(outlines), cmd)
+        if len(outlines) == 0:
+            print "zero length diff" # can be caused by a lack of an $Id$ line
+        elif len(outlines) < 4:
+            print "weirdly short:" # never happens now that 0 is special case
+            print ''.join(outlines)
+        elif len(outlines) == 4:
+            if noneed(outlines, file):
+                print "no need to change, I guess:"
+                print ''.join(outlines)
+            else:
+                print "FOOLED BY len 4:"
+                print ''.join(outlines)
+        elif len(outlines) == 5:
+            print "DO need to change, I guess:"
+            print ''.join(outlines)
+        else:
+            print "DO need to change"
+        print
+
+# to do: split the files into lists based on what to do; sort each one,
+# print more info for now, less later, so for now we scrutinize (with suchnamed cmdline option?),
+# then either way print the commands in a separate section for pasting into shell.
+# (or have a -doit option to use when you rerun? not sure)
+# 
+# what about need for cvs password? should merge the cmds into a few big ones for all the files
+# of one kind.
+
+print
+print "done"
+sys.exit(0)
