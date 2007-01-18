@@ -16,8 +16,11 @@ UNAME_A=$(shell ver)
 CCDIR = C:/MinGW
 #CCDIR = C:/Dev-Cpp
 CC = "$(CCDIR)/bin/gcc.exe"
-CFLAGS=-g -I"$(CCDIR)/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
-LDFLAGS=-L"$(CCDIR)/lib"
+#CFLAGS=-g -I"$(CCDIR)/include" -I"C:/cygwin/usr/local/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
+
+CFLAGS=-g -I"$(CCDIR)/include" -I"C:/ode-win32-0.7/include" -I"C:/Python$(PYVER)/include" -Disnan=_isnan
+
+LDFLAGS=-L"$(CCDIR)/lib" -L"C:/ode-win32-0.7/lib/releasedll" -lode
 PYREXTARGET=sim.dll
 STDC99=
 SIMTARGET=simulator.exe
@@ -132,7 +135,7 @@ libpython$(PYVER).a: libpython$(PYVER).a.gz
 
 sim.dll: sim.c $(PYREXOBJS) libpython$(PYVER).a version.h
 	gcc -shared -I"C:/Python$(PYVER)/include" -o sim.dll $(PYREXOBJS) \
-		-Wl,--output-def,sim.def -L. -lpython$(PYVER)
+		-Wl,--output-def,sim.def -L. -lpython$(PYVER) -L"C:/ode-win32-0.7/lib/releasedll" -lode
 else
 # here's the distutils version:
 #sim.so: Makefile $(PYREXSRCS) version.h bends.gen bonds.gen sim.pyx simhelp.c
