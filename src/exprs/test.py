@@ -786,6 +786,10 @@ testexpr_19f = eval_Expr( call_Expr( lambda thing:
     # Since this whole syntax was a kluge, I should not worry much about making it or something similar still work,
     # but should instead make a better toplevel syntax for the desired effect, and make *that* work... for that, see lambda_Expr.py.
     # So for the time being I won't try to fix this for EVAL_REFORM.
+    #   It also didn't work without EVAL_REFORM unless testbed was enabled. I'm guessing that was an old bug (predating EVAL_REFORM)
+    # and was not tested until now, since eval_Expr didn't support _e_make_in before EVAL_REFORM. I didn't confirm that guess,
+    # but I fixed the bug by making env.make do an eval first, by default. ### SHOULD RETEST ALL TESTS UP TO _5d AFTER THAT;
+    # so far only retested one of _5a and _5b.
 
 # == DrawInCorner
 
@@ -1064,8 +1068,9 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 # see comment near testexpr_19f def in here. Won't fix right away.
 #
 # I also want to know if the fixed examples still work without EVAL_REFORM. Yes -- _5a & _5b still work w/o ER, with & without testbed.
+# _19f fails w/o testbed -- fixed now, see comments there.
 
-testexpr = testexpr_5a
+testexpr = testexpr_19f
 
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c

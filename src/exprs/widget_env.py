@@ -99,11 +99,11 @@ class widget_env(Delegator):
         assert not lexmods, "lexmods are nim" ###@@@
         return expr ####@@@@ STUB but might sometimes work
             #e [if we ever need this, can we just use something like lexenv_Expr?? but with dynenv bindings too? 070112 guess comment]
-    def make(self, expr, ipath): #k args?? ####@@@@
+    def make(self, expr, ipath, eval = True): #k args?? ####@@@@
         """Make and return an instance of the given expr (understood or not) in self.
         The instance should store its state under the index-path ipath [#doc format].
         """
-        print "make ran"###070112 -- happens only before you make a new main instance.
+        print "make ran (eval = %r)" % eval ###070112 -- happens only before you make a new main instance.
         #e ipath guess: a list of 2 or 3 elts, linked list inner first, maybe append an interning of it
         #e look for rules; check if understood;
         #e Q: is this memoized? does it allocate anything like a state obj ref, or was that already done by customizing this env?
@@ -111,6 +111,13 @@ class widget_env(Delegator):
         # assume it's an understood expr at this point
         # update 070117 re EVAL_REFORM: maybe we'll need to be an explicit noop for numbers or Instances (non-pure-exprs) --
         # we will if some calls to _e_make_in are changed into calls to this, which seems likely. #k
+        if eval:
+            # new feature 070118 -- fixes testexpr_19f when no testbed and when not EVAL_REFORM
+            # (guess, unconfirmed: its failure then is an old bug predating EVAL_REFORM, not a new bug)
+            eval_ipath = ('!env-eval', ipath) # I'm guessing this had better differ from the one passed to _e_make_in -- not sure
+            expr = expr._e_eval(self, eval_ipath)
+            #e it'd be nice to print a notice if this changed it, but it surely will by wrapping a new lexenv_Expr if nothing else,
+            # so it's too hard to tell if it *really* did.
         return expr._e_make_in(self, ipath)
     def with_literal_lexmods(self, **lexmods):
         "Return a new rule-env inheriting from this one, different in the lexmods expressed as keyword arguments"
