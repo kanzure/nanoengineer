@@ -782,6 +782,10 @@ testexpr_19f = eval_Expr( call_Expr( lambda thing:
                                               DrawInCorner( Boxed(
                                                   eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
                                      testexpr_19b ))
+    ###EVAL_REFORM ###BUG: testexpr_19b is not instantiated (when we eval the call_Expr and ask for thing.world) but needs to be.
+    # Since this whole syntax was a kluge, I should not worry much about making it or something similar still work,
+    # but should instead make a better toplevel syntax for the desired effect, and make *that* work... for that, see lambda_Expr.py.
+    # So for the time being I won't try to fix this for EVAL_REFORM.
 
 # == DrawInCorner
 
@@ -1054,8 +1058,12 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 # AttributeError: 'lexenv_Expr' object has no attribute 'world'.
 # But now I can guess the cause: delegates in general are not being instantiated. ###FIX (if confirmed) [this is where i am 070117 late]
 # Also _2 with testbed works slightly better than before (the _10c part of the testbed is visible, tho not working).
+#
+# 070118 morn update: manually added Instances can fix bugs in _5a and _5b; _5d doesn't need one. The bugs all had the debug print
+# from DelegatingMixin "likely-invalid delegate" -- why didn't _19f or testbed have that -- would it now? ###
+# I also want to know if the fixed examples still work without EVAL_REFORM. ###
 
-testexpr = testexpr_3x
+testexpr = testexpr_19f
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
     ## testexpr_19d
