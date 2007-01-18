@@ -114,7 +114,7 @@ for file in d2.files:
 
 look.sort()
 
-def noneed(outlines, file):
+def noneed(outlines, file): ##e make this a method of a per-file analyzer class
     "no need to change, fom diff output?"
     # i.e. does it look like
     # 4c4
@@ -138,7 +138,7 @@ def noneed(outlines, file):
         return False
     return True
         
-for file in look:
+for file in look: ##e make this into a categorizing method of a per-file analyzer class
         print "do we need to change:" , file
         cmd = "diff %s %s" % (os.path.join(dir1, file), os.path.join(dir2, file))
         # assume no spaces in these names, if it matters
