@@ -1,0 +1,17 @@
+# $Id$
+
+Simple utilities (such as command-line scripts) for miscellaneous purposes.
+
+One way to make use of these is to make symbolic links to them 
+(as they exist in some cvs checkout directory you usually have)
+from some directory on your shell path.
+
+(For example, if you have a cvs checkout of cad in /Nanorex/Working/cad, 
+and a directory of command line scripts on your shell path called ~/pybin, 
+then you could do this in your shell:
+
+  % ln -s /Nanorex/Working/cad/src/experimental/utilities/cvs-sync ~/pybin/cvs-sync
+  % rehash
+)
+
+# end
