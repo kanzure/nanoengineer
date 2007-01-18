@@ -94,9 +94,11 @@ class CenterBoxedKluge(InstanceMacro): #e 061112 try 2 -- just for testing (lots
     ww = thing.width  + extra
     hh = thing.height + extra
     # value
-    _value = Overlay( Center( RectFrame( ww, hh, thickness = borderthickness, color = bordercolor) ),
+    _value = Instance( Overlay( Center( RectFrame( ww, hh, thickness = borderthickness, color = bordercolor) ),
                       Center( thing ),
-                       )
+                       ))### see if Instance fixes ###EVAL_REFORM bug, 070118 935a --
+        ## yes, and doesn't break non-EVAL_REFORM case either, w/ or w/o testbed, in testexpr_5b
+    
     pass # CenterBoxedKluge
 
 class Boxed(InstanceMacro):

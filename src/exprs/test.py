@@ -1060,10 +1060,13 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 # Also _2 with testbed works slightly better than before (the _10c part of the testbed is visible, tho not working).
 #
 # 070118 morn update: manually added Instances can fix bugs in _5a and _5b; _5d doesn't need one. The bugs all had the debug print
-# from DelegatingMixin "likely-invalid delegate" -- why didn't _19f or testbed have that -- would it now? ###
-# I also want to know if the fixed examples still work without EVAL_REFORM. ###
+# from DelegatingMixin "likely-invalid delegate" -- why didn't _19f or testbed have that -- would it now? No -- different bug,
+# see comment near testexpr_19f def in here. Won't fix right away.
+#
+# I also want to know if the fixed examples still work without EVAL_REFORM. Yes -- _5a & _5b still work w/o ER, with & without testbed.
 
-testexpr = testexpr_19f
+testexpr = testexpr_5a
+
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
     ## testexpr_19d

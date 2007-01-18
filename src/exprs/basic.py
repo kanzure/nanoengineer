@@ -59,7 +59,7 @@ try:
 except NameError:
     old_EVAL_REFORM = None
 
-EVAL_REFORM = True # 070115: False supposedly acts like old code, True like experimental new code which should become standard;
+EVAL_REFORM = False # 070115: False supposedly acts like old code, True like experimental new code which should become standard;
      # this affects all class defs, so to be safe, print a warning if it changes across reload
 
 if old_EVAL_REFORM != EVAL_REFORM and old_EVAL_REFORM is not None:
