@@ -243,7 +243,7 @@ testexpr_2a = Rect(8,5, color = trans_red) # fails, since appears fully red ###B
 
 testexpr_2b = Rect(4, color = purple) # works [061109]
 testexpr_2c = Rect(color = purple) # asfail - guess, not has_args since this is just a customization 061109 ###BUG (make it work?)
-    ###EVAL_REFORM status 070117 451p: [maybe same in non-eval-reform??##k]
+    ###EVAL_REFORM status 070117 451p: [maybe same in non-eval-reform?? yes, same dprints, works anyway in both cases]
     # warning: this expr might need its arguments supplied: <Rect#0(i w/o a)>
     # <Rect#20261(i w/o a)>
     # warning: possible bug: not self._e_has_args in _i_grabarg
@@ -1103,7 +1103,7 @@ testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , t
 
 enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 
-# EVAL_REFORM status: 070117 439p
+# EVAL_REFORM status: 070117 439p, 511p
 # _19f and testbed: compute method on non-instance, details in a local debug notesfile ###BUG
 # _2 and no testbed: works
 # _2 and testbed: recursion in self.delegate in Highlightable ###BUG
@@ -1112,9 +1112,11 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 # except as noted next to the examples: thru _4d so far -- see ###EVAL_REFORM
 # _5 has a ###BUG: AttributeError: no attr 'ww' in delegate <RectFrame#58607(i)> of self = <Overlay#58605(i)>
 #  [lvals.py:210] [Exprs.py:213] [Exprs.py:463] [Exprs.py:392] [Exprs.py:852] [Exprs.py:820] [Exprs.py:421] [instance_helpers.py:765]
-## try restart -- same. Try without eval_reform! ####TRYIT LATER
+## try restart -- same. Try without eval_reform! works. Looking at its code, it ought to be legal. Looking at exception, looks like wrong delegate was picked.
+# (Does Overlay pick the wrong one due to its arg reversal change earlier today? Its code clearly says no.)
+# Looking closer, self.ww was missed so it went to delegate. Did it save the _C_rule_for_formula? If so, why did that not work? #####
 
-testexpr = testexpr_5
+testexpr = testexpr_2c
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
     ## testexpr_19d
