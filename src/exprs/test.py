@@ -328,6 +328,10 @@ testexpr_9b = Button(
                     #   and each action does something, but on_release_in acted like on_release_out,
                     #   but I fixed that bug.
                     ###e should replace colors by text, like enter/leave/pressed_in/pressed_out or so
+                # update 070118, with no testbed and EVAL_REFORM turned off: still works, but prints
+                # debug_pref: preDraw_glselect_dict failure ... whenever mouse goes off or on while it's pressed.
+                # That's probably not a bug, but it might be worth understanding re other bugs in highlighting system.
+                # Guess: the selobj is out of date but still used in some way.
 
 testexpr_9c = SimpleColumn(testexpr_9a, testexpr_9b) # works (only highlighting tested; using 'stubs 061115')
 
@@ -337,8 +341,15 @@ testexpr_9d = testexpr_9b( on_release_in = print_Expr('release in, customized'))
 testexpr_9e = testexpr_9b( on_release_in = None) # works
     # test an action of None (should be same as a missing one) (also supplied by customization after args)
 
-testexpr_9cx = SimpleColumn(testexpr_9a, testexpr_9b(projection = True)) ###BUG -- that option breaks the functionality.
+testexpr_9cx = SimpleColumn(testexpr_9a, testexpr_9b(projection = True)) # works 070118?? before that -- ###BUG -- that option breaks the functionality.
     # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
+    # ... update 070118: if I understand this correctly, it's working now (EVAL_REFORM off, no testbed).
+    # I don't know why/how/ifreally it got fixed, but maybe it did, since I did a few things to highlighting code since that time,
+    # including not using that z-offset kluge in the depth test, changing to GL_LEQUAL (with different Overlay order), maybe more.
+    # OTOH I didn't review this code now -- maybe all that happened is I disabled that projection option somehow. Who knows. #k
+    # BTW it has lots of debug prints like <Highlightable#146280(i)> (projection=True) not saving due to current_glselect.
+    # I don't know if it always did.
+
 
 testexpr_9f = Highlightable( Rect(color = If_expr(_this(Highlightable).env.glpane.in_drag, blue, lightblue))) # fails, silly reason
     ## AssertionError: this expr needs its arguments supplied: <Rect#0(i w/o a)>
@@ -359,10 +370,12 @@ testexpr_9fx3 = Rect(1, 1, If_expr(_my.env.glpane.in_drag, blue, lightblue)) # t
     # No, dragging around on a TextRect causes lots of redraws, but no reprints of "<If_expr#19096(a)> gets cond 1"! Why?
     # Because something contains its value and didn't usage-track anything which we're invalidating here! AHA. ######BUG
     # That can be fixed by referring to trackable state, provided it's not _i_instance_dict or whatever which fails to track this eval anyway. Try it.
-testexpr_9fx4 = Highlightable( Rect(1, 1, If_expr(_this(Highlightable).transient_state.in_drag, blue, lightblue))) # works, if I remember to click -- it's not in_bareMotion!
+testexpr_9fx4 = Highlightable( Rect(1, 1, If_expr(_this(Highlightable).transient_state.in_drag, blue, lightblue))) # works, if I remember to click --
+    # i said in_drag not in_bareMotion!
+    # [Q, 070118: Does that mean all the comments in _9f thru _9f3 are mistaken, as if mouseover == drag??? Or did I click in those tests? ##k]
     # as i said next to in_drag's def:
     ###e should make an abbrev for that attr as HL.in_drag -- maybe use State macro for it? read only is ok, maybe good.
-    ###e should add an accessible attr for detecting whether we're over it. What to call it?
+    ###e should add an accessible attr for detecting whether we're over it [aka in_bareMotion -- not a serious suggestion]. What to call it?
 testexpr_9fx5 = Highlightable( Rect(color = If_expr(_this(Highlightable).transient_state.in_drag, blue, lightblue))) # works with warning
     # so it turns out the If_expr was a total red herring -- once fixed, the no-args form now warns us, but works anyway.
 testexpr_9fx6 = Highlightable( Rect(color = If_expr(_this(Highlightable).transient_state.in_drag, purple, lightblue))() ) # works
@@ -1068,9 +1081,10 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 # see comment near testexpr_19f def in here. Won't fix right away.
 #
 # I also want to know if the fixed examples still work without EVAL_REFORM. Yes -- _5a & _5b still work w/o ER, with & without testbed.
-# _19f fails w/o testbed -- fixed now, see comments there.
+# _19f fails w/o testbed -- fixed now, see comments there. Retrying from the start (_2) after that fix, all work (ER off, no testbed)
+# through _10d... far enough for now, since I need to redo all these with EVAL_REFORM turned on. ####
 
-testexpr = testexpr_19f
+testexpr = testexpr_10d
 
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
