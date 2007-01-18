@@ -59,13 +59,14 @@ try:
 except NameError:
     old_EVAL_REFORM = None
 
-EVAL_REFORM = False # 070115: False supposedly acts like old code, True like experimental new code which should become standard;
+EVAL_REFORM = True # 070115: False supposedly acts like old code, True like experimental new code which should become standard;
      # this affects all class defs, so to be safe, print a warning if it changes across reload
 
 if old_EVAL_REFORM != EVAL_REFORM and old_EVAL_REFORM is not None:
     print "\n*** WARNING: EVAL_REFORM was %r before reload, is %r now -- might require restart of NE1 or testmode" % \
           (old_EVAL_REFORM, EVAL_REFORM)
-
+else:
+    print "EVAL_REFORM is %r" % EVAL_REFORM
 
 from debug import reload_once_per_event, print_compact_traceback, print_compact_stack
 

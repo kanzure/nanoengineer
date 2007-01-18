@@ -14,7 +14,7 @@ $Id$
 # as of 061102 this module is probably reloadable:
 
 from basic import printnim, printfyi, stub # this may be a recursive import (with most things in basic not yet defined)
-from basic import print_compact_stack, print_compact_traceback, same_vals
+from basic import print_compact_stack, print_compact_traceback, same_vals, EVAL_REFORM
 
 # == utilities #e refile
 
@@ -201,7 +201,8 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         # if so, who scans the expr to see if it's pure (no need for ipath or full env)? does expr track this as we build it?
 
         # try 2 061027 late: revised 070117
-        assert instance._e_is_instance, "compute method asked for on non-Instance %r" % (instance,) # happens if a kid is non-instantiated(?)
+        assert instance._e_is_instance, "compute method for %r asked for on non-Instance %r (index %r, lvalflag %r)" % \
+               (self, instance, index, _lvalue_flag) # happens if a kid is non-instantiated(?) # revised 070117
         if index == 'stubi': #k should be the attr of self we're coming from, i think!
             printnim("_e_compute_method needs to always be passed an index")
 

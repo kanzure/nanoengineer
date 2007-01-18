@@ -412,7 +412,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         if EVAL_REFORM: #070117
             assert not self._e_is_instance, "EVAL_REFORM means we should not eval an instance: %r" % self
             # exprs that need instantiation eval to themselves. ###k will there be exceptions that are subclasses of this?
-            printfyi("eval to self of expr in IorE subclass named %s" % self.__class__.__name__) # find out which classes this happens to ###
+            printfyi("probably normal: eval to self of a subclass of IorE: %s" % self.__class__.__name__) # find out which classes this happens to ###
             return self._e_eval_to_expr(env, ipath, self) ###IMPLEM in Expr, call from other _e_eval defs
                 # not just "return self", in case we need to wrap it with a local-ipath-modifying expr
                 # Q: will the point of the local ipath be eval to any pure expr wanting instantiation in future, ie "free in ipath",
@@ -449,9 +449,12 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             "return a string for inclusion in some calls of print_compact_stack"
             return "_i_instance(index = %r, expr = %r), self = %r" % (index,expr,self)
         assert self._e_is_instance
-        assert is_pure_expr(expr), "who passed non-pure-expr %r to _i_instance? index %r, self %r, _e_args %r" % \
-               (expr, index, self, self._e_args)
-            #k guess 061105
+        if not EVAL_REFORM:
+            # this is redundant with a later assert even in this case, but to be conservative I'll only disable it
+            # from the EVAL_REFORM case where it causes trouble. 070117
+            assert is_pure_expr(expr), "who passed non-pure-expr %r to _i_instance? index %r, self %r, _e_args %r" % \
+                   (expr, index, self, self._e_args)
+                #k guess 061105
         if 0 and self.__class__.__name__.endswith('If_expr'):#debug
             print "_i_instance called, expr %r, index %r, self %r, _e_args %r" % \
                    (expr, index, self, self._e_args)
@@ -514,7 +517,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         else:
             # EVAL_REFORM case 070117
             if not (is_pure_expr(expr) and is_Expr_pyinstance(expr)):
-                print "FYI: EVAL_REFORM: _CV__i_instance_CVdict is identity on %r" % (expr,) ### remove when works -- might be routine & verbose
+                ## print "FYI: EVAL_REFORM: _CV__i_instance_CVdict is identity on %r" % (expr,)
+                # this is routine on e.g. None, small ints, colors, other tuples... and presumably Instances (not tested)
                 return expr
             pass
         ####e:  [061105] is _e_eval actually needing to be different from _e_make_in?? yes, _e_eval needs to be told _self
@@ -544,7 +548,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         else:
             # EVAL_REFORM case, 070117
             env, ipath = self._i_env_ipath_for_formula_at_index( index) # equivalent to how above other case computes them
-            assert not _lvalue_flag ###k
+            assert not lvalflag ####k total guess
             res = expr._e_make_in(env,ipath) # only pure IorE exprs have this method; should be ok since only they are returned from expr evals
         return res # from _CV__i_instance_CVdict
 

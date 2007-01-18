@@ -1095,14 +1095,21 @@ testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , t
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = True
+enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 
-testexpr = testexpr_19f
+# EVAL_REFORM status: 070117 439p
+# _19f and testbed: compute method on non-instance, details in a local debug notesfile
+# _2 and no testbed: works
+# _2 and testbed: recursion in self.delegate in Highlightable
+# _19f and no testbed: no attr '_e_make_in' in class eval_Expr
+
+testexpr = testexpr_2
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
     ## testexpr_19d
     ## testexpr_9f ## testexpr_21g ## testexpr_20 ## Rect() # or _19c with the spheres
 
+    ## testexpr_2 - a simple Rect
     ## testexpr_7c nested Boxed
     ## testexpr_9c column of two highlightables
         # testexpr_9cx has a bug, in highlightable with projection = True... the current_glselect cond fix attempt didn't fix it.
