@@ -324,7 +324,8 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         # maybe the caller or result-storer or result-user (to make from it, in the future) has to use its own.###k
         assert EVAL_REFORM
         print "stub _e_eval_to_expr(env, ipath, self) (bugs likely) -> ",expr######
-        return expr ####STUB -- this is likely to cause bugs until the ipath-mod wrapping is implemented
+            # the bugs are likely since we don't yet wrap with something to locally modify ipath when instantiating inside.
+        return lexenv_Expr(env, expr) # this lexenv_Expr fixed that testexpr_5 bug -- 070117 1012p -- are prior tests still ok???##k
     #k _e_eval is nim in this class, must be implemented in subclasses. Before adding a nim asserting def here, review whether
     # its presence would affect expr-building code! [070117 comment]
     pass
@@ -788,10 +789,10 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         (self._e_env0, self._e_expr0) = self.args
     def __repr__(self):
         return "<%s#%d%s: %r, %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_env0, self._e_expr0,)
-    def _e_eval(self, env, ipath, _e_eval_lval = False):
-        "[note: _e_eval_lval is a private option]"
-        # note: the _e_eval_lval option is solely to allow methods _e_eval and _e_eval_lval to share code.
-        # about the lval code: #061204 semi-guess; works for now. Methods merged on 070109.
+    def _e_call_with_modified_env(self, env, ipath, whatever = 'bug'):
+        "[private helper method]"
+        # about the lval code: #061204 semi-guess; works for now. _e_eval and _e_eval_lval methods merged on 070109.
+        # Generalized to whatever arg for _e_make_in and revised accordingly (for sake of EVAL_REFORM), 070117.
         #e (should the val/lval distinction be an arg in the _e_eval API?
         #   maybe only for some classes, ie variant methods for fixed arg, another for genl arg??)
         assert env #061110
@@ -800,11 +801,11 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         newenv_self = getattr(newenv, '_self', None) ####e change newenv._self to give this answer! [intention soon, 061110 very late]
         if env._self is not newenv_self:
             # usual case (in fact, always true AFAIK)
-            if 0: # untested since revised on 070109
-                printfyi("in _e_eval%s: env._self is not newenv._self: a %s is not a %s (tho it may or may not be in same class)" % \
-                         (_e_eval_lval and "_lval" or "", env._self.__class__.__name__, newenv_self.__class__.__name__))
+            if 0: # untested since revised on 070109 and again on 070117
+                printfyi("in %s: env._self is not newenv._self: a %s is not a %s (tho it may or may not be in same class)" % \
+                         (whatever, env._self.__class__.__name__, newenv_self.__class__.__name__))
         else:
-            printfyi("### in _e_eval%s: env._self IS newenv._self (surprising)" % (_e_eval_lval and "_lval" or "") )
+            printfyi("### in %s: env._self IS newenv._self (surprising)" % whatever )
         # bugfix re lex/dyn confusion, 070109:
         # now we want to combine the dynamic part of env with the lexical part of newenv, to make a modified newenv.
         # later the code above will be cleaned up for that -- for now just rename them first to clarify.
@@ -814,13 +815,18 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         newenv = dynenv.dynenv_with_lexenv(lexenv) # WARNING: this is initially a stub which returns lexenv, equiv to the old code here.
             #e might be renamed; might be turned into a helper function rather than a method 
         # end of new code for lex/dyn bugfix
-        if _e_eval_lval:
-            res = self._e_expr0._e_eval_lval(newenv, ipath)
-        else:
-            res = self._e_expr0._e_eval(newenv, ipath)
+        submethod = getattr(self._e_expr0, whatever)
+        res = submethod(newenv, ipath)
+            #e if exception, print a msg that includes whatever?
         return res
+    # note: the following methods are similar in two classes
+    def _e_eval(self, env, ipath):
+        return self._e_call_with_modified_env(env, ipath, whatever = '_e_eval')
     def _e_eval_lval(self, env, ipath):
-        return self._e_eval(env, ipath, _e_eval_lval = True)
+        return self._e_call_with_modified_env(env, ipath, whatever = '_e_eval_lval')
+    def _e_make_in(self, env, ipath):
+        assert EVAL_REFORM # since it only happens then
+        return self._e_call_with_modified_env(env, ipath, whatever = '_e_make_in')
     pass # end of class lexenv_Expr
 
 class eval_Expr(OpExpr):
@@ -832,24 +838,18 @@ class eval_Expr(OpExpr):
     """
     def _e_init(self):
         pass
-    def _e_eval(self, env, ipath, _e_eval_lval = False):
-        "[note: _e_eval_lval is a private option]"
-        # note: the _e_eval_lval option is solely to allow methods _e_eval and _e_eval_lval to share code.
-        # about the lval code: #061204 semi-guess; works for now. Methods merged on 070109.
-        
+    def _e_call_on_argval(self, env, ipath, whatever = 'bug'):
+        "[private helper method]"
+        # same initial comment as in lexenv_Expr applies here [as of 070117]
         assert env #061110
         (arg,) = self._e_args
         ## argval = arg._e_eval(env, 'unused-index') # I think this index can never be used; if it can be, pass ('eval_Expr',ipath)
-        if _e_eval_lval:
-            index = 'eval_Expr(lval)'
-        else:
-            index = 'eval_Expr'
+        index = 'eval_Expr(%s)' % whatever
         argval = arg._e_eval(env, (index, ipath)) #070109 this index can in fact be used, it turns out.
+            # note: it's correct that we call arg._e_eval regardless of whatever being '_e_eval' or something else.
         try:
-            if _e_eval_lval:
-                res = argval._e_eval_lval(env, ipath)
-            else:
-                res = argval._e_eval(env, ipath)
+            submethod = getattr(argval, whatever)
+            res = submethod(env, ipath)
                 ###BUG (likely): if argval varies, maybe this ipath should vary with it -- but I'm not sure in what way.
                 # We probably have to depend on argval to have different internal ipaths when it comes from different sources --
                 # but presently that's nim (nothing yet wraps exprs with local-ipath-modifiers, tho e.g. If probably should),
@@ -857,13 +857,19 @@ class eval_Expr(OpExpr):
                 # and most likely, most uses of eval_Expr are kluges which are wrong in some way anyway, which this issue is
                 # hinting at, since it seems fundamentally unfixable in general. [070109 comment]
         except:
-            print "following exception concerns argval._e_eval%s(...) where argval is %r and came from evalling %r" % \
-                  (_e_eval_lval and "_lval" or "", argval, arg) #061118, revised 070109
+            print "following exception concerns argval.%s(...) where argval is %r and came from evalling %r" % \
+                  (whatever, argval, arg) #061118, revised 070109 & 070117
             raise
         ## print "eval_Expr eval%s goes from %r to %r to %r" % (_e_eval_lval and "_lval" or "", arg, argval, res) #untested since lval
         return res
+    # note: the following methods are similar in two classes
+    def _e_eval(self, env, ipath):
+        return self._e_call_on_argval(env, ipath, whatever = '_e_eval')
     def _e_eval_lval(self, env, ipath):
-        return self._e_eval(env, ipath, _e_eval_lval = True)
+        return self._e_call_on_argval(env, ipath, whatever = '_e_eval_lval')
+    def _e_make_in(self, env, ipath):
+        assert EVAL_REFORM # since it only happens then
+        return self._e_call_on_argval(env, ipath, whatever = '_e_make_in')
     pass # end of class eval_Expr
 
 class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for debugging

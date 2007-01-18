@@ -791,12 +791,13 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr
 #
 # let's try an explicit experiment, InstanceMacro:
 
-class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110; docstring revised 061127; see also DelegatingInstanceOrExpr
+class InstanceMacro(InstanceOrExpr, DelegatingMixin): # ca. 061110; docstring revised 061127 & 070117; see also DelegatingInstanceOrExpr
     """Superclass for "macros" -- they should define a formula for _value which they should always look like.
-    # WARNING: a defect in InstanceMacro means no local defs in its client class (e.g. thing, ww in Boxed),
-    # or in a superclass of that, will be delegated to _value (since they won't reach DelegatingMixin.__getattr__);
+    # WARNING: a defect in InstanceMacro means that "default defs" in its client class (e.g. thing, ww in Boxed),
+    # or in a superclass of that, will override their defs in _value rather than being delegated to _value
+    # (since they are already defined, so they're never seen by DelegatingMixin.__getattr__);
     # so be careful what you name those local defs, and what default values are defined in a superclass!
-    #    This is also perhaps a feature
+    #    This is also sometimes a feature, especially when the local defs occur in the same class that defines _value
     # (permitting you to override some of the otherwise-delegated attrs, e.g. bright or width),
     # tho at one time I thought delegate should let you do that, _value should not,
     # and this would be a useful distinction. I don't yet know how to make _value not do it,
@@ -805,7 +806,13 @@ class InstanceMacro(InstanceOrExpr, DelegatingMixin): # circa 061110; docstring 
     # since it would pick up Widget2D default values for lbox attrs like btop. [unconfirmed but likely; 061127 comment]
     """
     #e might not work together with use by the macro of DelegatingMixin in its own way, if that's even possible [later: not sure what this comment means]
-    delegate = Instance( _self._value, '!_value') #k guess: this might eval it once too many times... ####k
+    if EVAL_REFORM:
+        printnim("is this eval_Expr correct or not? does it even make any difference??")
+        ## delegate = Instance( eval_Expr(_self._value), '!_value') #### guess about fixing testexpr_5 bug; didn't make any clear difference [070117]
+        delegate = Instance( _self._value, '!_value') # innocent until proven guilty, even if suspected (more seriously, don't change what might not be wrong)
+    else:
+        # old code, worked for a long time
+        delegate = Instance( _self._value, '!_value') #k guess: this might eval it once too many times... ####k
         # [later, as of 061113 -- it works, but this point of too many evals has never been fully understood,
         #  so for all i now, it happens but causes no obvious harm in these examples -- should check sometime. ##e]
         

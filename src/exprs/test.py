@@ -290,7 +290,7 @@ testexpr_4d = Overlay( Rect(2), Rect(1, color = white) ) # works!
 # Boxed
 testexpr_5 = Boxed_old( Rect(2,3.5,green)) # works as of 061110 late,
     # except for non-centering (and known nims re inclusion in bigger things), I think on 061111
-    # fails in ###EVAL_REFORM ###BUG see comments below
+    # failed in EVAL_REFORM but that got fixed 070117 1012p, see comments below
 
 testexpr_5a = Boxed_old( Center( Rect(2,3.5,green))) # sort of works, but alignment is wrong as expected [still as of 061112]
 testexpr_5b = CenterBoxedKluge( Rect(2,3.5,yellow)) # works, 061112 827p
@@ -1108,15 +1108,23 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 # _19f and testbed: compute method on non-instance, details in a local debug notesfile ###BUG
 # _2 and no testbed: works
 # _2 and testbed: recursion in self.delegate in Highlightable ###BUG
-# _19f and no testbed: no attr '_e_make_in' in class eval_Expr ###BUG
+# _19f and no testbed: no attr '_e_make_in' in class eval_Expr ###BUG -- revised exception below
 # trying them all, no testbed, all working (tho results not checked much for visual correctness, just for weirdlooking debug prints)
 # except as noted next to the examples: thru _4d so far -- see ###EVAL_REFORM
-# _5 has a ###BUG: AttributeError: no attr 'ww' in delegate <RectFrame#58607(i)> of self = <Overlay#58605(i)>
+# testexpr_5 had a bug: AttributeError: no attr 'ww' in delegate <RectFrame#58607(i)> of self = <Overlay#58605(i)>
 #  [lvals.py:210] [Exprs.py:213] [Exprs.py:463] [Exprs.py:392] [Exprs.py:852] [Exprs.py:820] [Exprs.py:421] [instance_helpers.py:765]
 ## try restart -- same. Try without eval_reform! works. Looking at its code, it ought to be legal. Looking at exception, looks like wrong delegate was picked.
 # (Does Overlay pick the wrong one due to its arg reversal change earlier today? Its code clearly says no.)
 # Looking closer, self.ww was missed so it went to delegate. Did it save the _C_rule_for_formula? If so, why did that not work? #####
 # aha, shouldn't self be a Boxed_old, not Overlay, when looking for ww? Maybe _self was wrong or not stored properly....
+# + fixed -- turns out I needed a lexenv_Expr (not only modified local ipath, still nim) in _e_eval_to_expr.
+# And I retested all the prior ones (2xx thru 4xx), they all still work.
+# But the next one _5a doesn't work. ###BUG (howbout when not EVAL_REFORM?) So I stopped there, 070117 1021p.
+#...
+# Except to retry _19f and no testbed (since I fixed the code for the failure reported above): revised exception:
+# AttributeError: 'lexenv_Expr' object has no attribute 'world'.
+# But now I can guess the cause: delegates in general are not being instantiated. ###FIX (if confirmed) [this is where i am 070117 late]
+# Also _2 with testbed works slightly better than before (the _10c part of the testbed is visible, tho not working).
 
 testexpr = testexpr_5
     ## testexpr_24b
