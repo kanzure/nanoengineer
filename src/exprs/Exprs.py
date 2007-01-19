@@ -769,6 +769,7 @@ class property_Expr(internal_Expr): ##k guess, 061119, for attr 'open' in Toggle
     def _e_eval(self, env, ipath):
         assert env #061110
         instance = env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]
+            # if this ever fails, see comments about this construction in constant_Expr and lexenv_Expr -- it might be ok. [070118]
         prop = self._e_property
         clas = instance.__class__ ### MIGHT BE WRONG, not sure, might not matter unless someone overrides the prop attr, not sure...
         res = prop.__get__(instance, clas) #k is this right? we want to call it like the class would to any descriptor. seems to work.
@@ -790,22 +791,29 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
     def __repr__(self):
         return "<%s#%d%s: %r, %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_env0, self._e_expr0,)
     def _e_call_with_modified_env(self, env, ipath, whatever = 'bug'):
-        "[private helper method]"
+        "[private helper method] Call self._e_expr0.<whatever> with lexenv self._e_env0 and [nim] dynenv taken from the given env"
         # about the lval code: #061204 semi-guess; works for now. _e_eval and _e_eval_lval methods merged on 070109.
         # Generalized to whatever arg for _e_make_in and revised accordingly (for sake of EVAL_REFORM), 070117.
         #e (should the val/lval distinction be an arg in the _e_eval API?
         #   maybe only for some classes, ie variant methods for fixed arg, another for genl arg??)
         assert env #061110
-        env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]
+        if 1:
+            # permit env to not have _self, since this error came up (EVAL_REFORM testexpr_2 after env.make evals)
+            # and I can't think of a reason that env having _self should be required -- _self being lexical, env._self won't affect
+            # what we should do, even once we're not nim in dynenv effect. [070118]
+            ## no longer do: env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]
+                # note: delegation in widget_env may turn this into (I suspect): AttributeError: 'NoneType' object has no attribute '_self'
+            env_self = getattr(env, '_self', None)
         newenv = self._e_env0
         newenv_self = getattr(newenv, '_self', None) ####e change newenv._self to give this answer! [intention soon, 061110 very late]
-        if env._self is not newenv_self:
+        if env_self is not newenv_self:
             # usual case (in fact, always true AFAIK)
             if 0: # untested since revised on 070109 and again on 070117
-                printfyi("in %s: env._self is not newenv._self: a %s is not a %s (tho it may or may not be in same class)" % \
-                         (whatever, env._self.__class__.__name__, newenv_self.__class__.__name__))
+                printfyi("in %s: env_self is not newenv_self: a %s is not a %s (tho it may or may not be in same class)" % \
+                         (whatever, env_self.__class__.__name__, newenv_self.__class__.__name__))
         else:
-            printfyi("### in %s: env._self IS newenv._self (surprising)" % whatever )
+            printfyi("### in %s: env_self IS newenv_self (surprising)" % whatever )
+                # this sometimes happens in EVAL_REFORM; don't know if it matters; guess: no [070118]
         # bugfix re lex/dyn confusion, 070109:
         # now we want to combine the dynamic part of env with the lexical part of newenv, to make a modified newenv.
         # later the code above will be cleaned up for that -- for now just rename them first to clarify.

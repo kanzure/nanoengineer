@@ -236,6 +236,9 @@ testexpr_6d = TextRect("%r" % _self.ipath) # bug: Expr doesn't intercept __mod__
 testexpr_6e = TextRect(format_Expr("%r", _self.ipath),4,60) # incorrect test: _self is not valid unless we're assigned in some pyclass
     # (so what it does is just print the expr's repr text -- we can consider it a test for that behavior)
     # (note: it tells us there's a problem by printing "warning: Symbol('_self') evals to itself")
+    # Update 070118: in EVAL_REFORM, this has an exception, AttributeError: 'lexenv_Expr' object has no attribute 'ipath',
+    # about the bare symbol _self wrapped with a lexenv_Expr. I think that's ok, since it's an error in the first place.
+    # Maybe the error behavior could be improved, but we can ignore that for now.
 
 testexpr_6f = TextRect(format_Expr( "%r", _this(TextRect).ipath ),4,60) # printed ipath is probably right: 'NullIPath' ###k verify
     # obs cmt (correct but old, pre-061114):
@@ -343,7 +346,7 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
 
 testexpr_9cx = SimpleColumn(testexpr_9a, testexpr_9b(projection = True)) # works 070118?? before that -- ###BUG -- that option breaks the functionality.
     # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
-    # ... update 070118: if I understand this correctly, it's working now (EVAL_REFORM off, no testbed).
+    # ... update 070118: if I understand this correctly, it's working now (EVAL_REFORM off or on both work, with no testbed).
     # I don't know why/how/ifreally it got fixed, but maybe it did, since I did a few things to highlighting code since that time,
     # including not using that z-offset kluge in the depth test, changing to GL_LEQUAL (with different Overlay order), maybe more.
     # OTOH I didn't review this code now -- maybe all that happened is I disabled that projection option somehow. Who knows. #k
@@ -372,7 +375,9 @@ testexpr_9fx3 = Rect(1, 1, If_expr(_my.env.glpane.in_drag, blue, lightblue)) # t
     # That can be fixed by referring to trackable state, provided it's not _i_instance_dict or whatever which fails to track this eval anyway. Try it.
 testexpr_9fx4 = Highlightable( Rect(1, 1, If_expr(_this(Highlightable).transient_state.in_drag, blue, lightblue))) # works, if I remember to click --
     # i said in_drag not in_bareMotion!
-    # [Q, 070118: Does that mean all the comments in _9f thru _9f3 are mistaken, as if mouseover == drag??? Or did I click in those tests? ##k]
+    # [Q, 070118: Does that mean all the comments in _9f thru _9f3 are mistaken, as if mouseover == drag??? Or did I click in those tests? ##k
+    #  When no EVAL_REFORM I saw no crashes but tried no clicks. For ER I did: 1-3 fail as comments say,
+    #  but testexpr_9fx4 has an ###EVAL_REFORM ###BUG -- guess, due to no local ipath mod.]
     # as i said next to in_drag's def:
     ###e should make an abbrev for that attr as HL.in_drag -- maybe use State macro for it? read only is ok, maybe good.
     ###e should add an accessible attr for detecting whether we're over it [aka in_bareMotion -- not a serious suggestion]. What to call it?
@@ -1082,9 +1087,11 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 #
 # I also want to know if the fixed examples still work without EVAL_REFORM. Yes -- _5a & _5b still work w/o ER, with & without testbed.
 # _19f fails w/o testbed -- fixed now, see comments there. Retrying from the start (_2) after that fix, all work (ER off, no testbed)
-# through _10d... far enough for now, since I need to redo all these with EVAL_REFORM turned on. ####
+# through _10d... far enough for now, since I need to redo all these with EVAL_REFORM turned on. All ok thru _9a... [some "ok exceptions" noted with indiv tests]
+# _19f still fails as expected... why don't i see more errors due to delegate not being an instance? maybe i'll get there after _9a.... ####
+# What I do see is a ###BUG from no local ipath mod (I guess) in testexpr_9fx4! So do 5 & 6. So does _10a & b -- serious bug! ### fix that before going on.
 
-testexpr = testexpr_10d
+testexpr = testexpr_10b
 
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c

@@ -118,7 +118,12 @@ class widget_env(Delegator):
             expr = expr._e_eval(self, eval_ipath)
             #e it'd be nice to print a notice if this changed it, but it surely will by wrapping a new lexenv_Expr if nothing else,
             # so it's too hard to tell if it *really* did.
-        return expr._e_make_in(self, ipath)
+        try:
+            res = expr._e_make_in(self, ipath)
+        except:#070118
+            print "following exception in env.make's _e_make_in call concerns expr %r and ipath %r: " % (expr, ipath)
+            raise
+        return res
     def with_literal_lexmods(self, **lexmods):
         "Return a new rule-env inheriting from this one, different in the lexmods expressed as keyword arguments"
         return self.with_lexmods(lexmods)
