@@ -450,11 +450,27 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             return "_i_instance(index = %r, expr = %r), self = %r" % (index,expr,self)
         assert self._e_is_instance
         if not EVAL_REFORM:
-            # this is redundant with a later assert even in this case, but to be conservative I'll only disable it
-            # from the EVAL_REFORM case where it causes trouble. 070117
+            # this is redundant with a later assert in _i_instance_CVdict in all cases (EVAL_REFORM or not),
+            # and it causes trouble in the EVAL_REFORM case. To be conservative I'll only disable it in that case
+            # (so I'll leave it untouched in this case). 070117
             assert is_pure_expr(expr), "who passed non-pure-expr %r to _i_instance? index %r, self %r, _e_args %r" % \
                    (expr, index, self, self._e_args)
                 #k guess 061105
+        else:
+            # new behavior 070118; might be needed to fix "bug: expr or lvalflag for instance changed" in testexpr_9fx4 click,
+            # or might just be hiding an underlying bug which will show up for pure exprs in If clauses -- not yet sure. #####k
+            #   (Note that its only effects are an optim and to remove some error messages -- what's unknown is whether the detected
+            # "errors" were real errors or not, in this case.
+            #    Guess: we'll still have a ###BUG when exprs are involved, which to fix
+            # will require noticing local ipath modifiers (lexenv_ipath_Expr's ipath) not only in _e_make_in but in the upcoming
+            # determination of index; the best fix will be to dispense with the local cache of exprs per-index in favor of a global one
+            # indexed by ipath, after those local ipath mods are included -- the same one needed for the "find" in the find or make
+            # of instantiation (this find presently being nim, as mentioned somewhere else in this file in the last day or two),
+            # meaning that it takes into account everything needed to create the ipath to find or make at (local mods,
+            # state-sharing transforms, maybe more).)
+            if not (is_pure_expr(expr) and is_Expr_pyinstance(expr)):
+                assert not _lvalue_flag ####k I don't know what to do with lvalflag here, so do this assert to find out if it's an issue
+                return expr
         if 0 and self.__class__.__name__.endswith('If_expr'):#debug
             print "_i_instance called, expr %r, index %r, self %r, _e_args %r" % \
                    (expr, index, self, self._e_args)
@@ -517,8 +533,10 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         else:
             # EVAL_REFORM case 070117
             if not (is_pure_expr(expr) and is_Expr_pyinstance(expr)):
+                print "this should never happen as of 070118 since we handle it above: pure expr %r in _CV__i_instance_CVdict" % (expr,)
                 ## print "FYI: EVAL_REFORM: _CV__i_instance_CVdict is identity on %r" % (expr,)
                 # this is routine on e.g. None, small ints, colors, other tuples... and presumably Instances (not tested)
+                assert not lvalflag ####k I don't know what to do with lvalflag here, so do this assert to find out if it's an issue
                 return expr
             pass
         ####e:  [061105] is _e_eval actually needing to be different from _e_make_in?? yes, _e_eval needs to be told _self
