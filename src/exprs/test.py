@@ -1091,7 +1091,7 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 # _19f still fails as expected... why don't i see more errors due to delegate not being an instance? maybe i'll get there after _9a.... ####
 # What I do see is a ###BUG from no local ipath mod (I guess) in testexpr_9fx4! So do 5 & 6. So does _10a & b -- serious bug! ### fix that before going on.
 
-testexpr = testexpr_10b
+testexpr = testexpr_9fx4
 
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c

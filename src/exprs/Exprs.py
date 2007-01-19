@@ -322,13 +322,31 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         "#doc"
         # does this use self? guess: yes, for knowing what ipath is rel too -- not sure --
         # maybe the caller or result-storer or result-user (to make from it, in the future) has to use its own.###k
-        assert EVAL_REFORM
+        assert EVAL_REFORM # otherwise exprs don't eval to self except some Symbols, and I guess those don't call this tho i forget...#k
         print "stub _e_eval_to_expr(env, ipath, self) (bugs likely) -> ",expr######
-            # the bugs are likely since we don't yet wrap with something to locally modify ipath when instantiating inside.
+            # the bugs are likely since we don't yet wrap with a local-ipath-modifier when instantiating inside.
+        if 1:
+            # print some info to help us see where to get the local part of ipath. Guess: it's ipath minus some ipath known to caller.
+            # But do we know that one here?? Maybe only caller knows the one it called us from when it did the eval???
+            # hmm, the caller could always tell us by adding smth to the env -- is that dyn or lex? which caller, anyway? ##k
+            print "$$ related info:\n ipath = %r\n env._self.ipath (if defined) = %r\n getattr(self, 'ipath', 'nope') = %r\n" % \
+                  (ipath ,
+                   ## env._self.ipath ,
+                   safer_attrpath(env, '_self', 'ipath'), # in testexpr_9fx4 there's no env._self here
+                   getattr(self, 'ipath', 'nope')) # where i am 070118 444p -- studying how to use this (lack of) info.
         return lexenv_Expr(env, expr) # this lexenv_Expr fixed that testexpr_5 bug -- 070117 1012p -- are prior tests still ok???##k
     #k _e_eval is nim in this class, must be implemented in subclasses. Before adding a nim asserting def here, review whether
     # its presence would affect expr-building code! [070117 comment]
-    pass
+    pass # end of class Expr
+
+def safer_attrpath(obj, *attrs): #e refile, doc, rename
+    for attr in attrs:
+        try:
+            obj = getattr(obj, attr)
+        except AttributeError:
+            return "<no %r in some %s>" % (attr, obj.__class__.__name__)
+        continue
+    return obj
 
 class SymbolicExpr(Expr): # Symbol or OpExpr
     _e_is_symbolic = True #061113
