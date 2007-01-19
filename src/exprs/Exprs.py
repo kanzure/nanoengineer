@@ -318,25 +318,13 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
                 return True
         printnim("_e_free_in is nim for option vals")###@@@ btw 061114 do we still use _e_free_in at all? see if this gets printed.
         return False
-    def _e_eval_to_expr(self, env, ipath, expr):#070117
+    def _e_eval_to_expr(self, env, ipath, expr):#070117, revised 070118 to save ipath
         "#doc"
-        # does this use self? guess: yes, for knowing what ipath is rel too -- not sure --
-        # maybe the caller or result-storer or result-user (to make from it, in the future) has to use its own.###k
         assert EVAL_REFORM # otherwise exprs don't eval to self except some Symbols, and I guess those don't call this tho i forget...#k
-        print "stub _e_eval_to_expr(env, ipath, self) (bugs likely) -> ",expr######
-            # the bugs are likely since we don't yet wrap with a local-ipath-modifier when instantiating inside.
-        if 1:
-            # print some info to help us see where to get the local part of ipath. Guess: it's ipath minus some ipath known to caller.
-            # But do we know that one here?? Maybe only caller knows the one it called us from when it did the eval???
-            # hmm, the caller could always tell us by adding smth to the env -- is that dyn or lex? which caller, anyway? ##k
-            print "$$ related info:\n ipath = %r\n env._self.ipath (if defined) = %r\n getattr(self, 'ipath', 'nope') = %r\n" % \
-                  (ipath ,
-                   ## env._self.ipath ,
-                   safer_attrpath(env, '_self', 'ipath'), # in testexpr_9fx4 there's no env._self here
-                   getattr(self, 'ipath', 'nope')) # where i am 070118 444p -- studying how to use this (lack of) info.
-        return lexenv_Expr(env, expr) # this lexenv_Expr fixed that testexpr_5 bug -- 070117 1012p -- are prior tests still ok???##k
-    #k _e_eval is nim in this class, must be implemented in subclasses. Before adding a nim asserting def here, review whether
-    # its presence would affect expr-building code! [070117 comment]
+        return lexenv_ipath_Expr(env, ipath, expr) # the full ipath might not be needed but might be ok... ###k
+    # note: _e_eval is nim in this class -- it must be implemented in subclasses that need it.
+    # If you want to add a default errmsg def here, first review whether its presence would affect the expr-building code!
+    # [070117 comment]
     pass # end of class Expr
 
 def safer_attrpath(obj, *attrs): #e refile, doc, rename
@@ -807,7 +795,8 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
     def _internal_Expr_init(self):
         (self._e_env0, self._e_expr0) = self.args
     def __repr__(self):
-        return "<%s#%d%s: %r, %r>"% (self.__class__.__name__, self._e_serno, self._e_repr_info(), self._e_env0, self._e_expr0,)
+        return "<%s#%d%s: %r, %r>" % (self.__class__.__name__, self._e_serno, self._e_repr_info(),
+                                      self._e_env0, self._e_expr0,)
     def _e_call_with_modified_env(self, env, ipath, whatever = 'bug'):
         "[private helper method] Call self._e_expr0.<whatever> with lexenv self._e_env0 and [nim] dynenv taken from the given env"
         # about the lval code: #061204 semi-guess; works for now. _e_eval and _e_eval_lval methods merged on 070109.
@@ -839,12 +828,17 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         lexenv = newenv
         del env, newenv
         newenv = dynenv.dynenv_with_lexenv(lexenv) # WARNING: this is initially a stub which returns lexenv, equiv to the old code here.
-            #e might be renamed; might be turned into a helper function rather than a method 
+            #e might be renamed; might be turned into a helper function rather than a method
+            ###e does this ever need to modify ipath, eg move some of it into or out of dynenv?
+            # I don't know; ipath can be thought of as part of the dynenv, so it's proper that it's passed on, anyway. [070118 comment]
         # end of new code for lex/dyn bugfix
+        ipath = self.locally_modify_ipath(ipath)
         submethod = getattr(self._e_expr0, whatever)
         res = submethod(newenv, ipath)
             #e if exception, print a msg that includes whatever?
         return res
+    def locally_modify_ipath(self, ipath):
+        return ipath # different in our subclass
     # note: the following methods are similar in two classes
     def _e_eval(self, env, ipath):
         return self._e_call_with_modified_env(env, ipath, whatever = '_e_eval')
@@ -854,6 +848,17 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
         assert EVAL_REFORM # since it only happens then
         return self._e_call_with_modified_env(env, ipath, whatever = '_e_make_in')
     pass # end of class lexenv_Expr
+
+class lexenv_ipath_Expr(lexenv_Expr): #070118
+    def _internal_Expr_init(self):
+        (self._e_env0, self._e_local_ipath, self._e_expr0) = self.args
+    def __repr__(self):
+        return "<%s#%d%s: %r, %r, %r>" % (self.__class__.__name__, self._e_serno, self._e_repr_info(),
+                                      self._e_env0, self._e_local_ipath, self._e_expr0,)
+    def locally_modify_ipath(self, ipath):
+        localstuff = self._e_local_ipath # for now, just include it all [might work; might be too inefficient]
+        return (localstuff, ipath)
+    pass
 
 class eval_Expr(OpExpr):
     """An "eval operator", more or less. For internal use only [if not, indices need to be generalized].
@@ -882,6 +887,9 @@ class eval_Expr(OpExpr):
                 # so this might lead to incorrectly overlapping ipaths. It's not at all clear how to fix this in general,
                 # and most likely, most uses of eval_Expr are kluges which are wrong in some way anyway, which this issue is
                 # hinting at, since it seems fundamentally unfixable in general. [070109 comment]
+                # update 070118: the plan is that argval will soon have a local-ipath-modifier as its outer layer,
+                # which adds something to the ipath we pass to the submethod above, thus presumably solving the problem
+                # (though until we intern exprs/ipaths and/or memoize the ipath->storage association, it might make things slower).
         except:
             print "following exception concerns argval.%s(...) where argval is %r and came from evalling %r" % \
                   (whatever, argval, arg) #061118, revised 070109 & 070117
