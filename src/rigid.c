@@ -4,15 +4,29 @@
 
 #define USE_ODE
 
+#ifndef USE_ODE
+static void
+check_rigid_support(struct part *p)
+{
+  struct rigidBody *rb;
+
+  if (p->num_rigidBodies < 1) {
+    return;
+  }
+  rb = &p->rigidBodies[0];
+  if (p->num_rigidBodies > 1 || rb->num_attachments > 0) {
+    ERROR("no rigid body support");
+  }
+}
+#endif
+
 void
 rigid_init(struct part *p)
 {
 #ifdef USE_ODE
   rigid_ode_init(p);
 #else
-  if (p->num_rigidBodies > 0) {
-    ERROR("no rigid body support");
-  }
+  check_rigid_support(p);
 #endif
 }
 
@@ -22,9 +36,7 @@ rigid_destroy(struct part *p)
 #ifdef USE_ODE
   rigid_ode_destroy(p);
 #else
-  if (p->num_rigidBodies > 0) {
-    ERROR("no rigid body support");
-  }
+  check_rigid_support(p);
 #endif
 }
 

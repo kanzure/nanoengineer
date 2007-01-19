@@ -858,6 +858,7 @@ readMMP(char *filename)
   }
   fclose(mmp->f);
   destroyAccumulator(tempBuffer);
+  tempBuffer = NULL;
 
   return endPart(p);
 }
