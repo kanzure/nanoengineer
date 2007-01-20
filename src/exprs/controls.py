@@ -332,7 +332,8 @@ class checkbox_pref(InstanceMacro):
             checkbox_image('mac_checkbox_off.jpg'),
         )
     _value = DisplistChunk( Highlightable( SimpleRow( CenterY(checkbox), CenterY(use_label)), # align = CenterY is nim
-                            on_press = Set(debug_evals_of_Expr(stateref.value), not_Expr(var) ), ##070119 debug_evals_of_Expr
+                            ## on_press = Set(debug_evals_of_Expr(stateref.value), not_Expr(var) ), #070119 debug_evals_of_Expr - worked
+                            on_press = Set( stateref.value, not_Expr(var) ),
                             sbar_text = use_sbar_text) )
     pass
 

@@ -31,16 +31,15 @@ def Instance(expr, _index_expr = _E_ATTR, _lvalue_flag = False):
     """
     printnim("review: same index is used for a public Option and a private Instance on an attr; maybe ok if no overlap possible???")##e
     global _self # not needed, just fyi
-    ##printnim("why is the expr in the _i_instance call not held??? ##k -- it's %r" % (expr,) )#####@@@@@ see what exprs get printed
-        #guess: it should be, but we didn't notice since canon_expr fixes it. question: is it ever a replace-me-in-scan thing??
     if EVAL_REFORM:
-        if _lvalue_flag:#070119 bugfix to make Set(var,val) work again (eg when clicking a checkbox_pref)
+        if _lvalue_flag:
+            #070119 bugfix to make Set(var,val) work again (eg when clicking a checkbox_pref)
+            # rather than evalling var to its current value. This means _lvalue_flag never gets passed to _i_instance.
             res = call_Expr( getattr_Expr(_self, '_i_instance'), eval_to_lval_Expr(expr), _index_expr )
-                #### if this works, then try simplifying it to remove the _i_instance call! (assuming the lval is never needing make)
+                ####e if this works, then try simplifying it to remove the _i_instance call! (assuming the lval is never needing make)
+                # (or given this macro's name, maybe it makes more sense for LvalueArg to manage to not call it...)
         else:
             res = call_Expr( getattr_Expr(_self, '_i_instance'),                   expr,  _index_expr )
-        ## if _lvalue_flag:#070119 debug code
-            ## print "fyi: Instance with lvalflag returns this expr (is lack of hold ok?): %r" % (res,) # it wasn't -- maybe fixed now
     else:
             res = call_Expr( getattr_Expr(_self, '_i_instance'),         hold_Expr(expr), _index_expr, _lvalue_flag = _lvalue_flag )
     return res
@@ -162,9 +161,10 @@ def _ArgOption_helper( attr_expr, argpos_expr, type_expr, dflt_expr, _lvalue_fla
 # and we compensated for that and this could if so cause a bug:
 ##    printnim("I suspect type_expr (stub now) is included wrongly re eval_Expr in _ArgOption_helper, in hindsight 061117")
 ##        ### I suspect the above, because grabarg expr needs to be evalled to get the expr whose type coercion we want to instantiate
-    return Instance( _type_coercion_expr( type_expr, eval_Expr(grabarg_expr) ),
+    res = Instance( _type_coercion_expr( type_expr, eval_Expr(grabarg_expr) ),
                      _index_expr = index_expr, _lvalue_flag = _lvalue_flag )
         # 070115 replaced eval_Expr( type_expr( grabarg_expr)) with _type_coercion_expr( type_expr, eval_Expr(grabarg_expr) )
+    return res # from _ArgOption_helper
 
 def _type_coercion_expr( type_expr, thing_expr):
     ###e should we make this a full IorE (except when type_expr is Anything?) in order to let it memoize/track its argvals?

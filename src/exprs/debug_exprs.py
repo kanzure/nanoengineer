@@ -25,7 +25,7 @@ class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for d
         assert env #061110
         the_expr = self._e_args[0] ## self._e_the_expr
         res = the_expr._e_eval(env, ipath)
-        print_compact_stack("debug_evals_of_Expr(%r) evals it to %r at: " % (the_expr, res)) # does this ever happen? yes.
+        print_compact_stack("debug_evals_of_Expr(%r) evals it to %r at: " % (the_expr, res)) # this works
         return res
     def _e_eval_lval(self, env, ipath):#070119 also print _e_eval_lval calls [maybe untested]
         assert env #061110

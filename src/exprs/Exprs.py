@@ -213,6 +213,7 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
             return lambda self=self, env=env, ipath=ipath: self._e_eval( env, ipath ) #e assert no args received by this lambda?
         else:
             # lvalue case, added 061204, experimental -- unclear if returned object is ever non-flyweight or has anything but .set_to
+            # [note, this presumably never happens when EVAL_REFORM, at least as of late 070119]
             return lambda self=self, env=env, ipath=ipath: self._e_eval_lval( env, ipath )
         pass
     def __repr__(self): # class Expr
@@ -454,6 +455,7 @@ class OpExpr(SymbolicExpr):
     pass # end of class OpExpr
 
 class call_Expr(OpExpr): # note: superclass is OpExpr, not SymbolicExpr, even though it can be produced by SymbolicExpr.__call__
+    ###BUG: __repr__ doesn't print self._e_kws [noticed 070119]
     def __init__(self, callee, *callargs, **kws):
         # we extend OpExpr.__init__ so we can have kws, and canon them
         self._e_kws = map_dictvals(canon_expr, kws) ###e optim: precede by "kws and"
@@ -790,6 +792,7 @@ class eval_to_lval_Expr(internal_Expr):#070119, needed only when EVAL_REFORM
         assert env #061110
         the_expr = self._e_args[0] ## self._e_the_expr
         res = the_expr._e_eval_lval(env, ipath)
+        ##e needs better __repr__ for its prints of self to be useful
         print "fyi (routine): %r l-evals it to %r" % (self, res)#### REMOVE when works
         return res
     def _e_eval_lval(self, env, ipath):

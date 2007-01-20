@@ -451,6 +451,11 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         (#e Should we change this to make the expr effectively part of the index, for caching? Probably not; not sure.)
         (#e Should we change this to make it legal to pass a new expr? Probably not... hard for subsequent callers to be consistent...)
         """
+        # Note: Before EVAL_REFORM, this is used to do all evals, including instantiations (treated as how IorE evals).
+        # It also does "eval to lval" when _lvalue_flag is true (passed only from LvalueArg, so far used only in Set).
+        # After EVAL_REFORM, instantiation can't be done by eval (evals of IorE exprs return them unchanged);
+        # evals are done before this is called, then this either returns constants (numbers, Instances) unchanged,
+        # or instantiates exprs. It can no longer be called with _lvalue_flag when EVAL_REFORM (as of late 070119).
         def __debug_frame_repr__(locals):
             "return a string for inclusion in some calls of print_compact_stack"
             return "_i_instance(index = %r, expr = %r), self = %r" % (index,expr,self)
@@ -464,14 +469,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 #k guess 061105
         else:
             if _lvalue_flag:
-                #070119 Q: when does this get used? ever for real instancemaking, or only for "eval to lval"?
-                # aha, the code says it only originates it as True in LvalueArg,
-                # which is used in one place: to declare the 'var' arg in the IorE subclass Set(var, val).
-                # Set is used in ChoiceButton and checkbox_pref and maybe demo_MT, so we can test that under EVAL_REFORM. ###DOIT
-                # Guess: it's mainly for the eval rather than the instantiate. But I forget what objs are passed to Set's var.
-                # I guess the eval of that arg gets to an lval version of obj.attr rather than a current val version of it??
-                # If so i think that confirms this guess.
-                print "fyi: saw _lvalue_flag: _i_instance(index = %r, expr = %r), self = %r" % (index,expr,self) ####
+                print "SHOULD NEVER HAPPEN: saw _lvalue_flag: _i_instance(index = %r, expr = %r), self = %r" % (index,expr,self)
             # new behavior 070118; might be needed to fix "bug: expr or lvalflag for instance changed" in testexpr_9fx4 click,
             # or might just be hiding an underlying bug which will show up for pure exprs in If clauses -- not yet sure. #####k
             #   (Note that its only effects are an optim and to remove some error messages -- what's unknown is whether the detected
@@ -484,17 +482,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # meaning that it takes into account everything needed to create the ipath to find or make at (local mods,
             # state-sharing transforms, maybe more).)
             if not (is_pure_expr(expr) and is_Expr_pyinstance(expr)):
-                ## assert not _lvalue_flag ####k I don't know what to do with lvalflag here, so do this assert to find out if it's an issue
-                # that happened for Set(xxx,...) in the testbed when i clicked a checkbox -- guess, it means lval is broken
-                # and the var in Set turned into its value True (unconfirmed), which is a bug and will lead to another bug later,
-                # but at least we should ignore it here and return the True after a warning.
-                if _lvalue_flag:#070119 856p
-                    print "possible bug: returning a nonexpr constant %r from _i_instance(index = %r, self = %r) with lvalflag true" % \
-                          (expr, index, self, )
                 return expr
-        if 0 and self.__class__.__name__.endswith('If_expr'):#debug
-            print "_i_instance called, expr %r, index %r, self %r, _e_args %r" % \
-                   (expr, index, self, self._e_args)
 
         # [#k review whether this comment is still needed/correct; 061204 semiobs due to newdata change below; even more obs other ways]
         # hmm, calling Instance macro evals the expr first... can't it turn out that it changes over time?
@@ -574,7 +562,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 print "this should never happen as of 070118 since we handle it above: pure expr %r in _CV__i_instance_CVdict" % (expr,)
                 ## print "FYI: EVAL_REFORM: _CV__i_instance_CVdict is identity on %r" % (expr,)
                 # this is routine on e.g. None, small ints, colors, other tuples... and presumably Instances (not tested)
-                assert not lvalflag ####k I don't know what to do with lvalflag here, so do this assert to find out if it's an issue
+                assert not lvalflag # see comments at start of _i_instance
                 return expr
             pass
         ####e:  [061105] is _e_eval actually needing to be different from _e_make_in?? yes, _e_eval needs to be told _self
@@ -609,7 +597,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 env, ipath = self._i_env_ipath_for_formula_at_index( index, env) # note: retval's env is modified from the one passed
             else:
                 env, ipath = self._i_env_ipath_for_formula_at_index( index) # equivalent to how above other case computes them
-            assert not lvalflag ####k total guess
+            assert not lvalflag # see comments at start of _i_instance
             res = expr._e_make_in(env,ipath) # only pure IorE exprs have this method; should be ok since only they are returned from expr evals
         return res # from _CV__i_instance_CVdict
 
