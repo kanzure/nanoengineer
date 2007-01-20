@@ -1057,7 +1057,7 @@ testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , t
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = False # since True doesn't yet work with EVAL_REFORM
+enable_testbed = True # since True doesn't yet work with EVAL_REFORM
 
 # EVAL_REFORM status: 070117 439p, 511p
 # _19f and testbed: compute method on non-instance, details in a local debug notesfile ###BUG

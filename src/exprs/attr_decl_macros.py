@@ -34,9 +34,16 @@ def Instance(expr, _index_expr = _E_ATTR, _lvalue_flag = False):
     ##printnim("why is the expr in the _i_instance call not held??? ##k -- it's %r" % (expr,) )#####@@@@@ see what exprs get printed
         #guess: it should be, but we didn't notice since canon_expr fixes it. question: is it ever a replace-me-in-scan thing??
     if EVAL_REFORM:
-        return call_Expr( getattr_Expr(_self, '_i_instance'),           expr,  _index_expr, _lvalue_flag = _lvalue_flag )
+        if _lvalue_flag:#070119 bugfix to make Set(var,val) work again (eg when clicking a checkbox_pref)
+            res = call_Expr( getattr_Expr(_self, '_i_instance'), eval_to_lval_Expr(expr), _index_expr )
+                #### if this works, then try simplifying it to remove the _i_instance call! (assuming the lval is never needing make)
+        else:
+            res = call_Expr( getattr_Expr(_self, '_i_instance'),                   expr,  _index_expr )
+        ## if _lvalue_flag:#070119 debug code
+            ## print "fyi: Instance with lvalflag returns this expr (is lack of hold ok?): %r" % (res,) # it wasn't -- maybe fixed now
     else:
-        return call_Expr( getattr_Expr(_self, '_i_instance'), hold_Expr(expr), _index_expr, _lvalue_flag = _lvalue_flag )
+            res = call_Expr( getattr_Expr(_self, '_i_instance'),         hold_Expr(expr), _index_expr, _lvalue_flag = _lvalue_flag )
+    return res
 
 _arg_order_counter = 0 #k might not really be needed?
 

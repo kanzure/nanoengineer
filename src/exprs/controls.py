@@ -65,6 +65,10 @@ import staterefs
 reload_once(staterefs)
 from staterefs import LocalVariable_StateRef ###e move to basic, if it doesn't become obs, but it probably will, once State works
 
+import debug_exprs
+reload_once(debug_exprs)
+from debug_exprs import debug_evals_of_Expr
+
 class ChoiceButton(InstanceMacro):
     """ChoiceButton(choiceval, choiceref, content, background, background_off) [most args optional]
     displays and permits control of a choice variable stored externally in choiceref,
@@ -328,7 +332,7 @@ class checkbox_pref(InstanceMacro):
             checkbox_image('mac_checkbox_off.jpg'),
         )
     _value = DisplistChunk( Highlightable( SimpleRow( CenterY(checkbox), CenterY(use_label)), # align = CenterY is nim
-                            on_press = Set(stateref.value, not_Expr(var) ),
+                            on_press = Set(debug_evals_of_Expr(stateref.value), not_Expr(var) ), ##070119 debug_evals_of_Expr
                             sbar_text = use_sbar_text) )
     pass
 

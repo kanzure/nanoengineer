@@ -11,6 +11,30 @@ del basic
 from basic import *
 from basic import _self, _this, _my
 
+import Exprs
+reload_once(Exprs)
+from Exprs import internal_Expr ###k needed?
+
+class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for debugging # moved here from Exprs.py, 070119
+    "wrap a subexpr with me in order to get its evals printed (by print_compact_stack), with (I hope) no other effect"
+    def _internal_Expr_init(self):
+        ## (self._e_the_expr,) = self.args
+        self._e_args = self.args # so replace sees the args
+        assert len(self.args) == 1
+    def _e_eval(self, env, ipath):
+        assert env #061110
+        the_expr = self._e_args[0] ## self._e_the_expr
+        res = the_expr._e_eval(env, ipath)
+        print_compact_stack("debug_evals_of_Expr(%r) evals it to %r at: " % (the_expr, res)) # does this ever happen? yes.
+        return res
+    def _e_eval_lval(self, env, ipath):#070119 also print _e_eval_lval calls [maybe untested]
+        assert env #061110
+        the_expr = self._e_args[0] ## self._e_the_expr
+        res = the_expr._e_eval_lval(env, ipath)
+        print_compact_stack("debug_evals_of_Expr(%r) eval-lvals it to %r at: " % (the_expr, res)) #k does this ever happen?
+        return res
+    pass
+
 # == debug code [moved from test.py to here, 070118]
 
 printnim("bug in DebugPrintAttrs, should inherit from IorE not Widget, to not mask what that adds to IorE from DelegatingMixin")###BUG

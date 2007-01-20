@@ -20,6 +20,8 @@ import widget_env
 reload_once(widget_env)
 from widget_env import thisname_of_class #e refile import?? or make it an env method??
 
+kluge070119 = False ##### True causes infrecur in delegate in testexpr_10a, not yet diagnosed
+
 # ==
 
 class InstanceClass:#k super? meta? [#obs -- as of 061103 i am guessing this will completely disappear -- but i'm not sure]
@@ -482,7 +484,13 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # meaning that it takes into account everything needed to create the ipath to find or make at (local mods,
             # state-sharing transforms, maybe more).)
             if not (is_pure_expr(expr) and is_Expr_pyinstance(expr)):
-                assert not _lvalue_flag ####k I don't know what to do with lvalflag here, so do this assert to find out if it's an issue
+                ## assert not _lvalue_flag ####k I don't know what to do with lvalflag here, so do this assert to find out if it's an issue
+                # that happened for Set(xxx,...) in the testbed when i clicked a checkbox -- guess, it means lval is broken
+                # and the var in Set turned into its value True (unconfirmed), which is a bug and will lead to another bug later,
+                # but at least we should ignore it here and return the True after a warning.
+                if _lvalue_flag:#070119 856p
+                    print "possible bug: returning a nonexpr constant %r from _i_instance(index = %r, self = %r) with lvalflag true" % \
+                          (expr, index, self, )
                 return expr
         if 0 and self.__class__.__name__.endswith('If_expr'):#debug
             print "_i_instance called, expr %r, index %r, self %r, _e_args %r" % \
@@ -499,7 +507,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         # 070119 Q: what if, right here, we burrowed into expr, and used a cvdict on a central object? as a kluge?
         # just since fast to code vs a central instantiator obj?
         # or at *least* we could do it locally -- no sharing but should fix bugs?
-        if EVAL_REFORM and 'kluge070119':
+        if EVAL_REFORM and kluge070119:
             assert not _lvalue_flag # don't know how otherwise
             env = self.env # like in _i_env_ipath_for_formula_at_index
             expr, env, ipath = expr, env, index
@@ -595,7 +603,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 raise
         else:
             # EVAL_REFORM case, 070117
-            if 'kluge070119':
+            if kluge070119:
                 # also pass an env retrieved from...
                 env = self._i_instance_decl_env[index]
                 env, ipath = self._i_env_ipath_for_formula_at_index( index, env) # note: retval's env is modified from the one passed

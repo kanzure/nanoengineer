@@ -780,6 +780,24 @@ class hold_Expr(constant_Expr):
         return self.__class__(modarg)
     pass
 
+class eval_to_lval_Expr(internal_Expr):#070119, needed only when EVAL_REFORM
+    "wrap a subexpr with me in order to cause _e_eval of me to only call _e_eval_lval on the subexpr"
+    def _internal_Expr_init(self):
+        ## (self._e_the_expr,) = self.args
+        self._e_args = self.args # so replace sees the args
+        assert len(self.args) == 1
+    def _e_eval(self, env, ipath):
+        assert env #061110
+        the_expr = self._e_args[0] ## self._e_the_expr
+        res = the_expr._e_eval_lval(env, ipath)
+        print "fyi (routine): %r l-evals it to %r" % (self, res)#### REMOVE when works
+        return res
+    def _e_eval_lval(self, env, ipath):
+        print "fyi or bug? %r didn't expect to have its _e_eval_lval called; just passing it through" % (self,)
+            ## if that happens much and is not an error, remove the print once i understand why -- probably harmless
+        return self._e_eval(env, ipath)
+    pass
+
 class property_Expr(internal_Expr): ##k guess, 061119, for attr 'open' in ToggleShow.py;
     # maybe just a kluge, since mixing properties with exprs is probably a temp workaround, tho in theory it might make sense...
     # if it can be rationalized then it's good to leave it in, maybe even encourage it.
@@ -919,21 +937,6 @@ class eval_Expr(OpExpr):
         assert EVAL_REFORM # since it only happens then
         return self._e_call_on_argval(env, ipath, whatever = '_e_make_in')
     pass # end of class eval_Expr
-
-class debug_evals_of_Expr(internal_Expr):#061105, not normally used except for debugging
-    "wrap a subexpr with me in order to get its evals printed (by print_compact_stack), with (I hope) no other effect"
-    def _internal_Expr_init(self):
-        ## (self._e_the_expr,) = self.args
-        self._e_args = self.args # so replace sees the args
-        assert len(self.args) == 1
-    def _e_eval(self, env, ipath):
-        assert env #061110
-        the_expr = self._e_args[0] ## self._e_the_expr
-        res = the_expr._e_eval(env, ipath)
-        print_compact_stack("debug_evals_of_Expr(%r) evals it to %r at: " % (the_expr, res)) #k does this ever happen?
-        return res
-    ###e also print _e_eval_lval calls
-    pass
 
 ##from VQT import V ###e replace with a type constant -- probably there's one already in state_utils
 ##V_expr = tuple_Expr ### kluge; even once this is defined, in formulas you may have to use V_expr instead of V,

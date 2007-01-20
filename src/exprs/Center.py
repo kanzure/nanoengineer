@@ -111,7 +111,7 @@ class CenterX(DelegatingInstanceOrExpr):
 class CenterY(DelegatingInstanceOrExpr):
     thing = Arg(Widget2D)
     dy = (thing.bbottom - thing.btop)/2.0
-    delegate = Translate(thing, V_expr(0,dy,0))
+    delegate = Instance(Translate(thing, V_expr(0,dy,0)))### see if Instance fixes ###EVAL_REFORM bug
 
 # == not yet working: a form with less duplicated code
 
