@@ -325,6 +325,22 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
     # note: _e_eval is nim in this class -- it must be implemented in subclasses that need it.
     # If you want to add a default errmsg def here, first review whether its presence would affect the expr-building code!
     # [070117 comment]
+    def _e_burrow_for_find_or_make(self, env, ipath): #070119 #e might rename find_or_make to instantiate or so
+        """General case: Return (subexpr, new_env, new_ipath), where subexpr is the outermost subexpr of self
+        which has no outermost local ipath or env mods, and those mods are stripped from self to get subexpr,
+        and added to env, ipath to make new_env, new_ipath. Instantiating (self, env, ipath) and
+        (subexpr, new_env, new_ipath) should get the same result semantically, and the implem enforces this
+        by canonicalizing (self, env, ipath) using this method before instantiation. [###NIM]
+           Trivial version for most expr classes: just return (self, env, ipath) unchanged.
+        Overrides are only needed (so far, AFAIK) by lexenv_Expr and lexenv_ipath_Expr.
+        [When IorE subclasses implement instance-sharing a la textureholders or (desired) CLE or other glue code
+         (eg type coercion) objects, they too are likely to need a nontrivial implem of this, which filters the ipath
+         down to the part that uniquely identifies the shared object. ##e]
+        (Expr classes that can't be the result of evaluation (e.g. constant_Expr, If_expr, probably eval_Expr)
+        don't need to override this, since exprs should be evalled before being instantiated. ###k)
+        """
+        # Is the docstring right about this not being needed in If_expr? eval_Expr? constant_Expr?? other internal exprs? ###k
+        return (self, env, ipath)
     pass # end of class Expr
 
 def safer_attrpath(obj, *attrs): #e refile, doc, rename
@@ -797,48 +813,46 @@ class lexenv_Expr(internal_Expr): ##k guess, 061110 late
     def __repr__(self):
         return "<%s#%d%s: %r, %r>" % (self.__class__.__name__, self._e_serno, self._e_repr_info(),
                                       self._e_env0, self._e_expr0,)
-    def _e_call_with_modified_env(self, env, ipath, whatever = 'bug'):
+    def _e_call_with_modified_env(self, env, ipath, whatever = 'bug'): # revised 070119
         "[private helper method] Call self._e_expr0.<whatever> with lexenv self._e_env0 and [nim] dynenv taken from the given env"
         # about the lval code: #061204 semi-guess; works for now. _e_eval and _e_eval_lval methods merged on 070109.
         # Generalized to whatever arg for _e_make_in and revised accordingly (for sake of EVAL_REFORM), 070117.
         #e (should the val/lval distinction be an arg in the _e_eval API?
         #   maybe only for some classes, ie variant methods for fixed arg, another for genl arg??)
-        assert env #061110
-        if 1:
-            # permit env to not have _self, since this error came up (EVAL_REFORM testexpr_2 after env.make evals)
-            # and I can't think of a reason that env having _self should be required -- _self being lexical, env._self won't affect
-            # what we should do, even once we're not nim in dynenv effect. [070118]
-            ## no longer do: env._self # AttributeError if it doesn't have this [###k uses kluge in widget_env]
-                # note: delegation in widget_env may turn this into (I suspect): AttributeError: 'NoneType' object has no attribute '_self'
-            env_self = getattr(env, '_self', None)
-        newenv = self._e_env0
-        newenv_self = getattr(newenv, '_self', None) ####e change newenv._self to give this answer! [intention soon, 061110 very late]
-        if env_self is not newenv_self:
-            # usual case (in fact, always true AFAIK)
-            if 0: # untested since revised on 070109 and again on 070117
-                printfyi("in %s: env_self is not newenv_self: a %s is not a %s (tho it may or may not be in same class)" % \
-                         (whatever, env_self.__class__.__name__, newenv_self.__class__.__name__))
-        else:
-            printfyi("### in %s: env_self IS newenv_self (surprising)" % whatever )
-                # this sometimes happens in EVAL_REFORM; don't know if it matters; guess: no [070118]
-        # bugfix re lex/dyn confusion, 070109:
-        # now we want to combine the dynamic part of env with the lexical part of newenv, to make a modified newenv.
-        # later the code above will be cleaned up for that -- for now just rename them first to clarify.
-        dynenv = env
-        lexenv = newenv
-        del env, newenv
-        newenv = dynenv.dynenv_with_lexenv(lexenv) # WARNING: this is initially a stub which returns lexenv, equiv to the old code here.
-            #e might be renamed; might be turned into a helper function rather than a method
-            ###e does this ever need to modify ipath, eg move some of it into or out of dynenv?
-            # I don't know; ipath can be thought of as part of the dynenv, so it's proper that it's passed on, anyway. [070118 comment]
-        # end of new code for lex/dyn bugfix
-        ipath = self.locally_modify_ipath(ipath)
-        submethod = getattr(self._e_expr0, whatever)
-        res = submethod(newenv, ipath)
+        expr, env, ipath = self._e_burrow_for_find_or_make( env, ipath) ###k more efficient than, and equiv to, _1step
+        submethod = getattr(expr, whatever)
+        res = submethod(env, ipath)
             #e if exception, print a msg that includes whatever?
         return res
-    def locally_modify_ipath(self, ipath):
-        return ipath # different in our subclass
+    def _e_burrow_for_find_or_make(self, env, ipath): #070119
+        """###redoc, since redundant with Expr implem docstring:
+        Return (expr, env, ipath) in an inner form, where expr has no outermost local ipath or env.
+        [overrides trivial Expr version]
+           Details: General case (Expr): Return (self, env, ipath) if self can be directly instantiated in env at ipath
+        (i.e. if self will find or make itself at exactly that env and ipath, since self has no outermost local mods to them),
+        or an equivalent-for-instantiation (subexpr, locally_modified_env, locally_modified_ipath) if not,
+        where subexpr meets the condition described above, and is formed by stripping off outer env-mods and ipath-mods from self
+        and adding them onto the passed env and ipath.
+           This method implements that general case for lexenv_Expr and lexenv_ipath_Expr.
+        """
+        new_expr, new_env, new_ipath = self._e_burrow_for_find_or_make_1step( env, ipath)
+        return new_expr._e_burrow_for_find_or_make( new_env, new_ipath)
+    def _e_burrow_for_find_or_make_1step(self, env, ipath):
+        "[private helper method for _e_burrow_for_find_or_make]"
+        new_expr = self._e_expr0
+        lexenv = self._e_env0
+        # now we want to combine the dynamic part of env with the lexical part of lexenv, to make a modified newenv.
+        new_env = env.dynenv_with_lexenv(lexenv) # env supplies the dynenv part of new_env, lexenv the lexenv part.
+            # WARNING: this is initially a stub which returns lexenv, equiv to the old code here.
+            # PROBLEM: new_env is perhaps often recreated with an equal but not identical value from the same inputs,
+            #  but it's not memoized or change-tracked. It can't easily be changed-tracked ... maybe ipath finding handles this... ###k]
+            #e Note: This might be renamed; might be turned into a helper function rather than a method
+            ###e Q: does this ever need to modify ipath, eg move some of it into or out of dynenv?
+            # I don't know; ipath can be thought of as part of the dynenv, so it's proper that it's passed on, anyway. [070118 comment]
+        new_ipath = self._e_locally_modify_ipath(ipath) # differs for lexenv_Expr and lexenv_ipath_Expr
+        return (new_expr, new_env, new_ipath)
+    def _e_locally_modify_ipath(self, ipath):
+        return ipath # differs for lexenv_Expr and lexenv_ipath_Expr
     # note: the following methods are similar in two classes
     def _e_eval(self, env, ipath):
         return self._e_call_with_modified_env(env, ipath, whatever = '_e_eval')
@@ -855,7 +869,7 @@ class lexenv_ipath_Expr(lexenv_Expr): #070118
     def __repr__(self):
         return "<%s#%d%s: %r, %r, %r>" % (self.__class__.__name__, self._e_serno, self._e_repr_info(),
                                       self._e_env0, self._e_local_ipath, self._e_expr0,)
-    def locally_modify_ipath(self, ipath):
+    def _e_locally_modify_ipath(self, ipath):
         localstuff = self._e_local_ipath # for now, just include it all [might work; might be too inefficient]
         return (localstuff, ipath)
     pass

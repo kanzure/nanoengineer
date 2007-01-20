@@ -385,6 +385,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         #e call _init_class and/or _init_expr if needed [here or more likely earlier]
 
         self._i_instance_decl_data = {} # private storage for self._i_instance method [renamed from _i_instance_exprs, 061204]
+        self._i_instance_decl_env = {} # ditto, only for EVAL_REFORM kluge070119
         
         # call subclass-specific instantiation code (it should make kids, perhaps lazily, if above didn't; anything else?? ###@@@)
         self._init_instance()
@@ -424,11 +425,14 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     # kid-instantiation, to support use of the macros Arg, Option, Instance, etc
     #k (not sure this is not needed in some other classes too, but all known needs are here)
 
-    def _i_env_ipath_for_formula_at_index( self, index): # split out of Expr._e_compute_method 070117
+    def _i_env_ipath_for_formula_at_index( self, index, env = None): # split out of Expr._e_compute_method 070117
         "#doc; semi-private helper method for Expr._e_compute_method and (after EVAL_REFORM) self._i_instance"
         instance = self
         assert instance._e_is_instance
-        env0 = instance.env # fyi: AttributeError for a pure expr (ie a non-instance)
+        if env is None:
+            env0 = instance.env # fyi: AttributeError for a pure expr (ie a non-instance)
+        else:
+            env0 = env # new feature for EVAL_REFORM for use by kluge070119
         env = env0.with_literal_lexmods(_self = instance) ###e could be memoized in instance, except for cyclic ref issue
         assert env #061110
         ipath0 = instance.ipath
@@ -457,6 +461,15 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                    (expr, index, self, self._e_args)
                 #k guess 061105
         else:
+            if _lvalue_flag:
+                #070119 Q: when does this get used? ever for real instancemaking, or only for "eval to lval"?
+                # aha, the code says it only originates it as True in LvalueArg,
+                # which is used in one place: to declare the 'var' arg in the IorE subclass Set(var, val).
+                # Set is used in ChoiceButton and checkbox_pref and maybe demo_MT, so we can test that under EVAL_REFORM. ###DOIT
+                # Guess: it's mainly for the eval rather than the instantiate. But I forget what objs are passed to Set's var.
+                # I guess the eval of that arg gets to an lval version of obj.attr rather than a current val version of it??
+                # If so i think that confirms this guess.
+                print "fyi: saw _lvalue_flag: _i_instance(index = %r, expr = %r), self = %r" % (index,expr,self) ####
             # new behavior 070118; might be needed to fix "bug: expr or lvalflag for instance changed" in testexpr_9fx4 click,
             # or might just be hiding an underlying bug which will show up for pure exprs in If clauses -- not yet sure. #####k
             #   (Note that its only effects are an optim and to remove some error messages -- what's unknown is whether the detected
@@ -482,6 +495,23 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         # WAIT -- can it be that the expr never changes? only its value does? and that we should pass the unevaluated expr? YES.
         # But i forgot, eval of an expr is that expr! I get confused since _e_eval evals an implicit instance -- rename it soon! ###@@@
         # [addendum 061212: see also the comments in the new overriding method If_expr._e_eval.]
+
+        # 070119 Q: what if, right here, we burrowed into expr, and used a cvdict on a central object? as a kluge?
+        # just since fast to code vs a central instantiator obj?
+        # or at *least* we could do it locally -- no sharing but should fix bugs?
+        if EVAL_REFORM and 'kluge070119':
+            assert not _lvalue_flag # don't know how otherwise
+            env = self.env # like in _i_env_ipath_for_formula_at_index
+            expr, env, ipath = expr, env, index
+            oldstuff = expr, env, ipath
+            expr, env, ipath = expr._e_burrow_for_find_or_make(env, ipath)
+            if (expr, env, ipath) != oldstuff:
+                print "fyi EVAL_REFORM kluge070119: worked, %r => %r" % (oldstuff, (expr, env, ipath)) ##### COMMON, VERBOSE (guess)
+            index = ipath
+            del ipath
+            self._i_instance_decl_env[index] = env
+            del env
+            pass
         newdata = (expr, _lvalue_flag) # revised 061204, was just expr, also renamed; cmt above is semiobs due to this
         olddata = self._i_instance_decl_data.get(index, None) # see above comment
         if olddata != newdata:
@@ -565,7 +595,12 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 raise
         else:
             # EVAL_REFORM case, 070117
-            env, ipath = self._i_env_ipath_for_formula_at_index( index) # equivalent to how above other case computes them
+            if 'kluge070119':
+                # also pass an env retrieved from...
+                env = self._i_instance_decl_env[index]
+                env, ipath = self._i_env_ipath_for_formula_at_index( index, env) # note: retval's env is modified from the one passed
+            else:
+                env, ipath = self._i_env_ipath_for_formula_at_index( index) # equivalent to how above other case computes them
             assert not lvalflag ####k total guess
             res = expr._e_make_in(env,ipath) # only pure IorE exprs have this method; should be ok since only they are returned from expr evals
         return res # from _CV__i_instance_CVdict

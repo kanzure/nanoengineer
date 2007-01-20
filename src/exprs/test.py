@@ -1089,9 +1089,14 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 # _19f fails w/o testbed -- fixed now, see comments there. Retrying from the start (_2) after that fix, all work (ER off, no testbed)
 # through _10d... far enough for now, since I need to redo all these with EVAL_REFORM turned on. All ok thru _9a... [some "ok exceptions" noted with indiv tests]
 # _19f still fails as expected... why don't i see more errors due to delegate not being an instance? maybe i'll get there after _9a.... ####
-# What I do see is a ###BUG from no local ipath mod (I guess) in testexpr_9fx4! So do 5 & 6. So does _10a & b -- serious bug! ### fix that before going on.
+# What I do see is a ###BUG from no local ipath mod (I guess) in testexpr_9fx4! This bug is also in _9fx 5 & 6, and in _10a & b --
+# serious bug! ### fix that before going on... partly fixed, fixes _9fx4 [late 070118] -- now try the others: _9fx 5 & 6 ok now;
+# _10a behaves better (openclose works now to toggle openness) but still has the "bug: expr or lvalflag for instance changed" message,
+# as predicted in last night's commit comment in instance_helpers.py -- and the openclose icon itself does not get updated (it always
+# looks open even when you toggle it closed), presumably due to the lack of inval from the self._i_instance_decl_data[index] = newdata
+# after that bug message. So I have a definite ###BUG (_10a openclose icon not updated) to fix now. Do that next.
 
-testexpr = testexpr_9fx4
+testexpr = testexpr_10a
 
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
