@@ -20,7 +20,7 @@ import widget_env
 reload_once(widget_env)
 from widget_env import thisname_of_class #e refile import?? or make it an env method??
 
-kluge070119 = False ##### True causes infrecur in delegate in testexpr_10a, not yet diagnosed
+kluge070119 = False ##### True causes infrecur in delegate in testexpr_10a, not yet diagnosed; causes wrong _self for .ww in _5a (#k)
 
 # ==
 
@@ -391,6 +391,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         
         # call subclass-specific instantiation code (it should make kids, perhaps lazily, if above didn't; anything else?? ###@@@)
         self._init_instance()
+        self._debug_init_instance()#####070120
         return # from _destructive_make_in
     
     def _init_class(self): #e move to InstanceClass superclass? ###@@@ CALL ME
@@ -407,6 +408,10 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         """called once per python instance, but only when it represents a semantic Instance ###doc -- explain better
         [some subclasses should extend this, starting their versions with super(TheirName, self)._init_instance()]
         """
+    def _debug_init_instance(self): ####
+        #070120 debug code for _5x ER kluge070119 bug
+        env = self.env
+        print "%r.env has _self %r" % (self, getattr(env, '_self', '<none>'))
         pass
 
     def _e_eval(self, env, ipath): # implem/behavior totally revised, late-061109; works - not sure it always will tho... ###k
@@ -641,6 +646,9 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # I'm guessing type_expr doesn't have a similar bug since it's applied outside this call. #k
             index = attr or argpos #k I guess, for now [070105 stub -- not always equal to index in ipath, esp for ArgOrOption]
             env_for_arg = self.env_for_arg(index) # revised 070105
+            if 'debug070120':####
+                print "grabarg %r in %r is wrapping %r with %r containing _self %r" % \
+                      ((attr, argpos), self, res0,  env_for_arg, getattr(env_for_arg,'_self','<none>'))
             res = lexenv_Expr(env_for_arg, res0) ##k lexenv_Expr is guess, 061110 late, seems confirmed; env_for_args 061114
             #e possible good optim: use self.env instead, unless res0 contains a use of _this;
             # or we could get a similar effect (slower when this runs, but better when the arg instance is used) by simplifying res,

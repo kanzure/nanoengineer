@@ -63,6 +63,42 @@ class Boxed_old(InstanceMacro): ##e supers of (Widget2D, InstanceMacro) might be
                       align = Center )
     pass # Boxed_old
 
+class Boxed_old_070120(DelegatingInstanceOrExpr):
+    "variant of Boxed_old with different delegation code, so I can see if that can fix testexpr_5 re EVAL_REFORM and kluge070119"
+    # args
+    thing = Arg(Widget2D)
+    # options
+    borderthickness = Option(Width, 4 * PIXELS)
+    gap = Option(Width, 4 * PIXELS)
+    bordercolor = Option(Color, white)
+    # internal formulas
+    extra = 2 * gap + 2 * borderthickness
+    ww = thing.width  + extra
+    hh = thing.height + extra
+    # value
+    delegate = Instance( Overlay( RectFrame( ww, hh, thickness = borderthickness, color = bordercolor),
+                      thing,
+                      align = Center ) )
+        # 070120 the bug in _5x EVAL_REFORM kluge070119 is lexbinding the _self in _self.ww in this expr
+        # to Overlay (wrong), not Boxed_old (correct), but [i guess ##k] only when that kluge is turned on.
+        # Can I put a debug wrapper on that subexpr, so that when its environment changes, we print the value of _self it sees?? ###e
+        # We'd also want to print the stack, so we'd know when it went wrong. Two places to call that code:
+        # when forming a new expr (maybe canon_expr could do it if it saw an exprflag requesting it and knew the parent expr's env)
+        # or with specific calls to print debug info about certain exprs when some object realizes it's seeing one for the first time
+        # (ie at special places in the code, like for each arg expr during _init_instance).
+        # Problem: it might not be easy to burrow into exprs to see what env they provide their kids --
+        # maybe we don't yet have any inspector-like methods for scanning kid exprs and knowing their envs.
+        # But I guess we'd better add some! I think this is the best way to debug this if it doesn't turn out easier
+        # (since this way is generally useful). I should make sure I can inspect by interactive cmdline in "debug text edit" window.
+        # Basically every expr should give me a dict of subexpr data, key is index, value is an expr with info about env and ipath mods,
+        # so I can descend into it by manually typing cmdlines with subexpr indices, or better yet an ipath-fragment.
+        # But wait, index is for kid *Instance* not kidmaking *expr* -- hmm. They are not always systematically related.
+        # The env and ipath are not even fixed for a given kidmaking expr (tho the lexenv should be, absent bugs).
+        # For present purpose I only care about lexenv, and any understandable adhoc index of kidmaking exprs would do.
+        # Is env_for_arg useful for this?
+        
+    pass # Boxed_old_070120
+    
 class CenterBoxedKluge_try1(Boxed_old): #e 061112/13 just for testing - fails, see comments for explan.
     ww = _self.ww # BUG. This might seem ok, since ww in superclass expanded to _self.ww anyway...
         # but won't it introduce some sort of infinite recursion, since looking up _self.ww will now get *this* rule?
