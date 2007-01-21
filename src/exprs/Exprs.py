@@ -645,7 +645,12 @@ def ne_Expr(arg1, arg2):
     return call_Expr(lambda a1,a2: a1 != a2, arg1, arg2)
 
 def mod_Expr(arg1, arg2):
-    return call_Expr(lambda a1,a2: a1 % a2, arg1, arg2)
+    return call_Expr( _eval_mod_Expr, arg1, arg2)
+
+def _eval_mod_Expr(a1, a2):#070121
+    "private helper"
+    assert not (type(a1) == type('')), "mod_Expr arg1 %r is a string, would do string formatting instead of mod by %r" % (a1,a2)
+    return a1 % a2
 
 # ==
 
@@ -794,7 +799,7 @@ class eval_to_lval_Expr(internal_Expr):#070119, needed only when EVAL_REFORM
         the_expr = self._e_args[0] ## self._e_the_expr
         res = the_expr._e_eval_lval(env, ipath)
         ##e needs better __repr__ for its prints of self to be useful
-        print "fyi (routine): %r l-evals it to %r" % (self, res)#### REMOVE when works
+        # print "fyi (routine): %r l-evals it to %r" % (self, res) # remove when works
         return res
     def _e_eval_lval(self, env, ipath):
         print "fyi or bug? %r didn't expect to have its _e_eval_lval called; just passing it through" % (self,)

@@ -34,6 +34,8 @@ kluge070119 = True # this is permanent for now, but don't clean up the associate
     #### Then I should remove dprints and tons of comments and unused code cases from the
     # files modified today. Then fix the need for manual Instance in delegates. ####
 
+debug070120 = False # some debug prints, useful if bugs come up again in stuff related to the above
+
 # ==
 
 class InstanceClass:#k super? meta? [#obs -- as of 061103 i am guessing this will completely disappear -- but i'm not sure]
@@ -441,11 +443,12 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         """called once per python instance, but only when it represents a semantic Instance ###doc -- explain better
         [some subclasses should extend this, starting their versions with super(TheirName, self)._init_instance()]
         """
-    def _debug_init_instance(self): ####
-        #070120 debug code for _5x ER kluge070119 bug
-        env = self.env
-        print "%r.env has _self %r" % (self, getattr(env, '_self', '<none>'))
-        assert self.env_for_formulae._self is self ##### REMOVE WHEN WORKS -- inefficient (forces it to be made even if not needed)
+    def _debug_init_instance(self):
+        if debug070120:
+            #070120 debug code for _5x ER kluge070119 bug
+            env = self.env
+            print "%r.env has _self %r" % (self, getattr(env, '_self', '<none>'))
+            assert self.env_for_formulae._self is self # remove when works -- inefficient (forces it to be made even if not needed)
         pass
 
     def _e_eval(self, env, ipath): # implem/behavior totally revised, late-061109; works - not sure it always will tho... ###k
@@ -454,8 +457,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         if EVAL_REFORM: #070117
             assert not self._e_is_instance, "EVAL_REFORM means we should not eval an instance: %r" % self
             # exprs that need instantiation eval to themselves. ###k will there be exceptions that are subclasses of this?
-            printfyi("probably normal: eval to self of a subclass of IorE: %s" % self.__class__.__name__) # find out which classes this happens to ###
-            return self._e_eval_to_expr(env, ipath, self) ###IMPLEM in Expr, call from other _e_eval defs
+            ## printfyi("probably normal: eval to self of a subclass of IorE: %s" % self.__class__.__name__) # find out which classes this happens to ###
+            return self._e_eval_to_expr(env, ipath, self) ###e call from other _e_eval defs ??
                 # not just "return self", in case we need to wrap it with a local-ipath-modifying expr
                 # Q: will the point of the local ipath be eval to any pure expr wanting instantiation in future, ie "free in ipath",
                 # not just eval to self? A: I think so.
@@ -548,8 +551,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             expr, env, ipath = expr, env, index
             oldstuff = expr, env, ipath
             expr, env, ipath = expr._e_burrow_for_find_or_make(env, ipath)
-            if (expr, env, ipath) != oldstuff:
-                print "fyi EVAL_REFORM kluge070119: worked, %r => %r" % (oldstuff, (expr, env, ipath)) ##### COMMON, VERBOSE (guess)
+            if debug070120 and (expr, env, ipath) != oldstuff:
+                print "fyi EVAL_REFORM kluge070119: worked, %r => %r" % (oldstuff, (expr, env, ipath))
             index = ipath
             del ipath
             self._i_instance_decl_env[index] = env
@@ -714,7 +717,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # I'm guessing type_expr doesn't have a similar bug since it's applied outside this call. #k
             index = attr or argpos #k I guess, for now [070105 stub -- not always equal to index in ipath, esp for ArgOrOption]
             env_for_arg = self.env_for_arg(index) # revised 070105
-            if 'debug070120':####
+            if debug070120:
                 print "grabarg %r in %r is wrapping %r with %r containing _self %r" % \
                       ((attr, argpos), self, res0,  env_for_arg, getattr(env_for_arg,'_self','<none>'))
             res = lexenv_Expr(env_for_arg, res0) ##k lexenv_Expr is guess, 061110 late, seems confirmed; env_for_args 061114

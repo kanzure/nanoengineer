@@ -471,7 +471,9 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
             ## print "make node in old way (not using VertexView)" # still running as of 070115 at least in testexpr_19f
             node_expr = Vertex(newpos, Center(Rect(0.2,0.2,
                                              ## 'green', -- now we cycle through several colors: (colors,...)[counter % 6]
-                                             tuple_Expr(green,yellow,red,blue,white,black)[mod_Expr(_this(Vertex).ipath[0],6)]
+                                             ## tuple_Expr(green,yellow,red,blue,white,black)[mod_Expr(_this(Vertex).ipath[0],6)]
+                                             red # the above worked ok until tested 070121 morn -- ipath now starts with string.
+                                                   # it was a kluge anyway, so disable it until we can rework it to be sensible.
                                              )))
         else:
             # new code, being written 070105, just getting started -- mostly nim
@@ -625,7 +627,8 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                 # or have a more fundamental mechanism to guarantee that
         env = self.env # maybe wrong, esp re _self
         ipath = (index, self.ipath)
-        return expr._e_eval(self.env, ipath)
+        ## return expr._e_eval(self.env, ipath) # WRONG way to make, when EVAL_REFORM!
+        return env.make(expr, ipath) # note: does eval before actual make
     pass # end of class GraphDrawDemo_FixedToolOnArg1
 
 kluge_dragtool_state_prefs_key = "A9 devel/kluge_dragtool_state_bool"

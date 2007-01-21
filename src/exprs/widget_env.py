@@ -103,7 +103,7 @@ class widget_env(Delegator):
         """Make and return an instance of the given expr (understood or not) in self.
         The instance should store its state under the index-path ipath [#doc format].
         """
-        print "make ran (eval = %r)" % eval ###070112 -- happens only before you make a new main instance.
+        # print "make ran (eval = %r)" % eval # happens before you make a new main instance... 070121 or when demo_drag makes a node
         #e ipath guess: a list of 2 or 3 elts, linked list inner first, maybe append an interning of it
         #e look for rules; check if understood;
         #e Q: is this memoized? does it allocate anything like a state obj ref, or was that already done by customizing this env?

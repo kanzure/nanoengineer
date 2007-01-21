@@ -1059,7 +1059,7 @@ testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , t
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = False # since True doesn't yet work with EVAL_REFORM
+enable_testbed = True # since True doesn't yet work with EVAL_REFORM
 
 # EVAL_REFORM status: 070117 439p, 511p
 # _19f and testbed: compute method on non-instance, details in a local debug notesfile ###BUG
@@ -1098,7 +1098,7 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 # looks open even when you toggle it closed), presumably due to the lack of inval from the self._i_instance_decl_data[index] = newdata
 # after that bug message. So I have a definite ###BUG (_10a openclose icon not updated) to fix now. Do that next.
 
-testexpr = testexpr_10a ## update 070120 1020p -- testexpr_5x works now even with ER w/ kluge070119! So does _10a!
+testexpr = testexpr_10c ## update 070120 1020p -- testexpr_5x works now even with ER w/ kluge070119! So does _10a!
     # Where i am 070120 1023p as I stop -- see that phrase in instance_helpers.py. ###
     
     ## testexpr_10a - ER alone has if update bug, ER w/ kluge070119 has delegate infrecur -- what tests work w/ that?
