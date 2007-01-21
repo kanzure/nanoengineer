@@ -183,19 +183,21 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         print "__get__ is nim in the Expr", self, ", which is assigned to some attr in", obj ####@@@@ NIM; see above for how [061023 or 24]
         print "this formula needed wrapping by ExprsMeta to become a compute rule...:", self ####@@@@
         return
-    def _e_compute_method(self, instance, index = 'stubi', _lvalue_flag = False):
+    def _e_compute_method(self, instance, index, _lvalue_flag = False):
         """Return a compute method version of this formula, which will use instance as the value of _self,
-        at the given index relative to instance. (The index should always be passed, tho at the moment it has a default value.)
+        at the given index relative to instance. [index is a required arg as of 070120.]
            Example index [#k guess 061110]: the attrname where self was found in instance (as an attrvalue),
         or if self was found inside some attrval (but not equal to the whole),
         a tuple containing the attrname and something encoding where self occurred in the attrval.
+        Update 070120: that "found inside some attrval" part is now handled by lexenv_ipath_expr,
+        and index can be modified as suggested by kluge070119 (experimental, not yet debugged).
         """
         #####@@@@@ WRONG API in a few ways: name, scope of behavior, need for env in _e_eval, lack of replacement due to env w/in self.
         ##return lambda self = self: self._e_eval( _self = instance) #e assert no args received by this lambda?
         # TypeError: _e_eval() got an unexpected keyword argument '_self'
         ####@@@@ 061026 have to decide: are OpExprs mixed with ordinary exprs? even instances? do they need env, or just _self?
         # what about ipath? if embedded instances, does that force whole thing to be instantiated? (or no need?)
-        # wait, embedded instances cuold not even be produced w/o whole ting instantiating... so i mean,
+        # wait, embedded instances could not even be produced w/o whole thing instantiating... so i mean,
         # embedded things that *need to* instantiate. I guess we need to mark exprs re that...
         # (this might prevent need for ipath here, if pure opexprs can't need that path)
         # if so, who scans the expr to see if it's pure (no need for ipath or full env)? does expr track this as we build it?
@@ -203,10 +205,9 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         # try 2 061027 late: revised 070117
         assert instance._e_is_instance, "compute method for %r asked for on non-Instance %r (index %r, lvalflag %r)" % \
                (self, instance, index, _lvalue_flag) # happens if a kid is non-instantiated(?) # revised 070117
-        if index == 'stubi': #k should be the attr of self we're coming from, i think!
-            printnim("_e_compute_method needs to always be passed an index")
 
         env, ipath = instance._i_env_ipath_for_formula_at_index( index) # split out of here into IorE, 070117
+            # does _self = instance binding [tho that might change -- 070120]
 
         if not _lvalue_flag:
             # usual case

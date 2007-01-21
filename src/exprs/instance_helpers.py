@@ -20,7 +20,14 @@ import widget_env
 reload_once(widget_env)
 from widget_env import thisname_of_class #e refile import?? or make it an env method??
 
-kluge070119 = False ##### True causes infrecur in delegate in testexpr_10a, not yet diagnosed; causes wrong _self for .ww in _5a (#k)
+kluge070119 = True #old: True causes infrecur in delegate in testexpr_10a, not yet diagnosed; causes wrong _self for .ww in _5x,
+    # which as of 070120 944p might be understood and fixed... it is! The _10a bug is also fixed (by the same fix in the code --
+    # a more-correct _self assignment), but I don't know why there was infrecur before (and I guess I never will).
+
+    #### Where i am 070120 1023p as I stop -- those fixes mean the kluge is permanent (until replaced by better centralized instantiator).
+    # I should still test more egs, and test non-EVAL_REFORM cases of all these egs to make sure that's ok too
+    # (its code was also changed by these fixes). Then I should remove dprints and tons of comments and unused code cases from the
+    # files modified today. Then fix the need for manual Instance in delegates. ####
 
 # ==
 
@@ -140,6 +147,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         printnim("assume it's a formula in _self; someday optim for when it's a constant, and/or support other symbols in it")
         #k guess: following printnim is wrong, should be in return None case -- verify then fix (or remove this entire feature)
         printfyi("something made use of deprecated _DEFAULT_ feature on attr %r" % (attr,)) ###e deprecated - remove uses, gradually
+            # in fact, reviewing the uses 070120, there are none left, and the last ones in widget2d went away long ago. ###e ZAP IT
         return formula._e_compute_method(self, '@' + attr) #k index arg is a guess, 061110
     
     # copy methods (used by __call__)
@@ -330,22 +338,23 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             
         printnim("should make_in worry about finding an existing instance at the same index?")
             # guess: no, it'd be obsolete; not sure. #061110 313p
+            # update 070120: our caller _make_in wants to handle this -- by this time, a new self exists so it's too late or wasteful.
         
         expr, env, ipath = data ###@@@ might want to split env into rules (incl lexenv) & place (incl staterefs, glpane)
         assert env #061110
         assert not self._e_is_instance #e remove when works
         assert not expr._e_is_instance
-        self._e_is_instance = True
 
-        self.env = env #k ok, or does it need modification of some kind?
-            #e in fact we mod it every time with _self, in _e_compute_method -- can we cache that?
-        ####@@@@
-        self.ipath = ipath ###e does this need mixing into self.env somehow?
-        ## print "assigned %r.ipath = %r" % (self,ipath) #061114 -- note, repr looks funny since fields it prints are not yet inited
-        #e also set self.index??
+        # copy all pure-expr things [order of several sections here revised, 070120]
         
-        # set up self._e_args etc
-        self._e_class = expr # for access to _e_kws and args #k needed? #e rename: self._e_expr? not sure. #k not yet used
+        self._e_has_args = expr._e_has_args #k ??
+        # copy references to _e_args & _e_kws
+        # note: exprs passed to specific args or kws can be lazily type-coerced and instantiated by Arg or Option decls in subclasses
+        self._e_args = expr._e_args
+        self._e_kws = expr._e_kws # replaces _e_formula_dict as of 061106; WARNING: shared and mutable; WE MUST NEVER MODIFY IT
+
+        # do pure-expr things that could (in theory) still leave us a pure expr, but are needed before instantiation
+        
         ## assert expr._e_has_args, "this expr needs its arguments supplied: %r" % self
             # we might allow exceptions to this later, based on type decl, especially if it has no declared args
             # (how can we tell, here?? ###e),
@@ -357,11 +366,30 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                     ### addendum 061212: probably not a bug when all args are optional, so for now, permit with warning and
                     # examine the specific cases, such as testexpr_9fx6. At first I thought that using this always gets later
                     # bugs, but it turned out those were unrelated If_expr bugs, so now this can work. See comments near that test.
-        self._e_has_args = expr._e_has_args #k ??
-        # copy references to _e_args & _e_kws
-        # note: exprs passed to specific args or kws can be lazily type-coerced and instantiated by Arg or Option decls in subclasses
-        self._e_args = expr._e_args
-        self._e_kws = expr._e_kws # replaces _e_formula_dict as of 061106
+            if 0 and 'enable this pretty soon':
+                ### update 070120: here is how I'd fix this, and propose to do it as soon as it won't confound other debugging/testing:
+                print "a warning" # for now; remove when tested
+                self._destructive_supply_args( () ) # supply a 0-tuple of args
+                    ##e in case having zero args is illegal and this [someday] detects it,
+                    # we should pass it a flag saying to use different error msgs in this "implicit supply args" case. (implicit = True)
+                    # WARNING: make sure we copied all expr stuff but set no Instance stuff before doing this!
+                    # And make sure the "destructive" here can't mess up expr._e_args which we share.
+                    # Maybe that flag we pass should also warn it not to destroy anything else (e.g. if it someday feels like
+                    # adding a generated keyword arg, it better copy _e_kws in this case). ##e
+
+        # set some Instance things
+        
+        self._e_is_instance = True
+
+        self.env = env #k ok, or does it need modification of some kind?
+            #e in fact we mod it every time with _self, in _e_compute_method -- can we cache that?
+            # [much later: now we do, in env_for_formulae]
+        ####@@@@
+        self.ipath = ipath ###e does this need mixing into self.env somehow?
+        ## print "assigned %r.ipath = %r" % (self,ipath) #061114 -- note, repr looks funny since fields it prints are not yet inited
+        #e also set self.index??
+        
+        self._e_class = expr # for access to _e_kws and args #k needed? #e rename: self._e_expr? not sure. #k not yet used
 
         ## print "fyi my metaclass is",self.__metaclass__ # <class 'exprs.ExprsMeta.ExprsMeta'>
 
@@ -412,6 +440,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         #070120 debug code for _5x ER kluge070119 bug
         env = self.env
         print "%r.env has _self %r" % (self, getattr(env, '_self', '<none>'))
+        assert self.env_for_formulae._self is self ##### REMOVE WHEN WORKS -- inefficient (forces it to be made even if not needed)
         pass
 
     def _e_eval(self, env, ipath): # implem/behavior totally revised, late-061109; works - not sure it always will tho... ###k
@@ -432,15 +461,22 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
     # kid-instantiation, to support use of the macros Arg, Option, Instance, etc
     #k (not sure this is not needed in some other classes too, but all known needs are here)
 
-    def _i_env_ipath_for_formula_at_index( self, index, env = None): # split out of Expr._e_compute_method 070117
+    def _i_env_ipath_for_formula_at_index( self, index, env = None): # split out of Expr._e_compute_method 070117; revised 070120
         "#doc; semi-private helper method for Expr._e_compute_method and (after EVAL_REFORM) self._i_instance"
+        ###e needs cleanup, once recent changes are tested and stable [070120]
         instance = self
         assert instance._e_is_instance
         if env is None:
-            env0 = instance.env # fyi: AttributeError for a pure expr (ie a non-instance)
+            ## env0 = instance.env # fyi: AttributeError for a pure expr (ie a non-instance)
+            env0 = instance.env_for_formulae
+                # this change is related to bugfix [070120 935p (untested)] for bug in kluge070119 in testexpr_5x (wrong _self for ww),
+                # but this is not the bugfix (since this case never happens when EVAL_REFORM),
+                # but rather, compensates for not doing _self = instance below; the bugfix is to do it earlier when ER kluge070119.
         else:
             env0 = env # new feature for EVAL_REFORM for use by kluge070119
-        env = env0.with_literal_lexmods(_self = instance) ###e could be memoized in instance, except for cyclic ref issue
+        ## env = env0.with_literal_lexmods(_self = instance) ###e could be memoized in instance, except for cyclic ref issue
+            # this is done in the wrong place (here), as explained elsewhere re bug in kluge070119 [070120 924p, see 844p comment]
+        env = env0
         assert env #061110
         ipath0 = instance.ipath
         ipath = (index, ipath0)
@@ -502,7 +538,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         # or at *least* we could do it locally -- no sharing but should fix bugs?
         if EVAL_REFORM and kluge070119:
             assert not _lvalue_flag # don't know how otherwise
-            env = self.env # like in _i_env_ipath_for_formula_at_index
+            ## env = self.env # like in _i_env_ipath_for_formula_at_index [like in the old wrong version, that is]
+            env = self.env_for_formulae # like in _i_env_ipath_for_formula_at_index [like in the new corrected version, 070120 940p]
             expr, env, ipath = expr, env, index
             oldstuff = expr, env, ipath
             expr, env, ipath = expr._e_burrow_for_find_or_make(env, ipath)
@@ -521,6 +558,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                       (self,index,newdata,olddata) #e more info? i think this is an error and should not happen normally
                 #e if it does happen, should we inval that instance? yes, if this ever happens without error.
                 # [addendum 061212: see also the comments in the new overriding method If_expr._e_eval.]
+                # [one way to do that: have _i_instance_decl_data contain changetracked state vars, changed above,
+                #  usage-tracked by _CV__i_instance_CVdict. 070120]
 
             self._i_instance_decl_data[index] = newdata
         return self._i_instance_CVdict[index] # takes care of invals in making process? or are they impossible? ##k [see above]
@@ -600,6 +639,32 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
                 # also pass an env retrieved from...
                 env = self._i_instance_decl_env[index]
                 env, ipath = self._i_env_ipath_for_formula_at_index( index, env) # note: retval's env is modified from the one passed
+                    # THIS MUST BE WHERE THE INCORRECT BINDING _self = self gets added, in the kluge070119 ###BUG in _5x! [070120 844p]
+                    #   GUESS at basic bug: an Instance self really needs to know two envs: the one for its args (_self refers to
+                    # whoeever lexically created the expr they were made from), and the one for their internal formulae (_self = self).
+                    # self.env is the one for the args (since it's thought of as "self's (outer) environment"),
+                    # and the one for internal formulae has (until now -- this should change #e) been recreated as needed in
+                    # _e_compute_method and now in _i_env_ipath_for_formula_at_index, by extending self.env by _self = self.
+                    #   But to be correct, this should be done BEFORE the burrowing and env-extension done by the kluge070119,
+                    # but in this wrong current code it's done after it. The old code also had wrongness of order, in principle
+                    # (doing this _self addition here rather than in env_for_args, with env_for_args done first when it should
+                    # be done 2nd), but it didn't matter since env_for_args only added _this_xxx and _my. WAIT, THAT'S WRONG --
+                    # env_for_args is for external (in lexenv) args, so it should have SAME _self as self.env, so it's correct now,
+                    # and never gets or needs _self = self, either before or after its _my and _this_xxx bindings.
+                    #   What we need here is NOT env_for_args but env_for_internal_formulae. It should be used for dflt exprs in Arg,
+                    # and for all exprs sitting on class assignments. We've been making it before *using* those formulae
+                    # (probably getting it onto dflt exprs only because they end up being *used* in the right place for that).
+                    # We've been making it in each call of _i_env_ipath_for_formula_at_index or _e_compute_method, but we ought to
+                    # make it once and let those use it, and make sure that happens before the env mods from the burrowing done by
+                    # kluge070119. (We can't make it in the class (eg ExprsMeta) -- we have to wait until _init_instance or so,
+                    # because it depends on self which is only known around then.)
+                    # 
+                    # SUGGESTED FIX ###e: make self.env_for_internal_formulae (#e shorter name -- env_for_formulae?)
+                    # before (??) calling _init_instance [or after if _init_instance can modify self.env ##k];
+                    # use it in _i_env_ipath_for_formula_at_index and some of our uses of _e_compute_method;
+                    # and review all uses of self.env for whether they ought to be env_for_formulae.
+                    # Doing it 070120 circa 942p -- I made _C_env_for_formulae instead of setting it in _init_instance
+                    # (optim, since some Instances never need it (I hope -- not sure) and since it creates a cyclic ref.
             else:
                 env, ipath = self._i_env_ipath_for_formula_at_index( index) # equivalent to how above other case computes them
             assert not lvalflag # see comments at start of _i_instance
@@ -615,10 +680,8 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         try:
             computer = expr._e_compute_method(self, index) ##e optim someday: inline this
                 # 061105 bug3, if bug2 was in held_dflt_expr and bug1 was 'dflt 10'
-            if 1:
-                res = call_but_discard_tracked_usage( computer) # see also docstring of eval_and_discard_tracked_usage
-            else:
-                res = computer()
+            res = call_but_discard_tracked_usage( computer) # see also docstring of eval_and_discard_tracked_usage
+                # res is the same as if we did res = computer(), but that would track usage into caller which it doesn't want invals from
         except:
             # we expect caller to exit now, so we might as well print this first: [061114]
             print "following exception concerns self = %r, index = %r in *** _i_eval_dfltval_expr *** calling _e_compute_method" % \
@@ -695,10 +758,20 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         
         lexmods[thisname] = self
             # WARNING: this creates a cyclic ref, from each child whose env contains lexmods, to self, to each child self still knows.
+            # In fact, it also creates a cyclic ref from self to self, since the result (which contains lexmods) is memoized in self.
 
         lexmods['_my'] = self #061205
         
         return self.env.with_lexmods(lexmods)
+
+    def _C_env_for_formulae(self):#070120 for fixing bug in kluge070119 ####@@@@ USE ME
+        "compute method for self.env_for_formulae -- memoized environment for use by our internal formulae (class-assigned exprs)"
+        res = self.env.with_literal_lexmods( _self = self)
+            # This used to be done (each time needed) in _e_compute_method and _i_env_ipath_for_formula_at_index --
+            # doing it there was wrong since it sometimes did it after env mods by kluge070119 that needed to be done after it
+            # (in order to mask its effect).
+            # WARNING: doing it here creates a cyclic ref from self to self, since the result is memoized in self.
+        return res
 
     def _i_grabarg_0( self, attr, argpos, dflt_expr):
         "[private helper for _i_grabarg] return the pair (external-flag, expr to use for this arg)"

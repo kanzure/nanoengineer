@@ -1098,7 +1098,10 @@ enable_testbed = False # since True doesn't yet work with EVAL_REFORM
 # looks open even when you toggle it closed), presumably due to the lack of inval from the self._i_instance_decl_data[index] = newdata
 # after that bug message. So I have a definite ###BUG (_10a openclose icon not updated) to fix now. Do that next.
 
-testexpr = testexpr_5x ## testexpr_10a - ER alone has if update bug, ER w/ kluge070119 has delegate infrecur -- what tests work w/ that?
+testexpr = testexpr_10a ## update 070120 1020p -- testexpr_5x works now even with ER w/ kluge070119! So does _10a!
+    # Where i am 070120 1023p as I stop -- see that phrase in instance_helpers.py. ###
+    
+    ## testexpr_10a - ER alone has if update bug, ER w/ kluge070119 has delegate infrecur -- what tests work w/ that?
     # _2, _3a, _4a work ok. _5 and _5a fail in same other way -- wrong _self in _self.ww. For notes on that see email to self
     # and comment near class Boxed_old_070120 (which suggests a debug tool for it). [070120 335p] 
 

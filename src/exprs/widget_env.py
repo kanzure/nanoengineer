@@ -90,7 +90,7 @@ class widget_env(Delegator):
             # next worst part: special methods like __repr__ end up delegating
         pass
     def __repr__(self): # without this, Delegator delegates __repr__ ultimately to None, so "%r" % self == "None"!!!
-        return "<widget_env at %#x>" % id(self)
+        return "<widget_env at %#x (_self = %r)>" % (id(self), getattr(self, '_self', '<none>')) # revised 070120
     __str__ = __repr__ #k guess: might be needed for same reason as __repr__
     def understand_expr(self, expr, lexmods = None):
         print "understand_expr ran"###070112 -- never happens
