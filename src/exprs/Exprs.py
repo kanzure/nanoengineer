@@ -14,7 +14,7 @@ $Id$
 # as of 061102 this module is probably reloadable:
 
 from basic import printnim, printfyi, stub # this may be a recursive import (with most things in basic not yet defined)
-from basic import print_compact_stack, print_compact_traceback, same_vals, EVAL_REFORM
+from basic import print_compact_stack, print_compact_traceback, same_vals, EVAL_REFORM, intern_ipath
 
 # == utilities #e refile
 
@@ -893,9 +893,15 @@ class lexenv_ipath_Expr(lexenv_Expr): #070118
                                       self._e_env0, self._e_local_ipath, self._e_expr0,)
     def _e_locally_modify_ipath(self, ipath):
         localstuff = self._e_local_ipath # for now, just include it all [might work; might be too inefficient]
+        if 1:
+            # they are getting too long for debug prints already! [070121 morn]
+            intern_ipath( ipath) # no need to use the result of this interning; not using it will make debug prints more understandable
+            localstuff2 = intern_ipath( localstuff)
+            # print "interned %r to %r" % (localstuff, localstuff2) # works
+            localstuff = localstuff2
         return (localstuff, ipath)
     pass
-
+    
 class eval_Expr(OpExpr):
     """An "eval operator", more or less. For internal use only [if not, indices need to be generalized].
     Used when you need to put an expr0 inside some other expr1 where it will be evalled later,

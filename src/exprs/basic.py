@@ -106,11 +106,14 @@ def reload_once(module):
 def stub(*args, **kws): #e rename to stubfunc (too hard to search for 'stub', common in comments)
     assert 0, "stub called"
 
+
 # == low-level imports from this exprs package
 
 import py_utils
 reload_once(py_utils)
 from py_utils import * # includes printnim
+
+from intern_ipath import intern_ipath # (it doesn't make sense to try to autoreload this module -- ###e it should say so in some attr)
 
 
 # == ExprsMeta #e and whatever it requires
@@ -164,9 +167,8 @@ PIXELS = 0.035 #k guess; 0.05->0.035 061114, re testexpr_7b (which shows true va
 
 # == lower-level stubs -- these will probably be refiled when they are no longer stubs ###@@@
 
-## NullIpath = None ###STUB, refile, rename
-NullIpath = 'NullIpath' ##k ok that it's not None? maybe not, we might test for None... seems to work for now tho.
-    #e make it different per reload?
+NullIpath = '.' ##k ok that it's not None? maybe not, we might test for None... seems to work for now tho.
+    #e make it different per reload? [070121 changed from 'NullIpath' to '.' to shorten debug prints]
 
 StubType = Anything # use this for stub Type symbols [new symbol and policy, 070115]
 

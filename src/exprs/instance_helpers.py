@@ -20,13 +20,18 @@ import widget_env
 reload_once(widget_env)
 from widget_env import thisname_of_class #e refile import?? or make it an env method??
 
-kluge070119 = True #old: True causes infrecur in delegate in testexpr_10a, not yet diagnosed; causes wrong _self for .ww in _5x,
-    # which as of 070120 944p might be understood and fixed... it is! The _10a bug is also fixed (by the same fix in the code --
+kluge070119 = True # this is permanent for now, but don't clean up the associated code yet, since it'll soon be replaced
+    # by a better centralized instantiator. [070120]
+    #
+    # history:
+    # True used to cause infrecur in delegate in testexpr_10a, not yet diagnosed; caused wrong _self for .ww in _5x,
+    # which as of 070120 944p is understood and fixed. The _10a bug is also fixed (by the same fix in the code --
     # a more-correct _self assignment), but I don't know why there was infrecur before (and I guess I never will).
 
-    #### Where i am 070120 1023p as I stop -- those fixes mean the kluge is permanent (until replaced by better centralized instantiator).
+    #### Where i am 070120 1023p as I stop -- ...
     # I should still test more egs, and test non-EVAL_REFORM cases of all these egs to make sure that's ok too
-    # (its code was also changed by these fixes). Then I should remove dprints and tons of comments and unused code cases from the
+    # (its code was also changed by these fixes).
+    #### Then I should remove dprints and tons of comments and unused code cases from the
     # files modified today. Then fix the need for manual Instance in delegates. ####
 
 # ==
