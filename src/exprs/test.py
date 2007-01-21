@@ -171,13 +171,7 @@ testexpr_2a = Rect(8,5, color = trans_red) # fails, since appears fully red ###B
 # test not supplying all the args
 
 testexpr_2b = Rect(4, color = purple) # works [061109]
-testexpr_2c = Rect(color = purple) # asfail - guess, not has_args since this is just a customization 061109 ###BUG (make it work?)
-    ###EVAL_REFORM status 070117 451p: [maybe same in non-eval-reform?? yes, same dprints, works anyway in both cases]
-    # warning: this expr might need its arguments supplied: <Rect#0(i w/o a)>
-    # <Rect#20261(i w/o a)>
-    # warning: possible bug: not self._e_has_args in _i_grabarg
-    # decision: should be permitted to work provided having no args is ok (ie all are optional). ###DOIT
-
+testexpr_2c = Rect(color = purple) # works; had warning from no explicit args until 070121 (still warns minimally for now)
 testexpr_2d = Rect() # works, except default size is too big, since 10 makes sense for pixels but current units are more like "little"
 testexpr_2e = Rect(4, 5, white) # works
 
@@ -1098,12 +1092,10 @@ enable_testbed = True # since True doesn't yet work with EVAL_REFORM
 # looks open even when you toggle it closed), presumably due to the lack of inval from the self._i_instance_decl_data[index] = newdata
 # after that bug message. So I have a definite ###BUG (_10a openclose icon not updated) to fix now. Do that next.
 
-testexpr = testexpr_10c ## update 070120 1020p -- testexpr_5x works now even with ER w/ kluge070119! So does _10a!
-    # Where i am 070120 1023p as I stop -- see that phrase in instance_helpers.py. ###
+testexpr = testexpr_19d
+    # as of 070121 at least these work ok in EVAL_REFORM kluge070119: _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
+    # but not yet _19d (tho I just bugfixed it for the non-ER case)
     
-    ## testexpr_10a - ER alone has if update bug, ER w/ kluge070119 has delegate infrecur -- what tests work w/ that?
-    # _2, _3a, _4a work ok. _5 and _5a fail in same other way -- wrong _self in _self.ww. For notes on that see email to self
-    # and comment near class Boxed_old_070120 (which suggests a debug tool for it). [070120 335p] 
 
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c

@@ -127,8 +127,9 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         val = kws.pop('_make_in', None)
         if val:
             assert not args and not kws
+            self._e_init_e_serno() #070121 moved this before _destructive_make_in, so it sees serno in prints,
+                # and since AFAIK the desire to have later serno than our kids only applies to pure exprs, not Instances ##k
             self._destructive_make_in(val)
-            self._e_init_e_serno()
             return
         # assume no special keywords remain
         self._destructive_init(args, kws)
@@ -369,21 +370,18 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
             # but OTOH that is tolerable if it takes no args, actually that's unclear if instantiation does something like
             # make a random choice! So we might want to detect that, warn at compile time, or so....
         if not expr._e_has_args:
-            print "warning: this expr might need its arguments supplied: %r" % self
-                    ### addendum 061212: probably not a bug when all args are optional, so for now, permit with warning and
-                    # examine the specific cases, such as testexpr_9fx6. At first I thought that using this always gets later
-                    # bugs, but it turned out those were unrelated If_expr bugs, so now this can work. See comments near that test.
-            if 0 and 'enable this pretty soon':
-                ### update 070120: here is how I'd fix this, and propose to do it as soon as it won't confound other debugging/testing:
-                print "a warning" # for now; remove when tested
-                self._destructive_supply_args( () ) # supply a 0-tuple of args
-                    ##e in case having zero args is illegal and this [someday] detects it,
-                    # we should pass it a flag saying to use different error msgs in this "implicit supply args" case. (implicit = True)
-                    # WARNING: make sure we copied all expr stuff but set no Instance stuff before doing this!
-                    # And make sure the "destructive" here can't mess up expr._e_args which we share.
-                    # Maybe that flag we pass should also warn it not to destroy anything else (e.g. if it someday feels like
-                    # adding a generated keyword arg, it better copy _e_kws in this case). ##e
-
+            # try testexpr_9fx6. See comments near that test.
+            ### update 070120: here is how I'd fix this, and propose to do it as soon as it won't confound other debugging/testing:
+            print "warning: this expr will get 0 arguments supplied implicitly: %r" % self ### remove when works [why no serno yet??]
+            self._destructive_supply_args( () ) # supply a 0-tuple of args
+                ##e in case having zero args is illegal and this [someday] detects it,
+                # we should pass it a flag saying to use different error msgs in this "implicit supply args" case. (implicit = True)
+                # WARNING: make sure we copied all expr stuff but set no Instance stuff before doing this!
+                # And make sure the "destructive" here can't mess up expr._e_args which we share.
+                # Maybe that flag we pass should also warn it not to destroy anything else (e.g. if it someday feels like
+                # adding a generated keyword arg, it better copy _e_kws in this case). ##e
+            assert self._e_has_args
+                
         # set some Instance things
         
         self._e_is_instance = True
@@ -708,7 +706,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         assert is_pure_expr(dflt_expr), "_i_grabarg dflt_expr should be an expr, not %r" % (dflt_expr,) #061105 - or use canon_expr?
         assert self._e_is_instance
         if not self._e_has_args:
-            print "warning: possible bug: not self._e_has_args in _i_grabarg" ###k #e more info
+            print "warning: possible bug: not self._e_has_args in _i_grabarg%r in %r" % ((attr, argpos), self)
         assert attr is None or isinstance(attr, str)
         assert argpos is None or (isinstance(argpos, int) and argpos >= 0)
         external_flag, res0 = self._i_grabarg_0(attr, argpos, dflt_expr)
