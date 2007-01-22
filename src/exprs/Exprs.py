@@ -368,7 +368,11 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
             # guess: yes, before was-prior cond extended.
             # so, move it up, see what happens. [061113]
             printnim("slow, remove when devel is done: _i_ noninstance check")
-            assert self._e_is_instance #k not positive this is ok, we'll see [061105]
+            assert self._e_is_instance, \
+                   "safety rule: automatic formation of getattr_Expr not allowed for attrs starting _i_, as in %r.%s" % \
+                   (self, attr)
+                #k not positive this is ok, we'll see [061105] - hmm, failed with _app._i_instance(testexpr_19b),
+                # but that just means _app needs a public instancemaker rather than just that internal one
             # note: self._e_is_instance is defined in all pyinstance exprs, not only InstanceOrExpr.
         if attr.startswith('_e_') or attr.startswith('_i_'):
             # We won't pretend to find Expr methods/attrs starting _e_ (also used in Instances),

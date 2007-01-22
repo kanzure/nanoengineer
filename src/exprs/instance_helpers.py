@@ -431,7 +431,10 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         # handling of If: As of 061212 If_expr (a subclass of this) overrides _e_eval and seems to work; see comments there.
         # handling of _value: done at a higher level only -- see InstanceMacro.
         if EVAL_REFORM: #070117
-            assert not self._e_is_instance, "EVAL_REFORM means we should not eval an instance: %r" % self
+            ## assert not self._e_is_instance, "EVAL_REFORM means we should not eval an instance: %r" % self
+            if self._e_is_instance: # newly allowed 070122 for sake of _26g and _19g tests -- experimental (not tested ###)
+                print "fyi: instance %r evals to itself after EVAL_REFORM" % self # remove if this is deemed fully ok and normal
+                return self
             # exprs that need instantiation eval to themselves. ###k will there be exceptions that are subclasses of this?
             ## printfyi("probably normal: eval to self of a subclass of IorE: %s" % self.__class__.__name__) # find out which classes this happens to ###
             return self._e_eval_to_expr(env, ipath, self) ###e call from other _e_eval defs ??
@@ -466,7 +469,22 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         ipath = (index, ipath0)
         return env, ipath
 
-    def _i_instance( self, expr, index, _lvalue_flag = False ):
+    def Instance(self, expr, index = None): #070122 experiment; note relationship to Instance macro (def Instance in another file)
+        """experimental toplevel interface (public for use in exprs) to self._i_instance; needs ##doc;
+        similar to Instance macro for use in class assignments;
+        where that uses ipaths relative to _self, this uses them relative to self.
+        """
+        # allocating an index might be nice, but I don't see how we can do it yet
+        # (the issue is when it changes due to history of prior allocs)
+        # (wait, can we use the id of the child? not with this API since we have to pass it before making the child.
+        #  Isn't using a unique value here equiv to that? Yes, if it's unique forever even when we're remade at same ipath --
+        #  meaning it's either allocated globally, or contains our _e_serno -- no, that might get reset, not sure. Ok, globally. nim.)
+        if index is None:
+##            index = self._i_allocate_unique_kid_index(...)
+            assert index is not None, "error: %r.Instance(%r) requires explicit index (automatic unique index is nim)" % (self, expr)
+        return self._i_instance( expr, index)
+    
+    def _i_instance( self, expr, index, _lvalue_flag = False ): # see also def Instance (the method, just above, not the macro)
         """[semi-private; used by macros like Instance, Arg, Option]
         Find or create (or perhaps recompute if invalid, but only the latest version is memoized) (and return)
         an Instance of expr, contained in self, at the given relative index, and in the same env [#e generalize env later?].

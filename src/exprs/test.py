@@ -51,7 +51,7 @@ basic.reload_once(basic)
 del basic
 
 from basic import * # including reload_once, and some stubs
-from basic import _self, _this, _my
+from basic import _self, _this, _my, _app
 
 import Rect
 reload_once(Rect)
@@ -803,6 +803,33 @@ testexpr_19f = eval_Expr( call_Expr( lambda thing:
     # and was not tested until now, since eval_Expr didn't support _e_make_in before EVAL_REFORM. I didn't confirm that guess,
     # but I fixed the bug by making env.make do an eval first, by default. ### SHOULD RETEST ALL TESTS UP TO _5d AFTER THAT;
     # so far only retested one of _5a and _5b.
+    
+# hmm, what would happen if we just tried to tell it to instantiate, in the simplest way we might think of?
+# It may not work but it just might -- at least it'll be interesting to know why it fails... [070122 945a]
+# fails because Instance wants to make one using _self._i_instance, but _self has no binding here, evals to itself.
+testexpr_19g_try1_fails = eval_Expr( call_Expr( lambda thing:
+                                     Overlay( thing,
+                                              DrawInCorner( Boxed(
+                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
+                                     Instance(testexpr_19b) ))
+# Is there a sensible default binding for _self? In this lexical place it might be "the _app, found dynamically"...
+# but to be less klugy we want to make Instance work differently here... or use a different thing to make one...
+# or make Instance an expr. Or at least give it a helper func to have a backup for _self._i_instance failing or _self having no value.
+# But as a test I can just manually insert whatever would work for that... hmm, how about 
+testexpr_19g = eval_Expr( call_Expr( lambda thing:
+                                     Overlay( thing,
+                                              DrawInCorner( Boxed(
+                                                  eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
+                                     ## _app._i_instance(testexpr_19b)
+                                         # safety rule: automatic formation of getattr_Expr not allowed for attrs starting _i_
+                                     ## call_Expr( getattr_Expr(_app, '_i_instance'), testexpr_19b, "#19b") #e should implem _app.Instance
+
+                                     call_Expr( _app.Instance, testexpr_19b, "#19b")
+                                     ))
+# now this says AssertionError: EVAL_REFORM means we should not eval an instance: <GraphDrawDemo_FixedToolOnArg1#18549(i)>
+# but I think that might be wrong, though I can see the motive: it means a non-expr was passed to eval, a likely bug.
+# That instance must be the value of this call_Expr, so why did it get evalled again? I need to find my simpler tests of
+# "pass an instance into another expr" and see if they too now have that assertfail.
 
 # == DrawInCorner
 
@@ -1046,8 +1073,16 @@ testexpr_25 = ActionButton( PrintAction("pressed me"), "test button")
 
 # == demo of shared instance, drawn in two places (syntax is a kluge, and perhaps won't even keep working after eval/instantiate fix )
 
-testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , testexpr_10c )) # works, except for highlighting bug --
+testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , testexpr_10c )) # no longer a correct test [070122]
+    # pre-EVAL_REFORM status: works, except for highlighting bug --
     # when you draw one instance twice, Highlightables only work within the last-drawn copy. See BUGS file for cause and fix.
+    # EVAL_REFORM status 070122: this no longer makes a shared instance -- it shows different instances of the same expr. ###BUG in eg
+
+# try the same fix for EVAL_REFORM as we're trying in _19g [070122 1017a]:
+testexpr_26g = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) ,
+                                     ## _app.Instance(testexpr_10c, "10c") # AssertionError: getattr exprs are not callable [ok??]
+                                     call_Expr( _app.Instance, testexpr_10c, "10c")
+                                     )) # -- AssertionError: recursion in self._delegate computation in <Overlay#31189(i)> ###BUG
 
 # == TestIterator [070122]
 
@@ -1098,7 +1133,12 @@ enable_testbed = True # since True doesn't yet work with EVAL_REFORM
 # looks open even when you toggle it closed), presumably due to the lack of inval from the self._i_instance_decl_data[index] = newdata
 # after that bug message. So I have a definite ###BUG (_10a openclose icon not updated) to fix now. Do that next.
 
-testexpr = testexpr_27
+testexpr = testexpr_19g ## testexpr_19g _26g
+    # where i am 070122 1025: these fail; _19g from AssertionError: EVAL_REFORM means we should not eval an instance: <GraphDrawDemo_FixedToolOnArg1#15231(i)>
+    # which is a likely misguided assert as some other cmt in this file says;
+    # _26g may fail from same thing now, tho ays diff, mayeb due to nonreload -- but try it with misspelled attrname
+    # to see if that explains the err it got, infrecur in delegate. ################
+    # yes, 26g works now, needs fewer dprints -- try 19g also seems to work
 
     # as of 070121 at least these work ok in EVAL_REFORM kluge070119: _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
     # and finally _19d (bugfixed for non-ER case re ipath[0], and for ER case re delegate autoInstance).
@@ -1170,8 +1210,6 @@ def get_pref(key, dflt = _NOT_PASSED): #e see also... some stateref-maker I forg
     """
     import env
     return env.prefs.get(key, dflt)
-
-from __Symbols__ import _app #070108; might refile this into basic.py ##e
 
 debug_prints_prefs_key = "A9 devel/debug prints for my bug?" # also defined in GLPane.py
 

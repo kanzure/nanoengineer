@@ -124,6 +124,7 @@ from __Symbols__ import _self, _my # (__Symbols__ module doesn't support reload)
     # _this is imported below from somewhere else -- since it's not a Symbol! Maybe __Symbols__ should warn if we ask for it. #e
 
 from __Symbols__ import Anything #070115
+from __Symbols__ import _app # not included in import * [070108 in test.py, moved here 070122]
 
 
 # == colors (constants and simple functions; import them everywhere to discourage name conflicts that show up only later)
