@@ -341,6 +341,7 @@ testexpr_9e = testexpr_9b( on_release_in = None) # works
 
 testexpr_9cx = SimpleColumn(testexpr_9a, testexpr_9b(projection = True)) # works 070118?? before that -- ###BUG -- that option breaks the functionality.
     # guess: it might mess up the glselect use of the projection matrix. (since ours maybe ought to be multiplied with it or so)
+    #
     # ... update 070118: if I understand this correctly, it's working now (EVAL_REFORM off or on both work, with no testbed).
     # I don't know why/how/ifreally it got fixed, but maybe it did, since I did a few things to highlighting code since that time,
     # including not using that z-offset kluge in the depth test, changing to GL_LEQUAL (with different Overlay order), maybe more.
@@ -368,14 +369,16 @@ testexpr_9fx3 = Rect(1, 1, If_expr(_my.env.glpane.in_drag, blue, lightblue)) # t
     # No, dragging around on a TextRect causes lots of redraws, but no reprints of "<If_expr#19096(a)> gets cond 1"! Why?
     # Because something contains its value and didn't usage-track anything which we're invalidating here! AHA. ######BUG
     # That can be fixed by referring to trackable state, provided it's not _i_instance_dict or whatever which fails to track this eval anyway. Try it.
-testexpr_9fx4 = Highlightable( Rect(1, 1, If_expr(_this(Highlightable).transient_state.in_drag, blue, lightblue))) # works, if I remember to click --
-    # i said in_drag not in_bareMotion!
-    # [Q, 070118: Does that mean all the comments in _9f thru _9f3 are mistaken, as if mouseover == drag??? Or did I click in those tests? ##k
-    #  When no EVAL_REFORM I saw no crashes but tried no clicks. For ER I did: 1-3 fail as comments say,
-    #  but testexpr_9fx4 has an ###EVAL_REFORM ###BUG -- guess, due to no local ipath mod.]
-    # as i said next to in_drag's def:
-    ###e should make an abbrev for that attr as HL.in_drag -- maybe use State macro for it? read only is ok, maybe good.
-    ###e should add an accessible attr for detecting whether we're over it [aka in_bareMotion -- not a serious suggestion]. What to call it?
+testexpr_9fx4 = Highlightable( Rect(1, 1, If_expr(_this(Highlightable).transient_state.in_drag, blue, lightblue))) # works, if I
+    # remember to click rather than just to mouseover -- the code says in_drag, not in_bareMotion!
+        ##e should make an abbrev for that attr as HL.in_drag -- maybe use State macro for it? read only is ok, maybe good.
+        ##e should add an accessible attr for detecting whether we're over it [aka in_bareMotion -- not a serious suggestion].
+        # What to call it?
+    # Q, 070118: Does that mean all the comments in _9f thru _9f3 are mistaken, as if mouseover == drag???
+    # Or did I click in those tests?
+    # 070122 update: I don't know if it means that, but recently they failed in EVAL_REFORM but this is probably expected.
+    # This one, testexpr_9fx4, had a bug in ER, apparently due to no local ipath mod, fixed some days ago by adding one. So it works now.
+    
 testexpr_9fx5 = Highlightable( Rect(color = If_expr(_this(Highlightable).transient_state.in_drag, blue, lightblue))) # works with warning
     # so it turns out the If_expr was a total red herring -- once fixed, the no-args form now warns us, but works anyway.
 testexpr_9fx6 = Highlightable( Rect(color = If_expr(_this(Highlightable).transient_state.in_drag, purple, lightblue))() ) # works
@@ -646,7 +649,7 @@ for i in range(5): # 4 is enough unless you set 'if 1' above
         continue
     continue
 testexpr_14 = SimpleColumn( * map(lambda row: nevermind(Boxed)(SimpleRow(*row)), res) ) # works!
-testexpr_14 = Translate(testexpr_14, V(0,1,0) * 2)
+testexpr_14 = Translate(testexpr_14, V(-1,1,0) * 2)
 testexpr_14x = SimpleColumn(*[Rect(2 * i * PIXELS, 10 * PIXELS) for i in range(13)])
     # works (so to speak) -- 11th elt is TextRect("too many columns")
     ####e i need that general warning when there are too many args!!
@@ -795,14 +798,13 @@ testexpr_19f = eval_Expr( call_Expr( lambda thing:
                                               DrawInCorner( Boxed(
                                                   eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
                                      testexpr_19b ))
-    ###EVAL_REFORM ###BUG: testexpr_19b is not instantiated (when we eval the call_Expr and ask for thing.world) but needs to be.
+    # This is not a valid example for EVAL_REFORM (and indeed it fails then):
+    # testexpr_19b is not instantiated (when we eval the call_Expr and ask for thing.world) but needs to be.
     # Since this whole syntax was a kluge, I should not worry much about making it or something similar still work,
-    # but should instead make a better toplevel syntax for the desired effect, and make *that* work... for that, see lambda_Expr.py.
+    # but should instead make a better toplevel syntax for the desired effect, and make *that* work... for that, see lambda_Expr.py. ###e
     # So for the time being I won't try to fix this for EVAL_REFORM.
-    #   It also didn't work without EVAL_REFORM unless testbed was enabled. I'm guessing that was an old bug (predating EVAL_REFORM)
-    # and was not tested until now, since eval_Expr didn't support _e_make_in before EVAL_REFORM. I didn't confirm that guess,
-    # but I fixed the bug by making env.make do an eval first, by default. ### SHOULD RETEST ALL TESTS UP TO _5d AFTER THAT;
-    # so far only retested one of _5a and _5b.
+    # (At one time it didn't work without EVAL_REFORM unless testbed was enabled. I'm guessing that was an old bug (predating EVAL_REFORM)
+    # and I fixed it -- for details see cvs revs prior to 1.202 (Qt3 branch).)
     
 # hmm, what would happen if we just tried to tell it to instantiate, in the simplest way we might think of?
 # It may not work but it just might -- at least it'll be interesting to know why it fails... [070122 945a]
@@ -822,16 +824,8 @@ testexpr_19g = eval_Expr( call_Expr( lambda thing:
                                                   eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
                                      ## _app._i_instance(testexpr_19b)
                                          # safety rule: automatic formation of getattr_Expr not allowed for attrs starting _i_
-                                     ## call_Expr( getattr_Expr(_app, '_i_instance'), testexpr_19b, "#19b") # has bug, same as below
-                                         #e but should implem _app.Instance to make it clearer -- done now:
                                      call_Expr( _app.Instance, testexpr_19b, "#19b")
-                                     )) # works now; historical details:
-# now this says "AssertionError: EVAL_REFORM means we should not eval an instance: <GraphDrawDemo_FixedToolOnArg1#18549(i)>"
-# but I think that might be wrong, though I can see the motive: it means a non-expr was passed to eval, a likely bug.
-# That instance must be the value of this call_Expr, so why did it get evalled again? I need to find my simpler tests of
-# "pass an instance into another expr" and see if they too now have that assertfail. That is _26, it was wrong for EVAL_REFORM,
-# made _26g, it had same assert (I think, not properly tested), removed that assert (see caveat comments there),
-# now both work ok [070122 1118p]. ### remove these historical details after commit
+                                     )) # works now, after some bugfixes [070122]
 
 # == DrawInCorner
 
@@ -934,6 +928,7 @@ class class_21g(DelegatingInstanceOrExpr): # see how far I can simplify testexpr
         # note: this is an expr. In current code [061212]: it's implicitly instantiated, i think.
         # In planned newer code [i think]: you'd have to explicitly instantiate it if it mattered,
         # but it doesn't matter in this case, since this expr has no instance-specific data or state.
+        # update 070122 -- indeed, it fails in EVAL_REFORM. Details in next commit.
     colwords = ('Left', 'Center', 'Right', '')
     rowwords = ('Top', 'Center', 'Bottom', '')
     ## xxx = TextRect( format_Expr("%s", _this(ChoiceButton).choiceval), 1,12 ) #k is _this ok, tho it requires piecing together to work?
@@ -1084,10 +1079,7 @@ testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , t
 # try the same fix for EVAL_REFORM as we're trying in _19g [070122 1017a]:
 testexpr_26g = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) ,
                                      call_Expr( _app.Instance, testexpr_10c, "_26g")
-                                     )) # works (but highlight only works on right, as explained above); historical details:
-    # this had "AssertionError: recursion in self._delegate computation in <Overlay#31189(i)>" but I suspect that was due to reload error
-    # since after reload it and _19g had the assert (mentioned near _19g) whose removal fixed them. After this commit [070122 1121a]
-    # I can  ### remove these historical details after commit.
+                                     )) # works, after some bugfixes (but highlight only works on right, as explained above)
 
 # == TestIterator [070122]
 
@@ -1097,65 +1089,23 @@ testexpr_27w = TestIterator_wrong_to_compare(testexpr_6f) # works -- ipaths are 
 
 # ==
 
+# this demos a bug, not yet diagnosed:
 testexpr_28 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) ,
                                      call_Expr( _app.Instance_misspelled, testexpr_10c, "_28")
                                      )) # this has "infrecur in delegate" bug, don't know cause yet ###BUG
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
-enable_testbed = True # since True doesn't yet work with EVAL_REFORM
+enable_testbed = True
 
-# EVAL_REFORM status: [this comment is mostly OBS as of 070122 -- need to edit it down to 1-2 lines to keep ####DOIT]
-# 070117 439p, 511p
-# _19f and testbed: compute method on non-instance, details in a local debug notesfile ###BUG
-# _2 and no testbed: works
-# _2 and testbed: recursion in self.delegate in Highlightable ###BUG
-# _19f and no testbed: no attr '_e_make_in' in class eval_Expr ###BUG -- revised exception below
-# trying them all, no testbed, all working (tho results not checked much for visual correctness, just for weirdlooking debug prints)
-# except as noted next to the examples: thru _4d so far -- see ###EVAL_REFORM
-# testexpr_5 had a bug: AttributeError: no attr 'ww' in delegate <RectFrame#58607(i)> of self = <Overlay#58605(i)>
-#  [lvals.py:210] [Exprs.py:213] [Exprs.py:463] [Exprs.py:392] [Exprs.py:852] [Exprs.py:820] [Exprs.py:421] [instance_helpers.py:765]
-## try restart -- same. Try without eval_reform! works. Looking at its code, it ought to be legal. Looking at exception, looks like wrong delegate was picked.
-# (Does Overlay pick the wrong one due to its arg reversal change earlier today? Its code clearly says no.)
-# Looking closer, self.ww was missed so it went to delegate. Did it save the _C_rule_for_formula? If so, why did that not work? #####
-# aha, shouldn't self be a Boxed_old, not Overlay, when looking for ww? Maybe _self was wrong or not stored properly....
-# + fixed -- turns out I needed a lexenv_Expr (not only modified local ipath, still nim) in _e_eval_to_expr.
-# And I retested all the prior ones (2xx thru 4xx), they all still work.
-# But the next one _5a doesn't work. ###BUG (howbout when not EVAL_REFORM?) So I stopped there, 070117 1021p.
-#...
-# Except to retry _19f and no testbed (since I fixed the code for the failure reported above): revised exception:
-# AttributeError: 'lexenv_Expr' object has no attribute 'world'.
-# But now I can guess the cause: delegates in general are not being instantiated. ###FIX (if confirmed) [this is where i am 070117 late]
-# Also _2 with testbed works slightly better than before (the _10c part of the testbed is visible, tho not working).
-#
-# 070118 morn update: manually added Instances can fix bugs in _5a and _5b; _5d doesn't need one. The bugs all had the debug print
-# from DelegatingMixin "likely-invalid delegate" -- why didn't _19f or testbed have that -- would it now? No -- different bug,
-# see comment near testexpr_19f def in here. Won't fix right away.
-#
-# I also want to know if the fixed examples still work without EVAL_REFORM. Yes -- _5a & _5b still work w/o ER, with & without testbed.
-# _19f fails w/o testbed -- fixed now, see comments there. Retrying from the start (_2) after that fix, all work (ER off, no testbed)
-# through _10d... far enough for now, since I need to redo all these with EVAL_REFORM turned on. All ok thru _9a... [some "ok exceptions" noted with indiv tests]
-# _19f still fails as expected... why don't i see more errors due to delegate not being an instance? maybe i'll get there after _9a.... ####
-# What I do see is a ###BUG from no local ipath mod (I guess) in testexpr_9fx4! This bug is also in _9fx 5 & 6, and in _10a & b --
-# serious bug! ### fix that before going on... partly fixed, fixes _9fx4 [late 070118] -- now try the others: _9fx 5 & 6 ok now;
-# _10a behaves better (openclose works now to toggle openness) but still has the "bug: expr or lvalflag for instance changed" message,
-# as predicted in last night's commit comment in instance_helpers.py -- and the openclose icon itself does not get updated (it always
-# looks open even when you toggle it closed), presumably due to the lack of inval from the self._i_instance_decl_data[index] = newdata
-# after that bug message. So I have a definite ###BUG (_10a openclose icon not updated) to fix now. Do that next.
+testexpr = testexpr_14 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
-testexpr = testexpr_19g ## testexpr_19g _26g _28
-
-
-    ##### try it with misspelled attrname
-    # to see if that explains the err it got, infrecur in delegate. ################
-
-
-    # as of 070121 at least these work ok in EVAL_REFORM kluge070119: _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
+    # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
+    # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
     # and finally _19d (bugfixed for non-ER case re ipath[0], and for ER case re delegate autoInstance).
     # The delegate autoInstance takes care of the last known bug in ER (IIRC, which is far from certain),
     # but a lot of tests have never been done in it.
     
-
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
     ## testexpr_19d
@@ -1167,6 +1117,7 @@ testexpr = testexpr_19g ## testexpr_19g _26g _28
         # testexpr_9cx has a bug, in highlightable with projection = True... the current_glselect cond fix attempt didn't fix it.
         # status 061209 eve: has debug prints, debug ideas are on paper, but for now I'll use a different method (not projection matrix)
         # for doing things like DrawInCorner1. [not using overrider doesn't fix it.]
+        # status 070122: seemed to work recently in ER, don't know why, details commented next to the test.
         #
         # BUG in testexpr_9c (later: and all other highlightables), noticed 061210 morn g4:
         # a rapid motion onto the Highlightable doesn't highlight it, tho it does update sbar text.
@@ -1176,11 +1127,11 @@ testexpr = testexpr_19g ## testexpr_19g _26g _28
     ## testexpr_10c double-nested toggleshow of highlightable rect
     ## testexpr_11r1b image with black padding; _11s1 highlightable stretched image
     ## testexpr_13z4 red/blue image
-    ## testexpr_15d ChoiceColumn
+    ## testexpr_14 array of hidden-state icons for MT (from cad/images) (change if 0 to if 1 to see non-hidden icons) [retested 070122]
+    ## testexpr_15d ChoiceColumn [briefly retested 070122]
     ## testexpr_16 state test  (testexpr_16c for controlling origin axes)
     ## testexpr_18 model tree demo [only use of MT exprhead in this file -- that exprhead and its module need renaming btw]
-    ## testexpr_19b GraphDrawDemo_FixedToolOnArg1 -- works, but the tool remains IN DEVEL ###
-        # _19c has checkbox overlay; _19d puts it in corner (works but highlight-sync bug is annoying)
+    ## testexpr_19g GraphDrawDemo_FixedToolOnArg1 -- works [070122]; for non-ER the last tested was _19f; older _19d lacks clear button
     ## testexpr_20 four DrawInCorners (works but highlighting is slow)
     ## testexpr_21e table of alignment testers; _21g same in class form
     ## testexpr_22 ChoiceRow (in corner)
@@ -1197,9 +1148,7 @@ testexpr = testexpr_19g ## testexpr_19g _26g _28
     # some history:
     # ... after extensive changes for _this [061113 932p], should retest all -- for now did _3x, _5d, _6a thru _6e, and 061114 6g*, 6h*
 
-    #obs cmt: buglike note 061112 829p with _5a: soon after 5 reloads it started drawing each frame twice
-    # for no known reason, ie printing "drew %d" twice for each number; the ith time it prints i,i+1. maybe only after mouse
-    # once goes over the green rect or the displist text (after each reload)? not sure. [later realized it's just the glselect redraw.]
+# ==
 
 def get_redraw_counter(): #070108
     "#doc [WARNING: this is not a usage/change-tracked attribute!]"
