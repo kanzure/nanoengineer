@@ -72,8 +72,7 @@ class Center(DelegatingInstanceOrExpr):
     thing = Arg(Widget2D)
     dx = (thing.bleft - thing.bright)/2.0
     dy = (thing.bbottom - thing.btop)/2.0
-    delegate = Instance( Translate(thing, V_expr(dx,dy,0)) ) ### see if Instance fixes ###EVAL_REFORM bug, 070118 935a --
-        ## yes, and doesn't break non-EVAL_REFORM case either, w/ or w/o testbed, in testexpr_5a 
+    delegate = Translate(thing, V_expr(dx,dy,0))
 
 class BottomCenter(DelegatingInstanceOrExpr):
     thing = Arg(Widget2D)
@@ -111,7 +110,7 @@ class CenterX(DelegatingInstanceOrExpr):
 class CenterY(DelegatingInstanceOrExpr):
     thing = Arg(Widget2D)
     dy = (thing.bbottom - thing.btop)/2.0
-    delegate = Instance(Translate(thing, V_expr(0,dy,0)))### see if Instance fixes ###EVAL_REFORM bug
+    delegate = Translate(thing, V_expr(0,dy,0))
 
 # == not yet working: a form with less duplicated code
 

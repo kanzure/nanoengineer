@@ -807,8 +807,14 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         return oldfunc(*args)
 
     def _C__delegate(self):#070121
-        # print "_C__delegate returns %r from %r" % (self.delegate, self) #works
-        return self.delegate ###stub
+        ## print "_C__delegate returns %r from %r" % (self.delegate, self)
+        ## return self.delegate # stub - works
+        delegate = self.delegate
+        if is_pure_expr(delegate):
+            # instantiate it, as if it was wrapped with Instance -- do exactly what Instance would do
+            delegate = self._i_instance( delegate, 'delegate')
+                # is that the same index Instance would use? I think so (it gets passed _E_ATTR which should get replaced with this).
+        return delegate
     pass # end of class InstanceOrExpr
 
 # ===
@@ -935,6 +941,8 @@ class InstanceMacro(InstanceOrExpr, DelegatingMixin): # ca. 061110; docstring re
         printnim("is this eval_Expr correct or not? does it even make any difference??")
         ## delegate = Instance( eval_Expr(_self._value), '!_value') #### guess about fixing testexpr_5 bug; didn't make any clear difference [070117]
         delegate = Instance( _self._value, '!_value') # innocent until proven guilty, even if suspected (more seriously, don't change what might not be wrong)
+        # Note: as of 070121 late, due to changes in IorE, this explicit Instance() should no longer be needed (when EVAL_REFORM or not).
+        # But that's only been tested in other classes and when EVAL_REFORM.
     else:
         # old code, worked for a long time
         delegate = Instance( _self._value, '!_value') #k guess: this might eval it once too many times... ####k

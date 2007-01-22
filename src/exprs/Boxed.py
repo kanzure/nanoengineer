@@ -79,6 +79,10 @@ class Boxed_old_070120(DelegatingInstanceOrExpr):
     delegate = Instance( Overlay( RectFrame( ww, hh, thickness = borderthickness, color = bordercolor),
                       thing,
                       align = Center ) )
+        # Note: as of 070121 late, due to changes in IorE, this explicit Instance() should no longer be needed (when EVAL_REFORM or not).
+        # But that's only been tested in other classes and when EVAL_REFORM.
+        #
+        # older debug comments:
         # 070120 the bug in _5x EVAL_REFORM kluge070119 is lexbinding the _self in _self.ww in this expr
         # to Overlay (wrong), not Boxed_old (correct), but [i guess ##k] only when that kluge is turned on.
         # Can I put a debug wrapper on that subexpr, so that when its environment changes, we print the value of _self it sees?? ###e

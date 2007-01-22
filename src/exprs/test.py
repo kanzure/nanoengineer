@@ -1093,7 +1093,9 @@ enable_testbed = True # since True doesn't yet work with EVAL_REFORM
 
 testexpr = testexpr_19d
     # as of 070121 at least these work ok in EVAL_REFORM kluge070119: _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
-    # but not yet _19d (tho I just bugfixed it for the non-ER case)
+    # and finally _19d (bugfixed for non-ER case re ipath[0], and for ER case re delegate autoInstance).
+    # The delegate autoInstance takes care of the last known bug in ER (IIRC, which is far from certain),
+    # but a lot of tests have never been done in it.
     
 
     ## testexpr_24b
