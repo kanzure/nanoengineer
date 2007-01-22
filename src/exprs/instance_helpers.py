@@ -805,26 +805,34 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         assert not args
         print "called _e_decorate_draw in %r" % self### remove when works [070104] (note: calling this is nim as of late 070104)
         return oldfunc(*args)
-    
+
+    def _C__delegate(self):#070121
+        # print "_C__delegate returns %r from %r" % (self.delegate, self) #works
+        return self.delegate ###stub
     pass # end of class InstanceOrExpr
 
 # ===
 
 _DELEGATION_DEBUG_ATTR = '' # you can set this to an attrname of interest, at runtime, for debugging
 
-class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr
-    """#doc: like Delegator (with no caching, in case the delegate varies over time),
-    but self.delegate should be defined by the subclass
-    (e.g. it might be recomputable from a formula or _C_delegate method handled by ExprsMeta, or assigned in __init__).
-    Also, doesn't start delegating until self is an Instance. [##e For now, prints fyi when asked to, tho that's not an error.]
-    Also, DOESN'T DELEGATE attrs that start with '_'.
-       Note that the Instance-related semantics mean it's only useful for Exprs.
-    [##e Maybe we could generalize it to use a more general way of asking the pyinstance whether to delegate yet,
-     like some other optional flag attr or method.
-     (But probably not just by testing self.delegate is None, since the point is to avoid running a compute method
-      for self.delegate too early.)]
+class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr #070121 renamed delegate -> _delegate, let IorE relate them
+    """#doc: like Delegator, but:
+    - we delegate to self._delegate rather than self.delegate
+    - we don't delegate any attrs that start with '_'
+    - no caching, in case the delegate varies over time
+    - self._delegate should be defined by the subclass rather than being an instance variable of this class
+      (e.g. it might be recomputable from a formula or _C__delegate compute method handled by ExprsMeta,
+       or assigned in __init__)
+    - we only support subclasses which also inherit from InstanceOrExpr
+      - note: they should include InstanceOrExpr before DelegatingMixin in their list of base classes
+      - note: InstanceOrExpr defines a compute method for self._delegate from self.delegate (which instantiates it if needed)
+    - we don't start delegating until self is an Instance; before that we print a warning to say it was tried. (#k is it an error??)
+      [##e This is why we don't support use by non-IorE subclasses. Maybe we could generalize this class to use a more general way
+       of asking the pyinstance whether to delegate yet, like some other optional flag attr or method.
+       (But probably not just by testing self._delegate is None, since the point is to avoid running a compute method
+        for self._delegate too early -- in IorE subclasses this would cause an error when they're a pure expr.)]
     """
-    ##e optim: do this instead of the assert about attr: delegate = None # safer default -- prevent infrecur
+    ##e optim: do this instead of the assert about attr: _delegate = None # safer default -- prevent infrecur
     def __getattr__(self, attr):
         try:
             return super(DelegatingMixin,self).__getattr__(attr)###k need to verify super args in python docs, and lack of self in __getattr__
@@ -838,7 +846,7 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr
             if attr.startswith('_'):
 # useful debug code -- commented out, but keep around for now [061110]:
 ##                if not attr.startswith('__'):
-##                    # additional test hasattr(self.delegate, attr) doesn't work: AssertionError: compute method asked for on non-Instance
+##                    # additional test hasattr(self._delegate, attr) doesn't work: AssertionError: compute method asked for on non-Instance
 ##                    # we need that test but I don't know how to add it easily. __dict__ won't work, the attr might be defined on any class.
 ##                    # maybe look in __dict__ of both self and its class?? #e
 ##                    print "warning: not delegating missing attr %r in %r (don't know if defined in delegate)" % \
@@ -850,24 +858,27 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr
                 ##k reviewing this 061109, I'm not sure this is viable; maybe we'll need to exclude only __ or _i_ or _e_,
                 # or maybe even some of those need delegation sometimes -- we'll see.
                 #e Maybe the subclass will need to declare what attrs we exclude, or what _attrs we include!
-            assert attr != 'delegate', "DelegatingMixin refuses to delegate self.delegate (which would infrecur) in %r" % self 
+            assert attr != 'delegate', "DelegatingMixin refuses to delegate self.delegate (which would infrecur) in %r" % self
+                # that assert makes sense even though our low-level delegate is now self._delegate. [070121]
             if expr_is_Instance(self):
                 recursing = self.__dict__.setdefault('__delegating_now', False) # note: would be name-mangled if set normally
-                assert not recursing, "recursion in self.delegate computation in %r" % self #061121
+                assert not recursing, "recursion in self._delegate computation in %r" % self #061121
                 self.__dict__['__delegating_now'] = True
                 try:
-                    delegate = self.delegate
+                    delegate = self._delegate
                 finally:
                     self.__dict__['__delegating_now'] = False #e or could del it, presumed less efficient, not sure
                 ##e could check that delegate is not None, is an Instance (??), etc (could print it if not)
                 #k Should it be silently tolerated if delegate is None? Probably no need -- None won't usually have the attr,
                 # so it will raise the same exception we would. Are there confusing cases where None *does* have the attr??
                 # I doubt it (since we're excluding _attrs). But it's worth giving more info about likely errors, so I'm printing some.
-                if delegate is None or is_pure_expr(delegate): ##k is None in fact unlikely to be valid?
-                    print_compact_stack( "likely-invalid delegate %r for %r in self = %r: " % (delegate, attr, self)) #061114
+                if delegate is None:
+                    raise AttributeError, attr # new feature 070121: this means there is no delegate (more useful than a delegate of None).
+                if is_pure_expr(delegate):
+                    print_compact_stack( "likely-invalid _delegate %r for %r in self = %r: " % (delegate, attr, self)) #061114
+                if attr == _DELEGATION_DEBUG_ATTR: # you can set that to any attr of current interest, for debugging
+                    print "fyi: delegating %r from %r to %r" % (attr, self, delegate)
                 try:
-                    if attr == _DELEGATION_DEBUG_ATTR: 
-                        print "fyi: delegating %r from %r to %r" % (attr, self, delegate)
                     return getattr(delegate, attr) # here is where we delegate. It's normal for this to raise AttributeError (I think).
                 except AttributeError:
                     #### catching this is too expensive for routine use (since I think it's often legitimate and maybe common -- not sure),
@@ -878,7 +889,7 @@ class DelegatingMixin(object): # 061109 # see also DelegatingInstanceOrExpr
                         print msg
                     raise AttributeError, msg
             print "DelegatingMixin: too early to delegate %r from %r, which is still a pure Expr" % (attr, self)
-                # might be an error to try computing self.delegate this early, so don't print it even if you can compute it
+                # it might be an error to try computing self._delegate this early, so don't print it even if you can compute it
                 # (don't even try, in case it runs a compute method too early)
             raise AttributeError, attr
         pass
