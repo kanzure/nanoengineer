@@ -815,21 +815,23 @@ testexpr_19g_try1_fails = eval_Expr( call_Expr( lambda thing:
 # Is there a sensible default binding for _self? In this lexical place it might be "the _app, found dynamically"...
 # but to be less klugy we want to make Instance work differently here... or use a different thing to make one...
 # or make Instance an expr. Or at least give it a helper func to have a backup for _self._i_instance failing or _self having no value.
-# But as a test I can just manually insert whatever would work for that... hmm, how about 
+# But as a test I can just manually insert whatever would work for that... hmm, how about:
 testexpr_19g = eval_Expr( call_Expr( lambda thing:
                                      Overlay( thing,
                                               DrawInCorner( Boxed(
                                                   eval_Expr( call_Expr( demo_drag_toolcorner_expr_maker, thing.world )) )) ),
                                      ## _app._i_instance(testexpr_19b)
                                          # safety rule: automatic formation of getattr_Expr not allowed for attrs starting _i_
-                                     ## call_Expr( getattr_Expr(_app, '_i_instance'), testexpr_19b, "#19b") #e should implem _app.Instance
-
+                                     ## call_Expr( getattr_Expr(_app, '_i_instance'), testexpr_19b, "#19b") # has bug, same as below
+                                         #e but should implem _app.Instance to make it clearer -- done now:
                                      call_Expr( _app.Instance, testexpr_19b, "#19b")
-                                     ))
-# now this says AssertionError: EVAL_REFORM means we should not eval an instance: <GraphDrawDemo_FixedToolOnArg1#18549(i)>
+                                     )) # works now; historical details:
+# now this says "AssertionError: EVAL_REFORM means we should not eval an instance: <GraphDrawDemo_FixedToolOnArg1#18549(i)>"
 # but I think that might be wrong, though I can see the motive: it means a non-expr was passed to eval, a likely bug.
 # That instance must be the value of this call_Expr, so why did it get evalled again? I need to find my simpler tests of
-# "pass an instance into another expr" and see if they too now have that assertfail.
+# "pass an instance into another expr" and see if they too now have that assertfail. That is _26, it was wrong for EVAL_REFORM,
+# made _26g, it had same assert (I think, not properly tested), removed that assert (see caveat comments there),
+# now both work ok [070122 1118p]. ### remove these historical details after commit
 
 # == DrawInCorner
 
@@ -1076,13 +1078,16 @@ testexpr_25 = ActionButton( PrintAction("pressed me"), "test button")
 testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , testexpr_10c )) # no longer a correct test [070122]
     # pre-EVAL_REFORM status: works, except for highlighting bug --
     # when you draw one instance twice, Highlightables only work within the last-drawn copy. See BUGS file for cause and fix.
-    # EVAL_REFORM status 070122: this no longer makes a shared instance -- it shows different instances of the same expr. ###BUG in eg
+    # EVAL_REFORM status 070122: this no longer makes a shared instance -- it shows different instances of the same expr.
+    # So use _26g instead.
 
 # try the same fix for EVAL_REFORM as we're trying in _19g [070122 1017a]:
 testexpr_26g = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) ,
-                                     ## _app.Instance(testexpr_10c, "10c") # AssertionError: getattr exprs are not callable [ok??]
-                                     call_Expr( _app.Instance, testexpr_10c, "10c")
-                                     )) # -- AssertionError: recursion in self._delegate computation in <Overlay#31189(i)> ###BUG
+                                     call_Expr( _app.Instance, testexpr_10c, "_26g")
+                                     )) # works (but highlight only works on right, as explained above); historical details:
+    # this had "AssertionError: recursion in self._delegate computation in <Overlay#31189(i)>" but I suspect that was due to reload error
+    # since after reload it and _19g had the assert (mentioned near _19g) whose removal fixed them. After this commit [070122 1121a]
+    # I can  ### remove these historical details after commit.
 
 # == TestIterator [070122]
 
@@ -1090,6 +1095,11 @@ testexpr_27preq = SimpleColumn(testexpr_6f, testexpr_6f) # works (two different 
 testexpr_27 = TestIterator(testexpr_6f) # works [shows that ipaths differ]
 testexpr_27w = TestIterator_wrong_to_compare(testexpr_6f) # works -- ipaths are the same, since it makes one instance, draws it twice
 
+# ==
+
+testexpr_28 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) ,
+                                     call_Expr( _app.Instance_misspelled, testexpr_10c, "_28")
+                                     )) # this has "infrecur in delegate" bug, don't know cause yet ###BUG
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
@@ -1133,12 +1143,12 @@ enable_testbed = True # since True doesn't yet work with EVAL_REFORM
 # looks open even when you toggle it closed), presumably due to the lack of inval from the self._i_instance_decl_data[index] = newdata
 # after that bug message. So I have a definite ###BUG (_10a openclose icon not updated) to fix now. Do that next.
 
-testexpr = testexpr_19g ## testexpr_19g _26g
-    # where i am 070122 1025: these fail; _19g from AssertionError: EVAL_REFORM means we should not eval an instance: <GraphDrawDemo_FixedToolOnArg1#15231(i)>
-    # which is a likely misguided assert as some other cmt in this file says;
-    # _26g may fail from same thing now, tho ays diff, mayeb due to nonreload -- but try it with misspelled attrname
+testexpr = testexpr_19g ## testexpr_19g _26g _28
+
+
+    ##### try it with misspelled attrname
     # to see if that explains the err it got, infrecur in delegate. ################
-    # yes, 26g works now, needs fewer dprints -- try 19g also seems to work
+
 
     # as of 070121 at least these work ok in EVAL_REFORM kluge070119: _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
     # and finally _19d (bugfixed for non-ER case re ipath[0], and for ER case re delegate autoInstance).
@@ -1303,7 +1313,7 @@ if not enable_testbed:
 
  #e what next, planned optims, nim tests -- see below
 
-testnames = [] ##e show this in the testbed, like we show current redraw
+testnames = [] # note: we show this in the testbed via _app, like we show current redraw [070122]
 
 print "using testexpr %r" % testexpr
 for name in dir():

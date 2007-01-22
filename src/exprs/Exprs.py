@@ -371,8 +371,9 @@ class SymbolicExpr(Expr): # Symbol or OpExpr
             assert self._e_is_instance, \
                    "safety rule: automatic formation of getattr_Expr not allowed for attrs starting _i_, as in %r.%s" % \
                    (self, attr)
-                #k not positive this is ok, we'll see [061105] - hmm, failed with _app._i_instance(testexpr_19b),
-                # but that just means _app needs a public instancemaker rather than just that internal one
+                #k not positive this is ok, we'll see [061105]
+                # 070122 this failed with _app._i_instance(testexpr_19b) (and I added text to the assertion),
+                # but that just means _app needs a public instancemaker rather than just that internal one -- now it has .Instance
             # note: self._e_is_instance is defined in all pyinstance exprs, not only InstanceOrExpr.
         if attr.startswith('_e_') or attr.startswith('_i_'):
             # We won't pretend to find Expr methods/attrs starting _e_ (also used in Instances),
@@ -970,10 +971,11 @@ def canon_expr(subexpr):###CALL ME FROM MORE PLACES -- a comment in Column.py sa
     or (as a future optim #e) will also be wrapped with constant_Expr if they don't contain exprs.
        (In future, we might also intern the resulting expr or the input expr. #e)
     """
-    if is_Expr(subexpr):
+    if is_Expr(subexpr): # whether pure expr or Instance 
         if subexpr._e_serno == _debug_e_serno:
             print_compact_stack( "_debug_e_serno %d seen as arg %r to canon_expr, at: " % (_debug_e_serno, subexpr))
-        return subexpr # true for Instances too -- ok??
+        return subexpr
+            # true for Instances too -- ok?? [070122: see cmt in IorE._e_eval when EVAL_REFORM, which accomodates this]
 ##    ## elif issubclass(subexpr, Expr): # TypeError: issubclass() arg 1 must be a class
 ##    elif isinstance(subexpr, type) and issubclass(subexpr, Expr):
 ##        return subexpr # for _TYPE_xxx = Widget2D, etc -- is it ever not ok? ####k

@@ -432,8 +432,10 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         # handling of _value: done at a higher level only -- see InstanceMacro.
         if EVAL_REFORM: #070117
             ## assert not self._e_is_instance, "EVAL_REFORM means we should not eval an instance: %r" % self
-            if self._e_is_instance: # newly allowed 070122 for sake of _26g and _19g tests -- experimental (not tested ###)
-                print "fyi: instance %r evals to itself after EVAL_REFORM" % self # remove if this is deemed fully ok and normal
+            if self._e_is_instance:
+                # newly allowed 070122 for sake of _26g and _19g tests -- works
+                # [guess: this would not be needed if canon_expr wrapped Instances; not confirmed, but why make it bother doing that?]
+                # print "fyi: instance %r evals to itself after EVAL_REFORM" % self # remove if this is deemed fully ok and normal
                 return self
             # exprs that need instantiation eval to themselves. ###k will there be exceptions that are subclasses of this?
             ## printfyi("probably normal: eval to self of a subclass of IorE: %s" % self.__class__.__name__) # find out which classes this happens to ###
@@ -469,10 +471,11 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
         ipath = (index, ipath0)
         return env, ipath
 
-    def Instance(self, expr, index = None): #070122 experiment; note relationship to Instance macro (def Instance in another file)
-        """experimental toplevel interface (public for use in exprs) to self._i_instance; needs ##doc;
+    def Instance(self, expr, index = None): #070122; works, official for now; note relationship to Instance macro (also "def Instance")
+        """toplevel interface (public for use in exprs) to self._i_instance; needs ##doc;
         similar to Instance macro for use in class assignments;
-        where that uses ipaths relative to _self, this uses them relative to self.
+        except where that uses ipaths relative to _self, this uses them relative to self.
+        WARNING: Index arg is required for now, and matters a lot (unintended nonuniqueness is allowed but causes bugs).
         """
         # allocating an index might be nice, but I don't see how we can do it yet
         # (the issue is when it changes due to history of prior allocs)
