@@ -11,8 +11,8 @@ from basic import _self
 # ==
 
 class Widget(InstanceOrExpr):
-    # Widget can also be used as a typename for NamedLambda -- ok??
-    # I guess it just means it can be used to coerce things... see docstring-comment in Widget2D. #####@@@@@
+    # Widget can also be used as a typename -- ok??
+    # I guess that just means it can be used to coerce things... see docstring-comment in Widget2D. #####@@@@@
     """Class whose Instances will be drawable. [#doc more]"""
     def fix_color(self, color): #e move to glpane??
         """Return the given color, suitably formatted for passing to low-level drawing code for the current drawing medium.
@@ -50,66 +50,23 @@ class Widget2D(Widget):
     2. can coerce most drawable instances into (1).
     WARNING: I DON'T YET KNOW IF THOSE TWO ROLES ARE COMPATIBLE.
     """
-    # default layout-box formulas; for now i think these need _DEFAULT_ so they're overridable by customization, but later they won't
-    printnim("Widget2D formulas won't need _DEFAULT_, soon")
-    # in fact, they don't now, if they're internal not public re customization -- ####@@@@ [061103]
-    if 0: # 1->0 061114 late
-        _DEFAULT_bright = 0
-        _DEFAULT_btop = 0
-        _DEFAULT_bleft = 0
-        _DEFAULT_bbottom = 0
-    else:
-        # try just to see if it works - it did seem to work (didn't test customizability either way tho)
-        printnim("lbox defaults are not customizable -- wrong??")
-        bright = 0
-        btop = 0
-        bleft = 0
-        bbottom = 0
-    if 1: #061114 more defaults
-        width =  _self.bleft   + _self.bright
-        height = _self.bbottom + _self.btop
+    # default layout-box formulas
+    # bright is bbox size on right, bleft on left (both positive or zero) #e rename, bright is a word
+    printnim("lbox defaults are not customizable -- wrong??")
+        #k is this still true?? if so, is it wrong? IIRC old cmts suggest a fix... [070121]
+    bright = 0
+    btop = 0
+    bleft = 0
+    bbottom = 0
+    width =  _self.bleft   + _self.bright
+    height = _self.bbottom + _self.btop
+##    width =  bleft   + bright
+##    height = bbottom + btop
     pass # end of class Widget2D
-
-
-## DelegatingWidget2D = Widget2D ###STUB, needs DelegatingMixin too
-    #####@@@@@ this means, I think, Widget2D with arg1 used for layout... sort of like a "WidgetDecorator"...
-    #e should we have a DelegatingMixin instead? yes, making one elsewhere 061109...
-    # but we might end up defining DelegatingWidget2D for convenience, if we have a standard name for instantiated args
-    # (either in general or in that class)
-
-# this seems to have a logic bug it's not obviously possible to fix... so obs it; use DelegatingMixin directly instead. 061114
-##class DelegatingWidget2D(Widget2D, DelegatingMixin): # 061110; test, then generalize
-##    "#doc"
-##    # devel-scratch comments, 061110:
-##    # Provide a standard place to find arg-instances, but without precluding the client from declaring args itself...
-##    # hmm, that doesn't seem possible, if client would redeclare the first one.
-##    # So at least for now, we either declare them all (lazily, in case client class doesn't want some of them),
-##    # or just declare the first one and let the client declare more.
-##    # We'll do the latter, since ArgList doesn't work yet ###k.
-##    # Bug: Limitations in ExprsMeta or Arg or both mean that the client can't easily declare
-##    # more args... making this not very useful yet.###e
-##    # (Note that if the client wants its own access to an instance of _e_args[0],
-##    #  it would presumably want the same instance of that arg, not another instance of it.)
-##    ## delegate = Arg(Widget2D)
-##    # ... wait, it's ok to ask for the same instance twice if you use the same index and expr...
-##    # so if we just ask for the delegate using a "standard index", it should be compatible with separate arg decls
-##    # (which will overlap this use of arg[0]).
-##    # The following is what we want, but we'll have to form the exprs manually until we decide on a toplevel way to make the
-##    # pure-expr args accessible:
-##    ## delegate = Instance( _self._e_args[0], 0 )
-##    # needs _self, Instance, getattr_Expr
-##    delegate = Instance( getattr_Expr(_self, '_e_args')[0], 0 )
-##        #### I SUSPECT THIS IS WRONG and returns a non-instance delegate. This might be causing my weird bugs 061114 430p.
-##        # It's only used in Overlay, who is apparently delegating to uninstantiated Translate.
-##    pass
 
 # ==
 
-class WidgetExpr_OBS:##(InvalMixin): ###@@@ to become part of Widget2D, obs now, grabbed from testdraw1
-        # InvalMixin is for _get_ methods -- replace later with getter/setter properties in each one,
-        # or maybe make those from _get_ methods once per class
-        # bright is bbox size on right, bleft on left (both positive or zero) #e rename, bright is a word
-## ...
+class _misc_old_code: # not used now, maybe useful someday
     # helper methods (some really belong on other objects)
     def disable_color(self): ### really should be a glpane method
         "don't draw color pixels (but keep drawing depth pixels, if you were)"
@@ -126,3 +83,5 @@ class WidgetExpr_OBS:##(InvalMixin): ###@@@ to become part of Widget2D, obs now,
         for glname in self.saved_glnames: # wrong order, but only the total number matters
             glPopName()
     pass
+
+# end

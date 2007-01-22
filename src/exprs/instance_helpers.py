@@ -12,10 +12,6 @@ reload_once(lvals)
 from lvals import call_but_discard_tracked_usage, LvalError_ValueIsUnset
 from lvals import LvalDict1 # only needed by obs code
 
-##import Exprs
-##reload_once(Exprs)
-##from Exprs import * # at least Expr; note, basic now does this anyway, so this might not be needed
-
 import widget_env
 reload_once(widget_env)
 from widget_env import thisname_of_class #e refile import?? or make it an env method??
@@ -38,14 +34,6 @@ debug070120 = False # some debug prints, useful if bugs come up again in stuff r
 
 # ==
 
-class InstanceClass:#k super? meta? [#obs -- as of 061103 i am guessing this will completely disappear -- but i'm not sure]
-    "support all behavior needed by pure Expr Instances #[doc better] (which may or may not also be Exprs)"
-    # WARNING: much of the code in InstanceOrExpr might belong here. OTOH it might not make sense to split this out,
-    # since no method here can assume self is not a noninstance expr, even a method of this class, since self might be InstanceOrExpr.
-    #e call _init_instance, etc;
-    # rename? Instance [no, it's a macro], FormulaInstance... note also Expr, ExprHelper can be instances
-    pass
-
 # maybe merge this into InstanceOrExpr docstring:
 """Instances of subclasses of this can be unplaced or placed (aka "instantiated");
 if placed, they might be formulas (dependent on aspects of drawing-env state)
@@ -56,7 +44,7 @@ unless the env provided an overriding expansion for exprs headed by that subclas
 If it did, the instance created by placing such an expr will (usually) have some other class.
 """
 
-class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the basic kluge of using one class for both
+class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of using one class for both
     """Main superclass for specific kinds of Instance classes whose python instances can be either Instances or Exprs,
     and (more importantly for the user) whose use as a constructor usually constructs an Expr.
     Used (for example) for Column, Rect, If, Widget2D, etc. See elsewhere for general explanation [#nim].
@@ -183,12 +171,6 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         """[private, called by __init__ or indirectly by __call__]
         Modify self to give it optional args and optional ordinary keyword args.
         """
-# removed this 061212, since it never caught a bug:
-##        for kw in kws:
-##            if kw.startswith('_'):
-##                printfyi( "warning or error: this kw is being treated normally as an option, " \
-##                      "not as a special case, in spite of initial '_': %s" % kw) ###@@@ is this always an error?
-##                    # so far, happened (but not as error) with _tmpmode, ...
         if kws:
             self._destructive_customize(kws)
         if args or not kws:
@@ -260,7 +242,7 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         # PROVIDED we access them by name, not by position in self._e_args. (Is it reasonable to require that?? ###k)
         # Q. When do we type-coerce all args? For now, I guess we'll wait til instantiation. [And it's nim.]
         # [later 061106: handled by Arg macro.]
-##        printnim("type coercion of args & optvals")
+        printnim("type coercion of args & optvals")
         printnim("provision for multiple arglists,")
         printnim("* or ** argdecls,")
         printnim("checking for optnames being legal, or not internal attrnames")
@@ -399,10 +381,6 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         ## print "fyi my metaclass is",self.__metaclass__ # <class 'exprs.ExprsMeta.ExprsMeta'>
 
         #semi-obs cmts:
-        ### AND set up self.opts to access old._e_formula_dict, also perhaps adding effect of type coercers
-        ## print "compare self #formulas %d vs expr #formulas %d" % (len(self._e_formula_dict), len( expr._e_formula_dict)) # 0,3
-##        self._e_formula_dict = expr._e_formula_dict # kluge, no protection from bug that modifies it, but nothing is supposed to
-        ## print "self._e_formula_dict =",self._e_formula_dict
         ### AND have some way to get defaults from env
         ### AND take care of rules in env -- now is the time to decide this is not the right implem class -- or did caller do that?
         ### and did caller perhaps also handle adding of type coercers, using our decl??
@@ -424,20 +402,20 @@ class InstanceOrExpr(InstanceClass, Expr): # see docstring for discussion of the
         
         # call subclass-specific instantiation code (it should make kids, perhaps lazily, if above didn't; anything else?? ###@@@)
         self._init_instance()
-        self._debug_init_instance()#####070120
+        self._debug_init_instance()
         return # from _destructive_make_in
     
-    def _init_class(self): #e move to InstanceClass superclass? ###@@@ CALL ME
+    def _init_class(self): ###@@@ CALL ME
         """called once per directly-instantiated python class, when its first python instance is created
         [subclasses should replace this]
         """
         pass
-    def _init_expr(self): #e move to InstanceClass superclass? ###@@@ CALL ME
+    def _init_expr(self): ###@@@ CALL ME
         """called once per Expr when it gets its args [details unclear, maybe not yet needed]
         [subclasses should replace this]
         """
         pass
-    def _init_instance(self): #e move to InstanceClass superclass? let it be name-mangled, and call in mro order?
+    def _init_instance(self): #e let it be name-mangled, and call in mro order?
         """called once per python instance, but only when it represents a semantic Instance ###doc -- explain better
         [some subclasses should extend this, starting their versions with super(TheirName, self)._init_instance()]
         """

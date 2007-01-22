@@ -662,6 +662,7 @@ def prefix_nothing(clsname, attr0, val, **kws):
 
 def prefix_DEFAULT_(clsname, attr0, val, **kws):
     "WARNING: caller has to also know something about _DEFAULT_, since it declares attr0 as an option"
+    printfyi("_DEFAULT_ is deprecated and may soon be unsupported") #070121
     if 'kluge061103':
         assert val is canon_expr(val)
     else:
