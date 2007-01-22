@@ -24,12 +24,12 @@ assert len(_uninterned_from_interned) == len(_interned_from_uninterned) == (-101
 
 # The map from uninterned to interned will be
 #   int (always nonnegative in a fully uninterned ipath) -> itself
-#   string or None -> itself
+#   string or None or boolean -> itself
 #   tuple -> intern the components, then allocate a negative int (less than -100); dict key is tuple of 0 or more ints and strings
 #
 # The inverse map is:
 #   negative int -> through the dict
-#   positive int or string or None -> itself
+#   positive int or string or None or boolean -> itself
 #
 # Client code is free to mix uninterned and interned ipaths at will. [##doc this publicly]
 #
@@ -51,7 +51,7 @@ def is_interned(ipath):
         if not (ipath < -100 or ipath >= 0):
             print "ERROR: this int is not allowed as an ipath:",ipath # not an assert in case someone uses -1 -- we'll change spec if so
         return True # true either way: < -100 is an interned tuple, >= 0 is an interned int
-    if type(ipath) == str:
+    if type(ipath) in (str, bool):
         return True
     if ipath is None:
         return True
@@ -80,7 +80,7 @@ def _find_or_make_interned_ipath(ipath):
     return interned
 
 def intern_ipath(ipath):
-    """Change ipath (hashable python data made of tuples, strings, ints) into something shorter, but just as unique,
+    """Change ipath (hashable python data made of tuples, strings, ints, bools) into something shorter, but just as unique,
     which can't imitate an original (uninterned) one. To do this, use private knowledge about which ints and strings
     can be present in an original one. Be idempotent if ipath is already interned.
     """

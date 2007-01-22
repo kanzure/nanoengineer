@@ -883,10 +883,14 @@ def aligntest_by_name(afname):
     try:
         import Center
         af = getattr(Center, afname)
-        return aligntest(af)
+        res = aligntest(af)
+        worked = True #e or a version counter?? to be correct, i think it needs one [070122]
     except:
-        return BottomRight(TextRect("didn't work: %r" % afname,1,30))
-    pass
+        res = BottomRight(TextRect("didn't work: %r" % afname,1,30))
+        worked = False
+    ## return res
+    return local_ipath_Expr( (worked,afname), res)
+        # try local_ipath_Expr as a bugfix for _21e/_21g in EVAL_REFORM, 070122 -- partly works; for details see long comment in _21g.
 
 testexpr_21d = aligntest(Center)
 
@@ -912,11 +916,14 @@ def mybutton(xword, yword, choiceref): # later note: choiceref is really choicer
 
 table_21e = SimpleColumn(* [SimpleRow(* [mybutton(colword, rowword, choiceref_21e) for colword in colwords]) for rowword in rowwords])
 testexpr_21e = Translate( Overlay(
-    identity(eval_Expr)( call_Expr( aligntest_by_name, getattr_Expr(choiceref_21e, 'value'))) ,
+    eval_Expr( call_Expr( aligntest_by_name, getattr_Expr(
+        ## choiceref_21e, ###BUG in EVAL_REFORM noticed 070122 -- see below for fix-attempt
+        call_Expr( _app.Instance, choiceref_21e, 'testexpr_21e.choiceref_21e'),
+            # try this 070122 -- fixes it except for "bug: expr or lvalflag for instance changed", same as same change
+            # does for testexpr_21g, so for now I'm only doing further work in testexpr_21g.
+        'value'))) ,
     TopLeft( Boxed(table_21e))
-                        ), (-6,0) )
-    # needed bugfix: choiceref_21e.value -> getattr_Expr(choiceref_21e, 'value') -- is there a better way?? ###e
-    # ditto for call of aligntest on that -> call_Expr -- and eval_Expr (if it works) which is a ###KLUGE -- need better way for sure.
+                        ), (-6,0) ) # non-ER: works, IIRC. EVAL_REFORM [070122]: mostly works after bugfixes, same as _21g (which see).
 
     # all 15 primitives in the table are defined and working as of 061211 eve
 
@@ -924,11 +931,12 @@ testexpr_21f = Boxed( identity(Center)( Rect(2,3.5,purple))) # test lbox transla
     # (implem of lbox shift is in Translate, so no need to test all alignment prims if this works)
 
 class class_21g(DelegatingInstanceOrExpr): # see how far I can simplify testexpr_21e using an expr class [061212]
-    choiceref_21g = PrefsKey_StateRef("A9 devel scratch/testexpr_21g alignfunc", 'Center')
+    choiceref_21g = Instance( PrefsKey_StateRef("A9 devel scratch/testexpr_21g alignfunc", 'Center') ) #070122 bugfix for EVAL_REFORM
         # note: this is an expr. In current code [061212]: it's implicitly instantiated, i think.
         # In planned newer code [i think]: you'd have to explicitly instantiate it if it mattered,
         # but it doesn't matter in this case, since this expr has no instance-specific data or state.
-        # update 070122 -- indeed, it fails in EVAL_REFORM. Details in next commit.
+        # update 070122 -- indeed, it fails in EVAL_REFORM. Partly fixed by Instance above (the "it doesn't matter" above is nim ###e).
+        # For more of the fix see comments of this date below.
     colwords = ('Left', 'Center', 'Right', '')
     rowwords = ('Top', 'Center', 'Bottom', '')
     ## xxx = TextRect( format_Expr("%s", _this(ChoiceButton).choiceval), 1,12 ) #k is _this ok, tho it requires piecing together to work?
@@ -979,11 +987,44 @@ class class_21g(DelegatingInstanceOrExpr): # see how far I can simplify testexpr
     # now pass what we need to mybutton, direct from the class namespace -- will this work now, or do we need to do it before the staticmethod call??
     # yes, we got TypeError: 'staticmethod' object is not callable until we did that
     table_21g = SimpleColumn(* [SimpleRow(* [mybutton(colword, rowword, choiceref_21g) for colword in colwords]) for rowword in rowwords])
-    mybutton = staticmethod(mybutton) # could just as well be del mybutton, i think
+    mybutton = staticmethod(mybutton) # this statement could just as well be 'del mybutton', i think
     del mybutton #k ok?
-    # the following required compromises with current code: getattr_Expr, eval_Expr, no xxx in mybutton call above (due to _this vs autoinstantiation).
+    # the following required compromises with current code:
+    # getattr_Expr, eval_Expr, no xxx in mybutton call above (due to _this vs autoinstantiation).
     delegate = Overlay(
-        identity(eval_Expr)( call_Expr( aligntest_by_name, getattr_Expr(choiceref_21g, 'value') )) ,
+        eval_Expr( call_Expr( aligntest_by_name, getattr_Expr(choiceref_21g, 'value') )) ,
+        ###BUG in EVAL_REFORM noticed 070122: theory: this expr gets recomputed when the getattr_Expr's someobj.value is changed (correct),
+        # but the index assigned to it does not change (even though it includes components from the changed expr, which would change
+        # if it was due to an If that the expr changed). Symptom: "bug: expr or lvalflag for instance changed", and no update of the
+        # alignment demo display (both behaviors same as for _21e -- after both of them got a new manual Instance to fix a worse bug).
+        # This bug was predicted by a comment in class eval_Expr regarding changes in its argval (in this case, an expr constructed
+        # and returned by our ad-hoc external function, aligntest_by_name).
+        #
+        # Maybe refile these comments into class eval_Expr: ##e
+        # 
+        # The best fix would probably be to invalidate the instance at that fixed index, letting the index stay fixed, saying it's ok
+        # for the expr there to change. This requires inval access to the LvalDict2 used by _CV__i_instance_CVdict.
+        # It's best because it'll take care of all cases of "bug: expr or lvalflag for instance changed",
+        # albeit sometimes inefficiently. The details of how to best do this inval (by usage/change tracking of the expr)
+        # are not trivial... not yet worked out. ###e
+        #
+        # Another fix might be to wrap a varying part of this expr with some fixed Instance which absorbs the change.
+        # (That wrapper might need the previous fix internally, but it might be more efficient if the varying part
+        #  was smaller than it is now.) Not worked out. ###e
+        #
+        # Another fix might be to add something unique to the local ipath mods from this retval. I'm not sure this can work,
+        # since the innermost differing retval is not a pure expr -- unless I add it in an ad-hoc way to something outside that --
+        # which is a useful thing to be able to do, even if not the best general fix for this example. It could be done by a
+        # toplevel use of something like lexenv_ipath_Expr (perhaps inside aligntest func itself), or by an option to eval_Expr.
+        #   Note that if the goal is indeed to memoize any variants of this varying expr, but to be conservative about how much
+        # gets memoized, then this is the only principled fix. So on those grounds I'll try it by using the new local_ipath_Expr
+        # in aligntest_by_name.
+        #   This fix works fine in both _21e and this _21g, except that "bug: expr or lvalflag for instance changed"
+        # is still printed when equal but not identical exprs are seen at the same index (i.e. whenever we try any choice for the 2nd
+        # time (since remaking the main instance). In this case it doesn't indicate a real bug -- except that pure-expr equality should
+        # be based on formal structure, not pyobj identity. ###BUG
+
+            # [older comments, not reviewed on 070122:]
                 # predict failure here in .value, until I re-add getattr_Expr [and then? works]
                 # yes, it failed, but I didn't predict the exact manner: AssertionError: compute method asked for on non-Instance <PrefsKey_StateRef#105377(a)>
                 # and i'm unsure if it's equiv to what i predicted... ##k
@@ -997,7 +1038,7 @@ class class_21g(DelegatingInstanceOrExpr): # see how far I can simplify testexpr
      )
     pass
 
-testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p]
+testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p] -- but not yet fully in EVAL_REFORM [070122] ###BUG details above
 
 # ==
 
@@ -1098,7 +1139,7 @@ testexpr_28 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) ,
 
 enable_testbed = True
 
-testexpr = testexpr_14 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_21g ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
@@ -1133,7 +1174,8 @@ testexpr = testexpr_14 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testex
     ## testexpr_18 model tree demo [only use of MT exprhead in this file -- that exprhead and its module need renaming btw]
     ## testexpr_19g GraphDrawDemo_FixedToolOnArg1 -- works [070122]; for non-ER the last tested was _19f; older _19d lacks clear button
     ## testexpr_20 four DrawInCorners (works but highlighting is slow)
-    ## testexpr_21e table of alignment testers; _21g same in class form
+    ## testexpr_21e table of alignment testers; _21g same in class form -- update 070122: fixed ER bug & mostly fixed local-ipath bug;
+        # remaining bug requires better pure-expr equality (details in comments elsewhere) ###BUG
     ## testexpr_22 ChoiceRow (in corner)
     ## testexpr_23bh2 DisplistChunk
 

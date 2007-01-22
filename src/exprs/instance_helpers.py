@@ -561,10 +561,15 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
             if olddata is not None:
                 print "bug: expr or lvalflag for instance changed: self = %r, index = %r, new data = %r, old data = %r" % \
                       (self,index,newdata,olddata) #e more info? i think this is an error and should not happen normally
+                    # update 070122: it usually indicates an error, but it's a false alarm in the latest bugfixed testexpr_21g,
+                    # since pure-expr equality should be based on formal structure, not pyobj identity. ###e
+                
                 #e if it does happen, should we inval that instance? yes, if this ever happens without error.
                 # [addendum 061212: see also the comments in the new overriding method If_expr._e_eval.]
                 # [one way to do that: have _i_instance_decl_data contain changetracked state vars, changed above,
-                #  usage-tracked by _CV__i_instance_CVdict. 070120]
+                #  usage-tracked by _CV__i_instance_CVdict. But the env matters too, so we might want to compare it too,
+                #  or compare the expr before burrowing into it, and do the
+                #  burrowing later then?? But we can't, due to the index... ###e 070122]
 
             self._i_instance_decl_data[index] = newdata
         return self._i_instance_CVdict[index] # takes care of invals in making process? or are they impossible? ##k [see above]

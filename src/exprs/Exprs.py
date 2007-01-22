@@ -901,17 +901,43 @@ class lexenv_ipath_Expr(lexenv_Expr): #070118
     def __repr__(self):
         return "<%s#%d%s: %r, %r, %r>" % (self.__class__.__name__, self._e_serno, self._e_repr_info(),
                                       self._e_env0, self._e_local_ipath, self._e_expr0,)
-    def _e_locally_modify_ipath(self, ipath):
+    def _e_locally_modify_ipath(self, ipath): # WARNING: dup code for this in local_ipath_Expr and here
         localstuff = self._e_local_ipath # for now, just include it all [might work; might be too inefficient]
         if 1:
             # they are getting too long for debug prints already! [070121 morn]
             intern_ipath( ipath) # no need to use the result of this interning; not using it will make debug prints more understandable
-            localstuff2 = intern_ipath( localstuff)
+            localstuff2 = intern_ipath( localstuff) ###e optim: do this in init? is that equivalent?? I think so... ######e
             # print "interned %r to %r" % (localstuff, localstuff2) # works
             localstuff = localstuff2
         return (localstuff, ipath)
-    pass
-    
+    pass # lexenv_ipath_Expr
+
+class local_ipath_Expr(lexenv_Expr): #070122 experimental
+    "experimental -- just add some local ipath components to the ipath -- no change in env"
+    #e probably, these 3 classes should be reorg'd into abstract/mixin1/mixin2/3reals,
+    # so the shared code for doing more stuff (to env or to ipath) comes from mixins
+    def _internal_Expr_init(self):
+        (self._e_local_ipath, self._e_expr0) = self.args
+    def __repr__(self):
+        return "<%s#%d%s: %r, %r>" % (self.__class__.__name__, self._e_serno, self._e_repr_info(),
+                                      self._e_local_ipath, self._e_expr0,)
+    def _e_burrow_for_find_or_make_1step(self, env, ipath):
+        """[overrides lexenv_Expr implem]"""
+        "[private helper method for _e_burrow_for_find_or_make]"
+        new_expr = self._e_expr0        
+        new_env = env # differs from superclass
+        new_ipath = self._e_locally_modify_ipath(ipath)
+        return (new_expr, new_env, new_ipath)
+    def _e_locally_modify_ipath(self, ipath):
+        # WARNING: dup code from lexenv_ipath_Expr (differs from superclass)
+        localstuff = self._e_local_ipath 
+        if 1:
+            intern_ipath( ipath)
+            localstuff2 = intern_ipath( localstuff)
+            localstuff = localstuff2
+        return (localstuff, ipath)
+    pass # local_ipath_Expr
+
 class eval_Expr(OpExpr):
     """An "eval operator", more or less. For internal use only [if not, indices need to be generalized].
     Used when you need to put an expr0 inside some other expr1 where it will be evalled later,
@@ -942,6 +968,8 @@ class eval_Expr(OpExpr):
                 # update 070118: the plan is that argval will soon have a local-ipath-modifier as its outer layer,
                 # which adds something to the ipath we pass to the submethod above, thus presumably solving the problem
                 # (though until we intern exprs/ipaths and/or memoize the ipath->storage association, it might make things slower).
+                # update 070122: but it doesn't yet solve it for testexpr_21e or _21g, in which an ad-hoc function returns an expr
+                # based on a passed argument (according to a guess at the bug cause). See discussion near testexpr_21g.
         except:
             print "following exception concerns argval.%s(...) where argval is %r and came from evalling %r" % \
                   (whatever, argval, arg) #061118, revised 070109 & 070117
