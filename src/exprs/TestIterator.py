@@ -16,6 +16,10 @@ import transforms
 reload_once(transforms)
 from transforms import Translate
 
+import Column
+reload_once(Column)
+from Column import SimpleRow, SimpleColumn
+
 # == obs:
 
 HelperClass = Widget2D
@@ -51,7 +55,7 @@ class TestIterator_old_nevertried(HelperClass):
 
 # ==
 
-# real, but needs:
+# [was once] real, but needs:
 # - Maker or so
 # - review Instance
 # - imports
@@ -59,7 +63,7 @@ class TestIterator_old_nevertried(HelperClass):
 
 Maker = Stub # won't work, since Arg instantiates (unless several bugs conspire to make it work wrongly, eg with 1 shared instance)
 
-class TestIterator(InstanceMacro):
+class TestIterator_alsoobsnow_nevertried(InstanceMacro):
     "simple iterator which makes two instances of the same arg"
     #e for debug, we should make args to pass to this which show their ipaths as text!
     thing = Arg(Maker(Widget)) # Maker? ExprFor? ProducerOf? Producer? Expr?
@@ -79,7 +83,28 @@ class TestIterator(InstanceMacro):
     pass 
 
 ##print "w1 after ExprsMeta = %r" % (TestIterator.__dict__['w1'],) ###
- 
+
+# ==
+
+class TestIterator(InstanceMacro):
+    "simple iterator which makes two distinct instances of the same arg"
+    #e for debug, we should make args to pass to this which show their ipaths as text!
+    thing = ArgExpr(Widget)
+    w1 = Instance(thing)
+    w2 = Instance(thing) # two distinct instances
+    _value = SimpleColumn( w1, w2)
+    pass 
+
+class TestIterator_wrong_to_compare(InstanceMacro):
+    "variant of that which shows one Instance twice"
+    thing = Arg(Widget) # the only difference
+    w1 = Instance(thing) # these Instances will be idempotent
+    w2 = Instance(thing)
+    _value = SimpleColumn( w1, w2) # show one instance twice
+    pass 
+
+
+
 #k not reviewed:
 if 0: # Rect etc not imported yet
     goal1 = TestIterator(Rect(1,1,black))

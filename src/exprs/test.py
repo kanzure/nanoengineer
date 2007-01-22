@@ -79,7 +79,7 @@ from Center import * # e.g. Center, TopRight, CenterRight, Right; not yet comple
 
 import TestIterator
 reload_once(TestIterator)
-from TestIterator import TestIterator
+from TestIterator import TestIterator, TestIterator_wrong_to_compare
 
 import TextRect
 reload_once(TextRect)
@@ -1049,12 +1049,19 @@ testexpr_25 = ActionButton( PrintAction("pressed me"), "test button")
 testexpr_26 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) , testexpr_10c )) # works, except for highlighting bug --
     # when you draw one instance twice, Highlightables only work within the last-drawn copy. See BUGS file for cause and fix.
 
+# == TestIterator [070122]
+
+testexpr_27preq = SimpleColumn(testexpr_6f, testexpr_6f) # works (two different ipaths)
+testexpr_27 = TestIterator(testexpr_6f) # works [shows that ipaths differ]
+testexpr_27w = TestIterator_wrong_to_compare(testexpr_6f) # works -- ipaths are the same, since it makes one instance, draws it twice
+
 
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True # since True doesn't yet work with EVAL_REFORM
 
-# EVAL_REFORM status: 070117 439p, 511p
+# EVAL_REFORM status: [this comment is mostly OBS as of 070122 -- need to edit it down to 1-2 lines to keep ####DOIT]
+# 070117 439p, 511p
 # _19f and testbed: compute method on non-instance, details in a local debug notesfile ###BUG
 # _2 and no testbed: works
 # _2 and testbed: recursion in self.delegate in Highlightable ###BUG
@@ -1091,7 +1098,8 @@ enable_testbed = True # since True doesn't yet work with EVAL_REFORM
 # looks open even when you toggle it closed), presumably due to the lack of inval from the self._i_instance_decl_data[index] = newdata
 # after that bug message. So I have a definite ###BUG (_10a openclose icon not updated) to fix now. Do that next.
 
-testexpr = testexpr_19d
+testexpr = testexpr_27
+
     # as of 070121 at least these work ok in EVAL_REFORM kluge070119: _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
     # and finally _19d (bugfixed for non-ER case re ipath[0], and for ER case re delegate autoInstance).
     # The delegate autoInstance takes care of the last known bug in ER (IIRC, which is far from certain),
@@ -1188,6 +1196,7 @@ bottom_left_corner = Boxed(SimpleColumn(
             # update 070110 1040p: the bug is fixed in GLPane.py/changes.py; still not fully understood; more info to follow. ###e
         Highlightable(DisplistChunk(TextRect("current redraw: use checkbox (bug is fixed)"))) ####
     ),
+    Highlightable(DisplistChunk( CenterY(TextRect( format_Expr("testname: %r", _app.testname))) )),
  ))
     # cosmetic bugs in this: mouse stickiness on text label (worse on g4?) [fixed], and label not active for click [fixed],
     # but now that those are fixed, highlighting of text changes pixel alignment with screen,
@@ -1200,6 +1209,7 @@ top_left_corner = testexpr_10c # nested ToggleShow.
 class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 experiment]
     "helper class for use in testbed, to provide glue code between testexpr and the rest of NE1"
     redraw_counter = State(int)
+    testname = State(str)#070122
     delegate = Arg(Anything) # might need to delegate lbox attrs (or might not, not sure, but no harm in doing it)
     def draw(self):
         import env
@@ -1214,6 +1224,7 @@ class AppOuterLayer(DelegatingInstanceOrExpr): #e refile when works [070108 expe
         # (Would a separate lval for each draw fix it? would some kind of clear or ignore of invals at the right time fix it?
         #  the right time for the inval from this set right now is *now* in terms of changing what the redraw will do,
         #  but *never* in terms of causing the gl_update from our caller's use of this here. Not sure how to fix that. ####k 070109)
+        self.testname = ', '.join(testnames)
         if get_pref(debug_prints_prefs_key):
             print "AppOuterLayer: before delegate draw", env.redraw_counter###
         self.delegate.draw()
@@ -1254,10 +1265,14 @@ if not enable_testbed:
 
  #e what next, planned optims, nim tests -- see below
 
+testnames = [] ##e show this in the testbed, like we show current redraw
+
 print "using testexpr %r" % testexpr
 for name in dir():
     if name.startswith('testexpr') and name != 'testexpr' and eval(name) is testexpr:
         print "(which is probably %s)" % name
+        testnames.append(name)
+
 
 # == @@@
 
