@@ -191,8 +191,10 @@ class MT(InstanceMacro):
     open = State(bool, False)
     
     # other formulae
-    open_icon   = Overlay(Rect(0.4), TextRect('+',1,1))
-    closed_icon = Overlay(Rect(0.4), TextRect('-',1,1))
+    # Note, + means openable (ie closed), - means closable (ie open) -- this is the Windows convention (I guess; not sure about Linux)
+    # and until now I had them reversed. This is defined in two files and in more than one place in one of them. [bruce 070123]
+    open_icon   = Overlay(Rect(0.4), TextRect('-',1,1))
+    closed_icon = Overlay(Rect(0.4), TextRect('+',1,1))
     openclose_spacer = Spacer(0.4)
         #e or Invisible(open_icon); otoh that's no simpler, since open_icon & closed_icon have to be same size anyway
 

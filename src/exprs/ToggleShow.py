@@ -139,9 +139,15 @@ class ToggleShow(InstanceMacro):
         set_default_attrs( self.transient_state, open = True)
 
     # constants
+    # Note, + means openable (ie closed), - means closable (ie open) -- this is the Windows convention (I guess; not sure about Linux)
+    # and until now I had them reversed. This is defined in two files and in more than one place in one of them. [bruce 070123]
+    
+    open_icon   = Overlay(Rect(0.4), TextRect('-',1,1))
+    closed_icon = Overlay(Rect(0.4), TextRect('+',1,1))
+
     if 0:
-        open_icon   = TextRect('+',1,1) #stub
-        closed_icon = TextRect('-',1,1) #stub
+        open_icon   = TextRect('-',1,1) #stub
+        closed_icon = TextRect('+',1,1) #stub
     else:
         ####@@@@ I vaguely recall that Highlightable didn't work on text!
         # and indeed, highlighting doesn't seem to be working on those.
@@ -149,12 +155,12 @@ class ToggleShow(InstanceMacro):
         # BUT, with these grays anyway, clicks on the text are working. But it might be because the grays are behind them. ###k
         if 0 and 'varying rect sizes':
             # how it was during debugging
-            open_icon   = Overlay(Rect(0.5,1), TextRect('+',1,1)) # added 0.5 061120 1018p temp debug kluge
-            closed_icon = Overlay(Rect(1,0.5), TextRect('-',1,1)) #061120 changed impicit 1 -> 0.5
+            open_icon   = Overlay(Rect(0.5,1), TextRect('-',1,1)) # added 0.5 061120 1018p temp debug kluge
+            closed_icon = Overlay(Rect(1,0.5), TextRect('+',1,1)) #061120 changed impicit 1 -> 0.5
         else:
             # easier on the mouse-hand and eye
-            open_icon   = Overlay(Rect(0.4), TextRect('+',1,1)) # added 0.5 061120 1018p temp debug kluge
-            closed_icon = Overlay(Rect(0.4), TextRect('-',1,1)) #061120 changed impicit 1 -> 0.5
+            open_icon   = Overlay(Rect(0.4), TextRect('-',1,1)) # added 0.5 061120 1018p temp debug kluge
+            closed_icon = Overlay(Rect(0.4), TextRect('+',1,1)) #061120 changed impicit 1 -> 0.5
 
     # _value, and helper formulae
     
