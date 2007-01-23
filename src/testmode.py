@@ -190,7 +190,7 @@ class testmode(super):
 ##    def Draw(self):
 ####        # can we use smth lke mousepoints to print model coords of eyeball?
 ####        print "glpane says eyeball is now at", self.o.eyeball(), "and cov at", - self.o.pov, " ." ####@@@@
-##        basicMode.Draw(self)
+##        super.Draw(self)
 ##        self.endpoint = endpoint = self.origin + self.right * 10.0
 ##        drawline(white, self.origin, endpoint)
 ##        ## drawwirecube(purple, self.origin, 5.0)
@@ -203,19 +203,28 @@ class testmode(super):
 ##        self.guy.draw(self.o)
 ##        ## draw_debug_quats(self.o)
     
-    def keyPressEvent(self,event):
-        ascii = event.ascii()
-        key = event.key()
+    def keyPressEvent(self, event):
+        try:
+            ascii = event.ascii()
+        except:
+            # event.ascii() reportedly doesn't work in Qt4 [bruce 070122]
+            ascii = -1
+        try:
+            key = event.key()
+        except:
+            # no one reported a problem with this, but we might as well be paranoid about it [bruce 070122]
+            key = -1
         if ascii == ' ': # doesn't work
             self._please_exit_loop = True
         elif key == 32:
             self._please_exit_loop = True
         else:
-            basicMode.keyPressEvent(self,event) #060429 try to get ',' and '.' binding
+            super.keyPressEvent(self, event) #060429 try to get ',' and '.' binding #bruce 070122 basicMode->super
         return
     
-    def keyReleaseEvent(self,event):
-        pass ## thing.keyReleaseEvent(event)
+    def keyReleaseEvent(self, event):
+        ## thing.keyReleaseEvent(event)
+        super.keyReleaseEvent(self, event) #bruce 070122 new feature (probably fixes some bugs), and basicMode->super
 
     def makeMenus(self):
         super.makeMenus(self)
