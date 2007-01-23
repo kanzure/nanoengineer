@@ -248,7 +248,8 @@ class RuleList(...):
             if res:
                 return res
             assert res is None, "Rule %r applied to %r was %r -- should be None or something true" % (rule, thing, res)
-            #e maybe weaken that to a warning, so we can treat it as None and continue?
+            #e maybe weaken that to a warning, so we can treat it as None and continue? also file it centrally as a RuleOp method
+            # (assuming this can be a subclass of RuleOp (#e rename?), which I guess is itself a subclass of FunctionExpr)
             continue
         return None
     pass
@@ -265,3 +266,112 @@ class WithViewRule( ...) # it's not a good sign that i keep deferring the superc
 # Just make another macro like Arg, make it get told its starting pos like Arg does,
 # and let the type coercion in those macros *not* work by using type in direct call (like it may do now, not sure).
 # [070112 morn]
+
+# ==
+
+# older stuff than the above, moved here from demo_drag.py 070123, and then with a new docstring
+
+class WithViewerFunc(DelegatingInstanceOrExpr):#070105 stub experiment for use with use_VertexView option ### NOT YET USED non-stubbily
+    """[docstring added much later, 070123 -- not sure it matches original intent, but who cares, the code was a stub]
+    WithViewerFunc(world, viewerfunc) means show world using viewerfunc,
+    which converts some kinds of objects into new ones which are more directly viewable (usually by wrapping them with glue code).
+       (#k Is it an incremental addition in front of (and in series with, ie able to delegate to)
+     the existing env.viewerfunc? I think so.)
+       Note that viewerfunc is an example of a Rule or RuleSet or RuleOp (see rules.py) and is often a "memoizing mapping".
+    (More precisely, a Rule expr is typically instantiated into a memoizing mapping which uses it, by code in its highest abstract
+    superclass, perhaps RuleOp or MemoizingMapping.)
+       Conventions about a viewerfunc:
+    - When applied to a collection, it typically does nothing (as with any object it doesn't recognize),
+    but the default collection-viewer will usually use the full env's viewerfunc to view its elements,
+    so viewerfunc will end up getting applied to the collection's elements.
+    - When applied to things it doesn't recognize, it leaves them alone. (So it is *not* the kind of rule that returns None then. Hmm.)
+    - When it does recognize something, it should turn it into something more viewable, but perhaps still high-level
+    ie requiring other viewerfuncs to view it.
+    - Typically it turns some model objs into graphical objs, and leaves graphical objs alone,
+    but the same scheme might be used to turn HL graphicals into LL ones, applying styles and prefs.
+    """
+    world = Arg(Anything)
+    viewerfunc = Arg(Anything) ### NOT YET USED in this stub
+    delegate = _self.world # stub
+    #e what we actually want is to supply a different env to delegate == arg1, which contains a change from parent env,
+    # which depends on viewerfunc. We want a standard way to ask env for viewers, and the change should override that way.
+    # But we don't yet have a good way to tell this macro to override env for some arg.
+    # We probably have some way to do that by overriding some method to find the env to use for an arg...
+    # but we didn't, so i made one.
+    def env_for_arg(self, index): # 070105 experiment -- for now, it only exists so we can override it in some subclasses
+        env = self.env_for_args #e or could use super of this method [better #e]
+        if index == 0: #KLUGE that we know index for that arg (world, delegate, arg1)
+            env = env.with_lexmods({}) #### something to use viewerfunc
+        return env
+    pass
+
+# let's try a more primitive, more general version:
+
+class WithEnvMods(DelegatingInstanceOrExpr):#070105 stub experiment -- refile into instance_helpers.py if accepted ### NOT YET USED
+    """WithEnvMods(something, var1 = val1, var2 = val2) delegates to something, but with something instantiated
+    in a modified dynamic environment compared to self, in which env.var1 is defined by the formula val1, etc,
+    with the formulae interpreted as usual in the lexical environment of self (e.g. they can directly contain
+    Symbol objects which have bindings in env, or they can reference any symbol binding in env using _env.symbolname ###IMPLEM
+    or maybe other notations not yet defined such as _the(classname) ###MAYBE IMPLEM).
+    """
+    # The goal is to just say things like WithEnvMods(model, viewer_for_object = bla)
+    # in order to change env.viewer_for_object, with bla able to refer to the old one by _env.viewer_for_object, I guess.
+    # This assumes env.viewer_for_object is by convention a function used by ModelObjects to get their views. (Why "viewer" not "view"?)
+    delegate = Arg(Anything)
+    var1 = Option(Anything) ###WRONG, but shows the idea for now...
+    def env_for_arg(self, index):
+        env = self.env # note: not self.env_for_args, since we'd rather not lexically bind _my.
+            # But by convention that means we need a new lowercase name... ####e
+        if index == 0: #KLUGE that we know index for that arg (delegate, arg1)
+            mods = {} ###stub, WRONG
+                #### how do we make these mods? _e_kws tells which, but what env/ipath for the formulae?
+                # for that matter do we eval them all now, or (somehow) wait and see if env clients use them?
+                # ... would it be easier if this was an OpExpr rather than an InstanceOrExpr?
+            env = env.with_lexmods(mods)
+        return env
+    pass
+
+# == trivial prototype of central cache of viewers for objects -- copied/modified from demo_MT.py, 070105, not yet used, stub
+
+def _make_viewer_for_object(obj, essential_data):
+    ###stub
+    assert obj.__class__.__name__.endswith("Vertex")
+    return VertexView(obj)
+
+    # semiobs cmt (del or refile a bit below #e):
+    # args are (object, essential-data) where data diffs should prevent sharing of an existing viewer
+    # (this scheme means we'd find an existing but not now drawn viewer... but we only have one place to draw one at a time,
+    #  so that won't come up as a problem for now.)
+    # (this is reminiscent of the Qt3MT node -> TreeItem map...
+    #  will it have similar problems? I doubt it, except a memory leak at first, solvable someday by a weak-key node,
+    #  and a two-level dict, key1 = weak node, key2 = essentialdata.)
+
+def _make_viewer_for_object_using_key(key):
+    """[private, for use in a MemoDict or LvalDict2]
+    #doc
+    key is whatever should determine how to make the viewer and be used as the key for the dict of cached viewers
+    so it includes whatever matters in picking which obj to make/cache/return
+    but *not* things that determine current viewer
+    but in which changes should invalidate and replace cached viewers.
+    """
+    obj, essential_data, reload_counter = key ###k assume key has this form
+    print "make viewer for obj %r, reload_counter = %r" % (obj, reload_counter) ###
+    # obj is any model object
+    viewer = _make_viewer_for_object(obj)
+    return viewer
+
+_viewer_lvaldict = LvalDict2( _make_viewer_for_object_using_key )
+
+def _viewer_for_object(obj, essential_data = None): #####@@@@@ CALL ME
+    "Find or make a viewer for the given model object. Essential data is hashable data which should alter which viewer to find. ###k??"
+    from testdraw import vv
+    reload_counter = vv.reload_counter # this is so we clear this cache on reload (even if this module is not reloaded)
+    # assume essential_data is already hashable (eg not dict but sorted items of one)
+    key = (obj, essential_data, reload_counter)
+    lval = _viewer_lvaldict[ key ]
+    viewer = lval.get_value() ###k?
+    return viewer
+
+
+
+# end 

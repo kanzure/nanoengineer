@@ -65,46 +65,9 @@ import lvals
 reload_once(lvals)
 from lvals import Lval, LvalDict2, call_but_discard_tracked_usage
 
-# == trivial prototype of central cache of viewers for objects -- copied/modified from demo_MT.py, 070105, not yet used, stub
+# ==
 
-def _make_viewer_for_object(obj, essential_data):
-    ###stub
-    assert obj.__class__.__name__.endswith("Vertex")
-    return VertexView(obj)
-
-    # semiobs cmt (del or refile a bit below #e):
-    # args are (object, essential-data) where data diffs should prevent sharing of an existing viewer
-    # (this scheme means we'd find an existing but not now drawn viewer... but we only have one place to draw one at a time,
-    #  so that won't come up as a problem for now.)
-    # (this is reminiscent of the Qt3MT node -> TreeItem map...
-    #  will it have similar problems? I doubt it, except a memory leak at first, solvable someday by a weak-key node,
-    #  and a two-level dict, key1 = weak node, key2 = essentialdata.)
-
-def _make_viewer_for_object_using_key(key):
-    """[private, for use in a MemoDict or LvalDict2]
-    #doc
-    key is whatever should determine how to make the viewer and be used as the key for the dict of cached viewers
-    so it includes whatever matters in picking which obj to make/cache/return
-    but *not* things that determine current viewer
-    but in which changes should invalidate and replace cached viewers.
-    """
-    obj, essential_data, reload_counter = key ###k assume key has this form
-    print "make viewer for obj %r, reload_counter = %r" % (obj, reload_counter) ###
-    # obj is any model object
-    viewer = _make_viewer_for_object(obj)
-    return viewer
-
-_viewer_lvaldict = LvalDict2( _make_viewer_for_object_using_key )
-
-def _viewer_for_object(obj, essential_data = None): #####@@@@@ CALL ME
-    "Find or make a viewer for the given model object. Essential data is hashable data which should alter which viewer to find. ###k??"
-    from testdraw import vv
-    reload_counter = vv.reload_counter # this is so we clear this cache on reload (even if this module is not reloaded)
-    # assume essential_data is already hashable (eg not dict but sorted items of one)
-    key = (obj, essential_data, reload_counter)
-    lval = _viewer_lvaldict[ key ]
-    viewer = lval.get_value() ###k?
-    return viewer
+# _viewer_for_object, etc, moved to rules.py on 070123
 
 # ==
 
@@ -216,6 +179,15 @@ class Vertex(ModelObject): # renamed Node -> Vertex, to avoid confusion (tho it 
 
 # ==
 
+# Summary of this and Vertex_new -- make use_VertexView work --
+# [long comment added 070111; devel on this code has been inactive for a few days]
+#
+# it's an example of dynamically mapping selobj thru toolstate to get looks & behavior,
+# so the model object itself can be split out and needs no graphics/interaction code of its own.
+# My general sense in hindsight is that it's too low-level -- I need to figure out how all this could/should look as toplevel exprs.
+#
+# See a new file rules.py for more on that.
+
 class ModelObject_new(DelegatingInstanceOrExpr):
     ###e delegate = something from env.viewer_for_model_object(self) or so
     pass
@@ -236,68 +208,15 @@ class VertexViewer(DelegatingInstanceOrExpr, Viewer): ###k ok supers?
     delegate = Rect(1, color = _self.modelobj.color) ###WRONG details, also assumes _self.modelobj has a color, but some don't.
         ###e do we wrap it in a provider of new default options??
     ###e also needs behaviors...
-        
-# ==
-
-# Summary of this and Vertex_new -- make use_VertexView work --
-# [long comment added 070111; devel on this code has been inactive for a few days]
-#
-# it's an example of dynamically mapping selobj thru toolstate to get looks & behavior,
-# so the model object itself can be split out and needs no graphics/interaction code of its own.
-# My general sense in hindsight is that it's too low-level -- I need to figure out how all this could/should look as toplevel exprs.
-#
-# See a new file rules.py for more on that.
-
 
 ## viewerfunc = identity # stub - might better be that hardcoded helper func above ####e
 def viewerfunc(x):
     printfyi("viewerfunc is being used but is a stub")
     return x
 
-class WithViewerFunc(DelegatingInstanceOrExpr):#070105 stub experiment for use with use_VertexView option ### NOT YET USED non-stubbily
-    world = Arg(Anything)
-    viewerfunc = Arg(Anything) ### NOT YET USED in this stub
-    delegate = _self.world # stub
-    #e what we actually want is to supply a different env to delegate == arg1, which contains a change from parent env,
-    # which depends on viewerfunc. We want a standard way to ask env for viewers, and the change should override that way.
-    # But we don't yet have a good way to tell this macro to override env for some arg.
-    # We probably have some way to do that by overriding some method to find the env to use for an arg...
-    # but we didn't, so i made one.
-    def env_for_arg(self, index): # 070105 experiment -- for now, it only exists so we can override it in some subclasses
-        env = self.env_for_args #e or could use super of this method [better #e]
-        if index == 0: #KLUGE that we know index for that arg (world, delegate, arg1)
-            env = env.with_lexmods({}) #### something to use viewerfunc
-        return env
-    pass
+WithViewerFunc = Stub # see rules.py, to which I moved the more expansive stub of this, 070123
 
-# let's try a more primitive, more general version:
-
-class WithEnvMods(DelegatingInstanceOrExpr):#070105 stub experiment -- refile into instance_helpers.py if accepted ### NOT YET USED
-    """WithEnvMods(something, var1 = val1, var2 = val2) delegates to something, but with something instantiated
-    in a modified dynamic environment compared to self, in which env.var1 is defined by the formula val1, etc,
-    with the formulae interpreted as usual in the lexical environment of self (e.g. they can directly contain
-    Symbol objects which have bindings in env, or they can reference any symbol biding in env using _env.symbolname ###IMPLEM
-    or maybe other notations not yet defined such as _the(classname) ###MAYBE IMPLEM).
-    """
-    # The goal is to just say things like WithEnvMods(model, viewer_for_object = bla)
-    # in order to change env.viewer_for_object, with bla able to refer to the old one by _env.viewer_for_object, I guess.
-    # This assumes env.viewer_for_object is by convention a function used by ModelObjects to get their views. (Why "viewer" not "view"?)
-    delegate = Arg(Anything)
-    var1 = Option(Anything) ###WRONG, but shows the idea for now...
-    def env_for_arg(self, index):
-        env = self.env # note: not self.env_for_args, since we'd rather not lexically bind _my.
-            # But by convention that means we need a new lowercase name... ####e
-        if index == 0: #KLUGE that we know index for that arg (delegate, arg1)
-            mods = {} ###stub, WRONG
-                #### how do we make these mods? _e_kws tells which, but what env/ipath for the formulae?
-                # for that matter do we eval them all now, or (somehow) wait and see if env clients use them?
-                # ... would it be easier if this was an OpExpr rather than an InstanceOrExpr?
-            env = env.with_lexmods(mods)
-        return env
-    pass
-
-
-# ==
+# ===
 
 # for a quick implem, how does making a new node actually work? Let's assume the instance gets made normally,
 # and then a side effect adds it to a list (leaving it the same instance). Ignore issues of "whether it knows its MT-parent" for now.
