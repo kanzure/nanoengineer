@@ -890,7 +890,8 @@ def aligntest_by_name(afname):
         worked = False
     ## return res
     return local_ipath_Expr( (worked,afname), res)
-        # try local_ipath_Expr as a bugfix for _21e/_21g in EVAL_REFORM, 070122 -- partly works; for details see long comment in _21g.
+        # try local_ipath_Expr as a bugfix for _21e/_21g in EVAL_REFORM, 070122 -- partly works (fully after we have Expr.__eq__);
+        # for details see long comment in _21g.
 
 testexpr_21d = aligntest(Center)
 
@@ -920,10 +921,14 @@ testexpr_21e = Translate( Overlay(
         ## choiceref_21e, ###BUG in EVAL_REFORM noticed 070122 -- see below for fix-attempt
         call_Expr( _app.Instance, choiceref_21e, 'testexpr_21e.choiceref_21e'),
             # try this 070122 -- fixes it except for "bug: expr or lvalflag for instance changed", same as same change
-            # does for testexpr_21g, so for now I'm only doing further work in testexpr_21g.
+            # does for testexpr_21g, so for now I'm only doing further work in testexpr_21g. [fully fixed there & here, eventually]
         'value'))) ,
     TopLeft( Boxed(table_21e))
-                        ), (-6,0) ) # non-ER: works, IIRC. EVAL_REFORM [070122]: mostly works after bugfixes, same as _21g (which see).
+                        ), (-6,0) )
+    # non-EVAL_REFORM: works, IIRC.
+    # EVAL_REFORM [070122]: mostly works after bugfixes, same as _21g (which see).
+    # Later, works fully now, due to new Expr.__eq__, same as _21g. At all bugfix-stages (3 fixes I think) these egs behaved the same,
+    # tho in some cases they needed different variants of the same bugfix-change. [070122 late]
 
     # all 15 primitives in the table are defined and working as of 061211 eve
 
@@ -936,7 +941,7 @@ class class_21g(DelegatingInstanceOrExpr): # see how far I can simplify testexpr
         # In planned newer code [i think]: you'd have to explicitly instantiate it if it mattered,
         # but it doesn't matter in this case, since this expr has no instance-specific data or state.
         # update 070122 -- indeed, it fails in EVAL_REFORM. Partly fixed by Instance above (the "it doesn't matter" above is nim ###e).
-        # For more of the fix see comments of this date below.
+        # For more of the fix see comments of this date below. [fully fixed now]
     colwords = ('Left', 'Center', 'Right', '')
     rowwords = ('Top', 'Center', 'Bottom', '')
     ## xxx = TextRect( format_Expr("%s", _this(ChoiceButton).choiceval), 1,12 ) #k is _this ok, tho it requires piecing together to work?
@@ -1022,7 +1027,8 @@ class class_21g(DelegatingInstanceOrExpr): # see how far I can simplify testexpr
         #   This fix works fine in both _21e and this _21g, except that "bug: expr or lvalflag for instance changed"
         # is still printed when equal but not identical exprs are seen at the same index (i.e. whenever we try any choice for the 2nd
         # time (since remaking the main instance). In this case it doesn't indicate a real bug -- except that pure-expr equality should
-        # be based on formal structure, not pyobj identity. ###BUG
+        # be based on formal structure, not pyobj identity. Now that's fixed by a new Expr.__eq__ (except for loose ends documented
+        # in a comment there), and testexpr_21g seems to work fully now.
 
             # [older comments, not reviewed on 070122:]
                 # predict failure here in .value, until I re-add getattr_Expr [and then? works]
@@ -1038,7 +1044,7 @@ class class_21g(DelegatingInstanceOrExpr): # see how far I can simplify testexpr
      )
     pass
 
-testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p] -- but not yet fully in EVAL_REFORM [070122] ###BUG details above
+testexpr_21g = Translate( class_21g(), (-6,0) ) # works [061212 154p]; works in EVAL_REFORM [after 3 bugfixes, 070122]
 
 # ==
 
@@ -1139,13 +1145,14 @@ testexpr_28 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) ,
 
 enable_testbed = True
 
-testexpr = testexpr_21g ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_21e ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
     # and finally _19d (bugfixed for non-ER case re ipath[0], and for ER case re delegate autoInstance).
     # The delegate autoInstance takes care of the last known bug in ER (IIRC, which is far from certain),
     # but a lot of tests have never been done in it.
+    # Later: also _21g, _14, others.
     
     ## testexpr_24b
     ## testexpr_10c ## testexpr_9c
@@ -1174,8 +1181,9 @@ testexpr = testexpr_21g ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## teste
     ## testexpr_18 model tree demo [only use of MT exprhead in this file -- that exprhead and its module need renaming btw]
     ## testexpr_19g GraphDrawDemo_FixedToolOnArg1 -- works [070122]; for non-ER the last tested was _19f; older _19d lacks clear button
     ## testexpr_20 four DrawInCorners (works but highlighting is slow)
-    ## testexpr_21e table of alignment testers; _21g same in class form -- update 070122: fixed ER bug & mostly fixed local-ipath bug;
-        # remaining bug requires better pure-expr equality (details in comments elsewhere) ###BUG
+    ## testexpr_21e table of alignment testers; _21g same in class form -- update 070122: works in EVAL_REFORM too --
+        # after I fixed 3 bugs, including adding a mostly-complete pure-expr __eq__ (which has loose ends in Expr.__eq__ comments,
+        # which don't affect testexpr_21g/_21e).
     ## testexpr_22 ChoiceRow (in corner)
     ## testexpr_23bh2 DisplistChunk
 

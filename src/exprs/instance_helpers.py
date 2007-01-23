@@ -572,6 +572,12 @@ class InstanceOrExpr(Expr): # see docstring for discussion of the basic kluge of
                 #  burrowing later then?? But we can't, due to the index... ###e 070122]
 
             self._i_instance_decl_data[index] = newdata
+        else:
+            # they're equal
+            if 0 and olddata[0] is not expr: # this print worked, but it's not usually useful (not enough is printed) so I disabled it
+                # they're only equal because __eq__ is working on non-identical exprs [implemented in Expr late 070122]
+                print "fyi: non-identical exprs compared equal (did we get it right?): %r and %r" % (olddata[0], expr) ### remove sometime
+            pass
         return self._i_instance_CVdict[index] # takes care of invals in making process? or are they impossible? ##k [see above]
     def _CV__i_instance_CVdict(self, index):
         """[private] value-recomputing function for self._i_instance_CVdict.

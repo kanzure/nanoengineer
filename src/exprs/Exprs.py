@@ -132,6 +132,46 @@ class Expr(object): # notable subclasses: SymbolicExpr (OpExpr or Symbol), Insta
         # (the original use for this, needs_wrap_by_ExprsMeta, doesn't need it -- the check for _self is enough) [061027]
     def __init__(self, *args, **kws):
         assert 0, "subclass %r of Expr must implement __init__" % self.__class__.__name__
+    def __eq__(self, other):#070122
+        """Default implem for many but not all subclasses of Expr.
+        Note: we don't require _e_sernos to be equal!
+        """
+        # this and/or its overridings assume: same_vals works on Exprs [not tested or reviewed ###DOIT],
+        # and widget_env is also given a correct __eq__ [###NIM, means lexenv_Exprs will rarely compare equal when they should].
+        if self is other:
+            return True
+        if self.__class__.__name__ != other.__class__.__name__:
+            return False #e this might change someday when comparing proxies -- see comment below
+        if self.__class__ is not other.__class__:
+            print "warning: exprs passed to __eq__, sernos %r and %r, have different classes with same name %s -- reload issue?" % \
+                  (self._e_serno, other._e_serno, self.__class__.__name__)
+            return False # this is safest (e.g. it lets us assume other is an Expr in the remaining code)
+        if self._e_is_instance or other._e_is_instance: # this is not safe to ask unless we know other is an Expr
+            return False # Instances are only equal if identical, for now (and an Instance can't equal a non-Instance);
+                #e later two Instances might be equal if they know they're proxies for the same something else (not sure)
+        # now we're comparing two pure exprs of the same class
+        #e optim: if both are interned, return False; otherwise intern them and recompare
+        # In case of Numeric array args, should we only use __ne__, use same_vals, or trust what we compare here to come out of
+        # canon_expr? I think I'll trust canon_expr but use != anyway (redundant), but in constant_Expr use same_vals.
+        if self._e_has_args != other._e_has_args:
+            return False
+        if self._e_args != other._e_args:
+            return False
+        if self._e_kws != other._e_kws:
+            return False
+##        # now compare other data, whatever it might be... no, inefficient compared to letting subclasses extend this method.
+##        if self._e_other_data() != other._e_other_data():
+##            return False
+        return True
+    def __ne__(self, other):
+        return not self.__eq__(other)
+##    def _e_other_data(self): ###IMPLEM in all Expr classes with other data we need to compare
+##        """Subclasses must return a hashable inequality-comparable representation of their other data.
+##        Note that Numeric arrays would be ok, but not tuples containing them!
+##        If that proves to be a problem, we might split out and override _e_compare_other_data instead of this.
+##        (E.g. constant_Expr will have to deal with that issue somehow.)
+##        """
+##        return ()
     def _e_init_e_serno(self): # renamed from _init_e_serno_, 061205
         """[private -- all subclasses must call this; the error of not doing so is not directly detected --
          but if they call canon_expr on their args, they should call this AFTER that, so self._e_serno
@@ -744,6 +784,28 @@ class internal_Expr(Expr):
         return
     def _internal_Expr_init(self):
         assert 0, "subclass must implem"
+    def __eq__(self, other):
+        "[overrides Expr version; WARNING: must be overridden by any internal_Expr subclasses that use self.kws]"
+        if not Expr.__eq__(self, other):
+            return False
+        a1 = self.args
+        a2 = other.args # must be tuples
+        if a1 and a2:
+            if not same_vals(a1,a2): ####k assume same_vals works properly for Exprs; we need it due to Numeric arrays in lists or tuples
+                return False
+        else:
+            if a1 != a2: # 'or' might be faster, and is correct, but that's less clear, so nevermind -- someday this will be in C anyway
+                return False
+        # the following is not yet needed by any internal_Expr subclasses so far -- so leave it out for now, but keep the code
+        ##k1 = self.kws
+        ##k2 = other.kws
+        ##if k1 and k2:
+        ##    if not same_vals(k1,k2):
+        ##        return False
+        ##else:
+        ##    if k1 != k2:
+        ##        return False
+        return True
     pass
     
 class constant_Expr(internal_Expr):
