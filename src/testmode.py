@@ -4,10 +4,11 @@ testmode.py -- scratchpad for new code (mainly related to DNA Origami),
 OWNED BY BRUCE, not imported by default.
 
 FOR NOW [060716], NO ONE BUT BRUCE SHOULD EDIT THIS FILE IN ANY WAY.
+(Unless Ninad needs to edit the Qt4 version.)
 
 $Id$
 
-How to use:
+How to use:   [see also exprs/README.txt, which is more up to date]
 
   [this symlink is no longer needed as of 061207:]
   make a symlink from ~/Nanorex/Modes/testmode.py to this file, i.e.
@@ -133,12 +134,10 @@ class testmode(super):
         print "entering testmode again", time.asctime()
         self.reload()
         self.assy = self.w.assy
-##        hacktrack(self.o)
-##        hack_standard_repaint_0(self.o, self.pre_repaint)
         self.o.pov = V(0,0,0)
-        self.o.quat = Q(1,0,0,0) ##  + Q(V(1,0,0),10.0 * pi/180) ###k why?
+        self.o.quat = Q(1,0,0,0)
 
-        #k are these attrs still needed or used??
+        #k are these attrs still needed or used?? probably not...
         self.right = V(1,0,0) ## self.o.right
         self.up = V(0,1,0)
         self.left = - self.right
@@ -146,9 +145,6 @@ class testmode(super):
         self.away = V(0,0,-1)
         self.towards = - self.away
         self.origin = - self.o.pov ###k replace with V(0,0,0)
-##        self.guy = guy(self)
-        ##self.glbufstates = [0,0] # 0 = unknown, number = last drawn model state number
-##        self.modelstate = 1
         
         # set perspective view -- no need, just do it in user prefs
         res = super.Enter(self)
@@ -158,17 +154,27 @@ class testmode(super):
             testdraw.end_of_Enter(self.o)
         return res
 
-    def init_gui(self): #050528
+    def init_gui(self): #050528; revised 070123
         ## self.w.modifyToolbar.hide()
         self.hidethese = hidethese = []
+        win = self.w
         for tbname in annoyers:
             try:
-                tb = getattr(self.w, tbname)
-                if tb.isVisible(): # someone might make one not visible by default
-                    tb.hide()
-                    hidethese.append(tb) # only if hiding it was needed and claims it worked
+                try:
+                    tb = getattr(win, tbname)
+                except AttributeError: # someone might rename one of them
+                    import __main__
+                    if __main__.USING_Qt3: # most of them are not defined in Qt4 so don't bother printing this then [bruce 070123]
+                        print "testmode: fyi: toolbar missing: %s" % tbname # someone might rename one of them
+                else:
+                    if tb.isVisible(): # someone might make one not visible by default
+                        tb.hide()
+                        hidethese.append(tb) # only if hiding it was needed and claims it worked
             except:
-                print_compact_traceback("hmm %s: " % tbname) # someone might rename one of them
+                # bug
+                print_compact_traceback("bug in hiding toolbar %r in testmode init_gui: " % tbname)
+            continue
+        return
 
     def restore_gui(self): #050528
         ## self.w.modifyToolbar.show()
@@ -177,31 +183,9 @@ class testmode(super):
 
     def middleDrag(self, event):
         glpane = self.o
-##        q1 = Q(glpane.quat)
         super.middleDrag(self, event)
-##        self.modelstate += 1
-##        q2 = Q(glpane.quat)
-        ## novertigo(glpane)
-##        q3 = Q(glpane.quat)
-##        print "nv",q1,q2,q3
         return
 
-##    brickpos = 2.5
-##    def Draw(self):
-####        # can we use smth lke mousepoints to print model coords of eyeball?
-####        print "glpane says eyeball is now at", self.o.eyeball(), "and cov at", - self.o.pov, " ." ####@@@@
-##        super.Draw(self)
-##        self.endpoint = endpoint = self.origin + self.right * 10.0
-##        drawline(white, self.origin, endpoint)
-##        ## drawwirecube(purple, self.origin, 5.0)
-##        ## drawwirecube(gray, self.origin, 6.5)
-##        if 0: drawbrick(yellow, self.origin, self.right, 2.0,4.0,6.0)
-##        drawbrick(pink1, self.origin + V(self.brickpos,0,0), self.right, 2.0,4.0,6.0)
-##        # with red, its lighting is pretty poor; pink1 looks nice
-##        self.o.assy.draw(self.o)
-##        ## thing.draw(self.o, endpoint)
-##        self.guy.draw(self.o)
-##        ## draw_debug_quats(self.o)
     
     def keyPressEvent(self, event):
         try:
@@ -223,7 +207,6 @@ class testmode(super):
         return
     
     def keyReleaseEvent(self, event):
-        ## thing.keyReleaseEvent(event)
         super.keyReleaseEvent(self, event) #bruce 070122 new feature (probably fixes some bugs), and basicMode->super
 
     def makeMenus(self):
