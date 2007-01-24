@@ -1145,7 +1145,7 @@ testexpr_28 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) ,
 
 enable_testbed = True
 
-testexpr = testexpr_21e ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_19g ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
@@ -1577,4 +1577,29 @@ per_reload_state = {}     ### NOT YET USED as of 061120
 
 # also per_frame_state, per_drag_state ... maybe state.per_frame.xxx, state.per_drag.xxx...
 
+# ==
+
+# one-time tests: to do them, change if 0 to if 1:
+
+if 0:
+    class something(InstanceOrExpr):#070123
+        attr1 = Arg(int)
+        attr2 = attr1 # do we get a warning? yes (but it's not understandable -- that could be fixed).
+        ## formula <...> already in replacements -- error?? its rhs is <..._self.attr1...>; new rhs would be for attr 'attr2'
+        pass    
+if 0:
+    # above warning mentions in order attr1, attr2. does that depend on this order here? let's find out in this next test:
+    class something(InstanceOrExpr):
+        attr2 = Arg(int)
+        attr1 = attr2 # in what order does the warning mention these attrs? same order as before: attr1 then attr2.
+if 0:
+    # what if I ask Arg() to record locals().keys() when it runs? Won't help, even if it works -- when it runs, *neither*
+    # of these attrs will be defined in locals. Even so, does it work at all?? Yes.
+    class something(InstanceOrExpr):
+        print locals().keys() # ['__module__']
+        attr2 = 0
+        print locals().keys() # ['__module__', 'attr2']
+        attr1 = 0
+        print locals().keys() # ['__module__', 'attr2', 'attr1']
+        pass
 # end
