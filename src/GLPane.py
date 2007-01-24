@@ -2188,6 +2188,25 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 print "glpane end_tracking_usage" #bruce 070110
         return
 
+    drawing_phase = '?' # new feature, bruce 070124 (set to different fixed strings for different drawing phases)
+        # For now, this is only needed during draw (or draw-like) calls which might run drawing code in the exprs module.
+        # (Thus it's not needed around internal drawing calls like drawcompass, whose drawing code can't use the exprs module.)
+        # The purpose is to let some of the drawing code behave differently in these different phases.
+        #
+        # Note, there are direct calls of GL_SELECT drawing not from class GLPane, which now need to set this but don't.
+        # (They have a lot of other things wrong with them too, esp. duplicated code). Biggest example is for picking jigs.
+        # During those calls, this attr will probably equal '?' -- all the draw calls here reset it to that right after they're done.
+        # (##e We ought to set it to that at the end of paintGL as well, for safety.)
+        #
+        # Explanation of possible values: [###e means explan needs to be filled in]
+        # - 'glselect' -- only used if mode requested object picking -- glRenderMode(GL_SELECT) in effect; reduced projection matrix
+        # - 'main' -- normal drawing, main coordinate system for model (includes trackball/zoom effect)
+        # - 'main/Draw_after_highlighting' -- normal drawing, but after selobj is drawn ###e which coord system?
+        # - 'main/draw_text_label' -- ###e
+        # - 'selobj' -- we're calling selobj.draw_in_abs_coords (not drawing the entire model), within same coordsys as 'main'
+        # - 'selobj/preDraw_glselect_dict' -- like selobj, but color buffer drawing is off ###e which coord system, incl projection??
+        # [end]
+
     def standard_repaint_0(self):
         drawer._glprefs.update() #bruce 051126 (so prefs changes do gl_update when needed)
             # (kluge: have to do this before lighting *and* inside standard_repaint_0)
@@ -2259,6 +2278,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             ## self.glselect = 1
             glMatrixMode(GL_MODELVIEW)
             try:
+                self.drawing_phase = 'glselect' #bruce 070124
                 self.mode.Draw() # should perhaps optim by skipping chunks based on bbox... don't know if that would help or hurt
                     # note: this might call some display lists which, when created, registered namestack names,
                     # so we need to still know those names!
@@ -2267,6 +2287,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 glMatrixMode(GL_MODELVIEW)
                 self._setup_modelview( vdist) ###k correctness of this is unreviewed! ####@@@@
                 # now it's important to continue, at least enough to restore other gl state
+            self.drawing_phase = '?'
             self.current_glselect = False
             ###e On systems with no stencil buffer, I think we'd also need to draw selobj here in highlighted form
             # (in case that form is bigger than when it's not highlighted), or (easier & faster) just always pretend
@@ -2337,8 +2358,12 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         
         # draw according to mode
         glMatrixMode(GL_MODELVIEW) # this is assumed within Draw methods [bruce 050608 comment]
-        self.mode.Draw()
-
+        try: #bruce 070124 added try/finally for drawing_phase
+            self.drawing_phase = 'main' #bruce 070124
+            self.mode.Draw()
+        finally:
+            self.drawing_phase = '?'
+        
         # highlight selobj if necessary -- we redraw it now (though it was part of
         # what was just drawn above) for two reasons:
         # - it might be in a display list in non-highlighted form (and if so, the above draw used that form);
@@ -2434,11 +2459,13 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
             # (and as optim, turn off stencil drawing then if you think it probably won't be needed after last draw you'll do)
 
             try:
+                self.drawing_phase = 'selobj' #bruce 070124 [do we need this around selobj.pre_draw_in_abs_coords too, & post_draw? #k]
                 self.selobj.draw_in_abs_coords(self, hicolor or black) ###@@@ test having color writing disabled here, does stencil still happen??
             except:
                 # try/except added for GL-state safety, bruce 061218
                 print_compact_traceback("bug: exception in %r.draw_in_abs_coords ignored: " % self.selobj)
                 pass
+            self.drawing_phase = '?'
             
             # restore gl state (but don't do unneeded OpenGL ops in case that speeds it up somehow)
             if not highlight_into_depth:
@@ -2457,24 +2484,30 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 glPopMatrix()
                 glMatrixMode(GL_MODELVIEW) #k maybe not needed
             pass
-        
-        self.mode.Draw_after_highlighting() # e.g. draws water surface in Build mode
-            # note: this is called with the same coordinate system as mode.Draw() [bruce 061208 comment]
 
+        try: #bruce 070124 added try/finally for drawing_phase
+            self.drawing_phase = 'main/Draw_after_highlighting' #bruce 070124
+            self.mode.Draw_after_highlighting() # e.g. draws water surface in Build mode
+                # note: this is called with the same coordinate system as mode.Draw() [bruce 061208 comment]
+        finally:
+            self.drawing_phase = '?'
+        
         ###@@@ move remaining items back into caller? sometimes yes sometimes no... need to make them more modular... [bruce 050617]
         
         # let parts (other than the main part) draw a text label, to warn
         # the user that the main part is not being shown [bruce 050408]
         try:
+            self.drawing_phase = 'main/draw_text_label' #bruce 070124
             self.part.draw_text_label(self)
         except:
             if platform.atom_debug:
                 print_compact_traceback( "atom_debug: exception in self.part.draw_text_label(self): " )
             pass # if it happens at all, it'll happen too often to bother users with an error message
+        self.drawing_phase = '?'
         
         # draw coordinate-orientation arrows at upper right corner of glpane
         if env.prefs[displayCompass_prefs_key]:
-            self.drawcompass(aspect) #bruce 050608 moved this here, and rewrote it to behave then
+            self.drawcompass(aspect) #bruce 050608 moved this here, and rewrote it to behave then [#k needs drawing_phase?? bruce 070124]
 
         #ninad060921 The following draws a dotted origin axis if the correct preferece is checked. 
         #The GL_DEPTH_TEST is disabled while drawing this so that if axis is below a model, 
@@ -2569,7 +2602,9 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                 print "   items are:", items
             else:
                 try:
+                    self.drawing_phase = 'selobj/preDraw_glselect_dict' # bruce 070124
                     method(self, white) # draw depth info (color doesn't matter since we're not drawing pixels)
+                    self.drawing_phase = '?'
                         #bruce 050822 changed black to white in case some draw methods have boolean-test bugs for black (unlikely)
                         ###@@@ in principle, this needs bugfixes; in practice the bugs are tolerable in the short term
                         # (see longer discussion in other comments):
@@ -2584,6 +2619,7 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
                     if newpicked is not None:
                         break
                 except:
+                    self.drawing_phase = '?'
                     print_compact_traceback("exception in %r.draw_in_abs_coords ignored: " % (obj,))
         ##e should check depth here to make sure it's near enough but not too near
         # (if too near, it means objects moved, and we should cancel this pick)
