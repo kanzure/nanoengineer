@@ -573,13 +573,6 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
 
     tex_origin_chars = V(3, 64) # revised 070124
 
-#[remove after commit:]
-##    if pixfactor == 1:# this code still matters (why?!?) in spite of 070124 correction below, if we use mymousepoints above --
-##            # guess - we;re in a display list and didn't yet see this translate!
-##        if "not starting at origin": # for pixfactor 1, to make it perfect, start where this does start... at origin doesn't yet work.
-##            # note 070124: to improve this we'd probably need to grab current mousepoints in order to know how to tweak it.
-##            # would be worth it if not hard, tho when we have time we'll ditch texture text in favor of gl's direct pixel drawing.
-##            glTranslatef( 0, pixelheight / 2, 0 )
     if 1 and not disable_translate: #070124 -- note that disable_translate is never set given if statements above --
             ##e use glpane.drawing_phase == 'glselect' instead? doesn't seem to be needed anymore, from remaining bugs listed above
         # Translate slightly to make characters clearer
@@ -588,6 +581,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
         # - assumes we're either not in a displist, or it's always drawn in the same place.
         # - will only work if we're drawing at correct depth for pixelwidth, I presume -- and of course, parallel to screen.
         x,y,depth = gluProject(0.0, 0.0, 0.0) # where we'd draw without any correction (ORIGIN)
+
         # change x and y to a better place to draw (in pixel coords on screen)
         # (note: this int(x+0.5) was compared by test to int(x) and int(x)+0.5 -- this is best, as one might guess; not same for y...)
         x = int(x+0.5) ## if we need a "boldface kluge", using int(x)+0.5 here would be one...
@@ -595,7 +589,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
             # [btw I'd guessed y+0.5 in int() should be (y-0.5)+0.5 due to outer +0.5, but that looks worse in checkbox_pref centering;
             #  I don't know why.]
             #
-            # Adding outer 0.5 to y became best after I fixed a bug of translating before glu*Project,
+            # Adding outer 0.5 to y became best after I fixed a bug of translating before glu*Project (just before this if-statement),
             # which fails inside displists since the translate effect doesn't show up in glu*Project then.
             #
             # I wonder if the x/y difference could be related to the use of CenterY around TextRect inside displists,
@@ -605,13 +599,6 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
             # causing a bug which this +0.5 sometimes compensates for, but not always due to pixelwidth being wrong.
             # It's not worth understanding this compared to switching over to glDrawPixels or whatever it's called. ###DO THAT SOMETIME.
 
-#[remove after commit:]
-#        if "kluge for something funny about y coord": # I don't know why this is needed for y but not for x; it helps except for selobj
-##            # without this kluge, we're fine at bottom of screen (left or right) but wrong at top
-##            ## y += (float(y) / glpane.height) * 0.5 # helps at top, hurts at bottom, i don't know why --
-##            # speculation: GL does its own rounding and treats y + 0.01 more like y + 1 than like y
-##            if y > glpane.height/2: # this cutoff is surely wrong, but i don't yet know the correct continuous formula
-##                y += 0.5
         p1 = A(gluUnProject(x, y, depth)) # where we'd like to draw (p1)
         ## p1 += DY # test following code -- with this line, it should make us draw noticeably higher up the screen -- works
         glTranslatef( p1[0], p1[1], p1[2])
