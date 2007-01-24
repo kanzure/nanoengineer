@@ -335,6 +335,10 @@ class checkbox_pref(InstanceMacro):
                             ## on_press = Set(debug_evals_of_Expr(stateref.value), not_Expr(var) ), #070119 debug_evals_of_Expr - worked
                             on_press = Set( stateref.value, not_Expr(var) ),
                             sbar_text = use_sbar_text) )
+        #070124 comment: the order DisplistChunk( Highlightable( )) presumably means that the selobj
+        # (which draws the highlightable's delegate) doesn't include the displist; doesn't matter much;
+        # that CenterY(use_label) inside might be ok, or might be a bug which is made up for by the +0.5 I'm adding to drawfont2
+        # in testdraw.py today -- not sure.
     pass
 
 class ActionButton(DelegatingInstanceOrExpr): # 070104 quick prototype
