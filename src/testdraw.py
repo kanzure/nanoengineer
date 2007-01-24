@@ -482,8 +482,8 @@ def reload_basic_and_test():
     return
 
 #e put these into an object for a texture font!
-tex_width = 6 # pixel width in texture of 1 char
-tex_height = 10 # guess (pixel height)
+tex_width = 6 # pixel width of 1 char within the texture image
+tex_height = 10 # pixel height (guess)
 
 def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpattern = False, pixelwidth = None):
     """draws a rect of chars (dimensions given as char counts: charwidth x charheight [#e those args are misnamed])
@@ -493,10 +493,10 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
     """
     _bind_courier_font_texture()
     # adjust these guessed params (about the specific font image we're using as a texture) until they work right:
-    tex_origin_chars = V(3,65) # guess was 0,64... changing y affects the constant color; try 0, not totally constant
-    tex_size = (128,128) # guess
-    tex_nx = 16
-    tex_ny = 8
+    # (tex_origin_chars appears lower down, since it is revised there)
+    tex_size = (128,128) # tex size in pixels
+    tex_nx = 16 # number of chars in a row, in the tex image
+    tex_ny = 8  # number of chars in a column
 
     if msg is None:
         msg = "(redraw %d)" % env.redraw_counter
@@ -521,7 +521,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
         # (Ortho mode, home view, a certain window size -- not sure if that matters but it might)
         # restoring last-saved window position (782, 44) and size (891, 749)
     
-    gap = 2 # in pixels - good for debugging
+    ## gap = 2 # in pixels - good for debugging
     gap = 0 # good for looking nice! but note that idlehack uses one extra pixel of vspace, and that does probably look better.
       # to do that efficiently i'd want another image to start from.
       # (or to modify this one to make the texture, by moving pixrects around)
@@ -529,7 +529,8 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
         # did that, got it tolerable for pixfactor 2, then back to 1 and i've lost the niceness! Is it no longer starting at origin?
 
     ##pixelwidth = pixelheight = 0.05 * 2/3
-    if pixelwidth is None: #061211 permit caller to pass it
+    disable_translate = False #070124
+    if 111 or pixelwidth is None: #061211 permit caller to pass it [note: the exprs module usually or always passes it, acc'd to test 070124]
         p1junk, p2a = mymousepoints(glpane, 10, 10)
         p1junk, p2b = mymousepoints(glpane, 11, 10)
         px,py,pz = vec = p2b - p2a # should be DX * pixelwidth
@@ -547,15 +548,49 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
             pixelwidth = 0.0319194157846
             ### kluge, in case you didn't notice [guess: formula is wrong during highlighting]
             # but this failed to fix the bug in which a TextRect doesn't notice clicks unless you slide onto it from a Rect ####@@@@
+            # Q 070124: when this happens (presumably due to small window in glSelect) should we disable glTranslatef below?
+            # I guess yes, so try it. Not that it'll help when we re-disable always using this case.
+            disable_translate = True
         pass
     else:
         pixelheight = pixelwidth
+
+##    tex_origin_chars = V(3,65) # guess was 0,64... changing y affects the constant color; try 0, not totally constant
+##    if 0: ## if pixfactor == 2:
+##        tex_origin_chars = V(3.5, 64.5) # 3.5 seems best, tho some shift to right; 3.55 through 3.75 are same, too much shift to left
+##    if '070124':
+##        tex_origin_chars = V(3, 64) # revised 070124; was (3,65), set above
+
+    tex_origin_chars = V(3, 64) # revised 070124
     
-    if pixfactor == 2:
-        tex_origin_chars = V(3.5, 64.5) # 3.5 seems best, tho some shift to right; 3.55 through 3.75 are same, too much shift to left
-    if pixfactor == 1:
-        if "not starting at origin": # for pixfactor 1, to make it perfect, start where this does start... at origin doesn't yet work. 
-            glTranslatef( 0, pixelheight / 2, 0 )
+##    if pixfactor == 1:# this code still matters (why?!?) in spite of 070124 correction below, if we use mymousepoints above --
+##            # guess - we;re in a display list and didn't yet see this translate!
+##        if "not starting at origin": # for pixfactor 1, to make it perfect, start where this does start... at origin doesn't yet work.
+##            # note 070124: to improve this we'd probably need to grab current mousepoints in order to know how to tweak it.
+##            # would be worth it if not hard, tho when we have time we'll ditch texture text in favor of gl's direct pixel drawing.
+##            glTranslatef( 0, pixelheight / 2, 0 )
+    if 1: #070124  ##e use disable_translate??
+        # Translate slightly to make characters clearer
+        #   (since we're still too lazy to use glDrawPixels or whatever it's called).
+        # Caveats:
+        # - assumes we're either not in a displist, or it's always drawn in the same place.
+        # - will only work if we're drawing at correct depth for pixelwidth, I presume -- and of course, parallel to screen.
+        x,y,depth = gluProject(0.0, 0.0, 0.0) # where we'd draw without any correction (ORIGIN)
+        # change x and y to a better place to draw (in pixel coords on screen)
+        # (note: this int(x+0.5) was compared by test to int(x) and int(x)+0.5, and same for y -- this is best, as one might guess)
+        x = int(x+0.5)
+        y = int(y+0.5)+0.5
+##        if "kluge for something funny about y coord": # I don't know why this is needed for y but not for x; it helps except for selobj
+##            # without this kluge, we're fine at bottom of screen (left or right) but wrong at top
+##            ## y += (float(y) / glpane.height) * 0.5 # helps at top, hurts at bottom, i don't know why --
+##            # speculation: GL does its own rounding and treats y + 0.01 more like y + 1 than like y
+##            if y > glpane.height/2: # this cutoff is surely wrong, but i don't yet know the correct continuous formula
+##                y += 0.5
+        p1 = A(gluUnProject(x, y, depth)) # where we'd like to draw (p1)
+        ## p1 += DY # test following code -- with this line, it should make us draw noticeably higher up the screen -- works
+        glTranslatef( p1[0], p1[1], p1[2])
+            # fyi: NameError if we try glTranslatefv or glTranslatev -- didn't look for other variants or in gl doc
+        pass
     
     tex_dx = V(tex_width, 0) # in pixels
     tex_dy = V(0, tex_height)
@@ -620,7 +655,7 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
 
     
 def mymousepoints(glpane, x, y):
-    # modified from GLPane.mousepoints; x and y are window coords (y is 0 at top, positive as you go down) [SOUNDS WRONG, 061206 ###k]
+    # modified from GLPane.mousepoints; x and y are window coords (except y is 0 at bottom, positive as you go up [guess 070124])
     self = glpane
     just_beyond = 0.0
     p1 = A(gluUnProject(x, y, just_beyond))
