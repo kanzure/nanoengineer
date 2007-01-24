@@ -529,8 +529,22 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
         # did that, got it tolerable for pixfactor 2, then back to 1 and i've lost the niceness! Is it no longer starting at origin?
 
     ##pixelwidth = pixelheight = 0.05 * 2/3
+
+    #070124 revisions, general comment... current caveats/bugs: ####
+    # - only tested in Ortho mode
+    # - working well but the bugs depend on whether we add "1 or" before "pixelwidth is None" in if statement below: 
+    #   bugs when it computes pixelwidth here (even when passed, as always in these tests):
+    #   - textlabel for "current redraw" (in exprs/test.py bottom_left_corner) disappears during highlighting
+    #   bugs when it doesn't [usual state & state I'll leave it in]:
+    #   - not tested with displists off, maybe ###
+    #   - fuzzy text in testexpr_18 [not yet understood]
+    #   - [fixed] fuzzy text in "current redraw" textlabel during anything's highlighting [fixed by removing DisplistChunk from that]
+    #   - [no bug in clarity of text in highlighted checkbox prefs themselves]
+    # - works with displists on or off now
+    # - is disable_translate helping?? not sure (only matters when it computes pixelwidth here -- not now)
+    #   - ##e use direct drawing_phase test instead? doesn't seem to be needed anymore, from remaining bugs listed above
     disable_translate = False #070124
-    if 111 or pixelwidth is None: #061211 permit caller to pass it [note: the exprs module usually or always passes it, acc'd to test 070124]
+    if pixelwidth is None: #061211 permit caller to pass it [note: the exprs module usually or always passes it, acc'd to test 070124]
         p1junk, p2a = mymousepoints(glpane, 10, 10)
         p1junk, p2b = mymousepoints(glpane, 11, 10)
         px,py,pz = vec = p2b - p2a # should be DX * pixelwidth
@@ -545,31 +559,29 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
             # or 0.0313961295259
             # or 0.00013878006302
         if pixelwidth < 0.01:
+            # print "low pixelwidth:",pixelwidth, glpane.drawing_phase # e.g. 0.000154639183832 glselect
             pixelwidth = 0.0319194157846
             ### kluge, in case you didn't notice [guess: formula is wrong during highlighting]
             # but this failed to fix the bug in which a TextRect doesn't notice clicks unless you slide onto it from a Rect ####@@@@
             # Q 070124: when this happens (presumably due to small window in glSelect) should we disable glTranslatef below?
             # I guess yes, so try it. Not that it'll help when we re-disable always using this case.
-            disable_translate = True
+            disable_translate = True # i'll leave this in since it seems right, but it's not obviously helping by test
+            
         pass
     else:
         pixelheight = pixelwidth
 
-##    tex_origin_chars = V(3,65) # guess was 0,64... changing y affects the constant color; try 0, not totally constant
-##    if 0: ## if pixfactor == 2:
-##        tex_origin_chars = V(3.5, 64.5) # 3.5 seems best, tho some shift to right; 3.55 through 3.75 are same, too much shift to left
-##    if '070124':
-##        tex_origin_chars = V(3, 64) # revised 070124; was (3,65), set above
-
     tex_origin_chars = V(3, 64) # revised 070124
-    
+
+#[remove after commit:]
 ##    if pixfactor == 1:# this code still matters (why?!?) in spite of 070124 correction below, if we use mymousepoints above --
 ##            # guess - we;re in a display list and didn't yet see this translate!
 ##        if "not starting at origin": # for pixfactor 1, to make it perfect, start where this does start... at origin doesn't yet work.
 ##            # note 070124: to improve this we'd probably need to grab current mousepoints in order to know how to tweak it.
 ##            # would be worth it if not hard, tho when we have time we'll ditch texture text in favor of gl's direct pixel drawing.
 ##            glTranslatef( 0, pixelheight / 2, 0 )
-    if 1: #070124  ##e use disable_translate??
+    if 1 and not disable_translate: #070124 -- note that disable_translate is never set given if statements above --
+            ##e use glpane.drawing_phase == 'glselect' instead? doesn't seem to be needed anymore, from remaining bugs listed above
         # Translate slightly to make characters clearer
         #   (since we're still too lazy to use glDrawPixels or whatever it's called).
         # Caveats:
@@ -577,10 +589,24 @@ def drawfont2(glpane, msg = None, charwidth = None, charheight = None, testpatte
         # - will only work if we're drawing at correct depth for pixelwidth, I presume -- and of course, parallel to screen.
         x,y,depth = gluProject(0.0, 0.0, 0.0) # where we'd draw without any correction (ORIGIN)
         # change x and y to a better place to draw (in pixel coords on screen)
-        # (note: this int(x+0.5) was compared by test to int(x) and int(x)+0.5, and same for y -- this is best, as one might guess)
-        x = int(x+0.5)
-        y = int(y+0.5)+0.5
-##        if "kluge for something funny about y coord": # I don't know why this is needed for y but not for x; it helps except for selobj
+        # (note: this int(x+0.5) was compared by test to int(x) and int(x)+0.5 -- this is best, as one might guess; not same for y...)
+        x = int(x+0.5) ## if we need a "boldface kluge", using int(x)+0.5 here would be one...
+        y = int(y+0.5)+0.5 ### NOT UNDERSTOOD: why x & y differ, in whether it's best to add this 0.5.
+            # [btw I'd guessed y+0.5 in int() should be (y-0.5)+0.5 due to outer +0.5, but that looks worse in checkbox_pref centering;
+            #  I don't know why.]
+            #
+            # Adding outer 0.5 to y became best after I fixed a bug of translating before glu*Project,
+            # which fails inside displists since the translate effect doesn't show up in glu*Project then.
+            #
+            # I wonder if the x/y difference could be related to the use of CenterY around TextRect inside displists,
+            # which ought to produce a similar bug if the shift is not by an exact number of pixels (which is surely the case
+            #  since the caller is guessing pixelwidth as a hardcoded constant, IIRC). So the guess is that caller's pixelwidth
+            # is wrong and/or CenterY shifts by an odd number of halfpixels, inside displist and not seen by this glu*Project,
+            # causing a bug which this +0.5 sometimes compensates for, but not always due to pixelwidth being wrong.
+            # It's not worth understanding this compared to switching over to glDrawPixels or whatever it's called. ###DO THAT SOMETIME.
+
+#[remove after commit:]
+#        if "kluge for something funny about y coord": # I don't know why this is needed for y but not for x; it helps except for selobj
 ##            # without this kluge, we're fine at bottom of screen (left or right) but wrong at top
 ##            ## y += (float(y) / glpane.height) * 0.5 # helps at top, hurts at bottom, i don't know why --
 ##            # speculation: GL does its own rounding and treats y + 0.01 more like y + 1 than like y
