@@ -1237,7 +1237,11 @@ bottom_left_corner = Boxed(SimpleColumn(
             # NOTE: not usage/change tracked, thus not updated every redraw, which we depend on here
     ## CenterY(TextRect( format_Expr("current redraw %r [BUG: CAUSES CONTINUOUS REDRAWS]", call_Expr(get_redraw_counter_ALWAYSCHANGES)))),
     If( call_Expr(get_pref, "A9 devel/show redraw_counter?", False),
-        Highlightable(DisplistChunk( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )),
+        # 070124 disabled both orders of Highlightable(DisplistChunk(, since fuzzy during highlighting after my testdraw.py fixes
+        ##Highlightable(DisplistChunk( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )), 
+        ## DisplistChunk (Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) )),
+        # 070124 just don't use a displist, since it'd be remade on every draw anyway (except for glselect and main in same-counted one)
+        Highlightable( CenterY(TextRect( format_Expr("current redraw %r", _app.redraw_counter))) ),
             # should be properly usage/change tracked; has continuous redraw bug, not yet understood.
             # note: after checking the checkbox above, the bug shows up only after the selobj changes away from that checkbox.
             # update 070110 1040p: the bug is fixed in GLPane.py/changes.py; still not fully understood; more info to follow. ###e
