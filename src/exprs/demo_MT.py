@@ -94,6 +94,10 @@ import images
 reload_once(images)
 from images import IconImage, Image #e and more
 
+import Center
+reload_once(Center)
+from Center import CenterY
+
 # == stubs
 
 If = If_kluge ####e until it works, then remove and retest
@@ -219,7 +223,8 @@ class MT(InstanceMacro):
     _value = SimpleRow(
         openclose_slot,
         SimpleColumn(
-            SimpleRow(icon, label),
+            SimpleRow(CenterY(icon), CenterY(label)),
+                #070124 added CenterY, hoping to improve text pixel alignment (after drawfont2 improvements in testdraw) -- doesn't work
             If( open,
                       MT_kids( call_Expr(node_kids, node) ), ###e implem or find kids... needs usage/mod tracking
                       Spacer(0) ###BUG that None doesn't work here: see comment in ToggleShow.py
