@@ -105,9 +105,6 @@ class _texture_holder(object):
         #e - we might want to optim for when they don't change
         # - most of them have default values like the old code had implicitly, but not pixmap, which old code had as implicitly true
         # - pixmap is misnamed, it doesn't use the pixmap ops, tho we might like to use those from the same image data someday
-        # implem: pixmap is for NEAREST
-
-        ###@@@ where i am is here 061126 1140a; caller doesn't pass options
         
         have_mipmaps, tex_name = self.loaded_texture_data
         ## testdraw.setup_to_draw_texture_name(have_mipmaps, tex_name)
@@ -296,6 +293,9 @@ class Image(Widget2D):
         # where to draw it -- act like a 2D Rect for now, determined by self's lbox,
         # which presently comes from self.size
         origin = V(-self.bleft, -self.bbottom, 0)
+            # see also the code in testdraw.drawfont2 which tweaks the drawing position to improve the pixel alignment
+            # (in a way which won't work right inside a display list if any translation occurred before now in that display list)
+            # in case we want to offer that option here someday [070124 comment]
         dx = DX * self.bright
         dy = DY * self.btop
         draw_textured_rect(origin, dx, dy, tex_origin, tex_dx, tex_dy)
@@ -312,8 +312,9 @@ class Image(Widget2D):
     
     pass # end of class Image
 
-IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode = 'TIFF') #e needs a __doc__ option too! #IMPLEM
-"be the best way to use Image for an NE1 icon" # (the informal docstring)
+IconImage = Image(ideal_width = 22, ideal_height = 22, convert = True, _tmpmode = 'TIFF',
+                  doc = "be the best way to use Image for an NE1 icon"  # (informal docstring option 070124 -- not used, just there)
+            )
     # WARNING: size 22 MIGHT FAIL on some OpenGL drivers (which require texture dims to be powers of 2);
     # when that happens (or in any case, before a serious release), we'll need to ask OpenGL if it has that limitation
     # and implement this differently if it does.
