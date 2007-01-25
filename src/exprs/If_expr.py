@@ -120,4 +120,29 @@ def If(cond, _then, _else = None):
     # I think that would be ok, since even if we knew that would happen, what else would we want to do?
     # And besides, we could always catch the exception. (Or add a prior type-query to cond, if one is defined someday.)
 
+# ==
+
+class If_OpExpr(OpExpr): # 070125 experiment -- can If work as an OpExpr, now that we've done EVAL_REFORM?
+    # evalling both _then and _else might not be *needed* but it might not cause *harm* -- or if it doesm
+    # at least that harm won't be *instantiation*. Guess: it will cause harm, so this implem is not viable,
+    # but it can still be tested and tell me whether it works re instantiation. Test it in analog of testexpr_29a and _29ax.
+    # Note this variant also always requires 3 args (no default _else clause).
+    #
+    # results: it works (see testexpr_29ao*). To become real, it needs:
+    # - default else clause
+    # - refrain from even evalling (not just from instantiating) unused clauses
+    # - repr
+    # advantages once it can become real:
+    # - more optimal when result of eval is passed on to inner iterators, or other expr building / instance building
+    # - problem of customizing an If_expr (testexpr_29) is different in implem -- not sure in what way or which is easier, tho!
+    #   (digr re that: we might want to wrap the opts with Optional() in such cases... maybe user should do that explicitly....
+    #    where should I refile that comment? as it says near testexpr_29 about customization outside of If_expr:
+    #    the desire came up in Ribbon2_try1 in new file dna_ribbon_view.py, but devel comments might as well be in If_expr.py [here].)
+    
+    def _e_init(self):pass # ok for a stub
+
+    _e_eval_function = staticmethod( lambda c,t,e: (c and (1,t) or (1,e))[1] )
+
+    pass
+
 # end

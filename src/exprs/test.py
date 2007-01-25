@@ -1143,11 +1143,50 @@ testexpr_28 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) ,
                                      call_Expr( _app.Instance_misspelled, testexpr_10c, "_28")
                                      )) # this has "infrecur in delegate" bug, don't know cause yet ###BUG
 
+# ==
+
+# test customization outside of If_expr -- unanticipated, probably won't work, but how exactly will it fail? [070125 Q]
+# (the desire came up in Ribbon2_try1 in new file dna_ribbon_view.py, but devel comments might as well be in If_expr.py)
+
+testexpr_29 = If( mod_Expr( _app.redraw_counter, 2), Rect(1, 1.5), Rect(1.5, 1) ) (color = red) # partly works --
+    # it just ignores the customization. (How, exactly??? see below for theory #k)
+    # it doesn't fail to build the expr, or to run it -- it just ignores the customization opts.
+    # I think If is actually an IorE macro which takes opts, fails to complain about not recognizing them,
+    # and has no way to make them available to what's inside it. ###WAIT, does If_expr have a bug that makes it instantiate its args??
+    # test this now:
+
+# does If_expr have a bug that makes it instantiate its args??
+# if yes bug, these ipaths might be same -- not sure -- so I won't know for sure it's ok even if they differ.
+# if no bug, they'll definitely differ.
+testexpr_29ax = TestIterator(If_expr(False, testexpr_6f)) ###BUG: note that I failed to pass an arg for the else clause... still a bug:
+    ## IndexError: tuple index out of range
+    ## [lvals.py:210] [Exprs.py:254] [Exprs.py:1043] [Exprs.py:1023] [Exprs.py:952] [Exprs.py:918] [If_expr.py:71] [If_expr.py:81]
+
+testexpr_29a = TestIterator(If_expr(True, testexpr_6f)) # ipaths differ -- this test works, but I'm not sure if this means If_expr is ok
+    # (i.e. doesn't have the bug mentioned). But I guess it does... since I can't think of a more definitive test...
+    # wait, maybe it's *not a bug* for If_expr to instantiate its args when it itself is *instantiated* -- tho it would be
+    # if it did that when it was *evalled*. But right now it's not an OpExpr anyway, so it doesn't even *simplify* when evalled!
+    # Which is a lack of optim, but not a bug. I suppose it means it never returns a local-ipath-mod... if it did I'd have seen
+    # _then and _else in ipaths (before interning them).
+
+# See if If_OpExpr works at all, and if so, works in that example. First see what it does when given too few args.
+testexpr_29aox = TestIterator(If_OpExpr(True, testexpr_6f)) # TypeError: <lambda>() takes exactly 3 arguments (2 given) -- tolerable for now
+testexpr_29ao  = TestIterator(If_OpExpr(True, testexpr_6f, TextRect("bug_else"))) # works, different ipaths
+testexpr_29aox2  = TestIterator(If_OpExpr(False, testexpr_6f, TextRect("bug_else"))) # works, shows "bug_else" twice
+testexpr_29aox3  = If_OpExpr(False, TextRect("True"), TextRect("False")) # -- works, shows "False"
+    # note, we predict the old If used local ipath strings _then and _else, and the new one uses argnumbers supplied by OpExpr method.
+    # This could be seen in the tests if we'd turn off ipath interning -- I ought to add an option for that, general
+    # or for use when making kids of a specific instance (which would work now, since lexenv_ipath_Expr or whatever doesn't
+    # intern it until it combines it with another ipath -- and could work later if it took an arg then for whether to intern it).
+    # (this would take 5-10 minutes, so do it if I suspect any bugs in this ####e)
+    # Q: should I switch over from If_expr to If_OpExpr (in implems, the name would be If_expr)?? #####e DECIDE -- note it's not done
+    # in terms of a real implem, re default else clause, or refraining from even evalling (not just from instantiating) unused clauses
+
 # === set the testexpr to use right now -- note, the testbed might modify this and add exprs of its own   @@@@
 
 enable_testbed = True
 
-testexpr = testexpr_14 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
