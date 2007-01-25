@@ -1,14 +1,14 @@
 """
-demo_dna.py
+demo_polygon.py [intended name -- to be renamed from demo_dna.py]
+
 $Id$
 
-this will probably be renamed, since it's turned into a scratch file
-about Resizer, Draggable, and especially Interface.
+this will be renamed, since it's now a:
 
-Interface-scratch.py?? Problem is, I might rename Interface,
-and this file might yet be more about draggables or resizers.
-And now it's extending into polygon-vertex dragging, as a way of
-exploring some Draggable/DragCommand structure issues.
+scratch file about Resizer, Draggable, and especially Interface...
+and polygon-vertex dragging, for exploring some Draggable/DragCommand structure issues.
+
+The specific code in it is mostly about polygon-vertex dragging.
 """
 
 from basic import *
