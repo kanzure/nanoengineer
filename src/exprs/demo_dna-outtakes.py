@@ -3,6 +3,11 @@ $Id$
       Ribbon2(1, 0.2, 1/10.5, 50, blue, color2 = green), # this color2 arg stuff is a kluge
       Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "bottom ribbon2" ),
 
+###WARNING: in a new file dna_ribbon_view.py it says:
+    #
+    ## At the moment, this is a scratch file mostly identical to demo_dna-outtakes.py,
+    ## whose code should be cannibalized for what this will have (and then cvs-removed --
+    ## maybe that could happen right away #e).
 
 debug_color_override = 0
 
