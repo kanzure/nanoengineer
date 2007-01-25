@@ -1,9 +1,7 @@
 """
-demo_polygon.py [intended name -- to be renamed from demo_dna.py]
+demo_polygon.py [recently renamed from demo_dna.py]
 
 $Id$
-
-this will be renamed, since it's now a:
 
 scratch file about Resizer, Draggable, and especially Interface...
 and polygon-vertex dragging, for exploring some Draggable/DragCommand structure issues.

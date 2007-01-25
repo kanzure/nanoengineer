@@ -131,9 +131,11 @@ import DisplistChunk # works 070103, with important caveats re Highlightable (se
 reload_once(DisplistChunk)
 from DisplistChunk import DisplistChunk
 
-##import demo_dna # stub 070103 -- commented out 070117 since file is a scratch file with syntax errors, and will be renamed anyway
-##reload_once(demo_dna)
-##from demo_dna import newerBoxed, resizablyBoxed
+##import demo_polygon # stub 070103
+    # commented out 070117 since it's a scratch file with syntax errors
+    # [and it was renamed 070125 from demo_dna.py]
+##reload_once(demo_polygon)
+##from demo_polygon import newerBoxed, resizablyBoxed
 
 import lvals
 reload_once(lvals)
@@ -1100,9 +1102,9 @@ testexpr_23cd = DisplistChunk(testexpr_10c) # has expected coord ##BUG -- outerm
 
     # but I did improve demo_drag inside... testexpr_19d still works, and seems to be faster (hard to be sure)
 
-# == demo_dna.py (stub)
+# == demo_polygon.py (stub)
 
-# commented out 070117, see comment after "import demo_dna"
+# commented out 070117, see comment after "import demo_polygon"
 ##testexpr_24 = newerBoxed(Boxed(Rect(1))) # works
 ##testexpr_24a = newerBoxed(Boxed(Highlightable(Rect(1)))) # works
 ##testexpr_24b = resizablyBoxed(Boxed(Rect(1))) # works with action being incrs of state
@@ -1145,7 +1147,7 @@ testexpr_28 = eval_Expr( call_Expr( lambda shared: SimpleRow(shared, shared) ,
 
 enable_testbed = True
 
-testexpr = testexpr_19g ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_14 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,
