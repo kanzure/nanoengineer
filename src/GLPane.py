@@ -2012,6 +2012,16 @@ class GLPane(QGLWidget, modeMixin, DebugMenuMixin, SubUsageTrackingMixin, GLPane
         # restore standard OpenGL state settings [bruce 070117, though seems like a good idea for the past; #e should make it a method]
         self.standard_glDepthFunc = getattr(self.mode, 'standard_glDepthFunc', self.__class__.standard_glDepthFunc)
             #e I plan to try GL_LEQUAL in testmode, and if it works, maybe adopt it generally [bruce 070117]
+        if 1:
+            # Ninad reported a bug when leaving cookiemode with Done after drawing a cookie:
+            # "TypeError: an integer is required" when self.glDepthFunc calls glDepthFunc on its first arg.
+            # I can't understand how that could happen, but I can try to protect against it.
+            # If we never see this print, we can call it nonrepeatable and remove this;
+            # otherwise we should diagnose the cause and fix it. [bruce 070126]
+            if self.standard_glDepthFunc not in (GL_LESS, GL_LEQUAL): # should never happen
+                print "bug: self.standard_glDepthFunc should not be %r -- setting it to GL_LESS == %r" % \
+                      (self.standard_glDepthFunc,  GL_LESS)
+                self.standard_glDepthFunc = GL_LESS
         self.glDepthFunc( self.standard_glDepthFunc, always = True)
         
         try: #bruce 061208
