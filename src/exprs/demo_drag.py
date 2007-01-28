@@ -314,7 +314,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
         # depending on whether the rect or sphere was clicked --
         # which the current code does not even detect, since it gives them the same glname. ###e
     # options
-    highlight_color = Option(Color, None)#UNTESTED ## suggest: ave_colors(0.9,gray,white)) # use this only if background takes a color option
+    highlight_color = Option(Color, None) # suggest: ave_colors(0.9,gray,white)) # use this only if background takes a color option
     use_VertexView = Option(bool, False) # 070105 so I can try out new code w/o breaking old code #### TRYIT
     # internals
     world = Instance( World() ) # has .nodelist I'm allowed to extend
@@ -327,7 +327,7 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                        ##Rect(5,5,green),###KLUGE2 - works now that highlightable is not broken by projection=True [also works 061213]
                        ## background.copy(color=green), # oops i mean:
                        ## call_Expr(background.copy,)( color=green), # oops, i have to include eval_Expr:
-                       If( highlight_color,#UNTESTED
+                       If( highlight_color,
                           eval_Expr( call_Expr(background.copy,)( color = highlight_color) ),
                                # can't work unless background is simple like a Rect,
                                # but does work then! (edit _19d to include _19 not _19b)
@@ -546,7 +546,6 @@ class GraphDrawDemo_FixedToolOnArg1(InstanceMacro):
                 # or have a more fundamental mechanism to guarantee that
         env = self.env # maybe wrong, esp re _self
         ipath = (index, self.ipath)
-        ## return expr._e_eval(self.env, ipath) # WRONG way to make, when EVAL_REFORM!
         return env.make(expr, ipath) # note: does eval before actual make
     pass # end of class GraphDrawDemo_FixedToolOnArg1
 
@@ -554,7 +553,6 @@ kluge_dragtool_state_prefs_key = "A9 devel/kluge_dragtool_state_bool"
 kluge_dragtool_state_prefs_default = False ## False = 'draw', True = 'drag' (since our only prefs control yet is a boolean checkbox)
 
 def kluge_dragtool_state():
-    # can edit by hand, then reload; should make it a checkbox or tool-choice setting (tho 'drag' is useless)...
     # it's like a user pref or transient state for the *toolset* of which the tools choosable here are a part.
     # (typically you have one instance of each toolset in your app, not one per editable thing for each kind of toolset,
     #  though if you ask, there might be a way to customize those settings for what you edit -- but by default they're general.)
@@ -566,38 +564,18 @@ def kluge_dragtool_state():
     # organized in std hierarchy but filtered for whether they are "in use". For now do this by hand, but later we'll want some way
     # to find out what's in use in that sense, and usage-tracking might be enough unless prefs get bundled into single tracked objs
     # of which then only some parts get used. We can probably avoid that well enough by convention.
-    if 0:
-        if 1:
-            return 'draw' # usual case
-        else:
-            return 'drag'
-    else:
-        import env
-        # for this kluge, let the stored value be False or True for whether it's drag
-        return env.prefs.get(kluge_dragtool_state_prefs_key, kluge_dragtool_state_prefs_default) and 'drag' or 'draw'
-    pass
+    import env
+    # for this kluge, let the stored value be False or True for whether it's drag
+    return env.prefs.get(kluge_dragtool_state_prefs_key, kluge_dragtool_state_prefs_default) and 'drag' or 'draw'
 
 kluge_dragtool_state() # set the default val
-
-##def _kluge_clear_the_world(): OBS, will remove after commit
-##    # find the World
-##    from test import _kluge_current_testexpr_instance, enable_testbed
-##    #e now how do we find the instance of testexpr if enable_testbed is true? ...
-##    # conclusion: this approach is ###WRONG, instead the checkbox thingy below needs an arg...
-##    testexpr_instance = ...
-##    # assume that's a GraphDrawDemo_FixedToolOnArg1 with .world
-##    world = testexpr_instance.world
-##    world._cmd_Clear()
-##    return
     
 kluge_dragtool_state_checkbox_expr = SimpleColumn( # note, on 061215 late, checkbox_pref was replaced with a better version, same name
     checkbox_pref(kluge_dragtool_state_prefs_key,         "drag new nodes?", dflt = kluge_dragtool_state_prefs_default),
     checkbox_pref(kluge_dragtool_state_prefs_key + "bla", "some other pref"),
-##    checkbox_pref(kluge_dragtool_state_prefs_key + "cb ", "button: clear (buggy)"), #e use ActionButton somehow, but what action? see below...
-##    ActionButton( _kluge_clear_the_world, "button: clear (untested)")
  )    
 
-def demo_drag_toolcorner_expr_maker(world): #070106 improving the above ### USE ME
+def demo_drag_toolcorner_expr_maker(world): #070106 improving the above
     # given an instance of World, return an expr for the "toolcorner" for use along with GraphDrawDemo_FixedToolOnArg1 (on the same World)
     expr = SimpleColumn(
         checkbox_pref(kluge_dragtool_state_prefs_key,         "drag new nodes?", dflt = kluge_dragtool_state_prefs_default),
