@@ -236,7 +236,19 @@ class Ribbon2_try1(Macro):
         # since color=whatever won't burrow into things like localipathmod, let alone Rotate! #########
         # this current expr could only work if customizations on certain exprs would get passed into the interior
         # to be used by, or before, instantiations called for inside them. Hmm, same issue for If_expr(cond, expr1, expr2)(color=blue)
-        # assuming expr[12] accept color customization. ####### if these custs became an OpExpr, eval could eval its arg1... might work
+        # assuming expr[12] accept color customization. ####### if these custs became an OpExpr, eval could eval its arg1... might work.
+        #
+        # later, 070127: passthru customization seems unclear & hard but wanted:
+        # maybe the feeling that customization ought to burrow into Rotate or localipathmod is related to them delegating to an arg --
+        # since attr accesses delegate, so should attr definitions (but only for the attrs that actually delegate). That does make sense.
+        # It's not easy to implement -- we have no list of attrs that don't delegate, we just try getattr and see if we get into __getattr__.
+        # So to customize an attr -- wait, would it work to customize it at the outer level? No, because the draw call occurs inside.
+        # It's as if we wanted to constrain X and Rotate(X) to have the same def and value of attr (if it delegates), e.g. color.
+        # But the fact that X.draw uses X.color is not even dependent on whether Rotate delegates color! Ignoring that last point,
+        # can customize mean "find the internal users of the def of color, and make them use this different def"? These internal users
+        # are kid instances. They are self-contained in ability to use color. So parent would have to modify them -- presumably when it makes them.
+        # So parent(color = cust) would have to instantiate, not its normal kid delegate, but kid(color = cust), I guess. I don't see an
+        # easy implem, and I'm also suspicious it's the right idea.
         
         # So maybe the only soln is to do the color cust first, as the docstring had to say to describe the intent, anyway.
     pass
