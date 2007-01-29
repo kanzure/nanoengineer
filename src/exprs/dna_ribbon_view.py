@@ -41,68 +41,78 @@ To some extend we can prefigure that now if we break things down in the right wa
       Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "bottom ribbon2" ),
 """
 
-debug_color_override = 0
-
 IorE = InstanceOrExpr
 Macro = DelegatingInstanceOrExpr
 
-class Corkscrew(WidgetExpr):# generates a single helix line-sequence? from geom control params (computable from its goals)
-    "Corkscrew(radius, axis, turn, n, color) - axis is length in DX, turn might be 1/10.5" 
-    def init(self):
-        radius, axis, turn, n, color = self.args #k checks length
-    def draw(self, **mods):
-        radius, axis, turn, n, color = self.args
-            # axis is for x, theta starts 0, at top (y), so y = cos(theta), z = sin(theta)
-        color = mods.get('color',color)##kluge; see comments in Ribbon.draw
+
+pi
+Radians, Degrees
+Cylinder, PathOnSurface
+Geom3D
+ModelObject3D
+Rotations
+
+class Cylinder(Geom3D): #e super? ####IMPLEM
+    """Be a cylinder, including as a surface... given the needed params... ###doc
+    """
+    #e draw
+    # color, endpoints, axis, radius
+    # color for marks/sketch elements: point, line & fill & text
+    #e normal_to_my_point #e rename?
+    ## bbox or the like (maybe this shape is basic enough to be an available primitive bounding shape?)
+    pass
+
+class Cylinder_HelicalPath(Geom3D): #e super?
+    """Given a cylinder, produce a helical path on its surface (of given params)
+    as a series of points (at given resolution -- nim except as part of path spec),
+    relative to the cylinder's "left endpoint" [####WRONG DESIGN].
+    """
+    # args (#e need docstrings, defaults, ArgOrOption)
+    cyl = Arg(Cylinder)
+    n = Arg(int, 100) # number of segments in path (one less than number of points)
+    turn = Arg( Rotations, 1.0 / 10.5) # number of rotations of vector around axis, in every path segment
+    rise = Arg( Width) ###e needs default
+    theta_offset = Arg( Radians, 0.0) # rotates entire path around cyl.axis
+    color = Option(Color, black) # only needed for drawing it -- not part of Geom3D -- add a super to indicate another interface??##e
+        ##e dflt should be cyl.attr for some attr related to lines on this cyl -- same with other line-drawing attrs for it
+    ## start_offset = Arg( Width)
+    def _C_points(self):
+        cyl = self.cyl
+        theta_offset = self.theta_offset
+        n = self.n    
+        radius = cyl.radius
+        axial_offset = cyl.DX * rise # note: cyl.DX == norm(cyl.axis)
+        cY = cyl.DY # perp coords to cyl axis (which is always along cyl.DX)
+        cZ = cyl.DZ
+        
+        points = []
+        turn_angle = 2 * pi * turn
+        for i in range(n+1): 
+            theta = turn_angle * i + theta_offset # in radians
+            y = cos(theta) * radius # y and z are Widths (numbers)
+            z = sin(theta) * radius
+            vx = i * axial_offset # a Vector
+            p = vx + y * cY * z * cZ
+            points.append(p) ###e should make them non-relative by adding startpoint = cyl left endpoint + offset along axis
+        return points
+    def draw(self):
+        color = self.color
+        points = self.points
         glDisable(GL_LIGHTING) ### not doing this makes it take the color from the prior object 
         glColor3fv(color)
         glBegin(GL_LINE_STRIP)
-        points = self.points()
         for p in points:
             ##glNormal3fv(-DX) #####WRONG? with lighting: doesn't help, anyway. probably we have to draw ribbon edges as tiny rects.
             # without lighting, probably has no effect.
             glVertex3fv(p)
         glEnd()
         glEnable(GL_LIGHTING)
-    def points(self, theta_offset = 0.0):
-        radius, axis, turn, n, color = self.args
-        res = []
-        for i in range(n+1):
-            theta = 2*pi*turn*i + theta_offset
-            y = cos(theta) * radius; z = sin(theta) * radius
-            x = i * axis
-            res.append(V(x,y,z)) #e or could do this in list extension notation
-        return res
-    def _get_bright(self):
-        radius, axis, turn, n, color = self.args
-        return n * axis
-    def _get_btop(self):
-        radius, axis, turn, n, color = self.args
-        return radius
-    _get_bbottom = _get_btop
+        return
     pass
 
-
-class Ribbon(Corkscrew): # generates a sequence of rects (quads) from two corkscrews, then draws a ribbon using them
+Corkscrew = Stub
+class Ribbon_oldcode_for_edges(Corkscrew): # generates a sequence of rects (quads) from two corkscrews, then draws a ribbon using them
     def draw(self, **mods):
-        radius, axis, turn, n, color = self.args
-        color0 = mods.get('color',color)##kluge
-            ##e todo: should be more general; maybe should get "state ref" (to show & edit) as arg, too?
-        if color != color0:
-            if debug_color_override:
-                print "color override in %r from %r to %r" % (self, color, color0) # seems to happen to much and then get stuck... ###@@@
-        else:
-            if debug_color_override:
-                print "no color override in %r for %r" % (self, color) 
-        color = color0
-        offset = axis * 2
-        halfoffset = offset / 2.0
-        interior_color = ave_colors(0.8,color, white) ###
-        self.args = list(self.args) # slow!
-        # the next line (.args[-1]) is zapped since it causes the color2-used-for-ribbon1 bug;
-        # but it was needed for the edge colors to be correct.
-        # Try to fix that: add color = interior_color to Corkscrew.draw. [060729 233p g4]
-        #self.args[-1] = interior_color #### kluge! and/or misnamed, since used for both sides i think #####@@@@@ LIKELY CAUSE OF BUG
         if 1:
             # draw the ribbon-edges; looks slightly better this way in some ways, worse in other ways --
             # basically, looks good on egdes that face you, bad on edges that face away (if the ribbons had actual thickness)
@@ -112,78 +122,61 @@ class Ribbon(Corkscrew): # generates a sequence of rects (quads) from two corksc
                 glTranslate(offset, 0,0)            
                 Corkscrew.draw(self, color = interior_color) ### maybe we should make the two edges look different, since they are (major vs minor groove)
                 glTranslate(-offset, 0,0)
-        
-        ## glColor3fv(interior_color)
 
+
+class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
+    """Given a cylinder and a path on its surface, draw a ribbon made from that path using an OpenGL quad strip
+    (whose edges are path, and path + cyl.axis * axiswidth). Current implem uses one quad per path segment.
+       Note: the way this is specific to Cylinder (rather than for path on any surface) is in how axiswidth is used,
+    and quad alignment and normals use cyl.axis.
+    """
+    cyl = Arg(Cylinder)
+    path = Arg(PathOnSurface) ###e on that cyl (or a coaxial one)
+    axiswidth = Arg(Width, 2.0) # distance across ribbon along cylinder axis (actual width is presumably shorter since it's diagonal)
+    color = Arg(Color, cyl.color) # default color is not visible if cyl is also drawn -- can there be a cyl.color_for_marks to use here?
+    def draw(self):
+        cyl = self.cyl
+        path = self.path
+        points = path.points #e supply the desired resolution?
+        normals = map( cyl.normal_to_my_point, points) ####IMPLEM normal_to_my_point for any Surface, e.g. Cylinder (inflen, ignore caps)
+            ####e points on it really need to keep their intrinsic coords around, to make this kind of thing efficient & well defined,
+            # esp for a cyl with caps
+        offset = axiswidth * norm(cyl.axis) # use norm, since not sure axis is normalized; assumes Width units are 1.0 in model coords
+
+        color = self.color
+        interior_color = ave_colors(0.8, color, white) ### rempve sometime?
+
+        self.draw_quad_strip( interior_color, offset, points, normals)
+        # draw edges? see Ribbon_oldcode_for_edges
+        return
+    def draw_quad_strip(self, interior_color, offset, points, normals):
+        ## glColor3fv(interior_color)
         # actually I want a different color on the back, can I get that? ###k
         glDisable(GL_CULL_FACE)
         drawer.apply_material(interior_color)
         ## glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE, color) # gl args partly guessed #e should add specularity, shininess...
         glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_TRUE)
 
-        points = self.points()
-        otherpoints = self.points(theta_offset = 150/360.0 * 2*pi)
-        glBegin(GL_QUAD_STRIP) # this uses CULL_FACE so it only colors the back ones... but why gray not pink?
+        glBegin(GL_QUAD_STRIP)
+            # old cmts, obs??:
+            # this uses CULL_FACE so it only colors the back ones... but why gray not pink?
             # the answer - see draw_vane() -- I have to do a lot of stuff to get this right:
             # - set some gl state, use apply_material, get CCW ordering right, and calculate normals.
 ##        glColor3fv(interior_color)
-        colorkluge = 0####@@@@ (works, except white edge is opposite as i'd expect, and doesn't happen for 1 of my 4 ribbons)
-        if colorkluge:
-            col1 = interior_color
-            col2 = white
-        for p in points:
-            perpvec = norm(V(0, p[1], p[2])) # norm here means divide by radius, that might be faster
-            ## perpvec = V(0,0,1) # this makes front & back different solid lightness, BUT the values depend on the glRotate we did
-            glNormal3fv( perpvec)
-            if colorkluge:
-                drawer.apply_material(col1)
-                col1, col2 = col2, col1
-            glVertex3fv(p + offset * DX)
-            if colorkluge and 1:
-                drawer.apply_material(col1)
-                col1, col2 = col2, col1
-            glVertex3fv(p)
+        for p, n in zip( points, normals):
+            glNormal3fv( n)
+            glVertex3fv( p + offset)
+            glVertex3fv( p)
         glEnd()
         glEnable(GL_CULL_FACE)
         glLightModelfv(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE)
-        if 0:
-            # ladder rungs - warning, they are buggy -- when they poke out, there are two in each place, but there should not be
-            glDisable(GL_LIGHTING)
-            glColor3fv(gray)
-            glTranslate(halfoffset,0,0) # center the end within the ribbon width
-            glBegin(GL_LINES)
-            for p,op in zip(points,otherpoints):
-                # bugs: they poke through; they look distracting (white worse than gray);
-                # end1 (blue?) is not centered (fixed);
-                # end2 is not clearly correct;
-                # would look better in closeup if ends were inside rects (not on kinks like now), but never mind,
-                # whole thing will be replaced with something better
-                mid = (p + op)/2.0
-                pv = p - mid
-                opv = op - mid
-                radfactor = 1.1 # make them poke out on purpose
-                pv *= radfactor
-                opv *= radfactor
-                p = mid + pv
-                op = mid + opv
-                glVertex3fv(p)
-                glVertex3fv(op)
-            glEnd()
-            glTranslate(-halfoffset,0,0)
-            glEnable(GL_LIGHTING)
         return
     pass
 
-class Ribbon2(Ribbon): # draws the same params needed for a corkcrew as a pair of ribbons that look like a DNA double helix
-    def draw(self):
-        radius, axis, turn, n, color1 = self.args
-        color2 = self.kws.get('color2')
-        angle = 150.0
-        ## angle = angle/360.0 * 2*pi
-        Ribbon.draw(self, color = color1)
-        glRotatef(angle, 1,0,0) # accepts degrees, I guess
-        Ribbon.draw(self, color = color2)
-        glRotatef(-angle, 1,0,0)
+# ==
+
+class Ribbon2(Ribbon): # draws, using the same params needed for a corkscrew, a pair of ribbons that look like a DNA double helix
+    # radius, axis, turn, n
     pass
 
 Something = Anything # when we don't yet know but plan to replace it with something specific
@@ -204,6 +197,7 @@ class Ribbon2_try1(Macro):
     """Ribbon2(thing1, thing2) draws a thing1 instance in red and a thing2 instance in blue.
     If thing2 is not supplied, a rotated thing1 instance is used for it, and also drawn in blue.
     """
+    angle = 150.0
     arg1 = ArgExpr(Widget) # but it better have .axis if we use it to make arg2! BUT if it's an expr, how can it have that yet?
         #### are some attrs of exprs legal if they don't require instanceness to be computed, depending on the type?
         #### (typical for geometric stuff) or only if this kind of expr is "born an instance"? But if it's highlightable, it's not...
@@ -259,6 +253,7 @@ class Ribbon2_try2(Macro):
     """Ribbon2(thing1, thing2) draws a thing1 instance in red and a thing2 instance in blue.
     If thing2 is not supplied, a rotated thing1 instance is used for it, and also drawn in blue.
     """
+    angle = 150.0
     arg1 = ArgExpr(Widget)
     _drawn_arg1 = Instance(arg1(color=red)) ###e digr: could I have said Instance(arg1, color=red)? I bet people will try that...
     _arg1_for_arg2 = ShareInstances(arg1(color=blue)) # still an expr; in fact, this ASSUMES arg1 is passed in as an expr, not as an instance! Hmm#####
@@ -266,6 +261,24 @@ class Ribbon2_try2(Macro):
     _drawn_arg2 = Instance(arg2(color=blue)) ####KLUGE: add color here in case arg2 was supplied, but in dflt expr in case we used that
     delegate = Overlay(_drawn_arg1, _drawn_arg2)
 
+class Ribbon2_try3(Macro): #070129
+    """Ribbon2(thing1, thing2) draws a thing1 instance in red and a thing2 instance in blue, assuming they are color-customizable.
+    If thing2 is not supplied, a rotated thing1 instance (different drawable instance, same model object instance)
+    is used for it (also drawn in blue).
+    """
+    angle = 150.0
+    arg1 = Arg(ModelObject3D) ###k type implies that it has 3d shape etc, determines how much gets instantiated here (axis, not color??)
+    arg2 = Arg(ModelObject3D, Rotate(arg1, angle, arg1.axis) ) # doesn't yet work... see below
+        # Rotate works on a ModelObject3D instance which is like a Drawable expr
+        # note: Rotate's default axis is the Z axis, not arg1.axis even if that exists
+    delegate = Overlay(arg1(color = red), arg2(color = blue)) # doesn't yet work... see below
+        # For all this to work requires two proposed semantic changes:
+        # - Rotate delegation more like customization -- instance of Rotate produces no separate instance of its delegate
+        # - partial instantiation by Arg, only of attrs that are part of its declared type (mentioned above)
+        # (these changes make it likely that the 'delegate' attr will be renamed, too)
+    pass
+    
+    
 # very old cmt:
 # Ribbon2 has: radius, axis (some sort of length - of one bp?), turn (angle??), n, color1, color2, and full position/orientation
 # and it will have display modes, incl cyl with helix/base/groove texture, and flexible coloring;
