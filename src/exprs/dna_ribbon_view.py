@@ -216,6 +216,7 @@ class Rotate(IorE):#e refile with Translate
 call_lambda_Expr = Stub
 lambda_Expr = Stub
 ShareInstances = Stub
+StateArg = Arg # stub
 
 class Ribbon2_try1(Macro):
     """Ribbon2(thing1, thing2) draws a thing1 instance in red and a thing2 instance in blue.
@@ -315,3 +316,30 @@ class Ribbon2_try3(Macro): #070129
 # but as a first step, we can select it as a unit, copy/paste, deposit, move, etc.
 # In this, it is sort of like an atom or set of co-selected atoms... some relation to chunk or jig too.
 # I'd get best results by letting it be its own thing... but fastest, by borrowing one of those...
+
+
+class DNA_Cylinder(Macro):##k super
+    cyl = Arg(Cylinder)
+    path = StateArg(Cylinder_HelicalPath)
+        ### design Q: how do we say that this is state, but constrained to lie on (and move with) given cylinder? (relative to it)
+        # Is that so basic that State/StateArg, or the type in it, needs options for that kind of info?
+
+    ###e need to look up the proper parameter names -- meanwhile use fake ones that don't overlap the real ones --
+    # easy, just use the geometric ones in Cylinder_HelicalPath. Later we'll have our own terminology & defaults for those here.
+    ## pitch # rise per turn
+    ## rise
+
+    ###e need to provide our own state-aliases into the params in path -- maybe with changes of units/docs/names/coords
+
+    # might need other state, like some colors
+
+    # and links to things made from this guide shape -- or a superclass or whatever that says we are a guide shape
+    # (and all of them can have links like that)
+
+    # and ops to make attached things like crossovers, to give posns for potential ones
+    # and display styles for self and those things...
+    # for now just have default drawing code, using the Ribbon classes above.
+
+    pass
+    
+# end
