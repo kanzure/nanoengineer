@@ -149,7 +149,7 @@ if 0:
         # only if you drag onto it from the Rect.
         
     displist_expr = Row(
-        Button( Rect(0.5,0.5,black), DebugDraw( Rect(0.5,0.5,gray), "grayguy"), on_press = setit),
+        Button( Rect(0.5,0.5,black), DebugPrintAttrs( Rect(0.5,0.5,gray), "grayguy"), on_press = setit),
         TextRect(18, 2, getit))
 
 # end
