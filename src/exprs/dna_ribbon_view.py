@@ -3,7 +3,7 @@ dna_ribbon_view.py
 
 $Id$
 
-At the moment, this is a scratch file mostly identical to demo_dna-outtakes.py,
+At the moment [070125], this is a scratch file mostly identical to demo_dna-outtakes.py,
 whose code should be cannibalized for what this will have (and then cvs-removed --
 maybe that could happen right away #e).
 
@@ -32,6 +32,17 @@ In the future we can let a "dna model object" know how to get its params
 from a variety of input types in different ways, and know how to display itself
 or make it work to find the display rules externally and apply them to it.
 To some extend we can prefigure that now if we break things down in the right way.
+
+070130: the tension between arrays of unlabeled numbers (efficiency, LL code convenience)
+and typesafe geometric objects (points, knowing their coords intrinsicness & coordsys & space, etc)
+is a problem, but the best-guess resolution is to make "rich objects" available (with all such
+type info, metainfo, extra info -- e.g. normal and surface (incl its own local coordsys vectors
+within the tangent plane, or enough info to derive them) and object-we-mark for points),
+but also make coords available, in standard coordsystems, informal at first, later available
+as metainfo for specific attrs; and someday to bridge the gap by working primarily with rich *arrays*
+of data, so the number ops can be done by Numeric or the like, expressing the HL ops with exprs.
+In the meantime it's a continual hassle, seen in the present Qs about types like Cylinder and
+Cylinder_HelicalPath.
 """
 
 # == the new stuff is at the bottom
@@ -41,16 +52,25 @@ To some extend we can prefigure that now if we break things down in the right wa
       Highlightable( Ribbon2(1, 0.2, 1/10.5, 50, yellow, color2 = red), sbar_text = "bottom ribbon2" ),
 """
 
+
+
+from basic import *
+from basic import _self
+
+import Overlay
+reload_once(Overlay)
+from Overlay import Overlay
+
+
+#e fix
 IorE = InstanceOrExpr
 Macro = DelegatingInstanceOrExpr
 
+# stubs:
+Radians = Width
+Rotations = Degrees = Width
+PathOnSurface = Geom3D = ModelObject3D = IorE
 
-pi
-Radians, Degrees
-Cylinder, PathOnSurface
-Geom3D
-ModelObject3D
-Rotations
 
 class Cylinder(Geom3D): #e super? ####IMPLEM
     """Be a cylinder, including as a surface... given the needed params... ###doc
@@ -175,9 +195,9 @@ class Cylinder_Ribbon(Widget): #070129 #e rename?? #e super?
 
 # ==
 
-class Ribbon2(Ribbon): # draws, using the same params needed for a corkscrew, a pair of ribbons that look like a DNA double helix
-    # radius, axis, turn, n
-    pass
+##class Ribbon2(Ribbon): # draws, using the same params needed for a corkscrew, a pair of ribbons that look like a DNA double helix
+##    # radius, axis, turn, n
+##    pass
 
 Something = Anything # when we don't yet know but plan to replace it with something specific
 
@@ -192,6 +212,10 @@ class Rotate(IorE):#e refile with Translate
         thing.draw(self)
         glRotatef(-angle, axis[0], axis[1], axis[2]) # might be optional, I forget the semantics of things like Overlay ###k
     pass
+
+call_lambda_Expr = Stub
+lambda_Expr = Stub
+ShareInstances = Stub
 
 class Ribbon2_try1(Macro):
     """Ribbon2(thing1, thing2) draws a thing1 instance in red and a thing2 instance in blue.
@@ -221,10 +245,12 @@ class Ribbon2_try1(Macro):
         # of _arg1_for_arg2? We'd somehow have to say in arg2 dflt that we use the same instance of _arg1_for_arg2 for each inst of it --
         # but only for that, not for other instances of it. As if it had a quantifier for "what inst of arg1 to use in here".
         # As our lambda_Expr would make possible... ###DIGR can we let a call_Expr imply a lambda_Expr if arg1 is a lambda??
+    if 'do this instead':
         dflt_arg2 = call_lambda_Expr( lambda myarg1: Rotate( myarg1, angle, myarg1.axis), arg1 )
         # or maybe a lambda_Expr is callable and doing so makes a call expr -- as opposed to being customizable (until called):
-        dflt_arg2 = lambda_Expr( lambda arg1: Rotate( arg1, angle, arg1.axis))( arg1 ) # lambda is really called on an Instance
-        
+        dflt_arg2 = 0 and lambda_Expr( lambda arg1: Rotate( arg1, angle, arg1.axis))( arg1 ) # lambda is really called on an Instance
+            # without '0 and', due to Stub bug, we get AssertionError: not permitted to re-supply already supplied positional args, in <Widget2D#17093(a)>
+
         arg2 = ArgExpr(Widget, dflt_arg2)
         _customized_arg2 = arg2(color=blue) ### PROBLEM: it might *still* be too late to customize,
         # since color=whatever won't burrow into things like localipathmod, let alone Rotate! #########
@@ -257,7 +283,8 @@ class Ribbon2_try2(Macro):
     arg1 = ArgExpr(Widget)
     _drawn_arg1 = Instance(arg1(color=red)) ###e digr: could I have said Instance(arg1, color=red)? I bet people will try that...
     _arg1_for_arg2 = ShareInstances(arg1(color=blue)) # still an expr; in fact, this ASSUMES arg1 is passed in as an expr, not as an instance! Hmm#####
-    arg2 = ArgExpr(Widget, Rotate( _arg1_for_arg2, angle, _arg1_for_arg2.axis))
+    ## arg2 = ArgExpr(Widget, Rotate( _arg1_for_arg2, angle, _arg1_for_arg2.axis))
+    arg2 = ArgExpr(Widget, Rotate( _arg1_for_arg2, angle, getattr_Expr( _arg1_for_arg2, 'axis') ))
     _drawn_arg2 = Instance(arg2(color=blue)) ####KLUGE: add color here in case arg2 was supplied, but in dflt expr in case we used that
     delegate = Overlay(_drawn_arg1, _drawn_arg2)
 
@@ -277,8 +304,8 @@ class Ribbon2_try3(Macro): #070129
         # - partial instantiation by Arg, only of attrs that are part of its declared type (mentioned above)
         # (these changes make it likely that the 'delegate' attr will be renamed, too)
     pass
-    
-    
+
+
 # very old cmt:
 # Ribbon2 has: radius, axis (some sort of length - of one bp?), turn (angle??), n, color1, color2, and full position/orientation
 # and it will have display modes, incl cyl with helix/base/groove texture, and flexible coloring;
