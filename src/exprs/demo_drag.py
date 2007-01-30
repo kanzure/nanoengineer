@@ -55,7 +55,7 @@ from controls import checkbox_pref, ActionButton
 
 import Column
 reload_once(Column)
-from Column import Column, SimpleColumn, SimpleRow # only using SimpleRow
+from Column import SimpleColumn, SimpleRow
 
 import DisplistChunk # works 070103, with important caveats re Highlightable
 reload_once(DisplistChunk)

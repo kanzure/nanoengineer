@@ -59,7 +59,7 @@ from Rect import Rect, RectFrame, IsocelesTriangle, Spacer, Sphere
 
 import Column
 reload_once(Column)
-from Column import Column, SimpleColumn, SimpleRow
+from Column import SimpleColumn, SimpleRow # no longer includes still-nim Column itself [070129]
 
 import Overlay
 reload_once(Overlay)
@@ -1377,15 +1377,8 @@ for name in dir():
 
 # == nim tests
 
-# TestIterator (test an iterator - was next up, 061113/14, but got deferred, 061115)
-testexpr_7_xxx = TestIterator( testexpr_3 ) # looks right, but it must be faking it (eg sharing an instance?) ###
-testexpr_7a_xxx = TestIterator( Boxed(testexpr_6f) )
-    ### BUG: shows (by same ipaths) that TestIterator is indeed wrongly sharing an instance
-    # [first test that succeeds in showing this rather than crashing is 061115 -- required fixing bugs in Boxed and what it uses]
-    # note: each testexpr_6f prints an ipath
-
 # Column, fancy version
-testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
+## testexpr_xxx = Column( Rect(4, 5, white), Rect(1.5, color = blue)) # doesn't work yet (finishing touches in Column, instantiation)
 
 # @@@
 

@@ -2,6 +2,8 @@
 instance_helpers.py
 
 $Id$
+
+070129 moved still-nim GlueCodeMemoizer into new file Column_old_nim.py
 """
 
 from basic import * # autoreload of basic is done before we're imported; this is a recursive import
@@ -1029,85 +1031,7 @@ class _this(SymbolicExpr): # it needs to be symbolic to support automatic getatt
         return res
     pass # end of class _this   
 
-# === only obs code after this point
-
-##class _this(SymbolicInstanceOrExpr_obs, DelegatingMixin): #061113; might work for now, prob not ok in the long run
-#e [see an outtakes file, or cvs rev 1.57, for more of this obs code for _this, which might be useful someday]
-
-# ==
-
-class DelegatingInstanceOrExpr_obs(InstanceOrExpr): #061020; as of 061109 this looks obs since the _C_ prefix is deprecated;
-    #e use, instead, DelegatingMixin or DelegatingInstanceOrExpr combined with formula on self.delegate
-    """#doc: like Delegator, but self.delegate is recomputable from _C_delegate as defined by subclass.
-    This is obsolete; use DelegatingMixin instead. [#e need to rewrite GlueCodeMemoizer to not use this; only other uses are stubs.]
-    """
-    def _C_delegate(self):
-        assert 0, "must be overridden by subclass to return object to delegate to at the moment"
-    def __getattr__(self, attr):
-        try:
-            return InstanceOrExpr.__getattr__(self, attr) # handles _C_ methods via InvalidatableAttrsMixin
-                # note, _C__attr for _attr starting with _ is permitted.
-        except AttributeError:
-            if attr.startswith('_'):
-                raise AttributeError, attr # not just an optim -- we don't want to delegate these.
-            return getattr(self.delegate, attr) # here is where we delegate.
-    pass
-
-DelegatingInstance_obs = DelegatingInstanceOrExpr_obs #k ok? (for when you don't need the expr behavior, but (i hope) don't mind it either)
-
-#e rewrite this to use DelegatingMixin [later 061212: nevermind, it's probably obs, tho not sure]
-class GlueCodeMemoizer( DelegatingInstanceOrExpr_obs): ##e rename WrapperMemoizer? WrappedObjectMemoizer? WrappedInstanceMemoizer? probably yes [061020]
-    """Superclass for an InstanceOrExpr which maps instances to memoized wrapped versions of themselves,
-    constructed according to the method ###xxx (_make_wrapped_obj?) in each subclass, and delegates to the wrapped versions.
-    """
-    # renamed to InstanceWrapper from DelegatingObjectMapper -- Wrapper? WrapAdder? Dynamic Wrapper? GlueCodeAdder? InstanceWrapper!
-    # but [061020] I keep remembering it as GlueCodeMapper or GlueCodeMemoizer, and GlueCodeMemoizer was an old name for a private superclass!
-    # So I'll rename again, to GlueCodeMemoizer for now.
-    ###e 061009 -- should be a single class, and renamed;
-    # known uses: CLE, value-type-coercers in general (but not all reasonable uses are coercers);
-    # in fact [061020], should it be the usual way to find all kids? maybe not, e.g. CL does not use this pattern, it puts CLE around non-fixed arginsts.
-    def _C_delegate(self): # renamed from _eval_my_arg
-        printnim("self.args[0] needs review for _e_args or setup, in GlueCodeMemoizer; see DelegatingMixin")###e 061106
-        arg = self.args[0] # formula instance
-        argval = arg.eval() ###k might need something passed to it (but prob not, it's an instance, it has an env)
-        ####@@@@ might be arg.value instead; need to understand how it relates to _value in Boxed [061020]
-            #### isn't this just get_value? well, not really, since it needs to do usage tracking into the env...
-            # maybe that does, if we don't pass another place?? or call its compute_value method??
-            # argval might be arg, btw; it's an instance with a fixed type (or perhaps a python constant data value, e.g. None)
-        #e might look at type now, be special if not recognized or for None, depending on memo policy for those funny types
-        lval = self._dict_of_lvals[argval]
-        return lval.get_value()
-    def _C__dict_of_lvals(self): #e rename self._dict_of_lvals -- it holds lvals for recomputing/memoizing our glue objects, keyed by inner objects
-        ##e assert the value we're about to return will never need recomputing?
-        # this method is just a way to init this constant (tho mutable) attr, without overriding _init_instance.
-        assert self._e_is_instance
-        return LvalDict1( self._recomputer_for_wrapped_version_of_one_instance)
-            #e make a variant of LvalDict that accepts _make_wrapped_obj directly?? I think I did, LvalDict2 -- try it here ####@@@@
-        ## try this: return LvalDict2( self._make_wrapped_obj ) # then zap _recomputer_for_wrapped_version_of_one_instance ####e
-            ##e pass arg to warn if any usage gets tracked within these lvals (since i think none will be)??
-            # actually this depends on the subclass's _make_wrapped_obj method.
-            # More generally -- we want schemes for requesting warnings if invals occur more often than they would
-            # if we depended only on a given set of values. #e
-            ####@@@@
-    def _make_wrapped_obj( self, fixed_type_instance ):
-        """Given an Instance of fixed type, wrap it with appropriate glue code."""
-        assert 0, "subclass must implement this"
-    def _recomputer_for_wrapped_version_of_one_instance( self, instance):
-        """[private]
-        This is what we do to _make_wrapped_obj so we can pass it to LvalDict, which wants us to return a recomputer that knows all its args.
-        We return something that wants no args when called, but contains instance and can pass it to self._make_wrapped_obj.
-        """
-        # We use the lambda kluge always needed for closures in Python, with a guard to assert it is never passed any arguments.
-        def _wrapped_recomputer(_guard_ = None, instance = instance):
-            assert _guard_ is None
-            return self._make_wrapped_obj( fixed_type_instance) # _make_wrapped_obj comes from subclass of GlueCodeMemoizer
-        return _wrapped_recomputer
-    # obs comments about whether _make_wrapped_obj and LvalDict should be packaged into a helper function or class:
-    "maintain an auto-extending dict (self._dict_of_lvals) of lvals of mapped objects, indexed by whatever objects are used as keys"
-    ###e redoc -- more general? how is it not itself just the LvalDict?
-    # i mean, what value does it add to that? just being a superclass??
-    # well, it does transform _make_wrapped_obj to _recomputer_for_wrapped_version_of_one_instance --
-    # maybe it should turn into a trivial helper function calling LvalDict?? ie to the variant of LvalDict mentioned above??
-    pass
+    ##class _this(SymbolicInstanceOrExpr_obs, DelegatingMixin): #061113; might work for now, prob not ok in the long run
+    #e [see an outtakes file, or cvs rev 1.57, for more of this obs code for _this, which might be useful someday]
 
 # end
