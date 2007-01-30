@@ -3,6 +3,11 @@ ModelNode.py
 
 $Id$
 
+Note: as of sometime before 070129 this is an unfinished stub,
+and it's not clear whether it will be used.
+
+==
+
 Introduction / history / implem plans:
 
 ModelNode is an abstract subclass of Node
@@ -79,10 +84,10 @@ from lvals import RecomputingMemoDict ##, call_but_discard_tracked_usage, LvalEr
     ##  ### that might be yet another reason not to make ModelObjects and their Nodes the same object
 
 class ModelNode(InstanceOrExpr): #e rename since not a Node anymore (unless I actually like this name; doubtful; try ModelObject)
-    ###IMPLEM - rewrite the rest of this class
+    ###IMPLEM - rewrite the rest of this class, it's obsolete
     def __init__(self, stuff, name = None):
         assy = env.mainwindow().assy #k wrongheaded??
-        Node.__init__(self, assy, name)
+        Node.__init__(self, assy, name)###WRONG now that Node is no longer a superclass
         self.stuff = stuff # exprs for what to draw (list of objects)
     _s_attr_stuff = S_DATA
     def draw(self, glpane, dispdef):
