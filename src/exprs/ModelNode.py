@@ -122,7 +122,6 @@ class ModelNode(InstanceOrExpr): #e rename since not a Node anymore (unless I ac
 
 StateArg = Arg ###STUB
 StateArgOrOption = ArgOrOption ###STUB
-ORIGIN = V(0,0,0) ###e get from basic or draw_utils
 
 class Sphere_ExampleModelNode(ModelNode):
     "A sphere."

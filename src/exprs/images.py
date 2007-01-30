@@ -33,7 +33,7 @@ from basic import _self
 
 import draw_utils
 reload_once(draw_utils)
-from draw_utils import ORIGIN2, D2X, D2Y, ORIGIN, DX, DY, draw_textured_rect
+from draw_utils import draw_textured_rect
 
 import Rect
 reload_once(Rect)

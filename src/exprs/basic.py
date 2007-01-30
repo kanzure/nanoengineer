@@ -40,6 +40,7 @@ sys.setrecursionlimit(650) # 5000 is set in startup_funcs.py; this will ease deb
 # == imports from cad/src
 
 from VQT import V, A, Q, norm, vlen
+from math import pi, sin, cos #070130
 
 from state_utils import transclose, same_vals
 ## not yet needed: from state_utils import _UNSET_ # warning: not included in "import *"
@@ -48,7 +49,18 @@ import platform # so all our code can refer to platform.atom_debug #e someday th
 
 from constants import noop # def noop(*args,**kws): pass
 
+# generally useful constants (moved here from draw_utils.py, 070130)
+
 # (but color constants are imported lower down)
+
+ORIGIN = V(0,0,0)
+DX = V(1,0,0)
+DY = V(0,1,0)
+DZ = V(0,0,1)
+
+ORIGIN2 = V(0.0, 0.0)
+D2X = V(1.0, 0.0) ##e rename to DX2?
+D2Y = V(0.0, 1.0)
 
 # == OpenGL imports -- for now, individual modules import things from submodules of OpenGL as needed; this might be revised
 

@@ -1,17 +1,23 @@
+"""
+draw_utils.py
+
+$Id$
+"""
+
 from basic import * # autoreload of basic is done before we're imported
 
 from OpenGL.GL import *
 
-# == geometry
+# moved to draw_utils.py, 070130:
+##ORIGIN = V(0,0,0)
+##DX = V(1,0,0)
+##DY = V(0,1,0)
+##DZ = V(0,0,1)
+##
+##ORIGIN2 = V(0.0, 0.0)
+##D2X = V(1.0, 0.0)
+##D2Y = V(0.0, 1.0)
 
-ORIGIN = V(0,0,0)
-DX = V(1,0,0)
-DY = V(0,1,0)
-DZ = V(0,0,1)
-
-ORIGIN2 = V(0.0, 0.0)
-D2X = V(1.0, 0.0)
-D2Y = V(0.0, 1.0)
 
 # == new LL drawing helpers
 

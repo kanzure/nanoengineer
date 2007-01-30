@@ -149,6 +149,10 @@ import debug_exprs
 reload_once(debug_exprs)
 from debug_exprs import DebugPrintAttrs
 
+import dna_ribbon_view
+reload_once(dna_ribbon_view)
+##from dna_ribbon_view import something
+
 # ==
 
 from OpenGL.GL import glPopMatrix, glPushMatrix # needed in drawtest1_innards
@@ -1186,7 +1190,7 @@ testexpr_29aox3  = If_OpExpr(False, TextRect("True"), TextRect("False")) # -- wo
 
 enable_testbed = True
 
-testexpr = testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
+testexpr = testexpr_19g ## testexpr_29aox3 ## testexpr_18 ## testexpr_9fx4 ## testexpr_19g ## testexpr_19g _26g _28
 
     # as of 070121 at least these work ok in EVAL_REFORM with now-semipermanent kluge070119:
     # _2, _3a, _4a, _5, _5a, _10a, _10c, _9c, _9d, _9cx,

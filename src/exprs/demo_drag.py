@@ -41,10 +41,6 @@ import Highlightable
 reload_once(Highlightable)
 from Highlightable import Highlightable ##, Button, print_Expr
 
-import draw_utils
-reload_once(draw_utils)
-from draw_utils import DZ ##e move DZ etc to basic?? not yet, they might need rethought.
-
 import TextRect
 reload_once(TextRect)
 from TextRect import TextRect
