@@ -1934,23 +1934,8 @@ class Tile(MethodRunClass):
         pass
     pass
 
-from Utility import SimpleCopyMixin, Node, imagename_to_pixmap, genViewNum
+##TestNode stub removed 070130
 
-class TestNode(Node, SimpleCopyMixin): # see TestNode.py... not yet more than a stub... see also DebugNode
-    """Abstract class for a kind of Node it's easy to experiment with.
-    Just make sure the subclass does the stuff needed by SimpleCopyMixin,
-    and that all the attrs can be saved as info records in a simple way by the code herein --
-    or maybe we'll save them in a Files Directory shelf instead? Not sure yet.
-    """
-    def draw(self, glpane, dispdef):
-        "Use our subtype to find some rules in a widget expr..."
-        # some WE is sitting there in the mode, knowing how to draw things for it...
-        # so we ask it...
-        # maybe it got passed to this method? ideally as dispdef, but that would break old code...
-        # so simplest way is as a dynamic glpane attr, and this is tolerable until we have a chance to clean up all Node draw methods.
-        pass
-    pass
-        
 # (some outtakes removed to bruceG5 testdraw-outtakes.py, last here in rev 1.11)
 
 ### btw i decided not to use env in these lambdas -- too likely to be confusing re global env. didn't yet decide what to use instead.
