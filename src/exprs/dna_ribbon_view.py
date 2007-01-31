@@ -318,7 +318,7 @@ class Ribbon2_try3(Macro): #070129
 # I'd get best results by letting it be its own thing... but fastest, by borrowing one of those...
 
 
-class DNA_Cylinder(Macro):##k super
+class DNA_Cylinder_try1(Macro):##k super
     cyl = Arg(Cylinder)
     path = StateArg(Cylinder_HelicalPath)
         ### design Q: how do we say that this is state, but constrained to lie on (and move with) given cylinder? (relative to it)
@@ -329,8 +329,21 @@ class DNA_Cylinder(Macro):##k super
     ## pitch # rise per turn
     ## rise
 
-    ###e need to provide our own state-aliases into the params in path -- maybe with changes of units/docs/names/coords
+    ###e need to provide our own state-aliases into the params in _self.path -- maybe with changes of units/docs/names/coords
+    somearg = Arg(Something)
+    path.someattr = somearg # can we say this? if so, does it take effect continuously or only upon init?
+        # is that a meaningful Q given that init provides a time-varying formula?
+        #k where are my notes on this -- with DragCommand
+    pass
 
+class DNA_Cylinder_try2(Macro):##k super
+    cyl = StateArg(Cylinder)
+    path = StateArg(Cylinder_HelicalPath) ##e or just State? or StateOption?
+    path.someattr = Option(Something, 'dflt') # set path.someattr to Option(...) -- ExprsMeta scanner would need to see this --
+        # but what attrname would it use in the Option?? maybe the _try1 version is better since it says the name,
+        # or maybe you can give it in Option as string arg1.
+    
+class xxx:
     # might need other state, like some colors
 
     # and links to things made from this guide shape -- or a superclass or whatever that says we are a guide shape
@@ -339,7 +352,9 @@ class DNA_Cylinder(Macro):##k super
     # and ops to make attached things like crossovers, to give posns for potential ones
     # and display styles for self and those things...
     # for now just have default drawing code, using the Ribbon classes above.
-
     pass
-    
+
+import Command_scratch_1
+reload_once(Command_scratch_1)
+
 # end

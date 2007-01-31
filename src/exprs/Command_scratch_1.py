@@ -16,7 +16,7 @@ from basic import *
 from basic import _self, _this, _my
 
 
-Alias = mousepos = Stub
+Alias = mousepos = Vertex = Stub
 
 
 class Command(InstanceMacro): #k super is prob wrong
@@ -99,7 +99,8 @@ class DragANode(DragCommand):
         # as you usage-track so you'll know what caveats apply to some value you compute. (Or actually use them, in case they change.
         # I guess only use them for a parallel computation of your own caveats.)
 
-    print_node_mod_demo = 0 # 061212
+    ## print_node_mod_demo = False # 061212
+    print_node_mod_demo = True # 070130
     
     if print_node_mod_demo:
         print "our node symexpr has:",node._e_dir_added()
@@ -137,8 +138,10 @@ class DragANode(DragCommand):
 
     node.blorg = node.blorg + 1 # hopefully this will set it to a OpExpr of a getattr_Expr, equiv to the expr node.blorg + 1
 
-    #print "node.blorg is now",node.blorg # it does!
-    
+    if print_node_mod_demo:
+        print "and now it has:",node._e_dir_added()
+        print "node.blorg is now",node.blorg # it does!
+    ####
     pass # end of class DragANode
 
 ClickDragCommand = DragCommand # STUB
